@@ -45,9 +45,9 @@ def get_process( src_addr, src_p, dst_addr, dst_p, proto = 'tcp' ):
                 continue
 
             parts = line.split()
-            src = parts[1]
-            dst = parts[2]
-            uid = parts[6]
+            src   = parts[1]
+            dst   = parts[2]
+            uid   = parts[6]
             inode = parts[9]
 
             src_ip, src_port = hex2address( src )
