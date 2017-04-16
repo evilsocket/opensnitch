@@ -46,4 +46,4 @@ def get_process_name_by_connection( src_addr, src_p, dst_addr, dst_p, proto = 't
                 pid = get_pid_of_inode(inode)
                 return ( pid, os.readlink( "/proc/%s/exe" % pid ) )
 
-    return ( 0, '?' )
+    return ( 0, "Unknown" )

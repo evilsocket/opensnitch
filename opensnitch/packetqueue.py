@@ -17,14 +17,14 @@ class PacketQueue:
             if ckey in PacketQueue.verdicts:
                 verd = PacketQueue.verdicts[ckey]
 
-            elif c.app_name in PacketQueue.verdicts:
-                verd = PacketQueue.verdicts[c.app_name]
+            elif c.app_path in PacketQueue.verdicts:
+                verd = PacketQueue.verdicts[c.app_path]
             
             else:
                 choice = None
                 while choice is None:
                     choice = raw_input("%s is trying to connect to %s on %s port %s, allow? [y/n/a(lways)] " % \
-                                ( c.app.name, c.dst_addr, c.proto, c.dst_port ) ).lower()
+                                ( c.get_app_name(), c.dst_addr, c.proto, c.dst_port ) ).lower()
                     if choice == 'y':
                         verd = nfqueue.NF_ACCEPT
                         key  = ckey
@@ -34,7 +34,7 @@ class PacketQueue:
 
                     elif choice == 'a':
                         verd = nfqueue.NF_ACCEPT
-                        key  = c.app_name
+                        key  = c.app_path
                     else:
                         choice = None
 

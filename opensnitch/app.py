@@ -3,25 +3,21 @@ import re
 import os
 from threading import Lock
 
-class Application:
+class LinuxDesktopParser:
     lock = Lock()
     apps = None
 
-    def __init__( self, pid, path ):
-        self.pid = pid
-        self.path = path
-        self.name, self.icon = Application.get_name_and_icon( os.path.basename(self.path) )
-
     @staticmethod
-    def get_name_and_icon( path ):
+    def get_info_by_path( path ):
+        path = os.path.basename(path)
         name = path
         icon = None
 
-        Application.lock.acquire()
+        LinuxDesktopParser.lock.acquire()
 
         try:
-            if Application.apps is None:
-                Application.apps = {}
+            if LinuxDesktopParser.apps is None:
+                LinuxDesktopParser.apps = {}
                 for item in glob.glob('/usr/share/applications/*.desktop'):
                     name = None
                     icon = None
@@ -30,30 +26,36 @@ class Application:
                     with open( item, 'rt' ) as fp:
                         in_section = False
                         for line in fp:
+                            line = line.strip()
                             if '[Desktop Entry]' in line:
                                 in_section = True
                                 continue
-                            elif len(line.strip()) > 0 and line[0] == '[':
+                            elif len(line) > 0 and line[0] == '[':
                                 in_section = False
                                 continue
 
                             if in_section and line.startswith('Exec='):
-                                cmd = os.path.basename( line[5:].split(' ')[0].strip() )
+                                cmd = os.path.basename( line[5:].split(' ')[0] )
 
                             elif in_section and line.startswith('Icon='):
-                                icon = line[5:].strip()
+                                icon = line[5:]
 
                             elif in_section and line.startswith('Name='):
-                                name = line[5:].strip()
+                                name = line[5:]
                     
                     if cmd is not None:
-                        print cmd
-                        Application.apps[cmd] = ( name, icon )
+                        LinuxDesktopParser.apps[cmd] = ( name, icon )
 
-            if path in Application.apps:
-                name, icon = Application.apps[path]
+            if path in LinuxDesktopParser.apps:
+                name, icon = LinuxDesktopParser.apps[path]
 
         finally:
-            Application.lock.release()
+            LinuxDesktopParser.lock.release()
 
         return ( name, icon )
+
+class Application:
+    def __init__( self, pid, path ):
+        self.pid = pid
+        self.path = path
+        self.name, self.icon = LinuxDesktopParser.get_info_by_path(path)

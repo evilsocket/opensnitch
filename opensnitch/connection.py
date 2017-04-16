@@ -24,16 +24,26 @@ class Connection:
             self.dst_port = self.pkt.udp.dport
 
         if None not in ( self.proto, self.src_addr, self.src_port, self.dst_addr, self.dst_port ):
-            self.pid, self.app_name = get_process_name_by_connection( self.src_addr, 
+            self.pid, self.app_path = get_process_name_by_connection( self.src_addr, 
                                                                       self.src_port,
                                                                       self.dst_addr, 
                                                                       self.dst_port, 
                                                                       self.proto )
-            self.app = Application( self.pid, self.app_name )
+            self.app = Application( self.pid, self.app_path )
                         
+    def get_app_name(self):
+        if self.app_path == 'Unknown':
+            return self.app_path
+
+        elif self.app_path == self.app.name:
+            return self.app_path
+
+        else:
+            return "'%s' ( %s )" % ( self.app.name, self.app_path )
+
     def __repr__(self):
-        return "[%s] %s (%s) -> %s:%s" % ( self.pid, self.app_name, self.proto, self.dst_addr, self.dst_port )
+        return "[%s] %s (%s) -> %s:%s" % ( self.pid, self.app_path, self.proto, self.dst_addr, self.dst_port )
 
     def cache_key(self):
-        return "%s:%s:%s:%s" % ( self.app_name, self.proto, self.dst_addr, self.dst_port)
+        return "%s:%s:%s:%s" % ( self.app_path, self.proto, self.dst_addr, self.dst_port)
 
