@@ -7,28 +7,29 @@ import nfqueue
 import re
 import os
 import glob
-from dpkt import ip
 
+from threading import Lock
+
+from dpkt import ip
 from socket import AF_INET, AF_INET6, inet_ntoa
 
-def split_every_n(data, n):
-    return [data[i:i+n] for i in range(0, len(data), n)]
-
-def convert_linux_netaddr(address):
+def hex2address(address):
     hex_addr, hex_port = address.split(':')
 
-    addr_list = split_every_n(hex_addr, 2)
-    addr_list.reverse()
+    octects = [ hex_addr[i:i+2] for i in range(0, len(hex_addr), 2 ) ]
+    octects.reverse()
 
-    addr = ".".join(map(lambda x: str(int(x, 16)), addr_list))
+    addr = ".".join(map(lambda x: str(int(x, 16)), octects))
     port = int(hex_port, 16)
 
     return (addr, port)
 
 def get_pid_of_inode(inode):
+    expr = r'.+[^\d]%s[^\d]*' % inode
     for item in glob.glob('/proc/[0-9]*/fd/[0-9]*'):
         try:
-            if re.search(inode,os.readlink(item)):
+            link = os.readlink(item)
+            if re.search(expr,link):
                 return item.split('/')[2]
         except:
             pass
@@ -49,47 +50,95 @@ def get_process( src_addr, src_p, dst_addr, dst_p, proto = 'tcp' ):
             uid = parts[6]
             inode = parts[9]
 
-            src_ip, src_port = convert_linux_netaddr( src )
-            dst_ip, dst_port = convert_linux_netaddr( dst )
+            src_ip, src_port = hex2address( src )
+            dst_ip, dst_port = hex2address( dst )
 
             if src_ip == src_addr and src_port == src_p and dst_ip == dst_addr and dst_port == dst_p:
                 pid = get_pid_of_inode(inode)
                 return ( pid, os.readlink( "/proc/%s/exe" % pid ) )
 
+    return ( 0, '?' )
+
 class ConnectionPacket:
     def __init__( self, payload ):
-        self.data = payload.get_data()
-        self.pkt  = ip.IP( self.data )
+        self.data     = payload.get_data()
+        self.pkt      = ip.IP( self.data )
         self.src_addr = inet_ntoa( self.pkt.src )
         self.dst_addr = inet_ntoa( self.pkt.dst )
-        self.proto = None
+        self.src_port = None
+        self.dst_port = None
+        self.proto    = None
 
         if self.pkt.p == ip.IP_PROTO_TCP:
-            self.proto = 'tcp'
+            self.proto    = 'tcp'
             self.src_port = self.pkt.tcp.sport
             self.dst_port = self.pkt.tcp.dport
         elif self.pkt.p == ip.IP_PROTO_UDP:
-            self.proto = 'udp'
+            self.proto    = 'udp'
             self.src_port = self.pkt.udp.sport
             self.dst_port = self.pkt.udp.dport
 
-        if self.proto is not None:
-            self.pid, self.app_name = get_process( self.src_addr, \
-                                                   self.src_port, \
-                                                   self.dst_addr, \
-                                                   self.dst_port, \
-                                                   self.proto )
+        if None not in ( self.proto, self.src_addr, self.src_port, self.dst_addr, self.dst_port ):
+            self.pid, self.app_name = get_process( self.src_addr, 
+                                                   self.src_port,
+                                                   self.dst_addr, 
+                                                   self.dst_port, self.proto )
     
     def __repr__(self):
         return "[%s] %s (%s) -> %s:%s" % ( self.pid, self.app_name, self.proto, self.dst_addr, self.dst_port )
 
+    def cache_key(self):
+        return "%s:%s:%s:%s" % ( self.app_name, self.proto, self.dst_addr, self.dst_port)
+
+lock = Lock()
+rules = {}
+
+def get_verdict( c ):
+    global lock, rules
+
+    lock.acquire()
+
+    try:
+        ckey = c.cache_key()
+        if ckey in rules:
+            verd = rules[ckey]
+
+        elif c.app_name in rules:
+            verd = rules[c.app_name]
+        
+        else:
+            choice = None
+            while choice is None:
+                choice = raw_input("%s is trying to connect to %s on %s port %s, allow? [y/n/a(lways)] " % \
+                            ( c.app_name, c.dst_addr, c.proto, c.dst_port ) ).lower()
+                if choice == 'y':
+                    verd = nfqueue.NF_ACCEPT
+                    key  = ckey
+                elif choice == 'n':
+                    verd = nfqueue.NF_DROP
+                    key  = ckey
+
+                elif choice == 'a':
+                    verd = nfqueue.NF_ACCEPT
+                    key  = c.app_name
+                else:
+                    choice = None
+
+            rules[key] = verd
+    finally:
+        lock.release()
+
+    return verd
+
+
 def cb(i, payload):
     conn = ConnectionPacket(payload)
-    
-    if conn.proto is not None:
-        print conn
+    verd = nfqueue.NF_ACCEPT
 
-    payload.set_verdict(nfqueue.NF_ACCEPT)
+    if conn.proto is not None:
+        verd = get_verdict( conn )
+
+    payload.set_verdict(verd)
     return 1
 
 print "Installing iptables rule ..."
@@ -109,7 +158,7 @@ try:
 except KeyboardInterrupt, e:
     pass
 
-print "Stopping ..."
+print "\n\nStopping ..."
 
 q.unbind(AF_INET)
 q.close()
