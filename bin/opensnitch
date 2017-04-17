@@ -29,8 +29,8 @@ if not os.geteuid() == 0:
     sys.exit('OpenSnitch must be run as root.')
 
 parser = OptionParser()
-parser.add_option( "--debug",    dest="debug", action="store_true", default=False, help="Enable debug logs." )
-parser.add_option( "--log-file", dest="logfile", default=None, help="Log to file.", metavar="FILE" )
+parser.add_option( "--log-file",  dest="logfile", default=None, help="Log to file.", metavar="FILE" )
+parser.add_option( "--debug",     dest="debug", action="store_true", default=False, help="Enable debug logs." )
 
 (options, args) = parser.parse_args()
 
@@ -44,14 +44,19 @@ logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
 from opensnitch.snitch import Snitch
 
-snitch = Snitch()
+def main():
+    snitch = Snitch()
 
-try:
-    logging.info( "OpenSnitch v%s running with pid %d." % ( VERSION, os.getpid() ) )
-    snitch.start()
-except KeyboardInterrupt, e:
-    pass
+    try:
+        logging.info( "OpenSnitch v%s running with pid %d." % ( VERSION, os.getpid() ) )
+        snitch.start()
+    except KeyboardInterrupt, e:
+        pass
 
-logging.info( "Quitting ..." )
+    logging.info( "Quitting ..." )
 
-snitch.stop()
+    snitch.stop()
+
+main()
+
+
