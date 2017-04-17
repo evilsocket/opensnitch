@@ -43,7 +43,7 @@ def get_pid_of_inode(inode):
         except:
             pass
 
-    logging.error( "Could not find pid of inode %d" % inode )
+    logging.warning( "Could not find pid of inode %d" % inode )
 
     return None
 
@@ -70,13 +70,12 @@ def get_process_name_by_connection( src_addr, src_p, dst_addr, dst_p, proto = 't
                 if pid is not None:
                     return ( pid, os.readlink( "/proc/%s/exe" % pid ) )
 
-    logging.error( "Could not find process for %s connection %s:%s -> %s:%s inside %s" % (
-                   proto,
-                   src_addr,
-                   src_p,
-                   dst_addr,
-                   dst_p,
-                   filename ) )
+    logging.warning( "Could not find process for %s connection %s:%s -> %s:%s inside %s" % (
+                     proto,
+                     src_addr,
+                     src_p,
+                     dst_addr,
+                     dst_p,
+                     filename ) )
 
-
-    return ( 0, "Unknown" )
+    return ( None, "Unknown" )
