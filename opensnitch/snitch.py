@@ -83,6 +83,7 @@ class Snitch:
             logging.exception( "Exception on packet callback:" )
 
         if verd == nfqueue.NF_DROP:
+            logging.info( "Dropping %s from %s" % ( conn, conn.get_app_name() ) )
             # mark this packet so iptables will drop it
             pkt.set_verdict_mark( verd, 1 ) 
         else:
