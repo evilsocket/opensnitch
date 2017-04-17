@@ -2,47 +2,32 @@ import os
 import nfqueue
 from socket import AF_INET, AF_INET6, inet_ntoa
 from threading import Lock
+
+from opensnitch.ui import UI
 from opensnitch.connection import Connection
+from opensnitch.rule import Rules
 
 class PacketQueue:
-    verdict_lock = Lock()
-    verdicts     = {}
-    
+    lock = Lock()
+    rules = Rules()
+    fw_rules = ( "OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass",
+                 "INPUT --protocol udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass" )
+
     @staticmethod
     def get_verdict( c ):
-        PacketQueue.verdict_lock.acquire()
+        verdict = PacketQueue.rules.get_verdict(c)
 
-        try:
-            ckey = c.cache_key()
-            if ckey in PacketQueue.verdicts:
-                verd = PacketQueue.verdicts[ckey]
+        if verdict is None:
+            with PacketQueue.lock: 
+                ( verdict, apply_for_all ) = UI.prompt_user( c.app.name, 
+                                                             c.app_path, 
+                                                             None, 
+                                                             c.dst_addr, 
+                                                             c.dst_port, 
+                                                             c.proto )
+                PacketQueue.rules.add_rule( c, verdict, apply_for_all )
 
-            elif c.app_path in PacketQueue.verdicts:
-                verd = PacketQueue.verdicts[c.app_path]
-            
-            else:
-                choice = None
-                while choice is None:
-                    choice = raw_input("%s is trying to connect to %s on %s port %s, allow? [y/n/a(lways)] " % \
-                                ( c.get_app_name(), c.dst_addr, c.proto, c.dst_port ) ).lower()
-                    if choice == 'y':
-                        verd = nfqueue.NF_ACCEPT
-                        key  = ckey
-                    elif choice == 'n':
-                        verd = nfqueue.NF_DROP
-                        key  = ckey
-
-                    elif choice == 'a':
-                        verd = nfqueue.NF_ACCEPT
-                        key  = c.app_path
-                    else:
-                        choice = None
-
-                PacketQueue.verdicts[key] = verd
-        finally:
-            PacketQueue.verdict_lock.release()
-
-        return verd
+        return verdict
 
     @staticmethod
     def pkt_callback(pkt):
@@ -60,13 +45,15 @@ class PacketQueue:
         self.q = nfqueue.queue()
         self.q.set_callback( PacketQueue.pkt_callback )
         self.q.fast_open(0, AF_INET)
-        self.q.set_queue_maxlen(50000)
+        self.q.set_queue_maxlen(2*1024)
 
     def start(self):
-        os.system( "iptables -I OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass" )
+        for r in PacketQueue.fw_rules:
+            os.system( "iptables -I %s" % r )
         self.q.try_run()
 
     def stop(self):
-        os.system( "iptables -D OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass" )
+        for r in PacketQueue.fw_rules:
+            os.system( "iptables -D %s" % r )
         self.q.unbind(AF_INET)
         self.q.close()
