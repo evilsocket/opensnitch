@@ -1,6 +1,10 @@
 #!/usr/bin/python
 import os
+import sys
 import logging
+
+if not os.geteuid() == 0:
+    sys.exit('OpenSnitch must be run as root.')
 
 logging.basicConfig(format='[%(asctime)s] (%(levelname)s) %(message)s',level=logging.INFO)
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
