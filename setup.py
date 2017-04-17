@@ -17,6 +17,7 @@
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 from setuptools import setup, find_packages
+from opensnitch.version import VERSION
 import os
 
 try:
@@ -25,7 +26,7 @@ except:
   long_description = 'OpenSnitch - An application level firewall for GNU/Linux.'
 
 setup( name                 = 'opensnitch',
-       version              = '0.0.1',
+       version              = VERSION,
        description          = long_description,
        long_description     = long_description,
        author               = 'Simone Margaritelli',

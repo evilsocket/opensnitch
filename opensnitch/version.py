@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # This file is part of OpenSnitch.
 #
 # Copyright(c) 2017 Simone Margaritelli
@@ -17,28 +16,4 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-import os
-import sys
-import logging
-
-from opensnitch.version import VERSION
-
-if not os.geteuid() == 0:
-    sys.exit('OpenSnitch must be run as root.')
-
-logging.basicConfig(format='[%(asctime)s] (%(levelname)s) %(message)s',level=logging.INFO)
-logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
-
-from opensnitch.snitch import Snitch
-
-snitch = Snitch()
-
-try:
-    logging.info( "OpenSnitch v%s running with pid %d." % ( VERSION, os.getpid() ) )
-    snitch.start()
-except KeyboardInterrupt, e:
-    pass
-
-logging.info( "Quitting ..." )
-
-snitch.stop()
+VERSION = '0.0.1 alpha'
