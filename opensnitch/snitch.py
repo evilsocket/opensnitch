@@ -29,7 +29,10 @@ from opensnitch.dns import DNSCollector
 from opensnitch.rule import Rules
 
 class Snitch:
-    IPTABLES_RULES = ( "OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass", )
+    IPTABLES_RULES = ( # Get DNS responses
+                       "INPUT --protocol udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass",
+                       # Get connection packets
+                       "OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass", )
 
     # TODO: Support IPv6!
     def __init__( self ):
