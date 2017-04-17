@@ -21,12 +21,30 @@ import os
 import sys
 import logging
 
+from optparse import OptionParser
+
 from opensnitch.version import VERSION
 
 if not os.geteuid() == 0:
     sys.exit('OpenSnitch must be run as root.')
 
-logging.basicConfig(format='[%(asctime)s] (%(levelname)s) %(message)s',level=logging.INFO)
+parser = OptionParser()
+parser.add_option( "--debug",    dest="debug", action="store_true", default=False, help="Enable debug logs." )
+parser.add_option( "--log-file", dest="logfile", default=None, help="Log to file.", metavar="FILE" )
+
+(options, args) = parser.parse_args()
+
+logging.basicConfig( format = '[%(asctime)s] (%(levelname)s) %(message)s',
+                     level  = logging.INFO if options.debug == False else logging.DEBUG )
+
+if options.logfile is not None:
+    hdlr = logging.FileHandler(options.logfile)
+    formatter = logging.Formatter('[%(asctime)s] (%(levelname)s) %(message)s')
+    hdlr.setFormatter(formatter)
+    logging.getLogger().addHandler(hdlr) 
+
+# At some point Scapy devs will realize how bothering their fucking logs
+# are while importing scapy.all ...
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
 from opensnitch.snitch import Snitch
