@@ -19,6 +19,9 @@
 import easygui as g
 import nfqueue
 
+# TODO: Implement a better UI.
+# TODO: Implement tray icon and menu.
+# TODO: Implement rules editor.
 class UI:
     @staticmethod
     def prompt_user( c ):

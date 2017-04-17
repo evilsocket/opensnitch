@@ -44,6 +44,7 @@ class Rule:
         else:
             return True
 
+# TODO: Implement rules persistance on file.
 class Rules:
     def __init__(self):
         self.mutex = Lock()

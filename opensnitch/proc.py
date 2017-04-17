@@ -47,6 +47,7 @@ def get_pid_of_inode(inode):
 
     return None
 
+# TODO: Implement a cleaner and faster /proc/net/(tcp|udp) parsing.
 def get_process_name_by_connection( src_addr, src_p, dst_addr, dst_p, proto = 'tcp' ):
     filename = "/proc/net/%s" % proto
     with open( filename, 'rt' ) as fd:

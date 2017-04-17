@@ -16,6 +16,10 @@ OpenSnitch is a GNU/Linux port of the Little Snitch application firewall.
 
     sudo opensnitch
 
+## TODOs
+
+    grep -r TODO opensnitch | cut -d '#' -f 2 | sort -u
+
 ## License
 
 This project is copyleft of [Simone Margaritelli](http://www.evilsocket.net/) and released under the GPL 3 license.
