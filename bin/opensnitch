@@ -34,16 +34,11 @@ parser.add_option( "--log-file", dest="logfile", default=None, help="Log to file
 
 (options, args) = parser.parse_args()
 
-logging.basicConfig( format = '[%(asctime)s] (%(levelname)s) %(message)s',
-                     level  = logging.INFO if options.debug == False else logging.DEBUG )
+logging.basicConfig( format   = '[%(asctime)s] (%(levelname)s) %(message)s',
+                     level    = logging.INFO if options.debug == False else logging.DEBUG,
+                     filename = '/dev/stdout' if options.logfile is None else options.logfile )
 
-if options.logfile is not None:
-    hdlr = logging.FileHandler(options.logfile)
-    formatter = logging.Formatter('[%(asctime)s] (%(levelname)s) %(message)s')
-    hdlr.setFormatter(formatter)
-    logging.getLogger().addHandler(hdlr) 
-
-# At some point Scapy devs will realize how bothering their fucking logs
+# At some point Scapy devs will realize how bothering their fucking warnings
 # are while importing scapy.all ...
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
