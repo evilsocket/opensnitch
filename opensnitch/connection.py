@@ -45,6 +45,3 @@ class Connection:
     def __repr__(self):
         return "[%s] %s (%s) -> %s:%s" % ( self.pid, self.app_path, self.proto, self.dst_addr, self.dst_port )
 
-    def cache_key(self):
-        return "%s:%s:%s:%s" % ( self.app_path, self.proto, self.dst_addr, self.dst_port)
-

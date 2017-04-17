@@ -1,6 +1,7 @@
 import re
 import glob
 import os
+import logging
 
 def hex2address(address):
     hex_addr, hex_port = address.split(':')
@@ -45,5 +46,13 @@ def get_process_name_by_connection( src_addr, src_p, dst_addr, dst_p, proto = 't
             if src_ip == src_addr and src_port == src_p and dst_ip == dst_addr and dst_port == dst_p:
                 pid = get_pid_of_inode(inode)
                 return ( pid, os.readlink( "/proc/%s/exe" % pid ) )
+
+    logging.error( "Could not find process for %s connection %s:%s -> %s:%s" % (
+                   proto,
+                   src_addr,
+                   src_p,
+                   dst_addr,
+                   dst_p ) )
+
 
     return ( 0, "Unknown" )

@@ -8,20 +8,28 @@ class DNSCollector:
         self.hosts = { '127.0.0.1': 'localhost' }
 
     def is_dns_response(self, packet):
-        if DNSRR in packet and packet.qd is not None and packet.an is not None:
+        if packet.haslayer(DNSRR):
             return True
         else:
             return False
 
     def add_response( self, packet ):
         with self.lock:
-            hostname = packet.qd.qname
-            address  = packet.an.rdata
-            if hostname.endswith('.'):
-                hostname = hostname[:-1]
+            a_count = packet[DNS].ancount
+            i = a_count + 4
+            while i > 4:
+                hostname = packet[0][i].rrname
+                address  = packet[0][i].rdata
+                i -= 1
 
-            logging.debug( "DNS[%s] = %s" % ( address, hostname ) )
-            self.hosts[address] = hostname
+                if hostname == '.':
+                    continue
+
+                elif hostname.endswith('.'):
+                    hostname = hostname[:-1]
+
+                logging.debug( "Adding DNS response: %s => %s" % ( address, hostname ) )
+                self.hosts[address] = hostname
 
     def get_hostname( self, address ):
         with self.lock:

@@ -49,8 +49,9 @@ class Snitch:
                 conn = Connection(data)
                 if conn.proto is not None:
                     verd = self.get_verdict( conn )
-        except Exception as e:
-            print e
+
+        except Exception, e:
+            logging.exception( "Exception on packet callback:" )
 
         pkt.set_verdict(verd)
         return 1

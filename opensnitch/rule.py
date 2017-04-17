@@ -1,4 +1,5 @@
 import nfqueue
+import logging
 from threading import Lock
 
 class Rule:
@@ -40,6 +41,10 @@ class Rules:
 
     def add_rule( self, connection, verdict, apply_to_all = False ):
         with self.mutex:
+            logging.debug( "Adding %s rule for '%s' (all=%s)" % (
+                           "ALLOW" if verdict == nfqueue.NF_ACCEPT else "DENY",
+                           connection,
+                           "true" if apply_to_all == True else "false" ) )
             r = Rule()
             r.verdict  = verdict
             r.app_path = connection.app_path
