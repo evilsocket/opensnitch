@@ -3,14 +3,14 @@ import nfqueue
 
 class UI:
     @staticmethod
-    def prompt_user( app_name, app_path, app_icon, d_addr, d_port, proto  ):
+    def prompt_user( c ):
         title = 'OpenSnitch'
         msg = "%s (%s) wants to connect to %s on %s port %s" % ( \
-                app_name,
-                app_path,
-                d_addr,
-                proto.upper(),
-                d_port )
+                c.app.name,
+                c.app_path,
+                c.hostname,
+                c.proto.upper(),
+                c.dst_port )
         choices = [ 'Allow Once',
                     'Allow Forever',
                     'Allow All',

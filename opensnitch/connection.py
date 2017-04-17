@@ -5,10 +5,11 @@ from socket import inet_ntoa
 
 class Connection:
     def __init__( self, payload ):
-        self.data     = payload.get_data()
+        self.data     = payload
         self.pkt      = ip.IP( self.data )
         self.src_addr = inet_ntoa( self.pkt.src )
         self.dst_addr = inet_ntoa( self.pkt.dst )
+        self.hostname = None
         self.src_port = None
         self.dst_port = None
         self.proto    = None

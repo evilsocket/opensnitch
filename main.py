@@ -1,14 +1,20 @@
 #!/usr/bin/python
+import os
+import logging
 
-from opensnitch.packetqueue import PacketQueue
+logging.basicConfig(format='[%(asctime)s] (%(levelname)s) %(message)s',level=logging.DEBUG)
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
-q = PacketQueue()
+from opensnitch.snitch import Snitch
+
+snitch = Snitch()
 
 try:
-    q.start()
+    logging.info( "OpenSnitch running with pid %d." % os.getpid() )
+    snitch.start()
 except KeyboardInterrupt, e:
     pass
 
-print "\n\nStopping ..."
+logging.info( "Quitting ..." )
 
-q.stop()
+snitch.stop()
