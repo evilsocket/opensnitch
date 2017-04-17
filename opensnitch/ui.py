@@ -5,13 +5,13 @@ class UI:
     @staticmethod
     def prompt_user( c ):
         title = 'OpenSnitch'
-        msg = "%s (%s) wants to connect to %s on %s port %s (%s)" % ( \
+        msg = "%s (%s) wants to connect to %s on %s port %s%s" % ( \
                 c.app.name,
                 c.app_path,
                 c.hostname,
                 c.proto.upper(),
                 c.dst_port,
-                c.service )
+                " (%s)" % c.service if c.service is not None else '' )
         choices = [ 'Allow Once',
                     'Allow Forever',
                     'Allow All',

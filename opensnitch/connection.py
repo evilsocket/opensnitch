@@ -28,7 +28,7 @@ class Connection:
             try:
                 self.service = getservbyport( int(self.dst_port), self.proto )
             except:
-                self.service = '?'
+                self.service = None
             
             self.pid, self.app_path = get_process_name_by_connection( self.src_addr, 
                                                                       self.src_port,

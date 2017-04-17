@@ -50,12 +50,13 @@ def get_process_name_by_connection( src_addr, src_p, dst_addr, dst_p, proto = 't
                 pid = get_pid_of_inode(inode)
                 return ( pid, os.readlink( "/proc/%s/exe" % pid ) )
 
-    logging.error( "Could not find process for %s connection %s:%s -> %s:%s" % (
+    logging.error( "Could not find process for %s connection %s:%s -> %s:%s inside %s" % (
                    proto,
                    src_addr,
                    src_p,
                    dst_addr,
-                   dst_p ) )
+                   dst_p,
+                   filename ) )
 
 
     return ( 0, "Unknown" )
