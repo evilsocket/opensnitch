@@ -15,23 +15,26 @@ def hex2address(address):
     return (addr, port)
 
 def get_pid_of_inode(inode):
-    expr = r'.+[^\d]%s[^\d]*' % inode
-    for item in glob.glob('/proc/[0-9]*/fd/[0-9]*'):
+    inode = int(inode)
+    sname = 'socket:[%d]' % inode
+    for fd_file in glob.glob('/proc/[0-9]*/fd/[0-9]*'):
         try:
-            link = os.readlink(item)
-            if re.search(expr,link):
-                return item.split('/')[2]
+            link = os.readlink(fd_file)
+            if sname == link:
+                return fd_file.split('/')[2]
         except:
             pass
+
+    logging.error( "Could not find pid of inode %d" % inode )
+
     return None
 
 def get_process_name_by_connection( src_addr, src_p, dst_addr, dst_p, proto = 'tcp' ):
     filename = "/proc/net/%s" % proto
     with open( filename, 'rt' ) as fd:
-        header = False
         for line in fd:
-            if header is False:
-                header = True
+            line = line.strip()
+            if line.startswith('sl'):
                 continue
 
             parts = line.split()

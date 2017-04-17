@@ -2,7 +2,7 @@
 import os
 import logging
 
-logging.basicConfig(format='[%(asctime)s] (%(levelname)s) %(message)s',level=logging.DEBUG)
+logging.basicConfig(format='[%(asctime)s] (%(levelname)s) %(message)s',level=logging.INFO)
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
 from opensnitch.snitch import Snitch
