@@ -1,7 +1,7 @@
 from opensnitch.proc import get_process_name_by_connection 
 from opensnitch.app import Application 
 from dpkt import ip
-from socket import inet_ntoa
+from socket import inet_ntoa, getservbyport
 
 class Connection:
     def __init__( self, payload ):
@@ -25,6 +25,11 @@ class Connection:
             self.dst_port = self.pkt.udp.dport
 
         if None not in ( self.proto, self.src_addr, self.src_port, self.dst_addr, self.dst_port ):
+            try:
+                self.service = getservbyport( int(self.dst_port), self.proto )
+            except:
+                self.service = '?'
+            
             self.pid, self.app_path = get_process_name_by_connection( self.src_addr, 
                                                                       self.src_port,
                                                                       self.dst_addr, 
