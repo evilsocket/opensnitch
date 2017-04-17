@@ -31,19 +31,15 @@ class UI:
                 c.dst_port,
                 " (%s)" % c.service if c.service is not None else '' )
         choices = [ 'Allow Once',
-                    'Allow Forever',
                     'Allow All',
                     'Deny Once',
-                    'Deny Forever',
                     'Deny All' ]
 
         idx = g.indexbox(msg, title, choices)
 
         results = [ \
             ( nfqueue.NF_ACCEPT, False ),
-            ( nfqueue.NF_ACCEPT, False ),
             ( nfqueue.NF_ACCEPT, True ),
-            ( nfqueue.NF_DROP, False ),
             ( nfqueue.NF_DROP, False ),
             ( nfqueue.NF_DROP, True )
         ]
