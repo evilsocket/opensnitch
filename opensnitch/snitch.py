@@ -32,7 +32,9 @@ class Snitch:
     IPTABLES_RULES = ( # Get DNS responses
                        "INPUT --protocol udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass",
                        # Get connection packets
-                       "OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass", )
+                       "OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass",
+                       # Reject packets marked by OpenSnitch
+                       "OUTPUT --protocol tcp -m mark --mark 1 -j REJECT" )
 
     # TODO: Support IPv6!
     def __init__( self ):
@@ -80,7 +82,12 @@ class Snitch:
         except Exception, e:
             logging.exception( "Exception on packet callback:" )
 
-        pkt.set_verdict(verd)
+        if verd == nfqueue.NF_DROP:
+            # mark this packet so iptables will drop it
+            pkt.set_verdict_mark( verd, 1 ) 
+        else:
+            pkt.set_verdict(verd)
+
         return 1
 
     def start(self):
