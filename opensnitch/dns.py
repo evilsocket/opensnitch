@@ -33,21 +33,24 @@ class DNSCollector:
 
     def add_response( self, packet ):
         with self.lock:
-            a_count = packet[DNS].ancount
-            i = a_count + 4
-            while i > 4:
-                hostname = packet[0][i].rrname
-                address  = packet[0][i].rdata
-                i -= 1
+            try:
+                a_count = packet[DNS].ancount
+                i = a_count + 4
+                while i > 4:
+                    hostname = packet[0][i].rrname
+                    address  = packet[0][i].rdata
+                    i -= 1
 
-                if hostname == '.':
-                    continue
+                    if hostname == '.':
+                        continue
 
-                elif hostname.endswith('.'):
-                    hostname = hostname[:-1]
+                    elif hostname.endswith('.'):
+                        hostname = hostname[:-1]
 
-                logging.debug( "Adding DNS response: %s => %s" % ( address, hostname ) )
-                self.hosts[address] = hostname
+                    logging.debug( "Adding DNS response: %s => %s" % ( address, hostname ) )
+                    self.hosts[address] = hostname
+            except Exception, e:
+                logging.exception("Error while parsing DNS response:")
 
     def get_hostname( self, address ):
         with self.lock:
