@@ -24,6 +24,19 @@ from opensnitch.rule import Rule
 # TODO: Implement tray icon and menu.
 # TODO: Implement rules editor.
 class UI:
+    CHOICES = [ 'Allow Once',
+                'Allow All',
+                'Deny Once',
+                'Deny All' ]
+
+    RESULTS = [ \
+      # save | verdict    | all
+      ( False, Rule.ACCEPT, False ),
+      ( True,  Rule.ACCEPT, True ),
+      ( False, Rule.DROP,   False ),
+      ( True,  Rule.DROP,   True )
+    ]
+
     @staticmethod
     def prompt_user( c ):
         title = 'OpenSnitch'
@@ -34,19 +47,7 @@ class UI:
                 c.proto.upper(),
                 c.dst_port,
                 " (%s)" % c.service if c.service is not None else '' )
-        choices = [ 'Allow Once',
-                    'Allow All',
-                    'Deny Once',
-                    'Deny All' ]
 
-        idx = g.indexbox(msg, title, choices)
-
-        results = [ \
-            ( Rule.ACCEPT, False ),
-            ( Rule.ACCEPT, True ),
-            ( Rule.DROP, False ),
-            ( Rule.DROP, True )
-        ]
-       
-        return results[idx]
+        idx = g.indexbox( msg, title, UI.CHOICES )
+        return UI.RESULTS[idx]
 

@@ -51,8 +51,9 @@ class Snitch:
         if verdict is None:
             with self.lock: 
                 c.hostname = self.dns.get_hostname(c.dst_addr) 
-                ( verdict, apply_for_all ) = UI.prompt_user(c)
-                self.rules.add_rule( c, verdict, apply_for_all )
+                ( save, verdict, apply_for_all ) = UI.prompt_user(c)
+                if save:
+                    self.rules.add_rule( c, verdict, apply_for_all )
 
         return verdict
 
