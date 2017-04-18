@@ -17,7 +17,8 @@
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 import easygui as g
-import nfqueue
+
+from opensnitch.rule import Rule
 
 # TODO: Implement a better UI.
 # TODO: Implement tray icon and menu.
@@ -41,10 +42,10 @@ class UI:
         idx = g.indexbox(msg, title, choices)
 
         results = [ \
-            ( nfqueue.NF_ACCEPT, False ),
-            ( nfqueue.NF_ACCEPT, True ),
-            ( nfqueue.NF_DROP, False ),
-            ( nfqueue.NF_DROP, True )
+            ( Rule.ACCEPT, False ),
+            ( Rule.ACCEPT, True ),
+            ( Rule.DROP, False ),
+            ( Rule.DROP, True )
         ]
        
         return results[idx]

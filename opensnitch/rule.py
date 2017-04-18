@@ -16,17 +16,19 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-import nfqueue
 import logging
 from threading import Lock
 
 class Rule:
+    ACCEPT = 0
+    DROP   = 1
+
     def __init__(self):
         self.app_path = None
         self.address = None
         self.port = None
         self.proto = None
-        self.verdict = nfqueue.NF_ACCEPT
+        self.verdict = Rule.ACCEPT
 
     def matches( self, c ):
         if self.app_path != c.app_path:
@@ -61,7 +63,7 @@ class Rules:
     def add_rule( self, connection, verdict, apply_to_all = False ):
         with self.mutex:
             logging.debug( "Adding %s rule for '%s' (all=%s)" % (
-                           "ALLOW" if verdict == nfqueue.NF_ACCEPT else "DENY",
+                           "ALLOW" if verdict == Rule.ACCEPT else "DENY",
                            connection,
                            "true" if apply_to_all == True else "false" ) )
             r = Rule()
