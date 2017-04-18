@@ -16,7 +16,7 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-from opensnitch.proc import get_process_name_by_connection 
+from opensnitch.proc import get_pid_by_connection
 from opensnitch.app import Application 
 from dpkt import ip
 from socket import inet_ntoa, getservbyport
@@ -48,11 +48,11 @@ class Connection:
             except:
                 self.service = None
             
-            self.pid, self.app_path = get_process_name_by_connection( self.src_addr, 
-                                                                      self.src_port,
-                                                                      self.dst_addr, 
-                                                                      self.dst_port, 
-                                                                      self.proto )
+            self.pid, self.app_path = get_pid_by_connection( self.src_addr,
+                                                             self.src_port,
+                                                             self.dst_addr,
+                                                             self.dst_port,
+                                                             self.proto )
             self.app = Application( self.pid, self.app_path )
                         
     def get_app_name(self):
