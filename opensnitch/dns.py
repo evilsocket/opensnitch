@@ -47,6 +47,10 @@ class DNSCollector:
                     elif hostname.endswith('.'):
                         hostname = hostname[:-1]
 
+                    # for CNAME records
+                    if address.endswith('.'):
+                        address = address[:-1]
+
                     logging.debug( "Adding DNS response: %s => %s" % ( address, hostname ) )
                     self.hosts[address] = hostname
             except Exception, e:
