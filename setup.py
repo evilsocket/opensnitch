@@ -36,5 +36,5 @@ setup( name                 = 'opensnitch',
        scripts              = [ 'bin/opensnitch' ],
        license              = 'GPL',
        zip_safe             = False,
-       install_requires     = [ 'scapy', 'easygui', 'dpkt', 'psutil' ]
+       install_requires     = [ 'scapy', 'easygui', 'dpkt', 'NetfilterQueue', 'psutil' ]
 )

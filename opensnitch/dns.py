@@ -32,25 +32,30 @@ class DNSCollector:
             return False
 
     def add_response( self, packet ):
-        with self.lock:
-            try:
-                a_count = packet[DNS].ancount
-                i = a_count + 4
-                while i > 4:
-                    hostname = packet[0][i].rrname
-                    address  = packet[0][i].rdata
-                    i -= 1
+        if packet.haslayer(DNS) and packet.haslayer(DNSRR):
+            with self.lock:
+                try:
+                    a_count = packet[DNS].ancount
+                    i = a_count + 4
+                    while i > 4:
+                        hostname = packet[0][i].rrname
+                        address  = packet[0][i].rdata
+                        i -= 1
 
-                    if hostname == '.':
-                        continue
+                        if hostname == '.':
+                            continue
 
-                    elif hostname.endswith('.'):
-                        hostname = hostname[:-1]
+                        elif hostname.endswith('.'):
+                            hostname = hostname[:-1]
 
-                    logging.debug( "Adding DNS response: %s => %s" % ( address, hostname ) )
-                    self.hosts[address] = hostname
-            except Exception, e:
-                logging.exception("Error while parsing DNS response:")
+                        # for CNAME records
+                        if address.endswith('.'):
+                            address = address[:-1]
+
+                        logging.debug( "Adding DNS response: %s => %s" % ( address, hostname ) )
+                        self.hosts[address] = hostname
+                except Exception, e:
+                    logging.error("Error while parsing DNS response: %s" % e)
 
     def get_hostname( self, address ):
         with self.lock:

@@ -17,12 +17,26 @@
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 import easygui as g
-import nfqueue
+
+from opensnitch.rule import Rule
 
 # TODO: Implement a better UI.
 # TODO: Implement tray icon and menu.
 # TODO: Implement rules editor.
 class UI:
+    CHOICES = [ 'Allow Once',
+                'Allow All',
+                'Deny Once',
+                'Deny All' ]
+
+    RESULTS = [ \
+      # save | verdict    | all
+      ( False, Rule.ACCEPT, False ),
+      ( True,  Rule.ACCEPT, True ),
+      ( False, Rule.DROP,   False ),
+      ( True,  Rule.DROP,   True )
+    ]
+
     @staticmethod
     def prompt_user( c ):
         title = 'OpenSnitch'
@@ -33,19 +47,7 @@ class UI:
                 c.proto.upper(),
                 c.dst_port,
                 " (%s)" % c.service if c.service is not None else '' )
-        choices = [ 'Allow Once',
-                    'Allow All',
-                    'Deny Once',
-                    'Deny All' ]
 
-        idx = g.indexbox(msg, title, choices)
-
-        results = [ \
-            ( nfqueue.NF_ACCEPT, False ),
-            ( nfqueue.NF_ACCEPT, True ),
-            ( nfqueue.NF_DROP, False ),
-            ( nfqueue.NF_DROP, True )
-        ]
-       
-        return results[idx]
+        idx = g.indexbox( msg, title, UI.CHOICES )
+        return UI.RESULTS[idx]
 

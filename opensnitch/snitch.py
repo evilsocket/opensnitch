@@ -18,7 +18,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 import os
 import logging
-import nfqueue
+from netfilterqueue import NetfilterQueue
 from socket import AF_INET, AF_INET6, inet_ntoa
 from threading import Lock
 from scapy.all import *
@@ -26,7 +26,7 @@ from scapy.all import *
 from opensnitch.ui import UI
 from opensnitch.connection import Connection
 from opensnitch.dns import DNSCollector
-from opensnitch.rule import Rules
+from opensnitch.rule import Rule, Rules
 
 class Snitch:
     IPTABLES_RULES = ( # Get DNS responses
@@ -41,11 +41,9 @@ class Snitch:
         self.lock  = Lock()
         self.rules = Rules()
         self.dns   = DNSCollector()
-        self.q     = nfqueue.queue()
+        self.q     = NetfilterQueue()
 
-        self.q.set_callback( self.pkt_callback )
-        self.q.fast_open(0, AF_INET)
-        self.q.set_queue_maxlen(2*1024)
+        self.q.bind( 0, self.pkt_callback, 1024 * 2 )
 
     def get_verdict(self,c):
         verdict = self.rules.get_verdict(c)
@@ -53,16 +51,17 @@ class Snitch:
         if verdict is None:
             with self.lock: 
                 c.hostname = self.dns.get_hostname(c.dst_addr) 
-                ( verdict, apply_for_all ) = UI.prompt_user(c)
-                self.rules.add_rule( c, verdict, apply_for_all )
+                ( save, verdict, apply_for_all ) = UI.prompt_user(c)
+                if save:
+                    self.rules.add_rule( c, verdict, apply_for_all )
 
         return verdict
 
     def pkt_callback(self,pkt):
-        verd = nfqueue.NF_ACCEPT
+        verd = Rule.ACCEPT
 
         try:
-            data = pkt.get_data()
+            data = pkt.get_payload()
             packet = IP(data)
 
             if self.dns.is_dns_response(packet):
@@ -82,26 +81,24 @@ class Snitch:
         except Exception, e:
             logging.exception( "Exception on packet callback:" )
 
-        if verd == nfqueue.NF_DROP:
+        if verd == Rule.DROP:
             logging.info( "Dropping %s from %s" % ( conn, conn.get_app_name() ) )
             # mark this packet so iptables will drop it
-            pkt.set_verdict_mark( verd, 1 ) 
+            pkt.set_mark(1)
+            pkt.drop()
         else:
-            pkt.set_verdict(verd)
-
-        return 1
+            pkt.accept()
 
     def start(self):
         for r in Snitch.IPTABLES_RULES:
             logging.debug( "Applying iptables rule '%s'" % r )
             os.system( "iptables -I %s" % r )
 
-        self.q.try_run()
+        self.q.run()
 
     def stop(self):
         for r in Snitch.IPTABLES_RULES:
             logging.debug( "Deleting iptables rule '%s'" % r )
             os.system( "iptables -D %s" % r )
 
-        self.q.unbind(AF_INET)
-        self.q.close()
+        self.q.unbind()
