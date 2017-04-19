@@ -44,9 +44,10 @@ class UI:
     @staticmethod
     def prompt_user( c ):
         title = 'OpenSnitch'
-        msg = "%s (%s) wants to connect to %s on %s port %s%s" % ( \
+        msg = "%s (%s, pid=%s) wants to connect to %s on %s port %s%s" % ( \
                 c.app.name,
                 c.app_path,
+                c.app.pid,
                 c.hostname,
                 c.proto.upper(),
                 c.dst_port,
