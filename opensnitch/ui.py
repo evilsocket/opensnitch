@@ -16,8 +16,9 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-import easygui as g
-
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 from opensnitch.rule import Rule
 
 # TODO: Implement a better UI.
@@ -48,6 +49,13 @@ class UI:
                 c.dst_port,
                 " (%s)" % c.service if c.service is not None else '' )
 
-        idx = g.indexbox( msg, title, UI.CHOICES )
-        return UI.RESULTS[idx]
-
+        dialog = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.NONE, "OpenSnitch")
+        dialog.format_secondary_text(msg)
+        dialog.add_button("Allow Once", 0)
+        dialog.add_button("Allow Always", 1)
+        dialog.add_button("Deny Once", 2)
+        dialog.add_button("Deny Always", 3)
+        response = dialog.run()
+        if response == -4:
+            UI.RESULTS[2]
+        return UI.RESULTS[response]
