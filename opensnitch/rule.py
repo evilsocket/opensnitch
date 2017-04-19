@@ -26,6 +26,10 @@ class Rule:
     ACCEPT = 0
     DROP   = 1
 
+    ONCE = 0
+    UNTIL_QUIT = 1
+    FOREVER = 2
+
     def __init__( self, app_path=None, verdict=ACCEPT, address=None, port=None, proto=None ):
         self.app_path = app_path
         self.verdict = verdict
@@ -63,13 +67,15 @@ class Rules:
 
             return None
 
-    def _remove_rules_for_path( self, path ):
-        self.db.remove_all_app_rules(path)
+    def _remove_rules_for_path( self, path, remove_from_db=False ):
         for rule in self.rules:
             if rule.app_path == path:
                 self.rules.remove(rule)
 
-    def add_rule( self, connection, verdict, apply_to_all = False ):
+        if remove_from_db is True:
+            self.db.remove_all_app_rules(path)
+
+    def add_rule( self, connection, verdict, apply_to_all=False, save_option=Rule.UNTIL_QUIT ):
         with self.mutex:
             logging.debug( "Adding %s rule for '%s' (all=%s)" % (
                            "ALLOW" if verdict == Rule.ACCEPT else "DENY",
@@ -80,7 +86,7 @@ class Rules:
             r.app_path = connection.app_path
 
             if apply_to_all is True:
-                self._remove_rules_for_path( r.app_path )
+                self._remove_rules_for_path( r.app_path, (save_option == Rule.FOREVER) )
 
             elif apply_to_all is False:
                 r.address = connection.dst_addr
@@ -88,7 +94,9 @@ class Rules:
                 r.proto = connection.proto
 
             self.rules.append(r)
-            self.db.save_rule(r)
+
+            if save_option == Rule.FOREVER:
+                self.db.save_rule(r)
 
 class RulesDB:
     def __init__(self):
