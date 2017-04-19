@@ -8,8 +8,6 @@ OpenSnitch is a GNU/Linux port of the Little Snitch application firewall.
   <img src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/screenshot.jpg" alt="OpenSnitch"/>
 </center>
 
-( Yeah UI sucks, anyone willing to help with that? :P )
-
 ## Install
 
     sudo apt-get install build-essential python-dev libnetfilter-queue-dev
