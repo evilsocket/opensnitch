@@ -195,41 +195,20 @@
     <string>Take this action:</string>
    </property>
   </widget>
-  <widget class="QGraphicsView" name="logoGraphicsView">
+  <widget class="QLabel" name="iconLabel">
    <property name="geometry">
     <rect>
-     <x>432</x>
+     <x>430</x>
      <y>-2</y>
      <width>60</width>
      <height>60</height>
     </rect>
    </property>
-   <property name="minimumSize">
-    <size>
-     <width>60</width>
-     <height>60</height>
-    </size>
+   <property name="text">
+    <string/>
    </property>
-   <property name="maximumSize">
-    <size>
-     <width>60</width>
-     <height>60</height>
-    </size>
-   </property>
-   <property name="autoFillBackground">
-    <bool>false</bool>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background: transparent</string>
-   </property>
-   <property name="backgroundBrush">
-    <brush brushstyle="NoBrush">
-     <color alpha="255">
-      <red>0</red>
-      <green>0</green>
-      <blue>0</blue>
-     </color>
-    </brush>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
   </widget>
  </widget>

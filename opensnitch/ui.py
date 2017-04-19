@@ -20,7 +20,7 @@
 
 from opensnitch.rule import Rule
 from PyQt4 import QtCore, QtGui, uic
-import sys, os
+import sys, os, gtk
 
 # TODO: Implement tray icon and menu.
 # TODO: Implement rules editor.
@@ -53,6 +53,7 @@ class OpenSnitchDialog( QtGui.QMainWindow, dialog_ui ):
         self.init_widgets()
         self.start_listeners()
         self.setup_labels()
+        self.setup_icon()
         self.setup_extra()
         self.result = OpenSnitchDialog.DEFAULT_RESULT
 
@@ -76,7 +77,7 @@ class OpenSnitchDialog( QtGui.QMainWindow, dialog_ui ):
         self.deny_button = self.findChild( QtGui.QPushButton, "denyButton" )
         self.whitelist_button = self.findChild( QtGui.QPushButton, "whitelistButton" )
         self.block_button = self.findChild( QtGui.QPushButton, "blockButton" )
-        self.logo_graphics_view = self.findChild( QtGui.QGraphicsView, "logoGraphicsView" )
+        self.icon_label = self.findChild( QtGui.QLabel, "iconLabel" )
 
     def start_listeners(self):
         self.allow_button.clicked.connect( self._allow_action )
@@ -84,6 +85,14 @@ class OpenSnitchDialog( QtGui.QMainWindow, dialog_ui ):
         self.whitelist_button.clicked.connect( self._whitelist_action )
         self.block_button.clicked.connect( self._block_action )
         self.action_combo_box.currentIndexChanged[str].connect ( self._action_changed )
+
+    def setup_icon(self):
+        icon_theme = gtk.icon_theme_get_default()
+        icon = icon_theme.lookup_icon(self.connection.app.icon, 48, 0)
+        if icon is not None:
+            icon_path = icon.get_filename()
+            pixmap = QtGui.QPixmap(icon_path)
+            self.icon_label.setPixmap(pixmap)
 
     def setup_extra(self):
         self._action_changed()
