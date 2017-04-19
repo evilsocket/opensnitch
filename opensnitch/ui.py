@@ -25,16 +25,20 @@ from opensnitch.rule import Rule
 # TODO: Implement rules editor.
 class UI:
     CHOICES = [ 'Allow Once',
-                'Allow All',
+                'Allow Forever',
+                'Whitelist App',
                 'Deny Once',
-                'Deny All' ]
+                'Deny Forever',
+                'Block App' ]
 
     RESULTS = [ \
       # save | verdict    | all
       ( False, Rule.ACCEPT, False ),
-      ( True,  Rule.ACCEPT, True ),
+      ( True,  Rule.ACCEPT, False ),
+      ( True,  Rule.ACCEPT, True  ),
       ( False, Rule.DROP,   False ),
-      ( True,  Rule.DROP,   True )
+      ( True,  Rule.DROP,   False ),
+      ( True,  Rule.DROP,   True  )
     ]
 
     @staticmethod
