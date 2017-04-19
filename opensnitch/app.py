@@ -76,4 +76,18 @@ class Application:
     def __init__( self, pid, path ):
         self.pid = pid
         self.path = path
-        self.name, self.icon = LinuxDesktopParser.get_info_by_path(path)
+        self.name, self.icon = LinuxDesktopParser.get_info_by_path(self.path)
+
+        # this is an attempt to resolve interpreted scripts to more useful
+        # things than just 'python2.7' or 'bash'
+        try:
+            with open( "/proc/%s/comm" % pid ) as com_fd, open( "/proc/%s/cmdline" % pid ) as cmd_fd:
+                self.comm = com_fd.read().replace('\0', ' ').strip()
+                self.cmdline = cmd_fd.read().replace('\0', ' ').strip().split()
+        except IOError:
+            self.comm = ''
+            self.cmdline = []
+
+        if self.comm not in self.name:
+            self.name = self.comm
+            self.path = filter(lambda x: self.comm in x, self.cmdline)[0]
