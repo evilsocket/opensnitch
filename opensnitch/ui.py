@@ -119,5 +119,5 @@ class OpenSnitchDialog( QtGui.QMainWindow, dialog_ui ):
         elif s_option == "Forever":
           option = Rule.FOREVER
 
-        self.result = ( option, verdict, False )
+        self.result = ( option, verdict, apply_to_all )
         self.close()
