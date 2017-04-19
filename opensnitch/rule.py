@@ -63,6 +63,12 @@ class Rules:
 
             return None
 
+    def _remove_rules_for_path( self, path ):
+        self.db.remove_all_app_rules(path)
+        for rule in self.rules:
+            if rule.app_path == path:
+                self.rules.remove(rule)
+
     def add_rule( self, connection, verdict, apply_to_all = False ):
         with self.mutex:
             logging.debug( "Adding %s rule for '%s' (all=%s)" % (
@@ -74,10 +80,8 @@ class Rules:
             r.app_path = connection.app_path
 
             if apply_to_all is True:
-                self.db.remove_all_app_rules(r.app_path)
-                for rule in self.rules:
-                    if rule.app_path == r.app_path:
-                        self.rules.remove(rule)
+                self._remove_rules_for_path( r.app_path )
+
             elif apply_to_all is False:
                 r.address = connection.dst_addr
                 r.port = connection.dst_port
