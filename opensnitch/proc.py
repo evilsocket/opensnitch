@@ -27,7 +27,10 @@ def get_pid_by_connection( src_addr, src_p, dst_addr, dst_p, proto = 'tcp' ):
     # it should not be possible to keep two connections which are exactly the same.
     if connections_list:
         pid = connections_list[0][-1]
-        return ( pid, os.readlink( "/proc/%s/exe" % pid ) )
+        try:
+            return ( pid, os.readlink( "/proc/%s/exe" % pid ) )
+        except OSError:
+            return (None, "Unknown")
     else:
         logging.warning( "Could not find process for %s connection %s:%s -> %s:%s" % (
                          proto,

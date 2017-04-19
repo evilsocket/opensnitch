@@ -54,6 +54,7 @@ class Connection:
                                                              self.dst_port,
                                                              self.proto )
             self.app = Application( self.pid, self.app_path )
+            self.app_path = self.app.path
                         
     def get_app_name(self):
         if self.app_path == 'Unknown':
