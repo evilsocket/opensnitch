@@ -87,11 +87,12 @@ class OpenSnitchDialog( QtGui.QMainWindow, dialog_ui ):
 
     def setup_icon(self):
         icon_theme = gtk.icon_theme_get_default()
-        icon = icon_theme.lookup_icon(self.connection.app.icon, 48, 0)
-        if icon is not None:
-            icon_path = icon.get_filename()
-            pixmap = QtGui.QPixmap(icon_path)
-            self.icon_label.setPixmap(pixmap)
+        if self.connection.app.icon is not None:
+            icon = icon_theme.lookup_icon(self.connection.app.icon, 48, 0)
+            if icon is not None:
+                icon_path = icon.get_filename()
+                pixmap = QtGui.QPixmap(icon_path)
+                self.icon_label.setPixmap(pixmap)
 
     def setup_extra(self):
         self._action_changed()
