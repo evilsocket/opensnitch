@@ -24,7 +24,6 @@ import sys, os, gtk
 
 # TODO: Implement tray icon and menu.
 # TODO: Implement rules editor.
-
 RESOURCES_PATH = "%s/resources/" % os.path.dirname(sys.modules[__name__].__file__)
 DIALOG_UI_PATH = "%s/dialog.ui" % RESOURCES_PATH
 
