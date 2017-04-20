@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>490</width>
+    <height>220</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>490</width>
+    <height>220</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>490</width>
+    <height>220</height>
+   </size>
+  </property>
+  <property name="font">
+   <font>
+    <kerning>true</kerning>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>OpenSnitch</string>
+  </property>
+  <widget class="QLabel" name="appNameLabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>20</y>
+     <width>181</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>15</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Chromium Web Browser</string>
+   </property>
+  </widget>
+  <widget class="Line" name="line">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>50</y>
+     <width>491</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="messageLabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>80</y>
+     <width>431</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Chromium Web Browser (/usr/lib/chromium-browser) wants to connect to host 127.0.0.1 on TCP port 443 (https)</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="whitelistButton">
+   <property name="geometry">
+    <rect>
+     <x>25</x>
+     <y>170</y>
+     <width>105</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Whitelist app</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="blockButton">
+   <property name="geometry">
+    <rect>
+     <x>135</x>
+     <y>170</y>
+     <width>105</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Block app</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="denyButton">
+   <property name="geometry">
+    <rect>
+     <x>245</x>
+     <y>170</y>
+     <width>105</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Deny</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="allowButton">
+   <property name="geometry">
+    <rect>
+     <x>355</x>
+     <y>170</y>
+     <width>105</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <strikeout>false</strikeout>
+    </font>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Allow</string>
+   </property>
+   <property name="default">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="actionComboBox">
+   <property name="geometry">
+    <rect>
+     <x>139</x>
+     <y>126</y>
+     <width>97</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>97</width>
+     <height>26</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>97</width>
+     <height>26</height>
+    </size>
+   </property>
+   <item>
+    <property name="text">
+     <string>Once</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Until Quit</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Forever</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="actionLabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>130</y>
+     <width>111</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Take this action:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="iconLabel">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>-2</y>
+     <width>60</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

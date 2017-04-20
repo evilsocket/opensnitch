@@ -34,7 +34,8 @@ setup( name                 = 'opensnitch',
        url                  = 'http://www.github.com/evilsocket/opensnitch',
        packages             = find_packages(),
        scripts              = [ 'bin/opensnitch' ],
+       package_data         = {'': ['*.ui']},
        license              = 'GPL',
        zip_safe             = False,
-       install_requires     = [ 'scapy', 'easygui', 'dpkt', 'NetfilterQueue', 'psutil' ]
+       install_requires     = [ 'scapy', 'dpkt', 'NetfilterQueue', 'psutil' ]
 )

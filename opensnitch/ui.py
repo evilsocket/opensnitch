@@ -16,43 +16,116 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-import easygui as g
+
 
 from opensnitch.rule import Rule
+from PyQt4 import QtCore, QtGui, uic
+import sys, os, gtk
 
-# TODO: Implement a better UI.
 # TODO: Implement tray icon and menu.
 # TODO: Implement rules editor.
-class UI:
-    CHOICES = [ 'Allow Once',
-                'Allow Forever',
-                'Whitelist App',
-                'Deny Once',
-                'Deny Forever',
-                'Block App' ]
+RESOURCES_PATH = "%s/resources/" % os.path.dirname(sys.modules[__name__].__file__)
+DIALOG_UI_PATH = "%s/dialog.ui" % RESOURCES_PATH
 
-    RESULTS = [ \
-      # save | verdict    | all
-      ( False, Rule.ACCEPT, False ),
-      ( True,  Rule.ACCEPT, False ),
-      ( True,  Rule.ACCEPT, True  ),
-      ( False, Rule.DROP,   False ),
-      ( True,  Rule.DROP,   False ),
-      ( True,  Rule.DROP,   True  )
-    ]
+dialog_ui = uic.loadUiType(DIALOG_UI_PATH)[0]
 
-    @staticmethod
-    def prompt_user( c ):
-        title = 'OpenSnitch'
-        msg = "%s (%s, pid=%s) wants to connect to %s on %s port %s%s" % ( \
-                c.app.name,
-                c.app_path,
-                c.app.pid,
-                c.hostname,
-                c.proto.upper(),
-                c.dst_port,
-                " (%s)" % c.service if c.service is not None else '' )
+class QtApp:
+    def __init__(self):
+        pass
 
-        idx = g.indexbox( msg, title, UI.CHOICES )
-        return UI.RESULTS[idx]
+    def run(self):
+        self.app = QtGui.QApplication([])
 
+    def prompt_user( self, connection ):
+        dialog = OpenSnitchDialog( connection )
+        dialog.show()
+        self.app.exec_()
+        return dialog.result
+
+class OpenSnitchDialog( QtGui.QMainWindow, dialog_ui ):
+    DEFAULT_RESULT = ( Rule.ONCE, Rule.ACCEPT, False )
+
+    def __init__( self, connection, parent=None ):
+        self.connection = connection
+        QtGui.QMainWindow.__init__( self, parent )
+        self.setupUi(self)
+        self.init_widgets()
+        self.start_listeners()
+        self.setup_labels()
+        self.setup_icon()
+        self.setup_extra()
+        self.result = OpenSnitchDialog.DEFAULT_RESULT
+
+    def setup_labels(self):
+        self.app_name_label.setText( self.connection.app.name )
+
+        message = "%s (%s) wants to connect to %s on %s port %s%s" % ( \
+                    self.connection.app.name,
+                    self.connection.app_path,
+                    self.connection.hostname,
+                    self.connection.proto.upper(),
+                    self.connection.dst_port,
+                    " (%s)" % self.connection.service if self.connection.service is not None else '' )
+        self.message_label.setText( message )
+
+    def init_widgets(self):
+        self.app_name_label = self.findChild( QtGui.QLabel, "appNameLabel" )
+        self.message_label = self.findChild( QtGui.QLabel, "messageLabel" )
+        self.action_combo_box = self.findChild( QtGui.QComboBox, "actionComboBox" )
+        self.allow_button = self.findChild( QtGui.QPushButton, "allowButton" )
+        self.deny_button = self.findChild( QtGui.QPushButton, "denyButton" )
+        self.whitelist_button = self.findChild( QtGui.QPushButton, "whitelistButton" )
+        self.block_button = self.findChild( QtGui.QPushButton, "blockButton" )
+        self.icon_label = self.findChild( QtGui.QLabel, "iconLabel" )
+
+    def start_listeners(self):
+        self.allow_button.clicked.connect( self._allow_action )
+        self.deny_button.clicked.connect( self._deny_action )
+        self.whitelist_button.clicked.connect( self._whitelist_action )
+        self.block_button.clicked.connect( self._block_action )
+        self.action_combo_box.currentIndexChanged[str].connect ( self._action_changed )
+
+    def setup_icon(self):
+        icon_theme = gtk.icon_theme_get_default()
+        icon = icon_theme.lookup_icon(self.connection.app.icon, 48, 0)
+        if icon is not None:
+            icon_path = icon.get_filename()
+            pixmap = QtGui.QPixmap(icon_path)
+            self.icon_label.setPixmap(pixmap)
+
+    def setup_extra(self):
+        self._action_changed()
+
+    def _action_changed(self):
+        s_option = self.action_combo_box.currentText()
+        if s_option == "Until Quit" or s_option == "Forever":
+          self.whitelist_button.show()
+          self.block_button.show()
+        elif s_option == "Once":
+          self.whitelist_button.hide()
+          self.block_button.hide()
+
+    def _allow_action(self):
+        self._action( Rule.ACCEPT, False )
+
+    def _deny_action(self):
+        self._action( Rule.DROP, False )
+
+    def _whitelist_action(self):
+        self._action( Rule.ACCEPT, True )
+
+    def _block_action(self):
+        self._action( Rule.DROP, True )
+
+    def _action( self, verdict, apply_to_all=False ):
+        s_option = self.action_combo_box.currentText()
+
+        if s_option == "Once":
+          option = Rule.ONCE
+        elif s_option == "Until Quit":
+          option = Rule.UNTIL_QUIT
+        elif s_option == "Forever":
+          option = Rule.FOREVER
+
+        self.result = ( option, verdict, apply_to_all )
+        self.close()

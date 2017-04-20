@@ -23,7 +23,7 @@ from socket import AF_INET, AF_INET6, inet_ntoa
 from threading import Lock
 from scapy.all import *
 
-from opensnitch.ui import UI
+from opensnitch.ui import QtApp
 from opensnitch.connection import Connection
 from opensnitch.dns import DNSCollector
 from opensnitch.rule import Rule, Rules
@@ -42,6 +42,7 @@ class Snitch:
         self.rules = Rules()
         self.dns   = DNSCollector()
         self.q     = NetfilterQueue()
+        self.qt_app   = QtApp()
 
         self.q.bind( 0, self.pkt_callback, 1024 * 2 )
 
@@ -51,9 +52,9 @@ class Snitch:
         if verdict is None:
             with self.lock: 
                 c.hostname = self.dns.get_hostname(c.dst_addr) 
-                ( save, verdict, apply_for_all ) = UI.prompt_user(c)
-                if save:
-                    self.rules.add_rule( c, verdict, apply_for_all )
+                ( save_option, verdict, apply_for_all ) = self.qt_app.prompt_user(c)
+                if save_option != Rule.ONCE:
+                    self.rules.add_rule( c, verdict, apply_for_all, save_option )
 
         return verdict
 
@@ -94,6 +95,7 @@ class Snitch:
             logging.debug( "Applying iptables rule '%s'" % r )
             os.system( "iptables -I %s" % r )
 
+        self.qt_app.run()
         self.q.run()
 
     def stop(self):
