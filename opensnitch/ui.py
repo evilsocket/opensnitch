@@ -42,12 +42,12 @@ class QtApp:
         self.app.exec_()
         return dialog.result
 
-class OpenSnitchDialog( QtGui.QMainWindow, dialog_ui ):
+class OpenSnitchDialog( QtGui.QDialog, dialog_ui ):
     DEFAULT_RESULT = ( Rule.ONCE, Rule.ACCEPT, False )
 
     def __init__( self, connection, parent=None ):
         self.connection = connection
-        QtGui.QMainWindow.__init__( self, parent )
+        QtGui.QDialog.__init__( self, parent, QtCore.Qt.WindowStaysOnTopHint )
         self.setupUi(self)
         self.init_widgets()
         self.start_listeners()
