@@ -16,8 +16,6 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-
-
 from opensnitch.rule import Rule
 from PyQt4 import QtCore, QtGui, uic
 import sys, os, gtk
@@ -27,8 +25,6 @@ import sys, os, gtk
 RESOURCES_PATH = "%s/resources/" % os.path.dirname(sys.modules[__name__].__file__)
 DIALOG_UI_PATH = "%s/dialog.ui" % RESOURCES_PATH
 
-dialog_ui = uic.loadUiType(DIALOG_UI_PATH)[0]
-
 class QtApp:
     def __init__(self):
         pass
@@ -37,12 +33,12 @@ class QtApp:
         self.app = QtGui.QApplication([])
 
     def prompt_user( self, connection ):
-        dialog = OpenSnitchDialog( connection )
+        dialog = Dialog( connection )
         dialog.show()
         self.app.exec_()
         return dialog.result
 
-class OpenSnitchDialog( QtGui.QDialog, dialog_ui ):
+class Dialog( QtGui.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0] ):
     DEFAULT_RESULT = ( Rule.ONCE, Rule.ACCEPT, False )
 
     def __init__( self, connection, parent=None ):
@@ -54,7 +50,7 @@ class OpenSnitchDialog( QtGui.QDialog, dialog_ui ):
         self.setup_labels()
         self.setup_icon()
         self.setup_extra()
-        self.result = OpenSnitchDialog.DEFAULT_RESULT
+        self.result = Dialog.DEFAULT_RESULT
 
     def setup_labels(self):
         self.app_name_label.setText( self.connection.app.name )
