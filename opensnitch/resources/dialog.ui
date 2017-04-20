@@ -35,8 +35,8 @@
     <rect>
      <x>30</x>
      <y>20</y>
-     <width>181</width>
-     <height>16</height>
+     <width>500</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="font">
