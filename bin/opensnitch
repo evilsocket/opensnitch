@@ -23,16 +23,16 @@ import logging
 
 from optparse import OptionParser
 
-from opensnitch.version import VERSION
-
-if not os.geteuid() == 0:
-    sys.exit('OpenSnitch must be run as root.')
-
 parser = OptionParser()
 parser.add_option( "--log-file",  dest="logfile", default=None, help="Log to file.", metavar="FILE" )
 parser.add_option( "--debug",     dest="debug", action="store_true", default=False, help="Enable debug logs." )
 
 (options, args) = parser.parse_args()
+
+if not os.geteuid() == 0:
+    sys.exit('OpenSnitch must be run as root.')
+
+from opensnitch.version import VERSION
 
 logging.basicConfig( format   = '[%(asctime)s] (%(levelname)s) %(message)s',
                      level    = logging.INFO if options.debug == False else logging.DEBUG,
