@@ -59,9 +59,10 @@ class OpenSnitchDialog( QtGui.QDialog, dialog_ui ):
     def setup_labels(self):
         self.app_name_label.setText( self.connection.app.name )
 
-        message = "%s (%s) wants to connect to %s on %s port %s%s" % ( \
+        message = "%s (%s, pid=%s) wants to connect to %s on %s port %s%s" % ( \
                     self.connection.app.name,
                     self.connection.app_path,
+                    self.connection.app.pid,
                     self.connection.hostname,
                     self.connection.proto.upper(),
                     self.connection.dst_port,
