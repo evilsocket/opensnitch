@@ -20,6 +20,7 @@
 import os
 import sys
 import logging
+import warnings
 
 from optparse import OptionParser
 
@@ -41,6 +42,8 @@ logging.basicConfig( format   = '[%(asctime)s] (%(levelname)s) %(message)s',
 # At some point Scapy devs will realize how bothering their fucking warnings
 # are while importing scapy.all ...
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="gtk")
 
 from opensnitch.snitch import Snitch
 
