@@ -71,10 +71,10 @@ class Snitch:
             else:
                 conn = Connection(data)
                 if conn.proto is None:
-                    logging.warning( "Could not detect protocol for packet." )
+                    logging.debug( "Could not detect protocol for packet." )
 
                 elif conn.pid is None:
-                    logging.warning( "Could not detect process for connection." )
+                    logging.debug( "Could not detect process for connection." )
 
                 else:
                     verd = self.get_verdict( conn )
