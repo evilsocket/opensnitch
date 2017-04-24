@@ -10,7 +10,7 @@ OpenSnitch is a GNU/Linux port of the Little Snitch application firewall.
 
 ## Install
 
-    sudo apt-get install build-essential python-dev libnetfilter-queue-dev python-qt4
+    sudo apt-get install build-essential python-dev python-setuptools libnetfilter-queue-dev python-qt4
     cd opensnitch
     sudo python setup.py install
 
