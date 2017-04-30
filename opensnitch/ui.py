@@ -55,8 +55,8 @@ class Dialog( QtGui.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0] ):
     def setup_labels(self):
         self.app_name_label.setText( self.connection.app.name )
 
-        message = "%s (pid=%s) wants to connect to %s on %s port %s%s" % ( \
-                    self.connection.app_path,
+        message = "<b>%s</b> (pid=%s) wants to connect to <b>%s</b> on <b>%s port %s%s</b>" % ( \
+                    self.connection.get_app_name_and_cmdline(),
                     self.connection.app.pid,
                     self.connection.hostname,
                     self.connection.proto.upper(),

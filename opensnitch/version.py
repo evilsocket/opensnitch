@@ -16,4 +16,4 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-VERSION = '0.0.1a1'
+VERSION = '0.0.2'

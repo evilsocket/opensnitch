@@ -22,7 +22,7 @@ from dpkt import ip
 from socket import inet_ntoa, getservbyport
 
 class Connection:
-    def __init__( self, payload ):
+    def __init__( self, procmon, payload ):
         self.data     = payload
         self.pkt      = ip.IP( self.data )
         self.src_addr = inet_ntoa( self.pkt.src )
@@ -48,12 +48,13 @@ class Connection:
             except:
                 self.service = None
             
-            self.pid, self.app_path = get_pid_by_connection( self.src_addr,
+            self.pid, self.app_path = get_pid_by_connection( procmon,
+                                                             self.src_addr,
                                                              self.src_port,
                                                              self.dst_addr,
                                                              self.dst_port,
                                                              self.proto )
-            self.app = Application( self.pid, self.app_path )
+            self.app = Application( procmon, self.pid, self.app_path )
             self.app_path = self.app.path
                         
     def get_app_name(self):
@@ -65,6 +66,15 @@ class Connection:
 
         else:
             return "'%s' ( %s )" % ( self.app.name, self.app_path )
+
+    def get_app_name_and_cmdline(self):
+        if self.app.cmdline is not None:
+            if self.app.cmdline.startswith( self.app.path ):
+                return self.app.cmdline
+            else:
+                return "%s %s" % ( self.app.path, self.app.cmdline )
+        else:
+            return self.app.path
 
     def __repr__(self):
         return "[%s] %s (%s) -> %s:%s" % ( self.pid, self.app_path, self.proto, self.dst_addr, self.dst_port )

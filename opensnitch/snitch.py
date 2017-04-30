@@ -27,6 +27,7 @@ from opensnitch.ui import QtApp
 from opensnitch.connection import Connection
 from opensnitch.dns import DNSCollector
 from opensnitch.rule import Rule, Rules
+from opensnitch.procmon import ProcMon
 
 class Snitch:
     IPTABLES_RULES = ( # Get DNS responses
@@ -38,11 +39,12 @@ class Snitch:
 
     # TODO: Support IPv6!
     def __init__( self ):
-        self.lock  = Lock()
-        self.rules = Rules()
-        self.dns   = DNSCollector()
-        self.q     = NetfilterQueue()
-        self.qt_app   = QtApp()
+        self.lock    = Lock()
+        self.rules   = Rules()
+        self.dns     = DNSCollector()
+        self.q       = NetfilterQueue()
+        self.procmon = ProcMon()
+        self.qt_app  = QtApp()
 
         self.q.bind( 0, self.pkt_callback, 1024 * 2 )
 
@@ -69,7 +71,7 @@ class Snitch:
                 self.dns.add_response(packet)
 
             else:
-                conn = Connection(data)
+                conn = Connection( self.procmon, data )
                 if conn.proto is None:
                     logging.debug( "Could not detect protocol for packet." )
 
@@ -95,6 +97,10 @@ class Snitch:
             logging.debug( "Applying iptables rule '%s'" % r )
             os.system( "iptables -I %s" % r )
 
+        if ProcMon.is_ftrace_available():
+            self.procmon.enable()
+            self.procmon.start()
+
         self.qt_app.run()
         self.q.run()
 
@@ -103,4 +109,5 @@ class Snitch:
             logging.debug( "Deleting iptables rule '%s'" % r )
             os.system( "iptables -D %s" % r )
 
+        self.procmon.disable()
         self.q.unbind()

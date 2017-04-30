@@ -20,7 +20,7 @@ import os
 import logging
 import psutil
 
-def get_pid_by_connection( src_addr, src_p, dst_addr, dst_p, proto = 'tcp' ):
+def get_pid_by_connection( procmon, src_addr, src_p, dst_addr, dst_p, proto = 'tcp' ):
     connections_list = [connection for connection in psutil.net_connections(kind=proto) if connection.laddr==(src_addr, src_p) and connection.raddr==(dst_addr, dst_p)]
 
     # We always take the first element as we assume it contains only one, because
@@ -28,7 +28,18 @@ def get_pid_by_connection( src_addr, src_p, dst_addr, dst_p, proto = 'tcp' ):
     if connections_list:
         pid = connections_list[0][-1]
         try:
-            return ( pid, os.readlink( "/proc/%s/exe" % pid ) )
+            appname = None
+            if procmon.running:
+                appname = procmon.get_app_name(pid)
+
+            if appname is None:
+                appname = os.readlink( "/proc/%s/exe" % pid )
+                if procmon.running:
+                    logging.debug( "Could not find pid %s with ProcMon, faiiling back to /proc/%s/exe -> %s" % ( pid, pid, appname ) )
+            else:
+                logging.debug( "ProcMon(%s) = %s" % ( pid, appname ) )
+
+            return ( pid, appname )
         except OSError:
             return (None, "Unknown")
     else:

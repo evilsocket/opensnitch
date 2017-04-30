@@ -20,6 +20,7 @@ import glob
 import re
 import os
 from threading import Lock
+import logging
 
 class LinuxDesktopParser:
     lock = Lock()
@@ -73,21 +74,24 @@ class LinuxDesktopParser:
         return ( name, icon )
 
 class Application:
-    def __init__( self, pid, path ):
+    def __init__( self, procmon, pid, path ):
         self.pid = pid
         self.path = path
         self.name, self.icon = LinuxDesktopParser.get_info_by_path(self.path)
 
-        # this is an attempt to resolve interpreted scripts to more useful
-        # things than just 'python2.7' or 'bash'
         try:
-            with open( "/proc/%s/comm" % pid ) as com_fd, open( "/proc/%s/cmdline" % pid ) as cmd_fd:
-                self.comm = com_fd.read().replace('\0', ' ').strip()
-                self.cmdline = cmd_fd.read().replace('\0', ' ').strip().split()
-        except IOError:
-            self.comm = ''
-            self.cmdline = []
 
-        if self.comm not in self.name:
-            self.name = self.comm
-            self.path = filter(lambda x: self.comm in x, self.cmdline)[0]
+            self.cmdline = None
+
+            if self.pid is not None:
+                if procmon.running:
+                    self.cmdline = procmon.get_cmdline( pid )
+                    if self.cmdline is None:
+                        logging.debug( "Could not find pid %s command line with ProcMon" % pid )
+
+                if self.cmdline is None:
+                    with open( "/proc/%s/cmdline" % pid ) as cmd_fd:
+                        self.cmdline = cmd_fd.read().replace( '\0', ' ').strip()
+
+        except Exception as e:
+            logging.exception(e)
