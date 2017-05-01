@@ -23,6 +23,10 @@ import os
 import threading
 import logging
 
+def writefile(path, value, mode="w"):
+    with open(path, mode) as f:
+        return f.write(value)
+
 class ProcMon(threading.Thread):
     PROBE_NAME = "opensnitch_sys_execve"
 
@@ -32,24 +36,24 @@ class ProcMon(threading.Thread):
         self.lock    = threading.Lock()
         self.running = False
         self.daemon  = True
-    
+
     @staticmethod
     def enable():
         ProcMon.disable(False)
         logging.info( "Enabling ProcMon ..." )
 
-        open("/sys/kernel/debug/tracing/events/sched/sched_process_fork/enable", 'w').write("1")
-        open("/sys/kernel/debug/tracing/events/sched/sched_process_exec/enable", 'w').write("1")
-        open("/sys/kernel/debug/tracing/events/sched/sched_process_exit/enable", 'w').write("1")
+        writefile("/sys/kernel/debug/tracing/events/sched/sched_process_fork/enable", "1")
+        writefile("/sys/kernel/debug/tracing/events/sched/sched_process_exec/enable", "1")
+        writefile("/sys/kernel/debug/tracing/events/sched/sched_process_exit/enable", "1")
 
         # Create the custom execve kprobe consumer
         with open("/sys/kernel/debug/tracing/kprobe_events", "w") as f:
-            f.write( "p:kprobes/%s sys_execve" % ProcMon.PROBE_NAME )
+            f.write("p:kprobes/%s sys_execve" % (ProcMon.PROBE_NAME,))
             #Command line args will be in %si, we're asking ftrace to give them to us
             for i in range(1, 16):
                 f.write(" arg%d=+0(+%d(%%si)):string" % (i, i*8))
 
-        open("/sys/kernel/debug/tracing/events/kprobes/%s/enable" % ProcMon.PROBE_NAME, 'w').write('1')
+        writefile("/sys/kernel/debug/tracing/events/kprobes/%s/enable" % (ProcMon.PROBE_NAME,), "1")
 
     @staticmethod
     def disable(verbose=True):
@@ -57,19 +61,19 @@ class ProcMon(threading.Thread):
             logging.info( "Disabling ProcMon ..." )
 
         try:
-            open("/sys/kernel/debug/tracing/events/sched/sched_process_fork/enable", 'w').write("0")
-            open("/sys/kernel/debug/tracing/events/sched/sched_process_exec/enable", 'w').write("0")
-            open("/sys/kernel/debug/tracing/events/sched/sched_process_exit/enable", 'w').write("0")
-            open("/sys/kernel/debug/tracing/events/kprobes/%s/enable" % ProcMon.PROBE_NAME, 'w').write('0')
-            open("/sys/kernel/debug/tracing/kprobe_events", 'a+').write("-:"+ ProcMon.PROBE_NAME)
-            open("/sys/kernel/debug/tracing/trace", 'w').write('')
+            writefile("/sys/kernel/debug/tracing/events/sched/sched_process_fork/enable", "0")
+            writefile("/sys/kernel/debug/tracing/events/sched/sched_process_exec/enable", "0")
+            writefile("/sys/kernel/debug/tracing/events/sched/sched_process_exit/enable", "0")
+            writefile("/sys/kernel/debug/tracing/events/kprobes/%s/enable" % (ProcMon.PROBE_NAME,), "0")
+            writefile("/sys/kernel/debug/tracing/kprobe_events", "-:%s" % (ProcMon.PROBE_NAME,), mode = "a+")
+            writefile("/sys/kernel/debug/tracing/trace", "")
         except:
             pass
 
     @staticmethod
     def is_ftrace_available():
         try:
-            with open( '/proc/sys/kernel/ftrace_enabled', 'rt' ) as fp:
+            with open("/proc/sys/kernel/ftrace_enabled", "rt") as fp:
                 return fp.read().strip() == '1'
         except:
             pass
@@ -107,12 +111,12 @@ class ProcMon(threading.Thread):
     def _on_exit( self, pid ):
         with self.lock:
             if pid in self.pids:
-               del self.pids[pid] 
+               del self.pids[pid]
 
     def run(self):
         logging.info( "ProcMon running ..." )
         self.running = True
-        
+
         with open("/sys/kernel/debug/tracing/trace_pipe") as pipe:
             while True:
                 try:
@@ -126,7 +130,7 @@ class ProcMon(threading.Thread):
 
                         if m is not None:
                             pid = int(m.group(1))
-                            #"walk" over every argument field, 'fault' is our terminator. 
+                            #"walk" over every argument field, 'fault' is our terminator.
                             # If we see it it means that there are more cmdline args.
                             if '(fault)' in line:
                                 line = line[:line.find('(fault)')]
@@ -155,4 +159,4 @@ class ProcMon(threading.Thread):
 
                 except Exception as e:
                     logging.warning(e)
-                        
+
