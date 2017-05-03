@@ -35,7 +35,7 @@ class Snitch:
                        # Get connection packets
                        "OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass",
                        # Reject packets marked by OpenSnitch
-                       "OUTPUT --protocol tcp -m mark --mark 1 -j REJECT" )
+                       "OUTPUT --protocol tcp -m mark --mark 101285 -j REJECT" )
 
     # TODO: Support IPv6!
     def __init__( self ):
@@ -87,7 +87,7 @@ class Snitch:
         if verd == Rule.DROP:
             logging.info( "Dropping %s from %s" % ( conn, conn.get_app_name() ) )
             # mark this packet so iptables will drop it
-            pkt.set_mark(1)
+            pkt.set_mark(101285)
             pkt.drop()
         else:
             pkt.accept()

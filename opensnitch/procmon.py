@@ -81,10 +81,11 @@ class ProcMon(threading.Thread):
         return False
 
     def get_app_name( self, pid ):
-        pid = int(pid)
-        with self.lock:
-            if pid in self.pids and 'filename' in self.pids[pid]:
-                return self.pids[pid]['filename']
+        if pid is not None:
+            pid = int(pid)
+            with self.lock:
+                if pid in self.pids and 'filename' in self.pids[pid]:
+                    return self.pids[pid]['filename']
 
         return None
 
