@@ -16,19 +16,12 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from opensnitch.rule import Rule
 import sys
 import gtk
 import os
 
-# If scapy has already pulled in PyQt RuntimeError will be raised
-# because an application can't depend on both.
-try:
-    from PyQt4 import QtCore, QtGui, uic
-except RuntimeError:
-    from PyQt5 import QtCore, QtGui, uic, QtWidgets
-else:
-    QtWidgets = QtGui  # Compat object
 
 # TODO: Implement tray icon and menu.
 # TODO: Implement rules editor.

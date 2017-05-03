@@ -21,6 +21,7 @@ import os
 import sys
 import logging
 import warnings
+import matplotlib as mpl
 
 from optparse import OptionParser
 
@@ -32,6 +33,11 @@ parser.add_option( "--debug",     dest="debug", action="store_true", default=Fal
 
 if not os.geteuid() == 0:
     sys.exit('OpenSnitch must be run as root.')
+
+
+# Ensure Qt4 wont be loaded by matplotlib
+mpl.rcParams['backend'] = 'Qt5Agg'
+
 
 from opensnitch.version import VERSION
 
@@ -60,4 +66,5 @@ def main():
 
     snitch.stop()
 
-main()
+if __name__ == '__main__':
+    main()
