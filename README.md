@@ -22,6 +22,16 @@ You'll need a GNU/Linux distribution with `iptables`, `NFQUEUE` and `ftrace` ker
 
     sudo opensnitch
 
+## Known Issues / Future Improvements
+
+Before opening an issue, keep in mind that the current implementation is just an experiment to see the doability of the project, future improvements of OpenSnitch will include:
+
+Split the project into `opensnitchd`, `opensnitch-ui` and `opensnitch-ruleman`:
+
+* `opensnitchd` will be a C++ daemon, running as root with the main logic. It'll fix [this](https://github.com/evilsocket/opensnitch/issues/28).
+* `opensnitch-ui` python (?) UI running as normal user, getting the daemon messages. Will fix [this](https://github.com/evilsocket/opensnitch/issues/20).
+* `opensnitch-ruleman` python (?) UI for rule editing.
+
 ## How Does It Work
 
 OpenSnitch is an application level firewall, meaning then while running, it will detect and alert the user for every outgoing connection applications he's running are creating. This can be extremely **effective to detect and block unwanted connections** on your system that might be caused by a security breach, **causing data exfiltration to be much harder for an attacker**.
