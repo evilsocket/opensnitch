@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 # This file is part of OpenSnitch.
 #
 # Copyright(c) 2017 Simone Margaritelli
@@ -61,5 +61,3 @@ def main():
     snitch.stop()
 
 main()
-
-
