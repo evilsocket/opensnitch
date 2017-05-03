@@ -121,9 +121,6 @@ class ProcMon(threading.Thread):
         with open("/sys/kernel/debug/tracing/trace_pipe") as pipe:
             while True:
                 try:
-                    r, w, e = select.select([pipe], [], [], 0)
-                    if pipe not in r:
-                        continue
                     line = pipe.readline()
 
                     if ProcMon.PROBE_NAME in line:
@@ -160,4 +157,3 @@ class ProcMon(threading.Thread):
 
                 except Exception as e:
                     logging.warning(e)
-
