@@ -14,7 +14,7 @@ You'll need a GNU/Linux distribution with `iptables`, `NFQUEUE` and `ftrace` ker
 
 ## Install
 
-    sudo apt-get install build-essential python-dev python-setuptools libnetfilter-queue-dev python-qt4
+    sudo apt-get install build-essential python-dev python-setuptools libnetfilter-queue-dev python-qt5
     cd opensnitch
     sudo python setup.py install
 
@@ -37,7 +37,7 @@ Split the project into `opensnitchd`, `opensnitch-ui` and `opensnitch-ruleman`:
 OpenSnitch is an application level firewall, meaning then while running, it will detect and alert the user for every outgoing connection applications he's running are creating. This can be extremely **effective to detect and block unwanted connections** on your system that might be caused by a security breach, **causing data exfiltration to be much harder for an attacker**.
 In order to do that, OpenSnitch relies on `NFQUEUE`, an `iptables` target/extension which allows an userland software to intercept IP packets and either `ALLOW` or `DROP` them, once started it'll install the following iptables rules:
 
-    OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass 
+    OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass
 
 This will use `conntrack` iptables extension to pass all newly created connection packets to NFQUEUE number 0 (the one OpenSnitch is listening on), and then:
 
