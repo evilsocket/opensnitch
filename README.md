@@ -28,7 +28,7 @@ Before opening an issue, keep in mind that the current implementation is just an
 
 Split the project into `opensnitchd`, `opensnitch-ui` and `opensnitch-ruleman`:
 
-* `opensnitchd` will be a C++ daemon, running as root with the main logic. It'll fix [this](https://github.com/evilsocket/opensnitch/issues/28).
+* `opensnitchd` will be a (C++ ? TBD) daemon, running as root with the main logic. It'll fix [this](https://github.com/evilsocket/opensnitch/issues/28).
 * `opensnitch-ui` python (?) UI running as normal user, getting the daemon messages. Will fix [this](https://github.com/evilsocket/opensnitch/issues/20).
 * `opensnitch-ruleman` python (?) UI for rule editing.
 
