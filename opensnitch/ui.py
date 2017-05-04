@@ -19,7 +19,6 @@
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from opensnitch.rule import Rule
 import sys
-import gtk
 import os
 
 
@@ -85,13 +84,10 @@ class Dialog( QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0] ):
         self.action_combo_box.currentIndexChanged[str].connect ( self._action_changed )
 
     def setup_icon(self):
-        icon_theme = gtk.icon_theme_get_default()
         if self.connection.app.icon is not None:
-            icon = icon_theme.lookup_icon(self.connection.app.icon, 48, 0)
-            if icon is not None:
-                icon_path = icon.get_filename()
-                pixmap = QtGui.QPixmap(icon_path)
-                self.icon_label.setPixmap(pixmap)
+            icon = QtGui.QIcon().fromTheme(self.connection.app.icon)
+            pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+            self.icon_label.setPixmap(pixmap)
 
     def setup_extra(self):
         self._action_changed()
