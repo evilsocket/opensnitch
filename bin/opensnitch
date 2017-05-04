@@ -21,7 +21,6 @@ import os
 import sys
 import logging
 import warnings
-import matplotlib as mpl
 
 from optparse import OptionParser
 
@@ -36,7 +35,12 @@ if not os.geteuid() == 0:
 
 
 # Ensure Qt4 wont be loaded by matplotlib
-mpl.rcParams['backend'] = 'Qt5Agg'
+try:
+    import matplotlib as mpl
+except ImportError:
+    pass
+else:
+    mpl.rcParams['backend'] = 'Qt5Agg'
 
 
 from opensnitch.version import VERSION
