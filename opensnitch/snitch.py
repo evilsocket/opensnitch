@@ -81,7 +81,7 @@ class Snitch:
                 else:
                     verd = self.get_verdict( conn )
 
-        except Exception, e:
+        except (Exception, e):
             logging.exception( "Exception on packet callback:" )
 
         if verd == Rule.DROP:

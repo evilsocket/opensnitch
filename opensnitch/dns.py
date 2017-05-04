@@ -54,7 +54,7 @@ class DNSCollector:
 
                         logging.debug( "Adding DNS response: %s => %s" % ( address, hostname ) )
                         self.hosts[address] = hostname
-                except Exception, e:
+                except (Exception, e):
                     logging.debug("Error while parsing DNS response: %s" % e)
 
     def get_hostname( self, address ):
