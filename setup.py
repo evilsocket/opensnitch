@@ -18,7 +18,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 from setuptools import setup, find_packages
 from opensnitch.version import VERSION
-import os
 
 try:
   long_description = open( 'README.md', 'rt' ).read()
@@ -37,5 +36,9 @@ setup( name                 = 'opensnitch',
        package_data         = {'': ['*.ui']},
        license              = 'GPL',
        zip_safe             = False,
-       install_requires     = [ 'scapy', 'dpkt', 'NetfilterQueue', 'psutil' ]
+       install_requires     = ['scapy',
+                               'dpkt',
+                               'NetfilterQueue',
+                               'psutil',
+                               'python-iptables']
 )
