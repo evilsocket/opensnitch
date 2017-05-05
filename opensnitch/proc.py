@@ -21,7 +21,9 @@ import logging
 import psutil
 
 def get_pid_by_connection( procmon, src_addr, src_p, dst_addr, dst_p, proto = 'tcp' ):
-    connections_list = [connection for connection in psutil.net_connections(kind=proto) if connection.laddr==(src_addr, src_p) and connection.raddr==(dst_addr, dst_p)]
+    connections_list = [ connection for connection in psutil.net_connections(kind=proto) \
+                            if connection.laddr==( src_addr, int(src_p) ) and \
+                               connection.raddr==( dst_addr, int(dst_p) ) ]
 
     # We always take the first element as we assume it contains only one, because
     # it should not be possible to keep two connections which are exactly the same.
