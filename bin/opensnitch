@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # This file is part of OpenSnitch.
 #
 # Copyright(c) 2017 Simone Margaritelli
@@ -45,9 +45,11 @@ else:
 
 from opensnitch.version import VERSION
 
-logging.basicConfig( format   = '[%(asctime)s] (%(levelname)s) %(message)s',
-                     level    = logging.INFO if options.debug == False else logging.DEBUG,
-                     filename = '/dev/stdout' if options.logfile is None else options.logfile )
+logging.basicConfig(
+    format   = '[%(asctime)s] (%(levelname)s) %(message)s',
+    level    = logging.INFO if options.debug == False else logging.DEBUG,
+    filename = options.logfile)
+
 
 # At some point Scapy devs will realize how bothering their fucking warnings
 # are while importing scapy.all ...
@@ -63,7 +65,7 @@ def main():
     try:
         logging.info( "OpenSnitch v%s running with pid %d." % ( VERSION, os.getpid() ) )
         snitch.start()
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt as e:
         pass
 
     logging.info( "Quitting ..." )

@@ -52,8 +52,8 @@ class Snitch:
         verdict = self.rules.get_verdict(c)
 
         if verdict is None:
-            with self.lock: 
-                c.hostname = self.dns.get_hostname(c.dst_addr) 
+            with self.lock:
+                c.hostname = self.dns.get_hostname(c.dst_addr)
                 ( save_option, verdict, apply_for_all ) = self.qt_app.prompt_user(c)
                 if save_option != Rule.ONCE:
                     self.rules.add_rule( c, verdict, apply_for_all, save_option )
@@ -81,7 +81,7 @@ class Snitch:
                 else:
                     verd = self.get_verdict( conn )
 
-        except Exception, e:
+        except Exception as e:
             logging.exception( "Exception on packet callback:" )
 
         if verd == Rule.DROP:

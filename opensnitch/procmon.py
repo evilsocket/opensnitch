@@ -118,39 +118,39 @@ class ProcMon(threading.Thread):
         logging.info( "ProcMon running ..." )
         self.running = True
 
-        with open("/sys/kernel/debug/tracing/trace_pipe") as pipe:
+        with open("/sys/kernel/debug/tracing/trace_pipe", 'rb') as pipe:
             while True:
                 try:
                     line = pipe.readline()
 
-                    if ProcMon.PROBE_NAME in line:
-                        m = re.search(r'^.*?\-(\d+)\s*\[', line)
+                    if ProcMon.PROBE_NAME.encode() in line:
+                        m = re.search(b'^.*?\-(\d+)\s*\[', line)
 
                         if m is not None:
                             pid = int(m.group(1))
                             #"walk" over every argument field, 'fault' is our terminator.
                             # If we see it it means that there are more cmdline args.
-                            if '(fault)' in line:
-                                line = line[:line.find('(fault)')]
+                            if b'(fault)' in line:
+                                line = line[:line.find(b'(fault)')]
 
-                            args = ' '.join(re.findall(r'arg\d+="(.*?)"', line))
+                            args = b' '.join(re.findall(b'arg\d+="(.*?)"', line))
 
-                            self._on_args( pid, args )
+                            self._on_args( pid, args.decode() )
 
                     else:
-                        m = re.search(r'sched_process_(.*?):', line)
+                        m = re.search(b'sched_process_(.*?):', line)
                         if m is not None:
                             event = m.group(1)
 
-                            if event == 'exec':
-                                filename = re.search(r'filename=(.*?)\s+pid=', line).group(1)
-                                pid      = int(re.search(r'\spid=(\d+)', line).group(1))
+                            if event == b'exec':
+                                filename = re.search(b'filename=(.*?)\s+pid=', line).group(1)
+                                pid      = int(re.search(b'\spid=(\d+)', line).group(1))
 
-                                self._on_exec( pid, filename )
+                                self._on_exec( pid, filename.decode() )
 
-                            elif event == 'exit':
-                                mm = re.search(r'\scomm=(.*?)\s+pid=(\d+)', line)
-                                command = mm.group(1)
+                            elif event == b'exit':
+                                mm = re.search(b'\scomm=(.*?)\s+pid=(\d+)', line)
+                                # command = mm.group(1)
                                 pid = int(mm.group(2))
 
                                 self._on_exit( pid )
