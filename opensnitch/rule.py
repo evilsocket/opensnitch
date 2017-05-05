@@ -36,7 +36,7 @@ class Rule:
         self.address = address
         self.port = port
         self.proto = proto
-       
+
     def matches( self, c ):
         if self.app_path != c.app_path:
             return False
@@ -100,7 +100,7 @@ class Rules:
 
 class RulesDB:
     def __init__(self):
-        if os.environ.has_key('SUDO_USER'):
+        if 'SUDO_USER' in os.environ:
             self.home = expanduser("~%s" % os.environ['SUDO_USER'] )
         else:
             self.home = expanduser("~%s" % os.environ['USER'] )
@@ -129,4 +129,3 @@ class RulesDB:
         c = self.conn.cursor()
         c.execute("DELETE FROM rules WHERE app_path=?", (app_path,))
         self.conn.commit()
-
