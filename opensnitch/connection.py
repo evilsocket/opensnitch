@@ -21,8 +21,9 @@ from opensnitch.app import Application
 from dpkt import ip
 from socket import inet_ntoa, getservbyport
 
+
 class Connection:
-    def __init__( self, procmon, payload ):
+    def __init__(self, procmon, desktop_parser, payload):
         self.data     = payload
         self.pkt      = ip.IP( self.data )
         self.src_addr = inet_ntoa( self.pkt.src )
@@ -54,7 +55,8 @@ class Connection:
                                                              self.dst_addr,
                                                              self.dst_port,
                                                              self.proto )
-            self.app = Application( procmon, self.pid, self.app_path )
+            self.app = Application(procmon, desktop_parser,
+                                   self.pid, self.app_path)
             self.app_path = self.app.path
 
     def get_app_name(self):

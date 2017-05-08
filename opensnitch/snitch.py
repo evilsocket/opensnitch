@@ -28,6 +28,8 @@ from opensnitch.connection import Connection
 from opensnitch.dns import DNSCollector
 from opensnitch.rule import Rule, Rules
 from opensnitch.procmon import ProcMon
+from opensnitch.app import LinuxDesktopParser
+
 
 class Snitch:
     IPTABLES_RULES = ( # Get DNS responses
@@ -45,6 +47,7 @@ class Snitch:
         self.q       = NetfilterQueue()
         self.procmon = ProcMon()
         self.qt_app  = QtApp()
+        self.desktop_parser = LinuxDesktopParser()
 
         self.q.bind( 0, self.pkt_callback, 1024 * 2 )
 
@@ -71,7 +74,7 @@ class Snitch:
                 self.dns.add_response(packet)
 
             else:
-                conn = Connection( self.procmon, data )
+                conn = Connection(self.procmon, self.desktop_parser, data)
                 if conn.proto is None:
                     logging.debug( "Could not detect protocol for packet." )
 
