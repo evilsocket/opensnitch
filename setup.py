@@ -44,5 +44,5 @@ setup( name                 = 'opensnitch',
        package_data         = {'': ['*.ui']},
        license              = 'GPL',
        zip_safe             = False,
-       install_requires     = [ 'scapy', 'dpkt', 'NetfilterQueue', 'psutil' , 'pyinotify', 'PyQt5']
+       install_requires     = [ 'scapy-python3', 'dpkt', 'NetfilterQueue', 'psutil' , 'pyinotify']
 )
