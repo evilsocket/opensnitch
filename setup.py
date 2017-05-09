@@ -18,12 +18,19 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 from setuptools import setup, find_packages
 from opensnitch.version import VERSION
-import os
+import sys
+
+
+if sys.version_info[0] != 3:
+    raise RuntimeError('Unsupported python version "{0}"'.format(
+      sys.version_info[0]))
 
 try:
-  long_description = open( 'README.md', 'rt' ).read()
+    with open('README.md') as f:
+        long_description = f.read()
 except:
-  long_description = 'OpenSnitch - An application level firewall for GNU/Linux.'
+    long_description = 'OpenSnitch - An application level firewall for GNU/Linux.'  # noqa
+
 
 setup( name                 = 'opensnitch',
        version              = VERSION,
@@ -37,5 +44,5 @@ setup( name                 = 'opensnitch',
        package_data         = {'': ['*.ui']},
        license              = 'GPL',
        zip_safe             = False,
-       install_requires     = [ 'scapy', 'dpkt', 'NetfilterQueue', 'psutil' , 'pyinotify']
+       install_requires     = [ 'scapy', 'dpkt', 'NetfilterQueue', 'psutil' , 'pyinotify', 'PyQt5']
 )
