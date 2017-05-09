@@ -14,7 +14,7 @@ You'll need a GNU/Linux distribution with `iptables`, `NFQUEUE` and `ftrace` ker
 
 ## Install
 
-    sudo apt-get install build-essential python-dev python-setuptools libnetfilter-queue-dev python-pyqt5
+    sudo apt-get install build-essential python3-dev python3-setuptools libnetfilter-queue-dev python3-pyqt5
     cd opensnitch
     sudo python setup.py install
 
