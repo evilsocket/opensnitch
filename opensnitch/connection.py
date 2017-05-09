@@ -17,12 +17,13 @@
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 from opensnitch.proc import get_pid_by_connection
-from opensnitch.app import Application 
+from opensnitch.app import Application
 from dpkt import ip
 from socket import inet_ntoa, getservbyport
 
+
 class Connection:
-    def __init__( self, procmon, payload ):
+    def __init__(self, procmon, desktop_parser, payload):
         self.data     = payload
         self.pkt      = ip.IP( self.data )
         self.src_addr = inet_ntoa( self.pkt.src )
@@ -47,16 +48,17 @@ class Connection:
                 self.service = getservbyport( int(self.dst_port), self.proto )
             except:
                 self.service = None
-            
+
             self.pid, self.app_path = get_pid_by_connection( procmon,
                                                              self.src_addr,
                                                              self.src_port,
                                                              self.dst_addr,
                                                              self.dst_port,
                                                              self.proto )
-            self.app = Application( procmon, self.pid, self.app_path )
+            self.app = Application(procmon, desktop_parser,
+                                   self.pid, self.app_path)
             self.app_path = self.app.path
-                        
+
     def get_app_name(self):
         if self.app_path == 'Unknown':
             return self.app_path
@@ -69,13 +71,16 @@ class Connection:
 
     def get_app_name_and_cmdline(self):
         if self.app.cmdline is not None:
-            if self.app.cmdline.startswith( self.app.path ):
-                return self.app.cmdline
+            # TODO: Figure out why we get mixed types here
+            cmdline = self.app.cmdline if isinstance(self.app.cmdline, str) else self.app.cmdline.decode()
+            path = self.app.path if isinstance(self.app.path, str) else self.app.path.decode()
+
+            if cmdline.startswith(self.app.path):
+                return cmdline
             else:
-                return "%s %s" % ( self.app.path, self.app.cmdline )
+                return "%s %s" % (path, cmdline)
         else:
-            return self.app.path
+            return path
 
     def __repr__(self):
         return "[%s] %s (%s) -> %s:%s" % ( self.pid, self.app_path, self.proto, self.dst_addr, self.dst_port )
-

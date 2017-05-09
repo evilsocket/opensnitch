@@ -16,68 +16,90 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-import glob
-import re
-import os
 from threading import Lock
+import configparser
+import pyinotify
+import threading
 import logging
+import glob
+import os
 
-class LinuxDesktopParser:
-    lock = Lock()
-    apps = None
 
-    @staticmethod
-    def get_info_by_path( path ):
+DESKTOP_PATHS = [
+    os.path.join(d, 'applications')
+    for d in os.getenv('XDG_DATA_DIRS', '/usr/share/').split(':')
+]
+
+
+class LinuxDesktopParser(threading.Thread):
+
+    def __init__(self):
+        super().__init__()
+        self.lock = Lock()
+        self.daemon = True
+        self.running = False
+
+        self.apps = {}
+        for desktop_path in DESKTOP_PATHS:
+            if not os.path.exists(desktop_path):
+                continue
+
+            for desktop_file in glob.glob(os.path.join(desktop_path,
+                                                       '*.desktop')):
+                self.populate_app(desktop_file)
+
+        self.start()
+
+    def populate_app(self, desktop_path):
+        parser = configparser.ConfigParser()
+        parser.read(desktop_path)
+        cmd = parser.get('Desktop Entry', 'exec', raw=True,
+                         fallback=' ').split(' ')[0] or None
+        if cmd is None:
+            return
+
+        icon = parser.get('Desktop Entry', 'icon',
+                          raw=True, fallback=None)
+        name = parser.get('Desktop Entry', 'name',
+                          raw=True, fallback=None)
+
+        with self.lock:
+            self.apps[cmd] = (name, icon, desktop_path)
+
+    def get_info_by_path(self, path):
         path = os.path.basename(path)
-        name = path
-        icon = None
+        with self.lock:
+            return self.apps.get(path, (path, None))[:2]
 
-        LinuxDesktopParser.lock.acquire()
+    def run(self):
+        self.running = True
+        wm = pyinotify.WatchManager()
+        notifier = pyinotify.Notifier(wm)
 
-        try:
-            if LinuxDesktopParser.apps is None:
-                LinuxDesktopParser.apps = {}
-                for item in glob.glob('/usr/share/applications/*.desktop'):
-                    name = None
-                    icon = None
-                    cmd  = None
+        def inotify_callback(event):
+            if event.mask == pyinotify.IN_CLOSE_WRITE:
+                self.populate_app(event.pathname)
 
-                    with open( item, 'rt' ) as fp:
-                        in_section = False
-                        for line in fp:
-                            line = line.strip()
-                            if '[Desktop Entry]' in line:
-                                in_section = True
-                                continue
-                            elif len(line) > 0 and line[0] == '[':
-                                in_section = False
-                                continue
+            elif event.mask == pyinotify.IN_DELETE:
+                with self.lock:
+                    for cmd, data in self.apps.items():
+                        if data[2] == event.pathname:
+                            del self.apps[cmd]
+                            break
 
-                            if in_section and line.startswith('Exec='):
-                                cmd = os.path.basename( line[5:].split(' ')[0] )
+        for p in DESKTOP_PATHS:
+            if os.path.exists(p):
+                wm.add_watch(p,
+                             pyinotify.IN_CLOSE_WRITE | pyinotify.IN_DELETE,
+                             inotify_callback)
+        notifier.loop()
 
-                            elif in_section and line.startswith('Icon='):
-                                icon = line[5:]
-
-                            elif in_section and line.startswith('Name='):
-                                name = line[5:]
-                    
-                    if cmd is not None:
-                        LinuxDesktopParser.apps[cmd] = ( name, icon )
-
-            if path in LinuxDesktopParser.apps:
-                name, icon = LinuxDesktopParser.apps[path]
-
-        finally:
-            LinuxDesktopParser.lock.release()
-
-        return ( name, icon )
 
 class Application:
-    def __init__( self, procmon, pid, path ):
+    def __init__(self, procmon, desktop_parser, pid, path):
         self.pid = pid
         self.path = path
-        self.name, self.icon = LinuxDesktopParser.get_info_by_path(self.path)
+        self.name, self.icon = desktop_parser.get_info_by_path(path)
 
         try:
 
@@ -85,13 +107,14 @@ class Application:
 
             if self.pid is not None:
                 if procmon.running:
-                    self.cmdline = procmon.get_cmdline( pid )
+                    self.cmdline = procmon.get_cmdline(pid)
                     if self.cmdline is None:
-                        logging.debug( "Could not find pid %s command line with ProcMon" % pid )
+                        logging.debug(
+                            "Could not find pid %s command line with ProcMon", pid)  # noqa
 
                 if self.cmdline is None:
-                    with open( "/proc/%s/cmdline" % pid ) as cmd_fd:
-                        self.cmdline = cmd_fd.read().replace( '\0', ' ').strip()
+                    with open("/proc/%s/cmdline" % pid) as cmd_fd:
+                        self.cmdline = cmd_fd.read().replace('\0', ' ').strip()
 
         except Exception as e:
             logging.exception(e)

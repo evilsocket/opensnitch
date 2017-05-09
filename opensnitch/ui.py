@@ -16,9 +16,11 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from opensnitch.rule import Rule
-from PyQt4 import QtCore, QtGui, uic
-import sys, os, gtk
+import sys
+import os
+
 
 # TODO: Implement tray icon and menu.
 # TODO: Implement rules editor.
@@ -30,7 +32,7 @@ class QtApp:
         pass
 
     def run(self):
-        self.app = QtGui.QApplication([])
+        self.app = QtWidgets.QApplication([])
 
     def prompt_user( self, connection ):
         dialog = Dialog( connection )
@@ -38,12 +40,12 @@ class QtApp:
         self.app.exec_()
         return dialog.result
 
-class Dialog( QtGui.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0] ):
+class Dialog( QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0] ):
     DEFAULT_RESULT = ( Rule.ONCE, Rule.ACCEPT, False )
 
     def __init__( self, connection, parent=None ):
         self.connection = connection
-        QtGui.QDialog.__init__( self, parent, QtCore.Qt.WindowStaysOnTopHint )
+        QtWidgets.QDialog.__init__( self, parent, QtCore.Qt.WindowStaysOnTopHint )
         self.setupUi(self)
         self.init_widgets()
         self.start_listeners()
@@ -65,14 +67,14 @@ class Dialog( QtGui.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0] ):
         self.message_label.setText( message )
 
     def init_widgets(self):
-        self.app_name_label = self.findChild( QtGui.QLabel, "appNameLabel" )
-        self.message_label = self.findChild( QtGui.QLabel, "messageLabel" )
-        self.action_combo_box = self.findChild( QtGui.QComboBox, "actionComboBox" )
-        self.allow_button = self.findChild( QtGui.QPushButton, "allowButton" )
-        self.deny_button = self.findChild( QtGui.QPushButton, "denyButton" )
-        self.whitelist_button = self.findChild( QtGui.QPushButton, "whitelistButton" )
-        self.block_button = self.findChild( QtGui.QPushButton, "blockButton" )
-        self.icon_label = self.findChild( QtGui.QLabel, "iconLabel" )
+        self.app_name_label = self.findChild( QtWidgets.QLabel, "appNameLabel" )
+        self.message_label = self.findChild( QtWidgets.QLabel, "messageLabel" )
+        self.action_combo_box = self.findChild( QtWidgets.QComboBox, "actionComboBox" )
+        self.allow_button = self.findChild( QtWidgets.QPushButton, "allowButton" )
+        self.deny_button = self.findChild( QtWidgets.QPushButton, "denyButton" )
+        self.whitelist_button = self.findChild( QtWidgets.QPushButton, "whitelistButton" )
+        self.block_button = self.findChild( QtWidgets.QPushButton, "blockButton" )
+        self.icon_label = self.findChild( QtWidgets.QLabel, "iconLabel" )
 
     def start_listeners(self):
         self.allow_button.clicked.connect( self._allow_action )
@@ -82,13 +84,10 @@ class Dialog( QtGui.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0] ):
         self.action_combo_box.currentIndexChanged[str].connect ( self._action_changed )
 
     def setup_icon(self):
-        icon_theme = gtk.icon_theme_get_default()
         if self.connection.app.icon is not None:
-            icon = icon_theme.lookup_icon(self.connection.app.icon, 48, 0)
-            if icon is not None:
-                icon_path = icon.get_filename()
-                pixmap = QtGui.QPixmap(icon_path)
-                self.icon_label.setPixmap(pixmap)
+            icon = QtGui.QIcon().fromTheme(self.connection.app.icon)
+            pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+            self.icon_label.setPixmap(pixmap)
 
     def setup_extra(self):
         self._action_changed()

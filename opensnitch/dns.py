@@ -42,19 +42,19 @@ class DNSCollector:
                         address  = packet[0][i].rdata
                         i -= 1
 
-                        if hostname == '.':
+                        if hostname == b'.':
                             continue
 
-                        elif hostname.endswith('.'):
+                        elif hostname.endswith(b'.'):
                             hostname = hostname[:-1]
 
                         # for CNAME records
                         if address.endswith('.'):
                             address = address[:-1]
 
-                        logging.debug( "Adding DNS response: %s => %s" % ( address, hostname ) )
-                        self.hosts[address] = hostname
-                except Exception, e:
+                        logging.debug("Adding DNS response: %s => %s" % (address, hostname))
+                        self.hosts[address] = hostname.decode()
+                except Exception as e:
                     logging.debug("Error while parsing DNS response: %s" % e)
 
     def get_hostname( self, address ):
