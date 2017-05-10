@@ -22,11 +22,20 @@ import sys
 import logging
 import warnings
 
+from os.path import expanduser
+
 from optparse import OptionParser
+
+if 'SUDO_USER' in os.environ:
+    home = expanduser("~%s" % os.environ['SUDO_USER'])
+else:
+    home = expanduser("~%s" % os.environ['USER'])
+filename = os.path.join(home, "opensnitch.db")
 
 parser = OptionParser()
 parser.add_option( "--log-file",  dest="logfile", default=None, help="Log to file.", metavar="FILE" )
 parser.add_option( "--debug",     dest="debug", action="store_true", default=False, help="Enable debug logs." )
+parser.add_option( "--database",  dest="database", default=filename, help="Database path.", metavar="FILE" )
 
 (options, args) = parser.parse_args()
 
@@ -59,8 +68,9 @@ warnings.filterwarnings("ignore", category=RuntimeWarning, module="gtk")
 
 from opensnitch.snitch import Snitch
 
+
 def main():
-    snitch = Snitch()
+    snitch = Snitch(options.database)
 
     try:
         logging.info( "OpenSnitch v%s running with pid %d." % ( VERSION, os.getpid() ) )

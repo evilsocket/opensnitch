@@ -40,9 +40,9 @@ class Snitch:
                        "OUTPUT --protocol tcp -m mark --mark 101285 -j REJECT" )
 
     # TODO: Support IPv6!
-    def __init__( self ):
+    def __init__(self, database):
         self.lock    = Lock()
-        self.rules   = Rules()
+        self.rules   = Rules(database)
         self.dns     = DNSCollector()
         self.q       = NetfilterQueue()
         self.procmon = ProcMon()

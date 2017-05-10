@@ -17,8 +17,6 @@
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 import logging
-import os
-from os.path import expanduser
 from threading import Lock
 import sqlite3
 
@@ -54,9 +52,9 @@ class Rule:
             return True
 
 class Rules:
-    def __init__(self):
+    def __init__(self, database):
         self.mutex = Lock()
-        self.db = RulesDB()
+        self.db = RulesDB(database)
         self.rules = self.db.load_rules()
 
     def get_verdict( self, connection ):
@@ -99,16 +97,11 @@ class Rules:
                 self.db.save_rule(r)
 
 class RulesDB:
-    def __init__(self):
-        if 'SUDO_USER' in os.environ:
-            self.home = expanduser("~%s" % os.environ['SUDO_USER'] )
-        else:
-            self.home = expanduser("~%s" % os.environ['USER'] )
-        self.filename = os.path.join( self.home,  "opensnitch.db" )
+    def __init__(self, filename):
 
-        logging.info( "Using rules database from %s" % self.filename )
+        logging.info("Using rules database from %s" % filename)
 
-        self.conn = sqlite3.connect(self.filename)
+        self.conn = sqlite3.connect(filename)
         self._create_table()
 
     def _create_table(self):

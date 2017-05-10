@@ -51,8 +51,9 @@ class LinuxDesktopParser(threading.Thread):
         self.start()
 
     def populate_app(self, desktop_path):
-        parser = configparser.ConfigParser()
-        parser.read(desktop_path)
+        parser = configparser.ConfigParser(
+            strict=False)  # Allow duplicate config entries
+        parser.read(desktop_path, 'utf8')
         cmd = parser.get('Desktop Entry', 'exec', raw=True,
                          fallback=' ').split(' ')[0] or None
         if cmd is None:
