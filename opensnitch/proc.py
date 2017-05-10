@@ -2,7 +2,7 @@
 #
 # Copyright(c) 2017 Simone Margaritelli
 # evilsocket@gmail.com
-# http://www.evilsocket.net
+# https://www.evilsocket.net
 #
 # This file may be licensed under the terms of of the
 # GNU General Public License Version 2 (the ``GPL'').
@@ -37,7 +37,7 @@ def get_pid_by_connection( procmon, src_addr, src_p, dst_addr, dst_p, proto = 't
             if appname is None:
                 appname = os.readlink( "/proc/%s/exe" % pid )
                 if procmon.running:
-                    logging.debug( "Could not find pid %s with ProcMon, faiiling back to /proc/%s/exe -> %s" % ( pid, pid, appname ) )
+                    logging.debug( "Could not find pid %s with ProcMon, falling back to /proc/%s/exe -> %s" % ( pid, pid, appname ) )
             else:
                 logging.debug( "ProcMon(%s) = %s" % ( pid, appname ) )
 
