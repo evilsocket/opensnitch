@@ -30,8 +30,14 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>600</width>
+    <width>680</width>
     <height>250</height>
+   </size>
+  </property>
+  <property name="sizeIncrement">
+   <size>
+    <width>35</width>
+    <height>18</height>
    </size>
   </property>
   <property name="font">
@@ -194,6 +200,9 @@
        <width>35</width>
        <height>18</height>
       </size>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
