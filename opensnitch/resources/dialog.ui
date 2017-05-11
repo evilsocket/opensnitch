@@ -13,11 +13,11 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>176</height>
+    <height>169</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -30,8 +30,14 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>600</width>
+    <width>680</width>
     <height>250</height>
+   </size>
+  </property>
+  <property name="sizeIncrement">
+   <size>
+    <width>35</width>
+    <height>9</height>
    </size>
   </property>
   <property name="font">
@@ -49,61 +55,26 @@
    <bool>false</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0" colspan="6">
-    <widget class="QLabel" name="messageLabel">
-     <property name="enabled">
-      <bool>true</bool>
+   <property name="sizeConstraint">
+    <enum>QLayout::SetMinAndMaxSize</enum>
+   </property>
+   <item row="3" column="1">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Ignored">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <property name="text">
-      <string>Chromium Web Browser (/usr/lib/chromium-browser) wants to connect to host 127.0.0.1 on TCP port 443 (https)</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::RichText</enum>
-     </property>
-     <property name="scaledContents">
-      <bool>true</bool>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::TextBrowserInteraction</set>
-     </property>
-    </widget>
+    </spacer>
    </item>
    <item row="5" column="0">
     <widget class="QPushButton" name="whitelistButton">
      <property name="text">
       <string>Whitelist app</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="5">
-    <widget class="QLabel" name="appNameLabel">
-     <property name="font">
-      <font>
-       <pointsize>15</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Chromium Web Browser</string>
      </property>
     </widget>
    </item>
@@ -187,18 +158,83 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="0" column="0" colspan="5">
+    <widget class="QLabel" name="appNameLabel">
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
      </property>
-     <property name="sizeHint" stdset="0">
+     <property name="text">
+      <string>Chromium Web Browser</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="6">
+    <widget class="QLabel" name="messageLabel">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
       <size>
-       <width>40</width>
-       <height>20</height>
+       <width>0</width>
+       <height>0</height>
       </size>
      </property>
-    </spacer>
+     <property name="maximumSize">
+      <size>
+       <width>600</width>
+       <height>400</height>
+      </size>
+     </property>
+     <property name="sizeIncrement">
+      <size>
+       <width>35</width>
+       <height>18</height>
+      </size>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <property name="text">
+      <string>Chromium Web Browser (/usr/lib/chromium-browser) wants to connect to host 127.0.0.1 on TCP port 443 (https)</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="margin">
+      <number>1</number>
+     </property>
+     <property name="indent">
+      <number>1</number>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::TextBrowserInteraction</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
