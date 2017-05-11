@@ -25,7 +25,7 @@ import os
 # TODO: Implement tray icon and menu.
 # TODO: Implement rules editor.
 RESOURCES_PATH = "%s/resources/" % os.path.dirname(sys.modules[__name__].__file__)
-DIALOG_UI_PATH = "%s/dialog_hi.ui" % RESOURCES_PATH
+DIALOG_UI_PATH = "%s/dialog.ui" % RESOURCES_PATH
 
 
 class QtApp:
