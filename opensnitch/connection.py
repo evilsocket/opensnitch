@@ -23,7 +23,8 @@ from socket import inet_ntoa, getservbyport
 
 
 class Connection:
-    def __init__(self, procmon, desktop_parser, payload):
+    def __init__(self, packet_id, procmon, desktop_parser, payload):
+        self.id = packet_id
         self.data     = payload
         self.pkt      = ip.IP( self.data )
         self.src_addr = inet_ntoa( self.pkt.src )

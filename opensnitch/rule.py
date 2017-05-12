@@ -96,29 +96,42 @@ class Rules:
             if save_option == Rule.FOREVER:
                 self.db.save_rule(r)
 
+
 class RulesDB:
+
     def __init__(self, filename):
-
+        self._filename = filename
+        self._lock = Lock()
         logging.info("Using rules database from %s" % filename)
-
-        self.conn = sqlite3.connect(filename)
         self._create_table()
 
+    # Only call with lock!
+    def _get_conn(self):
+        return sqlite3.connect(self._filename)
+
     def _create_table(self):
-        c = self.conn.cursor()
-        c.execute("CREATE TABLE IF NOT EXISTS rules (app_path TEXT, verdict INTEGER, address TEXT, port INTEGER, proto TEXT)")
+        with self._lock:
+            conn = self._get_conn()
+            c = conn.cursor()
+            c.execute("CREATE TABLE IF NOT EXISTS rules (app_path TEXT, verdict INTEGER, address TEXT, port INTEGER, proto TEXT)")  # noqa
 
     def load_rules(self):
-        c = self.conn.cursor()
-        c.execute("SELECT * FROM rules")
-        return [Rule(*item) for item in c.fetchall()]
+        with self._lock:
+            conn = self._get_conn()
+            c = conn.cursor()
+            c.execute("SELECT * FROM rules")
+            return [Rule(*item) for item in c.fetchall()]
 
-    def save_rule( self, rule ):
-        c = self.conn.cursor()
-        c.execute("INSERT INTO rules VALUES (?, ?, ?, ?, ?)", (rule.app_path, rule.verdict, rule.address, rule.port, rule.proto,))
-        self.conn.commit()
+    def save_rule(self, rule):
+        with self._lock:
+            conn = self._get_conn()
+            c = conn.cursor()
+            c.execute("INSERT INTO rules VALUES (?, ?, ?, ?, ?)", (rule.app_path, rule.verdict, rule.address, rule.port, rule.proto,))  # noqa
+            conn.commit()
 
-    def remove_all_app_rules ( self, app_path ):
-        c = self.conn.cursor()
-        c.execute("DELETE FROM rules WHERE app_path=?", (app_path,))
-        self.conn.commit()
+    def remove_all_app_rules(self, app_path):
+        with self._lock:
+            conn = self._get_conn()
+            c = conn.cursor()
+            c.execute("DELETE FROM rules WHERE app_path=?", (app_path,))
+            conn.commit()

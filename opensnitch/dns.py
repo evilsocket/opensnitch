@@ -16,22 +16,17 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-import logging
+from scapy.all import DNSRR, DNS
 from threading import Lock
-from scapy.all import *
+import logging
+
 
 class DNSCollector:
     def __init__(self):
         self.lock = Lock()
-        self.hosts = { '127.0.0.1': 'localhost' }
+        self.hosts = {'127.0.0.1': 'localhost'}
 
-    def is_dns_response(self, packet):
-        if packet.haslayer(DNSRR):
-            return True
-        else:
-            return False
-
-    def add_response( self, packet ):
+    def add_response(self, packet):
         if packet.haslayer(DNS) and packet.haslayer(DNSRR):
             with self.lock:
                 try:
@@ -39,7 +34,7 @@ class DNSCollector:
                     i = a_count + 4
                     while i > 4:
                         hostname = packet[0][i].rrname
-                        address  = packet[0][i].rdata
+                        address = packet[0][i].rdata
                         i -= 1
 
                         if hostname == b'.':
@@ -52,15 +47,18 @@ class DNSCollector:
                         if address.endswith('.'):
                             address = address[:-1]
 
-                        logging.debug("Adding DNS response: %s => %s" % (address, hostname))
+                        logging.debug("Adding DNS response: %s => %s", address, hostname)  # noqa
                         self.hosts[address] = hostname.decode()
                 except Exception as e:
                     logging.debug("Error while parsing DNS response: %s" % e)
 
-    def get_hostname( self, address ):
-        with self.lock:
-            if address in self.hosts:
-                return self.hosts[address]
-            else:
-                logging.debug( "No hostname found for address %s" % address )
-                return address
+            return True
+        else:
+            return False
+
+    def get_hostname(self, address):
+        try:
+            return self.hosts[address]
+        except KeyError:
+            logging.debug("No hostname found for address %s" % address)
+            return address
