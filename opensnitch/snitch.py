@@ -16,12 +16,14 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-import os
-import logging
+from concurrent.futures import Future, TimeoutError
 from netfilterqueue import NetfilterQueue
-from socket import AF_INET, AF_INET6, inet_ntoa
 from threading import Lock
-from scapy.all import *
+from scapy.all import IP
+import threading
+import logging
+import weakref
+import os
 
 from opensnitch.ui import QtApp
 from opensnitch.connection import Connection
@@ -31,86 +33,146 @@ from opensnitch.procmon import ProcMon
 from opensnitch.app import LinuxDesktopParser
 
 
+MARK_PACKET_DROP = 101285
+PACKET_TIMEOUT = 30  # 30 seconds is a good value?
+IPTABLES_RULES = (
+    # Get DNS responses
+    "INPUT --protocol udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass",
+    # Get connection packets
+    "OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass",  # noqa
+    # Reject packets marked by OpenSnitch
+    "OUTPUT --protocol tcp -m mark --mark 101285 -j REJECT")
+
+
+def drop_packet(pkt, conn):
+    logging.info(
+        "Dropping %s from %s" % (conn, conn.get_app_name()))
+    pkt.set_mark(MARK_PACKET_DROP)
+    pkt.drop()
+
+
+class NetfilterQueueWrapper(threading.Thread):
+
+    def __init__(self, snitch):
+        super().__init__()
+        self.snitch = snitch
+        self.start()
+
+    def run(self):
+        q = None
+        try:
+            for r in IPTABLES_RULES:
+                logging.debug("Applying iptables rule '%s'", r)
+                os.system("iptables -I %s" % r)
+
+            q = NetfilterQueue()
+            q.bind(0, self.snitch.pkt_callback, 1024 * 2)
+            q.run()
+
+        finally:
+            for r in IPTABLES_RULES:
+                logging.debug("Deleting iptables rule '%s'", r)
+                os.system("iptables -D %s" % r)
+
+            if q is not None:
+                q.unbind()
+
+
+class PacketHandler(threading.Thread):
+    """Handle a packet asynchronously in a thread"""
+
+    def __init__(self, connection, pkt, rules):
+        super().__init__()
+        self.future = Future()
+        self.future.set_running_or_notify_cancel()
+        self.conn = connection
+        self.pkt = pkt
+        self.rules = rules
+        self.start()
+
+    def run(self):
+        try:
+            (save_option,
+             verdict,
+             apply_for_all) = self.future.result(PACKET_TIMEOUT)
+
+        except TimeoutError:
+            # What to do on timeouts?
+            # Should we even have timeouts?
+            self.pkt.accept()
+
+        else:
+            if save_option != Rule.ONCE:
+                self.rules.add_rule(self.conn, verdict,
+                                    apply_for_all, save_option)
+
+            if verdict == Rule.DROP:
+                drop_packet(self.pkt, self.conn)
+
+            else:
+                self.pkt.accept()
+
+
 class Snitch:
-    IPTABLES_RULES = ( # Get DNS responses
-                       "INPUT --protocol udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass",
-                       # Get connection packets
-                       "OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass",
-                       # Reject packets marked by OpenSnitch
-                       "OUTPUT --protocol tcp -m mark --mark 101285 -j REJECT" )
 
     # TODO: Support IPv6!
     def __init__(self, database):
+        self.desktop_parser = LinuxDesktopParser()
         self.lock    = Lock()
         self.rules   = Rules(database)
         self.dns     = DNSCollector()
-        self.q       = NetfilterQueue()
+        self.q       = NetfilterQueueWrapper(self)
         self.procmon = ProcMon()
-        self.qt_app  = QtApp()
-        self.desktop_parser = LinuxDesktopParser()
+        self.connection_futures = weakref.WeakValueDictionary()
+        self.qt_app  = QtApp(self.connection_futures)
+        self.latest_packet_id = 0
 
-        self.q.bind( 0, self.pkt_callback, 1024 * 2 )
-
-    def get_verdict(self,c):
-        verdict = self.rules.get_verdict(c)
-
-        if verdict is None:
-            with self.lock:
-                c.hostname = self.dns.get_hostname(c.dst_addr)
-                ( save_option, verdict, apply_for_all ) = self.qt_app.prompt_user(c)
-                if save_option != Rule.ONCE:
-                    self.rules.add_rule( c, verdict, apply_for_all, save_option )
-
-        return verdict
-
-    def pkt_callback(self,pkt):
-        verd = Rule.ACCEPT
-
+    def pkt_callback(self, pkt):
         try:
             data = pkt.get_payload()
-            packet = IP(data)
 
-            if self.dns.is_dns_response(packet):
-                self.dns.add_response(packet)
+            if self.dns.add_response(IP(data)):
+                pkt.accept()
+                return
+
+            self.latest_packet_id += 1
+            conn = Connection(self.latest_packet_id, self.procmon,
+                              self.desktop_parser, data)
+            if conn.proto is None:
+                logging.debug("Could not detect protocol for packet.")
+                return
+
+            elif conn.pid is None:
+                logging.debug("Could not detect process for connection.")
+                return
+
+            # Get verdict, if verdict cannot be found prompt user in thread
+            verd = self.rules.get_verdict(conn)
+            if verd == Rule.DROP:
+                drop_packet(pkt, conn)
+
+            elif verd == Rule.ACCEPT:
+                pkt.accept()
+
+            elif verd is None:
+                conn.hostname = self.dns.get_hostname(conn.dst_addr)
+                handler = PacketHandler(conn, pkt, self.rules)
+                self.connection_futures[conn.id] = handler.future
+                self.qt_app.prompt_user(conn)
 
             else:
-                conn = Connection(self.procmon, self.desktop_parser, data)
-                if conn.proto is None:
-                    logging.debug( "Could not detect protocol for packet." )
-
-                elif conn.pid is None:
-                    logging.debug( "Could not detect process for connection." )
-
-                else:
-                    verd = self.get_verdict( conn )
+                raise RuntimeError("Unhandled state")
 
         except Exception as e:
-            logging.exception( "Exception on packet callback:" )
-
-        if verd == Rule.DROP:
-            logging.info( "Dropping %s from %s" % ( conn, conn.get_app_name() ) )
-            # mark this packet so iptables will drop it
-            pkt.set_mark(101285)
-            pkt.drop()
-        else:
-            pkt.accept()
+            logging.exception("Exception on packet callback:")
+            logging.exception(e)
 
     def start(self):
-        for r in Snitch.IPTABLES_RULES:
-            logging.debug( "Applying iptables rule '%s'" % r )
-            os.system( "iptables -I %s" % r )
-
         if ProcMon.is_ftrace_available():
             self.procmon.enable()
             self.procmon.start()
 
         self.qt_app.run()
-        self.q.run()
 
     def stop(self):
-        for r in Snitch.IPTABLES_RULES:
-            logging.debug( "Deleting iptables rule '%s'" % r )
-            os.system( "iptables -D %s" % r )
-
         self.procmon.disable()
-        self.q.unbind()
