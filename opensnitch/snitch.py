@@ -102,10 +102,6 @@ class PacketHandler(threading.Thread):
             self.pkt.accept()
 
         else:
-            if save_option != Rule.ONCE:
-                self.rules.add_rule(self.conn, verdict,
-                                    apply_for_all, save_option)
-
             if verdict == Rule.DROP:
                 drop_packet(self.pkt, self.conn)
 
@@ -124,7 +120,7 @@ class Snitch:
         self.q       = NetfilterQueueWrapper(self)
         self.procmon = ProcMon()
         self.connection_futures = weakref.WeakValueDictionary()
-        self.qt_app  = QtApp(self.connection_futures)
+        self.qt_app  = QtApp(self.connection_futures, self.rules)
         self.latest_packet_id = 0
 
     def pkt_callback(self, pkt):

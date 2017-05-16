@@ -18,6 +18,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from opensnitch.rule import Rule
+import threading
 import queue
 import sys
 import os
@@ -31,10 +32,11 @@ DIALOG_UI_PATH = "%s/dialog.ui" % RESOURCES_PATH
 
 
 class QtApp:
-    def __init__(self, connection_futures):
+    def __init__(self, connection_futures, rules):
         self.app = QtWidgets.QApplication([])
         self.connection_queue = queue.Queue()
-        self.dialog = Dialog(self.connection_queue, connection_futures)
+        self.rules = rules
+        self.dialog = Dialog(self, connection_futures)
 
     def run(self):
         self.app.exec()
@@ -51,8 +53,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     add_connection_signal = QtCore.pyqtSignal()
 
-    def __init__(self, connection_queue, connection_futures, parent=None):
-        self.connection_queue = connection_queue
+    def __init__(self, app, connection_futures, parent=None):
         self.connection = None
         QtWidgets.QDialog.__init__(self, parent,
                                    QtCore.Qt.WindowStaysOnTopHint)
@@ -60,8 +61,12 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.init_widgets()
         self.start_listeners()
 
+        self.connection_queue = app.connection_queue
         self.connection_futures = connection_futures
+        self.rules = app.rules
         self.add_connection_signal.connect(self.handle_connection)
+
+        self.rule_lock = threading.Lock()
 
     @QtCore.pyqtSlot()
     def handle_connection(self):
@@ -71,15 +76,30 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         try:
-            self.connection = self.connection_queue.get_nowait()
+            connection = self.connection_queue.get_nowait()
         except queue.Empty:
             return
 
+        # Re-check in case permanent rule was added since connection was queued
+        with self.rule_lock:
+            verd = self.rules.get_verdict(connection)
+            if verd is not None:
+                self.set_conn_result(connection, Rule.ONCE, verd, False)
+
+        # Lock needs to be released before callback can be triggered
+        if verd is not None:
+            return self.add_connection_signal.emit()
+
+        self.connection = connection
         self.setup_labels()
         self.setup_icon()
         self.setup_extra()
         self.result = Dialog.DEFAULT_RESULT
+        self.action_combo_box.setCurrentIndex(0)
         self.show()
+
+    def trigger_handle_connection(self):
+        return self.add_connection_signal.emit()
 
     def setup_labels(self):
         self.app_name_label.setText(self.connection.app.name)
@@ -148,25 +168,36 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _block_action(self):
         self._action(Rule.DROP, True)
 
-    def _action(self, verdict, apply_to_all=False):
-        s_option = self.action_combo_box.currentText()
-
-        if s_option == "Once":
-            option = Rule.ONCE
-        elif s_option == "Until Quit":
-            option = Rule.UNTIL_QUIT
-        elif s_option == "Forever":
-            option = Rule.FOREVER
-
-        # Set result future
+    def set_conn_result(self, connection, option, verdict, apply_to_all):
         try:
-            fut = self.connection_futures[self.connection.id]
+            fut = self.connection_futures[connection.id]
         except KeyError:
             pass
         else:
             fut.set_result((option, verdict, apply_to_all))
 
-        # Check if we have any unhandled connections on the queue
-        self.connection = None  # Indicate that next connection can be handled
-        self.hide()
-        self.handle_connection()
+    def _action(self, verdict, apply_to_all=False):
+        with self.rule_lock:
+            s_option = self.action_combo_box.currentText()
+
+            if s_option == "Once":
+                option = Rule.ONCE
+            elif s_option == "Until Quit":
+                option = Rule.UNTIL_QUIT
+            elif s_option == "Forever":
+                option = Rule.FOREVER
+
+            self.set_conn_result(self.connection, option,
+                                 verdict, apply_to_all)
+
+            # We need to freeze UI thread while storing rule, otherwise another
+            # connection that would have been affected by the rule will pop up
+            # TODO: Figure out how to do this nicely when separating UI
+            if option != Rule.ONCE:
+                self.rules.add_rule(self.connection, verdict,
+                                    apply_to_all, option)
+
+            # Check if we have any unhandled connections on the queue
+            self.connection = None  # Indicate next connection can be handled
+            self.hide()
+        return self.add_connection_signal.emit()
