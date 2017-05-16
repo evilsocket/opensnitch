@@ -113,7 +113,7 @@ class RulesDB:
         with self._lock:
             conn = self._get_conn()
             c = conn.cursor()
-            c.execute("CREATE TABLE IF NOT EXISTS rules (app_path TEXT, verdict INTEGER, address TEXT, port INTEGER, proto TEXT)")  # noqa
+            c.execute("CREATE TABLE IF NOT EXISTS rules (app_path TEXT, verdict INTEGER, address TEXT, port INTEGER, proto TEXT, UNIQUE (app_path, verdict, address, port, proto))")  # noqa
 
     def load_rules(self):
         with self._lock:
