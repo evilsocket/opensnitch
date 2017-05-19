@@ -102,11 +102,12 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return self.add_connection_signal.emit()
 
     def setup_labels(self):
-        self.app_name_label.setText(self.connection.app.name)
+        self.app_name_label.setText(
+            getattr(self.connection.app, 'name', 'Unknown'))
 
         message = self.MESSAGE_TEMPLATE % (
                     self.connection.get_app_name_and_cmdline(),
-                    self.connection.app.pid,
+                    getattr(self.connection.app, 'pid', 'Unknown'),
                     self.connection.hostname,
                     self.connection.proto.upper(),
                     self.connection.dst_port,
@@ -139,7 +140,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._action_changed)
 
     def setup_icon(self):
-        if self.connection.app.icon is not None:
+        if getattr(self.connection.app, 'icon', None) is not None:
             icon = QtGui.QIcon().fromTheme(self.connection.app.icon)
             pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
             self.icon_label.setPixmap(pixmap)
