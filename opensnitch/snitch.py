@@ -138,7 +138,7 @@ class Snitch:
                 logging.debug("Could not detect protocol for packet.")
                 return
 
-            elif conn.pid is None:
+            elif conn.pid is None and conn.proto != 'icmp':
                 logging.debug("Could not detect process for connection.")
                 return
 
