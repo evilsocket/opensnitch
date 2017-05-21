@@ -30,7 +30,6 @@ from opensnitch.connection import Connection
 from opensnitch.dns import DNSCollector
 from opensnitch.rule import Rule, Rules
 from opensnitch.procmon import ProcMon
-from opensnitch.app import LinuxDesktopParser
 
 
 MARK_PACKET_DROP = 101285
@@ -113,7 +112,6 @@ class Snitch:
 
     # TODO: Support IPv6!
     def __init__(self, database):
-        self.desktop_parser = LinuxDesktopParser()
         self.lock    = Lock()
         self.rules   = Rules(database)
         self.dns     = DNSCollector()
@@ -132,8 +130,7 @@ class Snitch:
                 return
 
             self.latest_packet_id += 1
-            conn = Connection(self.latest_packet_id, self.procmon,
-                              self.desktop_parser, data)
+            conn = Connection(self.latest_packet_id, self.procmon, data)
             if conn.proto is None:
                 logging.debug("Could not detect protocol for packet.")
                 return
