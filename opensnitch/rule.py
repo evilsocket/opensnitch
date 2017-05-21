@@ -63,24 +63,32 @@ def matches(rule, conn):
 class Rules:
     def __init__(self, database):
         self.mutex = Lock()
-        self.db = RulesDB(database)
-        self.rules = self.db.load_rules()
+        db = self.db = RulesDB(database)
+        self.rules = {}
+
+        with db._lock:
+            for r in db._load_rules():
+                self._add_rule(r)
 
     def get_verdict(self, connection):
         with self.mutex:
-            for r in self.rules:
+            for r in self.rules.get(connection.app_path, []):
                 if matches(r, connection):
                     return r.verdict
 
             return None
 
     def _remove_rules_for_path(self, path, remove_from_db=False):
-        for rule in self.rules:
-            if rule.app_path == path:
-                self.rules.remove(rule)
+        try:
+            del self.rules[path]
+        except KeyError:
+            pass
 
         if remove_from_db is True:
             self.db.remove_all_app_rules(path)
+
+    def _add_rule(self, rule):
+        self.rules.setdefault(rule.app_path, set()).add(rule)
 
     def add_rule(self, connection, verdict, apply_to_all=False,
                  save_option=RuleSaveOption.UNTIL_QUIT.value):
@@ -103,7 +111,7 @@ class Rules:
                 connection.dst_port if not apply_to_all else None,
                 connection.proto if not apply_to_all else None)
 
-            self.rules.append(r)
+            self._add_rule(r)
 
             if RuleSaveOption(save_option) == RuleSaveOption.FOREVER:
                 self.db.save_rule(r)
@@ -127,15 +135,14 @@ class RulesDB:
             c = conn.cursor()
             c.execute("CREATE TABLE IF NOT EXISTS rules (app_path TEXT, verdict INTEGER, address TEXT, port INTEGER, proto TEXT, UNIQUE (app_path, verdict, address, port, proto))")  # noqa
 
-    def load_rules(self):
-        with self._lock:
-            conn = self._get_conn()
-            c = conn.cursor()
-            c.execute("SELECT * FROM rules")
-            return [Rule(*item) for item in c.fetchall()]
+    def _load_rules(self):
+        conn = self._get_conn()
+        c = conn.cursor()
+        c.execute("SELECT * FROM rules")
+        for item in c.fetchall():
+            yield Rule(*item)
 
     def save_rule(self, rule):
-        print(rule)
         with self._lock:
             conn = self._get_conn()
             c = conn.cursor()
