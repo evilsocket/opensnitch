@@ -44,7 +44,7 @@ class RuleSaveOption(Enum):
 
 
 def matches(rule, conn):
-    if rule.app_path != conn.app_path:
+    if rule.app_path != conn.app.path:
         return False
 
     elif rule.address is not None and rule.address != conn.dst_addr:
@@ -72,7 +72,7 @@ class Rules:
 
     def get_verdict(self, connection):
         with self.mutex:
-            for r in self.rules.get(connection.app_path, []):
+            for r in self.rules.get(connection.app.path, []):
                 if matches(r, connection):
                     return r.verdict
 
@@ -101,11 +101,11 @@ class Rules:
 
             if apply_to_all is True:
                 self._remove_rules_for_path(
-                    connection.app_path,
+                    connection.app.path,
                     (RuleSaveOption(save_option) == RuleSaveOption.FOREVER))
 
             r = Rule(
-                connection.app_path,
+                connection.app.path,
                 verdict,
                 connection.dst_addr if not apply_to_all else None,
                 connection.dst_port if not apply_to_all else None,
