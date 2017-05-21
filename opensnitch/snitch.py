@@ -28,7 +28,7 @@ import os
 from opensnitch.ui import QtApp
 from opensnitch.connection import Connection
 from opensnitch.dns import DNSCollector
-from opensnitch.rule import Rule, Rules
+from opensnitch.rule import RuleVerdict, Rules
 from opensnitch.procmon import ProcMon
 
 
@@ -101,7 +101,7 @@ class PacketHandler(threading.Thread):
             self.pkt.accept()
 
         else:
-            if verdict == Rule.DROP:
+            if RuleVerdict(verdict) == RuleVerdict.DROP:
                 drop_packet(self.pkt, self.conn)
 
             else:
@@ -141,17 +141,17 @@ class Snitch:
 
             # Get verdict, if verdict cannot be found prompt user in thread
             verd = self.rules.get_verdict(conn)
-            if verd == Rule.DROP:
-                drop_packet(pkt, conn)
-
-            elif verd == Rule.ACCEPT:
-                pkt.accept()
-
-            elif verd is None:
+            if verd is None:
                 conn.hostname = self.dns.get_hostname(conn.dst_addr)
                 handler = PacketHandler(conn, pkt, self.rules)
                 self.connection_futures[conn.id] = handler.future
                 self.qt_app.prompt_user(conn)
+
+            elif RuleVerdict(verd) == RuleVerdict.DROP:
+                drop_packet(pkt, conn)
+
+            elif RuleVerdict(verd) == RuleVerdict.ACCEPT:
+                pkt.accept()
 
             else:
                 raise RuntimeError("Unhandled state")

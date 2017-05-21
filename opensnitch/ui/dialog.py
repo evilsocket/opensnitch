@@ -16,8 +16,8 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+from opensnitch.rule import RuleVerdict, RuleSaveOption
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from opensnitch.rule import Rule
 import threading
 import queue
 import sys
@@ -33,7 +33,7 @@ DIALOG_UI_PATH = "%s/dialog.ui" % RESOURCES_PATH
 
 class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
-    DEFAULT_RESULT = (Rule.ONCE, Rule.ACCEPT, False)
+    DEFAULT_RESULT = (RuleSaveOption.ONCE, RuleVerdict.ACCEPT, False)
     MESSAGE_TEMPLATE = "<b>%s</b> (pid=%s) wants to connect to <b>%s</b> on <b>%s port %s%s</b>"  # noqa
 
     add_connection_signal = QtCore.pyqtSignal()
@@ -71,7 +71,8 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         with self.rule_lock:
             verd = self.rules.get_verdict(connection)
             if verd is not None:
-                self.set_conn_result(connection, Rule.ONCE, verd, False)
+                self.set_conn_result(connection, RuleSaveOption.ONCE,
+                                     verd, False)
 
         # Lock needs to be released before callback can be triggered
         if verd is not None:
@@ -149,16 +150,16 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.block_button.hide()
 
     def _allow_action(self):
-        self._action(Rule.ACCEPT, False)
+        self._action(RuleVerdict.ACCEPT, False)
 
     def _deny_action(self):
-        self._action(Rule.DROP, False)
+        self._action(RuleVerdict.DROP, False)
 
     def _whitelist_action(self):
-        self._action(Rule.ACCEPT, True)
+        self._action(RuleVerdict.ACCEPT, True)
 
     def _block_action(self):
-        self._action(Rule.DROP, True)
+        self._action(RuleVerdict.DROP, True)
 
     def set_conn_result(self, connection, option, verdict, apply_to_all):
         try:
@@ -173,11 +174,11 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             s_option = self.action_combo_box.currentText()
 
             if s_option == "Once":
-                option = Rule.ONCE
+                option = RuleSaveOption.ONCE
             elif s_option == "Until Quit":
-                option = Rule.UNTIL_QUIT
+                option = RuleSaveOption.UNTIL_QUIT
             elif s_option == "Forever":
-                option = Rule.FOREVER
+                option = RuleSaveOption.FOREVER
 
             self.set_conn_result(self.connection, option,
                                  verdict, apply_to_all)
@@ -185,7 +186,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # We need to freeze UI thread while storing rule, otherwise another
             # connection that would have been affected by the rule will pop up
             # TODO: Figure out how to do this nicely when separating UI
-            if option != Rule.ONCE:
+            if option != RuleSaveOption.ONCE:
                 self.rules.add_rule(self.connection, verdict,
                                     apply_to_all, option)
 
