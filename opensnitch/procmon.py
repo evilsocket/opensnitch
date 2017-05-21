@@ -80,30 +80,19 @@ class ProcMon(threading.Thread):
 
         return False
 
-    def get_app_name( self, pid ):
-        if pid is not None:
-            pid = int(pid)
-            with self.lock:
-                if pid in self.pids and 'filename' in self.pids[pid]:
-                    return self.pids[pid]['filename']
-
-        return None
-
-    def get_cmdline( self, pid ):
-        pid = int(pid)
-        with self.lock:
-            if pid in self.pids and 'args' in self.pids[pid]:
-                return self.pids[pid]['args']
-
-        return None
+    def get_app(self, pid):
+        try:
+            return self.pids[pid]
+        except KeyError:
+            return None
 
     def _dump( self, pid, e ):
         logging.debug( "(pid=%d) %s %s" % ( pid, e['filename'], e['args'] if 'args' in e else '' ) )
 
-    def _on_exec( self, pid, filename ):
+    def _on_exec(self, pid, filename):
         with self.lock:
             self.pids[pid]['filename'] = filename
-            self._dump( pid, self.pids[pid] )
+            self._dump(pid, self.pids[pid])
 
     def _on_args( self, pid, args ):
         with self.lock:

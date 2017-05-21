@@ -21,30 +21,15 @@ import psutil
 import os
 
 
-def get_pid_by_connection(procmon, src_addr, src_p, dst_addr,
-                          dst_p, proto='tcp'):
+def get_pid_by_connection(src_addr, src_p, dst_addr, dst_p, proto='tcp'):
     pids = (connection.pid for connection in psutil.net_connections(kind=proto)
             if connection.laddr == (src_addr, int(src_p)) and
             connection.raddr == (dst_addr, int(dst_p)))
 
     # We always take the first element as we assume it contains only one
     # It should not be possible to keep two connections which are the same.
-    for pid in pids:
-        try:
-            appname = None
-            if procmon.running:
-                appname = procmon.get_app_name(pid)
-
-            if appname is None:
-                appname = os.readlink("/proc/%s/exe" % pid)
-                if procmon.running:
-                    logging.debug("Could not find pid %s with ProcMon, falling back to /proc/%s/exe -> %s", pid, pid, appname)  # noqa
-            else:
-                logging.debug("ProcMon(%s) = %s", pid, appname)
-
-            return (pid, appname)
-        except OSError:
-            return (None, "Unknown")
+    for p in pids:
+        return p
 
     logging.warning("Could not find process for %s connection %s:%s -> %s:%s",
                     proto,
@@ -53,4 +38,34 @@ def get_pid_by_connection(procmon, src_addr, src_p, dst_addr,
                     dst_addr,
                     dst_p)
 
-    return (None, "Unknown")
+    return None
+
+
+def _get_app_path_and_cmdline(procmon, pid):
+    path, args = None, None
+    if pid is None:
+        return (path, args)
+
+    pmr = procmon.get_app(pid)
+    if pmr:
+        path = pmr.get('filename')
+        args = pmr.get('args')
+
+    if not path:
+        logging.debug("Could not find pid %s with ProcMon, falling back to /proc/%s/exe -> %s", pid, pid)  # noqa
+        try:
+            path = os.readlink("/proc/{}/exe".format(pid))
+        except Exception as e:
+            logging.exception(e)
+
+    if not args:
+        logging.debug(
+            "Could not find pid %s command line with ProcMon", pid)  # noqa
+
+        try:
+            with open("/proc/{}/cmdline".format(pid)) as cmd_fd:
+                cmd_fd.read().replace('\0', ' ').strip()
+        except Exception as e:
+            logging.exception(e)
+
+    return (path, args)

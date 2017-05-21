@@ -16,84 +16,70 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-from opensnitch.proc import get_pid_by_connection
-from opensnitch.app import Application
+from collections import namedtuple
+from socket import inet_ntoa
+from opensnitch import proc
 from dpkt import ip
-from socket import inet_ntoa, getservbyport
 
 
-class Connection:
-    def __init__(self, packet_id, procmon, payload):
-        self.id = packet_id
-        self.data     = payload
-        self.pkt      = ip.IP( self.data )
-        self.src_addr = inet_ntoa( self.pkt.src )
-        self.dst_addr = inet_ntoa( self.pkt.dst )
-        self.hostname = None
-        self.src_port = None
-        self.dst_port = None
-        self.proto    = None
-        self.app      = None
+Application = namedtuple('Application', ('pid', 'path', 'cmdline'))
+_Connection = namedtuple('Connection', (
+    'id',
+    'data',
+    'pkt',
+    'src_addr',
+    'dst_addr',
+    'hostname',
+    'src_port',
+    'dst_port',
+    'proto',
+    'app'))
 
-        if self.pkt.p == ip.IP_PROTO_TCP:
-            self.proto    = 'tcp'
-            self.src_port = self.pkt.tcp.sport
-            self.dst_port = self.pkt.tcp.dport
-        elif self.pkt.p == ip.IP_PROTO_UDP:
-            self.proto    = 'udp'
-            self.src_port = self.pkt.udp.sport
-            self.dst_port = self.pkt.udp.dport
-        elif self.pkt.p == ip.IP_PROTO_ICMP:
-            self.proto = 'icmp'
-            self.src_port = None
-            self.dst_port = None
 
-        if self.proto == 'icmp':
-            self.pid = None
-            self.app = None
-            self.app_path = None
-            self.service = None
+def Connection(procmon, dns, packet_id, payload):
+    data = payload
+    pkt = ip.IP(data)
+    src_addr = inet_ntoa(pkt.src)
+    dst_addr = inet_ntoa(pkt.dst)
+    hostname = dns.get_hostname(dst_addr)
+    src_port = None
+    dst_port = None
+    proto = None
+    app = None
 
-        elif None not in (self.proto, self.src_addr, self.dst_addr):
-            try:
-                self.service = getservbyport(int(self.dst_port), self.proto)
-            except:
-                self.service = None
+    if pkt.p == ip.IP_PROTO_TCP:
+        proto = 'tcp'
+        src_port = pkt.tcp.sport
+        dst_port = pkt.tcp.dport
+    elif pkt.p == ip.IP_PROTO_UDP:
+        proto = 'udp'
+        src_port = pkt.udp.sport
+        dst_port = pkt.udp.dport
+    elif pkt.p == ip.IP_PROTO_ICMP:
+        proto = 'icmp'
+        src_port = None
+        dst_port = None
 
-            self.pid, self.app_path = get_pid_by_connection(procmon,
-                                                            self.src_addr,
-                                                            self.src_port,
-                                                            self.dst_addr,
-                                                            self.dst_port,
-                                                            self.proto)
-            self.app = Application(procmon, self.pid, self.app_path)
-            self.app_path = self.app.path
+    if proto == 'icmp':
+        app = Application(None, None, None)
 
-    def get_app_name(self):
-        if self.app_path == 'Unknown':
-            return self.app_path
+    elif None not in (proto, src_addr, dst_addr):
+        pid = proc.get_pid_by_connection(src_addr,
+                                         src_port,
+                                         dst_addr,
+                                         dst_port,
+                                         proto)
+        app = Application(
+            pid, *proc._get_app_path_and_cmdline(procmon, pid))
 
-        elif self.app_path == self.app.name:
-            return self.app_path
-
-        else:
-            return "'%s' ( %s )" % ( self.app.name, self.app_path )
-
-    def get_app_name_and_cmdline(self):
-        if self.proto == 'icmp':
-            return 'Unknown'
-
-        if self.app.cmdline is not None:
-            # TODO: Figure out why we get mixed types here
-            cmdline = self.app.cmdline if isinstance(self.app.cmdline, str) else self.app.cmdline.decode()
-            path = self.app.path if isinstance(self.app.path, str) else self.app.path.decode()
-
-            if cmdline.startswith(self.app.path):
-                return cmdline
-            else:
-                return "%s %s" % (path, cmdline)
-        else:
-            return path
-
-    def __repr__(self):
-        return "[%s] %s (%s) -> %s:%s" % ( self.pid, self.app_path, self.proto, self.dst_addr, self.dst_port )
+    return _Connection(
+        packet_id,
+        data,
+        pkt,
+        src_addr,
+        dst_addr,
+        hostname,
+        src_port,
+        dst_port,
+        proto,
+        app)

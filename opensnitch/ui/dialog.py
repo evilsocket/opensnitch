@@ -23,6 +23,8 @@ import queue
 import sys
 import os
 
+from opensnitch.ui import helpers
+
 
 # TODO: Implement tray icon and menu.
 # TODO: Implement rules editor.
@@ -79,8 +81,12 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return self.add_connection_signal.emit()
 
         self.connection = connection
-        app_name, app_icon = self.desktop_parser.get_info_by_path(
-            connection.app.path)
+        if connection.app.path is not None:
+            app_name, app_icon = self.desktop_parser.get_info_by_path(
+                connection.app.path)
+        else:
+            app_name = 'Unknown'
+            app_icon = None
 
         self.setup_labels(app_name)
         self.setup_icon(app_icon)
@@ -96,12 +102,12 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.app_name_label.setText(app_name or 'Unknown')
 
         message = self.MESSAGE_TEMPLATE % (
-                    self.connection.get_app_name_and_cmdline(),
-                    getattr(self.connection.app, 'pid', 'Unknown'),
-                    self.connection.hostname,
-                    self.connection.proto.upper(),
-                    self.connection.dst_port,
-                    " (%s)" % self.connection.service or '')
+            helpers.get_app_name_and_cmdline(self.connection),
+            getattr(self.connection.app, 'pid', 'Unknown'),
+            self.connection.hostname,
+            self.connection.proto.upper(),
+            self.connection.dst_port,
+            helpers.get_service(self.connection))
         self.message_label.setText(message)
 
     def init_widgets(self):

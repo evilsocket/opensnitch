@@ -44,8 +44,8 @@ IPTABLES_RULES = (
 
 
 def drop_packet(pkt, conn):
-    logging.info(
-        "Dropping %s from %s" % (conn, conn.get_app_name()))
+    logging.info('Dropping %s from "%s %s"',
+                 conn, conn.app.path, conn.app.cmdline)
     pkt.set_mark(MARK_PACKET_DROP)
     pkt.drop()
 
@@ -130,19 +130,19 @@ class Snitch:
                 return
 
             self.latest_packet_id += 1
-            conn = Connection(self.latest_packet_id, self.procmon, data)
+            conn = Connection(self.procmon, self.dns,
+                              self.latest_packet_id, data)
             if conn.proto is None:
                 logging.debug("Could not detect protocol for packet.")
                 return
 
-            elif conn.pid is None and conn.proto != 'icmp':
+            elif conn.app.pid is None and conn.proto != 'icmp':
                 logging.debug("Could not detect process for connection.")
                 return
 
             # Get verdict, if verdict cannot be found prompt user in thread
             verd = self.rules.get_verdict(conn)
             if verd is None:
-                conn.hostname = self.dns.get_hostname(conn.dst_addr)
                 handler = PacketHandler(conn, pkt, self.rules)
                 self.connection_futures[conn.id] = handler.future
                 self.qt_app.prompt_user(conn)
