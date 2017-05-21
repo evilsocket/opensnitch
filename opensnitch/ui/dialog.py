@@ -31,21 +31,6 @@ RESOURCES_PATH = "%s/resources/" % os.path.dirname(
 DIALOG_UI_PATH = "%s/dialog.ui" % RESOURCES_PATH
 
 
-class QtApp:
-    def __init__(self, connection_futures, rules):
-        self.app = QtWidgets.QApplication([])
-        self.connection_queue = queue.Queue()
-        self.rules = rules
-        self.dialog = Dialog(self, connection_futures)
-
-    def run(self):
-        self.app.exec()
-
-    def prompt_user(self, connection):
-        self.connection_queue.put(connection)
-        self.dialog.add_connection_signal.emit()
-
-
 class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     DEFAULT_RESULT = (Rule.ONCE, Rule.ACCEPT, False)
@@ -53,7 +38,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     add_connection_signal = QtCore.pyqtSignal()
 
-    def __init__(self, app, connection_futures, parent=None):
+    def __init__(self, app, connection_futures, desktop_parser, parent=None):
         self.connection = None
         QtWidgets.QDialog.__init__(self, parent,
                                    QtCore.Qt.WindowStaysOnTopHint)
@@ -65,6 +50,8 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.connection_futures = connection_futures
         self.rules = app.rules
         self.add_connection_signal.connect(self.handle_connection)
+
+        self.desktop_parser = desktop_parser
 
         self.rule_lock = threading.Lock()
 
@@ -91,8 +78,11 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return self.add_connection_signal.emit()
 
         self.connection = connection
-        self.setup_labels()
-        self.setup_icon()
+        app_name, app_icon = self.desktop_parser.get_info_by_path(
+            connection.app.path)
+
+        self.setup_labels(app_name)
+        self.setup_icon(app_icon)
         self.setup_extra()
         self.result = Dialog.DEFAULT_RESULT
         self.action_combo_box.setCurrentIndex(0)
@@ -101,9 +91,8 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def trigger_handle_connection(self):
         return self.add_connection_signal.emit()
 
-    def setup_labels(self):
-        self.app_name_label.setText(
-            getattr(self.connection.app, 'name', 'Unknown'))
+    def setup_labels(self, app_name):
+        self.app_name_label.setText(app_name or 'Unknown')
 
         message = self.MESSAGE_TEMPLATE % (
                     self.connection.get_app_name_and_cmdline(),
@@ -139,11 +128,13 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.action_combo_box.currentIndexChanged[str].connect(
             self._action_changed)
 
-    def setup_icon(self):
-        if getattr(self.connection.app, 'icon', None) is not None:
-            icon = QtGui.QIcon().fromTheme(self.connection.app.icon)
-            pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
-            self.icon_label.setPixmap(pixmap)
+    def setup_icon(self, app_icon):
+        if app_icon is None:
+            return
+
+        icon = QtGui.QIcon().fromTheme(app_icon)
+        pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+        self.icon_label.setPixmap(pixmap)
 
     def setup_extra(self):
         self._action_changed()
