@@ -43,7 +43,7 @@ parser.add_argument("--debug", dest="debug",
 parser.add_argument("--database",  dest="database", default=filename,
                     help="Database path.", metavar="FILE")
 
-(options, args) = parser.parse_args()
+args = parser.parse_args()
 
 if not os.geteuid() == 0:
     sys.exit('OpenSnitch must be run as root.')
@@ -60,8 +60,8 @@ else:
 
 logging.basicConfig(
     format='[%(asctime)s] (%(levelname)s) %(message)s',
-    level=logging.INFO if options.debug is False else logging.DEBUG,
-    filename=options.logfile)
+    level=logging.INFO if args.debug is False else logging.DEBUG,
+    filename=args.logfile)
 
 
 # At some point Scapy devs will realize how bothering their fucking warnings
@@ -72,7 +72,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning, module="gtk")
 
 
 if __name__ == '__main__':
-    snitch = Snitch(options.database)
+    snitch = Snitch(args.database)
 
     try:
         logging.info("OpenSnitch v%s running with pid %d.",
