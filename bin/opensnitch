@@ -17,14 +17,16 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+from argparse import ArgumentParser
+from os.path import expanduser
+import warnings
+import logging
 import os
 import sys
-import logging
-import warnings
 
-from os.path import expanduser
+from opensnitch.version import VERSION
+from opensnitch.snitch import Snitch
 
-from optparse import OptionParser
 
 if 'SUDO_USER' in os.environ:
     home = expanduser("~%s" % os.environ['SUDO_USER'])
@@ -32,10 +34,14 @@ else:
     home = expanduser("~%s" % os.environ['USER'])
 filename = os.path.join(home, "opensnitch.db")
 
-parser = OptionParser()
-parser.add_option( "--log-file",  dest="logfile", default=None, help="Log to file.", metavar="FILE" )
-parser.add_option( "--debug",     dest="debug", action="store_true", default=False, help="Enable debug logs." )
-parser.add_option( "--database",  dest="database", default=filename, help="Database path.", metavar="FILE" )
+parser = ArgumentParser()
+parser.add_argument("--log-file", dest="logfile", default=None,
+                    help="Log to file.", metavar="FILE")
+parser.add_argument("--debug", dest="debug",
+                    action="store_true", default=False,
+                    help="Enable debug logs.")
+parser.add_argument("--database",  dest="database", default=filename,
+                    help="Database path.", metavar="FILE")
 
 (options, args) = parser.parse_args()
 
@@ -52,12 +58,10 @@ else:
     mpl.rcParams['backend'] = 'Qt5Agg'
 
 
-from opensnitch.version import VERSION
-
 logging.basicConfig(
-    format   = '[%(asctime)s] (%(levelname)s) %(message)s',
-    level    = logging.INFO if options.debug == False else logging.DEBUG,
-    filename = options.logfile)
+    format='[%(asctime)s] (%(levelname)s) %(message)s',
+    level=logging.INFO if options.debug is False else logging.DEBUG,
+    filename=options.logfile)
 
 
 # At some point Scapy devs will realize how bothering their fucking warnings
@@ -66,21 +70,16 @@ logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="gtk")
 
-from opensnitch.snitch import Snitch
 
-
-def main():
+if __name__ == '__main__':
     snitch = Snitch(options.database)
 
     try:
-        logging.info( "OpenSnitch v%s running with pid %d." % ( VERSION, os.getpid() ) )
+        logging.info("OpenSnitch v%s running with pid %d.",
+                     VERSION, os.getpid())
         snitch.start()
     except KeyboardInterrupt as e:
         pass
-
-    logging.info( "Quitting ..." )
-
-    snitch.stop()
-
-if __name__ == '__main__':
-    main()
+    finally:
+        logging.info("Quitting ...")
+        snitch.stop()

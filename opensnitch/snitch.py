@@ -112,13 +112,13 @@ class Snitch:
 
     # TODO: Support IPv6!
     def __init__(self, database):
-        self.lock    = Lock()
-        self.rules   = Rules(database)
-        self.dns     = DNSCollector()
-        self.q       = NetfilterQueueWrapper(self)
+        self.lock = Lock()
+        self.rules = Rules(database)
+        self.dns = DNSCollector()
+        self.q = NetfilterQueueWrapper(self)
         self.procmon = ProcMon()
         self.connection_futures = weakref.WeakValueDictionary()
-        self.qt_app  = QtApp(self.connection_futures, self.rules)
+        self.qt_app = QtApp(self.connection_futures, self.rules)
         self.latest_packet_id = 0
 
     def pkt_callback(self, pkt):

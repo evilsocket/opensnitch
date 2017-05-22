@@ -32,17 +32,21 @@ except:
     long_description = 'OpenSnitch - An application level firewall for GNU/Linux.'  # noqa
 
 
-setup( name                 = 'opensnitch',
-       version              = VERSION,
-       description          = long_description,
-       long_description     = long_description,
-       author               = 'Simone Margaritelli',
-       author_email         = 'evilsocket@gmail.com',
-       url                  = 'http://www.github.com/evilsocket/opensnitch',
-       packages             = find_packages(),
-       scripts              = [ 'bin/opensnitch' ],
-       package_data         = {'': ['*.ui']},
-       license              = 'GPL',
-       zip_safe             = False,
-       install_requires     = [ 'scapy-python3', 'dpkt', 'NetfilterQueue', 'psutil' , 'pyinotify']
-)
+setup(name='opensnitch',
+      version=VERSION,
+      description=long_description,
+      long_description=long_description,
+      author='Simone Margaritelli',
+      author_email='evilsocket@gmail.com',
+      url='http://www.github.com/evilsocket/opensnitch',
+      packages=find_packages(),
+      scripts=['bin/opensnitch'],
+      package_data={'': ['*.ui']},
+      license='GPL',
+      zip_safe=False,
+      install_requires=[
+          'scapy-python3',
+          'dpkt',
+          'NetfilterQueue',
+          'psutil',
+          'pyinotify'])

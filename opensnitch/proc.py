@@ -52,7 +52,7 @@ def _get_app_path_and_cmdline(procmon, pid):
         args = pmr.get('args')
 
     if not path:
-        logging.debug("Could not find pid %s with ProcMon, falling back to /proc/%s/exe -> %s", pid, pid)  # noqa
+        logging.debug("Could not find pid %s with ProcMon, falling back to /proc/%s/exe -> %s", pid, pid, path or '?')  # noqa
         try:
             path = os.readlink("/proc/{}/exe".format(pid))
         except Exception as e:
