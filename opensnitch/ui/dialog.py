@@ -69,6 +69,13 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         except queue.Empty:
             return
 
+        # Check if process is still alive, if not we dont need to handle
+        if connection.app and connection.app.pid:
+            try:
+                os.kill(connection.app.pid, 0)
+            except ProcessLookupError:
+                return
+
         # Re-check in case permanent rule was added since connection was queued
         with self.rule_lock:
             verd = self.rules.get_verdict(connection)
