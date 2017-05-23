@@ -55,7 +55,50 @@ class NetfilterQueueWrapper(threading.Thread):
     def __init__(self, snitch):
         super().__init__()
         self.snitch = snitch
+
+        self.connection_futures = weakref.WeakValueDictionary()
+        self.latest_packet_id = 0
+
         self.start()
+
+    def pkt_callback(self, pkt):
+        try:
+            data = pkt.get_payload()
+
+            if self.snitch.dns.add_response(IP(data)):
+                pkt.accept()
+                return
+
+            self.latest_packet_id += 1
+            conn = Connection(self.snitch.procmon, self.snitch.dns,
+                              self.latest_packet_id, data)
+            if conn.proto is None:
+                logging.debug("Could not detect protocol for packet.")
+                return
+
+            elif conn.app.pid is None and conn.proto != 'icmp':
+                logging.debug("Could not detect process for connection.")
+                return
+
+            # Get verdict, if verdict cannot be found prompt user in thread
+            verd = self.snitch.rules.get_verdict(conn)
+            if verd is None:
+                handler = PacketHandler(conn, pkt, self.snitch.rules)
+                self.connection_futures[conn.id] = handler.future
+                self.snitch.qt_app.prompt_user(conn)
+
+            elif RuleVerdict(verd) == RuleVerdict.DROP:
+                drop_packet(pkt, conn)
+
+            elif RuleVerdict(verd) == RuleVerdict.ACCEPT:
+                pkt.accept()
+
+            else:
+                raise RuntimeError("Unhandled state")
+
+        except Exception as e:
+            logging.exception("Exception on packet callback:")
+            logging.exception(e)
 
     def run(self):
         q = None
@@ -65,7 +108,7 @@ class NetfilterQueueWrapper(threading.Thread):
                 os.system("iptables -I %s" % r)
 
             q = NetfilterQueue()
-            q.bind(0, self.snitch.pkt_callback, 1024 * 2)
+            q.bind(0, self.pkt_callback, 1024 * 2)
             q.run()
 
         finally:
@@ -117,48 +160,7 @@ class Snitch:
         self.dns = DNSCollector()
         self.q = NetfilterQueueWrapper(self)
         self.procmon = ProcMon()
-        self.connection_futures = weakref.WeakValueDictionary()
-        self.qt_app = QtApp(self.connection_futures, self.rules)
-        self.latest_packet_id = 0
-
-    def pkt_callback(self, pkt):
-        try:
-            data = pkt.get_payload()
-
-            if self.dns.add_response(IP(data)):
-                pkt.accept()
-                return
-
-            self.latest_packet_id += 1
-            conn = Connection(self.procmon, self.dns,
-                              self.latest_packet_id, data)
-            if conn.proto is None:
-                logging.debug("Could not detect protocol for packet.")
-                return
-
-            elif conn.app.pid is None and conn.proto != 'icmp':
-                logging.debug("Could not detect process for connection.")
-                return
-
-            # Get verdict, if verdict cannot be found prompt user in thread
-            verd = self.rules.get_verdict(conn)
-            if verd is None:
-                handler = PacketHandler(conn, pkt, self.rules)
-                self.connection_futures[conn.id] = handler.future
-                self.qt_app.prompt_user(conn)
-
-            elif RuleVerdict(verd) == RuleVerdict.DROP:
-                drop_packet(pkt, conn)
-
-            elif RuleVerdict(verd) == RuleVerdict.ACCEPT:
-                pkt.accept()
-
-            else:
-                raise RuntimeError("Unhandled state")
-
-        except Exception as e:
-            logging.exception("Exception on packet callback:")
-            logging.exception(e)
+        self.qt_app = QtApp(self.q.connection_futures, self.rules)
 
     def start(self):
         if ProcMon.is_ftrace_available():
