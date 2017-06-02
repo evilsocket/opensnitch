@@ -22,7 +22,6 @@ from os.path import expanduser
 import warnings
 import logging
 import os
-import sys
 
 from opensnitch.version import VERSION
 from opensnitch.snitch import Snitch
@@ -44,9 +43,6 @@ parser.add_argument("--database",  dest="database", default=filename,
                     help="Database path.", metavar="FILE")
 
 args = parser.parse_args()
-
-if not os.geteuid() == 0:
-    sys.exit('OpenSnitch must be run as root.')
 
 
 # Ensure Qt4 wont be loaded by matplotlib
