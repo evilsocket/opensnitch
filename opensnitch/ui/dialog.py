@@ -18,7 +18,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 from opensnitch.rule import RuleVerdict, RuleSaveOption
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt5 import QtDBus
 import threading
+import logging
 import queue
 import sys
 import os
@@ -40,7 +42,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     add_connection_signal = QtCore.pyqtSignal()
 
-    def __init__(self, app, connection_futures, desktop_parser, parent=None):
+    def __init__(self, app, desktop_parser, parent=None):
         self.connection = None
         QtWidgets.QDialog.__init__(self, parent,
                                    QtCore.Qt.WindowStaysOnTopHint)
@@ -49,9 +51,9 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.start_listeners()
 
         self.connection_queue = app.connection_queue
-        self.connection_futures = connection_futures
-        self.rules = app.rules
         self.add_connection_signal.connect(self.handle_connection)
+
+        self.app = app
 
         self.desktop_parser = desktop_parser
 
@@ -70,27 +72,31 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         # Check if process is still alive, if not we dont need to handle
-        if connection.app and connection.app.pid:
+        if connection.app_pid:
             try:
-                os.kill(connection.app.pid, 0)
+                os.kill(connection.app_pid, 0)
             except ProcessLookupError:
                 return
 
         # Re-check in case permanent rule was added since connection was queued
+        verd = False
         with self.rule_lock:
-            verd = self.rules.get_verdict(connection)
-            if verd is not None:
-                self.set_conn_result(connection, RuleSaveOption.ONCE,
-                                     verd, False)
+            msg = self.app.dbus_handler.interface.call(
+                'connection_recheck_verdict', connection.id)
+            reply = QtDBus.QDBusReply(msg)
+            if reply.isValid() and reply.value():
+                verd = True
+            elif not reply.isValid():
+                logging.error(msg.arguments()[0])
 
         # Lock needs to be released before callback can be triggered
-        if verd is not None:
+        if verd:
             return self.add_connection_signal.emit()
 
         self.connection = connection
-        if connection.app.path is not None:
+        if connection.app_path is not None:
             app_name, app_icon = self.desktop_parser.get_info_by_path(
-                connection.app.path)
+                connection.app_path)
         else:
             app_name = 'Unknown'
             app_icon = None
@@ -110,7 +116,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         message = self.MESSAGE_TEMPLATE % (
             helpers.get_app_name_and_cmdline(self.connection),
-            getattr(self.connection.app, 'pid', 'Unknown'),
+            self.connection.app_pid or 'Unknown',
             self.connection.hostname,
             self.connection.proto.upper(),
             self.connection.dst_port,
@@ -174,13 +180,19 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _block_action(self):
         self._action(RuleVerdict.DROP, True)
 
-    def set_conn_result(self, connection, option, verdict, apply_to_all):
-        try:
-            fut = self.connection_futures[connection.id]
-        except KeyError:
-            pass
-        else:
-            fut.set_result((option, verdict, apply_to_all))
+    def set_conn_result(self, connection_id, save_option,
+                        verdict, apply_to_all):
+        msg = self.app.dbus_handler.interface.call(
+            'connection_set_result',
+            connection_id,
+            RuleSaveOption(save_option).value,
+            RuleVerdict(verdict).value,
+            apply_to_all)
+        reply = QtDBus.QDBusReply(msg)
+        if not reply.isValid():
+            logging.info(
+                'Could not apply result to connection "%s"', connection_id)
+            logging.error(msg.arguments()[0])
 
     def _action(self, verdict, apply_to_all=False):
         with self.rule_lock:
@@ -193,15 +205,8 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             elif s_option == "Forever":
                 option = RuleSaveOption.FOREVER
 
-            self.set_conn_result(self.connection, option,
+            self.set_conn_result(self.connection.id, option,
                                  verdict, apply_to_all)
-
-            # We need to freeze UI thread while storing rule, otherwise another
-            # connection that would have been affected by the rule will pop up
-            # TODO: Figure out how to do this nicely when separating UI
-            if option != RuleSaveOption.ONCE:
-                self.rules.add_rule(self.connection, verdict,
-                                    apply_to_all, option)
 
             # Check if we have any unhandled connections on the queue
             self.connection = None  # Indicate next connection can be handled
