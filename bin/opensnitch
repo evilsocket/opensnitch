@@ -21,33 +21,10 @@ from argparse import ArgumentParser
 from os.path import expanduser
 import warnings
 import logging
-import os
+import prctl
+import pwd
 import sys
-
-from opensnitch.version import VERSION
-from opensnitch.snitch import Snitch
-
-
-if 'SUDO_USER' in os.environ:
-    home = expanduser("~%s" % os.environ['SUDO_USER'])
-else:
-    home = expanduser("~%s" % os.environ['USER'])
-filename = os.path.join(home, "opensnitch.db")
-
-parser = ArgumentParser()
-parser.add_argument("--log-file", dest="logfile", default=None,
-                    help="Log to file.", metavar="FILE")
-parser.add_argument("--debug", dest="debug",
-                    action="store_true", default=False,
-                    help="Enable debug logs.")
-parser.add_argument("--database",  dest="database", default=filename,
-                    help="Database path.", metavar="FILE")
-
-args = parser.parse_args()
-
-if not os.geteuid() == 0:
-    sys.exit('OpenSnitch must be run as root.')
-
+import os
 
 # Ensure Qt4 wont be loaded by matplotlib
 try:
@@ -57,23 +34,60 @@ except ImportError:
 else:
     mpl.rcParams['backend'] = 'Qt5Agg'
 
+from opensnitch.version import VERSION
+from opensnitch.snitch import Snitch
 
-logging.basicConfig(
-    format='[%(asctime)s] (%(levelname)s) %(message)s',
-    level=logging.INFO if args.debug is False else logging.DEBUG,
-    filename=args.logfile)
+
+REQUIRED_CAPS = ((prctl.CAP_NET_RAW, prctl.ALL_FLAGS, True),
+                 (prctl.CAP_DAC_OVERRIDE, prctl.ALL_FLAGS, True),
+                 (prctl.CAP_NET_ADMIN, prctl.ALL_FLAGS, True))
+
+
+parser = ArgumentParser()
+parser.add_argument("--log-file", dest="logfile", default=None,
+                    help="Log to file", metavar="FILE")
+parser.add_argument("--debug", dest="debug",
+                    action="store_true", default=False,
+                    help="Enable debug logs")
+parser.add_argument("--database",  dest="database", default=None,
+                    help="Database path", metavar="FILE")
+parser.add_argument("--user",  dest="user",
+                    default=os.environ.get('SUDO_USER', 'root'),
+                    help="Run as user")
 
 
 # At some point Scapy devs will realize how bothering their fucking warnings
 # are while importing scapy.all ...
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
-
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="gtk")
 
 
 if __name__ == '__main__':
-    snitch = Snitch(args.database)
+    args = parser.parse_args()
 
+    logging.basicConfig(
+        format='[%(asctime)s] (%(levelname)s) %(message)s',
+        level=logging.INFO if args.debug is False else logging.DEBUG,
+        filename=args.logfile)
+
+    if not os.geteuid() == 0:
+        sys.exit('OpenSnitch must be run as root.')
+
+    # set_keepcaps allows us to keep caps across setuid call
+    prctl.set_keepcaps(True)
+    prctl.set_caps(*REQUIRED_CAPS)
+
+    user = pwd.getpwnam(args.user)
+    os.setgid(user.pw_gid)
+    os.setuid(user.pw_uid)
+    # The effective capability set is cleared on setuid
+    # Re-set the effective set
+    prctl.set_caps(*REQUIRED_CAPS)
+
+    dbfile = args.database or os.path.join(
+        expanduser("~%s" % args.user), "opensnitch.db")
+
+    snitch = Snitch(dbfile)
     try:
         logging.info("OpenSnitch v%s running with pid %d.",
                      VERSION, os.getpid())

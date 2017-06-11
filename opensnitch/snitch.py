@@ -23,13 +23,13 @@ from scapy.all import IP
 import threading
 import logging
 import weakref
-import os
 
 from opensnitch.ui import QtApp
 from opensnitch.connection import Connection
 from opensnitch.dns import DNSCollector
 from opensnitch.rule import RuleVerdict, Rules
 from opensnitch.procmon import ProcMon
+from opensnitch.iptables import IPTCRules
 
 
 MARK_PACKET_DROP = 101285
@@ -103,19 +103,11 @@ class NetfilterQueueWrapper(threading.Thread):
     def run(self):
         q = None
         try:
-            for r in IPTABLES_RULES:
-                logging.debug("Applying iptables rule '%s'", r)
-                os.system("iptables -I %s" % r)
-
             q = NetfilterQueue()
             q.bind(0, self.pkt_callback, 1024 * 2)
             q.run()
 
         finally:
-            for r in IPTABLES_RULES:
-                logging.debug("Deleting iptables rule '%s'", r)
-                os.system("iptables -D %s" % r)
-
             if q is not None:
                 q.unbind()
 
@@ -160,6 +152,7 @@ class Snitch:
         self.dns = DNSCollector()
         self.q = NetfilterQueueWrapper(self)
         self.procmon = ProcMon()
+        self.iptcrules = None
         self.qt_app = QtApp(self.q.connection_futures, self.rules)
 
     def start(self):
@@ -167,7 +160,11 @@ class Snitch:
             self.procmon.enable()
             self.procmon.start()
 
+        self.iptcrules = IPTCRules()
         self.qt_app.run()
 
     def stop(self):
+        if self.iptcrules is not None:
+            self.iptcrules.remove()
+
         self.procmon.disable()
