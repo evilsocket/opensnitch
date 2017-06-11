@@ -50,5 +50,6 @@ setup(name='opensnitch',
           'NetfilterQueue',
           'psutil',
           'pyinotify',
-          'python-iptables'
+          'python-iptables',
+          'python-prctl',
       ])
