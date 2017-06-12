@@ -20,7 +20,7 @@ You'll need a GNU/Linux distribution with `iptables`, `NFQUEUE` and `ftrace` ker
 
 ## Run
 
-    sudo opensnitchd
+    sudo -HE opensnitchd
     opensnitch-qt
 
 ## Known Issues / Future Improvements
