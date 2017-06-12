@@ -52,5 +52,5 @@ setup(name='opensnitch',
           'pyinotify',
           'python-iptables',
           'python-prctl',
-          'python-gobject',
+          'pygobject',
       ])
