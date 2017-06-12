@@ -22,39 +22,30 @@ import iptc
 class IPTCRules:
 
     def __init__(self):
-        self.tables = {
-            iptc.Table.FILTER: iptc.Table(iptc.Table.FILTER),
-            iptc.Table.MANGLE: iptc.Table(iptc.Table.MANGLE),
-        }
-        for t in self.tables.values():
-            t.autocommit = False
-
-        self.chains = {
-            c: r for c, r in (
-                self.insert_dns_rule(),
-                self.insert_connection_packet_rules(),
-                self.insert_reject_rule())
-        }
-
-        self.commit()
-
-    def commit(self):
-        for t in self.tables.values():
-            t.commit()
-            t.refresh()
+        self.insert_dns_rule()
+        self.insert_connection_packet_rules()
+        self.insert_reject_rule()
 
     def remove(self):
-        for c, r in self.chains.items():
-            try:
-                c.delete_rule(r)
-            except iptc.ip4tc.IPTCError:
-                pass
+        table = iptc.Table(iptc.Table.FILTER)
+        chain = iptc.Chain(table, 'INPUT')
+        for r in chain.rules:
+            chain.delete_rule(r)
 
-        self.commit()
+        table = iptc.Table(iptc.Table.FILTER)
+        chain = iptc.Chain(table, 'OUTPUT')
+        for r in chain.rules:
+            chain.delete_rule(r)
+
+        table = iptc.Table(iptc.Table.FILTER)
+        chain = iptc.Chain(table, 'MANGLE')
+        for r in chain.rules:
+            chain.delete_rule(r)
 
     def insert_dns_rule(self):
         """Get DNS responses"""
-        chain = iptc.Chain(self.tables[iptc.Table.FILTER], 'INPUT')
+        table = iptc.Table(iptc.Table.FILTER)
+        chain = iptc.Chain(table, 'INPUT')
         rule = iptc.Rule()
         rule.protocol = 'udp'
         m = rule.create_match('udp')
@@ -65,10 +56,10 @@ class IPTCRules:
         t.set_parameter('queue-bypass')
 
         chain.insert_rule(rule)
-        return (chain, rule)
 
     def insert_connection_packet_rules(self):
-        chain = iptc.Chain(self.tables[iptc.Table.MANGLE], 'OUTPUT')
+        table = iptc.Table(iptc.Table.MANGLE)
+        chain = iptc.Chain(table, 'OUTPUT')
         rule = iptc.Rule()
 
         t = rule.create_target('NFQUEUE')
@@ -79,10 +70,10 @@ class IPTCRules:
         m.set_parameter('ctstate', 'NEW')
 
         chain.insert_rule(rule)
-        return (chain, rule)
 
     def insert_reject_rule(self):
-        chain = iptc.Chain(self.tables[iptc.Table.FILTER], 'OUTPUT')
+        table = iptc.Table(iptc.Table.MANGLE)
+        chain = iptc.Chain(table, 'OUTPUT')
         rule = iptc.Rule()
         rule.protol = 'tcp'
 
@@ -92,4 +83,3 @@ class IPTCRules:
         m.mark = '0x18ba5'
 
         chain.insert_rule(rule)
-        return (chain, rule)
