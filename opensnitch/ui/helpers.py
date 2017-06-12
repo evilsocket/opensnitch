@@ -32,14 +32,14 @@ def get_app_name_and_cmdline(conn):
     if conn.proto == 'icmp':
         return 'Unknown'
 
-    if conn.app.cmdline is not None:
+    if conn.app_cmdline is not None:
         # TODO: Figure out why we get mixed types here
-        cmdline = conn.app.cmdline if isinstance(conn.app.cmdline, str) else conn.app.cmdline.decode()  # noqa
-        path = conn.app.path if isinstance(conn.app.path, str) else conn.app.path.decode()  # noqa
+        cmdline = conn.app_cmdline if isinstance(conn.app_cmdline, str) else conn.app_cmdline.decode()  # noqa
+        path = conn.app_path if isinstance(conn.app_path, str) else conn.app.path_decode()  # noqa
 
-        if cmdline.startswith(conn.app.path):
+        if cmdline.startswith(conn.app_path):
             return cmdline
         else:
             return "%s %s" % (path, cmdline)
     else:
-        return conn.app.path
+        return conn.app_path

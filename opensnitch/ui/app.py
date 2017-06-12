@@ -23,6 +23,7 @@ import os
 
 from .desktop_parser import LinuxDesktopParser
 from .dialog import Dialog
+from .dbus import DBusHandler
 
 
 # TODO: Implement tray icon and menu.
@@ -33,16 +34,13 @@ DIALOG_UI_PATH = "%s/dialog.ui" % RESOURCES_PATH
 
 
 class QtApp:
-    def __init__(self, connection_futures, rules):
+    def __init__(self):
         self.desktop_parser = LinuxDesktopParser()
         self.app = QtWidgets.QApplication([])
         self.connection_queue = queue.Queue()
-        self.rules = rules
-        self.dialog = Dialog(self, connection_futures, self.desktop_parser)
+        self.dialog = Dialog(self, self.desktop_parser)
+
+        self.dbus_handler = DBusHandler(self.app, self)
 
     def run(self):
         self.app.exec()
-
-    def prompt_user(self, connection):
-        self.connection_queue.put(connection)
-        self.dialog.add_connection_signal.emit()

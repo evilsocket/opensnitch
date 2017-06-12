@@ -24,12 +24,12 @@ import threading
 import logging
 import weakref
 
-from opensnitch.ui import QtApp
 from opensnitch.connection import Connection
 from opensnitch.dns import DNSCollector
 from opensnitch.rule import RuleVerdict, Rules
 from opensnitch.procmon import ProcMon
 from opensnitch.iptables import IPTCRules
+from opensnitch.dbus_service import OpensnitchService
 
 
 MARK_PACKET_DROP = 101285
@@ -56,10 +56,16 @@ class NetfilterQueueWrapper(threading.Thread):
         super().__init__()
         self.snitch = snitch
 
-        self.connection_futures = weakref.WeakValueDictionary()
+        self.handlers = weakref.WeakValueDictionary()
         self.latest_packet_id = 0
 
+        self._q = None
+
         self.start()
+
+    def stop(self):
+        if self._q is not None:
+            self._q.unbind()
 
     def pkt_callback(self, pkt):
         try:
@@ -84,8 +90,16 @@ class NetfilterQueueWrapper(threading.Thread):
             verd = self.snitch.rules.get_verdict(conn)
             if verd is None:
                 handler = PacketHandler(conn, pkt, self.snitch.rules)
-                self.connection_futures[conn.id] = handler.future
-                self.snitch.qt_app.prompt_user(conn)
+                self.handlers[conn.id] = handler
+                self.snitch.dbus_service.prompt(
+                    conn.id,
+                    conn.hostname,
+                    conn.dst_port,
+                    conn.dst_addr,
+                    conn.proto,
+                    conn.app.pid or 0,
+                    conn.app.path or '',
+                    conn.app.cmdline or '')
 
             elif RuleVerdict(verd) == RuleVerdict.DROP:
                 drop_packet(pkt, conn)
@@ -101,9 +115,8 @@ class NetfilterQueueWrapper(threading.Thread):
             logging.exception(e)
 
     def run(self):
-        q = None
         try:
-            q = NetfilterQueue()
+            self._q = q = NetfilterQueue()
             q.bind(0, self.pkt_callback, 1024 * 2)
             q.run()
 
@@ -153,7 +166,9 @@ class Snitch:
         self.q = NetfilterQueueWrapper(self)
         self.procmon = ProcMon()
         self.iptcrules = None
-        self.qt_app = QtApp(self.q.connection_futures, self.rules)
+
+        self.dbus_service = OpensnitchService(
+            self.q.handlers, self.rules)
 
     def start(self):
         if ProcMon.is_ftrace_available():
@@ -161,10 +176,11 @@ class Snitch:
             self.procmon.start()
 
         self.iptcrules = IPTCRules()
-        self.qt_app.run()
+        self.dbus_service.run()
 
     def stop(self):
+        self.procmon.disable()
+        self.q.stop()
+
         if self.iptcrules is not None:
             self.iptcrules.remove()
-
-        self.procmon.disable()

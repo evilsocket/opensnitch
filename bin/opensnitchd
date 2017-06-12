@@ -73,6 +73,9 @@ if __name__ == '__main__':
     if not os.geteuid() == 0:
         sys.exit('OpenSnitch must be run as root.')
 
+    if 'DBUS_SESSION_BUS_ADDRESS' not in os.environ:
+        raise RuntimeError('DBUS_SESSION_BUS_ADDRESS not set')
+
     # set_keepcaps allows us to keep caps across setuid call
     prctl.set_keepcaps(True)
     prctl.set_caps(*REQUIRED_CAPS)
@@ -97,3 +100,6 @@ if __name__ == '__main__':
     finally:
         logging.info("Quitting ...")
         snitch.stop()
+
+        # Temporary hack to handle Ctrl-C
+        os.kill(os.getpid(), 15)
