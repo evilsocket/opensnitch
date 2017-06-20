@@ -22,14 +22,22 @@ import os
 
 
 def get_pid_by_connection(src_addr, src_p, dst_addr, dst_p, proto='tcp'):
-    pids = (connection.pid for connection in psutil.net_connections(kind=proto)
-            if connection.laddr == (src_addr, int(src_p)) and
-            connection.raddr == (dst_addr, int(dst_p)))
-
     # We always take the first element as we assume it contains only one
     # It should not be possible to keep two connections which are the same.
-    for p in pids:
-        return p
+    for conn in psutil.net_connections(kind=proto):
+        if proto == 'tcp':
+            if conn.laddr != (src_addr, int(src_p)):
+                continue
+
+            if conn.raddr != (dst_addr, int(dst_p)):
+                continue
+
+        # UDP gives us a very limited dataset to work with
+        elif proto == 'udp':
+            if conn.laddr[1] != int(src_p):
+                continue
+
+        return conn.pid
 
     logging.warning("Could not find process for %s connection %s:%s -> %s:%s",
                     proto,

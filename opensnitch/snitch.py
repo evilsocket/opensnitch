@@ -82,10 +82,6 @@ class NetfilterQueueWrapper(threading.Thread):
                 logging.debug("Could not detect protocol for packet.")
                 return
 
-            elif conn.app.pid is None and conn.proto != 'icmp':
-                logging.debug("Could not detect process for connection.")
-                return
-
             # Get verdict, if verdict cannot be found prompt user in thread
             verd = self.snitch.rules.get_verdict(conn)
             if verd is None:
@@ -94,7 +90,7 @@ class NetfilterQueueWrapper(threading.Thread):
                 self.snitch.dbus_service.prompt(
                     conn.id,
                     conn.hostname,
-                    conn.dst_port,
+                    conn.dst_port or 0,
                     conn.dst_addr,
                     conn.proto,
                     conn.app.pid or 0,
