@@ -10,11 +10,32 @@ OpenSnitch is a GNU/Linux port of the Little Snitch application firewall.
 
 ## Requirements
 
-You'll need a GNU/Linux distribution with `iptables`, `NFQUEUE` and `ftrace` kernel support.
+You'll need a GNU/Linux distribution with `iptables`, `NFQUEUE` and `ftrace` kernel support. In addition, you'll need the following package dependencies:
 
-## Install
+### Debian/Ubuntu:
 
-    sudo apt-get install build-essential python3-dev python3-setuptools libnetfilter-queue-dev python3-pyqt5 python3-gi python3-dbus python3-pyinotify
+    sudo apt install build-essential \
+                     libnetfilter-queue-dev \
+                     python3-dbus \
+                     python3-dev \
+                     python3-gi \
+                     python3-pyinotify \
+                     python3-pyqt5 \
+                     python3-setuptools
+
+### Fedora:
+
+    sudo dnf install @C-development \
+                     libcap-devel \
+                     libnetfilter_queue-devel \
+                     python3-dbus \
+                     python3-devel \
+                     python3-inotify \
+                     python3-qt5 \
+                     python3-setuptools
+
+## Build and Install
+
     cd opensnitch
     sudo python3 setup.py install
 
