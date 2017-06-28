@@ -15,6 +15,7 @@ You'll need a GNU/Linux distribution with `iptables`, `NFQUEUE` and `ftrace` ker
 ### Debian/Ubuntu:
 
     sudo apt install build-essential \
+                     libcap-dev \
                      libnetfilter-queue-dev \
                      python3-dbus \
                      python3-dev \
@@ -33,6 +34,10 @@ You'll need a GNU/Linux distribution with `iptables`, `NFQUEUE` and `ftrace` ker
                      python3-inotify \
                      python3-qt5 \
                      python3-setuptools
+
+### Arch:
+
+    There is an AUR package available at https://aur.archlinux.org/packages/opensnitch-git/
 
 ## Build and Install
 
