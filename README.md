@@ -33,7 +33,8 @@ You'll need a GNU/Linux distribution with `iptables`, `NFQUEUE` and `ftrace` ker
                      python3-devel \
                      python3-inotify \
                      python3-qt5 \
-                     python3-setuptools
+                     python3-setuptools \
+                     redhat-rpm-config
 
 ### Arch:
 
