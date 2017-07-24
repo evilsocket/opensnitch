@@ -17,6 +17,7 @@ You'll need a GNU/Linux distribution with `iptables`, `NFQUEUE` and `ftrace` ker
     sudo apt install build-essential \
                      libcap-dev \
                      libnetfilter-queue-dev \
+                     libnfnetlink-dev \
                      python3-dbus \
                      python3-dev \
                      python3-gi \
