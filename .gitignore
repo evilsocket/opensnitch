@@ -1,7 +1,2 @@
-*.pyc
-build
-dist
-*.egg-info
-.idea
-*.swp
-*.sw*
+osgui
+osd
