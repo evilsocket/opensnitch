@@ -100,9 +100,11 @@ func onPacket(packet netfilter.NFPacket) {
 		return
 	}
 
+	// search a match in preloaded rules
 	r := rules.FindFirstMatch(con)
-	// no rule matched, prompt the user
 	if r == nil {
+		// no rule matched, send a request to the
+		// UI client if connected and running
 		r = uiClient.Ask(con)
 	}
 

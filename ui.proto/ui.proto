@@ -3,19 +3,28 @@ syntax = "proto3";
 package ui;
 
 service UI {
-  rpc AskRule (RuleRequest) returns (RuleReply) {}
+    rpc Ping(PingRequest) returns (PingReply) {}
+    rpc AskRule (RuleRequest) returns (RuleReply) {}
+}
+
+message PingRequest {
+    uint64 id = 1;
+}
+
+message PingReply {
+    uint64 id = 1;
 }
 
 message RuleRequest {
-  string protocol = 1;
-  string src_ip = 2;
-  uint32 src_port = 3;
-  string dst_ip = 4;
-  string dst_host = 5;
-  uint32 dst_port = 6;
-  uint32 process_id = 7;
-  string process_path = 8;
-  repeated string process_args = 9;
+    string protocol = 1;
+    string src_ip = 2;
+    uint32 src_port = 3;
+    string dst_ip = 4;
+    string dst_host = 5;
+    uint32 dst_port = 6;
+    uint32 process_id = 7;
+    string process_path = 8;
+    repeated string process_args = 9;
 }
 
 message RuleReply {

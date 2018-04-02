@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -44,10 +45,20 @@ func NewClient(path string) *Client {
 func (c *Client) poller() {
 	log.Debug("UI service poller started for socket %s", c.socketPath)
 	t := time.NewTicker(time.Second * 1)
-	for _ = range t.C {
-		err := c.connect()
-		if err != nil {
+	for ts := range t.C {
+		if err := c.connect(); err != nil {
 			log.Warning("Error while connecting to UI service: %s", err)
+			continue
+		}
+
+		if c.con.GetState() == connectivity.Ready {
+			if err := c.ping(ts); err != nil {
+				log.Warning("Error while pinging UI service: %s", err)
+			} else {
+				log.Debug("Got pong")
+			}
+		} else {
+			log.Debug("Skipped ping/pong, connection not ready.")
 		}
 	}
 }
@@ -70,6 +81,29 @@ func (c *Client) connect() (err error) {
 	}
 
 	c.client = protocol.NewUIClient(c.con)
+	return nil
+}
+
+func (c *Client) ping(ts time.Time) (err error) {
+	c.Lock()
+	defer c.Unlock()
+
+	if c.con == nil || c.client == nil {
+		return fmt.Errorf("service is not connected.")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	reqId := uint64(ts.UnixNano())
+	pong, err := c.client.Ping(ctx, &protocol.PingRequest{Id: reqId})
+	if err != nil {
+		return err
+	}
+
+	if pong.Id != reqId {
+		return fmt.Errorf("Expected pong with id 0x%x, got 0x%x", reqId, pong.Id)
+	}
+
 	return nil
 }
 
