@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/dns"
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -68,7 +69,7 @@ func worker(id int) {
 }
 
 func setupWorkers() {
-	log.Info("Starting %d workers ...", workers)
+	log.Debug("Starting %d workers ...", workers)
 	// setup the workers
 	wrkChan = make(chan netfilter.NFPacket)
 	for i := 0; i < workers; i++ {
@@ -123,14 +124,20 @@ func main() {
 	golog.SetOutput(ioutil.Discard)
 	flag.Parse()
 
-	setupSignals()
-	setupWorkers()
+	log.Important("Starting %s v%s", core.Name, core.Version)
 
-	log.Info("Loading rules from %s ...", rulesPath)
-	if err := rules.Load(rulesPath); err != nil {
+	rulesPath, err := core.ExpandPath(rulesPath)
+	if err != nil {
 		log.Fatal("%s", err)
 	}
-	log.Info("Loaded %d rules.", rules.NumRules())
+
+	uiSocketPath, err = core.ExpandPath(uiSocketPath)
+	if err != nil {
+		log.Fatal("%s", err)
+	}
+
+	setupSignals()
+	setupWorkers()
 
 	// prepare the queue
 	queue, err := netfilter.NewNFQueue(uint16(queueNum), 4096, netfilter.NF_DEFAULT_PACKET_SIZE)
@@ -148,6 +155,10 @@ func main() {
 		log.Fatal("Error while running reject firewall rule: %s", err)
 	}
 
+	log.Info("Loading rules from %s ...", rulesPath)
+	if err := rules.Load(rulesPath); err != nil {
+		log.Fatal("%s", err)
+	}
 	uiClient = ui.NewClient(uiSocketPath)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
