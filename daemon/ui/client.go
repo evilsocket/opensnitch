@@ -22,7 +22,7 @@ var clientDisconnectedRule = rule.Create("ui.client.disconnected", rule.Allow, r
 	What: rule.OpTrue,
 })
 
-var clientTimeoutRule = rule.Create("ui.client.timeout", rule.Allow, rule.Once, rule.Cmp{
+var clientErrorRule = rule.Create("ui.client.error", rule.Allow, rule.Once, rule.Cmp{
 	What: rule.OpTrue,
 })
 
@@ -118,16 +118,13 @@ func (c *Client) Ask(con *conman.Connection) *rule.Rule {
 		return clientDisconnectedRule
 	}
 
-	log.Debug("Asking UI")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
-
-	_, err := c.client.AskRule(ctx, &protocol.RuleRequest{})
+	reply, err := c.client.AskRule(ctx, con.ToRequest())
 	if err != nil {
 		log.Warning("Error while asking for rule: %s", err)
-	} else {
-		log.Debug("AskRule ok")
+		return clientErrorRule
 	}
 
-	return clientDisconnectedRule
+	return rule.FromReply(reply)
 }

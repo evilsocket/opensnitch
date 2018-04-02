@@ -8,6 +8,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	protocol "github.com/evilsocket/opensnitch/ui.proto"
 
 	"github.com/evilsocket/go-netfilter-queue"
 
@@ -135,4 +136,18 @@ func (c *Connection) String() string {
 	}
 
 	return fmt.Sprintf("%s (%d) -> %s:%d (proto:%s uid:%d)", c.Process.Path, c.Process.ID, c.To(), c.DstPort, c.Protocol, c.Entry.UserId)
+}
+
+func (c *Connection) ToRequest() *protocol.RuleRequest {
+	return &protocol.RuleRequest{
+		Protocol:    c.Protocol,
+		SrcIp:       c.SrcIP.String(),
+		SrcPort:     uint32(c.SrcPort),
+		DstIp:       c.DstIP.String(),
+		DstHost:     c.DstHost,
+		DstPort:     uint32(c.DstPort),
+		ProcessId:   uint32(c.Process.ID),
+		ProcessPath: c.Process.Path,
+		ProcessArgs: c.Process.Args,
+	}
 }

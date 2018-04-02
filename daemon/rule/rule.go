@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
+	protocol "github.com/evilsocket/opensnitch/ui.proto"
 )
 
 type OperandType string
@@ -52,6 +53,18 @@ type Rule struct {
 	Duration Duration  `json:"duration"`
 	Type     Type      `json:"type"`
 	Rule     Cmp       `json:"rule"`
+}
+
+func FromReply(reply *protocol.RuleReply) *Rule {
+	return Create(
+		reply.Name,
+		Action(reply.Action),
+		Duration(reply.Duration),
+		Cmp{
+			What: OperandType(reply.What),
+			With: reply.With,
+		},
+	)
 }
 
 func Create(name string, action Action, duration Duration, rule Cmp) *Rule {
