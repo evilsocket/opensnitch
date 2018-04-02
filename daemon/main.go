@@ -23,6 +23,7 @@ var (
 	rulesPath = "rules"
 	queueNum  = 0
 	workers   = 16
+	debug     = false
 
 	uiSocketPath = "osui.sock"
 	uiClient     = (*ui.Client)(nil)
@@ -40,6 +41,7 @@ func init() {
 	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
 	flag.IntVar(&workers, "workers", workers, "Number of concurrent workers.")
+	flag.BoolVar(&debug, "debug", debug, "Enable debug logs.")
 }
 
 func setupSignals() {
@@ -123,6 +125,12 @@ func onPacket(packet netfilter.NFPacket) {
 func main() {
 	golog.SetOutput(ioutil.Discard)
 	flag.Parse()
+
+	if debug {
+		log.MinLevel = log.DEBUG
+	} else {
+		log.MinLevel = log.INFO
+	}
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
 

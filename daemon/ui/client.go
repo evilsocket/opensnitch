@@ -9,10 +9,19 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 
+	protocol "github.com/evilsocket/opensnitch/ui.proto"
+
+	"golang.org/x/net/context"
+
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
 )
 
 var clientDisconnectedRule = rule.Create("ui.client.disconnected", rule.Allow, rule.Once, rule.Cmp{
+	What: rule.OpTrue,
+})
+
+var clientTimeoutRule = rule.Create("ui.client.timeout", rule.Allow, rule.Once, rule.Cmp{
 	What: rule.OpTrue,
 })
 
@@ -21,6 +30,7 @@ type Client struct {
 
 	socketPath string
 	con        *grpc.ClientConn
+	client     protocol.UIClient
 }
 
 func NewClient(path string) *Client {
@@ -56,16 +66,34 @@ func (c *Client) connect() (err error) {
 		}))
 	if err != nil {
 		c.con = nil
+		return err
 	}
-	return err
 
+	c.client = protocol.NewUIClient(c.con)
+	return nil
 }
 
 func (c *Client) Ask(con *conman.Connection) *rule.Rule {
 	c.Lock()
 	defer c.Unlock()
 
-	// TODO: if connected, send request
+	if c.con == nil || c.con.GetState() != connectivity.Ready {
+		if c.con != nil {
+			log.Debug("Client state: %v", c.con.GetState())
+		}
+		return clientDisconnectedRule
+	}
+
+	log.Debug("Asking UI")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+
+	_, err := c.client.AskRule(ctx, &protocol.RuleRequest{})
+	if err != nil {
+		log.Warning("Error while asking for rule: %s", err)
+	} else {
+		log.Debug("AskRule ok")
+	}
 
 	return clientDisconnectedRule
 }
