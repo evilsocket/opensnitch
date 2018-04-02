@@ -1,7 +1,12 @@
-all: osd
+all: protocol osd
+
+protocol:
+	@cd ui.proto && make
 
 osd:
-	go build -o osd github.com/evilsocket/opensnitch/daemon
+	@cd daemon && make && mv daemon ../osd
 
 clean:
-	rm -rf osd ui
+	@cd ui.proto && make clean
+	@cd daemon && make clean
+	@rm -rf osd
