@@ -25,7 +25,7 @@ var (
 	workers   = 16
 	debug     = false
 
-	uiSocketPath = "osui.sock"
+	uiSocketPath = "opensnitch-ui.sock"
 	uiClient     = (*ui.Client)(nil)
 
 	err     = (error)(nil)
@@ -101,11 +101,30 @@ func onPacket(packet netfilter.NFPacket) {
 	}
 
 	// search a match in preloaded rules
+	connected := false
 	r := rules.FindFirstMatch(con)
 	if r == nil {
 		// no rule matched, send a request to the
 		// UI client if connected and running
-		r = uiClient.Ask(con)
+		r, connected = uiClient.Ask(con)
+		if connected {
+			// check if and how the rule needs to be saved
+			if r.Duration == rule.Restart {
+				// add to the rules but do not save to disk
+				if err := rules.Add(r, false); err != nil {
+					log.Error("Error while adding rule: %s", err)
+				} else {
+					log.Important("Added new until reboot: %s", r)
+				}
+			} else if r.Duration == rule.Always {
+				// add to the loaded rules and persist on disk
+				if err := rules.Add(r, true); err != nil {
+					log.Error("Error while saving rule: %s", err)
+				} else {
+					log.Important("Saved new rule: %s", r)
+				}
+			}
+		}
 	}
 
 	if r.Action == rule.Allow {
@@ -115,7 +134,7 @@ func onPacket(packet netfilter.NFPacket) {
 			ruleName = log.Dim(r.Name)
 		}
 
-		log.Info("%s %s -> %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
+		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
 		return
 	}
 

@@ -16,13 +16,13 @@ import (
 type Loader struct {
 	sync.RWMutex
 	path  string
-	rules []*Rule
+	rules map[string]*Rule
 }
 
 func NewLoader() *Loader {
 	return &Loader{
 		path:  "",
-		rules: make([]*Rule, 0),
+		rules: make(map[string]*Rule),
 	}
 }
 
@@ -47,7 +47,7 @@ func (l *Loader) Load(path string) error {
 	defer l.Unlock()
 
 	l.path = path
-	l.rules = make([]*Rule, 0)
+	l.rules = make(map[string]*Rule)
 
 	for _, fileName := range matches {
 		raw, err := ioutil.ReadFile(fileName)
@@ -63,7 +63,7 @@ func (l *Loader) Load(path string) error {
 		}
 
 		log.Debug("Loaded rule from %s: %s", fileName, r.String())
-		l.rules = append(l.rules, &r)
+		l.rules[r.Name] = &r
 	}
 
 	return nil
@@ -71,6 +71,36 @@ func (l *Loader) Load(path string) error {
 
 func (l *Loader) Reload() error {
 	return l.Load(l.path)
+}
+
+func (l *Loader) isUniqueName(name string) bool {
+	_, found := l.rules[name]
+	return !found
+}
+
+func (l *Loader) setUniqueName(rule *Rule) {
+	idx := 1
+	rule.Name = fmt.Sprintf("user.rule-%d", idx)
+	for l.isUniqueName(rule.Name) == false {
+		idx++
+		rule.Name = fmt.Sprintf("user.rule-%d", idx)
+	}
+}
+
+func (l *Loader) addUserRule(rule *Rule) {
+	l.Lock()
+	l.setUniqueName(rule)
+	l.rules[rule.Name] = rule
+	l.Unlock()
+}
+
+func (l *Loader) Add(rule *Rule, saveToDisk bool) error {
+	l.addUserRule(rule)
+	if saveToDisk {
+		fileName := filepath.Join(l.path, fmt.Sprintf("%s.json", rule.Name))
+		return l.Save(rule, fileName)
+	}
+	return nil
 }
 
 func (l *Loader) Save(rule *Rule, path string) error {

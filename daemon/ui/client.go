@@ -107,7 +107,7 @@ func (c *Client) ping(ts time.Time) (err error) {
 	return nil
 }
 
-func (c *Client) Ask(con *conman.Connection) *rule.Rule {
+func (c *Client) Ask(con *conman.Connection) (*rule.Rule, bool) {
 	c.Lock()
 	defer c.Unlock()
 
@@ -115,7 +115,7 @@ func (c *Client) Ask(con *conman.Connection) *rule.Rule {
 		if c.con != nil {
 			log.Debug("Client state: %v", c.con.GetState())
 		}
-		return clientDisconnectedRule
+		return clientDisconnectedRule, false
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
@@ -123,8 +123,8 @@ func (c *Client) Ask(con *conman.Connection) *rule.Rule {
 	reply, err := c.client.AskRule(ctx, con.ToRequest())
 	if err != nil {
 		log.Warning("Error while asking for rule: %s", err)
-		return clientErrorRule
+		return clientErrorRule, false
 	}
 
-	return rule.FromReply(reply)
+	return rule.FromReply(reply), true
 }

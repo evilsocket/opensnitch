@@ -1,4 +1,4 @@
-all: protocol osd osui
+all: protocol osd osgui
 
 protocol:
 	@cd ui.proto && make
@@ -6,11 +6,11 @@ protocol:
 osd:
 	@cd daemon && make && mv daemon ../osd
 
-osui:
-	@cd ui.gtk && make && mv ui.gtk ../ui
+osgui:
+	@cd ui.gtk && make && mv ui.gtk ../osgui
 
 clean:
 	@cd daemon && make clean
 	@cd ui.proto && make clean
 	@cd ui.gtk && make clean
-	@rm -rf osd ui
+	@rm -rf osd osgui

@@ -18,17 +18,18 @@ import (
 )
 
 var (
-	socketPath = "osui.sock"
+	socketPath = "opensnitch-ui.sock"
 	listener   = (net.Listener)(nil)
 	server     = (*grpc.Server)(nil)
 	err        = (error)(nil)
 	sigChan    = (chan os.Signal)(nil)
+	isClosing  = (bool)(false)
 )
 
 type service struct{}
 
 func (s *service) Ping(ctx context.Context, ping *protocol.PingRequest) (*protocol.PingReply, error) {
-	log.Info("Got ping 0x%x", ping.Id)
+	log.Debug("Got ping 0x%x", ping.Id)
 	return &protocol.PingReply{Id: ping.Id}, nil
 }
 
@@ -37,7 +38,7 @@ func (s *service) AskRule(ctx context.Context, req *protocol.RuleRequest) (*prot
 	return &protocol.RuleReply{
 		Name:     "user.choice",
 		Action:   "allow",
-		Duration: "once",
+		Duration: "always",
 		What:     "process.path",
 		With:     req.ProcessPath,
 	}, nil
@@ -52,6 +53,7 @@ func setupSignals() {
 		syscall.SIGQUIT)
 	go func() {
 		sig := <-sigChan
+		isClosing = true
 		log.Raw("\n")
 		log.Important("Got signal: %v", sig)
 
@@ -88,6 +90,8 @@ func main() {
 	reflection.Register(server)
 
 	if err := server.Serve(listener); err != nil {
-		log.Fatal("Failed to start: %s", err)
+		if isClosing == false {
+			log.Fatal("Failed to start: %s", err)
+		}
 	}
 }
