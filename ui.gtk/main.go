@@ -15,10 +15,15 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/gotk3/gotk3/glib"
+	"github.com/gotk3/gotk3/gtk"
 )
 
 var (
 	socketPath = "opensnitch-ui.sock"
+	uiBuilder  = (*gtk.Builder)(nil)
+	askWindow  = (*gtk.Window)(nil)
 	listener   = (net.Listener)(nil)
 	server     = (*grpc.Server)(nil)
 	err        = (error)(nil)
@@ -35,6 +40,12 @@ func (s *service) Ping(ctx context.Context, ping *protocol.PingRequest) (*protoc
 
 func (s *service) AskRule(ctx context.Context, req *protocol.RuleRequest) (*protocol.RuleReply, error) {
 	log.Info("Got rule request: %v", req)
+
+	glib.IdleAdd(func() bool {
+		askWindow.Show()
+		return false
+	})
+
 	return &protocol.RuleReply{
 		Name:     "user.choice",
 		Action:   "allow",
@@ -64,6 +75,35 @@ func setupSignals() {
 	}()
 }
 
+// TODO: this will be loaded from compiled resources
+const uiGladeFile = "ui.gtk/glade/ask_window.glade"
+
+func setupGtk() {
+	gtk.Init(&os.Args)
+
+	if uiBuilder, err = gtk.BuilderNew(); err != nil {
+		log.Fatal("Error while creating GTK builder: %s", err)
+	} else if err = uiBuilder.AddFromFile(uiGladeFile); err != nil {
+		log.Fatal("Error while loading %s: %s", uiGladeFile, err)
+	}
+
+	obj, err := uiBuilder.GetObject("askWindow")
+	if err != nil {
+		log.Fatal("Error while getting window: %s", err)
+	}
+
+	var ok bool
+	askWindow, ok = obj.(*gtk.Window)
+	if !ok {
+		log.Fatal("Could not cast window object.")
+	}
+
+	askWindow.SetTitle("OpenSnitch v" + Version)
+	go func() {
+		gtk.Main()
+	}()
+}
+
 func init() {
 	flag.StringVar(&socketPath, "socket-path", socketPath, "UNIX socket for this gRPC service.")
 }
@@ -77,6 +117,7 @@ func main() {
 	}
 
 	setupSignals()
+	setupGtk()
 
 	log.Important("Starting %s v%s on socket %s", Name, Version, socketPath)
 
