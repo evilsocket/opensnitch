@@ -1,4 +1,4 @@
-package core
+package main
 
 const (
 	Name    = "opensnitch-test-ui"

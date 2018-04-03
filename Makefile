@@ -7,10 +7,10 @@ osd:
 	@cd daemon && make && mv daemon ../osd
 
 osui:
-	@cd ui.test.service && make && mv ui.test.service ../ui
+	@cd ui.gtk && make && mv ui.gtk ../ui
 
 clean:
-	@cd ui.proto && make clean
 	@cd daemon && make clean
-	@cd ui.test.service && make clean
-	@rm -rf osd
+	@cd ui.proto && make clean
+	@cd ui.gtk && make clean
+	@rm -rf osd ui

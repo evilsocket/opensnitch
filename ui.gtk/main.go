@@ -3,11 +3,13 @@ package main
 import (
 	"flag"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"golang.org/x/net/context"
 
-	"github.com/evilsocket/opensnitch/ui.test.service/core"
-
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	protocol "github.com/evilsocket/opensnitch/ui.proto"
 
@@ -20,6 +22,7 @@ var (
 	listener   = (net.Listener)(nil)
 	server     = (*grpc.Server)(nil)
 	err        = (error)(nil)
+	sigChan    = (chan os.Signal)(nil)
 )
 
 type service struct{}
@@ -40,6 +43,25 @@ func (s *service) AskRule(ctx context.Context, req *protocol.RuleRequest) (*prot
 	}, nil
 }
 
+func setupSignals() {
+	sigChan = make(chan os.Signal, 1)
+	signal.Notify(sigChan,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT)
+	go func() {
+		sig := <-sigChan
+		log.Raw("\n")
+		log.Important("Got signal: %v", sig)
+
+		if listener != nil {
+			listener.Close()
+		}
+		os.Exit(0)
+	}()
+}
+
 func init() {
 	flag.StringVar(&socketPath, "socket-path", socketPath, "UNIX socket for this gRPC service.")
 }
@@ -47,9 +69,15 @@ func init() {
 func main() {
 	flag.Parse()
 
-	log.Important("Starting %s v%s", core.Name, core.Version)
+	socketPath, err = core.ExpandPath(socketPath)
+	if err != nil {
+		log.Fatal("%s", err)
+	}
 
-	log.Info("Creating listener on unix://%s", socketPath)
+	setupSignals()
+
+	log.Important("Starting %s v%s on socket %s", Name, Version, socketPath)
+
 	listener, err = net.Listen("unix", socketPath)
 	if err != nil {
 		log.Fatal("%s", err)
