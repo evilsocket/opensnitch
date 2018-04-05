@@ -1,4 +1,5 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
+
 import sys
 import os
 import time
@@ -14,30 +15,51 @@ from concurrent import futures
 import ui_pb2
 import ui_pb2_grpc
 
-from dialog import Dialog
+from service import UIService
+from stats_dialog import StatsDialog
+from version import version
 
-class UIServicer(ui_pb2_grpc.UIServicer):
-    def __init__(self):
-        self.dialog = Dialog()
+def on_exit():
+    # print "Closing UI"
+    app.quit()
+    server.stop(0)
+    sys.exit(0)
 
-    def Ping(self, request, context):
-	return ui_pb2.PingReply(id=request.id)
-
-    def AskRule(self, request, context):
-        rule = self.dialog.promptUser(request)
-        # print "%s -> %s" % ( request, rule )
-        return rule
+def on_stats():
+    stats_dialog.show()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.')
     parser.add_argument("--socket", dest="socket", default="opensnitch-ui.sock", help="Path of the unix socket for the gRPC service.", metavar="FILE")
 
     args = parser.parse_args()
-
     app = QtWidgets.QApplication(sys.argv)
+
+    white_image = QtGui.QPixmap(os.path.join(path, "res/icon-white.png"))
+    white_icon = QtGui.QIcon()
+    white_icon.addPixmap(white_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+    red_image = QtGui.QPixmap(os.path.join(path, "res/icon-red.png"))
+    red_icon = QtGui.QIcon()
+    red_icon.addPixmap(red_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+    menu = QtWidgets.QMenu()
+    menu.addAction("OpenSnitch v" + version)
+    menu.addSeparator()
+
+    stats_dialog = StatsDialog()
+    statsAction = menu.addAction("Statistics")
+    statsAction.triggered.connect(on_stats)
+    exitAction = menu.addAction("Close")
+    exitAction.triggered.connect(on_exit)
+
+    tray = QtWidgets.QSystemTrayIcon(white_icon)
+    tray.setContextMenu(menu)
+    tray.show()
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
 
-    ui_pb2_grpc.add_UIServicer_to_server(UIServicer(), server)
+    ui_pb2_grpc.add_UIServicer_to_server(UIService(stats_dialog), server)
     
     socket = os.path.abspath(args.socket)
     server.add_insecure_port("unix:%s" % socket)
@@ -46,11 +68,9 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     try:
-        print "OpenSnitch UI service running on %s ..." % socket
-
+        # print "OpenSnitch UI service running on %s ..." % socket
         server.start()
         app.exec_()
     except KeyboardInterrupt:
-        app.quit()
-        server.stop(0)
+        on_exit()
 

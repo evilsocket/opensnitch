@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
@@ -83,15 +82,6 @@ func setupWorkers() {
 	for i := 0; i < workers; i++ {
 		go worker(i)
 	}
-}
-
-func setupStats() {
-	go func() {
-		t := time.NewTicker(time.Second * 30)
-		for _ = range t.C {
-			stats.Log()
-		}
-	}()
 }
 
 func doCleanup() {
@@ -214,7 +204,6 @@ func main() {
 
 	setupSignals()
 	setupWorkers()
-	setupStats()
 
 	// prepare the queue
 	queue, err := netfilter.NewNFQueue(uint16(queueNum), 4096, netfilter.NF_DEFAULT_PACKET_SIZE)
@@ -236,7 +225,7 @@ func main() {
 	if err := rules.Load(rulesPath); err != nil {
 		log.Fatal("%s", err)
 	}
-	uiClient = ui.NewClient(uiSocketPath)
+	uiClient = ui.NewClient(uiSocketPath, stats)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for true {

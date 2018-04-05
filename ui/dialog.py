@@ -6,7 +6,6 @@ import os
 import pwd
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5 import QtDBus
 
 from slugify import slugify
 

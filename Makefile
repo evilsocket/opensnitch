@@ -18,5 +18,5 @@ test:
 	mkdir rules
 	make 
 	clear
-	xterm -e "python ui/main.py ; read" & 
+	python ui/main.py &
 	sudo ./daemon/daemon

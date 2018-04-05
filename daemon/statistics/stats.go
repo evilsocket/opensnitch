@@ -21,23 +21,23 @@ type Statistics struct {
 	Dropped      int
 	RuleHits     int
 	RuleMisses   int
-	ByProto      map[string]int
-	ByAddress    map[string]int
-	ByHost       map[string]int
-	ByPort       map[string]int
-	ByUID        map[string]int
-	ByExecutable map[string]int
+	ByProto      map[string]uint64
+	ByAddress    map[string]uint64
+	ByHost       map[string]uint64
+	ByPort       map[string]uint64
+	ByUID        map[string]uint64
+	ByExecutable map[string]uint64
 }
 
 func New() *Statistics {
 	return &Statistics{
 		Started:      time.Now(),
-		ByProto:      make(map[string]int),
-		ByAddress:    make(map[string]int),
-		ByHost:       make(map[string]int),
-		ByPort:       make(map[string]int),
-		ByUID:        make(map[string]int),
-		ByExecutable: make(map[string]int),
+		ByProto:      make(map[string]uint64),
+		ByAddress:    make(map[string]uint64),
+		ByHost:       make(map[string]uint64),
+		ByPort:       make(map[string]uint64),
+		ByUID:        make(map[string]uint64),
+		ByExecutable: make(map[string]uint64),
 	}
 }
 
@@ -55,7 +55,7 @@ func (s *Statistics) OnIgnored() {
 	s.Accepted++
 }
 
-func (s *Statistics) incMap(m *map[string]int, key string) {
+func (s *Statistics) incMap(m *map[string]uint64, key string) {
 	if val, found := (*m)[key]; found == false {
 		(*m)[key] = 1
 	} else {
@@ -103,13 +103,13 @@ func (s *Statistics) OnDrop() {
 	s.Dropped++
 }
 
-func (s *Statistics) logMap(m *map[string]int, name string) {
+func (s *Statistics) logMap(m *map[string]uint64, name string) {
 	log.Raw("%s\n", name)
 	log.Raw("----\n")
 
 	type kv struct {
 		Key   string
-		Value int
+		Value uint64
 	}
 
 	var padLen int

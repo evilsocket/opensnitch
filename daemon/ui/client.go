@@ -9,6 +9,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/rule"
+	"github.com/evilsocket/opensnitch/daemon/statistics"
 
 	protocol "github.com/evilsocket/opensnitch/proto"
 
@@ -29,14 +30,16 @@ var clientErrorRule = rule.Create("ui.client.error", rule.Allow, rule.Once, rule
 type Client struct {
 	sync.Mutex
 
+	stats      *statistics.Statistics
 	socketPath string
 	con        *grpc.ClientConn
 	client     protocol.UIClient
 }
 
-func NewClient(path string) *Client {
+func NewClient(path string, stats *statistics.Statistics) *Client {
 	c := &Client{
 		socketPath: path,
+		stats:      stats,
 	}
 	go c.poller()
 	return c
@@ -92,7 +95,30 @@ func (c *Client) ping(ts time.Time) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	reqId := uint64(ts.UnixNano())
-	pong, err := c.client.Ping(ctx, &protocol.PingRequest{Id: reqId})
+
+	c.stats.Lock()
+	defer c.stats.Unlock()
+
+	pong, err := c.client.Ping(ctx, &protocol.PingRequest{
+		Id: reqId,
+		Stats: &protocol.Statistics{
+			Uptime:       uint64(time.Since(c.stats.Started).Seconds()),
+			DnsResponses: uint64(c.stats.DNSResponses),
+			Connections:  uint64(c.stats.Connections),
+			Ignored:      uint64(c.stats.Ignored),
+			Accepted:     uint64(c.stats.Accepted),
+			Dropped:      uint64(c.stats.Dropped),
+			RuleHits:     uint64(c.stats.RuleHits),
+			RuleMisses:   uint64(c.stats.RuleMisses),
+			ByProto:      c.stats.ByProto,
+			ByAddress:    c.stats.ByAddress,
+			ByHost:       c.stats.ByHost,
+			ByPort:       c.stats.ByPort,
+			ByUid:        c.stats.ByUID,
+			ByExecutable: c.stats.ByExecutable,
+		},
+	})
+
 	if err != nil {
 		return err
 	}
