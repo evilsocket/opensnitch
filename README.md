@@ -26,7 +26,11 @@ The user interface is a python script running as a `gRPC` server on a unix socke
 
 ### Running
 
-Now run the daemon (create the `~/.opensnitch/rules` folder if it doesn't exist):
+First, you need to decide in which folder opensnitch rules will be saved, it is suggested that you just:
+
+    mkdir -p ~/.opensnitch/rules
+
+Now run the daemon:
 
     sudo /path/to/daemon -ui-socket-path /tmp/osui.sock -rules-path ~/.opensnitch/rules
 
