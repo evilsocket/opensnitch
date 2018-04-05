@@ -32,5 +32,5 @@ message RuleReply {
     string action = 2;
     string duration = 3;
     string what = 4;
-    string with = 5;
+    string value = 5;
 }

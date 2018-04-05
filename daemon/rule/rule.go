@@ -62,7 +62,7 @@ func FromReply(reply *protocol.RuleReply) *Rule {
 		Duration(reply.Duration),
 		Cmp{
 			What: OperandType(reply.What),
-			With: reply.With,
+			With: reply.Value,
 		},
 	)
 }
