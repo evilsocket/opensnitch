@@ -117,15 +117,24 @@ func (l *Loader) Save(rule *Rule, path string) error {
 	return nil
 }
 
-func (l *Loader) FindFirstMatch(con *conman.Connection) *Rule {
+func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 	l.RLock()
 	defer l.RUnlock()
 
 	for _, rule := range l.rules {
 		if rule.Match(con) == true {
-			return rule
+			// only return if we found a deny
+			// rule, otherwise keep searching as we
+			// might have situations like:
+			//
+			//     rule 1: allow chrome
+			//     rule 2: block www.google.com
+			match = rule
+			if rule.Action == rule.Deny {
+				break
+			}
 		}
 	}
 
-	return nil
+	return match
 }
