@@ -20,6 +20,7 @@ import (
 )
 
 var (
+	logFile   = ""
 	rulesPath = "rules"
 	queueNum  = 0
 	workers   = 16
@@ -41,6 +42,8 @@ func init() {
 	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
 	flag.IntVar(&workers, "workers", workers, "Number of concurrent workers.")
+
+	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
 	flag.BoolVar(&debug, "debug", debug, "Enable debug logs.")
 }
 
@@ -151,6 +154,12 @@ func main() {
 		log.MinLevel = log.DEBUG
 	} else {
 		log.MinLevel = log.INFO
+	}
+
+	if logFile != "" {
+		if log.Output, err = os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+			panic(err)
+		}
 	}
 
 	log.Important("Starting %s v%s", core.Name, core.Version)

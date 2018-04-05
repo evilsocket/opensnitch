@@ -43,7 +43,7 @@ const (
 
 var (
 	WithColors = true
-	Output     = os.Stderr
+	Output     = os.Stdout
 	DateFormat = "2006-01-02 15:04:05"
 	MinLevel   = INFO
 
@@ -120,7 +120,7 @@ func Log(level int, format string, args ...interface{}) {
 		l := Dim("[%s]")
 		r := Wrap(" %s ", color) + " %s"
 
-		fmt.Printf(l+" "+r, when, label, what)
+		fmt.Fprintf(Output, l+" "+r, when, label, what)
 	}
 }
 
