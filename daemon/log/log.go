@@ -97,10 +97,10 @@ func Yellow(s string) string {
 	return Wrap(s, YELLOW)
 }
 
-func Raw(s string) {
+func Raw(format string, args ...interface{}) {
 	mutex.Lock()
 	defer mutex.Unlock()
-	fmt.Fprintf(Output, "%s", s)
+	fmt.Fprintf(Output, format, args...)
 }
 
 func Log(level int, format string, args ...interface{}) {

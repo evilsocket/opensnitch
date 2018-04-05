@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
@@ -14,6 +15,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/rule"
+	"github.com/evilsocket/opensnitch/daemon/statistics"
 	"github.com/evilsocket/opensnitch/daemon/ui"
 
 	"github.com/evilsocket/go-netfilter-queue"
@@ -31,6 +33,7 @@ var (
 
 	err     = (error)(nil)
 	rules   = rule.NewLoader()
+	stats   = statistics.New()
 	queue   = (*netfilter.NFQueue)(nil)
 	pktChan = (<-chan netfilter.NFPacket)(nil)
 	wrkChan = (chan netfilter.NFPacket)(nil)
@@ -82,6 +85,15 @@ func setupWorkers() {
 	}
 }
 
+func setupStats() {
+	go func() {
+		t := time.NewTicker(time.Second * 5)
+		for _ = range t.C {
+			stats.Log()
+		}
+	}()
+}
+
 func doCleanup() {
 	log.Info("Cleaning up ...")
 	firewall.QueueDNSResponses(false, queueNum)
@@ -93,6 +105,7 @@ func onPacket(packet netfilter.NFPacket) {
 	// DNS response, just parse, track and accept.
 	if dns.TrackAnswers(packet.Packet) == true {
 		packet.SetVerdict(netfilter.NF_ACCEPT)
+		stats.OnDNSResponse()
 		return
 	}
 
@@ -100,13 +113,18 @@ func onPacket(packet netfilter.NFPacket) {
 	con := conman.Parse(packet)
 	if con == nil {
 		packet.SetVerdict(netfilter.NF_ACCEPT)
+		stats.OnIgnored()
 		return
 	}
+
+	stats.OnConnection(con)
 
 	// search a match in preloaded rules
 	connected := false
 	r := rules.FindFirstMatch(con)
 	if r == nil {
+		stats.OnRuleMiss()
+
 		// no rule matched, send a request to the
 		// UI client if connected and running
 		r, connected = uiClient.Ask(con)
@@ -143,9 +161,13 @@ func onPacket(packet netfilter.NFPacket) {
 				log.Important("%s new rule: %s if %s is %s", pers, action, log.Bold(string(r.Rule.What)), log.Yellow(string(r.Rule.With)))
 			}
 		}
+	} else {
+		stats.OnRuleHit()
 	}
 
 	if r.Action == rule.Allow {
+		stats.OnAccept()
+
 		packet.SetVerdict(netfilter.NF_ACCEPT)
 		ruleName := log.Green(r.Name)
 		if r.Rule.What == rule.OpTrue {
@@ -156,6 +178,7 @@ func onPacket(packet netfilter.NFPacket) {
 		return
 	}
 
+	stats.OnDrop()
 	packet.SetVerdict(netfilter.NF_DROP)
 
 	log.Warning("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
@@ -191,6 +214,7 @@ func main() {
 
 	setupSignals()
 	setupWorkers()
+	setupStats()
 
 	// prepare the queue
 	queue, err := netfilter.NewNFQueue(uint16(queueNum), 4096, netfilter.NF_DEFAULT_PACKET_SIZE)

@@ -130,7 +130,7 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 			//     rule 1: allow chrome
 			//     rule 2: block www.google.com
 			match = rule
-			if rule.Action == rule.Deny {
+			if rule.Action == Deny {
 				break
 			}
 		}
