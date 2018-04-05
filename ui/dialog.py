@@ -83,7 +83,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self._app_icon_label.clear()
 
-        self._message_label.setText("<b>%s</b> is connecting to %s on %s port %d" % ( \
+        self._message_label.setText("<b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
             app_name or con.process_path,
             con.dst_host or con.dst_ip,
             con.protocol,
@@ -108,7 +108,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._what_combo.setCurrentIndex(0)
         self._action_combo.setCurrentIndex(0)
-        self._duration_combo.setCurrentIndex(0)
+        self._duration_combo.setCurrentIndex(1)
 
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):

@@ -66,8 +66,6 @@ class LinuxDesktopParser(threading.Thread):
                 # if the command is a symlink, add the real binary too
                 if os.path.islink(cmd):
                     link_to = os.path.realpath(cmd)
-                    if "spotify" in cmd:
-                        print "%s -> %s" %  (cmd, link_to)
                     self.apps[link_to] = (name, icon, desktop_path)
 
     def get_info_by_path(self, path):
