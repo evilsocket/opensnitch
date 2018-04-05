@@ -31,7 +31,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>OpenSnitch</string>
+   <string>opensnitch-qt</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>

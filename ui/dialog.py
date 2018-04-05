@@ -11,6 +11,7 @@ from PyQt5 import QtDBus
 from slugify import slugify
 
 from desktop_parser import LinuxDesktopParser
+from version import version
 
 import ui_pb2
 
@@ -23,6 +24,8 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
         self.setupUi(self)
+
+        self.setWindowTitle("opensnitch-qt v%s" % version)
 
         self._lock = threading.Lock()
         self._con = None
