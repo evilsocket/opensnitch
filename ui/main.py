@@ -25,7 +25,7 @@ class UIServicer(ui_pb2_grpc.UIServicer):
 
     def AskRule(self, request, context):
         rule = self.dialog.promptUser(request)
-        print "%s -> %s" % ( request, rule )
+        # print "%s -> %s" % ( request, rule )
         return rule
 
 if __name__ == '__main__':

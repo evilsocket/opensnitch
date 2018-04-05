@@ -19,6 +19,11 @@ class LinuxDesktopParser(threading.Thread):
         self.daemon = True
         self.running = False
         self.apps = {}
+        # some things are just weird
+        self.fixes = {
+            '/opt/google/chrome/chrome': '/opt/google/chrome/google-chrome',
+            '/usr/lib/firefox/firefox': '/usr/lib/firefox/firefox.sh'
+        }
 
         for desktop_path in DESKTOP_PATHS:
             if not os.path.exists(desktop_path):
@@ -44,7 +49,7 @@ class LinuxDesktopParser(threading.Thread):
                 if os.path.exists(filename):
                     cmd = filename
                     break
-
+        
         return cmd
 
     def _parse_desktop_file(self, desktop_path):
@@ -60,11 +65,19 @@ class LinuxDesktopParser(threading.Thread):
                 self.apps[cmd] = (name, icon, desktop_path)
                 # if the command is a symlink, add the real binary too
                 if os.path.islink(cmd):
-                    link_to = os.path.abspath(os.readlink(cmd))
+                    link_to = os.path.realpath(cmd)
+                    if "spotify" in cmd:
+                        print "%s -> %s" %  (cmd, link_to)
                     self.apps[link_to] = (name, icon, desktop_path)
 
     def get_info_by_path(self, path):
         def_name = os.path.basename(path)
+        # apply fixes
+        for orig, to in self.fixes.iteritems():
+            if path == orig:
+                path = to
+                break
+
         return self.apps.get(path, (def_name, None, None))
 
     def run(self):

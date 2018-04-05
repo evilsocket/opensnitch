@@ -80,6 +80,8 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             icon = QtGui.QIcon().fromTheme(app_icon)
             pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
             self._app_icon_label.setPixmap(pixmap)
+        else:
+            self._app_icon_label.clear()
 
         self._message_label.setText("<b>%s</b> is connecting to %s on %s port %d" % ( \
             app_name or con.process_path,
