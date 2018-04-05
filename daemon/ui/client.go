@@ -10,7 +10,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 
-	protocol "github.com/evilsocket/opensnitch/ui.proto"
+	protocol "github.com/evilsocket/opensnitch/proto"
 
 	"golang.org/x/net/context"
 

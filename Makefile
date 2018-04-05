@@ -1,7 +1,7 @@
 all: protocol daemon/daemon
 
 protocol:
-	@cd ui.proto && make
+	@cd proto && make
 
 daemon/daemon:
 	@cd daemon && make
@@ -9,7 +9,7 @@ daemon/daemon:
 clean:
 	@rm -rf rules
 	@cd daemon && make clean
-	@cd ui.proto && make clean
+	@cd proto && make clean
 
 test:
 	clear 

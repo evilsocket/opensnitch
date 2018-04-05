@@ -8,7 +8,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
-	protocol "github.com/evilsocket/opensnitch/ui.proto"
+	protocol "github.com/evilsocket/opensnitch/proto"
 
 	"github.com/evilsocket/go-netfilter-queue"
 

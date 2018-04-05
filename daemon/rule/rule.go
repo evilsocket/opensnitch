@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
-	protocol "github.com/evilsocket/opensnitch/ui.proto"
+	protocol "github.com/evilsocket/opensnitch/proto"
 )
 
 type OperandType string

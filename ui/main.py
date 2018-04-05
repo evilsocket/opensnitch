@@ -7,7 +7,7 @@ import argparse
 
 path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(path)
-sys.path.append(path + "/../ui.proto/")
+sys.path.append(path + "/../proto/")
 
 import grpc
 from concurrent import futures

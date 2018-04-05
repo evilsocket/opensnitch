@@ -1,0 +1,6 @@
+grpcio==1.10.0
+pyinotify==0.9.6
+PyQt5==5.10.1
+futures==3.2.0
+grpc==0.3-19
+unicode_slugify==0.1.3
