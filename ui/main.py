@@ -24,7 +24,7 @@ class UIServicer(ui_pb2_grpc.UIServicer):
 	return ui_pb2.PingReply(id=request.id)
 
     def AskRule(self, request, context):
-        print "Got request: %s" % request
+        print "%s" % request
         self.dialog.promptUser(request)
 	return ui_pb2.RuleReply(
 		name="user.choice",
