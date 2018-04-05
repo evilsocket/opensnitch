@@ -1,0 +1,68 @@
+hash: 450575a91ccfb9a4eb1aff9f3c75b3531498f4bcafdff47192f4adcce9224ffe
+updated: 2018-04-05T18:42:56.752891844+02:00
+imports:
+- name: github.com/evilsocket/go-netfilter-queue
+  version: 55dcf9df835d721bb14d69ebf8682e0c9c3e0f18
+- name: github.com/evilsocket/opensnitch
+  version: 4ff210dfa6e70eddd9cb777c2ea16d0a4a543662
+  subpackages:
+  - proto
+- name: github.com/golang/protobuf
+  version: 6a1fa9404c0aebf36c879bc50152edcc953910d2
+  subpackages:
+  - proto
+  - ptypes
+  - ptypes/any
+  - ptypes/duration
+  - ptypes/timestamp
+- name: github.com/google/gopacket
+  version: 11c65f1ca9081dfea43b4f9643f5c155583b73ba
+  subpackages:
+  - layers
+- name: golang.org/x/net
+  version: 1f9224279e98554b6a6432d4dd998a739f8b2b7c
+  subpackages:
+  - context
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
+- name: golang.org/x/text
+  version: 2cb43934f0eece38629746959acc633cba083fe4
+  subpackages:
+  - secure/bidirule
+  - transform
+  - unicode/bidi
+  - unicode/norm
+- name: google.golang.org/genproto
+  version: 35de2414665fc36f56b72d982c5af480d86de5ab
+  subpackages:
+  - googleapis/rpc/status
+- name: google.golang.org/grpc
+  version: d89cded64628466c4ab532d1f0ba5c220459ebe8
+  subpackages:
+  - balancer
+  - balancer/base
+  - balancer/roundrobin
+  - codes
+  - connectivity
+  - credentials
+  - encoding
+  - encoding/proto
+  - grpclb/grpc_lb_v1/messages
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - resolver
+  - resolver/dns
+  - resolver/passthrough
+  - stats
+  - status
+  - tap
+  - transport
+testImports: []

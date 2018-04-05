@@ -1,0 +1,17 @@
+package: github.com/evilsocket/opensnitch/daemon
+import:
+- package: github.com/evilsocket/go-netfilter-queue
+- package: github.com/evilsocket/opensnitch
+  subpackages:
+  - proto
+- package: github.com/google/gopacket
+  version: ~1.1.14
+  subpackages:
+  - layers
+- package: golang.org/x/net
+  subpackages:
+  - context
+- package: google.golang.org/grpc
+  version: ~1.11.2
+  subpackages:
+  - connectivity

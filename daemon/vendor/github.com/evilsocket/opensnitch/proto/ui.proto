@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package ui;
+
+service UI {
+    rpc Ping(PingRequest) returns (PingReply) {}
+    rpc AskRule (RuleRequest) returns (RuleReply) {}
+}
+
+message PingRequest {
+    uint64 id = 1;
+}
+
+message PingReply {
+    uint64 id = 1;
+}
+
+message RuleRequest {
+    string protocol = 1;
+    string src_ip = 2;
+    uint32 src_port = 3;
+    string dst_ip = 4;
+    string dst_host = 5;
+    uint32 dst_port = 6;
+    uint32 user_id = 7;
+    uint32 process_id = 8;
+    string process_path = 9;
+    repeated string process_args = 10;
+}
+
+message RuleReply {
+    string name = 1;
+    string action = 2;
+    string duration = 3;
+    string what = 4;
+    string value = 5;
+}
