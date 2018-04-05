@@ -3,6 +3,7 @@ import logging
 import queue
 import sys
 import os
+import pwd
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5 import QtDBus
@@ -81,7 +82,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._app_icon_label.setPixmap(pixmap)
 
         self._message_label.setText("<b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
-            app_name or con.process_path,
+            con.process_path,
             con.dst_host or con.dst_ip,
             con.protocol,
             con.dst_port
@@ -91,7 +92,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._dst_ip_label.setText(con.dst_ip)
         self._dst_port_label.setText("%s" % con.dst_port)
         self._dst_host_label.setText(con.dst_host)
-        self._uid_label.setText("%s" % con.user_id)
+        self._uid_label.setText("%d (%s)" % (con.user_id, pwd.getpwuid(con.user_id).pw_name))
         self._pid_label.setText("%s" % con.process_id)
         self._args_label.setText(' '.join(con.process_args))
 
