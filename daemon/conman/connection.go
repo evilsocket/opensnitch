@@ -146,6 +146,7 @@ func (c *Connection) ToRequest() *protocol.RuleRequest {
 		DstIp:       c.DstIP.String(),
 		DstHost:     c.DstHost,
 		DstPort:     uint32(c.DstPort),
+		UserId:      uint32(c.Entry.UserId),
 		ProcessId:   uint32(c.Process.ID),
 		ProcessPath: c.Process.Path,
 		ProcessArgs: c.Process.Args,

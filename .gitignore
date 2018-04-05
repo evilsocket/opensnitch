@@ -1,2 +1,2 @@
-osgui
-osd
+daemon
+*.sock

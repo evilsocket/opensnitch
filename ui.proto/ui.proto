@@ -22,9 +22,10 @@ message RuleRequest {
     string dst_ip = 4;
     string dst_host = 5;
     uint32 dst_port = 6;
-    uint32 process_id = 7;
-    string process_path = 8;
-    repeated string process_args = 9;
+    uint32 user_id = 7;
+    uint32 process_id = 8;
+    string process_path = 9;
+    repeated string process_args = 10;
 }
 
 message RuleReply {
