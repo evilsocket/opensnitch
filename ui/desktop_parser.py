@@ -70,7 +70,7 @@ class LinuxDesktopParser(threading.Thread):
                     link_to = os.path.realpath(cmd)
                     self.apps[link_to] = (name, icon, desktop_path)
 
-    def get_info_by_path(self, path):
+    def get_info_by_path(self, path, default_icon):
         def_name = os.path.basename(path)
         # apply fixes
         for orig, to in self.fixes.iteritems():
@@ -78,7 +78,7 @@ class LinuxDesktopParser(threading.Thread):
                 path = to
                 break
 
-        return self.apps.get(path, (def_name, None, None))
+        return self.apps.get(path, (def_name, default_icon, None))
 
     def run(self):
         self.running = True

@@ -14,8 +14,8 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-    <horstretch>37</horstretch>
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
@@ -246,8 +246,10 @@
       </property>
       <property name="font">
        <font>
+        <family>Ubuntu</family>
         <pointsize>10</pointsize>
         <weight>75</weight>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -266,8 +268,10 @@
       </property>
       <property name="font">
        <font>
+        <family>Ubuntu</family>
         <pointsize>10</pointsize>
         <weight>75</weight>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -286,8 +290,10 @@
       </property>
       <property name="font">
        <font>
+        <family>Ubuntu</family>
         <pointsize>10</pointsize>
         <weight>75</weight>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -306,8 +312,10 @@
       </property>
       <property name="font">
        <font>
+        <family>Ubuntu</family>
         <pointsize>10</pointsize>
         <weight>75</weight>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -326,8 +334,10 @@
       </property>
       <property name="font">
        <font>
+        <family>Ubuntu</family>
         <pointsize>10</pointsize>
         <weight>75</weight>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -346,8 +356,10 @@
       </property>
       <property name="font">
        <font>
+        <family>Ubuntu</family>
         <pointsize>10</pointsize>
         <weight>75</weight>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -366,8 +378,10 @@
       </property>
       <property name="font">
        <font>
+        <family>Ubuntu</family>
         <pointsize>10</pointsize>
         <weight>75</weight>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>

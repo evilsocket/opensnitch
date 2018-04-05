@@ -70,14 +70,11 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.show()
 
     def _render_connection(self, con):
-        app_name, app_icon, desk = self._apps_parser.get_info_by_path(con.process_path)
+        app_name, app_icon, desk = self._apps_parser.get_info_by_path(con.process_path, "dialog-question")
         if app_name == "":
             self._app_name_label.setText(con.process_path)
         else:
             self._app_name_label.setText(app_name)
-            
-        if app_icon is None:
-            app_icon = "dialog-question"
 
         icon = QtGui.QIcon().fromTheme(app_icon)
         pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
@@ -109,6 +106,8 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._what_combo.setCurrentIndex(0)
         self._action_combo.setCurrentIndex(0)
         self._duration_combo.setCurrentIndex(1)
+
+        self.setFixedSize(self.size())
 
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):
