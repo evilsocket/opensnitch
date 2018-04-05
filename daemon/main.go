@@ -87,7 +87,7 @@ func setupWorkers() {
 
 func setupStats() {
 	go func() {
-		t := time.NewTicker(time.Second * 5)
+		t := time.NewTicker(time.Second * 30)
 		for _ = range t.C {
 			stats.Log()
 		}
