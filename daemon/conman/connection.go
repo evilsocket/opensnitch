@@ -58,7 +58,7 @@ func Parse(nfp netfilter.NFPacket) *Connection {
 
 	con, err := NewConnection(&nfp, ip)
 	if err != nil {
-		log.Warning("%s", err)
+		log.Debug("%s", err)
 		return nil
 	} else if con == nil {
 		return nil
