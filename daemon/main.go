@@ -111,21 +111,36 @@ func onPacket(packet netfilter.NFPacket) {
 		// UI client if connected and running
 		r, connected = uiClient.Ask(con)
 		if connected {
+			ok := false
+			pers := ""
+			action := string(r.Action)
+			if r.Action == rule.Allow {
+				action = log.Green(action)
+			} else {
+				action = log.Red(action)
+			}
+
 			// check if and how the rule needs to be saved
 			if r.Duration == rule.Restart {
+				pers = "Added"
 				// add to the rules but do not save to disk
 				if err := rules.Add(r, false); err != nil {
 					log.Error("Error while adding rule: %s", err)
 				} else {
-					log.Important("Added new until reboot: %s", r)
+					ok = true
 				}
 			} else if r.Duration == rule.Always {
+				pers = "Saved"
 				// add to the loaded rules and persist on disk
 				if err := rules.Add(r, true); err != nil {
 					log.Error("Error while saving rule: %s", err)
 				} else {
-					log.Important("Saved new rule: %s", r)
+					ok = true
 				}
+			}
+
+			if ok {
+				log.Important("%s new rule: %s if %s is %s", pers, action, log.Bold(string(r.Rule.What)), log.Yellow(string(r.Rule.With)))
 			}
 		}
 	}
