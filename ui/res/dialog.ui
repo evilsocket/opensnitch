@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>562</width>
-    <height>409</height>
+    <height>309</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -95,7 +95,7 @@
    <property name="geometry">
     <rect>
      <x>490</x>
-     <y>370</y>
+     <y>270</y>
      <width>61</width>
      <height>31</height>
     </rect>
@@ -107,9 +107,9 @@
   <widget class="QComboBox" name="durationCombo">
    <property name="geometry">
     <rect>
-     <x>380</x>
-     <y>370</y>
-     <width>97</width>
+     <x>330</x>
+     <y>270</y>
+     <width>131</width>
      <height>31</height>
     </rect>
    </property>
@@ -124,6 +124,9 @@
      <width>204</width>
      <height>50</height>
     </size>
+   </property>
+   <property name="currentText">
+    <string>once</string>
    </property>
    <item>
     <property name="text">
@@ -160,9 +163,9 @@
   <widget class="QComboBox" name="whatCombo">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>370</y>
-     <width>181</width>
+     <x>170</x>
+     <y>270</y>
+     <width>151</width>
      <height>31</height>
     </rect>
    </property>
@@ -180,7 +183,7 @@
    </property>
    <item>
     <property name="text">
-     <string>this process</string>
+     <string>from this process</string>
     </property>
    </item>
    <item>
@@ -203,9 +206,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>140</y>
+     <y>130</y>
      <width>541</width>
-     <height>211</height>
+     <height>131</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -218,7 +221,7 @@
     <item row="0" column="2">
      <widget class="QLabel" name="sourceIPLabel">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -376,7 +379,7 @@
     <item row="1" column="2">
      <widget class="QLabel" name="destIPLabel">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -394,7 +397,7 @@
     <item row="2" column="2">
      <widget class="QLabel" name="destPortLabel">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -412,7 +415,7 @@
     <item row="3" column="2">
      <widget class="QLabel" name="destHostLabel">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -430,7 +433,7 @@
     <item row="4" column="2">
      <widget class="QLabel" name="uidLabel">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -448,7 +451,7 @@
     <item row="5" column="2">
      <widget class="QLabel" name="pidLabel">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -466,7 +469,7 @@
     <item row="6" column="2">
      <widget class="QLabel" name="argsLabel">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -487,8 +490,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>370</y>
-     <width>171</width>
+     <y>270</y>
+     <width>151</width>
      <height>31</height>
     </rect>
    </property>
