@@ -48,10 +48,7 @@ func (c *Client) poller() {
 	for ts := range t.C {
 		if err := c.connect(); err != nil {
 			log.Warning("Error while connecting to UI service: %s", err)
-			continue
-		}
-
-		if c.con.GetState() == connectivity.Ready {
+		} else if c.con.GetState() == connectivity.Ready {
 			if err := c.ping(ts); err != nil {
 				log.Warning("Error while pinging UI service: %s", err)
 			} else {
