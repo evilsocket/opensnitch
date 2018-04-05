@@ -1,12 +1,17 @@
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5 import QtDBus
 import threading
 import logging
 import queue
 import sys
 import os
 
+from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt5 import QtDBus
+
+from slugify import slugify
+
 from desktop_parser import LinuxDesktopParser
+
+import ui_pb2
 
 DIALOG_UI_PATH = "%s/res/dialog.ui" % os.path.dirname(sys.modules[__name__].__file__)
 
@@ -19,8 +24,9 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setupUi(self)
 
         self._lock = threading.Lock()
-        self._request = None
-        self._trigger.connect(self.on_request)
+        self._con = None
+        self._rule = None
+        self._trigger.connect(self.on_connection_triggered)
         self._done = threading.Event()
 
         self._apps_parser = LinuxDesktopParser()
@@ -44,25 +50,29 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._what_combo = self.findChild(QtWidgets.QComboBox, "whatCombo")
         self._duration_combo = self.findChild(QtWidgets.QComboBox, "durationCombo")
 
-    def promptUser(self, request):
+    def promptUser(self, connection):
+        # one at a time
         with self._lock:
-            self._request = request
+            # reset state
+            self._rule = None
+            self._con = connection
+            self._done.clear()
+            # trigger on_connection_triggered
             self._trigger.emit()
+            # wait for user choice
             self._done.wait()
+            
+            return self._rule
 
     @QtCore.pyqtSlot()
-    def on_request(self):
-        self._done.clear()
-        if self._request is not None:
-            self._setup_request(self._request)
-            self.show()
+    def on_connection_triggered(self):
+        self._render_connection(self._con)
+        self.show()
 
-    def _setup_request(self, req):
-        app_name, app_icon, desk = self._apps_parser.get_info_by_path(req.process_path)
-        print "path=%s -> name=%s icon=%s desk=%s" % (req.process_path, app_name, app_icon, desk)
-                
+    def _render_connection(self, con):
+        app_name, app_icon, desk = self._apps_parser.get_info_by_path(con.process_path)
         if app_name == "":
-            self._app_name_label.setText(req.process_path)
+            self._app_name_label.setText(con.process_path)
         else:
             self._app_name_label.setText(app_name)
             
@@ -72,31 +82,85 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._app_icon_label.setPixmap(pixmap)
 
         self._message_label.setText("<b>%s</b> is connecting to %s on %s port %d" % ( \
-            app_name or req.process_path,
-            req.dst_host or req.dst_ip,
-            req.protocol,
-            req.dst_port
+            app_name or con.process_path,
+            con.dst_host or con.dst_ip,
+            con.protocol,
+            con.dst_port
         ))
 
-        self._src_ip_label.setText(req.src_ip)
-        self._dst_ip_label.setText(req.dst_ip)
-        self._dst_port_label.setText("%s" % req.dst_port)
-        self._dst_host_label.setText(req.dst_host)
-        self._uid_label.setText("%s" % req.user_id)
-        self._pid_label.setText("%s" % req.process_id)
-        self._args_label.setText(' '.join(req.process_args))
+        self._src_ip_label.setText(con.src_ip)
+        self._dst_ip_label.setText(con.dst_ip)
+        self._dst_port_label.setText("%s" % con.dst_port)
+        self._dst_host_label.setText(con.dst_host)
+        self._uid_label.setText("%s" % con.user_id)
+        self._pid_label.setText("%s" % con.process_id)
+        self._args_label.setText(' '.join(con.process_args))
+
+        self._what_combo.clear()
+        self._what_combo.addItem("from this process")
+        self._what_combo.addItem("from user %d" % con.user_id)
+        self._what_combo.addItem("to port %d" % con.dst_port)
+        self._what_combo.addItem("to %s" % con.dst_ip)
+        if con.dst_host != "":
+            self._what_combo.addItem("to %s" % con.dst_host)
+
+        self._what_combo.setCurrentIndex(0)
+        self._action_combo.setCurrentIndex(0)
+        self._duration_combo.setCurrentIndex(0)
 
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):
         if not event.key() == QtCore.Qt.Key_Escape:
             super(Dialog, self).keyPressEvent(event)
 
+    # prevent a click on the window's x 
+    # from quitting the whole application
     def closeEvent(self, e):
         self._on_apply_clicked()
         e.ignore()
-        # super(Dialog, self).closeEvent(e)
 
     def _on_apply_clicked(self):
+        self._rule = ui_pb2.RuleReply(name="user.choice")
+    
+        action_idx = self._action_combo.currentIndex()
+        if action_idx == 0:
+            self._rule.action = "allow"
+        else:
+            self._rule.action = "deny"
+
+        duration_idx = self._duration_combo.currentIndex()
+        if duration_idx == 0:
+            self._rule.duration = "once"
+        elif duration_idx == 1:
+            self._rule.duration = "until restart"
+        else:
+            self._rule.duration = "always"
+        
+        what_idx = self._what_combo.currentIndex()
+        if what_idx == 0:
+            self._rule.what = "process.path"
+            self._rule.value = self._con.process_path 
+
+        elif what_idx == 1:
+            self._rule.what = "user.id"
+            self._rule.value = "%s" % self._con.user_id 
+        
+        elif what_idx == 2:
+            self._rule.what = "dest.port"
+            self._rule.value = "%s" % self._con.dst_port 
+
+        elif what_idx == 3:
+            self._rule.what = "dest.ip"
+            self._rule.value = self._con.dst_ip 
+        
+        else:
+            self._rule.what = "dest.host"
+            self._rule.value = self._con.dst_host 
+
+        self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.what, self._rule.value))
+        
         self.hide()
+        # signal that the user took a decision and 
+        # a new rule is available
         self._done.set()
 

@@ -13,8 +13,10 @@ type OperandType string
 const (
 	OpTrue        = OperandType("true")
 	OpProcessPath = OperandType("process.path")
+	OpUserId      = OperandType("user.id")
 	OpDstIP       = OperandType("dest.ip")
 	OpDstHost     = OperandType("dest.host")
+	OpDstPort     = OperandType("dest.port")
 )
 
 type Cmp struct {
@@ -88,12 +90,16 @@ func (r *Rule) Match(con *conman.Connection) bool {
 		return false
 	} else if r.Rule.What == OpTrue {
 		return true
+	} else if r.Rule.What == OpUserId {
+		return fmt.Sprintf("%d", con.Entry.UserId) == r.Rule.With
 	} else if r.Rule.What == OpProcessPath {
 		return con.Process.Path == r.Rule.With
 	} else if r.Rule.What == OpDstIP {
 		return con.DstIP.String() == r.Rule.With
 	} else if r.Rule.What == OpDstHost {
 		return con.DstHost == r.Rule.With
+	} else if r.Rule.What == OpDstPort {
+		return fmt.Sprintf("%d", con.DstPort) == r.Rule.With
 	}
 	return false
 }

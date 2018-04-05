@@ -80,10 +80,10 @@ func (l *Loader) isUniqueName(name string) bool {
 
 func (l *Loader) setUniqueName(rule *Rule) {
 	idx := 1
-	rule.Name = fmt.Sprintf("user.rule-%d", idx)
+	base := rule.Name
 	for l.isUniqueName(rule.Name) == false {
 		idx++
-		rule.Name = fmt.Sprintf("user.rule-%d", idx)
+		rule.Name = fmt.Sprintf("%s-%d", base, idx)
 	}
 }
 
@@ -105,7 +105,7 @@ func (l *Loader) Add(rule *Rule, saveToDisk bool) error {
 
 func (l *Loader) Save(rule *Rule, path string) error {
 	rule.Updated = time.Now()
-	raw, err := json.Marshal(rule)
+	raw, err := json.MarshalIndent(rule, " ", "  ")
 	if err != nil {
 		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, err)
 	}

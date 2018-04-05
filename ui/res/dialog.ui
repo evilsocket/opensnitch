@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>583</width>
+    <width>562</width>
     <height>409</height>
    </rect>
   </property>
@@ -42,7 +42,7 @@
   <widget class="QLabel" name="appNameLabel">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>20</y>
      <width>433</width>
      <height>42</height>
@@ -75,7 +75,7 @@
   <widget class="QLabel" name="messageLabel">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>90</y>
      <width>551</width>
      <height>41</height>
@@ -94,9 +94,9 @@
   <widget class="QPushButton" name="applyButton">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>490</x>
      <y>370</y>
-     <width>101</width>
+     <width>61</width>
      <height>31</height>
     </rect>
    </property>
@@ -107,9 +107,9 @@
   <widget class="QComboBox" name="durationCombo">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>380</x>
      <y>370</y>
-     <width>141</width>
+     <width>97</width>
      <height>31</height>
     </rect>
    </property>
@@ -160,9 +160,9 @@
   <widget class="QComboBox" name="whatCombo">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>190</x>
      <y>370</y>
-     <width>171</width>
+     <width>181</width>
      <height>31</height>
     </rect>
    </property>
@@ -202,7 +202,7 @@
   <widget class="QWidget" name="gridLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>140</y>
      <width>541</width>
      <height>211</height>
@@ -213,10 +213,16 @@
      <enum>QLayout::SetMinimumSize</enum>
     </property>
     <property name="verticalSpacing">
-     <number>1</number>
+     <number>0</number>
     </property>
     <item row="0" column="2">
      <widget class="QLabel" name="sourceIPLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -350,7 +356,7 @@
     <item row="6" column="1">
      <widget class="QLabel" name="label_8">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -369,6 +375,12 @@
     </item>
     <item row="1" column="2">
      <widget class="QLabel" name="destIPLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -381,6 +393,12 @@
     </item>
     <item row="2" column="2">
      <widget class="QLabel" name="destPortLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -393,6 +411,12 @@
     </item>
     <item row="3" column="2">
      <widget class="QLabel" name="destHostLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -405,6 +429,12 @@
     </item>
     <item row="4" column="2">
      <widget class="QLabel" name="uidLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -417,6 +447,12 @@
     </item>
     <item row="5" column="2">
      <widget class="QLabel" name="pidLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -450,9 +486,9 @@
   <widget class="QComboBox" name="actionCombo">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>370</y>
-     <width>97</width>
+     <width>171</width>
      <height>31</height>
     </rect>
    </property>
@@ -470,12 +506,12 @@
    </property>
    <item>
     <property name="text">
-     <string>Allow</string>
+     <string>Allow connections</string>
     </property>
    </item>
    <item>
     <property name="text">
-     <string>Block</string>
+     <string>Block connections</string>
     </property>
    </item>
   </widget>

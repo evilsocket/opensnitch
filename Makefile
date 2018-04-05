@@ -7,7 +7,7 @@ daemon/daemon:
 	@cd daemon && make
 
 clean:
-	@cd rules && rm -rf user.rule*.json
+	@rm -rf rules
 	@cd daemon && make clean
 	@cd ui.proto && make clean
 
@@ -15,6 +15,7 @@ test:
 	clear 
 	make clean
 	clear
+	mkdir rules
 	make 
 	clear
 	xterm -e "python ui/main.py" & 
