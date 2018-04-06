@@ -36,19 +36,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._tcp_label = self.findChild(QtWidgets.QLabel, "tcpLabel")
         self._udp_label = self.findChild(QtWidgets.QLabel, "udpLabel")
 
-        self._addrs_table = self._setup_table("addrTable")
-        self._hosts_table = self._setup_table("hostsTable")
-        self._ports_table = self._setup_table("portsTable")
-        self._users_table = self._setup_table("usersTable")
-        self._procs_table = self._setup_table("procsTable")
+        self._addrs_table = self._setup_table("addrTable", ("IP", "Connections"))
+        self._hosts_table = self._setup_table("hostsTable", ("Hostname", "Connections"))
+        self._ports_table = self._setup_table("portsTable", ("Port", "Connections"))
+        self._users_table = self._setup_table("usersTable", ("User", "Connections"))
+        self._procs_table = self._setup_table("procsTable", ("Executable", "Connections"))
 
     def update(self, stats=None):
         if stats is not None:
             self._stats = stats
         self._trigger.emit()
 
-    def _setup_table(self, name):
+    def _setup_table(self, name, columns):
         table = self.findChild(QtWidgets.QTableWidget, name)
+        table.setHorizontalHeaderLabels(columns)
         header = table.horizontalHeader()       
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
