@@ -89,8 +89,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _async_worker(self):
         was_connected = False
+        self._status_change_trigger.emit()
 
         while True:
+            time.sleep(1)
+
             # we didn't see any daemon so far ...
             if self._last_ping is None:
                 continue
@@ -106,8 +109,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if was_connected != self._connected:
                 self._status_change_trigger.emit()
                 was_connected = self._connected
-
-            time.sleep(1)
 
     def Ping(self, request, context):
         self._last_ping = datetime.now()

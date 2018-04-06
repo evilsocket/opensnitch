@@ -28,6 +28,7 @@ if __name__ == '__main__':
     parser.add_argument("--socket", dest="socket", default="opensnitch-ui.sock", help="Path of the unix socket for the gRPC service.", metavar="FILE")
 
     args = parser.parse_args()
+
     app = QtWidgets.QApplication(sys.argv)
 
     service = UIService(app, on_exit)

@@ -84,24 +84,34 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._status_label.setText("not running")
             self._status_label.setStyleSheet('color: red')
 
-        self._dver_label.setText(self._stats.daemon_version)
-        self._uiver_label.setText(version)
-        self._uptime_label.setText(str(datetime.timedelta(seconds=self._stats.uptime)))
-        self._cons_label.setText("%s" % self._stats.connections)
-        self._dropped_label.setText("%s" % self._stats.dropped)
-        self._misses_label.setText("%s" % self._stats.rule_misses)
-        self._tcp_label.setText("%s" % self._stats.by_proto['tcp'] or 0)
-        self._udp_label.setText("%s" % self._stats.by_proto['udp'] or 0)
+        if self._stats is None:
+            self._dver_label.setText("")
+            self._uiver_label.setText(version)
+            self._uptime_label.setText("")
+            self._cons_label.setText("")
+            self._dropped_label.setText("")
+            self._misses_label.setText("")
+            self._tcp_label.setText("")
+            self._udp_label.setText("")
+        else:
+            self._dver_label.setText(self._stats.daemon_version)
+            self._uiver_label.setText(version)
+            self._uptime_label.setText(str(datetime.timedelta(seconds=self._stats.uptime)))
+            self._cons_label.setText("%s" % self._stats.connections)
+            self._dropped_label.setText("%s" % self._stats.dropped)
+            self._misses_label.setText("%s" % self._stats.rule_misses)
+            self._tcp_label.setText("%s" % self._stats.by_proto['tcp'] or 0)
+            self._udp_label.setText("%s" % self._stats.by_proto['udp'] or 0)
 
-        by_users = {}
-        for uid, hits in self._stats.by_uid.iteritems():
-            by_users["%s (%s)" % (pwd.getpwuid(int(uid)).pw_name, uid)] = hits
+            by_users = {}
+            for uid, hits in self._stats.by_uid.iteritems():
+                by_users["%s (%s)" % (pwd.getpwuid(int(uid)).pw_name, uid)] = hits
 
-        self._render_table(self._addrs_table, self._stats.by_address)
-        self._render_table(self._hosts_table, self._stats.by_host)
-        self._render_table(self._ports_table, self._stats.by_port)
-        self._render_table(self._users_table, by_users)
-        self._render_table(self._procs_table, self._stats.by_executable)
+            self._render_table(self._addrs_table, self._stats.by_address)
+            self._render_table(self._hosts_table, self._stats.by_host)
+            self._render_table(self._ports_table, self._stats.by_port)
+            self._render_table(self._users_table, by_users)
+            self._render_table(self._procs_table, self._stats.by_executable)
 
         self.setFixedSize(self.size())
 
