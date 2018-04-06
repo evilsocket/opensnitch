@@ -57,6 +57,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.red_icon.addPixmap(self.red_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         self._app.setWindowIcon(self.white_icon)
+        self._prompt_dialog.setWindowIcon(self.white_icon)
 
     def _setup_tray(self):
         self._menu = QtWidgets.QMenu()
