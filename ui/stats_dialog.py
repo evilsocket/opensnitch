@@ -92,10 +92,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._tcp_label.setText("%s" % self._stats.by_proto['tcp'] or 0)
         self._udp_label.setText("%s" % self._stats.by_proto['udp'] or 0)
 
+        by_users = {}
+        for uid, hits in self._stats.by_uid.iteritems():
+            by_users["%s (%s)" % (pwd.getpwuid(int(uid)).pw_name, uid)] = hits
+
         self._render_table(self._addrs_table, self._stats.by_address)
         self._render_table(self._hosts_table, self._stats.by_host)
         self._render_table(self._ports_table, self._stats.by_port)
-        self._render_table(self._users_table, self._stats.by_uid)
+        self._render_table(self._users_table, by_users)
         self._render_table(self._procs_table, self._stats.by_executable)
 
         self.setFixedSize(self.size())
