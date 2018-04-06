@@ -27,8 +27,8 @@ var (
 	workers   = 16
 	debug     = false
 
-	uiSocketPath = "opensnitch-ui.sock"
-	uiClient     = (*ui.Client)(nil)
+	uiSocket = "unix:///tmp/osui.sock"
+	uiClient = (*ui.Client)(nil)
 
 	err     = (error)(nil)
 	rules   = rule.NewLoader()
@@ -40,7 +40,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&uiSocketPath, "ui-socket-path", uiSocketPath, "UNIX socket of the UI gRPC service.")
+	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
 	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
 	flag.IntVar(&workers, "workers", workers, "Number of concurrent workers.")
@@ -197,11 +197,6 @@ func main() {
 		log.Fatal("%s", err)
 	}
 
-	uiSocketPath, err = core.ExpandPath(uiSocketPath)
-	if err != nil {
-		log.Fatal("%s", err)
-	}
-
 	setupSignals()
 	setupWorkers()
 
@@ -225,7 +220,7 @@ func main() {
 	if err := rules.Load(rulesPath); err != nil {
 		log.Fatal("%s", err)
 	}
-	uiClient = ui.NewClient(uiSocketPath, stats)
+	uiClient = ui.NewClient(uiSocket, stats)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for true {

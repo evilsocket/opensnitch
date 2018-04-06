@@ -37,11 +37,14 @@ First, you need to decide in which folder opensnitch rules will be saved, it is 
 
 Now run the daemon:
 
-    sudo /path/to/daemon -ui-socket-path /tmp/osui.sock -rules-path ~/.opensnitch/rules
+    sudo /path/to/daemon -ui-socket unix:///tmp/osui.sock -rules-path ~/.opensnitch/rules
 
 And the UI service as your user:
 
-    python /path/to/ui/main.py --socket /tmp/osui.sock
+    python /path/to/ui/main.py --socket unix:///tmp/osui.sock
+
+You can also use `--socket "[::]:50051"` to have the UI use TCP instead of a unix socket and run the daemon on another
+computer with `-ui-socket "x.x.x.x:50051"` (where `x.x.x.x` is the IP of the computer running the UI service).
 
 ### FAQ
 
@@ -51,6 +54,6 @@ I tried, but for very fast updates it failed bad on my configuration (failed bad
 
 ##### Why gRPC and not DBUS?
 
-At some point the UI service will also be able to use a TCP listener, at that point the UI itself can be executed on any 
+The UI service is able to use a TCP listener instead of a UNIX socket, that means the UI service itself can be executed on any 
 operating system, while receiving messages from a single local daemon instance or multiple instances from remote computers in the network,
 therefore DBUS would have made the protocol and logic uselessly GNU/Linux specific.

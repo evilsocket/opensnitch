@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -30,17 +31,24 @@ var clientErrorRule = rule.Create("ui.client.error", rule.Allow, rule.Once, rule
 type Client struct {
 	sync.Mutex
 
-	stats      *statistics.Statistics
-	socketPath string
-	con        *grpc.ClientConn
-	client     protocol.UIClient
+	stats        *statistics.Statistics
+	socketPath   string
+	isUnixSocket bool
+	con          *grpc.ClientConn
+	client       protocol.UIClient
 }
 
 func NewClient(path string, stats *statistics.Statistics) *Client {
 	c := &Client{
-		socketPath: path,
-		stats:      stats,
+		socketPath:   path,
+		stats:        stats,
+		isUnixSocket: false,
 	}
+	if strings.HasPrefix(c.socketPath, "unix://") == true {
+		c.isUnixSocket = true
+		c.socketPath = c.socketPath[7:]
+	}
+
 	go c.poller()
 	return c
 }
@@ -91,10 +99,15 @@ func (c *Client) connect() (err error) {
 		return
 	}
 
-	c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure(),
-		grpc.WithDialer(func(addr string, timeout time.Duration) (net.Conn, error) {
-			return net.DialTimeout("unix", addr, timeout)
-		}))
+	if c.isUnixSocket {
+		c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure(),
+			grpc.WithDialer(func(addr string, timeout time.Duration) (net.Conn, error) {
+				return net.DialTimeout("unix", addr, timeout)
+			}))
+	} else {
+		c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure())
+	}
+
 	if err != nil {
 		c.con = nil
 		return err
