@@ -54,13 +54,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         return table
 
-    def contextMenuEvent(self, pos):
-        menu = QtGui.QMenu()
-        openAction = menu.addAction("Open")
-        deleAction = menu.addAction("Delete")
-        renaAction = menu.addAction("Rename")
-        action = menu.exec_()
-
     def _render_table(self, table, data):
         table.setRowCount(len(data))
         table.setColumnCount(2)
