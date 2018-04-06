@@ -5,13 +5,13 @@ import os
 import time
 import signal
 import argparse
+from concurrent import futures
 
 path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(path)
 sys.path.append(path + "/../proto/")
 
 import grpc
-from concurrent import futures
 import ui_pb2
 import ui_pb2_grpc
 

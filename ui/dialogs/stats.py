@@ -12,8 +12,7 @@ from PyQt5 import QtCore, QtGui, uic, QtWidgets
 import ui_pb2
 from version import version
 
-DIALOG_UI_PATH = "%s/res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
-
+DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     _trigger = QtCore.pyqtSignal()
 
