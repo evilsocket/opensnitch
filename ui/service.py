@@ -26,45 +26,45 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._connected = False
         self._path = os.path.abspath(os.path.dirname(__file__))
         self._app = app
+        self._on_exit = on_exit
+        self._msg = QtWidgets.QMessageBox()
+        self._prompt_dialog = PromptDialog()
+        self._stats_dialog = StatsDialog()
 
+        self._setup_slots()
+        self._setup_icons()
+        self._setup_tray()
+
+        self.check_thread = Thread(target=self._async_worker)
+        self.check_thread.daemon = True
+        self.check_thread.start()
+    
+    def _setup_slots(self):
         # https://stackoverflow.com/questions/40288921/pyqt-after-messagebox-application-quits-why
         self._app.setQuitOnLastWindowClosed(False)
-
         self._version_warning_trigger.connect(self._on_diff_versions)
         self._status_change_trigger.connect(self._on_status_change)
 
+    def _setup_icons(self):
         self.off_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-off.png"))
         self.off_icon = QtGui.QIcon()
         self.off_icon.addPixmap(self.off_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
-
         self.white_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-white.png"))
         self.white_icon = QtGui.QIcon()
         self.white_icon.addPixmap(self.white_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
-
         self.red_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-red.png"))
         self.red_icon = QtGui.QIcon()
         self.red_icon.addPixmap(self.red_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         self._app.setWindowIcon(self.white_icon)
 
-        self._msg = QtWidgets.QMessageBox()
-
+    def _setup_tray(self):
         self._menu = QtWidgets.QMenu()
-        self._prompt_dialog = PromptDialog()
-        self._stats_dialog = StatsDialog()
-
-        statsAction = self._menu.addAction("Statistics")
-        statsAction.triggered.connect(lambda: self._stats_dialog.show())
-        exitAction = self._menu.addAction("Close")
-        exitAction.triggered.connect(on_exit)
-
+        self._menu.addAction("Statistics").triggered.connect(lambda: self._stats_dialog.show())
+        self._menu.addAction("Close").triggered.connect(self._on_exit)
         self._tray = QtWidgets.QSystemTrayIcon(self.off_icon)
         self._tray.setContextMenu(self._menu)
         self._tray.show()
-
-        self.check_thread = Thread(target=self._async_worker)
-        self.check_thread.daemon = True
-        self.check_thread.start()
 
     @QtCore.pyqtSlot()
     def _on_status_change(self):
