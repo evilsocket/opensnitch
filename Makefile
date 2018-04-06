@@ -21,5 +21,5 @@ test:
 	mkdir rules
 	make 
 	clear
-	python ui/main.py &
-	sudo ./daemon/daemon
+	python ui/main.py --socket /tmp/osui.sock &
+	sudo ./daemon/daemon -ui-socket-path /tmp/osui.sock

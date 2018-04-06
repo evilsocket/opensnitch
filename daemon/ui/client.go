@@ -46,29 +46,49 @@ func NewClient(path string, stats *statistics.Statistics) *Client {
 	return c
 }
 
+func (c *Client) Connected() bool {
+	c.Lock()
+	defer c.Unlock()
+	if c.con == nil || c.con.GetState() != connectivity.Ready {
+		return false
+	}
+	return true
+}
+
 func (c *Client) poller() {
 	log.Debug("UI service poller started for socket %s", c.socketPath)
 	t := time.NewTicker(time.Second * 1)
+
+	wasConnected := false
 	for ts := range t.C {
+		isConnected := c.Connected()
+		if wasConnected != isConnected {
+			c.onStatusChange(isConnected)
+			wasConnected = isConnected
+		}
+
+		// connect and create the client if needed
 		if err := c.connect(); err != nil {
 			log.Warning("Error while connecting to UI service: %s", err)
-		} else if c.con.GetState() == connectivity.Ready {
+		} else if c.Connected() == true {
+			// if the client is connected and ready, send a ping
 			if err := c.ping(ts); err != nil {
 				log.Warning("Error while pinging UI service: %s", err)
-			} else {
-				log.Debug("Got pong")
 			}
-		} else {
-			log.Debug("Skipped ping/pong, connection not ready.")
 		}
 	}
 }
 
-func (c *Client) connect() (err error) {
-	c.Lock()
-	defer c.Unlock()
+func (c *Client) onStatusChange(connected bool) {
+	if connected {
+		log.Info("Connected to the UI service on %s", c.socketPath)
+	} else {
+		log.Error("Connection to the UI service lost.")
+	}
+}
 
-	if c.con != nil {
+func (c *Client) connect() (err error) {
+	if c.Connected() {
 		return
 	}
 
@@ -86,12 +106,12 @@ func (c *Client) connect() (err error) {
 }
 
 func (c *Client) ping(ts time.Time) (err error) {
-	c.Lock()
-	defer c.Unlock()
-
-	if c.con == nil || c.client == nil {
+	if c.Connected() == false {
 		return fmt.Errorf("service is not connected.")
 	}
+
+	c.Lock()
+	defer c.Unlock()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -133,15 +153,12 @@ func (c *Client) ping(ts time.Time) (err error) {
 }
 
 func (c *Client) Ask(con *conman.Connection) (*rule.Rule, bool) {
-	c.Lock()
-	defer c.Unlock()
-
-	if c.con == nil || c.con.GetState() != connectivity.Ready {
-		if c.con != nil {
-			log.Debug("Client state: %v", c.con.GetState())
-		}
+	if c.Connected() == false {
 		return clientDisconnectedRule, false
 	}
+
+	c.Lock()
+	defer c.Unlock()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
