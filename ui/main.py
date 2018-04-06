@@ -44,10 +44,8 @@ if __name__ == '__main__':
     red_icon.addPixmap(red_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
     menu = QtWidgets.QMenu()
-    menu.addAction("OpenSnitch v" + version)
-    menu.addSeparator()
-
     stats_dialog = StatsDialog()
+
     statsAction = menu.addAction("Statistics")
     statsAction.triggered.connect(on_stats)
     exitAction = menu.addAction("Close")

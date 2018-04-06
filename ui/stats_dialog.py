@@ -2,6 +2,7 @@ import threading
 import logging
 import queue
 import datetime
+import operator
 import sys
 import os
 import pwd
@@ -33,10 +34,44 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._dropped_label = self.findChild(QtWidgets.QLabel, "droppedLabel")
         self._hits_label = self.findChild(QtWidgets.QLabel, "hitsLabel")
         self._misses_label = self.findChild(QtWidgets.QLabel, "missesLabel")
+        self._tcp_label = self.findChild(QtWidgets.QLabel, "tcpLabel")
+        self._udp_label = self.findChild(QtWidgets.QLabel, "udpLabel")
+
+        self._addrs_table = self._setup_table("addrTable")
+        self._hosts_table = self._setup_table("hostsTable")
+        self._ports_table = self._setup_table("portsTable")
+        self._users_table = self._setup_table("usersTable")
+        self._procs_table = self._setup_table("procsTable")
 
     def update(self, stats):
         self._stats = stats
         self._trigger.emit()
+
+    def _setup_table(self, name):
+        table = self.findChild(QtWidgets.QTableWidget, name)
+        header = table.horizontalHeader()       
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        return table
+
+    def _render_table(self, table, data):
+        table.setRowCount(len(data))
+        table.setColumnCount(2)
+        row = 0
+        sorted_data = sorted(data.items(), key=operator.itemgetter(1), reverse=True)
+
+        for t in sorted_data:
+            what, hits = t
+
+            item = QtWidgets.QTableWidgetItem(what)
+            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
+            table.setItem(row, 0, item)
+
+            item = QtWidgets.QTableWidgetItem("%s" % hits)
+            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
+            table.setItem(row, 1, item)
+
+            row = row + 1
 
     @QtCore.pyqtSlot()
     def _on_update_triggered(self):
@@ -48,6 +83,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._dropped_label.setText("%s" % self._stats.dropped)
         self._hits_label.setText("%s" % self._stats.rule_hits)
         self._misses_label.setText("%s" % self._stats.rule_misses)
+        self._tcp_label.setText("%s" % self._stats.by_proto['tcp'] or 0)
+        self._udp_label.setText("%s" % self._stats.by_proto['udp'] or 0)
+
+        self._render_table(self._addrs_table, self._stats.by_address)
+        self._render_table(self._hosts_table, self._stats.by_host)
+        self._render_table(self._ports_table, self._stats.by_port)
+        self._render_table(self._users_table, self._stats.by_uid)
+        self._render_table(self._procs_table, self._stats.by_executable)
 
     # prevent a click on the window's x 
     # from quitting the whole application
