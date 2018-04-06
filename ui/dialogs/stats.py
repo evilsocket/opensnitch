@@ -51,6 +51,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         table = self.findChild(QtWidgets.QTableWidget, name)
         table.setHorizontalHeaderLabels(columns)
         header = table.horizontalHeader()       
+        header.setVisible(True)
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         return table

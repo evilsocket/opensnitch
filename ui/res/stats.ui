@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>569</width>
+    <width>575</width>
     <height>380</height>
    </rect>
   </property>
@@ -44,7 +44,7 @@
     <rect>
      <x>0</x>
      <y>10</y>
-     <width>571</width>
+     <width>575</width>
      <height>371</height>
     </rect>
    </property>
@@ -58,10 +58,10 @@
     <widget class="QLabel" name="label_3">
      <property name="geometry">
       <rect>
-       <x>280</x>
+       <x>270</x>
        <y>20</y>
-       <width>251</width>
-       <height>261</height>
+       <width>271</width>
+       <height>281</height>
       </rect>
      </property>
      <property name="text">
@@ -500,10 +500,6 @@
       </item>
      </layout>
     </widget>
-    <zorder>label_3</zorder>
-    <zorder>gridLayoutWidget</zorder>
-    <zorder>missesLabel</zorder>
-    <zorder>missesLabel</zorder>
    </widget>
    <widget class="QWidget" name="tab_4">
     <attribute name="title">
@@ -512,10 +508,10 @@
     <widget class="QTableWidget" name="hostsTable">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>571</width>
-       <height>341</height>
+       <x>10</x>
+       <y>10</y>
+       <width>551</width>
+       <height>321</height>
       </rect>
      </property>
      <property name="sortingEnabled">
@@ -547,10 +543,10 @@
     <widget class="QTableWidget" name="procsTable">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>571</width>
-       <height>341</height>
+       <x>10</x>
+       <y>10</y>
+       <width>551</width>
+       <height>321</height>
       </rect>
      </property>
      <property name="sortingEnabled">
@@ -582,10 +578,10 @@
     <widget class="QTableWidget" name="addrTable">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>571</width>
-       <height>341</height>
+       <x>10</x>
+       <y>10</y>
+       <width>551</width>
+       <height>321</height>
       </rect>
      </property>
      <property name="sortingEnabled">
@@ -617,10 +613,10 @@
     <widget class="QTableWidget" name="portsTable">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>571</width>
-       <height>341</height>
+       <x>10</x>
+       <y>10</y>
+       <width>551</width>
+       <height>321</height>
       </rect>
      </property>
      <property name="sortingEnabled">
@@ -652,10 +648,10 @@
     <widget class="QTableWidget" name="usersTable">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>571</width>
-       <height>341</height>
+       <x>10</x>
+       <y>10</y>
+       <width>551</width>
+       <height>321</height>
       </rect>
      </property>
      <property name="sortingEnabled">

@@ -114,7 +114,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):
         if not event.key() == QtCore.Qt.Key_Escape:
-            super(Dialog, self).keyPressEvent(event)
+            super(PromptDialog, self).keyPressEvent(event)
 
     # prevent a click on the window's x 
     # from quitting the whole application
