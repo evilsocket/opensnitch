@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package ui;
+package protocol;
 
 service UI {
     rpc Ping(PingRequest) returns (PingReply) {}

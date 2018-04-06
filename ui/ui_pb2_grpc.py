@@ -15,12 +15,12 @@ class UIStub(object):
       channel: A grpc.Channel.
     """
     self.Ping = channel.unary_unary(
-        '/ui.UI/Ping',
+        '/protocol.UI/Ping',
         request_serializer=ui__pb2.PingRequest.SerializeToString,
         response_deserializer=ui__pb2.PingReply.FromString,
         )
     self.AskRule = channel.unary_unary(
-        '/ui.UI/AskRule',
+        '/protocol.UI/AskRule',
         request_serializer=ui__pb2.RuleRequest.SerializeToString,
         response_deserializer=ui__pb2.RuleReply.FromString,
         )
@@ -59,5 +59,5 @@ def add_UIServicer_to_server(servicer, server):
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'ui.UI', rpc_method_handlers)
+      'protocol.UI', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))
