@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 
 from datetime import datetime
 from threading import Thread
@@ -8,14 +8,27 @@ import os
 import ui_pb2
 import ui_pb2_grpc
 
+from version import version
 from dialog import Dialog
 from stats_dialog import StatsDialog
 
-class UIService(ui_pb2_grpc.UIServicer):
+class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
+    _version_warning_trigger = QtCore.pyqtSignal(str, str)
+    _status_change_trigger = QtCore.pyqtSignal()
+
     def __init__(self, app, on_exit):
+        super(UIService, self).__init__()
+
+        self._version_warning_shown = False
+        self._version_warning_trigger.connect(self._on_diff_versions)
+        self._status_change_trigger.connect(self._on_status_change)
+
         self.connected = False
         self.path = os.path.abspath(os.path.dirname(__file__))
         self.app = app
+
+        # https://stackoverflow.com/questions/40288921/pyqt-after-messagebox-application-quits-why
+        self.app.setQuitOnLastWindowClosed(False)
 
         self.off_image = QtGui.QPixmap(os.path.join(self.path, "res/icon-off.png"))
         self.off_icon = QtGui.QIcon()
@@ -31,11 +44,13 @@ class UIService(ui_pb2_grpc.UIServicer):
 
         self.app.setWindowIcon(self.white_icon)
 
+        self.msg = QtWidgets.QMessageBox()
+
         self.menu = QtWidgets.QMenu()
         self.stats_dialog = StatsDialog()
 
         statsAction = self.menu.addAction("Statistics")
-        statsAction.triggered.connect(self._on_stats)
+        statsAction.triggered.connect(lambda: self.stats_dialog.show())
         exitAction = self.menu.addAction("Close")
         exitAction.triggered.connect(on_exit)
 
@@ -47,14 +62,30 @@ class UIService(ui_pb2_grpc.UIServicer):
         self.stats_dialog = StatsDialog()
         self.last_ping = None
         self.asking = False
-        self.check_thread = Thread(target=self._check_worker)
+        self.check_thread = Thread(target=self._async_worker)
         self.check_thread.daemon = True
         self.check_thread.start()
 
-    def _on_stats(self):
-        self.stats_dialog.show()
+    @QtCore.pyqtSlot()
+    def _on_status_change(self):
+        self.stats_dialog.daemon_connected = self.connected
+        self.stats_dialog.update()
+        if self.connected:
+            self.tray.setIcon(self.white_icon)
+        else:
+            self.tray.setIcon(self.off_icon)
 
-    def _check_worker(self):
+    @QtCore.pyqtSlot(str, str)
+    def _on_diff_versions(self, daemon_ver, ui_ver):
+        if self._version_warning_shown == False:
+            self.msg.setIcon(QtWidgets.QMessageBox.Warning)
+            self.msg.setWindowTitle("OpenSnitch version mismatch!")
+            self.msg.setText("You are runnig version <b>%s</b> of the daemon, while the UI is at version <b>%s</b>, they might not be fully compatible." % (daemon_ver, ui_ver))
+            self.msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            self.msg.show()
+            self._version_warning_shown = True
+
+    def _async_worker(self):
         was_connected = False
 
         while True:
@@ -71,25 +102,18 @@ class UIService(ui_pb2_grpc.UIServicer):
             secs_not_seen = time_not_seen.seconds + time_not_seen.microseconds / 1E6
             self.connected = ( secs_not_seen < 3 )
             if was_connected != self.connected:
-                self._on_status_change()
+                self._status_change_trigger.emit()
                 was_connected = self.connected
 
             time.sleep(1)
 
-    def _on_status_change(self):
-        self.stats_dialog.daemon_connected = self.connected
-        self.stats_dialog.update()
-
-        # FIXME: this causes a warning message because it doesn't
-        # happen on the same thread as UI ... but it works ...
-        if self.connected:
-            self.tray.setIcon(self.white_icon)
-        else:
-            self.tray.setIcon(self.off_icon)
-        
     def Ping(self, request, context):
         self.last_ping = datetime.now()
         self.stats_dialog.update(request.stats)
+
+        if request.stats.daemon_version != version:
+            self._version_warning_trigger.emit(request.stats.daemon_version, version)
+
 	return ui_pb2.PingReply(id=request.id)
 
     def AskRule(self, request, context):
