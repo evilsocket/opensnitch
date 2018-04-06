@@ -107,11 +107,11 @@ func (l *Loader) Save(rule *Rule, path string) error {
 	rule.Updated = time.Now()
 	raw, err := json.MarshalIndent(rule, " ", "  ")
 	if err != nil {
-		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, err)
+		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
 	}
 
 	if err = ioutil.WriteFile(path, raw, 0644); err != nil {
-		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, err)
+		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
 	}
 
 	return nil
