@@ -24,7 +24,8 @@ class LinuxDesktopParser(threading.Thread):
         # just because of icons tho, this hack is way easier)
         self.fixes = {
             '/opt/google/chrome/chrome': '/opt/google/chrome/google-chrome',
-            '/usr/lib/firefox/firefox': '/usr/lib/firefox/firefox.sh'
+            '/usr/lib/firefox/firefox': '/usr/lib/firefox/firefox.sh',
+            '/usr/bin/pidgin.orig': '/usr/bin/pidgin'
         }
 
         for desktop_path in DESKTOP_PATHS:

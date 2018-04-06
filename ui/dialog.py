@@ -73,7 +73,7 @@ class Dialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.show()
 
     def _render_connection(self, con):
-        app_name, app_icon, desk = self._apps_parser.get_info_by_path(con.process_path, "dialog-question")
+        app_name, app_icon, desk = self._apps_parser.get_info_by_path(con.process_path, "terminal")
         if app_name == "":
             self._app_name_label.setText(con.process_path)
         else:
