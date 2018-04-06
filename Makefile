@@ -1,4 +1,4 @@
-all: protocol daemon/daemon
+all: protocol daemon/daemon ui/resources_rc.py
 
 protocol:
 	@cd proto && make
@@ -6,12 +6,15 @@ protocol:
 daemon/daemon:
 	@cd daemon && make
 
+ui/resources_rc.py:
+	@cd ui && make
+
 clean:
 	@rm -rf rules
 	@cd daemon && make clean
 	@cd proto && make clean
 
-test:
+test: 
 	clear 
 	make clean
 	clear

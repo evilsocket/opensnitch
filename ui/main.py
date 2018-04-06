@@ -39,6 +39,8 @@ if __name__ == '__main__':
     white_icon = QtGui.QIcon()
     white_icon.addPixmap(white_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
+    app.setWindowIcon(white_icon)
+
     red_image = QtGui.QPixmap(os.path.join(path, "res/icon-red.png"))
     red_icon = QtGui.QIcon()
     red_icon.addPixmap(red_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)

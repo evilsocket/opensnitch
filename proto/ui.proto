@@ -8,20 +8,21 @@ service UI {
 }
 
 message Statistics {
-    uint64 uptime = 1;
-	uint64 dns_responses = 2;
-	uint64 connections  = 3;
-	uint64 ignored = 4;
-	uint64 accepted = 5;
-	uint64 dropped = 6;
-	uint64 rule_hits = 7;
-	uint64 rule_misses = 8;
-	map<string, uint64> by_proto = 9;
-	map<string, uint64> by_address = 10;
-	map<string, uint64> by_host = 11;
-	map<string, uint64> by_port = 12;
-	map<string, uint64> by_uid = 13;
-	map<string, uint64> by_executable = 14;
+    string daemon_version = 1;
+    uint64 uptime = 2;
+	uint64 dns_responses = 3;
+	uint64 connections  = 4;
+	uint64 ignored = 5;
+	uint64 accepted = 6;
+	uint64 dropped = 7;
+	uint64 rule_hits = 8;
+	uint64 rule_misses = 9;
+	map<string, uint64> by_proto = 10;
+	map<string, uint64> by_address = 11;
+	map<string, uint64> by_host = 12;
+	map<string, uint64> by_port = 13;
+	map<string, uint64> by_uid = 14;
+	map<string, uint64> by_executable = 15;
 }
 
 message PingRequest {

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='ui.proto',
   package='ui',
   syntax='proto3',
-  serialized_pb=_b('\n\x08ui.proto\x12\x02ui\"\xe7\x05\n\nStatistics\x12\x0e\n\x06uptime\x18\x01 \x01(\x04\x12\x15\n\rdns_responses\x18\x02 \x01(\x04\x12\x13\n\x0b\x63onnections\x18\x03 \x01(\x04\x12\x0f\n\x07ignored\x18\x04 \x01(\x04\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x05 \x01(\x04\x12\x0f\n\x07\x64ropped\x18\x06 \x01(\x04\x12\x11\n\trule_hits\x18\x07 \x01(\x04\x12\x13\n\x0brule_misses\x18\x08 \x01(\x04\x12-\n\x08\x62y_proto\x18\t \x03(\x0b\x32\x1b.ui.Statistics.ByProtoEntry\x12\x31\n\nby_address\x18\n \x03(\x0b\x32\x1d.ui.Statistics.ByAddressEntry\x12+\n\x07\x62y_host\x18\x0b \x03(\x0b\x32\x1a.ui.Statistics.ByHostEntry\x12+\n\x07\x62y_port\x18\x0c \x03(\x0b\x32\x1a.ui.Statistics.ByPortEntry\x12)\n\x06\x62y_uid\x18\r \x03(\x0b\x32\x19.ui.Statistics.ByUidEntry\x12\x37\n\rby_executable\x18\x0e \x03(\x0b\x32 .ui.Statistics.ByExecutableEntry\x1a.\n\x0c\x42yProtoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x30\n\x0e\x42yAddressEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yHostEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yPortEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a,\n\nByUidEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x33\n\x11\x42yExecutableEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\"8\n\x0bPingRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x1d\n\x05stats\x18\x02 \x01(\x0b\x32\x0e.ui.Statistics\"\x17\n\tPingReply\x12\n\n\x02id\x18\x01 \x01(\x04\"\xc6\x01\n\x0bRuleRequest\x12\x10\n\x08protocol\x18\x01 \x01(\t\x12\x0e\n\x06src_ip\x18\x02 \x01(\t\x12\x10\n\x08src_port\x18\x03 \x01(\r\x12\x0e\n\x06\x64st_ip\x18\x04 \x01(\t\x12\x10\n\x08\x64st_host\x18\x05 \x01(\t\x12\x10\n\x08\x64st_port\x18\x06 \x01(\r\x12\x0f\n\x07user_id\x18\x07 \x01(\r\x12\x12\n\nprocess_id\x18\x08 \x01(\r\x12\x14\n\x0cprocess_path\x18\t \x01(\t\x12\x14\n\x0cprocess_args\x18\n \x03(\t\"X\n\tRuleReply\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x02 \x01(\t\x12\x10\n\x08\x64uration\x18\x03 \x01(\t\x12\x0c\n\x04what\x18\x04 \x01(\t\x12\r\n\x05value\x18\x05 \x01(\t2[\n\x02UI\x12(\n\x04Ping\x12\x0f.ui.PingRequest\x1a\r.ui.PingReply\"\x00\x12+\n\x07\x41skRule\x12\x0f.ui.RuleRequest\x1a\r.ui.RuleReply\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x08ui.proto\x12\x02ui\"\xff\x05\n\nStatistics\x12\x16\n\x0e\x64\x61\x65mon_version\x18\x01 \x01(\t\x12\x0e\n\x06uptime\x18\x02 \x01(\x04\x12\x15\n\rdns_responses\x18\x03 \x01(\x04\x12\x13\n\x0b\x63onnections\x18\x04 \x01(\x04\x12\x0f\n\x07ignored\x18\x05 \x01(\x04\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x06 \x01(\x04\x12\x0f\n\x07\x64ropped\x18\x07 \x01(\x04\x12\x11\n\trule_hits\x18\x08 \x01(\x04\x12\x13\n\x0brule_misses\x18\t \x01(\x04\x12-\n\x08\x62y_proto\x18\n \x03(\x0b\x32\x1b.ui.Statistics.ByProtoEntry\x12\x31\n\nby_address\x18\x0b \x03(\x0b\x32\x1d.ui.Statistics.ByAddressEntry\x12+\n\x07\x62y_host\x18\x0c \x03(\x0b\x32\x1a.ui.Statistics.ByHostEntry\x12+\n\x07\x62y_port\x18\r \x03(\x0b\x32\x1a.ui.Statistics.ByPortEntry\x12)\n\x06\x62y_uid\x18\x0e \x03(\x0b\x32\x19.ui.Statistics.ByUidEntry\x12\x37\n\rby_executable\x18\x0f \x03(\x0b\x32 .ui.Statistics.ByExecutableEntry\x1a.\n\x0c\x42yProtoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x30\n\x0e\x42yAddressEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yHostEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yPortEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a,\n\nByUidEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x33\n\x11\x42yExecutableEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\"8\n\x0bPingRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x1d\n\x05stats\x18\x02 \x01(\x0b\x32\x0e.ui.Statistics\"\x17\n\tPingReply\x12\n\n\x02id\x18\x01 \x01(\x04\"\xc6\x01\n\x0bRuleRequest\x12\x10\n\x08protocol\x18\x01 \x01(\t\x12\x0e\n\x06src_ip\x18\x02 \x01(\t\x12\x10\n\x08src_port\x18\x03 \x01(\r\x12\x0e\n\x06\x64st_ip\x18\x04 \x01(\t\x12\x10\n\x08\x64st_host\x18\x05 \x01(\t\x12\x10\n\x08\x64st_port\x18\x06 \x01(\r\x12\x0f\n\x07user_id\x18\x07 \x01(\r\x12\x12\n\nprocess_id\x18\x08 \x01(\r\x12\x14\n\x0cprocess_path\x18\t \x01(\t\x12\x14\n\x0cprocess_args\x18\n \x03(\t\"X\n\tRuleReply\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x02 \x01(\t\x12\x10\n\x08\x64uration\x18\x03 \x01(\t\x12\x0c\n\x04what\x18\x04 \x01(\t\x12\r\n\x05value\x18\x05 \x01(\t2[\n\x02UI\x12(\n\x04Ping\x12\x0f.ui.PingRequest\x1a\r.ui.PingReply\"\x00\x12+\n\x07\x41skRule\x12\x0f.ui.RuleRequest\x1a\r.ui.RuleReply\"\x00\x62\x06proto3')
 )
 
 
@@ -58,8 +58,8 @@ _STATISTICS_BYPROTOENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=471,
-  serialized_end=517,
+  serialized_start=495,
+  serialized_end=541,
 )
 
 _STATISTICS_BYADDRESSENTRY = _descriptor.Descriptor(
@@ -95,8 +95,8 @@ _STATISTICS_BYADDRESSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=519,
-  serialized_end=567,
+  serialized_start=543,
+  serialized_end=591,
 )
 
 _STATISTICS_BYHOSTENTRY = _descriptor.Descriptor(
@@ -132,8 +132,8 @@ _STATISTICS_BYHOSTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=569,
-  serialized_end=614,
+  serialized_start=593,
+  serialized_end=638,
 )
 
 _STATISTICS_BYPORTENTRY = _descriptor.Descriptor(
@@ -169,8 +169,8 @@ _STATISTICS_BYPORTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=616,
-  serialized_end=661,
+  serialized_start=640,
+  serialized_end=685,
 )
 
 _STATISTICS_BYUIDENTRY = _descriptor.Descriptor(
@@ -206,8 +206,8 @@ _STATISTICS_BYUIDENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=663,
-  serialized_end=707,
+  serialized_start=687,
+  serialized_end=731,
 )
 
 _STATISTICS_BYEXECUTABLEENTRY = _descriptor.Descriptor(
@@ -243,8 +243,8 @@ _STATISTICS_BYEXECUTABLEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=709,
-  serialized_end=760,
+  serialized_start=733,
+  serialized_end=784,
 )
 
 _STATISTICS = _descriptor.Descriptor(
@@ -255,99 +255,106 @@ _STATISTICS = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uptime', full_name='ui.Statistics.uptime', index=0,
-      number=1, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
+      name='daemon_version', full_name='ui.Statistics.daemon_version', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='dns_responses', full_name='ui.Statistics.dns_responses', index=1,
+      name='uptime', full_name='ui.Statistics.uptime', index=1,
       number=2, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='connections', full_name='ui.Statistics.connections', index=2,
+      name='dns_responses', full_name='ui.Statistics.dns_responses', index=2,
       number=3, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ignored', full_name='ui.Statistics.ignored', index=3,
+      name='connections', full_name='ui.Statistics.connections', index=3,
       number=4, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='accepted', full_name='ui.Statistics.accepted', index=4,
+      name='ignored', full_name='ui.Statistics.ignored', index=4,
       number=5, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='dropped', full_name='ui.Statistics.dropped', index=5,
+      name='accepted', full_name='ui.Statistics.accepted', index=5,
       number=6, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rule_hits', full_name='ui.Statistics.rule_hits', index=6,
+      name='dropped', full_name='ui.Statistics.dropped', index=6,
       number=7, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rule_misses', full_name='ui.Statistics.rule_misses', index=7,
+      name='rule_hits', full_name='ui.Statistics.rule_hits', index=7,
       number=8, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_proto', full_name='ui.Statistics.by_proto', index=8,
-      number=9, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='rule_misses', full_name='ui.Statistics.rule_misses', index=8,
+      number=9, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_address', full_name='ui.Statistics.by_address', index=9,
+      name='by_proto', full_name='ui.Statistics.by_proto', index=9,
       number=10, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_host', full_name='ui.Statistics.by_host', index=10,
+      name='by_address', full_name='ui.Statistics.by_address', index=10,
       number=11, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_port', full_name='ui.Statistics.by_port', index=11,
+      name='by_host', full_name='ui.Statistics.by_host', index=11,
       number=12, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_uid', full_name='ui.Statistics.by_uid', index=12,
+      name='by_port', full_name='ui.Statistics.by_port', index=12,
       number=13, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_executable', full_name='ui.Statistics.by_executable', index=13,
+      name='by_uid', full_name='ui.Statistics.by_uid', index=13,
       number=14, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='by_executable', full_name='ui.Statistics.by_executable', index=14,
+      number=15, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -365,7 +372,7 @@ _STATISTICS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=17,
-  serialized_end=760,
+  serialized_end=784,
 )
 
 
@@ -402,8 +409,8 @@ _PINGREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=762,
-  serialized_end=818,
+  serialized_start=786,
+  serialized_end=842,
 )
 
 
@@ -433,8 +440,8 @@ _PINGREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=820,
-  serialized_end=843,
+  serialized_start=844,
+  serialized_end=867,
 )
 
 
@@ -527,8 +534,8 @@ _RULEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=846,
-  serialized_end=1044,
+  serialized_start=870,
+  serialized_end=1068,
 )
 
 
@@ -586,8 +593,8 @@ _RULEREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1046,
-  serialized_end=1134,
+  serialized_start=1070,
+  serialized_end=1158,
 )
 
 _STATISTICS_BYPROTOENTRY.containing_type = _STATISTICS
@@ -713,8 +720,8 @@ _UI = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=1136,
-  serialized_end=1227,
+  serialized_start=1160,
+  serialized_end=1251,
   methods=[
   _descriptor.MethodDescriptor(
     name='Ping',
