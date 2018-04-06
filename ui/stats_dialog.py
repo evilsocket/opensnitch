@@ -22,9 +22,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.setupUi(self)
 
+        self.daemon_connected = False
+
         self._stats = None
         self._trigger.connect(self._on_update_triggered)
 
+        self._status_label = self.findChild(QtWidgets.QLabel, "statusLabel")
         self._dver_label = self.findChild(QtWidgets.QLabel, "daemonVerLabel")
         self._uiver_label = self.findChild(QtWidgets.QLabel, "uiVerLabel")
         self._uptime_label = self.findChild(QtWidgets.QLabel, "uptimeLabel")
@@ -40,8 +43,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._users_table = self._setup_table("usersTable")
         self._procs_table = self._setup_table("procsTable")
 
-    def update(self, stats):
-        self._stats = stats
+    def update(self, stats=None):
+        if stats is not None:
+            self._stats = stats
         self._trigger.emit()
 
     def _setup_table(self, name):
@@ -72,6 +76,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def _on_update_triggered(self):
+        if self.daemon_connected:
+            self._status_label.setText("running")
+            self._status_label.setStyleSheet('color: green')
+        else:
+            self._status_label.setText("not running")
+            self._status_label.setStyleSheet('color: red')
+
         self._dver_label.setText(self._stats.daemon_version)
         self._uiver_label.setText(version)
         self._uptime_label.setText(str(datetime.timedelta(seconds=self._stats.uptime)))
