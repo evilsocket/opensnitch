@@ -121,5 +121,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def AskRule(self, request, context):
         self._asking = True
         rule = self._prompt_dialog.promptUser(request)
+        self._last_ping = datetime.now()
         self._asking = False
         return rule
