@@ -15,6 +15,13 @@
 
 **Warning: This is still alpha quality software, don't rely on it (yet) for your computer security.**
 
+### Download / Setup
+In order to obtain all the dependent libraries needed to build the daemon in go, you need to checkout the repository us$
+You may need to update the second command if you have changed the default location of your go path.
+
+    go get -v github.com/evilsocket/opensnitch/...
+    cd ~/go/src/github.com/evilsocket/opensnitch
+
 ### Daemon
 
 The `daemon` is implemented in Go and needs to run as root in order to interact with the Netfilter packet queue, edit 
