@@ -56,10 +56,8 @@ func (c *Client) Connected() bool {
 
 func (c *Client) poller() {
 	log.Debug("UI service poller started for socket %s", c.socketPath)
-	t := time.NewTicker(time.Second * 1)
-
 	wasConnected := false
-	for ts := range t.C {
+	for true {
 		isConnected := c.Connected()
 		if wasConnected != isConnected {
 			c.onStatusChange(isConnected)
@@ -71,10 +69,12 @@ func (c *Client) poller() {
 			log.Warning("Error while connecting to UI service: %s", err)
 		} else if c.Connected() == true {
 			// if the client is connected and ready, send a ping
-			if err := c.ping(ts); err != nil {
+			if err := c.ping(time.Now()); err != nil {
 				log.Warning("Error while pinging UI service: %s", err)
 			}
 		}
+
+		time.Sleep(1 * time.Second)
 	}
 }
 
