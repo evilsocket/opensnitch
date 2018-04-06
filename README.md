@@ -13,8 +13,6 @@
   <img src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/screenshot.png" alt="OpenSnitch"/>
 </p>
 
-**Warning: This is still alpha quality software, don't rely on it (yet) for your computer security.**
-
 ### Daemon
 
 The `daemon` is implemented in Go and needs to run as root in order to interact with the Netfilter packet queue, edit 
@@ -44,3 +42,15 @@ Now run the daemon:
 And the UI service as your user:
 
     python /path/to/ui/main.py --socket /tmp/osui.sock
+
+### FAQ
+
+##### Why Qt and not GTK?
+
+I tried, but for very fast updates it failed bad on my configuration (failed bad = SIGSEGV), moreover I find Qt5 layout system superior and easier to use.
+
+##### Why gRPC and not DBUS?
+
+At some point the UI service will also be able to use a TCP listener, at that point the UI itself can be executed on any 
+operating system, while receiving messages from a single local daemon instance or multiple instances from remote computers in the network,
+therefore DBUS would have made the protocol and logic uselessly GNU/Linux specific.
