@@ -9,7 +9,9 @@
 
 **OpenSnitch** is a GNU/Linux port of the Little Snitch application firewall. 
 
-<iframe width="100%"" src="https://www.youtube.com/embed/UjRYdusvXik?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/screenshot.png" alt="OpenSnitch"/>
+</p>
 
 ### Daemon
 
