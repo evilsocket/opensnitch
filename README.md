@@ -46,9 +46,9 @@ And the UI service as your user:
 You can also use `--socket "[::]:50051"` to have the UI use TCP instead of a unix socket and run the daemon on another
 computer with `-ui-socket "x.x.x.x:50051"` (where `x.x.x.x` is the IP of the computer running the UI service).
 
-### How rules look like
+### Rules
 
-Simple case:
+Rules are stored as JSON files inside the `-rule-path` folder, in the simplest cast a rule looks like this:
 
 ```json
 {
@@ -66,7 +66,19 @@ Simple case:
 }
 ```
 
-With a regular expression:
+| Field            | Description   |
+| -----------------|---------------|
+| created          | UTC date and time of creation. |
+| update           | UTC date and time of the last update. |
+| name             | The name of the rule. |
+| enabled          | Use to temporarily disable and enable rules without moving their files. |
+| action           | Can be `deny` or `allow`. |
+| duration         | For rules persisting on disk, this value is default to `always`. |
+| operator.type    | Can be `simple`, in which case a simple `==` comparision will be performed, or `regexp` if the `data` field is a regular expression to match. |
+| operator.operand | What element of the connection to compare, can be one of: `true` (will always match), `process.path` (the path of the executable), `user.id`, `dest.ip`, `dest.host` or `dest.port`. |
+| operator.data    | The data to compare the `operand` to, can be a regular expression if `type` is `regexp`. |
+
+An example with a regular expression:
 
 ```json
 {
@@ -82,6 +94,24 @@ With a regular expression:
      "data": "(?i).*analytics.*\\.google\\.com"
    }
 }
+```
+
+An example whitelisting a whole process:
+
+```json
+{
+   "created": "2018-04-07T15:00:48.156737519+02:00",
+   "updated": "2018-04-07T15:00:48.156772601+02:00",
+   "name": "allow-simple-opt-google-chrome-chrome",
+   "enabled": true,
+   "action": "allow",
+   "duration": "always",
+   "operator": {
+     "type": "simple",
+     "operand": "process.path",
+     "data": "/opt/google/chrome/chrome"
+   }
+ }
 ```
 
 ### FAQ
