@@ -46,6 +46,44 @@ And the UI service as your user:
 You can also use `--socket "[::]:50051"` to have the UI use TCP instead of a unix socket and run the daemon on another
 computer with `-ui-socket "x.x.x.x:50051"` (where `x.x.x.x` is the IP of the computer running the UI service).
 
+### How rules look like
+
+Simple case:
+
+```json
+{
+   "created": "2018-04-07T14:13:27.903996051+02:00",
+   "updated": "2018-04-07T14:13:27.904060088+02:00",
+   "name": "deny-simple-www-google-analytics-l-google-com",
+   "enabled": true,
+   "action": "deny",
+   "duration": "always",
+   "operator": {
+     "type": "simple",
+     "operand": "dest.host",
+     "data": "www-google-analytics.l.google.com"
+   }
+}
+```
+
+With a regular expression:
+
+```json
+{
+   "created": "2018-04-07T14:13:27.903996051+02:00",
+   "updated": "2018-04-07T14:13:27.904060088+02:00",
+   "name": "deny-any-google-analytics",
+   "enabled": true,
+   "action": "deny",
+   "duration": "always",
+   "operator": {
+     "type": "regexp",
+     "operand": "dest.host",
+     "data": "(?i).*analytics.*\.google\.com"
+   }
+}
+```
+
 ### FAQ
 
 ##### Why Qt and not GTK?
