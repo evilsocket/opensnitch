@@ -28,7 +28,7 @@ test:
 	python ui/main.py --socket unix:///tmp/osui.sock &
 	sudo ./daemon/daemon -ui-socket unix:///tmp/osui.sock
 
-ads:
+adblocker:
 	clear 
 	make clean
 	clear
