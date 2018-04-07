@@ -16,8 +16,8 @@
 ### Daemon
 
 The `daemon` is implemented in Go and needs to run as root in order to interact with the Netfilter packet queue, edit 
-iptables rules and so on, in order to compile it you will need to install the `libpcap-dev` and `libnetfilter-queue-dev`
-libraries on your system, then just:
+iptables rules and so on, in order to compile it you will need to install the `protobuf-compiler`, `libpcap-dev` and `libnetfilter-queue-dev`
+packages on your system, then just:
 
     cd daemon
     go build .
