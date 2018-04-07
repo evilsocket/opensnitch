@@ -41,7 +41,7 @@ for url in lists:
                 if part != "localhost":
                     domains[part] = 1
 
-print "Got %d unique domains, creating saving to ./rules/ ..." % len(domains)
+print "Got %d unique domains, saving as rules to ./rules/ ..." % len(domains)
 
 os.system("mkdir -p rules")
 
