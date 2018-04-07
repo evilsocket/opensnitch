@@ -79,7 +79,7 @@ With a regular expression:
    "operator": {
      "type": "regexp",
      "operand": "dest.host",
-     "data": "(?i).*analytics.*\.google\.com"
+     "data": "(?i).*analytics.*\\.google\\.com"
    }
 }
 ```
