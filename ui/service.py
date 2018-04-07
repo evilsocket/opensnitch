@@ -185,7 +185,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 else:
                     self._new_remote_trigger.emit(addr, request.stats)
 
-	return ui_pb2.PingReply(id=request.id)
+        return ui_pb2.PingReply(id=request.id)
 
     def AskRule(self, request, context):
         self._asking = True
