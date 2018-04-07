@@ -9,6 +9,10 @@ daemon/daemon:
 ui/resources_rc.py:
 	@cd ui && make
 
+deps:
+	@cd daemon && make deps
+	@cd ui && make deps
+
 clean:
 	@rm -rf rules
 	@cd daemon && make clean

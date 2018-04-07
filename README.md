@@ -29,6 +29,9 @@ The user interface is a python script running as a `gRPC` server on a unix socke
     cd ui
     pip install -r requirements.txt
 
+You will also need to install the package `python-pyqt5` for your system (if anyone finds a way to make this work from 
+the `requirements.txt` file feel free to send a PR).
+
 ### Running
 
 First, you need to decide in which folder opensnitch rules will be saved, it is suggested that you just:

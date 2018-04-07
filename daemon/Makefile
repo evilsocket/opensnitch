@@ -1,5 +1,8 @@
 all: daemon
 
+deps: 
+	@glide up
+
 daemon:
 	@go build .
 

@@ -1,11 +1,22 @@
 hash: 450575a91ccfb9a4eb1aff9f3c75b3531498f4bcafdff47192f4adcce9224ffe
-updated: 2018-04-07T14:00:39.674764084+02:00
+updated: 2018-04-07T15:43:09.388912073+02:00
 imports:
 - name: github.com/evilsocket/go-netfilter-queue
   version: 55dcf9df835d721bb14d69ebf8682e0c9c3e0f18
 - name: github.com/evilsocket/opensnitch
-  version: 3662e7db86a3f72efc40f059dbea94737a641160
+  version: 549ec9bb5da4dbaa1c70c3ec43e8f0dac39f0ca6
   subpackages:
+  - daemon/conman
+  - daemon/core
+  - daemon/dns
+  - daemon/firewall
+  - daemon/log
+  - daemon/netstat
+  - daemon/procmon
+  - daemon/rule
+  - daemon/statistics
+  - daemon/ui
+  - daemon/ui/protocol
   - proto
 - name: github.com/golang/protobuf
   version: 6a1fa9404c0aebf36c879bc50152edcc953910d2
