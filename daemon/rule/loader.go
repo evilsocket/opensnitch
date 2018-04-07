@@ -62,6 +62,9 @@ func (l *Loader) Load(path string) error {
 			return fmt.Errorf("Error while parsing rule from %s: %s", fileName, err)
 		}
 
+		// make sure the rule is ready to be used
+		r.Operator.Compile()
+
 		log.Debug("Loaded rule from %s: %s", fileName, r.String())
 		l.rules[r.Name] = &r
 	}
@@ -122,7 +125,13 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 	defer l.RUnlock()
 
 	for _, rule := range l.rules {
-		if rule.Match(con) == true {
+		// if we already have a match, we don't need
+		// to evaluate 'allow' rules anymore, we only
+		// need to make sure there's no 'deny' rule
+		// matching this specific connection
+		if match != nil && rule.Action == Allow {
+			continue
+		} else if rule.Match(con) == true {
 			// only return if we found a deny
 			// rule, otherwise keep searching as we
 			// might have situations like:

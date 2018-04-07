@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='ui.proto',
   package='protocol',
   syntax='proto3',
-  serialized_pb=_b('\n\x08ui.proto\x12\x08protocol\"\xa3\x06\n\nStatistics\x12\x16\n\x0e\x64\x61\x65mon_version\x18\x01 \x01(\t\x12\x0e\n\x06uptime\x18\x02 \x01(\x04\x12\x15\n\rdns_responses\x18\x03 \x01(\x04\x12\x13\n\x0b\x63onnections\x18\x04 \x01(\x04\x12\x0f\n\x07ignored\x18\x05 \x01(\x04\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x06 \x01(\x04\x12\x0f\n\x07\x64ropped\x18\x07 \x01(\x04\x12\x11\n\trule_hits\x18\x08 \x01(\x04\x12\x13\n\x0brule_misses\x18\t \x01(\x04\x12\x33\n\x08\x62y_proto\x18\n \x03(\x0b\x32!.protocol.Statistics.ByProtoEntry\x12\x37\n\nby_address\x18\x0b \x03(\x0b\x32#.protocol.Statistics.ByAddressEntry\x12\x31\n\x07\x62y_host\x18\x0c \x03(\x0b\x32 .protocol.Statistics.ByHostEntry\x12\x31\n\x07\x62y_port\x18\r \x03(\x0b\x32 .protocol.Statistics.ByPortEntry\x12/\n\x06\x62y_uid\x18\x0e \x03(\x0b\x32\x1f.protocol.Statistics.ByUidEntry\x12=\n\rby_executable\x18\x0f \x03(\x0b\x32&.protocol.Statistics.ByExecutableEntry\x1a.\n\x0c\x42yProtoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x30\n\x0e\x42yAddressEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yHostEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yPortEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a,\n\nByUidEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x33\n\x11\x42yExecutableEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\">\n\x0bPingRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12#\n\x05stats\x18\x02 \x01(\x0b\x32\x14.protocol.Statistics\"\x17\n\tPingReply\x12\n\n\x02id\x18\x01 \x01(\x04\"\xc6\x01\n\x0bRuleRequest\x12\x10\n\x08protocol\x18\x01 \x01(\t\x12\x0e\n\x06src_ip\x18\x02 \x01(\t\x12\x10\n\x08src_port\x18\x03 \x01(\r\x12\x0e\n\x06\x64st_ip\x18\x04 \x01(\t\x12\x10\n\x08\x64st_host\x18\x05 \x01(\t\x12\x10\n\x08\x64st_port\x18\x06 \x01(\r\x12\x0f\n\x07user_id\x18\x07 \x01(\r\x12\x12\n\nprocess_id\x18\x08 \x01(\r\x12\x14\n\x0cprocess_path\x18\t \x01(\t\x12\x14\n\x0cprocess_args\x18\n \x03(\t\"X\n\tRuleReply\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x02 \x01(\t\x12\x10\n\x08\x64uration\x18\x03 \x01(\t\x12\x0c\n\x04what\x18\x04 \x01(\t\x12\r\n\x05value\x18\x05 \x01(\t2s\n\x02UI\x12\x34\n\x04Ping\x12\x15.protocol.PingRequest\x1a\x13.protocol.PingReply\"\x00\x12\x37\n\x07\x41skRule\x12\x15.protocol.RuleRequest\x1a\x13.protocol.RuleReply\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x08ui.proto\x12\x08protocol\"\xa3\x06\n\nStatistics\x12\x16\n\x0e\x64\x61\x65mon_version\x18\x01 \x01(\t\x12\x0e\n\x06uptime\x18\x02 \x01(\x04\x12\x15\n\rdns_responses\x18\x03 \x01(\x04\x12\x13\n\x0b\x63onnections\x18\x04 \x01(\x04\x12\x0f\n\x07ignored\x18\x05 \x01(\x04\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x06 \x01(\x04\x12\x0f\n\x07\x64ropped\x18\x07 \x01(\x04\x12\x11\n\trule_hits\x18\x08 \x01(\x04\x12\x13\n\x0brule_misses\x18\t \x01(\x04\x12\x33\n\x08\x62y_proto\x18\n \x03(\x0b\x32!.protocol.Statistics.ByProtoEntry\x12\x37\n\nby_address\x18\x0b \x03(\x0b\x32#.protocol.Statistics.ByAddressEntry\x12\x31\n\x07\x62y_host\x18\x0c \x03(\x0b\x32 .protocol.Statistics.ByHostEntry\x12\x31\n\x07\x62y_port\x18\r \x03(\x0b\x32 .protocol.Statistics.ByPortEntry\x12/\n\x06\x62y_uid\x18\x0e \x03(\x0b\x32\x1f.protocol.Statistics.ByUidEntry\x12=\n\rby_executable\x18\x0f \x03(\x0b\x32&.protocol.Statistics.ByExecutableEntry\x1a.\n\x0c\x42yProtoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x30\n\x0e\x42yAddressEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yHostEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yPortEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a,\n\nByUidEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x33\n\x11\x42yExecutableEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\">\n\x0bPingRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12#\n\x05stats\x18\x02 \x01(\x0b\x32\x14.protocol.Statistics\"\x17\n\tPingReply\x12\n\n\x02id\x18\x01 \x01(\x04\"\xc6\x01\n\x0bRuleRequest\x12\x10\n\x08protocol\x18\x01 \x01(\t\x12\x0e\n\x06src_ip\x18\x02 \x01(\t\x12\x10\n\x08src_port\x18\x03 \x01(\r\x12\x0e\n\x06\x64st_ip\x18\x04 \x01(\t\x12\x10\n\x08\x64st_host\x18\x05 \x01(\t\x12\x10\n\x08\x64st_port\x18\x06 \x01(\r\x12\x0f\n\x07user_id\x18\x07 \x01(\r\x12\x12\n\nprocess_id\x18\x08 \x01(\r\x12\x14\n\x0cprocess_path\x18\t \x01(\t\x12\x14\n\x0cprocess_args\x18\n \x03(\t\";\n\x0cRuleOperator\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0f\n\x07operand\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t\"e\n\tRuleReply\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x02 \x01(\t\x12\x10\n\x08\x64uration\x18\x03 \x01(\t\x12(\n\x08operator\x18\x04 \x01(\x0b\x32\x16.protocol.RuleOperator2s\n\x02UI\x12\x34\n\x04Ping\x12\x15.protocol.PingRequest\x1a\x13.protocol.PingReply\"\x00\x12\x37\n\x07\x41skRule\x12\x15.protocol.RuleRequest\x1a\x13.protocol.RuleReply\"\x00\x62\x06proto3')
 )
 
 
@@ -539,6 +539,51 @@ _RULEREQUEST = _descriptor.Descriptor(
 )
 
 
+_RULEOPERATOR = _descriptor.Descriptor(
+  name='RuleOperator',
+  full_name='protocol.RuleOperator',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='type', full_name='protocol.RuleOperator.type', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='operand', full_name='protocol.RuleOperator.operand', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='data', full_name='protocol.RuleOperator.data', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1118,
+  serialized_end=1177,
+)
+
+
 _RULEREPLY = _descriptor.Descriptor(
   name='RuleReply',
   full_name='protocol.RuleReply',
@@ -568,16 +613,9 @@ _RULEREPLY = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='what', full_name='protocol.RuleReply.what', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='protocol.RuleReply.value', index=4,
-      number=5, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
+      name='operator', full_name='protocol.RuleReply.operator', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -593,8 +631,8 @@ _RULEREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1118,
-  serialized_end=1206,
+  serialized_start=1179,
+  serialized_end=1280,
 )
 
 _STATISTICS_BYPROTOENTRY.containing_type = _STATISTICS
@@ -610,10 +648,12 @@ _STATISTICS.fields_by_name['by_port'].message_type = _STATISTICS_BYPORTENTRY
 _STATISTICS.fields_by_name['by_uid'].message_type = _STATISTICS_BYUIDENTRY
 _STATISTICS.fields_by_name['by_executable'].message_type = _STATISTICS_BYEXECUTABLEENTRY
 _PINGREQUEST.fields_by_name['stats'].message_type = _STATISTICS
+_RULEREPLY.fields_by_name['operator'].message_type = _RULEOPERATOR
 DESCRIPTOR.message_types_by_name['Statistics'] = _STATISTICS
 DESCRIPTOR.message_types_by_name['PingRequest'] = _PINGREQUEST
 DESCRIPTOR.message_types_by_name['PingReply'] = _PINGREPLY
 DESCRIPTOR.message_types_by_name['RuleRequest'] = _RULEREQUEST
+DESCRIPTOR.message_types_by_name['RuleOperator'] = _RULEOPERATOR
 DESCRIPTOR.message_types_by_name['RuleReply'] = _RULEREPLY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -693,6 +733,13 @@ RuleRequest = _reflection.GeneratedProtocolMessageType('RuleRequest', (_message.
   ))
 _sym_db.RegisterMessage(RuleRequest)
 
+RuleOperator = _reflection.GeneratedProtocolMessageType('RuleOperator', (_message.Message,), dict(
+  DESCRIPTOR = _RULEOPERATOR,
+  __module__ = 'ui_pb2'
+  # @@protoc_insertion_point(class_scope:protocol.RuleOperator)
+  ))
+_sym_db.RegisterMessage(RuleOperator)
+
 RuleReply = _reflection.GeneratedProtocolMessageType('RuleReply', (_message.Message,), dict(
   DESCRIPTOR = _RULEREPLY,
   __module__ = 'ui_pb2'
@@ -720,8 +767,8 @@ _UI = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=1208,
-  serialized_end=1323,
+  serialized_start=1282,
+  serialized_end=1397,
   methods=[
   _descriptor.MethodDescriptor(
     name='Ping',

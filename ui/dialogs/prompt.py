@@ -147,7 +147,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _on_apply_clicked(self):
         self._rule = ui_pb2.RuleReply(name="user.choice")
-    
+
         action_idx = self._action_combo.currentIndex()
         if action_idx == 0:
             self._rule.action = "allow"
@@ -161,29 +161,34 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule.duration = "until restart"
         else:
             self._rule.duration = "always"
-        
+
         what_idx = self._what_combo.currentIndex()
         if what_idx == 0:
-            self._rule.what = "process.path"
-            self._rule.value = self._con.process_path 
+            self._rule.operator.type = "simple"
+            self._rule.operator.operand = "process.path"
+            self._rule.operator.data = self._con.process_path 
 
         elif what_idx == 1:
-            self._rule.what = "user.id"
-            self._rule.value = "%s" % self._con.user_id 
+            self._rule.operator.type = "simple"
+            self._rule.operator.operand = "user.id"
+            self._rule.operator.data = "%s" % self._con.user_id 
         
         elif what_idx == 2:
-            self._rule.what = "dest.port"
-            self._rule.value = "%s" % self._con.dst_port 
+            self._rule.operator.type = "simple"
+            self._rule.operator.operand = "dest.port"
+            self._rule.operator.data = "%s" % self._con.dst_port 
 
         elif what_idx == 3:
-            self._rule.what = "dest.ip"
-            self._rule.value = self._con.dst_ip 
+            self._rule.operator.type = "simple"
+            self._rule.operator.operand = "dest.ip"
+            self._rule.operator.data = self._con.dst_ip 
         
         else:
-            self._rule.what = "dest.host"
-            self._rule.value = self._con.dst_host 
+            self._rule.operator.type = "simple"
+            self._rule.operator.operand = "dest.host"
+            self._rule.operator.data = self._con.dst_host 
 
-        self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.what, self._rule.value))
+        self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.operator.type, self._rule.operator.data))
         
         self.hide()
         # signal that the user took a decision and 

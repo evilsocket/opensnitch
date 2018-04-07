@@ -8,22 +8,6 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
-type OperandType string
-
-const (
-	OpTrue        = OperandType("true")
-	OpProcessPath = OperandType("process.path")
-	OpUserId      = OperandType("user.id")
-	OpDstIP       = OperandType("dest.ip")
-	OpDstHost     = OperandType("dest.host")
-	OpDstPort     = OperandType("dest.port")
-)
-
-type Cmp struct {
-	What OperandType
-	With string
-}
-
 type Action string
 
 const (
@@ -39,13 +23,6 @@ const (
 	Always  = Duration("always")
 )
 
-type Type string
-
-const (
-	Simple  = Type("simple")
-	Complex = Type("complex") // for future use
-)
-
 type Rule struct {
 	Created  time.Time `json:"created"`
 	Updated  time.Time `json:"updated"`
@@ -53,53 +30,41 @@ type Rule struct {
 	Enabled  bool      `json:"enabled"`
 	Action   Action    `json:"action"`
 	Duration Duration  `json:"duration"`
-	Type     Type      `json:"type"`
-	Rule     Cmp       `json:"rule"`
+	Operator Operator  `json:"operator"`
 }
 
 func FromReply(reply *protocol.RuleReply) *Rule {
+	operator := NewOperator(
+		Type(reply.Operator.Type),
+		Operand(reply.Operator.Operand),
+		reply.Operator.Data)
+
 	return Create(
 		reply.Name,
 		Action(reply.Action),
 		Duration(reply.Duration),
-		Cmp{
-			What: OperandType(reply.What),
-			With: reply.Value,
-		},
+		operator,
 	)
 }
 
-func Create(name string, action Action, duration Duration, rule Cmp) *Rule {
+func Create(name string, action Action, duration Duration, op Operator) *Rule {
 	return &Rule{
 		Created:  time.Now(),
 		Enabled:  true,
 		Name:     name,
 		Action:   action,
 		Duration: duration,
-		Type:     Simple,
-		Rule:     rule,
+		Operator: op,
 	}
 }
 
 func (r *Rule) String() string {
-	return fmt.Sprintf("%s: if(%s == '%s'){ %s %s }", r.Name, r.Rule.What, r.Rule.With, r.Action, r.Duration)
+	return fmt.Sprintf("%s: if(%s){ %s %s }", r.Name, r.Operator.String(), r.Action, r.Duration)
 }
 
 func (r *Rule) Match(con *conman.Connection) bool {
 	if r.Enabled == false {
 		return false
-	} else if r.Rule.What == OpTrue {
-		return true
-	} else if r.Rule.What == OpUserId {
-		return fmt.Sprintf("%d", con.Entry.UserId) == r.Rule.With
-	} else if r.Rule.What == OpProcessPath {
-		return con.Process.Path == r.Rule.With
-	} else if r.Rule.What == OpDstIP {
-		return con.DstIP.String() == r.Rule.With
-	} else if r.Rule.What == OpDstHost {
-		return con.DstHost == r.Rule.With
-	} else if r.Rule.What == OpDstPort {
-		return fmt.Sprintf("%d", con.DstPort) == r.Rule.With
 	}
-	return false
+	return r.Operator.Match(con)
 }

@@ -20,13 +20,10 @@ import (
 	"google.golang.org/grpc/connectivity"
 )
 
-var clientDisconnectedRule = rule.Create("ui.client.disconnected", rule.Allow, rule.Once, rule.Cmp{
-	What: rule.OpTrue,
-})
-
-var clientErrorRule = rule.Create("ui.client.error", rule.Allow, rule.Once, rule.Cmp{
-	What: rule.OpTrue,
-})
+var (
+	clientDisconnectedRule = rule.Create("ui.client.disconnected", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, ""))
+	clientErrorRule        = rule.Create("ui.client.error", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, ""))
+)
 
 type Client struct {
 	sync.Mutex

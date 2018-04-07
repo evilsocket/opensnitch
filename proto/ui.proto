@@ -47,10 +47,15 @@ message RuleRequest {
     repeated string process_args = 10;
 }
 
+message RuleOperator {
+    string type = 1;
+    string operand = 2;
+    string data = 3;
+}
+
 message RuleReply {
     string name = 1;
     string action = 2;
     string duration = 3;
-    string what = 4;
-    string value = 5;
+    RuleOperator operator = 4;
 }

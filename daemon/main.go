@@ -148,7 +148,7 @@ func onPacket(packet netfilter.NFPacket) {
 			}
 
 			if ok {
-				log.Important("%s new rule: %s if %s is %s", pers, action, log.Bold(string(r.Rule.What)), log.Yellow(string(r.Rule.With)))
+				log.Important("%s new rule: %s if %s", pers, action, r.Operator)
 			}
 		}
 	} else {
@@ -160,7 +160,7 @@ func onPacket(packet netfilter.NFPacket) {
 
 		packet.SetVerdict(netfilter.NF_ACCEPT)
 		ruleName := log.Green(r.Name)
-		if r.Rule.What == rule.OpTrue {
+		if r.Operator.Operand == rule.OpTrue {
 			ruleName = log.Dim(r.Name)
 		}
 
