@@ -23,3 +23,13 @@ test:
 	clear
 	python ui/main.py --socket unix:///tmp/osui.sock &
 	sudo ./daemon/daemon -ui-socket unix:///tmp/osui.sock
+
+test_real: 
+	clear 
+	make clean
+	clear
+	mkdir -p ~/.opensnitch/rules
+	make 
+	clear
+	python ui/main.py --socket unix:///tmp/osui.sock &
+	sudo ./daemon/daemon -ui-socket unix:///tmp/osui.sock -rules-path ~/.opensnitch/rules
