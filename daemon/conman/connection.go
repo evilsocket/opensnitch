@@ -3,6 +3,7 @@ package conman
 import (
 	"fmt"
 	"net"
+	"os"
 
 	"github.com/evilsocket/opensnitch/daemon/dns"
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -112,6 +113,8 @@ func NewConnection(nfp *netfilter.NFPacket, ip *layers.IPv4) (c *Connection, err
 	// lookup pid by inode and process by pid
 	if pid, found := sockets[c.Entry.INode]; found == false {
 		return nil, fmt.Errorf("Could not find process id for: %s", c)
+	} else if pid == os.Getpid() {
+		return nil, nil
 	} else if c.Process = procmon.FindProcess(pid); c.Process == nil {
 		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
 	}

@@ -23,6 +23,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.daemon_connected = False
 
+        self._address = address
         self._stats = None
         self._trigger.connect(self._on_update_triggered)
 
@@ -107,8 +108,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._udp_label.setText("%s" % self._stats.by_proto['udp'] or 0)
 
             by_users = {}
-            for uid, hits in self._stats.by_uid.iteritems():
-                by_users["%s (%s)" % (pwd.getpwuid(int(uid)).pw_name, uid)] = hits
+            if self._address is None:
+                for uid, hits in self._stats.by_uid.iteritems():
+                    by_users["%s (%s)" % (pwd.getpwuid(int(uid)).pw_name, uid)] = hits
+            else:
+                by_users = self._stats.by_uid
 
             self._render_table(self._addrs_table, self._stats.by_address)
             self._render_table(self._hosts_table, self._stats.by_host)

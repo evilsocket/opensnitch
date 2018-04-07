@@ -28,6 +28,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._lock = threading.Lock()
         self._con = None
         self._rule = None
+        self._local = True
+        self._peer = None
         self._trigger.connect(self.on_connection_triggered)
         self._done = threading.Event()
 
@@ -52,11 +54,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._what_combo = self.findChild(QtWidgets.QComboBox, "whatCombo")
         self._duration_combo = self.findChild(QtWidgets.QComboBox, "durationCombo")
 
-    def promptUser(self, connection):
+    def promptUser(self, connection, is_local, peer):
         # one at a time
         with self._lock:
             # reset state
             self._rule = None
+            self._local = is_local
+            self._peer = peer
             self._con = connection
             self._done.clear()
             # trigger on_connection_triggered
@@ -72,7 +76,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.show()
 
     def _render_connection(self, con):
-        app_name, app_icon, desk = self._apps_parser.get_info_by_path(con.process_path, "terminal")
+        if self._local:
+            app_name, app_icon, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
+        else:
+            app_name, app_icon = "", "terminal"
+
         if app_name == "":
             self._app_name_label.setText(con.process_path)
         else:
@@ -82,18 +90,33 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
         self._app_icon_label.setPixmap(pixmap)
 
-        self._message_label.setText("<b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
-            con.process_path,
-            con.dst_host or con.dst_ip,
-            con.protocol,
-            con.dst_port
-        ))
+        if self._local:
+            message = "<b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
+                        con.process_path,
+                        con.dst_host or con.dst_ip,
+                        con.protocol,
+                        con.dst_port )
+        else:
+            message = "The process <b>%s</b> running on the computer <b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
+                        con.process_path,
+                        self._peer.split(':')[1],
+                        con.dst_host or con.dst_ip,
+                        con.protocol,
+                        con.dst_port )
+
+        self._message_label.setText(message)
 
         self._src_ip_label.setText(con.src_ip)
         self._dst_ip_label.setText(con.dst_ip)
         self._dst_port_label.setText("%s" % con.dst_port)
         self._dst_host_label.setText(con.dst_host)
-        self._uid_label.setText("%d (%s)" % (con.user_id, pwd.getpwuid(con.user_id).pw_name))
+
+        if self._local:
+            uid = "%d (%s)" % (con.user_id, pwd.getpwuid(con.user_id).pw_name)
+        else:
+            uid = "%d" % con.user_id
+
+        self._uid_label.setText(uid)
         self._pid_label.setText("%s" % con.process_id)
         self._args_label.setText(' '.join(con.process_args))
 
