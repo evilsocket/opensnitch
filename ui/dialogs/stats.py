@@ -16,7 +16,7 @@ DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     _trigger = QtCore.pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, address=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
         self.setupUi(self)
@@ -41,6 +41,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._ports_table = self._setup_table("portsTable", ("Port", "Connections"))
         self._users_table = self._setup_table("usersTable", ("User", "Connections"))
         self._procs_table = self._setup_table("procsTable", ("Executable", "Connections"))
+
+        if address is not None:
+            self.setWindowTitle("OpenSnitch Network Statistics for %s" % address)
 
     def update(self, stats=None):
         if stats is not None:
