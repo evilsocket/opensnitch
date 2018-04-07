@@ -148,7 +148,7 @@ func onPacket(packet netfilter.NFPacket) {
 			}
 
 			if ok {
-				log.Important("%s new rule: %s if %s", pers, action, r.Operator)
+				log.Important("%s new rule: %s if %s", pers, action, r.Operator.String())
 			}
 		}
 	} else {
