@@ -23,3 +23,16 @@ test:
 	clear
 	python ui/main.py --socket unix:///tmp/osui.sock &
 	sudo ./daemon/daemon -ui-socket unix:///tmp/osui.sock
+
+ads:
+	clear 
+	make clean
+	clear
+	make 
+	clear
+	python make_ads_rules.py
+	clear
+	python ui/main.py --socket unix:///tmp/osui.sock &
+	sudo ./daemon/daemon -ui-socket unix:///tmp/osui.sock
+
+
