@@ -10,11 +10,11 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libpcap-dev libnetfilter-queue-dev
   - wget https://github.com/google/protobuf/releases/download/v3.5.1/protoc-3.5.1-linux-x86_64.zip -O /tmp/protoc.zip
-  - unzip -o /tmp/protoc.zip -d /tmp/
-  - export PATH=$PATH:/tmp/protobuf
+  - unzip -o /tmp/protoc.zip -d /tmp/protoc
+  - export PATH=$PATH:/tmp/protoc/bin/
   - go get github.com/golang/protobuf/protoc-gen-go
-  - make protocol
   - go get -v github.com/Masterminds/glide
+  - make protocol
   - make deps
 
 install:
