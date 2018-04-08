@@ -32,6 +32,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._status_label = self.findChild(QtWidgets.QLabel, "statusLabel")
         self._version_label = self.findChild(QtWidgets.QLabel, "daemonVerLabel")
         self._uptime_label = self.findChild(QtWidgets.QLabel, "uptimeLabel")
+        self._rules_label = self.findChild(QtWidgets.QLabel, "rulesLabel")
         self._cons_label = self.findChild(QtWidgets.QLabel, "consLabel")
         self._dropped_label = self.findChild(QtWidgets.QLabel, "droppedLabel")
 
@@ -132,11 +133,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self._stats is None:
             self._version_label.setText("")
             self._uptime_label.setText("")
+            self._rules_label.setText("")
             self._cons_label.setText("")
             self._dropped_label.setText("")
         else:
             self._version_label.setText(self._stats.daemon_version)
             self._uptime_label.setText(str(datetime.timedelta(seconds=self._stats.uptime)))
+            self._rules_label.setText("%s" % self._stats.rules)
             self._cons_label.setText("%s" % self._stats.connections)
             self._dropped_label.setText("%s" % self._stats.dropped)
 

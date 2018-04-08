@@ -93,7 +93,7 @@ func (l *Loader) Load(path string) error {
 func (l *Loader) liveReloadWorker() {
 	l.liveReloadRunning = true
 
-	log.Info("Rules watcher started on path %s ...", l.path)
+	log.Debug("Rules watcher started on path %s ...", l.path)
 	if err := l.watcher.Add(l.path); err != nil {
 		log.Error("Could not watch path: %s", err)
 		l.liveReloadRunning = false

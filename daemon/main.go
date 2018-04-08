@@ -33,7 +33,7 @@ var (
 
 	err     = (error)(nil)
 	rules   = (*rule.Loader)(nil)
-	stats   = statistics.New()
+	stats   = (*statistics.Statistics)(nil)
 	queue   = (*netfilter.NFQueue)(nil)
 	pktChan = (<-chan netfilter.NFPacket)(nil)
 	wrkChan = (chan netfilter.NFPacket)(nil)
@@ -206,6 +206,7 @@ func main() {
 	} else if err = rules.Load(rulesPath); err != nil {
 		log.Fatal("%s", err)
 	}
+	stats = statistics.New(rules)
 
 	// prepare the queue
 	setupWorkers()

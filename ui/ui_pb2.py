@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='ui.proto',
   package='protocol',
   syntax='proto3',
-  serialized_pb=_b('\n\x08ui.proto\x12\x08protocol\"]\n\x05\x45vent\x12\x0c\n\x04time\x18\x01 \x01(\t\x12(\n\nconnection\x18\x02 \x01(\x0b\x32\x14.protocol.Connection\x12\x1c\n\x04rule\x18\x03 \x01(\x0b\x32\x0e.protocol.Rule\"\xc4\x06\n\nStatistics\x12\x16\n\x0e\x64\x61\x65mon_version\x18\x01 \x01(\t\x12\x0e\n\x06uptime\x18\x02 \x01(\x04\x12\x15\n\rdns_responses\x18\x03 \x01(\x04\x12\x13\n\x0b\x63onnections\x18\x04 \x01(\x04\x12\x0f\n\x07ignored\x18\x05 \x01(\x04\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x06 \x01(\x04\x12\x0f\n\x07\x64ropped\x18\x07 \x01(\x04\x12\x11\n\trule_hits\x18\x08 \x01(\x04\x12\x13\n\x0brule_misses\x18\t \x01(\x04\x12\x33\n\x08\x62y_proto\x18\n \x03(\x0b\x32!.protocol.Statistics.ByProtoEntry\x12\x37\n\nby_address\x18\x0b \x03(\x0b\x32#.protocol.Statistics.ByAddressEntry\x12\x31\n\x07\x62y_host\x18\x0c \x03(\x0b\x32 .protocol.Statistics.ByHostEntry\x12\x31\n\x07\x62y_port\x18\r \x03(\x0b\x32 .protocol.Statistics.ByPortEntry\x12/\n\x06\x62y_uid\x18\x0e \x03(\x0b\x32\x1f.protocol.Statistics.ByUidEntry\x12=\n\rby_executable\x18\x0f \x03(\x0b\x32&.protocol.Statistics.ByExecutableEntry\x12\x1f\n\x06\x65vents\x18\x10 \x03(\x0b\x32\x0f.protocol.Event\x1a.\n\x0c\x42yProtoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x30\n\x0e\x42yAddressEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yHostEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yPortEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a,\n\nByUidEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x33\n\x11\x42yExecutableEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\">\n\x0bPingRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12#\n\x05stats\x18\x02 \x01(\x0b\x32\x14.protocol.Statistics\"\x17\n\tPingReply\x12\n\n\x02id\x18\x01 \x01(\x04\"\xc5\x01\n\nConnection\x12\x10\n\x08protocol\x18\x01 \x01(\t\x12\x0e\n\x06src_ip\x18\x02 \x01(\t\x12\x10\n\x08src_port\x18\x03 \x01(\r\x12\x0e\n\x06\x64st_ip\x18\x04 \x01(\t\x12\x10\n\x08\x64st_host\x18\x05 \x01(\t\x12\x10\n\x08\x64st_port\x18\x06 \x01(\r\x12\x0f\n\x07user_id\x18\x07 \x01(\r\x12\x12\n\nprocess_id\x18\x08 \x01(\r\x12\x14\n\x0cprocess_path\x18\t \x01(\t\x12\x14\n\x0cprocess_args\x18\n \x03(\t\"7\n\x08Operator\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0f\n\x07operand\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t\"\\\n\x04Rule\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x02 \x01(\t\x12\x10\n\x08\x64uration\x18\x03 \x01(\t\x12$\n\x08operator\x18\x04 \x01(\x0b\x32\x12.protocol.Operator2m\n\x02UI\x12\x34\n\x04Ping\x12\x15.protocol.PingRequest\x1a\x13.protocol.PingReply\"\x00\x12\x31\n\x07\x41skRule\x12\x14.protocol.Connection\x1a\x0e.protocol.Rule\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x08ui.proto\x12\x08protocol\"]\n\x05\x45vent\x12\x0c\n\x04time\x18\x01 \x01(\t\x12(\n\nconnection\x18\x02 \x01(\x0b\x32\x14.protocol.Connection\x12\x1c\n\x04rule\x18\x03 \x01(\x0b\x32\x0e.protocol.Rule\"\xd3\x06\n\nStatistics\x12\x16\n\x0e\x64\x61\x65mon_version\x18\x01 \x01(\t\x12\r\n\x05rules\x18\x02 \x01(\x04\x12\x0e\n\x06uptime\x18\x03 \x01(\x04\x12\x15\n\rdns_responses\x18\x04 \x01(\x04\x12\x13\n\x0b\x63onnections\x18\x05 \x01(\x04\x12\x0f\n\x07ignored\x18\x06 \x01(\x04\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x07 \x01(\x04\x12\x0f\n\x07\x64ropped\x18\x08 \x01(\x04\x12\x11\n\trule_hits\x18\t \x01(\x04\x12\x13\n\x0brule_misses\x18\n \x01(\x04\x12\x33\n\x08\x62y_proto\x18\x0b \x03(\x0b\x32!.protocol.Statistics.ByProtoEntry\x12\x37\n\nby_address\x18\x0c \x03(\x0b\x32#.protocol.Statistics.ByAddressEntry\x12\x31\n\x07\x62y_host\x18\r \x03(\x0b\x32 .protocol.Statistics.ByHostEntry\x12\x31\n\x07\x62y_port\x18\x0e \x03(\x0b\x32 .protocol.Statistics.ByPortEntry\x12/\n\x06\x62y_uid\x18\x0f \x03(\x0b\x32\x1f.protocol.Statistics.ByUidEntry\x12=\n\rby_executable\x18\x10 \x03(\x0b\x32&.protocol.Statistics.ByExecutableEntry\x12\x1f\n\x06\x65vents\x18\x11 \x03(\x0b\x32\x0f.protocol.Event\x1a.\n\x0c\x42yProtoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x30\n\x0e\x42yAddressEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yHostEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yPortEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a,\n\nByUidEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x33\n\x11\x42yExecutableEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\">\n\x0bPingRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12#\n\x05stats\x18\x02 \x01(\x0b\x32\x14.protocol.Statistics\"\x17\n\tPingReply\x12\n\n\x02id\x18\x01 \x01(\x04\"\xc5\x01\n\nConnection\x12\x10\n\x08protocol\x18\x01 \x01(\t\x12\x0e\n\x06src_ip\x18\x02 \x01(\t\x12\x10\n\x08src_port\x18\x03 \x01(\r\x12\x0e\n\x06\x64st_ip\x18\x04 \x01(\t\x12\x10\n\x08\x64st_host\x18\x05 \x01(\t\x12\x10\n\x08\x64st_port\x18\x06 \x01(\r\x12\x0f\n\x07user_id\x18\x07 \x01(\r\x12\x12\n\nprocess_id\x18\x08 \x01(\r\x12\x14\n\x0cprocess_path\x18\t \x01(\t\x12\x14\n\x0cprocess_args\x18\n \x03(\t\"7\n\x08Operator\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0f\n\x07operand\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t\"\\\n\x04Rule\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x02 \x01(\t\x12\x10\n\x08\x64uration\x18\x03 \x01(\t\x12$\n\x08operator\x18\x04 \x01(\x0b\x32\x12.protocol.Operator2m\n\x02UI\x12\x34\n\x04Ping\x12\x15.protocol.PingRequest\x1a\x13.protocol.PingReply\"\x00\x12\x31\n\x07\x41skRule\x12\x14.protocol.Connection\x1a\x0e.protocol.Rule\"\x00\x62\x06proto3')
 )
 
 
@@ -103,8 +103,8 @@ _STATISTICS_BYPROTOENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=665,
-  serialized_end=711,
+  serialized_start=680,
+  serialized_end=726,
 )
 
 _STATISTICS_BYADDRESSENTRY = _descriptor.Descriptor(
@@ -140,8 +140,8 @@ _STATISTICS_BYADDRESSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=713,
-  serialized_end=761,
+  serialized_start=728,
+  serialized_end=776,
 )
 
 _STATISTICS_BYHOSTENTRY = _descriptor.Descriptor(
@@ -177,8 +177,8 @@ _STATISTICS_BYHOSTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=808,
+  serialized_start=778,
+  serialized_end=823,
 )
 
 _STATISTICS_BYPORTENTRY = _descriptor.Descriptor(
@@ -214,8 +214,8 @@ _STATISTICS_BYPORTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=810,
-  serialized_end=855,
+  serialized_start=825,
+  serialized_end=870,
 )
 
 _STATISTICS_BYUIDENTRY = _descriptor.Descriptor(
@@ -251,8 +251,8 @@ _STATISTICS_BYUIDENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=857,
-  serialized_end=901,
+  serialized_start=872,
+  serialized_end=916,
 )
 
 _STATISTICS_BYEXECUTABLEENTRY = _descriptor.Descriptor(
@@ -288,8 +288,8 @@ _STATISTICS_BYEXECUTABLEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=903,
-  serialized_end=954,
+  serialized_start=918,
+  serialized_end=969,
 )
 
 _STATISTICS = _descriptor.Descriptor(
@@ -307,106 +307,113 @@ _STATISTICS = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='uptime', full_name='protocol.Statistics.uptime', index=1,
+      name='rules', full_name='protocol.Statistics.rules', index=1,
       number=2, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='dns_responses', full_name='protocol.Statistics.dns_responses', index=2,
+      name='uptime', full_name='protocol.Statistics.uptime', index=2,
       number=3, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='connections', full_name='protocol.Statistics.connections', index=3,
+      name='dns_responses', full_name='protocol.Statistics.dns_responses', index=3,
       number=4, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ignored', full_name='protocol.Statistics.ignored', index=4,
+      name='connections', full_name='protocol.Statistics.connections', index=4,
       number=5, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='accepted', full_name='protocol.Statistics.accepted', index=5,
+      name='ignored', full_name='protocol.Statistics.ignored', index=5,
       number=6, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='dropped', full_name='protocol.Statistics.dropped', index=6,
+      name='accepted', full_name='protocol.Statistics.accepted', index=6,
       number=7, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rule_hits', full_name='protocol.Statistics.rule_hits', index=7,
+      name='dropped', full_name='protocol.Statistics.dropped', index=7,
       number=8, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rule_misses', full_name='protocol.Statistics.rule_misses', index=8,
+      name='rule_hits', full_name='protocol.Statistics.rule_hits', index=8,
       number=9, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_proto', full_name='protocol.Statistics.by_proto', index=9,
-      number=10, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='rule_misses', full_name='protocol.Statistics.rule_misses', index=9,
+      number=10, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_address', full_name='protocol.Statistics.by_address', index=10,
+      name='by_proto', full_name='protocol.Statistics.by_proto', index=10,
       number=11, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_host', full_name='protocol.Statistics.by_host', index=11,
+      name='by_address', full_name='protocol.Statistics.by_address', index=11,
       number=12, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_port', full_name='protocol.Statistics.by_port', index=12,
+      name='by_host', full_name='protocol.Statistics.by_host', index=12,
       number=13, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_uid', full_name='protocol.Statistics.by_uid', index=13,
+      name='by_port', full_name='protocol.Statistics.by_port', index=13,
       number=14, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='by_executable', full_name='protocol.Statistics.by_executable', index=14,
+      name='by_uid', full_name='protocol.Statistics.by_uid', index=14,
       number=15, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='events', full_name='protocol.Statistics.events', index=15,
+      name='by_executable', full_name='protocol.Statistics.by_executable', index=15,
       number=16, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='events', full_name='protocol.Statistics.events', index=16,
+      number=17, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -424,7 +431,7 @@ _STATISTICS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=118,
-  serialized_end=954,
+  serialized_end=969,
 )
 
 
@@ -461,8 +468,8 @@ _PINGREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=956,
-  serialized_end=1018,
+  serialized_start=971,
+  serialized_end=1033,
 )
 
 
@@ -492,8 +499,8 @@ _PINGREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1020,
-  serialized_end=1043,
+  serialized_start=1035,
+  serialized_end=1058,
 )
 
 
@@ -586,8 +593,8 @@ _CONNECTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1046,
-  serialized_end=1243,
+  serialized_start=1061,
+  serialized_end=1258,
 )
 
 
@@ -631,8 +638,8 @@ _OPERATOR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1245,
-  serialized_end=1300,
+  serialized_start=1260,
+  serialized_end=1315,
 )
 
 
@@ -683,8 +690,8 @@ _RULE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1302,
-  serialized_end=1394,
+  serialized_start=1317,
+  serialized_end=1409,
 )
 
 _EVENT.fields_by_name['connection'].message_type = _CONNECTION
@@ -830,8 +837,8 @@ _UI = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=1396,
-  serialized_end=1505,
+  serialized_start=1411,
+  serialized_end=1520,
   methods=[
   _descriptor.MethodDescriptor(
     name='Ping',

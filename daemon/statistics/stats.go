@@ -31,9 +31,11 @@ type Statistics struct {
 	ByPort       map[string]uint64
 	ByUID        map[string]uint64
 	ByExecutable map[string]uint64
+
+	rules *rule.Loader
 }
 
-func New() *Statistics {
+func New(rules *rule.Loader) *Statistics {
 	return &Statistics{
 		Started:      time.Now(),
 		Events:       make([]*Event, 0),
@@ -43,6 +45,8 @@ func New() *Statistics {
 		ByPort:       make(map[string]uint64),
 		ByUID:        make(map[string]uint64),
 		ByExecutable: make(map[string]uint64),
+
+		rules: rules,
 	}
 }
 
@@ -121,6 +125,7 @@ func (s *Statistics) Serialize() *protocol.Statistics {
 
 	return &protocol.Statistics{
 		DaemonVersion: core.Version,
+		Rules:         uint64(s.rules.NumRules()),
 		Uptime:        uint64(time.Since(s.Started).Seconds()),
 		DnsResponses:  uint64(s.DNSResponses),
 		Connections:   uint64(s.Connections),
