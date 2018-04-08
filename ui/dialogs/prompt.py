@@ -2,6 +2,7 @@ import threading
 import logging
 import queue
 import sys
+import time
 import os
 import pwd
 
@@ -16,7 +17,11 @@ import ui_pb2
 
 DIALOG_UI_PATH = "%s/../res/prompt.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
-    _trigger = QtCore.pyqtSignal()
+    TIMEOUT = 15
+
+    _prompt_trigger = QtCore.pyqtSignal()
+    _tick_trigger = QtCore.pyqtSignal()
+    _timeout_trigger = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
@@ -30,7 +35,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._rule = None
         self._local = True
         self._peer = None
-        self._trigger.connect(self.on_connection_triggered)
+        self._prompt_trigger.connect(self.on_connection_prompt_triggered)
+        self._timeout_trigger.connect(self.on_timeout_triggered)
+        self._tick_trigger.connect(self.on_tick_triggered)
+        self._tick = PromptDialog.TIMEOUT
+        self._tick_thread = None
         self._done = threading.Event()
 
         self._apps_parser = LinuxDesktopParser()
@@ -58,22 +67,43 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # one at a time
         with self._lock:
             # reset state
+            self._tick = PromptDialog.TIMEOUT
+            self._tick_thread = threading.Thread(target=self._timeout_worker)
             self._rule = None
             self._local = is_local
             self._peer = peer
             self._con = connection
             self._done.clear()
-            # trigger on_connection_triggered
-            self._trigger.emit()
-            # wait for user choice
+            # trigger and show dialog
+            self._prompt_trigger.emit()
+            # start timeout thread
+            self._tick_thread.start()
+            # wait for user choice or timeout
             self._done.wait()
             
             return self._rule
 
+    def _timeout_worker(self):
+        while self._tick > 0 and self._done.is_set() is False:
+            self._tick -= 1
+            self._tick_trigger.emit()
+            time.sleep(1)
+        
+        if not self._done.is_set():
+            self._timeout_trigger.emit()
+
     @QtCore.pyqtSlot()
-    def on_connection_triggered(self):
+    def on_connection_prompt_triggered(self):
         self._render_connection(self._con)
         self.show()
+
+    @QtCore.pyqtSlot()
+    def on_tick_triggered(self):
+        self._apply_button.setText("Apply (%d)" % self._tick)
+
+    @QtCore.pyqtSlot()
+    def on_timeout_triggered(self):
+        self._on_apply_clicked()
 
     def _render_connection(self, con):
         if self._local:
@@ -131,6 +161,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._what_combo.setCurrentIndex(0)
         self._action_combo.setCurrentIndex(0)
         self._duration_combo.setCurrentIndex(1)
+
+        self._apply_button.setText("Apply (%d)" % self._tick)
 
         self.setFixedSize(self.size())
 
