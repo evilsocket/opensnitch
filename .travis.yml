@@ -14,7 +14,9 @@ before_install:
   - make protocol
 
 install:
-  - make daemon/daemon
+  - cd daemon
+  - make
+  - cd ..
 
 go_import_path: github.com/evilsocket/opensnitch/daemon
 
