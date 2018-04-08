@@ -26,6 +26,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.daemon_connected = False
 
+        self._lock = threading.Lock()
         self._address = address
         self._stats = None
         self._trigger.connect(self._on_update_triggered)
@@ -69,9 +70,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.setWindowapply_Title("OpenSnitch Network Statistics for %s" % address)
 
     def update(self, stats=None):
-        if stats is not None:
-            self._stats = stats
-        self._trigger.emit()
+        with self._lock:
+            if stats is not None:
+                self._stats = stats
+            self._trigger.emit()
 
     def _on_save_clicked(self):
         tab_idx = self._tabs.currentIndex()
@@ -83,23 +85,24 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if filename == '':
             return
 
-        table = self._tables[tab_idx]
-        ncols = table.columnCount()
-        nrows = table.rowCount()
-        cols = []
+        with self._lock:
+            table = self._tables[tab_idx]
+            ncols = table.columnCount()
+            nrows = table.rowCount()
+            cols = []
 
-        for col in range(0, ncols):
-            cols.append(table.horizontalHeaderItem(col).text())
+            for col in range(0, ncols):
+                cols.append(table.horizontalHeaderItem(col).text())
 
-        with open(filename, 'wb') as csvfile:
-            w = csv.writer(csvfile, dialect='excel')
-            w.writerow(cols)
-            
-            for row in range(0, nrows):
-                values = []
-                for col in range(0, ncols):
-                    values.append(table.item(row, col).text())
-                w.writerow(values)
+            with open(filename, 'wb') as csvfile:
+                w = csv.writer(csvfile, dialect='excel')
+                w.writerow(cols)
+                
+                for row in range(0, nrows):
+                    values = []
+                    for col in range(0, ncols):
+                        values.append(table.item(row, col).text())
+                    w.writerow(values)
 
     def _setup_table(self, name, columns):
         table = self.findChild(QtWidgets.QTableWidget, name)
