@@ -61,10 +61,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         header = table.horizontalHeader()       
         header.setVisible(True)
 
-        last_idx = ncols - 1
-        for col_idx, _ in enumerate(columns):
-            header.setSectionResizeMode(col_idx, \
-                    QtWidgets.QHeaderView.ResizeToContents if col_idx != last_idx else QtWidgets.QHeaderView.Stretch)
+        if 'Connections' in columns:
+            for col_idx, _ in enumerate(columns):
+                header.setSectionResizeMode(col_idx, \
+                        QtWidgets.QHeaderView.Stretch if col_idx == 0 else QtWidgets.QHeaderView.ResizeToContents)
+
+        else:
+            for col_idx, _ in enumerate(columns):
+                header.setSectionResizeMode(col_idx, QtWidgets.QHeaderView.ResizeToContents)
 
         return table
 
