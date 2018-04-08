@@ -49,8 +49,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._src_ip_label = self.findChild(QtWidgets.QLabel, "sourceIPLabel")
         self._dst_ip_label = self.findChild(QtWidgets.QLabel, "destIPLabel")
-        self._dst_port_label = self.findChild(QtWidgets.QLabel, "destPortLabel")
-        self._dst_host_label = self.findChild(QtWidgets.QLabel, "destHostLabel")
         self._uid_label = self.findChild(QtWidgets.QLabel, "uidLabel")
         self._pid_label = self.findChild(QtWidgets.QLabel, "pidLabel")
         self._args_label = self.findChild(QtWidgets.QLabel, "argsLabel")
@@ -121,13 +119,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if self._local:
             message = "<b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
-                        con.process_path,
+                        app_name,
                         con.dst_host or con.dst_ip,
                         con.protocol,
                         con.dst_port )
         else:
             message = "The process <b>%s</b> running on the computer <b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
-                        con.process_path,
+                        app_name,
                         self._peer.split(':')[1],
                         con.dst_host or con.dst_ip,
                         con.protocol,
@@ -137,8 +135,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._src_ip_label.setText(con.src_ip)
         self._dst_ip_label.setText(con.dst_ip)
-        self._dst_port_label.setText("%s" % con.dst_port)
-        self._dst_host_label.setText(con.dst_host)
 
         if self._local:
             uid = "%d (%s)" % (con.user_id, pwd.getpwuid(con.user_id).pw_name)
