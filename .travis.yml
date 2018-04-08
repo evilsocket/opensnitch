@@ -10,8 +10,8 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libpcap-dev libnetfilter-queue-dev
   - go get -v github.com/Masterminds/glide
-  - make deps
   - make protocol
+  - make deps
 
 install:
   - make daemon/daemon

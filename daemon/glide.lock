@@ -1,8 +1,8 @@
-hash: 450575a91ccfb9a4eb1aff9f3c75b3531498f4bcafdff47192f4adcce9224ffe
-updated: 2018-04-08T19:54:20.972271021+02:00
+hash: 5acc852ad92bdc1b5ba06127913007346196b00811592614e9c4402e0ea4fefa
+updated: 2018-04-08T20:38:22.888381146+02:00
 imports:
 - name: github.com/evilsocket/opensnitch
-  version: 3f62c13cb3580847e9386226d92789f334e30af6
+  version: ea3f32034b952b5e802783a6013262de5b1701c9
   subpackages:
   - proto
 - name: github.com/fsnotify/fsnotify
