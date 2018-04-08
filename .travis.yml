@@ -14,11 +14,8 @@ before_install:
   - export PATH=$PATH:/tmp/protoc/bin/
   - go get github.com/golang/protobuf/protoc-gen-go
   - go get -v github.com/Masterminds/glide
-  - make protocol
-  - make deps
-
-install:
-  - make daemon/daemon
 
 script:
-  - sudo ./daemon/daemon -h
+  - make protocol
+  - make deps
+  - make daemon/daemon
