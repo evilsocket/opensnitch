@@ -1,3 +1,4 @@
 *.sock
 *.pyc
 rules
+daemon/daemon
