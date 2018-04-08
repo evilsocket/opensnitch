@@ -146,7 +146,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         e.ignore()
 
     def _on_apply_clicked(self):
-        self._rule = ui_pb2.RuleReply(name="user.choice")
+        self._rule = ui_pb2.Rule(name="user.choice")
 
         action_idx = self._action_combo.currentIndex()
         if action_idx == 0:

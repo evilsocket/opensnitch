@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>575</width>
-    <height>380</height>
+    <width>771</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -44,8 +44,8 @@
     <rect>
      <x>0</x>
      <y>10</y>
-     <width>575</width>
-     <height>371</height>
+     <width>771</width>
+     <height>591</height>
     </rect>
    </property>
    <property name="currentIndex">
@@ -55,36 +55,17 @@
     <attribute name="title">
      <string>General</string>
     </attribute>
-    <widget class="QLabel" name="label_3">
-     <property name="geometry">
-      <rect>
-       <x>270</x>
-       <y>20</y>
-       <width>271</width>
-       <height>281</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap resource="resources.qrc">:/pics/icon.png</pixmap>
-     </property>
-     <property name="scaledContents">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QWidget" name="gridLayoutWidget">
+    <widget class="QWidget" name="gridLayoutWidget_2">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>221</width>
-       <height>293</height>
+       <width>294</width>
+       <height>51</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="1">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="0">
        <widget class="QLabel" name="daemonVerLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -105,191 +86,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Ubuntu</family>
-          <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Connections</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="uptimeLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLabel" name="tcpLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Ubuntu</family>
-          <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Daemon</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QLabel" name="missesLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Ubuntu</family>
-          <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Dropped</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QLabel" name="udpLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Ubuntu</family>
-          <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Uptime</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QLabel" name="statusLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -310,7 +107,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="0" column="0">
        <widget class="QLabel" name="label_6">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -335,100 +132,8 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="consLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLabel" name="droppedLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Ubuntu</family>
-          <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>TCP</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Ubuntu</family>
-          <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>UDP</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="label_11">
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -445,15 +150,15 @@
          </font>
         </property>
         <property name="text">
-         <string>UI interactions</string>
+         <string>Status</string>
         </property>
         <property name="margin">
          <number>5</number>
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_4">
+      <item row="0" column="2">
+       <widget class="QLabel" name="label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -470,15 +175,15 @@
          </font>
         </property>
         <property name="text">
-         <string>UI version</string>
+         <string>Uptime</string>
         </property>
         <property name="margin">
          <number>5</number>
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
-       <widget class="QLabel" name="uiVerLabel">
+      <item row="1" column="2">
+       <widget class="QLabel" name="uptimeLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -500,6 +205,151 @@
       </item>
      </layout>
     </widget>
+    <widget class="QWidget" name="gridLayoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>570</x>
+       <y>10</y>
+       <width>191</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="1" column="0">
+       <widget class="QLabel" name="consLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+        <property name="margin">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="droppedLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+        <property name="margin">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Ubuntu</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Connections</string>
+        </property>
+        <property name="margin">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_7">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Ubuntu</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Dropped</string>
+        </property>
+        <property name="margin">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QTableWidget" name="eventsTable">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>751</width>
+       <height>471</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="sortingEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="cornerButtonEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="rowCount">
+      <number>0</number>
+     </property>
+     <property name="columnCount">
+      <number>2</number>
+     </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderHighlightSections">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderHighlightSections">
+      <bool>false</bool>
+     </attribute>
+     <column/>
+     <column/>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_4">
     <attribute name="title">
@@ -510,8 +360,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>551</width>
-       <height>321</height>
+       <width>751</width>
+       <height>541</height>
       </rect>
      </property>
      <property name="sortingEnabled">
@@ -545,8 +395,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>551</width>
-       <height>321</height>
+       <width>751</width>
+       <height>541</height>
       </rect>
      </property>
      <property name="sortingEnabled">
@@ -580,8 +430,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>551</width>
-       <height>321</height>
+       <width>751</width>
+       <height>541</height>
       </rect>
      </property>
      <property name="sortingEnabled">
@@ -615,8 +465,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>551</width>
-       <height>321</height>
+       <width>751</width>
+       <height>541</height>
       </rect>
      </property>
      <property name="sortingEnabled">
@@ -650,8 +500,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>551</width>
-       <height>321</height>
+       <width>751</width>
+       <height>541</height>
       </rect>
      </property>
      <property name="sortingEnabled">

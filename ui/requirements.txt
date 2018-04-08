@@ -1,5 +1,5 @@
-grpcio==1.10.0
+grpc
+grpcio-tools
 pyinotify==0.9.6
 futures==3.2.0
-grpc==0.3-19
 unicode_slugify==0.1.3

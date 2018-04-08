@@ -14,6 +14,9 @@ from version import version
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
+    RED = QtGui.QColor(0xff, 0x63, 0x47)
+    GREEN = QtGui.QColor(0x2e, 0x90, 0x59)
+
     _trigger = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, address=None):
@@ -28,15 +31,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._trigger.connect(self._on_update_triggered)
 
         self._status_label = self.findChild(QtWidgets.QLabel, "statusLabel")
-        self._dver_label = self.findChild(QtWidgets.QLabel, "daemonVerLabel")
-        self._uiver_label = self.findChild(QtWidgets.QLabel, "uiVerLabel")
+        self._version_label = self.findChild(QtWidgets.QLabel, "daemonVerLabel")
         self._uptime_label = self.findChild(QtWidgets.QLabel, "uptimeLabel")
         self._cons_label = self.findChild(QtWidgets.QLabel, "consLabel")
         self._dropped_label = self.findChild(QtWidgets.QLabel, "droppedLabel")
-        self._misses_label = self.findChild(QtWidgets.QLabel, "missesLabel")
-        self._tcp_label = self.findChild(QtWidgets.QLabel, "tcpLabel")
-        self._udp_label = self.findChild(QtWidgets.QLabel, "udpLabel")
 
+        self._events_table = self._setup_table("eventsTable", ("Time", "Action", "Process", "Destination", "Protocol", "Rule" ))
         self._addrs_table = self._setup_table("addrTable", ("IP", "Connections"))
         self._hosts_table = self._setup_table("hostsTable", ("Hostname", "Connections"))
         self._ports_table = self._setup_table("portsTable", ("Port", "Connections"))
@@ -53,20 +53,25 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _setup_table(self, name, columns):
         table = self.findChild(QtWidgets.QTableWidget, name)
+
+        ncols = len(columns)
+        table.setColumnCount(ncols)
         table.setHorizontalHeaderLabels(columns)
+
         header = table.horizontalHeader()       
         header.setVisible(True)
-        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+
+        last_idx = ncols - 1
+        for col_idx, _ in enumerate(columns):
+            header.setSectionResizeMode(col_idx, \
+                    QtWidgets.QHeaderView.ResizeToContents if col_idx != last_idx else QtWidgets.QHeaderView.Stretch)
+
         return table
 
-    def _render_table(self, table, data):
+    def _render_counters_table(self, table, data):
         table.setRowCount(len(data))
         table.setColumnCount(2)
-        row = 0
-        sorted_data = sorted(data.items(), key=operator.itemgetter(1), reverse=True)
-
-        for t in sorted_data:
+        for row, t in enumerate(sorted(data.items(), key=operator.itemgetter(1), reverse=True)):
             what, hits = t
 
             item = QtWidgets.QTableWidgetItem(what)
@@ -77,7 +82,40 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
             table.setItem(row, 1, item)
 
-            row = row + 1
+
+    def _render_events_table(self):
+        self._events_table.setRowCount(len(self._stats.events))
+
+        for row, event in enumerate(reversed(self._stats.events)):
+            item = QtWidgets.QTableWidgetItem( event.time )
+            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
+            self._events_table.setItem(row, 0, item)
+
+            item = QtWidgets.QTableWidgetItem( event.rule.action )
+            if event.rule.action == "deny":
+                item.setForeground(StatsDialog.RED)
+            else:
+                item.setForeground(StatsDialog.GREEN)
+            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
+            self._events_table.setItem(row, 1, item)
+
+            item = QtWidgets.QTableWidgetItem( event.connection.process_path )
+            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
+            self._events_table.setItem(row, 2, item)
+
+            item = QtWidgets.QTableWidgetItem( "%s:%s" % ( \
+                    event.connection.dst_host if event.connection.dst_host != "" else event.connection.dst_ip, 
+                    event.connection.dst_port ))
+            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
+            self._events_table.setItem(row, 3, item)
+
+            item = QtWidgets.QTableWidgetItem( event.connection.protocol )
+            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
+            self._events_table.setItem(row, 4, item)
+
+            item = QtWidgets.QTableWidgetItem( event.rule.name )
+            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
+            self._events_table.setItem(row, 5, item)
 
     @QtCore.pyqtSlot()
     def _on_update_triggered(self):
@@ -89,23 +127,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._status_label.setStyleSheet('color: red')
 
         if self._stats is None:
-            self._dver_label.setText("")
-            self._uiver_label.setText(version)
+            self._version_label.setText("")
             self._uptime_label.setText("")
             self._cons_label.setText("")
             self._dropped_label.setText("")
-            self._misses_label.setText("")
-            self._tcp_label.setText("")
-            self._udp_label.setText("")
         else:
-            self._dver_label.setText(self._stats.daemon_version)
-            self._uiver_label.setText(version)
+            self._version_label.setText(self._stats.daemon_version)
             self._uptime_label.setText(str(datetime.timedelta(seconds=self._stats.uptime)))
             self._cons_label.setText("%s" % self._stats.connections)
             self._dropped_label.setText("%s" % self._stats.dropped)
-            self._misses_label.setText("%s" % self._stats.rule_misses)
-            self._tcp_label.setText("%s" % self._stats.by_proto['tcp'] or 0)
-            self._udp_label.setText("%s" % self._stats.by_proto['udp'] or 0)
+
+            self._render_events_table()
 
             by_users = {}
             if self._address is None:
@@ -114,11 +146,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             else:
                 by_users = self._stats.by_uid
 
-            self._render_table(self._addrs_table, self._stats.by_address)
-            self._render_table(self._hosts_table, self._stats.by_host)
-            self._render_table(self._ports_table, self._stats.by_port)
-            self._render_table(self._users_table, by_users)
-            self._render_table(self._procs_table, self._stats.by_executable)
+            self._render_counters_table(self._addrs_table, self._stats.by_address)
+            self._render_counters_table(self._hosts_table, self._stats.by_host)
+            self._render_counters_table(self._ports_table, self._stats.by_port)
+            self._render_counters_table(self._users_table, by_users)
+            self._render_counters_table(self._procs_table, self._stats.by_executable)
 
         self.setFixedSize(self.size())
 

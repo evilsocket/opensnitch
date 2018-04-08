@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
-	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
@@ -126,30 +125,10 @@ func (c *Client) ping(ts time.Time) (err error) {
 	defer cancel()
 	reqId := uint64(ts.UnixNano())
 
-	c.stats.Lock()
-	defer c.stats.Unlock()
-
 	pong, err := c.client.Ping(ctx, &protocol.PingRequest{
-		Id: reqId,
-		Stats: &protocol.Statistics{
-			DaemonVersion: core.Version,
-			Uptime:        uint64(time.Since(c.stats.Started).Seconds()),
-			DnsResponses:  uint64(c.stats.DNSResponses),
-			Connections:   uint64(c.stats.Connections),
-			Ignored:       uint64(c.stats.Ignored),
-			Accepted:      uint64(c.stats.Accepted),
-			Dropped:       uint64(c.stats.Dropped),
-			RuleHits:      uint64(c.stats.RuleHits),
-			RuleMisses:    uint64(c.stats.RuleMisses),
-			ByProto:       c.stats.ByProto,
-			ByAddress:     c.stats.ByAddress,
-			ByHost:        c.stats.ByHost,
-			ByPort:        c.stats.ByPort,
-			ByUid:         c.stats.ByUID,
-			ByExecutable:  c.stats.ByExecutable,
-		},
+		Id:    reqId,
+		Stats: c.stats.Serialize(),
 	})
-
 	if err != nil {
 		return err
 	}
@@ -171,11 +150,11 @@ func (c *Client) Ask(con *conman.Connection) (*rule.Rule, bool) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
-	reply, err := c.client.AskRule(ctx, con.ToRequest())
+	reply, err := c.client.AskRule(ctx, con.Serialize())
 	if err != nil {
 		log.Warning("Error while asking for rule: %s", err)
 		return clientErrorRule, false
 	}
 
-	return rule.FromReply(reply), true
+	return rule.Deserialize(reply), true
 }

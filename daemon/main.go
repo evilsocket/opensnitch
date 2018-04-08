@@ -107,14 +107,12 @@ func onPacket(packet netfilter.NFPacket) {
 		return
 	}
 
-	stats.OnConnection(con)
-
 	// search a match in preloaded rules
 	connected := false
+	missed := false
 	r := rules.FindFirstMatch(con)
 	if r == nil {
-		stats.OnRuleMiss()
-
+		missed = true
 		// no rule matched, send a request to the
 		// UI client if connected and running
 		r, connected = uiClient.Ask(con)
@@ -151,24 +149,21 @@ func onPacket(packet netfilter.NFPacket) {
 				log.Important("%s new rule: %s if %s", pers, action, r.Operator.String())
 			}
 		}
-	} else {
-		stats.OnRuleHit()
 	}
 
-	if r.Action == rule.Allow {
-		stats.OnAccept()
+	stats.OnConnectionEvent(con, r, missed)
 
+	if r.Action == rule.Allow {
 		packet.SetVerdict(netfilter.NF_ACCEPT)
+
 		ruleName := log.Green(r.Name)
 		if r.Operator.Operand == rule.OpTrue {
 			ruleName = log.Dim(r.Name)
 		}
-
 		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
 		return
 	}
 
-	stats.OnDrop()
 	packet.SetVerdict(netfilter.NF_DROP)
 
 	log.Warning("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
@@ -198,9 +193,15 @@ func main() {
 	}
 
 	setupSignals()
-	setupWorkers()
+
+	log.Info("Loading rules from %s ...", rulesPath)
+	if err := rules.Load(rulesPath); err != nil {
+		log.Fatal("%s", err)
+	}
+	uiClient = ui.NewClient(uiSocket, stats)
 
 	// prepare the queue
+	setupWorkers()
 	queue, err := netfilter.NewNFQueue(uint16(queueNum), 4096, netfilter.NF_DEFAULT_PACKET_SIZE)
 	if err != nil {
 		log.Fatal("Error while creating queue #%d: %s", queueNum, err)
@@ -215,12 +216,6 @@ func main() {
 	} else if err = firewall.RejectMarked(true); err != nil {
 		log.Fatal("Error while running reject firewall rule: %s", err)
 	}
-
-	log.Info("Loading rules from %s ...", rulesPath)
-	if err := rules.Load(rulesPath); err != nil {
-		log.Fatal("%s", err)
-	}
-	uiClient = ui.NewClient(uiSocket, stats)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for true {

@@ -21,8 +21,8 @@ class UIStub(object):
         )
     self.AskRule = channel.unary_unary(
         '/protocol.UI/AskRule',
-        request_serializer=ui__pb2.RuleRequest.SerializeToString,
-        response_deserializer=ui__pb2.RuleReply.FromString,
+        request_serializer=ui__pb2.Connection.SerializeToString,
+        response_deserializer=ui__pb2.Rule.FromString,
         )
 
 
@@ -54,8 +54,8 @@ def add_UIServicer_to_server(servicer, server):
       ),
       'AskRule': grpc.unary_unary_rpc_method_handler(
           servicer.AskRule,
-          request_deserializer=ui__pb2.RuleRequest.FromString,
-          response_serializer=ui__pb2.RuleReply.SerializeToString,
+          request_deserializer=ui__pb2.Connection.FromString,
+          response_serializer=ui__pb2.Rule.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

@@ -2,13 +2,16 @@ package statistics
 
 import (
 	"fmt"
-	"sort"
 	"sync"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
-	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/evilsocket/opensnitch/daemon/rule"
+	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
+
+const maxEvents = 50
 
 type Statistics struct {
 	sync.Mutex
@@ -21,6 +24,7 @@ type Statistics struct {
 	Dropped      int
 	RuleHits     int
 	RuleMisses   int
+	Events       []*Event
 	ByProto      map[string]uint64
 	ByAddress    map[string]uint64
 	ByHost       map[string]uint64
@@ -32,6 +36,7 @@ type Statistics struct {
 func New() *Statistics {
 	return &Statistics{
 		Started:      time.Now(),
+		Events:       make([]*Event, 0),
 		ByProto:      make(map[string]uint64),
 		ByAddress:    make(map[string]uint64),
 		ByHost:       make(map[string]uint64),
@@ -63,11 +68,23 @@ func (s *Statistics) incMap(m *map[string]uint64, key string) {
 	}
 }
 
-func (s *Statistics) OnConnection(con *conman.Connection) {
+func (s *Statistics) OnConnectionEvent(con *conman.Connection, match *rule.Rule, wasMissed bool) {
 	s.Lock()
 	defer s.Unlock()
 
 	s.Connections++
+
+	if wasMissed {
+		s.RuleMisses++
+	} else {
+		s.RuleHits++
+	}
+
+	if match.Action == rule.Allow {
+		s.Accepted++
+	} else {
+		s.Dropped++
+	}
 
 	s.incMap(&s.ByProto, con.Protocol)
 	s.incMap(&s.ByAddress, con.DstIP.String())
@@ -77,83 +94,47 @@ func (s *Statistics) OnConnection(con *conman.Connection) {
 	s.incMap(&s.ByPort, fmt.Sprintf("%d", con.DstPort))
 	s.incMap(&s.ByUID, fmt.Sprintf("%d", con.Entry.UserId))
 	s.incMap(&s.ByExecutable, con.Process.Path)
+
+	// if we reached the limit, shift everything back
+	// by one position
+	nEvents := len(s.Events)
+	if nEvents == maxEvents {
+		s.Events = s.Events[1:]
+	}
+	s.Events = append(s.Events, NewEvent(con, match))
 }
 
-func (s *Statistics) OnRuleHit() {
-	s.Lock()
-	defer s.Unlock()
-	s.RuleHits++
-}
+func (s *Statistics) serializeEvents() []*protocol.Event {
+	nEvents := len(s.Events)
+	serialized := make([]*protocol.Event, nEvents)
 
-func (s *Statistics) OnRuleMiss() {
-	s.Lock()
-	defer s.Unlock()
-	s.RuleMisses++
-}
-
-func (s *Statistics) OnAccept() {
-	s.Lock()
-	defer s.Unlock()
-	s.Accepted++
-}
-
-func (s *Statistics) OnDrop() {
-	s.Lock()
-	defer s.Unlock()
-	s.Dropped++
-}
-
-func (s *Statistics) logMap(m *map[string]uint64, name string) {
-	log.Raw("%s\n", name)
-	log.Raw("----\n")
-
-	type kv struct {
-		Key   string
-		Value uint64
+	for i, e := range s.Events {
+		serialized[i] = e.Serialize()
 	}
 
-	var padLen int
-	var asList []kv
-
-	for k, v := range *m {
-		asList = append(asList, kv{k, v})
-		kLen := len(k)
-		if kLen > padLen {
-			padLen = kLen
-		}
-	}
-
-	sort.Slice(asList, func(i, j int) bool {
-		return asList[i].Value > asList[j].Value
-	})
-
-	for _, e := range asList {
-		log.Raw("%"+fmt.Sprintf("%d", padLen)+"s : %d\n", e.Key, e.Value)
-	}
-
-	log.Raw("\n")
+	return serialized
 }
 
-func (s *Statistics) Log() {
+func (s *Statistics) Serialize() *protocol.Statistics {
 	s.Lock()
 	defer s.Unlock()
 
-	log.Raw("Statistics\n")
-	log.Raw("-------------------------------------\n")
-	log.Raw("Uptime        : %s\n", time.Since(s.Started))
-	log.Raw("DNS responses : %d\n", s.DNSResponses)
-	log.Raw("Connections   : %d\n", s.Connections)
-	log.Raw("Accepted      : %d\n", s.Accepted)
-	log.Raw("Ignored       : %d\n", s.Ignored)
-	log.Raw("Dropped       : %d\n", s.Dropped)
-	log.Raw("Rule hits     : %d\n", s.RuleHits)
-	log.Raw("Rule misses   : %d\n", s.RuleMisses)
-	log.Raw("\n")
-
-	s.logMap(&s.ByProto, "By protocol")
-	s.logMap(&s.ByAddress, "By IP")
-	s.logMap(&s.ByHost, "By hostname")
-	s.logMap(&s.ByPort, "By port")
-	s.logMap(&s.ByUID, "By uid")
-	s.logMap(&s.ByExecutable, "By executable")
+	return &protocol.Statistics{
+		DaemonVersion: core.Version,
+		Uptime:        uint64(time.Since(s.Started).Seconds()),
+		DnsResponses:  uint64(s.DNSResponses),
+		Connections:   uint64(s.Connections),
+		Ignored:       uint64(s.Ignored),
+		Accepted:      uint64(s.Accepted),
+		Dropped:       uint64(s.Dropped),
+		RuleHits:      uint64(s.RuleHits),
+		RuleMisses:    uint64(s.RuleMisses),
+		Events:        s.serializeEvents(),
+		ByProto:       s.ByProto,
+		ByAddress:     s.ByAddress,
+		ByHost:        s.ByHost,
+		ByPort:        s.ByPort,
+		ByUid:         s.ByUID,
+		ByExecutable:  s.ByExecutable,
+	}
 }

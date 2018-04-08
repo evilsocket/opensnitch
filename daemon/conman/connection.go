@@ -141,8 +141,8 @@ func (c *Connection) String() string {
 	return fmt.Sprintf("%s (%d) -> %s:%d (proto:%s uid:%d)", c.Process.Path, c.Process.ID, c.To(), c.DstPort, c.Protocol, c.Entry.UserId)
 }
 
-func (c *Connection) ToRequest() *protocol.RuleRequest {
-	return &protocol.RuleRequest{
+func (c *Connection) Serialize() *protocol.Connection {
+	return &protocol.Connection{
 		Protocol:    c.Protocol,
 		SrcIp:       c.SrcIP.String(),
 		SrcPort:     uint32(c.SrcPort),
