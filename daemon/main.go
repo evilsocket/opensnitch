@@ -21,17 +21,18 @@ import (
 )
 
 var (
-	logFile   = ""
-	rulesPath = "rules"
-	queueNum  = 0
-	workers   = 16
-	debug     = false
+	logFile      = ""
+	rulesPath    = "rules"
+	noLiveReload = false
+	queueNum     = 0
+	workers      = 16
+	debug        = false
 
 	uiSocket = "unix:///tmp/osui.sock"
 	uiClient = (*ui.Client)(nil)
 
 	err     = (error)(nil)
-	rules   = rule.NewLoader()
+	rules   = (*rule.Loader)(nil)
 	stats   = statistics.New()
 	queue   = (*netfilter.NFQueue)(nil)
 	pktChan = (<-chan netfilter.NFPacket)(nil)
@@ -44,9 +45,25 @@ func init() {
 	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
 	flag.IntVar(&workers, "workers", workers, "Number of concurrent workers.")
+	flag.BoolVar(&noLiveReload, "no-live-reload", debug, "Disable rules live reloading.")
 
 	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
 	flag.BoolVar(&debug, "debug", debug, "Enable debug logs.")
+}
+
+func setupLogging() {
+	golog.SetOutput(ioutil.Discard)
+	if debug {
+		log.MinLevel = log.DEBUG
+	} else {
+		log.MinLevel = log.INFO
+	}
+
+	if logFile != "" {
+		if log.Output, err = os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func setupSignals() {
@@ -170,20 +187,9 @@ func onPacket(packet netfilter.NFPacket) {
 }
 
 func main() {
-	golog.SetOutput(ioutil.Discard)
 	flag.Parse()
 
-	if debug {
-		log.MinLevel = log.DEBUG
-	} else {
-		log.MinLevel = log.INFO
-	}
-
-	if logFile != "" {
-		if log.Output, err = os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
-			panic(err)
-		}
-	}
+	setupLogging()
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
 
@@ -195,10 +201,11 @@ func main() {
 	setupSignals()
 
 	log.Info("Loading rules from %s ...", rulesPath)
-	if err := rules.Load(rulesPath); err != nil {
+	if rules, err = rule.NewLoader(!noLiveReload); err != nil {
+		log.Fatal("%s", err)
+	} else if err = rules.Load(rulesPath); err != nil {
 		log.Fatal("%s", err)
 	}
-	uiClient = ui.NewClient(uiSocket, stats)
 
 	// prepare the queue
 	setupWorkers()
@@ -216,6 +223,8 @@ func main() {
 	} else if err = firewall.RejectMarked(true); err != nil {
 		log.Fatal("Error while running reject firewall rule: %s", err)
 	}
+
+	uiClient = ui.NewClient(uiSocket, stats)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for true {

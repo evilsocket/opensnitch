@@ -4,26 +4,40 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"path"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
+
+	"github.com/fsnotify/fsnotify"
 )
 
 type Loader struct {
 	sync.RWMutex
-	path  string
-	rules map[string]*Rule
+	path              string
+	rules             map[string]*Rule
+	watcher           *fsnotify.Watcher
+	liveReload        bool
+	liveReloadRunning bool
 }
 
-func NewLoader() *Loader {
-	return &Loader{
-		path:  "",
-		rules: make(map[string]*Rule),
+func NewLoader(liveReload bool) (*Loader, error) {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return nil, err
 	}
+	return &Loader{
+		path:              "",
+		rules:             make(map[string]*Rule),
+		liveReload:        liveReload,
+		watcher:           watcher,
+		liveReloadRunning: false,
+	}, nil
 }
 
 func (l *Loader) NumRules() int {
@@ -69,7 +83,39 @@ func (l *Loader) Load(path string) error {
 		l.rules[r.Name] = &r
 	}
 
+	if l.liveReload && l.liveReloadRunning == false {
+		go l.liveReloadWorker()
+	}
+
 	return nil
+}
+
+func (l *Loader) liveReloadWorker() {
+	l.liveReloadRunning = true
+
+	log.Info("Rules watcher started on path %s ...", l.path)
+	if err := l.watcher.Add(l.path); err != nil {
+		log.Error("Could not watch path: %s", err)
+		l.liveReloadRunning = false
+		return
+	}
+
+	for {
+		select {
+		case event := <-l.watcher.Events:
+			// a new rule json file has been created or updated
+			if (event.Op&fsnotify.Write == fsnotify.Write) || (event.Op&fsnotify.Remove == fsnotify.Remove) {
+				if strings.HasSuffix(event.Name, ".json") {
+					log.Important("Ruleset changed due to %s, reloading ...", path.Base(event.Name))
+					if err := l.Reload(); err != nil {
+						log.Error("%s", err)
+					}
+				}
+			}
+		case err := <-l.watcher.Errors:
+			log.Error("File system watcher error: %s", err)
+		}
+	}
 }
 
 func (l *Loader) Reload() error {
@@ -108,7 +154,7 @@ func (l *Loader) Add(rule *Rule, saveToDisk bool) error {
 
 func (l *Loader) Save(rule *Rule, path string) error {
 	rule.Updated = time.Now()
-	raw, err := json.MarshalIndent(rule, " ", "  ")
+	raw, err := json.MarshalIndent(rule, "", "  ")
 	if err != nil {
 		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
 	}
