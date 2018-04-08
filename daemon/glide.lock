@@ -1,23 +1,12 @@
 hash: 450575a91ccfb9a4eb1aff9f3c75b3531498f4bcafdff47192f4adcce9224ffe
-updated: 2018-04-07T15:43:09.388912073+02:00
+updated: 2018-04-08T19:54:20.972271021+02:00
 imports:
-- name: github.com/evilsocket/go-netfilter-queue
-  version: 55dcf9df835d721bb14d69ebf8682e0c9c3e0f18
 - name: github.com/evilsocket/opensnitch
-  version: 549ec9bb5da4dbaa1c70c3ec43e8f0dac39f0ca6
+  version: 3f62c13cb3580847e9386226d92789f334e30af6
   subpackages:
-  - daemon/conman
-  - daemon/core
-  - daemon/dns
-  - daemon/firewall
-  - daemon/log
-  - daemon/netstat
-  - daemon/procmon
-  - daemon/rule
-  - daemon/statistics
-  - daemon/ui
-  - daemon/ui/protocol
   - proto
+- name: github.com/fsnotify/fsnotify
+  version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
 - name: github.com/golang/protobuf
   version: 6a1fa9404c0aebf36c879bc50152edcc953910d2
   subpackages:
@@ -40,6 +29,10 @@ imports:
   - internal/timeseries
   - lex/httplex
   - trace
+- name: golang.org/x/sys
+  version: abf9c25f54453410d0c6668e519582a9e1115027
+  subpackages:
+  - unix
 - name: golang.org/x/text
   version: 2cb43934f0eece38629746959acc633cba083fe4
   subpackages:

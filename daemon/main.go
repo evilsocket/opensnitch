@@ -13,11 +13,10 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/dns"
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/netfilter"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 	"github.com/evilsocket/opensnitch/daemon/ui"
-
-	"github.com/evilsocket/go-netfilter-queue"
 )
 
 var (
@@ -178,12 +177,11 @@ func onPacket(packet netfilter.NFPacket) {
 			ruleName = log.Dim(r.Name)
 		}
 		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
-		return
+	} else {
+		packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
+
+		log.Warning("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
 	}
-
-	packet.SetVerdict(netfilter.NF_DROP)
-
-	log.Warning("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
 }
 
 func main() {

@@ -1,6 +1,5 @@
 package: github.com/evilsocket/opensnitch/daemon
 import:
-- package: github.com/evilsocket/go-netfilter-queue
 - package: github.com/evilsocket/opensnitch
   subpackages:
   - proto
