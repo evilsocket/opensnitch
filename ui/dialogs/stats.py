@@ -5,6 +5,7 @@ import operator
 import sys
 import os
 import pwd
+import csv
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
@@ -29,6 +30,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._stats = None
         self._trigger.connect(self._on_update_triggered)
 
+        self._save_button = self.findChild(QtWidgets.QToolButton, "saveButton")
+        self._save_button.clicked.connect(self._on_save_clicked)
+        self._tabs = self.findChild(QtWidgets.QTabWidget, "tabWidget")
+
         self._status_label = self.findChild(QtWidgets.QLabel, "statusLabel")
         self._version_label = self.findChild(QtWidgets.QLabel, "daemonVerLabel")
         self._uptime_label = self.findChild(QtWidgets.QLabel, "uptimeLabel")
@@ -43,13 +48,58 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._users_table = self._setup_table("usersTable", ("User", "Connections"))
         self._procs_table = self._setup_table("procsTable", ("Executable", "Connections"))
 
+        self._tables = ( \
+            self._events_table,
+            self._hosts_table,
+            self._procs_table,
+            self._addrs_table,
+            self._ports_table,
+            self._users_table
+        )
+        self._file_names = ( \
+            'events.csv',
+            'hosts.csv',
+            'procs.csv',
+            'addrs.csv',
+            'ports.csv',
+            'users.csv'
+        )
+
         if address is not None:
-            self.setWindowTitle("OpenSnitch Network Statistics for %s" % address)
+            self.setWindowapply_Title("OpenSnitch Network Statistics for %s" % address)
 
     def update(self, stats=None):
         if stats is not None:
             self._stats = stats
         self._trigger.emit()
+
+    def _on_save_clicked(self):
+        tab_idx = self._tabs.currentIndex()
+
+        filename = QtWidgets.QFileDialog.getSaveFileName(self,
+                    'Save as CSV', 
+                    self._file_names[tab_idx], 
+                    'All Files (*);;CSV Files (*.csv)')[0].strip()
+        if filename == '':
+            return
+
+        table = self._tables[tab_idx]
+        ncols = table.columnCount()
+        nrows = table.rowCount()
+        cols = []
+
+        for col in range(0, ncols):
+            cols.append(table.horizontalHeaderItem(col).text())
+
+        with open(filename, 'wb') as csvfile:
+            w = csv.writer(csvfile, dialect='excel')
+            w.writerow(cols)
+            
+            for row in range(0, nrows):
+                values = []
+                for col in range(0, ncols):
+                    values.append(table.item(row, col).text())
+                w.writerow(values)
 
     def _setup_table(self, name, columns):
         table = self.findChild(QtWidgets.QTableWidget, name)

@@ -573,6 +573,28 @@
     </widget>
    </widget>
   </widget>
+  <widget class="QToolButton" name="saveButton">
+   <property name="geometry">
+    <rect>
+     <x>743</x>
+     <y>10</y>
+     <width>26</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Save to CSV.</string>
+   </property>
+   <property name="text">
+    <string>...</string>
+   </property>
+   <property name="icon">
+    <iconset theme="document-save-as"/>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </widget>
  </widget>
  <resources>
   <include location="resources.qrc"/>

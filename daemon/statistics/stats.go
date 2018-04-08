@@ -99,13 +99,17 @@ func (s *Statistics) OnConnectionEvent(con *conman.Connection, match *rule.Rule,
 	s.incMap(&s.ByUID, fmt.Sprintf("%d", con.Entry.UserId))
 	s.incMap(&s.ByExecutable, con.Process.Path)
 
-	// if we reached the limit, shift everything back
-	// by one position
-	nEvents := len(s.Events)
-	if nEvents == maxEvents {
-		s.Events = s.Events[1:]
+	// only save deny events in order to avoid
+	// freezing the UI due to the amount of data
+	if match.Action == rule.Deny {
+		// if we reached the limit, shift everything back
+		// by one position
+		nEvents := len(s.Events)
+		if nEvents == maxEvents {
+			s.Events = s.Events[1:]
+		}
+		s.Events = append(s.Events, NewEvent(con, match))
 	}
-	s.Events = append(s.Events, NewEvent(con, match))
 }
 
 func (s *Statistics) serializeEvents() []*protocol.Event {
