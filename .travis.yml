@@ -9,7 +9,9 @@ git:
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y protobuf-compiler libpcap-dev libnetfilter-queue-dev
+  - ./install_protoc.sh
   - go get -v github.com/Masterminds/glide
+  - export PATH=$PATH:$HOME/soft/protobuf
   - make protocol
   - make deps
 
