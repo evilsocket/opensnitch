@@ -1,6 +1,5 @@
 import threading
 import logging
-import queue
 import datetime
 import operator
 import sys
