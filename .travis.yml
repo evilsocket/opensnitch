@@ -1,0 +1,21 @@
+language: go
+sudo: false
+go:
+  - 1.9.x
+
+git:
+  depth: 3
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libpcap-dev libnetfilter-queue-dev python-pyqt5
+  - make deps
+  - make protocol
+
+install:
+  - make daemon/daemon
+
+go_import_path: github.com/evilsocket/opensnitch/daemon
+
+script:
+  - sudo ./daemon/daemon -h
