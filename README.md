@@ -17,6 +17,8 @@
 ### TL;DR
 
     sudo apt-get install protobuf-compiler libpcap-dev libpcapnetfilter-queue-dev python-pyqt5
+    go get github.com/golang/protobuf/protoc-gen-go
+    go get -v github.com/Masterminds/glide
     cd /path/to/this/repo
     make
     sudo make install

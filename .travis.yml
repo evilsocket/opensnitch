@@ -18,4 +18,4 @@ before_install:
 script:
   - make protocol
   - make deps
-  - make daemon/daemon
+  - make daemon/opensnitchd
