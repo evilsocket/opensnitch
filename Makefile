@@ -25,7 +25,8 @@ test:
 	mkdir rules
 	make 
 	clear
-	python ui/main.py --socket unix:///tmp/osui.sock &
+	cd ui && sudo pip install --upgrade . && cd ..
+	opensnitch-ui --socket unix:///tmp/osui.sock &
 	sudo ./daemon/daemon -ui-socket unix:///tmp/osui.sock
 
 adblocker:
@@ -36,7 +37,8 @@ adblocker:
 	clear
 	python make_ads_rules.py
 	clear
-	python ui/main.py --socket unix:///tmp/osui.sock &
+	cd ui && sudo pip install --upgrade . && cd ..
+	opensnitch-ui --socket unix:///tmp/osui.sock &
 	sudo ./daemon/daemon -ui-socket unix:///tmp/osui.sock
 
 

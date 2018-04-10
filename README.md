@@ -33,6 +33,12 @@ The user interface is a python script running as a `gRPC` server on a unix socke
 You will also need to install the package `python-pyqt5` for your system (if anyone finds a way to make this work from 
 the `requirements.txt` file feel free to send a PR).
 
+The UI is pip installable itself:
+
+    sudo pip install .
+
+This will install the `opensnitch-ui` command on your system.
+
 ### Running
 
 First, you need to decide in which folder opensnitch rules will be saved, it is suggested that you just:
@@ -43,9 +49,9 @@ Now run the daemon:
 
     sudo /path/to/daemon -ui-socket unix:///tmp/osui.sock -rules-path ~/.opensnitch/rules
 
-And the UI service as your user:
+And the UI service as your user (make sure you installed the UI with pip as in the previous section):
 
-    python /path/to/ui/main.py --socket unix:///tmp/osui.sock
+    opensnitch-ui --socket unix:///tmp/osui.sock
 
 You can also use `--socket "[::]:50051"` to have the UI use TCP instead of a unix socket and run the daemon on another
 computer with `-ui-socket "x.x.x.x:50051"` (where `x.x.x.x` is the IP of the computer running the UI service).

@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from PyQt5 import QtWidgets, QtGui
 
 import sys
@@ -7,7 +9,7 @@ import signal
 import argparse
 from concurrent import futures
 
-path = os.path.abspath(os.path.dirname(__file__))
+path = os.path.abspath(os.path.dirname(__file__) + "/../")
 sys.path.append(path)
 sys.path.append(path + "/../proto/")
 
