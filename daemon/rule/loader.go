@@ -64,6 +64,7 @@ func (l *Loader) Load(path string) error {
 	l.rules = make(map[string]*Rule)
 
 	for _, fileName := range matches {
+		log.Debug("Reading rule from %s", fileName)
 		raw, err := ioutil.ReadFile(fileName)
 		if err != nil {
 			return fmt.Errorf("Error while reading %s: %s", fileName, err)
@@ -75,6 +76,8 @@ func (l *Loader) Load(path string) error {
 		if err != nil {
 			return fmt.Errorf("Error while parsing rule from %s: %s", fileName, err)
 		}
+
+		r.Operator.Compile()
 
 		log.Debug("Loaded rule from %s: %s", fileName, r.String())
 		l.rules[r.Name] = &r

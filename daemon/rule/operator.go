@@ -1,7 +1,6 @@
 package rule
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 
@@ -45,22 +44,11 @@ func NewOperator(t Type, o Operand, data string) Operator {
 		Operand: o,
 		Data:    data,
 	}
-	op.compile()
+	op.Compile()
 	return op
 }
 
-func (o *Operator) UnmarshalJSON(b []byte) error {
-	err := json.Unmarshal(b, o)
-	if err != nil {
-		return err
-	}
-	// make sure it's ready to be used after being
-	// deserialized from a json rule file
-	o.compile()
-	return nil
-}
-
-func (o *Operator) compile() {
+func (o *Operator) Compile() {
 	if o.Type == Simple {
 		o.cb = o.simpleCmp
 	} else if o.Type == Regexp {
