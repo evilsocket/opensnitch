@@ -80,7 +80,8 @@ func NewQueue(queueId uint16) (*Queue, error) {
 	queueIndexLock.Unlock()
 
 	queueSize := C.u_int32_t(NF_DEFAULT_QUEUE_SIZE)
-	bufferSize := C.u_int32_t(NF_DEFAULT_PACKET_SIZE)
+	bufferSize := C.uint(NF_DEFAULT_PACKET_SIZE)
+	totSize := C.uint(NF_DEFAULT_QUEUE_SIZE * NF_DEFAULT_PACKET_SIZE)
 
 	if q.qh, err = C.CreateQueue(q.h, C.u_int16_t(queueId), C.u_int32_t(q.idx)); err != nil || q.qh == nil {
 		C.nfq_close(q.h)
@@ -97,7 +98,7 @@ func NewQueue(queueId uint16) (*Queue, error) {
 		C.nfq_destroy_queue(q.qh)
 		C.nfq_close(q.h)
 		return nil, fmt.Errorf("Unable to get queue file-descriptor. %v", err)
-	} else if C.nfnl_rcvbufsiz(C.nfq_nfnlh(q.h), queueSize*bufferSize) < 0 {
+	} else if C.nfnl_rcvbufsiz(C.nfq_nfnlh(q.h), totSize) < 0 {
 		C.nfq_destroy_queue(q.qh)
 		C.nfq_close(q.h)
 		return nil, fmt.Errorf("Unable to increase netfilter buffer space size.")
