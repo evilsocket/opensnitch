@@ -1,9 +1,9 @@
-all: protocol daemon/daemon ui/resources_rc.py
+all: protocol daemon/opensnitchd ui/resources_rc.py
 
 protocol:
 	@cd proto && make
 
-daemon/daemon:
+daemon/opensnitchd:
 	@cd daemon && make
 
 ui/resources_rc.py:
@@ -27,7 +27,7 @@ test:
 	clear
 	cd ui && sudo pip install --upgrade . && cd ..
 	opensnitch-ui --socket unix:///tmp/osui.sock &
-	sudo ./daemon/daemon -ui-socket unix:///tmp/osui.sock
+	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock
 
 adblocker:
 	clear 
@@ -39,6 +39,6 @@ adblocker:
 	clear
 	cd ui && sudo pip install --upgrade . && cd ..
 	opensnitch-ui --socket unix:///tmp/osui.sock &
-	sudo ./daemon/daemon -ui-socket unix:///tmp/osui.sock
+	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock
 
 

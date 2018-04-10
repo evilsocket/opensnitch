@@ -1,10 +1,10 @@
-all: daemon
+all: opensnitchd
 
 deps: 
 	@glide up
 
-daemon:
-	@go build .
+opensnitchd:
+	@go build -o opensnitchd . 
 
 clean:
-	@rm -rf daemon
+	@rm -rf opensnitchd

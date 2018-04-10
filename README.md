@@ -21,7 +21,7 @@ iptables rules and so on, in order to compile it you will need to install the `p
 packages on your system, then just:
 
     cd daemon
-    go build .
+    make
 
 ### Qt5 UI
 
@@ -47,7 +47,7 @@ First, you need to decide in which folder opensnitch rules will be saved, it is 
 
 Now run the daemon:
 
-    sudo /path/to/daemon -ui-socket unix:///tmp/osui.sock -rules-path ~/.opensnitch/rules
+    sudo /path/to/opensnitchd -ui-socket unix:///tmp/osui.sock -rules-path ~/.opensnitch/rules
 
 And the UI service as your user (make sure you installed the UI with pip as in the previous section):
 
