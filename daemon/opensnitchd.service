@@ -8,7 +8,7 @@ After=network.target
 Type=simple
 ExecStart=/usr/local/bin/opensnitchd -log-file /var/log/opensnitchd.log -rules-path /etc/opensnitchd/rules -ui-socket unix:///tmp/osui.sock
 Restart=always
-RestartSec=3
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
