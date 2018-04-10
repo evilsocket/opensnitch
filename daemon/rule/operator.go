@@ -45,7 +45,7 @@ func NewOperator(t Type, o Operand, data string) Operator {
 		Operand: o,
 		Data:    data,
 	}
-	op.Compile()
+	op.compile()
 	return op
 }
 
@@ -54,13 +54,13 @@ func (o *Operator) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-
-	// make sure it's ready to be used
-	o.Compile()
+	// make sure it's ready to be used after being
+	// deserialized from a json rule file
+	o.compile()
 	return nil
 }
 
-func (o *Operator) Compile() {
+func (o *Operator) compile() {
 	if o.Type == Simple {
 		o.cb = o.simpleCmp
 	} else if o.Type == Regexp {

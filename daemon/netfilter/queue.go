@@ -31,7 +31,7 @@ const (
 	NF_REPEAT Verdict = 4
 	NF_STOP   Verdict = 5
 
-	NF_DEFAULT_QUEUE_SIZE  uint32 = 0xffff
+	NF_DEFAULT_QUEUE_SIZE  uint32 = 4096
 	NF_DEFAULT_PACKET_SIZE uint32 = 4096
 
 	ipv4version = 0x40
