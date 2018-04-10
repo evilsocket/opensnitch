@@ -33,7 +33,7 @@ var (
 	err     = (error)(nil)
 	rules   = (*rule.Loader)(nil)
 	stats   = (*statistics.Statistics)(nil)
-	queue   = (*netfilter.NFQueue)(nil)
+	queue   = (*netfilter.Queue)(nil)
 	pktChan = (<-chan netfilter.NFPacket)(nil)
 	wrkChan = (chan netfilter.NFPacket)(nil)
 	sigChan = (chan os.Signal)(nil)
@@ -208,11 +208,11 @@ func main() {
 
 	// prepare the queue
 	setupWorkers()
-	queue, err := netfilter.NewNFQueue(uint16(queueNum), 4096, netfilter.NF_DEFAULT_PACKET_SIZE)
+	queue, err := netfilter.NewQueue(uint16(queueNum), 4096, netfilter.NF_DEFAULT_PACKET_SIZE)
 	if err != nil {
 		log.Fatal("Error while creating queue #%d: %s", queueNum, err)
 	}
-	pktChan = queue.GetPackets()
+	pktChan = queue.Packets()
 
 	// queue is ready, run firewall rules
 	if err = firewall.QueueDNSResponses(true, queueNum); err != nil {
