@@ -27,16 +27,16 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
     uint32_t id = -1, idx = 0, mark = 0;
     struct nfqnl_msg_packet_hdr *ph = NULL;
     unsigned char *buffer = NULL;
-    int ret = 0;
+    int size = 0;
     verdictContainer vc = {0};
 
     mark = nfq_get_nfmark(nfa);
     ph   = nfq_get_msg_packet_hdr(nfa);
     id   = ntohl(ph->packet_id);
-    ret  = nfq_get_payload(nfa, &buffer);
+    size = nfq_get_payload(nfa, &buffer);
     idx  = (uint32_t)((uintptr_t)arg);
 
-    go_callback(id, buffer, ret, mark, idx, &vc);
+    go_callback(id, buffer, size, mark, idx, &vc);
 
     if( vc.mark_set == 1 ) {
       return nfq_set_verdict2(qh, id, vc.verdict, vc.mark, vc.length, vc.data);
