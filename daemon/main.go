@@ -104,7 +104,7 @@ func doCleanup() {
 	log.Info("Cleaning up ...")
 	firewall.QueueDNSResponses(false, queueNum)
 	firewall.QueueConnections(false, queueNum)
-	firewall.RejectMarked(false)
+	firewall.DropMarked(false)
 }
 
 func onPacket(packet netfilter.Packet) {
@@ -219,8 +219,8 @@ func main() {
 		log.Fatal("Error while running DNS firewall rule: %s", err)
 	} else if err = firewall.QueueConnections(true, queueNum); err != nil {
 		log.Fatal("Error while running conntrack firewall rule: %s", err)
-	} else if err = firewall.RejectMarked(true); err != nil {
-		log.Fatal("Error while running reject firewall rule: %s", err)
+	} else if err = firewall.DropMarked(true); err != nil {
+		log.Fatal("Error while running drop firewall rule: %s", err)
 	}
 
 	uiClient = ui.NewClient(uiSocket, stats)
