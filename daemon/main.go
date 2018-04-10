@@ -208,7 +208,7 @@ func main() {
 
 	// prepare the queue
 	setupWorkers()
-	queue, err := netfilter.NewQueue(uint16(queueNum), 0xffff, netfilter.NF_DEFAULT_PACKET_SIZE)
+	queue, err := netfilter.NewQueue(uint16(queueNum))
 	if err != nil {
 		log.Fatal("Error while creating queue #%d: %s", queueNum, err)
 	}

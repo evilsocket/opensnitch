@@ -31,6 +31,7 @@ const (
 	NF_REPEAT Verdict = 4
 	NF_STOP   Verdict = 5
 
+	NF_DEFAULT_QUEUE_SIZE  uint32 = 0xffff
 	NF_DEFAULT_PACKET_SIZE uint32 = 4096
 
 	ipv4version = 0x40
@@ -54,7 +55,7 @@ type Queue struct {
 }
 
 //Create and bind to queue specified by queueId
-func NewQueue(queueId uint16, maxPacketsInQueue uint32, packetSize uint32) (*Queue, error) {
+func NewQueue(queueId uint16) (*Queue, error) {
 	var q = Queue{
 		idx:     uint32(time.Now().UnixNano()),
 		packets: make(chan Packet),
@@ -78,17 +79,17 @@ func NewQueue(queueId uint16, maxPacketsInQueue uint32, packetSize uint32) (*Que
 	queueIndex[q.idx] = &q.packets
 	queueIndexLock.Unlock()
 
-	qLen := C.u_int32_t(maxPacketsInQueue)
-	bufSize := C.uint(packetSize)
+	queueSize := C.u_int32_t(NF_DEFAULT_QUEUE_SIZE)
+	bufferSize := C.uint(NF_DEFAULT_PACKET_SIZE)
 
 	if q.qh, err = C.CreateQueue(q.h, C.u_int16_t(queueId), C.u_int32_t(q.idx)); err != nil || q.qh == nil {
 		C.nfq_close(q.h)
 		return nil, fmt.Errorf("Error binding to queue: %v", err)
-	} else if ret, err = C.nfq_set_queue_maxlen(q.qh, qLen); err != nil || ret < 0 {
+	} else if ret, err = C.nfq_set_queue_maxlen(q.qh, queueSize); err != nil || ret < 0 {
 		C.nfq_destroy_queue(q.qh)
 		C.nfq_close(q.h)
 		return nil, fmt.Errorf("Unable to set max packets in queue: %v", err)
-	} else if C.nfq_set_mode(q.qh, C.u_int8_t(2), bufSize) < 0 {
+	} else if C.nfq_set_mode(q.qh, C.u_int8_t(2), bufferSize) < 0 {
 		C.nfq_destroy_queue(q.qh)
 		C.nfq_close(q.h)
 		return nil, fmt.Errorf("Unable to set packets copy mode: %v", err)
@@ -96,7 +97,7 @@ func NewQueue(queueId uint16, maxPacketsInQueue uint32, packetSize uint32) (*Que
 		C.nfq_destroy_queue(q.qh)
 		C.nfq_close(q.h)
 		return nil, fmt.Errorf("Unable to get queue file-descriptor. %v", err)
-	} else if C.nfnl_rcvbufsiz(C.nfq_nfnlh(q.h), qLen*bufSize) < 0 {
+	} else if C.nfnl_rcvbufsiz(C.nfq_nfnlh(q.h), queueSize*bufferSize) < 0 {
 		C.nfq_destroy_queue(q.qh)
 		C.nfq_close(q.h)
 		return nil, fmt.Errorf("Unable to increase netfilter buffer space size.")
