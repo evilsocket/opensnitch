@@ -76,9 +76,6 @@ func (l *Loader) Load(path string) error {
 			return fmt.Errorf("Error while parsing rule from %s: %s", fileName, err)
 		}
 
-		// make sure the rule is ready to be used
-		r.Operator.Compile()
-
 		log.Debug("Loaded rule from %s: %s", fileName, r.String())
 		l.rules[r.Name] = &r
 	}

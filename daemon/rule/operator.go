@@ -1,6 +1,7 @@
 package rule
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 
@@ -46,6 +47,17 @@ func NewOperator(t Type, o Operand, data string) Operator {
 	}
 	op.Compile()
 	return op
+}
+
+func (o *Operator) UnmarshalJSON(b []byte) error {
+	err := json.Unmarshal(b, o)
+	if err != nil {
+		return err
+	}
+
+	// make sure it's ready to be used
+	o.Compile()
+	return nil
 }
 
 func (o *Operator) Compile() {
