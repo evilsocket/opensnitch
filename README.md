@@ -14,6 +14,17 @@
   <img src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/screenshot.png" alt="OpenSnitch"/>
 </p>
 
+### TL;DR
+
+    sudo apt-get install protobuf-compiler libpcap-dev libpcapnetfilter-queue-dev python-pyqt5
+    cd /path/to/this/repo
+    make
+    sudo make install
+
+    sudo systemctl enable opensnitchd
+    sudo service opensnitchd start
+    opensnitch-ui
+
 ### Daemon
 
 The `daemon` is implemented in Go and needs to run as root in order to interact with the Netfilter packet queue, edit 
@@ -22,6 +33,12 @@ packages on your system, then just:
 
     cd daemon
     make
+
+You can then install it as a systemd service by doing:
+
+    sudo make install
+
+The new `opensnitchd` service will log to `/var/log/opensnitchd.log`, save the rules inside `/etc/opensnitchd/rules` and connect to the default UI service socket `unix:///tmp/osui.sock`.
 
 ### Qt5 UI
 
@@ -41,17 +58,17 @@ This will install the `opensnitch-ui` command on your system.
 
 ### Running
 
-First, you need to decide in which folder opensnitch rules will be saved, it is suggested that you just:
+Once you installed both the daemon and the UI, you can enable the `opensnitchd` service to run at boot time:
 
-    mkdir -p ~/.opensnitch/rules
+    sudo systemctl enable opensnitchd
 
-Now run the daemon:
+And run it with:
 
-    sudo /path/to/opensnitchd -ui-socket unix:///tmp/osui.sock -rules-path ~/.opensnitch/rules
+    sudo service opensnitchd start
 
-And the UI service as your user (make sure you installed the UI with pip as in the previous section):
+While the UI can be started just by executing the `opensnitch-ui` command.
 
-    opensnitch-ui --socket unix:///tmp/osui.sock
+#### Single UI with many computers
 
 You can also use `--socket "[::]:50051"` to have the UI use TCP instead of a unix socket and run the daemon on another
 computer with `-ui-socket "x.x.x.x:50051"` (where `x.x.x.x` is the IP of the computer running the UI service).

@@ -1,5 +1,8 @@
 all: resources_rc.py
 
+install:
+	@pip install .
+
 resources_rc.py:
 	@pyrcc5 -o resources_rc.py res/resources.qrc
 

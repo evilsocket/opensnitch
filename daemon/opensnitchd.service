@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenSnitch is a GNU/Linux port of the Little Snitch application firewall.
+Documentation=https://github.com/evilsocket/opensnitch
+Wants=network.target
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/opensnitchd -log-file /var/log/opensnitchd.log -rules-path /etc/opensnitchd/rules -ui-socket unix:///tmp/osui.sock
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

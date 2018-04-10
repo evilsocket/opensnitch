@@ -1,5 +1,9 @@
 all: protocol daemon/opensnitchd ui/resources_rc.py
 
+install:
+	@cd daemon && make install	
+	@cd ui && make install
+
 protocol:
 	@cd proto && make
 
