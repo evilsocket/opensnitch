@@ -31,13 +31,13 @@ const (
 	NF_REPEAT Verdict = 4
 	NF_STOP   Verdict = 5
 
-	NF_DEFAULT_PACKET_SIZE uint32 = 0xffff
+	NF_DEFAULT_PACKET_SIZE uint32 = 4096
 
 	ipv4version = 0x40
 )
 
 var (
-	queueIndex     = make(map[uint32]*chan NFPacket, 0)
+	queueIndex     = make(map[uint32]*chan Packet, 0)
 	queueIndexLock = sync.RWMutex{}
 
 	gopacketDecodeOptions = gopacket.DecodeOptions{Lazy: true, NoCopy: true}
@@ -49,7 +49,7 @@ type Queue struct {
 	h       *C.struct_nfq_handle
 	qh      *C.struct_nfq_q_handle
 	fd      C.int
-	packets chan NFPacket
+	packets chan Packet
 	idx     uint32
 }
 
@@ -57,42 +57,49 @@ type Queue struct {
 func NewQueue(queueId uint16, maxPacketsInQueue uint32, packetSize uint32) (*Queue, error) {
 	var q = Queue{
 		idx:     uint32(time.Now().UnixNano()),
-		packets: make(chan NFPacket),
+		packets: make(chan Packet),
 	}
 	var err error
 	var ret C.int
 
 	if q.h, err = C.nfq_open(); err != nil {
-		return nil, fmt.Errorf("Error opening Queue handle: %v\n", err)
+		return nil, fmt.Errorf("Error opening Queue handle: %v", err)
 	} else if ret, err = C.nfq_unbind_pf(q.h, AF_INET); err != nil || ret < 0 {
-		return nil, fmt.Errorf("Error unbinding existing q handler from AF_INET protocol family: %v\n", err)
+		return nil, fmt.Errorf("Error unbinding existing q handler from AF_INET protocol family: %v", err)
 	} else if ret, err = C.nfq_unbind_pf(q.h, AF_INET6); err != nil || ret < 0 {
-		return nil, fmt.Errorf("Error unbinding existing q handler from AF_INET6 protocol family: %v\n", err)
+		return nil, fmt.Errorf("Error unbinding existing q handler from AF_INET6 protocol family: %v", err)
 	} else if ret, err := C.nfq_bind_pf(q.h, AF_INET); err != nil || ret < 0 {
-		return nil, fmt.Errorf("Error binding to AF_INET protocol family: %v\n", err)
+		return nil, fmt.Errorf("Error binding to AF_INET protocol family: %v", err)
 	} else if ret, err := C.nfq_bind_pf(q.h, AF_INET6); err != nil || ret < 0 {
-		return nil, fmt.Errorf("Error binding to AF_INET6 protocol family: %v\n", err)
+		return nil, fmt.Errorf("Error binding to AF_INET6 protocol family: %v", err)
 	}
 
 	queueIndexLock.Lock()
 	queueIndex[q.idx] = &q.packets
 	queueIndexLock.Unlock()
 
+	qLen := C.u_int32_t(maxPacketsInQueue)
+	bufSize := C.uint(packetSize)
+
 	if q.qh, err = C.CreateQueue(q.h, C.u_int16_t(queueId), C.u_int32_t(q.idx)); err != nil || q.qh == nil {
 		C.nfq_close(q.h)
-		return nil, fmt.Errorf("Error binding to queue: %v\n", err)
-	} else if ret, err = C.nfq_set_queue_maxlen(q.qh, C.u_int32_t(maxPacketsInQueue)); err != nil || ret < 0 {
+		return nil, fmt.Errorf("Error binding to queue: %v", err)
+	} else if ret, err = C.nfq_set_queue_maxlen(q.qh, qLen); err != nil || ret < 0 {
 		C.nfq_destroy_queue(q.qh)
 		C.nfq_close(q.h)
-		return nil, fmt.Errorf("Unable to set max packets in queue: %v\n", err)
-	} else if C.nfq_set_mode(q.qh, C.u_int8_t(2), C.uint(packetSize)) < 0 {
+		return nil, fmt.Errorf("Unable to set max packets in queue: %v", err)
+	} else if C.nfq_set_mode(q.qh, C.u_int8_t(2), bufSize) < 0 {
 		C.nfq_destroy_queue(q.qh)
 		C.nfq_close(q.h)
-		return nil, fmt.Errorf("Unable to set packets copy mode: %v\n", err)
+		return nil, fmt.Errorf("Unable to set packets copy mode: %v", err)
 	} else if q.fd, err = C.nfq_fd(q.h); err != nil {
 		C.nfq_destroy_queue(q.qh)
 		C.nfq_close(q.h)
-		return nil, fmt.Errorf("Unable to get queue file-descriptor. %v\n", err)
+		return nil, fmt.Errorf("Unable to get queue file-descriptor. %v", err)
+	} else if C.nfnl_rcvbufsiz(C.nfq_nfnlh(q.h), qLen*bufSize) < 0 {
+		C.nfq_destroy_queue(q.qh)
+		C.nfq_close(q.h)
+		return nil, fmt.Errorf("Unable to increase netfilter buffer space size.")
 	}
 
 	go q.run()
@@ -110,13 +117,13 @@ func (q *Queue) Close() {
 }
 
 //Get the channel for packets
-func (q *Queue) Packets() <-chan NFPacket {
+func (q *Queue) Packets() <-chan Packet {
 	return q.packets
 }
 
 func (q *Queue) run() {
 	if errno := C.Run(q.h, q.fd); errno != 0 {
-		fmt.Fprintf(os.Stderr, "Terminating, unable to receive packet due to errno=%d\n", errno)
+		fmt.Fprintf(os.Stderr, "Terminating, unable to receive packet due to errno=%d", errno)
 	}
 }
 
@@ -144,7 +151,7 @@ func go_callback(queueId C.int, data *C.uchar, length C.int, mark C.uint, idx ui
 		packet = gopacket.NewPacket(xdata, layers.LayerTypeIPv6, gopacketDecodeOptions)
 	}
 
-	p := NFPacket{
+	p := Packet{
 		verdictChannel: make(chan VerdictContainer),
 		Mark:           uint32(mark),
 		Packet:         packet,

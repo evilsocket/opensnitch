@@ -34,8 +34,8 @@ var (
 	rules   = (*rule.Loader)(nil)
 	stats   = (*statistics.Statistics)(nil)
 	queue   = (*netfilter.Queue)(nil)
-	pktChan = (<-chan netfilter.NFPacket)(nil)
-	wrkChan = (chan netfilter.NFPacket)(nil)
+	pktChan = (<-chan netfilter.Packet)(nil)
+	wrkChan = (chan netfilter.Packet)(nil)
 	sigChan = (chan os.Signal)(nil)
 )
 
@@ -94,7 +94,7 @@ func worker(id int) {
 func setupWorkers() {
 	log.Debug("Starting %d workers ...", workers)
 	// setup the workers
-	wrkChan = make(chan netfilter.NFPacket)
+	wrkChan = make(chan netfilter.Packet)
 	for i := 0; i < workers; i++ {
 		go worker(i)
 	}
@@ -107,7 +107,7 @@ func doCleanup() {
 	firewall.RejectMarked(false)
 }
 
-func onPacket(packet netfilter.NFPacket) {
+func onPacket(packet netfilter.Packet) {
 	// DNS response, just parse, track and accept.
 	if dns.TrackAnswers(packet.Packet) == true {
 		packet.SetVerdict(netfilter.NF_ACCEPT)
@@ -208,7 +208,7 @@ func main() {
 
 	// prepare the queue
 	setupWorkers()
-	queue, err := netfilter.NewQueue(uint16(queueNum), 4096, netfilter.NF_DEFAULT_PACKET_SIZE)
+	queue, err := netfilter.NewQueue(uint16(queueNum), 0xffff, netfilter.NF_DEFAULT_PACKET_SIZE)
 	if err != nil {
 		log.Fatal("Error while creating queue #%d: %s", queueNum, err)
 	}

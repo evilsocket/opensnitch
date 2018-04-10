@@ -25,10 +25,10 @@ type Connection struct {
 	Entry    *netstat.Entry
 	Process  *procmon.Process
 
-	pkt *netfilter.NFPacket
+	pkt *netfilter.Packet
 }
 
-func Parse(nfp netfilter.NFPacket) *Connection {
+func Parse(nfp netfilter.Packet) *Connection {
 	ipLayer := nfp.Packet.Layer(layers.LayerTypeIPv4)
 	if ipLayer == nil {
 		return nil
@@ -89,7 +89,7 @@ func (c *Connection) checkLayers() bool {
 	return false
 }
 
-func NewConnection(nfp *netfilter.NFPacket, ip *layers.IPv4) (c *Connection, err error) {
+func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err error) {
 	c = &Connection{
 		SrcIP:   ip.SrcIP,
 		DstIP:   ip.DstIP,
