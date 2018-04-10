@@ -80,7 +80,7 @@ func NewQueue(queueId uint16) (*Queue, error) {
 	queueIndexLock.Unlock()
 
 	queueSize := C.u_int32_t(NF_DEFAULT_QUEUE_SIZE)
-	bufferSize := C.uint(NF_DEFAULT_PACKET_SIZE)
+	bufferSize := C.u_int32_t(NF_DEFAULT_PACKET_SIZE)
 
 	if q.qh, err = C.CreateQueue(q.h, C.u_int16_t(queueId), C.u_int32_t(q.idx)); err != nil || q.qh == nil {
 		C.nfq_close(q.h)
