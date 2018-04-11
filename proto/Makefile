@@ -4,7 +4,7 @@ all: ../daemon/ui/protocol/ui.pb.go ../ui/ui_pb2.py
 	protoc -I. ui.proto --go_out=plugins=grpc:../daemon/ui/protocol/
 
 ../ui/ui_pb2.py:
-	python3 -m grpc_tools.protoc -I. --python_out=../ui/opensnitch/ --grpc_python_out=../ui/opensnitch/ ui.proto
+	python -m grpc_tools.protoc -I. --python_out=../ui/opensnitch/ --grpc_python_out=../ui/opensnitch/ ui.proto
 
 clean:
 	@rm -rf ../daemon/ui/protocol/ui.pb.go
