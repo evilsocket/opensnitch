@@ -1,14 +1,14 @@
-all: resources_rc.py
+all: opensnitch/resources_rc.py
 
 install:
-	@pip install .
+	@pip3 install .
 
-resources_rc.py:
-	@pyrcc5 -o resources_rc.py res/resources.qrc
+opensnitch/resources_rc.py: deps
+	@pyrcc5 -o opensnitch/resources_rc.py opensnitch/res/resources.qrc
 
 deps:
-	@sudo pip install -r requirements.txt
+	@sudo pip3 install -r requirements.txt
 
 clean:
 	@rm -rf *.pyc
-	@rm -rf resources_rc.py
+	@rm -rf opensnitch/resources_rc.py

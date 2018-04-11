@@ -8,6 +8,10 @@ import socket
 import fcntl
 import struct
 import array
+import sys
+
+path = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(path)
 
 import ui_pb2
 import ui_pb2_grpc
@@ -52,7 +56,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         max_possible = 128  # arbitrary. raise if needed.
         bytes = max_possible * 32
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        names = array.array('B', '\0' * bytes)
+        names = array.array('B', b'\0' * bytes)
         outbytes = struct.unpack('iL', fcntl.ioctl(
             s.fileno(),
             0x8912,  # SIOCGIFCONF
@@ -61,13 +65,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         namestr = names.tostring()
         self._interfaces = {}
         for i in range(0, outbytes, 40):
-            name = namestr[i:i+16].split('\0', 1)[0]
+            name = namestr[i:i+16].split(b'\0', 1)[0]
             addr = namestr[i+20:i+24]
-            ip   = str(ord(addr[0])) + '.' + \
-                   str(ord(addr[1])) + '.' + \
-                   str(ord(addr[2])) + '.' + \
-                   str(ord(addr[3]))
-            self._interfaces[name] = ip
+            self._interfaces[name] = "%d.%d.%d.%d" % (addr[0], addr[1], addr[2], addr[3])
 
     def _setup_slots(self):
         # https://stackoverflow.com/questions/40288921/pyqt-after-messagebox-application-quits-why
@@ -159,12 +159,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _is_local_request(self, context):
         peer = context.peer()
-        if peer == "unix:":
+        if peer.startswith("unix:"):
             return True
 
         elif peer.startswith("ipv4:"):
             _, addr, _ = peer.split(':')
-            for name, ip in self._interfaces.iteritems():
+            for name, ip in self._interfaces.items():
                 if addr == ip:
                     return True
 

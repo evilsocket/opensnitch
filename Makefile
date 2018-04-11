@@ -29,7 +29,7 @@ test:
 	mkdir rules
 	make 
 	clear
-	cd ui && sudo pip install --upgrade . && cd ..
+	cd ui && sudo pip3 install --upgrade . && cd ..
 	opensnitch-ui --socket unix:///tmp/osui.sock &
 	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock
 
@@ -41,7 +41,7 @@ adblocker:
 	clear
 	python make_ads_rules.py
 	clear
-	cd ui && sudo pip install --upgrade . && cd ..
+	cd ui && sudo pip3 install --upgrade . && cd ..
 	opensnitch-ui --socket unix:///tmp/osui.sock &
 	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock
 

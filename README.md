@@ -16,14 +16,9 @@
 
 ### TL;DR
 
-    sudo apt-get install golang protobuf-compiler libpcap-dev libnetfilter-queue-dev python-pyqt5
+    sudo apt-get install golang protobuf-compiler libpcap-dev libnetfilter-queue-dev
     go get github.com/golang/protobuf/protoc-gen-go
-    go get github.com/fsnotify/fsnotify
-    go get github.com/google/gopacket
-    go get github.com/google/gopacket/layers
-    go get google.golang.org/grpc
-    go get golang.org/x/net/context
-    go get -v github.com/Masterminds/glide
+    go get github.com/Masterminds/glide
     cd /path/to/this/repo
     make
     sudo make install
@@ -49,17 +44,17 @@ The new `opensnitchd` service will log to `/var/log/opensnitchd.log`, save the r
 
 ### Qt5 UI
 
-The user interface is a python script running as a `gRPC` server on a unix socket, to order to install its dependencies:
+The user interface is a Python 3 software running as a `gRPC` server on a unix socket, to order to install its dependencies:
 
     cd ui
-    pip install -r requirements.txt
+    sudo pip3 install -r requirements.txt
 
 You will also need to install the package `python-pyqt5` for your system (if anyone finds a way to make this work from 
 the `requirements.txt` file feel free to send a PR).
 
 The UI is pip installable itself:
 
-    sudo pip install .
+    sudo pip3 install .
 
 This will install the `opensnitch-ui` command on your system.
 

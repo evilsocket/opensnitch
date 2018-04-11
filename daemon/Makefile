@@ -9,7 +9,7 @@ install:
 deps: 
 	@glide up
 
-opensnitchd:
+opensnitchd: deps
 	@go build -o opensnitchd . 
 
 clean:

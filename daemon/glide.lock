@@ -1,9 +1,21 @@
 hash: 5acc852ad92bdc1b5ba06127913007346196b00811592614e9c4402e0ea4fefa
-updated: 2018-04-08T20:38:22.888381146+02:00
+updated: 2018-04-11T15:34:05.916205578+02:00
 imports:
 - name: github.com/evilsocket/opensnitch
-  version: ea3f32034b952b5e802783a6013262de5b1701c9
+  version: 6d60f2babccf14fc0a65073c8a60b9de4edaa246
   subpackages:
+  - daemon/conman
+  - daemon/core
+  - daemon/dns
+  - daemon/firewall
+  - daemon/log
+  - daemon/netfilter
+  - daemon/netstat
+  - daemon/procmon
+  - daemon/rule
+  - daemon/statistics
+  - daemon/ui
+  - daemon/ui/protocol
   - proto
 - name: github.com/fsnotify/fsnotify
   version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
@@ -34,18 +46,18 @@ imports:
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: 2cb43934f0eece38629746959acc633cba083fe4
+  version: 7922cc490dd5a7dbaa7fd5d6196b49db59ac042f
   subpackages:
   - secure/bidirule
   - transform
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/genproto
-  version: ce84044298496ef4b54b4a0a0909ba593cc60e30
+  version: 51d0944304c3cbce4afe9e5247e21100037bff78
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: d89cded64628466c4ab532d1f0ba5c220459ebe8
+  version: d11072e7ca9811b1100b80ca0269ac831f06d024
   subpackages:
   - balancer
   - balancer/base

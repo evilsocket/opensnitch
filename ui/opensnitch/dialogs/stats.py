@@ -200,7 +200,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             by_users = {}
             if self._address is None:
-                for uid, hits in self._stats.by_uid.iteritems():
+                for uid, hits in self._stats.by_uid.items():
                     by_users["%s (%s)" % (pwd.getpwuid(int(uid)).pw_name, uid)] = hits
             else:
                 by_users = self._stats.by_uid

@@ -74,7 +74,7 @@ class LinuxDesktopParser(threading.Thread):
     def get_info_by_path(self, path, default_icon):
         def_name = os.path.basename(path)
         # apply fixes
-        for orig, to in self.fixes.iteritems():
+        for orig, to in self.fixes.items():
             if path == orig:
                 path = to
                 break
