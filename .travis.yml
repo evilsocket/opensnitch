@@ -14,8 +14,9 @@ before_install:
   - export PATH=$PATH:/tmp/protoc/bin/
   - go get github.com/golang/protobuf/protoc-gen-go
   - go get -v github.com/Masterminds/glide
+  - sudo pip3 install --upgrade setuptools
+  - make deps
 
 script:
-  - make deps
   - make protocol
   - make daemon/opensnitchd
