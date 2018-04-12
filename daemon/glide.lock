@@ -1,9 +1,21 @@
 hash: 5acc852ad92bdc1b5ba06127913007346196b00811592614e9c4402e0ea4fefa
-updated: 2018-04-11T19:19:19.718203491+02:00
+updated: 2018-04-12T11:25:21.019716261+02:00
 imports:
 - name: github.com/evilsocket/opensnitch
-  version: 431ae0a575615f413afe29959d9978dfcbb29b08
+  version: d2abc96e52e9ecf270df17d9b707c3c0863e04ea
   subpackages:
+  - daemon/conman
+  - daemon/core
+  - daemon/dns
+  - daemon/firewall
+  - daemon/log
+  - daemon/netfilter
+  - daemon/netstat
+  - daemon/procmon
+  - daemon/rule
+  - daemon/statistics
+  - daemon/ui
+  - daemon/ui/protocol
   - proto
 - name: github.com/fsnotify/fsnotify
   version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
