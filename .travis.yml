@@ -16,6 +16,6 @@ before_install:
   - go get -v github.com/Masterminds/glide
 
 script:
-  - make protocol
   - make deps
+  - make protocol
   - make daemon/opensnitchd
