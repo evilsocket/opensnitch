@@ -6,6 +6,8 @@ After=network.target
 
 [Service]
 Type=simple
+PermissionsStartOnly=true
+ExecStartPre=/bin/mkdir -p /etc/opensnitchd/rules
 ExecStart=/usr/local/bin/opensnitchd -log-file /var/log/opensnitchd.log -rules-path /etc/opensnitchd/rules -ui-socket unix:///tmp/osui.sock
 Restart=always
 RestartSec=30
