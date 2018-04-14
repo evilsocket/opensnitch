@@ -17,6 +17,6 @@ setup(name='opensnitch-ui',
       license='GPL',
       packages=find_packages(),
       include_package_data = True,
-      package_data={'': '*.*'},
+      package_data={'': ['*.*']},
       scripts = [ 'bin/opensnitch-ui' ],
       zip_safe=False)
