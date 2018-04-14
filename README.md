@@ -57,6 +57,10 @@ The UI is pip installable itself:
     sudo pip3 install .
 
 This will install the `opensnitch-ui` command on your system.
+  
+Add OpenSnitch UI to startup app:
+
+    cp opensnitch_ui.desktop /home/user/.config/autostart/
 
 ### Running
 
