@@ -60,6 +60,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._what_combo = self.findChild(QtWidgets.QComboBox, "whatCombo")
         self._duration_combo = self.findChild(QtWidgets.QComboBox, "durationCombo")
 
+        # Disable timer on comboBox click
+        self._action_combo.view().pressed.connect(self.handleBoxPressed)
+        self._what_combo.view().pressed.connect(self.handleBoxPressed)
+        self._duration_combo.view().pressed.connect(self.handleBoxPressed)
+
     def promptUser(self, connection, is_local, peer):
         # one at a time
         with self._lock:
@@ -77,7 +82,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._tick_thread.start()
             # wait for user choice or timeout
             self._done.wait()
-            
+
             return self._rule
 
     def _timeout_worker(self):
@@ -85,8 +90,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._tick -= 1
             self._tick_trigger.emit()
             time.sleep(1)
-        
-        if not self._done.is_set():
+
+        if not self._done.is_set() and self._tick > -2:
             self._timeout_trigger.emit()
 
     @QtCore.pyqtSlot()
@@ -166,7 +171,17 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if not event.key() == QtCore.Qt.Key_Escape:
             super(PromptDialog, self).keyPressEvent(event)
 
-    # prevent a click on the window's x 
+    # Disable timer on comboBox click
+    def handleBoxPressed(self, index):
+        self._tick = -2
+        self._apply_button.setText("Apply")
+
+    # Disable timer on frame clicked
+    def mousePressEvent(self, event):
+        self._tick = -2
+        self._apply_button.setText("Apply")
+
+    # prevent a click on the window's x
     # from quitting the whole application
     def closeEvent(self, e):
         self._on_apply_clicked()
@@ -193,32 +208,31 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if what_idx == 0:
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "process.path"
-            self._rule.operator.data = self._con.process_path 
+            self._rule.operator.data = self._con.process_path
 
         elif what_idx == 1:
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "user.id"
-            self._rule.operator.data = "%s" % self._con.user_id 
-        
+            self._rule.operator.data = "%s" % self._con.user_id
+
         elif what_idx == 2:
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "dest.port"
-            self._rule.operator.data = "%s" % self._con.dst_port 
+            self._rule.operator.data = "%s" % self._con.dst_port
 
         elif what_idx == 3:
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "dest.ip"
-            self._rule.operator.data = self._con.dst_ip 
-        
+            self._rule.operator.data = self._con.dst_ip
+
         else:
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "dest.host"
-            self._rule.operator.data = self._con.dst_host 
+            self._rule.operator.data = self._con.dst_host
 
         self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.operator.type, self._rule.operator.data))
-        
+
         self.hide()
-        # signal that the user took a decision and 
+        # signal that the user took a decision and
         # a new rule is available
         self._done.set()
-
