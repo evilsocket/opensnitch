@@ -142,6 +142,29 @@ An example whitelisting a whole process:
  }
 ```
 
+
+### Troubleshooting make
+    sudo apt-get install golang protobuf-compiler libpcap-dev libnetfilter-queue-dev
+    mkdir /usr/lib/golang/src/github.com
+    ln -s /path/to/this/repo/ /usr/lib/golang/src/github.com/opensnitch
+    export GOPATH=$HOME/go
+    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+    pip install grpcio-tools
+    go get github.com/golang/protobuf/protoc-gen-go
+    go get github.com/Masterminds/glide
+    go get github.com/fsnotify/fsnotify
+    go get github.com/google/gopacket
+    go get github.com/google/gopacket/layers
+    go get golang.org/x/net/context
+    go get google.golang.org/grpc
+    go get google.golang.org/grpc/connectivity
+    cd /path/to/this/repo
+    make
+    sudo make install
+    sudo systemctl enable opensnitchd
+    sudo service opensnitchd start
+    opensnitch-ui
+
 ### FAQ
 
 ##### Why Qt and not GTK?
