@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=OpenSnitch
+Exec=opensnitch-ui
+Icon=preferences-system-firewall
+GenericName=OpenSnitch Firewall
+Terminal=false
+MimeType=application/x-douane-configurator;
+Categories=System;Filesystem;Network;
+Keywords=system;firewall;policies;security;polkit;policykit;douane;

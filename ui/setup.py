@@ -18,5 +18,7 @@ setup(name='opensnitch-ui',
       packages=find_packages(),
       include_package_data = True,
       package_data={'': ['*.*']},
+      data_files=[('/usr/share/applications', ['opensnitch_ui.desktop']),
+               ('/usr/share/kservices5', ['kcm_opensnitch.desktop'])],
       scripts = [ 'bin/opensnitch-ui' ],
       zip_safe=False)
