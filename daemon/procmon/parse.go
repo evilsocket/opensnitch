@@ -47,6 +47,37 @@ func GetOpenSockets() map[int]int {
 	return m
 }
 
+func parseCmdLine(proc *Process) {
+	if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/cmdline", proc.ID)); err == nil {
+		for i, b := range data {
+			if b == 0x00 {
+				data[i] = byte(' ')
+			}
+		}
+
+		args := strings.Split(string(data), " ")
+		for _, arg := range args {
+			arg = core.Trim(arg)
+			if arg != "" {
+				proc.Args = append(proc.Args, arg)
+			}
+		}
+	}
+}
+
+func parseEnv(proc *Process) {
+	if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/environ", proc.ID)); err == nil {
+		for _, s := range strings.Split(string(data), "\x00") {
+			parts := strings.SplitN(core.Trim(s), "=", 2)
+			if parts != nil {
+				key := core.Trim(parts[0])
+				val := core.Trim(parts[1])
+				proc.Env[key] = val
+			}
+		}
+	}
+}
+
 func FindProcess(pid int) *Process {
 	linkName := fmt.Sprintf("/proc/%d/exe", pid)
 	if core.Exists(linkName) == false {
@@ -56,21 +87,8 @@ func FindProcess(pid int) *Process {
 	if link, err := os.Readlink(linkName); err == nil && core.Exists(link) == true {
 		proc := NewProcess(pid, link)
 
-		if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/cmdline", pid)); err == nil {
-			for i, b := range data {
-				if b == 0x00 {
-					data[i] = byte(' ')
-				}
-			}
-
-			args := strings.Split(string(data), " ")
-			for _, arg := range args {
-				arg = core.Trim(arg)
-				if arg != "" {
-					proc.Args = append(proc.Args, arg)
-				}
-			}
-		}
+		parseCmdLine(proc)
+		parseEnv(proc)
 
 		return proc
 	}

@@ -75,7 +75,7 @@ func (s *Statistics) incMap(m *map[string]uint64, key string) {
 		nElems := len(*m)
 		if nElems >= maxStats {
 			// find the element with less hits
-			nMin := 999999
+			nMin := uint64(9999999999)
 			minKey := ""
 			for k, v := range *m {
 				if v < nMin {

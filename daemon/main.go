@@ -123,6 +123,8 @@ func onPacket(packet netfilter.Packet) {
 		return
 	}
 
+	log.Info("%v", con.Process.Env)
+
 	// search a match in preloaded rules
 	connected := false
 	missed := false
