@@ -29,10 +29,10 @@
     
 ### TL;DR - Fedora
 
-    sudo dnf install golang protobuf-compiler libpcap-devel libnetfilter_queue-devel python3-lxml godep 
-    python3 -m pip install --upgrade pip
-    python3 -m pip install --user grpcio-tools
-    go get github.com/golang/protobuf/protoc-gen-go [1]
+    sudo dnf install golang protobuf-compiler libpcap-devel libnetfilter_queue-devel
+    go get github.com/golang/protobuf/protoc-gen-go
+    go get -u github.com/golang/dep/cmd/dep
+    cd $HOME/go/src
     git clone https://github.com/evilsocket/opensnitch.git
     cd opensnitch
     make
@@ -41,8 +41,6 @@
     sudo systemctl enable opensnitchd
     sudo service opensnitchd start
     opensnitch-ui
-
-[1] until bug [1567650](https://bugzilla.redhat.com/show_bug.cgi?id=1567650) is fixed, then just install package golang-googlecode-goprotobuf
 
 ### Daemon
 
