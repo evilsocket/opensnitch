@@ -17,8 +17,7 @@
 
     sudo apt-get install golang protobuf-compiler libpcap-dev libnetfilter-queue-dev
     python3 -m pip install --user grpcio-tools
-    go get github.com/golang/protobuf/protoc-gen-go
-    go get -u github.com/golang/dep/cmd/dep
+    
     cd /path/to/this/repo
     make
     sudo make install
@@ -29,12 +28,11 @@
     
 ### TL;DR - Fedora
 
-    sudo dnf install golang protobuf-compiler libpcap-devel libnetfilter_queue-devel
-    python3 -m pip install --user --upgrade pip
-    python3 -m pip install --user grpcio-tools
+    sudo dnf install golang protobuf-compiler libpcap-devel libnetfilter_queue-devel python3-lxml godep 
     go get github.com/golang/protobuf/protoc-gen-go
     go get -u github.com/golang/dep/cmd/dep
-    cd /path/to/this/repo
+    git clone https://github.com/evilsocket/opensnitch.git
+    cd opensnitch
     make
     sudo make install
 
