@@ -1,8 +1,8 @@
 hash: 5acc852ad92bdc1b5ba06127913007346196b00811592614e9c4402e0ea4fefa
-updated: 2018-04-15T15:40:00.770547476+02:00
+updated: 2018-04-15T15:40:57.50125782+02:00
 imports:
 - name: github.com/evilsocket/opensnitch
-  version: b014a4069ef653db8e1804852f34535fc05c2ff7
+  version: 55e7ad9702d2ba42eced3892ae4111ee66cc49e9
   subpackages:
   - daemon/conman
   - daemon/core
