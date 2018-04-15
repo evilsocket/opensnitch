@@ -152,6 +152,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._what_combo.addItem("to %s" % con.dst_ip)
         if con.dst_host != "":
             self._what_combo.addItem("to %s" % con.dst_host)
+            parts = con.dst_host.split('.')[1:]
+            nparts = len(parts)
+            for i in range(0, nparts - 1):
+                self._what_combo.addItem("to *.%s" % '.'.join(parts[i:]))
 
         self._what_combo.setCurrentIndex(0)
         self._action_combo.setCurrentIndex(0)
@@ -210,10 +214,15 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule.operator.operand = "dest.ip"
             self._rule.operator.data = self._con.dst_ip 
         
-        else:
+        elif what_idx == 4:
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "dest.host"
             self._rule.operator.data = self._con.dst_host 
+
+        else:
+            self._rule.operator.type = "regexp"
+            self._rule.operator.operand = "dest.host"
+            self._rule.operator.data = ".*%s" % '\.'.join(self._con.dst_host.split('.')[what_idx - 4:])
 
         self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.operator.type, self._rule.operator.data))
         
