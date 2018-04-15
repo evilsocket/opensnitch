@@ -13,9 +13,24 @@
   <img src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/screenshot.png" alt="OpenSnitch"/>
 </p>
 
-### TL;DR
+### TL;DR - Debian/Ubuntu
 
     sudo apt-get install golang protobuf-compiler libpcap-dev libnetfilter-queue-dev
+    python3 -m pip install --user grpcio-tools
+    go get github.com/golang/protobuf/protoc-gen-go
+    go get -u github.com/golang/dep/cmd/dep
+    cd /path/to/this/repo
+    make
+    sudo make install
+
+    sudo systemctl enable opensnitchd
+    sudo service opensnitchd start
+    opensnitch-ui
+    
+### TL;DR - Fedora
+
+    sudo dnf install golang protobuf-compiler libpcap-devel libnetfilter_queue-devel
+    python3 -m pip install --user --upgrade pip
     python3 -m pip install --user grpcio-tools
     go get github.com/golang/protobuf/protoc-gen-go
     go get -u github.com/golang/dep/cmd/dep
