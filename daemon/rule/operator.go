@@ -3,6 +3,7 @@ package rule
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -21,6 +22,7 @@ type Operand string
 const (
 	OpTrue        = Operand("true")
 	OpProcessPath = Operand("process.path")
+	OpProcessCmd  = Operand("process.command")
 	OpUserId      = Operand("user.id")
 	OpDstIP       = Operand("dest.ip")
 	OpDstHost     = Operand("dest.host")
@@ -74,18 +76,28 @@ func (o *Operator) reCmp(v string) bool {
 }
 
 func (o *Operator) Match(con *conman.Connection) bool {
-	if o.Operand == OpTrue {
+	switch o.Operand {
+	case OpTrue:
 		return true
-	} else if o.Operand == OpUserId {
+
+	case OpUserId:
 		return o.cb(fmt.Sprintf("%d", con.Entry.UserId))
-	} else if o.Operand == OpProcessPath {
+
+	case OpProcessPath:
 		return o.cb(con.Process.Path)
-	} else if o.Operand == OpDstIP {
+
+	case OpProcessCmd:
+		return o.cb(strings.Join(con.Process.Args, " "))
+
+	case OpDstIP:
 		return o.cb(con.DstIP.String())
-	} else if o.Operand == OpDstHost {
+
+	case OpDstHost:
 		return o.cb(con.DstHost)
-	} else if o.Operand == OpDstPort {
+
+	case OpDstPort:
 		return o.cb(fmt.Sprintf("%d", con.DstPort))
 	}
+
 	return false
 }

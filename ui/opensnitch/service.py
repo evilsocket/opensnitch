@@ -67,7 +67,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         for i in range(0, outbytes, 40):
             name = namestr[i:i+16].split(b'\0', 1)[0]
             addr = namestr[i+20:i+24]
-            self._interfaces[name] = "%d.%d.%d.%d" % (ord(addr[0]), ord(addr[1]), ord(addr[2]), ord(addr[3]))
+            self._interfaces[name] = "%d.%d.%d.%d" % (int(addr[0]), int(addr[1]), int(addr[2]), int(addr[3]))
 
     def _setup_slots(self):
         # https://stackoverflow.com/questions/40288921/pyqt-after-messagebox-application-quits-why
