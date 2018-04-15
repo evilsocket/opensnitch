@@ -18,20 +18,22 @@ deps:
 	@cd ui && make deps
 
 clean:
-	@rm -rf rules
 	@cd daemon && make clean
 	@cd proto && make clean
+
+run:
+	cd ui && sudo pip3 install --upgrade . && cd ..
+	opensnitch-ui --socket unix:///tmp/osui.sock &
+	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock
 
 test: 
 	clear 
 	make clean
 	clear
-	mkdir rules
+	mkdir -p rules
 	make 
 	clear
-	cd ui && sudo pip3 install --upgrade . && cd ..
-	opensnitch-ui --socket unix:///tmp/osui.sock &
-	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock
+	make run
 
 adblocker:
 	clear 

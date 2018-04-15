@@ -108,7 +108,7 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 | action           | Can be `deny` or `allow`. |
 | duration         | For rules persisting on disk, this value is default to `always`. |
 | operator.type    | Can be `simple`, in which case a simple `==` comparision will be performed, or `regexp` if the `data` field is a regular expression to match. |
-| operator.operand | What element of the connection to compare, can be one of: `true` (will always match), `process.path` (the path of the executable), `process.command` (full command line, including path and arguments), `user.id`, `dest.ip`, `dest.host` or `dest.port`. |
+| operator.operand | What element of the connection to compare, can be one of: `true` (will always match), `process.path` (the path of the executable), `process.command` (full command line, including path and arguments), `provess.env.ENV_VAR_NAME` (use the value of an environment variable of the process given its name), `user.id`, `dest.ip`, `dest.host` or `dest.port`. |
 | operator.data    | The data to compare the `operand` to, can be a regular expression if `type` is `regexp`. |
 
 An example with a regular expression:

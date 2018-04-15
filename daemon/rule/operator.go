@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
@@ -20,13 +21,15 @@ const (
 type Operand string
 
 const (
-	OpTrue        = Operand("true")
-	OpProcessPath = Operand("process.path")
-	OpProcessCmd  = Operand("process.command")
-	OpUserId      = Operand("user.id")
-	OpDstIP       = Operand("dest.ip")
-	OpDstHost     = Operand("dest.host")
-	OpDstPort     = Operand("dest.port")
+	OpTrue                = Operand("true")
+	OpProcessPath         = Operand("process.path")
+	OpProcessCmd          = Operand("process.command")
+	OpProcessEnvPrefix    = Operand("process.env.")
+	OpProcessEnvPrefixLen = 12
+	OpUserId              = Operand("user.id")
+	OpDstIP               = Operand("dest.ip")
+	OpDstHost             = Operand("dest.host")
+	OpDstPort             = Operand("dest.port")
 )
 
 type opCallback func(value string) bool
@@ -64,7 +67,7 @@ func (o *Operator) String() string {
 	if o.Type == Regexp {
 		how = "matches"
 	}
-	return fmt.Sprintf("%s %s %s", log.Bold(string(o.Operand)), how, log.Yellow(string(o.Data)))
+	return fmt.Sprintf("%s %s '%s'", log.Bold(string(o.Operand)), how, log.Yellow(string(o.Data)))
 }
 
 func (o *Operator) simpleCmp(v string) bool {
@@ -76,26 +79,23 @@ func (o *Operator) reCmp(v string) bool {
 }
 
 func (o *Operator) Match(con *conman.Connection) bool {
-	switch o.Operand {
-	case OpTrue:
+	if o.Operand == OpTrue {
 		return true
-
-	case OpUserId:
+	} else if o.Operand == OpUserId {
 		return o.cb(fmt.Sprintf("%d", con.Entry.UserId))
-
-	case OpProcessPath:
+	} else if o.Operand == OpProcessPath {
 		return o.cb(con.Process.Path)
-
-	case OpProcessCmd:
+	} else if o.Operand == OpProcessCmd {
 		return o.cb(strings.Join(con.Process.Args, " "))
-
-	case OpDstIP:
+	} else if strings.HasPrefix(string(o.Operand), string(OpProcessEnvPrefix)) {
+		envVarName := core.Trim(string(o.Operand[OpProcessEnvPrefixLen:]))
+		envVarValue, _ := con.Process.Env[envVarName]
+		return o.cb(envVarValue)
+	} else if o.Operand == OpDstIP {
 		return o.cb(con.DstIP.String())
-
-	case OpDstHost:
+	} else if o.Operand == OpDstHost {
 		return o.cb(con.DstHost)
-
-	case OpDstPort:
+	} else if o.Operand == OpDstPort {
 		return o.cb(fmt.Sprintf("%d", con.DstPort))
 	}
 
