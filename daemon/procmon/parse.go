@@ -69,7 +69,7 @@ func parseEnv(proc *Process) {
 	if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/environ", proc.ID)); err == nil {
 		for _, s := range strings.Split(string(data), "\x00") {
 			parts := strings.SplitN(core.Trim(s), "=", 2)
-			if parts != nil {
+			if parts != nil && len(parts) == 2 {
 				key := core.Trim(parts[0])
 				val := core.Trim(parts[1])
 				proc.Env[key] = val
