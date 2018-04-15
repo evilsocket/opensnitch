@@ -18,7 +18,7 @@
     sudo apt-get install golang protobuf-compiler libpcap-dev libnetfilter-queue-dev
     python3 -m pip install --user grpcio-tools
     go get github.com/golang/protobuf/protoc-gen-go
-    go get github.com/Masterminds/glide
+    go get -u github.com/golang/dep/cmd/dep
     cd /path/to/this/repo
     make
     sudo make install

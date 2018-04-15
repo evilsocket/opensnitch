@@ -6,7 +6,10 @@ install:
 	@cp opensnitchd.service /etc/systemd/system/
 	@systemctl daemon-reload
 
-opensnitchd:
+deps: 
+	@dep ensure
+
+opensnitchd: deps
 	@go build -o opensnitchd . 
 
 clean:
