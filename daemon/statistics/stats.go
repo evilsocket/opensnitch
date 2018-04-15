@@ -11,7 +11,12 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
-const maxEvents = 50
+const (
+	// max number of events to keep in the buffer
+	maxEvents = 50
+	// max number of entries for each By* map
+	maxStats = 25
+)
 
 type Statistics struct {
 	sync.Mutex
@@ -66,6 +71,24 @@ func (s *Statistics) OnIgnored() {
 
 func (s *Statistics) incMap(m *map[string]uint64, key string) {
 	if val, found := (*m)[key]; found == false {
+		// do we have enough space left?
+		nElems := len(*m)
+		if nElems >= maxStats {
+			// find the element with less hits
+			nMin := 999999
+			minKey := ""
+			for k, v := range *m {
+				if v < nMin {
+					minKey = k
+					nMin = v
+				}
+			}
+			// remove it
+			if minKey != "" {
+				delete(*m, minKey)
+			}
+		}
+
 		(*m)[key] = 1
 	} else {
 		(*m)[key] = val + 1
