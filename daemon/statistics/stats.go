@@ -7,6 +7,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
@@ -17,6 +18,12 @@ const (
 	// max number of entries for each By* map
 	maxStats = 25
 )
+
+type conEvent struct {
+	con       *conman.Connection
+	match     *rule.Rule
+	wasMissed bool
+}
 
 type Statistics struct {
 	sync.Mutex
@@ -38,10 +45,11 @@ type Statistics struct {
 	ByExecutable map[string]uint64
 
 	rules *rule.Loader
+	jobs  chan conEvent
 }
 
-func New(rules *rule.Loader) *Statistics {
-	return &Statistics{
+func New(rules *rule.Loader) (stats *Statistics) {
+	stats = &Statistics{
 		Started:      time.Now(),
 		Events:       make([]*Event, 0),
 		ByProto:      make(map[string]uint64),
@@ -52,7 +60,15 @@ func New(rules *rule.Loader) *Statistics {
 		ByExecutable: make(map[string]uint64),
 
 		rules: rules,
+		jobs:  make(chan conEvent),
 	}
+
+	go stats.eventWorker(0)
+	go stats.eventWorker(1)
+	go stats.eventWorker(2)
+	go stats.eventWorker(3)
+
+	return stats
 }
 
 func (s *Statistics) OnDNSResponse() {
@@ -95,7 +111,18 @@ func (s *Statistics) incMap(m *map[string]uint64, key string) {
 	}
 }
 
-func (s *Statistics) OnConnectionEvent(con *conman.Connection, match *rule.Rule, wasMissed bool) {
+func (s *Statistics) eventWorker(id int) {
+	log.Debug("Stats worker #%d started.", id)
+
+	for true {
+		select {
+		case job := <-s.jobs:
+			s.onConnection(job.con, job.match, job.wasMissed)
+		}
+	}
+}
+
+func (s *Statistics) onConnection(con *conman.Connection, match *rule.Rule, wasMissed bool) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -129,6 +156,14 @@ func (s *Statistics) OnConnectionEvent(con *conman.Connection, match *rule.Rule,
 		s.Events = s.Events[1:]
 	}
 	s.Events = append(s.Events, NewEvent(con, match))
+}
+
+func (s *Statistics) OnConnectionEvent(con *conman.Connection, match *rule.Rule, wasMissed bool) {
+	s.jobs <- conEvent{
+		con:       con,
+		match:     match,
+		wasMissed: wasMissed,
+	}
 }
 
 func (s *Statistics) serializeEvents() []*protocol.Event {
