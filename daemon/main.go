@@ -2,10 +2,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	golog "log"
 	"os"
 	"os/signal"
+	"runtime"
+	"runtime/pprof"
 	"syscall"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
@@ -30,6 +33,9 @@ var (
 	uiSocket = "unix:///tmp/osui.sock"
 	uiClient = (*ui.Client)(nil)
 
+	cpuProfile = ""
+	memProfile = ""
+
 	err     = (error)(nil)
 	rules   = (*rule.Loader)(nil)
 	stats   = (*statistics.Statistics)(nil)
@@ -48,6 +54,9 @@ func init() {
 
 	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
 	flag.BoolVar(&debug, "debug", debug, "Enable debug logs.")
+
+	flag.StringVar(&cpuProfile, "cpu-profile", cpuProfile, "Write CPU profile to this file.")
+	flag.StringVar(&memProfile, "mem-profile", memProfile, "Write memory profile to this file.")
 }
 
 func setupLogging() {
@@ -105,6 +114,23 @@ func doCleanup() {
 	firewall.QueueDNSResponses(false, queueNum)
 	firewall.QueueConnections(false, queueNum)
 	firewall.DropMarked(false)
+
+	if cpuProfile != "" {
+		pprof.StopCPUProfile()
+	}
+
+	if memProfile != "" {
+		f, err := os.Create(memProfile)
+		if err != nil {
+			fmt.Printf("Could not create memory profile: %s\n", err)
+			return
+		}
+		defer f.Close()
+		runtime.GC() // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			fmt.Printf("Could not write memory profile: %s\n", err)
+		}
+	}
 }
 
 func onPacket(packet netfilter.Packet) {
@@ -188,6 +214,14 @@ func main() {
 	flag.Parse()
 
 	setupLogging()
+
+	if cpuProfile != "" {
+		if f, err := os.Create(cpuProfile); err != nil {
+			log.Fatal("%s", err)
+		} else if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("%s", err)
+		}
+	}
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
 
