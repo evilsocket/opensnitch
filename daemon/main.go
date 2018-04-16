@@ -16,6 +16,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/netfilter"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
+	"github.com/evilsocket/opensnitch/daemon/tls"
 	"github.com/evilsocket/opensnitch/daemon/ui"
 )
 
@@ -103,6 +104,7 @@ func setupWorkers() {
 func doCleanup() {
 	log.Info("Cleaning up ...")
 	firewall.QueueDNSResponses(false, queueNum)
+	firewall.QueueTLSResponses(false, queueNum)
 	firewall.QueueConnections(false, queueNum)
 	firewall.DropMarked(false)
 }
@@ -112,6 +114,12 @@ func onPacket(packet netfilter.Packet) {
 	if dns.TrackAnswers(packet.Packet) == true {
 		packet.SetVerdict(netfilter.NF_ACCEPT)
 		stats.OnDNSResponse()
+		return
+	}
+
+	// TLS response with certificates, just parse, track and accept.
+	if tls.TrackCertificates(packet.Packet) == true {
+		packet.SetVerdict(netfilter.NF_ACCEPT)
 		return
 	}
 
@@ -217,6 +225,8 @@ func main() {
 	// queue is ready, run firewall rules
 	if err = firewall.QueueDNSResponses(true, queueNum); err != nil {
 		log.Fatal("Error while running DNS firewall rule: %s", err)
+	} else if err = firewall.QueueTLSResponses(true, queueNum); err != nil {
+		log.Fatal("Error while running TLS firewall rule: %s", err)
 	} else if err = firewall.QueueConnections(true, queueNum); err != nil {
 		log.Fatal("Error while running conntrack firewall rule: %s", err)
 	} else if err = firewall.DropMarked(true); err != nil {

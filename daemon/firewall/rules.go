@@ -42,6 +42,18 @@ func QueueDNSResponses(enable bool, queueNum int) (err error) {
 	})
 }
 
+// INPUT --protocol tcp --sport 443 -j NFQUEUE --queue-num 0 --queue-bypass
+func QueueTLSResponses(enable bool, queueNum int) (err error) {
+	return RunRule(enable, []string{
+		"INPUT",
+		"--protocol", "tcp",
+		"--sport", "443",
+		"-j", "NFQUEUE",
+		"--queue-num", fmt.Sprintf("%d", queueNum),
+		"--queue-bypass",
+	})
+}
+
 // OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass
 func QueueConnections(enable bool, queueNum int) (err error) {
 	return RunRule(enable, []string{
