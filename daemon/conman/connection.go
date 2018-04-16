@@ -67,7 +67,36 @@ func Parse(nfp netfilter.Packet) *Connection {
 	return con
 }
 
-func (c *Connection) checkLayers() bool {
+func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err error) {
+	c = &Connection{
+		SrcIP:   ip.SrcIP,
+		DstIP:   ip.DstIP,
+		DstHost: dns.HostOr(ip.DstIP, ""),
+		pkt:     nfp,
+	}
+
+	// no errors but not enough info neither
+	if c.parseDirection() == false {
+		return nil, nil
+	}
+
+	// 1. lookup uid and inode using /proc/net/(udp|tcp)
+	// 2. lookup pid by inode
+	// 3. if this is coming from us, just accept
+	// 4. lookup process info by pid
+	if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
+		return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
+	} else if pid := procmon.GetPIDFromINode(c.Entry.INode); pid == -1 {
+		return nil, fmt.Errorf("Could not find process id for: %s", c)
+	} else if pid == os.Getpid() {
+		return nil, nil
+	} else if c.Process = procmon.FindProcess(pid); c.Process == nil {
+		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
+	}
+	return c, nil
+}
+
+func (c *Connection) parseDirection() bool {
 	for _, layer := range c.pkt.Packet.Layers() {
 		if layer.LayerType() == layers.LayerTypeTCP {
 			if tcp, ok := layer.(*layers.TCP); ok == true && tcp != nil {
@@ -87,36 +116,6 @@ func (c *Connection) checkLayers() bool {
 	}
 
 	return false
-}
-
-func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err error) {
-	c = &Connection{
-		SrcIP:   ip.SrcIP,
-		DstIP:   ip.DstIP,
-		DstHost: dns.HostOr(ip.DstIP, ""),
-		pkt:     nfp,
-	}
-
-	// no errors but not enough info neither
-	if c.checkLayers() == false {
-		return nil, nil
-	}
-
-	// Lookup uid and inode using /proc/net/(udp|tcp)
-	if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
-		return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
-	}
-
-	// lookup pid by inode and process by pid
-	if pid := procmon.GetPIDFromINode(c.Entry.INode); pid == -1 {
-		return nil, fmt.Errorf("Could not find process id for: %s", c)
-	} else if pid == os.Getpid() {
-		return nil, nil
-	} else if c.Process = procmon.FindProcess(pid); c.Process == nil {
-		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
-	}
-
-	return c, nil
 }
 
 func (c *Connection) To() string {

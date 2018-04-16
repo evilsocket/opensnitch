@@ -12,7 +12,6 @@ import (
 
 func GetPIDs() []int {
 	pids := make([]int, 0)
-
 	if ls, err := ioutil.ReadDir("/proc/"); err == nil {
 		for _, f := range ls {
 			if pid, err := strconv.Atoi(f.Name()); err == nil && f.IsDir() {
@@ -20,7 +19,6 @@ func GetPIDs() []int {
 			}
 		}
 	}
-
 	return pids
 }
 
