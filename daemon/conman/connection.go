@@ -107,10 +107,8 @@ func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err e
 		return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
 	}
 
-	// snapshot a map of: inode -> pid
-	sockets := procmon.GetOpenSockets()
 	// lookup pid by inode and process by pid
-	if pid, found := sockets[c.Entry.INode]; found == false {
+	if pid := procmon.GetPIDFromINode(c.Entry.INode); pid == -1 {
 		return nil, fmt.Errorf("Could not find process id for: %s", c)
 	} else if pid == os.Getpid() {
 		return nil, nil
