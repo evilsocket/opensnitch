@@ -19,6 +19,7 @@ import ui_pb2_grpc
 from dialogs.prompt import PromptDialog
 from dialogs.stats import StatsDialog
 
+from config import Config
 from version import version
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
@@ -26,9 +27,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal()
 
-    def __init__(self, app, on_exit):
+    def __init__(self, app, on_exit, config):
         super(UIService, self).__init__()
 
+        self._cfg = Config.init(config)
         self._last_ping = None
         self._version_warning_shown = False
         self._asking = False
@@ -41,6 +43,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._stats_dialog = StatsDialog()
         self._remote_lock = Lock()
         self._remote_stats = {}
+
+        # make sure we save the configuration if it 
+        # does not exist as a file yet
+        if self._cfg.exists == False:
+            self._cfg.save()
 
         self._setup_interfaces()
         self._setup_slots()

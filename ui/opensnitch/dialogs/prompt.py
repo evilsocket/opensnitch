@@ -10,14 +10,13 @@ from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from slugify import slugify
 
 from desktop_parser import LinuxDesktopParser
+from config import Config
 from version import version
 
 import ui_pb2
 
 DIALOG_UI_PATH = "%s/../res/prompt.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
-    TIMEOUT = 15
-
     _prompt_trigger = QtCore.pyqtSignal()
     _tick_trigger = QtCore.pyqtSignal()
     _timeout_trigger = QtCore.pyqtSignal()
@@ -27,8 +26,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.setupUi(self)
 
-        self.setWindowTitle("opensnitch-qt v%s" % version)
+        self.setWindowTitle("OpenSnitch v%s" % version)
 
+        self._cfg = Config.get()
         self._lock = threading.Lock()
         self._con = None
         self._rule = None
@@ -37,7 +37,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._prompt_trigger.connect(self.on_connection_prompt_triggered)
         self._timeout_trigger.connect(self.on_timeout_triggered)
         self._tick_trigger.connect(self.on_tick_triggered)
-        self._tick = PromptDialog.TIMEOUT
+        self._tick = self._cfg.default_timeout
         self._tick_thread = None
         self._done = threading.Event()
 
@@ -64,7 +64,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # one at a time
         with self._lock:
             # reset state
-            self._tick = PromptDialog.TIMEOUT
+            self._tick = self._cfg.default_timeout
             self._tick_thread = threading.Thread(target=self._timeout_worker)
             self._rule = None
             self._local = is_local
@@ -157,9 +157,19 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             for i in range(0, nparts - 1):
                 self._what_combo.addItem("to *.%s" % '.'.join(parts[i:]))
 
+        if self._cfg.default_action == "allow":
+            self._action_combo.setCurrentIndex(0)
+        else:
+            self._action_combo.setCurrentIndex(1)
+
+        if self._cfg.default_duration == "once":
+            self._duration_combo.setCurrentIndex(0)
+        elif self._cfg.default_duration == "until restart":
+            self._duration_combo.setCurrentIndex(1)
+        else:
+            self._duration_combo.setCurrentIndex(2)
+
         self._what_combo.setCurrentIndex(0)
-        self._action_combo.setCurrentIndex(0)
-        self._duration_combo.setCurrentIndex(1)
 
         self._apply_button.setText("Apply (%d)" % self._tick)
 

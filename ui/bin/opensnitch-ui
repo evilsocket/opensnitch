@@ -16,6 +16,7 @@ from concurrent import futures
 import grpc
 
 from opensnitch.service import UIService
+from opensnitch.config import Config
 import opensnitch.version
 import opensnitch.ui_pb2
 from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
@@ -28,12 +29,13 @@ def on_exit():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.')
     parser.add_argument("--socket", dest="socket", default="unix:///tmp/osui.sock", help="Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).", metavar="FILE")
+    parser.add_argument("--config", dest="config", default="~/.opensnitch/ui-config.json", help="Path of the UI json configuration file.", metavar="FILE")
 
     args = parser.parse_args()
 
     app = QtWidgets.QApplication(sys.argv)
 
-    service = UIService(app, on_exit)
+    service = UIService(app, on_exit, args.config)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
 
     add_UIServicer_to_server(service, server)

@@ -42,7 +42,7 @@ You can then install it as a systemd service by doing:
 
 The new `opensnitchd` service will log to `/var/log/opensnitchd.log`, save the rules inside `/etc/opensnitchd/rules` and connect to the default UI service socket `unix:///tmp/osui.sock`.
 
-### Qt5 UI
+### UI
 
 The user interface is a Python 3 software running as a `gRPC` server on a unix socket, to order to install its dependencies:
 
@@ -56,11 +56,24 @@ The UI is pip installable itself:
 
     sudo pip3 install .
 
-This will install the `opensnitch-ui` command on your system.
+This will install the `opensnitch-ui` command on your system (you can auto startup it by `cp opensnitch_ui.desktop ~/.config/autostart/`).
   
-Add OpenSnitch UI to startup app:
+#### UI Configuration
 
-    cp opensnitch_ui.desktop /home/user/.config/autostart/
+By default the UI will load its configuration from `~/.opensnitch/ui-config.json` (customizable with the `--config` argument), the 
+default contents of this file are:
+
+```json
+{
+	"default_timeout": 15,
+	"default_action": "allow",
+	"default_duration": "until restart"
+}
+```
+
+The `default_timeout` is the number of seconds after which the UI will take its default action, the `default_action` can be `allow` or `deny`
+and the `default_duration`, which indicates for how long the default action should be taken, can be `once`, `until restart` or `always` to
+persist the action as a new rule on disk.
 
 ### Running
 
