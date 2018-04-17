@@ -4,69 +4,33 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
 )
 
-func GetPIDs() []int {
-	pids := make([]int, 0)
-	if ls, err := ioutil.ReadDir("/proc/"); err == nil {
-		for _, f := range ls {
-			if pid, err := strconv.Atoi(f.Name()); err == nil && f.IsDir() {
-				pids = append(pids, pid)
-			}
-		}
-	}
-	return pids
-}
-
-// [inode] -> pid
-func GetOpenSockets() map[int]int {
-	m := make(map[int]int)
-
-	for _, pid := range GetPIDs() {
-		// loop process descriptors
-		path := fmt.Sprintf("/proc/%d/fd/", pid)
-		if descriptors, err := ioutil.ReadDir(path); err == nil {
-			for _, desc := range descriptors {
-				descLink := fmt.Sprintf("%s%s", path, desc.Name())
-				// resolve the symlink and compare to what we expect
-				if link, err := os.Readlink(descLink); err == nil {
-					// only consider sockets
-					if strings.HasPrefix(link, "socket:[") == true {
-						socket := link[8 : len(link)-1]
-						inode, err := strconv.Atoi(socket)
-						if err == nil {
-							m[inode] = pid
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return m
-}
-
 func GetPIDFromINode(inode int) int {
 	expect := fmt.Sprintf("socket:[%d]", inode)
-	// for every process
-	for _, pid := range GetPIDs() {
+	found := -1
+
+	forEachProcess(func(pid int, path string, args []string) bool {
 		// for every descriptor
-		path := fmt.Sprintf("/proc/%d/fd/", pid)
-		if descriptors, err := ioutil.ReadDir(path); err == nil {
+		fdPath := fmt.Sprintf("/proc/%d/fd/", pid)
+		if descriptors, err := ioutil.ReadDir(fdPath); err == nil {
 			for _, desc := range descriptors {
-				descLink := fmt.Sprintf("%s%s", path, desc.Name())
+				descLink := fmt.Sprintf("%s%s", fdPath, desc.Name())
 				// resolve the symlink and compare to what we expect
 				if link, err := os.Readlink(descLink); err == nil && link == expect {
-					return pid
+					found = pid
+					return true
 				}
 			}
 		}
-	}
-	return -1
+		// keep looping
+		return false
+	})
+
+	return found
 }
 
 func parseCmdLine(proc *Process) {

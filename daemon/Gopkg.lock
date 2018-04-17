@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/evilsocket/ftrace"
+  packages = ["."]
+  revision = "c544920c2964412e7f11325dd7dab507df9e0c2a"
+  version = "v1.1.0"
+
+[[projects]]
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
@@ -33,6 +39,7 @@
   name = "golang.org/x/net"
   packages = [
     "context",
+    "http/httpguts",
     "http2",
     "http2/hpack",
     "idna",
@@ -40,13 +47,13 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "61147c48b25b599e5b561d2e9c4f3e1ef489ca41"
+  revision = "8d16fa6dc9a85c1cd3ed24ad08ff21cf94f10888"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "2281fa97ef7b0c26324634d5a22f04babdac8713"
+  revision = "b126b21c05a91c856b027c16779c12e3bf236954"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -108,6 +115,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1ad3bf52c0a897107aab1923f419b2fb8b5828ece6f683d96a4c51970188c081"
+  inputs-digest = "e587ef96d86da97603e5100070827f6ca4b063e8eddb3ecabe9e307b7f94d99e"
   solver-name = "gps-cdcl"
   solver-version = 1

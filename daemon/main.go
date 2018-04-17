@@ -17,6 +17,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/netfilter"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 	"github.com/evilsocket/opensnitch/daemon/ui"
@@ -114,6 +115,8 @@ func doCleanup() {
 	firewall.QueueDNSResponses(false, queueNum)
 	firewall.QueueConnections(false, queueNum)
 	firewall.DropMarked(false)
+
+	go procmon.Stop()
 
 	if cpuProfile != "" {
 		pprof.StopCPUProfile()
@@ -224,6 +227,10 @@ func main() {
 	}
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
+
+	if err := procmon.Start(); err != nil {
+		log.Fatal("%s", err)
+	}
 
 	rulesPath, err := core.ExpandPath(rulesPath)
 	if err != nil {
