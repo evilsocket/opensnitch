@@ -15,7 +15,7 @@
 
 ### TL;DR
 
-Make sure you have a correctly configured **Go >= 1.8** environment, that `$GOPATH` is defined, that `$GOPATH/bin` is in `$PATH` and then:
+Make sure you have a correctly configured **Go >= 1.8** environment, that the `$GOPATH` environment variable is defined and then:
 
 ```bash
 # install dependencies
