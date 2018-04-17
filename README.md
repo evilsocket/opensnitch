@@ -22,8 +22,8 @@ Make sure you have a correctly configured **Go >= 1.8** environment, that `$GOPA
 sudo apt-get install protobuf-compiler libpcap-dev libnetfilter-queue-dev
 go get github.com/golang/protobuf/protoc-gen-go
 go get -u github.com/golang/dep/cmd/dep
-go get github.com/evilsocket/opensnitch
 # clone the repository (ignore the message about no Go files being found)
+go get github.com/evilsocket/opensnitch
 cd $GOPATH/src/github.com/evilsocket/opensnitch
 # compile && install
 make
