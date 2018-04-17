@@ -15,14 +15,19 @@
 
 ### TL;DR
 
-    sudo apt-get install golang protobuf-compiler libpcap-dev libnetfilter-queue-dev
-    python3 -m pip install --user grpcio-tools
+Make sure you have a correctly configured **Go >= 1.8** environment, that `$GOPATH` is defined, that `$GOPATH/bin` is in `$PATH` and then:
+
+    # install dependencies
+    sudo apt-get install protobuf-compiler libpcap-dev libnetfilter-queue-dev
     go get github.com/golang/protobuf/protoc-gen-go
     go get -u github.com/golang/dep/cmd/dep
-    cd /path/to/this/repo
+    go get github.com/evilsocket/opensnitch
+    # clone the repository (ignore the message about no Go files being found)
+    cd $GOPATH/src/github.com/evilsocket/opensnitch
+    # compile && install
     make
     sudo make install
-
+    # enable opensnitchd as a systemd service and start the UI
     sudo systemctl enable opensnitchd
     sudo service opensnitchd start
     opensnitch-ui
