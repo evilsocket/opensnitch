@@ -4,8 +4,8 @@
 [[projects]]
   name = "github.com/evilsocket/ftrace"
   packages = ["."]
-  revision = "c544920c2964412e7f11325dd7dab507df9e0c2a"
-  version = "v1.1.0"
+  revision = "06529699d3b47fd1adae671b6851dd6f7539c841"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/fsnotify/fsnotify"
@@ -115,6 +115,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e587ef96d86da97603e5100070827f6ca4b063e8eddb3ecabe9e307b7f94d99e"
+  inputs-digest = "61c68a1d6debe86e99277786bae9dde7665632da5d854cc5e40f9d349aacd99e"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -95,6 +95,9 @@ func eventConsumer() {
 }
 
 func Start() (err error) {
+	// start from a clean state
+	watcher.Reset()
+
 	if err = watcher.Enable(); err == nil {
 		go eventConsumer()
 		// track running processes
