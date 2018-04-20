@@ -94,7 +94,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             for col in range(0, ncols):
                 cols.append(table.horizontalHeaderItem(col).text())
 
-            with open(filename, 'wb') as csvfile:
+            with open(filename, 'w') as csvfile:
                 w = csv.writer(csvfile, dialect='excel')
                 w.writerow(cols)
                 
