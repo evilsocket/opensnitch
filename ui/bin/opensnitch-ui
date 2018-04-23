@@ -1,0 +1,59 @@
+#!/usr/bin/python3
+
+from PyQt5 import QtWidgets, QtGui
+
+import sys
+import os
+import time
+import signal
+import argparse
+import logging
+
+logging.getLogger().disabled = True
+
+from concurrent import futures
+
+import grpc
+
+from opensnitch.service import UIService
+from opensnitch.config import Config
+import opensnitch.version
+import opensnitch.ui_pb2
+from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
+
+def on_exit():
+    app.quit()
+    server.stop(0)
+    sys.exit(0)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='OpenSnitch UI service.')
+    parser.add_argument("--socket", dest="socket", default="unix:///tmp/osui.sock", help="Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).", metavar="FILE")
+    parser.add_argument("--config", dest="config", default="~/.opensnitch/ui-config.json", help="Path of the UI json configuration file.", metavar="FILE")
+
+    args = parser.parse_args()
+
+    app = QtWidgets.QApplication(sys.argv)
+
+    service = UIService(app, on_exit, args.config)
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
+
+    add_UIServicer_to_server(service, server)
+    
+    if args.socket.startswith("unix://"):
+        socket = args.socket[7:]
+        socket = os.path.abspath(socket)
+        server.add_insecure_port("unix:%s" % socket)
+    else:
+        server.add_insecure_port(args.socket)
+
+    # https://stackoverflow.com/questions/5160577/ctrl-c-doesnt-work-with-pyqt
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    try:
+        # print "OpenSnitch UI service running on %s ..." % socket
+        server.start()
+        app.exec_()
+    except KeyboardInterrupt:
+        on_exit()
+

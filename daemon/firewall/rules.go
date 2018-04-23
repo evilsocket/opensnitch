@@ -56,12 +56,12 @@ func QueueConnections(enable bool, queueNum int) (err error) {
 }
 
 // Reject packets marked by OpenSnitch
-// OUTPUT -m mark --mark 101285 -j REJECT
-func RejectMarked(enable bool) (err error) {
+// OUTPUT -m mark --mark 101285 -j DROP
+func DropMarked(enable bool) (err error) {
 	return RunRule(enable, []string{
 		"OUTPUT",
 		"-m", "mark",
 		"--mark", fmt.Sprintf("%d", DropMark),
-		"-j", "REJECT",
+		"-j", "DROP",
 	})
 }

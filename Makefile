@@ -1,22 +1,50 @@
-all: protocol daemon/daemon
+all: protocol daemon/opensnitchd ui/resources_rc.py
+
+install:
+	@cd daemon && make install	
+	@cd ui && make install
 
 protocol:
 	@cd proto && make
 
-daemon/daemon:
+daemon/opensnitchd:
 	@cd daemon && make
 
+ui/resources_rc.py:
+	@cd ui && make
+
+deps:
+	@cd daemon && make deps
+	@cd ui && make deps
+
 clean:
-	@rm -rf rules
 	@cd daemon && make clean
 	@cd proto && make clean
 
-test:
+run:
+	cd ui && sudo pip3 install --upgrade . && cd ..
+	opensnitch-ui --socket unix:///tmp/osui.sock &
+	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock -cpu-profile cpu.profile -mem-profile mem.profile
+
+test: 
 	clear 
 	make clean
 	clear
-	mkdir rules
+	mkdir -p rules
 	make 
 	clear
-	python ui/main.py &
-	sudo ./daemon/daemon
+	make run
+
+adblocker:
+	clear 
+	make clean
+	clear
+	make 
+	clear
+	python make_ads_rules.py
+	clear
+	cd ui && sudo pip3 install --upgrade . && cd ..
+	opensnitch-ui --socket unix:///tmp/osui.sock &
+	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock 
+
+

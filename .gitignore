@@ -1,2 +1,4 @@
 *.sock
+*.pyc
+*.profile
 rules

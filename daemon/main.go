@@ -2,10 +2,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	golog "log"
 	"os"
 	"os/signal"
+	"runtime"
+	"runtime/pprof"
 	"syscall"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
@@ -13,40 +16,63 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/dns"
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/netfilter"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 	"github.com/evilsocket/opensnitch/daemon/ui"
-
-	"github.com/evilsocket/go-netfilter-queue"
 )
 
 var (
-	logFile   = ""
-	rulesPath = "rules"
-	queueNum  = 0
-	workers   = 16
-	debug     = false
+	logFile      = ""
+	rulesPath    = "rules"
+	noLiveReload = false
+	queueNum     = 0
+	workers      = 16
+	debug        = false
 
-	uiSocketPath = "opensnitch-ui.sock"
-	uiClient     = (*ui.Client)(nil)
+	uiSocket = "unix:///tmp/osui.sock"
+	uiClient = (*ui.Client)(nil)
+
+	cpuProfile = ""
+	memProfile = ""
 
 	err     = (error)(nil)
-	rules   = rule.NewLoader()
-	stats   = statistics.New()
-	queue   = (*netfilter.NFQueue)(nil)
-	pktChan = (<-chan netfilter.NFPacket)(nil)
-	wrkChan = (chan netfilter.NFPacket)(nil)
+	rules   = (*rule.Loader)(nil)
+	stats   = (*statistics.Statistics)(nil)
+	queue   = (*netfilter.Queue)(nil)
+	pktChan = (<-chan netfilter.Packet)(nil)
+	wrkChan = (chan netfilter.Packet)(nil)
 	sigChan = (chan os.Signal)(nil)
 )
 
 func init() {
-	flag.StringVar(&uiSocketPath, "ui-socket-path", uiSocketPath, "UNIX socket of the UI gRPC service.")
+	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
 	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
 	flag.IntVar(&workers, "workers", workers, "Number of concurrent workers.")
+	flag.BoolVar(&noLiveReload, "no-live-reload", debug, "Disable rules live reloading.")
 
 	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
 	flag.BoolVar(&debug, "debug", debug, "Enable debug logs.")
+
+	flag.StringVar(&cpuProfile, "cpu-profile", cpuProfile, "Write CPU profile to this file.")
+	flag.StringVar(&memProfile, "mem-profile", memProfile, "Write memory profile to this file.")
+}
+
+func setupLogging() {
+	golog.SetOutput(ioutil.Discard)
+	if debug {
+		log.MinLevel = log.DEBUG
+	} else {
+		log.MinLevel = log.INFO
+	}
+
+	if logFile != "" {
+		if log.Output, err = os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func setupSignals() {
@@ -78,7 +104,7 @@ func worker(id int) {
 func setupWorkers() {
 	log.Debug("Starting %d workers ...", workers)
 	// setup the workers
-	wrkChan = make(chan netfilter.NFPacket)
+	wrkChan = make(chan netfilter.Packet)
 	for i := 0; i < workers; i++ {
 		go worker(i)
 	}
@@ -88,10 +114,29 @@ func doCleanup() {
 	log.Info("Cleaning up ...")
 	firewall.QueueDNSResponses(false, queueNum)
 	firewall.QueueConnections(false, queueNum)
-	firewall.RejectMarked(false)
+	firewall.DropMarked(false)
+
+	go procmon.Stop()
+
+	if cpuProfile != "" {
+		pprof.StopCPUProfile()
+	}
+
+	if memProfile != "" {
+		f, err := os.Create(memProfile)
+		if err != nil {
+			fmt.Printf("Could not create memory profile: %s\n", err)
+			return
+		}
+		defer f.Close()
+		runtime.GC() // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			fmt.Printf("Could not write memory profile: %s\n", err)
+		}
+	}
 }
 
-func onPacket(packet netfilter.NFPacket) {
+func onPacket(packet netfilter.Packet) {
 	// DNS response, just parse, track and accept.
 	if dns.TrackAnswers(packet.Packet) == true {
 		packet.SetVerdict(netfilter.NF_ACCEPT)
@@ -107,14 +152,12 @@ func onPacket(packet netfilter.NFPacket) {
 		return
 	}
 
-	stats.OnConnection(con)
-
 	// search a match in preloaded rules
 	connected := false
+	missed := false
 	r := rules.FindFirstMatch(con)
 	if r == nil {
-		stats.OnRuleMiss()
-
+		missed = true
 		// no rule matched, send a request to the
 		// UI client if connected and running
 		r, connected = uiClient.Ask(con)
@@ -148,84 +191,80 @@ func onPacket(packet netfilter.NFPacket) {
 			}
 
 			if ok {
-				log.Important("%s new rule: %s if %s is %s", pers, action, log.Bold(string(r.Rule.What)), log.Yellow(string(r.Rule.With)))
+				log.Important("%s new rule: %s if %s", pers, action, r.Operator.String())
 			}
 		}
-	} else {
-		stats.OnRuleHit()
 	}
+
+	stats.OnConnectionEvent(con, r, missed)
 
 	if r.Action == rule.Allow {
-		stats.OnAccept()
-
 		packet.SetVerdict(netfilter.NF_ACCEPT)
+
 		ruleName := log.Green(r.Name)
-		if r.Rule.What == rule.OpTrue {
+		if r.Operator.Operand == rule.OpTrue {
 			ruleName = log.Dim(r.Name)
 		}
-
 		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
-		return
+	} else {
+		packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
+
+		log.Warning("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
 	}
-
-	stats.OnDrop()
-	packet.SetVerdict(netfilter.NF_DROP)
-
-	log.Warning("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
 }
 
 func main() {
-	golog.SetOutput(ioutil.Discard)
 	flag.Parse()
 
-	if debug {
-		log.MinLevel = log.DEBUG
-	} else {
-		log.MinLevel = log.INFO
-	}
+	setupLogging()
 
-	if logFile != "" {
-		if log.Output, err = os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
-			panic(err)
+	if cpuProfile != "" {
+		if f, err := os.Create(cpuProfile); err != nil {
+			log.Fatal("%s", err)
+		} else if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("%s", err)
 		}
 	}
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
+
+	if err := procmon.Start(); err != nil {
+		log.Fatal("%s", err)
+	}
 
 	rulesPath, err := core.ExpandPath(rulesPath)
 	if err != nil {
 		log.Fatal("%s", err)
 	}
 
-	uiSocketPath, err = core.ExpandPath(uiSocketPath)
-	if err != nil {
+	setupSignals()
+
+	log.Info("Loading rules from %s ...", rulesPath)
+	if rules, err = rule.NewLoader(!noLiveReload); err != nil {
+		log.Fatal("%s", err)
+	} else if err = rules.Load(rulesPath); err != nil {
 		log.Fatal("%s", err)
 	}
-
-	setupSignals()
-	setupWorkers()
+	stats = statistics.New(rules)
 
 	// prepare the queue
-	queue, err := netfilter.NewNFQueue(uint16(queueNum), 4096, netfilter.NF_DEFAULT_PACKET_SIZE)
+	setupWorkers()
+	queue, err := netfilter.NewQueue(uint16(queueNum))
 	if err != nil {
 		log.Fatal("Error while creating queue #%d: %s", queueNum, err)
 	}
-	pktChan = queue.GetPackets()
+	pktChan = queue.Packets()
 
 	// queue is ready, run firewall rules
 	if err = firewall.QueueDNSResponses(true, queueNum); err != nil {
 		log.Fatal("Error while running DNS firewall rule: %s", err)
 	} else if err = firewall.QueueConnections(true, queueNum); err != nil {
 		log.Fatal("Error while running conntrack firewall rule: %s", err)
-	} else if err = firewall.RejectMarked(true); err != nil {
-		log.Fatal("Error while running reject firewall rule: %s", err)
+	} else if err = firewall.DropMarked(true); err != nil {
+		log.Fatal("Error while running drop firewall rule: %s", err)
 	}
 
-	log.Info("Loading rules from %s ...", rulesPath)
-	if err := rules.Load(rulesPath); err != nil {
-		log.Fatal("%s", err)
-	}
-	uiClient = ui.NewClient(uiSocketPath, stats)
+	uiClient = ui.NewClient(uiSocket, stats)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for true {

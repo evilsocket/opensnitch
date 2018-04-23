@@ -4,6 +4,7 @@ type Process struct {
 	ID   int
 	Path string
 	Args []string
+	Env  map[string]string
 }
 
 func NewProcess(pid int, path string) *Process {
@@ -11,5 +12,6 @@ func NewProcess(pid int, path string) *Process {
 		ID:   pid,
 		Path: path,
 		Args: make([]string, 0),
+		Env:  make(map[string]string),
 	}
 }

@@ -24,7 +24,8 @@ class LinuxDesktopParser(threading.Thread):
         # just because of icons tho, this hack is way easier)
         self.fixes = {
             '/opt/google/chrome/chrome': '/opt/google/chrome/google-chrome',
-            '/usr/lib/firefox/firefox': '/usr/lib/firefox/firefox.sh'
+            '/usr/lib/firefox/firefox': '/usr/lib/firefox/firefox.sh',
+            '/usr/bin/pidgin.orig': '/usr/bin/pidgin'
         }
 
         for desktop_path in DESKTOP_PATHS:
@@ -73,7 +74,7 @@ class LinuxDesktopParser(threading.Thread):
     def get_info_by_path(self, path, default_icon):
         def_name = os.path.basename(path)
         # apply fixes
-        for orig, to in self.fixes.iteritems():
+        for orig, to in self.fixes.items():
             if path == orig:
                 path = to
                 break

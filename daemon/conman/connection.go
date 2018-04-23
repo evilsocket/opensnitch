@@ -3,14 +3,14 @@ package conman
 import (
 	"fmt"
 	"net"
+	"os"
 
 	"github.com/evilsocket/opensnitch/daemon/dns"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/netfilter"
 	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
-	protocol "github.com/evilsocket/opensnitch/proto"
-
-	"github.com/evilsocket/go-netfilter-queue"
+	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 
 	"github.com/google/gopacket/layers"
 )
@@ -25,10 +25,10 @@ type Connection struct {
 	Entry    *netstat.Entry
 	Process  *procmon.Process
 
-	pkt *netfilter.NFPacket
+	pkt *netfilter.Packet
 }
 
-func Parse(nfp netfilter.NFPacket) *Connection {
+func Parse(nfp netfilter.Packet) *Connection {
 	ipLayer := nfp.Packet.Layer(layers.LayerTypeIPv4)
 	if ipLayer == nil {
 		return nil
@@ -67,7 +67,36 @@ func Parse(nfp netfilter.NFPacket) *Connection {
 	return con
 }
 
-func (c *Connection) checkLayers() bool {
+func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err error) {
+	c = &Connection{
+		SrcIP:   ip.SrcIP,
+		DstIP:   ip.DstIP,
+		DstHost: dns.HostOr(ip.DstIP, ""),
+		pkt:     nfp,
+	}
+
+	// no errors but not enough info neither
+	if c.parseDirection() == false {
+		return nil, nil
+	}
+
+	// 1. lookup uid and inode using /proc/net/(udp|tcp)
+	// 2. lookup pid by inode
+	// 3. if this is coming from us, just accept
+	// 4. lookup process info by pid
+	if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
+		return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
+	} else if pid := procmon.GetPIDFromINode(c.Entry.INode); pid == -1 {
+		return nil, fmt.Errorf("Could not find process id for: %s", c)
+	} else if pid == os.Getpid() {
+		return nil, nil
+	} else if c.Process = procmon.FindProcess(pid); c.Process == nil {
+		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
+	}
+	return c, nil
+}
+
+func (c *Connection) parseDirection() bool {
 	for _, layer := range c.pkt.Packet.Layers() {
 		if layer.LayerType() == layers.LayerTypeTCP {
 			if tcp, ok := layer.(*layers.TCP); ok == true && tcp != nil {
@@ -89,36 +118,6 @@ func (c *Connection) checkLayers() bool {
 	return false
 }
 
-func NewConnection(nfp *netfilter.NFPacket, ip *layers.IPv4) (c *Connection, err error) {
-	c = &Connection{
-		SrcIP:   ip.SrcIP,
-		DstIP:   ip.DstIP,
-		DstHost: dns.HostOr(ip.DstIP, ""),
-		pkt:     nfp,
-	}
-
-	// no errors but not enough info neither
-	if c.checkLayers() == false {
-		return nil, nil
-	}
-
-	// Lookup uid and inode using /proc/net/(udp|tcp)
-	if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
-		return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
-	}
-
-	// snapshot a map of: inode -> pid
-	sockets := procmon.GetOpenSockets()
-	// lookup pid by inode and process by pid
-	if pid, found := sockets[c.Entry.INode]; found == false {
-		return nil, fmt.Errorf("Could not find process id for: %s", c)
-	} else if c.Process = procmon.FindProcess(pid); c.Process == nil {
-		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
-	}
-
-	return c, nil
-}
-
 func (c *Connection) To() string {
 	if c.DstHost == "" {
 		return c.DstIP.String()
@@ -138,8 +137,8 @@ func (c *Connection) String() string {
 	return fmt.Sprintf("%s (%d) -> %s:%d (proto:%s uid:%d)", c.Process.Path, c.Process.ID, c.To(), c.DstPort, c.Protocol, c.Entry.UserId)
 }
 
-func (c *Connection) ToRequest() *protocol.RuleRequest {
-	return &protocol.RuleRequest{
+func (c *Connection) Serialize() *protocol.Connection {
+	return &protocol.Connection{
 		Protocol:    c.Protocol,
 		SrcIp:       c.SrcIP.String(),
 		SrcPort:     uint32(c.SrcPort),
