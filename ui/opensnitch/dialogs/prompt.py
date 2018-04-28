@@ -81,13 +81,14 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return self._rule
 
     def _timeout_worker(self):
-        while self._tick > 0 and self._done.is_set() is False:
-            self._tick -= 1
-            self._tick_trigger.emit()
-            time.sleep(1)
-        
-        if not self._done.is_set():
-            self._timeout_trigger.emit()
+        if self._tick > 0:
+            while self._tick > 0 and self._done.is_set() is False:
+                self._tick -= 1
+                self._tick_trigger.emit()
+                time.sleep(1)
+
+            if not self._done.is_set():
+                self._timeout_trigger.emit()
 
     @QtCore.pyqtSlot()
     def on_connection_prompt_triggered(self):
@@ -171,7 +172,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._what_combo.setCurrentIndex(0)
 
-        self._apply_button.setText("Apply (%d)" % self._tick)
+        if self._cfg.default_timeout != 0:
+            self._apply_button.setText("Apply (%d)" % self._tick)
+        else:
+            self._apply_button.setText("Apply")
 
         self.setFixedSize(self.size())
 
