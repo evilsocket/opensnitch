@@ -106,6 +106,12 @@
      <property name="text">
       <string>/op/google/chrome/bin/chrome --something abc --something else</string>
      </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -318,15 +324,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QComboBox" name="actionCombo">
-       <property name="minimumSize">
-        <size>
-         <width>97</width>
-         <height>26</height>
-        </size>
-       </property>
        <property name="maximumSize">
         <size>
-         <width>250</width>
+         <width>300</width>
          <height>50</height>
         </size>
        </property>
@@ -344,15 +344,9 @@
      </item>
      <item>
       <widget class="QComboBox" name="whatCombo">
-       <property name="minimumSize">
-        <size>
-         <width>97</width>
-         <height>26</height>
-        </size>
-       </property>
        <property name="maximumSize">
         <size>
-         <width>270</width>
+         <width>300</width>
          <height>50</height>
         </size>
        </property>
@@ -380,12 +374,6 @@
      </item>
      <item>
       <widget class="QComboBox" name="durationCombo">
-       <property name="minimumSize">
-        <size>
-         <width>97</width>
-         <height>26</height>
-        </size>
-       </property>
        <property name="maximumSize">
         <size>
          <width>270</width>
