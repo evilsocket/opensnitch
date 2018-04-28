@@ -78,7 +78,7 @@ default contents of this file are:
 }
 ```
 
-The `default_timeout` is the number of seconds after which the UI will take its default action, the `default_action` can be `allow` or `deny`
+The `default_timeout` is the number of seconds after which the UI will take its default action (setting to 0 will disable auto apply), the `default_action` can be `allow` or `deny`
 and the `default_duration`, which indicates for how long the default action should be taken, can be `once`, `until restart` or `always` to
 persist the action as a new rule on disk.
 
