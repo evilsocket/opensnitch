@@ -20,7 +20,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     _trigger = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, address=None):
-        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
+        QtWidgets.QDialog.__init__(self, parent)
 
         self.setupUi(self)
 
@@ -201,7 +201,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             by_users = {}
             if self._address is None:
                 for uid, hits in self._stats.by_uid.items():
-                    by_users["%s (%s)" % (pwd.getpwuid(int(uid)).pw_name, uid)] = hits
+                    try:
+                        pwduid = pwd.getpwuid(int(uid)).pw_name
+                    except:
+                        pwduid = pwd.getpwuid(int(uid)).pw_name
+                    by_users["%s (%s)" % (pwduid, uid)] = hits
+
             else:
                 by_users = self._stats.by_uid
 
