@@ -19,9 +19,10 @@ Make sure you have a correctly configured **Go >= 1.8** environment, that the `$
 
 ```bash
 # install dependencies
-sudo apt-get install protobuf-compiler libpcap-dev libnetfilter-queue-dev
+sudo apt-get install protobuf-compiler libpcap-dev libnetfilter-queue-dev python3-pip
 go get github.com/golang/protobuf/protoc-gen-go
 go get -u github.com/golang/dep/cmd/dep
+python3 -m pip install --user grpcio-tools
 # clone the repository (ignore the message about no Go files being found)
 go get github.com/evilsocket/opensnitch
 cd $GOPATH/src/github.com/evilsocket/opensnitch
