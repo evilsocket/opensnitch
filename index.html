@@ -103,175 +103,177 @@
 
   <!-- Github buttons created using: https://github.com/ntkme/github-buttons -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  <style>
+    /* TODO: Ideally move CSS to separate file and minify it (Jekyll would be nice) */
+
+    /* Some basic styling */
+
+    body {
+      color: #eaeaea;
+      margin: 0;
+      font-family: 'Noto Sans', sans-serif;
+      background: #232526;
+      background: -webkit-linear-gradient(to right, #414345, #232526);
+      background: linear-gradient(to right, #414345, #232526);
+    }
+
+    a,
+    a:link,
+    a:visited {
+      color: #ffffff;
+      transition: .3s;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Vertical aligner */
+
+    .aligner {
+      display: flex;
+      flex-wrap: wrap;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .aligner .top {
+      align-self: flex-start;
+    }
+
+    .aligner>.item {
+      width: 100%;
+      margin: 0 auto;
+      z-index: 20;
+      text-align: center;
+    }
+
+    .aligner .bottom {
+      align-self: flex-end;
+    }
+
+    /* Navbar */
+
+    .navbar {
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 1000px;
+      justify-content: space-between;
+    }
+
+    .navbar .menu {
+      display: flex;
+    }
+
+    .navbar .menu>span,
+    .navbar .menu>iframe {
+      padding: 6px;
+    }
+
+    .navbar>.item {
+      display: block;
+      padding: 12px 16px;
+      font-weight: bold;
+    }
+
+    .navbar .menu>.github-button {
+      padding: 12px 16px;
+    }
+
+    /* Content styling */
+
+    .content {
+      margin: 0 auto;
+      padding: 64px 16px;
+      max-width: 1000px;
+    }
+
+    .content h1 {
+      margin-bottom: .2em;
+    }
+
+    .content h2 {
+      margin-top: .2em;
+      font-weight: normal;
+    }
+
+    .content .logo {
+      width: 25%;
+      margin: -32px;
+      filter: drop-shadow(0px 0px 8px #ffffff) invert(100%);
+      min-width: 150px;
+      max-width: 200px;
+    }
+
+    .content a.screen {
+      width: 85%;
+      margin: 0 auto;
+      border: 4px #293d50 solid;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .content img.screen {
+      width: 100%;
+      display: block;
+      transition: .3s;
+      border-radius: 4px;
+    }
+
+    .content a.screen:hover {
+      border: 4px #435f79 solid;
+    }
+
+    .content a.screen:hover>img {
+      filter: contrast(110%)
+    }
+
+    /* Links section */
+
+    .links {
+      margin: 16px 0;
+    }
+
+    .links>span,
+    .links>iframe {
+      margin: 2px;
+      display: inline-block;
+    }
+
+    .links .github-button {
+      margin: 4px;
+      display: inline-block;
+      padding: 8px 16px;
+      font-weight: bold;
+      border-radius: 4px;
+      background-color: #315c85;
+    }
+
+    .links .github-button:hover {
+      text-decoration: none;
+      background-color: #1c63a5;
+    }
+
+    /* Footer styling */
+
+    .footer {
+      color: #e0e0e0;
+      padding: 16px 8px;
+    }
+
+    .footer .product {
+      color: #ffffff;
+    }
+
+    .footer .love {
+      color: #ff0000;
+    }
+  </style>
 </body>
-
-<style>
-  /* TODO: Ideally move CSS to separate file and minify it (Jekyll would be nice) */
-
-  /* Some basic styling */
-
-  body {
-    color: #eaeaea;
-    margin: 0;
-    font-family: 'Noto Sans', sans-serif;
-    background: #232526;
-    background: -webkit-linear-gradient(to right, #414345, #232526);
-    background: linear-gradient(to right, #414345, #232526);
-  }
-
-  a,
-  a:link,
-  a:visited {
-    color: #ffffff;
-    transition: .3s;
-    text-decoration: none;
-  }
-
-  a:hover {
-    color: #ffffff;
-    text-decoration: underline;
-  }
-
-  /* Vertical aligner */
-
-  .aligner {
-    display: flex;
-    flex-wrap: wrap;
-    min-height: 100vh;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .aligner .top {
-    align-self: flex-start;
-  }
-
-  .aligner>.item {
-    width: 100%;
-    margin: 0 auto;
-    z-index: 20;
-    text-align: center;
-  }
-
-  .aligner .bottom {
-    align-self: flex-end;
-  }
-
-  /* Navbar */
-
-  .navbar {
-    margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-    max-width: 1000px;
-    justify-content: space-between;
-  }
-
-  .navbar .menu {
-    display: flex;
-  }
-
-  .navbar .menu>span {
-    padding: 6px;
-  }
-
-  .navbar>.item {
-    display: block;
-    padding: 12px 16px;
-    font-weight: bold;
-  }
-
-  .navbar .menu>.github-button {
-    padding: 12px 16px;
-  }
-
-  /* Content styling */
-
-  .content {
-    margin: 0 auto;
-    padding: 16px 64px;
-    max-width: 1000px;
-  }
-
-  .content h1 {
-    margin-bottom: .2em;
-  }
-
-  .content h2 {
-    margin-top: .2em;
-    font-weight: normal;
-  }
-
-  .content .logo {
-    width: 25%;
-    margin: -32px;
-    filter: drop-shadow(0px 0px 8px #ffffff) invert(100%);
-    min-width: 150px;
-    max-width: 200px;
-  }
-
-  .content a.screen {
-    width: 85%;
-    margin: 0 auto;
-    border: 4px #293d50 solid;
-    display: block;
-    border-radius: 8px;
-  }
-
-  .content img.screen {
-    width: 100%;
-    display: block;
-    transition: .3s;
-    border-radius: 4px;
-  }
-
-  .content a.screen:hover {
-    border: 4px #435f79 solid;
-  }
-
-  .content a.screen:hover>img {
-    filter: contrast(110%)
-  }
-
-  /* Links section */
-
-  .links {
-    margin: 16px 0;
-  }
-
-  .links>span {
-    margin: 2px;
-    display: inline-block;
-  }
-
-  .links .github-button {
-    margin: 4px;
-    display: inline-block;
-    padding: 8px 16px;
-    font-weight: bold;
-    border-radius: 4px;
-    background-color: #315c85;
-  }
-
-  .links .github-button:hover {
-    text-decoration: none;
-    background-color: #1c63a5;
-  }
-
-  /* Footer styling */
-
-  .footer {
-    color: #e0e0e0;
-    padding: 16px 8px;
-  }
-
-  .footer .product {
-    color: #ffffff;
-  }
-
-  .footer .love {
-    color: #ff0000;
-  }
-</style>
 
 </html>
