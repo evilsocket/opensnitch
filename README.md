@@ -7,7 +7,7 @@
   </p>
 </p>
 
-**OpenSnitch** is a GNU/Linux port of the Little Snitch application firewall. 
+**OpenSnitch** is a GNU/Linux port of the Little Snitch application firewall.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/screenshot.png" alt="OpenSnitch"/>
@@ -37,7 +37,7 @@ opensnitch-ui
 
 ### Daemon
 
-The `daemon` is implemented in Go and needs to run as root in order to interact with the Netfilter packet queue, edit 
+The `daemon` is implemented in Go and needs to run as root in order to interact with the Netfilter packet queue, edit
 iptables rules and so on, in order to compile it you will need to install the `protobuf-compiler`, `libpcap-dev` and `libnetfilter-queue-dev`
 packages on your system, then just:
 
@@ -57,7 +57,7 @@ The user interface is a Python 3 software running as a `gRPC` server on a unix s
     cd ui
     sudo pip3 install -r requirements.txt
 
-You will also need to install the package `python-pyqt5` for your system (if anyone finds a way to make this work from 
+You will also need to install the package `python-pyqt5` for your system (if anyone finds a way to make this work from
 the `requirements.txt` file feel free to send a PR).
 
 The UI is pip installable itself:
@@ -65,17 +65,17 @@ The UI is pip installable itself:
     sudo pip3 install .
 
 This will install the `opensnitch-ui` command on your system (you can auto startup it by `cp opensnitch_ui.desktop ~/.config/autostart/`).
-  
+
 #### UI Configuration
 
-By default the UI will load its configuration from `~/.opensnitch/ui-config.json` (customizable with the `--config` argument), the 
+By default the UI will load its configuration from `~/.opensnitch/ui-config.json` (customizable with the `--config` argument), the
 default contents of this file are:
 
 ```json
 {
-	"default_timeout": 15,
-	"default_action": "allow",
-	"default_duration": "until restart"
+  "default_timeout": 15,
+  "default_action": "allow",
+  "default_duration": "until restart"
 }
 ```
 
@@ -106,17 +106,17 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 
 ```json
 {
-   "created": "2018-04-07T14:13:27.903996051+02:00",
-   "updated": "2018-04-07T14:13:27.904060088+02:00",
-   "name": "deny-simple-www-google-analytics-l-google-com",
-   "enabled": true,
-   "action": "deny",
-   "duration": "always",
-   "operator": {
-     "type": "simple",
-     "operand": "dest.host",
-     "data": "www-google-analytics.l.google.com"
-   }
+  "created": "2018-04-07T14:13:27.903996051+02:00",
+  "updated": "2018-04-07T14:13:27.904060088+02:00",
+  "name": "deny-simple-www-google-analytics-l-google-com",
+  "enabled": true,
+  "action": "deny",
+  "duration": "always",
+  "operator": {
+    "type": "simple",
+    "operand": "dest.host",
+    "data": "www-google-analytics.l.google.com"
+  }
 }
 ```
 
@@ -136,17 +136,17 @@ An example with a regular expression:
 
 ```json
 {
-   "created": "2018-04-07T14:13:27.903996051+02:00",
-   "updated": "2018-04-07T14:13:27.904060088+02:00",
-   "name": "deny-any-google-analytics",
-   "enabled": true,
-   "action": "deny",
-   "duration": "always",
-   "operator": {
-     "type": "regexp",
-     "operand": "dest.host",
-     "data": "(?i).*analytics.*\\.google\\.com"
-   }
+  "created": "2018-04-07T14:13:27.903996051+02:00",
+  "updated": "2018-04-07T14:13:27.904060088+02:00",
+  "name": "deny-any-google-analytics",
+  "enabled": true,
+  "action": "deny",
+  "duration": "always",
+  "operator": {
+    "type": "regexp",
+    "operand": "dest.host",
+    "data": "(?i).*analytics.*\\.google\\.com"
+  }
 }
 ```
 
@@ -154,18 +154,18 @@ An example whitelisting a whole process:
 
 ```json
 {
-   "created": "2018-04-07T15:00:48.156737519+02:00",
-   "updated": "2018-04-07T15:00:48.156772601+02:00",
-   "name": "allow-simple-opt-google-chrome-chrome",
-   "enabled": true,
-   "action": "allow",
-   "duration": "always",
-   "operator": {
-     "type": "simple",
-     "operand": "process.path",
-     "data": "/opt/google/chrome/chrome"
-   }
- }
+  "created": "2018-04-07T15:00:48.156737519+02:00",
+  "updated": "2018-04-07T15:00:48.156772601+02:00",
+  "name": "allow-simple-opt-google-chrome-chrome",
+  "enabled": true,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "simple",
+    "operand": "process.path",
+    "data": "/opt/google/chrome/chrome"
+  }
+}
 ```
 
 ### FAQ
@@ -176,6 +176,6 @@ I tried, but for very fast updates it failed bad on my configuration (failed bad
 
 ##### Why gRPC and not DBUS?
 
-The UI service is able to use a TCP listener instead of a UNIX socket, that means the UI service itself can be executed on any 
+The UI service is able to use a TCP listener instead of a UNIX socket, that means the UI service itself can be executed on any
 operating system, while receiving messages from a single local daemon instance or multiple instances from remote computers in the network,
 therefore DBUS would have made the protocol and logic uselessly GNU/Linux specific.
