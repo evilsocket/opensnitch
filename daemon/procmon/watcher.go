@@ -10,7 +10,7 @@ import (
 
 const (
 	probeName   = "opensnitch_exec_probe"
-	syscallName = "sys_execve"
+	syscallName = "do_execve"
 )
 
 type procData struct {
