@@ -201,7 +201,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             by_users = {}
             if self._address is None:
                 for uid, hits in self._stats.by_uid.items():
-                    by_users["%s (%s)" % (pwd.getpwuid(int(uid)).pw_name, uid)] = hits
+                    try:
+                        pw_name = pwd.getpwall(int(uid)).pw_name
+                    except KeyError:
+                        pw_name = "(UID error)"
+                    finally:
+                        by_users["%s (%s)" % (pw_name, uid)] = hits
             else:
                 by_users = self._stats.by_uid
 
