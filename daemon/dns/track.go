@@ -41,37 +41,50 @@ func TrackAnswers(packet gopacket.Packet) bool {
 	}
 
 	for _, ans := range dnsAns.Answers {
-		if ans.Name != nil && ans.IP != nil {
-			Track(ans.IP, string(ans.Name))
+		if ans.Name != nil {
+			if ans.IP != nil {
+				Track(ans.IP.String(), string(ans.Name))
+			} else if ans.CNAME != nil {
+				Track(string(ans.CNAME), string(ans.Name))
+			}
 		}
 	}
 
 	return true
 }
 
-func Track(ip net.IP, hostname string) {
-	address := ip.String()
-
+func Track(resolved string, hostname string) {
 	lock.Lock()
 	defer lock.Unlock()
 
-	responses[address] = hostname
+	responses[resolved] = hostname
 
-	log.Debug("New DNS record: %s -> %s", address, hostname)
+	log.Debug("New DNS record: %s -> %s", resolved, hostname)
 }
 
-func Host(ip net.IP) (host string, found bool) {
-	address := ip.String()
-
+func Host(resolved string) (host string, found bool) {
 	lock.Lock()
 	defer lock.Unlock()
 
-	host, found = responses[address]
+	host, found = responses[resolved]
 	return
 }
 
 func HostOr(ip net.IP, or string) string {
-	if host, found := Host(ip); found == true {
+	if host, found := Host(ip.String()); found == true {
+		// host might have been CNAME; go back until we reach the "root"
+		seen := make(map[string]bool) // prevent possibility of loops
+		for {
+			orig, had := Host(host)
+			if seen[orig] {
+				break
+			}
+			if !had {
+				break
+			}
+			seen[orig] = true
+			host = orig
+		}
 		return host
 	}
 	return or
