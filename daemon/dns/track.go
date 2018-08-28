@@ -12,7 +12,7 @@ import (
 
 var (
 	responses = make(map[string]string, 0)
-	lock      = sync.Mutex{}
+	lock      = sync.RWMutex{}
 )
 
 func TrackAnswers(packet gopacket.Packet) bool {
@@ -63,8 +63,8 @@ func Track(resolved string, hostname string) {
 }
 
 func Host(resolved string) (host string, found bool) {
-	lock.Lock()
-	defer lock.Unlock()
+	lock.RLock()
+	defer lock.RUnlock()
 
 	host, found = responses[resolved]
 	return
