@@ -71,7 +71,7 @@ func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err e
 	c = &Connection{
 		SrcIP:   ip.SrcIP,
 		DstIP:   ip.DstIP,
-		DstHost: dns.HostOr(ip.DstIP, ""),
+		DstHost: dns.HostOr(ip.DstIP, ip.DstIP.String()),
 		pkt:     nfp,
 	}
 
