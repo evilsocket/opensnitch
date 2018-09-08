@@ -176,7 +176,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def _on_update_triggered(self):
-        pw_name = "(UID error)"
         if self.daemon_connected:
             self._status_label.setText("running")
             self._status_label.setStyleSheet('color: green')
@@ -206,6 +205,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         pw_name = pwd.getpwuid(int(uid)).pw_name
                     except KeyError:
                         pw_name = "(UID error)"
+                    except Exception:
+                        pw_name = "error"
                     finally:
                         by_users["%s (%s)" % (pw_name, uid)] = hits
             else:
