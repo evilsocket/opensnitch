@@ -44,7 +44,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._remote_lock = Lock()
         self._remote_stats = {}
 
-        # make sure we save the configuration if it 
+        # make sure we save the configuration if it
         # does not exist as a file yet
         if self._cfg.exists == False:
             self._cfg.save()
@@ -57,7 +57,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.check_thread = Thread(target=self._async_worker)
         self.check_thread.daemon = True
         self.check_thread.start()
-    
+
     # https://gist.github.com/pklaus/289646
     def _setup_interfaces(self):
         max_possible = 128  # arbitrary. raise if needed.
@@ -120,7 +120,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         if self._version_warning_shown == False:
             self._msg.setIcon(QtWidgets.QMessageBox.Warning)
             self._msg.setWindowTitle("OpenSnitch version mismatch!")
-            self._msg.setText("You are runnig version <b>%s</b> of the daemon, while the UI is at version " + \
+            self._msg.setText("You are running version <b>%s</b> of the daemon, while the UI is at version " + \
                               "<b>%s</b>, they might not be fully compatible." % (daemon_ver, ui_ver))
             self._msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
             self._msg.show()
