@@ -202,7 +202,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._address is None:
                 for uid, hits in self._stats.by_uid.items():
                     try:
-                        pw_name = pwd.getpwall(int(uid)).pw_name
+                        pw_name = pwd.getpwuid(int(uid)).pw_name
                     except KeyError:
                         pw_name = "(UID error)"
                     finally:
