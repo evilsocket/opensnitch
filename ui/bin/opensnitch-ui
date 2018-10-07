@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 
 import sys
 import os
@@ -32,8 +32,10 @@ if __name__ == '__main__':
     parser.add_argument("--config", dest="config", default="~/.opensnitch/ui-config.json", help="Path of the UI json configuration file.", metavar="FILE")
 
     args = parser.parse_args()
-
+    
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app = QtWidgets.QApplication(sys.argv)
+    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
     service = UIService(app, on_exit, args.config)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
