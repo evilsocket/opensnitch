@@ -205,6 +205,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         pw_name = pwd.getpwuid(int(uid)).pw_name
                     except KeyError:
                         pw_name = "(UID error)"
+                    except Exception:
+                        pw_name = "error"
                     finally:
                         by_users["%s (%s)" % (pw_name, uid)] = hits
             else:
