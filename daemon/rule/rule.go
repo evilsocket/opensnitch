@@ -59,7 +59,9 @@ func Deserialize(reply *protocol.Rule) *Rule {
 	operator := NewOperator(
 		Type(reply.Operator.Type),
 		Operand(reply.Operator.Operand),
-		reply.Operator.Data)
+		reply.Operator.Data,
+		make([]Operator, 0),
+	)
 
 	return Create(
 		reply.Name,

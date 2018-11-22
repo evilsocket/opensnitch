@@ -16,6 +16,7 @@ const (
 	Simple  = Type("simple")
 	Regexp  = Type("regexp")
 	Complex = Type("complex") // for future use
+	List    = Type("list")
 )
 
 type Operand string
@@ -30,6 +31,7 @@ const (
 	OpDstIP               = Operand("dest.ip")
 	OpDstHost             = Operand("dest.host")
 	OpDstPort             = Operand("dest.port")
+	OpList                = Operand("list")
 )
 
 type opCallback func(value string) bool
@@ -38,16 +40,18 @@ type Operator struct {
 	Type    Type    `json:"type"`
 	Operand Operand `json:"operand"`
 	Data    string  `json:"data"`
+	List    []Operator  `json:"list"`
 
 	cb opCallback
 	re *regexp.Regexp
 }
 
-func NewOperator(t Type, o Operand, data string) Operator {
+func NewOperator(t Type, o Operand, data string, list []Operator) Operator {
 	op := Operator{
 		Type:    t,
 		Operand: o,
 		Data:    data,
+		List:    list,
 	}
 	op.Compile()
 	return op
@@ -59,6 +63,8 @@ func (o *Operator) Compile() {
 	} else if o.Type == Regexp {
 		o.cb = o.reCmp
 		o.re = regexp.MustCompile(o.Data)
+	} else if o.Type == List {
+		o.Operand = OpList
 	}
 }
 
@@ -76,6 +82,16 @@ func (o *Operator) simpleCmp(v string) bool {
 
 func (o *Operator) reCmp(v string) bool {
 	return o.re.MatchString(v)
+}
+
+func (o *Operator) listMatch(con *conman.Connection) bool {
+	res := true
+	for i := 0; i < len(o.List); i += 1 {
+		o := o.List[i]
+		o.Compile()
+		res = res && o.Match(con)
+	}
+	return res
 }
 
 func (o *Operator) Match(con *conman.Connection) bool {
@@ -97,6 +113,8 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpDstPort {
 		return o.cb(fmt.Sprintf("%d", con.DstPort))
+	} else if o.Operand == OpList {
+		return o.listMatch(con)
 	}
 
 	return false
