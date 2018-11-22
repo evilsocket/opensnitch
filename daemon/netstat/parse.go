@@ -16,8 +16,8 @@ import (
 var (
 	parser = regexp.MustCompile(`(?i)` +
 		`\d+:\s+` + // sl
-		`([a-f0-9]{8}):([a-f0-9]{4})\s+` + // local_address
-		`([a-f0-9]{8}):([a-f0-9]{4})\s+` + // rem_address
+		`([a-f0-9]{8,32}):([a-f0-9]{4})\s+` + // local_address
+		`([a-f0-9]{8,32}):([a-f0-9]{4})\s+` + // rem_address
 		`[a-f0-9]{2}\s+` + // st
 		`[a-f0-9]{8}:[a-f0-9]{8}\s+` + // tx_queue rx_queue
 		`[a-f0-9]{2}:[a-f0-9]{8}\s+` + // tr tm->when
@@ -44,10 +44,41 @@ func hexToInt(h string) int {
 	return int(d)
 }
 
+
+func hexToInt2(h string) (int, int) {
+	if len(h) > 16 {
+		d, err := strconv.ParseInt(h[:16], 16, 64)
+		if err != nil {
+			log.Fatal("Error while parsing %s to int: %s", h[16:], err)
+		}
+		d2, err := strconv.ParseInt(h[16:], 16, 64)
+		if err != nil {
+			log.Fatal("Error while parsing %s to int: %s", h[16:], err)
+		}
+		return int(d), int(d2)
+	} else {
+		d, err := strconv.ParseInt(h, 16, 64)
+		if err != nil {
+			log.Fatal("Error while parsing %s to int: %s", h[16:], err)
+		}
+		return int(d), 0
+	}
+}
+
 func hexToIP(h string) net.IP {
-	n := hexToInt(h)
-	ip := make(net.IP, 4)
-	binary.LittleEndian.PutUint32(ip, uint32(n))
+	n, m := hexToInt2(h)
+	var ip net.IP
+	if m != 0 {
+		ip = make(net.IP, 16)
+		// TODO: Check if this depends on machine endianness?
+		binary.LittleEndian.PutUint32(ip, uint32(n >> 32))
+		binary.LittleEndian.PutUint32(ip[4:], uint32(n))
+		binary.LittleEndian.PutUint32(ip[8:], uint32(m >> 32))
+		binary.LittleEndian.PutUint32(ip[12:], uint32(m))
+	} else {
+		ip = make(net.IP, 4)
+		binary.LittleEndian.PutUint32(ip, uint32(n))
+	}
 	return ip
 }
 

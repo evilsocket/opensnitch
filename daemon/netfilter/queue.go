@@ -33,8 +33,6 @@ const (
 
 	NF_DEFAULT_QUEUE_SIZE  uint32 = 4096
 	NF_DEFAULT_PACKET_SIZE uint32 = 4096
-
-	ipv4version = 0x40
 )
 
 var (
@@ -167,7 +165,7 @@ func go_callback(queueId C.int, data *C.uchar, length C.int, mark C.uint, idx ui
 	xdata := C.GoBytes(unsafe.Pointer(data), length)
 
 	var packet gopacket.Packet
-	if xdata[0]&0xf0 == ipv4version {
+	if (xdata[0] >> 4) == 4 { // first 4 bits is the version
 		packet = gopacket.NewPacket(xdata, layers.LayerTypeIPv4, gopacketDecodeOptions)
 	} else {
 		packet = gopacket.NewPacket(xdata, layers.LayerTypeIPv6, gopacketDecodeOptions)
