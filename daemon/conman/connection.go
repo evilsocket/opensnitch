@@ -18,9 +18,9 @@ import (
 type Connection struct {
 	Protocol string
 	SrcIP    net.IP
-	SrcPort  int
+	SrcPort  uint
 	DstIP    net.IP
-	DstPort  int
+	DstPort  uint
 	DstHost  string
 	Entry    *netstat.Entry
 	Process  *procmon.Process
@@ -137,15 +137,15 @@ func (c *Connection) parseDirection() bool {
 		if layer.LayerType() == layers.LayerTypeTCP {
 			if tcp, ok := layer.(*layers.TCP); ok == true && tcp != nil {
 				c.Protocol = "tcp"
-				c.DstPort = int(tcp.DstPort)
-				c.SrcPort = int(tcp.SrcPort)
+				c.DstPort = uint(tcp.DstPort)
+				c.SrcPort = uint(tcp.SrcPort)
 				ret = true
 			}
 		} else if layer.LayerType() == layers.LayerTypeUDP {
 			if udp, ok := layer.(*layers.UDP); ok == true && udp != nil {
 				c.Protocol = "udp"
-				c.DstPort = int(udp.DstPort)
-				c.SrcPort = int(udp.SrcPort)
+				c.DstPort = uint(udp.DstPort)
+				c.SrcPort = uint(udp.SrcPort)
 				ret = true
 			}
 		}
