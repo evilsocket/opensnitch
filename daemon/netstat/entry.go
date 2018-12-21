@@ -7,14 +7,14 @@ import (
 type Entry struct {
 	Proto   string
 	SrcIP   net.IP
-	SrcPort int
+	SrcPort uint
 	DstIP   net.IP
-	DstPort int
+	DstPort uint
 	UserId  int
 	INode   int
 }
 
-func NewEntry(proto string, srcIP net.IP, srcPort int, dstIP net.IP, dstPort int, userId int, iNode int) Entry {
+func NewEntry(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPort uint, userId int, iNode int) Entry {
 	return Entry{
 		Proto:   proto,
 		SrcIP:   srcIP,

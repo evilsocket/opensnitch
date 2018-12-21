@@ -36,32 +36,32 @@ func decToInt(n string) int {
 	return int(d)
 }
 
-func hexToInt(h string) int {
-	d, err := strconv.ParseInt(h, 16, 64)
+func hexToInt(h string) uint {
+	d, err := strconv.ParseUint(h, 16, 64)
 	if err != nil {
 		log.Fatal("Error while parsing %s to int: %s", h, err)
 	}
-	return int(d)
+	return uint(d)
 }
 
 
-func hexToInt2(h string) (int, int) {
+func hexToInt2(h string) (uint, uint) {
 	if len(h) > 16 {
-		d, err := strconv.ParseInt(h[:16], 16, 64)
+		d, err := strconv.ParseUint(h[:16], 16, 64)
 		if err != nil {
 			log.Fatal("Error while parsing %s to int: %s", h[16:], err)
 		}
-		d2, err := strconv.ParseInt(h[16:], 16, 64)
+		d2, err := strconv.ParseUint(h[16:], 16, 64)
 		if err != nil {
 			log.Fatal("Error while parsing %s to int: %s", h[16:], err)
 		}
-		return int(d), int(d2)
+		return uint(d), uint(d2)
 	} else {
-		d, err := strconv.ParseInt(h, 16, 64)
+		d, err := strconv.ParseUint(h, 16, 64)
 		if err != nil {
 			log.Fatal("Error while parsing %s to int: %s", h[16:], err)
 		}
-		return int(d), 0
+		return uint(d), 0
 	}
 }
 
