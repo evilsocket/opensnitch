@@ -27,6 +27,9 @@ func RunRule(enable bool, rule []string) (err error) {
 	// fmt.Printf("iptables %s\n", rule)
 
 	_, err = core.Exec("iptables", rule)
+	if err != nil {
+		return
+	}
 	_, err = core.Exec("ip6tables", rule)
 
 	return
