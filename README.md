@@ -55,14 +55,13 @@ The new `opensnitchd` service will log to `/var/log/opensnitchd.log`, save the r
 The user interface is a Python 3 software running as a `gRPC` server on a unix socket, to order to install its dependencies:
 
     cd ui
-    sudo pip3 install -r requirements.txt
+    make
 
-You will also need to install the package `python-pyqt5` for your system (if anyone finds a way to make this work from 
-the `requirements.txt` file feel free to send a PR).
+This build a python wheel package and puts it into the `dist` directory.  You can install it via
 
-The UI is pip installable itself:
+    sudo pip3 install dist/*.whl
 
-    sudo pip3 install .
+which will also cause it to install all of its dependencies.
 
 This will install the `opensnitch-ui` command on your system (you can auto startup it by `cp opensnitch_ui.desktop ~/.config/autostart/`).
   
