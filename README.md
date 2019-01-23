@@ -19,7 +19,7 @@ Make sure you have a correctly configured **Go >= 1.8** environment, that the `$
 
 ```bash
 # install dependencies
-sudo apt-get install protobuf-compiler libpcap-dev libnetfilter-queue-dev python3-pip golang
+sudo apt-get install protobuf-compiler libpcap-dev libnetfilter-queue-dev python3-pip golang-1.8
 go get github.com/golang/protobuf/protoc-gen-go
 go get -u github.com/golang/dep/cmd/dep
 python3 -m pip install --user grpcio-tools
