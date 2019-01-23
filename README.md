@@ -17,6 +17,8 @@
 
 Make sure you have a correctly configured **Go >= 1.8** environment, that the `$GOPATH` environment variable is defined and then:
 
+Also, see https://github.com/evilsocket/opensnitch/pull/241
+
 ```bash
 # install dependencies
 sudo apt-get install protobuf-compiler libpcap-dev libnetfilter-queue-dev python3-pip
@@ -26,8 +28,6 @@ python3 -m pip install --user grpcio-tools
 # clone the repository (ignore the message about no Go files being found)
 go get github.com/evilsocket/opensnitch
 cd $GOPATH/src/github.com/evilsocket/opensnitch
-# If you get a $GOPATH error, then run this command, then log out then in agin, now run the $GOPATH command again.
-echo "export GOPATH=$HOME/go" >> ~/.bashrc
 # compile && install
 make
 sudo make install
