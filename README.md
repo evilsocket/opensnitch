@@ -26,6 +26,8 @@ python3 -m pip install --user grpcio-tools
 # clone the repository (ignore the message about no Go files being found)
 go get github.com/evilsocket/opensnitch
 cd $GOPATH/src/github.com/evilsocket/opensnitch
+# If you get a $GOPATH error, then run this command, then log out then in agin, now run the $GOPATH command again.
+echo "export GOPATH=$HOME/go" >> ~/.bashrc
 # compile && install
 make
 sudo make install
