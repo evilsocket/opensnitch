@@ -31,6 +31,9 @@ func RunRule(enable bool, rule []string) (err error) {
 		return
 	}
 	_, err = core.Exec("ip6tables", rule)
+	if err != nil {
+		return
+	}
 
 	return
 }
@@ -51,9 +54,19 @@ func QueueDNSResponses(enable bool, queueNum int) (err error) {
 			"--queue-num", fmt.Sprintf("%d", queueNum),
 			"--queue-bypass",
 		}
+		
 		lock.Lock()
 		defer lock.Unlock()
+		
 		_, err := core.Exec("iptables", rule)
+		if err != nil {
+			return err
+		}
+		_, err = core.Exec("ip6tables", rule)
+		if err != nil {
+			return err
+		}
+
 		return err
 	}
 
