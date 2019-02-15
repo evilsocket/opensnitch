@@ -120,8 +120,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         if self._version_warning_shown == False:
             self._msg.setIcon(QtWidgets.QMessageBox.Warning)
             self._msg.setWindowTitle("OpenSnitch version mismatch!")
-            self._msg.setText("You are running version <b>%s</b> of the daemon, while the UI is at version " + \
-                              "<b>%s</b>, they might not be fully compatible." % (daemon_ver, ui_ver))
+            self._msg.setText(("You are running version <b>%s</b> of the daemon, while the UI is at version " + \
+                              "<b>%s</b>, they might not be fully compatible.") % (daemon_ver, ui_ver))
             self._msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
             self._msg.show()
             self._version_warning_shown = True
