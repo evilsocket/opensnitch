@@ -13,7 +13,7 @@
   <img src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/screenshot.png" alt="OpenSnitch"/>
 </p>
 
-**THIS SOFTWARE IS WORK IN PROGRESS, DO NOT EXPECT IT DO BE BUG FREE AND DO NOT RELY ON IT FOR ANY TYPE OF SECURITY.**
+**THIS SOFTWARE IS WORK IN PROGRESS, DO NOT EXPECT IT TO BE BUG FREE AND DO NOT RELY ON IT FOR ANY TYPE OF SECURITY.**
 
 ### TL;DR
 
