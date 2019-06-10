@@ -7,7 +7,7 @@
   </p>
 </p>
 
-**OpenSnitch** is a GNU/Linux port of the Little Snitch application firewall. 
+**OpenSnitch** is a GNU/Linux port of the Little Snitch application firewall.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/screenshot.png" alt="OpenSnitch"/>
@@ -21,9 +21,12 @@ Make sure you have a correctly configured **Go >= 1.8** environment, that the `$
 
 ```bash
 # install dependencies
-sudo apt-get install protobuf-compiler libpcap-dev libnetfilter-queue-dev python3-pip
+sudo apt-get install git libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip
 go get github.com/golang/protobuf/protoc-gen-go
 go get -u github.com/golang/dep/cmd/dep
+cd $GOPATH/src/github.com/golang/dep
+./install.sh
+export PATH=$PATH:$GOPATH/bin
 python3 -m pip install --user grpcio-tools
 # clone the repository (ignore the message about no Go files being found)
 go get github.com/evilsocket/opensnitch
