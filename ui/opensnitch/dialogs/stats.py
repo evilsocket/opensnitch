@@ -79,39 +79,41 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         tab_idx = self._tabs.currentIndex()
 
         filename = QtWidgets.QFileDialog.getSaveFileName(self,
-                    'Save as CSV', 
-                    self._file_names[tab_idx], 
+                    'Save as CSV',
+                    self._file_names[tab_idx],
                     'All Files (*);;CSV Files (*.csv)')[0].strip()
         if filename == '':
             return
 
         with self._lock:
             table = self._tables[tab_idx]
-            ncols = table.columnCount()
-            nrows = table.rowCount()
+            ncols = table.model().columnCount()
+            nrows = table.model().rowCount()
             cols = []
 
             for col in range(0, ncols):
-                cols.append(table.horizontalHeaderItem(col).text())
+                cols.append(table.model().headerData(col, QtCore.Qt.Horizontal))
 
             with open(filename, 'w') as csvfile:
                 w = csv.writer(csvfile, dialect='excel')
                 w.writerow(cols)
-                
+
                 for row in range(0, nrows):
                     values = []
                     for col in range(0, ncols):
-                        values.append(table.item(row, col).text())
+                        values.append(table.model().index(row, col).data())
                     w.writerow(values)
 
     def _setup_table(self, name, columns):
-        table = self.findChild(QtWidgets.QTableWidget, name)
+        table = self.findChild(QtWidgets.QTableView, name)
 
         ncols = len(columns)
-        table.setColumnCount(ncols)
-        table.setHorizontalHeaderLabels(columns)
+        model = QtGui.QStandardItemModel(self)
+        model.setColumnCount(ncols)
+        model.setHorizontalHeaderLabels(columns)
+        table.setModel(model)
 
-        header = table.horizontalHeader()       
+        header = table.horizontalHeader()
         header.setVisible(True)
 
         if 'Connections' in columns:
@@ -120,59 +122,57 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         QtWidgets.QHeaderView.Stretch if col_idx == 0 else QtWidgets.QHeaderView.ResizeToContents)
 
         else:
+            table.setSortingEnabled(False)
             for col_idx, _ in enumerate(columns):
                 header.setSectionResizeMode(col_idx, QtWidgets.QHeaderView.ResizeToContents)
 
         return table
 
     def _render_counters_table(self, table, data):
-        table.setRowCount(len(data))
-        table.setColumnCount(2)
+        model = table.model()
+        model.removeRows(0, model.rowCount())
         for row, t in enumerate(sorted(data.items(), key=operator.itemgetter(1), reverse=True)):
+            items = []
             what, hits = t
 
-            item = QtWidgets.QTableWidgetItem(what)
-            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
-            table.setItem(row, 0, item)
+            items.append(QtGui.QStandardItem(what))
+            items.append(QtGui.QStandardItem("%s" % (hits)))
+            model.insertRow(row, items)
 
-            item = QtWidgets.QTableWidgetItem("%s" % hits)
-            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
-            table.setItem(row, 1, item)
-
+        table.setModel(model)
 
     def _render_events_table(self):
-        self._events_table.setRowCount(len(self._stats.events))
+        model = self._events_table.model()
+        model.removeRows(0, model.rowCount())
 
         for row, event in enumerate(reversed(self._stats.events)):
-            item = QtWidgets.QTableWidgetItem( event.time )
-            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
-            self._events_table.setItem(row, 0, item)
+            items = []
 
-            item = QtWidgets.QTableWidgetItem( event.rule.action )
+            items.append(QtGui.QStandardItem(event.time))
+            itemAction = QtGui.QStandardItem(event.rule.action)
             if event.rule.action == "deny":
-                item.setForeground(StatsDialog.RED)
+                itemAction.setForeground(StatsDialog.RED)
             else:
-                item.setForeground(StatsDialog.GREEN)
-            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
-            self._events_table.setItem(row, 1, item)
+                itemAction.setForeground(StatsDialog.GREEN)
 
-            item = QtWidgets.QTableWidgetItem( event.connection.process_path )
-            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
-            self._events_table.setItem(row, 2, item)
+            items.append(itemAction)
 
-            item = QtWidgets.QTableWidgetItem( "%s:%s" % ( \
-                    event.connection.dst_host if event.connection.dst_host != "" else event.connection.dst_ip, 
-                    event.connection.dst_port ))
-            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
-            self._events_table.setItem(row, 3, item)
+            itemProcess = QtGui.QStandardItem(event.connection.process_path)
+            pPath = event.connection.process_path
+            for pArgs in event.connection.process_args:
+                pPath += "\n    " + pArgs
+            itemProcess.setToolTip(pPath)
+            items.append(itemProcess)
 
-            item = QtWidgets.QTableWidgetItem( event.connection.protocol )
-            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
-            self._events_table.setItem(row, 4, item)
+            items.append(QtGui.QStandardItem("%s:%s" % (
+                    event.connection.dst_host if event.connection.dst_host != "" else event.connection.dst_ip,
+                    event.connection.dst_port )))
+            items.append(QtGui.QStandardItem(event.connection.protocol))
+            items.append(QtGui.QStandardItem(event.rule.name))
 
-            item = QtWidgets.QTableWidgetItem( event.rule.name )
-            item.setFlags( QtCore.Qt.ItemIsSelectable |  QtCore.Qt.ItemIsEnabled )
-            self._events_table.setItem(row, 5, item)
+            model.insertRow(row, items)
+
+        self._events_table.setModel(model)
 
     @QtCore.pyqtSlot()
     def _on_update_triggered(self):
@@ -220,7 +220,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.setFixedSize(self.size())
 
-    # prevent a click on the window's x 
+    # prevent a click on the window's x
     # from quitting the whole application
     def closeEvent(self, e):
         e.ignore()

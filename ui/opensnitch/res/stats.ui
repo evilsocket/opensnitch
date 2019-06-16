@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>771</width>
+    <width>828</width>
     <height>600</height>
    </rect>
   </property>
@@ -44,7 +44,7 @@
     <rect>
      <x>0</x>
      <y>10</y>
-     <width>771</width>
+     <width>821</width>
      <height>591</height>
     </rect>
    </property>
@@ -60,8 +60,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>351</width>
-       <height>51</height>
+       <width>356</width>
+       <height>64</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
@@ -254,55 +254,13 @@
     <widget class="QWidget" name="gridLayoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>570</x>
+       <x>600</x>
        <y>10</y>
-       <width>191</width>
-       <height>51</height>
+       <width>206</width>
+       <height>61</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="1" column="0">
-       <widget class="QLabel" name="consLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="droppedLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_5">
         <property name="sizePolicy">
@@ -353,60 +311,83 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="droppedLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+        <property name="margin">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="consLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+        <property name="margin">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
-    <widget class="QTableWidget" name="eventsTable">
+    <widget class="QTableView" name="eventsTable">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>0</x>
        <y>80</y>
-       <width>751</width>
+       <width>811</width>
        <height>471</height>
       </rect>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="sortingEnabled">
+     <property name="autoScroll">
       <bool>false</bool>
      </property>
-     <property name="cornerButtonEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="rowCount">
-      <number>0</number>
-     </property>
-     <property name="columnCount">
-      <number>2</number>
-     </property>
-     <attribute name="horizontalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="horizontalHeaderHighlightSections">
-      <bool>false</bool>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
      </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
-     <attribute name="verticalHeaderHighlightSections">
-      <bool>false</bool>
+     <attribute name="verticalHeaderStretchLastSection">
+      <bool>true</bool>
      </attribute>
-     <column/>
-     <column/>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_4">
     <attribute name="title">
      <string>Hosts</string>
     </attribute>
-    <widget class="QTableWidget" name="hostsTable">
+    <widget class="QTableView" name="hostsTable">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>751</width>
+       <width>801</width>
        <height>541</height>
       </rect>
      </property>
@@ -416,32 +397,18 @@
      <property name="cornerButtonEnabled">
       <bool>false</bool>
      </property>
-     <property name="rowCount">
-      <number>0</number>
-     </property>
-     <property name="columnCount">
-      <number>2</number>
-     </property>
-     <attribute name="horizontalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <column/>
-     <column/>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_7">
     <attribute name="title">
      <string>Processes</string>
     </attribute>
-    <widget class="QTableWidget" name="procsTable">
+    <widget class="QTableView" name="procsTable">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>751</width>
+       <width>801</width>
        <height>541</height>
       </rect>
      </property>
@@ -451,32 +418,18 @@
      <property name="cornerButtonEnabled">
       <bool>false</bool>
      </property>
-     <property name="rowCount">
-      <number>0</number>
-     </property>
-     <property name="columnCount">
-      <number>2</number>
-     </property>
-     <attribute name="horizontalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <column/>
-     <column/>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
      <string>Addresses</string>
     </attribute>
-    <widget class="QTableWidget" name="addrTable">
+    <widget class="QTableView" name="addrTable">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>751</width>
+       <width>801</width>
        <height>541</height>
       </rect>
      </property>
@@ -486,32 +439,18 @@
      <property name="cornerButtonEnabled">
       <bool>false</bool>
      </property>
-     <property name="rowCount">
-      <number>0</number>
-     </property>
-     <property name="columnCount">
-      <number>2</number>
-     </property>
-     <attribute name="horizontalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <column/>
-     <column/>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_5">
     <attribute name="title">
      <string>Ports</string>
     </attribute>
-    <widget class="QTableWidget" name="portsTable">
+    <widget class="QTableView" name="portsTable">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>751</width>
+       <width>801</width>
        <height>541</height>
       </rect>
      </property>
@@ -521,32 +460,18 @@
      <property name="cornerButtonEnabled">
       <bool>false</bool>
      </property>
-     <property name="rowCount">
-      <number>0</number>
-     </property>
-     <property name="columnCount">
-      <number>2</number>
-     </property>
-     <attribute name="horizontalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <column/>
-     <column/>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_6">
     <attribute name="title">
      <string>Users</string>
     </attribute>
-    <widget class="QTableWidget" name="usersTable">
+    <widget class="QTableView" name="usersTable">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>751</width>
+       <width>801</width>
        <height>541</height>
       </rect>
      </property>
@@ -556,20 +481,6 @@
      <property name="cornerButtonEnabled">
       <bool>false</bool>
      </property>
-     <property name="rowCount">
-      <number>0</number>
-     </property>
-     <property name="columnCount">
-      <number>2</number>
-     </property>
-     <attribute name="horizontalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <column/>
-     <column/>
     </widget>
    </widget>
   </widget>
@@ -589,15 +500,14 @@
     <string>...</string>
    </property>
    <property name="icon">
-    <iconset theme="document-save-as"/>
+    <iconset theme="document-save-as">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
   </widget>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
