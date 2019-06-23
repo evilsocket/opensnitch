@@ -42,12 +42,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cons_label = self.findChild(QtWidgets.QLabel, "consLabel")
         self._dropped_label = self.findChild(QtWidgets.QLabel, "droppedLabel")
 
-        self._events_table = self._setup_table("eventsTable", ("Time", "Action", "Process", "Destination", "Protocol", "Rule" ))
-        self._addrs_table = self._setup_table("addrTable", ("IP", "Connections"))
-        self._hosts_table = self._setup_table("hostsTable", ("Hostname", "Connections"))
-        self._ports_table = self._setup_table("portsTable", ("Port", "Connections"))
-        self._users_table = self._setup_table("usersTable", ("User", "Connections"))
-        self._procs_table = self._setup_table("procsTable", ("Executable", "Connections"))
+        self._events_table = self._setup_table("eventsTable", ("Time", "Action", "Process", "Destination", "Protocol", "Rule", "uuid" ))
+        self._addrs_table = self._setup_table("addrTable", ("IP", "Connections", "uuid"))
+        self._hosts_table = self._setup_table("hostsTable", ("Hostname", "Connections", "uuid"))
+        self._ports_table = self._setup_table("portsTable", ("Port", "Connections", "uuid"))
+        self._users_table = self._setup_table("usersTable", ("User", "Connections", "uuid"))
+        self._procs_table = self._setup_table("procsTable", ("Executable", "Connections", "uuid"))
 
         self._tables = ( \
             self._events_table,
@@ -73,7 +73,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         with self._lock:
             if stats is not None:
                 self._stats = stats
-            self._trigger.emit()
+            # do not update any tab if the window is not visible
+            if self.isVisible() and self.isMinimized() == False:
+                self._trigger.emit()
+
+    def update_status(self):
+        if self.daemon_connected:
+            self._status_label.setText("running")
+            self._status_label.setStyleSheet('color: green')
+        else:
+            self._status_label.setText("not running")
+            self._status_label.setStyleSheet('color: red')
 
     def _on_save_clicked(self):
         tab_idx = self._tabs.currentIndex()
@@ -112,6 +122,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         model.setColumnCount(ncols)
         model.setHorizontalHeaderLabels(columns)
         table.setModel(model)
+        table.setColumnHidden(ncols-1, True)
 
         header = table.horizontalHeader()
         header.setVisible(True)
@@ -121,6 +132,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 header.setSectionResizeMode(col_idx, \
                         QtWidgets.QHeaderView.Stretch if col_idx == 0 else QtWidgets.QHeaderView.ResizeToContents)
 
+            table.setSortingEnabled(True)
         else:
             table.setSortingEnabled(False)
             for col_idx, _ in enumerate(columns):
@@ -128,23 +140,88 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         return table
 
-    def _render_counters_table(self, table, data):
+    def _populate_counters_table(self, table, data):
         model = table.model()
-        model.removeRows(0, model.rowCount())
         for row, t in enumerate(sorted(data.items(), key=operator.itemgetter(1), reverse=True)):
             items = []
             what, hits = t
 
             items.append(QtGui.QStandardItem(what))
             items.append(QtGui.QStandardItem("%s" % (hits)))
+            items.append(QtGui.QStandardItem("%s:%s" % (what, hits)))
             model.insertRow(row, items)
+
+        table.setModel(model)
+
+    def _update_counters_table(self, model, changes):
+        for row, data in changes.items():
+            what, hits = data
+            i = model.index(row, 0)
+            model.setData(i, what)
+            i = model.index(row, 1)
+            model.setData(i, hits)
+            i = model.index(row, 3)
+            model.setData(i, "%s:%s" % (what, hits))
+
+        return model
+
+    def _insert_counters_table(self, model, newitems):
+        for row, data in newitems.items():
+            items = []
+            what, hits = data
+            items.append(QtGui.QStandardItem(what))
+            items.append(QtGui.QStandardItem("%s" % (hits)))
+            items.append(QtGui.QStandardItem("%s:%s" % (what, hits)))
+            model.appendRow(items)
+
+        return model
+
+    def _render_counters_table(self, name, table, data):
+        model = table.model()
+        cols = model.columnCount()
+        rows = model.rowCount()
+        if rows == 0:
+            self._populate_counters_table(table, data)
+            return
+
+        changes = {}
+        newitems = {}
+        for rd, t in enumerate(sorted(data.items(), key=operator.itemgetter(1), reverse=True)):
+            what, hits = t
+            idx = model.match(model.index(0, 0), QtCore.Qt.DisplayRole, what, 1, QtCore.Qt.MatchExactly)
+            if len(idx) == 0:
+                newitems[rd] = t
+                continue
+            else:
+                for r in range(rows):
+                    _what = model.index(r, 0).data()
+                    _hits = model.index(r, 1).data()
+                    if _what == what and (_hits == hits) == False:
+                        changes[r] = t
+                        break
+
+        if len(changes) == 0 and rows > 0 and len(newitems) == 0:
+            return
+        elif len(changes) > 0 and rows > 0:
+            model = self._update_counters_table(table.model(), changes)
+        if len(newitems) > 0 and rows > 0:
+            model = self._insert_counters_table(table.model(), newitems)
 
         table.setModel(model)
 
     def _render_events_table(self):
         model = self._events_table.model()
-        model.removeRows(0, model.rowCount())
 
+        try:
+            firstEvent = reversed(self._stats.events)
+            firstEvent = firstEvent.__next__()
+            idx = model.match(model.index(0,0), QtCore.Qt.DisplayRole, firstEvent.time, 1, QtCore.Qt.MatchExactly)
+            if len(idx) == 1:
+                return
+        except StopIteration:
+            pass
+
+        model.removeRows(0, len(self._stats.events))
         for row, event in enumerate(reversed(self._stats.events)):
             items = []
 
@@ -176,13 +253,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def _on_update_triggered(self):
-        if self.daemon_connected:
-            self._status_label.setText("running")
-            self._status_label.setStyleSheet('color: green')
-        else:
-            self._status_label.setText("not running")
-            self._status_label.setStyleSheet('color: red')
-
         if self._stats is None:
             self._version_label.setText("")
             self._uptime_label.setText("")
@@ -196,7 +266,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cons_label.setText("%s" % self._stats.connections)
             self._dropped_label.setText("%s" % self._stats.dropped)
 
-            self._render_events_table()
+            if self._tabs.currentIndex() == 0:
+                self._render_events_table()
 
             by_users = {}
             if self._address is None:
@@ -212,11 +283,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             else:
                 by_users = self._stats.by_uid
 
-            self._render_counters_table(self._addrs_table, self._stats.by_address)
-            self._render_counters_table(self._hosts_table, self._stats.by_host)
-            self._render_counters_table(self._ports_table, self._stats.by_port)
-            self._render_counters_table(self._users_table, by_users)
-            self._render_counters_table(self._procs_table, self._stats.by_executable)
+            if self._tabs.currentIndex() == 1:
+                self._render_counters_table("hosts", self._hosts_table, self._stats.by_host)
+            if self._tabs.currentIndex() == 2:
+                self._render_counters_table("procs", self._procs_table, self._stats.by_executable)
+            if self._tabs.currentIndex() == 3:
+                self._render_counters_table("addrs", self._addrs_table, self._stats.by_address)
+            if self._tabs.currentIndex() == 4:
+                self._render_counters_table("ports", self._ports_table, self._stats.by_port)
+            if self._tabs.currentIndex() == 5:
+                self._render_counters_table("users", self._users_table, by_users)
 
         self.setFixedSize(self.size())
 
