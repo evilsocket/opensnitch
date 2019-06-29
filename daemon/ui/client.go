@@ -68,10 +68,12 @@ func (c *Client) poller() {
 			wasConnected = isConnected
 		}
 
-		// connect and create the client if needed
-		if err := c.connect(); err != nil {
-			log.Warning("Error while connecting to UI service: %s", err)
-		} else if c.Connected() == true {
+		if c.Connected() == false {
+            // connect and create the client if needed
+            if err := c.connect(); err != nil {
+                log.Warning("Error while connecting to UI service: %s", err)
+            }
+        } else if c.Connected() == true {
 			// if the client is connected and ready, send a ping
 			if err := c.ping(time.Now()); err != nil {
 				log.Warning("Error while pinging UI service: %s", err)
@@ -87,6 +89,8 @@ func (c *Client) onStatusChange(connected bool) {
 		log.Info("Connected to the UI service on %s", c.socketPath)
 	} else {
 		log.Error("Connection to the UI service lost.")
+        c.client = nil
+        c.con.Close()
 	}
 }
 
@@ -94,6 +98,17 @@ func (c *Client) connect() (err error) {
 	if c.Connected() {
 		return
 	}
+	c.Lock()
+    defer c.Unlock()
+
+    if c.con != nil {
+        if c.con.GetState() == connectivity.TransientFailure || c.con.GetState() == connectivity.Shutdown {
+            c.client = nil
+            c.con.Close()
+        } else {
+            return
+        }
+    }
 
 	if c.isUnixSocket {
 		c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure(),
@@ -105,11 +120,17 @@ func (c *Client) connect() (err error) {
 	}
 
 	if err != nil {
+        if c.con != nil {
+            c.con.Close()
+        }
 		c.con = nil
+        c.client = nil
 		return err
 	}
 
-	c.client = protocol.NewUIClient(c.con)
+    if c.client == nil {
+        c.client = protocol.NewUIClient(c.con)
+    }
 	return nil
 }
 
