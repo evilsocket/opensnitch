@@ -26,7 +26,7 @@ type conEvent struct {
 }
 
 type Statistics struct {
-	sync.Mutex
+	sync.RWMutex
 
 	Started      time.Time
 	DNSResponses int
