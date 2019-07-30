@@ -147,8 +147,16 @@ func onPacket(packet netfilter.Packet) {
 	// Parse the connection state
 	con := conman.Parse(packet)
 	if con == nil {
-		packet.SetVerdict(netfilter.NF_ACCEPT)
-		stats.OnIgnored()
+		if uiClient.DefaultAction() == rule.Allow {
+			packet.SetVerdict(netfilter.NF_ACCEPT)
+		} else {
+			if uiClient.DefaultDuration() == rule.Always {
+				log.Error("onPacket() connection parse error(null), default action DROP")
+				packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
+			} else {
+				packet.SetVerdict(netfilter.NF_DROP)
+			}
+		}
 		return
 	}
 
