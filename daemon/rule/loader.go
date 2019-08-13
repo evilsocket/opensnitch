@@ -61,7 +61,10 @@ func (l *Loader) Load(path string) error {
 	defer l.Unlock()
 
 	l.path = path
-	l.rules = make(map[string]*Rule)
+	if len(l.rules) == 0 {
+		l.rules = make(map[string]*Rule)
+	}
+	disk_rules := make(map[string]string)
 
 	for _, fileName := range matches {
 		log.Debug("Reading rule from %s", fileName)
@@ -78,9 +81,18 @@ func (l *Loader) Load(path string) error {
 		}
 
 		r.Operator.Compile()
+		disk_rules[r.Name] = r.Name
 
 		log.Debug("Loaded rule from %s: %s", fileName, r.String())
 		l.rules[r.Name] = &r
+	}
+	for ruleName, inMemoryRule := range l.rules {
+		if val, ok := disk_rules[ruleName]; ok == false {
+			if inMemoryRule.Duration == Always {
+				log.Debug("Rule deleted from disk, updating rules list: ", ruleName)
+				delete(l.rules, ruleName)
+			}
+		}
 	}
 
 	if l.liveReload && l.liveReloadRunning == false {
