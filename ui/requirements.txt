@@ -1,4 +1,4 @@
-grpcio==1.0.0
+grpcio>=1.0.0
 grpcio-tools==1.10.1
 pyinotify==0.9.6
 unicode_slugify==0.1.3
