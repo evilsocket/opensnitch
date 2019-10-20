@@ -87,7 +87,7 @@ func (l *Loader) Load(path string) error {
 		l.rules[r.Name] = &r
 	}
 	for ruleName, inMemoryRule := range l.rules {
-		if val, ok := disk_rules[ruleName]; ok == false {
+		if _, ok := disk_rules[ruleName]; ok == false {
 			if inMemoryRule.Duration == Always {
 				log.Debug("Rule deleted from disk, updating rules list: ", ruleName)
 				delete(l.rules, ruleName)
