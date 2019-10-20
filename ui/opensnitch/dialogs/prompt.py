@@ -65,6 +65,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         with self._lock:
             # reset state
             self._tick = self._cfg.default_timeout
+	    if self._tick_thread != None:
+		self._tick_thread.join()
             self._tick_thread = threading.Thread(target=self._timeout_worker)
             self._rule = None
             self._local = is_local
