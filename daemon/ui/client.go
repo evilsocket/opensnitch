@@ -78,6 +78,14 @@ func (c *Client) loadConfiguration() {
 	}
 }
 
+func (c *Client) DefaultAction() rule.Action {
+	return clientDisconnectedRule.Action
+}
+
+func (c *Client) DefaultDuration() rule.Duration {
+	return clientDisconnectedRule.Duration
+}
+
 func (c *Client) Connected() bool {
 	c.Lock()
 	defer c.Unlock()

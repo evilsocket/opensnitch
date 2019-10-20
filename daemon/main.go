@@ -151,7 +151,6 @@ func onPacket(packet netfilter.Packet) {
 			packet.SetVerdict(netfilter.NF_ACCEPT)
 		} else {
 			if uiClient.DefaultDuration() == rule.Always {
-				log.Error("onPacket() connection parse error(null), default action DROP")
 				packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
 			} else {
 				packet.SetVerdict(netfilter.NF_DROP)
