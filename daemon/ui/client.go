@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"fmt"
 	"net"
 	"strings"
@@ -20,9 +22,15 @@ import (
 )
 
 var (
+	configFile             = "/etc/opensnitchd/default-config.json"
 	clientDisconnectedRule = rule.Create("ui.client.disconnected", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
 	clientErrorRule		= rule.Create("ui.client.error", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
 )
+
+type Config struct {
+    Default_Action   string
+    Default_Duration string
+}
 
 type Client struct {
 	sync.Mutex
@@ -44,9 +52,30 @@ func NewClient(path string, stats *statistics.Statistics) *Client {
 		c.isUnixSocket = true
 		c.socketPath = c.socketPath[7:]
 	}
+	c.loadConfiguration()
 
 	go c.poller()
 	return c
+}
+
+func (c *Client) loadConfiguration() {
+    raw, err := ioutil.ReadFile(confFile)
+    if err != nil {
+        fmt.Errorf("Error loading configuration %s: %s", confFile, err)
+    }
+
+    var conf Config
+    err = json.Unmarshal(raw, &conf)
+    if err != nil {
+        fmt.Errorf("Error parsing configuration %s: %s", confFile, err)
+    }
+
+    if conf.Default_Action != "" {
+        clientDisconnectedRule.Action = rule.Action(conf.Default_Action)
+	}
+    if conf.Default_Duration != "" {
+        clientDisconnectedRule.Duration = rule.Duration(conf.Default_Duration)
+	}
 }
 
 func (c *Client) Connected() bool {
