@@ -150,12 +150,19 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._what_combo.addItem("from user %d" % con.user_id)
         self._what_combo.addItem("to port %d" % con.dst_port)
         self._what_combo.addItem("to %s" % con.dst_ip)
-        if con.dst_host != "":
-            self._what_combo.addItem("to %s" % con.dst_host)
+
+        if con.dst_host != "" and con.dst_host != con.dst_ip:
+            self._what_combo.addItem("to %s" % con.dst_host, "simple_host")
+
             parts = con.dst_host.split('.')[1:]
             nparts = len(parts)
             for i in range(0, nparts - 1):
-                self._what_combo.addItem("to *.%s" % '.'.join(parts[i:]))
+                self._what_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
+
+        parts = con.dst_ip.split('.')
+        nparts = len(parts)
+        for i in range(1, nparts):
+            self._what_combo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
 
         if self._cfg.default_action == "allow":
             self._action_combo.setCurrentIndex(0)
@@ -224,15 +231,20 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule.operator.operand = "dest.ip"
             self._rule.operator.data = self._con.dst_ip 
         
-        elif what_idx == 4:
+        elif self._what_combo.itemData(what_idx) == "simple_host":
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "dest.host"
             self._rule.operator.data = self._con.dst_host 
 
-        else:
+        elif self._what_combo.itemData(what_idx) == "regex_host":
             self._rule.operator.type = "regexp"
             self._rule.operator.operand = "dest.host"
-            self._rule.operator.data = ".*\.%s" % '\.'.join(self._con.dst_host.split('.')[what_idx - 4:])
+            self._rule.operator.data = "%s" % '\.'.join(self._what_combo.currentText().split('.')).replace("*", ".*")[3:]
+
+        elif self._what_combo.itemData(what_idx) == "regex_ip":
+            self._rule.operator.type = "regexp"
+            self._rule.operator.operand = "dest.ip"
+            self._rule.operator.data = "%s" % '\.'.join(self._what_combo.currentText().split('.')).replace("*", ".*")[3:]
 
         self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.operator.type, self._rule.operator.data))
         
