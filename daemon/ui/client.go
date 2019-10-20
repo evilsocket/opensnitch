@@ -125,10 +125,13 @@ func (c *Client) ping(ts time.Time) (err error) {
 	defer cancel()
 	reqId := uint64(ts.UnixNano())
 
-	pong, err := c.client.Ping(ctx, &protocol.PingRequest{
+    pReq := &protocol.PingRequest{
 		Id:    reqId,
 		Stats: c.stats.Serialize(),
-	})
+	}
+    c.stats.RLock()
+    pong, err := c.client.Ping(ctx, pReq)
+    c.stats.RUnlock()
 	if err != nil {
 		return err
 	}
