@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 )
 
 func GetPIDFromINode(inode int) int {

@@ -5,12 +5,12 @@ import (
 	"net"
 	"os"
 
-	"github.com/evilsocket/opensnitch/daemon/dns"
-	"github.com/evilsocket/opensnitch/daemon/log"
-	"github.com/evilsocket/opensnitch/daemon/netfilter"
-	"github.com/evilsocket/opensnitch/daemon/netstat"
-	"github.com/evilsocket/opensnitch/daemon/procmon"
-	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/dns"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netfilter"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netstat"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui/protocol"
 
 	"github.com/google/gopacket/layers"
 )
