@@ -109,7 +109,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     @QtCore.pyqtSlot()
     def _on_status_change(self):
         self._stats_dialog.daemon_connected = self._connected
-        self._stats_dialog.update()
+        self._stats_dialog.update_status()
         if self._connected:
             self._tray.setIcon(self.white_icon)
         else:
