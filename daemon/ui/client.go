@@ -21,23 +21,23 @@ import (
 
 var (
 	clientDisconnectedRule = rule.Create("ui.client.disconnected", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
-	clientErrorRule        = rule.Create("ui.client.error", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
+	clientErrorRule		= rule.Create("ui.client.error", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
 )
 
 type Client struct {
 	sync.Mutex
 
-	stats        *statistics.Statistics
+	stats		*statistics.Statistics
 	socketPath   string
 	isUnixSocket bool
-	con          *grpc.ClientConn
-	client       protocol.UIClient
+	con		  *grpc.ClientConn
+	client	   protocol.UIClient
 }
 
 func NewClient(path string, stats *statistics.Statistics) *Client {
 	c := &Client{
 		socketPath:   path,
-		stats:        stats,
+		stats:		stats,
 		isUnixSocket: false,
 	}
 	if strings.HasPrefix(c.socketPath, "unix://") == true {
@@ -68,9 +68,11 @@ func (c *Client) poller() {
 			wasConnected = isConnected
 		}
 
-		// connect and create the client if needed
-		if err := c.connect(); err != nil {
-			log.Warning("Error while connecting to UI service: %s", err)
+		if c.Connected() == false {
+			// connect and create the client if needed
+			if err := c.connect(); err != nil {
+				log.Warning("Error while connecting to UI service: %s", err)
+			}
 		} else if c.Connected() == true {
 			// if the client is connected and ready, send a ping
 			if err := c.ping(time.Now()); err != nil {
@@ -87,12 +89,25 @@ func (c *Client) onStatusChange(connected bool) {
 		log.Info("Connected to the UI service on %s", c.socketPath)
 	} else {
 		log.Error("Connection to the UI service lost.")
+		c.client = nil
+		c.con.Close()
 	}
 }
 
 func (c *Client) connect() (err error) {
 	if c.Connected() {
 		return
+	}
+	c.Lock()
+	defer c.Unlock()
+
+	if c.con != nil {
+		if c.con.GetState() == connectivity.TransientFailure || c.con.GetState() == connectivity.Shutdown {
+			c.client = nil
+			c.con.Close()
+		} else {
+			return
+		}
 	}
 
 	if c.isUnixSocket {
@@ -105,11 +120,17 @@ func (c *Client) connect() (err error) {
 	}
 
 	if err != nil {
+		if c.con != nil {
+			c.con.Close()
+		}
 		c.con = nil
+		c.client = nil
 		return err
 	}
 
-	c.client = protocol.NewUIClient(c.con)
+	if c.client == nil {
+		c.client = protocol.NewUIClient(c.con)
+	}
 	return nil
 }
 
@@ -125,13 +146,13 @@ func (c *Client) ping(ts time.Time) (err error) {
 	defer cancel()
 	reqId := uint64(ts.UnixNano())
 
-    pReq := &protocol.PingRequest{
-		Id:    reqId,
+	pReq := &protocol.PingRequest{
+		Id:	reqId,
 		Stats: c.stats.Serialize(),
 	}
-    c.stats.RLock()
-    pong, err := c.client.Ping(ctx, pReq)
-    c.stats.RUnlock()
+	c.stats.RLock()
+	pong, err := c.client.Ping(ctx, pReq)
+	c.stats.RUnlock()
 	if err != nil {
 		return err
 	}
