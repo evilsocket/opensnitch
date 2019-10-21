@@ -255,6 +255,10 @@ func main() {
 	}
 	pktChan = queue.Packets()
 
+	firewall.QueueDNSResponses(false, queueNum)
+	firewall.QueueConnections(false, queueNum)
+	firewall.DropMarked(false)
+
 	// queue is ready, run firewall rules
 	if err = firewall.QueueDNSResponses(true, queueNum); err != nil {
 		log.Fatal("Error while running DNS firewall rule: %s", err)
