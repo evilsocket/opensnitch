@@ -65,13 +65,13 @@ func parseEnv(proc *Process) {
 }
 
 func FindProcess(pid int) *Process {
-	linkName := fmt.Sprintf("/proc/%d/exe", pid)
-	if core.Exists(linkName) == false {
+	linkName := fmt.Sprint("/proc/", pid, "/exe")
+	if _, err := os.Stat(linkName); err != nil {
 		return nil
 	}
 
-	if link, err := os.Readlink(linkName); err == nil && core.Exists(link) == true {
-		proc := NewProcess(pid, link)
+	if link, err := os.Readlink(linkName); err == nil {
+		proc := NewProcess(pid, strings.Split(link, " ")[0])
 
 		parseCmdLine(proc)
 		parseEnv(proc)
