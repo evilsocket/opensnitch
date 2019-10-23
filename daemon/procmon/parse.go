@@ -5,32 +5,149 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
-func GetPIDFromINode(inode int) int {
-	expect := fmt.Sprintf("socket:[%d]", inode)
+type Inode struct {
+	Pid	 int
+	FdPath  string
+}
+
+type Pid struct {
+	FdPath string
+	Descriptors []string
+}
+
+var (
+	// cache of inodes, which help to not iterate over all the pidsCache and
+	// descriptors of /proc/<pid>/fd/
+	// 20-500us vs 50-80ms
+	inodesCache = make(map[string]*Inode)
+	maxCachedInodes = 2048
+	// 2nd cache of already known running pids, which also saves time by
+	// iterating only over a few pids' descriptors, (30us-2ms vs. 50-80ms)
+	// since it's more likely that most of the connections will be made by the
+	// same (running) processes
+	pidsCache = make(map[int]*Pid)
+	pidsDescriptorsCache = make(map[int][]string)
+	maxCachedPids = 512
+)
+
+func cleanUpCaches() {
+	if len(inodesCache) > maxCachedInodes {
+		for k, _ := range inodesCache {
+			delete(inodesCache, k)
+		}
+	}
+	if len(pidsCache) > maxCachedPids {
+		for k, _ := range pidsCache {
+			delete(pidsCache, k)
+		}
+	}
+}
+
+func GetPidByInodeFromCache(inodeKey string) int {
+	if _, found := inodesCache[inodeKey]; found == true {
+		// sometimes the process may have dissapeared at this point
+		if _, err := os.Lstat(fmt.Sprint("/proc/", inodesCache[inodeKey].Pid, "/exe")); err == nil {
+			return inodesCache[inodeKey].Pid
+		}
+		delete(pidsCache, inodesCache[inodeKey].Pid)
+		delete(inodesCache, inodeKey)
+	}
+
+	return -1
+}
+
+func getPidDescriptorsFromCache(pid int, fdPath string, expect string, descriptors []string) int {
+	for fdIdx:=len(descriptors)-1; fdIdx > -1; fdIdx-- {
+		descLink := fmt.Sprint(fdPath, descriptors[fdIdx])
+		if link, err := os.Readlink(descLink); err == nil && link == expect {
+			return fdIdx
+		}
+	}
+
+	return -1
+}
+
+func getPidFromCache(inode int, inodeKey string, expect string) int {
+	// loop over the processes that have generated connections
+	for pid, Pid := range pidsCache {
+		if idxDesc := getPidDescriptorsFromCache(pid, Pid.FdPath, expect, Pid.Descriptors); idxDesc != -1 {
+			return pid
+		}
+
+		if descriptors := lookupPidDescriptors(Pid.FdPath); descriptors != nil {
+			pidsCache[pid].Descriptors = descriptors
+
+			if idxDesc := getPidDescriptorsFromCache(pid, Pid.FdPath, expect, descriptors); idxDesc != -1 {
+				return pid
+			}
+		}
+	}
+
+	return -1
+}
+
+
+func GetPIDFromINode(inode int, inodeKey string) int {
 	found := -1
+	start := time.Now()
+	cleanUpCaches()
+
+	expect := fmt.Sprintf("socket:[%d]", inode)
+	if cachedPidInode := GetPidByInodeFromCache(inodeKey); cachedPidInode != -1 {
+		log.Debug("Inode found in cache", time.Since(start), inodesCache[inodeKey], inode, inodeKey)
+		return cachedPidInode
+	}
+
+	cachedPid := getPidFromCache(inode, inodeKey, expect)
+	if cachedPid != -1 {
+		log.Debug("Socket found in known pids", time.Since(start), cachedPid, inode)
+		return cachedPid
+	}
 
 	forEachProcess(func(pid int, path string, args []string) bool {
-		// for every descriptor
-		fdPath := fmt.Sprintf("/proc/%d/fd/", pid)
-		if descriptors, err := ioutil.ReadDir(fdPath); err == nil {
-			for _, desc := range descriptors {
-				descLink := fmt.Sprintf("%s%s", fdPath, desc.Name())
-				// resolve the symlink and compare to what we expect
-				if link, err := os.Readlink(descLink); err == nil && link == expect {
-					found = pid
-					return true
-				}
+		fdPath := fmt.Sprint("/proc/", pid, "/fd/")
+		fd_list := lookupPidDescriptors(fdPath)
+		if fd_list == nil {
+			return false
+		}
+
+		for idx:=len(fd_list)-1; idx > -1; idx-- {
+			descLink := fmt.Sprint(fdPath, fd_list[idx])
+			// resolve the symlink and compare to what we expect
+			if link, err := os.Readlink(descLink); err == nil && link == expect {
+				found = pid
+				inodesCache[inodeKey] = &Inode{ FdPath: descLink, Pid: pid }
+				pidsCache[pid] = &Pid{ FdPath: fdPath, Descriptors: fd_list }
+				return true
 			}
 		}
 		// keep looping
 		return false
 	})
+	log.Debug("new pid lookup took", time.Since(start))
 
 	return found
+}
+
+// ~150us
+func lookupPidDescriptors (fdPath string) []string{
+	if f, err := os.Open(fdPath); err == nil {
+		fd_list, err := f.Readdirnames(-1)
+		f.Close()
+		if err != nil {
+			return nil
+		}
+
+		return fd_list
+	}
+
+	return nil
 }
 
 func parseCmdLine(proc *Process) {
