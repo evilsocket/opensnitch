@@ -148,7 +148,7 @@ func (q *Queue) run() {
 }
 
 //export go_callback
-func go_callback(queueId C.int, data *C.uchar, length C.int, mark C.uint, idx uint32, vc *VerdictContainerC) {
+func go_callback(queueId C.int, data *C.uchar, length C.int, mark C.uint, idx uint32, vc *VerdictContainerC, uid uint32) {
 	(*vc).verdict = C.uint(NF_ACCEPT)
 	(*vc).data = nil
 	(*vc).mark_set = 0
@@ -175,6 +175,7 @@ func go_callback(queueId C.int, data *C.uchar, length C.int, mark C.uint, idx ui
 		verdictChannel: make(chan VerdictContainer),
 		Mark:           uint32(mark),
 		Packet:         packet,
+		Uid:            int(uid),
 	}
 
 	select {

@@ -95,6 +95,9 @@ func getPidFromCache(inode int, inodeKey string, expect string) int {
 
 func GetPIDFromINode(inode int, inodeKey string) int {
 	found := -1
+	if inode == -1 {
+		return found
+	}
 	start := time.Now()
 	cleanUpCaches()
 
@@ -106,7 +109,7 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 
 	cachedPid := getPidFromCache(inode, inodeKey, expect)
 	if cachedPid != -1 {
-		log.Debug("Socket found in known pids", time.Since(start), cachedPid, inode)
+		log.Debug("Socket found in known pids %v, pid: %d, inode: %d, pids in cache: %d", time.Since(start), cachedPid, inode, len(pidsCache))
 		return cachedPid
 	}
 
@@ -182,8 +185,11 @@ func parseEnv(proc *Process) {
 }
 
 func FindProcess(pid int) *Process {
+	if pid < 0 {
+		return NewProcess(0, "")
+	}
 	linkName := fmt.Sprint("/proc/", pid, "/exe")
-	if _, err := os.Stat(linkName); err != nil {
+	if _, err := os.Lstat(linkName); err != nil {
 		return nil
 	}
 

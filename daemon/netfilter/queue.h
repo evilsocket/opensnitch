@@ -21,7 +21,7 @@ typedef struct {
     unsigned char *data;
 } verdictContainer;
 
-extern void go_callback(int id, unsigned char* data, int len, uint mark, u_int32_t idx, verdictContainer *vc);
+extern void go_callback(int id, unsigned char* data, int len, uint mark, u_int32_t idx, verdictContainer *vc, uint32_t uid);
 
 static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *arg){
     uint32_t id = -1, idx = 0, mark = 0;
@@ -29,6 +29,7 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
     unsigned char *buffer = NULL;
     int size = 0;
     verdictContainer vc = {0};
+    uint32_t uid = -1;
 
     mark = nfq_get_nfmark(nfa);
     ph   = nfq_get_msg_packet_hdr(nfa);
@@ -36,7 +37,8 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
     size = nfq_get_payload(nfa, &buffer);
     idx  = (uint32_t)((uintptr_t)arg);
 
-    go_callback(id, buffer, size, mark, idx, &vc);
+    nfq_get_uid(nfa, &uid);
+    go_callback(id, buffer, size, mark, idx, &vc, uid);
 
     if( vc.mark_set == 1 ) {
       return nfq_set_verdict2(qh, id, vc.verdict, vc.mark, vc.length, vc.data);
@@ -46,7 +48,11 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
 }
 
 static inline struct nfq_q_handle* CreateQueue(struct nfq_handle *h, u_int16_t queue, u_int32_t idx) {
-    return nfq_create_queue(h, queue, &nf_callback, (void*)((uintptr_t)idx));
+    struct nfq_q_handle* qh = nfq_create_queue(h, queue, &nf_callback, (void*)((uintptr_t)idx));
+    if (nfq_set_queue_flags(qh, NFQA_CFG_F_UID_GID, NFQA_CFG_F_UID_GID)){
+        printf("queue.Run() no UID allowed by this kernel\n");
+    }
+    return qh;
 }
 
 static inline int Run(struct nfq_handle *h, int fd) {

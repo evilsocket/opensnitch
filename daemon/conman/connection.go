@@ -100,9 +100,12 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 	// 4. lookup process info by pid
 	if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
 		return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
-	} else if pid := procmon.GetPIDFromINode(c.Entry.INode, fmt.Sprint(c.Entry.INode,c.SrcIP,c.SrcPort,c.DstIP,c.DstPort)); pid == -1 {
-		return nil, fmt.Errorf("Could not find process id for: %s", c)
-	} else if pid == os.Getpid() {
+	}
+	if c.Entry.UserId == -1 {
+		c.Entry.UserId = nfp.Uid
+	}
+	pid := procmon.GetPIDFromINode(c.Entry.INode, fmt.Sprint(c.Entry.INode,c.SrcIP,c.SrcPort,c.DstIP,c.DstPort))
+	if pid == os.Getpid() {
 		return nil, nil
 	} else if c.Process = procmon.FindProcess(pid); c.Process == nil {
 		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)

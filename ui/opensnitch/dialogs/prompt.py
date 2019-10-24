@@ -65,8 +65,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         with self._lock:
             # reset state
             self._tick = self._cfg.default_timeout
-	    if self._tick_thread != None:
-		self._tick_thread.join()
+            if self._tick_thread != None:
+                self._tick_thread.join()
             self._tick_thread = threading.Thread(target=self._timeout_worker)
             self._rule = None
             self._local = is_local
@@ -111,7 +111,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             app_name, app_icon = "", "terminal"
 
         if app_name == "":
-            self._app_name_label.setText(con.process_path)
+            app_name = "Unknown process"
+            self._app_name_label.setText("Outgoing connection")
         else:
             self._app_name_label.setText(app_name)
 
@@ -139,7 +140,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._dst_ip_label.setText(con.dst_ip)
 
         if self._local:
-            uid = "%d (%s)" % (con.user_id, pwd.getpwuid(con.user_id).pw_name)
+            try:
+                uid = "%d (%s)" % (con.user_id, pwd.getpwuid(con.user_id).pw_name)
+            except:
+                uid = ""
         else:
             uid = "%d" % con.user_id
 
@@ -148,10 +152,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._args_label.setText(' '.join(con.process_args))
 
         self._what_combo.clear()
-        self._what_combo.addItem("from this process")
-        self._what_combo.addItem("from user %d" % con.user_id)
-        self._what_combo.addItem("to port %d" % con.dst_port)
-        self._what_combo.addItem("to %s" % con.dst_ip)
+        if int(con.process_id) > 0:
+            self._what_combo.addItem("from this process", "process_id")
+        if int(con.user_id) >= 0:
+            self._what_combo.addItem("from user %d" % con.user_id, "user_id")
+        self._what_combo.addItem("to port %d" % con.dst_port, "dst_port")
+        self._what_combo.addItem("to %s" % con.dst_ip, "dst_ip")
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
             self._what_combo.addItem("to %s" % con.dst_host, "simple_host")
@@ -178,7 +184,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self._duration_combo.setCurrentIndex(2)
 
-        self._what_combo.setCurrentIndex(0)
+        if int(con.process_id) > 0:
+            self._what_combo.setCurrentIndex(0)
+        else:
+            self._what_combo.setCurrentIndex(1)
 
         self._apply_button.setText("Apply (%d)" % self._tick)
 
@@ -213,22 +222,26 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule.duration = "always"
 
         what_idx = self._what_combo.currentIndex()
-        if what_idx == 0:
+        #if what_idx == 0:
+        if self._what_combo.itemData(what_idx) == "process_id":
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "process.path"
             self._rule.operator.data = self._con.process_path 
 
-        elif what_idx == 1:
+        #elif what_idx == 1:
+        elif self._what_combo.itemData(what_idx) == "user_id":
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "user.id"
             self._rule.operator.data = "%s" % self._con.user_id 
         
-        elif what_idx == 2:
+        #elif what_idx == 2:
+        elif self._what_combo.itemData(what_idx) == "dst_port":
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "dest.port"
             self._rule.operator.data = "%s" % self._con.dst_port 
 
-        elif what_idx == 3:
+        #elif what_idx == 3:
+        elif self._what_combo.itemData(what_idx) == "dst_ip":
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "dest.ip"
             self._rule.operator.data = self._con.dst_ip 
