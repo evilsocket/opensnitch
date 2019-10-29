@@ -129,6 +129,13 @@ func (c *Connection) parseDirection() bool {
 				c.SrcPort = uint(udp.SrcPort)
 				ret = true
 			}
+		} else if layer.LayerType() == layers.LayerTypeUDPLite {
+			if udplite, ok := layer.(*layers.UDPLite); ok == true && udplite != nil {
+				c.Protocol = "udplite"
+				c.DstPort = uint(udplite.DstPort)
+				c.SrcPort = uint(udplite.SrcPort)
+				ret = true
+			}
 		}
 	}
 
