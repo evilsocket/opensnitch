@@ -145,7 +145,7 @@ func onPacket(packet netfilter.Packet) {
 	}
 
 	// Parse the connection state
-	con := conman.Parse(packet)
+	con := conman.Parse(packet, uiClient.InterceptUnknown())
 	if con == nil {
 		if uiClient.DefaultAction() == rule.Allow {
 			packet.SetVerdict(netfilter.NF_ACCEPT)

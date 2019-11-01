@@ -184,8 +184,8 @@ func parseEnv(proc *Process) {
 	}
 }
 
-func FindProcess(pid int) *Process {
-	if pid < 0 {
+func FindProcess(pid int, interceptUnknown bool) *Process {
+	if interceptUnknown && pid < 0 {
 		return NewProcess(0, "")
 	}
 	linkName := fmt.Sprint("/proc/", pid, "/exe")

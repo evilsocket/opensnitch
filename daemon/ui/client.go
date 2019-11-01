@@ -17,6 +17,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/fsnotify/fsnotify"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 )
@@ -25,11 +26,14 @@ var (
 	configFile			 = "/etc/opensnitchd/default-config.json"
 	clientDisconnectedRule = rule.Create("ui.client.disconnected", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
 	clientErrorRule		= rule.Create("ui.client.error", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
+	config  Config
 )
 
 type Config struct {
+	sync.RWMutex
 	Default_Action   string
 	Default_Duration string
+	Intercept_Unknown bool
 }
 
 type Client struct {
@@ -40,6 +44,7 @@ type Client struct {
 	isUnixSocket bool
 	con		  *grpc.ClientConn
 	client	   protocol.UIClient
+	configWatcher *fsnotify.Watcher
 }
 
 func NewClient(path string, stats *statistics.Statistics) *Client {
@@ -48,34 +53,55 @@ func NewClient(path string, stats *statistics.Statistics) *Client {
 		stats:		stats,
 		isUnixSocket: false,
 	}
+	if watcher, err := fsnotify.NewWatcher(); err == nil {
+		c.configWatcher = watcher
+	}
 	if strings.HasPrefix(c.socketPath, "unix://") == true {
 		c.isUnixSocket = true
 		c.socketPath = c.socketPath[7:]
 	}
-	c.loadConfiguration()
+	c.loadConfiguration(false)
 
 	go c.poller()
 	return c
 }
 
-func (c *Client) loadConfiguration() {
+func (c *Client) loadConfiguration(reload bool) {
 	raw, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		fmt.Errorf("Error loading configuration %s: %s", configFile, err)
 	}
 
-	var conf Config
-	err = json.Unmarshal(raw, &conf)
+	config.Lock()
+	defer config.Unlock()
+
+	err = json.Unmarshal(raw, &config)
 	if err != nil {
 		fmt.Errorf("Error parsing configuration %s: %s", configFile, err)
 	}
 
-	if conf.Default_Action != "" {
-		clientDisconnectedRule.Action = rule.Action(conf.Default_Action)
+	if config.Default_Action != "" {
+		clientDisconnectedRule.Action = rule.Action(config.Default_Action)
 	}
-	if conf.Default_Duration != "" {
-		clientDisconnectedRule.Duration = rule.Duration(conf.Default_Duration)
+	if config.Default_Duration != "" {
+		clientDisconnectedRule.Duration = rule.Duration(config.Default_Duration)
 	}
+
+	if err := c.configWatcher.Add(configFile); err != nil {
+		log.Error("Could not watch path: %s", err)
+		return
+	}
+	if reload == true {
+		return
+	}
+
+	go c.monitorConfigWorker()
+}
+
+func (c *Client) InterceptUnknown() bool {
+	config.RLock()
+	defer config.RUnlock()
+	return config.Intercept_Unknown
 }
 
 func (c *Client) DefaultAction() rule.Action {
@@ -218,4 +244,15 @@ func (c *Client) Ask(con *conman.Connection) (*rule.Rule, bool) {
 	}
 
 	return rule.Deserialize(reply), true
+}
+
+func(c *Client) monitorConfigWorker () {
+	for {
+		select {
+		case event := <-c.configWatcher.Events:
+			if (event.Op&fsnotify.Write == fsnotify.Write) || (event.Op&fsnotify.Remove == fsnotify.Remove) {
+				c.loadConfiguration(true)
+			}
+		}
+	}
 }

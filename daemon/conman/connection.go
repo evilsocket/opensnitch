@@ -28,7 +28,10 @@ type Connection struct {
 	pkt *netfilter.Packet
 }
 
-func Parse(nfp netfilter.Packet) *Connection {
+var showUnknownCons = false
+
+func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
+    showUnknownCons = interceptUnknown
 	ipLayer := nfp.Packet.Layer(layers.LayerTypeIPv4)
 	ipLayer6 := nfp.Packet.Layer(layers.LayerTypeIPv6)
 	if ipLayer == nil && ipLayer6 == nil {
@@ -85,7 +88,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 	pid := procmon.GetPIDFromINode(c.Entry.INode, fmt.Sprint(c.Entry.INode,c.SrcIP,c.SrcPort,c.DstIP,c.DstPort))
 	if pid == os.Getpid() {
 		return nil, nil
-	} else if c.Process = procmon.FindProcess(pid); c.Process == nil {
+	} else if c.Process = procmon.FindProcess(pid, showUnknownCons); c.Process == nil {
 		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
 	}
 	return c, nil
