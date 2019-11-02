@@ -175,9 +175,9 @@
   <widget class="QComboBox" name="whatCombo">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>180</x>
      <y>220</y>
-     <width>151</width>
+     <width>141</width>
      <height>31</height>
     </rect>
    </property>
@@ -397,7 +397,7 @@
     <rect>
      <x>10</x>
      <y>220</y>
-     <width>151</width>
+     <width>161</width>
      <height>31</height>
     </rect>
    </property>
@@ -417,10 +417,16 @@
     <property name="text">
      <string>Allow connections</string>
     </property>
+    <property name="icon">
+     <iconset theme="emblem-default"/>
+    </property>
    </item>
    <item>
     <property name="text">
      <string>Block connections</string>
+    </property>
+    <property name="icon">
+     <iconset theme="emblem-important"/>
     </property>
    </item>
   </widget>
