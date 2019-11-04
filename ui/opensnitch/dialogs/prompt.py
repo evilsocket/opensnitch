@@ -155,7 +155,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if int(con.process_id) > 0:
             self._what_combo.addItem("from this process", "process_id")
         if int(con.user_id) >= 0:
-            self._what_combo.addItem("from user %d" % con.user_id, "user_id")
+            self._what_combo.addItem("from user %s" % uid, "user_id")
         self._what_combo.addItem("to port %d" % con.dst_port, "dst_port")
         self._what_combo.addItem("to %s" % con.dst_ip, "dst_ip")
 
