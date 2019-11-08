@@ -124,6 +124,10 @@ func (c *Connection) parseDirection() bool {
 				c.DstPort = uint(tcp.DstPort)
 				c.SrcPort = uint(tcp.SrcPort)
 				ret = true
+
+				if tcp.DstPort == 53 {
+					c.getDomains(c.pkt, c)
+				}
 			}
 		} else if layer.LayerType() == layers.LayerTypeUDP {
 			if udp, ok := layer.(*layers.UDP); ok == true && udp != nil {
@@ -131,6 +135,10 @@ func (c *Connection) parseDirection() bool {
 				c.DstPort = uint(udp.DstPort)
 				c.SrcPort = uint(udp.SrcPort)
 				ret = true
+
+				if udp.DstPort == 53 {
+					c.getDomains(c.pkt, c)
+				}
 			}
 		} else if layer.LayerType() == layers.LayerTypeUDPLite {
 			if udplite, ok := layer.(*layers.UDPLite); ok == true && udplite != nil {
@@ -150,6 +158,17 @@ func (c *Connection) parseDirection() bool {
 		}
 	}
 	return ret
+}
+
+func (c *Connection) getDomains(nfp *netfilter.Packet, con *Connection) {
+	domains := dns.GetQuestions(nfp)
+	if len(domains) > 0 {
+		con.DstHost = fmt.Sprint(con.DstHost, " (")
+		for _, dns := range domains {
+			con.DstHost = fmt.Sprint(con.DstHost, dns)
+		}
+		con.DstHost = fmt.Sprint(con.DstHost, ")")
+	}
 }
 
 func (c *Connection) To() string {
