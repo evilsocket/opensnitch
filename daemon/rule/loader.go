@@ -149,10 +149,29 @@ func (l *Loader) setUniqueName(rule *Rule) {
 }
 
 func (l *Loader) addUserRule(rule *Rule) {
+	if rule.Duration == Once {
+		return
+	}
+
 	l.Lock()
 	l.setUniqueName(rule)
 	l.rules[rule.Name] = rule
 	l.Unlock()
+
+	if rule.Duration == Restart || rule.Duration == Always {
+		return
+	}
+
+	tTime, err := time.ParseDuration(string(rule.Duration))
+	if err != nil {
+		return
+	}
+
+	time.AfterFunc(tTime, func(){
+		l.Lock()
+		delete(l.rules, rule.Name)
+		l.Unlock()
+	})
 }
 
 func (l *Loader) Add(rule *Rule, saveToDisk bool) error {

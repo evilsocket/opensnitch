@@ -179,19 +179,19 @@ func onPacket(packet netfilter.Packet) {
 			}
 
 			// check if and how the rule needs to be saved
-			if r.Duration == rule.Restart {
-				pers = "Added"
-				// add to the rules but do not save to disk
-				if err := rules.Add(r, false); err != nil {
-					log.Error("Error while adding rule: %s", err)
-				} else {
-					ok = true
-				}
-			} else if r.Duration == rule.Always {
+			if r.Duration == rule.Always {
 				pers = "Saved"
 				// add to the loaded rules and persist on disk
 				if err := rules.Add(r, true); err != nil {
 					log.Error("Error while saving rule: %s", err)
+				} else {
+					ok = true
+				}
+			} else {
+				pers = "Added"
+				// add to the rules but do not save to disk
+				if err := rules.Add(r, false); err != nil {
+					log.Error("Error while adding rule: %s", err)
 				} else {
 					ok = true
 				}

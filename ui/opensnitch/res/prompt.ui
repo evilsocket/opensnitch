@@ -36,9 +36,6 @@
   <property name="sizeGripEnabled">
    <bool>false</bool>
   </property>
-  <property name="modal">
-   <bool>false</bool>
-  </property>
   <widget class="QLabel" name="appNameLabel">
    <property name="geometry">
     <rect>
@@ -77,7 +74,7 @@
     <rect>
      <x>10</x>
      <y>80</y>
-     <width>551</width>
+     <width>541</width>
      <height>35</height>
     </rect>
    </property>
@@ -137,6 +134,31 @@
    <item>
     <property name="text">
      <string>once</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>30s</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>5m</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>15m</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>30m</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>1h</string>
     </property>
    </item>
    <item>
@@ -307,7 +329,7 @@
      </widget>
     </item>
     <item row="3" column="1">
-     <widget class="QLabel" name="label_7">
+     <widget class="QLabel" name="pidLabelWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
         <horstretch>0</horstretch>

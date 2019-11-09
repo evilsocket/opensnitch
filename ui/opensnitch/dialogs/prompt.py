@@ -179,10 +179,20 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if self._cfg.default_duration == "once":
             self._duration_combo.setCurrentIndex(0)
-        elif self._cfg.default_duration == "until restart":
+        elif self._cfg.default_duration == "30s":
             self._duration_combo.setCurrentIndex(1)
-        else:
+        elif self._cfg.default_duration == "5m":
             self._duration_combo.setCurrentIndex(2)
+        elif self._cfg.default_duration == "15m":
+            self._duration_combo.setCurrentIndex(3)
+        elif self._cfg.default_duration == "30m":
+            self._duration_combo.setCurrentIndex(4)
+        elif self._cfg.default_duration == "1h":
+            self._duration_combo.setCurrentIndex(5)
+        elif self._cfg.default_duration == "until restart":
+            self._duration_combo.setCurrentIndex(6)
+        else:
+            self._duration_combo.setCurrentIndex(7)
 
         if int(con.process_id) > 0:
             self._what_combo.setCurrentIndex(0)
@@ -217,6 +227,16 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if duration_idx == 0:
             self._rule.duration = "once"
         elif duration_idx == 1:
+            self._rule.duration = "30s"
+        elif duration_idx == 2:
+            self._rule.duration = "5m"
+        elif duration_idx == 3:
+            self._rule.duration = "15m"
+        elif duration_idx == 4:
+            self._rule.duration = "30m"
+        elif duration_idx == 5:
+            self._rule.duration = "1h"
+        elif duration_idx == 6:
             self._rule.duration = "until restart"
         else:
             self._rule.duration = "always"
