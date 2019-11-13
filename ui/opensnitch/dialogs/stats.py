@@ -4,12 +4,15 @@ import datetime
 import operator
 import sys
 import os
-import pwd
 import csv
+import time
 
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt5 import Qt, QtCore, QtGui, uic, QtWidgets
+from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery, QSqlTableModel
 
 import ui_pb2
+from database import Database
+from config import Config
 from version import version
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
@@ -18,9 +21,62 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     GREEN = QtGui.QColor(0x2e, 0x90, 0x59)
 
     _trigger = QtCore.pyqtSignal()
+    SORT_ORDER = ["ASC", "DESC"]
+    LAST_ORDER_TO = 1
+    LAST_ORDER_BY = 1
+    TABLES = {
+            0: {
+                "name": "general",
+                "label": None,
+                "cmd": None,
+                "view": None
+                },
+            1: {
+                "name": "rules",
+                "label": None,
+                "cmd": None,
+                "view": None
+                },
+            2: {
+                "name": "hosts",
+                "label": None,
+                "cmd": None,
+                "view": None
+                },
+            3: {
+                "name": "procs",
+                "label": None,
+                "cmd": None,
+                "view": None
+                },
+            4: {
+                "name": "addrs",
+                "label": None,
+                "cmd": None,
+                "view": None
+                },
+            5: {
+                "name": "ports",
+                "label": None,
+                "cmd": None,
+                "view": None
+                },
+            6: {
+                "name": "users",
+                "label": None,
+                "cmd": None,
+                "view": None
+                }
+            }
 
     def __init__(self, parent=None, address=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(QtCore.Qt.Window)
+
+        self._db = Database.instance()
+        self._db_sqlite = self._db.get_db()
+
+        self._cfg = Config.get()
 
         self.setupUi(self)
 
@@ -38,27 +94,57 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._status_label = self.findChild(QtWidgets.QLabel, "statusLabel")
         self._version_label = self.findChild(QtWidgets.QLabel, "daemonVerLabel")
         self._uptime_label = self.findChild(QtWidgets.QLabel, "uptimeLabel")
-        self._rules_label = self.findChild(QtWidgets.QLabel, "rulesLabel")
-        self._cons_label = self.findChild(QtWidgets.QLabel, "consLabel")
         self._dropped_label = self.findChild(QtWidgets.QLabel, "droppedLabel")
+        self._cons_label = self.findChild(QtWidgets.QLabel, "consLabel")
+        self._rules_label = self.findChild(QtWidgets.QLabel, "rulesLabel")
 
-        self._events_table = self._setup_table("eventsTable", ("Time", "Action", "Process", "Destination", "Protocol", "Rule", "uuid" ))
-        self._addrs_table = self._setup_table("addrTable", ("IP", "Connections", "uuid"))
-        self._hosts_table = self._setup_table("hostsTable", ("Hostname", "Connections", "uuid"))
-        self._ports_table = self._setup_table("portsTable", ("Port", "Connections", "uuid"))
-        self._users_table = self._setup_table("usersTable", ("User", "Connections", "uuid"))
-        self._procs_table = self._setup_table("procsTable", ("Executable", "Connections", "uuid"))
+        self._combo_action = self.findChild(QtWidgets.QComboBox, "comboAction")
+        self._combo_action.currentIndexChanged.connect(self._cb_combo_action_changed)
+
+        self._events_filter_line = self.findChild(QtWidgets.QLineEdit, "filterLine")
+        self._events_filter_line.textChanged.connect(self._cb_events_filter_line_changed)
+
+        self.TABLES[0]['view'] = self._setup_table(QtWidgets.QTreeView, "eventsTable", "general")
+        self.TABLES[1]['view'] = self._setup_table(QtWidgets.QTableView, "rulesTable", "rules")
+        self.TABLES[2]['view'] = self._setup_table(QtWidgets.QTableView, "hostsTable", "hosts")
+        self.TABLES[3]['view'] = self._setup_table(QtWidgets.QTableView, "procsTable", "procs")
+        self.TABLES[4]['view'] = self._setup_table(QtWidgets.QTableView, "addrTable", "addrs")
+        self.TABLES[5]['view'] = self._setup_table(QtWidgets.QTableView, "portsTable", "ports")
+        self.TABLES[6]['view'] = self._setup_table(QtWidgets.QTableView, "usersTable", "users")
+
+        self.TABLES[1]['label'] = self.findChild(QtWidgets.QLabel, "ruleLabel")
+        self.TABLES[2]['label'] = self.findChild(QtWidgets.QLabel, "hostsLabel")
+        self.TABLES[3]['label'] = self.findChild(QtWidgets.QLabel, "procsLabel")
+        self.TABLES[4]['label'] = self.findChild(QtWidgets.QLabel, "addrsLabel")
+        self.TABLES[5]['label'] = self.findChild(QtWidgets.QLabel, "portsLabel")
+        self.TABLES[6]['label'] = self.findChild(QtWidgets.QLabel, "usersLabel")
+
+        self.TABLES[1]['cmd'] = self.findChild(QtWidgets.QPushButton, "cmdRulesBack")
+        self.TABLES[2]['cmd'] = self.findChild(QtWidgets.QPushButton, "cmdHostsBack")
+        self.TABLES[3]['cmd'] = self.findChild(QtWidgets.QPushButton, "cmdProcsBack")
+        self.TABLES[4]['cmd'] = self.findChild(QtWidgets.QPushButton, "cmdAddrsBack")
+        self.TABLES[5]['cmd'] = self.findChild(QtWidgets.QPushButton, "cmdPortsBack")
+        self.TABLES[6]['cmd'] = self.findChild(QtWidgets.QPushButton, "cmdUsersBack")
+
+        for idx in range(1,7):
+            self.TABLES[idx]['cmd'].setVisible(False)
+            self.TABLES[idx]['cmd'].clicked.connect(lambda: self._cb_cmd_back_clicked(idx))
+            self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
+
+        self._load_settings()
 
         self._tables = ( \
-            self._events_table,
-            self._hosts_table,
-            self._procs_table,
-            self._addrs_table,
-            self._ports_table,
-            self._users_table
+            self.TABLES[0]['view'],
+            self.TABLES[1]['view'],
+            self.TABLES[2]['view'],
+            self.TABLES[3]['view'],
+            self.TABLES[4]['view'],
+            self.TABLES[5]['view'],
+            self.TABLES[6]['view']
         )
         self._file_names = ( \
             'events.csv',
+            'rules.csv',
             'hosts.csv',
             'procs.csv',
             'addrs.csv',
@@ -68,6 +154,147 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if address is not None:
             self.setWindowapply_Title("OpenSnitch Network Statistics for %s" % address)
+
+    def _load_settings(self):
+        dialog_geometry = self._cfg.getSettings("statsDialog/geometry")
+        dialog_last_tab = self._cfg.getSettings("statsDialog/last_tab")
+        dialog_general_filter_text = self._cfg.getSettings("statsDialog/general_filter_text")
+        dialog_general_filter_action = self._cfg.getSettings("statsDialog/general_filter_action")
+        if dialog_geometry != None:
+            self.restoreGeometry(dialog_geometry)
+        if dialog_last_tab != None:
+            self._tabs.setCurrentIndex(int(dialog_last_tab))
+        if dialog_general_filter_text != None:
+            self._events_filter_line.setText(dialog_general_filter_text)
+        if dialog_general_filter_action != None:
+            self._combo_action.setCurrentIndex(int(dialog_general_filter_action))
+
+    def _save_settings(self):
+        self._cfg.setSettings("statsDialog/geometry", self.saveGeometry())
+        self._cfg.setSettings("statsDialog/last_tab", self._tabs.currentIndex())
+
+    def _cb_table_header_clicked(self, pos, sortIdx):
+        model = self._get_active_table().model()
+        self.LAST_ORDER_BY = pos+1
+        self.LAST_ORDER_TO = sortIdx
+        qstr = model.query().lastQuery().split("ORDER BY")[0]
+        q = qstr.strip(" ") + self._get_order()
+        self.setQuery(model, q)
+
+    def _cb_events_filter_line_changed(self, text):
+        model = self.TABLES[0]['view'].model()
+        if text != "":
+            qstr = self._db.get_query( self.TABLES[0]['name'] ) + " WHERE " + text + self._get_order()
+            self.setQuery(model, qstr)
+        else:
+            self.setQuery(model, self._db.get_query("general") + self._get_order())
+
+        self._cfg.setSettings("statsDialog/general_filter_text", text)
+
+    def _cb_combo_action_changed(self, idx):
+        model = self.TABLES[0]['view'].model()
+        if self._combo_action.currentText() == "-":
+            self.setQuery(model, self._db.get_query("general") + self._get_order())
+        else:
+            action = "Action = '" + self._combo_action.currentText().lower() + "'"
+            qstr = self._db.get_query( self.TABLES[0]['name'] ) + " WHERE " + action + self._get_order()
+            self.setQuery(model, qstr)
+
+        self._cfg.setSettings("statsDialog/general_filter_action", idx)
+
+    def _cb_cmd_back_clicked(self, idx):
+        cur_idx = self._tabs.currentIndex()
+        self.TABLES[cur_idx]['label'].setVisible(False)
+        self.TABLES[cur_idx]['cmd'].setVisible(False)
+        model = self._get_active_table().model()
+        if self.LAST_ORDER_BY > 2:
+            self.LAST_ORDER_BY = 1
+        self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name']) + self._get_order())
+
+    def _cb_table_double_clicked(self, row):
+        cur_idx = self._tabs.currentIndex()
+        self.TABLES[cur_idx]['label'].setVisible(True)
+        self.TABLES[cur_idx]['cmd'].setVisible(True)
+        self.TABLES[cur_idx]['label'].setText("<b>" + str(row.data()) + "</b>")
+
+        model = self._get_active_table().model()
+        data = row.data()
+        if cur_idx == 1:
+            self.setQuery(model, "SELECT " \
+                    "g.Time as Time, " \
+                    "r.name as RuleName, " \
+                    "c.uid as UserID, " \
+                    "c.protocol as Protocol, " \
+                    "c.dst_port as DstPort, " \
+                    "c.dst_ip as DstIP, " \
+                    "c.process as Process, " \
+                    "c.process_args as Args, " \
+                    "count(c.process) as Hits " \
+                "FROM rules as r, general as g, connections as c " \
+                "WHERE r.Name = '%s' AND r.Name = g.Rule AND c.process = g.Process GROUP BY c.process,c.dst_host %s" % (data, self._get_order()))
+        elif cur_idx == 2:
+            self.setQuery(model, "SELECT " \
+                    "c.uid as UserID, " \
+                    "c.protocol as Protocol, " \
+                    "c.dst_port as DstPort, " \
+                    "c.dst_ip as DstIP, " \
+                    "c.process as Process, " \
+                    "c.process_args as Args, " \
+                    "count(c.process) as Hits " \
+                "FROM hosts as h, connections as c " \
+                "WHERE c.dst_host = h.what AND h.what = '%s' GROUP BY c.process %s" % (data, self._get_order()))
+        elif cur_idx == 3:
+            self.setQuery(model, "SELECT " \
+                    "g.Time, " \
+                    "g.Destination, " \
+                    "c.uid as UserID, " \
+                    "g.Action, " \
+                    "g.Process, " \
+                    "c.process_args as Args, " \
+                    "count(g.Destination) as Hits " \
+                "FROM procs as p,general as g, connections as c " \
+                "WHERE c.process = p.what AND p.what = g.Process AND p.what = '%s' GROUP BY g.Destination " % data)
+        elif cur_idx == 4:
+            self.setQuery(model, "SELECT " \
+                    "c.uid as UserID, " \
+                    "c.protocol as Protocol, " \
+                    "c.dst_port as DstPort, " \
+                    "c.process as Process, " \
+                    "c.process_args as Args, " \
+                    "count(c.dst_ip) as Hits " \
+                "FROM addrs as a, connections as c " \
+                "WHERE c.dst_ip = a.what AND a.what = '%s' GROUP BY c.dst_ip " % data)
+        elif cur_idx == 5:
+            self.setQuery(model, "SELECT " \
+                    "c.uid as UserID, " \
+                    "c.protocol as Protocol, " \
+                    "c.dst_ip as DstIP, " \
+                    "c.dst_port as DstPort, " \
+                    "c.process as Process, " \
+                    "c.process_args as Args, " \
+                    "count(c.dst_ip) as Hits " \
+                "FROM ports as p, connections as c " \
+                "WHERE c.dst_port = p.what AND p.what = '%s' GROUP BY c.dst_ip " % data)
+        elif cur_idx == 6:
+            self.setQuery(model, "SELECT " \
+                    "c.protocol as Protocol, " \
+                    "c.dst_ip as DstIP, " \
+                    "c.dst_port as DstPort, " \
+                    "c.process as Process, " \
+                    "c.process_args as Args, " \
+                    "count(c.dst_ip) as Hits " \
+                "FROM users as u, connections as c " \
+                "WHERE '%s' LIKE '%%' || c.uid || '%%' GROUP BY c.dst_ip" % data)
+
+    def _get_order(self):
+        return " ORDER BY %d %s" % (self.LAST_ORDER_BY, self.SORT_ORDER[self.LAST_ORDER_TO])
+
+    def _refresh_active_table(self):
+        model = self._get_active_table().model()
+        self.setQuery(model, model.query().lastQuery())
+
+    def _get_active_table(self):
+        return self.TABLES[self._tabs.currentIndex()]['view']
 
     def update(self, stats=None):
         with self._lock:
@@ -114,142 +341,26 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         values.append(table.model().index(row, col).data())
                     w.writerow(values)
 
-    def _setup_table(self, name, columns):
-        table = self.findChild(QtWidgets.QTableView, name)
-
-        ncols = len(columns)
-        model = QtGui.QStandardItemModel(self)
-        model.setColumnCount(ncols)
-        model.setHorizontalHeaderLabels(columns)
+    def _setup_table(self, widget, name, table_name):
+        table = self.findChild(widget, name)
+        table.setSortingEnabled(True)
+        model = QSqlQueryModel()
+        self.setQuery(model, "SELECT * FROM " + table_name + " ORDER BY 1")
         table.setModel(model)
-        table.setColumnHidden(ncols-1, True)
-
-        header = table.horizontalHeader()
-        header.setVisible(True)
-
-        if 'Connections' in columns:
-            for col_idx, _ in enumerate(columns):
-                header.setSectionResizeMode(col_idx, \
-                        QtWidgets.QHeaderView.Stretch if col_idx == 0 else QtWidgets.QHeaderView.ResizeToContents)
-
-            table.setSortingEnabled(True)
-        else:
-            table.setSortingEnabled(False)
-            for col_idx, _ in enumerate(columns):
-                header.setSectionResizeMode(col_idx, QtWidgets.QHeaderView.ResizeToContents)
-
-        return table
-
-    def _populate_counters_table(self, table, data):
-        model = table.model()
-        for row, t in enumerate(sorted(data.items(), key=operator.itemgetter(1), reverse=True)):
-            items = []
-            what, hits = t
-
-            items.append(QtGui.QStandardItem(what))
-            items.append(QtGui.QStandardItem("%s" % (hits)))
-            items.append(QtGui.QStandardItem("%s:%s" % (what, hits)))
-            model.insertRow(row, items)
-
-        table.setModel(model)
-
-    def _update_counters_table(self, model, changes):
-        for row, data in changes.items():
-            what, hits = data
-            i = model.index(row, 0)
-            model.setData(i, what)
-            i = model.index(row, 1)
-            model.setData(i, hits)
-            i = model.index(row, 3)
-            model.setData(i, "%s:%s" % (what, hits))
-
-        return model
-
-    def _insert_counters_table(self, model, newitems):
-        for row, data in newitems.items():
-            items = []
-            what, hits = data
-            items.append(QtGui.QStandardItem(what))
-            items.append(QtGui.QStandardItem("%s" % (hits)))
-            items.append(QtGui.QStandardItem("%s:%s" % (what, hits)))
-            model.appendRow(items)
-
-        return model
-
-    def _render_counters_table(self, name, table, data):
-        model = table.model()
-        cols = model.columnCount()
-        rows = model.rowCount()
-        if rows == 0:
-            self._populate_counters_table(table, data)
-            return
-
-        changes = {}
-        newitems = {}
-        for rd, t in enumerate(sorted(data.items(), key=operator.itemgetter(1), reverse=True)):
-            what, hits = t
-            idx = model.match(model.index(0, 0), QtCore.Qt.DisplayRole, what, 1, QtCore.Qt.MatchExactly)
-            if len(idx) == 0:
-                newitems[rd] = t
-                continue
-            else:
-                for r in range(rows):
-                    _what = model.index(r, 0).data()
-                    _hits = model.index(r, 1).data()
-                    if _what == what and (_hits == hits) == False:
-                        changes[r] = t
-                        break
-
-        if len(changes) == 0 and rows > 0 and len(newitems) == 0:
-            return
-        elif len(changes) > 0 and rows > 0:
-            model = self._update_counters_table(table.model(), changes)
-        if len(newitems) > 0 and rows > 0:
-            model = self._insert_counters_table(table.model(), newitems)
-
-        table.setModel(model)
-
-    def _render_events_table(self):
-        model = self._events_table.model()
 
         try:
-            firstEvent = reversed(self._stats.events)
-            firstEvent = firstEvent.__next__()
-            idx = model.match(model.index(0,0), QtCore.Qt.DisplayRole, firstEvent.time, 1, QtCore.Qt.MatchExactly)
-            if len(idx) == 1:
-                return
-        except StopIteration:
-            pass
+            header = table.horizontalHeader()
+        except Exception:
+            header = table.header()
 
-        model.removeRows(0, len(self._stats.events))
-        for row, event in enumerate(reversed(self._stats.events)):
-            items = []
+        if header != None:
+            header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+            header.sortIndicatorChanged.connect(self._cb_table_header_clicked)
 
-            items.append(QtGui.QStandardItem(event.time))
-            itemAction = QtGui.QStandardItem(event.rule.action)
-            if event.rule.action == "deny":
-                itemAction.setForeground(StatsDialog.RED)
-            else:
-                itemAction.setForeground(StatsDialog.GREEN)
-
-            items.append(itemAction)
-
-            itemProcess = QtGui.QStandardItem(event.connection.process_path)
-            pPath = event.connection.process_path
-            for pArgs in event.connection.process_args:
-                pPath += "\n    " + pArgs
-            itemProcess.setToolTip(pPath)
-            items.append(itemProcess)
-
-            items.append(QtGui.QStandardItem("%s:%s" % (
-                    event.connection.dst_host if event.connection.dst_host != "" else event.connection.dst_ip,
-                    event.connection.dst_port )))
-            items.append(QtGui.QStandardItem(event.connection.protocol))
-            items.append(QtGui.QStandardItem(event.rule.name))
-
-            model.insertRow(row, items)
-
-        self._events_table.setModel(model)
+        #for col_idx, _ in enumerate(model.cols()):
+        #    header.setSectionResizeMode(col_idx, \
+        #            QtWidgets.QHeaderView.Stretch if col_idx == 0 else QtWidgets.QHeaderView.ResizeToContents)
+        return table
 
     @QtCore.pyqtSlot()
     def _on_update_triggered(self):
@@ -266,39 +377,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cons_label.setText("%s" % self._stats.connections)
             self._dropped_label.setText("%s" % self._stats.dropped)
 
-            if self._tabs.currentIndex() == 0:
-                self._render_events_table()
-
-            by_users = {}
-            if self._address is None:
-                for uid, hits in self._stats.by_uid.items():
-                    try:
-                        pw_name = pwd.getpwuid(int(uid)).pw_name
-                    except KeyError:
-                        pw_name = "(UID error)"
-                    except Exception:
-                        pw_name = "error"
-                    finally:
-                        by_users["%s (%s)" % (pw_name, uid)] = hits
-            else:
-                by_users = self._stats.by_uid
-
-            if self._tabs.currentIndex() == 1:
-                self._render_counters_table("hosts", self._hosts_table, self._stats.by_host)
-            if self._tabs.currentIndex() == 2:
-                self._render_counters_table("procs", self._procs_table, self._stats.by_executable)
-            if self._tabs.currentIndex() == 3:
-                self._render_counters_table("addrs", self._addrs_table, self._stats.by_address)
-            if self._tabs.currentIndex() == 4:
-                self._render_counters_table("ports", self._ports_table, self._stats.by_port)
-            if self._tabs.currentIndex() == 5:
-                self._render_counters_table("users", self._users_table, by_users)
-
-        self.setFixedSize(self.size())
+            self._refresh_active_table()
 
     # prevent a click on the window's x
     # from quitting the whole application
     def closeEvent(self, e):
+        self._save_settings()
         e.ignore()
         self.hide()
 
@@ -306,3 +390,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def keyPressEvent(self, event):
         if not event.key() == QtCore.Qt.Key_Escape:
             super(StatsDialog, self).keyPressEvent(event)
+
+    def setQuery(self, model, q):
+        with self._lock:
+            model.setQuery(q, self._db_sqlite)
+            model.query().clear()

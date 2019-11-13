@@ -4,6 +4,7 @@ import sys
 import time
 import os
 import pwd
+from datetime import datetime
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
@@ -12,6 +13,7 @@ from slugify import slugify
 from desktop_parser import LinuxDesktopParser
 from config import Config
 from version import version
+from database import Database
 
 import ui_pb2
 
@@ -24,11 +26,17 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
+        self._cfg = Config.get()
+        self._db = Database.instance()
+
+        dialog_geometry = self._cfg.getSettings("promptDialog/geometry")
+        if dialog_geometry != None:
+            self.restoreGeometry(dialog_geometry)
+
         self.setupUi(self)
 
         self.setWindowTitle("OpenSnitch v%s" % version)
 
-        self._cfg = Config.get()
         self._lock = threading.Lock()
         self._con = None
         self._rule = None
@@ -215,6 +223,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         e.ignore()
 
     def _on_apply_clicked(self):
+        self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
         self._rule = ui_pb2.Rule(name="user.choice")
 
         action_idx = self._action_combo.currentIndex()
@@ -242,25 +251,21 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule.duration = "always"
 
         what_idx = self._what_combo.currentIndex()
-        #if what_idx == 0:
         if self._what_combo.itemData(what_idx) == "process_id":
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "process.path"
             self._rule.operator.data = self._con.process_path 
 
-        #elif what_idx == 1:
         elif self._what_combo.itemData(what_idx) == "user_id":
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "user.id"
             self._rule.operator.data = "%s" % self._con.user_id 
         
-        #elif what_idx == 2:
         elif self._what_combo.itemData(what_idx) == "dst_port":
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "dest.port"
             self._rule.operator.data = "%s" % self._con.dst_port 
 
-        #elif what_idx == 3:
         elif self._what_combo.itemData(what_idx) == "dst_ip":
             self._rule.operator.type = "simple"
             self._rule.operator.operand = "dest.ip"

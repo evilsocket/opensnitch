@@ -1,5 +1,6 @@
 import os
 import json
+from PyQt5 import QtCore
 
 class Config:
     __instance = None
@@ -17,6 +18,8 @@ class Config:
         self.filename = os.path.abspath( os.path.expanduser(filename) )
         self.exists = os.path.isfile(self.filename)
 
+        self.settings = QtCore.QSettings("opensnitch", "settings")
+
         self.default_timeout = 15
         self.default_action = "allow"
         self.default_duration = "until restart"
@@ -28,6 +31,12 @@ class Config:
             self.default_timeout = data["default_timeout"]
             self.default_action  = data["default_action"]
             self.default_duration = data["default_duration"]
+
+    def setSettings(self, path, value):
+        self.settings.setValue(path, value)
+
+    def getSettings(self, path):
+        return self.settings.value(path)
 
     def save(self):
         dirname = os.path.dirname(self.filename)

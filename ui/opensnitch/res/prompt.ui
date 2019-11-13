@@ -217,7 +217,7 @@
    </property>
    <item>
     <property name="text">
-     <string>from this process</string>
+     <string>from this executable</string>
     </property>
    </item>
    <item>
@@ -440,7 +440,8 @@
      <string>Allow connections</string>
     </property>
     <property name="icon">
-     <iconset theme="emblem-default"/>
+     <iconset theme="emblem-default">
+      <normaloff>.</normaloff>.</iconset>
     </property>
    </item>
    <item>
@@ -448,7 +449,8 @@
      <string>Block connections</string>
     </property>
     <property name="icon">
-     <iconset theme="emblem-important"/>
+     <iconset theme="emblem-important">
+      <normaloff>.</normaloff>.</iconset>
     </property>
    </item>
   </widget>

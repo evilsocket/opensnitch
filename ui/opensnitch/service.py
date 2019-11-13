@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery
 
 from datetime import datetime
 from threading import Thread, Lock
@@ -9,6 +10,7 @@ import fcntl
 import struct
 import array
 import sys
+import pwd
 
 path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(path)
@@ -19,6 +21,7 @@ import ui_pb2_grpc
 from dialogs.prompt import PromptDialog
 from dialogs.stats import StatsDialog
 
+from database import Database
 from config import Config
 from version import version
 
@@ -29,6 +32,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def __init__(self, app, on_exit, config):
         super(UIService, self).__init__()
+        self._db = Database.instance()
 
         self._cfg = Config.init(config)
         self._last_ping = None
@@ -128,6 +132,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     @QtCore.pyqtSlot(str,ui_pb2.Statistics)
     def _on_new_remote(self, addr, stats):
+        print("_on_new_remote()")
         dialog = StatsDialog(address = addr)
         dialog.daemon_connected = True
         dialog.update(stats)
@@ -177,9 +182,80 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         return False
 
+    def _populate_stats(self, db, stats):
+        fields = []
+        values = []
+        for row, event in enumerate(stats.events):
+            db.insert("general",
+                    "(Time, Action, Process, Destination, DstPort, Protocol, Rule)",
+                    (event.time, event.rule.action, event.connection.process_path,
+                        event.connection.dst_host, str(event.connection.dst_port), event.connection.protocol, event.rule.name),
+                    action_on_conflict="IGNORE"
+                    )
+        for row, event in enumerate(stats.events):
+            db.insert("connections",
+                    "(protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, process, process_args)",
+                    (event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
+                        event.connection.dst_ip, event.connection.dst_host, str(event.connection.dst_port),
+                        str(event.connection.user_id), event.connection.process_path, " ".join(event.connection.process_args)),
+                    action_on_conflict="IGNORE"
+                    )
+            db.insert("rules",
+                    "(time, name, action, duration, operator)",
+                        (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        event.rule.name, event.rule.action, event.rule.duration,
+                        event.rule.operator.operand + ": " + event.rule.operator.data),
+                    action_on_conflict="IGNORE")
+
+        fields = []
+        values = []
+        for row, event in enumerate(stats.by_host.items()):
+            what, hits = event
+            fields.append(what)
+            values.append(int(hits))
+        db.insert_batch("hosts", "(what, hits)", (1,2), fields, values)
+
+        fields = []
+        values = []
+        for row, event in enumerate(stats.by_executable.items()):
+            what, hits = event
+            fields.append(what)
+            values.append(int(hits))
+        db.insert_batch("procs", "(what, hits)", (1,2), fields, values)
+
+        fields = []
+        values = []
+        for row, event in enumerate(stats.by_address.items()):
+            what, hits = event
+            fields.append(what)
+            values.append(int(hits))
+        db.insert_batch("addrs", "(what, hits)", (1,2), fields, values)
+
+        fields = []
+        values = []
+        for row, event in enumerate(stats.by_port.items()):
+            what, hits = event
+            fields.append(what)
+            values.append(int(hits))
+        db.insert_batch("ports", "(what, hits)", (1,2), fields, values)
+
+        fields = []
+        values = []
+        for row, event in enumerate(stats.by_uid.items()):
+            what, hits = event
+            pw_name = what
+            try:
+                pw_name = pwd.getpwuid(int(what)).pw_name + " (" + what + ")"
+            except Exception:
+                pw_name += " (error)"
+            fields.append(pw_name)
+            values.append(int(hits))
+        db.insert_batch("users", "(what, hits)", (1,2), fields, values)
+
     def Ping(self, request, context):
         if self._is_local_request(context):
             self._last_ping = datetime.now()
+            self._populate_stats(self._db, request.stats)
             self._stats_dialog.update(request.stats)
 
             if request.stats.daemon_version != version:
@@ -188,6 +264,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             with self._remote_lock:
                 _, addr, _ = context.peer().split(':')
                 if addr in self._remote_stats:
+                    self._populate_stats(self._db, request.stats)
                     self._remote_stats[addr].update(request.stats)
                 else:
                     self._new_remote_trigger.emit(addr, request.stats)
