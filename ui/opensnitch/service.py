@@ -62,6 +62,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.check_thread.daemon = True
         self.check_thread.start()
 
+        self.last_stats = None
+
     # https://gist.github.com/pklaus/289646
     def _setup_interfaces(self):
         max_possible = 128  # arbitrary. raise if needed.
@@ -185,19 +187,16 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _populate_stats(self, db, stats):
         fields = []
         values = []
+
         for row, event in enumerate(stats.events):
-            db.insert("general",
-                    "(Time, Action, Process, Destination, DstPort, Protocol, Rule)",
-                    (event.time, event.rule.action, event.connection.process_path,
-                        event.connection.dst_host, str(event.connection.dst_port), event.connection.protocol, event.rule.name),
-                    action_on_conflict="IGNORE"
-                    )
-        for row, event in enumerate(stats.events):
+            if self.last_stats != None and event in self.last_stats.events:
+                continue
             db.insert("connections",
-                    "(protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, process, process_args)",
-                    (event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
+                    "(time, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, process, process_args, rule)",
+                    (event.time, event.rule.action, event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
                         event.connection.dst_ip, event.connection.dst_host, str(event.connection.dst_port),
-                        str(event.connection.user_id), event.connection.process_path, " ".join(event.connection.process_args)),
+                        str(event.connection.user_id), event.connection.process_path, " ".join(event.connection.process_args),
+                        event.rule.name),
                     action_on_conflict="IGNORE"
                     )
             db.insert("rules",
@@ -209,7 +208,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         fields = []
         values = []
-        for row, event in enumerate(stats.by_host.items()):
+        items = stats.by_host.items()
+        last_items = self.last_stats.by_host.items() if self.last_stats != None else ''
+        for row, event in enumerate(items):
+            if self.last_stats != None and event in last_items:
+                continue
             what, hits = event
             fields.append(what)
             values.append(int(hits))
@@ -217,7 +220,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         fields = []
         values = []
-        for row, event in enumerate(stats.by_executable.items()):
+        items = stats.by_executable.items()
+        last_items = self.last_stats.by_executable.items() if self.last_stats != None else ''
+        for row, event in enumerate(items):
+            if self.last_stats != None and event in last_items:
+                continue
             what, hits = event
             fields.append(what)
             values.append(int(hits))
@@ -225,7 +232,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         fields = []
         values = []
-        for row, event in enumerate(stats.by_address.items()):
+        items = stats.by_address.items()
+        last_items = self.last_stats.by_address.items() if self.last_stats != None else ''
+        for row, event in enumerate(items):
+            if self.last_stats != None and event in last_items:
+                continue
             what, hits = event
             fields.append(what)
             values.append(int(hits))
@@ -233,7 +244,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         fields = []
         values = []
-        for row, event in enumerate(stats.by_port.items()):
+        items = stats.by_port.items()
+        last_items = self.last_stats.by_port.items() if self.last_stats != None else ''
+        for row, event in enumerate(items):
+            if self.last_stats != None and event in last_items:
+                continue
             what, hits = event
             fields.append(what)
             values.append(int(hits))
@@ -241,7 +256,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         fields = []
         values = []
-        for row, event in enumerate(stats.by_uid.items()):
+        items = stats.by_uid.items()
+        last_items = self.last_stats.by_uid.items() if self.last_stats != None else ''
+        for row, event in enumerate(items):
+            if self.last_stats != None and event in last_items:
+                continue
             what, hits = event
             pw_name = what
             try:
@@ -251,6 +270,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             fields.append(pw_name)
             values.append(int(hits))
         db.insert_batch("users", "(what, hits)", (1,2), fields, values)
+
+        self.last_stats = stats
 
     def Ping(self, request, context):
         if self._is_local_request(context):

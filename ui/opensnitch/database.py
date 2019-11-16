@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery
-import faulthandler
 import threading
 
 class Database:
@@ -15,7 +14,6 @@ class Database:
     def __init__(self):
         self._lock = threading.Lock()
         self.db = None
-        faulthandler.enable()
         self.initialize()
 
     def initialize(self):
@@ -31,18 +29,13 @@ class Database:
 
     def _create_tables(self):
         # https://www.sqlite.org/wal.html
-        #q = QSqlQuery("PRAGMA journal_mode=WAL;", self.db)
-        #q.exec_()
-        q = QSqlQuery("create table if not exists general (" \
-                "Time text, "\
-                "Action text, " \
-                "Process text, " \
-                "Destination text, " \
-                "DstPort text, " \
-                "Protocol text, " \
-                "Rule text, UNIQUE(Time,Action,Process,Destination,Rule))", self.db)
+        q = QSqlQuery("PRAGMA journal_mode = OFF", self.db)
+        q.exec_()
+        q = QSqlQuery("PRAGMA synchronous = OFF", self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists connections (" \
+                "time text, " \
+                "action text, " \
                 "protocol text, " \
                 "src_ip text, " \
                 "src_port text, " \
@@ -52,6 +45,7 @@ class Database:
                 "uid text, " \
                 "process text, " \
                 "process_args text, " \
+                "rule text, " \
                 "UNIQUE(protocol, src_ip, src_port, dst_ip, dst_port, uid, process, process_args))", self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists rules (" \
@@ -77,9 +71,19 @@ class Database:
         q = QSqlQuery(".dump", self.db)
         q.exec_()
 
+    def transaction(self):
+        self.db.transaction()
+
+    def commit(self):
+        self.db.commit()
+
+    def rollback(self):
+        self.db.rollback()
+
     def _insert(self, query_str, columns):
         try:
             with self._lock:
+
                 q = QSqlQuery(self.db)
                 q.prepare(query_str)
                 for idx, v in enumerate(columns):
@@ -90,15 +94,14 @@ class Database:
         except Exception as e:
             print("_insert exception", e)
         finally:
-            q.clear()
+            q.finish()
     
 
     def insert(self, table, fields, columns, update_field=None, update_value=None, action_on_conflict="REPLACE"):
-        action = "OR REPLACE"
         if update_field != None:
-            action = ""
+            action_on_conflict = ""
 
-        qstr = "INSERT " + action + " INTO " + table + " " + fields + " VALUES("
+        qstr = "INSERT OR " + action_on_conflict + " INTO " + table + " " + fields + " VALUES("
         update_fields=""
         for col in columns:
             qstr += "?,"
@@ -124,7 +127,7 @@ class Database:
                 if not q.execBatch():
                     print(query_str)
                     print(q.lastError().driverText())
-                q.clear()
+                q.finish()
         except Exception as e:
             print("_insert_batch() exception:", e)
 
@@ -149,8 +152,5 @@ class Database:
         q = QSqlQuery(".dump", db=self.db)
         q.exec_()
 
-    def get_query_details(self, table):
-        return "SELECT g.Time, g.Action, g.Destination, COUNT(g.Destination) as hits FROM " + table + " as p,general as g"
-
-    def get_query(self, table):
-        return "SELECT * FROM " + table
+    def get_query(self, table, fields):
+        return "SELECT " + fields + " FROM " + table

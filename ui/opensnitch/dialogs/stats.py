@@ -12,6 +12,7 @@ from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery, Q
 
 import ui_pb2
 from database import Database
+from customqsqlquerymodel import CustomQSqlQueryModel
 from config import Config
 from version import version
 
@@ -26,46 +27,60 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     LAST_ORDER_BY = 1
     TABLES = {
             0: {
-                "name": "general",
+                "name": "connections",
                 "label": None,
+                "tipLabel": None,
                 "cmd": None,
-                "view": None
+                "view": None,
+                "display_fields": "time as Time, action as Action, dst_host || '  ->  ' || dst_port as Destination, protocol as Protocol, process as Process, rule as Rule"
                 },
             1: {
                 "name": "rules",
                 "label": None,
+                "tipLabel": None,
                 "cmd": None,
-                "view": None
+                "view": None,
+                "display_fields": "*"
                 },
             2: {
                 "name": "hosts",
                 "label": None,
+                "tipLabel": None,
                 "cmd": None,
-                "view": None
+                "view": None,
+                "display_fields": "*"
                 },
             3: {
                 "name": "procs",
                 "label": None,
+                "tipLabel": None,
                 "cmd": None,
-                "view": None
+                "view": None,
+                "display_fields": "*"
                 },
             4: {
                 "name": "addrs",
                 "label": None,
+                "tipLabel": None,
                 "cmd": None,
-                "view": None
+                "view": None,
+                "display_fields": "*"
                 },
             5: {
                 "name": "ports",
                 "label": None,
+                "tipLabel": None,
                 "cmd": None,
-                "view": None
+                "view": None,
+                "display_fields": "*"
                 },
             6: {
                 "name": "users",
                 "label": None,
+                "tipLabel": None,
                 "cmd": None,
-                "view": None
+                "view": None,
+                "display_fields": "*"
                 }
             }
 
@@ -104,20 +119,26 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._events_filter_line = self.findChild(QtWidgets.QLineEdit, "filterLine")
         self._events_filter_line.textChanged.connect(self._cb_events_filter_line_changed)
 
-        self.TABLES[0]['view'] = self._setup_table(QtWidgets.QTreeView, "eventsTable", "general")
-        self.TABLES[1]['view'] = self._setup_table(QtWidgets.QTableView, "rulesTable", "rules")
+        self.TABLES[0]['view'] = self._setup_table(QtWidgets.QTreeView, "eventsTable", "connections", self.TABLES[0]['display_fields'], order_by="1")
+        self.TABLES[1]['view'] = self._setup_table(QtWidgets.QTableView, "rulesTable", "rules", order_by="1")
         self.TABLES[2]['view'] = self._setup_table(QtWidgets.QTableView, "hostsTable", "hosts")
         self.TABLES[3]['view'] = self._setup_table(QtWidgets.QTableView, "procsTable", "procs")
-        self.TABLES[4]['view'] = self._setup_table(QtWidgets.QTableView, "addrTable", "addrs")
+        self.TABLES[4]['view'] = self._setup_table(QtWidgets.QTableView, "addrTable",  "addrs")
         self.TABLES[5]['view'] = self._setup_table(QtWidgets.QTableView, "portsTable", "ports")
         self.TABLES[6]['view'] = self._setup_table(QtWidgets.QTableView, "usersTable", "users")
 
         self.TABLES[1]['label'] = self.findChild(QtWidgets.QLabel, "ruleLabel")
+        self.TABLES[1]['tipLabel'] = self.findChild(QtWidgets.QLabel, "tipRulesLabel")
         self.TABLES[2]['label'] = self.findChild(QtWidgets.QLabel, "hostsLabel")
+        self.TABLES[2]['tipLabel'] = self.findChild(QtWidgets.QLabel, "tipHostsLabel")
         self.TABLES[3]['label'] = self.findChild(QtWidgets.QLabel, "procsLabel")
+        self.TABLES[3]['tipLabel'] = self.findChild(QtWidgets.QLabel, "tipProcsLabel")
         self.TABLES[4]['label'] = self.findChild(QtWidgets.QLabel, "addrsLabel")
+        self.TABLES[4]['tipLabel'] = self.findChild(QtWidgets.QLabel, "tipAddrsLabel")
         self.TABLES[5]['label'] = self.findChild(QtWidgets.QLabel, "portsLabel")
+        self.TABLES[5]['tipLabel'] = self.findChild(QtWidgets.QLabel, "tipPortsLabel")
         self.TABLES[6]['label'] = self.findChild(QtWidgets.QLabel, "usersLabel")
+        self.TABLES[6]['tipLabel'] = self.findChild(QtWidgets.QLabel, "tipUsersLabel")
 
         self.TABLES[1]['cmd'] = self.findChild(QtWidgets.QPushButton, "cmdRulesBack")
         self.TABLES[2]['cmd'] = self.findChild(QtWidgets.QPushButton, "cmdHostsBack")
@@ -184,20 +205,24 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_events_filter_line_changed(self, text):
         model = self.TABLES[0]['view'].model()
         if text != "":
-            qstr = self._db.get_query( self.TABLES[0]['name'] ) + " WHERE " + text + self._get_order()
+            qstr = self._db.get_query( self.TABLES[0]['name'], self.TABLES[0]['display_fields'] ) + " WHERE " + \
+                " Time = \"" + text + "\" OR Action = \"" + text + "\"" + \
+                " OR Protocol = \"" +text + "\" OR Destination LIKE '%" + text + "%'" + \
+                " OR Process = \"" + text + "\" OR Rule LIKE '%" + text + "%'" + \
+                self._get_order()
             self.setQuery(model, qstr)
         else:
-            self.setQuery(model, self._db.get_query("general") + self._get_order())
+            self.setQuery(model, self._db.get_query("connections", self.TABLES[0]['display_fields']) + self._get_order())
 
         self._cfg.setSettings("statsDialog/general_filter_text", text)
 
     def _cb_combo_action_changed(self, idx):
         model = self.TABLES[0]['view'].model()
         if self._combo_action.currentText() == "-":
-            self.setQuery(model, self._db.get_query("general") + self._get_order())
+            self.setQuery(model, self._db.get_query("connections", self.TABLES[0]['display_fields']) + self._get_order())
         else:
             action = "Action = '" + self._combo_action.currentText().lower() + "'"
-            qstr = self._db.get_query( self.TABLES[0]['name'] ) + " WHERE " + action + self._get_order()
+            qstr = self._db.get_query( self.TABLES[0]['name'], self.TABLES[0]['display_fields'] ) + " WHERE " + action + self._get_order()
             self.setQuery(model, qstr)
 
         self._cfg.setSettings("statsDialog/general_filter_action", idx)
@@ -205,14 +230,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_cmd_back_clicked(self, idx):
         cur_idx = self._tabs.currentIndex()
         self.TABLES[cur_idx]['label'].setVisible(False)
+        self.TABLES[cur_idx]['tipLabel'].setVisible(True)
         self.TABLES[cur_idx]['cmd'].setVisible(False)
         model = self._get_active_table().model()
         if self.LAST_ORDER_BY > 2:
             self.LAST_ORDER_BY = 1
-        self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name']) + self._get_order())
+        self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields']) + self._get_order())
 
     def _cb_table_double_clicked(self, row):
         cur_idx = self._tabs.currentIndex()
+        if cur_idx == 1 and row.column() != 1:
+            return
+
+        self.TABLES[cur_idx]['tipLabel'].setVisible(False)
         self.TABLES[cur_idx]['label'].setVisible(True)
         self.TABLES[cur_idx]['cmd'].setVisible(True)
         self.TABLES[cur_idx]['label'].setText("<b>" + str(row.data()) + "</b>")
@@ -221,7 +251,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         data = row.data()
         if cur_idx == 1:
             self.setQuery(model, "SELECT " \
-                    "g.Time as Time, " \
+                    "c.time as Time, " \
                     "r.name as RuleName, " \
                     "c.uid as UserID, " \
                     "c.protocol as Protocol, " \
@@ -230,8 +260,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "c.process as Process, " \
                     "c.process_args as Args, " \
                     "count(c.process) as Hits " \
-                "FROM rules as r, general as g, connections as c " \
-                "WHERE r.Name = '%s' AND r.Name = g.Rule AND c.process = g.Process GROUP BY c.process,c.dst_host %s" % (data, self._get_order()))
+                "FROM rules as r, connections as c " \
+                "WHERE r.Name = '%s' AND r.Name = c.rule GROUP BY c.process,c.dst_host %s" % (data, self._get_order()))
         elif cur_idx == 2:
             self.setQuery(model, "SELECT " \
                     "c.uid as UserID, " \
@@ -245,15 +275,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "WHERE c.dst_host = h.what AND h.what = '%s' GROUP BY c.process %s" % (data, self._get_order()))
         elif cur_idx == 3:
             self.setQuery(model, "SELECT " \
-                    "g.Time, " \
-                    "g.Destination, " \
+                    "c.time as Time, " \
+                    "c.dst_host as Destination, " \
                     "c.uid as UserID, " \
-                    "g.Action, " \
-                    "g.Process, " \
+                    "c.action as Action, " \
+                    "c.process as Process, " \
                     "c.process_args as Args, " \
-                    "count(g.Destination) as Hits " \
-                "FROM procs as p,general as g, connections as c " \
-                "WHERE c.process = p.what AND p.what = g.Process AND p.what = '%s' GROUP BY g.Destination " % data)
+                    "count(c.dst_host) as Hits " \
+                "FROM procs as p, connections as c " \
+                "WHERE p.what = c.process AND p.what = '%s' GROUP BY c.dst_host " % data)
         elif cur_idx == 4:
             self.setQuery(model, "SELECT " \
                     "c.uid as UserID, " \
@@ -284,7 +314,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "c.process_args as Args, " \
                     "count(c.dst_ip) as Hits " \
                 "FROM users as u, connections as c " \
-                "WHERE '%s' LIKE '%%' || c.uid || '%%' GROUP BY c.dst_ip" % data)
+                "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.dst_ip" % data)
 
     def _get_order(self):
         return " ORDER BY %d %s" % (self.LAST_ORDER_BY, self.SORT_ORDER[self.LAST_ORDER_TO])
@@ -341,11 +371,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         values.append(table.model().index(row, col).data())
                     w.writerow(values)
 
-    def _setup_table(self, widget, name, table_name):
+    def _setup_table(self, widget, name, table_name, fields="*", order_by="2"):
         table = self.findChild(widget, name)
         table.setSortingEnabled(True)
         model = QSqlQueryModel()
-        self.setQuery(model, "SELECT * FROM " + table_name + " ORDER BY 1")
+        self.setQuery(model, "SELECT " + fields + " FROM " + table_name + " ORDER BY " + order_by + " DESC")
         table.setModel(model)
 
         try:
@@ -356,6 +386,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if header != None:
             header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
             header.sortIndicatorChanged.connect(self._cb_table_header_clicked)
+
 
         #for col_idx, _ in enumerate(model.cols()):
         #    header.setSectionResizeMode(col_idx, \

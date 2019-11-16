@@ -408,7 +408,7 @@
             <bool>true</bool>
            </property>
            <property name="placeholderText">
-            <string>Process LIKE '%firefox'</string>
+            <string>Ex.: firefox</string>
            </property>
           </widget>
          </item>
@@ -453,7 +453,7 @@
        <string>Rules</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QTableView" name="rulesTable">
          <property name="autoScroll">
           <bool>false</bool>
@@ -502,6 +502,16 @@
           </spacer>
          </item>
         </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="tipRulesLabel">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on the Name column to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -559,6 +569,16 @@
          <attribute name="verticalHeaderStretchLastSection">
           <bool>true</bool>
          </attribute>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="tipHostsLabel">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::AutoText</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -625,6 +645,13 @@
          </item>
         </layout>
        </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="tipProcsLabel">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2">
@@ -632,7 +659,7 @@
        <string>Addresses</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_7">
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QTableView" name="addrTable">
          <property name="sortingEnabled">
           <bool>false</bool>
@@ -683,6 +710,13 @@
          </item>
         </layout>
        </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="tipAddrsLabel">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_5">
@@ -690,7 +724,7 @@
        <string>Ports</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_8">
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QTableView" name="portsTable">
          <property name="sortingEnabled">
           <bool>false</bool>
@@ -741,6 +775,13 @@
          </item>
         </layout>
        </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="tipPortsLabel_2">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_6">
@@ -748,7 +789,7 @@
        <string>Users</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QTableView" name="usersTable">
          <property name="sortingEnabled">
           <bool>false</bool>
@@ -798,6 +839,13 @@
           </spacer>
          </item>
         </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="tipUsersLabel">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
