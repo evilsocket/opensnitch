@@ -12,7 +12,6 @@ from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery, Q
 
 import ui_pb2
 from database import Database
-from customqsqlquerymodel import CustomQSqlQueryModel
 from config import Config
 from version import version
 
