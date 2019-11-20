@@ -4,6 +4,7 @@ import sys
 import time
 import os
 import pwd
+import json
 from datetime import datetime
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
@@ -48,6 +49,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._tick = self._cfg.default_timeout
         self._tick_thread = None
         self._done = threading.Event()
+        self._apply_text = "Apply"
 
         self._apps_parser = LinuxDesktopParser()
 
@@ -57,6 +59,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._src_ip_label = self.findChild(QtWidgets.QLabel, "sourceIPLabel")
         self._dst_ip_label = self.findChild(QtWidgets.QLabel, "destIPLabel")
+        self._dst_port_label = self.findChild(QtWidgets.QLabel, "destPortLabel")
         self._uid_label = self.findChild(QtWidgets.QLabel, "uidLabel")
         self._pid_label = self.findChild(QtWidgets.QLabel, "pidLabel")
         self._args_label = self.findChild(QtWidgets.QLabel, "argsLabel")
@@ -66,16 +69,41 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._action_combo = self.findChild(QtWidgets.QComboBox, "actionCombo")
         self._what_combo = self.findChild(QtWidgets.QComboBox, "whatCombo")
+        self._what_dstip_combo = self.findChild(QtWidgets.QComboBox, "whatIPCombo")
         self._duration_combo = self.findChild(QtWidgets.QComboBox, "durationCombo")
+        self._what_dstip_combo.setVisible(False)
+
+        self._dst_ip_check = self.findChild(QtWidgets.QCheckBox, "checkDstIP")
+        self._dst_port_check = self.findChild(QtWidgets.QCheckBox, "checkDstPort")
+        self._uid_check = self.findChild(QtWidgets.QCheckBox, "checkUserID")
+        self._advanced_check = self.findChild(QtWidgets.QPushButton, "checkAdvanced")
+        self._dst_ip_check.setVisible(False)
+        self._dst_port_check.setVisible(False)
+        self._uid_check.setVisible(False)
+
+        self._is_advanced_checked = False
+        self._advanced_check.toggled.connect(self._checkbox_toggled)
+
+    def _checkbox_toggled(self, state):
+        self._apply_button.setText("%s" % self._apply_text)
+        self._tick_thread.stop = state
+
+        self._dst_ip_check.setVisible(state)
+        self._what_dstip_combo.setVisible(state)
+        self._dst_ip_label.setVisible(not state)
+        self._dst_port_check.setVisible(state)
+        self._uid_check.setVisible(state)
+        self._is_advanced_checked = state
 
     def promptUser(self, connection, is_local, peer):
         # one at a time
         with self._lock:
             # reset state
-            self._tick = self._cfg.default_timeout
-            if self._tick_thread != None:
+            if self._tick_thread != None and self._tick_thread.is_alive():
                 self._tick_thread.join()
+            self._tick = self._cfg.default_timeout
             self._tick_thread = threading.Thread(target=self._timeout_worker)
+            self._tick_thread.stop = self._is_advanced_checked
             self._rule = None
             self._local = is_local
             self._peer = peer
@@ -92,6 +120,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _timeout_worker(self):
         while self._tick > 0 and self._done.is_set() is False:
+            t = threading.currentThread()
+            if getattr(t, "stop", True):
+                self._tick = self._cfg.default_timeout
+                continue
+
             self._tick -= 1
             self._tick_trigger.emit()
             time.sleep(1)
@@ -106,7 +139,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def on_tick_triggered(self):
-        self._apply_button.setText("Apply (%d)" % self._tick)
+        self._apply_button.setText("%s (%d)" % (self._apply_text, self._tick))
 
     @QtCore.pyqtSlot()
     def on_timeout_triggered(self):
@@ -146,6 +179,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._src_ip_label.setText(con.src_ip)
         self._dst_ip_label.setText(con.dst_ip)
+        self._dst_port_label.setText(str(con.dst_port))
 
         if self._local:
             try:
@@ -160,25 +194,30 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._args_label.setText(' '.join(con.process_args))
 
         self._what_combo.clear()
+        self._what_dstip_combo.clear()
         if int(con.process_id) > 0:
             self._what_combo.addItem("from this process", "process_id")
         if int(con.user_id) >= 0:
             self._what_combo.addItem("from user %s" % uid, "user_id")
         self._what_combo.addItem("to port %d" % con.dst_port, "dst_port")
         self._what_combo.addItem("to %s" % con.dst_ip, "dst_ip")
+        self._what_dstip_combo.addItem("to %s" % con.dst_ip, "dst_ip")
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
             self._what_combo.addItem("to %s" % con.dst_host, "simple_host")
+            self._what_dstip_combo.addItem("to %s" % con.dst_host, "simple_host")
 
             parts = con.dst_host.split('.')[1:]
             nparts = len(parts)
             for i in range(0, nparts - 1):
                 self._what_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
+                self._what_dstip_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
 
         parts = con.dst_ip.split('.')
         nparts = len(parts)
         for i in range(1, nparts):
             self._what_combo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
+            self._what_dstip_combo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
 
         if self._cfg.default_action == "allow":
             self._action_combo.setCurrentIndex(0)
@@ -222,6 +261,46 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._on_apply_clicked()
         e.ignore()
 
+    def _get_duration(self, duration_idx):
+        if duration_idx == 0:
+            return "once"
+        elif duration_idx == 1:
+            return "30s"
+        elif duration_idx == 2:
+            return "5m"
+        elif duration_idx == 3:
+            return "15m"
+        elif duration_idx == 4:
+            return "30m"
+        elif duration_idx == 5:
+            return "1h"
+        elif duration_idx == 6:
+            return "until restart"
+        else:
+            return "always"
+
+    def _get_combo_operator(self, combo, what_idx):
+        if combo.itemData(what_idx) == "process_id":
+            return "simple", "process.path", self._con.process_path
+
+        elif combo.itemData(what_idx) == "user_id":
+            return "simple", "user.id", "%s" % self._con.user_id
+        
+        elif combo.itemData(what_idx) == "dst_port":
+            return "simple", "dest.port", "%s" % self._con.dst_port
+
+        elif combo.itemData(what_idx) == "dst_ip":
+            return "simple", "dest.ip", self._con.dst_ip
+        
+        elif combo.itemData(what_idx) == "simple_host":
+            return "simple", "dest.host", self._con.dst_host
+
+        elif combo.itemData(what_idx) == "regex_host":
+            return "regexp", "dest.host", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
+
+        elif combo.itemData(what_idx) == "regex_ip":
+            return "regexp", "dest.ip", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
+
     def _on_apply_clicked(self):
         self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
         self._rule = ui_pb2.Rule(name="user.choice")
@@ -232,64 +311,40 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self._rule.action = "deny"
 
-        duration_idx = self._duration_combo.currentIndex()
-        if duration_idx == 0:
-            self._rule.duration = "once"
-        elif duration_idx == 1:
-            self._rule.duration = "30s"
-        elif duration_idx == 2:
-            self._rule.duration = "5m"
-        elif duration_idx == 3:
-            self._rule.duration = "15m"
-        elif duration_idx == 4:
-            self._rule.duration = "30m"
-        elif duration_idx == 5:
-            self._rule.duration = "1h"
-        elif duration_idx == 6:
-            self._rule.duration = "until restart"
-        else:
-            self._rule.duration = "always"
+        self._rule.duration = self._get_duration(self._duration_combo.currentIndex())
 
         what_idx = self._what_combo.currentIndex()
-        if self._what_combo.itemData(what_idx) == "process_id":
-            self._rule.operator.type = "simple"
-            self._rule.operator.operand = "process.path"
-            self._rule.operator.data = self._con.process_path 
+        self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self._what_combo, what_idx)
 
-        elif self._what_combo.itemData(what_idx) == "user_id":
-            self._rule.operator.type = "simple"
-            self._rule.operator.operand = "user.id"
-            self._rule.operator.data = "%s" % self._con.user_id 
-        
-        elif self._what_combo.itemData(what_idx) == "dst_port":
-            self._rule.operator.type = "simple"
-            self._rule.operator.operand = "dest.port"
-            self._rule.operator.data = "%s" % self._con.dst_port 
+        # TODO: move to a method
+        is_advanced=False
+        data=[]
+        if self._dst_ip_check.isChecked() and (self._what_combo.itemData(what_idx) == "process_id" or
+                self._what_combo.itemData(what_idx) == "user_id" or
+                self._what_combo.itemData(what_idx) == "dst_port"):
+            is_advanced=True
+            _type, _operand, _data = self._get_combo_operator(self._what_dstip_combo, self._what_dstip_combo.currentIndex())
+            data.append({"type": _type, "operand": _operand, "data": _data})
 
-        elif self._what_combo.itemData(what_idx) == "dst_ip":
-            self._rule.operator.type = "simple"
-            self._rule.operator.operand = "dest.ip"
-            self._rule.operator.data = self._con.dst_ip 
-        
-        elif self._what_combo.itemData(what_idx) == "simple_host":
-            self._rule.operator.type = "simple"
-            self._rule.operator.operand = "dest.host"
-            self._rule.operator.data = self._con.dst_host 
+        if self._dst_port_check.isChecked() and self._what_combo.itemData(what_idx) != "dst_port":
+            is_advanced=True
+            data.append({"type": "simple", "operand": "dest.port", "data": str(self._con.dst_port)})
 
-        elif self._what_combo.itemData(what_idx) == "regex_host":
-            self._rule.operator.type = "regexp"
-            self._rule.operator.operand = "dest.host"
-            self._rule.operator.data = "%s" % '\.'.join(self._what_combo.currentText().split('.')).replace("*", ".*")[3:]
+        if self._uid_check.isChecked() and self._what_combo.itemData(what_idx) != "user_id":
+            is_advanced=True
+            data.append({"type": "simple", "operand": "user.id", "data": str(self._con.user_id)})
 
-        elif self._what_combo.itemData(what_idx) == "regex_ip":
-            self._rule.operator.type = "regexp"
-            self._rule.operator.operand = "dest.ip"
-            self._rule.operator.data = "%s" % '\.'.join(self._what_combo.currentText().split('.')).replace("*", ".*")[3:]
+        if is_advanced and self._advanced_check.isChecked():
+            data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
+            self._rule.operator.data = json.dumps(data)
+            self._rule.operator.type = "list"
+            self._rule.operator.operand = ""
 
         self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.operator.type, self._rule.operator.data))
-        
         self.hide()
         # signal that the user took a decision and 
         # a new rule is available
+        self._id_advanced_checked = False
+        self._advanced_check.toggle()
         self._done.set()
 

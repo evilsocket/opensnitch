@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>562</width>
-    <height>260</height>
+    <width>558</width>
+    <height>277</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -41,7 +41,7 @@
     <rect>
      <x>67</x>
      <y>10</y>
-     <width>411</width>
+     <width>471</width>
      <height>31</height>
     </rect>
    </property>
@@ -94,84 +94,6 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="applyButton">
-   <property name="geometry">
-    <rect>
-     <x>470</x>
-     <y>220</y>
-     <width>81</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Apply</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="durationCombo">
-   <property name="geometry">
-    <rect>
-     <x>330</x>
-     <y>220</y>
-     <width>131</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>97</width>
-     <height>26</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>204</width>
-     <height>50</height>
-    </size>
-   </property>
-   <property name="currentText">
-    <string>once</string>
-   </property>
-   <item>
-    <property name="text">
-     <string>once</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>30s</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>5m</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>15m</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>30m</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>1h</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>for this session</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>forever</string>
-    </property>
-   </item>
-  </widget>
   <widget class="QLabel" name="iconLabel">
    <property name="geometry">
     <rect>
@@ -194,55 +116,13 @@
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
   </widget>
-  <widget class="QComboBox" name="whatCombo">
-   <property name="geometry">
-    <rect>
-     <x>180</x>
-     <y>220</y>
-     <width>141</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>97</width>
-     <height>26</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>204</width>
-     <height>50</height>
-    </size>
-   </property>
-   <item>
-    <property name="text">
-     <string>from this executable</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>this destination port</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>this user</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>this destination ip</string>
-    </property>
-   </item>
-  </widget>
   <widget class="QWidget" name="gridLayoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>120</y>
      <width>541</width>
-     <height>91</height>
+     <height>110</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -252,7 +132,7 @@
     <property name="verticalSpacing">
      <number>0</number>
     </property>
-    <item row="2" column="2">
+    <item row="5" column="3">
      <widget class="QLabel" name="uidLabel">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -270,101 +150,10 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="2">
-     <widget class="QLabel" name="sourceIPLabel">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
+    <item row="4" column="0">
+     <widget class="QCheckBox" name="checkDstPort">
       <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLabel" name="label">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <family>Ubuntu</family>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Source IP</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2">
-     <widget class="QLabel" name="destIPLabel">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QLabel" name="pidLabelWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <family>Ubuntu</family>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Process ID</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="2">
-     <widget class="QLabel" name="pidLabel">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
+       <string/>
       </property>
      </widget>
     </item>
@@ -390,7 +179,72 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
+    <item row="6" column="1">
+     <widget class="QLabel" name="pidLabelWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <family>Ubuntu</family>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Process ID</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QCheckBox" name="checkDstIP">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="3">
+     <widget class="QLabel" name="pidLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QLabel" name="sourceIPLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
      <widget class="QLabel" name="label_6">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -412,47 +266,104 @@
       </property>
      </widget>
     </item>
+    <item row="1" column="3">
+     <widget class="QLabel" name="destIPLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QCheckBox" name="checkUserID">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLabel" name="label">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <family>Ubuntu</family>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Source IP</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="3">
+     <widget class="QLabel" name="destPortLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLabel" name="destPortLabel_1">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <family>Ubuntu</family>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Dst Port</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QComboBox" name="whatIPCombo">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
    </layout>
-  </widget>
-  <widget class="QComboBox" name="actionCombo">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>220</y>
-     <width>161</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>97</width>
-     <height>26</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>204</width>
-     <height>50</height>
-    </size>
-   </property>
-   <item>
-    <property name="text">
-     <string>Allow connections</string>
-    </property>
-    <property name="icon">
-     <iconset theme="emblem-default">
-      <normaloff>.</normaloff>.</iconset>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>Block connections</string>
-    </property>
-    <property name="icon">
-     <iconset theme="emblem-important">
-      <normaloff>.</normaloff>.</iconset>
-    </property>
-   </item>
   </widget>
   <widget class="QLabel" name="argsLabel">
    <property name="geometry">
@@ -478,9 +389,201 @@
     <string>/op/google/chrome/bin/chrome --something abc --something else</string>
    </property>
   </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>240</y>
+     <width>541</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QComboBox" name="actionCombo">
+      <property name="minimumSize">
+       <size>
+        <width>97</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>204</width>
+        <height>50</height>
+       </size>
+      </property>
+      <item>
+       <property name="text">
+        <string>Allow connections</string>
+       </property>
+       <property name="icon">
+        <iconset theme="emblem-default">
+         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Block connections</string>
+       </property>
+       <property name="icon">
+        <iconset theme="emblem-important">
+         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="whatCombo">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>97</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>204</width>
+        <height>50</height>
+       </size>
+      </property>
+      <item>
+       <property name="text">
+        <string>from this executable</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>this destination port</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>this user</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>this destination ip</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="durationCombo">
+      <property name="minimumSize">
+       <size>
+        <width>97</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>204</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="currentText">
+       <string>once</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>once</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>30s</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>5m</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>15m</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>30m</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1h</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>for this session</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>forever</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="applyButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>97</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>204</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Apply</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="checkAdvanced">
+      <property name="maximumSize">
+       <size>
+        <width>40</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>+</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources>
   <include location="resources.qrc"/>
+  <include location="../../../../../../../../.designer/backup/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

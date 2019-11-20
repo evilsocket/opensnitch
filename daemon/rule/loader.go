@@ -155,6 +155,11 @@ func (l *Loader) addUserRule(rule *Rule) {
 
 	l.Lock()
 	l.setUniqueName(rule)
+	if rule.Operator.Type == List {
+		if err := json.Unmarshal([]byte(rule.Operator.Data), &rule.Operator.List); err != nil {
+			log.Error("Error loading rule of type list", err)
+		}
+	}
 	l.rules[rule.Name] = rule
 	l.Unlock()
 
