@@ -69,7 +69,7 @@
             </font>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string>-</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -149,7 +149,7 @@
             </font>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string>-</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -197,6 +197,9 @@
            <property name="text">
             <string>Version</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
            <property name="margin">
             <number>5</number>
            </property>
@@ -221,6 +224,9 @@
            </property>
            <property name="text">
             <string>Uptime</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
            <property name="margin">
             <number>5</number>
@@ -247,6 +253,9 @@
            <property name="text">
             <string>Status</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
            <property name="margin">
             <number>5</number>
            </property>
@@ -266,7 +275,10 @@
             </font>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string>-</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
            <property name="margin">
             <number>5</number>
@@ -287,7 +299,10 @@
             </font>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string>-</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
            <property name="margin">
             <number>5</number>
@@ -308,7 +323,10 @@
             </font>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string>-</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
            <property name="margin">
             <number>5</number>
@@ -335,6 +353,9 @@
            <property name="text">
             <string>Rules</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
            <property name="margin">
             <number>5</number>
            </property>
@@ -354,7 +375,10 @@
             </font>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string>-</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
            <property name="margin">
             <number>5</number>
@@ -385,7 +409,7 @@
             </property>
             <property name="icon">
              <iconset theme="emblem-default">
-              <normaloff>.</normaloff>.</iconset>
+              <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
             </property>
            </item>
            <item>
@@ -394,7 +418,7 @@
             </property>
             <property name="icon">
              <iconset theme="emblem-important">
-              <normaloff>.</normaloff>.</iconset>
+              <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
             </property>
            </item>
           </widget>
@@ -477,7 +501,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="back"/>
+            <iconset theme="back">
+             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -529,7 +554,7 @@
            </property>
            <property name="icon">
             <iconset theme="back">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -616,7 +641,7 @@
            </property>
            <property name="icon">
             <iconset theme="back">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -684,7 +709,7 @@
            </property>
            <property name="icon">
             <iconset theme="back">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -749,7 +774,7 @@
            </property>
            <property name="icon">
             <iconset theme="back">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -776,7 +801,7 @@
         </layout>
        </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="tipPortsLabel_2">
+        <widget class="QLabel" name="tipPortsLabel">
          <property name="text">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
@@ -814,7 +839,7 @@
            </property>
            <property name="icon">
             <iconset theme="back">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -861,7 +886,7 @@
      </property>
      <property name="icon">
       <iconset theme="document-save-as">
-       <normaloff>.</normaloff>.</iconset>
+       <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
      </property>
      <property name="shortcut">
       <string>Ctrl+S</string>
