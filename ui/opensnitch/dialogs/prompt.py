@@ -201,7 +201,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._what_combo.addItem("from user %s" % uid, "user_id")
         self._what_combo.addItem("to port %d" % con.dst_port, "dst_port")
         self._what_combo.addItem("to %s" % con.dst_ip, "dst_ip")
-        self._what_dstip_combo.addItem("to %s" % con.dst_ip, "dst_ip")
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
             self._what_combo.addItem("to %s" % con.dst_host, "simple_host")
@@ -212,6 +211,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             for i in range(0, nparts - 1):
                 self._what_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
                 self._what_dstip_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
+
+        self._what_dstip_combo.addItem("to %s" % con.dst_ip, "dst_ip")
 
         parts = con.dst_ip.split('.')
         nparts = len(parts)
