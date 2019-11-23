@@ -111,6 +111,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._tray = QtWidgets.QSystemTrayIcon(self.off_icon)
         self._tray.setContextMenu(self._menu)
         self._tray.show()
+        if not self._tray.isSystemTrayAvailable():
+            self._stats_dialog.show()
 
     @QtCore.pyqtSlot()
     def _on_status_change(self):
@@ -289,7 +291,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     self._remote_stats[addr].update(request.stats)
                 else:
                     self._new_remote_trigger.emit(addr, request.stats)
-
         return ui_pb2.PingReply(id=request.id)
 
     def AskRule(self, request, context):
