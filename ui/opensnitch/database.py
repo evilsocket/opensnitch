@@ -33,6 +33,8 @@ class Database:
         q.exec_()
         q = QSqlQuery("PRAGMA synchronous = OFF", self.db)
         q.exec_()
+        q = QSqlQuery("PRAGMA cache_size=10000", self.db)
+        q.exec_()
         q = QSqlQuery("create table if not exists connections (" \
                 "time text, " \
                 "action text, " \
@@ -65,6 +67,10 @@ class Database:
         q = QSqlQuery("create table if not exists ports (what text primary key, hits integer)", self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists users (what text primary key, hits integer)", self.db)
+        q.exec_()
+
+    def clean(self, table):
+        q = QSqlQuery("delete from " + table, self.db)
         q.exec_()
 
     def clone(self):

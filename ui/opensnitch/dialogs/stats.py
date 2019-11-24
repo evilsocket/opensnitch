@@ -21,9 +21,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     GREEN = QtGui.QColor(0x2e, 0x90, 0x59)
 
     _trigger = QtCore.pyqtSignal()
+
     SORT_ORDER = ["ASC", "DESC"]
     LAST_ORDER_TO = 1
     LAST_ORDER_BY = 1
+    LIMITS = ["LIMIT 50", "LIMIT 100", "LIMIT 200", "LIMIT 300", ""]
+    LAST_GROUP_BY = ""
+
     TABLES = {
             0: {
                 "name": "connections",
@@ -31,7 +35,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
-                "display_fields": "time as Time, action as Action, dst_host || '  ->  ' || dst_port as Destination, protocol as Protocol, process as Process, rule as Rule"
+                "display_fields": "time as Time, action as Action, dst_host || '  ->  ' || dst_port as Destination, protocol as Protocol, process as Process, rule as Rule",
+                "group_by": LAST_GROUP_BY
                 },
             1: {
                 "name": "rules",
@@ -118,7 +123,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._events_filter_line = self.findChild(QtWidgets.QLineEdit, "filterLine")
         self._events_filter_line.textChanged.connect(self._cb_events_filter_line_changed)
 
-        self.TABLES[0]['view'] = self._setup_table(QtWidgets.QTreeView, "eventsTable", "connections", self.TABLES[0]['display_fields'], order_by="1")
+        self._limit_combo = self.findChild(QtWidgets.QComboBox, "limitCombo")
+        self._limit_combo.currentIndexChanged.connect(self._cb_limit_combo_changed)
+
+        self._clean_sql_cmd = self.findChild(QtWidgets.QPushButton, "cmdCleanSql")
+        self._clean_sql_cmd.clicked.connect(self._cb_clean_sql_clicked)
+
+        self.TABLES[0]['view'] = self._setup_table(QtWidgets.QTreeView, "eventsTable", "connections",
+                self.TABLES[0]['display_fields'], order_by="1", group_by=self.TABLES[0]['group_by'])
         self.TABLES[1]['view'] = self._setup_table(QtWidgets.QTableView, "rulesTable", "rules", order_by="1")
         self.TABLES[2]['view'] = self._setup_table(QtWidgets.QTableView, "hostsTable", "hosts")
         self.TABLES[3]['view'] = self._setup_table(QtWidgets.QTableView, "procsTable", "procs")
@@ -180,6 +192,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         dialog_last_tab = self._cfg.getSettings("statsDialog/last_tab")
         dialog_general_filter_text = self._cfg.getSettings("statsDialog/general_filter_text")
         dialog_general_filter_action = self._cfg.getSettings("statsDialog/general_filter_action")
+        dialog_general_limit_results = self._cfg.getSettings("statsDialog/general_limit_results")
         if dialog_geometry != None:
             self.restoreGeometry(dialog_geometry)
         if dialog_last_tab != None:
@@ -188,10 +201,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._events_filter_line.setText(dialog_general_filter_text)
         if dialog_general_filter_action != None:
             self._combo_action.setCurrentIndex(int(dialog_general_filter_action))
+        if dialog_general_limit_results != None:
+            # XXX: a little hack, because if the saved index is 0, the signal is not fired.
+            self._limit_combo.setCurrentIndex(4)
+            self._limit_combo.setCurrentIndex(int(dialog_general_limit_results))
 
     def _save_settings(self):
         self._cfg.setSettings("statsDialog/geometry", self.saveGeometry())
         self._cfg.setSettings("statsDialog/last_tab", self._tabs.currentIndex())
+        self._cfg.setSettings("statsDialog/general_limit_results", self._limit_combo.currentIndex())
 
     def _cb_table_header_clicked(self, pos, sortIdx):
         model = self._get_active_table().model()
@@ -208,23 +226,35 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 " Time = \"" + text + "\" OR Action = \"" + text + "\"" + \
                 " OR Protocol = \"" +text + "\" OR Destination LIKE '%" + text + "%'" + \
                 " OR Process = \"" + text + "\" OR Rule LIKE '%" + text + "%'" + \
-                self._get_order()
+                self.LAST_GROUP_BY + self._get_order() + self._get_limit()
             self.setQuery(model, qstr)
         else:
-            self.setQuery(model, self._db.get_query("connections", self.TABLES[0]['display_fields']) + self._get_order())
+            self.setQuery(model, self._db.get_query("connections", self.TABLES[0]['display_fields']) + " " + self.LAST_GROUP_BY + " " + self._get_order() + self._get_limit())
 
         self._cfg.setSettings("statsDialog/general_filter_text", text)
 
+    def _cb_limit_combo_changed(self, idx):
+        model = self._get_active_table().model()
+        qstr = model.query().lastQuery().split("LIMIT")[0]
+        if idx != 4:
+            qstr += " LIMIT " + self._limit_combo.currentText()
+        self.setQuery(model, qstr)
+
     def _cb_combo_action_changed(self, idx):
         model = self.TABLES[0]['view'].model()
+        qstr = self._db.get_query(self.TABLES[0]['name'], self.TABLES[0]['display_fields'])
+
         if self._combo_action.currentText() == "-":
-            self.setQuery(model, self._db.get_query("connections", self.TABLES[0]['display_fields']) + self._get_order())
+            qstr += self.LAST_GROUP_BY + self._get_order() + self._get_limit()
         else:
             action = "Action = '" + self._combo_action.currentText().lower() + "'"
-            qstr = self._db.get_query( self.TABLES[0]['name'], self.TABLES[0]['display_fields'] ) + " WHERE " + action + self._get_order()
-            self.setQuery(model, qstr)
+            qstr += " WHERE " + action + self.LAST_GROUP_BY + self._get_order() + self._get_limit()
 
+        self.setQuery(model, qstr)
         self._cfg.setSettings("statsDialog/general_filter_action", idx)
+
+    def _cb_clean_sql_clicked(self):
+        self._db.clean(self.TABLES[self._tabs.currentIndex()]['name'])
 
     def _cb_cmd_back_clicked(self, idx):
         cur_idx = self._tabs.currentIndex()
@@ -263,57 +293,73 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "WHERE r.Name = '%s' AND r.Name = c.rule GROUP BY c.process,c.dst_host %s" % (data, self._get_order()))
         elif cur_idx == 2:
             self.setQuery(model, "SELECT " \
+                    "c.time as Time, " \
+                    "c.action as Action, " \
                     "c.uid as UserID, " \
                     "c.protocol as Protocol, " \
                     "c.dst_port as DstPort, " \
                     "c.dst_ip as DstIP, " \
                     "c.process as Process, " \
                     "c.process_args as Args, " \
-                    "count(c.process) as Hits " \
+                    "count(c.process) as Hits, " \
+                    "c.rule as Rule " \
                 "FROM hosts as h, connections as c " \
                 "WHERE c.dst_host = h.what AND h.what = '%s' GROUP BY c.process %s" % (data, self._get_order()))
         elif cur_idx == 3:
             self.setQuery(model, "SELECT " \
                     "c.time as Time, " \
-                    "c.dst_host as Destination, " \
-                    "c.uid as UserID, " \
                     "c.action as Action, " \
+                    "c.uid as UserID, " \
+                    "c.dst_host as Destination, " \
                     "c.process as Process, " \
                     "c.process_args as Args, " \
-                    "count(c.dst_host) as Hits " \
+                    "count(c.dst_host) as Hits, " \
+                    "c.rule as Rule " \
                 "FROM procs as p, connections as c " \
                 "WHERE p.what = c.process AND p.what = '%s' GROUP BY c.dst_host " % data)
         elif cur_idx == 4:
             self.setQuery(model, "SELECT " \
+                    "c.time as Time, " \
+                    "c.action as Action, " \
                     "c.uid as UserID, " \
                     "c.protocol as Protocol, " \
                     "c.dst_port as DstPort, " \
                     "c.process as Process, " \
                     "c.process_args as Args, " \
-                    "count(c.dst_ip) as Hits " \
+                    "count(c.dst_ip) as Hits, " \
+                    "c.rule as Rule " \
                 "FROM addrs as a, connections as c " \
                 "WHERE c.dst_ip = a.what AND a.what = '%s' GROUP BY c.dst_ip " % data)
         elif cur_idx == 5:
             self.setQuery(model, "SELECT " \
+                    "c.time as Time, " \
+                    "c.action as Action, " \
                     "c.uid as UserID, " \
                     "c.protocol as Protocol, " \
                     "c.dst_ip as DstIP, " \
                     "c.dst_port as DstPort, " \
                     "c.process as Process, " \
                     "c.process_args as Args, " \
-                    "count(c.dst_ip) as Hits " \
+                    "count(c.dst_ip) as Hits, " \
+                    "c.rule as Rule " \
                 "FROM ports as p, connections as c " \
                 "WHERE c.dst_port = p.what AND p.what = '%s' GROUP BY c.dst_ip " % data)
         elif cur_idx == 6:
             self.setQuery(model, "SELECT " \
+                    "c.time as Time, " \
+                    "c.action as Action, " \
                     "c.protocol as Protocol, " \
                     "c.dst_ip as DstIP, " \
                     "c.dst_port as DstPort, " \
                     "c.process as Process, " \
                     "c.process_args as Args, " \
-                    "count(c.dst_ip) as Hits " \
+                    "count(c.dst_ip) as Hits, " \
+                    "c.rule as Rule " \
                 "FROM users as u, connections as c " \
                 "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.dst_ip" % data)
+
+    def _get_limit(self):
+        return " " + self.LIMITS[self._limit_combo.currentIndex()]
 
     def _get_order(self):
         return " ORDER BY %d %s" % (self.LAST_ORDER_BY, self.SORT_ORDER[self.LAST_ORDER_TO])
@@ -370,11 +416,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         values.append(table.model().index(row, col).data())
                     w.writerow(values)
 
-    def _setup_table(self, widget, name, table_name, fields="*", order_by="2"):
+    def _setup_table(self, widget, name, table_name, fields="*", group_by="", order_by="2", limit=""):
         table = self.findChild(widget, name)
         table.setSortingEnabled(True)
         model = QSqlQueryModel()
-        self.setQuery(model, "SELECT " + fields + " FROM " + table_name + " ORDER BY " + order_by + " DESC")
+        self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " DESC" + limit)
         table.setModel(model)
 
         try:
