@@ -26,6 +26,10 @@ def on_exit():
     server.stop(0)
     sys.exit(0)
 
+def supported_qt_version(major, medium, minor):
+    q = QtCore.QT_VERSION_STR.split(".")
+    return int(q[0]) >= major and int(q[1]) >= medium and int(q[2]) >= minor
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.')
     parser.add_argument("--socket", dest="socket", default="unix:///tmp/osui.sock", help="Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).", metavar="FILE")
@@ -35,7 +39,8 @@ if __name__ == '__main__':
     
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app = QtWidgets.QApplication(sys.argv)
-    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    if supported_qt_version(5,6,0):
+        app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
     service = UIService(app, on_exit, args.config)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
