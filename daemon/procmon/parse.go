@@ -26,14 +26,14 @@ var (
 	// descriptors of /proc/<pid>/fd/
 	// 20-500us vs 50-80ms
 	inodesCache = make(map[string]*Inode)
-	maxCachedInodes = 2048
+	maxCachedInodes = 24
 	// 2nd cache of already known running pids, which also saves time by
 	// iterating only over a few pids' descriptors, (30us-2ms vs. 50-80ms)
 	// since it's more likely that most of the connections will be made by the
 	// same (running) processes
 	pidsCache = make(map[int]*Pid)
 	pidsDescriptorsCache = make(map[int][]string)
-	maxCachedPids = 512
+	maxCachedPids = 24
 )
 
 func cleanUpCaches() {
