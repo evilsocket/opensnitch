@@ -1,0 +1,32 @@
+language: go
+dist: bionic
+
+go:
+  - "1.8"
+  - master
+
+script: |
+  set +e
+  sudo apt-get install -y git libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip python3 python3-pyqt5
+  echo "Running go get protoc-gen-go"
+  go get github.com/golang/protobuf/protoc-gen-go
+  echo "Running go get dep"
+  go get -u github.com/golang/dep/cmd/dep
+  cd "$GOPATH/src/github.com/golang/dep"
+  echo "intalling/upgrading pip"
+  pip install --upgrade --user pip
+  echo "installing/upgrading pip3"
+  python3 -m pip install --user --upgrade pip
+  echo "installing dep"
+  ./install.sh
+  export "PATH=$PATH:$GOPATH/bin"
+  echo "Instaling grpcio-tools"
+  python3 -m pip install --user grpcio-tools
+  echo "installed grpcio-tools"
+  cd "$GOPATH/src/github.com/Thermicorp/opensnitch"
+  echo "running make deps for opensnitch"
+  make deps
+  echo "running make -C daemon"
+  make -C daemon
+  echo "Making sure opensnitchd exists"
+  ls -l daemon/opensnitchd

@@ -1,30 +1,27 @@
-all: protocol daemon/opensnitchd ui/resources_rc.py
+all: proto daemon ui/resources_rc.py
 
 install:
-	@cd daemon && make install	
-	@cd ui && make install
+	cd daemon && make install && cd ..
+	cd ui && make install && cd ..
 
-protocol:
-	@cd proto && make
-
-daemon/opensnitchd:
-	@cd daemon && make
+proto:
+	cd protocol && make
 
 ui/resources_rc.py:
-	@cd ui && make
+	cd ui && make
 
 deps:
-	@cd daemon && make deps
-	@cd ui && make deps
+	cd daemon && make deps
+	cd ui && make deps
 
 clean:
-	@cd daemon && make clean
-	@cd proto && make clean
+	cd daemon && make clean
+	cd proto && make clean
 
 run:
-	cd ui && sudo pip3 install --upgrade . && cd ..
+	cd ui && pip3 install --user --upgrade . && cd ..
 	opensnitch-ui --socket unix:///tmp/osui.sock &
-	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock -cpu-profile cpu.profile -mem-profile mem.profile
+	./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock -cpu-profile cpu.profile -mem-profile mem.profile
 
 test: 
 	clear 
@@ -43,8 +40,8 @@ adblocker:
 	clear
 	python make_ads_rules.py
 	clear
-	cd ui && sudo pip3 install --upgrade . && cd ..
+	cd ui && sudo pip3 install --user --upgrade . && cd ..
 	opensnitch-ui --socket unix:///tmp/osui.sock &
-	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock 
+	./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock 
 
 
