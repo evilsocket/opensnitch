@@ -11,6 +11,7 @@ import (
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netstat"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui/protocol"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netlink"
 
 	"github.com/google/gopacket/layers"
 )
@@ -75,11 +76,22 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 		return nil, nil
 	}
 
+	// 0. lookup uid and inode via netlink
 	// 1. lookup uid and inode using /proc/net/(udp|tcp)
 	// 2. lookup pid by inode
 	// 3. if this is coming from us, just accept
 	// 4. lookup process info by pid
-	if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
+	if _uid, _inode := netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); _uid != -1 && _inode != -1 {
+		c.Entry = &netstat.Entry {
+			Proto: c.Protocol,
+			SrcIP: c.SrcIP,
+			SrcPort: c.SrcPort,
+			DstIP: c.DstIP,
+			DstPort: c.DstPort,
+			UserId: _uid,
+			INode: _inode,
+		}
+	}else if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
 		return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
 	}
 	if c.Entry.UserId == -1 {
