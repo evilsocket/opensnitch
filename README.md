@@ -4,6 +4,7 @@
     <a href="https://github.com/Thermicorp/opensnitch/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/Thermicorp/opensnitch.svg?style=flat-square"></a>
     <a href="https://github.com/Thermicorp/opensnitch/blob/master/LICENSE.md"><img alt="Software License" src="https://img.shields.io/badge/license-GPL3-brightgreen.svg?style=flat-square"></a>
     <a href="https://goreportcard.com/report/github.com/Thermicorp/opensnitch/daemon"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/Thermicorp/opensnitch/daemon?style=flat-square"></a>
+    <a href="https://codeclimate.com/github/codeclimate/codeclimate/maintainability"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability" /></a>
   </p>
 </p>
 
