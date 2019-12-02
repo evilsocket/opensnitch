@@ -3,6 +3,8 @@ package netlink
 import (
     "syscall"
     "net"
+
+    "github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
 func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPort uint) (uid, inode int) {
@@ -30,6 +32,8 @@ func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPo
     }
     if err == nil && s.INode != 0xffffffff {
         return int(s.UID), int(s.INode)
+    } else if err != nil {
+        log.Error("SOCKET ERROR", err)
     }
 
     return -1, -1

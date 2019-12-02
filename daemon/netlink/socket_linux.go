@@ -139,32 +139,49 @@ func (s *Socket) deserialize(b []byte) error {
 
 // SocketGet returns the Socket identified by its local and remote addresses.
 func SocketGet(family uint8, proto uint8, local, remote net.Addr) (*Socket, error) {
-    _Id := SocketID{}
+	var sPort, dPort uint16
+	var localIP, remoteIP net.IP
+	_Id := SocketID{}
 
-    if proto == unix.IPPROTO_UDP || proto == unix.IPPROTO_UDPLITE {
-        localUDP, ok := local.(*net.UDPAddr)
-        if !ok {
-            return nil, ErrNotImplemented
-        }
-        remoteUDP, _ := remote.(*net.UDPAddr)
-		_Id = SocketID{
-			SourcePort:      uint16(localUDP.Port),
-			DestinationPort: uint16(remoteUDP.Port),
-			Source:          localUDP.IP.To4(),
-			Destination:     remoteUDP.IP.To4(),
-			Cookie:          [2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
+	if proto == unix.IPPROTO_UDP || proto == unix.IPPROTO_UDPLITE {
+		localUDP, ok := local.(*net.UDPAddr)
+		if !ok {
+			return nil, errors.New ("UDP IP error: invalid source IP")
 		}
-    } else {
-        localTCP, _ := local.(*net.TCPAddr)
-        remoteTCP, _ := remote.(*net.TCPAddr)
-		_Id = SocketID{
-			SourcePort:      uint16(localTCP.Port),
-			DestinationPort: uint16(remoteTCP.Port),
-			Source:          localTCP.IP.To4(),
-            Destination:     remoteTCP.IP.To4(),
-			Cookie:          [2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
+		remoteUDP, ok := remote.(*net.UDPAddr)
+		if !ok {
+			return nil, errors.New ("UDP IP error: invalid remote IP")
 		}
-    }
+		if family == unix.AF_INET6 {
+			localIP = localUDP.IP.To16()
+			remoteIP = remoteUDP.IP.To16()
+		} else {
+			localIP = localUDP.IP.To4()
+			remoteIP = remoteUDP.IP.To4()
+		}
+
+		sPort = uint16(localUDP.Port)
+		dPort = uint16(remoteUDP.Port)
+	} else {
+		localTCP, ok := local.(*net.TCPAddr)
+		if !ok {
+			return nil, errors.New ("TCP IP error: invalid source IP")
+		}
+		remoteTCP, ok := remote.(*net.TCPAddr)
+		if !ok {
+			return nil, errors.New ("TCP IP error: invalid remote IP")
+		}
+		if family == unix.AF_INET6 {
+			localIP = localTCP.IP.To16()
+			remoteIP = remoteTCP.IP.To16()
+		} else {
+			localIP = localTCP.IP.To4()
+			remoteIP = remoteTCP.IP.To4()
+		}
+
+		sPort = uint16(localTCP.Port)
+		dPort = uint16(remoteTCP.Port)
+	}
 
 
 	s, err := nl.Subscribe(unix.NETLINK_INET_DIAG)
@@ -172,6 +189,14 @@ func SocketGet(family uint8, proto uint8, local, remote net.Addr) (*Socket, erro
 		return nil, err
 	}
 	defer s.Close()
+
+	_Id = SocketID{
+		SourcePort:         sPort,
+		DestinationPort:    dPort,
+		Source:	            localIP,
+		Destination:        remoteIP,
+		Cookie:             [2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
+	}
 	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, 0)
 	req.AddData(&socketRequest{
 		Family:   family,
