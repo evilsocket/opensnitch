@@ -16,6 +16,10 @@
 
 **THIS SOFTWARE IS WORK IN PROGRESS, DO NOT EXPECT IT TO BE BUG FREE AND DO NOT RELY ON IT FOR ANY TYPE OF SECURITY.**
 
+### THINGS NOT FILTERED
+* Anything over loopback
+* Anything multicast or broadcast
+
 ### TL;DR
 
 Make sure you have a correctly configured **Go >= 1.8** environment, that the `$GOPATH` environment variable is defined and then:
@@ -185,3 +189,7 @@ I tried, but for very fast updates it failed bad on my configuration (failed bad
 The UI service is able to use a TCP listener instead of a UNIX socket, that means the UI service itself can be executed on any 
 operating system, while receiving messages from a single local daemon instance or multiple instances from remote computers in the network,
 therefore DBUS would have made the protocol and logic uselessly GNU/Linux specific.
+
+##### Is IPv6 supported?
+
+Yes, IPv4 is as well.
