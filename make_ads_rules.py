@@ -1,21 +1,27 @@
-import requests
-import re
-import ipaddress
-import datetime
-import os
+"""
+Script to make rules for blocking ads
+"""
 
-lists = ( \
+import datetime
+import ipaddress
+import os
+import re
+
+import requests
+
+
+LISTS = (
     "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",
     "https://mirror1.malwaredomains.com/files/justdomains",
     "http://sysctl.org/cameleon/hosts",
     "https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist",
     "https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt",
     "https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt",
-    "https://hosts-file.net/ad_servers.txt" )
+    "https://hosts-file.net/ad_servers.txt")
 
-domains = {}
+DOMAINS = {}
 
-for url in lists:
+for url in LISTS:
     print("Downloading %s ..." % url)
     r = requests.get(url)
     if r.status_code != 200:
@@ -24,10 +30,7 @@ for url in lists:
 
     for line in r.text.split("\n"):
         line = line.strip()
-        if line == "":
-            continue
-
-        elif line[0] == "#":
+        if line == "" or line[0] == "#":
             continue
 
         for part in re.split(r'\s+', line):
@@ -39,15 +42,15 @@ for url in lists:
                 duh = ipaddress.ip_address(part)
             except ValueError:
                 if part != "localhost":
-                    domains[part] = 1
+                    DOMAINS[part] = 1
 
-print("Got %d unique domains, saving as rules to ./rules/ ..." % len(domains))
+print("Got %d unique domains, saving as rules to ./rules/ ..." % len(DOMAINS))
 
 os.system("mkdir -p rules")
 
-idx = 0
-for domain, _ in domains.items():
-    with open("rules/adv-%d.json" % idx, "wt") as fp:
+IDX = 0
+for domain, _ in DOMAINS.items():
+    with open("rules/adv-%d.json" % IDX, "wt") as fp:
         tpl = """
 {
    "created": "%s",
@@ -63,7 +66,7 @@ for domain, _ in domains.items():
    }
 }"""
         now = datetime.datetime.utcnow().isoformat("T") + "Z"
-        data = tpl % ( now, now, idx, domain )
+        data = tpl % (now, now, IDX, domain)
         fp.write(data)
 
-    idx = idx + 1
+    IDX = IDX + 1
