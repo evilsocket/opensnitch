@@ -5,12 +5,13 @@ import (
 	"net"
 	"os"
 
-	"github.com/evilsocket/opensnitch/daemon/dns"
-	"github.com/evilsocket/opensnitch/daemon/log"
-	"github.com/evilsocket/opensnitch/daemon/netfilter"
-	"github.com/evilsocket/opensnitch/daemon/netstat"
-	"github.com/evilsocket/opensnitch/daemon/procmon"
-	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/dns"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netfilter"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netstat"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui/protocol"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netlink"
 
 	"github.com/google/gopacket/layers"
 )
@@ -28,7 +29,10 @@ type Connection struct {
 	pkt *netfilter.Packet
 }
 
-func Parse(nfp netfilter.Packet) *Connection {
+var showUnknownCons = false
+
+func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
+    showUnknownCons = interceptUnknown
 	ipLayer := nfp.Packet.Layer(layers.LayerTypeIPv4)
 	ipLayer6 := nfp.Packet.Layer(layers.LayerTypeIPv6)
 	if ipLayer == nil && ipLayer6 == nil {
@@ -38,17 +42,6 @@ func Parse(nfp netfilter.Packet) *Connection {
 	if (ipLayer == nil) {
 		ip, ok := ipLayer6.(*layers.IPv6)
 		if ok == false || ip == nil {
-			return nil
-		}
-
-		// we're not interested in connections
-		// from/to the localhost interface
-		if ip.SrcIP.IsLoopback() {
-			return nil
-		}
-
-		// skip multicast stuff
-		if ip.SrcIP.IsMulticast() || ip.DstIP.IsMulticast() {
 			return nil
 		}
 
@@ -63,17 +56,6 @@ func Parse(nfp netfilter.Packet) *Connection {
 	} else {
 		ip, ok := ipLayer.(*layers.IPv4)
 		if ok == false || ip == nil {
-			return nil
-		}
-
-		// we're not interested in connections
-		// from/to the localhost interface
-		if ip.SrcIP.IsLoopback() {
-			return nil
-		}
-
-		// skip multicast stuff
-		if ip.SrcIP.IsMulticast() || ip.DstIP.IsMulticast() {
 			return nil
 		}
 
@@ -94,17 +76,31 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 		return nil, nil
 	}
 
+	// 0. lookup uid and inode via netlink
 	// 1. lookup uid and inode using /proc/net/(udp|tcp)
 	// 2. lookup pid by inode
 	// 3. if this is coming from us, just accept
 	// 4. lookup process info by pid
-	if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
+	if _uid, _inode := netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); _uid != -1 && _inode != -1 {
+		c.Entry = &netstat.Entry {
+			Proto: c.Protocol,
+			SrcIP: c.SrcIP,
+			SrcPort: c.SrcPort,
+			DstIP: c.DstIP,
+			DstPort: c.DstPort,
+			UserId: _uid,
+			INode: _inode,
+		}
+	}else if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
 		return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
-	} else if pid := procmon.GetPIDFromINode(c.Entry.INode); pid == -1 {
-		return nil, fmt.Errorf("Could not find process id for: %s", c)
-	} else if pid == os.Getpid() {
+	}
+	if c.Entry.UserId == -1 {
+		c.Entry.UserId = nfp.Uid
+	}
+	pid := procmon.GetPIDFromINode(c.Entry.INode, fmt.Sprint(c.Entry.INode,c.SrcIP,c.SrcPort,c.DstIP,c.DstPort))
+	if pid == os.Getpid() {
 		return nil, nil
-	} else if c.Process = procmon.FindProcess(pid); c.Process == nil {
+	} else if c.Process = procmon.FindProcess(pid, showUnknownCons); c.Process == nil {
 		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
 	}
 	return c, nil
@@ -140,12 +136,27 @@ func (c *Connection) parseDirection() bool {
 				c.DstPort = uint(tcp.DstPort)
 				c.SrcPort = uint(tcp.SrcPort)
 				ret = true
+
+				if tcp.DstPort == 53 {
+					c.getDomains(c.pkt, c)
+				}
 			}
 		} else if layer.LayerType() == layers.LayerTypeUDP {
 			if udp, ok := layer.(*layers.UDP); ok == true && udp != nil {
 				c.Protocol = "udp"
 				c.DstPort = uint(udp.DstPort)
 				c.SrcPort = uint(udp.SrcPort)
+				ret = true
+
+				if udp.DstPort == 53 {
+					c.getDomains(c.pkt, c)
+				}
+			}
+		} else if layer.LayerType() == layers.LayerTypeUDPLite {
+			if udplite, ok := layer.(*layers.UDPLite); ok == true && udplite != nil {
+				c.Protocol = "udplite"
+				c.DstPort = uint(udplite.DstPort)
+				c.SrcPort = uint(udplite.SrcPort)
 				ret = true
 			}
 		}
@@ -159,6 +170,17 @@ func (c *Connection) parseDirection() bool {
 		}
 	}
 	return ret
+}
+
+func (c *Connection) getDomains(nfp *netfilter.Packet, con *Connection) {
+	domains := dns.GetQuestions(nfp)
+	if len(domains) > 0 {
+		con.DstHost = fmt.Sprint(con.DstHost, " (")
+		for _, dns := range domains {
+			con.DstHost = fmt.Sprint(con.DstHost, dns)
+		}
+		con.DstHost = fmt.Sprint(con.DstHost, ")")
+	}
 }
 
 func (c *Connection) To() string {

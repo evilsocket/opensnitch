@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/evilsocket/opensnitch/daemon/conman"
-	"github.com/evilsocket/opensnitch/daemon/core"
-	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/conman"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -61,7 +61,10 @@ func (l *Loader) Load(path string) error {
 	defer l.Unlock()
 
 	l.path = path
-	l.rules = make(map[string]*Rule)
+	if len(l.rules) == 0 {
+		l.rules = make(map[string]*Rule)
+	}
+	disk_rules := make(map[string]string)
 
 	for _, fileName := range matches {
 		log.Debug("Reading rule from %s", fileName)
@@ -78,9 +81,18 @@ func (l *Loader) Load(path string) error {
 		}
 
 		r.Operator.Compile()
+		disk_rules[r.Name] = r.Name
 
 		log.Debug("Loaded rule from %s: %s", fileName, r.String())
 		l.rules[r.Name] = &r
+	}
+	for ruleName, inMemoryRule := range l.rules {
+		if _, ok := disk_rules[ruleName]; ok == false {
+			if inMemoryRule.Duration == Always {
+				log.Debug("Rule deleted from disk, updating rules list: ", ruleName)
+				delete(l.rules, ruleName)
+			}
+		}
 	}
 
 	if l.liveReload && l.liveReloadRunning == false {
@@ -137,10 +149,34 @@ func (l *Loader) setUniqueName(rule *Rule) {
 }
 
 func (l *Loader) addUserRule(rule *Rule) {
+	if rule.Duration == Once {
+		return
+	}
+
 	l.Lock()
 	l.setUniqueName(rule)
+	if rule.Operator.Type == List {
+		if err := json.Unmarshal([]byte(rule.Operator.Data), &rule.Operator.List); err != nil {
+			log.Error("Error loading rule of type list", err)
+		}
+	}
 	l.rules[rule.Name] = rule
 	l.Unlock()
+
+	if rule.Duration == Restart || rule.Duration == Always {
+		return
+	}
+
+	tTime, err := time.ParseDuration(string(rule.Duration))
+	if err != nil {
+		return
+	}
+
+	time.AfterFunc(tTime, func(){
+		l.Lock()
+		delete(l.rules, rule.Name)
+		l.Unlock()
+	})
 }
 
 func (l *Loader) Add(rule *Rule, saveToDisk bool) error {

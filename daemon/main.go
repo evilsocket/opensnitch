@@ -11,16 +11,16 @@ import (
 	"runtime/pprof"
 	"syscall"
 
-	"github.com/evilsocket/opensnitch/daemon/conman"
-	"github.com/evilsocket/opensnitch/daemon/core"
-	"github.com/evilsocket/opensnitch/daemon/dns"
-	"github.com/evilsocket/opensnitch/daemon/firewall"
-	"github.com/evilsocket/opensnitch/daemon/log"
-	"github.com/evilsocket/opensnitch/daemon/netfilter"
-	"github.com/evilsocket/opensnitch/daemon/procmon"
-	"github.com/evilsocket/opensnitch/daemon/rule"
-	"github.com/evilsocket/opensnitch/daemon/statistics"
-	"github.com/evilsocket/opensnitch/daemon/ui"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/conman"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/dns"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/firewall"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netfilter"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/rule"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/statistics"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui"
 )
 
 var (
@@ -145,10 +145,17 @@ func onPacket(packet netfilter.Packet) {
 	}
 
 	// Parse the connection state
-	con := conman.Parse(packet)
+	con := conman.Parse(packet, uiClient.InterceptUnknown())
 	if con == nil {
-		packet.SetVerdict(netfilter.NF_ACCEPT)
-		stats.OnIgnored()
+		if uiClient.DefaultAction() == rule.Allow {
+			packet.SetVerdict(netfilter.NF_ACCEPT)
+		} else {
+			if uiClient.DefaultDuration() == rule.Always {
+				packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
+			} else {
+				packet.SetVerdict(netfilter.NF_DROP)
+			}
+		}
 		return
 	}
 
@@ -172,19 +179,19 @@ func onPacket(packet netfilter.Packet) {
 			}
 
 			// check if and how the rule needs to be saved
-			if r.Duration == rule.Restart {
-				pers = "Added"
-				// add to the rules but do not save to disk
-				if err := rules.Add(r, false); err != nil {
-					log.Error("Error while adding rule: %s", err)
-				} else {
-					ok = true
-				}
-			} else if r.Duration == rule.Always {
+			if r.Duration == rule.Always {
 				pers = "Saved"
 				// add to the loaded rules and persist on disk
 				if err := rules.Add(r, true); err != nil {
 					log.Error("Error while saving rule: %s", err)
+				} else {
+					ok = true
+				}
+			} else {
+				pers = "Added"
+				// add to the rules but do not save to disk
+				if err := rules.Add(r, false); err != nil {
+					log.Error("Error while adding rule: %s", err)
 				} else {
 					ok = true
 				}
@@ -254,6 +261,10 @@ func main() {
 		log.Fatal("Error while creating queue #%d: %s", queueNum, err)
 	}
 	pktChan = queue.Packets()
+
+	firewall.QueueDNSResponses(false, queueNum)
+	firewall.QueueConnections(false, queueNum)
+	firewall.DropMarked(false)
 
 	// queue is ready, run firewall rules
 	if err = firewall.QueueDNSResponses(true, queueNum); err != nil {
