@@ -158,6 +158,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[5]['cmd'] = self.findChild(QtWidgets.QPushButton, "cmdPortsBack")
         self.TABLES[6]['cmd'] = self.findChild(QtWidgets.QPushButton, "cmdUsersBack")
 
+        self.TABLES[0]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
         for idx in range(1,7):
             self.TABLES[idx]['cmd'].setVisible(False)
             self.TABLES[idx]['cmd'].clicked.connect(lambda: self._cb_cmd_back_clicked(idx))
@@ -266,6 +267,23 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.LAST_ORDER_BY = 1
         self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields']) + self._get_order())
 
+    def _cb_main_table_double_clicked(self, row):
+        data = row.data()
+        idx = row.column()
+        cur_idx = 1
+        if idx == 4:
+            cur_idx = 3
+            self._tabs.setCurrentIndex(cur_idx)
+            self._set_process_query(data)
+        elif idx == 5:
+            self._tabs.setCurrentIndex(cur_idx)
+            self._set_rules_query(data)
+
+        self.TABLES[cur_idx]['tipLabel'].setVisible(False)
+        self.TABLES[cur_idx]['label'].setVisible(True)
+        self.TABLES[cur_idx]['cmd'].setVisible(True)
+        self.TABLES[cur_idx]['label'].setText("<b>" + str(data) + "</b>")
+
     def _cb_table_double_clicked(self, row):
         cur_idx = self._tabs.currentIndex()
         if cur_idx == 1 and row.column() != 1:
@@ -276,87 +294,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[cur_idx]['cmd'].setVisible(True)
         self.TABLES[cur_idx]['label'].setText("<b>" + str(row.data()) + "</b>")
 
-        model = self._get_active_table().model()
+        #model = self._get_active_table().model()
         data = row.data()
         if cur_idx == 1:
-            self.setQuery(model, "SELECT " \
-                    "c.time as Time, " \
-                    "r.name as RuleName, " \
-                    "c.uid as UserID, " \
-                    "c.protocol as Protocol, " \
-                    "c.dst_port as DstPort, " \
-                    "c.dst_ip as DstIP, " \
-                    "c.process as Process, " \
-                    "c.process_args as Args, " \
-                    "count(c.process) as Hits " \
-                "FROM rules as r, connections as c " \
-                "WHERE r.Name = '%s' AND r.Name = c.rule GROUP BY c.process,c.dst_host %s" % (data, self._get_order()))
+            self._set_rules_query(data)
         elif cur_idx == 2:
-            self.setQuery(model, "SELECT " \
-                    "c.time as Time, " \
-                    "c.action as Action, " \
-                    "c.uid as UserID, " \
-                    "c.protocol as Protocol, " \
-                    "c.dst_port as DstPort, " \
-                    "c.dst_ip as DstIP, " \
-                    "c.process as Process, " \
-                    "c.process_args as Args, " \
-                    "count(c.process) as Hits, " \
-                    "c.rule as Rule " \
-                "FROM hosts as h, connections as c " \
-                "WHERE c.dst_host = h.what AND h.what = '%s' GROUP BY c.process %s" % (data, self._get_order()))
+            self._set_hosts_query(data)
         elif cur_idx == 3:
-            self.setQuery(model, "SELECT " \
-                    "c.time as Time, " \
-                    "c.action as Action, " \
-                    "c.uid as UserID, " \
-                    "c.dst_host as Destination, " \
-                    "c.process as Process, " \
-                    "c.process_args as Args, " \
-                    "count(c.dst_host) as Hits, " \
-                    "c.rule as Rule " \
-                "FROM procs as p, connections as c " \
-                "WHERE p.what = c.process AND p.what = '%s' GROUP BY c.dst_host " % data)
+            self._set_process_query(data)
         elif cur_idx == 4:
-            self.setQuery(model, "SELECT " \
-                    "c.time as Time, " \
-                    "c.action as Action, " \
-                    "c.uid as UserID, " \
-                    "c.protocol as Protocol, " \
-                    "c.dst_port as DstPort, " \
-                    "c.process as Process, " \
-                    "c.process_args as Args, " \
-                    "count(c.dst_ip) as Hits, " \
-                    "c.rule as Rule " \
-                "FROM addrs as a, connections as c " \
-                "WHERE c.dst_ip = a.what AND a.what = '%s' GROUP BY c.dst_ip " % data)
+            self._set_addrs_query(data)
         elif cur_idx == 5:
-            self.setQuery(model, "SELECT " \
-                    "c.time as Time, " \
-                    "c.action as Action, " \
-                    "c.uid as UserID, " \
-                    "c.protocol as Protocol, " \
-                    "c.dst_ip as DstIP, " \
-                    "c.dst_port as DstPort, " \
-                    "c.process as Process, " \
-                    "c.process_args as Args, " \
-                    "count(c.dst_ip) as Hits, " \
-                    "c.rule as Rule " \
-                "FROM ports as p, connections as c " \
-                "WHERE c.dst_port = p.what AND p.what = '%s' GROUP BY c.dst_ip " % data)
+            self._set_ports_query(data)
         elif cur_idx == 6:
-            self.setQuery(model, "SELECT " \
-                    "c.time as Time, " \
-                    "c.action as Action, " \
-                    "c.protocol as Protocol, " \
-                    "c.dst_ip as DstIP, " \
-                    "c.dst_port as DstPort, " \
-                    "c.process as Process, " \
-                    "c.process_args as Args, " \
-                    "count(c.dst_ip) as Hits, " \
-                    "c.rule as Rule " \
-                "FROM users as u, connections as c " \
-                "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.dst_ip" % data)
+            self._set_users_query(data)
 
     def _get_limit(self):
         return " " + self.LIMITS[self._limit_combo.currentIndex()]
@@ -370,6 +321,97 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _get_active_table(self):
         return self.TABLES[self._tabs.currentIndex()]['view']
+
+    def _set_rules_query(self, data):
+        model = self._get_active_table().model()
+        self.setQuery(model, "SELECT " \
+                "c.time as Time, " \
+                "r.name as RuleName, " \
+                "c.uid as UserID, " \
+                "c.protocol as Protocol, " \
+                "c.dst_port as DstPort, " \
+                "c.dst_ip as DstIP, " \
+                "c.process as Process, " \
+                "c.process_args as Args, " \
+                "count(c.process) as Hits " \
+            "FROM rules as r, connections as c " \
+            "WHERE r.Name = '%s' AND r.Name = c.rule GROUP BY c.process,c.dst_host %s" % (data, self._get_order()))
+
+    def _set_hosts_query(self, data):
+        model = self._get_active_table().model()
+        self.setQuery(model, "SELECT " \
+                "c.time as Time, " \
+                "c.action as Action, " \
+                "c.uid as UserID, " \
+                "c.protocol as Protocol, " \
+                "c.dst_port as DstPort, " \
+                "c.dst_ip as DstIP, " \
+                "c.process as Process, " \
+                "c.process_args as Args, " \
+                "count(c.process) as Hits, " \
+                "c.rule as Rule " \
+            "FROM hosts as h, connections as c " \
+            "WHERE c.dst_host = h.what AND h.what = '%s' GROUP BY c.process %s" % (data, self._get_order()))
+
+    def _set_process_query(self, data):
+        model = self._get_active_table().model()
+        self.setQuery(model, "SELECT " \
+                "c.time as Time, " \
+                "c.action as Action, " \
+                "c.uid as UserID, " \
+                "c.dst_host as Destination, " \
+                "c.process as Process, " \
+                "c.process_args as Args, " \
+                "count(c.dst_host) as Hits, " \
+                "c.rule as Rule " \
+            "FROM procs as p, connections as c " \
+            "WHERE p.what = c.process AND p.what = '%s' GROUP BY c.dst_host " % data)
+
+    def _set_addrs_query(self, data):
+        model = self._get_active_table().model()
+        self.setQuery(model, "SELECT " \
+                "c.time as Time, " \
+                "c.action as Action, " \
+                "c.uid as UserID, " \
+                "c.protocol as Protocol, " \
+                "c.dst_port as DstPort, " \
+                "c.process as Process, " \
+                "c.process_args as Args, " \
+                "count(c.dst_ip) as Hits, " \
+                "c.rule as Rule " \
+            "FROM addrs as a, connections as c " \
+                "WHERE c.dst_ip = a.what AND a.what = '%s' GROUP BY c.dst_ip " % data)
+
+    def _set_ports_query(self, data):
+        model = self._get_active_table().model()
+        self.setQuery(model, "SELECT " \
+                "c.time as Time, " \
+                "c.action as Action, " \
+                "c.uid as UserID, " \
+                "c.protocol as Protocol, " \
+                "c.dst_ip as DstIP, " \
+                "c.dst_port as DstPort, " \
+                "c.process as Process, " \
+                "c.process_args as Args, " \
+                "count(c.dst_ip) as Hits, " \
+                "c.rule as Rule " \
+            "FROM ports as p, connections as c " \
+            "WHERE c.dst_port = p.what AND p.what = '%s' GROUP BY c.dst_ip " % data)
+
+    def _set_users_query(self, data):
+        model = self._get_active_table().model()
+        self.setQuery(model, "SELECT " \
+                "c.time as Time, " \
+                "c.action as Action, " \
+                "c.protocol as Protocol, " \
+                "c.dst_ip as DstIP, " \
+                "c.dst_port as DstPort, " \
+                "c.process as Process, " \
+                "c.process_args as Args, " \
+                "count(c.dst_ip) as Hits, " \
+                "c.rule as Rule " \
+            "FROM users as u, connections as c " \
+            "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.dst_ip" % data)
 
     def update(self, stats=None):
         with self._lock:
