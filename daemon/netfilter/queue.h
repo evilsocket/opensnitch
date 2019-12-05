@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <math.h>
 #include <unistd.h>
+#include <dlfcn.h>
 #include <netinet/in.h>
 #include <linux/types.h>
 #include <linux/socket.h>
@@ -20,6 +21,8 @@ typedef struct {
     uint length;
     unsigned char *data;
 } verdictContainer;
+
+static void *get_uid = NULL;
 
 extern void go_callback(int id, unsigned char* data, int len, uint mark, u_int32_t idx, verdictContainer *vc, uint32_t uid);
 
@@ -37,7 +40,9 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
     size = nfq_get_payload(nfa, &buffer);
     idx  = (uint32_t)((uintptr_t)arg);
 
-    nfq_get_uid(nfa, &uid);
+    if (get_uid)
+        nfq_get_uid(nfa, &uid);
+
     go_callback(id, buffer, size, mark, idx, &vc, uid);
 
     if( vc.mark_set == 1 ) {
@@ -58,6 +63,16 @@ static inline struct nfq_q_handle* CreateQueue(struct nfq_handle *h, u_int16_t q
 static inline int Run(struct nfq_handle *h, int fd) {
     char buf[4096] __attribute__ ((aligned));
     int rcvd, opt = 1;
+
+    void *hndl = dlopen("libnetfilter_queue.so.1", RTLD_LAZY);
+    if (!hndl) {
+        hndl = dlopen("libnetfilter_queue.so", RTLD_LAZY);
+    }
+    if (hndl) {
+        if ((get_uid = dlsym(hndl, "nfq_get_uid")) == NULL){
+            printf("Warning: nfq_get_uid not available\n");
+        }
+    }
 
     setsockopt(fd, SOL_NETLINK, NETLINK_NO_ENOBUFS, &opt, sizeof(int));
 
