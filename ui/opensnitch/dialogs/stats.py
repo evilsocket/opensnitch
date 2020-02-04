@@ -327,6 +327,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setQuery(model, "SELECT " \
                 "c.time as Time, " \
                 "r.name as RuleName, " \
+                "r.action as Action, " \
+                "r.duration as Duration, " \
                 "c.uid as UserID, " \
                 "c.protocol as Protocol, " \
                 "c.dst_port as DstPort, " \
