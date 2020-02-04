@@ -1,0 +1,16 @@
+[Unit]
+Description=OpenSnitch is a GNU/Linux application firewall.
+Documentation=https://github.com/evilsocket/opensnitch
+Wants=network.target
+After=network.target
+
+[Service]
+Type=simple
+PermissionsStartOnly=true
+ExecStartPre=/bin/mkdir -p /etc/opensnitchd/rules
+ExecStart=/usr/bin/opensnitchd -log-file /var/log/opensnitchd.log -rules-path /etc/opensnitchd/rules -ui-socket unix:///tmp/osui.sock
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
