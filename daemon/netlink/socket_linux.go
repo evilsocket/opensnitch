@@ -204,7 +204,10 @@ func SocketGet(family uint8, proto uint8, local, remote net.Addr) (*Socket, erro
 		ID: _Id,
 	})
 	s.Send(req)
-	msgs, err := s.Receive()
+	msgs, from, err := s.Receive()
+	if from.Pid != nl.PidKernel {
+		return nil, fmt.Errorf("Wrong sender portid %d, expected %d", from.Pid, nl.PidKernel)
+	}
 	if err != nil {
 		return nil, err
 	}
