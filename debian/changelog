@@ -1,3 +1,10 @@
+opensnitch (1.0.0rc-2) unstable; urgency=medium
+
+  * UI minor changes
+  * Expand deb package compatibility.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Wed, 05 Feb 2020 21:50:20 +0100
+
 opensnitch (1.0.0rc-1) unstable; urgency=medium
 
   * Initial release
