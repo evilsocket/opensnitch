@@ -2,17 +2,7 @@
 
 set -e
 
-for i in $(ls /home)
-do
-    path=/home/$i/.config/autostart/
-    if [ ! -d $path ]; then
-        mkdir -p $path
-    fi
-    if [ -f /usr/share/applications/opensnitch_ui.desktop ];then
-        cp /usr/share/applications/opensnitch_ui.desktop $path
-    fi
-done
-
 # FIXME: remove in favor of dh_installsystemd
-systemctl enable opensnitch
-service opensnitch start
+systemctl unmask opensnitch.service
+systemctl enable opensnitch.service
+service opensnitch restart
