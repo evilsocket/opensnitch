@@ -1,0 +1,20 @@
+Source: opensnitch-ui
+Maintainer: Gustavo Iñiguez Goia <gooffy1@gmail.com>
+Uploaders:
+ Gustavo Iniguez Goya <gooffy@gmail.com>,
+Section: python
+Priority: optional
+Build-Depends: python3-setuptools, python3-all, debhelper (>= 7.4.3)
+Standards-Version: 3.9.1
+
+
+
+
+
+Package: python3-opensnitch-ui
+Architecture: all
+Section: net
+Depends: ${misc:Depends}, ${python3:Depends}, python3-grpcio, python3-slugify, python3-setuptools, python3-pyqt5, python3-pyqt5.qtsql, python3-pyinotify, python3-protobuf
+Description: UI for the opensnitch application firewall
+
+

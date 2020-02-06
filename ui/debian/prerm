@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+for i in $(ls /home)
+do
+    path=/home/$i/.config/autostart/opensnitch_ui.desktop
+    if [ -f $path ];then
+        rm -f $path
+    fi
+done
