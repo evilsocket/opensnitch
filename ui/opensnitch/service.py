@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore, Qt
 from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery
 
 from datetime import datetime
@@ -88,6 +88,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._version_warning_trigger.connect(self._on_diff_versions)
         self._status_change_trigger.connect(self._on_status_change)
         self._new_remote_trigger.connect(self._on_new_remote)
+        self._stats_dialog._shown_trigger.connect(self._on_stats_dialog_shown)
 
     def _setup_icons(self):
         self.off_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-off.png"))
@@ -99,6 +100,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.red_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-red.png"))
         self.red_icon = QtGui.QIcon()
         self.red_icon.addPixmap(self.red_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.alert_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-alert.png"))
+        self.alert_icon = QtGui.QIcon()
+        self.alert_icon.addPixmap(self.alert_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         self._app.setWindowIcon(self.white_icon)
         self._prompt_dialog.setWindowIcon(self.white_icon)
@@ -106,13 +110,20 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _setup_tray(self):
         self._menu = QtWidgets.QMenu()
         self._stats_action = self._menu.addAction("Statistics")
-        self._stats_action.triggered.connect(lambda: self._stats_dialog.show())
-        self._menu.addAction("Close").triggered.connect(self._on_exit)
+
         self._tray = QtWidgets.QSystemTrayIcon(self.off_icon)
         self._tray.setContextMenu(self._menu)
+
+        self._stats_action.triggered.connect(self._show_stats_dialog)
+        self._menu.addAction("Close").triggered.connect(self._on_exit)
+
         self._tray.show()
         if not self._tray.isSystemTrayAvailable():
             self._stats_dialog.show()
+
+    def _show_stats_dialog(self):
+        self._tray.setIcon(self.white_icon)
+        self._stats_dialog.show()
 
     @QtCore.pyqtSlot()
     def _on_status_change(self):
@@ -146,6 +157,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         new_act.triggered.connect(lambda: self._on_remote_stats_menu(addr))
         self._menu.insertAction(self._stats_action, new_act)
         self._stats_action.setText("Local Statistics")
+
+    @QtCore.pyqtSlot()
+    def _on_stats_dialog_shown(self):
+        self._tray.setIcon(self.white_icon)
 
     def _on_remote_stats_menu(self, address):
         self._remote_stats[address].show()
@@ -295,7 +310,15 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def AskRule(self, request, context):
         self._asking = True
-        rule = self._prompt_dialog.promptUser(request, self._is_local_request(context), context.peer())
+        rule, timeout_triggered = self._prompt_dialog.promptUser(request, self._is_local_request(context), context.peer())
+        if timeout_triggered:
+            _title = request.process_path
+            if _title == "":
+                _title = "%s:%d (%s)" % (request.dst_host, request.dst_port, request.protocol)
+
+            self._tray.setIcon(self.alert_icon)
+            self._tray.showMessage(_title, "%s action applied\nArguments: %s" % (rule.action, request.process_args), QtWidgets.QSystemTrayIcon.Warning, 0)
+
         self._last_ping = datetime.now()
         self._asking = False
         return rule
