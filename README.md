@@ -30,3 +30,9 @@ I tried, but for very fast updates it failed bad on my configuration (failed bad
 The UI service is able to use a TCP listener instead of a UNIX socket, that means the UI service itself can be executed on any 
 operating system, while receiving messages from a single local daemon instance or multiple instances from remote computers in the network,
 therefore DBUS would have made the protocol and logic uselessly GNU/Linux specific.
+
+##### OpenSnitch displays too many dialogs to allow/deny connections
+
+Yes, it does. But only the first time it's been used. Once you configure which processes/connections you want to allow/deny, you won't notice that it's running.
+
+In the future, maybe we add an option to queue the events, and from the GUI allow/deny them.
