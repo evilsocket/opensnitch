@@ -21,6 +21,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     GREEN = QtGui.QColor(0x2e, 0x90, 0x59)
 
     _trigger = QtCore.pyqtSignal()
+    _shown_trigger = QtCore.pyqtSignal()
 
     SORT_ORDER = ["ASC", "DESC"]
     LAST_ORDER_TO = 1
@@ -187,6 +188,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if address is not None:
             self.setWindowapply_Title("OpenSnitch Network Statistics for %s" % address)
+
+    def showEvent(self, event):
+        super(StatsDialog, self).showEvent(event)
+        self._shown_trigger.emit()
 
     def _load_settings(self):
         dialog_geometry = self._cfg.getSettings("statsDialog/geometry")
