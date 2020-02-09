@@ -46,7 +46,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._prompt_trigger.connect(self.on_connection_prompt_triggered)
         self._timeout_trigger.connect(self.on_timeout_triggered)
         self._tick_trigger.connect(self.on_tick_triggered)
-        self._tick = self._cfg.default_timeout
+        self._tick = int(self._cfg.getSettings("global/default_timeout"))
         self._tick_thread = None
         self._done = threading.Event()
         self._apply_text = "Apply"
@@ -102,7 +102,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # reset state
             if self._tick_thread != None and self._tick_thread.is_alive():
                 self._tick_thread.join()
-            self._tick = self._cfg.default_timeout
+            self._tick = int(self._cfg.getSettings("global/default_timeout"))
             self._tick_thread = threading.Thread(target=self._timeout_worker)
             self._tick_thread.stop = self._is_advanced_checked
             self._timeout_triggered = False
@@ -124,7 +124,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         while self._tick > 0 and self._done.is_set() is False:
             t = threading.currentThread()
             if getattr(t, "stop", True):
-                self._tick = self._cfg.default_timeout
+                self._tick = int(self._cfg.getSettings("global/default_timeout"))
                 continue
 
             self._tick -= 1
@@ -223,24 +223,24 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._what_combo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
             self._what_dstip_combo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
 
-        if self._cfg.default_action == "allow":
+        if self._cfg.getSettings("global/default_action") == "allow":
             self._action_combo.setCurrentIndex(0)
         else:
             self._action_combo.setCurrentIndex(1)
 
-        if self._cfg.default_duration == "once":
+        if self._cfg.getSettings("global/default_duration") == "once":
             self._duration_combo.setCurrentIndex(0)
-        elif self._cfg.default_duration == "30s":
+        elif self._cfg.getSettings("global/default_duration") == "30s":
             self._duration_combo.setCurrentIndex(1)
-        elif self._cfg.default_duration == "5m":
+        elif self._cfg.getSettings("global/default_duration") == "5m":
             self._duration_combo.setCurrentIndex(2)
-        elif self._cfg.default_duration == "15m":
+        elif self._cfg.getSettings("global/default_duration") == "15m":
             self._duration_combo.setCurrentIndex(3)
-        elif self._cfg.default_duration == "30m":
+        elif self._cfg.getSettings("global/default_duration") == "30m":
             self._duration_combo.setCurrentIndex(4)
-        elif self._cfg.default_duration == "1h":
+        elif self._cfg.getSettings("global/default_duration") == "1h":
             self._duration_combo.setCurrentIndex(5)
-        elif self._cfg.default_duration == "until restart":
+        elif self._cfg.getSettings("global/default_duration") == "until restart":
             self._duration_combo.setCurrentIndex(6)
         else:
             self._duration_combo.setCurrentIndex(7)
