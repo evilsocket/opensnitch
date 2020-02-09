@@ -30,11 +30,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal()
 
-    def __init__(self, app, on_exit, config):
+    def __init__(self, app, on_exit):
         super(UIService, self).__init__()
         self._db = Database.instance()
 
-        self._cfg = Config.init(config)
+        self._cfg = Config.init()
         self._last_ping = None
         self._version_warning_shown = False
         self._asking = False
@@ -47,11 +47,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._stats_dialog = StatsDialog()
         self._remote_lock = Lock()
         self._remote_stats = {}
-
-        # make sure we save the configuration if it
-        # does not exist as a file yet
-        if self._cfg.exists == False:
-            self._cfg.save()
 
         self._setup_interfaces()
         self._setup_slots()

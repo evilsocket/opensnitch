@@ -33,7 +33,6 @@ def supported_qt_version(major, medium, minor):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.')
     parser.add_argument("--socket", dest="socket", default="unix:///tmp/osui.sock", help="Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).", metavar="FILE")
-    parser.add_argument("--config", dest="config", default="~/.opensnitch/ui-config.json", help="Path of the UI json configuration file.", metavar="FILE")
 
     args = parser.parse_args()
     
@@ -42,7 +41,7 @@ if __name__ == '__main__':
     if supported_qt_version(5,6,0):
         app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
-    service = UIService(app, on_exit, args.config)
+    service = UIService(app, on_exit)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
 
     add_UIServicer_to_server(service, server)
