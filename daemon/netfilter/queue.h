@@ -40,8 +40,10 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
     size = nfq_get_payload(nfa, &buffer);
     idx  = (uint32_t)((uintptr_t)arg);
 
+#ifdef NFQA_CFG_F_UID_GID
     if (get_uid)
         nfq_get_uid(nfa, &uid);
+#endif
 
     go_callback(id, buffer, size, mark, idx, &vc, uid);
 
@@ -54,9 +56,11 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
 
 static inline struct nfq_q_handle* CreateQueue(struct nfq_handle *h, u_int16_t queue, u_int32_t idx) {
     struct nfq_q_handle* qh = nfq_create_queue(h, queue, &nf_callback, (void*)((uintptr_t)idx));
+#ifdef NFQA_CFG_F_UID_GID
     if (nfq_set_queue_flags(qh, NFQA_CFG_F_UID_GID, NFQA_CFG_F_UID_GID)){
         printf("queue.Run() no UID allowed by this kernel\n");
     }
+#endif
     return qh;
 }
 
