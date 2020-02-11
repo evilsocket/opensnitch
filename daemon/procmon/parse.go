@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"sort"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
@@ -63,7 +64,7 @@ func GetPidByInodeFromCache(inodeKey string) int {
 }
 
 func getPidDescriptorsFromCache(pid int, fdPath string, expect string, descriptors []string) int {
-	for fdIdx:=len(descriptors)-1; fdIdx > -1; fdIdx-- {
+	for fdIdx:=0; fdIdx < len(descriptors); fdIdx++ {
 		descLink := fmt.Sprint(fdPath, descriptors[fdIdx])
 		if link, err := os.Readlink(descLink); err == nil && link == expect {
 			return fdIdx
@@ -95,7 +96,7 @@ func getPidFromCache(inode int, inodeKey string, expect string) int {
 
 func GetPIDFromINode(inode int, inodeKey string) int {
 	found := -1
-	if inode == -1 {
+	if inode <= 0 {
 		return found
 	}
 	start := time.Now()
@@ -120,7 +121,7 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 			return false
 		}
 
-		for idx:=len(fd_list)-1; idx > -1; idx-- {
+		for idx:=0; idx < len(fd_list)-1; idx++ {
 			descLink := fmt.Sprint(fdPath, fd_list[idx])
 			// resolve the symlink and compare to what we expect
 			if link, err := os.Readlink(descLink); err == nil && link == expect {
@@ -141,13 +142,21 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 // ~150us
 func lookupPidDescriptors (fdPath string) []string{
 	if f, err := os.Open(fdPath); err == nil {
-		fd_list, err := f.Readdirnames(-1)
+		fd_list, err := f.Readdir(-1)
 		f.Close()
 		if err != nil {
 			return nil
 		}
+		sort.Slice(fd_list, func(i, j int) bool {
+			return fd_list[i].ModTime().After(fd_list[j].ModTime())
+		})
 
-		return fd_list
+		s  := make([]string, len(fd_list))
+		for n, f := range fd_list {
+			s[n] = f.Name()
+		}
+
+		return s
 	}
 
 	return nil
