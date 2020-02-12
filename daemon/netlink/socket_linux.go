@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net"
-    "encoding/binary"
+	"encoding/binary"
+	"syscall"
 
 	"github.com/vishvananda/netlink/nl"
 	"golang.org/x/sys/unix"
@@ -20,8 +21,8 @@ const (
 )
 
 var (
-    ErrNotImplemented = errors.New("not implemented")
-	native       = nl.NativeEndian()
+	ErrNotImplemented = errors.New("not implemented")
+	native	   = nl.NativeEndian()
 	networkOrder = binary.BigEndian
 )
 
@@ -44,11 +45,11 @@ type Socket struct {
 	Expires uint32
 	RQueue  uint32
 	WQueue  uint32
-	UID     uint32
+	UID	uint32
 	INode   uint32
 }
 
-type socketRequest struct {
+type SocketRequest struct {
 	Family   uint8
 	Protocol uint8
 	Ext      uint8
@@ -73,7 +74,7 @@ func (b *writeBuffer) Next(n int) []byte {
 	return s
 }
 
-func (r *socketRequest) Serialize() []byte {
+func (r *SocketRequest) Serialize() []byte {
 	b := writeBuffer{Bytes: make([]byte, sizeofSocketRequest)}
 	b.Write(r.Family)
 	b.Write(r.Protocol)
@@ -92,7 +93,7 @@ func (r *socketRequest) Serialize() []byte {
 	return b.Bytes
 }
 
-func (r *socketRequest) Len() int { return sizeofSocketRequest }
+func (r *SocketRequest) Len() int { return sizeofSocketRequest }
 
 type readBuffer struct {
 	Bytes []byte
@@ -183,31 +184,21 @@ func SocketGet(family uint8, proto uint8, local, remote net.Addr) (*Socket, erro
 		dPort = uint16(remoteTCP.Port)
 	}
 
-
-	s, err := nl.Subscribe(unix.NETLINK_INET_DIAG)
-	if err != nil {
-		return nil, err
-	}
-	defer s.Close()
-
 	_Id = SocketID{
-		SourcePort:         sPort,
-		DestinationPort:    dPort,
-		Source:	            localIP,
-		Destination:        remoteIP,
-		Cookie:             [2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
+		SourcePort:			sPort,
+		DestinationPort:	dPort,
+		Source:				localIP,
+		Destination:		remoteIP,
+		Cookie:				[2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
 	}
 	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, 0)
-	req.AddData(&socketRequest{
+	req.AddData(&SocketRequest{
 		Family:   family,
 		Protocol: proto,
+		States: TCP_ALL,
 		ID: _Id,
 	})
-	s.Send(req)
-	msgs, from, err := s.Receive()
-	if from.Pid != nl.PidKernel {
-		return nil, fmt.Errorf("Wrong sender portid %d, expected %d", from.Pid, nl.PidKernel)
-	}
+	msgs, err := req.Execute(syscall.NETLINK_INET_DIAG, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +209,7 @@ func SocketGet(family uint8, proto uint8, local, remote net.Addr) (*Socket, erro
 		return nil, fmt.Errorf("multiple (%d) matching sockets", len(msgs))
 	}
 	sock := &Socket{}
-	if err := sock.deserialize(msgs[0].Data); err != nil {
+	if err := sock.deserialize(msgs[0]); err != nil {
 		return nil, err
 	}
 	return sock, nil
