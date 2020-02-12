@@ -17,9 +17,11 @@ type Inode struct {
 	FdPath  string
 }
 
-type Pid struct {
+type ProcEntry struct {
+	Pid int
 	FdPath string
 	Descriptors []string
+	Time time.Time
 }
 
 var (
@@ -32,10 +34,35 @@ var (
 	// iterating only over a few pids' descriptors, (30us-2ms vs. 50-80ms)
 	// since it's more likely that most of the connections will be made by the
 	// same (running) processes
-	pidsCache = make(map[int]*Pid)
+	pidsCache []*ProcEntry
 	pidsDescriptorsCache = make(map[int][]string)
 	maxCachedPids = 24
 )
+
+func addProcEntry(fdPath string, fd_list []string, pid int) {
+	for n, _ := range pidsCache {
+		if pidsCache[n].Pid == pid {
+			pidsCache[n].Time = time.Now()
+			return
+		}
+	}
+	pidsCache = append(pidsCache, &ProcEntry{ Pid: pid, FdPath: fdPath, Descriptors: fd_list, Time: time.Now() })
+}
+
+func sortProcEntries() {
+	sort.Slice(pidsCache, func(i, j int) bool {
+		return pidsCache[i].Time.After(pidsCache[j].Time)
+	})
+}
+
+func deleteProcEntry(pid int) {
+	for n, procEntry := range pidsCache {
+		if procEntry.Pid == pid {
+			pidsCache = append(pidsCache[:n], pidsCache[n+1:]...)
+			break
+		}
+	}
+}
 
 func cleanUpCaches() {
 	if len(inodesCache) > maxCachedInodes {
@@ -44,9 +71,7 @@ func cleanUpCaches() {
 		}
 	}
 	if len(pidsCache) > maxCachedPids {
-		for k, _ := range pidsCache {
-			delete(pidsCache, k)
-		}
+		pidsCache = nil
 	}
 }
 
@@ -56,7 +81,7 @@ func GetPidByInodeFromCache(inodeKey string) int {
 		if _, err := os.Lstat(fmt.Sprint("/proc/", inodesCache[inodeKey].Pid, "/exe")); err == nil {
 			return inodesCache[inodeKey].Pid
 		}
-		delete(pidsCache, inodesCache[inodeKey].Pid)
+		deleteProcEntry(inodesCache[inodeKey].Pid)
 		delete(inodesCache, inodeKey)
 	}
 
@@ -67,6 +92,9 @@ func getPidDescriptorsFromCache(pid int, fdPath string, expect string, descripto
 	for fdIdx:=0; fdIdx < len(descriptors); fdIdx++ {
 		descLink := fmt.Sprint(fdPath, descriptors[fdIdx])
 		if link, err := os.Readlink(descLink); err == nil && link == expect {
+			if err != nil {
+				deleteProcEntry(pid)
+			}
 			return fdIdx
 		}
 	}
@@ -76,16 +104,18 @@ func getPidDescriptorsFromCache(pid int, fdPath string, expect string, descripto
 
 func getPidFromCache(inode int, inodeKey string, expect string) int {
 	// loop over the processes that have generated connections
-	for pid, Pid := range pidsCache {
-		if idxDesc := getPidDescriptorsFromCache(pid, Pid.FdPath, expect, Pid.Descriptors); idxDesc != -1 {
-			return pid
+	for n, procEntry := range pidsCache {
+		if idxDesc := getPidDescriptorsFromCache(procEntry.Pid, procEntry.FdPath, expect, procEntry.Descriptors); idxDesc != -1 {
+			pidsCache[n].Time = time.Now()
+			return procEntry.Pid
 		}
 
-		if descriptors := lookupPidDescriptors(Pid.FdPath); descriptors != nil {
-			pidsCache[pid].Descriptors = descriptors
+		if descriptors := lookupPidDescriptors(procEntry.FdPath); descriptors != nil {
+			pidsCache[n].Descriptors = descriptors
 
-			if idxDesc := getPidDescriptorsFromCache(pid, Pid.FdPath, expect, descriptors); idxDesc != -1 {
-				return pid
+			if idxDesc := getPidDescriptorsFromCache(procEntry.Pid, procEntry.FdPath, expect, descriptors); idxDesc != -1 {
+				pidsCache[n].Time = time.Now()
+				return procEntry.Pid
 			}
 		}
 	}
@@ -111,25 +141,14 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 	cachedPid := getPidFromCache(inode, inodeKey, expect)
 	if cachedPid != -1 {
 		log.Debug("Socket found in known pids %v, pid: %d, inode: %d, pids in cache: %d", time.Since(start), cachedPid, inode, len(pidsCache))
+		sortProcEntries()
 		return cachedPid
 	}
 
 	forEachProcess(func(pid int, path string, args []string) bool {
-		fdPath := fmt.Sprint("/proc/", pid, "/fd/")
-		fd_list := lookupPidDescriptors(fdPath)
-		if fd_list == nil {
-			return false
-		}
-
-		for idx:=0; idx < len(fd_list)-1; idx++ {
-			descLink := fmt.Sprint(fdPath, fd_list[idx])
-			// resolve the symlink and compare to what we expect
-			if link, err := os.Readlink(descLink); err == nil && link == expect {
-				found = pid
-				inodesCache[inodeKey] = &Inode{ FdPath: descLink, Pid: pid }
-				pidsCache[pid] = &Pid{ FdPath: fdPath, Descriptors: fd_list }
-				return true
-			}
+		if inodeFound(expect, inodeKey, pid) {
+			found = pid
+			return true
 		}
 		// keep looping
 		return false
@@ -137,6 +156,27 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 	log.Debug("new pid lookup took", time.Since(start))
 
 	return found
+}
+
+func inodeFound(expect, inodeKey string, pid int) bool {
+	fdPath := fmt.Sprint("/proc/", pid, "/fd/")
+	fd_list := lookupPidDescriptors(fdPath)
+	if fd_list == nil {
+		return false
+	}
+
+	for idx:=0; idx < len(fd_list)-1; idx++ {
+		descLink := fmt.Sprint(fdPath, fd_list[idx])
+		// resolve the symlink and compare to what we expect
+		if link, err := os.Readlink(descLink); err == nil && link == expect {
+			inodesCache[inodeKey] = &Inode{ FdPath: descLink, Pid: pid }
+			addProcEntry(fdPath, fd_list, pid)
+			sortProcEntries()
+			return true
+		}
+	}
+
+	return false
 }
 
 // ~150us
