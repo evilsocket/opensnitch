@@ -26,6 +26,7 @@ var (
 	}
 
 	watcher = ftrace.NewProbe(probeName, syscallName, subEvents)
+	isAvailable = false
 
 	index = make(map[int]*procData)
 	lock  = sync.RWMutex{}
@@ -99,6 +100,8 @@ func Start() (err error) {
 	watcher.Reset()
 
 	if err = watcher.Enable(); err == nil {
+		isAvailable = true
+
 		go eventConsumer()
 		// track running processes
 		if ls, err := ioutil.ReadDir("/proc/"); err == nil {
@@ -113,5 +116,10 @@ func Start() (err error) {
 }
 
 func Stop() error {
+	isAvailable = false
 	return watcher.Disable()
+}
+
+func IsWatcherAvailable() bool {
+	return isAvailable
 }

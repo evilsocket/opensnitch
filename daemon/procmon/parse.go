@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 	"sort"
+	"strconv"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
@@ -145,15 +146,19 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 		return cachedPid
 	}
 
-	forEachProcess(func(pid int, path string, args []string) bool {
-		if inodeFound(expect, inodeKey, pid) {
-			found = pid
-			return true
-		}
-		// keep looping
-		return false
-	})
-	log.Debug("new pid lookup took", time.Since(start))
+	if IsWatcherAvailable() {
+		forEachProcess(func(pid int, path string, args []string) bool {
+			if inodeFound(expect, inodeKey, pid) {
+				found = pid
+				return true
+			}
+			// keep looping
+			return false
+		})
+	} else {
+		found = lookupPidInProc(expect, inodeKey)
+	}
+	log.Debug("new pid lookup took", found, time.Since(start))
 
 	return found
 }
@@ -177,6 +182,34 @@ func inodeFound(expect, inodeKey string, pid int) bool {
 	}
 
 	return false
+}
+
+func lookupPidInProc(expect, inodeKey string) int {
+	start := time.Now()
+	if f, err := os.Open("/proc"); err == nil {
+		ls, derr := f.Readdir(-1);
+		f.Close()
+		if derr != nil {
+			return -1
+		}
+		sort.Slice(ls, func(i, j int) bool {
+			return ls[i].ModTime().After(ls[j].ModTime())
+		})
+		for n, f := range ls {
+			if f.IsDir() == false {
+				continue
+			}
+			if pid, err := strconv.Atoi(f.Name()); err == nil {
+				if inodeFound(expect, inodeKey, pid) {
+					return pid
+				}
+			}
+		}
+	} else {
+		log.Error("Error parsing /proc: %s", err)
+	}
+
+	return -1
 }
 
 // ~150us

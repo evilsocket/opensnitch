@@ -236,7 +236,7 @@ func main() {
 	log.Important("Starting %s v%s", core.Name, core.Version)
 
 	if err := procmon.Start(); err != nil {
-		log.Fatal("%s", err)
+		log.Error("%s, falling back to /proc parsing", err)
 	}
 
 	rulesPath, err := core.ExpandPath(rulesPath)
