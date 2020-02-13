@@ -24,6 +24,7 @@ var (
 	ErrNotImplemented = errors.New("not implemented")
 	native	   = nl.NativeEndian()
 	networkOrder = binary.BigEndian
+	TCP_ALL = uint32(0xfff)
 )
 
 type SocketID struct {
@@ -195,7 +196,7 @@ func SocketGet(family uint8, proto uint8, local, remote net.Addr) (*Socket, erro
 	req.AddData(&SocketRequest{
 		Family:   family,
 		Protocol: proto,
-		States: TCP_ALL,
+		States:   uint32(TCP_ALL),
 		ID: _Id,
 	})
 	msgs, err := req.Execute(syscall.NETLINK_INET_DIAG, 0)
