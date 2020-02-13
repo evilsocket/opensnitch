@@ -185,7 +185,6 @@ func inodeFound(expect, inodeKey string, pid int) bool {
 }
 
 func lookupPidInProc(expect, inodeKey string) int {
-	start := time.Now()
 	if f, err := os.Open("/proc"); err == nil {
 		ls, derr := f.Readdir(-1);
 		f.Close()
@@ -195,7 +194,7 @@ func lookupPidInProc(expect, inodeKey string) int {
 		sort.Slice(ls, func(i, j int) bool {
 			return ls[i].ModTime().After(ls[j].ModTime())
 		})
-		for n, f := range ls {
+		for _, f := range ls {
 			if f.IsDir() == false {
 				continue
 			}

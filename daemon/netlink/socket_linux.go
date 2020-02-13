@@ -196,7 +196,7 @@ func SocketGet(family uint8, proto uint8, local, remote net.Addr) (*Socket, erro
 	req.AddData(&SocketRequest{
 		Family:   family,
 		Protocol: proto,
-		States:   uint32(TCP_ALL),
+		States:   TCP_ALL,
 		ID: _Id,
 	})
 	msgs, err := req.Execute(syscall.NETLINK_INET_DIAG, 0)
