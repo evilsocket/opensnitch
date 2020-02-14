@@ -33,14 +33,14 @@ type Rule struct {
 	Operator Operator  `json:"operator"`
 }
 
-func Create(name string, action Action, duration Duration, op Operator) *Rule {
+func Create(name string, action Action, duration Duration, op *Operator) *Rule {
 	return &Rule{
 		Created:  time.Now(),
 		Enabled:  true,
 		Name:     name,
 		Action:   action,
 		Duration: duration,
-		Operator: op,
+		Operator: *op,
 	}
 }
 
@@ -62,6 +62,9 @@ func Deserialize(reply *protocol.Rule) *Rule {
 		reply.Operator.Data,
 		make([]Operator, 0),
 	)
+	if operator == nil {
+		return nil
+	}
 
 	return Create(
 		reply.Name,

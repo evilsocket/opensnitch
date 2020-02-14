@@ -168,6 +168,11 @@ func onPacket(packet netfilter.Packet) {
 		// no rule matched, send a request to the
 		// UI client if connected and running
 		r, connected = uiClient.Ask(con)
+		if r == nil {
+			log.Error("Invalid rule received, skipping")
+			packet.SetVerdict(netfilter.NF_DROP)
+			return
+		}
 		if connected {
 			ok := false
 			pers := ""

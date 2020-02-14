@@ -46,26 +46,34 @@ type Operator struct {
 	re *regexp.Regexp
 }
 
-func NewOperator(t Type, o Operand, data string, list []Operator) Operator {
+func NewOperator(t Type, o Operand, data string, list []Operator) *Operator {
 	op := Operator{
 		Type:    t,
 		Operand: o,
 		Data:    data,
 		List:    list,
 	}
-	op.Compile()
-	return op
+	if err := op.Compile(); err != nil {
+		return nil
+	}
+	return &op
 }
 
-func (o *Operator) Compile() {
+func (o *Operator) Compile() error {
 	if o.Type == Simple {
 		o.cb = o.simpleCmp
 	} else if o.Type == Regexp {
 		o.cb = o.reCmp
-		o.re = regexp.MustCompile(o.Data)
+		if re, err := regexp.Compile(o.Data); err == nil {
+			o.re = re
+		} else {
+			return err
+		}
 	} else if o.Type == List {
 		o.Operand = OpList
 	}
+
+	return nil
 }
 
 func (o *Operator) String() string {
@@ -88,7 +96,9 @@ func (o *Operator) listMatch(con *conman.Connection) bool {
 	res := true
 	for i := 0; i < len(o.List); i += 1 {
 		o := o.List[i]
-		o.Compile()
+		if err := o.Compile(); err != nil {
+			return false
+		}
 		res = res && o.Match(con)
 	}
 	return res
