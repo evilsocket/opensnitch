@@ -5,6 +5,7 @@ import time
 import os
 import pwd
 import json
+import re
 from datetime import datetime
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
@@ -206,14 +207,17 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._what_combo.addItem("to %s" % con.dst_ip, "dst_ip")
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
-            self._what_combo.addItem("to %s" % con.dst_host, "simple_host")
-            self._what_dstip_combo.addItem("to %s" % con.dst_host, "simple_host")
+            try:
+                dst_host = re.search("(.*)\s\((.*)\)", con.dst_host)
+            except Exception:
+                pass
 
-            parts = con.dst_host.split('.')[1:]
-            nparts = len(parts)
-            for i in range(0, nparts - 1):
-                self._what_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
-                self._what_dstip_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
+            if dst_host == None:
+                dst_host = con.dst_host
+                self._what_combo.addItem("%s" % con.dst_host, "simple_host")
+                self._add_dsthost_to_combo(con.dst_host)
+            else:
+                self._add_dsthost_to_combo(dst_host[2])
 
         self._what_dstip_combo.addItem("to %s" % con.dst_ip, "dst_ip")
 
@@ -264,6 +268,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def closeEvent(self, e):
         self._on_apply_clicked()
         e.ignore()
+
+    def _add_dsthost_to_combo(self, dst_host):
+        parts = dst_host.split('.')[1:]
+        nparts = len(parts)
+        for i in range(0, nparts - 1):
+            self._what_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
+            self._what_dstip_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
 
     def _get_duration(self, duration_idx):
         if duration_idx == 0:
