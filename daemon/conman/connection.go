@@ -81,7 +81,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 	// 2. lookup pid by inode
 	// 3. if this is coming from us, just accept
 	// 4. lookup process info by pid
-	if _uid, _inode := netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); _uid != -1 && _inode != -1 {
+	if _uid, _inode := netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); _inode > 0 {
 		c.Entry = &netstat.Entry {
 			Proto: c.Protocol,
 			SrcIP: c.SrcIP,
