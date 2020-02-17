@@ -276,6 +276,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._what_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
             self._what_dstip_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
 
+        if nparts == 1:
+            self._what_combo.addItem("to *%s" % dst_host, "regex_host")
+            self._what_dstip.addItem("to *%s" % dst_host, "regex_host")
+
     def _get_duration(self, duration_idx):
         if duration_idx == 0:
             return "once"
