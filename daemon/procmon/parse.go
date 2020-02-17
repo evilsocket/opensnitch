@@ -53,7 +53,9 @@ func addProcEntry(fdPath string, fd_list []string, pid int) {
 
 func sortProcEntries() {
 	sort.Slice(pidsCache, func(i, j int) bool {
-		return pidsCache[i].Time.After(pidsCache[j].Time)
+		t := pidsCache[i].Time.UnixNano()
+		u := pidsCache[j].Time.UnixNano()
+		return u == t || t > u
 	})
 }
 

@@ -7,6 +7,15 @@ import (
 	"strconv"
 )
 
+func sortPidsByTime(fdList []os.FileInfo) []os.FileInfo {
+	sort.Slice(fdList, func(i, j int) bool {
+		t := fdList[i].ModTime().UnixNano()
+		u := fdList[j].ModTime().UnixNano()
+		return u == t || t > u
+	})
+	return fdList
+}
+
 // inodeFound searches for the given inode in /proc/<pid>/fd/ or
 // /proc/<pid>/task/<tid>/fd/ and gets the symbolink link it points to,
 // in order to compare it against the given inode.
@@ -41,7 +50,6 @@ func lookupPidInProc(pidsPath, expect, inodeKey string, inode int) int {
 			return pid
 		}
 	}
-
 	return -1
 }
 
@@ -57,9 +65,7 @@ func lookupPidDescriptors (fdPath string) []string {
     if err != nil {
         return nil
     }
-    sort.Slice(fd_list, func(i, j int) bool {
-        return fd_list[i].ModTime().After(fd_list[j].ModTime())
-    })
+	fd_list = sortPidsByTime(fd_list)
 
     s  := make([]string, len(fd_list))
     for n, f := range fd_list {
@@ -80,10 +86,7 @@ func getProcPids(pidsPath string) (pidList []int) {
 	if err != nil {
 		return pidList
 	}
-
-	sort.Slice(ls, func(i, j int) bool {
-		return ls[i].ModTime().After(ls[j].ModTime())
-	})
+	ls = sortPidsByTime(ls)
 
 	for _, f := range ls {
 		if f.IsDir() == false {
