@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 	"sort"
-	"strconv"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
@@ -38,6 +37,8 @@ var (
 	pidsCache []*ProcEntry
 	pidsDescriptorsCache = make(map[int][]string)
 	maxCachedPids = 24
+
+	ourPid = os.Getpid()
 )
 
 func addProcEntry(fdPath string, fd_list []string, pid int) {
@@ -148,7 +149,7 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 
 	if IsWatcherAvailable() {
 		forEachProcess(func(pid int, path string, args []string) bool {
-			if inodeFound(expect, inodeKey, pid) {
+			if inodeFound("/proc/", expect, inodeKey, inode, pid) {
 				found = pid
 				return true
 			}
@@ -156,82 +157,11 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 			return false
 		})
 	} else {
-		found = lookupPidInProc(expect, inodeKey)
+		found = lookupPidInProc("/proc/", expect, inodeKey, inode)
 	}
 	log.Debug("new pid lookup took", found, time.Since(start))
 
 	return found
-}
-
-func inodeFound(expect, inodeKey string, pid int) bool {
-	fdPath := fmt.Sprint("/proc/", pid, "/fd/")
-	fd_list := lookupPidDescriptors(fdPath)
-	if fd_list == nil {
-		return false
-	}
-
-	for idx:=0; idx < len(fd_list)-1; idx++ {
-		descLink := fmt.Sprint(fdPath, fd_list[idx])
-		// resolve the symlink and compare to what we expect
-		if link, err := os.Readlink(descLink); err == nil && link == expect {
-			inodesCache[inodeKey] = &Inode{ FdPath: descLink, Pid: pid }
-			addProcEntry(fdPath, fd_list, pid)
-			sortProcEntries()
-			return true
-		}
-	}
-
-	return false
-}
-
-func lookupPidInProc(expect, inodeKey string) int {
-	if f, err := os.Open("/proc"); err == nil {
-		ls, derr := f.Readdir(-1);
-		f.Close()
-		if derr != nil {
-			return -1
-		}
-		sort.Slice(ls, func(i, j int) bool {
-			return ls[i].ModTime().After(ls[j].ModTime())
-		})
-		for _, f := range ls {
-			if f.IsDir() == false {
-				continue
-			}
-			if pid, err := strconv.Atoi(f.Name()); err == nil {
-				if inodeFound(expect, inodeKey, pid) {
-					return pid
-				}
-			}
-		}
-	} else {
-		log.Error("Error parsing /proc: %s", err)
-	}
-
-	return -1
-}
-
-// ~150us
-func lookupPidDescriptors (fdPath string) []string{
-	if f, err := os.Open(fdPath); err == nil {
-		fd_list, err := f.Readdir(-1)
-		f.Close()
-		if err != nil {
-			return nil
-		}
-		sort.Slice(fd_list, func(i, j int) bool {
-			return fd_list[i].ModTime().After(fd_list[j].ModTime())
-		})
-
-		s  := make([]string, len(fd_list))
-		for n, f := range fd_list {
-			s[n] = f.Name()
-		}
-
-		return s
-	}
-
-	return nil
 }
 
 func parseCmdLine(proc *Process) {
