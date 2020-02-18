@@ -17,11 +17,11 @@ done
 DIALOG=$(which whiptail || which dialog)
 
 $DIALOG --yesno "OpenSnitch GUI needs to install 3 more packages from
-pypi using pip3: unicode_slugify, grpcio and protobuf.\n\nDo you want to install them
+pypi using pip3: unicode_slugify, grpcio-tools and protobuf.\n\nDo you want to install them
 now?" 15 60
 if [ $? -eq 0 ]; then
-    echo "Installing grpcio..."
-    pip3 install grpcio || echo "Unable to install grpcio, try it manually."
+    echo "Installing grpcio-tools..."
+    pip3 install grpcio-tools || echo "Unable to install grpcio, try it manually."
     echo
     echo "Installing protobuf..."
     pip3 install protobuf || echo "Unable to install protobuf, try it manually."
