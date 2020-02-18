@@ -9,3 +9,11 @@ do
         rm -f $path
     fi
 done
+
+echo
+echo " If you don't need them anymore, remember to uninstall unicode_slugify, grcpio and protobuf:"
+echo
+echo "  pip3 uninstall unicode_slugify"
+echo "  pip3 uninstall grcpio"
+echo "  pip3 uninstall protobuf"
+echo

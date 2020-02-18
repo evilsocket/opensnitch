@@ -1,3 +1,11 @@
+opensnitch-ui (1.0.0rc3-1) unstable; urgency=medium
+
+  * Fixed regex patterns.
+  * Display alerts for not answered questions.
+  * Added option to allow/deny second level domains.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Tue, 18 Feb 2020 10:14:59 +0100
+
 opensnitch-ui (1.0.0rc2-1) unstable; urgency=low
 
   * initial release

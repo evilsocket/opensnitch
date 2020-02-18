@@ -1,20 +1,19 @@
-Source: opensnitch-ui
-Maintainer: Gustavo Iñiguez Goia <gooffy1@gmail.com>
-Uploaders:
- Gustavo Iniguez Goya <gooffy@gmail.com>,
-Section: python
-Priority: optional
-Build-Depends: python3-setuptools, python3-all, debhelper (>= 7.4.3)
-Standards-Version: 3.9.1
-
-
-
-
-
 Package: python3-opensnitch-ui
+Source: opensnitch-ui
+
 Architecture: all
+Maintainer: Gustavo Iñiguez Goia <gooffy1@gmail.com>
+
+Depends: python3:any, python3-setuptools, python3-six, python3-pyqt5, python3-pyqt5.qtsql, python3-pyinotify, python3-pip, whiptail | dialog
 Section: net
-Depends: ${misc:Depends}, ${python3:Depends}, python3-grpcio, python3-slugify, python3-setuptools, python3-pyqt5, python3-pyqt5.qtsql, python3-pyinotify, python3-protobuf
-Description: UI for the opensnitch application firewall
-
-
+Priority: optional
+Description: GUI for the opensnitch application firewall
+ opensnitch-ui is a GUI for opensnitch
+ It allows the user to view live outgoing connections, as well as search
+ to make connections.
+ .
+ The user can decide if block the outgoing connection based on properties of
+ the connection: by port, by uid, by dst ip, by program or a combination
+ of them.
+ .
+ These rules can last forever, until the app restart or just one time.
