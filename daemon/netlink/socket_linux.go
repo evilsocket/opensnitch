@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"github.com/vishvananda/netlink/nl"
-	"golang.org/x/sys/unix"
 )
 
 // This is a copy of https://github.com/vishvananda/netlink socket_linux.go
@@ -140,71 +139,38 @@ func (s *Socket) deserialize(b []byte) error {
 }
 
 // SocketGet returns the Socket identified by its local and remote addresses.
-func SocketGet(family uint8, proto uint8, local, remote net.Addr) (*Socket, error) {
-	var sPort, dPort uint16
+func SocketGet(family uint8, proto uint8, srcPort, dstPort uint16, local, remote net.IP) (*Socket, error) {
 	var localIP, remoteIP net.IP
-	_Id := SocketID{}
 
-	if proto == unix.IPPROTO_UDP || proto == unix.IPPROTO_UDPLITE {
-		localUDP, ok := local.(*net.UDPAddr)
-		if !ok {
-			return nil, errors.New ("UDP IP error: invalid source IP")
-		}
-		remoteUDP, ok := remote.(*net.UDPAddr)
-		if !ok {
-			return nil, errors.New ("UDP IP error: invalid remote IP")
-		}
-		if family == unix.AF_INET6 {
-			localIP = localUDP.IP.To16()
-			remoteIP = remoteUDP.IP.To16()
-		} else {
-			localIP = localUDP.IP.To4()
-			remoteIP = remoteUDP.IP.To4()
-		}
-
-		sPort = uint16(localUDP.Port)
-		dPort = uint16(remoteUDP.Port)
+	if family == syscall.AF_INET6 {
+		localIP = local.To16()
+		remoteIP = remote.To16()
 	} else {
-		localTCP, ok := local.(*net.TCPAddr)
-		if !ok {
-			return nil, errors.New ("TCP IP error: invalid source IP")
-		}
-		remoteTCP, ok := remote.(*net.TCPAddr)
-		if !ok {
-			return nil, errors.New ("TCP IP error: invalid remote IP")
-		}
-		if family == unix.AF_INET6 {
-			localIP = localTCP.IP.To16()
-			remoteIP = remoteTCP.IP.To16()
-		} else {
-			localIP = localTCP.IP.To4()
-			remoteIP = remoteTCP.IP.To4()
-		}
-
-		sPort = uint16(localTCP.Port)
-		dPort = uint16(remoteTCP.Port)
+		localIP = local.To4()
+		remoteIP = remote.To4()
 	}
 
-	_Id = SocketID{
-		SourcePort:			sPort,
-		DestinationPort:	dPort,
+    _Id := SocketID{
+		SourcePort:			srcPort,
+		DestinationPort:	dstPort,
 		Source:				localIP,
 		Destination:		remoteIP,
 		Cookie:				[2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
 	}
-	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, 0)
-	req.AddData(&SocketRequest{
+	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, syscall.NLM_F_DUMP)
+	sockReq := &SocketRequest{
 		Family:   family,
 		Protocol: proto,
 		States:   TCP_ALL,
 		ID: _Id,
-	})
+	}
+	req.AddData(sockReq)
 	msgs, err := req.Execute(syscall.NETLINK_INET_DIAG, 0)
 	if err != nil {
 		return nil, err
 	}
 	if len(msgs) == 0 {
-		return nil, errors.New("no message nor error from netlink")
+		return nil, errors.New("Warning, no message nor error from netlink")
 	}
 	if len(msgs) > 2 {
 		return nil, fmt.Errorf("multiple (%d) matching sockets", len(msgs))
