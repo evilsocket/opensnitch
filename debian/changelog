@@ -1,3 +1,9 @@
+opensnitch (1.0.0rc-3) unstable; urgency=medium
+
+  * @see: https://github.com/gustavo-iniguez-goya/opensnitch/releases
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Tue, 18 Feb 2020 10:09:45 +0100
+
 opensnitch (1.0.0rc-2) unstable; urgency=medium
 
   * UI minor changes
