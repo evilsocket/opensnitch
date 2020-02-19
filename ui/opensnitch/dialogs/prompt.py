@@ -212,12 +212,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             except Exception:
                 pass
 
-            if dst_host == None:
+            if dst_host != None and len(dst_host.groups()) == 2:
+                self._add_dsthost_to_combo(dst_host.group(2))
+            else:
                 dst_host = con.dst_host
                 self._what_combo.addItem("%s" % con.dst_host, "simple_host")
                 self._add_dsthost_to_combo(con.dst_host)
-            else:
-                self._add_dsthost_to_combo(dst_host[2])
 
         self._what_dstip_combo.addItem("to %s" % con.dst_ip, "dst_ip")
 
@@ -278,7 +278,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if nparts == 1:
             self._what_combo.addItem("to *%s" % dst_host, "regex_host")
-            self._what_dstip.addItem("to *%s" % dst_host, "regex_host")
+            self._what_dstip_combo.addItem("to *%s" % dst_host, "regex_host")
 
     def _get_duration(self, duration_idx):
         if duration_idx == 0:

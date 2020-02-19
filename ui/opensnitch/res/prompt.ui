@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>558</width>
-    <height>277</height>
+    <height>288</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -60,7 +60,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>60</y>
+     <y>70</y>
      <width>541</width>
      <height>20</height>
     </rect>
@@ -73,9 +73,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>80</y>
+     <y>90</y>
      <width>541</width>
-     <height>35</height>
+     <height>41</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -85,7 +85,7 @@
     </sizepolicy>
    </property>
    <property name="text">
-    <string>Chromium Web Browser wants to connect to www.evilsocket.net on tcp port 443.</string>
+    <string>Chromium Web Browser wants to connect to www.evilsocket.net on tcp port 443. And maybe to www.goodsocket.net on port 344</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -120,7 +120,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>120</y>
+     <y>130</y>
      <width>541</width>
      <height>110</height>
     </rect>
@@ -361,6 +361,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="minimumContentsLength">
+       <number>0</number>
+      </property>
      </widget>
     </item>
    </layout>
@@ -371,11 +374,11 @@
      <x>67</x>
      <y>40</y>
      <width>481</width>
-     <height>16</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -386,21 +389,33 @@
     </font>
    </property>
    <property name="text">
-    <string>/op/google/chrome/bin/chrome --something abc --something else</string>
+    <string>/opt/google/chrome/bin/chrome --something abc --more-long def --for-word-wrapping test</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>240</y>
+     <y>250</y>
      <width>541</width>
-     <height>31</height>
+     <height>34</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QComboBox" name="actionCombo">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Ignored">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>97</width>
@@ -419,7 +434,7 @@
        </property>
        <property name="icon">
         <iconset theme="emblem-default">
-         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
       </item>
       <item>
@@ -428,7 +443,7 @@
        </property>
        <property name="icon">
         <iconset theme="emblem-important">
-         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
       </item>
      </widget>
@@ -561,6 +576,18 @@
     </item>
     <item>
      <widget class="QPushButton" name="checkAdvanced">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>24</width>
+        <height>24</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>40</width>
