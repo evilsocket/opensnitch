@@ -157,7 +157,7 @@ func SocketGet(family uint8, proto uint8, srcPort, dstPort uint16, local, remote
 		Destination:		remoteIP,
 		Cookie:				[2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
 	}
-	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, syscall.NLM_F_DUMP)
+	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, 0)
 	sockReq := &SocketRequest{
 		Family:   family,
 		Protocol: proto,
