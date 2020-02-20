@@ -7,6 +7,10 @@ import (
 	"strconv"
 )
 
+var (
+    ourPid = os.Getpid()
+)
+
 func sortPidsByTime(fdList []os.FileInfo) []os.FileInfo {
 	sort.Slice(fdList, func(i, j int) bool {
 		t := fdList[i].ModTime().UnixNano()
