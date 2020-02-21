@@ -112,6 +112,8 @@ func setupWorkers() {
 
 func doCleanup() {
 	log.Info("Cleaning up ...")
+
+	firewall.StopCheckingRules()
 	firewall.QueueDNSResponses(false, queueNum)
 	firewall.QueueConnections(false, queueNum)
 	firewall.DropMarked(false)
@@ -270,6 +272,7 @@ func main() {
 	firewall.QueueDNSResponses(false, queueNum)
 	firewall.QueueConnections(false, queueNum)
 	firewall.DropMarked(false)
+	go firewall.StartCheckingRules(queueNum)
 
 	// queue is ready, run firewall rules
 	if err = firewall.QueueDNSResponses(true, queueNum); err != nil {
