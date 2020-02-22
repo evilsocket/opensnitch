@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -e
+
+purge_files()
+{
+    for i in $(ls /home)
+    do
+        path=/home/$i/.config/
+        if [ -h $path/autostart/opensnitch_ui.desktop -o -f $path/autostart/opensnitch_ui.desktop ];then
+            rm -f $path/autostart/opensnitch_ui.desktop
+        fi
+        if [ -d $path/opensnitch/ ]; then
+            rm -rf $path/opensnitch/
+        fi
+    done
+}
+
+case "$1" in
+    purge)
+        purge_files
+        ;;
+esac

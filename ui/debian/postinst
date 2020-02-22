@@ -2,6 +2,30 @@
 
 set -e
 
+install_pip_pkgs()
+{
+    DIALOG=$(which whiptail || which dialog)
+
+    $DIALOG --yesno "OpenSnitch GUI needs to install 3 more packages:
+    unicode_slugify, grpcio-tools and protobuf.
+    
+    Note: It's better to install them as regular user instead of root:
+    pip3 install --user unicode_slugify protobuf grpcio-tools
+
+    Do you want to install them now?" 15 70 ||
+    if [ $? -eq 0 ]; then
+        echo "Installing grpcio-tools..."
+        pip3 install grpcio-tools || echo "Unable to install grpcio, try it manually."
+        echo
+        echo "Installing protobuf..."
+        pip3 install protobuf || echo "Unable to install protobuf, try it manually."
+        echo
+        echo "Installing slugify..."
+        pip3 install unicode_slugify || echo "Unable to install unicode_slugify, try it manually."
+    fi
+    exit 0
+}
+
 for i in $(ls /home)
 do
     path=/home/$i/.config/autostart/
@@ -9,23 +33,15 @@ do
         mkdir -p $path
     fi
     if [ -f /usr/share/applications/opensnitch_ui.desktop ];then
-        cp /usr/share/applications/opensnitch_ui.desktop $path
+        ln -s /usr/share/applications/opensnitch_ui.desktop $path || true
     fi
 done
 
+set +e
 
-DIALOG=$(which whiptail || which dialog)
+case "$1" in
+    configure)
+        install_pip_pkgs
+        ;;
+esac
 
-$DIALOG --yesno "OpenSnitch GUI needs to install 3 more packages from
-pypi using pip3: unicode_slugify, grpcio-tools and protobuf.\n\nDo you want to install them
-now?" 15 60
-if [ $? -eq 0 ]; then
-    echo "Installing grpcio-tools..."
-    pip3 install grpcio-tools || echo "Unable to install grpcio, try it manually."
-    echo
-    echo "Installing protobuf..."
-    pip3 install protobuf || echo "Unable to install protobuf, try it manually."
-    echo
-    echo "Installing slugify..."
-    pip3 install unicode_slugify || echo "Unable to install unicode_slugify, try it manually."
-fi

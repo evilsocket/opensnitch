@@ -2,18 +2,16 @@
 
 set -e
 
-for i in $(ls /home)
-do
-    path=/home/$i/.config/autostart/opensnitch_ui.desktop
-    if [ -f $path ];then
-        rm -f $path
-    fi
-done
 
-echo
-echo " If you don't need them anymore, remember to uninstall unicode_slugify, grcpio-tools and protobuf:"
-echo
-echo "  pip3 uninstall unicode_slugify"
-echo "  pip3 uninstall grcpio-tools"
-echo "  pip3 uninstall protobuf"
-echo
+case "$1" in
+    remove)
+        echo
+        echo " If you don't need them anymore, remember to uninstall unicode_slugify, grcpio-tools and protobuf:"
+        echo
+        echo "  pip3 uninstall unicode_slugify"
+        echo "  pip3 uninstall grcpio-tools"
+        echo "  pip3 uninstall protobuf"
+        echo
+
+        ;;
+esac
