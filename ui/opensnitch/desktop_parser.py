@@ -57,19 +57,22 @@ class LinuxDesktopParser(threading.Thread):
 
     def _parse_desktop_file(self, desktop_path):
         parser = configparser.ConfigParser(strict=False)  # Allow duplicate config entries
-        parser.read(desktop_path, 'utf8')
+        try:
+            parser.read(desktop_path, 'utf8')
 
-        cmd = parser.get('Desktop Entry', 'exec', raw=True, fallback=None)
-        if cmd is not None:
-            cmd  = self._parse_exec(cmd)
-            icon = parser.get('Desktop Entry', 'Icon', raw=True, fallback=None)
-            name = parser.get('Desktop Entry', 'Name', raw=True, fallback=None)
-            with self.lock:
-                self.apps[cmd] = (name, icon, desktop_path)
-                # if the command is a symlink, add the real binary too
-                if os.path.islink(cmd):
-                    link_to = os.path.realpath(cmd)
-                    self.apps[link_to] = (name, icon, desktop_path)
+            cmd = parser.get('Desktop Entry', 'exec', raw=True, fallback=None)
+            if cmd is not None:
+                cmd  = self._parse_exec(cmd)
+                icon = parser.get('Desktop Entry', 'Icon', raw=True, fallback=None)
+                name = parser.get('Desktop Entry', 'Name', raw=True, fallback=None)
+                with self.lock:
+                    self.apps[cmd] = (name, icon, desktop_path)
+                    # if the command is a symlink, add the real binary too
+                    if os.path.islink(cmd):
+                        link_to = os.path.realpath(cmd)
+                        self.apps[link_to] = (name, icon, desktop_path)
+        except:
+            print("Exception parsing .desktop file ", desktop_path)
 
     def get_info_by_path(self, path, default_icon):
         def_name = os.path.basename(path)

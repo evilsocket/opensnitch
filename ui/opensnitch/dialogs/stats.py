@@ -366,7 +366,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.time as Time, " \
                 "c.action as Action, " \
                 "c.uid as UserID, " \
-                "c.dst_host as Destination, " \
+                "c.dst_host || '  ->  ' || c.dst_port as Destination, " \
                 "c.process as Process, " \
                 "c.process_args as Args, " \
                 "count(c.dst_host) as Hits, " \
