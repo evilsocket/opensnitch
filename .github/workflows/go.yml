@@ -25,4 +25,4 @@ jobs:
         fi
 
     - name: Build
-      run: cd daemon; make
+      run: go build -v .
