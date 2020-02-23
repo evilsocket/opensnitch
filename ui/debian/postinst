@@ -12,7 +12,7 @@ install_pip_pkgs()
     Note: It's better to install them as regular user instead of root:
     pip3 install --user unicode_slugify protobuf grpcio-tools
 
-    Do you want to install them now?" 15 70 ||
+    Do you want to install them now?" 15 70
     if [ $? -eq 0 ]; then
         echo "Installing grpcio-tools..."
         pip3 install grpcio-tools || echo "Unable to install grpcio, try it manually."
