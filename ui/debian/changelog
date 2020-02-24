@@ -1,3 +1,12 @@
+opensnitch-ui (1.0.0rc5-1) unstable; urgency=medium
+
+  * Workaround for crash parsing non-utf8 desktop files.
+  * Fixed crash loading sqlite driver.
+  * Fixed HighDpi scaling.
+  * Fixed prompt layout.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Mon, 24 Feb 2020 19:56:01 +0100
+
 opensnitch-ui (1.0.0rc3-1) unstable; urgency=medium
 
   * Fixed regex patterns.

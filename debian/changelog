@@ -1,3 +1,10 @@
+opensnitch (1.0.0rc-5) unstable; urgency=medium
+
+  * Fixed netlink socket querying.
+  * Added check to reload firewall rules if missing.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Mon, 24 Feb 2020 19:55:06 +0100
+
 opensnitch (1.0.0rc-3) unstable; urgency=medium
 
   * @see: https://github.com/gustavo-iniguez-goya/opensnitch/releases
