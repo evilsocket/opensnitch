@@ -23,6 +23,7 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
+        apk add libnetfilter_queue libnetfilter_queue-dev
 
     - name: Build
       run: |
