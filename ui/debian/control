@@ -12,7 +12,8 @@ Package: python3-opensnitch-ui
 Architecture: all
 Section: net
 Depends:
- python3:any, python3-setuptools, python3-six, python3-pyqt5, python3-pyqt5.qtsql, python3-pyinotify, python3-pip, whiptail | dialog
+ libqt5sql5-sqlite, python3:any, python3-setuptools, python3-six, python3-pyqt5,
+ python3-pyqt5.qtsql, python3-pyinotify, python3-pip, whiptail | dialog
 Description: GUI for the opensnitch application firewall
  opensnitch-ui is a GUI for opensnitch written in Python.
  It allows the user to view live outgoing connections, as well as search
