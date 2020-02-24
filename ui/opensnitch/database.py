@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery
 import threading
+import sys
 
 class Database:
     __instance = None
@@ -20,8 +21,9 @@ class Database:
         self.db = QSqlDatabase.addDatabase("QSQLITE", "db")
         self.db.setDatabaseName(":memory:")
         if not self.db.open():
-            print("Error openening DB")
-            return
+            print("\n ** Error opening DB: SQLite driver not loaded\n")
+            print("\n    Available drivers: ", QSqlDatabase.drivers())
+            sys.exit(-1)
         self._create_tables()
 
     def get_db(self):
