@@ -11,6 +11,14 @@ import (
 
 const DropMark = 0x18BA5
 
+type Action string
+
+const (
+	ADD     = Action("-A")
+	INSERT  = Action("-I")
+	DELETE  = Action("-D")
+)
+
 // make sure we don't mess with multiple rules
 // at the same time
 var (
@@ -23,13 +31,12 @@ var (
 	regexDropQuery, _ = regexp.Compile(`DROP.*mark match 0x18ba5`)
 )
 
-func RunRule(enable bool, rule []string) (err error) {
-	action := "-A"
+func RunRule(action Action, enable bool, rule []string) (err error) {
 	if enable == false {
 		action = "-D"
 	}
 
-	rule = append([]string{action}, rule...)
+	rule = append([]string{string(action)}, rule...)
 
 	lock.Lock()
 	defer lock.Unlock()
@@ -50,38 +57,7 @@ func RunRule(enable bool, rule []string) (err error) {
 
 // INPUT --protocol udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 func QueueDNSResponses(enable bool, queueNum int) (err error) {
-	// If enable, we're going to insert as #1, not append
-	if enable {
-		// FIXME: this is basically copy/paste of RunRule() above b/c we can't
-		// shoehorn "-I" with the boolean 'enable' switch
-		rule := []string{
-			"-I",
-			"INPUT",
-			"1",
-			"--protocol", "udp",
-			"--sport", "53",
-			"-j", "NFQUEUE",
-			"--queue-num", fmt.Sprintf("%d", queueNum),
-			"--queue-bypass",
-		}
-		
-		lock.Lock()
-		defer lock.Unlock()
-		
-		_, err := core.Exec("iptables", rule)
-		if err != nil {
-			return err
-		}
-		_, err = core.Exec("ip6tables", rule)
-		if err != nil {
-			return err
-		}
-
-		return err
-	}
-
-	// Otherwise, it's going to be disable
-	return RunRule(enable, []string{
+	return RunRule(INSERT, enable, []string{
 		"INPUT",
 		"--protocol", "udp",
 		"--sport", "53",
@@ -95,7 +71,7 @@ func QueueDNSResponses(enable bool, queueNum int) (err error) {
 func QueueConnections(enable bool, queueNum int) (err error) {
 	regexRulesQuery, _ = regexp.Compile(fmt.Sprint(`NFQUEUE.*ctstate NEW.*NFQUEUE num `, queueNum, ` bypass`))
 
-	return RunRule(enable, []string{
+	return RunRule(ADD, enable, []string{
 		"OUTPUT",
 		"-t", "mangle",
 		"-m", "conntrack",
@@ -109,7 +85,7 @@ func QueueConnections(enable bool, queueNum int) (err error) {
 // Reject packets marked by OpenSnitch
 // OUTPUT -m mark --mark 101285 -j DROP
 func DropMarked(enable bool) (err error) {
-	return RunRule(enable, []string{
+	return RunRule(ADD, enable, []string{
 		"OUTPUT",
 		"-m", "mark",
 		"--mark", fmt.Sprintf("%d", DropMark),
@@ -151,8 +127,7 @@ func StartCheckingRules(qNum int) {
 			fmt.Println("Stop checking rules")
 			return
 		case <-rulesChecker.C:
-			rules := AreRulesLoaded()
-			if rules == false {
+			if rules := AreRulesLoaded(); rules == false {
 				QueueConnections(false, qNum)
 				DropMarked(false)
 				QueueConnections(true, qNum)
