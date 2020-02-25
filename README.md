@@ -11,7 +11,9 @@
 **OpenSnitch** is a GNU/Linux application firewall.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/screenshot.png" alt="OpenSnitch"/>
+  <img src="https://raw.githubusercontent.com/gustavo-iniguez-goya/opensnitch/main/screenshots/screenshot.png" alt="OpenSnitch"/>
+  <img src="https://raw.githubusercontent.com/gustavo-iniguez-goya/opensnitch/main/screenshots/opensnitch-ui-general-tab-deny.png" alt="OpenSnitch main tab details"/>
+  <img src="https://raw.githubusercontent.com/gustavo-iniguez-goya/opensnitch/main/screenshots/opensnitch-ui-proc-details.png" alt="OpenSnitch process details"/>
 </p>
 
 **THIS SOFTWARE IS WORK IN PROGRESS, DO NOT EXPECT IT TO BE BUG FREE AND DO NOT RELY ON IT FOR ANY TYPE OF SECURITY.**
