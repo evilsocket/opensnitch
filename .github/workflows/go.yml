@@ -23,7 +23,7 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
-        apt-get install install git libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
+        sudo apt-get install install git libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
 
     - name: Build
       run: |
