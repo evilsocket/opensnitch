@@ -8,3 +8,5 @@ Terminal=false
 NoDisplay=false
 Categories=System;Filesystem;Network;
 Keywords=system;firewall;policies;security;polkit;policykit;douane;
+X-GNOME-Autostart-Delay=3
+X-GNOME-Autostart-enabled=true
