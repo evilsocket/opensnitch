@@ -24,6 +24,7 @@ import (
 )
 
 var (
+	procmonMethod = procmon.MethodProc
 	logFile      = ""
 	rulesPath    = "rules"
 	noLiveReload = false
@@ -47,6 +48,7 @@ var (
 )
 
 func init() {
+	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "How to search for processes path. Options: ftrace, proc")
 	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
 	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
@@ -242,8 +244,10 @@ func main() {
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
 
-	if err := procmon.Start(); err != nil {
-		log.Error("%s, falling back to /proc parsing", err)
+	if procmonMethod == procmon.MethodFtrace {
+		if err := procmon.Start(); err != nil {
+			log.Error("%s, falling back to /proc parsing", err)
+		}
 	}
 
 	rulesPath, err := core.ExpandPath(rulesPath)

@@ -9,6 +9,11 @@ import (
 )
 
 const (
+	MethodFtrace = "ftrace"
+	MethodProc   = "proc"
+)
+
+const (
 	probeName   = "opensnitch_exec_probe"
 	syscallName = "do_execve"
 )
