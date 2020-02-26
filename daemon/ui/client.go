@@ -82,9 +82,11 @@ func (c *Client) loadConfiguration(reload bool) {
 
 	if config.Default_Action != "" {
 		clientDisconnectedRule.Action = rule.Action(config.Default_Action)
+		clientErrorRule.Action = rule.Action(config.Default_Action)
 	}
 	if config.Default_Duration != "" {
 		clientDisconnectedRule.Duration = rule.Duration(config.Default_Duration)
+		clientErrorRule.Duration = rule.Duration(config.Default_Duration)
 	}
 
 	if err := c.configWatcher.Add(configFile); err != nil {
