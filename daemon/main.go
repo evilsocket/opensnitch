@@ -25,12 +25,15 @@ import (
 
 var (
 	procmonMethod = procmon.MethodProc
-	logFile      = ""
-	rulesPath    = "rules"
-	noLiveReload = false
-	queueNum     = 0
-	workers      = 16
-	debug        = false
+	logFile       = ""
+	rulesPath     = "rules"
+	noLiveReload  = false
+	queueNum      = 0
+	workers       = 16
+	debug         = false
+	warning       = false
+	important     = false
+	errorlog      = false
 
 	uiSocket = "unix:///tmp/osui.sock"
 	uiClient = (*ui.Client)(nil)
@@ -57,6 +60,9 @@ func init() {
 
 	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
 	flag.BoolVar(&debug, "debug", debug, "Enable debug logs.")
+	flag.BoolVar(&warning, "warning", warning, "Enable warning logs.")
+	flag.BoolVar(&important, "important", important, "Enable important level logs.")
+	flag.BoolVar(&errorlog, "error", errorlog, "Enable error level logs.")
 
 	flag.StringVar(&cpuProfile, "cpu-profile", cpuProfile, "Write CPU profile to this file.")
 	flag.StringVar(&memProfile, "mem-profile", memProfile, "Write memory profile to this file.")
@@ -66,6 +72,12 @@ func setupLogging() {
 	golog.SetOutput(ioutil.Discard)
 	if debug {
 		log.MinLevel = log.DEBUG
+	} else if warning {
+		log.MinLevel = log.WARNING
+	} else if important {
+		log.MinLevel = log.IMPORTANT
+	} else if errorlog {
+		log.MinLevel = log.ERROR
 	} else {
 		log.MinLevel = log.INFO
 	}
