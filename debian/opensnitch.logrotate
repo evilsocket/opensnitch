@@ -1,0 +1,13 @@
+/var/log/opensnitchd.log {
+	rotate 7
+# order of the fields is important
+    maxsize 50M
+# we need this option in order to keep logging
+    copytruncate
+	missingok
+	notifempty
+	delaycompress
+	compress
+    create 640 root root
+	weekly
+}
