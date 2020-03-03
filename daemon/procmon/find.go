@@ -8,14 +8,14 @@ import (
 )
 
 var (
-    ourPid = os.Getpid()
+	ourPid = os.Getpid()
 )
 
 func sortPidsByTime(fdList []os.FileInfo) []os.FileInfo {
 	sort.Slice(fdList, func(i, j int) bool {
 		t := fdList[i].ModTime().UnixNano()
 		u := fdList[j].ModTime().UnixNano()
-		return u == t || t > u
+		return t > u
 	})
 	return fdList
 }
@@ -23,6 +23,8 @@ func sortPidsByTime(fdList []os.FileInfo) []os.FileInfo {
 // inodeFound searches for the given inode in /proc/<pid>/fd/ or
 // /proc/<pid>/task/<tid>/fd/ and gets the symbolink link it points to,
 // in order to compare it against the given inode.
+//
+// If the inode is found, the cache is updated ans sorted.
 func inodeFound(pidsPath, expect, inodeKey string, inode, pid int) bool {
 	fdPath := fmt.Sprint(pidsPath, pid, "/fd/")
 	fd_list := lookupPidDescriptors(fdPath)
@@ -30,10 +32,10 @@ func inodeFound(pidsPath, expect, inodeKey string, inode, pid int) bool {
 		return false
 	}
 
-	for idx:=0; idx < len(fd_list)-1; idx++ {
+	for idx := 0; idx < len(fd_list); idx++ {
 		descLink := fmt.Sprint(fdPath, fd_list[idx])
 		if link, err := os.Readlink(descLink); err == nil && link == expect {
-			inodesCache[inodeKey] = &Inode{ FdPath: descLink, Pid: pid }
+			inodesCache[inodeKey] = &Inode{FdPath: descLink, Pid: pid}
 			addProcEntry(fdPath, fd_list, pid)
 			sortProcEntries()
 			return true
@@ -43,10 +45,10 @@ func inodeFound(pidsPath, expect, inodeKey string, inode, pid int) bool {
 	return false
 }
 
-// lookupPidInProc searches an inode in /proc.
+// lookupPidInProc searches for an inode in /proc.
 // First it gets the running PIDs and obtains the opened sockets.
-// If the inode is not found, then it'll try it again searching in the 
-// threads opened by the running PIDs.
+// TODO: If the inode is not found, search again in the task/threads
+// of every PID (costly).
 func lookupPidInProc(pidsPath, expect, inodeKey string, inode int) int {
 	pidList := getProcPids(pidsPath)
 	for _, pid := range pidList {
@@ -58,25 +60,26 @@ func lookupPidInProc(pidsPath, expect, inodeKey string, inode int) int {
 }
 
 // lookupPidDescriptors returns the list of descriptors inside
-// /proc/<pid>/fd/ or /proc/<pid>/task/<tid>/fd/ .
-func lookupPidDescriptors (fdPath string) []string {
+// /proc/<pid>/fd/
+// TODO: search in /proc/<pid>/task/<tid>/fd/ .
+func lookupPidDescriptors(fdPath string) []string {
 	f, err := os.Open(fdPath)
 	if err != nil {
-        return nil
-    }
-    fd_list, err := f.Readdir(-1)
-    f.Close()
-    if err != nil {
-        return nil
-    }
+		return nil
+	}
+	fd_list, err := f.Readdir(-1)
+	f.Close()
+	if err != nil {
+		return nil
+	}
 	fd_list = sortPidsByTime(fd_list)
 
-    s  := make([]string, len(fd_list))
-    for n, f := range fd_list {
-        s[n] = f.Name()
-    }
+	s := make([]string, len(fd_list))
+	for n, f := range fd_list {
+		s[n] = f.Name()
+	}
 
-    return s
+	return s
 }
 
 // getProcPids returns the list of running PIDs, /proc or /proc/<pid>/task/ .
@@ -85,7 +88,7 @@ func getProcPids(pidsPath string) (pidList []int) {
 	if err != nil {
 		return pidList
 	}
-	ls, err := f.Readdir(-1);
+	ls, err := f.Readdir(-1)
 	f.Close()
 	if err != nil {
 		return pidList

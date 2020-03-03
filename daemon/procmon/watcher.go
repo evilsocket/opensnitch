@@ -11,6 +11,7 @@ import (
 const (
 	MethodFtrace = "ftrace"
 	MethodProc   = "proc"
+	MethodAudit  = "audit"
 )
 
 const (
@@ -30,8 +31,9 @@ var (
 		"sched/sched_process_exit",
 	}
 
-	watcher = ftrace.NewProbe(probeName, syscallName, subEvents)
-	isAvailable = false
+	watcher       = ftrace.NewProbe(probeName, syscallName, subEvents)
+	isAvailable   = false
+	MonitorMethod = MethodProc
 
 	index = make(map[int]*procData)
 	lock  = sync.RWMutex{}

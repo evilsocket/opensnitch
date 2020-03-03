@@ -9,8 +9,22 @@ import (
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon/audit"
 )
 
+func getPIDFromAuditEvents(inode int, inodeKey string, expect string) (int, int) {
+	audit.Lock.RLock()
+	defer audit.Lock.RUnlock()
+
+	auditEvents := audit.GetEvents()
+	for n := 0; n < len(auditEvents); n++ {
+		pid := auditEvents[n].Pid
+		if inodeFound("/proc/", expect, inodeKey, inode, pid) {
+			return pid, n
+		}
+	}
+	return -1, -1
+}
 
 func GetPIDFromINode(inode int, inodeKey string) int {
 	found := -1
@@ -26,14 +40,19 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 		return cachedPidInode
 	}
 
-	cachedPid := getPidFromCache(inode, inodeKey, expect)
+	cachedPid, pos := getPidFromCache(inode, inodeKey, expect)
 	if cachedPid != -1 {
-		log.Debug("Socket found in known pids %v, pid: %d, inode: %d, pids in cache: %d", time.Since(start), cachedPid, inode, len(pidsCache))
+		log.Debug("Socket found in known pids %v, pid: %d, inode: %d, pids in cache: %d", time.Since(start), cachedPid, inode, "pos", pos, len(pidsCache))
 		sortProcEntries()
 		return cachedPid
 	}
 
-	if IsWatcherAvailable() {
+	if MonitorMethod == MethodAudit {
+		if aPid, pos := getPIDFromAuditEvents(inode, inodeKey, expect); aPid != -1 {
+			log.Debug("PID found via audit events", time.Since(start), "position", pos)
+			return aPid
+		}
+	} else if MonitorMethod == MethodFtrace && IsWatcherAvailable() {
 		forEachProcess(func(pid int, path string, args []string) bool {
 			if inodeFound("/proc/", expect, inodeKey, inode, pid) {
 				found = pid
@@ -42,7 +61,8 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 			// keep looping
 			return false
 		})
-	} else {
+	}
+	if found == -1 || MonitorMethod == MethodProc {
 		found = lookupPidInProc("/proc/", expect, inodeKey, inode)
 	}
 	log.Debug("new pid lookup took", found, time.Since(start))
@@ -85,6 +105,18 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 	if interceptUnknown && pid < 0 {
 		return NewProcess(0, "")
 	}
+	if MonitorMethod == MethodAudit {
+		if aevent := audit.GetEventByPid(pid); aevent != nil {
+			audit.Lock.RLock()
+			proc := NewProcess(pid, strings.Split(aevent.ProcPath, " ")[0])
+			proc.Args = strings.Split(strings.ReplaceAll(aevent.ProcCmdLine, "\x00", " "), " ")
+			audit.Lock.RUnlock()
+			parseEnv(proc)
+
+			return proc
+		}
+	}
+
 	linkName := fmt.Sprint("/proc/", pid, "/exe")
 	if _, err := os.Lstat(linkName); err != nil {
 		return nil

@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"runtime"
 	"runtime/pprof"
+	"sync"
 	"syscall"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/conman"
@@ -24,6 +25,7 @@ import (
 )
 
 var (
+	lock          sync.RWMutex
 	procmonMethod = procmon.MethodProc
 	logFile       = ""
 	rulesPath     = "rules"
@@ -51,7 +53,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "How to search for processes path. Options: ftrace, proc")
+	flag.StringVar(&procmon.MonitorMethod, "process-monitor-method", procmon.MonitorMethod, "How to search for processes path. Options: ftrace, audit (experimental), proc (default)")
 	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
 	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
@@ -126,13 +128,12 @@ func setupWorkers() {
 
 func doCleanup() {
 	log.Info("Cleaning up ...")
-
 	firewall.StopCheckingRules()
 	firewall.QueueDNSResponses(false, queueNum)
 	firewall.QueueConnections(false, queueNum)
 	firewall.DropMarked(false)
 
-	go procmon.Stop()
+	procmon.End()
 
 	if cpuProfile != "" {
 		pprof.StopCPUProfile()
@@ -176,18 +177,25 @@ func onPacket(packet netfilter.Packet) {
 	}
 
 	// search a match in preloaded rules
+	r := acceptOrDeny(&packet, con)
+
+	stats.OnConnectionEvent(con, r, r == nil)
+}
+
+func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
+	lock.Lock()
+	defer lock.Unlock()
+
 	connected := false
-	missed := false
 	r := rules.FindFirstMatch(con)
 	if r == nil {
-		missed = true
 		// no rule matched, send a request to the
 		// UI client if connected and running
 		r, connected = uiClient.Ask(con)
 		if r == nil {
 			log.Error("Invalid rule received, skipping")
 			packet.SetVerdict(netfilter.NF_DROP)
-			return
+			return nil
 		}
 		if connected {
 			ok := false
@@ -224,10 +232,10 @@ func onPacket(packet netfilter.Packet) {
 		}
 	}
 
-	stats.OnConnectionEvent(con, r, missed)
-
 	if r.Action == rule.Allow {
-		packet.SetVerdict(netfilter.NF_ACCEPT)
+		if packet != nil {
+			packet.SetVerdict(netfilter.NF_ACCEPT)
+		}
 
 		ruleName := log.Green(r.Name)
 		if r.Operator.Operand == rule.OpTrue {
@@ -235,10 +243,14 @@ func onPacket(packet netfilter.Packet) {
 		}
 		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
 	} else {
-		packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
+		if packet != nil {
+			packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
+		}
 
 		log.Warning("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
 	}
+
+	return r
 }
 
 func main() {
@@ -256,11 +268,7 @@ func main() {
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
 
-	if procmonMethod == procmon.MethodFtrace {
-		if err := procmon.Start(); err != nil {
-			log.Error("%s, falling back to /proc parsing", err)
-		}
-	}
+	procmon.Init()
 
 	rulesPath, err := core.ExpandPath(rulesPath)
 	if err != nil {
