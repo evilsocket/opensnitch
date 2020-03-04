@@ -113,6 +113,7 @@ func getPidFromCache(inode int, inodeKey string, expect string) (int, int) {
 			pidsCache[n].Descriptors = descriptors
 
 			if idxDesc := getPidDescriptorsFromCache(procEntry.Pid, procEntry.FdPath, expect, descriptors); idxDesc != -1 {
+				pidsCache[n].Time = time.Now()
 				return procEntry.Pid, n
 			}
 		}
