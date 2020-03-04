@@ -91,9 +91,6 @@ func getPidDescriptorsFromCache(pid int, fdPath string, expect string, descripto
 	for fdIdx := 0; fdIdx < len(descriptors); fdIdx++ {
 		descLink := fmt.Sprint(fdPath, descriptors[fdIdx])
 		if link, err := os.Readlink(descLink); err == nil && link == expect {
-			if err != nil {
-				deleteProcEntry(pid)
-			}
 			return fdIdx
 		}
 	}
@@ -104,18 +101,24 @@ func getPidDescriptorsFromCache(pid int, fdPath string, expect string, descripto
 func getPidFromCache(inode int, inodeKey string, expect string) (int, int) {
 	// loop over the processes that have generated connections
 	for n, procEntry := range pidsCache {
+		if n >= len(pidsCache) {
+			break
+		}
 		if idxDesc := getPidDescriptorsFromCache(procEntry.Pid, procEntry.FdPath, expect, procEntry.Descriptors); idxDesc != -1 {
 			pidsCache[n].Time = time.Now()
 			return procEntry.Pid, n
 		}
 
-		if descriptors := lookupPidDescriptors(procEntry.FdPath); descriptors != nil {
-			pidsCache[n].Descriptors = descriptors
+		descriptors := lookupPidDescriptors(procEntry.FdPath)
+		if descriptors == nil {
+			deleteProcEntry(procEntry.Pid)
+			continue
+		}
+		pidsCache[n].Descriptors = descriptors
 
-			if idxDesc := getPidDescriptorsFromCache(procEntry.Pid, procEntry.FdPath, expect, descriptors); idxDesc != -1 {
-				pidsCache[n].Time = time.Now()
-				return procEntry.Pid, n
-			}
+		if idxDesc := getPidDescriptorsFromCache(procEntry.Pid, procEntry.FdPath, expect, descriptors); idxDesc != -1 {
+			pidsCache[n].Time = time.Now()
+			return procEntry.Pid, n
 		}
 	}
 
