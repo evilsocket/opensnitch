@@ -26,6 +26,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"runtime"
 	"sort"
 	"sync"
 	"time"
@@ -79,7 +80,7 @@ var (
 	stop      = false
 	// TODO: we may need arm arch
 	rule64       = []string{"exit,always", "-F", "arch=b64", "-S", "socket,connect", "-k", "opensnitch"}
-	rule32       = []string{"exit,always", "-F", "arch=b32", "-S", "socket,connect", "-k", "opensnitch"}
+	rule32       = []string{"exit,always", "-F", "arch=b32", "-F", "a0=1", "-S", "socketcall", "-k", "opensnitch"}
 	audispd_path = "/var/run/audispd_events"
 	ourPid       = os.Getpid()
 )
@@ -189,6 +190,15 @@ func addRules() bool {
 	return false
 }
 
+func configureSyscalls() {
+	// XXX: what about a i386 process running on a x86_64 system?
+	if runtime.GOARCH == "386" {
+		SYSCALL_SOCKET = "1"
+		SYSCALL_CONNECT = "3"
+		SYSCALL_SOCKETPAIR = "8"
+	}
+}
+
 func deleteRules() bool {
 	r64 := append([]string{"-d"}, rule64...)
 	r32 := append([]string{"-d"}, rule32...)
@@ -282,5 +292,6 @@ func Start() (net.Conn, error) {
 		log.Error("auditd connection error %v", err)
 		deleteRules()
 	}
+	configureSyscalls()
 	return c, err
 }

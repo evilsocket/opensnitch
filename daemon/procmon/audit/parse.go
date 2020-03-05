@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"syscall"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
@@ -16,17 +15,24 @@ var (
 	newEvent = false
 	netEvent = &Event{}
 
+	// RegExp for parse audit messages
+	// https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/security_guide/sec-understanding_audit_log_files
 	auditRE, _ = regexp.Compile(`([a-zA-Z0-9\-_]+)=([a-zA-Z0-9:'\-\/\"\.\,_\(\)]+)`)
 	rawEvent   = make(map[string]string)
 )
 
-const (
+// amd64 syscalls definition
+// if the platform is not amd64, it's redefined on Start()
+var (
 	SYSCALL_SOCKET     = "41"
 	SYSCALL_CONNECT    = "42"
 	SYSCALL_SOCKETPAIR = "53"
 	SYSCALL_EXECVE     = "59"
+	SYSCALL_SOCKETCALL = "102"
+)
 
-	// /usr/include/x86_64-linux-gnu/bits/socket_type.h
+// /usr/include/x86_64-linux-gnu/bits/socket_type.h
+const (
 	SOCK_STREAM    = "1"
 	SOCK_DGRAM     = "2"
 	SOCK_RAW       = "3"
@@ -47,19 +53,21 @@ const (
 
 // https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/sec-Audit_Record_Types.html
 const (
-	AUDIT_TYPE_PROCTITLE = "type=PROCTITLE"
-	AUDIT_TYPE_CWD       = "type=CWD"
-	AUDIT_TYPE_PATH      = "type=PATH"
-	AUDIT_TYPE_EXECVE    = "type=EXECVE"
-	AUDIT_TYPE_SOCKADDR  = "type=SOCKADDR"
-	AUDIT_TYPE_EOE       = "type=EOE"
+	AUDIT_TYPE_PROCTITLE  = "type=PROCTITLE"
+	AUDIT_TYPE_CWD        = "type=CWD"
+	AUDIT_TYPE_PATH       = "type=PATH"
+	AUDIT_TYPE_EXECVE     = "type=EXECVE"
+	AUDIT_TYPE_SOCKADDR   = "type=SOCKADDR"
+	AUDIT_TYPE_SOCKETCALL = "type=SOCKETCALL"
+	AUDIT_TYPE_EOE        = "type=EOE"
 )
 
 var (
-	SYSCALL_SOCKET_STR     = fmt.Sprint("syscall=", syscall.SYS_SOCKET)
-	SYSCALL_CONNECT_STR    = fmt.Sprint("syscall=", syscall.SYS_CONNECT)
-	SYSCALL_SOCKETPAIR_STR = fmt.Sprint("syscall=", syscall.SYS_SOCKETPAIR)
-	SYSCALL_EXECVE_STR     = fmt.Sprint("syscall=", syscall.SYS_EXECVE)
+	SYSCALL_SOCKET_STR     = fmt.Sprint("syscall=", SYSCALL_SOCKET)
+	SYSCALL_CONNECT_STR    = fmt.Sprint("syscall=", SYSCALL_CONNECT)
+	SYSCALL_SOCKETPAIR_STR = fmt.Sprint("syscall=", SYSCALL_SOCKETPAIR)
+	SYSCALL_EXECVE_STR     = fmt.Sprint("syscall=", SYSCALL_EXECVE)
+	SYSCALL_SOCKETCALL_STR = fmt.Sprint("syscall=", SYSCALL_SOCKETCALL)
 )
 
 // isFromOurPid checks out if the event has been generated from ourselfs.
@@ -136,8 +144,9 @@ func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
 			case "a0":
 				if (*eventFields)["syscall"] == SYSCALL_SOCKET ||
 					(*eventFields)["syscall"] == SYSCALL_CONNECT ||
-					(*eventFields)["syscall"] == SYSCALL_SOCKETPAIR {
-					// XXX: is it wort to intercept PF_LOCAL/PF_FILE as well?
+					(*eventFields)["syscall"] == SYSCALL_SOCKETPAIR ||
+					(*eventFields)["syscall"] == SYSCALL_SOCKETCALL {
+					// XXX: is it worth to intercept PF_LOCAL/PF_FILE as well?
 					if v == PF_INET6 || v == "a" {
 						aevent.NetFamily = "inet6"
 					} else if v == PF_INET || v == PF_LOCAL || v == PF_UNSPEC {
@@ -153,11 +162,11 @@ func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
 					}
 				}
 			case "fam":
-				aevent.NetFamily = string(v)
+				aevent.NetFamily = v
 			case "lport":
 				aevent.DstPort, _ = strconv.Atoi(v)
 			case "laddr":
-				aevent.DstHost = net.ParseIP(string(v))
+				aevent.DstHost = net.ParseIP(v)
 			case "saddr":
 				// TODO
 				/*
@@ -174,7 +183,7 @@ func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
 			case "proctitle":
 				aevent.ProcCmdLine = strings.Trim(decodeString(v), "\"")
 			case "tty":
-				aevent.TTY = string(v)
+				aevent.TTY = v
 			case "pid":
 				aevent.Pid, _ = strconv.Atoi(v)
 			case "ppid":
@@ -184,15 +193,15 @@ func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
 			case "gid":
 				aevent.Gid, _ = strconv.Atoi(v)
 			case "success":
-				aevent.Success = string(v)
+				aevent.Success = v
 			case "cwd":
 				aevent.ProcDir = strings.Trim(decodeString(v), "\"")
 			case "inode":
 				aevent.INode, _ = strconv.Atoi(v)
 			case "dev":
-				aevent.Dev = string(v)
+				aevent.Dev = v
 			case "mode":
-				aevent.ProcMode = string(v)
+				aevent.ProcMode = v
 			case "ouid":
 				aevent.OUid, _ = strconv.Atoi(v)
 			case "ogid":
@@ -202,11 +211,11 @@ func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
 			case "exit":
 				aevent.Exit, _ = strconv.Atoi(v)
 			case "type":
-				aevent.EventType = string(v)
+				aevent.EventType = v
 			case "msg":
-				// TODO
-				//aevent.Timestamp = event.Timestamp
-				//aevent.Serial = event.Serial
+				parts := strings.Split(v[6:], ":")
+				aevent.Timestamp = parts[0]
+				aevent.Serial = parts[1][:len(parts[1])-1]
 			}
 		}
 	}
@@ -231,7 +240,8 @@ func parseEvent(rawMessage string, eventChan chan<- Event) {
 	if strings.Index(rawMessage, SYSCALL_SOCKET_STR) != -1 ||
 		strings.Index(rawMessage, SYSCALL_CONNECT_STR) != -1 ||
 		strings.Index(rawMessage, SYSCALL_SOCKETPAIR_STR) != -1 ||
-		strings.Index(rawMessage, SYSCALL_EXECVE_STR) != -1 {
+		strings.Index(rawMessage, SYSCALL_EXECVE_STR) != -1 ||
+		strings.Index(rawMessage, SYSCALL_SOCKETCALL_STR) != -1 {
 
 		extractFields(rawMessage, &aEvent)
 		if aEvent != nil && isFromOurPid(aEvent["pid"], aEvent["ppid"]) {
@@ -291,7 +301,7 @@ func parseEvent(rawMessage string, eventChan chan<- Event) {
 
 	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_EOE) != -1 {
 		newEvent = false
-		if syscall.SYS_SOCKET == netEvent.Syscall && (netEvent.NetFamily == "" || netEvent.NetFamily[:4] != "inet") {
+		if SYSCALL_SOCKET == strconv.Itoa(netEvent.Syscall) && (netEvent.NetFamily == "" || netEvent.NetFamily[:4] != "inet") {
 			log.Warning("Excluding event EOE", netEvent.NetFamily, netEvent)
 			return
 		}
