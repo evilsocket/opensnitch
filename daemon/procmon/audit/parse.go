@@ -4,17 +4,20 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net"
+	"regexp"
 	"strconv"
 	"strings"
 	"syscall"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
-	"github.com/mozilla/libaudit-go"
 )
 
 var (
 	newEvent = false
 	netEvent = &Event{}
+
+	auditRE, _ = regexp.Compile(`([a-zA-Z0-9\-_]+)=([a-zA-Z0-9:'\-\/\"\.\,_\(\)]+)`)
+	rawEvent   = make(map[string]string)
 )
 
 const (
@@ -42,6 +45,7 @@ const (
 	PROTO_UDP = "17"
 )
 
+// https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/sec-Audit_Record_Types.html
 const (
 	AUDIT_TYPE_PROCTITLE = "type=PROCTITLE"
 	AUDIT_TYPE_CWD       = "type=CWD"
@@ -58,11 +62,13 @@ var (
 	SYSCALL_EXECVE_STR     = fmt.Sprint("syscall=", syscall.SYS_EXECVE)
 )
 
+// isFromOurPid checks out if the event has been generated from ourselfs.
 func isFromOurPid(pid, ppid string) bool {
 	return pid == strconv.Itoa(ourPid) || ppid == strconv.Itoa(ourPid)
 }
 
-// parse raw SOCKADDR saddr string: inet6 host:2001:4860:4860::8888 serv:53
+// parseNetLine parses a SOCKADDR message type of the form:
+// saddr string: inet6 host:2001:4860:4860::8888 serv:53
 func parseNetLine(line string, decode bool) (family string, dstHost net.IP, dstPort int) {
 	if decode == true {
 		line = decodeString(line)
@@ -89,6 +95,9 @@ func parseNetLine(line string, decode bool) (family string, dstHost net.IP, dstP
 	return family, dstHost, dstPort
 }
 
+// decodeString will try to decode a string encoded in hexadecimal.
+// If the string can not be decoded, the original string will be returned.
+// In that case, usually it means that it's a non-encoded string.
 func decodeString(s string) string {
 	if decoded, err := hex.DecodeString(s); err != nil {
 		return s
@@ -97,20 +106,37 @@ func decodeString(s string) string {
 	}
 }
 
-// populateEvent populates our Event from the libaudit parsed event.
-func populateEvent(aevent *Event, event libaudit.AuditEvent, err error) *Event {
-	if err == nil && aevent != nil {
+// extractFields parsed an audit raw message, and extracts all the fields.
+func extractFields(rawMessage string, newEvent *map[string]string) {
+	Lock.Lock()
+	defer Lock.Unlock()
+
+	if auditRE == nil {
+		newEvent = nil
+		return
+	}
+	fieldList := auditRE.FindAllStringSubmatch(rawMessage, -1)
+	if fieldList == nil {
+		newEvent = nil
+		return
+	}
+	for _, field := range fieldList {
+		(*newEvent)[field[1]] = field[2]
+	}
+}
+
+// populateEvent populates our Event from a raw parsed message.
+func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
+	if aevent != nil {
 		Lock.Lock()
 		defer Lock.Unlock()
 
-		aevent.Timestamp = event.Timestamp
-		aevent.Serial = event.Serial
-		for k, v := range event.Data {
+		for k, v := range *eventFields {
 			switch k {
 			case "a0":
-				if event.Data["syscall"] == SYSCALL_SOCKET ||
-					event.Data["syscall"] == SYSCALL_CONNECT ||
-					event.Data["syscall"] == SYSCALL_SOCKETPAIR {
+				if (*eventFields)["syscall"] == SYSCALL_SOCKET ||
+					(*eventFields)["syscall"] == SYSCALL_CONNECT ||
+					(*eventFields)["syscall"] == SYSCALL_SOCKETPAIR {
 					// XXX: is it wort to intercept PF_LOCAL/PF_FILE as well?
 					if v == PF_INET6 || v == "a" {
 						aevent.NetFamily = "inet6"
@@ -119,7 +145,7 @@ func populateEvent(aevent *Event, event libaudit.AuditEvent, err error) *Event {
 					}
 				}
 			case "a1":
-				if event.Data["syscall"] == SYSCALL_SOCKET {
+				if (*eventFields)["syscall"] == SYSCALL_SOCKET {
 					if aevent.NetFamily == "" &&
 						(v == "0" || v == SOCK_STREAM || v == SOCK_DGRAM ||
 							v == SOCK_RAW || v == SOCK_SEQPACKET || v == SOCK_PACKET) {
@@ -132,14 +158,15 @@ func populateEvent(aevent *Event, event libaudit.AuditEvent, err error) *Event {
 				aevent.DstPort, _ = strconv.Atoi(v)
 			case "laddr":
 				aevent.DstHost = net.ParseIP(string(v))
-			// This depends on libaudit.ParseAuditEvent(msg, libaudit.AUDIT_SOCKADDR, true)
-			/*case "saddr":
-			log.Info(" ** saddr", v)
-			if aevent.NetFamily == "" {
-				aevent.NetFamily, aevent.DstHost, aevent.DstPort = parseNetLine(v, true)
-			} else {
-				_, aevent.DstHost, aevent.DstPort = parseNetLine(v, true)
-			}*/
+			case "saddr":
+				// TODO
+				/*
+					if aevent.NetFamily == "" {
+						aevent.NetFamily, aevent.DstHost, aevent.DstPort = parseNetLine(v, true)
+					} else {
+						_, aevent.DstHost, aevent.DstPort = parseNetLine(v, true)
+					}
+				*/
 			case "exe":
 				aevent.ProcPath = strings.Trim(decodeString(v), "\"")
 			case "comm":
@@ -159,7 +186,7 @@ func populateEvent(aevent *Event, event libaudit.AuditEvent, err error) *Event {
 			case "success":
 				aevent.Success = string(v)
 			case "cwd":
-				aevent.ProcDir = string(v)
+				aevent.ProcDir = strings.Trim(decodeString(v), "\"")
 			case "inode":
 				aevent.INode, _ = strconv.Atoi(v)
 			case "dev":
@@ -172,8 +199,14 @@ func populateEvent(aevent *Event, event libaudit.AuditEvent, err error) *Event {
 				aevent.OGid, _ = strconv.Atoi(v)
 			case "syscall":
 				aevent.Syscall, _ = strconv.Atoi(v)
-			case "msgtype":
-				aevent.EventType = event.Type
+			case "exit":
+				aevent.Exit, _ = strconv.Atoi(v)
+			case "type":
+				aevent.EventType = string(v)
+			case "msg":
+				// TODO
+				//aevent.Timestamp = event.Timestamp
+				//aevent.Serial = event.Serial
 			}
 		}
 	}
@@ -189,77 +222,74 @@ func populateEvent(aevent *Event, event libaudit.AuditEvent, err error) *Event {
 // When we received an event, we parse and add it to the list as soon as we can.
 // If the next messages of the set have additional information, we update the
 // event.
-func parseEvent(buf_str string, eventChan chan<- Event) {
-	msg_parts := strings.Split(buf_str, "msg=")
-	if len(msg_parts) < 2 {
+func parseEvent(rawMessage string, eventChan chan<- Event) {
+	aEvent := make(map[string]string)
+
+	if newEvent == false && strings.Index(rawMessage, OPENSNITCH_RULES_KEY) == -1 {
 		return
 	}
-	msg := msg_parts[1]
+	if strings.Index(rawMessage, SYSCALL_SOCKET_STR) != -1 ||
+		strings.Index(rawMessage, SYSCALL_CONNECT_STR) != -1 ||
+		strings.Index(rawMessage, SYSCALL_SOCKETPAIR_STR) != -1 ||
+		strings.Index(rawMessage, SYSCALL_EXECVE_STR) != -1 {
 
-	if newEvent == false && strings.Index(buf_str, OPENSNITCH_RULES_KEY) == -1 {
-		return
-	}
-	if strings.Index(buf_str, SYSCALL_SOCKET_STR) != -1 ||
-		strings.Index(buf_str, SYSCALL_CONNECT_STR) != -1 ||
-		strings.Index(buf_str, SYSCALL_SOCKETPAIR_STR) != -1 ||
-		strings.Index(buf_str, SYSCALL_EXECVE_STR) != -1 {
-
-		aevent, err := libaudit.ParseAuditEvent(msg, libaudit.AUDIT_SYSCALL, false)
-		if aevent != nil && isFromOurPid(aevent.Data["pid"], aevent.Data["ppid"]) {
+		extractFields(rawMessage, &aEvent)
+		if aEvent != nil && isFromOurPid(aEvent["pid"], aEvent["ppid"]) {
 			return
 		}
-
 		newEvent = true
 		netEvent = &Event{}
-		netEvent = populateEvent(netEvent, *aevent, err)
-		netEvent.RawEvent = aevent.Raw
+		netEvent = populateEvent(netEvent, &aEvent)
 		AddEvent(netEvent)
 
-	} else if newEvent == true && strings.Index(buf_str, AUDIT_TYPE_PROCTITLE) != -1 {
-		if aevent, err := libaudit.ParseAuditEvent(msg, libaudit.AUDIT_PROCTITLE, true); err == nil {
-			netEvent = populateEvent(netEvent, *aevent, err)
-			AddEvent(netEvent)
-		}
-		return
-
-	} else if newEvent == true && strings.Index(buf_str, AUDIT_TYPE_CWD) != -1 {
-		if aevent, err := libaudit.ParseAuditEvent(msg, libaudit.AUDIT_CWD, true); err == nil {
-			netEvent = populateEvent(netEvent, *aevent, err)
-			AddEvent(netEvent)
-		}
-		return
-
-	} else if newEvent == true && strings.Index(buf_str, AUDIT_TYPE_EXECVE) != -1 {
-		if aevent, err := libaudit.ParseAuditEvent(msg, libaudit.AUDIT_EXECVE, false); err == nil {
-			netEvent = populateEvent(netEvent, *aevent, err)
-			AddEvent(netEvent)
-		}
-		return
-
-	} else if newEvent == true && strings.Index(buf_str, AUDIT_TYPE_PATH) != -1 {
-		if aevent, err := libaudit.ParseAuditEvent(msg, libaudit.AUDIT_PATH, false); err == nil {
-			netEvent = populateEvent(netEvent, *aevent, err)
-			AddEvent(netEvent)
-		}
-		return
-
-	} else if newEvent == true && strings.Index(buf_str, AUDIT_TYPE_SOCKADDR) != -1 {
-		aevent, err := libaudit.ParseAuditEvent(msg, libaudit.AUDIT_SOCKADDR, false)
-		if err != nil {
-			aevent = nil
+	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_PROCTITLE) != -1 {
+		extractFields(rawMessage, &aEvent)
+		if aEvent == nil {
 			return
 		}
-		if isFromOurPid(aevent.Data["pid"], aevent.Data["ppid"]) {
+		netEvent = populateEvent(netEvent, &aEvent)
+		AddEvent(netEvent)
+
+	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_CWD) != -1 {
+		extractFields(rawMessage, &aEvent)
+		if aEvent == nil {
+			return
+		}
+		netEvent = populateEvent(netEvent, &aEvent)
+		AddEvent(netEvent)
+
+	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_EXECVE) != -1 {
+		extractFields(rawMessage, &aEvent)
+		if aEvent == nil {
+			return
+		}
+		netEvent = populateEvent(netEvent, &aEvent)
+		AddEvent(netEvent)
+
+	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_PATH) != -1 {
+		extractFields(rawMessage, &aEvent)
+		if aEvent == nil {
+			return
+		}
+		netEvent = populateEvent(netEvent, &aEvent)
+		AddEvent(netEvent)
+
+	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_SOCKADDR) != -1 {
+		extractFields(rawMessage, &aEvent)
+		if aEvent == nil {
+			return
+		}
+		if isFromOurPid(aEvent["pid"], aEvent["ppid"]) {
 			return
 		}
 
-		netEvent = populateEvent(netEvent, *aevent, err)
+		netEvent = populateEvent(netEvent, &aEvent)
 		AddEvent(netEvent)
 		if EventChan != nil {
 			eventChan <- *netEvent
 		}
 
-	} else if newEvent == true && strings.Index(buf_str, AUDIT_TYPE_EOE) != -1 {
+	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_EOE) != -1 {
 		newEvent = false
 		if syscall.SYS_SOCKET == netEvent.Syscall && (netEvent.NetFamily == "" || netEvent.NetFamily[:4] != "inet") {
 			log.Warning("Excluding event EOE", netEvent.NetFamily, netEvent)

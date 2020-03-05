@@ -1,4 +1,4 @@
-// package audit reads auditd events from the builtin af_unix plugin, and parses
+// Package audit reads auditd events from the builtin af_unix plugin, and parses
 // the messages in order to proactively monitor pids which make connections.
 // Once a connection is made and redirected to us via NFQUEUE, we
 // lookup the connection inode in /proc, and add the corresponding PID with all
@@ -34,6 +34,8 @@ import (
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
+// Event represents an audit event, which in our case can be an event of type
+// socket, execve, socketpair or connect.
 type Event struct {
 	Timestamp   string // audit(xxxxxxx:nnnn)
 	Serial      string
@@ -59,13 +61,14 @@ type Event struct {
 	INode       int
 	Dev         string
 	Syscall     int
+	Exit        int
 	EventType   string
 	RawEvent    string
 	LastSeen    time.Time
 }
 
+// MAX_EVENT_AGE is the maximum minutes an audit process can live without network activity.
 const (
-	// maximum minutes an audit process can live without activity
 	MAX_EVENT_AGE = int(10)
 )
 
@@ -81,6 +84,7 @@ var (
 	ourPid       = os.Getpid()
 )
 
+// OPENSNITCH_RULES_KEY is the mark we place on every event we are interested in.
 const (
 	OPENSNITCH_RULES_KEY = "key=\"opensnitch\""
 )
@@ -102,6 +106,8 @@ func GetEventByPid(pid int) *Event {
 	return nil
 }
 
+// sortEvents sorts received events by time and elapsed time since latest network activity.
+// newest PIDs will be placed on top of the list.
 func sortEvents() {
 	sort.Slice(Events, func(i, j int) bool {
 		now := time.Now()
