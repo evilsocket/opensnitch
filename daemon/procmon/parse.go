@@ -109,7 +109,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		if aevent := audit.GetEventByPid(pid); aevent != nil {
 			audit.Lock.RLock()
 			proc := NewProcess(pid, strings.Split(aevent.ProcPath, " ")[0])
-			proc.Args = strings.Split(strings.ReplaceAll(aevent.ProcCmdLine, "\x00", " "), " ")
+			proc.Args = strings.Split(strings.Replace(aevent.ProcCmdLine, "\x00", " ", -1), " ")
 			audit.Lock.RUnlock()
 			parseEnv(proc)
 
