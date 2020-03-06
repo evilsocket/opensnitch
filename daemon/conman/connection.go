@@ -8,14 +8,15 @@ import (
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/dns"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netfilter"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netlink"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netstat"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui/protocol"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netlink"
 
 	"github.com/google/gopacket/layers"
 )
 
+// Connection represents an outgoing connecion.
 type Connection struct {
 	Protocol string
 	SrcIP    net.IP
@@ -31,15 +32,17 @@ type Connection struct {
 
 var showUnknownCons = false
 
+// Parse extracts the IP layers from a network packet to determine what
+// process generated a connection.
 func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
-    showUnknownCons = interceptUnknown
+	showUnknownCons = interceptUnknown
 	ipLayer := nfp.Packet.Layer(layers.LayerTypeIPv4)
 	ipLayer6 := nfp.Packet.Layer(layers.LayerTypeIPv6)
 	if ipLayer == nil && ipLayer6 == nil {
 		return nil
 	}
 
-	if (ipLayer == nil) {
+	if ipLayer == nil {
 		ip, ok := ipLayer6.(*layers.IPv6)
 		if ok == false || ip == nil {
 			return nil
@@ -53,7 +56,8 @@ func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
 			return nil
 		}
 		return con
-	} else {
+	}
+	if ipLayer != nil {
 		ip, ok := ipLayer.(*layers.IPv4)
 		if ok == false || ip == nil {
 			return nil
@@ -68,6 +72,8 @@ func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
 		}
 		return con
 	}
+
+	return nil
 }
 
 func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, err error) {
@@ -81,23 +87,23 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 	// 2. lookup pid by inode
 	// 3. if this is coming from us, just accept
 	// 4. lookup process info by pid
-	if _uid, _inode := netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); _inode > 0 {
-		c.Entry = &netstat.Entry {
-			Proto: c.Protocol,
-			SrcIP: c.SrcIP,
+	if uid, inode := netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); inode > 0 {
+		c.Entry = &netstat.Entry{
+			Proto:   c.Protocol,
+			SrcIP:   c.SrcIP,
 			SrcPort: c.SrcPort,
-			DstIP: c.DstIP,
+			DstIP:   c.DstIP,
 			DstPort: c.DstPort,
-			UserId: _uid,
-			INode: _inode,
+			UserId:  uid,
+			INode:   inode,
 		}
-	}else if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
+	} else if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
 		return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
 	}
 	if c.Entry.UserId == -1 {
 		c.Entry.UserId = nfp.Uid
 	}
-	pid := procmon.GetPIDFromINode(c.Entry.INode, fmt.Sprint(c.Entry.INode,c.SrcIP,c.SrcPort,c.DstIP,c.DstPort))
+	pid := procmon.GetPIDFromINode(c.Entry.INode, fmt.Sprint(c.Entry.INode, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort))
 	if pid == os.Getpid() {
 		return nil, nil
 	} else if c.Process = procmon.FindProcess(pid, showUnknownCons); c.Process == nil {
@@ -107,6 +113,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 
 }
 
+// NewConnection creates a new Connection object, and returns the details of it.
 func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err error) {
 	c = &Connection{
 		SrcIP:   ip.SrcIP,
@@ -117,6 +124,7 @@ func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err e
 	return newConnectionImpl(nfp, c)
 }
 
+// NewConnection6 creates a IPv6 new Connection object, and returns the details of it.
 func NewConnection6(nfp *netfilter.Packet, ip *layers.IPv6) (c *Connection, err error) {
 	c = &Connection{
 		SrcIP:   ip.SrcIP,
@@ -183,6 +191,7 @@ func (c *Connection) getDomains(nfp *netfilter.Packet, con *Connection) {
 	}
 }
 
+// To returns the destination host a connection.
 func (c *Connection) To() string {
 	if c.DstHost == "" {
 		return c.DstIP.String()
@@ -202,6 +211,7 @@ func (c *Connection) String() string {
 	return fmt.Sprintf("%s (%d) -> %s:%d (proto:%s uid:%d)", c.Process.Path, c.Process.ID, c.To(), c.DstPort, c.Protocol, c.Entry.UserId)
 }
 
+// Serialize returns a connection serialized.
 func (c *Connection) Serialize() *protocol.Connection {
 	return &protocol.Connection{
 		Protocol:    c.Protocol,
