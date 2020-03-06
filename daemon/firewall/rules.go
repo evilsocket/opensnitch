@@ -2,21 +2,25 @@ package firewall
 
 import (
 	"fmt"
+	"regexp"
 	"sync"
 	"time"
-	"regexp"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 )
 
+// DropMark is the mark we place on a connection when we deny it.
+// The connection is dropped later on OUTPUT chain.
 const DropMark = 0x18BA5
 
+// Action is the modifier we apply to a rule.
 type Action string
 
+// Actions we apply to the firewall.
 const (
-	ADD     = Action("-A")
-	INSERT  = Action("-I")
-	DELETE  = Action("-D")
+	ADD    = Action("-A")
+	INSERT = Action("-I")
+	DELETE = Action("-D")
 )
 
 // make sure we don't mess with multiple rules
@@ -25,12 +29,13 @@ var (
 	lock = sync.Mutex{}
 
 	// check that rules are loaded every 5s
-	rulesChecker = time.NewTicker(time.Second * 5)
-	rulesCheckerChan = make(chan bool)
+	rulesChecker       = time.NewTicker(time.Second * 20)
+	rulesCheckerChan   = make(chan bool)
 	regexRulesQuery, _ = regexp.Compile(`NFQUEUE.*ctstate NEW.*NFQUEUE num.*bypass`)
-	regexDropQuery, _ = regexp.Compile(`DROP.*mark match 0x18ba5`)
+	regexDropQuery, _  = regexp.Compile(`DROP.*mark match 0x18ba5`)
 )
 
+// RunRule inserts or deletes a firewall rule.
 func RunRule(action Action, enable bool, rule []string) (err error) {
 	if enable == false {
 		action = "-D"
@@ -55,6 +60,8 @@ func RunRule(action Action, enable bool, rule []string) (err error) {
 	return
 }
 
+// QueueDNSResponses redirects DNS responses to us, in order to keep a cache
+// of resolved domains.
 // INPUT --protocol udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
 func QueueDNSResponses(enable bool, queueNum int) (err error) {
 	return RunRule(INSERT, enable, []string{
@@ -67,6 +74,8 @@ func QueueDNSResponses(enable bool, queueNum int) (err error) {
 	})
 }
 
+// QueueConnections inserts the firewall rule which redirects connections to us.
+// They are queued until the user denies/accept them, or reaches a timeout.
 // OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass
 func QueueConnections(enable bool, queueNum int) (err error) {
 	regexRulesQuery, _ = regexp.Compile(fmt.Sprint(`NFQUEUE.*ctstate NEW.*NFQUEUE num `, queueNum, ` bypass`))
@@ -82,7 +91,7 @@ func QueueConnections(enable bool, queueNum int) (err error) {
 	})
 }
 
-// Reject packets marked by OpenSnitch
+// DropMarked rejects packets marked by OpenSnitch.
 // OUTPUT -m mark --mark 101285 -j DROP
 func DropMarked(enable bool) (err error) {
 	return RunRule(ADD, enable, []string{
@@ -93,6 +102,7 @@ func DropMarked(enable bool) (err error) {
 	})
 }
 
+// AreRulesLoaded checks if the firewall rules are loaded.
 func AreRulesLoaded() bool {
 	lock.Lock()
 	defer lock.Unlock()
@@ -120,6 +130,8 @@ func AreRulesLoaded() bool {
 		regexDropQuery.FindString(outDrop6) != ""
 }
 
+// StartCheckingRules checks periodically if the rules are loaded.
+// If they're not, we insert them again.
 func StartCheckingRules(qNum int) {
 	for {
 		select {
@@ -137,6 +149,7 @@ func StartCheckingRules(qNum int) {
 	}
 }
 
+// StopCheckingRules stops checking if the firewall rules are loaded.
 func StopCheckingRules() {
 	rulesCheckerChan <- true
 }
