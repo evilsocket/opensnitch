@@ -107,11 +107,11 @@ func parseNetLine(line string, decode bool) (family string, dstHost net.IP, dstP
 // If the string can not be decoded, the original string will be returned.
 // In that case, usually it means that it's a non-encoded string.
 func decodeString(s string) string {
-	if decoded, err := hex.DecodeString(s); err != nil {
+	decoded, err := hex.DecodeString(s)
+	if err != nil {
 		return s
-	} else {
-		return fmt.Sprintf("%s", decoded)
 	}
+	return fmt.Sprintf("%s", decoded)
 }
 
 // extractFields parsed an audit raw message, and extracts all the fields.
@@ -189,7 +189,7 @@ func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
 			case "ppid":
 				aevent.PPid, _ = strconv.Atoi(v)
 			case "uid":
-				aevent.Uid, _ = strconv.Atoi(v)
+				aevent.UID, _ = strconv.Atoi(v)
 			case "gid":
 				aevent.Gid, _ = strconv.Atoi(v)
 			case "success":
@@ -234,7 +234,7 @@ func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
 func parseEvent(rawMessage string, eventChan chan<- Event) {
 	aEvent := make(map[string]string)
 
-	if newEvent == false && strings.Index(rawMessage, OPENSNITCH_RULES_KEY) == -1 {
+	if newEvent == false && strings.Index(rawMessage, OpensnitchRulesKey) == -1 {
 		return
 	}
 	if strings.Index(rawMessage, SYSCALL_SOCKET_STR) != -1 ||

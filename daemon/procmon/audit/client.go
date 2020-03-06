@@ -47,7 +47,7 @@ type Event struct {
 	ProcMode    string // mode
 	TTY         string
 	Pid         int
-	Uid         int
+	UID         int
 	Gid         int
 	PPid        int
 	EUid        int
@@ -68,37 +68,42 @@ type Event struct {
 	LastSeen    time.Time
 }
 
-// MAX_EVENT_AGE is the maximum minutes an audit process can live without network activity.
+// MaxEventAge is the maximum minutes an audit process can live without network activity.
 const (
-	MAX_EVENT_AGE = int(10)
+	MaxEventAge = int(10)
 )
 
 var (
-	Lock      sync.RWMutex
-	Events    []*Event
+	// Lock holds a mutex
+	Lock   sync.RWMutex
+	events []*Event
+	// EventChan is an output channel where incoming auditd events will be written.
+	// If a client opens it.
 	EventChan = (chan Event)(nil)
 	stop      = false
 	// TODO: we may need arm arch
-	rule64       = []string{"exit,always", "-F", "arch=b64", "-S", "socket,connect", "-k", "opensnitch"}
-	rule32       = []string{"exit,always", "-F", "arch=b32", "-F", "a0=1", "-S", "socketcall", "-k", "opensnitch"}
-	audispd_path = "/var/run/audispd_events"
-	ourPid       = os.Getpid()
+	rule64      = []string{"exit,always", "-F", "arch=b64", "-S", "socket,connect", "-k", "opensnitch"}
+	rule32      = []string{"exit,always", "-F", "arch=b32", "-F", "a0=1", "-S", "socketcall", "-k", "opensnitch"}
+	audispdPath = "/var/run/audispd_events"
+	ourPid      = os.Getpid()
 )
 
 // OPENSNITCH_RULES_KEY is the mark we place on every event we are interested in.
 const (
-	OPENSNITCH_RULES_KEY = "key=\"opensnitch\""
+	OpensnitchRulesKey = "key=\"opensnitch\""
 )
 
+// GetEvents returns the list of processes which have opened a connection.
 func GetEvents() []*Event {
-	return Events
+	return events
 }
 
+// GetEventByPid returns an event given a pid.
 func GetEventByPid(pid int) *Event {
 	Lock.RLock()
 	defer Lock.RUnlock()
 
-	for _, event := range Events {
+	for _, event := range events {
 		if pid == event.Pid {
 			return event
 		}
@@ -110,12 +115,12 @@ func GetEventByPid(pid int) *Event {
 // sortEvents sorts received events by time and elapsed time since latest network activity.
 // newest PIDs will be placed on top of the list.
 func sortEvents() {
-	sort.Slice(Events, func(i, j int) bool {
+	sort.Slice(events, func(i, j int) bool {
 		now := time.Now()
-		elapsedTimeT := now.Sub(Events[i].LastSeen)
-		elapsedTimeU := now.Sub(Events[j].LastSeen)
-		t := Events[i].LastSeen.UnixNano()
-		u := Events[j].LastSeen.UnixNano()
+		elapsedTimeT := now.Sub(events[i].LastSeen)
+		elapsedTimeU := now.Sub(events[j].LastSeen)
+		t := events[i].LastSeen.UnixNano()
+		u := events[j].LastSeen.UnixNano()
 		return t > u && elapsedTimeT < elapsedTimeU
 	})
 }
@@ -123,34 +128,34 @@ func sortEvents() {
 // CleanoldEvents deletes the PIDs which do not exist or that are too old to
 // live.
 // We start searching from the oldest to the newest.
-// If the last network activity of a PID has been greater than MAX_EVENT_AGE,
+// If the last network activity of a PID has been greater than MaxEventAge,
 // then it'll be deleted.
 func cleanOldEvents() {
-	for n := len(Events) - 1; n >= 0; n-- {
+	for n := len(events) - 1; n >= 0; n-- {
 		now := time.Now()
-		elapsedTime := now.Sub(Events[n].LastSeen)
-		if int(elapsedTime.Minutes()) >= MAX_EVENT_AGE {
-			Events = append(Events[:n], Events[n+1:]...)
+		elapsedTime := now.Sub(events[n].LastSeen)
+		if int(elapsedTime.Minutes()) >= MaxEventAge {
+			events = append(events[:n], events[n+1:]...)
 			continue
 		}
-		if core.Exists(fmt.Sprint("/proc/", Events[n].Pid)) == false {
-			Events = append(Events[:n], Events[n+1:]...)
+		if core.Exists(fmt.Sprint("/proc/", events[n].Pid)) == false {
+			events = append(events[:n], events[n+1:]...)
 		}
 	}
 }
 
-func DeleteEvent(pid int) {
-	for n, _ := range Events {
-		if Events[n].Pid == pid || Events[n].PPid == pid {
-			DeleteEventByIndex(n)
+func deleteEvent(pid int) {
+	for n := range events {
+		if events[n].Pid == pid || events[n].PPid == pid {
+			deleteEventByIndex(n)
 			break
 		}
 	}
 }
 
-func DeleteEventByIndex(index int) {
+func deleteEventByIndex(index int) {
 	Lock.Lock()
-	Events = append(Events[:index], Events[index+1:]...)
+	events = append(events[:index], events[index+1:]...)
 	Lock.Unlock()
 }
 
@@ -166,16 +171,15 @@ func AddEvent(aevent *Event) {
 	defer Lock.Unlock()
 
 	cleanOldEvents()
-	for n := 0; n < len(Events); n++ {
-		if Events[n].Pid == aevent.Pid {
+	for n := 0; n < len(events); n++ {
+		if events[n].Pid == aevent.Pid {
 			aevent.LastSeen = time.Now()
-			Events[n] = aevent
+			events[n] = aevent
 			return
 		}
 	}
 	aevent.LastSeen = time.Now()
-	Events = append(Events, aevent)
-	sortEvents()
+	events = append([]*Event{aevent}, events...)
 }
 
 func addRules() bool {
@@ -243,8 +247,8 @@ func Reader(r io.Reader, eventChan chan<- Event) {
 		if err != nil {
 			if err == io.EOF {
 				log.Error("AuditReader: auditd stopped, reconnecting in 30s", err)
-				if new_reader, err := reconnect(); err == nil {
-					reader = bufio.NewReader(new_reader)
+				if newReader, err := reconnect(); err == nil {
+					reader = bufio.NewReader(newReader)
 					log.Important("Auditd reconnected, continue reading")
 				}
 				continue
@@ -272,9 +276,10 @@ func reconnect() (net.Conn, error) {
 func connect() (net.Conn, error) {
 	addRules()
 	// TODO: make the unix socket path configurable
-	return net.Dial("unix", audispd_path)
+	return net.Dial("unix", audispdPath)
 }
 
+// Stop stops listening for events from auditd and delete the auditd rules.
 func Stop() {
 	Lock.Lock()
 	stop = true
@@ -286,6 +291,7 @@ func Stop() {
 	}
 }
 
+// Start makes a new connection to the audisp af_unix socket.
 func Start() (net.Conn, error) {
 	c, err := connect()
 	if err != nil {
