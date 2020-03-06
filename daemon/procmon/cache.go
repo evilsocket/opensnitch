@@ -7,11 +7,15 @@ import (
 	"time"
 )
 
+// Inode represents an item of the InodesCache.
+// the key is formed as follow:
+// inode+srcip+srcport+dstip+dstport
 type Inode struct {
 	Pid    int
 	FdPath string
 }
 
+// ProcEntry represents an item of the pidsCache
 type ProcEntry struct {
 	Pid         int
 	FdPath      string
@@ -36,14 +40,20 @@ var (
 	maxCachedPids        = 24
 )
 
-func addProcEntry(fdPath string, fd_list []string, pid int) {
-	for n, _ := range pidsCache {
+func addProcEntry(fdPath string, fdList []string, pid int) {
+	for n := range pidsCache {
 		if pidsCache[n].Pid == pid {
 			pidsCache[n].Time = time.Now()
 			return
 		}
 	}
-	pidsCache = append(pidsCache, &ProcEntry{Pid: pid, FdPath: fdPath, Descriptors: fd_list, Time: time.Now()})
+	procEntry := &ProcEntry{
+		Pid:         pid,
+		FdPath:      fdPath,
+		Descriptors: fdList,
+		Time:        time.Now(),
+	}
+	pidsCache = append([]*ProcEntry{procEntry}, pidsCache...)
 }
 
 func sortProcEntries() {
@@ -65,7 +75,7 @@ func deleteProcEntry(pid int) {
 
 func cleanUpCaches() {
 	if len(inodesCache) > maxCachedInodes {
-		for k, _ := range inodesCache {
+		for k := range inodesCache {
 			delete(inodesCache, k)
 		}
 	}
@@ -74,7 +84,7 @@ func cleanUpCaches() {
 	}
 }
 
-func GetPidByInodeFromCache(inodeKey string) int {
+func getPidByInodeFromCache(inodeKey string) int {
 	if _, found := inodesCache[inodeKey]; found == true {
 		// sometimes the process may have dissapeared at this point
 		if _, err := os.Lstat(fmt.Sprint("/proc/", inodesCache[inodeKey].Pid, "/exe")); err == nil {
@@ -100,10 +110,9 @@ func getPidDescriptorsFromCache(pid int, fdPath string, expect string, descripto
 
 func getPidFromCache(inode int, inodeKey string, expect string) (int, int) {
 	// loop over the processes that have generated connections
-	for n, procEntry := range pidsCache {
-		if n >= len(pidsCache) {
-			break
-		}
+	for n := 0; n < len(pidsCache); n++ {
+		procEntry := pidsCache[n]
+
 		if idxDesc := getPidDescriptorsFromCache(procEntry.Pid, procEntry.FdPath, expect, procEntry.Descriptors); idxDesc != -1 {
 			pidsCache[n].Time = time.Now()
 			return procEntry.Pid, n
@@ -114,8 +123,8 @@ func getPidFromCache(inode int, inodeKey string, expect string) (int, int) {
 			deleteProcEntry(procEntry.Pid)
 			continue
 		}
-		pidsCache[n].Descriptors = descriptors
 
+		pidsCache[n].Descriptors = descriptors
 		if idxDesc := getPidDescriptorsFromCache(procEntry.Pid, procEntry.FdPath, expect, descriptors); idxDesc != -1 {
 			pidsCache[n].Time = time.Now()
 			return procEntry.Pid, n

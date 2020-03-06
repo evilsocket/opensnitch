@@ -27,17 +27,16 @@ func sortPidsByTime(fdList []os.FileInfo) []os.FileInfo {
 // If the inode is found, the cache is updated ans sorted.
 func inodeFound(pidsPath, expect, inodeKey string, inode, pid int) bool {
 	fdPath := fmt.Sprint(pidsPath, pid, "/fd/")
-	fd_list := lookupPidDescriptors(fdPath)
-	if fd_list == nil {
+	fdList := lookupPidDescriptors(fdPath)
+	if fdList == nil {
 		return false
 	}
 
-	for idx := 0; idx < len(fd_list); idx++ {
-		descLink := fmt.Sprint(fdPath, fd_list[idx])
+	for idx := 0; idx < len(fdList); idx++ {
+		descLink := fmt.Sprint(fdPath, fdList[idx])
 		if link, err := os.Readlink(descLink); err == nil && link == expect {
 			inodesCache[inodeKey] = &Inode{FdPath: descLink, Pid: pid}
-			addProcEntry(fdPath, fd_list, pid)
-			sortProcEntries()
+			addProcEntry(fdPath, fdList, pid)
 			return true
 		}
 	}
@@ -67,15 +66,15 @@ func lookupPidDescriptors(fdPath string) []string {
 	if err != nil {
 		return nil
 	}
-	fd_list, err := f.Readdir(-1)
+	fdList, err := f.Readdir(-1)
 	f.Close()
 	if err != nil {
 		return nil
 	}
-	fd_list = sortPidsByTime(fd_list)
+	fdList = sortPidsByTime(fdList)
 
-	s := make([]string, len(fd_list))
-	for n, f := range fd_list {
+	s := make([]string, len(fdList))
+	for n, f := range fdList {
 		s[n] = f.Name()
 	}
 
