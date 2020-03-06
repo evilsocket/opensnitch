@@ -175,6 +175,7 @@ func AddEvent(aevent *Event) {
 		if events[n].Pid == aevent.Pid {
 			aevent.LastSeen = time.Now()
 			events[n] = aevent
+			sortEvents()
 			return
 		}
 	}
