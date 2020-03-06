@@ -1,10 +1,10 @@
 package netlink
 
 import (
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"net"
-	"encoding/binary"
 	"syscall"
 
 	"github.com/vishvananda/netlink/nl"
@@ -21,9 +21,9 @@ const (
 
 var (
 	ErrNotImplemented = errors.New("not implemented")
-	native	   = nl.NativeEndian()
-	networkOrder = binary.BigEndian
-	TCP_ALL = uint32(0xfff)
+	native            = nl.NativeEndian()
+	networkOrder      = binary.BigEndian
+	TCP_ALL           = uint32(0xfff)
 )
 
 type SocketID struct {
@@ -45,7 +45,7 @@ type Socket struct {
 	Expires uint32
 	RQueue  uint32
 	WQueue  uint32
-	UID	uint32
+	UID     uint32
 	INode   uint32
 }
 
@@ -150,19 +150,19 @@ func SocketGet(family uint8, proto uint8, srcPort, dstPort uint16, local, remote
 		remoteIP = remote.To4()
 	}
 
-    _Id := SocketID{
-		SourcePort:			srcPort,
-		DestinationPort:	dstPort,
-		Source:				localIP,
-		Destination:		remoteIP,
-		Cookie:				[2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
+	_Id := SocketID{
+		SourcePort:      srcPort,
+		DestinationPort: dstPort,
+		Source:          localIP,
+		Destination:     remoteIP,
+		Cookie:          [2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
 	}
 	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, 0)
 	sockReq := &SocketRequest{
 		Family:   family,
 		Protocol: proto,
 		States:   TCP_ALL,
-		ID: _Id,
+		ID:       _Id,
 	}
 	req.AddData(sockReq)
 	msgs, err := req.Execute(syscall.NETLINK_INET_DIAG, 0)

@@ -3,8 +3,6 @@ package netlink
 import (
 	"net"
 	"syscall"
-
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
 // GetSocketInfo asks the kernel via netlink for a given connection.
