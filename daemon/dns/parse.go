@@ -1,18 +1,19 @@
 package dns
 
 import (
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netfilter"
 	"github.com/google/gopacket/layers"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netfilter"
 )
 
+// GetQuestions retrieves the domain names a process is trying to resolve.
 func GetQuestions(nfp *netfilter.Packet) (questions []string) {
 	dnsLayer := nfp.Packet.Layer(layers.LayerTypeDNS)
-    if dnsLayer == nil {
-        return questions
-    }
+	if dnsLayer == nil {
+		return questions
+	}
 
 	dns, _ := dnsLayer.(*layers.DNS)
-    for _, dnsQuestion := range dns.Questions {
+	for _, dnsQuestion := range dns.Questions {
 		questions = append(questions, string(dnsQuestion.Name))
 	}
 
