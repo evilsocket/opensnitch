@@ -135,88 +135,89 @@ func extractFields(rawMessage string, newEvent *map[string]string) {
 
 // populateEvent populates our Event from a raw parsed message.
 func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
-	if aevent != nil {
-		Lock.Lock()
-		defer Lock.Unlock()
+	if aevent == nil {
+		return nil
+	}
+	Lock.Lock()
+	defer Lock.Unlock()
 
-		for k, v := range *eventFields {
-			switch k {
-			case "a0":
-				if (*eventFields)["syscall"] == SYSCALL_SOCKET ||
-					(*eventFields)["syscall"] == SYSCALL_CONNECT ||
-					(*eventFields)["syscall"] == SYSCALL_SOCKETPAIR ||
-					(*eventFields)["syscall"] == SYSCALL_SOCKETCALL {
-					// XXX: is it worth to intercept PF_LOCAL/PF_FILE as well?
-					if v == PF_INET6 || v == "a" {
-						aevent.NetFamily = "inet6"
-					} else if v == PF_INET || v == PF_LOCAL || v == PF_UNSPEC {
-						aevent.NetFamily = "inet"
-					}
+	for k, v := range *eventFields {
+		switch k {
+		case "a0":
+			if (*eventFields)["syscall"] == SYSCALL_SOCKET ||
+				(*eventFields)["syscall"] == SYSCALL_CONNECT ||
+				(*eventFields)["syscall"] == SYSCALL_SOCKETPAIR ||
+				(*eventFields)["syscall"] == SYSCALL_SOCKETCALL {
+				// XXX: is it worth to intercept PF_LOCAL/PF_FILE as well?
+				if v == PF_INET6 || v == "a" {
+					aevent.NetFamily = "inet6"
+				} else if v == PF_INET || v == PF_LOCAL || v == PF_UNSPEC {
+					aevent.NetFamily = "inet"
 				}
-			case "a1":
-				if (*eventFields)["syscall"] == SYSCALL_SOCKET {
-					if aevent.NetFamily == "" &&
-						(v == "0" || v == SOCK_STREAM || v == SOCK_DGRAM ||
-							v == SOCK_RAW || v == SOCK_SEQPACKET || v == SOCK_PACKET) {
-						aevent.NetFamily = "inet"
-					}
-				}
-			case "fam":
-				aevent.NetFamily = v
-			case "lport":
-				aevent.DstPort, _ = strconv.Atoi(v)
-			case "laddr":
-				aevent.DstHost = net.ParseIP(v)
-			case "saddr":
-				// TODO
-				/*
-					if aevent.NetFamily == "" {
-						aevent.NetFamily, aevent.DstHost, aevent.DstPort = parseNetLine(v, true)
-					} else {
-						_, aevent.DstHost, aevent.DstPort = parseNetLine(v, true)
-					}
-				*/
-			case "exe":
-				aevent.ProcPath = strings.Trim(decodeString(v), "\"")
-			case "comm":
-				aevent.ProcName = strings.Trim(decodeString(v), "\"")
-			case "proctitle":
-				aevent.ProcCmdLine = strings.Trim(decodeString(v), "\"")
-			case "tty":
-				aevent.TTY = v
-			case "pid":
-				aevent.Pid, _ = strconv.Atoi(v)
-			case "ppid":
-				aevent.PPid, _ = strconv.Atoi(v)
-			case "uid":
-				aevent.UID, _ = strconv.Atoi(v)
-			case "gid":
-				aevent.Gid, _ = strconv.Atoi(v)
-			case "success":
-				aevent.Success = v
-			case "cwd":
-				aevent.ProcDir = strings.Trim(decodeString(v), "\"")
-			case "inode":
-				aevent.INode, _ = strconv.Atoi(v)
-			case "dev":
-				aevent.Dev = v
-			case "mode":
-				aevent.ProcMode = v
-			case "ouid":
-				aevent.OUid, _ = strconv.Atoi(v)
-			case "ogid":
-				aevent.OGid, _ = strconv.Atoi(v)
-			case "syscall":
-				aevent.Syscall, _ = strconv.Atoi(v)
-			case "exit":
-				aevent.Exit, _ = strconv.Atoi(v)
-			case "type":
-				aevent.EventType = v
-			case "msg":
-				parts := strings.Split(v[6:], ":")
-				aevent.Timestamp = parts[0]
-				aevent.Serial = parts[1][:len(parts[1])-1]
 			}
+		case "a1":
+			if (*eventFields)["syscall"] == SYSCALL_SOCKET {
+				if aevent.NetFamily == "" &&
+					(v == "0" || v == SOCK_STREAM || v == SOCK_DGRAM ||
+						v == SOCK_RAW || v == SOCK_SEQPACKET || v == SOCK_PACKET) {
+					aevent.NetFamily = "inet"
+				}
+			}
+		case "fam":
+			aevent.NetFamily = v
+		case "lport":
+			aevent.DstPort, _ = strconv.Atoi(v)
+		case "laddr":
+			aevent.DstHost = net.ParseIP(v)
+		case "saddr":
+			// TODO
+			/*
+				if aevent.NetFamily == "" {
+					aevent.NetFamily, aevent.DstHost, aevent.DstPort = parseNetLine(v, true)
+				} else {
+					_, aevent.DstHost, aevent.DstPort = parseNetLine(v, true)
+				}
+			*/
+		case "exe":
+			aevent.ProcPath = strings.Trim(decodeString(v), "\"")
+		case "comm":
+			aevent.ProcName = strings.Trim(decodeString(v), "\"")
+		case "proctitle":
+			aevent.ProcCmdLine = strings.Trim(decodeString(v), "\"")
+		case "tty":
+			aevent.TTY = v
+		case "pid":
+			aevent.Pid, _ = strconv.Atoi(v)
+		case "ppid":
+			aevent.PPid, _ = strconv.Atoi(v)
+		case "uid":
+			aevent.UID, _ = strconv.Atoi(v)
+		case "gid":
+			aevent.Gid, _ = strconv.Atoi(v)
+		case "success":
+			aevent.Success = v
+		case "cwd":
+			aevent.ProcDir = strings.Trim(decodeString(v), "\"")
+		case "inode":
+			aevent.INode, _ = strconv.Atoi(v)
+		case "dev":
+			aevent.Dev = v
+		case "mode":
+			aevent.ProcMode = v
+		case "ouid":
+			aevent.OUid, _ = strconv.Atoi(v)
+		case "ogid":
+			aevent.OGid, _ = strconv.Atoi(v)
+		case "syscall":
+			aevent.Syscall, _ = strconv.Atoi(v)
+		case "exit":
+			aevent.Exit, _ = strconv.Atoi(v)
+		case "type":
+			aevent.EventType = v
+		case "msg":
+			parts := strings.Split(v[6:], ":")
+			aevent.Timestamp = parts[0]
+			aevent.Serial = parts[1][:len(parts[1])-1]
 		}
 	}
 
@@ -232,11 +233,11 @@ func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
 // If the next messages of the set have additional information, we update the
 // event.
 func parseEvent(rawMessage string, eventChan chan<- Event) {
-	aEvent := make(map[string]string)
-
 	if newEvent == false && strings.Index(rawMessage, OpensnitchRulesKey) == -1 {
 		return
 	}
+
+	aEvent := make(map[string]string)
 	if strings.Index(rawMessage, SYSCALL_SOCKET_STR) != -1 ||
 		strings.Index(rawMessage, SYSCALL_CONNECT_STR) != -1 ||
 		strings.Index(rawMessage, SYSCALL_SOCKETPAIR_STR) != -1 ||
