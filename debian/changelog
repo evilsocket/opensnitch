@@ -1,3 +1,13 @@
+opensnitch (1.0.0rc6-1) unstable; urgency=medium
+
+  * Fixed iptables rules deletion.
+  * Improved PIDs cache.
+  * Added audit process monitoring method.
+  * Added logrotate file.
+  * Added default configuration file.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Sun, 08 Mar 2020 20:47:58 +0100
+
 opensnitch (1.0.0rc-5) unstable; urgency=medium
 
   * Fixed netlink socket querying.

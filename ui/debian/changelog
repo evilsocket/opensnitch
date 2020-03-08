@@ -1,3 +1,9 @@
+opensnitch-ui (1.0.0rc6-1) unstable; urgency=medium
+
+  * Fixed showing systray icon in Cinnamon.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Sun, 08 Mar 2020 20:50:52 +0100
+
 opensnitch-ui (1.0.0rc5-1) unstable; urgency=medium
 
   * Workaround for crash parsing non-utf8 desktop files.
