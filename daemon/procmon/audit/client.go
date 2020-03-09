@@ -76,16 +76,16 @@ const (
 var (
 	// Lock holds a mutex
 	Lock   sync.RWMutex
+	ourPid = os.Getpid()
 	events []*Event
 	// EventChan is an output channel where incoming auditd events will be written.
 	// If a client opens it.
 	EventChan = (chan Event)(nil)
 	stop      = false
 	// TODO: we may need arm arch
-	rule64      = []string{"exit,always", "-F", "arch=b64", "-S", "socket,connect", "-k", "opensnitch"}
-	rule32      = []string{"exit,always", "-F", "arch=b32", "-F", "a0=1", "-S", "socketcall", "-k", "opensnitch"}
+	rule64      = []string{"exit,always", "-F", "arch=b64", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socket,connect", "-k", "opensnitch"}
+	rule32      = []string{"exit,always", "-F", "arch=b32", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socketcall", "-F", "a0=1", "-k", "opensnitch"}
 	audispdPath = "/var/run/audispd_events"
-	ourPid      = os.Getpid()
 )
 
 // OPENSNITCH_RULES_KEY is the mark we place on every event we are interested in.

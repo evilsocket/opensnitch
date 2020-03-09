@@ -70,11 +70,6 @@ var (
 	SYSCALL_SOCKETCALL_STR = fmt.Sprint("syscall=", SYSCALL_SOCKETCALL)
 )
 
-// isFromOurPid checks out if the event has been generated from ourselfs.
-func isFromOurPid(pid, ppid string) bool {
-	return pid == strconv.Itoa(ourPid) || ppid == strconv.Itoa(ourPid)
-}
-
 // parseNetLine parses a SOCKADDR message type of the form:
 // saddr string: inet6 host:2001:4860:4860::8888 serv:53
 func parseNetLine(line string, decode bool) (family string, dstHost net.IP, dstPort int) {
@@ -245,7 +240,7 @@ func parseEvent(rawMessage string, eventChan chan<- Event) {
 		strings.Index(rawMessage, SYSCALL_SOCKETCALL_STR) != -1 {
 
 		extractFields(rawMessage, &aEvent)
-		if aEvent != nil && isFromOurPid(aEvent["pid"], aEvent["ppid"]) {
+		if aEvent == nil {
 			return
 		}
 		newEvent = true
@@ -288,9 +283,6 @@ func parseEvent(rawMessage string, eventChan chan<- Event) {
 	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_SOCKADDR) != -1 {
 		extractFields(rawMessage, &aEvent)
 		if aEvent == nil {
-			return
-		}
-		if isFromOurPid(aEvent["pid"], aEvent["ppid"]) {
 			return
 		}
 
