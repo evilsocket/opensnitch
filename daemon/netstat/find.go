@@ -3,10 +3,11 @@ package netstat
 import (
 	"net"
 	"strings"
-	
+
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
+// FindEntry looks for the connection in the list of known connections in ProcFS.
 func FindEntry(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPort uint) *Entry {
 	if entry := findEntryForProtocol(proto, srcIP, srcPort, dstIP, dstPort); entry != nil {
 		return entry

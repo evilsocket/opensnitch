@@ -44,7 +44,6 @@ func hexToInt(h string) uint {
 	return uint(d)
 }
 
-
 func hexToInt2(h string) (uint, uint) {
 	if len(h) > 16 {
 		d, err := strconv.ParseUint(h[:16], 16, 64)
@@ -56,13 +55,13 @@ func hexToInt2(h string) (uint, uint) {
 			log.Fatal("Error while parsing %s to int: %s", h[16:], err)
 		}
 		return uint(d), uint(d2)
-	} else {
-		d, err := strconv.ParseUint(h, 16, 64)
-		if err != nil {
-			log.Fatal("Error while parsing %s to int: %s", h[16:], err)
-		}
-		return uint(d), 0
 	}
+
+	d, err := strconv.ParseUint(h, 16, 64)
+	if err != nil {
+		log.Fatal("Error while parsing %s to int: %s", h[16:], err)
+	}
+	return uint(d), 0
 }
 
 func hexToIP(h string) net.IP {
@@ -71,9 +70,9 @@ func hexToIP(h string) net.IP {
 	if m != 0 {
 		ip = make(net.IP, 16)
 		// TODO: Check if this depends on machine endianness?
-		binary.LittleEndian.PutUint32(ip, uint32(n >> 32))
+		binary.LittleEndian.PutUint32(ip, uint32(n>>32))
 		binary.LittleEndian.PutUint32(ip[4:], uint32(n))
-		binary.LittleEndian.PutUint32(ip[8:], uint32(m >> 32))
+		binary.LittleEndian.PutUint32(ip[8:], uint32(m>>32))
 		binary.LittleEndian.PutUint32(ip[12:], uint32(m))
 	} else {
 		ip = make(net.IP, 4)
@@ -82,6 +81,7 @@ func hexToIP(h string) net.IP {
 	return ip
 }
 
+// Parse scans and retrieves the opened connections, from /proc/net/ files
 func Parse(proto string) ([]Entry, error) {
 	filename := fmt.Sprintf("/proc/net/%s", proto)
 	fd, err := os.Open(filename)
