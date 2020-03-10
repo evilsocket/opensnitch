@@ -7,8 +7,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
 var (
@@ -24,50 +22,50 @@ var (
 // amd64 syscalls definition
 // if the platform is not amd64, it's redefined on Start()
 var (
-	SYSCALL_SOCKET     = "41"
-	SYSCALL_CONNECT    = "42"
-	SYSCALL_SOCKETPAIR = "53"
-	SYSCALL_EXECVE     = "59"
-	SYSCALL_SOCKETCALL = "102"
+	syscallSOCKET     = "41"
+	syscallCONNECT    = "42"
+	syscallSOCKETPAIR = "53"
+	syscallEXECVE     = "59"
+	syscallSOCKETCALL = "102"
 )
 
 // /usr/include/x86_64-linux-gnu/bits/socket_type.h
 const (
-	SOCK_STREAM    = "1"
-	SOCK_DGRAM     = "2"
-	SOCK_RAW       = "3"
-	SOCK_SEQPACKET = "5"
-	SOCK_PACKET    = "10"
+	sockSTREAM    = "1"
+	sockDGRAM     = "2"
+	sockRAW       = "3"
+	sockSEQPACKET = "5"
+	sockPACKET    = "10"
 
 	// /usr/include/x86_64-linux-gnu/bits/socket.h
-	PF_UNSPEC = "0"
-	PF_LOCAL  = "1" // PF_UNIX
-	PF_INET   = "2"
-	PF_INET6  = "10"
+	pfUNSPEC = "0"
+	pfLOCAL  = "1" // PF_UNIX
+	pfINET   = "2"
+	pfINET6  = "10"
 
 	// /etc/protocols
-	PROTO_IP  = "0"
-	PROTO_TCP = "6"
-	PROTO_UDP = "17"
+	protoIP  = "0"
+	protoTCP = "6"
+	protoUDP = "17"
 )
 
 // https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/sec-Audit_Record_Types.html
 const (
-	AUDIT_TYPE_PROCTITLE  = "type=PROCTITLE"
-	AUDIT_TYPE_CWD        = "type=CWD"
-	AUDIT_TYPE_PATH       = "type=PATH"
-	AUDIT_TYPE_EXECVE     = "type=EXECVE"
-	AUDIT_TYPE_SOCKADDR   = "type=SOCKADDR"
-	AUDIT_TYPE_SOCKETCALL = "type=SOCKETCALL"
-	AUDIT_TYPE_EOE        = "type=EOE"
+	AuditTypePROCTITLE  = "type=PROCTITLE"
+	AuditTypeCWD        = "type=CWD"
+	AuditTypePATH       = "type=PATH"
+	AuditTypeEXECVE     = "type=EXECVE"
+	AuditTypeSOCKADDR   = "type=SOCKADDR"
+	AuditTypeSOCKETCALL = "type=SOCKETCALL"
+	AuditTypeEOE        = "type=EOE"
 )
 
 var (
-	SYSCALL_SOCKET_STR     = fmt.Sprint("syscall=", SYSCALL_SOCKET)
-	SYSCALL_CONNECT_STR    = fmt.Sprint("syscall=", SYSCALL_CONNECT)
-	SYSCALL_SOCKETPAIR_STR = fmt.Sprint("syscall=", SYSCALL_SOCKETPAIR)
-	SYSCALL_EXECVE_STR     = fmt.Sprint("syscall=", SYSCALL_EXECVE)
-	SYSCALL_SOCKETCALL_STR = fmt.Sprint("syscall=", SYSCALL_SOCKETCALL)
+	syscallSOCKETstr     = fmt.Sprint("syscall=", syscallSOCKET)
+	syscallCONNECTstr    = fmt.Sprint("syscall=", syscallCONNECT)
+	syscallSOCKETPAIRstr = fmt.Sprint("syscall=", syscallSOCKETPAIR)
+	syscallEXECVEstr     = fmt.Sprint("syscall=", syscallEXECVE)
+	syscallSOCKETCALLstr = fmt.Sprint("syscall=", syscallSOCKETCALL)
 )
 
 // parseNetLine parses a SOCKADDR message type of the form:
@@ -138,26 +136,8 @@ func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
 
 	for k, v := range *eventFields {
 		switch k {
-		case "a0":
-			if (*eventFields)["syscall"] == SYSCALL_SOCKET ||
-				(*eventFields)["syscall"] == SYSCALL_CONNECT ||
-				(*eventFields)["syscall"] == SYSCALL_SOCKETPAIR ||
-				(*eventFields)["syscall"] == SYSCALL_SOCKETCALL {
-				// XXX: is it worth to intercept PF_LOCAL/PF_FILE as well?
-				if v == PF_INET6 || v == "a" {
-					aevent.NetFamily = "inet6"
-				} else if v == PF_INET || v == PF_LOCAL || v == PF_UNSPEC {
-					aevent.NetFamily = "inet"
-				}
-			}
-		case "a1":
-			if (*eventFields)["syscall"] == SYSCALL_SOCKET {
-				if aevent.NetFamily == "" &&
-					(v == "0" || v == SOCK_STREAM || v == SOCK_DGRAM ||
-						v == SOCK_RAW || v == SOCK_SEQPACKET || v == SOCK_PACKET) {
-					aevent.NetFamily = "inet"
-				}
-			}
+		//case "a0":
+		//case "a1":
 		case "fam":
 			aevent.NetFamily = v
 		case "lport":
@@ -233,11 +213,11 @@ func parseEvent(rawMessage string, eventChan chan<- Event) {
 	}
 
 	aEvent := make(map[string]string)
-	if strings.Index(rawMessage, SYSCALL_SOCKET_STR) != -1 ||
-		strings.Index(rawMessage, SYSCALL_CONNECT_STR) != -1 ||
-		strings.Index(rawMessage, SYSCALL_SOCKETPAIR_STR) != -1 ||
-		strings.Index(rawMessage, SYSCALL_EXECVE_STR) != -1 ||
-		strings.Index(rawMessage, SYSCALL_SOCKETCALL_STR) != -1 {
+	if strings.Index(rawMessage, syscallSOCKETstr) != -1 ||
+		strings.Index(rawMessage, syscallCONNECTstr) != -1 ||
+		strings.Index(rawMessage, syscallSOCKETPAIRstr) != -1 ||
+		strings.Index(rawMessage, syscallEXECVEstr) != -1 ||
+		strings.Index(rawMessage, syscallSOCKETCALLstr) != -1 {
 
 		extractFields(rawMessage, &aEvent)
 		if aEvent == nil {
@@ -247,40 +227,35 @@ func parseEvent(rawMessage string, eventChan chan<- Event) {
 		netEvent = &Event{}
 		netEvent = populateEvent(netEvent, &aEvent)
 		AddEvent(netEvent)
-
-	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_PROCTITLE) != -1 {
+	} else if newEvent == true && strings.Index(rawMessage, AuditTypePROCTITLE) != -1 {
 		extractFields(rawMessage, &aEvent)
 		if aEvent == nil {
 			return
 		}
 		netEvent = populateEvent(netEvent, &aEvent)
 		AddEvent(netEvent)
-
-	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_CWD) != -1 {
+	} else if newEvent == true && strings.Index(rawMessage, AuditTypeCWD) != -1 {
 		extractFields(rawMessage, &aEvent)
 		if aEvent == nil {
 			return
 		}
 		netEvent = populateEvent(netEvent, &aEvent)
 		AddEvent(netEvent)
-
-	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_EXECVE) != -1 {
+	} else if newEvent == true && strings.Index(rawMessage, AuditTypeEXECVE) != -1 {
 		extractFields(rawMessage, &aEvent)
 		if aEvent == nil {
 			return
 		}
 		netEvent = populateEvent(netEvent, &aEvent)
 		AddEvent(netEvent)
-
-	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_PATH) != -1 {
+	} else if newEvent == true && strings.Index(rawMessage, AuditTypePATH) != -1 {
 		extractFields(rawMessage, &aEvent)
 		if aEvent == nil {
 			return
 		}
 		netEvent = populateEvent(netEvent, &aEvent)
 		AddEvent(netEvent)
-
-	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_SOCKADDR) != -1 {
+	} else if newEvent == true && strings.Index(rawMessage, AuditTypeSOCKADDR) != -1 {
 		extractFields(rawMessage, &aEvent)
 		if aEvent == nil {
 			return
@@ -291,17 +266,8 @@ func parseEvent(rawMessage string, eventChan chan<- Event) {
 		if EventChan != nil {
 			eventChan <- *netEvent
 		}
-
-	} else if newEvent == true && strings.Index(rawMessage, AUDIT_TYPE_EOE) != -1 {
+	} else if newEvent == true && strings.Index(rawMessage, AuditTypeEOE) != -1 {
 		newEvent = false
-		if SYSCALL_SOCKET == strconv.Itoa(netEvent.Syscall) && (netEvent.NetFamily == "" || netEvent.NetFamily[:4] != "inet") {
-			log.Warning("Excluding event EOE", netEvent.NetFamily, netEvent)
-			return
-		}
-		if netEvent.Pid == ourPid || netEvent.PPid == ourPid {
-			return
-		}
-
 		AddEvent(netEvent)
 		if EventChan != nil {
 			eventChan <- *netEvent

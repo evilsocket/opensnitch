@@ -15,9 +15,12 @@
 // - set write_logs to no if you don't need/want audit logs to be stored in the disk.
 //
 // Audit event fields:
-// https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/app-Audit_Reference.html
+// https://github.com/linux-audit/audit-documentation/blob/master/specs/fields/field-dictionary.csv
 // Record types:
 // https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/sec-Audit_Record_Types.html
+//
+// Documentation:
+// https://github.com/linux-audit/audit-documentation
 package audit
 
 import (
@@ -198,9 +201,9 @@ func addRules() bool {
 func configureSyscalls() {
 	// XXX: what about a i386 process running on a x86_64 system?
 	if runtime.GOARCH == "386" {
-		SYSCALL_SOCKET = "1"
-		SYSCALL_CONNECT = "3"
-		SYSCALL_SOCKETPAIR = "8"
+		syscallSOCKET = "1"
+		syscallCONNECT = "3"
+		syscallSOCKETPAIR = "8"
 	}
 }
 
