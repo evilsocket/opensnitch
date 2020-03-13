@@ -289,6 +289,7 @@ func main() {
 	setupWorkers()
 	queue, err := netfilter.NewQueue(uint16(queueNum))
 	if err != nil {
+		log.Warning("Is opnensitchd already running?")
 		log.Fatal("Error while creating queue #%d: %s", queueNum, err)
 	}
 	pktChan = queue.Packets()
