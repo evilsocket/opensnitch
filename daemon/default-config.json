@@ -1,1 +1,6 @@
-{"default_action": "allow", "default_duration": "once", "intercept_unknown": false}
+{
+    "DefaultAction": "allow",
+    "DefaultDuration": "once",
+    "InterceptUnknown": false,
+    "ProcMonitorMethod": "proc"
+}

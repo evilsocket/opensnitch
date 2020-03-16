@@ -2,8 +2,8 @@ package ui
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"strings"
 	"sync"
@@ -23,34 +23,38 @@ import (
 )
 
 var (
-	configFile			 = "/etc/opensnitchd/default-config.json"
+	configFile             = "/etc/opensnitchd/default-config.json"
 	clientDisconnectedRule = rule.Create("ui.client.disconnected", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
-	clientErrorRule		= rule.Create("ui.client.error", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
-	config  Config
+	clientErrorRule        = rule.Create("ui.client.error", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
+	config                 Config
 )
 
+// Config holds the values loaded from configFile
 type Config struct {
 	sync.RWMutex
-	Default_Action   string
-	Default_Duration string
-	Intercept_Unknown bool
+	DefaultAction     string
+	DefaultDuration   string
+	InterceptUnknown  bool
+	ProcMonitorMethod string
 }
 
+// Client holds the connection information of a client.
 type Client struct {
 	sync.Mutex
 
-	stats		*statistics.Statistics
-	socketPath   string
-	isUnixSocket bool
-	con		  *grpc.ClientConn
-	client	   protocol.UIClient
+	stats         *statistics.Statistics
+	socketPath    string
+	isUnixSocket  bool
+	con           *grpc.ClientConn
+	client        protocol.UIClient
 	configWatcher *fsnotify.Watcher
 }
 
+// NewClient creates and configures a new client.
 func NewClient(path string, stats *statistics.Statistics) *Client {
 	c := &Client{
 		socketPath:   path,
-		stats:		stats,
+		stats:        stats,
 		isUnixSocket: false,
 	}
 	if watcher, err := fsnotify.NewWatcher(); err == nil {
@@ -79,14 +83,15 @@ func (c *Client) loadConfiguration(reload bool) {
 	if err != nil {
 		fmt.Errorf("Error parsing configuration %s: %s", configFile, err)
 	}
+	log.Important("dact", config.DefaultAction, "ddura", config.DefaultDuration, "pmonmeth", config.ProcMonitorMethod)
 
-	if config.Default_Action != "" {
-		clientDisconnectedRule.Action = rule.Action(config.Default_Action)
-		clientErrorRule.Action = rule.Action(config.Default_Action)
+	if config.DefaultAction != "" {
+		clientDisconnectedRule.Action = rule.Action(config.DefaultAction)
+		clientErrorRule.Action = rule.Action(config.DefaultAction)
 	}
-	if config.Default_Duration != "" {
-		clientDisconnectedRule.Duration = rule.Duration(config.Default_Duration)
-		clientErrorRule.Duration = rule.Duration(config.Default_Duration)
+	if config.DefaultDuration != "" {
+		clientDisconnectedRule.Duration = rule.Duration(config.DefaultDuration)
+		clientErrorRule.Duration = rule.Duration(config.DefaultDuration)
 	}
 
 	if err := c.configWatcher.Add(configFile); err != nil {
@@ -100,20 +105,33 @@ func (c *Client) loadConfiguration(reload bool) {
 	go c.monitorConfigWorker()
 }
 
+// ProcMonitorMethod returns the monitor method configured.
+// If it's not present in the config file, it'll return an emptry string.
+func (c *Client) ProcMonitorMethod() string {
+	config.RLock()
+	defer config.RUnlock()
+	return config.ProcMonitorMethod
+}
+
+// InterceptUnknown returns
 func (c *Client) InterceptUnknown() bool {
 	config.RLock()
 	defer config.RUnlock()
-	return config.Intercept_Unknown
+	return config.InterceptUnknown
 }
 
+// DefaultAction returns the default configured action for
 func (c *Client) DefaultAction() rule.Action {
 	return clientDisconnectedRule.Action
 }
 
+// DefaultDuration returns the default duration configured for a rule.
+// For example it can be: once, always, "until restart".
 func (c *Client) DefaultDuration() rule.Duration {
 	return clientDisconnectedRule.Duration
 }
 
+// Connected checks if the client has established a connection with the server.
 func (c *Client) Connected() bool {
 	c.Lock()
 	defer c.Unlock()
@@ -201,7 +219,7 @@ func (c *Client) connect() (err error) {
 
 func (c *Client) ping(ts time.Time) (err error) {
 	if c.Connected() == false {
-		return fmt.Errorf("service is not connected.")
+		return fmt.Errorf("service is not connected")
 	}
 
 	c.Lock()
@@ -209,10 +227,10 @@ func (c *Client) ping(ts time.Time) (err error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	reqId := uint64(ts.UnixNano())
+	reqID := uint64(ts.UnixNano())
 
 	pReq := &protocol.PingRequest{
-		Id:	reqId,
+		Id:    reqID,
 		Stats: c.stats.Serialize(),
 	}
 	c.stats.RLock()
@@ -222,13 +240,15 @@ func (c *Client) ping(ts time.Time) (err error) {
 		return err
 	}
 
-	if pong.Id != reqId {
-		return fmt.Errorf("Expected pong with id 0x%x, got 0x%x", reqId, pong.Id)
+	if pong.Id != reqID {
+		return fmt.Errorf("Expected pong with id 0x%x, got 0x%x", reqID, pong.Id)
 	}
 
 	return nil
 }
 
+// Ask sends a request to the server, with the values of a connection to be
+// allowed or denied.
 func (c *Client) Ask(con *conman.Connection) (*rule.Rule, bool) {
 	if c.Connected() == false {
 		return clientDisconnectedRule, false
@@ -248,7 +268,7 @@ func (c *Client) Ask(con *conman.Connection) (*rule.Rule, bool) {
 	return rule.Deserialize(reply), true
 }
 
-func(c *Client) monitorConfigWorker () {
+func (c *Client) monitorConfigWorker() {
 	for {
 		select {
 		case event := <-c.configWatcher.Events:

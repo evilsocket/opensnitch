@@ -26,7 +26,7 @@ import (
 
 var (
 	lock          sync.RWMutex
-	procmonMethod = procmon.MethodProc
+	procmonMethod = ""
 	logFile       = ""
 	rulesPath     = "rules"
 	noLiveReload  = false
@@ -53,7 +53,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&procmon.MonitorMethod, "process-monitor-method", procmon.MonitorMethod, "How to search for processes path. Options: ftrace, audit (experimental), proc (default)")
+	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "How to search for processes path. Options: ftrace, audit (experimental), proc (default)")
 	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
 	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
@@ -268,8 +268,6 @@ func main() {
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
 
-	procmon.Init()
-
 	rulesPath, err := core.ExpandPath(rulesPath)
 	if err != nil {
 		log.Fatal("%s", err)
@@ -294,10 +292,19 @@ func main() {
 	}
 	pktChan = queue.Packets()
 
+	// clean any possible residual firewall rule
 	firewall.QueueDNSResponses(false, queueNum)
 	firewall.QueueConnections(false, queueNum)
 	firewall.DropMarked(false)
-	go firewall.StartCheckingRules(queueNum)
+
+	uiClient = ui.NewClient(uiSocket, stats)
+	if configMonMethod := uiClient.ProcMonitorMethod(); configMonMethod != "" {
+		procmon.MonitorMethod = configMonMethod
+	}
+	if procmonMethod != "" {
+		procmon.MonitorMethod = procmonMethod
+	}
+	procmon.Init()
 
 	// queue is ready, run firewall rules
 	if err = firewall.QueueDNSResponses(true, queueNum); err != nil {
@@ -307,8 +314,7 @@ func main() {
 	} else if err = firewall.DropMarked(true); err != nil {
 		log.Fatal("Error while running drop firewall rule: %s", err)
 	}
-
-	uiClient = ui.NewClient(uiSocket, stats)
+	go firewall.StartCheckingRules(queueNum)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for true {
