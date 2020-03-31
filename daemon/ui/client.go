@@ -83,7 +83,6 @@ func (c *Client) loadConfiguration(reload bool) {
 	if err != nil {
 		fmt.Errorf("Error parsing configuration %s: %s", configFile, err)
 	}
-	log.Important("dact", config.DefaultAction, "ddura", config.DefaultDuration, "pmonmeth", config.ProcMonitorMethod)
 
 	if config.DefaultAction != "" {
 		clientDisconnectedRule.Action = rule.Action(config.DefaultAction)
