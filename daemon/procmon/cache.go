@@ -28,7 +28,7 @@ var (
 	// descriptors of /proc/<pid>/fd/
 	// 20-50us vs 50-80ms
 	inodesCache     = make(map[string]*Inode)
-	maxCachedInodes = 24
+	maxCachedInodes = 128
 	// 2nd cache of already known running pids, which also saves time by
 	// iterating only over a few pids' descriptors, (30us-2ms vs. 50-80ms)
 	// since it's more likely that most of the connections will be made by the
@@ -68,7 +68,16 @@ func deleteProcEntry(pid int) {
 	for n, procEntry := range pidsCache {
 		if procEntry.Pid == pid {
 			pidsCache = append(pidsCache[:n], pidsCache[n+1:]...)
+			deleteInodeEntry(pid)
 			break
+		}
+	}
+}
+
+func deleteInodeEntry(pid int) {
+	for k, inodeEntry := range inodesCache {
+		if inodeEntry.Pid == pid {
+			delete(inodesCache, k)
 		}
 	}
 }
