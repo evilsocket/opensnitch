@@ -43,20 +43,20 @@ func getPIDFromAuditEvents(inode int, inodeKey string, expect string) (int, int)
 // If the PID is not found by one of the 2 first methods, it'll try it using /proc.
 func GetPIDFromINode(inode int, inodeKey string) int {
 	found := -1
-	start := time.Now()
-	cleanUpCaches()
-
-	if cachedPidInode := getPidByInodeFromCache(inodeKey); cachedPidInode != -1 {
-		log.Debug("Inode found in cache %v, pid: %d, inode: %d, key: %v, total: %d", time.Since(start), cachedPidInode, inode, inodeKey, len(inodesCache))
-		return cachedPidInode
-	}
-
 	if inode <= 0 {
 		return found
 	}
+	start := time.Now()
+	cleanUpCaches()
 
 	expect := fmt.Sprintf("socket:[%d]", inode)
-	if cachedPid, pos := getPidFromCache(inode, inodeKey, expect); cachedPid != -1 {
+	if cachedPidInode := getPidByInodeFromCache(inodeKey); cachedPidInode != -1 {
+		log.Debug("Inode found in cache", time.Since(start), inodesCache[inodeKey], inode, inodeKey)
+		return cachedPidInode
+	}
+
+	cachedPid, pos := getPidFromCache(inode, inodeKey, expect)
+	if cachedPid != -1 {
 		log.Debug("Socket found in known pids %v, pid: %d, inode: %d, pids in cache: %d", time.Since(start), cachedPid, inode, "pos", pos, len(pidsCache))
 		sortProcEntries()
 		return cachedPid
