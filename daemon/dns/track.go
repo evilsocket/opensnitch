@@ -27,7 +27,6 @@ func TrackAnswers(packet gopacket.Packet) bool {
 	if ok == false || udp == nil {
 		return false
 	}
-
 	if udp.SrcPort != 53 {
 		return false
 	}
@@ -60,6 +59,9 @@ func Track(resolved string, hostname string) {
 	lock.Lock()
 	defer lock.Unlock()
 
+	if resolved == "127.0.0.1" {
+		return
+	}
 	responses[resolved] = hostname
 
 	log.Debug("New DNS record: %s -> %s", resolved, hostname)
