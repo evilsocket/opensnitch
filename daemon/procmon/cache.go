@@ -100,7 +100,6 @@ func getPidByInodeFromCache(inodeKey string) int {
 			return inodesCache[inodeKey].Pid
 		}
 		deleteProcEntry(inodesCache[inodeKey].Pid)
-		delete(inodesCache, inodeKey)
 	}
 
 	return -1
