@@ -7,6 +7,7 @@ import (
 	"net"
 	"syscall"
 
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 	"github.com/vishvananda/netlink/nl"
 )
 
@@ -20,12 +21,43 @@ const (
 )
 
 var (
-	ErrNotImplemented = errors.New("not implemented")
-	native            = nl.NativeEndian()
-	networkOrder      = binary.BigEndian
-	TCP_ALL           = uint32(0xfff)
+	native       = nl.NativeEndian()
+	networkOrder = binary.BigEndian
+	TCP_ALL      = uint32(0xfff)
 )
 
+// netinet/tcp.h
+const (
+	_               = iota
+	TCP_ESTABLISHED = iota
+	TCP_SYN_SENT
+	TCP_SYN_RECV
+	TCP_FIN_WAIT1
+	TCP_FIN_WAIT2
+	TCP_TIME_WAIT
+	TCP_CLOSE
+	TCP_CLOSE_WAIT
+	TCP_LAST_ACK
+	TCP_LISTEN
+	TCP_CLOSING
+)
+
+// TCPStatesMap holds the list of TCP states
+var TCPStatesMap = map[uint8]string{
+	TCP_ESTABLISHED: "established",
+	TCP_SYN_SENT:    "syn_sent",
+	TCP_SYN_RECV:    "syn_recv",
+	TCP_FIN_WAIT1:   "fin_wait1",
+	TCP_FIN_WAIT2:   "fin_wait2",
+	TCP_TIME_WAIT:   "time_wait",
+	TCP_CLOSE:       "close",
+	TCP_CLOSE_WAIT:  "close_wait",
+	TCP_LAST_ACK:    "last_ack",
+	TCP_LISTEN:      "listen",
+	TCP_CLOSING:     "closing",
+}
+
+// SocketID holds the socket information of a request/response to the kernel
 type SocketID struct {
 	SourcePort      uint16
 	DestinationPort uint16
@@ -49,6 +81,7 @@ type Socket struct {
 	INode   uint32
 }
 
+// SocketRequest holds the request/response of a connection to the kernel
 type SocketRequest struct {
 	Family   uint8
 	Protocol uint8
@@ -74,6 +107,7 @@ func (b *writeBuffer) Next(n int) []byte {
 	return s
 }
 
+// Serialize convert SocketRequest struct to bytes.
 func (r *SocketRequest) Serialize() []byte {
 	b := writeBuffer{Bytes: make([]byte, sizeofSocketRequest)}
 	b.Write(r.Family)
@@ -93,6 +127,7 @@ func (r *SocketRequest) Serialize() []byte {
 	return b.Bytes
 }
 
+// Len returns the size of a socket request
 func (r *SocketRequest) Len() int { return sizeofSocketRequest }
 
 type readBuffer struct {
@@ -138,26 +173,16 @@ func (s *Socket) deserialize(b []byte) error {
 	return nil
 }
 
-// SocketGet returns the Socket identified by its local and remote addresses.
-func SocketGet(family uint8, proto uint8, srcPort, dstPort uint16, local, remote net.IP) (*Socket, error) {
-	var localIP, remoteIP net.IP
-
-	if family == syscall.AF_INET6 {
-		localIP = local.To16()
-		remoteIP = remote.To16()
-	} else {
-		localIP = local.To4()
-		remoteIP = remote.To4()
-	}
-
+// SocketGet returns the list of active connections in the kernel
+// filtered by several fields. Currently it returns connections
+// filtered by source port and protocol.
+func SocketGet(family uint8, proto uint8, srcPort, dstPort uint16, local, remote net.IP) ([]*Socket, error) {
 	_Id := SocketID{
-		SourcePort:      srcPort,
-		DestinationPort: dstPort,
-		Source:          localIP,
-		Destination:     remoteIP,
-		Cookie:          [2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
+		SourcePort: srcPort,
+		Cookie:     [2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
 	}
-	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, 0)
+
+	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, syscall.NLM_F_DUMP)
 	sockReq := &SocketRequest{
 		Family:   family,
 		Protocol: proto,
@@ -172,12 +197,18 @@ func SocketGet(family uint8, proto uint8, srcPort, dstPort uint16, local, remote
 	if len(msgs) == 0 {
 		return nil, errors.New("Warning, no message nor error from netlink")
 	}
-	if len(msgs) > 2 {
-		return nil, fmt.Errorf("multiple (%d) matching sockets", len(msgs))
+	var sock []*Socket
+	for n, m := range msgs {
+		s := &Socket{}
+		if err = s.deserialize(m); err != nil {
+			log.Error("[%d] netlink socket error: %s, %d:%v -> %v:%d -  %d:%v -> %v:%d",
+				n, TCPStatesMap[s.State],
+				srcPort, local, remote, dstPort,
+				s.ID.SourcePort, s.ID.Source, s.ID.Destination, s.ID.DestinationPort)
+			continue
+		}
+
+		sock = append([]*Socket{s}, sock...)
 	}
-	sock := &Socket{}
-	if err := sock.deserialize(msgs[0]); err != nil {
-		return nil, err
-	}
-	return sock, nil
+	return sock, err
 }

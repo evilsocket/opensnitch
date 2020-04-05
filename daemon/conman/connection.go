@@ -81,34 +81,56 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 	if c.parseDirection() == false {
 		return nil, nil
 	}
+	log.Debug("new connection %s => %d:%v -> %v:%d uid: ", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort, nfp.Uid)
 
-	// 0. lookup uid and inode via netlink
-	// 1. lookup uid and inode using /proc/net/(udp|tcp)
+	c.Entry = &netstat.Entry{
+		Proto:   c.Protocol,
+		SrcIP:   c.SrcIP,
+		SrcPort: c.SrcPort,
+		DstIP:   c.DstIP,
+		DstPort: c.DstPort,
+		UserId:  -1,
+		INode:   -1,
+	}
+
+	// 0. lookup uid and inode via netlink. Can return several inodes.
+	// 1. lookup uid and inode using /proc/net/(udp|tcp|udplite)
 	// 2. lookup pid by inode
 	// 3. if this is coming from us, just accept
 	// 4. lookup process info by pid
-	if uid, inode := netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); inode > 0 {
-		c.Entry = &netstat.Entry{
-			Proto:   c.Protocol,
-			SrcIP:   c.SrcIP,
-			SrcPort: c.SrcPort,
-			DstIP:   c.DstIP,
-			DstPort: c.DstPort,
-			UserId:  uid,
-			INode:   inode,
+	uid, inodeList := netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)
+	if len(inodeList) == 0 {
+		if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
+			return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
 		}
-	} else if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
-		return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
+		if c.Entry.INode != -1 {
+			inodeList = append([]int{c.Entry.INode}, inodeList...)
+		}
 	}
-	if c.Entry.UserId == -1 {
-		c.Entry.UserId = nfp.Uid
+	if uid == -1 && c.Entry.UserId == -1 && nfp.Uid != -1 && nfp.Uid != 0xffffffff {
+		uid = nfp.Uid
 	}
-	pid := procmon.GetPIDFromINode(c.Entry.INode, fmt.Sprint(c.Entry.INode, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort))
-	if pid == os.Getpid() {
+	if len(inodeList) == 0 {
+		log.Debug("<== no inodes found, applying default action.")
 		return nil, nil
-	} else if c.Process = procmon.FindProcess(pid, showUnknownCons); c.Process == nil {
+	}
+
+	pid := -1
+	for n, inode := range inodeList {
+		if pid = procmon.GetPIDFromINode(inode, fmt.Sprint(inode, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)); pid == os.Getpid() {
+			return nil, nil
+		}
+		if pid != -1 {
+			log.Debug("[%d] PID found %d", n, pid)
+			c.Entry.INode = inode
+			break
+		}
+	}
+	if c.Process = procmon.FindProcess(pid, showUnknownCons); c.Process == nil {
 		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
 	}
+
+	c.Entry.UserId = uid
 	return c, nil
 
 }
