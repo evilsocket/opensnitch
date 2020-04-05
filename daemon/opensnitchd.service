@@ -1,6 +1,6 @@
 [Unit]
 Description=OpenSnitch is a GNU/Linux port of the Little Snitch application firewall.
-Documentation=https://github.com/evilsocket/opensnitch
+Documentation=https://github.com/gustavo-iniguez-goya/opensnitch/wiki
 Wants=network.target
 After=network.target
 
