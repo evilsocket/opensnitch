@@ -2,7 +2,7 @@
 Type=Application
 Name=OpenSnitch
 Exec=opensnitch-ui
-Icon=preferences-system-firewall
+Icon=opensnitch-ui
 GenericName=OpenSnitch Firewall
 Terminal=false
 NoDisplay=false

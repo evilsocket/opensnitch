@@ -89,7 +89,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.off_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-off.png"))
         self.off_icon = QtGui.QIcon()
         self.off_icon.addPixmap(self.off_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.white_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-white.png"))
+        self.white_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-white.svg"))
         self.white_icon = QtGui.QIcon()
         self.white_icon.addPixmap(self.white_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.red_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-red.png"))
@@ -155,7 +155,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     @QtCore.pyqtSlot()
     def _on_stats_dialog_shown(self):
-        self._tray.setIcon(self.white_icon)
+        if self._connected:
+            self._tray.setIcon(self.white_icon)
+        else:
+            self._tray.setIcon(self.off_icon)
 
     def _on_remote_stats_menu(self, address):
         self._remote_stats[address].show()
