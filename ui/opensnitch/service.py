@@ -312,7 +312,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 _title = "%s:%d (%s)" % (request.dst_host, request.dst_port, request.protocol)
 
             self._tray.setIcon(self.alert_icon)
-            self._tray.showMessage(_title, "%s action applied\nArguments: %s" % (rule.action, request.process_args), QtWidgets.QSystemTrayIcon.Warning, 0)
+            self._tray.showMessage(_title, "%s action applied\nArguments: %s" % (rule.action, request.process_args), QtWidgets.QSystemTrayIcon.NoIcon, 0)
 
         self._last_ping = datetime.now()
         self._asking = False
