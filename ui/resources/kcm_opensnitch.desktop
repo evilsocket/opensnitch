@@ -1,6 +1,6 @@
 [Desktop Entry]
 Exec=opensnitch-ui
-Icon=preferences-system-firewall
+Icon=opensnitch-ui
 Type=Service
 X-KDE-ServiceTypes=SystemSettingsExternalApp
 X-KDE-System-Settings-Parent-Category=system-administration
