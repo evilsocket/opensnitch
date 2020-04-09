@@ -16,6 +16,8 @@ purge_files()
     done
 }
 
+pkill -15 opensnitch-ui || true
+
 case "$1" in
     purge)
         purge_files
