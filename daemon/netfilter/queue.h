@@ -32,7 +32,7 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
     unsigned char *buffer = NULL;
     int size = 0;
     verdictContainer vc = {0};
-    uint32_t uid = -1;
+    uint32_t uid = 0xffffffff;
 
     mark = nfq_get_nfmark(nfa);
     ph   = nfq_get_msg_packet_hdr(nfa);

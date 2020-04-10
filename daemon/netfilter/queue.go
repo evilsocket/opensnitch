@@ -175,7 +175,7 @@ func go_callback(queueId C.int, data *C.uchar, length C.int, mark C.uint, idx ui
 		verdictChannel: make(chan VerdictContainer),
 		Mark:           uint32(mark),
 		Packet:         packet,
-		Uid:            int(uid),
+		UID:            uid,
 	}
 
 	select {

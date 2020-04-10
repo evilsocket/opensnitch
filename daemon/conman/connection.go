@@ -81,7 +81,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 	if c.parseDirection() == false {
 		return nil, nil
 	}
-	log.Debug("new connection %s => %d:%v -> %v:%d uid: ", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort, nfp.Uid)
+	log.Debug("new connection %s => %d:%v -> %v:%d uid: ", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort, nfp.UID)
 
 	c.Entry = &netstat.Entry{
 		Proto:   c.Protocol,
@@ -107,8 +107,8 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 			inodeList = append([]int{c.Entry.INode}, inodeList...)
 		}
 	}
-	if uid == -1 && c.Entry.UserId == -1 && nfp.Uid != -1 && nfp.Uid != 0xffffffff {
-		uid = nfp.Uid
+	if uid == -1 && c.Entry.UserId == -1 && nfp.UID != 0xffffffff {
+		uid = int(nfp.UID)
 	}
 	if len(inodeList) == 0 {
 		log.Debug("<== no inodes found, applying default action.")
