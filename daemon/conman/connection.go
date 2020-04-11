@@ -107,12 +107,15 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 			inodeList = append([]int{c.Entry.INode}, inodeList...)
 		}
 	}
-	if uid == -1 && c.Entry.UserId == -1 && nfp.UID != 0xffffffff {
-		uid = int(nfp.UID)
-	}
 	if len(inodeList) == 0 {
 		log.Debug("<== no inodes found, applying default action.")
 		return nil, nil
+	}
+
+	if uid != -1 {
+		c.Entry.UserId = uid
+	} else if c.Entry.UserId == -1 && nfp.UID != 0xffffffff {
+		c.Entry.UserId = int(nfp.UID)
 	}
 
 	pid := -1
@@ -130,7 +133,6 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
 	}
 
-	c.Entry.UserId = uid
 	return c, nil
 
 }
