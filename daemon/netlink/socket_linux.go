@@ -207,6 +207,9 @@ func SocketGet(family uint8, proto uint8, srcPort, dstPort uint16, local, remote
 				s.ID.SourcePort, s.ID.Source, s.ID.Destination, s.ID.DestinationPort)
 			continue
 		}
+		if s.INode == 0 {
+			continue
+		}
 
 		sock = append([]*Socket{s}, sock...)
 	}
