@@ -175,9 +175,12 @@ func AddEvent(aevent *Event) {
 
 	cleanOldEvents()
 	for n := 0; n < len(events); n++ {
-		if events[n].Pid == aevent.Pid {
-			aevent.LastSeen = time.Now()
-			events[n] = aevent
+		if events[n].Pid == aevent.Pid && events[n].Syscall == aevent.Syscall {
+			if aevent.ProcCmdLine != "" || (aevent.ProcCmdLine == events[n].ProcCmdLine) {
+				events[n] = aevent
+			}
+			events[n].LastSeen = time.Now()
+
 			sortEvents()
 			return
 		}
