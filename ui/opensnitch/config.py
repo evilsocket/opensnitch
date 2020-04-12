@@ -18,8 +18,15 @@ class Config:
 
         if self.settings.value("global/default_timeout") == None:
             self.setSettings("global/default_timeout", 15)
+        if self.settings.value("global/default_action") == None:
             self.setSettings("global/default_action", "allow")
+        if self.settings.value("global/default_duration") == None:
             self.setSettings("global/default_duration", "until restart")
+        if self.settings.value("global/default_target") == None:
+            self.setSettings("global/default_target", 0)
+
+    def reload(self):
+        self.settings = QtCore.QSettings("opensnitch", "settings")
 
     def setSettings(self, path, value):
         self.settings.setValue(path, value)

@@ -475,6 +475,11 @@
       </item>
       <item>
        <property name="text">
+        <string>from this command line</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
         <string>this destination port</string>
        </property>
       </item>
