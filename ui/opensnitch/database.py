@@ -5,6 +5,9 @@ import sys
 
 class Database:
     __instance = None
+    DB_IN_MEMORY   = ":memory:"
+    DB_TYPE_MEMORY = 0
+    DB_TYPE_FILE   = 1
 
     @staticmethod
     def instance():
@@ -15,16 +18,26 @@ class Database:
     def __init__(self):
         self._lock = threading.Lock()
         self.db = None
+        self.db_name = Database.DB_IN_MEMORY
         self.initialize()
 
     def initialize(self):
         self.db = QSqlDatabase.addDatabase("QSQLITE", "db")
-        self.db.setDatabaseName(":memory:")
+        self.db.setDatabaseName(self.db_name)
         if not self.db.open():
-            print("\n ** Error opening DB: SQLite driver not loaded\n")
+            print("\n ** Error opening DB: SQLite driver not loaded. DB name: %s\n" % self.db_name)
             print("\n    Available drivers: ", QSqlDatabase.drivers())
             sys.exit(-1)
         self._create_tables()
+
+    def close(self):
+        self.db.close()
+
+    def set_db_name(self, dbname):
+        if dbname != "" and dbname != self.db_name:
+            self.close()
+            self.db_name = dbname
+            self.initialize()
 
     def get_db(self):
         return self.db
@@ -39,6 +52,7 @@ class Database:
         q.exec_()
         q = QSqlQuery("create table if not exists connections (" \
                 "time text, " \
+                "node text, " \
                 "action text, " \
                 "protocol text, " \
                 "src_ip text, " \
