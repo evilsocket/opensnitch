@@ -169,10 +169,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._duration_combo.setCurrentIndex(7)
 
     def _render_connection(self, con):
-        if self._local:
-            app_name, app_icon, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
-        else:
-            app_name, app_icon = "", "terminal"
+        app_name, app_icon, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
 
         if app_name == "":
             app_name = "Unknown process"
@@ -191,7 +188,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         con.protocol,
                         con.dst_port )
         else:
-            message = "The process <b>%s</b> running on the computer <b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
+            message = "<b>Remote</b> process <b>%s</b> running on <b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
                         app_name,
                         self._peer.split(':')[1],
                         con.dst_host or con.dst_ip,
