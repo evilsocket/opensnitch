@@ -249,8 +249,7 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 			packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
 		}
 
-		// FIXME: this log generates too much noise
-		log.Warning("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
+		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
 	}
 
 	return r
