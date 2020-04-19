@@ -11,6 +11,8 @@ class Config:
 
     @staticmethod
     def get():
+        if Config.__instance == None:
+            Config._instance = Config()
         return Config.__instance
 
     def __init__(self):
@@ -30,6 +32,7 @@ class Config:
 
     def setSettings(self, path, value):
         self.settings.setValue(path, value)
+        self.settings.sync()
 
     def getSettings(self, path):
         return self.settings.value(path)

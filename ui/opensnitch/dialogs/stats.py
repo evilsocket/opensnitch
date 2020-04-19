@@ -14,6 +14,7 @@ import ui_pb2
 from database import Database
 from config import Config
 from version import version
+from dialogs.preferences import PreferencesDialog
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -22,6 +23,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     _trigger = QtCore.pyqtSignal()
     _shown_trigger = QtCore.pyqtSignal()
+    _notification_trigger = QtCore.pyqtSignal(ui_pb2.Notification)
 
     SORT_ORDER = ["ASC", "DESC"]
     LAST_ORDER_TO = 1
@@ -36,7 +38,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
-                "display_fields": "time as Time, action as Action, dst_host || '  ->  ' || dst_port as Destination, protocol as Protocol, process as Process, rule as Rule",
+                "display_fields": "time as Time, node as Node, action as Action, dst_host || '  ->  ' || dst_port as Destination, protocol as Protocol, process as Process, rule as Rule",
                 "group_by": LAST_GROUP_BY
                 },
             1: {
@@ -106,6 +108,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._address = address
         self._stats = None
         self._trigger.connect(self._on_update_triggered)
+
+        self._start_button = self.findChild(QtWidgets.QToolButton, "startButton")
+        self._start_button.clicked.connect(self._cb_start_clicked)
+
+        self._prefs_button = self.findChild(QtWidgets.QPushButton, "prefsButton")
+        self._prefs_button.clicked.connect(self._cb_prefs_clicked)
+        self._prefs_dialog = PreferencesDialog()
 
         self._save_button = self.findChild(QtWidgets.QToolButton, "saveButton")
         self._save_button.clicked.connect(self._on_save_clicked)
@@ -186,12 +195,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             'users.csv'
         )
 
-        if address is not None:
-            self.setWindowapply_Title("OpenSnitch Network Statistics for %s" % address)
-
     def showEvent(self, event):
         super(StatsDialog, self).showEvent(event)
         self._shown_trigger.emit()
+        window_title = "OpenSnitch Network Statistics - %s " % version
+        if self._address is not None:
+            self.setWindowTitle("OpenSnitch Network Statistics for %s - %s" % (self._address, self._stats.daemon_version))
+        self.setWindowTitle(window_title)
+
 
     def _load_settings(self):
         dialog_geometry = self._cfg.getSettings("statsDialog/geometry")
@@ -276,11 +287,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         data = row.data()
         idx = row.column()
         cur_idx = 1
-        if idx == 4:
+        if idx == 5:
             cur_idx = 3
             self._tabs.setCurrentIndex(cur_idx)
             self._set_process_query(data)
-        elif idx == 5:
+        elif idx == 6:
             self._tabs.setCurrentIndex(cur_idx)
             self._set_rules_query(data)
 
@@ -313,6 +324,26 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_ports_query(data)
         elif cur_idx == 6:
             self._set_users_query(data)
+
+    def _cb_prefs_clicked(self):
+        self._prefs_dialog.show()
+
+    def _cb_start_clicked(self):
+        if self.daemon_connected == False:
+            self._start_button.setChecked(False)
+            return
+        self._status_label.setStyleSheet('color: green')
+
+        # TODO: move to a new class
+        notType = ui_pb2.UNLOAD_FIREWALL
+        if self._start_button.isChecked():
+            self._status_label.setText("running")
+            notType = ui_pb2.LOAD_FIREWALL
+        else:
+            self._status_label.setText("running/disabled")
+
+        noti = ui_pb2.Notification(clientName="", serverName="", type=notType, data="", rules=[])
+        self._notification_trigger.emit(noti)
 
     def _get_limit(self):
         return " " + self.LIMITS[self._limit_combo.currentIndex()]
@@ -348,6 +379,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "c.time as Time, " \
+                "c.node as Node, " \
                 "c.action as Action, " \
                 "c.uid as UserID, " \
                 "c.protocol as Protocol, " \
@@ -364,6 +396,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "c.time as Time, " \
+                "c.node as Node, " \
                 "c.action as Action, " \
                 "c.uid as UserID, " \
                 "c.dst_host || '  ->  ' || c.dst_port as Destination, " \
@@ -372,7 +405,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "count(c.dst_host) as Hits, " \
                 "c.rule as Rule " \
             "FROM procs as p, connections as c " \
-            "WHERE p.what = c.process AND p.what = '%s' GROUP BY c.dst_host " % data)
+            "WHERE p.what = c.process AND p.what = '%s' GROUP BY c.node, c.dst_host " % data)
 
     def _set_addrs_query(self, data):
         model = self._get_active_table().model()
@@ -409,6 +442,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "c.time as Time, " \
+                "c.node as Node, " \
                 "c.action as Action, " \
                 "c.protocol as Protocol, " \
                 "c.dst_ip as DstIP, " \
@@ -429,6 +463,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._trigger.emit()
 
     def update_status(self):
+        self._start_button.setDown(self.daemon_connected)
+        self._start_button.setChecked(self.daemon_connected)
+        self._start_button.setDisabled(not self.daemon_connected)
         if self.daemon_connected:
             self._status_label.setText("running")
             self._status_label.setStyleSheet('color: green')

@@ -2,7 +2,8 @@ from PyQt5 import QtWidgets, QtGui, QtCore, Qt
 from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery
 
 from datetime import datetime
-from threading import Thread, Lock
+from threading import Thread, Lock, Event
+from queue import Queue
 import time
 import os
 import socket
@@ -20,7 +21,9 @@ import ui_pb2_grpc
 
 from dialogs.prompt import PromptDialog
 from dialogs.stats import StatsDialog
+from dialogs.preferences import PreferencesDialog
 
+from nodes import Nodes
 from database import Database
 from config import Config
 from version import version
@@ -44,6 +47,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._path = os.path.abspath(os.path.dirname(__file__))
         self._app = app
         self._on_exit = on_exit
+        self._exit = False
         self._msg = QtWidgets.QMessageBox()
         self._prompt_dialog = PromptDialog()
         self._stats_dialog = StatsDialog()
@@ -58,6 +62,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.check_thread = Thread(target=self._async_worker)
         self.check_thread.daemon = True
         self.check_thread.start()
+
+        self._nodes = Nodes.instance()
 
         self.last_stats = None
 
@@ -85,6 +91,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._version_warning_trigger.connect(self._on_diff_versions)
         self._status_change_trigger.connect(self._on_status_change)
         self._new_remote_trigger.connect(self._on_new_remote)
+        self._stats_dialog._notification_trigger.connect(self._on_new_notification)
         self._stats_dialog._shown_trigger.connect(self._on_stats_dialog_shown)
 
     def _setup_icons(self):
@@ -116,15 +123,23 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 )
 
         self._stats_action.triggered.connect(self._show_stats_dialog)
-        self._menu.addAction("Close").triggered.connect(self._on_exit)
+        self._menu.addAction("Close").triggered.connect(self._on_close)
 
         self._tray.show()
         if not self._tray.isSystemTrayAvailable():
             self._stats_dialog.show()
 
+    def _on_close(self):
+        self._exit = True
+        self._on_exit()
+
     def _show_stats_dialog(self):
         self._tray.setIcon(self.white_icon)
         self._stats_dialog.show()
+
+    @QtCore.pyqtSlot(ui_pb2.Notification)
+    def _on_new_notification(self, notification):
+        self._nodes.send_notifications(notification)
 
     @QtCore.pyqtSlot()
     def _on_status_change(self):
@@ -146,9 +161,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             self._msg.show()
             self._version_warning_shown = True
 
-    @QtCore.pyqtSlot(str,ui_pb2.Statistics)
+    @QtCore.pyqtSlot(str, ui_pb2.Statistics)
     def _on_new_remote(self, addr, stats):
-        print("_on_new_remote()")
         dialog = StatsDialog(address = addr)
         dialog.daemon_connected = True
         dialog.update(stats)
@@ -205,7 +219,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         return False
 
-    def _populate_stats(self, db, stats):
+    def _populate_stats(self, db, node, stats):
         fields = []
         values = []
 
@@ -213,8 +227,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if self.last_stats != None and event in self.last_stats.events:
                 continue
             db.insert("connections",
-                    "(time, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, process, process_args, rule)",
-                    (event.time, event.rule.action, event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
+                    "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, process, process_args, rule)",
+                    (str(datetime.now()), node, event.rule.action, event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
                         event.connection.dst_ip, event.connection.dst_host, str(event.connection.dst_port),
                         str(event.connection.user_id), event.connection.process_path, " ".join(event.connection.process_args),
                         event.rule.name),
@@ -295,21 +309,29 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.last_stats = stats
 
     def Ping(self, request, context):
-        if self._is_local_request(context):
+        try:
             self._last_ping = datetime.now()
-            self._populate_stats(self._db, request.stats)
-            self._stats_dialog.update(request.stats)
-
             if request.stats.daemon_version != version:
                 self._version_warning_trigger.emit(request.stats.daemon_version, version)
-        else:
-            with self._remote_lock:
-                _, addr, _ = context.peer().split(':')
-                if addr in self._remote_stats:
-                    self._populate_stats(self._db, request.stats)
-                    self._remote_stats[addr].update(request.stats)
-                else:
-                    self._new_remote_trigger.emit(addr, request.stats)
+
+            if self._is_local_request(context):
+                peer = context.peer().split(':')
+                self._populate_stats(self._db, peer[1], request.stats)
+                self._stats_dialog.update(request.stats)
+
+            else:
+                with self._remote_lock:
+                    _, addr, _ = context.peer().split(':')
+                    self._populate_stats(self._db, addr, request.stats)
+                    # XXX: disable this option for now
+                    #if addr in self._remote_stats:
+                    #    self._remote_stats[addr].update(request.stats)
+                    #
+                    #else:
+                    #    self._new_remote_trigger.emit(addr, request.stats)
+        except Exception as e:
+            print("Ping exception: ", e)
+
         return ui_pb2.PingReply(id=request.id)
 
     def AskRule(self, request, context):
@@ -325,4 +347,37 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         self._last_ping = datetime.now()
         self._asking = False
+
         return rule
+
+    def Notifications(self, node_iter, context):
+        """
+        Accept and collect nodes. It keeps a connection open with each
+        client, in order to send them notifications.
+        """
+        try:
+            _node = self._nodes.add(context, node_iter.next())
+
+            stop_event = Event()
+            def _on_client_closed():
+                stop_event.set()
+                self._nodes.delete(context.peer())
+            context.add_callback(_on_client_closed)
+        except Exception as e:
+            print("[Notifications] exception adding new node", e)
+
+        while self._exit == False:
+            if stop_event.is_set():
+                break
+
+            try:
+                noti = _node['notifications'].get()
+                if noti != None:
+                    _node['notifications'].task_done()
+                    yield noti
+            except Exception as e:
+                print("[Notifications] exception getting notification from queue", e)
+                context.cancel()
+
+        return node
+
