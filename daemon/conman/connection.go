@@ -121,7 +121,10 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, er
 	pid := -1
 	for n, inode := range inodeList {
 		if pid = procmon.GetPIDFromINode(inode, fmt.Sprint(inode, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)); pid == os.Getpid() {
-			return nil, nil
+			// return a Process object with our PID, to be able to exclude our own connections
+			// (to the UI on a local socket for example)
+			c.Process = procmon.NewProcess(pid, "")
+			return c, nil
 		}
 		if pid != -1 {
 			log.Debug("[%d] PID found %d", n, pid)

@@ -1,9 +1,7 @@
 package ui
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"strings"
 	"sync"
@@ -15,9 +13,8 @@ import (
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/statistics"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui/protocol"
 
-	"golang.org/x/net/context"
-
 	"github.com/fsnotify/fsnotify"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 )
@@ -36,6 +33,7 @@ type Config struct {
 	DefaultDuration   string
 	InterceptUnknown  bool
 	ProcMonitorMethod string
+	LogLevel          uint32
 }
 
 // Client holds the connection information of a client.
@@ -64,44 +62,10 @@ func NewClient(path string, stats *statistics.Statistics) *Client {
 		c.isUnixSocket = true
 		c.socketPath = c.socketPath[7:]
 	}
-	c.loadConfiguration(false)
+	c.loadDiskConfiguration(false)
 
 	go c.poller()
 	return c
-}
-
-func (c *Client) loadConfiguration(reload bool) {
-	raw, err := ioutil.ReadFile(configFile)
-	if err != nil {
-		fmt.Errorf("Error loading configuration %s: %s", configFile, err)
-	}
-
-	config.Lock()
-	defer config.Unlock()
-
-	err = json.Unmarshal(raw, &config)
-	if err != nil {
-		fmt.Errorf("Error parsing configuration %s: %s", configFile, err)
-	}
-
-	if config.DefaultAction != "" {
-		clientDisconnectedRule.Action = rule.Action(config.DefaultAction)
-		clientErrorRule.Action = rule.Action(config.DefaultAction)
-	}
-	if config.DefaultDuration != "" {
-		clientDisconnectedRule.Duration = rule.Duration(config.DefaultDuration)
-		clientErrorRule.Duration = rule.Duration(config.DefaultDuration)
-	}
-
-	if err := c.configWatcher.Add(configFile); err != nil {
-		log.Error("Could not watch path: %s", err)
-		return
-	}
-	if reload == true {
-		return
-	}
-
-	go c.monitorConfigWorker()
 }
 
 // ProcMonitorMethod returns the monitor method configured.
@@ -155,7 +119,8 @@ func (c *Client) poller() {
 			if err := c.connect(); err != nil {
 				log.Warning("Error while connecting to UI service: %s", err)
 			}
-		} else if c.Connected() == true {
+		}
+		if c.Connected() == true {
 			// if the client is connected and ready, send a ping
 			if err := c.ping(time.Now()); err != nil {
 				log.Warning("Error while pinging UI service: %s", err)
@@ -169,6 +134,7 @@ func (c *Client) poller() {
 func (c *Client) onStatusChange(connected bool) {
 	if connected {
 		log.Info("Connected to the UI service on %s", c.socketPath)
+		go c.Subscribe()
 	} else {
 		log.Error("Connection to the UI service lost.")
 		c.client = nil
@@ -272,7 +238,7 @@ func (c *Client) monitorConfigWorker() {
 		select {
 		case event := <-c.configWatcher.Events:
 			if (event.Op&fsnotify.Write == fsnotify.Write) || (event.Op&fsnotify.Remove == fsnotify.Remove) {
-				c.loadConfiguration(true)
+				c.loadDiskConfiguration(true)
 			}
 		}
 	}

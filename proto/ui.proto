@@ -5,6 +5,7 @@ package protocol;
 service UI {
     rpc Ping(PingRequest) returns (PingReply) {}
     rpc AskRule (Connection) returns (Rule) {}
+    rpc Notifications (stream ClientConfig) returns (stream Notification) {}
 }
 
 message Event {
@@ -66,4 +67,36 @@ message Rule {
     string action = 2;
     string duration = 3;
     Operator operator = 4;
+}
+
+enum Action {
+    NONE = 0;
+    LOAD_FIREWALL = 1;
+    UNLOAD_FIREWALL = 2;
+    CHANGE_CONFIG = 3;
+    ENABLE_RULE = 4;
+    DISABLE_RULE = 5;
+    LOG_LEVEL = 6;
+    STOP = 7;
+}
+
+message ClientConfig {
+    uint64 id = 1;
+    string name = 2;
+    string version = 3;
+    bool isFirewallRunning = 4;
+    // daemon configuration as json string
+    string config = 5;
+    uint32 logLevel = 6;
+    repeated Rule rules = 7;
+}
+
+message Notification {
+    uint64 id = 1;
+    string clientName = 2;
+    string serverName = 3;
+    // CHANGE_CONFIG: 2, data: {"default_timeout": 1, ...}
+    Action type = 4;
+    string data = 5;   
+    repeated Rule rules = 6;
 }

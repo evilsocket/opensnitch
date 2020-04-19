@@ -84,7 +84,7 @@ var (
 	// EventChan is an output channel where incoming auditd events will be written.
 	// If a client opens it.
 	EventChan = (chan Event)(nil)
-	stop      = false
+	auditConn net.Conn
 	// TODO: we may need arm arch
 	rule64      = []string{"exit,always", "-F", "arch=b64", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socket,connect", "-k", "opensnitch"}
 	rule32      = []string{"exit,always", "-F", "arch=b32", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socketcall", "-F", "a0=1", "-k", "opensnitch"}
@@ -243,13 +243,6 @@ func Reader(r io.Reader, eventChan chan<- Event) {
 	reader := bufio.NewReader(r)
 
 	for {
-		Lock.RLock()
-		if stop == true {
-			log.Important("audit: closing reader and exiting")
-			Lock.RUnlock()
-			break
-		}
-		Lock.RUnlock()
 		buf, _, err := reader.ReadLine()
 		if err != nil {
 			if err == io.EOF {
@@ -261,6 +254,7 @@ func Reader(r io.Reader, eventChan chan<- Event) {
 				continue
 			}
 			log.Error("AuditReader: auditd error", err)
+			break
 		}
 
 		parseEvent(string(buf[0:len(buf)]), eventChan)
@@ -288,9 +282,9 @@ func connect() (net.Conn, error) {
 
 // Stop stops listening for events from auditd and delete the auditd rules.
 func Stop() {
-	Lock.Lock()
-	stop = true
-	Lock.Unlock()
+	if auditConn != nil {
+		auditConn.Close()
+	}
 
 	deleteRules()
 	if EventChan != nil {
@@ -304,7 +298,10 @@ func Start() (net.Conn, error) {
 	if err != nil {
 		log.Error("auditd connection error %v", err)
 		deleteRules()
+		return nil, err
 	}
+	auditConn = c
+
 	configureSyscalls()
 	return c, err
 }

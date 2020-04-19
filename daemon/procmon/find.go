@@ -7,10 +7,6 @@ import (
 	"strconv"
 )
 
-var (
-	ourPid = os.Getpid()
-)
-
 func sortPidsByTime(fdList []os.FileInfo) []os.FileInfo {
 	sort.Slice(fdList, func(i, j int) bool {
 		t := fdList[i].ModTime().UnixNano()
@@ -99,9 +95,6 @@ func getProcPids(pidsPath string) (pidList []int) {
 			continue
 		}
 		if pid, err := strconv.Atoi(f.Name()); err == nil {
-			if pid == ourPid {
-				continue
-			}
 			pidList = append(pidList, []int{pid}...)
 		}
 	}

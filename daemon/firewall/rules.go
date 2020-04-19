@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
 // DropMark is the mark we place on a connection when we deny it.
@@ -28,6 +29,8 @@ const (
 var (
 	lock = sync.Mutex{}
 
+	queueNum = 0
+	running  = false
 	// check that rules are loaded every 5s
 	rulesChecker       = time.NewTicker(time.Second * 20)
 	rulesCheckerChan   = make(chan bool)
@@ -63,13 +66,13 @@ func RunRule(action Action, enable bool, rule []string) (err error) {
 // QueueDNSResponses redirects DNS responses to us, in order to keep a cache
 // of resolved domains.
 // INPUT --protocol udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
-func QueueDNSResponses(enable bool, queueNum int) (err error) {
+func QueueDNSResponses(enable bool, qNum int) (err error) {
 	return RunRule(INSERT, enable, []string{
 		"INPUT",
 		"--protocol", "udp",
 		"--sport", "53",
 		"-j", "NFQUEUE",
-		"--queue-num", fmt.Sprintf("%d", queueNum),
+		"--queue-num", fmt.Sprintf("%d", qNum),
 		"--queue-bypass",
 	})
 }
@@ -77,8 +80,8 @@ func QueueDNSResponses(enable bool, queueNum int) (err error) {
 // QueueConnections inserts the firewall rule which redirects connections to us.
 // They are queued until the user denies/accept them, or reaches a timeout.
 // OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass
-func QueueConnections(enable bool, queueNum int) (err error) {
-	regexRulesQuery, _ = regexp.Compile(fmt.Sprint(`NFQUEUE.*ctstate NEW.*NFQUEUE num `, queueNum, ` bypass`))
+func QueueConnections(enable bool, qNum int) (err error) {
+	regexRulesQuery, _ = regexp.Compile(fmt.Sprint(`NFQUEUE.*ctstate NEW.*NFQUEUE num `, qNum, ` bypass`))
 
 	return RunRule(ADD, enable, []string{
 		"OUTPUT",
@@ -86,7 +89,7 @@ func QueueConnections(enable bool, queueNum int) (err error) {
 		"-m", "conntrack",
 		"--ctstate", "NEW",
 		"-j", "NFQUEUE",
-		"--queue-num", fmt.Sprintf("%d", queueNum),
+		"--queue-num", fmt.Sprintf("%d", qNum),
 		"--queue-bypass",
 	})
 }
@@ -152,4 +155,47 @@ func StartCheckingRules(qNum int) {
 // StopCheckingRules stops checking if the firewall rules are loaded.
 func StopCheckingRules() {
 	rulesCheckerChan <- true
+}
+
+// IsRunning returns if the firewall rules are loaded or not.
+func IsRunning() bool {
+	return running
+}
+
+// Stop deletes the firewall rules, allowing network traffic.
+func Stop(qNum *int) {
+	if running == false {
+		return
+	}
+	if qNum != nil {
+		queueNum = *qNum
+	}
+
+	StopCheckingRules()
+	QueueDNSResponses(false, queueNum)
+	QueueConnections(false, queueNum)
+	DropMarked(false)
+
+	running = false
+}
+
+// Init inserts the firewall rules.
+func Init(qNum *int) {
+	if running {
+		return
+	}
+	if qNum != nil {
+		queueNum = *qNum
+	}
+
+	if err := QueueDNSResponses(true, queueNum); err != nil {
+		log.Fatal("Error while running DNS firewall rule: %s", err)
+	} else if err = QueueConnections(true, queueNum); err != nil {
+		log.Fatal("Error while running conntrack firewall rule: %s", err)
+	} else if err = DropMarked(true); err != nil {
+		log.Fatal("Error while running drop firewall rule: %s", err)
+	}
+	go StartCheckingRules(queueNum)
+
+	running = true
 }

@@ -1,6 +1,8 @@
 package procmon
 
 import (
+	"time"
+
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon/audit"
 )
@@ -19,6 +21,12 @@ func NewProcess(pid int, path string) *Process {
 		Args: make([]string, 0),
 		Env:  make(map[string]string),
 	}
+}
+
+func Reload() {
+	End()
+	time.Sleep(1 * time.Second)
+	Init()
 }
 
 func End() {

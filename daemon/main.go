@@ -128,11 +128,8 @@ func setupWorkers() {
 
 func doCleanup() {
 	log.Info("Cleaning up ...")
-	firewall.StopCheckingRules()
-	firewall.QueueDNSResponses(false, queueNum)
-	firewall.QueueConnections(false, queueNum)
-	firewall.DropMarked(false)
-
+	firewall.Stop(&queueNum)
+	log.Info("Cleaning up firewall...")
 	procmon.End()
 
 	if cpuProfile != "" {
@@ -173,6 +170,11 @@ func onPacket(packet netfilter.Packet) {
 				packet.SetVerdict(netfilter.NF_DROP)
 			}
 		}
+		return
+	}
+	// accept our own connections
+	if con.Process.ID == os.Getpid() {
+		packet.SetVerdict(netfilter.NF_ACCEPT)
 		return
 	}
 
@@ -247,6 +249,7 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 			packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
 		}
 
+		// FIXME: this log generates too much noise
 		log.Warning("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
 	}
 
@@ -298,23 +301,15 @@ func main() {
 	firewall.DropMarked(false)
 
 	uiClient = ui.NewClient(uiSocket, stats)
-	if configMonMethod := uiClient.ProcMonitorMethod(); configMonMethod != "" {
-		procmon.MonitorMethod = configMonMethod
-	}
+	// overwrite monitor method from configuration if the user has passed
+	// the option via command line.
 	if procmonMethod != "" {
 		procmon.MonitorMethod = procmonMethod
 	}
 	procmon.Init()
 
 	// queue is ready, run firewall rules
-	if err = firewall.QueueDNSResponses(true, queueNum); err != nil {
-		log.Fatal("Error while running DNS firewall rule: %s", err)
-	} else if err = firewall.QueueConnections(true, queueNum); err != nil {
-		log.Fatal("Error while running conntrack firewall rule: %s", err)
-	} else if err = firewall.DropMarked(true); err != nil {
-		log.Fatal("Error while running drop firewall rule: %s", err)
-	}
-	go firewall.StartCheckingRules(queueNum)
+	firewall.Init(&queueNum)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for true {
