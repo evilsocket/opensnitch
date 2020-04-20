@@ -163,7 +163,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._duration_combo.setCurrentIndex(4)
         elif self._cfg.getSettings("global/default_duration") == "1h":
             self._duration_combo.setCurrentIndex(5)
-        elif self._cfg.getSettings("global/default_duration") == "until restart":
+        elif self._cfg.getSettings("global/default_duration") == "for this session":
             self._duration_combo.setCurrentIndex(6)
         else:
             self._duration_combo.setCurrentIndex(7)
