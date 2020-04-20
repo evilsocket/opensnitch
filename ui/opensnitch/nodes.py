@@ -1,5 +1,6 @@
 from queue import Queue
 from datetime import datetime
+import json
 
 class Nodes():
     __instance = None
@@ -42,7 +43,7 @@ class Nodes():
 
     def add_data(self, addr, client_config):
         if client_config != None:
-            self._nodes[addr]['data'] = client_config
+            self._nodes[addr]['data'] = self.get_client_config(client_config)
 
     def delete_all(self):
         self.send_notifications(None)
@@ -59,6 +60,17 @@ class Nodes():
 
     def get(self):
         return self._nodes
+
+    def get_client_config(self, client_config):
+        try:
+            node_config = json.loads(client_config.config)
+            if 'LogLevel' not in node_config:
+                node_config['LogLevel'] = 1
+                client_config.config = json.dumps(node_config)
+        except Exception as e:
+            print(self.LOG_TAG, "exception parsing client config", e)
+
+        return client_config
 
     def get_addr(self, peer):
         peer = peer.split(":")
