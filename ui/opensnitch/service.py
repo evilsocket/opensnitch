@@ -323,6 +323,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 with self._remote_lock:
                     _, addr, _ = context.peer().split(':')
                     self._populate_stats(self._db, addr, request.stats)
+                    self._stats_dialog.update(request.stats)
+
                     # XXX: disable this option for now
                     #if addr in self._remote_stats:
                     #    self._remote_stats[addr].update(request.stats)
