@@ -15,7 +15,6 @@ from slugify import slugify
 from desktop_parser import LinuxDesktopParser
 from config import Config
 from version import version
-from database import Database
 
 import ui_pb2
 
@@ -29,7 +28,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
         self._cfg = Config.get()
-        self._db = Database.instance()
 
         dialog_geometry = self._cfg.getSettings("promptDialog/geometry")
         if dialog_geometry != None:

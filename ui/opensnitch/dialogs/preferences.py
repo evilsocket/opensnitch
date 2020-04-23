@@ -9,7 +9,6 @@ from datetime import datetime
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
 from config import Config
-from database import Database
 from nodes import Nodes
 
 import ui_pb2
@@ -24,7 +23,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
         self._cfg = Config.get()
-        self._db = Database.instance()
         self._nodes = Nodes.instance()
 
         self.setupUi(self)
