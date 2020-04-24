@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore, Qt
 from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Thread, Lock, Event
 from queue import Queue
 import time
@@ -24,12 +24,11 @@ from dialogs.stats import StatsDialog
 from dialogs.preferences import PreferencesDialog
 
 from nodes import Nodes
-from database import Database
 from config import Config
 from version import version
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
-    _new_remote_trigger = QtCore.pyqtSignal(str, ui_pb2.Statistics)
+    _new_remote_trigger = QtCore.pyqtSignal(str, ui_pb2.PingRequest)
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal()
 
@@ -37,7 +36,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def __init__(self, app, on_exit):
         super(UIService, self).__init__()
-        self._db = Database.instance()
 
         self._cfg = Config.init()
         self._last_ping = None
@@ -50,7 +48,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._exit = False
         self._msg = QtWidgets.QMessageBox()
         self._prompt_dialog = PromptDialog()
-        self._stats_dialog = StatsDialog()
+        self._stats_dialog = StatsDialog(dbname="general")
         self._remote_lock = Lock()
         self._remote_stats = {}
 
@@ -161,17 +159,15 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             self._msg.show()
             self._version_warning_shown = True
 
-    @QtCore.pyqtSlot(str, ui_pb2.Statistics)
-    def _on_new_remote(self, addr, stats):
-        dialog = StatsDialog(address = addr)
-        dialog.daemon_connected = True
-        dialog.update(stats)
-        self._remote_stats[addr] = dialog
-
-        new_act = self._menu.addAction("%s Statistics" % addr)
-        new_act.triggered.connect(lambda: self._on_remote_stats_menu(addr))
-        self._menu.insertAction(self._stats_action, new_act)
-        self._stats_action.setText("Local Statistics")
+    @QtCore.pyqtSlot(str, ui_pb2.PingRequest)
+    def _on_new_remote(self, addr, request):
+        self._remote_stats[addr] = {
+                'last_ping': datetime.now(),
+                'dialog': StatsDialog(address=addr, dbname=addr)
+                }
+        self._remote_stats[addr]['dialog'].daemon_connected = True
+        self._remote_stats[addr]['dialog'].update(addr, request.stats)
+        self._remote_stats[addr]['dialog'].show()
 
     @QtCore.pyqtSlot()
     def _on_stats_dialog_shown(self):
@@ -181,7 +177,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             self._tray.setIcon(self.off_icon)
 
     def _on_remote_stats_menu(self, address):
-        self._remote_stats[address].show()
+        self._remote_stats[address]['dialog'].show()
 
     def _async_worker(self):
         was_connected = False
@@ -212,101 +208,96 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             return True
 
         elif peer.startswith("ipv4:"):
-            _, addr, _ = peer.split(':')
+            _, addr = self._get_peer(peer)
             for name, ip in self._interfaces.items():
                 if addr == ip:
                     return True
 
         return False
 
-    def _populate_stats(self, db, node, stats):
+    def _get_user_id(self, uid):
+        pw_name = uid
+        try:
+            pw_name = pwd.getpwuid(int(uid)).pw_name + " (" + uid + ")"
+        except Exception:
+            #pw_name += " (error)"
+            pass
+
+        return pw_name
+
+    def _get_peer(self, peer):
+        p = peer.split(":")
+        return p[0], p[1]
+
+    def _populate_stats(self, db, proto, addr, stats):
         fields = []
         values = []
+        if db == None:
+            print("populate_stats() db None")
+            return
 
-        for row, event in enumerate(stats.events):
-            if self.last_stats != None and event in self.last_stats.events:
-                continue
-            db.insert("connections",
-                    "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, process, process_args, rule)",
-                    (str(datetime.now()), node, event.rule.action, event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
-                        event.connection.dst_ip, event.connection.dst_host, str(event.connection.dst_port),
-                        str(event.connection.user_id), event.connection.process_path, " ".join(event.connection.process_args),
-                        event.rule.name),
-                    action_on_conflict="IGNORE"
-                    )
-            db.insert("rules",
-                    "(time, name, action, duration, operator)",
-                        (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        event.rule.name, event.rule.action, event.rule.duration,
-                        event.rule.operator.operand + ": " + event.rule.operator.data),
-                    action_on_conflict="IGNORE")
+        _node = self._nodes.get_node(proto+":"+addr)
+        if _node == None:
+            return
 
+        version  = _node['data'].version if _node != None else ""
+        hostname = _node['data'].name if _node != None else ""
+        db.insert("nodes",
+                "(addr, status, hostname, daemon_version, daemon_uptime, " \
+                        "daemon_rules, cons, cons_dropped, version, last_connection)",
+                    (addr, Nodes.ONLINE, hostname, stats.daemon_version, str(timedelta(seconds=stats.uptime)), stats.rules, stats.connections, stats.dropped,
+                    version, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+
+        try:
+            for row, event in enumerate(stats.events):
+                if self.last_stats != None and event in self.last_stats.events:
+                    continue
+                db.insert("connections",
+                        "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, process, process_args, rule)",
+                        (str(datetime.now()), addr, event.rule.action, event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
+                            event.connection.dst_ip, event.connection.dst_host, str(event.connection.dst_port),
+                            str(event.connection.user_id), event.connection.process_path, " ".join(event.connection.process_args),
+                            event.rule.name),
+                        action_on_conflict="IGNORE"
+                        )
+                db.insert("rules",
+                        "(time, name, action, duration, operator)",
+                            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            event.rule.name, event.rule.action, event.rule.duration,
+                            event.rule.operator.operand + ": " + event.rule.operator.data),
+                        action_on_conflict="IGNORE")
+
+            last_items = self.last_stats.by_host.items() if self.last_stats != None else ''
+            self._populate_stats_events(db, stats, "hosts", ("what", "hits"), (1,2), stats.by_host.items(), last_items)
+            last_items = self.last_stats.by_executable.items() if self.last_stats != None else ''
+            self._populate_stats_events(db, stats, "procs", ("what", "hits"), (1,2), stats.by_executable.items(), last_items)
+            last_items = self.last_stats.by_address.items() if self.last_stats != None else ''
+            self._populate_stats_events(db, stats, "addrs", ("what", "hits"), (1,2), stats.by_address.items(), last_items)
+            last_items = self.last_stats.by_port.items() if self.last_stats != None else ''
+            self._populate_stats_events(db, stats, "ports", ("what", "hits"), (1,2), stats.by_port.items(), last_items)
+            last_items = self.last_stats.by_uid.items() if self.last_stats != None else ''
+            self._populate_stats_events(db, stats, "users", ("what", "hits"), (1,2), stats.by_uid.items(), last_items)
+
+            self.last_stats = stats
+        except Exception as e:
+            print("_populate_stats() exception: ", e)
+
+    def _populate_stats_events(self, db, stats, table, colnames, cols, items, last_items):
         fields = []
         values = []
-        items = stats.by_host.items()
-        last_items = self.last_stats.by_host.items() if self.last_stats != None else ''
         for row, event in enumerate(items):
-            if self.last_stats != None and event in last_items:
+            if last_items != '' and event in last_items:
                 continue
             what, hits = event
+            # FIXME: this is suboptimal
+            # BUG: there can be users with same id on different machines but with different names
+            if table == "users":
+                what = self._get_user_id(what)
             fields.append(what)
             values.append(int(hits))
-        db.insert_batch("hosts", "(what, hits)", (1,2), fields, values)
-
-        fields = []
-        values = []
-        items = stats.by_executable.items()
-        last_items = self.last_stats.by_executable.items() if self.last_stats != None else ''
-        for row, event in enumerate(items):
-            if self.last_stats != None and event in last_items:
-                continue
-            what, hits = event
-            fields.append(what)
-            values.append(int(hits))
-        db.insert_batch("procs", "(what, hits)", (1,2), fields, values)
-
-        fields = []
-        values = []
-        items = stats.by_address.items()
-        last_items = self.last_stats.by_address.items() if self.last_stats != None else ''
-        for row, event in enumerate(items):
-            if self.last_stats != None and event in last_items:
-                continue
-            what, hits = event
-            fields.append(what)
-            values.append(int(hits))
-        db.insert_batch("addrs", "(what, hits)", (1,2), fields, values)
-
-        fields = []
-        values = []
-        items = stats.by_port.items()
-        last_items = self.last_stats.by_port.items() if self.last_stats != None else ''
-        for row, event in enumerate(items):
-            if self.last_stats != None and event in last_items:
-                continue
-            what, hits = event
-            fields.append(what)
-            values.append(int(hits))
-        db.insert_batch("ports", "(what, hits)", (1,2), fields, values)
-
-        fields = []
-        values = []
-        items = stats.by_uid.items()
-        last_items = self.last_stats.by_uid.items() if self.last_stats != None else ''
-        for row, event in enumerate(items):
-            if self.last_stats != None and event in last_items:
-                continue
-            what, hits = event
-            pw_name = what
-            try:
-                pw_name = pwd.getpwuid(int(what)).pw_name + " (" + what + ")"
-            except Exception:
-                pw_name += " (error)"
-            fields.append(pw_name)
-            values.append(int(hits))
-        db.insert_batch("users", "(what, hits)", (1,2), fields, values)
-
-        self.last_stats = stats
+        # FIXME: default acion on conflict is to replace. If there're multiple nodes connected,
+        # stats are painted once on each update per node.
+        db.insert_batch(table, colnames, cols, fields, values)
 
     def Ping(self, request, context):
         try:
@@ -314,23 +305,24 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if request.stats.daemon_version != version:
                 self._version_warning_trigger.emit(request.stats.daemon_version, version)
 
+            proto, addr = self._get_peer(context.peer())
+            # global stats must be updated regardles if there're 1 or more clients
+            self._populate_stats(self._stats_dialog.get_db(), proto, addr, request.stats)
             if self._is_local_request(context):
-                peer = context.peer().split(':')
-                self._populate_stats(self._db, peer[1], request.stats)
-                self._stats_dialog.update(request.stats)
-
+                self._stats_dialog.update(addr, request.stats)
             else:
                 with self._remote_lock:
-                    _, addr, _ = context.peer().split(':')
-                    self._populate_stats(self._db, addr, request.stats)
-                    self._stats_dialog.update(request.stats)
+                    self._stats_dialog.update(addr, request.stats)
+            #else:
+            #    with self._remote_lock:
+            #        # XXX: disable this option for now
+            #        # opening several dialogs only updates one of them.
+            #        if addr not in self._remote_stats:
+            #            self._new_remote_trigger.emit(addr, request)
+            #        else:
+            #            self._populate_stats(self._remote_stats[addr]['dialog'].get_db(), proto, addr, request.stats)
+            #            self._remote_stats[addr]['dialog'].update(addr, request.stats)
 
-                    # XXX: disable this option for now
-                    #if addr in self._remote_stats:
-                    #    self._remote_stats[addr].update(request.stats)
-                    #
-                    #else:
-                    #    self._new_remote_trigger.emit(addr, request.stats)
         except Exception as e:
             print("Ping exception: ", e)
 
@@ -356,17 +348,26 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         """
         Accept and collect nodes. It keeps a connection open with each
         client, in order to send them notifications.
+
+        @doc: https://grpc.github.io/grpc/python/grpc.html#service-side-context
         """
         try:
             _node = self._nodes.add(context, node_iter.next())
+            proto, addr = self._get_peer(context.peer())
+            self._nodes.update(self._stats_dialog.get_db(), proto, addr)
 
             stop_event = Event()
             def _on_client_closed():
                 stop_event.set()
+
+                proto, addr = self._get_peer(context.peer())
+                self._nodes.update(self._stats_dialog.get_db(), proto, addr, Nodes.OFFLINE)
                 self._nodes.delete(context.peer())
+
             context.add_callback(_on_client_closed)
         except Exception as e:
             print("[Notifications] exception adding new node", e)
+            return node_iter
 
         while self._exit == False:
             if stop_event.is_set():
@@ -381,5 +382,5 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 print("[Notifications] exception getting notification from queue", e)
                 context.cancel()
 
-        return node
+        return node_iter
 

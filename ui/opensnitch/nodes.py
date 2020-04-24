@@ -5,6 +5,9 @@ import json
 class Nodes():
     __instance = None
     LOG_TAG = "[Nodes]: "
+    ONLINE = "\u2713 online"
+    OFFLINE = "\u2613 offline"
+    WARNING = "\u26a0"
 
     @staticmethod
     def instance():
@@ -20,7 +23,7 @@ class Nodes():
 
     def add(self, context, client_config=None):
         try:
-            proto, addr = self.get_addr(context.peer())
+            proto, addr = self._get_addr(context.peer())
             addr = "%s:%s" % (proto, addr)
             if addr not in self._nodes:
                 self._nodes[addr] = {
@@ -50,7 +53,7 @@ class Nodes():
         self._nodes = {}
 
     def delete(self, peer):
-        proto, addr = self.get_addr(peer)
+        proto, addr = self._get_addr(peer)
         addr = "%s:%s" % (proto, addr)
         # Force the node to get one new item from queue,
         # in order to loop and exit.
@@ -60,6 +63,12 @@ class Nodes():
 
     def get(self):
         return self._nodes
+
+    def get_node(self, addr):
+        try:
+            return self._nodes[addr]
+        except Exception as e:
+            return None
 
     def get_client_config(self, client_config):
         try:
@@ -72,7 +81,7 @@ class Nodes():
 
         return client_config
 
-    def get_addr(self, peer):
+    def _get_addr(self, peer):
         peer = peer.split(":")
         return peer[0], peer[1]
 
@@ -122,3 +131,17 @@ class Nodes():
                 self._nodes[c]['notifications'].put(notification)
         except Exception as e:
             print(self.LOG_TAG + " exception sending notifications: ", e, notification)
+
+    def update(self, db, proto, addr, status=ONLINE):
+        try:
+            db.update("nodes",
+                    "hostname=?,version=?,last_connection=?,status=? WHERE addr=?",
+                    (
+                        self._nodes[proto+":"+addr]['data'].name,
+                        self._nodes[proto+":"+addr]['data'].version,
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        status,
+                        addr)
+                    )
+        except Exception as e:
+            print(self.LOG_TAG + " exception updating DB: ", e, addr)
