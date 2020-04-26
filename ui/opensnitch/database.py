@@ -16,7 +16,7 @@ class Database:
         return Database.__instance
 
     def __init__(self, dbname="db"):
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self.db = None
         self.db_type = Database.DB_IN_MEMORY
         self.db_name = dbname
@@ -62,7 +62,7 @@ class Database:
                 "process text, " \
                 "process_args text, " \
                 "rule text, " \
-                "UNIQUE(protocol, src_ip, src_port, dst_ip, dst_port, uid, process, process_args))", self.db)
+                "UNIQUE(time, node, protocol, src_ip, src_port, dst_ip, dst_port, uid, process, process_args))", self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists rules (" \
                 "time text, "\
@@ -97,8 +97,9 @@ class Database:
         q.exec_()
 
     def clean(self, table):
-        q = QSqlQuery("delete from " + table, self.db)
-        q.exec_()
+        with self._lock:
+            q = QSqlQuery("delete from " + table, self.db)
+            q.exec_()
 
     def clone_db(self, name):
         return QSqlDatabase.cloneDatabase(self.db, name)
@@ -117,20 +118,20 @@ class Database:
         self.db.rollback()
 
     def _insert(self, query_str, columns):
-        try:
-            with self._lock:
+        with self._lock:
+            try:
 
                 q = QSqlQuery(self.db)
                 q.prepare(query_str)
                 for idx, v in enumerate(columns):
                     q.bindValue(idx, v)
                 if not q.exec_():
-                    print("ERROR",query_str)
+                    print("_insert() ERROR", query_str)
                     print(q.lastError().driverText())
-        except Exception as e:
-            print("_insert exception", e)
-        finally:
-            q.finish()
+            except Exception as e:
+                print("_insert exception", e)
+            finally:
+                q.finish()
 
     def insert(self, table, fields, columns, update_field=None, update_value=None, action_on_conflict="REPLACE"):
         if update_field != None:
@@ -171,8 +172,8 @@ class Database:
 
     def _insert_batch(self, query_str, fields, values):
         result=True
-        try:
-            with self._lock:
+        with self._lock:
+            try:
                 q = QSqlQuery(self.db)
                 q.prepare(query_str)
                 q.addBindValue(fields)
@@ -182,10 +183,10 @@ class Database:
                     print(q.lastError().driverText())
 
                     result=False
-        except Exception as e:
-            print("_insert_batch() exception:", e)
-        finally:
-            q.finish()
+            except Exception as e:
+                print("_insert_batch() exception:", e)
+            finally:
+                q.finish()
 
         return result
 
