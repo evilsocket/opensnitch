@@ -160,14 +160,85 @@
        <item row="2" column="1" colspan="4">
         <widget class="QTreeView" name="eventsTable">
          <property name="styleSheet">
-          <string notr="true">*[action=&quot;deny&quot;] { text-color: rgb(239, 41, 41);}
-*[action=&quot;allow&quot;] { text-color: rgb(115, 210, 22);}</string>
+          <string notr="true"/>
          </property>
          <property name="autoScroll">
           <bool>false</bool>
          </property>
+         <property name="indentation">
+          <number>10</number>
+         </property>
          <property name="uniformRowHeights">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_8">
+      <attribute name="title">
+       <string>Nodes</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_12">
+         <item>
+          <widget class="QPushButton" name="cmdNodesBack">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="back">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="nodesLabel">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="ruleLabel_2">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_11">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QTableView" name="nodesTable">
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="verticalHeaderStretchLastSection">
+          <bool>false</bool>
+         </attribute>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="tipNodesLabel">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on the Addr column to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -580,216 +651,220 @@
    <item row="4" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
-      <widget class="QLabel" name="label_5">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>DejaVu Sans</family>
-         <pointsize>8</pointsize>
-         <weight>75</weight>
-         <italic>false</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Connections</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="margin">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="consLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>DejaVu Sans</family>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>-</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="margin">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_7">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>DejaVu Sans</family>
-         <pointsize>8</pointsize>
-         <weight>75</weight>
-         <italic>false</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Dropped</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-       <property name="margin">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="droppedLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>DejaVu Sans</family>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>-</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="margin">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>DejaVu Sans</family>
-         <pointsize>8</pointsize>
-         <weight>75</weight>
-         <italic>false</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Uptime</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="margin">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="uptimeLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>DejaVu Sans</family>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>-</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="margin">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_3">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>DejaVu Sans</family>
-         <pointsize>8</pointsize>
-         <weight>75</weight>
-         <italic>false</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Rules</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="margin">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="rulesLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>DejaVu Sans</family>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>-</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="margin">
-        <number>5</number>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="statsLayout">
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>DejaVu Sans</family>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Connections</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="consLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>DejaVu Sans</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>DejaVu Sans</family>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Dropped</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="droppedLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>DejaVu Sans</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>DejaVu Sans</family>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Uptime</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="uptimeLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>DejaVu Sans</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>DejaVu Sans</family>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Rules</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="rulesLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>DejaVu Sans</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <spacer name="horizontalSpacer_10">
@@ -935,6 +1010,29 @@
        <property name="sizeHint" stdset="0">
         <size>
          <width>60</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="nodeLabel">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;hostname - 192.168.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="margin">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>

@@ -1,9 +1,13 @@
 from queue import Queue
 from datetime import datetime
+import json
 
 class Nodes():
     __instance = None
     LOG_TAG = "[Nodes]: "
+    ONLINE = "\u2713 online"
+    OFFLINE = "\u2613 offline"
+    WARNING = "\u26a0"
 
     @staticmethod
     def instance():
@@ -19,7 +23,7 @@ class Nodes():
 
     def add(self, context, client_config=None):
         try:
-            proto, addr = self.get_addr(context.peer())
+            proto, addr = self._get_addr(context.peer())
             addr = "%s:%s" % (proto, addr)
             if addr not in self._nodes:
                 self._nodes[addr] = {
@@ -42,14 +46,14 @@ class Nodes():
 
     def add_data(self, addr, client_config):
         if client_config != None:
-            self._nodes[addr]['data'] = client_config
+            self._nodes[addr]['data'] = self.get_client_config(client_config)
 
     def delete_all(self):
         self.send_notifications(None)
         self._nodes = {}
 
     def delete(self, peer):
-        proto, addr = self.get_addr(peer)
+        proto, addr = self._get_addr(peer)
         addr = "%s:%s" % (proto, addr)
         # Force the node to get one new item from queue,
         # in order to loop and exit.
@@ -60,7 +64,24 @@ class Nodes():
     def get(self):
         return self._nodes
 
-    def get_addr(self, peer):
+    def get_node(self, addr):
+        try:
+            return self._nodes[addr]
+        except Exception as e:
+            return None
+
+    def get_client_config(self, client_config):
+        try:
+            node_config = json.loads(client_config.config)
+            if 'LogLevel' not in node_config:
+                node_config['LogLevel'] = 1
+                client_config.config = json.dumps(node_config)
+        except Exception as e:
+            print(self.LOG_TAG, "exception parsing client config", e)
+
+        return client_config
+
+    def _get_addr(self, peer):
         peer = peer.split(":")
         return peer[0], peer[1]
 
@@ -110,3 +131,17 @@ class Nodes():
                 self._nodes[c]['notifications'].put(notification)
         except Exception as e:
             print(self.LOG_TAG + " exception sending notifications: ", e, notification)
+
+    def update(self, db, proto, addr, status=ONLINE):
+        try:
+            db.update("nodes",
+                    "hostname=?,version=?,last_connection=?,status=? WHERE addr=?",
+                    (
+                        self._nodes[proto+":"+addr]['data'].name,
+                        self._nodes[proto+":"+addr]['data'].version,
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        status,
+                        addr)
+                    )
+        except Exception as e:
+            print(self.LOG_TAG + " exception updating DB: ", e, addr)
