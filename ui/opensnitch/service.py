@@ -26,9 +26,11 @@ from dialogs.preferences import PreferencesDialog
 from nodes import Nodes
 from config import Config
 from version import version
+from database import Database
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _new_remote_trigger = QtCore.pyqtSignal(str, ui_pb2.PingRequest)
+    _update_stats_trigger = QtCore.pyqtSignal(str, str, ui_pb2.PingRequest)
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal()
 
@@ -37,6 +39,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def __init__(self, app, on_exit):
         super(UIService, self).__init__()
 
+        self._db = Database.instance()
+        self._db_sqlite = self._db.get_db()
         self._cfg = Config.init()
         self._last_ping = None
         self._version_warning_shown = False
@@ -48,7 +52,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._exit = False
         self._msg = QtWidgets.QMessageBox()
         self._prompt_dialog = PromptDialog()
-        self._stats_dialog = StatsDialog(dbname="general")
+        self._stats_dialog = StatsDialog(dbname="general", db=self._db)
         self._remote_lock = Lock()
         self._remote_stats = {}
 
@@ -63,7 +67,14 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         self._nodes = Nodes.instance()
 
-        self.last_stats = None
+        self._last_stats = {}
+        self._last_items = {
+                'hosts':{},
+                'procs':{},
+                'addrs':{},
+                'ports':{},
+                'users':{}
+                }
 
     # https://gist.github.com/pklaus/289646
     def _setup_interfaces(self):
@@ -89,6 +100,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._version_warning_trigger.connect(self._on_diff_versions)
         self._status_change_trigger.connect(self._on_status_change)
         self._new_remote_trigger.connect(self._on_new_remote)
+        self._update_stats_trigger.connect(self._on_update_stats)
         self._stats_dialog._notification_trigger.connect(self._on_new_notification)
         self._stats_dialog._shown_trigger.connect(self._on_stats_dialog_shown)
 
@@ -159,11 +171,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             self._msg.show()
             self._version_warning_shown = True
 
+    @QtCore.pyqtSlot(str, str, ui_pb2.PingRequest)
+    def _on_update_stats(self, proto, addr, request):
+        main_need_refresh, details_need_refresh = self._populate_stats(self._db, proto, addr, request.stats)
+        is_local_request = self._is_local_request(proto, addr)
+        self._stats_dialog.update(is_local_request, request.stats, main_need_refresh or details_need_refresh)
+
     @QtCore.pyqtSlot(str, ui_pb2.PingRequest)
     def _on_new_remote(self, addr, request):
         self._remote_stats[addr] = {
                 'last_ping': datetime.now(),
-                'dialog': StatsDialog(address=addr, dbname=addr)
+                'dialog': StatsDialog(address=addr, dbname=addr, db=self._db)
                 }
         self._remote_stats[addr]['dialog'].daemon_connected = True
         self._remote_stats[addr]['dialog'].update(addr, request.stats)
@@ -202,13 +220,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 self._status_change_trigger.emit()
                 was_connected = self._connected
 
-    def _is_local_request(self, context):
-        peer = context.peer()
-        if peer.startswith("unix:"):
+    def _is_local_request(self, proto, addr):
+        if proto == "unix":
             return True
 
-        elif peer.startswith("ipv4:"):
-            _, addr = self._get_peer(peer)
+        elif proto == "ipv4" or proto == "ipv6":
             for name, ip in self._interfaces.items():
                 if addr == ip:
                     return True
@@ -229,29 +245,50 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         p = peer.split(":")
         return p[0], p[1]
 
+    def _delete_node(self, peer):
+        try:
+            proto, addr = self._get_peer(peer)
+            if addr in self._last_stats:
+                del self._last_stats[addr]
+            for table in self._last_items:
+                if addr in self._last_items[table]:
+                    del self._last_items[table][addr]
+
+            self._nodes.update(self._db, proto, addr, Nodes.OFFLINE)
+            self._nodes.delete(peer)
+            self._stats_dialog.update(True, None, True)
+        except Exception as e:
+            print("_delete_node() exception:", e)
+
     def _populate_stats(self, db, proto, addr, stats):
         fields = []
         values = []
-        if db == None:
-            print("populate_stats() db None")
-            return
-
-        _node = self._nodes.get_node(proto+":"+addr)
-        if _node == None:
-            return
-
-        version  = _node['data'].version if _node != None else ""
-        hostname = _node['data'].name if _node != None else ""
-        db.insert("nodes",
-                "(addr, status, hostname, daemon_version, daemon_uptime, " \
-                        "daemon_rules, cons, cons_dropped, version, last_connection)",
-                    (addr, Nodes.ONLINE, hostname, stats.daemon_version, str(timedelta(seconds=stats.uptime)), stats.rules, stats.connections, stats.dropped,
-                    version, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-
+        main_need_refresh = False
+        details_need_refresh = False
         try:
+            if db == None:
+                print("populate_stats() db None")
+                return main_need_refresh, details_need_refresh
+
+            _node = self._nodes.get_node(proto+":"+addr)
+            if _node == None:
+                return main_need_refresh, details_need_refresh
+
+            version  = _node['data'].version if _node != None else ""
+            hostname = _node['data'].name if _node != None else ""
+            db.insert("nodes",
+                    "(addr, status, hostname, daemon_version, daemon_uptime, " \
+                            "daemon_rules, cons, cons_dropped, version, last_connection)",
+                        (addr, Nodes.ONLINE, hostname, stats.daemon_version, str(timedelta(seconds=stats.uptime)), stats.rules, stats.connections, stats.dropped,
+                        version, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+
+            if addr not in self._last_stats:
+                self._last_stats[addr] = []
+
             for row, event in enumerate(stats.events):
-                if self.last_stats != None and event in self.last_stats.events:
+                if event in self._last_stats[addr]:
                     continue
+                need_refresh=True
                 db.insert("connections",
                         "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, process, process_args, rule)",
                         (str(datetime.now()), addr, event.rule.action, event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
@@ -267,37 +304,59 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                             event.rule.operator.operand + ": " + event.rule.operator.data),
                         action_on_conflict="IGNORE")
 
-            last_items = self.last_stats.by_host.items() if self.last_stats != None else ''
-            self._populate_stats_events(db, stats, "hosts", ("what", "hits"), (1,2), stats.by_host.items(), last_items)
-            last_items = self.last_stats.by_executable.items() if self.last_stats != None else ''
-            self._populate_stats_events(db, stats, "procs", ("what", "hits"), (1,2), stats.by_executable.items(), last_items)
-            last_items = self.last_stats.by_address.items() if self.last_stats != None else ''
-            self._populate_stats_events(db, stats, "addrs", ("what", "hits"), (1,2), stats.by_address.items(), last_items)
-            last_items = self.last_stats.by_port.items() if self.last_stats != None else ''
-            self._populate_stats_events(db, stats, "ports", ("what", "hits"), (1,2), stats.by_port.items(), last_items)
-            last_items = self.last_stats.by_uid.items() if self.last_stats != None else ''
-            self._populate_stats_events(db, stats, "users", ("what", "hits"), (1,2), stats.by_uid.items(), last_items)
-
-            self.last_stats = stats
+            details_need_refresh = self._populate_stats_details(db, addr, stats)
+            self._last_stats[addr] = stats.events
         except Exception as e:
             print("_populate_stats() exception: ", e)
 
-    def _populate_stats_events(self, db, stats, table, colnames, cols, items, last_items):
+        return main_need_refresh, details_need_refresh
+
+    def _populate_stats_details(self, db, addr, stats):
+        need_refresh = False
+        changed = self._populate_stats_events(db, addr, stats, "hosts", ("what", "hits"), (1,2), stats.by_host.items())
+        if changed: need_refresh = True
+        changed = self._populate_stats_events(db, addr, stats, "procs", ("what", "hits"), (1,2), stats.by_executable.items())
+        if changed: need_refresh = True
+        changed = self._populate_stats_events(db, addr, stats, "addrs", ("what", "hits"), (1,2), stats.by_address.items())
+        if changed: need_refresh = True
+        changed = self._populate_stats_events(db, addr, stats, "ports", ("what", "hits"), (1,2), stats.by_port.items())
+        if changed: need_refresh = True
+        changed = self._populate_stats_events(db, addr, stats, "users", ("what", "hits"), (1,2), stats.by_uid.items())
+        if changed: need_refresh = True
+
+        return need_refresh
+
+    def _populate_stats_events(self, db, addr, stats, table, colnames, cols, items):
         fields = []
         values = []
-        for row, event in enumerate(items):
-            if last_items != '' and event in last_items:
-                continue
-            what, hits = event
-            # FIXME: this is suboptimal
-            # BUG: there can be users with same id on different machines but with different names
-            if table == "users":
-                what = self._get_user_id(what)
-            fields.append(what)
-            values.append(int(hits))
-        # FIXME: default acion on conflict is to replace. If there're multiple nodes connected,
-        # stats are painted once on each update per node.
-        db.insert_batch(table, colnames, cols, fields, values)
+        need_refresh = False
+        try:
+            if addr not in self._last_items[table].keys():
+                self._last_items[table][addr] = {}
+            if items == self._last_items[table][addr]:
+                return need_refresh
+
+            for row, event in enumerate(items):
+                if event in self._last_items[table][addr]:
+                    continue
+                need_refresh = True
+                what, hits = event
+                # FIXME: this is suboptimal
+                # BUG: there can be users with same id on different machines but with different names
+                if table == "users":
+                    what = self._get_user_id(what)
+                fields.append(what)
+                values.append(int(hits))
+            # FIXME: default action on conflict is to replace. If there're multiple nodes connected,
+            # stats are painted once per node on each update.
+            if need_refresh:
+                db.insert_batch(table, colnames, cols, fields, values)
+
+            self._last_items[table][addr] = items
+        except Exception as e:
+            print("details exception: ", e)
+
+        return need_refresh
 
     def Ping(self, request, context):
         try:
@@ -306,13 +365,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 self._version_warning_trigger.emit(request.stats.daemon_version, version)
 
             proto, addr = self._get_peer(context.peer())
-            # global stats must be updated regardles if there're 1 or more clients
-            self._populate_stats(self._stats_dialog.get_db(), proto, addr, request.stats)
-            if self._is_local_request(context):
-                self._stats_dialog.update(addr, request.stats)
-            else:
-                with self._remote_lock:
-                    self._stats_dialog.update(addr, request.stats)
+            # do not update db here, do it on the main thread
+            self._update_stats_trigger.emit(proto, addr, request)
             #else:
             #    with self._remote_lock:
             #        # XXX: disable this option for now
@@ -330,7 +384,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def AskRule(self, request, context):
         self._asking = True
-        rule, timeout_triggered = self._prompt_dialog.promptUser(request, self._is_local_request(context), context.peer())
+        proto, addr = self._get_peer(context.peer())
+        rule, timeout_triggered = self._prompt_dialog.promptUser(request, self._is_local_request(proto, addr), context.peer())
         if timeout_triggered:
             _title = request.process_path
             if _title == "":
@@ -354,19 +409,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         try:
             _node = self._nodes.add(context, node_iter.next())
             proto, addr = self._get_peer(context.peer())
-            self._nodes.update(self._stats_dialog.get_db(), proto, addr)
+            self._nodes.update(self._db, proto, addr)
 
             stop_event = Event()
             def _on_client_closed():
                 stop_event.set()
-
-                proto, addr = self._get_peer(context.peer())
-                self._nodes.update(self._stats_dialog.get_db(), proto, addr, Nodes.OFFLINE)
-                self._nodes.delete(context.peer())
+                self._delete_node(context.peer())
 
             context.add_callback(_on_client_closed)
         except Exception as e:
-            print("[Notifications] exception adding new node", e)
+            print("[Notifications] exception adding new node:", e)
+            context.cancel()
             return node_iter
 
         while self._exit == False:
@@ -379,7 +432,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     _node['notifications'].task_done()
                     yield noti
             except Exception as e:
-                print("[Notifications] exception getting notification from queue", e)
+                print("[Notifications] exception getting notification from queue:", e)
                 context.cancel()
 
         return node_iter

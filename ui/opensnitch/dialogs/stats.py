@@ -9,19 +9,21 @@ import time
 
 from PyQt5 import Qt, QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery, QSqlTableModel
+from PyQt5.QtGui import QColor
 
 import ui_pb2
-from database import Database
 from config import Config
 from version import version
+from nodes import Nodes
 from dialogs.preferences import PreferencesDialog
+from customwidgets import ColorizedDelegate
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     RED = QtGui.QColor(0xff, 0x63, 0x47)
     GREEN = QtGui.QColor(0x2e, 0x90, 0x59)
 
-    _trigger = QtCore.pyqtSignal()
+    _trigger = QtCore.pyqtSignal(bool, bool)
     _shown_trigger = QtCore.pyqtSignal()
     _notification_trigger = QtCore.pyqtSignal(ui_pb2.Notification)
 
@@ -31,6 +33,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     LIMITS = ["LIMIT 50", "LIMIT 100", "LIMIT 200", "LIMIT 300", ""]
     LAST_GROUP_BY = ""
 
+    COL_TIME   = 0
     COL_NODE   = 1
     COL_ACTION = 2
     COL_DSTIP  = 3
@@ -38,6 +41,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_PROCS  = 5
     COL_RULES  = 6
 
+    COL_WHAT   = 0
+
+    TAB_MAIN  = 0
     TAB_NODES = 1
     TAB_RULES = 2
     TAB_HOSTS = 3
@@ -46,13 +52,21 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     TAB_PORTS = 6
     TAB_USERS = 7
 
+    commonDelegateConf = {
+            'deny':      RED,
+            'allow':     GREEN,
+            'alignment': QtCore.Qt.AlignCenter | QtCore.Qt.AlignHCenter
+            }
+
     TABLES = {
-            0: {
+            TAB_MAIN: {
                 "name": "connections",
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "model": None,
+                "delegate": commonDelegateConf,
                 "display_fields": "time as Time, " \
                         "node as Node, " \
                         "action as Action, " \
@@ -62,12 +76,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "rule as Rule",
                 "group_by": LAST_GROUP_BY
                 },
-            1: {
+            TAB_NODES: {
                 "name": "nodes",
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "model": None,
+                "delegate": {
+                    Nodes.OFFLINE: RED,
+                    Nodes.ONLINE:  GREEN,
+                    'alignment': QtCore.Qt.AlignCenter | QtCore.Qt.AlignHCenter
+                    },
                 "display_fields": "last_connection as LastConnection, "\
                         "addr as Addr, " \
                         "status as Status, " \
@@ -79,74 +99,92 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "cons_dropped as Dropped," \
                         "version as Version" \
                 },
-            2: {
+            TAB_RULES: {
                 "name": "rules",
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "delegate": None,
+                "model": None,
+                "delegate": commonDelegateConf,
                 "display_fields": "*"
                 },
-            3: {
+            TAB_HOSTS: {
                 "name": "hosts",
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "delegate": None,
+                "model": None,
+                "delegate": commonDelegateConf,
                 "display_fields": "*"
                 },
-            4: {
+            TAB_PROCS: {
                 "name": "procs",
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "delegate": None,
+                "model": None,
+                "delegate": commonDelegateConf,
                 "display_fields": "*"
                 },
-            5: {
+            TAB_ADDRS: {
                 "name": "addrs",
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "delegate": None,
+                "model": None,
+                "delegate": commonDelegateConf,
                 "display_fields": "*"
                 },
-            6: {
+            TAB_PORTS: {
                 "name": "ports",
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "delegate": None,
+                "model": None,
+                "delegate": commonDelegateConf,
                 "display_fields": "*"
                 },
-            7: {
+            TAB_USERS: {
                 "name": "users",
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "delegate": None,
+                "model": None,
+                "delegate": commonDelegateConf,
                 "display_fields": "*"
                 }
             }
 
-    def __init__(self, parent=None, address=None, dbname="db"):
+    def __init__(self, parent=None, address=None, db=None, dbname="db"):
         super(StatsDialog, self).__init__(parent)
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(QtCore.Qt.Window)
         self.setupUi(self)
 
-        self._db = Database.instance()
+        self._db = db
         self._db_sqlite = self._db.get_db()
         self._db_name = dbname
 
         self._cfg = Config.get()
+        self._nodes = Nodes.instance()
 
         self.daemon_connected = False
 
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._address = address
         self._stats = None
-
 
         self._prefs_dialog = PreferencesDialog()
         self._trigger.connect(self._on_update_triggered)
@@ -161,45 +199,74 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.filterLine.textChanged.connect(self._cb_events_filter_line_changed)
         self.limitCombo.currentIndexChanged.connect(self._cb_limit_combo_changed)
         self.cmdCleanSql.clicked.connect(self._cb_clean_sql_clicked)
+        self.tabWidget.currentChanged.connect(self._cb_tab_changed)
 
-        self.TABLES[0]['view'] = self._setup_table(QtWidgets.QTreeView, self.eventsTable, "connections",
-                self.TABLES[0]['display_fields'],
+        self.TABLES[self.TAB_MAIN]['view'] = self._setup_table(QtWidgets.QTreeView, self.eventsTable, "connections",
+                self.TABLES[self.TAB_MAIN]['display_fields'],
                 order_by="1",
-                group_by=self.TABLES[0]['group_by'],
-                resize_cols=(StatsDialog.COL_ACTION, StatsDialog.COL_PROTO, StatsDialog.COL_NODE))
-        self.TABLES[1]['view'] = self._setup_table(QtWidgets.QTableView, self.nodesTable, "nodes",
-                self.TABLES[1]['display_fields'], order_by="3,2,1")
-        self.TABLES[2]['view'] = self._setup_table(QtWidgets.QTableView, self.rulesTable, "rules", order_by="1")
-        self.TABLES[3]['view'] = self._setup_table(QtWidgets.QTableView, self.hostsTable, "hosts", order_by="2,1")
-        self.TABLES[4]['view'] = self._setup_table(QtWidgets.QTableView, self.procsTable, "procs", order_by="2,1")
-        self.TABLES[5]['view'] = self._setup_table(QtWidgets.QTableView, self.addrTable,  "addrs", order_by="2,1")
-        self.TABLES[6]['view'] = self._setup_table(QtWidgets.QTableView, self.portsTable, "ports", order_by="2,1")
-        self.TABLES[7]['view'] = self._setup_table(QtWidgets.QTableView, self.usersTable, "users", order_by="2,1")
+                group_by=self.TABLES[self.TAB_MAIN]['group_by'],
+                delegate=self.TABLES[self.TAB_MAIN]['delegate'],
+                resize_cols=(self.COL_TIME, self.COL_ACTION, self.COL_PROTO, self.COL_NODE))
+        self.TABLES[self.TAB_NODES]['view'] = self._setup_table(QtWidgets.QTableView, self.nodesTable, "nodes",
+                self.TABLES[self.TAB_NODES]['display_fields'],
+                order_by="3,2,1",
+                resize_cols=(self.COL_NODE,),
+                delegate=self.TABLES[self.TAB_NODES]['delegate'])
+        self.TABLES[self.TAB_RULES]['view'] = self._setup_table(QtWidgets.QTableView,
+                self.rulesTable, "rules",
+                resize_cols=(self.COL_WHAT,),
+                delegate=self.TABLES[self.TAB_RULES]['delegate'],
+                order_by="1")
+        self.TABLES[self.TAB_HOSTS]['view'] = self._setup_table(QtWidgets.QTableView,
+                self.hostsTable, "hosts",
+                resize_cols=(self.COL_WHAT,),
+                delegate=self.TABLES[self.TAB_HOSTS]['delegate'],
+                order_by="2")
+        self.TABLES[self.TAB_PROCS]['view'] = self._setup_table(QtWidgets.QTableView,
+                self.procsTable, "procs",
+                resize_cols=(self.COL_WHAT,),
+                delegate=self.TABLES[self.TAB_PROCS]['delegate'],
+                order_by="2")
+        self.TABLES[self.TAB_ADDRS]['view'] = self._setup_table(QtWidgets.QTableView,
+                self.addrTable, "addrs",
+                resize_cols=(self.COL_WHAT,),
+                delegate=self.TABLES[self.TAB_ADDRS]['delegate'],
+                order_by="2")
+        self.TABLES[self.TAB_PORTS]['view'] = self._setup_table(QtWidgets.QTableView,
+                self.portsTable, "ports",
+                resize_cols=(self.COL_WHAT,),
+                delegate=self.TABLES[self.TAB_PORTS]['delegate'],
+                order_by="2")
+        self.TABLES[self.TAB_USERS]['view'] = self._setup_table(QtWidgets.QTableView,
+                self.usersTable, "users",
+                resize_cols=(self.COL_WHAT,),
+                delegate=self.TABLES[self.TAB_USERS]['delegate'],
+                order_by="2")
 
-        self.TABLES[1]['label']    = self.nodesLabel
-        self.TABLES[1]['tipLabel'] = self.tipNodesLabel
-        self.TABLES[2]['label']    = self.ruleLabel
-        self.TABLES[2]['tipLabel'] = self.tipRulesLabel
-        self.TABLES[3]['label']    = self.hostsLabel
-        self.TABLES[3]['tipLabel'] = self.tipHostsLabel
-        self.TABLES[4]['label']    = self.procsLabel
-        self.TABLES[4]['tipLabel'] = self.tipProcsLabel
-        self.TABLES[5]['label']    = self.addrsLabel
-        self.TABLES[5]['tipLabel'] = self.tipAddrsLabel
-        self.TABLES[6]['label']    = self.portsLabel
-        self.TABLES[6]['tipLabel'] = self.tipPortsLabel
-        self.TABLES[7]['label']    = self.usersLabel
-        self.TABLES[7]['tipLabel'] = self.tipUsersLabel
+        self.TABLES[self.TAB_NODES]['label']    = self.nodesLabel
+        self.TABLES[self.TAB_NODES]['tipLabel'] = self.tipNodesLabel
+        self.TABLES[self.TAB_RULES]['label']    = self.ruleLabel
+        self.TABLES[self.TAB_RULES]['tipLabel'] = self.tipRulesLabel
+        self.TABLES[self.TAB_HOSTS]['label']    = self.hostsLabel
+        self.TABLES[self.TAB_HOSTS]['tipLabel'] = self.tipHostsLabel
+        self.TABLES[self.TAB_PROCS]['label']    = self.procsLabel
+        self.TABLES[self.TAB_PROCS]['tipLabel'] = self.tipProcsLabel
+        self.TABLES[self.TAB_ADDRS]['label']    = self.addrsLabel
+        self.TABLES[self.TAB_ADDRS]['tipLabel'] = self.tipAddrsLabel
+        self.TABLES[self.TAB_PORTS]['label']    = self.portsLabel
+        self.TABLES[self.TAB_PORTS]['tipLabel'] = self.tipPortsLabel
+        self.TABLES[self.TAB_USERS]['label']    = self.usersLabel
+        self.TABLES[self.TAB_USERS]['tipLabel'] = self.tipUsersLabel
 
-        self.TABLES[1]['cmd'] = self.cmdNodesBack
-        self.TABLES[2]['cmd'] = self.cmdRulesBack
-        self.TABLES[3]['cmd'] = self.cmdHostsBack
-        self.TABLES[4]['cmd'] = self.cmdProcsBack
-        self.TABLES[5]['cmd'] = self.cmdAddrsBack
-        self.TABLES[6]['cmd'] = self.cmdPortsBack
-        self.TABLES[7]['cmd'] = self.cmdUsersBack
+        self.TABLES[self.TAB_NODES]['cmd'] = self.cmdNodesBack
+        self.TABLES[self.TAB_RULES]['cmd'] = self.cmdRulesBack
+        self.TABLES[self.TAB_HOSTS]['cmd'] = self.cmdHostsBack
+        self.TABLES[self.TAB_PROCS]['cmd'] = self.cmdProcsBack
+        self.TABLES[self.TAB_ADDRS]['cmd'] = self.cmdAddrsBack
+        self.TABLES[self.TAB_PORTS]['cmd'] = self.cmdPortsBack
+        self.TABLES[self.TAB_USERS]['cmd'] = self.cmdUsersBack
 
-        self.TABLES[0]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
+        self.TABLES[self.TAB_MAIN]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
         for idx in range(1,8):
             self.TABLES[idx]['cmd'].setVisible(False)
             self.TABLES[idx]['cmd'].clicked.connect(lambda: self._cb_cmd_back_clicked(idx))
@@ -208,14 +275,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._load_settings()
 
         self._tables = ( \
-            self.TABLES[0]['view'],
-            self.TABLES[1]['view'],
-            self.TABLES[2]['view'],
-            self.TABLES[3]['view'],
-            self.TABLES[4]['view'],
-            self.TABLES[5]['view'],
-            self.TABLES[6]['view'],
-            self.TABLES[7]['view']
+            self.TABLES[self.TAB_MAIN]['view'],
+            self.TABLES[self.TAB_NODES]['view'],
+            self.TABLES[self.TAB_RULES]['view'],
+            self.TABLES[self.TAB_HOSTS]['view'],
+            self.TABLES[self.TAB_PROCS]['view'],
+            self.TABLES[self.TAB_ADDRS]['view'],
+            self.TABLES[self.TAB_PORTS]['view'],
+            self.TABLES[self.TAB_USERS]['view']
         )
         self._file_names = ( \
             'events.csv',
@@ -236,9 +303,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             window_title = "OpenSnitch Network Statistics for %s" % self._address
             self.nodeLabel.setText(self._address)
         self.setWindowTitle(window_title)
-
-    def get_db(self):
-        return self._db
+        self._refresh_active_table()
 
     def _load_settings(self):
         dialog_geometry = self._cfg.getSettings("statsDialog/geometry")
@@ -263,6 +328,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings("statsDialog/geometry", self.saveGeometry())
         self._cfg.setSettings("statsDialog/last_tab", self.tabWidget.currentIndex())
         self._cfg.setSettings("statsDialog/general_limit_results", self.limitCombo.currentIndex())
+
+    def _cb_tab_changed(self, index):
+        self._refresh_active_table()
 
     def _cb_table_header_clicked(self, pos, sortIdx):
         model = self._get_active_table().model()
@@ -407,6 +475,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return self.TABLES[self.tabWidget.currentIndex()]['view']
 
     def _set_nodes_query(self, data):
+        s = "AND c.src_ip='%s'" % data if '/' not in data else ''
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "n.last_connection as LastConnection, " \
@@ -418,9 +487,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.dst_ip as DstIP, " \
                 "c.process as Process, " \
                 "c.process_args as Args, " \
-                "count(c.process) as ProcessesExec " \
+                "count(c.process) as Hits " \
             "FROM nodes as n, connections as c " \
-            "WHERE n.addr = '%s' GROUP BY c.process,c.dst_host %s" % (data, self._get_order()))
+            "WHERE n.addr = '%s' %s GROUP BY c.process %s" % (data, s, self._get_order()))
 
     def _set_rules_query(self, data):
         model = self._get_active_table().model()
@@ -521,27 +590,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "FROM users as u, connections as c " \
             "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.dst_ip %s" % (data, self._get_order()))
 
-    # launched from a thread
-    def update(self, addr=None, stats=None):
-        # lock mandatory when there're multiple clients
-        with self._lock:
-            if stats is not None:
-                self._stats = stats
-            # do not update any tab if the window is not visible
-            if self.isVisible() and self.isMinimized() == False:
-                self._trigger.emit()
-
-    def update_status(self):
-        self.startButton.setDown(self.daemon_connected)
-        self.startButton.setChecked(self.daemon_connected)
-        self.startButton.setDisabled(not self.daemon_connected)
-        if self.daemon_connected:
-            self.statusLabel.setText("running")
-            self.statusLabel.setStyleSheet('color: green')
-        else:
-            self.statusLabel.setText("not running")
-            self.statusLabel.setStyleSheet('color: red')
-
     def _on_save_clicked(self):
         tab_idx = self.tabWidget.currentIndex()
 
@@ -571,10 +619,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         values.append(table.model().index(row, col).data())
                     w.writerow(values)
 
-    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", limit="", resize_cols=(), model=None):
+    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", limit="", resize_cols=(), model=None, delegate=None):
         tableWidget.setSortingEnabled(True)
         if model == None:
             model = QSqlQueryModel()
+        if delegate != None:
+            tableWidget.setItemDelegate(ColorizedDelegate(self, config=delegate))
         self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " DESC" + limit)
         tableWidget.setModel(model)
 
@@ -587,21 +637,34 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
             header.sortIndicatorChanged.connect(self._cb_table_header_clicked)
 
-
-        for _, col in enumerate(resize_cols):
-            header.setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
+            for _, col in enumerate(resize_cols):
+                header.setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
 
         return tableWidget
 
-    def _show_local_stats(self, show):
-        self.daemonVerLabel.setVisible(show)
-        self.uptimeLabel.setVisible(show)
-        self.rulesLabel.setVisible(show)
-        self.consLabel.setVisible(show)
-        self.droppedLabel.setVisible(show)
+    # launched from a thread
+    def update(self, is_local=True, stats=None, need_query_update=True):
+        # lock mandatory when there're multiple clients
+        with self._lock:
+            if stats is not None:
+                self._stats = stats
+            # do not update any tab if the window is not visible
+            if self.isVisible() and self.isMinimized() == False:
+                self._trigger.emit(is_local, need_query_update)
 
-    @QtCore.pyqtSlot()
-    def _on_update_triggered(self):
+    def update_status(self):
+        self.startButton.setDown(self.daemon_connected)
+        self.startButton.setChecked(self.daemon_connected)
+        self.startButton.setDisabled(not self.daemon_connected)
+        if self.daemon_connected:
+            self.statusLabel.setText("running")
+            self.statusLabel.setStyleSheet('color: green')
+        else:
+            self.statusLabel.setText("not running")
+            self.statusLabel.setStyleSheet('color: red')
+
+    @QtCore.pyqtSlot(bool, bool)
+    def _on_update_triggered(self, is_local, need_query_update=False):
         if self._stats is None:
             self.daemonVerLabel.setText("")
             self.uptimeLabel.setText("")
@@ -609,16 +672,21 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.consLabel.setText("")
             self.droppedLabel.setText("")
         else:
-            rows = self.TABLES[1]['view'].model().rowCount()
-            self._show_local_stats(rows <= 1)
-            if rows <= 1:
-                self.daemonVerLabel.setText(self._stats.daemon_version)
+            nodes = self._nodes.count()
+            self.daemonVerLabel.setText(self._stats.daemon_version)
+            if nodes <= 1:
                 self.uptimeLabel.setText(str(datetime.timedelta(seconds=self._stats.uptime)))
                 self.rulesLabel.setText("%s" % self._stats.rules)
                 self.consLabel.setText("%s" % self._stats.connections)
                 self.droppedLabel.setText("%s" % self._stats.dropped)
+            else:
+                self.uptimeLabel.setText("")
+                self.rulesLabel.setText("")
+                self.consLabel.setText("")
+                self.droppedLabel.setText("")
 
-            self._refresh_active_table()
+            if need_query_update:
+                self._refresh_active_table()
 
     # prevent a click on the window's x
     # from quitting the whole application
@@ -634,5 +702,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def setQuery(self, model, q):
         with self._lock:
-            model.setQuery(q, self._db_sqlite)
-            model.query().clear()
+            try:
+                model.query().clear()
+                model.setQuery(q, self._db_sqlite)
+            except Exception as e:
+                print(self._address, "setQuery() exception: ", e)

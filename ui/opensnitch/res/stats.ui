@@ -160,11 +160,13 @@
        <item row="2" column="1" colspan="4">
         <widget class="QTreeView" name="eventsTable">
          <property name="styleSheet">
-          <string notr="true">*[action=&quot;deny&quot;] { text-color: rgb(239, 41, 41);}
-*[action=&quot;allow&quot;] { text-color: rgb(115, 210, 22);}</string>
+          <string notr="true"/>
          </property>
          <property name="autoScroll">
           <bool>false</bool>
+         </property>
+         <property name="indentation">
+          <number>10</number>
          </property>
          <property name="uniformRowHeights">
           <bool>true</bool>
@@ -236,7 +238,7 @@
        <item row="1" column="0">
         <widget class="QLabel" name="tipNodesLabel">
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on the Name column to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on the Addr column to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -649,7 +651,7 @@
    <item row="4" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_11">
+      <layout class="QHBoxLayout" name="statsLayout">
        <item>
         <widget class="QLabel" name="label_5">
          <property name="sizePolicy">
