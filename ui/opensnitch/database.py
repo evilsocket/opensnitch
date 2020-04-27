@@ -59,10 +59,12 @@ class Database:
                 "dst_host text, " \
                 "dst_port text, " \
                 "uid text, " \
+                "pid text, " \
                 "process text, " \
                 "process_args text, " \
                 "rule text, " \
-                "UNIQUE(time, node, protocol, src_ip, src_port, dst_ip, dst_port, uid, process, process_args))", self.db)
+                "UNIQUE(time, node, action, protocol, src_ip, src_port, dst_ip, dst_port, uid, pid, process, process_args))",
+                self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists rules (" \
                 "time text, "\
