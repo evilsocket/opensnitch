@@ -290,10 +290,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     continue
                 need_refresh=True
                 db.insert("connections",
-                        "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, process, process_args, rule)",
+                        "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, pid, process, process_args, rule)",
                         (str(datetime.now()), addr, event.rule.action, event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
                             event.connection.dst_ip, event.connection.dst_host, str(event.connection.dst_port),
-                            str(event.connection.user_id), event.connection.process_path, " ".join(event.connection.process_args),
+                            str(event.connection.user_id), str(event.connection.process_id), event.connection.process_path, " ".join(event.connection.process_args),
                             event.rule.name),
                         action_on_conflict="IGNORE"
                         )
