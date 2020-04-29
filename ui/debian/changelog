@@ -1,3 +1,12 @@
+opensnitch-ui (1.0.0rc8) unstable; urgency=medium
+
+  * Allow to change settings (daemon && UI) from the UI.
+  * Added Nodes view.
+  * Improved UI performance, specially when remote nodes connected.
+  * Fixed race condition when adding stats of remote nodes.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Wed, 29 Apr 2020 21:56:54 +0200
+
 opensnitch-ui (1.0.0rc7-1) unstable; urgency=medium
 
   * Added help menu.

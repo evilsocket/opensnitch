@@ -1,3 +1,10 @@
+opensnitch (1.0.0rc8) unstable; urgency=medium
+
+  * Allow to change settings from the UI.
+  * Improved connection handling with the UI.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Wed, 29 Apr 2020 21:52:27 +0200
+
 opensnitch (1.0.0rc7-1) unstable; urgency=medium
 
   * Stability, performance and realiability improvements.
