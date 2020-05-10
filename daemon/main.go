@@ -161,15 +161,7 @@ func onPacket(packet netfilter.Packet) {
 	// Parse the connection state
 	con := conman.Parse(packet, uiClient.InterceptUnknown())
 	if con == nil {
-		if uiClient.DefaultAction() == rule.Allow {
-			packet.SetVerdict(netfilter.NF_ACCEPT)
-		} else {
-			if uiClient.DefaultDuration() == rule.Always {
-				packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
-			} else {
-				packet.SetVerdict(netfilter.NF_DROP)
-			}
-		}
+		applyDefaultAction(&packet)
 		return
 	}
 	// accept our own connections
@@ -182,6 +174,18 @@ func onPacket(packet netfilter.Packet) {
 	r := acceptOrDeny(&packet, con)
 
 	stats.OnConnectionEvent(con, r, r == nil)
+}
+
+func applyDefaultAction(packet *netfilter.Packet) {
+	if uiClient.DefaultAction() == rule.Allow {
+		packet.SetVerdict(netfilter.NF_ACCEPT)
+	} else {
+		if uiClient.DefaultDuration() == rule.Always {
+			packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
+		} else {
+			packet.SetVerdict(netfilter.NF_DROP)
+		}
+	}
 }
 
 func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
@@ -234,7 +238,12 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		}
 	}
 
-	if r.Action == rule.Allow {
+	if r.Enabled == false {
+		applyDefaultAction(packet)
+		ruleName := log.Green(r.Name)
+		log.Info("DISABLED (%s) %s %s -> %s:%d (%s)", uiClient.DefaultAction(), log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
+
+	} else if r.Action == rule.Allow {
 		if packet != nil {
 			packet.SetVerdict(netfilter.NF_ACCEPT)
 		}
@@ -299,7 +308,7 @@ func main() {
 	firewall.QueueConnections(false, queueNum)
 	firewall.DropMarked(false)
 
-	uiClient = ui.NewClient(uiSocket, stats)
+	uiClient = ui.NewClient(uiSocket, stats, rules)
 	// overwrite monitor method from configuration if the user has passed
 	// the option via command line.
 	if procmonMethod != "" {
