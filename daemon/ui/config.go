@@ -55,14 +55,15 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	return true
 }
 
-func (c *Client) saveConfiguration(rawConfig string) {
+func (c *Client) saveConfiguration(rawConfig string) error {
 	conf, err := json.Marshal([]byte(rawConfig))
 	if err != nil {
 		log.Error("saving json configuration: ", err, conf)
-		return
+		return err
 	}
 	if err = ioutil.WriteFile(configFile, []byte(rawConfig), 0644); err != nil {
 		log.Error("writing configuration to disk: ", err)
+		return err
 	}
-	return
+	return nil
 }
