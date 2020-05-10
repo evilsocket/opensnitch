@@ -17,7 +17,6 @@ DIALOG_UI_PATH = "%s/../res/preferences.ui" % os.path.dirname(sys.modules[__name
 class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     
     LOG_TAG = "[Preferences] "
-    _notification_trigger = QtCore.pyqtSignal(str, ui_pb2.Notification)
 
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
@@ -130,7 +129,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         addr = self._nodes_combo.currentText()
         if (self._node_needs_update or self._node_apply_all_check.isChecked()) and addr != "":
             try:
-            # TODO: move to Nodes()
                 node_config = "{\"DefaultAction\": \"" + self._node_action_combo.currentText() + "\"" \
                 + ", \"DefaultDuration\": \"" + self._node_duration_combo.currentText() + "\"" \
                 + ", \"ProcMonitorMethod\": \"" + self._node_monitor_method_combo.currentText() + "\"" \
@@ -138,6 +136,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 + ", \"LogLevel\": " + str(self._node_loglevel_combo.currentIndex()) \
                 + "}"
                 notif = ui_pb2.Notification(
+                        id=int(str(time.time()).replace(".", "")),
                         type=ui_pb2.CHANGE_CONFIG,
                         data=node_config,
                         rules=[])

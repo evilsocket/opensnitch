@@ -1,6 +1,9 @@
 from queue import Queue
 from datetime import datetime
+import time
 import json
+
+from database import Database
 
 class Nodes():
     __instance = None
@@ -16,15 +19,17 @@ class Nodes():
         return Nodes.__instance
 
     def __init__(self):
+        self._db = Database.instance()
         self._nodes = {}
+        self._notifications_sent = {}
 
     def count(self):
         return len(self._nodes)
 
     def add(self, context, client_config=None):
         try:
-            proto, addr = self._get_addr(context.peer())
-            addr = "%s:%s" % (proto, addr)
+            proto, _addr = self._get_addr(context.peer())
+            addr = "%s:%s" % (proto, _addr)
             if addr not in self._nodes:
                 self._nodes[addr] = {
                         'notifications': Queue(),
@@ -36,6 +41,7 @@ class Nodes():
 
             self._nodes[addr]['last_seen'] = datetime.now()
             self.add_data(addr, client_config)
+            self._nodes.update(proto, addr)
 
             return self._nodes[addr]
 
@@ -47,6 +53,22 @@ class Nodes():
     def add_data(self, addr, client_config):
         if client_config != None:
             self._nodes[addr]['data'] = self.get_client_config(client_config)
+            self.add_rules(addr, client_config.rules)
+
+    def add_rules(self, addr, rules):
+        try:
+            for _,r in enumerate(rules):
+                self._db.insert("rules",
+                        "(time, node, name, enabled, action, duration, operator_type, operator_operand, operator_data)",
+                            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                addr,
+                                r.name, str(r.enabled), r.action, r.duration,
+                                r.operator.type,
+                                r.operator.operand,
+                                r.operator.data),
+                            action_on_conflict="IGNORE")
+        except Exception as e:
+            print(self.LOG_TAG + " exception adding node to db: ", e)
 
     def delete_all(self):
         self.send_notifications(None)
@@ -57,7 +79,7 @@ class Nodes():
         addr = "%s:%s" % (proto, addr)
         # Force the node to get one new item from queue,
         # in order to loop and exit.
-        self.send_notification(addr, None)
+        self._nodes[addr]['notifications'].put(None)
         if addr in self._nodes:
             del self._nodes[addr]
 
@@ -115,26 +137,43 @@ class Nodes():
         except Exception as e:
             print(self.LOG_TAG + " exception saving nodes config: ", e, config)
 
-    def send_notification(self, addr, notification):
+    def send_notification(self, addr, notification, callback_signal=None):
         try:
+            notification.id = int(str(time.time()).replace(".", ""))
             self._nodes[addr]['notifications'].put(notification)
+            self._notifications_sent[notification.id] = callback_signal
         except Exception as e:
             print(self.LOG_TAG + " exception sending notification: ", e, addr, notification)
 
-    def send_notifications(self, notification):
+        return notification.id
+
+    def send_notifications(self, notification, callback_signal=None):
         """
         Enqueues a notification to the clients queue.
         It'll be retrieved and delivered by get_notifications
         """
         try:
+            notification.id = int(str(time.time()).replace(".", ""))
             for c in self._nodes:
                 self._nodes[c]['notifications'].put(notification)
+            self._notifications_sent[notification.id] = callback_signal
         except Exception as e:
             print(self.LOG_TAG + " exception sending notifications: ", e, notification)
 
-    def update(self, db, proto, addr, status=ONLINE):
+        return notification.id
+
+    def reply_notification(self, reply):
+        if reply == None:
+            print(self.LOG_TAG, " reply notification None")
+            return
+        if reply.id in self._notifications_sent:
+            if self._notifications_sent[reply.id] != None:
+                self._notifications_sent[reply.id].emit(reply)
+            del self._notifications_sent[reply.id]
+
+    def update(self, proto, addr, status=ONLINE):
         try:
-            db.update("nodes",
+            self._db.update("nodes",
                     "hostname=?,version=?,last_connection=?,status=? WHERE addr=?",
                     (
                         self._nodes[proto+":"+addr]['data'].name,

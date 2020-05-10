@@ -35,7 +35,8 @@
         <string>Cancel</string>
        </property>
        <property name="icon">
-        <iconset theme="window-close"/>
+        <iconset theme="window-close">
+         <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>
@@ -52,7 +53,8 @@
         <string>Save</string>
        </property>
        <property name="icon">
-        <iconset theme="emblem-default"/>
+        <iconset theme="emblem-default">
+         <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>
@@ -231,7 +233,8 @@
            <string>deny</string>
           </property>
           <property name="icon">
-           <iconset theme="emblem-important"/>
+           <iconset theme="emblem-important">
+            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
           </property>
          </item>
          <item>
@@ -239,7 +242,8 @@
            <string>allow</string>
           </property>
           <property name="icon">
-           <iconset theme="emblem-default"/>
+           <iconset theme="emblem-default">
+            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
           </property>
          </item>
         </widget>
@@ -477,7 +481,8 @@
            <string>deny</string>
           </property>
           <property name="icon">
-           <iconset theme="emblem-important"/>
+           <iconset theme="emblem-important">
+            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
           </property>
          </item>
          <item>
@@ -485,7 +490,8 @@
            <string>allow</string>
           </property>
           <property name="icon">
-           <iconset theme="emblem-default"/>
+           <iconset theme="emblem-default">
+            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
           </property>
          </item>
         </widget>

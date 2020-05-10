@@ -330,6 +330,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _on_apply_clicked(self):
         self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
         self._rule = ui_pb2.Rule(name="user.choice")
+        self._rule.enabled = True
 
         if self._action_combo.currentIndex() == 0:
             self._rule.action = "allow"
@@ -360,6 +361,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule.operator.operand = ""
 
         self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.operator.type, self._rule.operator.data))
+
         self.hide()
         if self._is_advanced_checked:
             self._advanced_check.toggle()

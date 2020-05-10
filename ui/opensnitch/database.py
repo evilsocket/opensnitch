@@ -63,15 +63,20 @@ class Database:
                 "process text, " \
                 "process_args text, " \
                 "rule text, " \
-                "UNIQUE(time, node, action, protocol, src_ip, src_port, dst_ip, dst_port, uid, pid, process, process_args))",
+                "UNIQUE(node, action, protocol, src_ip, src_port, dst_ip, dst_port, uid, pid, process, process_args))",
                 self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists rules (" \
-                "time text, "\
-                "name text primary key, "\
+                "time text, " \
+                "node text, " \
+                "name text, " \
+                "enabled text, " \
                 "action text, " \
                 "duration text, " \
-                "operator text " \
+                "operator_type text, " \
+                "operator_operand text, " \
+                "operator_data text, " \
+                "UNIQUE(node, name)"
                 ")", self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists hosts (what text primary key, hits integer)", self.db)
@@ -119,6 +124,27 @@ class Database:
     def rollback(self):
         self.db.rollback()
 
+    def select(self, qstr):
+        try:
+            return QSqlQuery(qstr, self.db)
+        except Exception as e:
+            print("db, select() exception: ", e)
+
+        return None
+
+    def remove(self, qstr):
+        try:
+            q = QSqlQuery(qstr, self.db)
+            if q.exec_():
+                return True
+            else:
+                print("db, remove() ERROR: ", qstr)
+                print(q.lastError().driverText())
+        except Exception as e:
+            print("db, remove exception: ", e)
+
+        return False
+
     def _insert(self, query_str, columns):
         with self._lock:
             try:
@@ -127,13 +153,18 @@ class Database:
                 q.prepare(query_str)
                 for idx, v in enumerate(columns):
                     q.bindValue(idx, v)
-                if not q.exec_():
+                if q.exec_():
+                    return True
+                else:
                     print("_insert() ERROR", query_str)
                     print(q.lastError().driverText())
+
             except Exception as e:
                 print("_insert exception", e)
             finally:
                 q.finish()
+
+        return False
 
     def insert(self, table, fields, columns, update_field=None, update_value=None, action_on_conflict="REPLACE"):
         if update_field != None:
@@ -153,7 +184,7 @@ class Database:
                 update_fields + \
                 " WHERE " + update_field + "=excluded." + update_field
 
-        self._insert(qstr, columns)
+        return self._insert(qstr, columns)
 
     def update(self, table, fields, values, action_on_conflict="OR IGNORE"):
         qstr = "UPDATE " + action_on_conflict + " " + table + " SET " + fields

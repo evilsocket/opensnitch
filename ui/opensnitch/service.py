@@ -21,7 +21,6 @@ import ui_pb2_grpc
 
 from dialogs.prompt import PromptDialog
 from dialogs.stats import StatsDialog
-from dialogs.preferences import PreferencesDialog
 
 from nodes import Nodes
 from config import Config
@@ -101,7 +100,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._status_change_trigger.connect(self._on_status_change)
         self._new_remote_trigger.connect(self._on_new_remote)
         self._update_stats_trigger.connect(self._on_update_stats)
-        self._stats_dialog._notification_trigger.connect(self._on_new_notification)
         self._stats_dialog._shown_trigger.connect(self._on_stats_dialog_shown)
 
     def _setup_icons(self):
@@ -146,10 +144,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _show_stats_dialog(self):
         self._tray.setIcon(self.white_icon)
         self._stats_dialog.show()
-
-    @QtCore.pyqtSlot(ui_pb2.Notification)
-    def _on_new_notification(self, notification):
-        self._nodes.send_notifications(notification)
 
     @QtCore.pyqtSlot()
     def _on_status_change(self):
@@ -254,7 +248,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 if addr in self._last_items[table]:
                     del self._last_items[table][addr]
 
-            self._nodes.update(self._db, proto, addr, Nodes.OFFLINE)
+            self._nodes.update(proto, addr, Nodes.OFFLINE)
             self._nodes.delete(peer)
             self._stats_dialog.update(True, None, True)
         except Exception as e:
@@ -274,13 +268,15 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if _node == None:
                 return main_need_refresh, details_need_refresh
 
+            # TODO: move to nodes.add_node()
             version  = _node['data'].version if _node != None else ""
             hostname = _node['data'].name if _node != None else ""
             db.insert("nodes",
                     "(addr, status, hostname, daemon_version, daemon_uptime, " \
                             "daemon_rules, cons, cons_dropped, version, last_connection)",
-                        (addr, Nodes.ONLINE, hostname, stats.daemon_version, str(timedelta(seconds=stats.uptime)), stats.rules, stats.connections, stats.dropped,
-                        version, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                            (addr, Nodes.ONLINE, hostname, stats.daemon_version, str(timedelta(seconds=stats.uptime)),
+                            stats.rules, stats.connections, stats.dropped,
+                            version, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
             if addr not in self._last_stats:
                 self._last_stats[addr] = []
@@ -289,19 +285,28 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 if event in self._last_stats[addr]:
                     continue
                 need_refresh=True
+                # FIXME Since every node may have different time, and the daemon doesn't send the unix timestamp, use the time we insert it in the db
                 db.insert("connections",
                         "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, pid, process, process_args, rule)",
-                        (str(datetime.now()), addr, event.rule.action, event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
+                        (str(datetime.now()), "%s:%s" % (proto, addr), event.rule.action,
+                            event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
                             event.connection.dst_ip, event.connection.dst_host, str(event.connection.dst_port),
-                            str(event.connection.user_id), str(event.connection.process_id), event.connection.process_path, " ".join(event.connection.process_args),
+                            str(event.connection.user_id), str(event.connection.process_id),
+                            event.connection.process_path, " ".join(event.connection.process_args),
                             event.rule.name),
                         action_on_conflict="IGNORE"
                         )
+                # TODO: move to nodes.add_node()
+                # TODO: remove, and add them only ondemand
                 db.insert("rules",
-                        "(time, name, action, duration, operator)",
+                        "(time, node, name, enabled, action, duration, operator_type, operator_operand, operator_data)",
                             (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            event.rule.name, event.rule.action, event.rule.duration,
-                            event.rule.operator.operand + ": " + event.rule.operator.data),
+                                "%s:%s" % (proto, addr),
+                                event.rule.name, str(event.rule.enabled),
+                                event.rule.action, event.rule.duration,
+                                event.rule.operator.type,
+                                event.rule.operator.operand,
+                                event.rule.operator.data),
                         action_on_conflict="IGNORE")
 
             details_need_refresh = self._populate_stats_details(db, addr, stats)
@@ -399,7 +404,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         return rule
 
-    def Notifications(self, node_iter, context):
+    def Subscribe(self, node_config, context):
         """
         Accept and collect nodes. It keeps a connection open with each
         client, in order to send them notifications.
@@ -407,20 +412,49 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         @doc: https://grpc.github.io/grpc/python/grpc.html#service-side-context
         """
         try:
-            _node = self._nodes.add(context, node_iter.next())
-            proto, addr = self._get_peer(context.peer())
-            self._nodes.update(self._db, proto, addr)
-
-            stop_event = Event()
-            def _on_client_closed():
-                stop_event.set()
-                self._delete_node(context.peer())
-
-            context.add_callback(_on_client_closed)
+            n = self._nodes.add(context, node_config)
         except Exception as e:
             print("[Notifications] exception adding new node:", e)
             context.cancel()
-            return node_iter
+
+        return node_config
+
+    def Notifications(self, node_iter, context):
+        """
+        Accept and collect nodes. It keeps a connection open with each
+        client, in order to send them notifications.
+
+        @doc: https://grpc.github.io/grpc/python/grpc.html#service-side-context
+        """
+        proto, addr = self._get_peer(context.peer())
+        _node = self._nodes.get_node("%s:%s" % (proto, addr))
+
+        stop_event = Event()
+        def _on_client_closed():
+            stop_event.set()
+            self._delete_node(context.peer())
+
+        context.add_callback(_on_client_closed)
+
+        # TODO: move to notificatons.py
+        def new_node_message():
+            print("listening for client responses...", addr)
+            while self._exit == False:
+                try:
+                    if stop_event.is_set():
+                        break
+                    in_message = next(node_iter)
+                    if in_message == None:
+                        continue
+                    self._nodes.reply_notification(in_message)
+                except StopIteration as e:
+                    print("[Notifications] Node exited")
+                except Exception as e:
+                    print("[Notifications] exception new_node_message(): ", addr, e)
+
+        read_thread = Thread(target=new_node_message)
+        read_thread.daemon = True
+        read_thread.start()
 
         while self._exit == False:
             if stop_event.is_set():
@@ -432,7 +466,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     _node['notifications'].task_done()
                     yield noti
             except Exception as e:
-                print("[Notifications] exception getting notification from queue:", e)
+                print("[Notifications] exception getting notification from queue:", addr, e)
                 context.cancel()
 
         return node_iter
