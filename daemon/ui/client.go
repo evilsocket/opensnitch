@@ -21,8 +21,8 @@ import (
 
 var (
 	configFile             = "/etc/opensnitchd/default-config.json"
-	clientDisconnectedRule = rule.Create("ui.client.disconnected", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
-	clientErrorRule        = rule.Create("ui.client.error", rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
+	clientDisconnectedRule = rule.Create("ui.client.disconnected", true, rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
+	clientErrorRule        = rule.Create("ui.client.error", true, rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
 	config                 Config
 )
 
@@ -41,6 +41,7 @@ type Client struct {
 	sync.Mutex
 
 	stats         *statistics.Statistics
+	rules         *rule.Loader
 	socketPath    string
 	isUnixSocket  bool
 	con           *grpc.ClientConn
@@ -49,10 +50,11 @@ type Client struct {
 }
 
 // NewClient creates and configures a new client.
-func NewClient(path string, stats *statistics.Statistics) *Client {
+func NewClient(path string, stats *statistics.Statistics, rules *rule.Loader) *Client {
 	c := &Client{
 		socketPath:   path,
 		stats:        stats,
+		rules:        rules,
 		isUnixSocket: false,
 	}
 	if watcher, err := fsnotify.NewWatcher(); err == nil {

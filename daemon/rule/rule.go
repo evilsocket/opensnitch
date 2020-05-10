@@ -23,6 +23,9 @@ const (
 	Always  = Duration("always")
 )
 
+// Rule represents an action on a connection.
+// The fields match the ones saved as json to disk.
+// If a .json rule file is modified on disk, it's reloaded automatically.
 type Rule struct {
 	Created  time.Time `json:"created"`
 	Updated  time.Time `json:"updated"`
@@ -33,10 +36,11 @@ type Rule struct {
 	Operator Operator  `json:"operator"`
 }
 
-func Create(name string, action Action, duration Duration, op *Operator) *Rule {
+// Create creates a new rule object with the specified parameters.
+func Create(name string, enabled bool, action Action, duration Duration, op *Operator) *Rule {
 	return &Rule{
 		Created:  time.Now(),
-		Enabled:  true,
+		Enabled:  enabled,
 		Name:     name,
 		Action:   action,
 		Duration: duration,
@@ -56,6 +60,9 @@ func (r *Rule) Match(con *conman.Connection) bool {
 }
 
 func Deserialize(reply *protocol.Rule) *Rule {
+	if reply.Operator == nil {
+		return nil
+	}
 	operator := NewOperator(
 		Type(reply.Operator.Type),
 		Operand(reply.Operator.Operand),
@@ -68,6 +75,7 @@ func Deserialize(reply *protocol.Rule) *Rule {
 
 	return Create(
 		reply.Name,
+		reply.Enabled,
 		Action(reply.Action),
 		Duration(reply.Duration),
 		operator,
@@ -77,6 +85,7 @@ func Deserialize(reply *protocol.Rule) *Rule {
 func (r *Rule) Serialize() *protocol.Rule {
 	return &protocol.Rule{
 		Name:     string(r.Name),
+		Enabled:  bool(r.Enabled),
 		Action:   string(r.Action),
 		Duration: string(r.Duration),
 		Operator: &protocol.Operator{
