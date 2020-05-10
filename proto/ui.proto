@@ -5,7 +5,8 @@ package protocol;
 service UI {
     rpc Ping(PingRequest) returns (PingReply) {}
     rpc AskRule (Connection) returns (Rule) {}
-    rpc Notifications (stream ClientConfig) returns (stream Notification) {}
+    rpc Subscribe (ClientConfig) returns (ClientConfig) {}
+    rpc Notifications (stream NotificationReply) returns (stream Notification) {}
 }
 
 message Event {
@@ -64,9 +65,10 @@ message Operator {
 
 message Rule {
     string name = 1;
-    string action = 2;
-    string duration = 3;
-    Operator operator = 4;
+    bool enabled = 2;
+    string action = 3;
+    string duration = 4;
+    Operator operator = 5;
 }
 
 enum Action {
@@ -76,10 +78,13 @@ enum Action {
     CHANGE_CONFIG = 3;
     ENABLE_RULE = 4;
     DISABLE_RULE = 5;
-    LOG_LEVEL = 6;
-    STOP = 7;
+    DELETE_RULE = 6;
+    CHANGE_RULE = 7;
+    LOG_LEVEL = 8;
+    STOP = 9;
 }
 
+// client configuration sent on Subscribe()
 message ClientConfig {
     uint64 id = 1;
     string name = 2;
@@ -91,6 +96,7 @@ message ClientConfig {
     repeated Rule rules = 7;
 }
 
+// notification sent to the clients (daemons)
 message Notification {
     uint64 id = 1;
     string clientName = 2;
@@ -99,4 +105,16 @@ message Notification {
     Action type = 4;
     string data = 5;   
     repeated Rule rules = 6;
+}
+
+// notification reply sent to the server (GUI)
+message NotificationReply {
+    uint64 id = 1;
+    NotificationReplyCode code = 2;
+    string data = 3;
+}
+
+enum NotificationReplyCode {
+    OK = 0;
+    ERROR = 1;
 }
