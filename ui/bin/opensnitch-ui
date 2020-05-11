@@ -33,6 +33,7 @@ def supported_qt_version(major, medium, minor):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.')
     parser.add_argument("--socket", dest="socket", default="unix:///tmp/osui.sock", help="Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).", metavar="FILE")
+    parser.add_argument("--max-clients", dest="serverWorkers", default=10, help="Max number of allowed clients (incoming connections).")
 
     args = parser.parse_args()
     
@@ -47,7 +48,8 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
 
     service = UIService(app, on_exit)
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
+    # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=int(args.serverWorkers)))
 
     add_UIServicer_to_server(service, server)
     
