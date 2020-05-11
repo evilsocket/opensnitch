@@ -84,7 +84,8 @@ func (l *Loader) Load(path string) error {
 
 		err = json.Unmarshal(raw, &r)
 		if err != nil {
-			return fmt.Errorf("Error while parsing rule from %s: %s", fileName, err)
+			log.Error("Error parsing rule from %s: %s", fileName, err)
+			continue
 		}
 
 		r.Operator.Compile()
