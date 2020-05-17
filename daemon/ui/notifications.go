@@ -55,7 +55,7 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 		// this save operation triggers a re-loadConfiguration()
 		err := c.saveConfiguration(notification.Data)
 		if err != nil {
-			log.Warning("[notification] CHANGE_CONFIG not applied")
+			log.Warning("[notification] CHANGE_CONFIG not applied", err)
 		}
 		// XXX: can the Reload() happen before finishing loading conf?
 		procmon.Reload()

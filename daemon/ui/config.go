@@ -61,6 +61,11 @@ func (c *Client) saveConfiguration(rawConfig string) error {
 		log.Error("saving json configuration: ", err, conf)
 		return err
 	}
+
+	if c.loadConfiguration([]byte(rawConfig)) != true {
+		return fmt.Errorf("Error parsing configuration %s: %s", rawConfig, err)
+	}
+
 	if err = ioutil.WriteFile(configFile, []byte(rawConfig), 0644); err != nil {
 		log.Error("writing configuration to disk: ", err)
 		return err
