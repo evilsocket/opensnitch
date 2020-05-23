@@ -204,6 +204,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._nodes = Nodes.instance()
 
         self.daemon_connected = False
+        # skip table updates if a context menu is active
+        self._context_menu_active = False
 
         self._lock = threading.RLock()
         self._address = address
@@ -307,8 +309,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_PORTS]['cmd'] = self.cmdPortsBack
         self.TABLES[self.TAB_USERS]['cmd'] = self.cmdUsersBack
 
-        self.TABLES[self.TAB_MAIN]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
-        self.TABLES[self.TAB_MAIN]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.TABLES[self.TAB_RULES]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
+        self.TABLES[self.TAB_RULES]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.TABLES[self.TAB_RULES]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
         for idx in range(1,8):
             self.TABLES[idx]['cmd'].setVisible(False)
             self.TABLES[idx]['cmd'].clicked.connect(lambda: self._cb_cmd_back_clicked(idx))
@@ -372,6 +375,21 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings("statsDialog/last_tab", self.tabWidget.currentIndex())
         self._cfg.setSettings("statsDialog/general_limit_results", self.limitCombo.currentIndex())
 
+    def _del_rule(self, rule_name, node_addr):
+        rule = ui_pb2.Rule(name=rule_name)
+        rule.enabled = False
+        rule.action = ""
+        rule.duration = ""
+        rule.operator.type = ""
+        rule.operator.operand = ""
+        rule.operator.data = ""
+
+        noti = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[rule])
+        nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
+        self._notifications_sent[nid] = noti
+
+        self._db.remove("DELETE FROM rules WHERE name='%s' AND node='%s'" % (rule.name, node_addr))
+
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
         #print("[stats dialog] notification reply: ", reply.id, reply.code)
@@ -385,6 +403,38 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_tab_changed(self, index):
         self._refresh_active_table()
+
+    def _cb_table_context_menu(self, pos):
+        cur_idx = self.tabWidget.currentIndex()
+        table = self._get_active_table()
+        if table.selectionModel().selection().indexes():
+            self._context_menu_active = True
+
+            for i in table.selectionModel().selection().indexes():
+                row, column = i.row(), i.column()
+            menu = QtWidgets.QMenu()
+            if cur_idx == self.TAB_RULES:
+                _table_menu_delete = menu.addAction("Delete")
+
+            # move away menu a few pixels to the right, to avoid clicking on it by mistake
+            point = QtCore.QPoint(pos.x()+10, pos.y()+5)
+            action = menu.exec_(table.mapToGlobal(point))
+
+            if action == _table_menu_delete:
+                self._table_menu_delete(row, column)
+
+        self._context_menu_active = False
+
+    def _table_menu_delete(self, row, column):
+        cur_idx = self.tabWidget.currentIndex()
+        table = self._get_active_table()
+        if table.selectionModel().selection().indexes():
+            for idx in table.selectionModel().selection().indexes():
+
+                if cur_idx == self.TAB_RULES:
+                    name = table.model().index(idx.row(), 2).data()
+                    node = table.model().index(idx.row(), 1).data()
+                    self._del_rule(name, node)
 
     def _cb_table_header_clicked(self, pos, sortIdx):
         model = self._get_active_table().model()
@@ -547,20 +597,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if ret == QtWidgets.QMessageBox.Cancel:
             return
 
-        rule = ui_pb2.Rule(name=self.TABLES[self.tabWidget.currentIndex()]['label'].text())
-        rule.enabled = False
-        rule.action = ""
-        rule.duration = ""
-        rule.operator.type = ""
-        rule.operator.operand = ""
-        rule.operator.data = ""
-
-        node_addr = self.nodeRuleLabel.text()
-        noti = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[rule])
-        nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
-        self._notifications_sent[nid] = noti
-
-        self._db.remove("DELETE FROM rules WHERE name='%s' AND node='%s'" % (rule.name, node_addr))
+        self._del_rule(self.TABLES[self.tabWidget.currentIndex()]['label'].text(), self.nodeRuleLabel.text())
         self.TABLES[self.TAB_RULES]['cmd'].click()
         self.nodeRuleLabel.setText("")
 
@@ -838,7 +875,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def setQuery(self, model, q):
         with self._lock:
             try:
-                model.query().clear()
-                model.setQuery(q, self._db_sqlite)
+                if self._context_menu_active == False:
+                    model.query().clear()
+                    model.setQuery(q, self._db_sqlite)
             except Exception as e:
                 print(self._address, "setQuery() exception: ", e)
