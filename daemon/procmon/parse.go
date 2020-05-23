@@ -85,6 +85,13 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 	return found
 }
 
+func cleanPath(proc *Process) {
+	pathLen := len(proc.Path)
+	if pathLen >= 10 && proc.Path[pathLen-10:] == " (deleted)" {
+		proc.Path = proc.Path[:len(proc.Path)-10]
+	}
+}
+
 func parseCmdLine(proc *Process) {
 	if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/cmdline", proc.ID)); err == nil {
 		for i, b := range data {
@@ -126,10 +133,11 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 	if MonitorMethod == MethodAudit {
 		if aevent := audit.GetEventByPid(pid); aevent != nil {
 			audit.Lock.RLock()
-			proc := NewProcess(pid, strings.Split(aevent.ProcPath, " ")[0])
+			proc := NewProcess(pid, aevent.ProcPath)
 			proc.Args = strings.Split(strings.Replace(aevent.ProcCmdLine, "\x00", " ", -1), " ")
 			audit.Lock.RUnlock()
 			parseEnv(proc)
+			cleanPath(proc)
 
 			return proc
 		}
@@ -141,10 +149,11 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 	}
 
 	if link, err := os.Readlink(linkName); err == nil {
-		proc := NewProcess(pid, strings.Split(link, " ")[0])
+		proc := NewProcess(pid, link)
 
 		parseCmdLine(proc)
 		parseEnv(proc)
+		cleanPath(proc)
 
 		return proc
 	}
