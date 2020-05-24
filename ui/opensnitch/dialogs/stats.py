@@ -30,8 +30,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
     SORT_ORDER = ["ASC", "DESC"]
-    LAST_ORDER_TO = 0
-    LAST_ORDER_BY = 1
     LIMITS = ["LIMIT 50", "LIMIT 100", "LIMIT 200", "LIMIT 300", ""]
     LAST_GROUP_BY = ""
 
@@ -97,7 +95,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "protocol as Protocol, " \
                         "process as Process, " \
                         "rule as Rule",
-                "group_by": LAST_GROUP_BY
+                "group_by": LAST_GROUP_BY,
+                "last_order_by": "1",
+                "last_order_to": 1
                 },
             TAB_NODES: {
                 "name": "nodes",
@@ -120,7 +120,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "daemon_rules as Rules," \
                         "cons as Connections," \
                         "cons_dropped as Dropped," \
-                        "version as Version" \
+                        "version as Version",
+                "last_order_by": "2",
+                "last_order_to": 1
                 },
             TAB_RULES: {
                 "name": "rules",
@@ -131,7 +133,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
-                "display_fields": "*"
+                "display_fields": "*",
+                "last_order_by": "2",
+                "last_order_to": 1
                 },
             TAB_HOSTS: {
                 "name": "hosts",
@@ -142,7 +146,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
-                "display_fields": "*"
+                "display_fields": "*",
+                "last_order_by": "2",
+                "last_order_to": 1
                 },
             TAB_PROCS: {
                 "name": "procs",
@@ -153,7 +159,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
-                "display_fields": "*"
+                "display_fields": "*",
+                "last_order_by": "2",
+                "last_order_to": 1
                 },
             TAB_ADDRS: {
                 "name": "addrs",
@@ -164,7 +172,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
-                "display_fields": "*"
+                "display_fields": "*",
+                "last_order_by": "2",
+                "last_order_to": 1
                 },
             TAB_PORTS: {
                 "name": "ports",
@@ -175,7 +185,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
-                "display_fields": "*"
+                "display_fields": "*",
+                "last_order_by": "2",
+                "last_order_to": 1
                 },
             TAB_USERS: {
                 "name": "users",
@@ -186,7 +198,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
-                "display_fields": "*"
+                "display_fields": "*",
+                "last_order_by": "2",
+                "last_order_to": 1
                 }
             }
 
@@ -437,11 +451,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self._del_rule(name, node)
 
     def _cb_table_header_clicked(self, pos, sortIdx):
+        cur_idx = self.tabWidget.currentIndex()
         model = self._get_active_table().model()
-        self.LAST_ORDER_BY = pos+1
-        self.LAST_ORDER_TO = sortIdx
         qstr = model.query().lastQuery().split("ORDER BY")[0]
-        q = qstr.strip(" ") + self._get_order()
+
+        q = qstr.strip(" ") + " ORDER BY %d %s" % (pos+1, self.SORT_ORDER[sortIdx])
+        if cur_idx > 0 and self.TABLES[cur_idx]['cmd'].isVisible() == False:
+            self.TABLES[cur_idx]['last_order_by'] = pos+1
+            self.TABLES[cur_idx]['last_order_to'] = sortIdx
+
+            q = qstr.strip(" ") + self._get_order()
+
         self.setQuery(model, q)
 
     def _cb_events_filter_line_changed(self, text):
@@ -487,16 +507,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_cmd_back_clicked(self, idx):
         cur_idx = self.tabWidget.currentIndex()
-        self.TABLES[cur_idx]['label'].setVisible(False)
-        self.TABLES[cur_idx]['tipLabel'].setVisible(True)
-        self.TABLES[cur_idx]['cmd'].setVisible(False)
+        self._set_active_widgets(False)
         if cur_idx == StatsDialog.TAB_RULES:
             self.delRuleButton.setVisible(False)
             self.editRuleButton.setVisible(False)
             self.nodeRuleLabel.setText("")
         model = self._get_active_table().model()
-        if self.LAST_ORDER_BY > 2:
-            self.LAST_ORDER_BY = 1
         self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields']) + self._get_order())
 
     def _cb_main_table_double_clicked(self, row):
@@ -515,10 +531,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             cur_idx = 2
             self._set_rules_tab_active(row, cur_idx)
 
-        self.TABLES[cur_idx]['tipLabel'].setVisible(False)
-        self.TABLES[cur_idx]['label'].setVisible(True)
-        self.TABLES[cur_idx]['cmd'].setVisible(True)
-        self.TABLES[cur_idx]['label'].setText(str(data))
+        self._set_active_widgets(True, str(data))
 
     def _cb_table_double_clicked(self, row):
         cur_idx = self.tabWidget.currentIndex()
@@ -621,7 +634,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return " " + self.LIMITS[self.limitCombo.currentIndex()]
 
     def _get_order(self):
-        return " ORDER BY %d %s" % (self.LAST_ORDER_BY, self.SORT_ORDER[self.LAST_ORDER_TO])
+        cur_idx = self.tabWidget.currentIndex()
+        return " ORDER BY %s %s" % (self.TABLES[cur_idx]['last_order_by'], self.SORT_ORDER[self.TABLES[cur_idx]['last_order_to']])
 
     def _refresh_active_table(self):
         model = self._get_active_table().model()
@@ -629,6 +643,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _get_active_table(self):
         return self.TABLES[self.tabWidget.currentIndex()]['view']
+
+    def _set_active_widgets(self, state, label_txt=""):
+        cur_idx = self.tabWidget.currentIndex()
+        self.TABLES[cur_idx]['label'].setVisible(state)
+        self.TABLES[cur_idx]['label'].setText(label_txt)
+        self.TABLES[cur_idx]['cmd'].setVisible(state)
+        self.TABLES[cur_idx]['tipLabel'].setVisible(not state)
 
     def _set_rules_tab_active(self, row, cur_idx):
         data = row.data()
