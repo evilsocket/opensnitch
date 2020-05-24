@@ -123,8 +123,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _timeout_worker(self):
         while self._tick > 0 and self._done.is_set() is False:
             t = threading.currentThread()
+            # stop only stops the coundtdown, not the thread itself.
             if getattr(t, "stop", True):
                 self._tick = int(self._cfg.getSettings("global/default_timeout"))
+                time.sleep(1)
                 continue
 
             self._tick -= 1
