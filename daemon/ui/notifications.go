@@ -102,13 +102,8 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 		var rErr error
 		for _, rul := range notification.Rules {
 			log.Info("[notification] delete rule: ", rul.Name, notification.Id)
-			r := rule.Deserialize(rul)
-			if r == nil {
-				rErr = fmt.Errorf("Invalid rule")
-				continue
-			}
-			if err := c.rules.Delete(r.Name); err != nil {
-				log.Error("deleting rule: ", err, r)
+			if err := c.rules.Delete(rul.Name); err != nil {
+				log.Error("deleting rule: ", err, rul)
 				rErr = err
 			}
 		}
