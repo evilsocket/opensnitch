@@ -37,10 +37,10 @@ const (
 type opCallback func(value string) bool
 
 type Operator struct {
-	Type    Type    `json:"type"`
-	Operand Operand `json:"operand"`
-	Data    string  `json:"data"`
-	List    []Operator  `json:"list"`
+	Type    Type       `json:"type"`
+	Operand Operand    `json:"operand"`
+	Data    string     `json:"data"`
+	List    []Operator `json:"list"`
 
 	cb opCallback
 	re *regexp.Regexp

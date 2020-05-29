@@ -40,13 +40,14 @@ type Config struct {
 type Client struct {
 	sync.Mutex
 
-	stats         *statistics.Statistics
-	rules         *rule.Loader
-	socketPath    string
-	isUnixSocket  bool
-	con           *grpc.ClientConn
-	client        protocol.UIClient
-	configWatcher *fsnotify.Watcher
+	stats               *statistics.Statistics
+	rules               *rule.Loader
+	socketPath          string
+	isUnixSocket        bool
+	con                 *grpc.ClientConn
+	client              protocol.UIClient
+	configWatcher       *fsnotify.Watcher
+	streamNotifications protocol.UI_NotificationsClient
 }
 
 // NewClient creates and configures a new client.
@@ -228,7 +229,7 @@ func (c *Client) Ask(con *conman.Connection) (*rule.Rule, bool) {
 	defer cancel()
 	reply, err := c.client.AskRule(ctx, con.Serialize())
 	if err != nil {
-		log.Warning("Error while asking for rule: %s", err)
+		log.Warning("Error while asking for rule: %s", err, con)
 		return clientErrorRule, false
 	}
 
