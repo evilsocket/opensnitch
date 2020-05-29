@@ -323,7 +323,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_PORTS]['cmd'] = self.cmdPortsBack
         self.TABLES[self.TAB_USERS]['cmd'] = self.cmdUsersBack
 
-        self.TABLES[self.TAB_RULES]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
+        self.TABLES[self.TAB_MAIN]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
+
         self.TABLES[self.TAB_RULES]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.TABLES[self.TAB_RULES]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
         for idx in range(1,8):
@@ -520,7 +521,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         data = row.data()
         idx = row.column()
         cur_idx = 1
-        if idx == 1:
+        if idx == StatsDialog.COL_NODE:
             cur_idx = 1
             self.tabWidget.setCurrentIndex(cur_idx)
             self._set_nodes_query(data)
