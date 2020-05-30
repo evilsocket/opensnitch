@@ -2,5 +2,6 @@
     "DefaultAction": "allow",
     "DefaultDuration": "once",
     "InterceptUnknown": false,
-    "ProcMonitorMethod": "proc"
+    "ProcMonitorMethod": "proc",
+    "LogLevel": 2
 }
