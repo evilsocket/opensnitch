@@ -33,7 +33,7 @@ type Config struct {
 	DefaultDuration   string
 	InterceptUnknown  bool
 	ProcMonitorMethod string
-	LogLevel          uint32
+	LogLevel          *uint32
 }
 
 // Client holds the connection information of a client.

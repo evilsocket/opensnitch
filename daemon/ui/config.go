@@ -47,7 +47,9 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 		clientDisconnectedRule.Duration = rule.Duration(config.DefaultDuration)
 		clientErrorRule.Duration = rule.Duration(config.DefaultDuration)
 	}
-	log.MinLevel = int(config.LogLevel)
+	if config.LogLevel != nil {
+		log.MinLevel = int(*config.LogLevel)
+	}
 	if config.ProcMonitorMethod != "" {
 		procmon.MonitorMethod = config.ProcMonitorMethod
 	}
