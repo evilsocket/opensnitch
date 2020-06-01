@@ -86,6 +86,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "filterLine": None,
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "time as Time, " \
@@ -105,6 +106,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "filterLine": None,
                 "model": None,
                 "delegate": {
                     Nodes.OFFLINE: RED,
@@ -130,6 +132,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "filterLine": None,
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
@@ -143,6 +146,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "filterLine": None,
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
@@ -156,6 +160,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "filterLine": None,
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
@@ -169,6 +174,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "filterLine": None,
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
@@ -182,6 +188,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "filterLine": None,
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
@@ -195,6 +202,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "tipLabel": None,
                 "cmd": None,
                 "view": None,
+                "filterLine": None,
                 "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
@@ -238,7 +246,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.prefsButton.clicked.connect(self._cb_prefs_clicked)
         self.saveButton.clicked.connect(self._on_save_clicked)
         self.comboAction.currentIndexChanged.connect(self._cb_combo_action_changed)
-        self.filterLine.textChanged.connect(self._cb_events_filter_line_changed)
         self.limitCombo.currentIndexChanged.connect(self._cb_limit_combo_changed)
         self.cmdCleanSql.clicked.connect(self._cb_clean_sql_clicked)
         self.tabWidget.currentChanged.connect(self._cb_tab_changed)
@@ -323,15 +330,25 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_PORTS]['cmd'] = self.cmdPortsBack
         self.TABLES[self.TAB_USERS]['cmd'] = self.cmdUsersBack
 
+        self.TABLES[self.TAB_MAIN]['filterLine'] = self.filterLine
+        self.TABLES[self.TAB_RULES]['filterLine'] = self.rulesFilterLine
+        self.TABLES[self.TAB_HOSTS]['filterLine'] = self.hostsFilterLine
+        self.TABLES[self.TAB_PROCS]['filterLine'] = self.procsFilterLine
+        self.TABLES[self.TAB_ADDRS]['filterLine'] = self.addrsFilterLine
+        self.TABLES[self.TAB_PORTS]['filterLine'] = self.portsFilterLine
+
         self.TABLES[self.TAB_MAIN]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
+        self.TABLES[self.TAB_MAIN]['filterLine'].textChanged.connect(self._cb_events_filter_line_changed)
 
         self.TABLES[self.TAB_RULES]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.TABLES[self.TAB_RULES]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
         for idx in range(1,8):
-            self.TABLES[idx]['cmd'].setVisible(False)
+            self.TABLES[idx]['cmd'].hide()
             self.TABLES[idx]['cmd'].clicked.connect(lambda: self._cb_cmd_back_clicked(idx))
             self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
             self.TABLES[idx]['label'].setStyleSheet('color: blue; font-size:9pt; font-weight:600;')
+            if self.TABLES[idx]['filterLine'] != None:
+                self.TABLES[idx]['filterLine'].textChanged.connect(self._cb_events_filter_line_changed)
 
         self._load_settings()
 
@@ -377,7 +394,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if dialog_last_tab != None:
             self.tabWidget.setCurrentIndex(int(dialog_last_tab))
         if dialog_general_filter_text != None:
+            # prevent from firing textChanged signal
+            self.filterLine.blockSignals(True);
             self.filterLine.setText(dialog_general_filter_text)
+            self.filterLine.blockSignals(False);
         if dialog_general_filter_action != None:
             self.comboAction.setCurrentIndex(int(dialog_general_filter_action))
         if dialog_general_limit_results != None:
@@ -467,22 +487,33 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setQuery(model, q)
 
     def _cb_events_filter_line_changed(self, text):
-        model = self.TABLES[0]['view'].model()
-        if text != "":
-            qstr = self._db.get_query( self.TABLES[0]['name'], self.TABLES[0]['display_fields'] ) + " WHERE " + \
-                " Node LIKE '%" + text + "%'" \
-                " OR Time = \"" + text + "\" OR Action = \"" + text + "\"" + \
-                " OR Protocol = \"" +text + "\" OR Destination LIKE '%" + text + "%'" + \
-                " OR Process LIKE '%" + text + "%' OR Rule LIKE '%" + text + "%'" + \
-                self.LAST_GROUP_BY + self._get_order() + self._get_limit()
-            self.setQuery(model, qstr)
-        else:
-            self.setQuery(model, self._db.get_query("connections",
-                self.TABLES[0]['display_fields']) +
-                " " + self.LAST_GROUP_BY +
+        cur_idx = self.tabWidget.currentIndex()
+        model = self.TABLES[cur_idx]['view'].model()
+        if text == "":
+            self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'],
+                self.TABLES[cur_idx]['display_fields']) +
                 " " + self._get_order() + self._get_limit())
+            return
 
-        self._cfg.setSettings("statsDialog/general_filter_text", text)
+        qstr = None
+        if cur_idx == StatsDialog.TAB_MAIN:
+            self._cfg.setSettings("statsDialog/general_filter_text", text)
+            qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + " WHERE " + \
+                    " Node LIKE '%" + text + "%'" \
+                    " OR Time = \"" + text + "\" OR Action = \"" + text + "\"" + \
+                    " OR Protocol = \"" +text + "\" OR Destination LIKE '%" + text + "%'" + \
+                    " OR Process LIKE '%" + text + "%' OR Rule LIKE '%" + text + "%'" + \
+                    self._get_order() + self._get_limit()
+        elif cur_idx == StatsDialog.TAB_RULES:
+            qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + " WHERE " + \
+                    " name LIKE '%" + text + "%'" + self._get_order()
+        elif cur_idx == StatsDialog.TAB_HOSTS or cur_idx == StatsDialog.TAB_PROCS or \
+             cur_idx == StatsDialog.TAB_ADDRS or cur_idx == StatsDialog.TAB_PORTS:
+            qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + " WHERE " + \
+                    " what LIKE '%" + text + "%'" + self._get_order()
+
+        if qstr != None:
+            self.setQuery(model, qstr)
 
     def _cb_limit_combo_changed(self, idx):
         model = self._get_active_table().model()
@@ -514,6 +545,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.delRuleButton.setVisible(False)
             self.editRuleButton.setVisible(False)
             self.nodeRuleLabel.setText("")
+            self.rulesFilterLine.setVisible(True)
         model = self._get_active_table().model()
         self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields']) + self._get_order())
 
@@ -544,14 +576,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if cur_idx > self.TAB_RULES and row.column() != self.COL_WHAT:
             return
 
-        self.TABLES[cur_idx]['tipLabel'].setVisible(False)
-        self.TABLES[cur_idx]['label'].setVisible(True)
-        self.TABLES[cur_idx]['cmd'].setVisible(True)
-        self.TABLES[cur_idx]['label'].setText(str(row.data()))
-
-        # TODO: add generic widgets for filtering data
 
         data = row.data()
+        self._set_active_widgets(True, str(data))
+
         if cur_idx == StatsDialog.TAB_NODES:
             self._set_nodes_query(data)
         elif cur_idx == StatsDialog.TAB_RULES:
@@ -652,11 +680,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[cur_idx]['label'].setText(label_txt)
         self.TABLES[cur_idx]['cmd'].setVisible(state)
         self.TABLES[cur_idx]['tipLabel'].setVisible(not state)
+        self.TABLES[cur_idx]['filterLine'].setVisible(not state)
 
     def _set_rules_tab_active(self, row, cur_idx):
         data = row.data()
         self.delRuleButton.setVisible(True)
         self.editRuleButton.setVisible(True)
+        self.rulesFilterLine.setVisible(False)
+
         node = row.model().index(row.row(), 1)
         self.nodeRuleLabel.setText(node.data())
         self.tabWidget.setCurrentIndex(cur_idx)
