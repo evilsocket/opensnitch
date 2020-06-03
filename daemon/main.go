@@ -199,8 +199,8 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		// UI client if connected and running
 		r, connected = uiClient.Ask(con)
 		if r == nil {
-			log.Error("Invalid rule received, skipping")
-			packet.SetVerdict(netfilter.NF_DROP)
+			log.Error("Invalid rule received, applying default action")
+			applyDefaultAction(packet)
 			return nil
 		}
 		if connected {

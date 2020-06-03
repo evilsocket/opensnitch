@@ -83,6 +83,9 @@ func Deserialize(reply *protocol.Rule) *Rule {
 }
 
 func (r *Rule) Serialize() *protocol.Rule {
+	if r == nil {
+		return nil
+	}
 	return &protocol.Rule{
 		Name:     string(r.Name),
 		Enabled:  bool(r.Enabled),

@@ -225,12 +225,13 @@ func (c *Client) Ask(con *conman.Connection) (*rule.Rule, bool) {
 	c.Lock()
 	defer c.Unlock()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	// FIXME: if timeout is fired, the rule is not added to the list in the GUI
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
 	defer cancel()
 	reply, err := c.client.AskRule(ctx, con.Serialize())
 	if err != nil {
-		log.Warning("Error while asking for rule: %s", err, con)
-		return clientErrorRule, false
+		log.Warning("Error while asking for rule: %s - %v", err, con)
+		return nil, false
 	}
 
 	return rule.Deserialize(reply), true
