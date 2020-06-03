@@ -251,5 +251,7 @@ func (c *Connection) Serialize() *protocol.Connection {
 		ProcessId:   uint32(c.Process.ID),
 		ProcessPath: c.Process.Path,
 		ProcessArgs: c.Process.Args,
+		ProcessEnv:  c.Process.Env,
+		ProcessCwd:  c.Process.CWD,
 	}
 }

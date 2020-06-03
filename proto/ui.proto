@@ -54,7 +54,9 @@ message Connection {
     uint32 user_id = 7;
     uint32 process_id = 8;
     string process_path = 9;
-    repeated string process_args = 10;
+    string process_cwd = 10;
+    repeated string process_args = 11;
+    map<string, string> process_env = 12;
 }
 
 message Operator {

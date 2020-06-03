@@ -110,6 +110,12 @@ func parseCmdLine(proc *Process) {
 	}
 }
 
+func parseCWD(proc *Process) {
+	if link, err := os.Readlink(fmt.Sprintf("/proc/%d/cwd", proc.ID)); err == nil {
+		proc.CWD = link
+	}
+}
+
 func parseEnv(proc *Process) {
 	if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/environ", proc.ID)); err == nil {
 		for _, s := range strings.Split(string(data), "\x00") {
@@ -135,6 +141,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 			audit.Lock.RLock()
 			proc := NewProcess(pid, aevent.ProcPath)
 			proc.Args = strings.Split(strings.Replace(aevent.ProcCmdLine, "\x00", " ", -1), " ")
+			proc.CWD = aevent.ProcDir
 			audit.Lock.RUnlock()
 			parseEnv(proc)
 			cleanPath(proc)
@@ -152,6 +159,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		proc := NewProcess(pid, link)
 
 		parseCmdLine(proc)
+		parseCWD(proc)
 		parseEnv(proc)
 		cleanPath(proc)
 

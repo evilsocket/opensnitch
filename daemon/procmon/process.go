@@ -12,6 +12,7 @@ type Process struct {
 	Path string
 	Args []string
 	Env  map[string]string
+	CWD  string
 }
 
 func NewProcess(pid int, path string) *Process {
