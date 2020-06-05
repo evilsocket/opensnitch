@@ -48,52 +48,37 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._tick = int(self._cfg.getSettings("global/default_timeout"))
         self._tick_thread = None
         self._done = threading.Event()
-        self._apply_text = "Apply"
+        self._timeout_text = ""
         self._timeout_triggered = False
 
         self._apps_parser = LinuxDesktopParser()
 
-        self._app_name_label = self.findChild(QtWidgets.QLabel, "appNameLabel")
-        self._app_icon_label = self.findChild(QtWidgets.QLabel, "iconLabel")
-        self._message_label = self.findChild(QtWidgets.QLabel, "messageLabel")
+        self.denyButton.clicked.connect(self._on_deny_clicked)
+        # also accept button
+        self.applyButton.clicked.connect(self._on_apply_clicked)
+        self._apply_text = "Allow"
+        self._deny_text = "Deny"
+        self._default_action = self._cfg.getSettings("global/default_timeout")
 
-        self._src_ip_label = self.findChild(QtWidgets.QLabel, "sourceIPLabel")
-        self._dst_ip_label = self.findChild(QtWidgets.QLabel, "destIPLabel")
-        self._dst_port_label = self.findChild(QtWidgets.QLabel, "destPortLabel")
-        self._uid_label = self.findChild(QtWidgets.QLabel, "uidLabel")
-        self._pid_label = self.findChild(QtWidgets.QLabel, "pidLabel")
-        self._args_label = self.findChild(QtWidgets.QLabel, "argsLabel")
+        self.whatIPCombo.setVisible(False)
+        self.checkDstIP.setVisible(False)
+        self.checkDstPort.setVisible(False)
+        self.checkUserID.setVisible(False)
 
-        self._apply_button = self.findChild(QtWidgets.QPushButton, "applyButton")
-        self._apply_button.clicked.connect(self._on_apply_clicked)
-
-        self._action_combo = self.findChild(QtWidgets.QComboBox, "actionCombo")
-        self._what_combo = self.findChild(QtWidgets.QComboBox, "whatCombo")
-        self._what_dstip_combo = self.findChild(QtWidgets.QComboBox, "whatIPCombo")
-        self._duration_combo = self.findChild(QtWidgets.QComboBox, "durationCombo")
-        self._what_dstip_combo.setVisible(False)
-
-        self._dst_ip_check = self.findChild(QtWidgets.QCheckBox, "checkDstIP")
-        self._dst_port_check = self.findChild(QtWidgets.QCheckBox, "checkDstPort")
-        self._uid_check = self.findChild(QtWidgets.QCheckBox, "checkUserID")
-        self._advanced_check = self.findChild(QtWidgets.QPushButton, "checkAdvanced")
-        self._dst_ip_check.setVisible(False)
-        self._dst_port_check.setVisible(False)
-        self._uid_check.setVisible(False)
-
-        self._is_advanced_checked = False
-        self._advanced_check.toggled.connect(self._checkbox_toggled)
+        self._ischeckAdvanceded = False
+        self.checkAdvanced.toggled.connect(self._checkbox_toggled)
 
     def _checkbox_toggled(self, state):
-        self._apply_button.setText("%s" % self._apply_text)
+        self.applyButton.setText("%s" % self._apply_text)
+        self.denyButton.setText("%s" % self._deny_text)
         self._tick_thread.stop = state
 
-        self._dst_ip_check.setVisible(state)
-        self._what_dstip_combo.setVisible(state)
-        self._dst_ip_label.setVisible(not state)
-        self._dst_port_check.setVisible(state)
-        self._uid_check.setVisible(state)
-        self._is_advanced_checked = state
+        self.checkDstIP.setVisible(state)
+        self.whatIPCombo.setVisible(state)
+        self.destIPLabel.setVisible(not state)
+        self.checkDstPort.setVisible(state)
+        self.checkUserID.setVisible(state)
+        self._ischeckAdvanceded = state
 
     def promptUser(self, connection, is_local, peer):
         # one at a time
@@ -104,7 +89,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.reload()
             self._tick = int(self._cfg.getSettings("global/default_timeout"))
             self._tick_thread = threading.Thread(target=self._timeout_worker)
-            self._tick_thread.stop = self._is_advanced_checked
+            self._tick_thread.stop = self._ischeckAdvanceded
             self._timeout_triggered = False
             self._rule = None
             self._local = is_local
@@ -143,43 +128,60 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def on_tick_triggered(self):
-        self._apply_button.setText("%s (%d)" % (self._apply_text, self._tick))
+        if self._cfg.getSettings("global/default_action") == "allow":
+            self._timeout_text = "%s (%d)" % (self._apply_text, self._tick)
+            self.applyButton.setText(self._timeout_text)
+        else:
+            self._timeout_text = "%s (%d)" % (self._deny_text, self._tick)
+            self.denyButton.setText(self._timeout_text)
 
     @QtCore.pyqtSlot()
     def on_timeout_triggered(self):
         self._timeout_triggered = True
-        self._on_apply_clicked()
+        self._send_rule()
 
     def _configure_default_duration(self):
         if self._cfg.getSettings("global/default_duration") == "once":
-            self._duration_combo.setCurrentIndex(0)
+            self.durationCombo.setCurrentIndex(0)
         elif self._cfg.getSettings("global/default_duration") == "30s":
-            self._duration_combo.setCurrentIndex(1)
+            self.durationCombo.setCurrentIndex(1)
         elif self._cfg.getSettings("global/default_duration") == "5m":
-            self._duration_combo.setCurrentIndex(2)
+            self.durationCombo.setCurrentIndex(2)
         elif self._cfg.getSettings("global/default_duration") == "15m":
-            self._duration_combo.setCurrentIndex(3)
+            self.durationCombo.setCurrentIndex(3)
         elif self._cfg.getSettings("global/default_duration") == "30m":
-            self._duration_combo.setCurrentIndex(4)
+            self.durationCombo.setCurrentIndex(4)
         elif self._cfg.getSettings("global/default_duration") == "1h":
-            self._duration_combo.setCurrentIndex(5)
+            self.durationCombo.setCurrentIndex(5)
         elif self._cfg.getSettings("global/default_duration") == "for this session":
-            self._duration_combo.setCurrentIndex(6)
+            self.durationCombo.setCurrentIndex(6)
         else:
-            self._duration_combo.setCurrentIndex(7)
+            self.durationCombo.setCurrentIndex(7)
+
+    def _set_cmd_action_text(self):
+        if self._cfg.getSettings("global/default_action") == "allow":
+            self.applyButton.setText("%s (%d)" % (self._apply_text, self._tick))
+            self.denyButton.setText(self._deny_text)
+        else:
+            self.denyButton.setText("%s (%d)" % (self._deny_text, self._tick))
+            self.applyButton.setText(self._apply_text)
+
 
     def _render_connection(self, con):
         app_name, app_icon, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
 
         if app_name == "":
             app_name = "Unknown process"
-            self._app_name_label.setText("Outgoing connection")
+            self.appNameLabel.setText("Outgoing connection")
         else:
-            self._app_name_label.setText(app_name)
+            self.appNameLabel.setText(app_name)
+
+        self.cwdLabel.setText(con.process_cwd)
+        self.cwdLabel.setToolTip(con.process_cwd)
 
         icon = QtGui.QIcon().fromTheme(app_icon)
         pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
-        self._app_icon_label.setPixmap(pixmap)
+        self.iconLabel.setPixmap(pixmap)
 
         if self._local:
             message = "<b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
@@ -195,11 +197,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         con.protocol,
                         con.dst_port )
 
-        self._message_label.setText(message)
+        self.messageLabel.setText(message)
 
-        self._src_ip_label.setText(con.src_ip)
-        self._dst_ip_label.setText(con.dst_ip)
-        self._dst_port_label.setText(str(con.dst_port))
+        self.sourceIPLabel.setText(con.src_ip)
+        self.destIPLabel.setText(con.dst_ip)
+        self.destPortLabel.setText(str(con.dst_port))
 
         if self._local:
             try:
@@ -209,23 +211,24 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             uid = "%d" % con.user_id
 
-        self._uid_label.setText(uid)
-        self._pid_label.setText("%s" % con.process_id)
-        self._args_label.setText(' '.join(con.process_args))
+        self.uidLabel.setText(uid)
+        self.pidLabel.setText("%s" % con.process_id)
+        self.argsLabel.setText(' '.join(con.process_args))
+        self.argsLabel.setToolTip(' '.join(con.process_args))
 
-        self._what_combo.clear()
-        self._what_dstip_combo.clear()
+        self.whatCombo.clear()
+        self.whatIPCombo.clear()
         if int(con.process_id) > 0:
-            self._what_combo.addItem("from this process", "process_path")
+            self.whatCombo.addItem("from this process", "process_path")
 
-        self._what_combo.addItem("from this command line", "process_args")
-        if self._args_label.text() == "":
-            self._args_label.setText(con.process_path)
+        self.whatCombo.addItem("from this command line", "process_args")
+        if self.argsLabel.text() == "":
+            self.argsLabel.setText(con.process_path)
 
         if int(con.user_id) >= 0:
-            self._what_combo.addItem("from user %s" % uid, "user_id")
-        self._what_combo.addItem("to port %d" % con.dst_port, "dst_port")
-        self._what_combo.addItem("to %s" % con.dst_ip, "dst_ip")
+            self.whatCombo.addItem("from user %s" % uid, "user_id")
+        self.whatCombo.addItem("to port %d" % con.dst_port, "dst_port")
+        self.whatCombo.addItem("to %s" % con.dst_ip, "dst_ip")
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
             try:
@@ -237,30 +240,31 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._add_dsthost_to_combo(dst_host.group(2))
             else:
                 dst_host = con.dst_host
-                self._what_combo.addItem("%s" % con.dst_host, "simple_host")
+                self.whatCombo.addItem("%s" % con.dst_host, "simple_host")
                 self._add_dsthost_to_combo(con.dst_host)
 
-        self._what_dstip_combo.addItem("to %s" % con.dst_ip, "dst_ip")
+        self.whatIPCombo.addItem("to %s" % con.dst_ip, "dst_ip")
 
         parts = con.dst_ip.split('.')
         nparts = len(parts)
         for i in range(1, nparts):
-            self._what_combo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
-            self._what_dstip_combo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
+            self.whatCombo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
+            self.whatIPCombo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
 
-        if self._cfg.getSettings("global/default_action") == "allow":
-            self._action_combo.setCurrentIndex(0)
-        else:
-            self._action_combo.setCurrentIndex(1)
+        self._default_action = self._cfg.getSettings("global/default_action")
+        #if self._cfg.getSettings("global/default_action") == "allow":
+        #    self.actionCombo.setCurrentIndex(0)
+        #else:
+        #    self.actionCombo.setCurrentIndex(1)
 
         self._configure_default_duration()
 
         if int(con.process_id) > 0:
-            self._what_combo.setCurrentIndex(int(self._cfg.getSettings("global/default_target")))
+            self.whatCombo.setCurrentIndex(int(self._cfg.getSettings("global/default_target")))
         else:
-            self._what_combo.setCurrentIndex(2)
+            self.whatCombo.setCurrentIndex(2)
 
-        self._apply_button.setText("Apply (%d)" % self._tick)
+        self._set_cmd_action_text()
 
         self.setFixedSize(self.size())
 
@@ -272,19 +276,19 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     # prevent a click on the window's x 
     # from quitting the whole application
     def closeEvent(self, e):
-        self._on_apply_clicked()
+        self._send_rule()
         e.ignore()
 
     def _add_dsthost_to_combo(self, dst_host):
         parts = dst_host.split('.')[1:]
         nparts = len(parts)
         for i in range(0, nparts - 1):
-            self._what_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
-            self._what_dstip_combo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
+            self.whatCombo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
+            self.whatIPCombo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
 
         if nparts == 1:
-            self._what_combo.addItem("to *%s" % dst_host, "regex_host")
-            self._what_dstip_combo.addItem("to *%s" % dst_host, "regex_host")
+            self.whatCombo.addItem("to *%s" % dst_host, "regex_host")
+            self.whatIPCombo.addItem("to *%s" % dst_host, "regex_host")
 
     def _get_duration(self, duration_idx):
         if duration_idx == 0:
@@ -309,7 +313,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return "simple", "process.path", self._con.process_path
 
         elif combo.itemData(what_idx) == "process_args":
-            return "simple", "process.command", self._args_label.text()
+            return "simple", "process.command", self.argsLabel.text()
 
         elif combo.itemData(what_idx) == "user_id":
             return "simple", "user.id", "%s" % self._con.user_id
@@ -329,34 +333,39 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif combo.itemData(what_idx) == "regex_ip":
             return "regexp", "dest.ip", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
 
+    def _on_deny_clicked(self):
+        self._default_action = "deny"
+        self._send_rule()
+
     def _on_apply_clicked(self):
+        self._default_action = "allow"
+        self._send_rule()
+
+    def _send_rule(self):
         self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
         self._rule = ui_pb2.Rule(name="user.choice")
         self._rule.enabled = True
 
-        if self._action_combo.currentIndex() == 0:
-            self._rule.action = "allow"
-        else:
-            self._rule.action = "deny"
+        self._rule.action = self._default_action
 
-        self._rule.duration = self._get_duration(self._duration_combo.currentIndex())
+        self._rule.duration = self._get_duration(self.durationCombo.currentIndex())
 
-        what_idx = self._what_combo.currentIndex()
-        self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self._what_combo, what_idx)
+        what_idx = self.whatCombo.currentIndex()
+        self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self.whatCombo, what_idx)
 
         # TODO: move to a method
         data=[]
-        if self._is_advanced_checked and self._dst_ip_check.isChecked() and self._what_combo.itemData(what_idx) != "dst_ip":
-            _type, _operand, _data = self._get_combo_operator(self._what_dstip_combo, self._what_dstip_combo.currentIndex())
+        if self._ischeckAdvanceded and self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != "dst_ip":
+            _type, _operand, _data = self._get_combo_operator(self.whatIPCombo, self.whatIPCombo.currentIndex())
             data.append({"type": _type, "operand": _operand, "data": _data})
 
-        if self._is_advanced_checked and self._dst_port_check.isChecked() and self._what_combo.itemData(what_idx) != "dst_port":
+        if self._ischeckAdvanceded and self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != "dst_port":
             data.append({"type": "simple", "operand": "dest.port", "data": str(self._con.dst_port)})
 
-        if self._is_advanced_checked and self._uid_check.isChecked() and self._what_combo.itemData(what_idx) != "user_id":
+        if self._ischeckAdvanceded and self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != "user_id":
             data.append({"type": "simple", "operand": "user.id", "data": str(self._con.user_id)})
 
-        if self._is_advanced_checked:
+        if self._ischeckAdvanceded:
             data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
             self._rule.operator.data = json.dumps(data)
             self._rule.operator.type = "list"
@@ -365,9 +374,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.operator.type, self._rule.operator.data))
 
         self.hide()
-        if self._is_advanced_checked:
-            self._advanced_check.toggle()
-        self._id_advanced_checked = False
+        if self._ischeckAdvanceded:
+            self.checkAdvanced.toggle()
+        self._idcheckAdvanceded = False
 
         # signal that the user took a decision and 
         # a new rule is available
