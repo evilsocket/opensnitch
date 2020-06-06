@@ -5,8 +5,16 @@
   <property name="windowModality">
    <enum>Qt::NonModal</enum>
   </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>540</width>
+    <height>300</height>
+   </rect>
+  </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -14,7 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>0</width>
-    <height>200</height>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>374</height>
    </size>
   </property>
   <property name="font">
@@ -28,11 +42,14 @@
   <property name="sizeGripEnabled">
    <bool>false</bool>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,1,7,1">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetMinAndMaxSize</enum>
+   </property>
    <item row="5" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetMinimumSize</enum>
+      <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <property name="verticalSpacing">
       <number>3</number>
@@ -503,7 +520,7 @@
        </property>
        <property name="icon">
         <iconset theme="emblem-important">
-         <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>
@@ -532,7 +549,7 @@
        </property>
        <property name="icon">
         <iconset theme="emblem-default">
-         <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>
@@ -576,6 +593,12 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>520</width>
+       <height>35</height>
+      </size>
      </property>
      <property name="text">
       <string>Chromium Web Browser wants to connect to www.evilsocket.net on tcp port 443. And maybe to www.goodsocket.net on port 344</string>
@@ -634,13 +657,19 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
           </font>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;/opt/google/chrome/bin/chrome --something abc --more-long def --for-word-wrapping&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;/opt/google/chrome/bin/chrome --something abc --more-long  def --for-word-wrapping&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -653,10 +682,16 @@
        <item row="0" column="1">
         <widget class="QLabel" name="appNameLabel">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>16777215</height>
+          </size>
          </property>
          <property name="font">
           <font>
