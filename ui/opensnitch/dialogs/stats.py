@@ -263,7 +263,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 order_by="1",
                 group_by=self.TABLES[self.TAB_MAIN]['group_by'],
                 delegate=self.TABLES[self.TAB_MAIN]['delegate'],
-                resize_cols=(self.COL_TIME, self.COL_ACTION, self.COL_PROTO, self.COL_NODE))
+                resize_cols=(),)
         self.TABLES[self.TAB_NODES]['view'] = self._setup_table(QtWidgets.QTableView, self.nodesTable, "nodes",
                 self.TABLES[self.TAB_NODES]['display_fields'],
                 order_by="3,2,1",
@@ -380,6 +380,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self._address is not None:
             window_title = "OpenSnitch Network Statistics for %s" % self._address
             self.nodeLabel.setText(self._address)
+        self._load_settings()
         self.setWindowTitle(window_title)
         self._refresh_active_table()
 
@@ -405,10 +406,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.limitCombo.setCurrentIndex(4)
             self.limitCombo.setCurrentIndex(int(dialog_general_limit_results))
 
+        header = self.eventsTable.header()
+        eventsColState = self._cfg.getSettings("statsDialog/general_columns_state")
+        if type(eventsColState) == QtCore.QByteArray:
+            header.restoreState(eventsColState)
+
     def _save_settings(self):
         self._cfg.setSettings("statsDialog/geometry", self.saveGeometry())
         self._cfg.setSettings("statsDialog/last_tab", self.tabWidget.currentIndex())
         self._cfg.setSettings("statsDialog/general_limit_results", self.limitCombo.currentIndex())
+        self._cfg.setSettings("statsDialog/general_filter_text", self.filterLine.text())
+
+        header = self.eventsTable.header()
+        self._cfg.setSettings("statsDialog/general_columns_state", header.saveState())
 
     def _del_rule(self, rule_name, node_addr):
         rule = ui_pb2.Rule(name=rule_name)
@@ -860,7 +870,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             header = tableWidget.header()
 
         if header != None:
-            header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
             header.sortIndicatorChanged.connect(self._cb_table_header_clicked)
 
             for _, col in enumerate(resize_cols):
