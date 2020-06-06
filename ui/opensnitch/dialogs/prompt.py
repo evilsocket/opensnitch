@@ -24,16 +24,23 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     _tick_trigger = QtCore.pyqtSignal()
     _timeout_trigger = QtCore.pyqtSignal()
 
+    DEFAULT_TIMEOUT = 15
+
+    ACTION_ALLOW = "allow"
+    ACTION_DENY  = "deny"
+
+    CFG_DEFAULT_TIMEOUT = "global/default_timeout"
+    CFG_DEFAULT_ACTION = "global/default_action"
+
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
         self._cfg = Config.get()
+        self.setupUi(self)
 
         dialog_geometry = self._cfg.getSettings("promptDialog/geometry")
-        if dialog_geometry != None:
+        if dialog_geometry == QtCore.QByteArray:
             self.restoreGeometry(dialog_geometry)
-
-        self.setupUi(self)
 
         self.setWindowTitle("OpenSnitch v%s" % version)
 
@@ -45,7 +52,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._prompt_trigger.connect(self.on_connection_prompt_triggered)
         self._timeout_trigger.connect(self.on_timeout_triggered)
         self._tick_trigger.connect(self.on_tick_triggered)
-        self._tick = int(self._cfg.getSettings("global/default_timeout"))
+        self._tick = int(self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)) if self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT) else self.DEFAULT_TIMEOUT
         self._tick_thread = None
         self._done = threading.Event()
         self._timeout_text = ""
@@ -58,7 +65,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.applyButton.clicked.connect(self._on_apply_clicked)
         self._apply_text = "Allow"
         self._deny_text = "Deny"
-        self._default_action = self._cfg.getSettings("global/default_timeout")
+        self._default_action = self._cfg.getSettings(self.CFG_DEFAULT_ACTION)
 
         self.whatIPCombo.setVisible(False)
         self.checkDstIP.setVisible(False)
@@ -67,6 +74,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._ischeckAdvanceded = False
         self.checkAdvanced.toggled.connect(self._checkbox_toggled)
+
+    def showEvent(self, event):
+        super(PromptDialog, self).showEvent(event)
+        self.resize(540, 300)
 
     def _checkbox_toggled(self, state):
         self.applyButton.setText("%s" % self._apply_text)
@@ -87,7 +98,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._tick_thread != None and self._tick_thread.is_alive():
                 self._tick_thread.join()
             self._cfg.reload()
-            self._tick = int(self._cfg.getSettings("global/default_timeout"))
+            self._tick = int(self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)) if self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT) else self.DEFAULT_TIMEOUT
             self._tick_thread = threading.Thread(target=self._timeout_worker)
             self._tick_thread.stop = self._ischeckAdvanceded
             self._timeout_triggered = False
@@ -110,7 +121,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             t = threading.currentThread()
             # stop only stops the coundtdown, not the thread itself.
             if getattr(t, "stop", True):
-                self._tick = int(self._cfg.getSettings("global/default_timeout"))
+                self._tick = int(self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT))
                 time.sleep(1)
                 continue
 
@@ -128,7 +139,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def on_tick_triggered(self):
-        if self._cfg.getSettings("global/default_action") == "allow":
+        if self._cfg.getSettings(self.CFG_DEFAULT_ACTION) == self.ACTION_ALLOW:
             self._timeout_text = "%s (%d)" % (self._apply_text, self._tick)
             self.applyButton.setText(self._timeout_text)
         else:
@@ -155,11 +166,14 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.durationCombo.setCurrentIndex(5)
         elif self._cfg.getSettings("global/default_duration") == "for this session":
             self.durationCombo.setCurrentIndex(6)
-        else:
+        elif self._cfg.getSettings("global/default_duration") == "forever":
             self.durationCombo.setCurrentIndex(7)
+        else:
+            # default to "for this session"
+            self.durationCombo.setCurrentIndex(6)
 
     def _set_cmd_action_text(self):
-        if self._cfg.getSettings("global/default_action") == "allow":
+        if self._cfg.getSettings(self.CFG_DEFAULT_ACTION) == self.ACTION_ALLOW:
             self.applyButton.setText("%s (%d)" % (self._apply_text, self._tick))
             self.denyButton.setText(self._deny_text)
         else:
@@ -225,10 +239,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.argsLabel.text() == "":
             self.argsLabel.setText(con.process_path)
 
-        if int(con.user_id) >= 0:
-            self.whatCombo.addItem("from user %s" % uid, "user_id")
+        # the order of the entries must match those in the preferences dialog
         self.whatCombo.addItem("to port %d" % con.dst_port, "dst_port")
         self.whatCombo.addItem("to %s" % con.dst_ip, "dst_ip")
+        if int(con.user_id) >= 0:
+            self.whatCombo.addItem("from user %s" % uid, "user_id")
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
             try:
@@ -251,11 +266,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.whatCombo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
             self.whatIPCombo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
 
-        self._default_action = self._cfg.getSettings("global/default_action")
-        #if self._cfg.getSettings("global/default_action") == "allow":
-        #    self.actionCombo.setCurrentIndex(0)
-        #else:
-        #    self.actionCombo.setCurrentIndex(1)
+        self._default_action = self._cfg.getSettings(self.CFG_DEFAULT_ACTION)
 
         self._configure_default_duration()
 
@@ -334,11 +345,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return "regexp", "dest.ip", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
 
     def _on_deny_clicked(self):
-        self._default_action = "deny"
+        self._default_action = self.ACTION_DENY
         self._send_rule()
 
     def _on_apply_clicked(self):
-        self._default_action = "allow"
+        self._default_action = self.ACTION_ALLOW
         self._send_rule()
 
     def _send_rule(self):
