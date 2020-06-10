@@ -271,14 +271,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 delegate=self.TABLES[self.TAB_NODES]['delegate'])
         self.TABLES[self.TAB_RULES]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.rulesTable, "rules",
-                resize_cols=(
-                    self.COL_TIME,
-                    self.COL_NODE,
-                    self.COL_R_ENABLED,
-                    self.COL_R_ACTION,
-                    self.COL_R_DURATION,
-                    self.COL_R_OP_TYPE,
-                    self.COL_R_OP_OPERAND),
                 delegate=self.TABLES[self.TAB_RULES]['delegate'],
                 order_by="1")
         self.TABLES[self.TAB_HOSTS]['view'] = self._setup_table(QtWidgets.QTableView,
@@ -411,6 +403,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if type(eventsColState) == QtCore.QByteArray:
             header.restoreState(eventsColState)
 
+        rulesHeader = self.rulesTable.horizontalHeader()
+        rulesColState = self._cfg.getSettings("statsDialog/rules_columns_state")
+        if type(rulesColState) == QtCore.QByteArray:
+            rulesHeader.restoreState(rulesColState)
+
     def _save_settings(self):
         self._cfg.setSettings("statsDialog/geometry", self.saveGeometry())
         self._cfg.setSettings("statsDialog/last_tab", self.tabWidget.currentIndex())
@@ -419,6 +416,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         header = self.eventsTable.header()
         self._cfg.setSettings("statsDialog/general_columns_state", header.saveState())
+        rulesHeader = self.rulesTable.horizontalHeader()
+        self._cfg.setSettings("statsDialog/rules_columns_state", rulesHeader.saveState())
 
     def _del_rule(self, rule_name, node_addr):
         rule = ui_pb2.Rule(name=rule_name)
