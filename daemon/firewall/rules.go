@@ -139,7 +139,6 @@ func StartCheckingRules(qNum int) {
 	for {
 		select {
 		case <-rulesCheckerChan:
-			fmt.Println("Stop checking rules")
 			return
 		case <-rulesChecker.C:
 			if rules := AreRulesLoaded(); rules == false {
