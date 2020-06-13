@@ -4,6 +4,8 @@ from PyQt5 import QtCore
 class Config:
     __instance = None
 
+    HELP_URL = "https://github.com/gustavo-iniguez-goya/opensnitch/wiki/Configurations"
+
     @staticmethod
     def init():
         Config.__instance = Config()
