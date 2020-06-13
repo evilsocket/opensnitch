@@ -403,6 +403,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if type(eventsColState) == QtCore.QByteArray:
             header.restoreState(eventsColState)
 
+        nodesHeader = self.nodesTable.horizontalHeader()
+        nodesColState = self._cfg.getSettings("statsDialog/nodes_columns_state")
+        if type(nodesColState) == QtCore.QByteArray:
+            nodesHeader.restoreState(nodesColState)
+
         rulesHeader = self.rulesTable.horizontalHeader()
         rulesColState = self._cfg.getSettings("statsDialog/rules_columns_state")
         if type(rulesColState) == QtCore.QByteArray:
@@ -416,6 +421,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         header = self.eventsTable.header()
         self._cfg.setSettings("statsDialog/general_columns_state", header.saveState())
+        nodesHeader = self.nodesTable.horizontalHeader()
+        self._cfg.setSettings("statsDialog/nodes_columns_state", nodesHeader.saveState())
         rulesHeader = self.rulesTable.horizontalHeader()
         self._cfg.setSettings("statsDialog/rules_columns_state", rulesHeader.saveState())
 
