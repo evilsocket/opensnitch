@@ -117,6 +117,9 @@
          </item>
          <item>
           <widget class="QComboBox" name="limitCombo">
+           <property name="currentIndex">
+            <number>4</number>
+           </property>
            <item>
             <property name="text">
              <string>50</string>
@@ -188,7 +191,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="go-previous"/>
+            <iconset theme="go-previous">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -256,7 +260,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="go-previous"/>
+            <iconset theme="go-previous">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -273,7 +278,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="accessories-text-editor"/>
+            <iconset theme="accessories-text-editor">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -378,7 +384,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="go-previous"/>
+            <iconset theme="go-previous">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -455,7 +462,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="go-previous"/>
+            <iconset theme="go-previous">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -529,7 +537,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="go-previous"/>
+            <iconset theme="go-previous">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -600,7 +609,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="go-previous"/>
+            <iconset theme="go-previous">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -671,7 +681,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="go-previous"/>
+            <iconset theme="go-previous">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -1076,7 +1087,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset theme="document-new"/>
+        <iconset theme="document-new">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>

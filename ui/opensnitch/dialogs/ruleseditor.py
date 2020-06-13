@@ -9,6 +9,7 @@ import os
 import ui_pb2
 import time
 
+from config import Config
 from nodes import Nodes
 from database import Database
 
@@ -33,6 +34,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Reset).clicked.connect(self._cb_reset_clicked)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Close).clicked.connect(self._cb_close_clicked)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Apply).clicked.connect(self._cb_apply_clicked)
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Help).clicked.connect(self._cb_help_clicked)
         self.procCheck.toggled.connect(self._cb_proc_check_toggled)
         self.cmdlineCheck.toggled.connect(self._cb_cmdline_check_toggled)
         self.dstPortCheck.toggled.connect(self._cb_dstport_check_toggled)
@@ -51,6 +53,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_reset_clicked(self):
         self._reset_state()
+
+    def _cb_help_clicked(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_URL))
 
     def _cb_proc_check_toggled(self, state):
         self.procLine.setEnabled(state)

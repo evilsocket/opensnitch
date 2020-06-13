@@ -271,14 +271,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 delegate=self.TABLES[self.TAB_NODES]['delegate'])
         self.TABLES[self.TAB_RULES]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.rulesTable, "rules",
-                resize_cols=(
-                    self.COL_TIME,
-                    self.COL_NODE,
-                    self.COL_R_ENABLED,
-                    self.COL_R_ACTION,
-                    self.COL_R_DURATION,
-                    self.COL_R_OP_TYPE,
-                    self.COL_R_OP_OPERAND),
                 delegate=self.TABLES[self.TAB_RULES]['delegate'],
                 order_by="1")
         self.TABLES[self.TAB_HOSTS]['view'] = self._setup_table(QtWidgets.QTableView,
@@ -411,6 +403,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if type(eventsColState) == QtCore.QByteArray:
             header.restoreState(eventsColState)
 
+        nodesHeader = self.nodesTable.horizontalHeader()
+        nodesColState = self._cfg.getSettings("statsDialog/nodes_columns_state")
+        if type(nodesColState) == QtCore.QByteArray:
+            nodesHeader.restoreState(nodesColState)
+
+        rulesHeader = self.rulesTable.horizontalHeader()
+        rulesColState = self._cfg.getSettings("statsDialog/rules_columns_state")
+        if type(rulesColState) == QtCore.QByteArray:
+            rulesHeader.restoreState(rulesColState)
+
     def _save_settings(self):
         self._cfg.setSettings("statsDialog/geometry", self.saveGeometry())
         self._cfg.setSettings("statsDialog/last_tab", self.tabWidget.currentIndex())
@@ -419,6 +421,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         header = self.eventsTable.header()
         self._cfg.setSettings("statsDialog/general_columns_state", header.saveState())
+        nodesHeader = self.nodesTable.horizontalHeader()
+        self._cfg.setSettings("statsDialog/nodes_columns_state", nodesHeader.saveState())
+        rulesHeader = self.rulesTable.horizontalHeader()
+        self._cfg.setSettings("statsDialog/rules_columns_state", rulesHeader.saveState())
 
     def _del_rule(self, rule_name, node_addr):
         rule = ui_pb2.Rule(name=rule_name)
@@ -448,7 +454,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
 
     def _cb_tab_changed(self, index):
-        self._refresh_active_table()
+        if index == self.TAB_MAIN:
+            self._set_events_query()
+        else:
+            self._refresh_active_table()
 
     def _cb_table_context_menu(self, pos):
         cur_idx = self.tabWidget.currentIndex()
@@ -494,7 +503,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             q = qstr.strip(" ") + self._get_order()
 
-        self.setQuery(model, q)
+        if cur_idx != self.TAB_MAIN:
+            self.setQuery(model, q)
 
     def _cb_events_filter_line_changed(self, text):
         cur_idx = self.tabWidget.currentIndex()
@@ -526,11 +536,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.setQuery(model, qstr)
 
     def _cb_limit_combo_changed(self, idx):
-        model = self._get_active_table().model()
-        qstr = model.query().lastQuery().split("LIMIT")[0]
-        if idx != 4:
-            qstr += " LIMIT " + self.limitCombo.currentText()
-        self.setQuery(model, qstr)
+        self._set_events_query()
 
     def _cb_combo_action_changed(self, idx):
         model = self.TABLES[0]['view'].model()
@@ -702,6 +708,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeRuleLabel.setText(node.data())
         self.tabWidget.setCurrentIndex(cur_idx)
         self._set_rules_query(data)
+
+    def _set_events_query(self):
+        model = self._get_active_table().model()
+        qstr = model.query().lastQuery().split("LIMIT")[0]
+        qstr += self._get_limit()
+        self.setQuery(model, qstr)
 
     def _set_nodes_query(self, data):
         s = "AND c.src_ip='%s'" % data if '/' not in data else ''

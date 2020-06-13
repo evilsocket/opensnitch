@@ -33,8 +33,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal()
 
-    HELP_URL = "https://github.com/gustavo-iniguez-goya/opensnitch/wiki/Configurations"
-
     def __init__(self, app, on_exit):
         super(UIService, self).__init__()
 
@@ -127,7 +125,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._tray.setContextMenu(self._menu)
 
         self._menu.addAction("Help").triggered.connect(
-                lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.HELP_URL))
+                lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_URL))
                 )
 
         self._stats_action.triggered.connect(self._show_stats_dialog)
