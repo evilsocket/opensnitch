@@ -47,8 +47,8 @@ func NewLoader(liveReload bool) (*Loader, error) {
 
 // NumRules returns he number of loaded rules.
 func (l *Loader) NumRules() int {
-	l.RLock()
-	defer l.RUnlock()
+	l.Lock()
+	defer l.Unlock()
 	return len(l.rules)
 }
 
