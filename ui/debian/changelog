@@ -1,3 +1,14 @@
+opensnitch-ui (1.0.0rc10-1) unstable; urgency=medium
+
+  * Allow to filter data in all tabs.
+  * Refresh rules list after deleting a rule.
+  * Fixed high CPU usage while showing a notification.
+  * Fixed columns sort order.
+  * Allow to delete rules in batch.
+  * Remember the columns size.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Sat, 13 Jun 2020 18:49:11 +0200
+
 opensnitch-ui (1.0.0rc9-1) unstable; urgency=medium
 
   * Added rules editor dialog.

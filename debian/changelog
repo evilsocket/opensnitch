@@ -1,3 +1,14 @@
+opensnitch (1.0.0rc10-1) unstable; urgency=medium
+
+  * Fixed checking UID functions availability.
+  * Improved process path parsing.
+  * Fixed applying config from the UI.
+  * Fixed default log level.
+  * Gather CWD and process environment vars.
+  * Increase default timeout when asking for a rule.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Sat, 13 Jun 2020 18:45:02 +0200
+
 opensnitch (1.0.0rc9-1) unstable; urgency=medium
 
   * Ignore malformed rules from loading.
