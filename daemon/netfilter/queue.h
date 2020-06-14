@@ -26,6 +26,28 @@ static void *get_uid = NULL;
 
 extern void go_callback(int id, unsigned char* data, int len, uint mark, u_int32_t idx, verdictContainer *vc, uint32_t uid);
 
+static inline void configure_uid_if_available(struct nfq_q_handle *qh){
+    void *hndl = dlopen("libnetfilter_queue.so.1", RTLD_LAZY);
+    if (!hndl) {
+        hndl = dlopen("libnetfilter_queue.so", RTLD_LAZY);
+        if (!hndl){
+            printf("WARNING: libnetfilter_queue not available\n");
+            return;
+        }
+    }
+    if ((get_uid = dlsym(hndl, "nfq_get_uid")) == NULL){
+        printf("WARNING: nfq_get_uid not available\n");
+        return;
+    } else {
+        printf("OK: libnetfiler_queue supports nfq_get_uid\n");
+    }
+#ifdef NFQA_CFG_F_UID_GID
+    if (qh != NULL && nfq_set_queue_flags(qh, NFQA_CFG_F_UID_GID, NFQA_CFG_F_UID_GID)){
+        printf("WARNING: UID not available on this kernel/libnetfilter_queue\n");
+    }
+#endif
+}
+
 static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *arg){
     uint32_t id = -1, idx = 0, mark = 0;
     struct nfqnl_msg_packet_hdr *ph = NULL;
@@ -56,27 +78,17 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
 
 static inline struct nfq_q_handle* CreateQueue(struct nfq_handle *h, u_int16_t queue, u_int32_t idx) {
     struct nfq_q_handle* qh = nfq_create_queue(h, queue, &nf_callback, (void*)((uintptr_t)idx));
-#ifdef NFQA_CFG_F_UID_GID
-    if (qh != NULL && nfq_set_queue_flags(qh, NFQA_CFG_F_UID_GID, NFQA_CFG_F_UID_GID)){
-        printf("queue.Run() no UID allowed by this kernel\n");
+    if (qh == NULL){
+        printf("ERROR: nfq_create_queue() queue not created\n");
+    } else {
+        configure_uid_if_available(qh);
     }
-#endif
     return qh;
 }
 
 static inline int Run(struct nfq_handle *h, int fd) {
     char buf[4096] __attribute__ ((aligned));
     int rcvd, opt = 1;
-
-    void *hndl = dlopen("libnetfilter_queue.so.1", RTLD_LAZY);
-    if (!hndl) {
-        hndl = dlopen("libnetfilter_queue.so", RTLD_LAZY);
-    }
-    if (hndl) {
-        if ((get_uid = dlsym(hndl, "nfq_get_uid")) == NULL){
-            printf("Warning: nfq_get_uid not available\n");
-        }
-    }
 
     setsockopt(fd, SOL_NETLINK, NETLINK_NO_ENOBUFS, &opt, sizeof(int));
 
