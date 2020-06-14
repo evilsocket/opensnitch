@@ -48,10 +48,10 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 		clientErrorRule.Duration = rule.Duration(config.DefaultDuration)
 	}
 	if config.LogLevel != nil {
-		log.MinLevel = int(*config.LogLevel)
+		log.SetLogLevel(int(*config.LogLevel))
 	}
 	if config.ProcMonitorMethod != "" {
-		procmon.MonitorMethod = config.ProcMonitorMethod
+		procmon.SetMonitorMethod(config.ProcMonitorMethod)
 	}
 
 	return true

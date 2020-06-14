@@ -47,7 +47,7 @@ var (
 	DateFormat = "2006-01-02 15:04:05"
 	MinLevel   = INFO
 
-	mutex  = &sync.Mutex{}
+	mutex  = &sync.RWMutex{}
 	labels = map[int]string{
 		DEBUG:     "DBG",
 		INFO:      "INF",
@@ -103,11 +103,16 @@ func Raw(format string, args ...interface{}) {
 	fmt.Fprintf(Output, format, args...)
 }
 
-func Log(level int, format string, args ...interface{}) {
-	if level >= MinLevel {
-		mutex.Lock()
-		defer mutex.Unlock()
+func SetLogLevel(newLevel int) {
+	mutex.RLock()
+	defer mutex.RUnlock()
+	MinLevel = newLevel
+}
 
+func Log(level int, format string, args ...interface{}) {
+	mutex.Lock()
+	defer mutex.Unlock()
+	if level >= MinLevel {
 		label := labels[level]
 		color := colors[level]
 		when := time.Now().UTC().Format(DateFormat)

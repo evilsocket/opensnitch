@@ -73,15 +73,15 @@ func init() {
 func setupLogging() {
 	golog.SetOutput(ioutil.Discard)
 	if debug {
-		log.MinLevel = log.DEBUG
+		log.SetLogLevel(log.DEBUG)
 	} else if warning {
-		log.MinLevel = log.WARNING
+		log.SetLogLevel(log.WARNING)
 	} else if important {
-		log.MinLevel = log.IMPORTANT
+		log.SetLogLevel(log.IMPORTANT)
 	} else if errorlog {
-		log.MinLevel = log.ERROR
+		log.SetLogLevel(log.ERROR)
 	} else {
-		log.MinLevel = log.INFO
+		log.SetLogLevel(log.INFO)
 	}
 
 	if logFile != "" {
@@ -312,7 +312,7 @@ func main() {
 	// overwrite monitor method from configuration if the user has passed
 	// the option via command line.
 	if procmonMethod != "" {
-		procmon.MonitorMethod = procmonMethod
+		procmon.SetMonitorMethod(procmonMethod)
 	}
 	procmon.Init()
 

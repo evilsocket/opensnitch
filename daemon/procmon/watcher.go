@@ -33,7 +33,7 @@ var (
 
 	watcher       = ftrace.NewProbe(probeName, syscallName, subEvents)
 	isAvailable   = false
-	MonitorMethod = MethodProc
+	monitorMethod = MethodProc
 
 	index = make(map[int]*procData)
 	lock  = sync.RWMutex{}
