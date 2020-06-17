@@ -1,3 +1,9 @@
+opensnitch-ui (1.0.0rc10-2) unstable; urgency=medium
+
+  * Fixed crash when selecting a user (closes #38).
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Wed, 17 Jun 2020 20:50:54 +0200
+
 opensnitch-ui (1.0.0rc10-1) unstable; urgency=medium
 
   * Allow to filter data in all tabs.
