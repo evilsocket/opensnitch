@@ -696,7 +696,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[cur_idx]['label'].setText(label_txt)
         self.TABLES[cur_idx]['cmd'].setVisible(state)
         self.TABLES[cur_idx]['tipLabel'].setVisible(not state)
-        self.TABLES[cur_idx]['filterLine'].setVisible(not state)
+        if self.TABLES[cur_idx]['filterLine'] != None:
+            self.TABLES[cur_idx]['filterLine'].setVisible(not state)
 
     def _set_rules_tab_active(self, row, cur_idx):
         data = row.data()
