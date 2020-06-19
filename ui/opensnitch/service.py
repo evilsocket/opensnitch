@@ -285,13 +285,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 need_refresh=True
                 # FIXME Since every node may have different time, and the daemon doesn't send the unix timestamp, use the time we insert it in the db
                 db.insert("connections",
-                        "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, pid, process, process_args, rule)",
+                        "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, pid, process, process_args, process_cwd, rule)",
                         (str(datetime.now()), "%s:%s" % (proto, addr), event.rule.action,
                             event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
                             event.connection.dst_ip, event.connection.dst_host, str(event.connection.dst_port),
                             str(event.connection.user_id), str(event.connection.process_id),
                             event.connection.process_path, " ".join(event.connection.process_args),
-                            event.rule.name),
+                            event.connection.process_cwd, event.rule.name),
                         action_on_conflict="IGNORE"
                         )
                 # TODO: move to nodes.add_node()
