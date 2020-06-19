@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/conman"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui/protocol"
 )
 
@@ -59,18 +60,20 @@ func (r *Rule) Match(con *conman.Connection) bool {
 	return r.Operator.Match(con)
 }
 
-func Deserialize(reply *protocol.Rule) *Rule {
+func Deserialize(reply *protocol.Rule) (*Rule, error) {
 	if reply.Operator == nil {
-		return nil
+		log.Warning("Deserialize rule, Operator nil")
+		return nil, fmt.Errorf("invalid operator")
 	}
-	operator := NewOperator(
+	operator, err := NewOperator(
 		Type(reply.Operator.Type),
 		Operand(reply.Operator.Operand),
 		reply.Operator.Data,
 		make([]Operator, 0),
 	)
-	if operator == nil {
-		return nil
+	if err != nil {
+		log.Warning("Deserialize rule, NewOperator() error:", err)
+		return nil, err
 	}
 
 	return Create(
@@ -79,7 +82,7 @@ func Deserialize(reply *protocol.Rule) *Rule {
 		Action(reply.Action),
 		Duration(reply.Duration),
 		operator,
-	)
+	), nil
 }
 
 func (r *Rule) Serialize() *protocol.Rule {

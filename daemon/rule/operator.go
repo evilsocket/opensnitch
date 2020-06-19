@@ -46,7 +46,7 @@ type Operator struct {
 	re *regexp.Regexp
 }
 
-func NewOperator(t Type, o Operand, data string, list []Operator) *Operator {
+func NewOperator(t Type, o Operand, data string, list []Operator) (*Operator, error) {
 	op := Operator{
 		Type:    t,
 		Operand: o,
@@ -54,9 +54,10 @@ func NewOperator(t Type, o Operand, data string, list []Operator) *Operator {
 		List:    list,
 	}
 	if err := op.Compile(); err != nil {
-		return nil
+		log.Error("NewOperator() failed to compile:", err)
+		return nil, err
 	}
-	return &op
+	return &op, nil
 }
 
 func (o *Operator) Compile() error {
@@ -64,11 +65,11 @@ func (o *Operator) Compile() error {
 		o.cb = o.simpleCmp
 	} else if o.Type == Regexp {
 		o.cb = o.reCmp
-		if re, err := regexp.Compile(o.Data); err == nil {
-			o.re = re
-		} else {
+		re, err := regexp.Compile(o.Data)
+		if err != nil {
 			return err
 		}
+		o.re = re
 	} else if o.Type == List {
 		o.Operand = OpList
 	}

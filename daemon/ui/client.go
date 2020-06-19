@@ -21,8 +21,9 @@ import (
 
 var (
 	configFile             = "/etc/opensnitchd/default-config.json"
-	clientDisconnectedRule = rule.Create("ui.client.disconnected", true, rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
-	clientErrorRule        = rule.Create("ui.client.error", true, rule.Allow, rule.Once, rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0)))
+	dummyOperator, _       = rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0))
+	clientDisconnectedRule = rule.Create("ui.client.disconnected", true, rule.Allow, rule.Once, dummyOperator)
+	clientErrorRule        = rule.Create("ui.client.error", true, rule.Allow, rule.Once, dummyOperator)
 	config                 Config
 )
 
@@ -234,7 +235,11 @@ func (c *Client) Ask(con *conman.Connection) (*rule.Rule, bool) {
 		return nil, false
 	}
 
-	return rule.Deserialize(reply), true
+	r, err := rule.Deserialize(reply)
+	if err != nil {
+		return nil, false
+	}
+	return r, true
 }
 
 func (c *Client) monitorConfigWorker() {

@@ -77,7 +77,7 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 		for _, rul := range notification.Rules {
 			log.Info("[notification] enable rule: ", rul.Name)
 			// protocol.Rule(protobuf) != rule.Rule(json)
-			r := rule.Deserialize(rul)
+			r, _ := rule.Deserialize(rul)
 			r.Enabled = true
 			// save to disk only if the duration is rule.Always
 			if err := c.rules.Replace(r, r.Duration == rule.Always); err != nil {
@@ -90,7 +90,7 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 		var rErr error
 		for _, rul := range notification.Rules {
 			log.Info("[notification] disable: ", rul)
-			r := rule.Deserialize(rul)
+			r, _ := rule.Deserialize(rul)
 			r.Enabled = false
 			if err := c.rules.Replace(r, r.Duration == rule.Always); err != nil {
 				rErr = err
@@ -113,9 +113,10 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 	case notification.Type == protocol.Action_CHANGE_RULE:
 		var rErr error
 		for _, rul := range notification.Rules {
-			r := rule.Deserialize(rul)
+			log.Info("CHANGE_RULE: ", rul)
+			r, err := rule.Deserialize(rul)
 			if r == nil {
-				rErr = fmt.Errorf("Invalid rule")
+				rErr = fmt.Errorf("Invalid rule, %s", err)
 				continue
 			}
 			log.Info("[notification] change rule: ", r, notification.Id)
