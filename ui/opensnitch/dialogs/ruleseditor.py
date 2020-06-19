@@ -122,6 +122,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return False
 
     def _reset_state(self):
+        self.ruleNameEdit.setText("")
         self.statusLabel.setText("")
 
         self.actionDenyRadio.setChecked(True)
