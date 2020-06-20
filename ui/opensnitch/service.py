@@ -123,6 +123,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         self._tray = QtWidgets.QSystemTrayIcon(self.off_icon)
         self._tray.setContextMenu(self._menu)
+        self._tray.activated.connect(self._on_tray_icon_activated)
 
         self._menu.addAction("Help").triggered.connect(
                 lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_URL))
@@ -134,6 +135,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._tray.show()
         if not self._tray.isSystemTrayAvailable():
             self._stats_dialog.show()
+
+    def _on_tray_icon_activated(self, reason):
+        if reason == QtWidgets.QSystemTrayIcon.Trigger or reason == QtWidgets.QSystemTrayIcon.MiddleClick:
+            if self._stats_dialog.isVisible():
+                self._stats_dialog.hide()
+            else:
+                self._stats_dialog.show()
 
     def _on_close(self):
         self._exit = True
