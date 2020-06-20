@@ -62,6 +62,7 @@ class Database:
                 "pid text, " \
                 "process text, " \
                 "process_args text, " \
+                "process_cwd text, " \
                 "rule text, " \
                 "UNIQUE(node, action, protocol, src_ip, src_port, dst_ip, dst_port, uid, pid, process, process_args))",
                 self.db)

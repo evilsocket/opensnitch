@@ -729,7 +729,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.dst_host as DstHost, " \
                 "c.dst_port as DstPort, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
-                "c.process_args as Args " \
+                "c.process_args as Args, " \
+                "c.process_cwd as CWD " \
             "FROM nodes as n, connections as c " \
             "WHERE n.addr = '%s' %s GROUP BY Process, Args, UserID, DstIP, DstHost, DstPort, Protocol, Status %s" % (data, s, self._get_order()))
 
@@ -752,7 +753,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.dst_port as DstPort, " \
                 "c.dst_host as DstIP, " \
                 "c.process as Process, " \
-                "c.process_args as Args " \
+                "c.process_args as Args, " \
+                "c.process_cwd as CWD " \
             "FROM rules as r, connections as c " \
             "WHERE %s r.name = '%s' AND r.name = c.rule AND r.node = c.node GROUP BY Process, Args, UserID, DstIP, DstPort %s" % (node, data, self._get_order()))
 
@@ -769,6 +771,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.dst_ip as DstIP, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
                 "c.process_args as Args, " \
+                "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM hosts as h, connections as c " \
             "WHERE h.what = '%s' AND c.dst_host = h.what GROUP BY c.pid, Process, Args, DstIP, DstPort, Protocol, Action, Node %s" % (data, self._get_order()))
@@ -784,6 +787,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.dst_host || '  ->  ' || c.dst_port as Destination, " \
                 "c.pid as PID, " \
                 "c.process_args as Args, " \
+                "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM procs as p, connections as c " \
             "WHERE p.what = '%s' AND p.what = c.process GROUP BY c.dst_ip, c.dst_host, c.dst_port, UserID, Action, Node %s" % (data, self._get_order()))
@@ -801,6 +805,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.dst_port as DstPort, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
                 "c.process_args as Args, " \
+                "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM addrs as a, connections as c " \
             "WHERE a.what = '%s' AND c.dst_ip = a.what GROUP BY c.pid, Process, Args, DstPort, DstHost, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
@@ -818,6 +823,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.dst_host as DstHost, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
                 "c.process_args as Args, " \
+                "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM ports as p, connections as c " \
             "WHERE p.what = '%s' AND c.dst_port = p.what GROUP BY c.pid, Process, Args, DstHost, DstIP, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
@@ -835,6 +841,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.dst_port as DstPort, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
                 "c.process_args as Args, " \
+                "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM users as u, connections as c " \
             "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, Process, Args, DstIP, DstHost, DstPort, Protocol, Action, Node %s" % (data, self._get_order()))

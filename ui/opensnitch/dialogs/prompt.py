@@ -183,6 +183,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _render_connection(self, con):
         app_name, app_icon, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
+        if app_name != con.process_path and con.process_path not in con.process_args:
+            self.appPathLabel.setFixedHeight(20)
+            self.appPathLabel.setText("(%s)" % con.process_path)
+        else:
+            self.appPathLabel.setFixedHeight(1)
+            self.appPathLabel.setText("")
 
         if app_name == "":
             app_name = "Unknown process"
