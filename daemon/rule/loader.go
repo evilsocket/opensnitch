@@ -47,8 +47,8 @@ func NewLoader(liveReload bool) (*Loader, error) {
 
 // NumRules returns he number of loaded rules.
 func (l *Loader) NumRules() int {
-	l.Lock()
-	defer l.Unlock()
+	l.RLock()
+	defer l.RUnlock()
 	return len(l.rules)
 }
 
@@ -216,6 +216,9 @@ func (l *Loader) Add(rule *Rule, saveToDisk bool) error {
 func (l *Loader) Replace(rule *Rule, saveToDisk bool) error {
 	l.replaceUserRule(rule)
 	if saveToDisk {
+		l.Lock()
+		defer l.Unlock()
+
 		fileName := filepath.Join(l.path, fmt.Sprintf("%s.json", rule.Name))
 		return l.Save(rule, fileName)
 	}
@@ -241,8 +244,8 @@ func (l *Loader) Save(rule *Rule, path string) error {
 // If the duration is Always (i.e: saved on disk), it'll attempt to delete
 // it from disk.
 func (l *Loader) Delete(ruleName string) error {
-	l.RLock()
-	defer l.RUnlock()
+	l.Lock()
+	defer l.Unlock()
 
 	rule := l.rules[ruleName]
 	delete(l.rules, ruleName)
