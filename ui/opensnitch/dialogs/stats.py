@@ -950,6 +950,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         e.ignore()
         self.hide()
 
+    def hideEvent(self, e):
+        self._save_settings()
+
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):
         if not event.key() == QtCore.Qt.Key_Escape:
