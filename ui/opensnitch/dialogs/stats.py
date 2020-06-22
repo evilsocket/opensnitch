@@ -399,19 +399,25 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.limitCombo.setCurrentIndex(int(dialog_general_limit_results))
 
         header = self.eventsTable.header()
+        header.blockSignals(True);
         eventsColState = self._cfg.getSettings("statsDialog/general_columns_state")
         if type(eventsColState) == QtCore.QByteArray:
             header.restoreState(eventsColState)
+        header.blockSignals(False);
 
         nodesHeader = self.nodesTable.horizontalHeader()
+        nodesHeader.blockSignals(True);
         nodesColState = self._cfg.getSettings("statsDialog/nodes_columns_state")
         if type(nodesColState) == QtCore.QByteArray:
             nodesHeader.restoreState(nodesColState)
+        nodesHeader.blockSignals(False);
 
         rulesHeader = self.rulesTable.horizontalHeader()
+        rulesHeader.blockSignals(True);
         rulesColState = self._cfg.getSettings("statsDialog/rules_columns_state")
         if type(rulesColState) == QtCore.QByteArray:
             rulesHeader.restoreState(rulesColState)
+        rulesHeader.blockSignals(False);
 
     def _save_settings(self):
         self._cfg.setSettings("statsDialog/geometry", self.saveGeometry())
@@ -508,6 +514,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_events_filter_line_changed(self, text):
         cur_idx = self.tabWidget.currentIndex()
+        if cur_idx != self.TAB_MAIN:
+            return
+
         model = self.TABLES[cur_idx]['view'].model()
         if text == "":
             self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'],
@@ -539,8 +548,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._set_events_query()
 
     def _cb_combo_action_changed(self, idx):
-        model = self.TABLES[0]['view'].model()
-        qstr = self._db.get_query(self.TABLES[0]['name'], self.TABLES[0]['display_fields'])
+        if self.tabWidget.currentIndex() != self.TAB_MAIN:
+            return
+
+        model = self.TABLES[self.TAB_MAIN]['view'].model()
+        qstr = self._db.get_query(self.TABLES[self.TAB_MAIN]['name'], self.TABLES[self.TAB_MAIN]['display_fields'])
 
         if self.comboAction.currentText() == "-":
             qstr += self.LAST_GROUP_BY + self._get_order() + self._get_limit()
@@ -636,11 +648,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._rules_dialog.new_rule()
 
     def _cb_edit_rule_clicked(self):
+        cur_idx = self.tabWidget.currentIndex()
         records = self._db.select("SELECT * from rules WHERE name='%s' AND node='%s'" % (
-            self.TABLES[self.tabWidget.currentIndex()]['label'].text(),
+            self.TABLES[cur_idx]['label'].text(),
            self.nodeRuleLabel.text()))
         if records.next() == False:
             print("[stats dialog] edit rule, no records: ", self.TABLES[self.tabWidget.currentIndex()]['label'].text())
+            self.TABLES[cur_idx]['cmd'].click()
             return
 
         self._rules_dialog.edit_rule(records, self.nodeRuleLabel.text())
@@ -711,6 +725,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._set_rules_query(data)
 
     def _set_events_query(self):
+        if self.tabWidget.currentIndex() != self.TAB_MAIN:
+            return
         model = self._get_active_table().model()
         qstr = model.query().lastQuery().split("LIMIT")[0]
         qstr += self._get_limit()
