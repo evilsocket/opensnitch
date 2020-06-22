@@ -143,6 +143,10 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 			proc.Args = strings.Split(strings.Replace(aevent.ProcCmdLine, "\x00", " ", -1), " ")
 			proc.CWD = aevent.ProcDir
 			audit.Lock.RUnlock()
+			// if the proc dir contains non alhpa-numeric chars the field is empty
+			if proc.CWD == "" {
+				parseCWD(proc)
+			}
 			parseEnv(proc)
 			cleanPath(proc)
 
