@@ -509,30 +509,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             q = qstr.strip(" ") + self._get_order()
 
-        if cur_idx != self.TAB_MAIN:
-            self.setQuery(model, q)
+        if cur_idx == self.TAB_MAIN:
+            q += self._get_limit()
+
+        self.setQuery(model, q)
 
     def _cb_events_filter_line_changed(self, text):
         cur_idx = self.tabWidget.currentIndex()
-        if cur_idx != self.TAB_MAIN:
-            return
 
         model = self.TABLES[cur_idx]['view'].model()
-        if text == "":
-            self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'],
-                self.TABLES[cur_idx]['display_fields']) +
-                " " + self._get_order() + self._get_limit())
-            return
-
         qstr = None
         if cur_idx == StatsDialog.TAB_MAIN:
             self._cfg.setSettings("statsDialog/general_filter_text", text)
-            qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + " WHERE " + \
-                    " Node LIKE '%" + text + "%'" \
-                    " OR Time = \"" + text + "\" OR Action = \"" + text + "\"" + \
-                    " OR Protocol = \"" +text + "\" OR Destination LIKE '%" + text + "%'" + \
-                    " OR Process LIKE '%" + text + "%' OR Rule LIKE '%" + text + "%'" + \
-                    self._get_order() + self._get_limit()
+            self._set_events_query()
+            return
         elif cur_idx == StatsDialog.TAB_RULES:
             qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + " WHERE " + \
                     " name LIKE '%" + text + "%'" + self._get_order()
@@ -551,17 +541,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.tabWidget.currentIndex() != self.TAB_MAIN:
             return
 
-        model = self.TABLES[self.TAB_MAIN]['view'].model()
-        qstr = self._db.get_query(self.TABLES[self.TAB_MAIN]['name'], self.TABLES[self.TAB_MAIN]['display_fields'])
-
-        if self.comboAction.currentText() == "-":
-            qstr += self.LAST_GROUP_BY + self._get_order() + self._get_limit()
-        else:
-            action = "Action = '" + self.comboAction.currentText().lower() + "'"
-            qstr += " WHERE " + action + self.LAST_GROUP_BY + self._get_order() + self._get_limit()
-
-        self.setQuery(model, qstr)
         self._cfg.setSettings("statsDialog/general_filter_action", idx)
+        self._set_events_query()
 
     def _cb_clean_sql_clicked(self):
         self._db.clean(self.TABLES[self.tabWidget.currentIndex()]['name'])
@@ -727,9 +708,28 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _set_events_query(self):
         if self.tabWidget.currentIndex() != self.TAB_MAIN:
             return
-        model = self._get_active_table().model()
-        qstr = model.query().lastQuery().split("LIMIT")[0]
-        qstr += self._get_limit()
+
+        model = self.TABLES[self.TAB_MAIN]['view'].model()
+        qstr = self._db.get_query(self.TABLES[self.TAB_MAIN]['name'], self.TABLES[self.TAB_MAIN]['display_fields'])
+
+        filter_text = self.filterLine.text()
+        action = ""
+        if self.comboAction.currentText() != "-":
+            action = "Action = \"" + self.comboAction.currentText().lower() + "\""
+
+        if filter_text == "":
+            if action != "":
+                qstr += " WHERE " + action
+        else:
+            if action != "":
+                action += " AND "
+            qstr += " WHERE " + action + " ("\
+                    " Node LIKE '%" + filter_text + "%'" \
+                    " OR Time = \"" + filter_text + "\" " \
+                    " OR Protocol = \"" + filter_text + "\" OR Destination LIKE '%" + filter_text + "%'" + \
+                    " OR Process LIKE '%" + filter_text + "%' OR Rule LIKE '%" + filter_text + "%')"
+
+        qstr += self._get_order() + self._get_limit()
         self.setQuery(model, qstr)
 
     def _set_nodes_query(self, data):
