@@ -176,9 +176,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self._cfg.getSettings(self.CFG_DEFAULT_ACTION) == self.ACTION_ALLOW:
             self.applyButton.setText("%s (%d)" % (self._apply_text, self._tick))
             self.denyButton.setText(self._deny_text)
+            self.applyButton.setFocus()
         else:
             self.denyButton.setText("%s (%d)" % (self._deny_text, self._tick))
             self.applyButton.setText(self._apply_text)
+            self.denyButton.setFocus()
 
 
     def _render_connection(self, con):
