@@ -1,3 +1,13 @@
+opensnitch-ui (1.0.0rc11-1) unstable; urgency=medium
+
+  * Added CWD field.
+  * Fixed columns resizing/restoring.
+  * Fixed General tab fields filtering.
+  * Pop-up window: display process path if it's hidden.
+  * Display better regexp errors on the rules editor.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Wed, 24 Jun 2020 00:20:57 +0200
+
 opensnitch-ui (1.0.0rc10-2) unstable; urgency=medium
 
   * Fixed crash when selecting a user (closes #38).

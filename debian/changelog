@@ -1,3 +1,10 @@
+opensnitch (1.0.0rc11-1) unstable; urgency=medium
+
+  * Fixed multiple race conditions.
+  * Fixed CWD parsing when using audit proc monitor method.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Wed, 24 Jun 2020 00:10:38 +0200
+
 opensnitch (1.0.0rc10-1) unstable; urgency=medium
 
   * Fixed checking UID functions availability.
