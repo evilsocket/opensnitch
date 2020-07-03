@@ -211,8 +211,8 @@ func configureSyscalls() {
 }
 
 func deleteRules() bool {
-	r64 := append([]string{"-d"}, rule64...)
-	r32 := append([]string{"-d"}, rule32...)
+	r64 := []string{"-D", "-k", "opensnitch"}
+	r32 := []string{"-D", "-k", "opensnitch"}
 	_, err64 := core.Exec("auditctl", r64)
 	_, err32 := core.Exec("auditctl", r32)
 	if err64 == nil && err32 == nil {
