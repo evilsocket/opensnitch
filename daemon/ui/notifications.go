@@ -179,15 +179,15 @@ func (c *Client) listenForNotifications() {
 		noti, err := notisStream.Recv()
 		if err == io.EOF {
 			log.Warning("notification channel closed by the server")
-			break
+			goto Exit
 		}
 		if err != nil {
 			log.Error("getting notifications: ", err, noti)
-			break
+			goto Exit
 		}
 		c.handleNotification(notisStream, noti)
 	}
-
+Exit:
 	notisStream.CloseSend()
 	log.Info("Stop receiving notifications")
 }
