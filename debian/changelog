@@ -1,3 +1,9 @@
+opensnitch (1.0.0-1) unstable; urgency=medium
+
+  * v1.0.0 released.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Thu, 16 Jul 2020 00:19:26 +0200
+
 opensnitch (1.0.0rc11-1) unstable; urgency=medium
 
   * Fixed multiple race conditions.

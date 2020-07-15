@@ -1,3 +1,9 @@
+opensnitch-ui (1.0.0-1) unstable; urgency=medium
+
+  * v1.0.0 released.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Thu, 16 Jul 2020 00:20:19 +0200
+
 opensnitch-ui (1.0.0rc11-1) unstable; urgency=medium
 
   * Added CWD field.
