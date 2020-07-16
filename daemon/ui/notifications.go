@@ -176,16 +176,21 @@ func (c *Client) listenForNotifications() {
 	}
 	log.Info("Start receiving notifications")
 	for {
-		noti, err := notisStream.Recv()
-		if err == io.EOF {
-			log.Warning("notification channel closed by the server")
+		select {
+		case <-c.clientCtx.Done():
 			goto Exit
+		default:
+			noti, err := notisStream.Recv()
+			if err == io.EOF {
+				log.Warning("notification channel closed by the server")
+				goto Exit
+			}
+			if err != nil {
+				log.Error("getting notifications: ", err, noti)
+				goto Exit
+			}
+			c.handleNotification(notisStream, noti)
 		}
-		if err != nil {
-			log.Error("getting notifications: ", err, noti)
-			goto Exit
-		}
-		c.handleNotification(notisStream, noti)
 	}
 Exit:
 	notisStream.CloseSend()

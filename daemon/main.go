@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -43,13 +44,16 @@ var (
 	cpuProfile = ""
 	memProfile = ""
 
-	err     = (error)(nil)
-	rules   = (*rule.Loader)(nil)
-	stats   = (*statistics.Statistics)(nil)
-	queue   = (*netfilter.Queue)(nil)
-	pktChan = (<-chan netfilter.Packet)(nil)
-	wrkChan = (chan netfilter.Packet)(nil)
-	sigChan = (chan os.Signal)(nil)
+	ctx      = (context.Context)(nil)
+	cancel   = (context.CancelFunc)(nil)
+	err      = (error)(nil)
+	rules    = (*rule.Loader)(nil)
+	stats    = (*statistics.Statistics)(nil)
+	queue    = (*netfilter.Queue)(nil)
+	pktChan  = (<-chan netfilter.Packet)(nil)
+	wrkChan  = (chan netfilter.Packet)(nil)
+	sigChan  = (chan os.Signal)(nil)
+	exitChan = (chan bool)(nil)
 )
 
 func init() {
@@ -93,6 +97,7 @@ func setupLogging() {
 
 func setupSignals() {
 	sigChan = make(chan os.Signal, 1)
+	exitChan = make(chan bool, workers+1)
 	signal.Notify(sigChan,
 		syscall.SIGHUP,
 		syscall.SIGINT,
@@ -102,8 +107,7 @@ func setupSignals() {
 		sig := <-sigChan
 		log.Raw("\n")
 		log.Important("Got signal: %v", sig)
-		doCleanup()
-		os.Exit(0)
+		cancel()
 	}()
 }
 
@@ -111,10 +115,19 @@ func worker(id int) {
 	log.Debug("Worker #%d started.", id)
 	for true {
 		select {
-		case pkt := <-wrkChan:
+		case <-ctx.Done():
+			goto Exit
+		default:
+			pkt, ok := <-wrkChan
+			if !ok {
+				log.Debug("worker channel closed", id)
+				goto Exit
+			}
 			onPacket(pkt)
 		}
 	}
+Exit:
+	log.Debug("worker #%d exit", id)
 }
 
 func setupWorkers() {
@@ -126,11 +139,12 @@ func setupWorkers() {
 	}
 }
 
-func doCleanup() {
+func doCleanup(queue *netfilter.Queue) {
 	log.Info("Cleaning up ...")
 	firewall.Stop(&queueNum)
-	log.Info("Cleaning up firewall...")
 	procmon.End()
+	uiClient.Close()
+	queue.Close()
 
 	if cpuProfile != "" {
 		pprof.StopCPUProfile()
@@ -265,7 +279,14 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 }
 
 func main() {
+	ctx, cancel = context.WithCancel(context.Background())
+	defer cancel()
 	flag.Parse()
+
+	// clean any possible residual firewall rule
+	firewall.QueueDNSResponses(false, queueNum)
+	firewall.QueueConnections(false, queueNum)
+	firewall.DropMarked(false)
 
 	setupLogging()
 
@@ -303,11 +324,6 @@ func main() {
 	}
 	pktChan = queue.Packets()
 
-	// clean any possible residual firewall rule
-	firewall.QueueDNSResponses(false, queueNum)
-	firewall.QueueConnections(false, queueNum)
-	firewall.DropMarked(false)
-
 	uiClient = ui.NewClient(uiSocket, stats, rules)
 	// overwrite monitor method from configuration if the user has passed
 	// the option via command line.
@@ -320,10 +336,19 @@ func main() {
 	firewall.Init(&queueNum)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
-	for true {
+	for {
 		select {
-		case pkt := <-pktChan:
+		case <-ctx.Done():
+			goto Exit
+		case pkt, ok := <-pktChan:
+			if !ok {
+				goto Exit
+			}
 			wrkChan <- pkt
 		}
 	}
+Exit:
+	close(wrkChan)
+	doCleanup(queue)
+	os.Exit(0)
 }

@@ -26,6 +26,8 @@ static void *get_uid = NULL;
 
 extern void go_callback(int id, unsigned char* data, int len, uint mark, u_int32_t idx, verdictContainer *vc, uint32_t uid);
 
+static uint8_t stop = 0;
+
 static inline void configure_uid_if_available(struct nfq_q_handle *qh){
     void *hndl = dlopen("libnetfilter_queue.so.1", RTLD_LAZY);
     if (!hndl) {
@@ -38,9 +40,8 @@ static inline void configure_uid_if_available(struct nfq_q_handle *qh){
     if ((get_uid = dlsym(hndl, "nfq_get_uid")) == NULL){
         printf("WARNING: nfq_get_uid not available\n");
         return;
-    } else {
-        printf("OK: libnetfiler_queue supports nfq_get_uid\n");
     }
+    printf("OK: libnetfiler_queue supports nfq_get_uid\n");
 #ifdef NFQA_CFG_F_UID_GID
     if (qh != NULL && nfq_set_queue_flags(qh, NFQA_CFG_F_UID_GID, NFQA_CFG_F_UID_GID)){
         printf("WARNING: UID not available on this kernel/libnetfilter_queue\n");
@@ -49,6 +50,10 @@ static inline void configure_uid_if_available(struct nfq_q_handle *qh){
 }
 
 static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *arg){
+    if (stop) {
+        return -1;
+    }
+
     uint32_t id = -1, idx = 0, mark = 0;
     struct nfqnl_msg_packet_hdr *ph = NULL;
     unsigned char *buffer = NULL;
@@ -71,9 +76,8 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
 
     if( vc.mark_set == 1 ) {
       return nfq_set_verdict2(qh, id, vc.verdict, vc.mark, vc.length, vc.data);
-    } else {
-      return nfq_set_verdict(qh, id, vc.verdict, vc.length, vc.data);
     }
+    return nfq_set_verdict2(qh, id, vc.verdict, vc.mark, vc.length, vc.data);
 }
 
 static inline struct nfq_q_handle* CreateQueue(struct nfq_handle *h, u_int16_t queue, u_int32_t idx) {
@@ -86,13 +90,20 @@ static inline struct nfq_q_handle* CreateQueue(struct nfq_handle *h, u_int16_t q
     return qh;
 }
 
+static inline void stop_reading_packets() {
+    stop = 1;
+}
+
 static inline int Run(struct nfq_handle *h, int fd) {
     char buf[4096] __attribute__ ((aligned));
     int rcvd, opt = 1;
 
     setsockopt(fd, SOL_NETLINK, NETLINK_NO_ENOBUFS, &opt, sizeof(int));
 
-    while ((rcvd = recv(fd, buf, sizeof(buf), 0)) && rcvd >= 0) {
+    while ((rcvd = recv(fd, buf, sizeof(buf), 0)) >= 0) {
+        if (stop == 1) {
+            return errno;
+        }
         nfq_handle_packet(h, buf, rcvd);
     }
 

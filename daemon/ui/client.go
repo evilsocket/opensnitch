@@ -40,6 +40,8 @@ type Config struct {
 // Client holds the connection information of a client.
 type Client struct {
 	sync.Mutex
+	clientCtx    context.Context
+	clientCancel context.CancelFunc
 
 	stats               *statistics.Statistics
 	rules               *rule.Loader
@@ -53,12 +55,15 @@ type Client struct {
 
 // NewClient creates and configures a new client.
 func NewClient(path string, stats *statistics.Statistics, rules *rule.Loader) *Client {
+
 	c := &Client{
 		socketPath:   path,
 		stats:        stats,
 		rules:        rules,
 		isUnixSocket: false,
 	}
+	c.clientCtx, c.clientCancel = context.WithCancel(context.Background())
+
 	if watcher, err := fsnotify.NewWatcher(); err == nil {
 		c.configWatcher = watcher
 	}
@@ -70,6 +75,11 @@ func NewClient(path string, stats *statistics.Statistics, rules *rule.Loader) *C
 
 	go c.poller()
 	return c
+}
+
+// Close cancels the running tasks: pinging the server and (re)connection poller.
+func (c *Client) Close() {
+	c.clientCancel()
 }
 
 // ProcMonitorMethod returns the monitor method configured.
@@ -111,28 +121,35 @@ func (c *Client) Connected() bool {
 func (c *Client) poller() {
 	log.Debug("UI service poller started for socket %s", c.socketPath)
 	wasConnected := false
-	for true {
-		isConnected := c.Connected()
-		if wasConnected != isConnected {
-			c.onStatusChange(isConnected)
-			wasConnected = isConnected
-		}
-
-		if c.Connected() == false {
-			// connect and create the client if needed
-			if err := c.connect(); err != nil {
-				log.Warning("Error while connecting to UI service: %s", err)
+	for {
+		select {
+		case <-c.clientCtx.Done():
+			goto Exit
+		default:
+			isConnected := c.Connected()
+			if wasConnected != isConnected {
+				c.onStatusChange(isConnected)
+				wasConnected = isConnected
 			}
-		}
-		if c.Connected() == true {
-			// if the client is connected and ready, send a ping
-			if err := c.ping(time.Now()); err != nil {
-				log.Warning("Error while pinging UI service: %s", err)
-			}
-		}
 
-		time.Sleep(1 * time.Second)
+			if c.Connected() == false {
+				// connect and create the client if needed
+				if err := c.connect(); err != nil {
+					log.Warning("Error while connecting to UI service: %s", err)
+				}
+			}
+			if c.Connected() == true {
+				// if the client is connected and ready, send a ping
+				if err := c.ping(time.Now()); err != nil {
+					log.Warning("Error while pinging UI service: %s", err)
+				}
+			}
+
+			time.Sleep(1 * time.Second)
+		}
 	}
+Exit:
+	log.Info("uiClient exit")
 }
 
 func (c *Client) onStatusChange(connected bool) {
