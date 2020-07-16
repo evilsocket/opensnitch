@@ -35,7 +35,7 @@ mkdir -p go/src/github.com/gustavo-iniguez-goya
 ln -s $(pwd) go/src/github.com/gustavo-iniguez-goya/opensnitch
 export GOPATH=$(pwd)/go
 cd go/src/github.com/gustavo-iniguez-goya/opensnitch/daemon/
-dep ensure
+#dep ensure
 go build -o opensnitchd .
 
 %install
