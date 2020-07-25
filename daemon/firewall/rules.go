@@ -3,9 +3,11 @@ package firewall
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
@@ -19,9 +21,14 @@ type Action string
 
 // Actions we apply to the firewall.
 const (
-	ADD    = Action("-A")
-	INSERT = Action("-I")
-	DELETE = Action("-D")
+	ADD      = Action("-A")
+	INSERT   = Action("-I")
+	DELETE   = Action("-D")
+	FLUSH    = Action("-F")
+	NEWCHAIN = Action("-N")
+	DELCHAIN = Action("-X")
+
+	PRIORITYRULE = "opensnitch-priority-rules"
 )
 
 // make sure we don't mess with multiple rules
@@ -31,11 +38,12 @@ var (
 
 	queueNum = 0
 	running  = false
-	// check that rules are loaded every 5s
-	rulesChecker       = time.NewTicker(time.Second * 20)
-	rulesCheckerChan   = make(chan bool)
-	regexRulesQuery, _ = regexp.Compile(`NFQUEUE.*ctstate NEW.*NFQUEUE num.*bypass`)
-	regexDropQuery, _  = regexp.Compile(`DROP.*mark match 0x18ba5`)
+	// check that rules are loaded every 20s
+	rulesChecker               = time.NewTicker(time.Second * 20)
+	rulesCheckerChan           = make(chan bool)
+	regexRulesQuery, _         = regexp.Compile(`NFQUEUE.*ctstate NEW.*NFQUEUE num.*bypass`)
+	regexDropQuery, _          = regexp.Compile(`DROP.*mark match 0x18ba5`)
+	regexPriorityRulesQuery, _ = regexp.Compile(PRIORITYRULE)
 )
 
 // RunRule inserts or deletes a firewall rule.
@@ -83,7 +91,7 @@ func QueueDNSResponses(enable bool, qNum int) (err error) {
 func QueueConnections(enable bool, qNum int) (err error) {
 	regexRulesQuery, _ = regexp.Compile(fmt.Sprint(`NFQUEUE.*ctstate NEW.*NFQUEUE num `, qNum, ` bypass`))
 
-	return RunRule(ADD, enable, []string{
+	return RunRule(INSERT, enable, []string{
 		"OUTPUT",
 		"-t", "mangle",
 		"-m", "conntrack",
@@ -103,6 +111,42 @@ func DropMarked(enable bool) (err error) {
 		"--mark", fmt.Sprintf("%d", DropMark),
 		"-j", "DROP",
 	})
+}
+
+// CreatePriorityRule inserts a rule to exclude connections from being analyzed.
+// All the excluded connections will have this rule as target.
+func CreatePriorityRule() error {
+	RunRule(NEWCHAIN, true, []string{PRIORITYRULE, "-t", "mangle"})
+	return RunRule(INSERT, true, []string{
+		"OUTPUT",
+		"-t", "mangle",
+		"-j", PRIORITYRULE,
+	})
+}
+
+// DeletePriorityRule deletes the priority rules
+func DeletePriorityRule() error {
+	RunRule(DELETE, false, []string{"OUTPUT", "-t", "mangle", "-j", PRIORITYRULE})
+	RunRule(FLUSH, true, []string{PRIORITYRULE, "-t", "mangle"})
+	return RunRule(DELCHAIN, true, []string{PRIORITYRULE, "-t", "mangle"})
+}
+
+// AllowPriorityRule inserts a new rule which will exclude the connection from being intercepted.
+func AllowPriorityRule(action Action, enable bool, parms string) (err error) {
+	rule := []string{PRIORITYRULE, "-t", "mangle"}
+	rule = append(rule, strings.Split(parms, " ")...)
+	rule = append(rule, []string{"-j", "ACCEPT"}...)
+
+	return RunRule(action, enable, rule)
+}
+
+// DenyPriorityRule inserts a new rule which will exclude the connection from being intercepted.
+func DenyPriorityRule(action Action, enable bool, parms string) (err error) {
+	rule := []string{PRIORITYRULE, "-t", "mangle"}
+	rule = append(rule, strings.Split(parms, " ")...)
+	rule = append(rule, []string{"-j", "DROP"}...)
+
+	return RunRule(action, enable, rule)
 }
 
 // AreRulesLoaded checks if the firewall rules are loaded.
@@ -130,7 +174,9 @@ func AreRulesLoaded() bool {
 	return regexRulesQuery.FindString(outMangle) != "" &&
 		regexRulesQuery.FindString(outMangle6) != "" &&
 		regexDropQuery.FindString(outDrop) != "" &&
-		regexDropQuery.FindString(outDrop6) != ""
+		regexDropQuery.FindString(outDrop6) != "" &&
+		regexPriorityRulesQuery.FindString(outMangle) != "" &&
+		regexPriorityRulesQuery.FindString(outMangle6) != ""
 }
 
 // StartCheckingRules checks periodically if the rules are loaded.
@@ -142,10 +188,10 @@ func StartCheckingRules(qNum int) {
 			return
 		case <-rulesChecker.C:
 			if rules := AreRulesLoaded(); rules == false {
-				QueueConnections(false, qNum)
-				DropMarked(false)
-				QueueConnections(true, qNum)
-				DropMarked(true)
+				log.Important("firewall rules changed, reloading")
+				cleanRules()
+				insertRules()
+				loadDiskConfiguration(true)
 			}
 		}
 	}
@@ -161,6 +207,25 @@ func IsRunning() bool {
 	return running
 }
 
+func cleanRules() {
+	QueueDNSResponses(false, queueNum)
+	QueueConnections(false, queueNum)
+	DropMarked(false)
+	DeletePriorityRule()
+}
+
+func insertRules() {
+	if err := QueueDNSResponses(true, queueNum); err != nil {
+		log.Error("Error while running DNS firewall rule: %s", err)
+	} else if err = QueueConnections(true, queueNum); err != nil {
+		log.Fatal("Error while running conntrack firewall rule: %s", err)
+	} else if err = DropMarked(true); err != nil {
+		log.Fatal("Error while running drop firewall rule: %s", err)
+	} else if err = CreatePriorityRule(); err != nil {
+		log.Error("Error while adding priority firewall rule: %s", err)
+	}
+}
+
 // Stop deletes the firewall rules, allowing network traffic.
 func Stop(qNum *int) {
 	if running == false {
@@ -171,9 +236,7 @@ func Stop(qNum *int) {
 	}
 
 	StopCheckingRules()
-	QueueDNSResponses(false, queueNum)
-	QueueConnections(false, queueNum)
-	DropMarked(false)
+	cleanRules()
 
 	running = false
 }
@@ -186,14 +249,13 @@ func Init(qNum *int) {
 	if qNum != nil {
 		queueNum = *qNum
 	}
+	insertRules()
 
-	if err := QueueDNSResponses(true, queueNum); err != nil {
-		log.Fatal("Error while running DNS firewall rule: %s", err)
-	} else if err = QueueConnections(true, queueNum); err != nil {
-		log.Fatal("Error while running conntrack firewall rule: %s", err)
-	} else if err = DropMarked(true); err != nil {
-		log.Fatal("Error while running drop firewall rule: %s", err)
+	if watcher, err := fsnotify.NewWatcher(); err == nil {
+		configWatcher = watcher
 	}
+	loadDiskConfiguration(false)
+
 	go StartCheckingRules(queueNum)
 
 	running = true
