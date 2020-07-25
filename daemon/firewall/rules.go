@@ -34,7 +34,7 @@ var (
 	// check that rules are loaded every 5s
 	rulesChecker       = time.NewTicker(time.Second * 20)
 	rulesCheckerChan   = make(chan bool)
-	regexRulesQuery, _ = regexp.Compile(`NFQUEUE.*ctstate NEW.*NFQUEUE num.*bypass`)
+	regexRulesQuery, _ = regexp.Compile(`NFQUEUE.*ctstate NEW,RELATED.*NFQUEUE num.*bypass`)
 	regexDropQuery, _  = regexp.Compile(`DROP.*mark match 0x18ba5`)
 )
 
@@ -79,15 +79,13 @@ func QueueDNSResponses(enable bool, qNum int) (err error) {
 
 // QueueConnections inserts the firewall rule which redirects connections to us.
 // They are queued until the user denies/accept them, or reaches a timeout.
-// OUTPUT -t mangle -m conntrack --ctstate NEW -j NFQUEUE --queue-num 0 --queue-bypass
+// OUTPUT -t mangle -m conntrack --ctstate NEW,RELATED -j NFQUEUE --queue-num 0 --queue-bypass
 func QueueConnections(enable bool, qNum int) (err error) {
-	regexRulesQuery, _ = regexp.Compile(fmt.Sprint(`NFQUEUE.*ctstate NEW.*NFQUEUE num `, qNum, ` bypass`))
-
 	return RunRule(ADD, enable, []string{
 		"OUTPUT",
 		"-t", "mangle",
 		"-m", "conntrack",
-		"--ctstate", "NEW",
+		"--ctstate", "NEW,RELATED",
 		"-j", "NFQUEUE",
 		"--queue-num", fmt.Sprintf("%d", qNum),
 		"--queue-bypass",
