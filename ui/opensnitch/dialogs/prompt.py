@@ -256,16 +256,17 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
             try:
-                dst_host = re.search("(.*)\s\((.*)\)", con.dst_host)
+                # get the domain that a process is trying to resolve. format: 1.1.1.1 (host.example.com)
+                dst_host_regexp = re.search("(.*)\s\((.*)\)", con.dst_host)
             except Exception:
                 pass
 
-            if dst_host != None and len(dst_host.groups()) == 2:
-                self._add_dsthost_to_combo(dst_host.group(2))
-            else:
-                dst_host = con.dst_host
-                self.whatCombo.addItem("%s" % con.dst_host, "simple_host")
-                self._add_dsthost_to_combo(con.dst_host)
+            dst_host = con.dst_host
+            if dst_host_regexp != None and len(dst_host_regexp.groups()) == 2:
+                dst_host = dst_host_regexp.group(2)
+                print("host regexp: " + dst_host)
+
+            self._add_dsthost_to_combo(dst_host)
 
         self.whatIPCombo.addItem("to %s" % con.dst_ip, "dst_ip")
 
@@ -300,6 +301,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         e.ignore()
 
     def _add_dsthost_to_combo(self, dst_host):
+        self.whatCombo.addItem("%s" % dst_host, "simple_host")
+        self.whatIPCombo.addItem("%s" % dst_host, "simple_host")
+
         parts = dst_host.split('.')[1:]
         nparts = len(parts)
         for i in range(0, nparts - 1):
@@ -345,7 +349,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return "simple", "dest.ip", self._con.dst_ip
 
         elif combo.itemData(what_idx) == "simple_host":
-            return "simple", "dest.host", self._con.dst_host
+            return "simple", "dest.host", combo.currentText()
 
         elif combo.itemData(what_idx) == "regex_host":
             return "regexp", "dest.host", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
@@ -361,6 +365,16 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._default_action = self.ACTION_ALLOW
         self._send_rule()
 
+    def _get_rule_name(self):
+        rule_temp_name = slugify("%s %s" % (self._rule.action, self._rule.duration))
+        if self._ischeckAdvanceded:
+            rule_temp_name = "%s-list" % rule_temp_name
+        else:
+            rule_temp_name = "%s-simple" % rule_temp_name
+        rule_temp_name = slugify("%s %s" % (rule_temp_name, self._rule.operator.data))
+
+        return rule_temp_name
+
     def _send_rule(self):
         self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
         self._rule = ui_pb2.Rule(name="user.choice")
@@ -373,17 +387,22 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         what_idx = self.whatCombo.currentIndex()
         self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self.whatCombo, what_idx)
 
+        rule_temp_name = self._get_rule_name()
+
         # TODO: move to a method
         data=[]
         if self._ischeckAdvanceded and self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != "dst_ip":
             _type, _operand, _data = self._get_combo_operator(self.whatIPCombo, self.whatIPCombo.currentIndex())
             data.append({"type": _type, "operand": _operand, "data": _data})
+            rule_temp_name = slugify("%s %s" % (rule_temp_name, _data))
 
         if self._ischeckAdvanceded and self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != "dst_port":
             data.append({"type": "simple", "operand": "dest.port", "data": str(self._con.dst_port)})
+            rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.dst_port)))
 
         if self._ischeckAdvanceded and self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != "user_id":
             data.append({"type": "simple", "operand": "user.id", "data": str(self._con.user_id)})
+            rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.user_id)))
 
         if self._ischeckAdvanceded:
             data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
@@ -391,7 +410,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule.operator.type = "list"
             self._rule.operator.operand = ""
 
-        self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.operator.type, self._rule.operator.data))
+        self._rule.name = rule_temp_name
 
         self.hide()
         if self._ischeckAdvanceded:

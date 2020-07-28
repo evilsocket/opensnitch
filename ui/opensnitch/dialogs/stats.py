@@ -573,6 +573,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif idx == StatsDialog.COL_RULES:
             cur_idx = 2
             self._set_rules_tab_active(row, cur_idx)
+        else:
+            return
 
         self._set_active_widgets(True, str(data))
 
