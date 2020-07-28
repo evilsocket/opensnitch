@@ -220,6 +220,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 self._status_change_trigger.emit()
                 was_connected = self._connected
 
+    def _check_versions(self, daemon_version):
+        lMayor, lMinor, lPatch = version.split(".")
+        rMayor, rMinor, rPatch = daemon_version.split(".")
+        if lMayor != rMayor or (lMayor == rMayor and lMinor != rMinor):
+            self._version_warning_trigger.emit(daemon_version, version)
+
     def _is_local_request(self, proto, addr):
         if proto == "unix":
             return True
@@ -372,8 +378,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def Ping(self, request, context):
         try:
             self._last_ping = datetime.now()
-            if request.stats.daemon_version != version:
-                self._version_warning_trigger.emit(request.stats.daemon_version, version)
+            self._check_versions(request.stats.daemon_version)
 
             proto, addr = self._get_peer(context.peer())
             # do not update db here, do it on the main thread
