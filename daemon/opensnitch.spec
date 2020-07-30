@@ -1,5 +1,5 @@
 Name:           opensnitch
-Version:        1.0.0
+Version:        1.0.1
 Release:        1%{?dist}
 Summary:        OpenSnitch is a GNU/Linux application firewall
 
@@ -35,7 +35,6 @@ mkdir -p go/src/github.com/gustavo-iniguez-goya
 ln -s $(pwd) go/src/github.com/gustavo-iniguez-goya/opensnitch
 export GOPATH=$(pwd)/go
 cd go/src/github.com/gustavo-iniguez-goya/opensnitch/daemon/
-#dep ensure
 go build -o opensnitchd .
 
 %install

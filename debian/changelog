@@ -1,3 +1,10 @@
+opensnitch (1.0.1-1) unstable; urgency=medium
+
+  * Fixed app exit when IPv6 is not supported.
+  * Other fixes.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Thu, 30 Jul 2020 21:56:20 +0200
+
 opensnitch (1.0.0-1) unstable; urgency=medium
 
   * v1.0.0 released.
