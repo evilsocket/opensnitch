@@ -59,8 +59,8 @@ func (s *server) Subscribe(ctx context.Context, clientConf *protocol.ClientConfi
 // Notifications opens a permanent channel to send commands back to the nodes.
 // Ths function can't return until the connection with the node is closed,
 // in order to maintain the communication channel opened.
-func (s *server) Notifications(commChannel protocol.UI_NotificationsServer) error {
-	s.apiClient.UpdateNode(commChannel)
+func (s *server) Notifications(streamChannel protocol.UI_NotificationsServer) error {
+	s.apiClient.OpenChannelWithNode(streamChannel)
 	return nil
 }
 

@@ -3,7 +3,9 @@ package api
 import (
 	"sync"
 
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui/protocol"
+	"github.com/gustavo-iniguez-goya/opensnitch/server/api/nodes"
 	"golang.org/x/net/context"
 )
 
@@ -43,7 +45,6 @@ const (
 
 // NewClient setups a new client and starts the server to listen for new nodes.
 func NewClient(serverProto, serverPort string) *Client {
-
 	c := &Client{
 		nodesChan:    make(chan bool),
 		rulesInChan:  make(chan *protocol.Connection, 1),
@@ -82,23 +83,36 @@ func (c *Client) AskRule(con *protocol.Connection) chan *protocol.Rule {
 
 // AddNewNode adds a new node to the list of connected nodes.
 func (c *Client) AddNewNode(ctx context.Context, nodeConf *protocol.ClientConfig) {
-	//log.Info("New client: %s - %s, %v",nodeConf.Name, nodeConf.Version, ctx)
-	// TODO: add to Nodes list
+	log.Info("AddNewNode: %s - %s, %v", nodeConf.Name, nodeConf.Version)
+	nodes.Add(ctx, nodeConf)
 	c.nodesChan <- true
 }
 
-// UpdateNode updates the details of a node.
-// mainly used for set the communication channel.
-func (c *Client) UpdateNode(commChannel protocol.UI_NotificationsServer) {
-	// TODO: save stream
-	// TODO: wait on a channel for notifications
-	cc := make(chan bool)
-	<-cc
-	// XXX: communications will be written to this channel
-	// select {
-	// case nodes.commChannelChan:
-	//  nodes.commChannel.send(notification{})
-	// }
+// OpenChannelWithNode updates the node with the streaming channel.
+// This channel is used to send notifications to the nodes (change debug level,
+// stop/start interception, etc).
+func (c *Client) OpenChannelWithNode(notificationsStream protocol.UI_NotificationsServer) {
+	log.Info("opening communication channel with new node...", notificationsStream)
+	node := nodes.Update(notificationsStream)
+	if node == nil {
+		log.Warning("node not found, channel comms not opened")
+		return
+	}
+	// XXX: go nodes.Channel(node) ?
+	for {
+		select {
+		case <-node.NotificationsStream.Context().Done():
+			log.Important("client.ChannelWithNode() Node exited: ", node.Addr())
+			nodes.Delete(node.Addr())
+			goto Exit
+		case notif := <-node.GetNotifications():
+			log.Important("client.ChannelWithNode() sending notification:", notif)
+			node.NotificationsStream.Send(notif)
+		}
+	}
+
+Exit:
+	return
 }
 
 // FIXME: remove when nodes implementation is done
