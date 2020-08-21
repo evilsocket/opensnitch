@@ -54,14 +54,15 @@ func NewClient(serverProto, serverPort string) *Client {
 	return c
 }
 
-// SetLastStats save latest stats received from a node.
-func (c *Client) SetLastStats(stats *protocol.Statistics) {
+// UpdateStats save latest stats received from a node.
+func (c *Client) UpdateStats(ctx context.Context, stats *protocol.Statistics) {
 	if stats == nil {
 		return
 	}
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
 	c.lastStats = stats
+	nodes.UpdateStats(ctx, stats)
 }
 
 // GetLastStats returns latest stasts from a node.
@@ -93,7 +94,7 @@ func (c *Client) AddNewNode(ctx context.Context, nodeConf *protocol.ClientConfig
 // stop/start interception, etc).
 func (c *Client) OpenChannelWithNode(notificationsStream protocol.UI_NotificationsServer) {
 	log.Info("opening communication channel with new node...", notificationsStream)
-	node := nodes.Update(notificationsStream)
+	node := nodes.SetNotificationsChannel(notificationsStream)
 	if node == nil {
 		log.Warning("node not found, channel comms not opened")
 		return
@@ -103,7 +104,6 @@ func (c *Client) OpenChannelWithNode(notificationsStream protocol.UI_Notificatio
 		select {
 		case <-node.NotificationsStream.Context().Done():
 			log.Important("client.ChannelWithNode() Node exited: ", node.Addr())
-			nodes.Delete(node.Addr())
 			goto Exit
 		case notif := <-node.GetNotifications():
 			log.Important("client.ChannelWithNode() sending notification:", notif)
@@ -112,6 +112,7 @@ func (c *Client) OpenChannelWithNode(notificationsStream protocol.UI_Notificatio
 	}
 
 Exit:
+	node.Close()
 	return
 }
 

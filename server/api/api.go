@@ -31,7 +31,7 @@ type server struct {
 
 // Ping receives every second the stats of a node.
 func (s *server) Ping(ctx context.Context, ping *protocol.PingRequest) (*protocol.PingReply, error) {
-	s.apiClient.SetLastStats(ping.Stats)
+	s.apiClient.UpdateStats(ctx, ping.Stats)
 	return &protocol.PingReply{Id: ping.Id}, nil
 }
 
@@ -57,7 +57,7 @@ func (s *server) Subscribe(ctx context.Context, clientConf *protocol.ClientConfi
 }
 
 // Notifications opens a permanent channel to send commands back to the nodes.
-// Ths function can't return until the connection with the node is closed,
+// This function can't return until the connection with the node is closed,
 // in order to maintain the communication channel opened.
 func (s *server) Notifications(streamChannel protocol.UI_NotificationsServer) error {
 	s.apiClient.OpenChannelWithNode(streamChannel)
