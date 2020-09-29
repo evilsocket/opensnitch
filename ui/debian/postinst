@@ -25,12 +25,14 @@ install_pip_pkgs()
 
 for i in $(ls /home)
 do
-    path=/home/$i/.config/autostart/
-    if [ ! -d $path ]; then
-        mkdir -p $path
-    fi
-    if [ -f /usr/share/applications/opensnitch_ui.desktop ];then
-        ln -s /usr/share/applications/opensnitch_ui.desktop $path || true
+    if grep -q /home/$i /etc/passwd ; then
+        path=/home/$i/.config/autostart/
+        if [ ! -d $path ]; then
+            mkdir -p $path
+        fi
+        if [ -f /usr/share/applications/opensnitch_ui.desktop ];then
+            ln -s /usr/share/applications/opensnitch_ui.desktop $path 2>/dev/null || true
+        fi
     fi
 done
 
