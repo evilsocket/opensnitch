@@ -145,7 +145,7 @@ func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err e
 	c = &Connection{
 		SrcIP:   ip.SrcIP,
 		DstIP:   ip.DstIP,
-		DstHost: dns.HostOr(ip.DstIP, ip.DstIP.String()),
+		DstHost: dns.HostOr(ip.DstIP, ""),
 		pkt:     nfp,
 	}
 	return newConnectionImpl(nfp, c)
@@ -156,7 +156,7 @@ func NewConnection6(nfp *netfilter.Packet, ip *layers.IPv6) (c *Connection, err 
 	c = &Connection{
 		SrcIP:   ip.SrcIP,
 		DstIP:   ip.DstIP,
-		DstHost: dns.HostOr(ip.DstIP, ip.DstIP.String()),
+		DstHost: dns.HostOr(ip.DstIP, ""),
 		pkt:     nfp,
 	}
 	return newConnectionImpl(nfp, c)
