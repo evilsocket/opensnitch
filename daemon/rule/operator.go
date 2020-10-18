@@ -37,10 +37,11 @@ const (
 type opCallback func(value string) bool
 
 type Operator struct {
-	Type    Type       `json:"type"`
-	Operand Operand    `json:"operand"`
-	Data    string     `json:"data"`
-	List    []Operator `json:"list"`
+	Type      Type       `json:"type"`
+	Operand   Operand    `json:"operand"`
+	Sensitive bool       `json:"sensitive"`
+	Data      string     `json:"data"`
+	List      []Operator `json:"list"`
 
 	cb opCallback
 	re *regexp.Regexp
@@ -86,10 +87,16 @@ func (o *Operator) String() string {
 }
 
 func (o *Operator) simpleCmp(v string) bool {
+	if o.Sensitive == false {
+		return strings.EqualFold(v, o.Data)
+	}
 	return v == o.Data
 }
 
 func (o *Operator) reCmp(v string) bool {
+	if o.Sensitive == false {
+		v = strings.ToLower(v)
+	}
 	return o.re.MatchString(v)
 }
 
@@ -106,6 +113,7 @@ func (o *Operator) listMatch(con *conman.Connection) bool {
 }
 
 func (o *Operator) Match(con *conman.Connection) bool {
+
 	if o.Operand == OpTrue {
 		return true
 	} else if o.Operand == OpUserId {
@@ -120,7 +128,7 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(envVarValue)
 	} else if o.Operand == OpDstIP {
 		return o.cb(con.DstIP.String())
-	} else if o.Operand == OpDstHost {
+	} else if o.Operand == OpDstHost && con.DstHost != "" {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpDstPort {
 		return o.cb(fmt.Sprintf("%d", con.DstPort))
