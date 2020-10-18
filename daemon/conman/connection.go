@@ -210,11 +210,9 @@ func (c *Connection) parseDirection() bool {
 func (c *Connection) getDomains(nfp *netfilter.Packet, con *Connection) {
 	domains := dns.GetQuestions(nfp)
 	if len(domains) > 0 {
-		con.DstHost = fmt.Sprint(con.DstHost, " (")
 		for _, dns := range domains {
-			con.DstHost = fmt.Sprint(con.DstHost, dns)
+			con.DstHost = dns
 		}
-		con.DstHost = fmt.Sprint(con.DstHost, ")")
 	}
 }
 
