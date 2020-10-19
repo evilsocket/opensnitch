@@ -405,7 +405,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         if timeout_triggered:
             _title = request.process_path
             if _title == "":
-                _title = "%s:%d (%s)" % (request.dst_host, request.dst_port, request.protocol)
+                _title = "%s:%d (%s)" % (request.dst_host if request.dst_host != "" else request.dst_ip, request.dst_port, request.protocol)
 
             self._tray.setIcon(self.alert_icon)
             self._tray.showMessage(_title, "%s action applied\nArguments: %s" % (rule.action, request.process_args), QtWidgets.QSystemTrayIcon.NoIcon, 0)
