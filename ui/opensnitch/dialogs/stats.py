@@ -471,9 +471,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_table_context_menu(self, pos):
         cur_idx = self.tabWidget.currentIndex()
         table = self._get_active_table()
+        self._context_menu_active = True
         if table.selectionModel().selection().indexes():
-            self._context_menu_active = True
-
             for i in table.selectionModel().selection().indexes():
                 row, column = i.row(), i.column()
             menu = QtWidgets.QMenu()
@@ -488,6 +487,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._table_menu_delete(row, column)
 
         self._context_menu_active = False
+        self._refresh_active_table()
 
     def _table_menu_delete(self, row, column):
         cur_idx = self.tabWidget.currentIndex()
@@ -985,5 +985,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if self._context_menu_active == False:
                     model.query().clear()
                     model.setQuery(q, self._db_sqlite)
+                    if model.lastError().isValid():
+                        print("setQuery() error: ", model.lastError().text())
             except Exception as e:
                 print(self._address, "setQuery() exception: ", e)
