@@ -92,7 +92,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "display_fields": "time as Time, " \
                         "node as Node, " \
                         "action as Action, " \
-                        "dst_host || '  ->  ' || dst_port as Destination, " \
+                        "CASE dst_host WHEN ''" \
+                        "   THEN dst_ip || '  ->  ' || dst_port " \
+                        "   ELSE dst_host || '  ->  ' || dst_port " \
+                        "END Destination, " \
                         "protocol as Protocol, " \
                         "process as Process, " \
                         "rule as Rule",
