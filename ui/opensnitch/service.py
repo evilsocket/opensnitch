@@ -73,6 +73,35 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 'users':{}
                 }
 
+        if QtGui.QIcon.hasThemeIcon("document-new") == False:
+            hasFallback = "fallbackThemeName" in dir(QtGui.QIcon)
+            if hasFallback:
+                fTheme = QtGui.QIcon.fallbackThemeName()
+                if fTheme != "":
+                    QtGui.QIcon.setThemeName(fTheme)
+                else:
+                    self._set_alternative_theme()
+            else:
+                self._set_alternative_theme()
+
+
+    def _set_alternative_theme(self):
+        themes = os.listdir("/usr/share/icons")
+        try:
+            themes.remove("HighContrast")
+            themes.remove("hicolor")
+            themes.remove("locolor")
+        except Exception:
+            pass
+
+        for theme in themes:
+            QtGui.QIcon.setThemeName(theme)
+            if QtGui.QIcon.hasThemeIcon("document-new"):
+                return
+
+        if QtGui.QIcon.themeName() == "" or QtGui.QIcon.hasThemeIcon("document-new") == False:
+            self._show_theme_empty_dialog()
+
     # https://gist.github.com/pklaus/289646
     def _setup_interfaces(self):
         max_possible = 128  # arbitrary. raise if needed.
@@ -150,6 +179,16 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _show_stats_dialog(self):
         self._tray.setIcon(self.white_icon)
         self._stats_dialog.show()
+
+    def _show_theme_empty_dialog(self):
+        self._msg.setIcon(QtWidgets.QMessageBox.Warning)
+        self._msg.setWindowTitle("OpenSnitch")
+        self._msg.setText("Your Desktop Environment doesn't have an icon theme configured, " + \
+                "or it lacks of some icons (document-new, document-save)." + \
+                "\n\nPlease, use gnome-tweaks or other tool to set an icon theme."
+                )
+        self._msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        self._msg.show()
 
     @QtCore.pyqtSlot()
     def _on_status_change(self):
