@@ -248,7 +248,16 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         return pw_name
 
     def _get_peer(self, peer):
+        """
+        server          -> client
+        127.0.0.1:50051 -> ipv4:127.0.0.1:52032
+        [::]:50051      -> ipv6:[::1]:59680
+        0.0.0.0:50051   -> ipv6:[::1]:59654
+        """
         p = peer.split(":")
+        # WA for backward compatibility
+        if p[0] == "unix" and p[1] == "":
+            p[1] = "local"
         return p[0], p[1]
 
     def _delete_node(self, peer):
