@@ -31,6 +31,7 @@ const (
 	OpDstIP               = Operand("dest.ip")
 	OpDstHost             = Operand("dest.host")
 	OpDstPort             = Operand("dest.port")
+	OpProto               = Operand("protocol")
 	OpList                = Operand("list")
 )
 
@@ -130,6 +131,8 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(con.DstIP.String())
 	} else if o.Operand == OpDstHost && con.DstHost != "" {
 		return o.cb(con.DstHost)
+	} else if o.Operand == OpProto {
+		return o.cb(con.Protocol)
 	} else if o.Operand == OpDstPort {
 		return o.cb(fmt.Sprintf("%d", con.DstPort))
 	} else if o.Operand == OpList {
