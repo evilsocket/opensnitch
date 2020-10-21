@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -24,6 +25,7 @@ type Loader struct {
 	sync.RWMutex
 	path              string
 	rules             map[string]*Rule
+	rulesKeys         []string
 	watcher           *fsnotify.Watcher
 	liveReload        bool
 	liveReloadRunning bool
@@ -103,6 +105,8 @@ func (l *Loader) Load(path string) error {
 		}
 	}
 
+	l.sortRules()
+
 	if l.liveReload && l.liveReloadRunning == false {
 		go l.liveReloadWorker()
 	}
@@ -167,6 +171,14 @@ func (l *Loader) setUniqueName(rule *Rule) {
 	}
 }
 
+func (l *Loader) sortRules() {
+	l.rulesKeys = make([]string, 0, len(l.rules))
+	for k := range l.rules {
+		l.rulesKeys = append(l.rulesKeys, k)
+	}
+	sort.Strings(l.rulesKeys)
+}
+
 func (l *Loader) addUserRule(rule *Rule) {
 	if rule.Duration == Once {
 		return
@@ -184,6 +196,7 @@ func (l *Loader) replaceUserRule(rule *Rule) {
 		}
 	}
 	l.rules[rule.Name] = rule
+	l.sortRules()
 	l.Unlock()
 
 	if rule.Duration == Restart || rule.Duration == Always {
@@ -198,6 +211,7 @@ func (l *Loader) replaceUserRule(rule *Rule) {
 	time.AfterFunc(tTime, func() {
 		l.Lock()
 		delete(l.rules, rule.Name)
+		l.sortRules()
 		l.Unlock()
 	})
 }
@@ -248,10 +262,17 @@ func (l *Loader) Delete(ruleName string) error {
 	defer l.Unlock()
 
 	rule := l.rules[ruleName]
-	delete(l.rules, ruleName)
-	if rule == nil || rule.Duration != Always {
+	if rule == nil {
 		return nil
 	}
+
+	delete(l.rules, ruleName)
+	l.sortRules()
+
+	if rule.Duration != Always {
+		return nil
+	}
+
 	log.Info("Delete() rule: ", rule)
 	path := fmt.Sprint(l.path, "/", ruleName, ".json")
 	return os.Remove(path)
@@ -262,7 +283,11 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 	l.RLock()
 	defer l.RUnlock()
 
-	for _, rule := range l.rules {
+	for _, ruleIdx := range l.rulesKeys {
+		rule, valid := l.rules[ruleIdx]
+		if !valid {
+			continue
+		}
 		// if we already have a match, we don't need
 		// to evaluate 'allow' rules anymore, we only
 		// need to make sure there's no 'deny' rule
