@@ -63,14 +63,16 @@ message Operator {
     string type = 1;
     string operand = 2;
     string data = 3;
+    bool sensitive = 4;
 }
 
 message Rule {
     string name = 1;
     bool enabled = 2;
-    string action = 3;
-    string duration = 4;
-    Operator operator = 5;
+    bool precedence = 3;
+    string action = 4;
+    string duration = 5;
+    Operator operator = 6;
 }
 
 enum Action {

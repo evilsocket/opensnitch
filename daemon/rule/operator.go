@@ -11,6 +11,8 @@ import (
 )
 
 type Type string
+type Sensitive bool
+type Operand string
 
 const (
 	Simple  = Type("simple")
@@ -18,8 +20,6 @@ const (
 	Complex = Type("complex") // for future use
 	List    = Type("list")
 )
-
-type Operand string
 
 const (
 	OpTrue                = Operand("true")
@@ -37,10 +37,11 @@ const (
 
 type opCallback func(value string) bool
 
+// Operator represents what we want to filter of a connection, and how.
 type Operator struct {
 	Type      Type       `json:"type"`
 	Operand   Operand    `json:"operand"`
-	Sensitive bool       `json:"sensitive"`
+	Sensitive Sensitive  `json:"sensitive"`
 	Data      string     `json:"data"`
 	List      []Operator `json:"list"`
 
@@ -48,12 +49,14 @@ type Operator struct {
 	re *regexp.Regexp
 }
 
-func NewOperator(t Type, o Operand, data string, list []Operator) (*Operator, error) {
+// NewOperator returns a new operator object
+func NewOperator(t Type, s Sensitive, o Operand, data string, list []Operator) (*Operator, error) {
 	op := Operator{
-		Type:    t,
-		Operand: o,
-		Data:    data,
-		List:    list,
+		Type:      t,
+		Sensitive: s,
+		Operand:   o,
+		Data:      data,
+		List:      list,
 	}
 	if err := op.Compile(); err != nil {
 		log.Error("NewOperator() failed to compile:", err)
@@ -62,6 +65,7 @@ func NewOperator(t Type, o Operand, data string, list []Operator) (*Operator, er
 	return &op, nil
 }
 
+// Compile translates the operator type field to its callback counterpart
 func (o *Operator) Compile() error {
 	if o.Type == Simple {
 		o.cb = o.simpleCmp
@@ -113,6 +117,7 @@ func (o *Operator) listMatch(con *conman.Connection) bool {
 	return res
 }
 
+// Match tries to match parts of a connection with the given operator.
 func (o *Operator) Match(con *conman.Connection) bool {
 
 	if o.Operand == OpTrue {

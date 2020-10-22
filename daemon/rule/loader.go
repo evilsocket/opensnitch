@@ -293,6 +293,9 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 		// need to make sure there's no 'deny' rule
 		// matching this specific connection
 		if match != nil && rule.Action == Allow {
+			if rule.Precedence {
+				break
+			}
 			continue
 		} else if rule.Match(con) == true {
 			// only return if we found a deny

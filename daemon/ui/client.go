@@ -21,9 +21,9 @@ import (
 
 var (
 	configFile             = "/etc/opensnitchd/default-config.json"
-	dummyOperator, _       = rule.NewOperator(rule.Simple, rule.OpTrue, "", make([]rule.Operator, 0))
-	clientDisconnectedRule = rule.Create("ui.client.disconnected", true, rule.Allow, rule.Once, dummyOperator)
-	clientErrorRule        = rule.Create("ui.client.error", true, rule.Allow, rule.Once, dummyOperator)
+	dummyOperator, _       = rule.NewOperator(rule.Simple, false, rule.OpTrue, "", make([]rule.Operator, 0))
+	clientDisconnectedRule = rule.Create("ui.client.disconnected", true, false, rule.Allow, rule.Once, dummyOperator)
+	clientErrorRule        = rule.Create("ui.client.error", true, false, rule.Allow, rule.Once, dummyOperator)
 	config                 Config
 )
 
@@ -55,7 +55,6 @@ type Client struct {
 
 // NewClient creates and configures a new client.
 func NewClient(path string, stats *statistics.Statistics, rules *rule.Loader) *Client {
-
 	c := &Client{
 		socketPath:   path,
 		stats:        stats,
