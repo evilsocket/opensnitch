@@ -722,6 +722,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.comboAction.currentText() != "-":
             action = "Action = \"" + self.comboAction.currentText().lower() + "\""
 
+        # FIXME: use prepared statements
         if filter_text == "":
             if action != "":
                 qstr += " WHERE " + action
@@ -764,20 +765,24 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "r.node as Node, " \
                 "count(c.process) as Hits, " \
                 "r.enabled as Enabled, " \
+                "r.precedence as Precedence, " \
                 "r.action as Action, " \
                 "r.duration as Duration, " \
                 "r.operator_type as RuleType, " \
+                "r.operator_sensitive as CaseSensitive, " \
                 "r.operator_operand as RuleOperand, " \
-                "r.operator_data as RuleData, " \
                 "c.uid as UserID, " \
                 "c.protocol as Protocol, " \
                 "c.dst_port as DstPort, " \
-                "c.dst_host as DstIP, " \
+                "CASE c.dst_host WHEN ''" \
+                "   THEN c.dst_ip " \
+                "   ELSE c.dst_host " \
+                "END Destination, " \
                 "c.process as Process, " \
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD " \
             "FROM rules as r, connections as c " \
-            "WHERE %s r.name = '%s' AND r.name = c.rule AND r.node = c.node GROUP BY Process, Args, UserID, DstIP, DstPort %s" % (node, data, self._get_order()))
+            "WHERE %s r.name = '%s' AND r.name = c.rule AND r.node = c.node GROUP BY Process, Args, UserID, Destination, DstPort %s" % (node, data, self._get_order()))
 
     def _set_hosts_query(self, data):
         model = self._get_active_table().model()
@@ -805,7 +810,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "count(c.dst_host) as Hits, " \
                 "c.action as Action, " \
                 "c.uid as UserID, " \
-                "c.dst_host || '  ->  ' || c.dst_port as Destination, " \
+                "CASE c.dst_host WHEN ''" \
+                "   THEN c.dst_ip || '  ->  ' || c.dst_port " \
+                "   ELSE c.dst_host || '  ->  ' || c.dst_port " \
+                "END Destination, " \
                 "c.pid as PID, " \
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD, " \
@@ -822,14 +830,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.action as Action, " \
                 "c.uid as UserID, " \
                 "c.protocol as Protocol, " \
-                "c.dst_host as DstHost, " \
+                "CASE c.dst_host WHEN ''" \
+                "   THEN c.dst_ip " \
+                "   ELSE c.dst_host " \
+                "END Destination, " \
                 "c.dst_port as DstPort, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM addrs as a, connections as c " \
-            "WHERE a.what = '%s' AND c.dst_ip = a.what GROUP BY c.pid, Process, Args, DstPort, DstHost, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
+            "WHERE a.what = '%s' AND c.dst_ip = a.what GROUP BY c.pid, Process, Args, DstPort, Destination, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
 
     def _set_ports_query(self, data):
         model = self._get_active_table().model()
@@ -841,13 +852,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.uid as UserID, " \
                 "c.protocol as Protocol, " \
                 "c.dst_ip as DstIP, " \
-                "c.dst_host as DstHost, " \
+                "CASE c.dst_host WHEN ''" \
+                "   THEN c.dst_ip " \
+                "   ELSE c.dst_host " \
+                "END Destination, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM ports as p, connections as c " \
-            "WHERE p.what = '%s' AND c.dst_port = p.what GROUP BY c.pid, Process, Args, DstHost, DstIP, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
+            "WHERE p.what = '%s' AND c.dst_port = p.what GROUP BY c.pid, Process, Args, Destination, DstIP, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
 
     def _set_users_query(self, data):
         model = self._get_active_table().model()
@@ -858,14 +872,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.action as Action, " \
                 "c.protocol as Protocol, " \
                 "c.dst_ip as DstIP, " \
-                "c.dst_host as DstHost, " \
+                "CASE c.dst_host WHEN ''" \
+                "   THEN c.dst_ip " \
+                "   ELSE c.dst_host " \
+                "END Destination, " \
                 "c.dst_port as DstPort, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM users as u, connections as c " \
-            "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, Process, Args, DstIP, DstHost, DstPort, Protocol, Action, Node %s" % (data, self._get_order()))
+            "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, Process, Args, DstIP, Destination, DstPort, Protocol, Action, Node %s" % (data, self._get_order()))
 
     def _on_save_clicked(self):
         tab_idx = self.tabWidget.currentIndex()

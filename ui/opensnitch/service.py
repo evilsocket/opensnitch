@@ -359,14 +359,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 # TODO: move to nodes.add_node()
                 # TODO: remove, and add them only ondemand
                 db.insert("rules",
-                        "(time, node, name, enabled, action, duration, operator_type, operator_operand, operator_data)",
-                            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                "%s:%s" % (proto, addr),
-                                event.rule.name, str(event.rule.enabled),
+                        "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
+                            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "%s:%s" % (proto, addr),
+                                event.rule.name, str(event.rule.enabled), str(event.rule.precedence),
                                 event.rule.action, event.rule.duration,
-                                event.rule.operator.type,
-                                event.rule.operator.operand,
-                                event.rule.operator.data),
+                                event.rule.operator.type, str(event.rule.operator.sensitive),
+                                event.rule.operator.operand, event.rule.operator.data),
                         action_on_conflict="IGNORE")
 
             details_need_refresh = self._populate_stats_details(db, addr, stats)

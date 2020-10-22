@@ -35,6 +35,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Close).clicked.connect(self._cb_close_clicked)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Apply).clicked.connect(self._cb_apply_clicked)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Help).clicked.connect(self._cb_help_clicked)
+        self.protoCheck.toggled.connect(self._cb_proto_check_toggled)
         self.procCheck.toggled.connect(self._cb_proc_check_toggled)
         self.cmdlineCheck.toggled.connect(self._cb_cmdline_check_toggled)
         self.dstPortCheck.toggled.connect(self._cb_dstport_check_toggled)
@@ -44,6 +45,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if _rule != None:
             self._load_rule(rule=_rule)
+
+    def _bool(self, s):
+        return s == 'True'
 
     def _cb_accept_clicked(self):
         pass
@@ -56,6 +60,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_help_clicked(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_URL))
+
+    def _cb_proto_check_toggled(self, state):
+        self.protoCombo.setEnabled(state)
 
     def _cb_proc_check_toggled(self, state):
         self.procLine.setEnabled(state)
@@ -128,6 +135,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.actionDenyRadio.setChecked(True)
         self.durationCombo.setCurrentIndex(0)
 
+        self.protoCheck.setChecked(False)
+        self.protoCombo.setCurrentText("")
+
         self.procCheck.setChecked(False)
         self.procLine.setText("")
             
@@ -151,6 +161,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.ruleNameEdit.setText(rule.name)
         self.enableCheck.setChecked(rule.enabled)
+        self.precedenceCheck.setChecked(rule.precedence)
         if rule.action == "deny":
             self.actionDenyRadio.setChecked(True)
         if rule.action == "allow":
@@ -167,6 +178,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._load_rule_operator(op)
     
     def _load_rule_operator(self, operator):
+        self.sensitiveCheck.setChecked(operator.sensitive)
+        if operator.operand == "protocol":
+            self.protoCheck.setChecked(True)
+            self.protoCombo.setEnabled(True)
+            self.protoCombo.setCurrentText(operator.data.upper())
+
         if operator.operand == "process.path":
             self.procCheck.setChecked(True)
             self.procLine.setEnabled(True)
@@ -216,11 +233,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _insert_rule_to_db(self, node_addr):
         self._db.insert("rules",
-            "(time, node, name, enabled, action, duration, operator_type, operator_operand, operator_data)",
+            "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
                 (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    node_addr, self.rule.name, str(self.rule.enabled),
+                    node_addr, self.rule.name,
+                    str(self.rule.enabled), str(self.rule.precedence),
                     self.rule.action, self.rule.duration, self.rule.operator.type,
-                    self.rule.operator.operand, self.rule.operator.data),
+                    self.rule.operator.operand, self.rule.operator.operand, self.rule.operator.data),
                 action_on_conflict="REPLACE")
 
     def _add_rule(self):
@@ -279,16 +297,30 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule = ui_pb2.Rule()
         self.rule.name = self.ruleNameEdit.text()
         self.rule.enabled = self.enableCheck.isChecked()
+        self.rule.precedence = self.precedenceCheck.isChecked()
         self.rule.action = "deny" if self.actionDenyRadio.isChecked() else "allow"
         self.rule.duration = self.durationCombo.currentText()
         
         rule_data = []
+        if self.protoCheck.isChecked():
+            if self.protoCombo.currentText() == "":
+                return False, "protocol can not be empty, or uncheck it"
+
+            self.rule.operator.operand = "protocol"
+            self.rule.operator.data = self.protoCombo.currentText()
+            rule_data.append({"type": "simple", "operand": "protocol", "data": self.protoCombo.currentText().lower()})
+            if self._is_regex(self.protoCombo.currentText()):
+                rule_data[len(rule_data)-1]['type'] = "regexp"
+                if self._is_valid_regex(self.protoCombo.currentText()) == False:
+                    return False, "Protocol regexp error"
+
         if self.procCheck.isChecked():
             if self.procLine.text() == "":
                 return False, "process path can not be empty"
 
             self.rule.operator.operand = "process.path"
             self.rule.operator.data = self.procLine.text()
+            self.rule.operator.sensitive = self.sensitiveCheck.isChecked()
             rule_data.append({"type": "simple", "operand": "process.path", "data": self.procLine.text()})
             if self._is_regex(self.procLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
@@ -301,6 +333,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self.rule.operator.operand = "process.command"
             self.rule.operator.data = self.cmdlineLine.text()
+            self.rule.operator.sensitive = self.sensitiveCheck.isChecked()
             rule_data.append({'type': 'simple', 'operand': 'process.command', 'data': self.cmdlineLine.text()})
             if self._is_regex(self.cmdlineLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
@@ -325,6 +358,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self.rule.operator.operand = "dest.host"
             self.rule.operator.data = self.dstHostLine.text()
+            self.rule.operator.sensitive = self.sensitiveCheck.isChecked()
             rule_data.append({'type': 'simple', 'operand': 'dest.host', 'data': self.dstHostLine.text()})
             if self._is_regex(self.dstHostLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
@@ -375,12 +409,14 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._reset_state()
 
         self.rule = ui_pb2.Rule(name=records.value(2))
-        self.rule.enabled = bool(records.value(3))
-        self.rule.action = records.value(4)
-        self.rule.duration = records.value(5)
-        self.rule.operator.type = records.value(6)
-        self.rule.operator.operand = records.value(7)
-        self.rule.operator.data = "" if records.value(8) == None else str(records.value(8))
+        self.rule.enabled = self._bool(records.value(3))
+        self.rule.precedence = self._bool(records.value(4))
+        self.rule.action = records.value(5)
+        self.rule.duration = records.value(6)
+        self.rule.operator.type = records.value(7)
+        self.rule.operator.sensitive = self._bool(str(records.value(8)))
+        self.rule.operator.operand = records.value(9)
+        self.rule.operator.data = "" if records.value(10) == None else str(records.value(10))
 
         self._old_rule_name = records.value(2)
         
