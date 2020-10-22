@@ -73,6 +73,35 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 'users':{}
                 }
 
+        if QtGui.QIcon.hasThemeIcon("document-new") == False:
+            hasFallback = "fallbackThemeName" in dir(QtGui.QIcon)
+            if hasFallback:
+                fTheme = QtGui.QIcon.fallbackThemeName()
+                if fTheme != "":
+                    QtGui.QIcon.setThemeName(fTheme)
+                else:
+                    self._set_alternative_theme()
+            else:
+                self._set_alternative_theme()
+
+
+    def _set_alternative_theme(self):
+        themes = os.listdir("/usr/share/icons")
+        try:
+            themes.remove("HighContrast")
+            themes.remove("hicolor")
+            themes.remove("locolor")
+        except Exception:
+            pass
+
+        for theme in themes:
+            QtGui.QIcon.setThemeName(theme)
+            if QtGui.QIcon.hasThemeIcon("document-new"):
+                return
+
+        if QtGui.QIcon.themeName() == "" or QtGui.QIcon.hasThemeIcon("document-new") == False:
+            self._show_theme_empty_dialog()
+
     # https://gist.github.com/pklaus/289646
     def _setup_interfaces(self):
         max_possible = 128  # arbitrary. raise if needed.
@@ -150,6 +179,16 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _show_stats_dialog(self):
         self._tray.setIcon(self.white_icon)
         self._stats_dialog.show()
+
+    def _show_theme_empty_dialog(self):
+        self._msg.setIcon(QtWidgets.QMessageBox.Warning)
+        self._msg.setWindowTitle("OpenSnitch")
+        self._msg.setText("Your Desktop Environment doesn't have an icon theme configured, " + \
+                "or it lacks of some icons (document-new, document-save)." + \
+                "\n\nPlease, use gnome-tweaks or other tool to set an icon theme."
+                )
+        self._msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        self._msg.show()
 
     @QtCore.pyqtSlot()
     def _on_status_change(self):
@@ -248,7 +287,16 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         return pw_name
 
     def _get_peer(self, peer):
+        """
+        server          -> client
+        127.0.0.1:50051 -> ipv4:127.0.0.1:52032
+        [::]:50051      -> ipv6:[::1]:59680
+        0.0.0.0:50051   -> ipv6:[::1]:59654
+        """
         p = peer.split(":")
+        # WA for backward compatibility
+        if p[0] == "unix" and p[1] == "":
+            p[1] = "local"
         return p[0], p[1]
 
     def _delete_node(self, peer):
@@ -311,14 +359,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 # TODO: move to nodes.add_node()
                 # TODO: remove, and add them only ondemand
                 db.insert("rules",
-                        "(time, node, name, enabled, action, duration, operator_type, operator_operand, operator_data)",
-                            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                "%s:%s" % (proto, addr),
-                                event.rule.name, str(event.rule.enabled),
+                        "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
+                            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "%s:%s" % (proto, addr),
+                                event.rule.name, str(event.rule.enabled), str(event.rule.precedence),
                                 event.rule.action, event.rule.duration,
-                                event.rule.operator.type,
-                                event.rule.operator.operand,
-                                event.rule.operator.data),
+                                event.rule.operator.type, str(event.rule.operator.sensitive),
+                                event.rule.operator.operand, event.rule.operator.data),
                         action_on_conflict="IGNORE")
 
             details_need_refresh = self._populate_stats_details(db, addr, stats)
@@ -405,7 +451,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         if timeout_triggered:
             _title = request.process_path
             if _title == "":
-                _title = "%s:%d (%s)" % (request.dst_host, request.dst_port, request.protocol)
+                _title = "%s:%d (%s)" % (request.dst_host if request.dst_host != "" else request.dst_ip, request.dst_port, request.protocol)
 
             self._tray.setIcon(self.alert_icon)
             self._tray.showMessage(_title, "%s action applied\nArguments: %s" % (rule.action, request.process_args), QtWidgets.QSystemTrayIcon.NoIcon, 0)

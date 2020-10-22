@@ -28,7 +28,7 @@ class Nodes():
 
     def add(self, context, client_config=None):
         try:
-            proto, _addr = self._get_addr(context.peer())
+            proto, _addr = self.get_addr(context.peer())
             addr = "%s:%s" % (proto, _addr)
             if addr not in self._nodes:
                 self._nodes[addr] = {
@@ -59,11 +59,12 @@ class Nodes():
         try:
             for _,r in enumerate(rules):
                 self._db.insert("rules",
-                        "(time, node, name, enabled, action, duration, operator_type, operator_operand, operator_data)",
+                        "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
                             (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                                 addr,
-                                r.name, str(r.enabled), r.action, r.duration,
+                                r.name, str(r.enabled), str(r.precedence), r.action, r.duration,
                                 r.operator.type,
+                                str(r.operator.sensitive),
                                 r.operator.operand,
                                 r.operator.data),
                             action_on_conflict="IGNORE")
@@ -75,7 +76,7 @@ class Nodes():
         self._nodes = {}
 
     def delete(self, peer):
-        proto, addr = self._get_addr(peer)
+        proto, addr = self.get_addr(peer)
         addr = "%s:%s" % (proto, addr)
         # Force the node to get one new item from queue,
         # in order to loop and exit.
@@ -103,8 +104,11 @@ class Nodes():
 
         return client_config
 
-    def _get_addr(self, peer):
+    def get_addr(self, peer):
         peer = peer.split(":")
+        # WA for backward compatibility
+        if peer[0] == "unix" and peer[1] == "":
+            peer[1] = "local"
         return peer[0], peer[1]
 
     def get_notifications(self):

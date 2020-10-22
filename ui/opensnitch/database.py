@@ -72,9 +72,11 @@ class Database:
                 "node text, " \
                 "name text, " \
                 "enabled text, " \
+                "precedence text, " \
                 "action text, " \
                 "duration text, " \
                 "operator_type text, " \
+                "operator_sensitive text, " \
                 "operator_operand text, " \
                 "operator_data text, " \
                 "UNIQUE(node, name)"

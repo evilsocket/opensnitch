@@ -92,7 +92,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "display_fields": "time as Time, " \
                         "node as Node, " \
                         "action as Action, " \
-                        "dst_host || '  ->  ' || dst_port as Destination, " \
+                        "CASE dst_host WHEN ''" \
+                        "   THEN dst_ip || '  ->  ' || dst_port " \
+                        "   ELSE dst_host || '  ->  ' || dst_port " \
+                        "END Destination, " \
                         "protocol as Protocol, " \
                         "process as Process, " \
                         "rule as Rule",
@@ -468,9 +471,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_table_context_menu(self, pos):
         cur_idx = self.tabWidget.currentIndex()
         table = self._get_active_table()
+        self._context_menu_active = True
         if table.selectionModel().selection().indexes():
-            self._context_menu_active = True
-
             for i in table.selectionModel().selection().indexes():
                 row, column = i.row(), i.column()
             menu = QtWidgets.QMenu()
@@ -485,6 +487,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._table_menu_delete(row, column)
 
         self._context_menu_active = False
+        self._refresh_active_table()
 
     def _table_menu_delete(self, row, column):
         cur_idx = self.tabWidget.currentIndex()
@@ -719,6 +722,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.comboAction.currentText() != "-":
             action = "Action = \"" + self.comboAction.currentText().lower() + "\""
 
+        # FIXME: use prepared statements
         if filter_text == "":
             if action != "":
                 qstr += " WHERE " + action
@@ -761,20 +765,24 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "r.node as Node, " \
                 "count(c.process) as Hits, " \
                 "r.enabled as Enabled, " \
+                "r.precedence as Precedence, " \
                 "r.action as Action, " \
                 "r.duration as Duration, " \
                 "r.operator_type as RuleType, " \
+                "r.operator_sensitive as CaseSensitive, " \
                 "r.operator_operand as RuleOperand, " \
-                "r.operator_data as RuleData, " \
                 "c.uid as UserID, " \
                 "c.protocol as Protocol, " \
                 "c.dst_port as DstPort, " \
-                "c.dst_host as DstIP, " \
+                "CASE c.dst_host WHEN ''" \
+                "   THEN c.dst_ip " \
+                "   ELSE c.dst_host " \
+                "END Destination, " \
                 "c.process as Process, " \
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD " \
             "FROM rules as r, connections as c " \
-            "WHERE %s r.name = '%s' AND r.name = c.rule AND r.node = c.node GROUP BY Process, Args, UserID, DstIP, DstPort %s" % (node, data, self._get_order()))
+            "WHERE %s r.name = '%s' AND r.name = c.rule AND r.node = c.node GROUP BY Process, Args, UserID, Destination, DstPort %s" % (node, data, self._get_order()))
 
     def _set_hosts_query(self, data):
         model = self._get_active_table().model()
@@ -802,7 +810,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "count(c.dst_host) as Hits, " \
                 "c.action as Action, " \
                 "c.uid as UserID, " \
-                "c.dst_host || '  ->  ' || c.dst_port as Destination, " \
+                "CASE c.dst_host WHEN ''" \
+                "   THEN c.dst_ip || '  ->  ' || c.dst_port " \
+                "   ELSE c.dst_host || '  ->  ' || c.dst_port " \
+                "END Destination, " \
                 "c.pid as PID, " \
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD, " \
@@ -819,14 +830,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.action as Action, " \
                 "c.uid as UserID, " \
                 "c.protocol as Protocol, " \
-                "c.dst_host as DstHost, " \
+                "CASE c.dst_host WHEN ''" \
+                "   THEN c.dst_ip " \
+                "   ELSE c.dst_host " \
+                "END Destination, " \
                 "c.dst_port as DstPort, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM addrs as a, connections as c " \
-            "WHERE a.what = '%s' AND c.dst_ip = a.what GROUP BY c.pid, Process, Args, DstPort, DstHost, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
+            "WHERE a.what = '%s' AND c.dst_ip = a.what GROUP BY c.pid, Process, Args, DstPort, Destination, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
 
     def _set_ports_query(self, data):
         model = self._get_active_table().model()
@@ -838,13 +852,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.uid as UserID, " \
                 "c.protocol as Protocol, " \
                 "c.dst_ip as DstIP, " \
-                "c.dst_host as DstHost, " \
+                "CASE c.dst_host WHEN ''" \
+                "   THEN c.dst_ip " \
+                "   ELSE c.dst_host " \
+                "END Destination, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM ports as p, connections as c " \
-            "WHERE p.what = '%s' AND c.dst_port = p.what GROUP BY c.pid, Process, Args, DstHost, DstIP, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
+            "WHERE p.what = '%s' AND c.dst_port = p.what GROUP BY c.pid, Process, Args, Destination, DstIP, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
 
     def _set_users_query(self, data):
         model = self._get_active_table().model()
@@ -855,14 +872,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.action as Action, " \
                 "c.protocol as Protocol, " \
                 "c.dst_ip as DstIP, " \
-                "c.dst_host as DstHost, " \
+                "CASE c.dst_host WHEN ''" \
+                "   THEN c.dst_ip " \
+                "   ELSE c.dst_host " \
+                "END Destination, " \
                 "c.dst_port as DstPort, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM users as u, connections as c " \
-            "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, Process, Args, DstIP, DstHost, DstPort, Protocol, Action, Node %s" % (data, self._get_order()))
+            "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, Process, Args, DstIP, Destination, DstPort, Protocol, Action, Node %s" % (data, self._get_order()))
 
     def _on_save_clicked(self):
         tab_idx = self.tabWidget.currentIndex()
@@ -982,5 +1002,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if self._context_menu_active == False:
                     model.query().clear()
                     model.setQuery(q, self._db_sqlite)
+                    if model.lastError().isValid():
+                        print("setQuery() error: ", model.lastError().text())
             except Exception as e:
                 print(self._address, "setQuery() exception: ", e)
