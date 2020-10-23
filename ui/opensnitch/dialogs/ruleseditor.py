@@ -174,7 +174,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             rule_options = json.loads(self.rule.operator.data)
             for r in rule_options:
-                op = ui_pb2.Operator(type=r['type'], operand=r['operand'], data=r['data'])
+                _sensitive = False
+                if 'sensitive' in r:
+                    _sensitive = r['sensitive']
+
+                op = ui_pb2.Operator(type=r['type'], operand=r['operand'], data=r['data'], sensitive=_sensitive)
                 self._load_rule_operator(op)
     
     def _load_rule_operator(self, operator):
@@ -238,7 +242,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     node_addr, self.rule.name,
                     str(self.rule.enabled), str(self.rule.precedence),
                     self.rule.action, self.rule.duration, self.rule.operator.type,
-                    self.rule.operator.operand, self.rule.operator.operand, self.rule.operator.data),
+                    str(self.rule.operator.sensitive), self.rule.operator.operand, self.rule.operator.data),
                 action_on_conflict="REPLACE")
 
     def _add_rule(self):
@@ -301,6 +305,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule.action = "deny" if self.actionDenyRadio.isChecked() else "allow"
         self.rule.duration = self.durationCombo.currentText()
         
+        # FIXME: there should be a sensitive checkbox per operand
+        self.rule.operator.sensitive = self.sensitiveCheck.isChecked()
         rule_data = []
         if self.protoCheck.isChecked():
             if self.protoCombo.currentText() == "":
@@ -308,7 +314,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self.rule.operator.operand = "protocol"
             self.rule.operator.data = self.protoCombo.currentText()
-            rule_data.append({"type": "simple", "operand": "protocol", "data": self.protoCombo.currentText().lower()})
+            rule_data.append(
+                    {
+                        "type": "simple",
+                        "operand": "protocol",
+                        "data": self.protoCombo.currentText().lower(),
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
             if self._is_regex(self.protoCombo.currentText()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.protoCombo.currentText()) == False:
@@ -320,8 +332,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self.rule.operator.operand = "process.path"
             self.rule.operator.data = self.procLine.text()
-            self.rule.operator.sensitive = self.sensitiveCheck.isChecked()
-            rule_data.append({"type": "simple", "operand": "process.path", "data": self.procLine.text()})
+            rule_data.append(
+                    {
+                        "type": "simple",
+                        "operand": "process.path",
+                        "data": self.procLine.text(),
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
             if self._is_regex(self.procLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.procLine.text()) == False:
@@ -333,8 +350,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self.rule.operator.operand = "process.command"
             self.rule.operator.data = self.cmdlineLine.text()
-            self.rule.operator.sensitive = self.sensitiveCheck.isChecked()
-            rule_data.append({'type': 'simple', 'operand': 'process.command', 'data': self.cmdlineLine.text()})
+            rule_data.append(
+                    {
+                        'type': 'simple',
+                        'operand': 'process.command',
+                        'data': self.cmdlineLine.text(),
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
             if self._is_regex(self.cmdlineLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.cmdlineLine.text()) == False:
@@ -346,7 +368,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self.rule.operator.operand = "dest.port"
             self.rule.operator.data = self.dstPortLine.text()
-            rule_data.append({'type': 'simple', 'operand': 'dest.port', 'data': self.dstPortLine.text()})
+            rule_data.append(
+                    {
+                        'type': 'simple',
+                        'operand': 'dest.port',
+                        'data': self.dstPortLine.text(),
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
             if self._is_regex(self.dstPortLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.dstPortLine.text()) == False:
@@ -358,8 +386,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self.rule.operator.operand = "dest.host"
             self.rule.operator.data = self.dstHostLine.text()
-            self.rule.operator.sensitive = self.sensitiveCheck.isChecked()
-            rule_data.append({'type': 'simple', 'operand': 'dest.host', 'data': self.dstHostLine.text()})
+            rule_data.append(
+                    {
+                        'type': 'simple',
+                        'operand': 'dest.host',
+                        'data': self.dstHostLine.text(),
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
             if self._is_regex(self.dstHostLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.dstHostLine.text()) == False:
@@ -371,7 +404,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self.rule.operator.operand = "dest.ip"
             self.rule.operator.data = self.dstIPLine.text()
-            rule_data.append({'type': 'simple', 'operand': 'dest.ip', 'data': self.dstIPLine.text()})
+            rule_data.append(
+                    {
+                        'type': 'simple',
+                        'operand': 'dest.ip',
+                        'data': self.dstIPLine.text(),
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
             if self._is_regex(self.dstIPLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.dstIPLine.text()) == False:
@@ -383,7 +422,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self.rule.operator.operand = "user.id"
             self.rule.operator.data = self.uidLine.text()
-            rule_data.append({'type': 'simple', 'operand': 'user.id', 'data': self.uidLine.text()})
+            rule_data.append(
+                    {
+                        'type': 'simple',
+                        'operand': 'user.id',
+                        'data': self.uidLine.text(),
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
             if self._is_regex(self.uidLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.uidLine.text()) == False:
@@ -414,7 +459,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule.action = records.value(5)
         self.rule.duration = records.value(6)
         self.rule.operator.type = records.value(7)
-        self.rule.operator.sensitive = self._bool(str(records.value(8)))
+        self.rule.operator.sensitive = self._bool(records.value(8))
         self.rule.operator.operand = records.value(9)
         self.rule.operator.data = "" if records.value(10) == None else str(records.value(10))
 
