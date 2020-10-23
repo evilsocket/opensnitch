@@ -41,6 +41,27 @@ func SetMonitorMethod(newMonitorMethod string) {
 	monitorMethod = newMonitorMethod
 }
 
+func methodIsFtrace() bool {
+	lock.RLock()
+	defer lock.RUnlock()
+
+	return monitorMethod == MethodFtrace
+}
+
+func methodIsAudit() bool {
+	lock.RLock()
+	defer lock.RUnlock()
+
+	return monitorMethod == MethodAudit
+}
+
+func methodIsProc() bool {
+	lock.RLock()
+	defer lock.RUnlock()
+
+	return monitorMethod == MethodProc
+}
+
 // End stops the way of parsing new connections.
 func End() {
 	lock.Lock()
@@ -55,19 +76,16 @@ func End() {
 
 // Init starts parsing connections using the method specified.
 func Init() {
-	lock.Lock()
-	defer lock.Unlock()
-
-	if monitorMethod == MethodFtrace {
+	if methodIsFtrace() {
 		if err := Start(); err == nil {
 			return
 		}
-	} else if monitorMethod == MethodAudit {
+	} else if methodIsAudit() {
 		if c, err := audit.Start(); err == nil {
 			go audit.Reader(c, (chan<- audit.Event)(audit.EventChan))
 			return
 		}
 	}
 	log.Info("Process monitor parsing /proc")
-	monitorMethod = MethodProc
+	SetMonitorMethod(MethodProc)
 }
