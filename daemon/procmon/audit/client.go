@@ -256,12 +256,13 @@ func Reader(r io.Reader, eventChan chan<- Event) {
 				}
 				continue
 			}
-			log.Error("AuditReader: auditd error", err)
+			log.Warning("AuditReader: auditd error", err)
 			break
 		}
 
 		parseEvent(string(buf[0:len(buf)]), eventChan)
 	}
+	log.Info("audit.Reader() closed")
 }
 
 // StartChannel creates a channel to receive events from Audit.
@@ -286,7 +287,9 @@ func connect() (net.Conn, error) {
 // Stop stops listening for events from auditd and delete the auditd rules.
 func Stop() {
 	if auditConn != nil {
-		auditConn.Close()
+		if err := auditConn.Close(); err != nil {
+			log.Warning("audit.Stop() error closing socket: %v", err)
+		}
 	}
 
 	deleteRules()
@@ -297,14 +300,13 @@ func Stop() {
 
 // Start makes a new connection to the audisp af_unix socket.
 func Start() (net.Conn, error) {
-	c, err := connect()
+	auditConn, err := connect()
 	if err != nil {
-		log.Error("auditd connection error %v", err)
+		log.Error("auditd Start() connection error %v", err)
 		deleteRules()
 		return nil, err
 	}
-	auditConn = c
 
 	configureSyscalls()
-	return c, err
+	return auditConn, err
 }
