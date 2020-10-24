@@ -10,6 +10,18 @@ import (
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/rule"
 )
 
+func (c *Client) isProcMonitorEqual(newMonitorMethod string) bool {
+	config.RLock()
+	defer config.RUnlock()
+
+	return newMonitorMethod == config.ProcMonitorMethod
+}
+
+func (c *Client) parseConf(rawConfig string) (conf Config, err error) {
+	err = json.Unmarshal([]byte(rawConfig), &conf)
+	return conf, err
+}
+
 func (c *Client) loadDiskConfiguration(reload bool) {
 	raw, err := ioutil.ReadFile(configFile)
 	if err != nil {
@@ -57,13 +69,7 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	return true
 }
 
-func (c *Client) saveConfiguration(rawConfig string) error {
-	conf, err := json.Marshal([]byte(rawConfig))
-	if err != nil {
-		log.Error("saving json configuration: ", err, conf)
-		return err
-	}
-
+func (c *Client) saveConfiguration(rawConfig string) (err error) {
 	if c.loadConfiguration([]byte(rawConfig)) != true {
 		return fmt.Errorf("Error parsing configuration %s: %s", rawConfig, err)
 	}

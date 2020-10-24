@@ -1,8 +1,6 @@
 package procmon
 
 import (
-	"time"
-
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon/audit"
 )
@@ -24,13 +22,6 @@ func NewProcess(pid int, path string) *Process {
 		Args: make([]string, 0),
 		Env:  make(map[string]string),
 	}
-}
-
-// Reload stops the current monitor method and starts it again.
-func Reload() {
-	End()
-	time.Sleep(1 * time.Second)
-	Init()
 }
 
 // SetMonitorMethod configures a new method for parsing connections.
@@ -64,28 +55,38 @@ func methodIsProc() bool {
 
 // End stops the way of parsing new connections.
 func End() {
-	lock.Lock()
-	defer lock.Unlock()
-
-	if monitorMethod == MethodAudit {
+	if methodIsAudit() {
 		audit.Stop()
-	} else if monitorMethod == MethodFtrace {
-		go Stop()
+	} else if methodIsFtrace() {
+		go func() {
+			if err := Stop(); err != nil {
+				log.Warning("procmon.End() stop ftrace error: %v", err)
+			}
+		}()
 	}
 }
 
 // Init starts parsing connections using the method specified.
 func Init() {
 	if methodIsFtrace() {
-		if err := Start(); err == nil {
+		err := Start()
+		if err == nil {
+			log.Info("Process monitor method ftrace")
 			return
 		}
+		log.Warning("error starting ftrace monitor method: %v", err)
+
 	} else if methodIsAudit() {
-		if c, err := audit.Start(); err == nil {
-			go audit.Reader(c, (chan<- audit.Event)(audit.EventChan))
+		auditConn, err := audit.Start()
+		if err == nil {
+			log.Info("Process monitor method audit")
+			go audit.Reader(auditConn, (chan<- audit.Event)(audit.EventChan))
 			return
 		}
+		log.Warning("error starting audit monitor method: %v", err)
 	}
-	log.Info("Process monitor parsing /proc")
+
+	// if any of the above methods have failed, fallback to proc
+	log.Info("Process monitor method /proc")
 	SetMonitorMethod(MethodProc)
 }

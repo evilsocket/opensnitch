@@ -52,13 +52,29 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 	switch {
 	case notification.Type == protocol.Action_CHANGE_CONFIG:
 		log.Info("[notification] Reloading configuration")
+		// Parse receid configuration first, to get the new proc monitor method.
+		newConf, err := c.parseConf(notification.Data)
+		if err != nil {
+			log.Warning("[notification] error parsing received config: %v", notification.Data)
+			c.sendNotificationReply(stream, notification.Id, err)
+			return
+		}
+
+		// check if the current monitor method is different from the one received.
+		// in such case close the current method, and start the new one.
+		procMonitorEqual := c.isProcMonitorEqual(newConf.ProcMonitorMethod)
+		if procMonitorEqual == false {
+			procmon.End()
+		}
+
 		// this save operation triggers a re-loadConfiguration()
-		err := c.saveConfiguration(notification.Data)
+		err = c.saveConfiguration(notification.Data)
 		if err != nil {
 			log.Warning("[notification] CHANGE_CONFIG not applied", err)
+		} else if err == nil && procMonitorEqual == false {
+			procmon.Init()
 		}
-		// XXX: can the Reload() happen before finishing loading conf?
-		procmon.Reload()
+
 		c.sendNotificationReply(stream, notification.Id, err)
 
 	case notification.Type == protocol.Action_LOAD_FIREWALL:
