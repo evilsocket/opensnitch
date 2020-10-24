@@ -7,59 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>599</width>
-    <height>334</height>
+    <height>355</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Preferences</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cancelButton">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-       <property name="icon">
-        <iconset theme="window-close">
-         <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="applyButton">
-       <property name="text">
-        <string>Apply</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="acceptButton">
-       <property name="text">
-        <string>Save</string>
-       </property>
-       <property name="icon">
-        <iconset theme="emblem-default">
-         <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="sizePolicy">
@@ -85,6 +39,106 @@
        <string>UI</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Prompt dialog default position on screen</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QComboBox" name="comboUIDialogPos">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>center</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>top right</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>bottom right</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>top left</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>bottom left</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Default timeout</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="QComboBox" name="comboUITarget">
+         <item>
+          <property name="text">
+           <string>by executable</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>by command line</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>by destination port</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>by destination ip</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>by user id</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="toolTip">
+          <string>Pop-up default duration</string>
+         </property>
+         <property name="text">
+          <string>Default duration</string>
+         </property>
+        </widget>
+       </item>
        <item row="2" column="3">
         <widget class="QComboBox" name="comboUIDuration">
          <property name="sizePolicy">
@@ -135,75 +189,6 @@
          </item>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Default target</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Default action</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Default duration</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="3">
-        <widget class="QComboBox" name="comboUITarget">
-         <item>
-          <property name="text">
-           <string>by executable</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>by command line</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>by destination port</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>by destination ip</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>by user id</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="0" column="3">
         <widget class="QSpinBox" name="spinUITimeout">
          <property name="sizePolicy">
@@ -234,7 +219,7 @@
           </property>
           <property name="icon">
            <iconset theme="emblem-important">
-            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
          </item>
          <item>
@@ -243,66 +228,44 @@
           </property>
           <property name="icon">
            <iconset theme="emblem-default">
-            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
          </item>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Pop-up default action</string>
+         </property>
+         <property name="text">
+          <string>Default action</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_5">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Default timeout</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="3">
-        <widget class="QComboBox" name="comboUIDialogPos">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>center</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>top right</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bottom right</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>top left</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bottom left</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Prompt dialog default position on screen</string>
+          <string>Default target</string>
          </property>
         </widget>
        </item>
@@ -313,6 +276,33 @@
        <string>Nodes</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Process monitor method</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Default duration</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QComboBox" name="comboNodes">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="2">
         <spacer name="horizontalSpacer_3">
          <property name="orientation">
@@ -329,45 +319,31 @@
          </property>
         </spacer>
        </item>
-       <item row="10" column="0">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Intercept Unknown Connections</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QComboBox" name="comboNodes">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_9">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Default duration</string>
+          <string>Version</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="3">
-        <widget class="QCheckBox" name="checkInterceptUnknown">
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Default action</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="3">
+        <widget class="QLabel" name="labelNodeVersion">
          <property name="text">
           <string/>
          </property>
@@ -392,30 +368,10 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="3">
-        <widget class="QLabel" name="labelNodeName">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_8">
          <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>Default action</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Version</string>
+          <string>HostName</string>
          </property>
         </widget>
        </item>
@@ -434,88 +390,6 @@
           </size>
          </property>
         </spacer>
-       </item>
-       <item row="0" column="3">
-        <widget class="QCheckBox" name="checkApplyToNodes">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Apply configuration to all nodes</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="3">
-        <widget class="QLabel" name="labelNodeVersion">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="3">
-        <widget class="QComboBox" name="comboNodeDuration">
-         <item>
-          <property name="text">
-           <string>once</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>until restart</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>always</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="3" column="3">
-        <widget class="QComboBox" name="comboNodeAction">
-         <item>
-          <property name="text">
-           <string>deny</string>
-          </property>
-          <property name="icon">
-           <iconset theme="emblem-important">
-            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>allow</string>
-          </property>
-          <property name="icon">
-           <iconset theme="emblem-default">
-            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>Process monitor method</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>Default log level</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>HostName</string>
-         </property>
-        </widget>
        </item>
        <item row="7" column="3">
         <widget class="QComboBox" name="comboNodeLogLevel">
@@ -549,6 +423,103 @@
            <string>FATAL</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="QComboBox" name="comboNodeAction">
+         <property name="editable">
+          <bool>false</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>deny all</string>
+          </property>
+          <property name="icon">
+           <iconset theme="emblem-important">
+            <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>deny only supported protocols</string>
+          </property>
+          <property name="icon">
+           <iconset theme="dialog-warning">
+            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>allow</string>
+          </property>
+          <property name="icon">
+           <iconset theme="emblem-default">
+            <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Default log level</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_12">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, opensnitch will prompt you to allow or deny connections that don't have an asocciated PID, due to several reasons.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Intercept Unknown Connections</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLabel" name="labelNodeName">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QComboBox" name="comboNodeDuration">
+         <item>
+          <property name="text">
+           <string>once</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>until restart</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>always</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QCheckBox" name="checkApplyToNodes">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Apply configuration to all nodes</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="3">
+        <widget class="QCheckBox" name="checkInterceptUnknown">
+         <property name="text">
+          <string/>
+         </property>
         </widget>
        </item>
       </layout>
@@ -634,6 +605,59 @@
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+       <property name="icon">
+        <iconset theme="window-close">
+         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="applyButton">
+       <property name="text">
+        <string>Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="acceptButton">
+       <property name="text">
+        <string>Save</string>
+       </property>
+       <property name="icon">
+        <iconset theme="emblem-default">
+         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="statusLabel">
+     <property name="text">
+      <string/>
+     </property>
     </widget>
    </item>
   </layout>

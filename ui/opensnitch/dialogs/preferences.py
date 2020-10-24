@@ -17,6 +17,7 @@ DIALOG_UI_PATH = "%s/../res/preferences.ui" % os.path.dirname(sys.modules[__name
 class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     
     LOG_TAG = "[Preferences] "
+    _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
@@ -24,15 +25,18 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
 
+        self._notification_callback.connect(self._cb_notification_callback)
+        self._notifications_sent = {}
+
         self.setupUi(self)
-    
+
         self._accept_button = self.findChild(QtWidgets.QPushButton, "acceptButton")
         self._accept_button.clicked.connect(self._cb_accept_button_clicked)
         self._apply_button = self.findChild(QtWidgets.QPushButton, "applyButton")
         self._apply_button.clicked.connect(self._cb_apply_button_clicked)
         self._cancel_button = self.findChild(QtWidgets.QPushButton, "cancelButton")
         self._cancel_button.clicked.connect(self._cb_cancel_button_clicked)
-        
+
         self._default_timeout_button = self.findChild(QtWidgets.QSpinBox, "spinUITimeout")
         self._default_action_combo = self.findChild(QtWidgets.QComboBox, "comboUIAction")
         self._default_target_combo = self.findChild(QtWidgets.QComboBox, "comboUITarget")
@@ -54,6 +58,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         super(PreferencesDialog, self).showEvent(event)
         
         try:
+            self._set_status_message("")
+            self._hide_status_label()
             self._nodes_combo.clear()
 
             self._node_list = self._nodes.get()
@@ -121,40 +127,70 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._node_version_label.setText("")
 
     def _save_settings(self):
-        self._cfg.setSettings("global/default_action", self._default_action_combo.currentText())
-        self._cfg.setSettings("global/default_duration", self._default_duration_combo.currentText())
-        self._cfg.setSettings("global/default_target", self._default_target_combo.currentIndex())
-        self._cfg.setSettings("global/default_timeout", self._default_timeout_button.value())
+        if self.tabWidget.currentIndex() == 0:
+            self._cfg.setSettings("global/default_action", self._default_action_combo.currentText())
+            self._cfg.setSettings("global/default_duration", self._default_duration_combo.currentText())
+            self._cfg.setSettings("global/default_target", self._default_target_combo.currentIndex())
+            self._cfg.setSettings("global/default_timeout", self._default_timeout_button.value())
         
-        addr = self._nodes_combo.currentText()
-        if (self._node_needs_update or self._node_apply_all_check.isChecked()) and addr != "":
-            try:
-                node_config = "{\"DefaultAction\": \"" + self._node_action_combo.currentText() + "\"" \
-                + ", \"DefaultDuration\": \"" + self._node_duration_combo.currentText() + "\"" \
-                + ", \"ProcMonitorMethod\": \"" + self._node_monitor_method_combo.currentText() + "\"" \
-                + ", \"InterceptUnknown\": " + str(self._node_intercept_unknown_check.isChecked()).lower() \
-                + ", \"LogLevel\": " + str(self._node_loglevel_combo.currentIndex()) \
-                + "}"
-                notif = ui_pb2.Notification(
-                        id=int(str(time.time()).replace(".", "")),
-                        type=ui_pb2.CHANGE_CONFIG,
-                        data=node_config,
-                        rules=[])
-                if self._node_apply_all_check.isChecked():
-                    self._nodes.save_nodes_config(node_config)
-                    self._nodes.send_notifications(notif)
-                else:
-                    self._nodes.save_node_config(addr, node_config)
-                    self._nodes.send_notification(addr, notif)
-            except Exception as e:
-                print(self.LOG_TAG + "exception saving config: ", e)
+        elif self.tabWidget.currentIndex() == 1:
+            addr = self._nodes_combo.currentText()
+            if (self._node_needs_update or self._node_apply_all_check.isChecked()) and addr != "":
+                try:
+                    node_config = "{\"DefaultAction\": \"" + self._node_action_combo.currentText() + "\"" \
+                    + ", \"DefaultDuration\": \"" + self._node_duration_combo.currentText() + "\"" \
+                    + ", \"ProcMonitorMethod\": \"" + self._node_monitor_method_combo.currentText() + "\"" \
+                    + ", \"InterceptUnknown\": " + str(self._node_intercept_unknown_check.isChecked()).lower() \
+                    + ", \"LogLevel\": " + str(self._node_loglevel_combo.currentIndex()) \
+                    + "}"
+                    notif = ui_pb2.Notification(
+                            id=int(str(time.time()).replace(".", "")),
+                            type=ui_pb2.CHANGE_CONFIG,
+                            data=node_config,
+                            rules=[])
+                    if self._node_apply_all_check.isChecked():
+                        self._nodes.save_nodes_config(node_config)
+                        nid = self._nodes.send_notifications(notif, self._notification_callback)
+                    else:
+                        self._nodes.save_node_config(addr, node_config)
+                        nid = self._nodes.send_notification(addr, notif, self._notification_callback)
+
+                    self._notifications_sent[nid] = notif
+                except Exception as e:
+                    print(self.LOG_TAG + "exception saving config: ", e)
         
-        self._node_needs_update = False
+            self._node_needs_update = False
+
+    def _hide_status_label(self):
+        self.statusLabel.hide()
+
+    def _show_status_label(self):
+        self.statusLabel.show()
+
+    def _set_status_error(self, msg):
+        self.statusLabel.setStyleSheet('color: red')
+        self.statusLabel.setText(msg)
+
+    def _set_status_message(self, msg):
+        self.statusLabel.setStyleSheet('color: green')
+        self.statusLabel.setText(msg)
+
+    @QtCore.pyqtSlot(ui_pb2.NotificationReply)
+    def _cb_notification_callback(self, reply):
+        #print(self.LOG_TAG, "Config notification received: ", reply.id, reply.code)
+        if reply.id in self._notifications_sent:
+            self._show_status_label()
+            if reply.code == ui_pb2.OK:
+                self._set_status_message("Configuration saved.")
+            else:
+                self._set_status_error("Error saving configuration: %s" % reply.data)
+
+            del self._notifications_sent[reply.id]
 
     def _cb_accept_button_clicked(self):
         self._save_settings()
         self.accept()
-    
+
     def _cb_apply_button_clicked(self):
         self._save_settings()
     
