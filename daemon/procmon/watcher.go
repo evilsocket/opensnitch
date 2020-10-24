@@ -6,8 +6,10 @@ import (
 	"sync"
 
 	"github.com/evilsocket/ftrace"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
+// monitor method supported types
 const (
 	MethodFtrace = "ftrace"
 	MethodProc   = "proc"
@@ -102,9 +104,14 @@ func eventConsumer() {
 	}
 }
 
+// Start enables the ftrace monitor method.
+// This method configures a kprobe to intercept execve() syscalls.
+// The kernel must have configured and enabled debugfs.
 func Start() (err error) {
 	// start from a clean state
-	watcher.Reset()
+	if err := watcher.Reset(); err != nil && watcher.Enabled() {
+		log.Warning("ftrace.Reset() error: %v", err)
+	}
 
 	if err = watcher.Enable(); err == nil {
 		isAvailable = true
@@ -118,15 +125,19 @@ func Start() (err error) {
 				}
 			}
 		}
+	} else {
+		isAvailable = false
 	}
 	return
 }
 
+// Stop disables ftrace monitor method, removing configured kprobe.
 func Stop() error {
 	isAvailable = false
 	return watcher.Disable()
 }
 
+// IsWatcherAvailable checks if ftrace (debugfs) is
 func IsWatcherAvailable() bool {
 	return isAvailable
 }
