@@ -568,7 +568,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if idx == StatsDialog.COL_NODE:
             cur_idx = 1
             self.tabWidget.setCurrentIndex(cur_idx)
-            self._set_nodes_query(data)
+            p, addr = self._nodes.get_addr(data)
+            self._set_nodes_query(addr)
         elif idx == StatsDialog.COL_PROCS:
             cur_idx = 4
             self.tabWidget.setCurrentIndex(cur_idx)
