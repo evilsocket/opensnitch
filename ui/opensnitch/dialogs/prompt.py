@@ -118,6 +118,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return self._rule, self._timeout_triggered
 
     def _timeout_worker(self):
+        if self._tick == 0:
+            self._timeout_trigger.emit()
+            return
+
         while self._tick > 0 and self._done.is_set() is False:
             t = threading.currentThread()
             # stop only stops the coundtdown, not the thread itself.
@@ -136,7 +140,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     @QtCore.pyqtSlot()
     def on_connection_prompt_triggered(self):
         self._render_connection(self._con)
-        self.show()
+        if self._tick > 0:
+            self.show()
 
     @QtCore.pyqtSlot()
     def on_tick_triggered(self):
@@ -180,8 +185,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self.denyButton.setText("%s (%d)" % (self._deny_text, self._tick))
             self.applyButton.setText(self._apply_text)
-
-
         self.checkAdvanced.setFocus()
 
     def _render_connection(self, con):
@@ -255,18 +258,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.whatCombo.addItem("from user %s" % uid, "user_id")
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
-            try:
-                # get the domain that a process is trying to resolve. format: 1.1.1.1 (host.example.com)
-                dst_host_regexp = re.search("(.*)\s\((.*)\)", con.dst_host)
-            except Exception:
-                pass
-
-            dst_host = con.dst_host
-            if dst_host_regexp != None and len(dst_host_regexp.groups()) == 2:
-                dst_host = dst_host_regexp.group(2)
-                print("host regexp: " + dst_host)
-
-            self._add_dsthost_to_combo(dst_host)
+            self._add_dsthost_to_combo(con.dst_host)
 
         self.whatIPCombo.addItem("to %s" % con.dst_ip, "dst_ip")
 
@@ -379,9 +371,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
         self._rule = ui_pb2.Rule(name="user.choice")
         self._rule.enabled = True
-
         self._rule.action = self._default_action
-
         self._rule.duration = self._get_duration(self.durationCombo.currentIndex())
 
         what_idx = self.whatCombo.currentIndex()

@@ -93,7 +93,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;p&gt;Set it to 0 to avoid displaying the pop-up. Instead, you'll see a warning that the default action has been applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Default timeout</string>
@@ -432,20 +432,11 @@
          </property>
          <item>
           <property name="text">
-           <string>deny all</string>
+           <string>deny</string>
           </property>
           <property name="icon">
            <iconset theme="emblem-important">
             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>deny only supported protocols</string>
-          </property>
-          <property name="icon">
-           <iconset theme="dialog-warning">
-            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
           </property>
          </item>
          <item>
