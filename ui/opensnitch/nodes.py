@@ -93,6 +93,16 @@ class Nodes():
         except Exception as e:
             return None
 
+    def get_nodes(self):
+        return self._nodes
+
+    def get_node_config(self, addr):
+        try:
+            return self._nodes[addr]['data'].config
+        except Exception as e:
+            print(self.LOG_TAG + " exception get_node_config(): ", e)
+            return None
+
     def get_client_config(self, client_config):
         try:
             node_config = json.loads(client_config.config)
