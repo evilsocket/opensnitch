@@ -15,6 +15,11 @@ import ui_pb2
 
 DIALOG_UI_PATH = "%s/../res/preferences.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
+
+    CFG_DEFAULT_ACTION   = "global/default_action"
+    CFG_DEFAULT_DURATION = "global/default_duration"
+    CFG_DEFAULT_TARGET   = "global/default_target"
+    CFG_DEFAULT_TIMEOUT  = "global/default_timeout"
     
     LOG_TAG = "[Preferences] "
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
@@ -42,7 +47,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._default_target_combo = self.findChild(QtWidgets.QComboBox, "comboUITarget")
         self._default_duration_combo = self.findChild(QtWidgets.QComboBox, "comboUIDuration")
         self._dialog_pos_combo = self.findChild(QtWidgets.QComboBox, "comboUIDialogPos")
-        
+
         self._nodes_combo = self.findChild(QtWidgets.QComboBox, "comboNodes")
         self._node_action_combo = self.findChild(QtWidgets.QComboBox, "comboNodeAction")
         self._node_duration_combo = self.findChild(QtWidgets.QComboBox, "comboNodeDuration")
@@ -51,14 +56,14 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._node_intercept_unknown_check = self.findChild(QtWidgets.QCheckBox, "checkInterceptUnknown")
         self._node_name_label = self.findChild(QtWidgets.QLabel, "labelNodeName")
         self._node_version_label = self.findChild(QtWidgets.QLabel, "labelNodeVersion")
-        
+
         self._node_apply_all_check = self.findChild(QtWidgets.QCheckBox, "checkApplyToNodes")
 
     def showEvent(self, event):
         super(PreferencesDialog, self).showEvent(event)
         
         try:
-            self._set_status_message("")
+            self._reset_status_message()
             self._hide_status_label()
             self._nodes_combo.clear()
 
@@ -87,10 +92,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._node_needs_update = False
 
     def _load_settings(self):
-        self._default_action = self._cfg.getSettings("global/default_action")
-        self._default_duration = self._cfg.getSettings("global/default_duration")
-        self._default_target = self._cfg.getSettings("global/default_target")
-        self._default_timeout = self._cfg.getSettings("global/default_timeout")
+        self._default_action = self._cfg.getSettings(self.CFG_DEFAULT_ACTION)
+        self._default_duration = self._cfg.getSettings(self.CFG_DEFAULT_DURATION)
+        self._default_target = self._cfg.getSettings(self.CFG_DEFAULT_TARGET)
+        self._default_timeout = self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)
 
         self._default_duration_combo.setCurrentText(self._default_duration)
         self._default_action_combo.setCurrentText(self._default_action)
@@ -127,32 +132,32 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._node_version_label.setText("")
 
     def _save_settings(self):
+        self._show_status_label()
+        self._set_status_message("Applying configuration...")
+
         if self.tabWidget.currentIndex() == 0:
-            self._cfg.setSettings("global/default_action", self._default_action_combo.currentText())
-            self._cfg.setSettings("global/default_duration", self._default_duration_combo.currentText())
-            self._cfg.setSettings("global/default_target", self._default_target_combo.currentIndex())
-            self._cfg.setSettings("global/default_timeout", self._default_timeout_button.value())
+            self._cfg.setSettings(self.CFG_DEFAULT_ACTION, self._default_action_combo.currentText())
+            self._cfg.setSettings(self.CFG_DEFAULT_DURATION, self._default_duration_combo.currentText())
+            self._cfg.setSettings(self.CFG_DEFAULT_TARGET, self._default_target_combo.currentIndex())
+            self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, self._default_timeout_button.value())
         
         elif self.tabWidget.currentIndex() == 1:
             addr = self._nodes_combo.currentText()
             if (self._node_needs_update or self._node_apply_all_check.isChecked()) and addr != "":
                 try:
-                    node_config = "{\"DefaultAction\": \"" + self._node_action_combo.currentText() + "\"" \
-                    + ", \"DefaultDuration\": \"" + self._node_duration_combo.currentText() + "\"" \
-                    + ", \"ProcMonitorMethod\": \"" + self._node_monitor_method_combo.currentText() + "\"" \
-                    + ", \"InterceptUnknown\": " + str(self._node_intercept_unknown_check.isChecked()).lower() \
-                    + ", \"LogLevel\": " + str(self._node_loglevel_combo.currentIndex()) \
-                    + "}"
                     notif = ui_pb2.Notification(
                             id=int(str(time.time()).replace(".", "")),
                             type=ui_pb2.CHANGE_CONFIG,
-                            data=node_config,
+                            data="",
                             rules=[])
                     if self._node_apply_all_check.isChecked():
-                        self._nodes.save_nodes_config(node_config)
-                        nid = self._nodes.send_notifications(notif, self._notification_callback)
+                        for addr in self._nodes.get_nodes():
+                            notif.data = self._load_node_config(addr)
+                            self._nodes.save_node_config(addr, notif.data)
+                            nid = self._nodes.send_notification(addr, notif, self._notification_callback)
                     else:
-                        self._nodes.save_node_config(addr, node_config)
+                        notif.data = self._load_node_config(addr)
+                        self._nodes.save_node_config(addr, notif.data)
                         nid = self._nodes.send_notification(addr, notif, self._notification_callback)
 
                     self._notifications_sent[nid] = notif
@@ -160,6 +165,15 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     print(self.LOG_TAG + "exception saving config: ", e)
         
             self._node_needs_update = False
+
+    def _load_node_config(self, addr):
+        node_config = json.loads(self._nodes.get_node_config(addr))
+        node_config['DefaultAction'] = self._node_action_combo.currentText()
+        node_config['DefaultDuration'] = self._node_duration_combo.currentText()
+        node_config['ProcMonitorMethod'] = self._node_monitor_method_combo.currentText()
+        node_config['LogLevel'] = self._node_loglevel_combo.currentIndex()
+        node_config['InterceptUnknown'] = self._node_intercept_unknown_check.isChecked()
+        return json.dumps(node_config)
 
     def _hide_status_label(self):
         self.statusLabel.hide()
@@ -171,19 +185,25 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.statusLabel.setStyleSheet('color: red')
         self.statusLabel.setText(msg)
 
-    def _set_status_message(self, msg):
+    def _set_status_successful(self, msg):
         self.statusLabel.setStyleSheet('color: green')
         self.statusLabel.setText(msg)
+
+    def _set_status_message(self, msg):
+        self.statusLabel.setStyleSheet('color: darkorange')
+        self.statusLabel.setText(msg)
+
+    def _reset_status_message(self):
+        self.statusLabel.setText("")
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
         #print(self.LOG_TAG, "Config notification received: ", reply.id, reply.code)
         if reply.id in self._notifications_sent:
-            self._show_status_label()
             if reply.code == ui_pb2.OK:
-                self._set_status_message("Configuration saved.")
+                self._set_status_successful("Configuration applied.")
             else:
-                self._set_status_error("Error saving configuration: %s" % reply.data)
+                self._set_status_error("Error applying configuration: %s" % reply.data)
 
             del self._notifications_sent[reply.id]
 
