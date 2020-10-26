@@ -32,6 +32,7 @@ const (
 	RESET = "\033[0m"
 )
 
+// log level constants
 const (
 	DEBUG = iota
 	INFO
@@ -41,6 +42,7 @@ const (
 	FATAL
 )
 
+//
 var (
 	WithColors = true
 	Output     = os.Stdout
@@ -66,6 +68,7 @@ var (
 	}
 )
 
+// Wrap wraps a text with effects
 func Wrap(s, effect string) string {
 	if WithColors == true {
 		s = effect + s + RESET
@@ -73,42 +76,51 @@ func Wrap(s, effect string) string {
 	return s
 }
 
+// Dim dims a text
 func Dim(s string) string {
 	return Wrap(s, DIM)
 }
 
+// Bold bolds a text
 func Bold(s string) string {
 	return Wrap(s, BOLD)
 }
 
+// Red reds the text
 func Red(s string) string {
 	return Wrap(s, RED)
 }
 
+// Green greens the text
 func Green(s string) string {
 	return Wrap(s, GREEN)
 }
 
+// Blue blues the text
 func Blue(s string) string {
 	return Wrap(s, BLUE)
 }
 
+// Yellow yellows the text
 func Yellow(s string) string {
 	return Wrap(s, YELLOW)
 }
 
+// Raw prints out a text without colors
 func Raw(format string, args ...interface{}) {
 	mutex.Lock()
 	defer mutex.Unlock()
 	fmt.Fprintf(Output, format, args...)
 }
 
+// SetLogLevel sets the log level
 func SetLogLevel(newLevel int) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 	MinLevel = newLevel
 }
 
+// Log prints out a text with the given color and format
 func Log(level int, format string, args ...interface{}) {
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -129,26 +141,48 @@ func Log(level int, format string, args ...interface{}) {
 	}
 }
 
+func setDefaultLogOutput() {
+	Output = os.Stdout
+}
+
+// OpenFile opens a file the print out the logs
+func OpenFile(logFile string) (err error) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	if Output, err = os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+		setDefaultLogOutput()
+	}
+
+	return err
+}
+
+// Debug is the log level for debugging purposes
 func Debug(format string, args ...interface{}) {
 	Log(DEBUG, format, args...)
 }
 
+// Info is the log level for informative messages
 func Info(format string, args ...interface{}) {
 	Log(INFO, format, args...)
 }
 
+// Important is the log level for things that must pay attention
 func Important(format string, args ...interface{}) {
 	Log(IMPORTANT, format, args...)
 }
 
+// Warning is the log level for non-critical errors
 func Warning(format string, args ...interface{}) {
 	Log(WARNING, format, args...)
 }
 
+// Error is the log level for errors that should be corrected
 func Error(format string, args ...interface{}) {
 	Log(ERROR, format, args...)
 }
 
+// Fatal is the log level for errors that must be corrected before continue
 func Fatal(format string, args ...interface{}) {
 	Log(FATAL, format, args...)
 	os.Exit(1)
