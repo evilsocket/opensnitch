@@ -38,7 +38,7 @@ var (
 	important     = false
 	errorlog      = false
 
-	uiSocket = "unix:///tmp/osui.sock"
+	uiSocket = ""
 	uiClient = (*ui.Client)(nil)
 
 	cpuProfile = ""
@@ -89,8 +89,8 @@ func setupLogging() {
 	}
 
 	if logFile != "" {
-		if log.Output, err = os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
-			panic(err)
+		if err := log.OpenFile(logFile); err != nil {
+			log.Error("Error opening user defined log: ", logFile, err)
 		}
 	}
 }

@@ -3,7 +3,6 @@ package ui
 import (
 	"fmt"
 	"net"
-	"strings"
 	"sync"
 	"time"
 
@@ -27,14 +26,20 @@ var (
 	config                 Config
 )
 
+type serverConfig struct {
+	Address string `json:"Address"`
+	LogFile string `json:"LogFile"`
+}
+
 // Config holds the values loaded from configFile
 type Config struct {
 	sync.RWMutex
-	DefaultAction     string
-	DefaultDuration   string
-	InterceptUnknown  bool
-	ProcMonitorMethod string
-	LogLevel          *uint32
+	Server            serverConfig `json:"Server"`
+	DefaultAction     string       `json:"DefaultAction"`
+	DefaultDuration   string       `json:"DefaultDuration"`
+	InterceptUnknown  bool         `json:"InterceptUnknown"`
+	ProcMonitorMethod string       `json:"ProcMonitorMethod"`
+	LogLevel          *uint32      `json:"LogLevel"`
 }
 
 // Client holds the connection information of a client.
@@ -54,9 +59,8 @@ type Client struct {
 }
 
 // NewClient creates and configures a new client.
-func NewClient(path string, stats *statistics.Statistics, rules *rule.Loader) *Client {
+func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Loader) *Client {
 	c := &Client{
-		socketPath:   path,
 		stats:        stats,
 		rules:        rules,
 		isUnixSocket: false,
@@ -66,11 +70,12 @@ func NewClient(path string, stats *statistics.Statistics, rules *rule.Loader) *C
 	if watcher, err := fsnotify.NewWatcher(); err == nil {
 		c.configWatcher = watcher
 	}
-	if strings.HasPrefix(c.socketPath, "unix://") == true {
-		c.isUnixSocket = true
-		c.socketPath = c.socketPath[7:]
-	}
 	c.loadDiskConfiguration(false)
+	if socketPath != "" {
+		c.socketPath = socketPath
+	}
+
+	c.socketPath = c.getSocketPath(c.socketPath)
 
 	go c.poller()
 	return c
@@ -123,6 +128,7 @@ func (c *Client) poller() {
 	for {
 		select {
 		case <-c.clientCtx.Done():
+			log.Info("Client.poller() exit, Done()")
 			goto Exit
 		default:
 			isConnected := c.Connected()
@@ -157,8 +163,7 @@ func (c *Client) onStatusChange(connected bool) {
 		go c.Subscribe()
 	} else {
 		log.Error("Connection to the UI service lost.")
-		c.client = nil
-		c.con.Close()
+		c.disconnect()
 	}
 }
 
@@ -171,8 +176,7 @@ func (c *Client) connect() (err error) {
 
 	if c.con != nil {
 		if c.con.GetState() == connectivity.TransientFailure || c.con.GetState() == connectivity.Shutdown {
-			c.client = nil
-			c.con.Close()
+			c.disconnect()
 		} else {
 			return
 		}
@@ -188,11 +192,7 @@ func (c *Client) connect() (err error) {
 	}
 
 	if err != nil {
-		if c.con != nil {
-			c.con.Close()
-		}
-		c.con = nil
-		c.client = nil
+		c.disconnect()
 		return err
 	}
 
@@ -200,6 +200,15 @@ func (c *Client) connect() (err error) {
 		c.client = protocol.NewUIClient(c.con)
 	}
 	return nil
+}
+
+func (c *Client) disconnect() {
+	c.client = nil
+	if c.con != nil {
+		c.con.Close()
+		c.con = nil
+	}
+	log.Debug("client.disconnect()")
 }
 
 func (c *Client) ping(ts time.Time) (err error) {

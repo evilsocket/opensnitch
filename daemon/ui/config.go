@@ -4,11 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/rule"
 )
+
+func (c *Client) getSocketPath(socketPath string) string {
+	if strings.HasPrefix(socketPath, "unix://") == true {
+		c.isUnixSocket = true
+		return socketPath[7:]
+	}
+
+	c.isUnixSocket = false
+	return socketPath
+}
 
 func (c *Client) isProcMonitorEqual(newMonitorMethod string) bool {
 	config.RLock()
@@ -50,6 +61,24 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 		fmt.Errorf("Error parsing configuration %s: %s", configFile, err)
 		return false
 	}
+	// firstly load config level, to detect further errors if any
+	if config.LogLevel != nil {
+		log.SetLogLevel(int(*config.LogLevel))
+	}
+
+	if config.Server.Address != "" {
+		tempSocketPath := c.getSocketPath(config.Server.Address)
+		if tempSocketPath != c.socketPath {
+			// disconnect, and let the connection poller reconnect to the new address
+			c.disconnect()
+		}
+		c.socketPath = tempSocketPath
+	}
+	if config.Server.LogFile != "" {
+		if err := log.OpenFile(config.Server.LogFile); err != nil {
+			log.Warning("Error opening log file: ", err)
+		}
+	}
 
 	if config.DefaultAction != "" {
 		clientDisconnectedRule.Action = rule.Action(config.DefaultAction)
@@ -58,9 +87,6 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	if config.DefaultDuration != "" {
 		clientDisconnectedRule.Duration = rule.Duration(config.DefaultDuration)
 		clientErrorRule.Duration = rule.Duration(config.DefaultDuration)
-	}
-	if config.LogLevel != nil {
-		log.SetLogLevel(int(*config.LogLevel))
 	}
 	if config.ProcMonitorMethod != "" {
 		procmon.SetMonitorMethod(config.ProcMonitorMethod)
