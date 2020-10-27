@@ -32,6 +32,9 @@ class Config:
     def reload(self):
         self.settings = QtCore.QSettings("opensnitch", "settings")
 
+    def hasKey(self, key):
+        return self.settings.contains(key)
+
     def setSettings(self, path, value):
         self.settings.setValue(path, value)
         self.settings.sync()
