@@ -132,9 +132,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._node_version_label.setText("")
 
     def _save_settings(self):
-        self._show_status_label()
-        self._set_status_message("Applying configuration...")
-
         if self.tabWidget.currentIndex() == 0:
             self._cfg.setSettings(self.CFG_DEFAULT_ACTION, self._default_action_combo.currentText())
             self._cfg.setSettings(self.CFG_DEFAULT_DURATION, self._default_duration_combo.currentText())
@@ -142,6 +139,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, self._default_timeout_button.value())
         
         elif self.tabWidget.currentIndex() == 1:
+            self._show_status_label()
+            self._set_status_message("Applying configuration...")
+
             addr = self._nodes_combo.currentText()
             if (self._node_needs_update or self._node_apply_all_check.isChecked()) and addr != "":
                 try:
