@@ -251,6 +251,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboAction.currentIndexChanged.connect(self._cb_combo_action_changed)
         self.limitCombo.currentIndexChanged.connect(self._cb_limit_combo_changed)
         self.cmdCleanSql.clicked.connect(self._cb_clean_sql_clicked)
+        self.cmdCleanHosts.clicked.connect(self._cb_clean_sql_clicked)
+        self.cmdCleanProcs.clicked.connect(self._cb_clean_sql_clicked)
+        self.cmdCleanAddrs.clicked.connect(self._cb_clean_sql_clicked)
+        self.cmdCleanPorts.clicked.connect(self._cb_clean_sql_clicked)
+        self.cmdCleanUsers.clicked.connect(self._cb_clean_sql_clicked)
         self.tabWidget.currentChanged.connect(self._cb_tab_changed)
         self.delRuleButton.clicked.connect(self._cb_del_rule_clicked)
         self.enableRuleCheck.clicked.connect(self._cb_enable_rule_toggled)
@@ -549,6 +554,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_clean_sql_clicked(self):
         self._db.clean(self.TABLES[self.tabWidget.currentIndex()]['name'])
+        self._refresh_active_table()
 
     def _cb_cmd_back_clicked(self, idx):
         cur_idx = self.tabWidget.currentIndex()
