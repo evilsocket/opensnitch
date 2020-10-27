@@ -153,8 +153,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="edit-clear">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+            <iconset theme="edit-clear-all"/>
            </property>
           </widget>
          </item>
