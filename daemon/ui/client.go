@@ -207,8 +207,8 @@ func (c *Client) disconnect() {
 	if c.con != nil {
 		c.con.Close()
 		c.con = nil
+		log.Debug("client.disconnect()")
 	}
-	log.Debug("client.disconnect()")
 }
 
 func (c *Client) ping(ts time.Time) (err error) {
