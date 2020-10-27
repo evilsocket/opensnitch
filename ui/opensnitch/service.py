@@ -167,8 +167,14 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _on_tray_icon_activated(self, reason):
         if reason == QtWidgets.QSystemTrayIcon.Trigger or reason == QtWidgets.QSystemTrayIcon.MiddleClick:
-            if self._stats_dialog.isVisible():
+            if self._stats_dialog.isVisible() and not self._stats_dialog.isMinimized():
                 self._stats_dialog.hide()
+            elif self._stats_dialog.isVisible() and self._stats_dialog.isMinimized() and not self._stats_dialog.isMaximized():
+                self._stats_dialog.hide()
+                self._stats_dialog.showNormal()
+            elif self._stats_dialog.isVisible() and self._stats_dialog.isMinimized() and self._stats_dialog.isMaximized():
+                self._stats_dialog.hide()
+                self._stats_dialog.showMaximized()
             else:
                 self._stats_dialog.show()
 
@@ -495,7 +501,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         # TODO: move to notificatons.py
         def new_node_message():
-            print("listening for client responses...", addr)
+            print("new node connected, listening for client responses...", addr)
             while self._exit == False:
                 try:
                     if stop_event.is_set():
