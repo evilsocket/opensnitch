@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+. /usr/share/debconf/confmodule
+
+# set default value, otherwise the question is not shown on first install
+db_fset python3-opensnitch-ui/question1 seen false
+
+db_input high python3-opensnitch-ui/question1 || true
+db_go

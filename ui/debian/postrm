@@ -1,9 +1,14 @@
 #!/bin/sh
-
 set -e
+
+. /usr/share/debconf/confmodule
 
 purge_files()
 {
+    if [ -e /usr/share/debconf/confmodule ]; then
+        . /usr/share/debconf/confmodule
+    fi
+
     for i in $(ls /home)
     do
         path=/home/$i/.config/
@@ -17,9 +22,13 @@ purge_files()
 }
 
 pkill -15 opensnitch-ui || true
+db_purge
 
 case "$1" in
     purge)
         purge_files
+        ;;
+    remove)
+        db_purge
         ;;
 esac

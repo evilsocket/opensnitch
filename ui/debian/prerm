@@ -1,7 +1,9 @@
 #!/bin/sh
-
 set -e
 
+. /usr/share/debconf/confmodule
+
+db_purge
 
 case "$1" in
     remove)
