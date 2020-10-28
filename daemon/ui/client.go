@@ -72,10 +72,8 @@ func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Load
 	}
 	c.loadDiskConfiguration(false)
 	if socketPath != "" {
-		c.socketPath = socketPath
+		c.socketPath = c.getSocketPath(socketPath)
 	}
-
-	c.socketPath = c.getSocketPath(c.socketPath)
 
 	go c.poller()
 	return c
