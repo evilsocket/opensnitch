@@ -330,6 +330,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_PORTS]['cmd'] = self.cmdPortsBack
         self.TABLES[self.TAB_USERS]['cmd'] = self.cmdUsersBack
 
+        self.TABLES[self.TAB_MAIN]['cmdCleanStats'] = self.cmdCleanSql
+        self.TABLES[self.TAB_HOSTS]['cmdCleanStats'] = self.cmdCleanHosts
+        self.TABLES[self.TAB_PROCS]['cmdCleanStats'] = self.cmdCleanProcs
+        self.TABLES[self.TAB_ADDRS]['cmdCleanStats'] = self.cmdCleanAddrs
+        self.TABLES[self.TAB_PORTS]['cmdCleanStats'] = self.cmdCleanPorts
+        self.TABLES[self.TAB_USERS]['cmdCleanStats'] = self.cmdCleanUsers
+
         self.TABLES[self.TAB_MAIN]['filterLine'] = self.filterLine
         self.TABLES[self.TAB_RULES]['filterLine'] = self.rulesFilterLine
         self.TABLES[self.TAB_HOSTS]['filterLine'] = self.hostsFilterLine
@@ -705,6 +712,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[cur_idx]['tipLabel'].setVisible(not state)
         if self.TABLES[cur_idx]['filterLine'] != None:
             self.TABLES[cur_idx]['filterLine'].setVisible(not state)
+        if self.TABLES[cur_idx].get('cmdCleanStats') != None:
+            self.TABLES[cur_idx]['cmdCleanStats'].setVisible(not state)
 
     def _set_rules_tab_active(self, row, cur_idx):
         data = row.data()
