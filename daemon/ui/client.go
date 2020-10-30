@@ -72,7 +72,7 @@ func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Load
 	}
 	c.loadDiskConfiguration(false)
 	if socketPath != "" {
-		c.socketPath = c.getSocketPath(socketPath)
+		c.setSocketPath(c.getSocketPath(socketPath))
 	}
 
 	go c.poller()
@@ -169,8 +169,6 @@ func (c *Client) connect() (err error) {
 	if c.Connected() {
 		return
 	}
-	c.Lock()
-	defer c.Unlock()
 
 	if c.con != nil {
 		if c.con.GetState() == connectivity.TransientFailure || c.con.GetState() == connectivity.Shutdown {
@@ -180,16 +178,7 @@ func (c *Client) connect() (err error) {
 		}
 	}
 
-	if c.isUnixSocket {
-		c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure(),
-			grpc.WithDialer(func(addr string, timeout time.Duration) (net.Conn, error) {
-				return net.DialTimeout("unix", addr, timeout)
-			}))
-	} else {
-		c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure())
-	}
-
-	if err != nil {
+	if err := c.openSocket(); err != nil {
 		c.disconnect()
 		return err
 	}
@@ -200,7 +189,26 @@ func (c *Client) connect() (err error) {
 	return nil
 }
 
+func (c *Client) openSocket() (err error) {
+	c.Lock()
+	defer c.Unlock()
+
+	if c.isUnixSocket {
+		c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure(),
+			grpc.WithDialer(func(addr string, timeout time.Duration) (net.Conn, error) {
+				return net.DialTimeout("unix", addr, timeout)
+			}))
+	} else {
+		c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure())
+	}
+
+	return err
+}
+
 func (c *Client) disconnect() {
+	c.Lock()
+	defer c.Unlock()
+
 	c.client = nil
 	if c.con != nil {
 		c.con.Close()

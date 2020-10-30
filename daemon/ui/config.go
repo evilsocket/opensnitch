@@ -12,6 +12,9 @@ import (
 )
 
 func (c *Client) getSocketPath(socketPath string) string {
+	c.Lock()
+	defer c.Unlock()
+
 	if strings.HasPrefix(socketPath, "unix://") == true {
 		c.isUnixSocket = true
 		return socketPath[7:]
@@ -19,6 +22,13 @@ func (c *Client) getSocketPath(socketPath string) string {
 
 	c.isUnixSocket = false
 	return socketPath
+}
+
+func (c *Client) setSocketPath(socketPath string) {
+	c.Lock()
+	defer c.Unlock()
+
+	c.socketPath = socketPath
 }
 
 func (c *Client) isProcMonitorEqual(newMonitorMethod string) bool {
@@ -72,7 +82,7 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 			// disconnect, and let the connection poller reconnect to the new address
 			c.disconnect()
 		}
-		c.socketPath = tempSocketPath
+		c.setSocketPath(tempSocketPath)
 	}
 	if config.Server.LogFile != "" {
 		if err := log.OpenFile(config.Server.LogFile); err != nil {
