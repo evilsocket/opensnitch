@@ -48,34 +48,91 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 	}
 }
 
+func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	log.Info("[notification] Reloading configuration")
+	// Parse received configuration first, to get the new proc monitor method.
+	newConf, err := c.parseConf(notification.Data)
+	if err != nil {
+		log.Warning("[notification] error parsing received config: %v", notification.Data)
+		c.sendNotificationReply(stream, notification.Id, err)
+		return
+	}
+
+	// check if the current monitor method is different from the one received.
+	// in such case close the current method, and start the new one.
+	procMonitorEqual := c.isProcMonitorEqual(newConf.ProcMonitorMethod)
+	if procMonitorEqual == false {
+		procmon.End()
+	}
+
+	// this save operation triggers a re-loadConfiguration()
+	err = c.saveConfiguration(notification.Data)
+	if err != nil {
+		log.Warning("[notification] CHANGE_CONFIG not applied", err)
+	} else if err == nil && procMonitorEqual == false {
+		procmon.Init()
+	}
+
+	c.sendNotificationReply(stream, notification.Id, err)
+}
+
+func (c *Client) handleActionEnableRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	var err error
+	for _, rul := range notification.Rules {
+		log.Info("[notification] enable rule: ", rul.Name)
+		// protocol.Rule(protobuf) != rule.Rule(json)
+		r, _ := rule.Deserialize(rul)
+		r.Enabled = true
+		// save to disk only if the duration is rule.Always
+		err = c.rules.Replace(r, r.Duration == rule.Always)
+	}
+	c.sendNotificationReply(stream, notification.Id, err)
+}
+
+func (c *Client) handleActionDisableRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	var err error
+	for _, rul := range notification.Rules {
+		log.Info("[notification] disable rule: ", rul)
+		r, _ := rule.Deserialize(rul)
+		r.Enabled = false
+		err = c.rules.Replace(r, r.Duration == rule.Always)
+	}
+	c.sendNotificationReply(stream, notification.Id, err)
+}
+
+func (c *Client) handleActionChangeRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	var rErr error
+	for _, rul := range notification.Rules {
+		r, err := rule.Deserialize(rul)
+		if r == nil {
+			rErr = fmt.Errorf("Invalid rule, %s", err)
+			continue
+		}
+		log.Info("[notification] change rule: ", r, notification.Id)
+		if err := c.rules.Replace(r, r.Duration == rule.Always); err != nil {
+			log.Warning("[notification] Error changing rule: ", err, r)
+			rErr = err
+		}
+	}
+	c.sendNotificationReply(stream, notification.Id, rErr)
+}
+
+func (c *Client) handleActionDeleteRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	var err error
+	for _, rul := range notification.Rules {
+		log.Info("[notification] delete rule: ", rul.Name, notification.Id)
+		err = c.rules.Delete(rul.Name)
+		if err != nil {
+			log.Error("[notification] Error deleting rule: ", err, rul)
+		}
+	}
+	c.sendNotificationReply(stream, notification.Id, err)
+}
+
 func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	switch {
 	case notification.Type == protocol.Action_CHANGE_CONFIG:
-		log.Info("[notification] Reloading configuration")
-		// Parse receid configuration first, to get the new proc monitor method.
-		newConf, err := c.parseConf(notification.Data)
-		if err != nil {
-			log.Warning("[notification] error parsing received config: %v", notification.Data)
-			c.sendNotificationReply(stream, notification.Id, err)
-			return
-		}
-
-		// check if the current monitor method is different from the one received.
-		// in such case close the current method, and start the new one.
-		procMonitorEqual := c.isProcMonitorEqual(newConf.ProcMonitorMethod)
-		if procMonitorEqual == false {
-			procmon.End()
-		}
-
-		// this save operation triggers a re-loadConfiguration()
-		err = c.saveConfiguration(notification.Data)
-		if err != nil {
-			log.Warning("[notification] CHANGE_CONFIG not applied", err)
-		} else if err == nil && procMonitorEqual == false {
-			procmon.Init()
-		}
-
-		c.sendNotificationReply(stream, notification.Id, err)
+		c.handleActionChangeConfig(stream, notification)
 
 	case notification.Type == protocol.Action_LOAD_FIREWALL:
 		log.Info("[notification] starting firewall")
@@ -89,59 +146,17 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 
 	// ENABLE_RULE just replaces the rule on disk
 	case notification.Type == protocol.Action_ENABLE_RULE:
-		var rErr error
-		for _, rul := range notification.Rules {
-			log.Info("[notification] enable rule: ", rul.Name)
-			// protocol.Rule(protobuf) != rule.Rule(json)
-			r, _ := rule.Deserialize(rul)
-			r.Enabled = true
-			// save to disk only if the duration is rule.Always
-			if err := c.rules.Replace(r, r.Duration == rule.Always); err != nil {
-				rErr = err
-			}
-		}
-		c.sendNotificationReply(stream, notification.Id, rErr)
+		c.handleActionEnableRule(stream, notification)
 
 	case notification.Type == protocol.Action_DISABLE_RULE:
-		var rErr error
-		for _, rul := range notification.Rules {
-			log.Info("[notification] disable: ", rul)
-			r, _ := rule.Deserialize(rul)
-			r.Enabled = false
-			if err := c.rules.Replace(r, r.Duration == rule.Always); err != nil {
-				rErr = err
-			}
-		}
-		c.sendNotificationReply(stream, notification.Id, rErr)
+		c.handleActionDisableRule(stream, notification)
 
 	case notification.Type == protocol.Action_DELETE_RULE:
-		var rErr error
-		for _, rul := range notification.Rules {
-			log.Info("[notification] delete rule: ", rul.Name, notification.Id)
-			if err := c.rules.Delete(rul.Name); err != nil {
-				log.Error("deleting rule: ", err, rul)
-				rErr = err
-			}
-		}
-		c.sendNotificationReply(stream, notification.Id, rErr)
+		c.handleActionDeleteRule(stream, notification)
 
 	// CHANGE_RULE can add() or replace) an existing rule.
 	case notification.Type == protocol.Action_CHANGE_RULE:
-		var rErr error
-		for _, rul := range notification.Rules {
-			log.Info("CHANGE_RULE: ", rul)
-			r, err := rule.Deserialize(rul)
-			if r == nil {
-				rErr = fmt.Errorf("Invalid rule, %s", err)
-				continue
-			}
-			log.Info("[notification] change rule: ", r, notification.Id)
-			if err := c.rules.Replace(r, r.Duration == rule.Always); err != nil {
-				log.Error("[notification] Error changing rule: ", err, r)
-				rErr = err
-			}
-		}
-		c.sendNotificationReply(stream, notification.Id, rErr)
+		c.handleActionChangeRule(stream, notification)
 	}
 }
 
