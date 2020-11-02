@@ -65,13 +65,17 @@ func init() {
 	flag.BoolVar(&noLiveReload, "no-live-reload", debug, "Disable rules live reloading.")
 
 	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
-	flag.BoolVar(&debug, "debug", debug, "Enable debug logs.")
-	flag.BoolVar(&warning, "warning", warning, "Enable warning logs.")
+	flag.BoolVar(&debug, "debug", debug, "Enable debug level logs.")
+	flag.BoolVar(&warning, "warning", warning, "Enable warning level logs.")
 	flag.BoolVar(&important, "important", important, "Enable important level logs.")
 	flag.BoolVar(&errorlog, "error", errorlog, "Enable error level logs.")
 
 	flag.StringVar(&cpuProfile, "cpu-profile", cpuProfile, "Write CPU profile to this file.")
 	flag.StringVar(&memProfile, "mem-profile", memProfile, "Write memory profile to this file.")
+}
+
+func overwriteLogging() bool {
+	return debug || warning || important || errorlog || logFile != ""
 }
 
 func setupLogging() {
@@ -89,6 +93,7 @@ func setupLogging() {
 	}
 
 	if logFile != "" {
+		log.Close()
 		if err := log.OpenFile(logFile); err != nil {
 			log.Error("Error opening user defined log: ", logFile, err)
 		}
@@ -325,6 +330,9 @@ func main() {
 	pktChan = queue.Packets()
 
 	uiClient = ui.NewClient(uiSocket, stats, rules)
+	if overwriteLogging() {
+		setupLogging()
+	}
 	// overwrite monitor method from configuration if the user has passed
 	// the option via command line.
 	if procmonMethod != "" {

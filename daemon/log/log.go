@@ -46,6 +46,7 @@ const (
 var (
 	WithColors = true
 	Output     = os.Stdout
+	StdoutFile = "/dev/stdout"
 	DateFormat = "2006-01-02 15:04:05"
 	MinLevel   = INFO
 
@@ -115,8 +116,8 @@ func Raw(format string, args ...interface{}) {
 
 // SetLogLevel sets the log level
 func SetLogLevel(newLevel int) {
-	mutex.RLock()
-	defer mutex.RUnlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 	MinLevel = newLevel
 }
 
@@ -142,19 +143,33 @@ func Log(level int, format string, args ...interface{}) {
 }
 
 func setDefaultLogOutput() {
+	mutex.Lock()
 	Output = os.Stdout
+	mutex.Unlock()
 }
 
-// OpenFile opens a file the print out the logs
+// OpenFile opens a file to print out the logs
 func OpenFile(logFile string) (err error) {
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	if Output, err = os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+	if logFile == StdoutFile {
 		setDefaultLogOutput()
+		return
 	}
 
+	if Output, err = os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+		Error("Error opening log: ", logFile, err)
+		//fallback to stdout
+		setDefaultLogOutput()
+	}
+	Important("Start writing logs to ", logFile)
+
 	return err
+}
+
+// Close closes the current output file descriptor
+func Close() {
+	if Output != os.Stdout {
+		Output.Close()
+	}
 }
 
 // Debug is the log level for debugging purposes
