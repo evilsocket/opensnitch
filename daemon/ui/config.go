@@ -68,12 +68,16 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	defer config.Unlock()
 
 	if err := json.Unmarshal(rawConfig, &config); err != nil {
-		fmt.Errorf("Error parsing configuration %s: %s", configFile, err)
+		log.Error("Error parsing configuration %s: %s", configFile, err)
 		return false
 	}
 	// firstly load config level, to detect further errors if any
 	if config.LogLevel != nil {
 		log.SetLogLevel(int(*config.LogLevel))
+	}
+	if config.Server.LogFile != "" {
+		log.Close()
+		log.OpenFile(config.Server.LogFile)
 	}
 
 	if config.Server.Address != "" {
@@ -84,12 +88,6 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 		}
 		c.setSocketPath(tempSocketPath)
 	}
-	if config.Server.LogFile != "" {
-		if err := log.OpenFile(config.Server.LogFile); err != nil {
-			log.Warning("Error opening log file: ", err)
-		}
-	}
-
 	if config.DefaultAction != "" {
 		clientDisconnectedRule.Action = rule.Action(config.DefaultAction)
 		clientErrorRule.Action = rule.Action(config.DefaultAction)
