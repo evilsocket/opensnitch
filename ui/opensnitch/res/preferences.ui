@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>599</width>
-    <height>355</height>
+    <width>662</width>
+    <height>407</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -205,6 +205,16 @@
          </property>
         </widget>
        </item>
+       <item row="5" column="0">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+        </spacer>
+       </item>
        <item row="1" column="3">
         <widget class="QComboBox" name="comboUIAction">
          <property name="sizePolicy">
@@ -243,19 +253,6 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_5">
          <property name="sizePolicy">
@@ -276,20 +273,30 @@
        <string>Nodes</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="6" column="0">
+       <item row="8" column="0">
         <widget class="QLabel" name="label_13">
          <property name="text">
           <string>Process monitor method</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="label_11">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Default duration</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_15">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it's a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Address</string>
          </property>
         </widget>
        </item>
@@ -302,22 +309,6 @@
           </sizepolicy>
          </property>
         </widget>
-       </item>
-       <item row="0" column="2">
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_9">
@@ -332,7 +323,7 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="5" column="0">
         <widget class="QLabel" name="label_10">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -342,56 +333,14 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="3">
+       <item row="2" column="2">
         <widget class="QLabel" name="labelNodeVersion">
          <property name="text">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="6" column="3">
-        <widget class="QComboBox" name="comboNodeMonitorMethod">
-         <item>
-          <property name="text">
-           <string>proc</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>audit</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>ftrace</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>HostName</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <spacer name="horizontalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>60</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="7" column="3">
+       <item row="9" column="2">
         <widget class="QComboBox" name="comboNodeLogLevel">
          <item>
           <property name="text">
@@ -425,7 +374,42 @@
          </item>
         </widget>
        </item>
-       <item row="3" column="3">
+       <item row="8" column="2">
+        <widget class="QComboBox" name="comboNodeMonitorMethod">
+         <item>
+          <property name="text">
+           <string>proc</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>audit</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ftrace</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Preferred</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>60</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="5" column="2">
         <widget class="QComboBox" name="comboNodeAction">
          <property name="editable">
           <bool>false</bool>
@@ -450,14 +434,17 @@
          </item>
         </widget>
        </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_14">
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log file to write logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="text">
-          <string>Default log level</string>
+          <string>Log file</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="7" column="0">
         <widget class="QLabel" name="label_12">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, opensnitch will prompt you to allow or deny connections that don't have an asocciated PID, due to several reasons.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -467,14 +454,33 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="3">
+       <item row="1" column="2">
         <widget class="QLabel" name="labelNodeName">
          <property name="text">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="4" column="3">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>HostName</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QComboBox" name="comboNodeAddress">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>unix:///tmp/osui.sock</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="6" column="2">
         <widget class="QComboBox" name="comboNodeDuration">
          <item>
           <property name="text">
@@ -493,7 +499,24 @@
          </item>
         </widget>
        </item>
-       <item row="0" column="3">
+       <item row="4" column="2">
+        <widget class="QComboBox" name="comboNodeLogFile">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>/var/log/opensnitchd.log</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>/dev/stdout</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="2">
         <widget class="QCheckBox" name="checkApplyToNodes">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -506,10 +529,33 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="3">
+       <item row="7" column="2">
         <widget class="QCheckBox" name="checkInterceptUnknown">
          <property name="text">
           <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Preferred</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Default log level</string>
          </property>
         </widget>
        </item>
