@@ -35,29 +35,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.setupUi(self)
 
-        self._accept_button = self.findChild(QtWidgets.QPushButton, "acceptButton")
-        self._accept_button.clicked.connect(self._cb_accept_button_clicked)
-        self._apply_button = self.findChild(QtWidgets.QPushButton, "applyButton")
-        self._apply_button.clicked.connect(self._cb_apply_button_clicked)
-        self._cancel_button = self.findChild(QtWidgets.QPushButton, "cancelButton")
-        self._cancel_button.clicked.connect(self._cb_cancel_button_clicked)
-
-        self._default_timeout_button = self.findChild(QtWidgets.QSpinBox, "spinUITimeout")
-        self._default_action_combo = self.findChild(QtWidgets.QComboBox, "comboUIAction")
-        self._default_target_combo = self.findChild(QtWidgets.QComboBox, "comboUITarget")
-        self._default_duration_combo = self.findChild(QtWidgets.QComboBox, "comboUIDuration")
-        self._dialog_pos_combo = self.findChild(QtWidgets.QComboBox, "comboUIDialogPos")
-
-        self._nodes_combo = self.findChild(QtWidgets.QComboBox, "comboNodes")
-        self._node_action_combo = self.findChild(QtWidgets.QComboBox, "comboNodeAction")
-        self._node_duration_combo = self.findChild(QtWidgets.QComboBox, "comboNodeDuration")
-        self._node_monitor_method_combo = self.findChild(QtWidgets.QComboBox, "comboNodeMonitorMethod")
-        self._node_loglevel_combo = self.findChild(QtWidgets.QComboBox, "comboNodeLogLevel")
-        self._node_intercept_unknown_check = self.findChild(QtWidgets.QCheckBox, "checkInterceptUnknown")
-        self._node_name_label = self.findChild(QtWidgets.QLabel, "labelNodeName")
-        self._node_version_label = self.findChild(QtWidgets.QLabel, "labelNodeVersion")
-
-        self._node_apply_all_check = self.findChild(QtWidgets.QCheckBox, "checkApplyToNodes")
+        self.acceptButton.clicked.connect(self._cb_accept_button_clicked)
+        self.applyButton.clicked.connect(self._cb_apply_button_clicked)
+        self.cancelButton.clicked.connect(self._cb_cancel_button_clicked)
 
     def showEvent(self, event):
         super(PreferencesDialog, self).showEvent(event)
@@ -65,11 +45,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         try:
             self._reset_status_message()
             self._hide_status_label()
-            self._nodes_combo.clear()
+            self.comboNodes.clear()
 
             self._node_list = self._nodes.get()
             for addr in self._node_list:
-                self._nodes_combo.addItem(addr)
+                self.comboNodes.addItem(addr)
 
             if len(self._node_list) == 0:
                 self._reset_node_settings()
@@ -80,13 +60,15 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         
         # connect the signals after loading settings, to avoid firing
         # the signals
-        self._nodes_combo.currentIndexChanged.connect(self._cb_node_combo_changed)
-        self._node_action_combo.currentIndexChanged.connect(self._cb_node_needs_update)
-        self._node_duration_combo.currentIndexChanged.connect(self._cb_node_needs_update)
-        self._node_monitor_method_combo.currentIndexChanged.connect(self._cb_node_needs_update)
-        self._node_loglevel_combo.currentIndexChanged.connect(self._cb_node_needs_update)
-        self._node_intercept_unknown_check.clicked.connect(self._cb_node_needs_update)
-        self._node_apply_all_check.clicked.connect(self._cb_node_needs_update)
+        self.comboNodes.currentIndexChanged.connect(self._cb_node_combo_changed)
+        self.comboNodeAction.currentIndexChanged.connect(self._cb_node_needs_update)
+        self.comboNodeDuration.currentIndexChanged.connect(self._cb_node_needs_update)
+        self.comboNodeMonitorMethod.currentIndexChanged.connect(self._cb_node_needs_update)
+        self.comboNodeLogLevel.currentIndexChanged.connect(self._cb_node_needs_update)
+        self.comboNodeLogFile.currentIndexChanged.connect(self._cb_node_needs_update)
+        self.comboNodeAddress.currentIndexChanged.connect(self._cb_node_needs_update)
+        self.checkInterceptUnknown.clicked.connect(self._cb_node_needs_update)
+        self.checkApplyToNodes.clicked.connect(self._cb_node_needs_update)
     
         # True when any node option changes
         self._node_needs_update = False
@@ -97,83 +79,127 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._default_target = self._cfg.getSettings(self.CFG_DEFAULT_TARGET)
         self._default_timeout = self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)
 
-        self._default_duration_combo.setCurrentText(self._default_duration)
-        self._default_action_combo.setCurrentText(self._default_action)
-        self._default_target_combo.setCurrentIndex(int(self._default_target))
-        self._default_timeout_button.setValue(int(self._default_timeout))
+        self.comboUIDuration.setCurrentText(self._default_duration)
+        self.comboUIAction.setCurrentText(self._default_action)
+        self.comboUITarget.setCurrentIndex(int(self._default_target))
+        self.spinUITimeout.setValue(int(self._default_timeout))
 
         self._load_node_settings()
 
     def _load_node_settings(self):
-        addr = self._nodes_combo.currentText()
+        addr = self.comboNodes.currentText()
         if addr != "":
             try:
                 node_data = self._node_list[addr]['data']
-                self._node_version_label.setText(node_data.version)
-                self._node_name_label.setText(node_data.name)
-                self._node_loglevel_combo.setCurrentIndex(node_data.logLevel)
+                self.labelNodeVersion.setText(node_data.version)
+                self.labelNodeName.setText(node_data.name)
+                self.comboNodeLogLevel.setCurrentIndex(node_data.logLevel)
 
                 node_config = json.loads(node_data.config)
-                self._node_action_combo.setCurrentText(node_config['DefaultAction'])
-                self._node_duration_combo.setCurrentText(node_config['DefaultDuration'])
-                self._node_monitor_method_combo.setCurrentText(node_config['ProcMonitorMethod'])
-                self._node_intercept_unknown_check.setChecked(node_config['InterceptUnknown'])
-                self._node_loglevel_combo.setCurrentIndex(int(node_config['LogLevel']))
+                self.comboNodeAction.setCurrentText(node_config['DefaultAction'])
+                self.comboNodeDuration.setCurrentText(node_config['DefaultDuration'])
+                self.comboNodeMonitorMethod.setCurrentText(node_config['ProcMonitorMethod'])
+                self.checkInterceptUnknown.setChecked(node_config['InterceptUnknown'])
+                self.comboNodeLogLevel.setCurrentIndex(int(node_config['LogLevel']))
+
+                if node_config.get('Server') != None:
+                    self.comboNodeAddress.setEnabled(True)
+                    self.comboNodeLogFile.setEnabled(True)
+
+                    self.comboNodeAddress.setCurrentText(node_config['Server']['Address'])
+                    self.comboNodeLogFile.setCurrentText(node_config['Server']['LogFile'])
+                else:
+                    self.comboNodeAddress.setEnabled(False)
+                    self.comboNodeLogFile.setEnabled(False)
             except Exception as e:
                 print(self.LOG_TAG + "exception loading config: ", e)
 
     def _reset_node_settings(self):
-        self._node_action_combo.setCurrentIndex(0)
-        self._node_duration_combo.setCurrentIndex(0)
-        self._node_monitor_method_combo.setCurrentIndex(0)
-        self._node_intercept_unknown_check.setChecked(False)
-        self._node_loglevel_combo.setCurrentIndex(0)
-        self._node_name_label.setText("")
-        self._node_version_label.setText("")
+        self.comboNodeAction.setCurrentIndex(0)
+        self.comboNodeDuration.setCurrentIndex(0)
+        self.comboNodeMonitorMethod.setCurrentIndex(0)
+        self.checkInterceptUnknown.setChecked(False)
+        self.comboNodeLogLevel.setCurrentIndex(0)
+        self.labelNodeName.setText("")
+        self.labelNodeVersion.setText("")
 
     def _save_settings(self):
-        self._show_status_label()
-        self._set_status_message("Applying configuration...")
-
         if self.tabWidget.currentIndex() == 0:
-            self._cfg.setSettings(self.CFG_DEFAULT_ACTION, self._default_action_combo.currentText())
-            self._cfg.setSettings(self.CFG_DEFAULT_DURATION, self._default_duration_combo.currentText())
-            self._cfg.setSettings(self.CFG_DEFAULT_TARGET, self._default_target_combo.currentIndex())
-            self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, self._default_timeout_button.value())
+            self._cfg.setSettings(self.CFG_DEFAULT_ACTION, self.comboUIAction.currentText())
+            self._cfg.setSettings(self.CFG_DEFAULT_DURATION, self.comboUIDuration.currentText())
+            self._cfg.setSettings(self.CFG_DEFAULT_TARGET, self.comboUITarget.currentIndex())
+            self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, self.spinUITimeout.value())
         
         elif self.tabWidget.currentIndex() == 1:
-            addr = self._nodes_combo.currentText()
-            if (self._node_needs_update or self._node_apply_all_check.isChecked()) and addr != "":
+            self._show_status_label()
+
+            addr = self.comboNodes.currentText()
+            if (self._node_needs_update or self.checkApplyToNodes.isChecked()) and addr != "":
                 try:
                     notif = ui_pb2.Notification(
                             id=int(str(time.time()).replace(".", "")),
                             type=ui_pb2.CHANGE_CONFIG,
                             data="",
                             rules=[])
-                    if self._node_apply_all_check.isChecked():
+                    if self.checkApplyToNodes.isChecked():
                         for addr in self._nodes.get_nodes():
-                            notif.data = self._load_node_config(addr)
-                            self._nodes.save_node_config(addr, notif.data)
-                            nid = self._nodes.send_notification(addr, notif, self._notification_callback)
+                            error = self._save_node_config(notif, addr)
+                            if error != None:
+                                self._set_status_error(error)
+                                return
                     else:
-                        notif.data = self._load_node_config(addr)
-                        self._nodes.save_node_config(addr, notif.data)
-                        nid = self._nodes.send_notification(addr, notif, self._notification_callback)
-
-                    self._notifications_sent[nid] = notif
+                        error = self._save_node_config(notif, addr)
+                        if error != None:
+                            self._set_status_error(error)
+                            return
                 except Exception as e:
                     print(self.LOG_TAG + "exception saving config: ", e)
+                    self._set_status_error("Exception saving config: %s" % str(e))
         
             self._node_needs_update = False
 
+    def _save_node_config(self, notifObject, addr):
+        try:
+            self._set_status_message("Applying configuration on %s ..." % addr)
+            notifObject.data, error = self._load_node_config(addr)
+            if error != None:
+                return error
+
+            self._nodes.save_node_config(addr, notifObject.data)
+            nid = self._nodes.send_notification(addr, notifObject, self._notification_callback)
+
+            self._notifications_sent[nid] = notifObject
+        except Exception as e:
+            print(self.LOG_TAG + "exception saving node config on %s: " % addr, e)
+            self._set_status_error("Exception saving node config %s: %s" % (addr, str(e)))
+            return addr + ": " + str(e)
+
+        return None
+
     def _load_node_config(self, addr):
-        node_config = json.loads(self._nodes.get_node_config(addr))
-        node_config['DefaultAction'] = self._node_action_combo.currentText()
-        node_config['DefaultDuration'] = self._node_duration_combo.currentText()
-        node_config['ProcMonitorMethod'] = self._node_monitor_method_combo.currentText()
-        node_config['LogLevel'] = self._node_loglevel_combo.currentIndex()
-        node_config['InterceptUnknown'] = self._node_intercept_unknown_check.isChecked()
-        return json.dumps(node_config)
+        try:
+            if self.comboNodeAddress.currentText() == "":
+                return None, "Server address can not be empty"
+            node_config = json.loads(self._nodes.get_node_config(addr))
+            node_config['DefaultAction'] = self.comboNodeAction.currentText()
+            node_config['DefaultDuration'] = self.comboNodeDuration.currentText()
+            node_config['ProcMonitorMethod'] = self.comboNodeMonitorMethod.currentText()
+            node_config['LogLevel'] = self.comboNodeLogLevel.currentIndex()
+            node_config['InterceptUnknown'] = self.checkInterceptUnknown.isChecked()
+
+            if node_config.get('Server') != None:
+                # skip setting Server Address if we're applying the config to all nodes
+                if self.checkApplyToNodes.isChecked():
+                    print("skipping server address")
+                    node_config['Server']['Address'] = self.comboNodeAddress.currentText()
+                node_config['Server']['LogFile'] = self.comboNodeLogFile.currentText()
+            #else:
+            #    print(addr, " doesn't have Server item")
+            return json.dumps(node_config), None
+        except Exception as e:
+            print(self.LOG_TAG + "exception loading node config on %s: " % addr, e)
+
+        return None, "Error loading %s configuration" % addr
 
     def _hide_status_label(self):
         self.statusLabel.hide()

@@ -52,7 +52,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._prompt_trigger.connect(self.on_connection_prompt_triggered)
         self._timeout_trigger.connect(self.on_timeout_triggered)
         self._tick_trigger.connect(self.on_tick_triggered)
-        self._tick = int(self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)) if self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT) else self.DEFAULT_TIMEOUT
+        self._tick = int(self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)) if self._cfg.hasKey(self.CFG_DEFAULT_TIMEOUT) else self.DEFAULT_TIMEOUT
         self._tick_thread = None
         self._done = threading.Event()
         self._timeout_text = ""
@@ -99,7 +99,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._tick_thread != None and self._tick_thread.is_alive():
                 self._tick_thread.join()
             self._cfg.reload()
-            self._tick = int(self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)) if self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT) else self.DEFAULT_TIMEOUT
+            self._tick = int(self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)) if self._cfg.hasKey(self.CFG_DEFAULT_TIMEOUT) else self.DEFAULT_TIMEOUT
             self._tick_thread = threading.Thread(target=self._timeout_worker)
             self._tick_thread.stop = self._ischeckAdvanceded
             self._timeout_triggered = False

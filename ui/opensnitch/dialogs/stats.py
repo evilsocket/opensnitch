@@ -251,6 +251,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboAction.currentIndexChanged.connect(self._cb_combo_action_changed)
         self.limitCombo.currentIndexChanged.connect(self._cb_limit_combo_changed)
         self.cmdCleanSql.clicked.connect(self._cb_clean_sql_clicked)
+        self.cmdCleanHosts.clicked.connect(self._cb_clean_sql_clicked)
+        self.cmdCleanProcs.clicked.connect(self._cb_clean_sql_clicked)
+        self.cmdCleanAddrs.clicked.connect(self._cb_clean_sql_clicked)
+        self.cmdCleanPorts.clicked.connect(self._cb_clean_sql_clicked)
+        self.cmdCleanUsers.clicked.connect(self._cb_clean_sql_clicked)
         self.tabWidget.currentChanged.connect(self._cb_tab_changed)
         self.delRuleButton.clicked.connect(self._cb_del_rule_clicked)
         self.enableRuleCheck.clicked.connect(self._cb_enable_rule_toggled)
@@ -324,6 +329,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_ADDRS]['cmd'] = self.cmdAddrsBack
         self.TABLES[self.TAB_PORTS]['cmd'] = self.cmdPortsBack
         self.TABLES[self.TAB_USERS]['cmd'] = self.cmdUsersBack
+
+        self.TABLES[self.TAB_MAIN]['cmdCleanStats'] = self.cmdCleanSql
+        self.TABLES[self.TAB_HOSTS]['cmdCleanStats'] = self.cmdCleanHosts
+        self.TABLES[self.TAB_PROCS]['cmdCleanStats'] = self.cmdCleanProcs
+        self.TABLES[self.TAB_ADDRS]['cmdCleanStats'] = self.cmdCleanAddrs
+        self.TABLES[self.TAB_PORTS]['cmdCleanStats'] = self.cmdCleanPorts
+        self.TABLES[self.TAB_USERS]['cmdCleanStats'] = self.cmdCleanUsers
 
         self.TABLES[self.TAB_MAIN]['filterLine'] = self.filterLine
         self.TABLES[self.TAB_RULES]['filterLine'] = self.rulesFilterLine
@@ -549,6 +561,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_clean_sql_clicked(self):
         self._db.clean(self.TABLES[self.tabWidget.currentIndex()]['name'])
+        self._refresh_active_table()
 
     def _cb_cmd_back_clicked(self, idx):
         cur_idx = self.tabWidget.currentIndex()
@@ -699,6 +712,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[cur_idx]['tipLabel'].setVisible(not state)
         if self.TABLES[cur_idx]['filterLine'] != None:
             self.TABLES[cur_idx]['filterLine'].setVisible(not state)
+        if self.TABLES[cur_idx].get('cmdCleanStats') != None:
+            self.TABLES[cur_idx]['cmdCleanStats'].setVisible(not state)
 
     def _set_rules_tab_active(self, row, cur_idx):
         data = row.data()

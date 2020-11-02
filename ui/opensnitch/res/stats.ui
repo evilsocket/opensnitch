@@ -153,8 +153,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="edit-clear">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+            <iconset theme="edit-clear-all"/>
            </property>
           </widget>
          </item>
@@ -426,6 +425,16 @@
          <item>
           <widget class="QLineEdit" name="hostsFilterLine"/>
          </item>
+         <item>
+          <widget class="QPushButton" name="cmdCleanHosts">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="edit-clear-all"/>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -504,6 +513,16 @@
          <item>
           <widget class="QLineEdit" name="procsFilterLine"/>
          </item>
+         <item>
+          <widget class="QPushButton" name="cmdCleanProcs">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="edit-clear-all"/>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -575,6 +594,16 @@
          </item>
          <item>
           <widget class="QLineEdit" name="addrsFilterLine"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cmdCleanAddrs">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="edit-clear-all"/>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -648,6 +677,16 @@
          <item>
           <widget class="QLineEdit" name="portsFilterLine"/>
          </item>
+         <item>
+          <widget class="QPushButton" name="cmdCleanPorts">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="edit-clear-all"/>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -709,11 +748,38 @@
         </layout>
        </item>
        <item>
-        <widget class="QLabel" name="tipUsersLabel">
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QLabel" name="tipUsersLabel">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_12">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cmdCleanUsers">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="edit-clear-all"/>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QTableView" name="usersTable">
