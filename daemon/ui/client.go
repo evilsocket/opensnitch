@@ -44,7 +44,7 @@ type Config struct {
 
 // Client holds the connection information of a client.
 type Client struct {
-	sync.Mutex
+	sync.RWMutex
 	clientCtx    context.Context
 	clientCancel context.CancelFunc
 
@@ -101,12 +101,16 @@ func (c *Client) InterceptUnknown() bool {
 
 // DefaultAction returns the default configured action for
 func (c *Client) DefaultAction() rule.Action {
+	c.RLock()
+	defer c.RUnlock()
 	return clientDisconnectedRule.Action
 }
 
 // DefaultDuration returns the default duration configured for a rule.
 // For example it can be: once, always, "until restart".
 func (c *Client) DefaultDuration() rule.Duration {
+	c.RLock()
+	defer c.RUnlock()
 	return clientDisconnectedRule.Duration
 }
 
