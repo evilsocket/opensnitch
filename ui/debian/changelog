@@ -1,3 +1,12 @@
+opensnitch-ui (1.2.0-1) unstable; urgency=medium
+
+  * Sort rules by name.
+  * Allow to set priority on rules.
+  * Rules are case-insensitive by default.
+  * Other fixes.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Mon, 09 Nov 2020 23:00:38 +0100
+
 opensnitch-ui (1.0.1-1) unstable; urgency=medium
 
   * Fixed crash when clicking on General tab columns.

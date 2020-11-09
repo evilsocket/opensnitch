@@ -1,3 +1,12 @@
+opensnitch (1.2.0-1) unstable; urgency=medium
+
+  * Fixed memleaks.
+  * Sort rules by name
+  * Added priority field to rules.
+  * Other fixes
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Mon, 09 Nov 2020 22:55:13 +0100
+
 opensnitch (1.0.1-1) unstable; urgency=medium
 
   * Fixed app exit when IPv6 is not supported.
