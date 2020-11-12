@@ -3,9 +3,11 @@ package firewall
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
@@ -19,9 +21,14 @@ type Action string
 
 // Actions we apply to the firewall.
 const (
-	ADD    = Action("-A")
-	INSERT = Action("-I")
-	DELETE = Action("-D")
+	ADD      = Action("-A")
+	INSERT   = Action("-I")
+	DELETE   = Action("-D")
+	FLUSH    = Action("-F")
+	NEWCHAIN = Action("-N")
+	DELCHAIN = Action("-X")
+
+	systemRulePrefix = "opensnitch-filter"
 )
 
 // make sure we don't mess with multiple rules
@@ -31,11 +38,14 @@ var (
 
 	queueNum = 0
 	running  = false
-	// check that rules are loaded every 5s
-	rulesChecker       = time.NewTicker(time.Second * 20)
-	rulesCheckerChan   = make(chan bool)
-	regexRulesQuery, _ = regexp.Compile(`NFQUEUE.*ctstate NEW,RELATED.*NFQUEUE num.*bypass`)
-	regexDropQuery, _  = regexp.Compile(`DROP.*mark match 0x18ba5`)
+	// check that rules are loaded every 30s
+	rulesChecker             *time.Ticker
+	rulesCheckerChan         = make(chan bool)
+	regexRulesQuery, _       = regexp.Compile(`NFQUEUE.*ctstate NEW,RELATED.*NFQUEUE num.*bypass`)
+	regexDropQuery, _        = regexp.Compile(`DROP.*mark match 0x18ba5`)
+	regexSystemRulesQuery, _ = regexp.Compile(systemRulePrefix + ".*")
+
+	systemChains = make(map[string]*fwRule)
 )
 
 // RunRule inserts or deletes a firewall rule.
@@ -48,8 +58,6 @@ func RunRule(action Action, enable bool, logError bool, rule []string) error {
 
 	lock.Lock()
 	defer lock.Unlock()
-
-	// fmt.Printf("iptables %s\n", rule)
 
 	_, err4 := core.Exec("iptables", rule)
 	_, err6 := core.Exec("ip6tables", rule)
@@ -86,7 +94,7 @@ func QueueDNSResponses(enable bool, logError bool, qNum int) (err error) {
 // They are queued until the user denies/accept them, or reaches a timeout.
 // OUTPUT -t mangle -m conntrack --ctstate NEW,RELATED -j NFQUEUE --queue-num 0 --queue-bypass
 func QueueConnections(enable bool, logError bool, qNum int) (err error) {
-	return RunRule(ADD, enable, logError, []string{
+	return RunRule(INSERT, enable, logError, []string{
 		"OUTPUT",
 		"-t", "mangle",
 		"-m", "conntrack",
@@ -108,32 +116,97 @@ func DropMarked(enable bool, logError bool) (err error) {
 	})
 }
 
+// CreateSystemRule create the custom firewall chains and adds them to system.
+func CreateSystemRule(rule *fwRule, logErrors bool) {
+	chainName := systemRulePrefix + "-" + rule.Chain
+	if _, ok := systemChains[rule.Table+"-"+chainName]; ok {
+		return
+	}
+	RunRule(NEWCHAIN, true, logErrors, []string{chainName, "-t", rule.Table})
+
+	// Insert the rule at the top of the chain
+	if err := RunRule(INSERT, true, logErrors, []string{rule.Chain, "-t", rule.Table, "-j", chainName}); err == nil {
+		systemChains[rule.Table+"-"+chainName] = rule
+	}
+}
+
+// DeleteSystemRules deletes the system rules
+func DeleteSystemRules(logErrors bool) {
+	for _, r := range fwConfig.SystemRules {
+		chain := systemRulePrefix + "-" + r.Rule.Chain
+		if _, ok := systemChains[r.Rule.Table+"-"+chain]; !ok {
+			continue
+		}
+		RunRule(FLUSH, true, logErrors, []string{chain, "-t", r.Rule.Table})
+		RunRule(DELETE, false, logErrors, []string{r.Rule.Chain, "-t", r.Rule.Table, "-j", chain})
+		RunRule(DELCHAIN, true, logErrors, []string{chain, "-t", r.Rule.Table})
+		delete(systemChains, r.Rule.Table+"-"+chain)
+	}
+}
+
+// AddSystemRule inserts a new rule.
+func AddSystemRule(action Action, rule *fwRule, enable bool) (err error) {
+	chain := systemRulePrefix + "-" + rule.Chain
+	if rule.Table == "" {
+		rule.Table = "filter"
+	}
+	r := []string{chain, "-t", rule.Table}
+	if rule.Parameters != "" {
+		r = append(r, strings.Split(rule.Parameters, " ")...)
+	}
+	r = append(r, []string{"-j", rule.Target}...)
+	if rule.TargetParameters != "" {
+		r = append(r, strings.Split(rule.TargetParameters, " ")...)
+	}
+
+	return RunRule(action, enable, true, r)
+}
+
 // AreRulesLoaded checks if the firewall rules are loaded.
 func AreRulesLoaded() bool {
 	lock.Lock()
 	defer lock.Unlock()
 
-	outDrop, err := core.Exec("iptables", []string{"-L", "OUTPUT"})
+	outDrop, err := core.Exec("iptables", []string{"-n", "-L", "OUTPUT"})
 	if err != nil {
 		return false
 	}
-	outDrop6, err := core.Exec("ip6tables", []string{"-L", "OUTPUT"})
+	outDrop6, err := core.Exec("ip6tables", []string{"-n", "-L", "OUTPUT"})
 	if err != nil {
 		return false
 	}
-	outMangle, err := core.Exec("iptables", []string{"-L", "OUTPUT", "-t", "mangle"})
+	outMangle, err := core.Exec("iptables", []string{"-n", "-L", "OUTPUT", "-t", "mangle"})
 	if err != nil {
 		return false
 	}
-	outMangle6, err := core.Exec("ip6tables", []string{"-L", "OUTPUT", "-t", "mangle"})
+	outMangle6, err := core.Exec("ip6tables", []string{"-n", "-L", "OUTPUT", "-t", "mangle"})
 	if err != nil {
 		return false
+	}
+
+	systemRulesLoaded := true
+	if len(systemChains) > 0 {
+		for _, rule := range systemChains {
+			if chainOut4, err4 := core.Exec("iptables", []string{"-n", "-L", rule.Chain, "-t", rule.Table}); err4 == nil {
+				if regexSystemRulesQuery.FindString(chainOut4) == "" {
+					systemRulesLoaded = false
+					break
+				}
+			}
+			if chainOut6, err6 := core.Exec("ip6tables", []string{"-n", "-L", rule.Chain, "-t", rule.Table}); err6 == nil {
+				if regexSystemRulesQuery.FindString(chainOut6) == "" {
+					systemRulesLoaded = false
+					break
+				}
+			}
+		}
 	}
 
 	return regexRulesQuery.FindString(outMangle) != "" &&
 		regexRulesQuery.FindString(outMangle6) != "" &&
 		regexDropQuery.FindString(outDrop) != "" &&
-		regexDropQuery.FindString(outDrop6) != ""
+		regexDropQuery.FindString(outDrop6) != "" &&
+		systemRulesLoaded
 }
 
 // StartCheckingRules checks periodically if the rules are loaded.
@@ -142,16 +215,19 @@ func StartCheckingRules(qNum int) {
 	for {
 		select {
 		case <-rulesCheckerChan:
-			return
+			goto Exit
 		case <-rulesChecker.C:
 			if rules := AreRulesLoaded(); rules == false {
-				QueueConnections(false, false, qNum)
-				DropMarked(false, false)
-				QueueConnections(true, true, qNum)
-				DropMarked(true, true)
+				log.Important("firewall rules changed, reloading")
+				CleanRules(false)
+				insertRules()
+				loadDiskConfiguration(true)
 			}
 		}
 	}
+
+Exit:
+	log.Info("exit checking fw rules")
 }
 
 // StopCheckingRules stops checking if the firewall rules are loaded.
@@ -164,6 +240,24 @@ func IsRunning() bool {
 	return running
 }
 
+// CleanRules deletes the rules we added.
+func CleanRules(logErrors bool) {
+	QueueDNSResponses(false, logErrors, queueNum)
+	QueueConnections(false, logErrors, queueNum)
+	DropMarked(false, logErrors)
+	DeleteSystemRules(logErrors)
+}
+
+func insertRules() {
+	if err := QueueDNSResponses(true, true, queueNum); err != nil {
+		log.Error("Error while running DNS firewall rule: %s", err)
+	} else if err = QueueConnections(true, true, queueNum); err != nil {
+		log.Fatal("Error while running conntrack firewall rule: %s", err)
+	} else if err = DropMarked(true, true); err != nil {
+		log.Fatal("Error while running drop firewall rule: %s", err)
+	}
+}
+
 // Stop deletes the firewall rules, allowing network traffic.
 func Stop(qNum *int) {
 	if running == false {
@@ -173,10 +267,9 @@ func Stop(qNum *int) {
 		queueNum = *qNum
 	}
 
+	configWatcher.Close()
 	StopCheckingRules()
-	QueueDNSResponses(false, true, queueNum)
-	QueueConnections(false, true, queueNum)
-	DropMarked(false, true)
+	CleanRules(false)
 
 	running = false
 }
@@ -189,14 +282,13 @@ func Init(qNum *int) {
 	if qNum != nil {
 		queueNum = *qNum
 	}
+	insertRules()
 
-	if err := QueueDNSResponses(true, true, queueNum); err != nil {
-		log.Error("Error while running DNS firewall rule: %s", err)
-	} else if err = QueueConnections(true, true, queueNum); err != nil {
-		log.Error("Error while running conntrack firewall rule: %s", err)
-	} else if err = DropMarked(true, true); err != nil {
-		log.Error("Error while running drop firewall rule: %s", err)
+	if watcher, err := fsnotify.NewWatcher(); err == nil {
+		configWatcher = watcher
 	}
+	loadDiskConfiguration(false)
+
 	go StartCheckingRules(queueNum)
 
 	running = true

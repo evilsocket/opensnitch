@@ -289,9 +289,7 @@ func main() {
 	flag.Parse()
 
 	// clean any possible residual firewall rule
-	firewall.QueueDNSResponses(false, false, queueNum)
-	firewall.QueueConnections(false, false, queueNum)
-	firewall.DropMarked(false, false)
+	firewall.CleanRules(false)
 
 	setupLogging()
 

@@ -1,0 +1,14 @@
+{
+    "SystemRules": [
+        {
+            "Rule": {
+                "Description": "Allow icmp",
+                "Table": "mangle",
+                "Chain": "OUTPUT",
+                "Parameters": "-p icmp",
+                "Target": "ACCEPT",
+                "TargetParameters": ""
+            }
+        }
+    ]
+}
