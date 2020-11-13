@@ -50,6 +50,12 @@ if [ -f /etc/opensnitchd/default-config.json ]; then
 fi
 install -m 644 -b $B daemon/default-config.json %{buildroot}/etc/opensnitchd/default-config.json
 
+B=""
+if [ -f /etc/opensnitchd/system-fw.json ]; then
+    B="-b"
+fi
+install -m 644 -b $B daemon/system-fw.json %{buildroot}/etc/opensnitchd/system-fw.json
+
 # upgrade, uninstall
 %preun
 systemctl stop opensnitch.service || true
