@@ -48,7 +48,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Prompt dialog default position on screen</string>
+          <string>Default screen position for prompt dialog</string>
          </property>
         </widget>
        </item>
@@ -93,7 +93,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;p&gt;Set it to 0 to avoid displaying the pop-up. Instead, you'll see a warning that the default action has been applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Timeout (in seconds) for pop-up dialogs. Will be displayed as a countdown.&lt;/p&gt;&lt;p&gt;If set to 0, the app will only display a warning the default action has been applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Default timeout</string>
@@ -283,7 +283,7 @@
        <item row="6" column="0">
         <widget class="QLabel" name="label_11">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will be used when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Default duration</string>
@@ -326,7 +326,7 @@
        <item row="5" column="0">
         <widget class="QLabel" name="label_10">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action to be used when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Default action</string>
@@ -437,7 +437,7 @@
        <item row="4" column="0">
         <widget class="QLabel" name="label_7">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log file to write logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log output file.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Using "/dev/stdout" will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Log file</string>
@@ -447,7 +447,7 @@
        <item row="7" column="0">
         <widget class="QLabel" name="label_12">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, opensnitch will prompt you to allow or deny connections that don't have an asocciated PID, due to several reasons.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections without an associated PID. This lack of PID could be due to many reasons.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Intercept Unknown Connections</string>
