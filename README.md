@@ -107,7 +107,7 @@ computer with `-ui-socket "x.x.x.x:50051"` (where `x.x.x.x` is the IP of the com
 
 ### Rules
 
-Rules are stored as JSON files inside the `-rule-path` folder, in the simplest cast a rule looks like this:
+Rules are stored as JSON files inside the `-rule-path` folder, in the simplest case a rule looks like this:
 
 ```json
 {
