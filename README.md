@@ -16,13 +16,13 @@
 
 ### Installation and configuration
 
-Please, refer to [documentation](https://github.com/gustavo-iniguez-goya/opensnitch/wiki) for detailed information.
+Please, refer to [the documentation](https://github.com/gustavo-iniguez-goya/opensnitch/wiki) for detailed information.
 
 ### Credits
 
 OpenSnitch was originally created by **Simone Margaritelli** ([evilsocket](https://github.com/evilsocket)), 2017-2019.
 
-Many others have also contributed over the time, [see the list](https://github.com/gustavo-iniguez-goya/opensnitch/graphs/contributors)
+Many others have also contributed over time, [see the list](https://github.com/gustavo-iniguez-goya/opensnitch/graphs/contributors)
 
 ### Disclaimer
 
