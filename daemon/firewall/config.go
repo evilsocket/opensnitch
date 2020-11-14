@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"sync"
-	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
@@ -42,6 +41,7 @@ func loadDiskConfiguration(reload bool) {
 	}
 
 	if ok := loadConfiguration(raw); ok {
+		configWatcher.Remove(configFile)
 		if err := configWatcher.Add(configFile); err != nil {
 			log.Error("Could not watch firewall configuration: %s", err)
 			return
@@ -61,11 +61,7 @@ func loadConfiguration(rawConfig []byte) bool {
 	fwConfig.Lock()
 	defer fwConfig.Unlock()
 
-	DeleteSystemRules(true)
-	if rulesChecker != nil {
-		rulesChecker.Stop()
-	}
-
+	DeleteSystemRules(log.GetLogLevel() == log.DEBUG)
 	if err := json.Unmarshal(rawConfig, &fwConfig); err != nil {
 		log.Error("Error parsing firewall configuration %s: %s", configFile, err)
 		return false
@@ -79,7 +75,6 @@ func loadConfiguration(rawConfig []byte) bool {
 		AddSystemRule(ADD, r.Rule, true)
 	}
 
-	rulesChecker = time.NewTicker(time.Second * 30)
 	return true
 }
 

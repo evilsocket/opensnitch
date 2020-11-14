@@ -121,6 +121,14 @@ func SetLogLevel(newLevel int) {
 	MinLevel = newLevel
 }
 
+// GetLogLevel returns the current log level configured.
+func GetLogLevel() int {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	return MinLevel
+}
+
 // Log prints out a text with the given color and format
 func Log(level int, format string, args ...interface{}) {
 	mutex.Lock()

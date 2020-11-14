@@ -39,7 +39,7 @@ var (
 	queueNum = 0
 	running  = false
 	// check that rules are loaded every 30s
-	rulesChecker             *time.Ticker
+	rulesChecker             = time.NewTicker(time.Second * 30)
 	rulesCheckerChan         = make(chan bool)
 	regexRulesQuery, _       = regexp.Compile(`NFQUEUE.*ctstate NEW,RELATED.*NFQUEUE num.*bypass`)
 	regexDropQuery, _        = regexp.Compile(`DROP.*mark match 0x18ba5`)
@@ -211,7 +211,7 @@ func AreRulesLoaded() bool {
 
 // StartCheckingRules checks periodically if the rules are loaded.
 // If they're not, we insert them again.
-func StartCheckingRules(qNum int) {
+func StartCheckingRules() {
 	for {
 		select {
 		case <-rulesCheckerChan:
@@ -219,7 +219,7 @@ func StartCheckingRules(qNum int) {
 		case <-rulesChecker.C:
 			if rules := AreRulesLoaded(); rules == false {
 				log.Important("firewall rules changed, reloading")
-				CleanRules(false)
+				CleanRules(log.GetLogLevel() == log.DEBUG)
 				insertRules()
 				loadDiskConfiguration(true)
 			}
@@ -232,6 +232,7 @@ Exit:
 
 // StopCheckingRules stops checking if the firewall rules are loaded.
 func StopCheckingRules() {
+	rulesChecker.Stop()
 	rulesCheckerChan <- true
 }
 
@@ -269,7 +270,7 @@ func Stop(qNum *int) {
 
 	configWatcher.Close()
 	StopCheckingRules()
-	CleanRules(false)
+	CleanRules(log.GetLogLevel() == log.DEBUG)
 
 	running = false
 }
@@ -289,7 +290,7 @@ func Init(qNum *int) {
 	}
 	loadDiskConfiguration(false)
 
-	go StartCheckingRules(queueNum)
+	go StartCheckingRules()
 
 	running = true
 }
