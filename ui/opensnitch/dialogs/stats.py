@@ -590,10 +590,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         cur_idx = self.tabWidget.currentIndex()
         self._set_active_widgets(False)
         if cur_idx == StatsDialog.TAB_RULES:
-            self.delRuleButton.setVisible(False)
-            self.editRuleButton.setVisible(False)
-            self.nodeRuleLabel.setText("")
-            self.rulesFilterLine.setVisible(True)
+            self._restore_rules_tab_widgets(True)
         elif cur_idx == StatsDialog.TAB_PROCS:
             self.cmdProcDetails.setVisible(False)
 
@@ -741,15 +738,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.TABLES[cur_idx].get('cmdCleanStats') != None:
             self.TABLES[cur_idx]['cmdCleanStats'].setVisible(not state)
 
-    def _set_proc_tab_active(self, data):
+    def _set_process_tab_active(self, data):
         self.cmdProcDetails.setVisible(False)
         self._set_process_query(data)
 
+    def _restore_rules_tab_widgets(self, active):
+        self.delRuleButton.setVisible(not active)
+        self.editRuleButton.setVisible(not active)
+        self.nodeRuleLabel.setText("" if active)
+        self.rulesFilterLine.setVisible(active)
+
     def _set_rules_tab_active(self, row, cur_idx):
         data = row.data()
-        self.delRuleButton.setVisible(True)
-        self.editRuleButton.setVisible(True)
-        self.rulesFilterLine.setVisible(False)
+        self._restore_rules_tab_widgets(False)
 
         node = row.model().index(row.row(), 1)
         self.nodeRuleLabel.setText(node.data())
