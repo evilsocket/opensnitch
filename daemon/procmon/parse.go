@@ -2,12 +2,10 @@ package procmon
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon/audit"
 )
@@ -85,50 +83,6 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 	return found
 }
 
-func cleanPath(proc *Process) {
-	pathLen := len(proc.Path)
-	if pathLen >= 10 && proc.Path[pathLen-10:] == " (deleted)" {
-		proc.Path = proc.Path[:len(proc.Path)-10]
-	}
-}
-
-func parseCmdLine(proc *Process) {
-	if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/cmdline", proc.ID)); err == nil {
-		for i, b := range data {
-			if b == 0x00 {
-				data[i] = byte(' ')
-			}
-		}
-
-		args := strings.Split(string(data), " ")
-		for _, arg := range args {
-			arg = core.Trim(arg)
-			if arg != "" {
-				proc.Args = append(proc.Args, arg)
-			}
-		}
-	}
-}
-
-func parseCWD(proc *Process) {
-	if link, err := os.Readlink(fmt.Sprintf("/proc/%d/cwd", proc.ID)); err == nil {
-		proc.CWD = link
-	}
-}
-
-func parseEnv(proc *Process) {
-	if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/environ", proc.ID)); err == nil {
-		for _, s := range strings.Split(string(data), "\x00") {
-			parts := strings.SplitN(core.Trim(s), "=", 2)
-			if parts != nil && len(parts) == 2 {
-				key := core.Trim(parts[0])
-				val := core.Trim(parts[1])
-				proc.Env[key] = val
-			}
-		}
-	}
-}
-
 // FindProcess checks if a process exists given a PID.
 // If it exists in /proc, a new Process{} object is returned with  the details
 // to identify a process (cmdline, name, environment variables, etc).
@@ -141,14 +95,14 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 			audit.Lock.RLock()
 			proc := NewProcess(pid, aevent.ProcPath)
 			proc.Args = strings.Split(strings.Replace(aevent.ProcCmdLine, "\x00", " ", -1), " ")
-			proc.CWD = aevent.ProcDir
+			proc.setCwd(aevent.ProcDir)
 			audit.Lock.RUnlock()
 			// if the proc dir contains non alhpa-numeric chars the field is empty
 			if proc.CWD == "" {
-				parseCWD(proc)
+				proc.readCwd()
 			}
-			parseEnv(proc)
-			cleanPath(proc)
+			proc.readEnv()
+			proc.cleanPath()
 
 			return proc
 		}
@@ -162,10 +116,10 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 	if link, err := os.Readlink(linkName); err == nil {
 		proc := NewProcess(pid, link)
 
-		parseCmdLine(proc)
-		parseCWD(proc)
-		parseEnv(proc)
-		cleanPath(proc)
+		proc.readCmdline()
+		proc.readCwd()
+		proc.readEnv()
+		proc.cleanPath()
 
 		return proc
 	}

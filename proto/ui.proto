@@ -86,6 +86,8 @@ enum Action {
     CHANGE_RULE = 7;
     LOG_LEVEL = 8;
     STOP = 9;
+    MONITOR_PROCESS = 10;
+    STOP_MONITOR_PROCESS = 11;
 }
 
 // client configuration sent on Subscribe()

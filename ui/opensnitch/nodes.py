@@ -3,6 +3,7 @@ from datetime import datetime
 import time
 import json
 
+import ui_pb2
 from database import Database
 
 class Nodes():
@@ -155,7 +156,10 @@ class Nodes():
         try:
             notification.id = int(str(time.time()).replace(".", ""))
             self._nodes[addr]['notifications'].put(notification)
-            self._notifications_sent[notification.id] = callback_signal
+            self._notifications_sent[notification.id] = {
+                    'callback': callback_signal,
+                    'type': notification.type
+                    }
         except Exception as e:
             print(self.LOG_TAG + " exception sending notification: ", e, addr, notification)
 
@@ -170,20 +174,28 @@ class Nodes():
             notification.id = int(str(time.time()).replace(".", ""))
             for c in self._nodes:
                 self._nodes[c]['notifications'].put(notification)
-            self._notifications_sent[notification.id] = callback_signal
+            self._notifications_sent[notification.id] = {
+                    'callback': callback_signal,
+                    'type': notification.type
+                    }
         except Exception as e:
             print(self.LOG_TAG + " exception sending notifications: ", e, notification)
 
         return notification.id
 
-    def reply_notification(self, reply):
+    def reply_notification(self, addr, reply):
         if reply == None:
             print(self.LOG_TAG, " reply notification None")
             return
         if reply.id in self._notifications_sent:
             if self._notifications_sent[reply.id] != None:
-                self._notifications_sent[reply.id].emit(reply)
-            del self._notifications_sent[reply.id]
+                self._notifications_sent[reply.id]['callback'].emit(reply)
+
+                # delete only one-time notifications
+                # we need the ID of streaming notifications from the server
+                # (monitor_process for example) to keep track of the data sent to us.
+                if self._notifications_sent[reply.id]['type'] != ui_pb2.MONITOR_PROCESS:
+                    del self._notifications_sent[reply.id]
 
     def update(self, proto, addr, status=ONLINE):
         try:

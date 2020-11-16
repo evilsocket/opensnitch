@@ -509,7 +509,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     in_message = next(node_iter)
                     if in_message == None:
                         continue
-                    self._nodes.reply_notification(in_message)
+                    self._nodes.reply_notification(addr, in_message)
                 except StopIteration as e:
                     print("[Notifications] Node exited")
                 except Exception as e:

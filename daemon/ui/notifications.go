@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,6 +17,8 @@ import (
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui/protocol"
 	"golang.org/x/net/context"
 )
+
+var stopMonitoringProcess = make(chan int)
 
 // NewReply constructs a new protocol notification reply
 func NewReply(rID uint64, replyCode protocol.NotificationReplyCode, data string) *protocol.NotificationReply {
@@ -48,13 +52,42 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 	}
 }
 
+func (c *Client) monitorProcessDetails(pid int, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	p := procmon.NewProcess(pid, "")
+	ticker := time.NewTicker(2 * time.Second)
+
+	for {
+		select {
+		case _pid := <-stopMonitoringProcess:
+			if _pid != pid {
+				continue
+			}
+			goto Exit
+		case <-ticker.C:
+			if err := p.GetInfo(); err != nil {
+				c.sendNotificationReply(stream, notification.Id, notification.Data, err)
+				goto Exit
+			}
+
+			pJSON, err := json.Marshal(p)
+			notification.Data = string(pJSON)
+			if errs := c.sendNotificationReply(stream, notification.Id, notification.Data, err); errs != nil {
+				goto Exit
+			}
+		}
+	}
+
+Exit:
+	ticker.Stop()
+}
+
 func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	log.Info("[notification] Reloading configuration")
 	// Parse received configuration first, to get the new proc monitor method.
 	newConf, err := c.parseConf(notification.Data)
 	if err != nil {
 		log.Warning("[notification] error parsing received config: %v", notification.Data)
-		c.sendNotificationReply(stream, notification.Id, err)
+		c.sendNotificationReply(stream, notification.Id, "", err)
 		return
 	}
 
@@ -73,7 +106,7 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 		procmon.Init()
 	}
 
-	c.sendNotificationReply(stream, notification.Id, err)
+	c.sendNotificationReply(stream, notification.Id, "", err)
 }
 
 func (c *Client) handleActionEnableRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
@@ -86,7 +119,7 @@ func (c *Client) handleActionEnableRule(stream protocol.UI_NotificationsClient, 
 		// save to disk only if the duration is rule.Always
 		err = c.rules.Replace(r, r.Duration == rule.Always)
 	}
-	c.sendNotificationReply(stream, notification.Id, err)
+	c.sendNotificationReply(stream, notification.Id, "", err)
 }
 
 func (c *Client) handleActionDisableRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
@@ -97,7 +130,7 @@ func (c *Client) handleActionDisableRule(stream protocol.UI_NotificationsClient,
 		r.Enabled = false
 		err = c.rules.Replace(r, r.Duration == rule.Always)
 	}
-	c.sendNotificationReply(stream, notification.Id, err)
+	c.sendNotificationReply(stream, notification.Id, "", err)
 }
 
 func (c *Client) handleActionChangeRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
@@ -114,7 +147,7 @@ func (c *Client) handleActionChangeRule(stream protocol.UI_NotificationsClient, 
 			rErr = err
 		}
 	}
-	c.sendNotificationReply(stream, notification.Id, rErr)
+	c.sendNotificationReply(stream, notification.Id, "", rErr)
 }
 
 func (c *Client) handleActionDeleteRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
@@ -126,23 +159,53 @@ func (c *Client) handleActionDeleteRule(stream protocol.UI_NotificationsClient, 
 			log.Error("[notification] Error deleting rule: ", err, rul)
 		}
 	}
-	c.sendNotificationReply(stream, notification.Id, err)
+	c.sendNotificationReply(stream, notification.Id, "", err)
+}
+
+func (c *Client) handleActionMonitorProcess(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	pid, err := strconv.Atoi(notification.Data)
+	if err != nil {
+		log.Error("parsing PID to monitor")
+		return
+	}
+	if !core.Exists(fmt.Sprint("/proc/", pid)) {
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("The process is no longer running"))
+		return
+	}
+	go c.monitorProcessDetails(pid, stream, notification)
+}
+
+func (c *Client) handleActionStopMonitorProcess(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	pid, err := strconv.Atoi(notification.Data)
+	if err != nil {
+		log.Error("parsing PID to stop monitor")
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error stopping monitor: ", notification.Data))
+		return
+	}
+	stopMonitoringProcess <- pid
+	c.sendNotificationReply(stream, notification.Id, "", nil)
 }
 
 func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	switch {
+	case notification.Type == protocol.Action_MONITOR_PROCESS:
+		c.handleActionMonitorProcess(stream, notification)
+
+	case notification.Type == protocol.Action_STOP_MONITOR_PROCESS:
+		c.handleActionStopMonitorProcess(stream, notification)
+
 	case notification.Type == protocol.Action_CHANGE_CONFIG:
 		c.handleActionChangeConfig(stream, notification)
 
 	case notification.Type == protocol.Action_LOAD_FIREWALL:
 		log.Info("[notification] starting firewall")
 		firewall.Init(nil)
-		c.sendNotificationReply(stream, notification.Id, nil)
+		c.sendNotificationReply(stream, notification.Id, "", nil)
 
 	case notification.Type == protocol.Action_UNLOAD_FIREWALL:
 		log.Info("[notification] stopping firewall")
 		firewall.Stop(nil)
-		c.sendNotificationReply(stream, notification.Id, nil)
+		c.sendNotificationReply(stream, notification.Id, "", nil)
 
 	// ENABLE_RULE just replaces the rule on disk
 	case notification.Type == protocol.Action_ENABLE_RULE:
@@ -160,15 +223,18 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 	}
 }
 
-func (c *Client) sendNotificationReply(stream protocol.UI_NotificationsClient, nID uint64, err error) {
-	reply := NewReply(nID, protocol.NotificationReplyCode_OK, "")
+func (c *Client) sendNotificationReply(stream protocol.UI_NotificationsClient, nID uint64, data string, err error) error {
+	reply := NewReply(nID, protocol.NotificationReplyCode_OK, data)
 	if err != nil {
 		reply.Code = protocol.NotificationReplyCode_ERROR
 		reply.Data = fmt.Sprint(err)
 	}
 	if err := stream.Send(reply); err != nil {
 		log.Error("Error replying to notification:", err, reply.Id)
+		return err
 	}
+
+	return nil
 }
 
 // Subscribe opens a connection with the server (UI), to start

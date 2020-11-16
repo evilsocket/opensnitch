@@ -72,7 +72,7 @@
             </property>
             <property name="icon">
              <iconset theme="emblem-default">
-              <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+              <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
             </property>
            </item>
            <item>
@@ -81,7 +81,7 @@
             </property>
             <property name="icon">
              <iconset theme="emblem-important">
-              <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+              <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
             </property>
            </item>
           </widget>
@@ -153,7 +153,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="edit-clear-all"/>
+            <iconset theme="edit-clear-all">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -191,7 +192,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -210,7 +211,7 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_11">
+          <spacer name="nodesSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -260,7 +261,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -278,7 +279,7 @@
            </property>
            <property name="icon">
             <iconset theme="accessories-text-editor">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -289,7 +290,7 @@
            </property>
            <property name="icon">
             <iconset theme="edit-delete">
-             <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -384,7 +385,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -431,7 +432,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="edit-clear-all"/>
+            <iconset theme="edit-clear-all">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -472,7 +474,17 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cmdProcDetails">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="system-search"/>
            </property>
           </widget>
          </item>
@@ -519,7 +531,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="edit-clear-all"/>
+            <iconset theme="edit-clear-all">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -557,7 +570,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -601,7 +614,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="edit-clear-all"/>
+            <iconset theme="edit-clear-all">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -639,7 +653,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -683,7 +697,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="edit-clear-all"/>
+            <iconset theme="edit-clear-all">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -721,7 +736,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -775,7 +790,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="edit-clear-all"/>
+            <iconset theme="edit-clear-all">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -1105,7 +1121,7 @@
        </property>
        <property name="icon">
         <iconset theme="document-save">
-         <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
        <property name="shortcut">
         <string>Ctrl+S</string>
@@ -1131,7 +1147,7 @@
        </property>
        <property name="icon">
         <iconset theme="preferences-desktop">
-         <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>
@@ -1153,8 +1169,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset theme="document-new">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset theme="document-new"/>
        </property>
       </widget>
      </item>
@@ -1171,7 +1186,7 @@
        </property>
        <property name="icon">
         <iconset theme="media-playback-start">
-         <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>

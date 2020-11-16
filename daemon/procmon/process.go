@@ -1,17 +1,53 @@
 package procmon
 
 import (
+	"time"
+
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon/audit"
 )
 
-// Process holds the information of a process.
+// man 5 proc; man procfs
+type procIOstats struct {
+	RChar        int64
+	WChar        int64
+	SyscallRead  int64
+	SyscallWrite int64
+	ReadBytes    int64
+	WriteBytes   int64
+}
+
+type procDescriptors struct {
+	Name    string
+	SymLink string
+	Size    int64
+	ModTime time.Time
+}
+
+type procStatm struct {
+	Size     int64
+	Resident int64
+	Shared   int64
+	Text     int64
+	Lib      int64
+	Data     int64 // data + stack
+	Dt       int
+}
+
+// Process holds the details of a process.
 type Process struct {
-	ID   int
-	Path string
-	Args []string
-	Env  map[string]string
-	CWD  string
+	ID          int
+	Path        string
+	Args        []string
+	Env         map[string]string
+	CWD         string
+	Descriptors []*procDescriptors
+	IOStats     *procIOstats
+	Status      string
+	Stat        string
+	Statm       *procStatm
+	Stack       string
+	Maps        string
 }
 
 // NewProcess returns a new Process structure.

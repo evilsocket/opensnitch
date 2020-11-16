@@ -6,6 +6,7 @@ import sys
 import os
 import csv
 import time
+import json
 
 from PyQt5 import Qt, QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery, QSqlTableModel
@@ -17,6 +18,7 @@ from version import version
 from nodes import Nodes
 from dialogs.preferences import PreferencesDialog
 from dialogs.ruleseditor import RulesEditorDialog
+from dialogs.processdetails import ProcessDetailsDialog
 from customwidgets import ColorizedDelegate
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
@@ -228,6 +230,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
 
+        # TODO: allow to display multiples dialogs
+        self._proc_details_dialog = ProcessDetailsDialog()
+
         self.daemon_connected = False
         # skip table updates if a context menu is active
         self._context_menu_active = False
@@ -265,6 +270,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.delRuleButton.setVisible(False)
         self.editRuleButton.setVisible(False)
         self.nodeRuleLabel.setVisible(False)
+        self.cmdProcDetails.clicked.connect(self._cb_proc_details_clicked)
 
         self.TABLES[self.TAB_MAIN]['view'] = self._setup_table(QtWidgets.QTreeView, self.eventsTable, "connections",
                 self.TABLES[self.TAB_MAIN]['display_fields'],
@@ -463,21 +469,38 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._db.remove("DELETE FROM rules WHERE name='%s' AND node='%s'" % (rule.name, node_addr))
         self._refresh_active_table()
 
+    def _cb_proc_details_clicked(self):
+        table = self._tables[self.tabWidget.currentIndex()]
+        nrows = table.model().rowCount()
+        pids = {}
+        for row in range(0, nrows):
+            pid = table.model().index(row, 6).data()
+            node = table.model().index(row, 1).data()
+            if pid not in pids:
+                pids[pid] = node
+
+        self._proc_details_dialog.monitor(pids)
+
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
         #print("[stats dialog] notification reply: ", reply.id, reply.code)
         if reply.id in self._notifications_sent:
-            #print("[stats] not received: ", self._notifications_sent[reply.id].type)
             if reply.code == ui_pb2.ERROR:
                 msgBox = QtWidgets.QMessageBox()
                 msgBox.setText(reply.data)
                 msgBox.setIcon(QtWidgets.QMessageBox.Warning)
                 msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
 
+        else:
+            print("[stats] unknown notification received: ", self._notifications_sent[reply.id].type)
+
     def _cb_tab_changed(self, index):
         if index == self.TAB_MAIN:
             self._set_events_query()
         else:
+            if index == self.TAB_PROCS:
+                self.cmdProcDetails.setVisible(False)
+
             self._refresh_active_table()
 
     def _cb_table_context_menu(self, pos):
@@ -571,6 +594,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.editRuleButton.setVisible(False)
             self.nodeRuleLabel.setText("")
             self.rulesFilterLine.setVisible(True)
+        elif cur_idx == StatsDialog.TAB_PROCS:
+            self.cmdProcDetails.setVisible(False)
+
         model = self._get_active_table().model()
         self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields']) + self._get_order())
 
@@ -586,7 +612,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif idx == StatsDialog.COL_PROCS:
             cur_idx = 4
             self.tabWidget.setCurrentIndex(cur_idx)
-            self._set_process_query(data)
+            self._set_process_tab_active(data)
         elif idx == StatsDialog.COL_RULES:
             cur_idx = 2
             self._set_rules_tab_active(row, cur_idx)
@@ -715,6 +741,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.TABLES[cur_idx].get('cmdCleanStats') != None:
             self.TABLES[cur_idx]['cmdCleanStats'].setVisible(not state)
 
+    def _set_proc_tab_active(self, data):
+        self.cmdProcDetails.setVisible(False)
+        self._set_process_query(data)
+
     def _set_rules_tab_active(self, row, cur_idx):
         data = row.data()
         self.delRuleButton.setVisible(True)
@@ -836,6 +866,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.rule as Rule " \
             "FROM procs as p, connections as c " \
             "WHERE p.what = '%s' AND p.what = c.process GROUP BY c.dst_ip, c.dst_host, c.dst_port, UserID, Action, Node %s" % (data, self._get_order()))
+
+        nrows = self._get_active_table().model().rowCount()
+        self.cmdProcDetails.setVisible(nrows != 0)
 
     def _set_addrs_query(self, data):
         model = self._get_active_table().model()
