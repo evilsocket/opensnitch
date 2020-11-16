@@ -1,0 +1,299 @@
+import os
+import sys
+import json
+
+from PyQt5 import Qt, QtCore, QtGui, uic, QtWidgets
+from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery, QSqlTableModel
+from PyQt5.QtGui import QColor
+
+import ui_pb2
+from nodes import Nodes
+from desktop_parser import LinuxDesktopParser
+
+DIALOG_UI_PATH = "%s/../res/process_details.ui" % os.path.dirname(sys.modules[__name__].__file__)
+class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
+    
+    LOG_TAG = "[ProcessDetails]: "
+    
+    _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
+
+    TAB_STATUS          = 0
+    TAB_DESCRIPTORS     = 1
+    TAB_IOSTATS         = 2
+    TAB_MAPS            = 3
+    TAB_STACK           = 4
+    TAB_ENVS            = 5
+
+    TABS = {
+            TAB_STATUS: {
+                "text": None,
+                "scrollPos": 0
+                },
+            TAB_DESCRIPTORS: {
+                "text": None,
+                "scrollPos": 0
+                },
+            TAB_IOSTATS: {
+                "text": None,
+                "scrollPos": 0
+                },
+            TAB_MAPS: {
+                "text": None,
+                "scrollPos": 0
+                },
+            TAB_STACK: {
+                "text": None,
+                "scrollPos": 0
+                },
+            TAB_ENVS: {
+                "text": None,
+                "scrollPos": 0
+                }
+            }
+
+    def __init__(self, parent=None):
+        super(ProcessDetailsDialog, self).__init__(parent)
+        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(QtCore.Qt.Window)
+        self.setupUi(self)
+        
+        self._app_name = None
+        self._app_icon = None
+        self._apps_parser = LinuxDesktopParser()
+        self._nodes = Nodes.instance()
+        self._notification_callback.connect(self._cb_notification_callback)
+        
+        self._nid = None
+        self._pid = ""
+        self._notifications_sent = {}
+        
+        self.cmdClose.clicked.connect(self._cb_close_clicked)
+        self.cmdAction.clicked.connect(self._cb_action_clicked)
+        self.comboPids.currentIndexChanged.connect(self._cb_combo_pids_changed)
+
+        self.TABS[self.TAB_STATUS]['text'] = self.textStatus
+        self.TABS[self.TAB_DESCRIPTORS]['text'] = self.textOpenedFiles
+        self.TABS[self.TAB_IOSTATS]['text'] = self.textIOStats
+        self.TABS[self.TAB_MAPS]['text'] = self.textMappedFiles
+        self.TABS[self.TAB_STACK]['text'] = self.textStack
+        self.TABS[self.TAB_ENVS]['text'] = self.textEnv
+
+    @QtCore.pyqtSlot(ui_pb2.NotificationReply)
+    def _cb_notification_callback(self, reply):
+        if reply.id in self._notifications_sent:
+            noti = self._notifications_sent[reply.id]
+
+            if reply.code == ui_pb2.ERROR:
+                self._show_message("<b>Error loading process information:</b> <br><br>\n\n" + reply.data)
+                self.cmdAction.setChecked(False)
+                self._pid = ""
+
+                # if we haven't loaded any data yet, just close the window
+                if self._data_loaded == False:
+                    self._close()
+                return
+
+            if noti.type == ui_pb2.MONITOR_PROCESS and reply.data != "":
+                self._load_data(reply.data)
+
+            elif noti.type == ui_pb2.STOP_MONITOR_PROCESS:
+                if reply.data != "":
+                    self.show_message("<b>Error stopping monitoring process:</b><br><br>" + reply.data)
+                
+                self._notifications_sent = {}
+        else:
+            print("[stats] unknown notification received: ", reply.id)
+
+    def closeEvent(self, e):
+        self._close()
+
+    def _cb_close_clicked(self):
+        self._close()
+    
+    def _cb_combo_pids_changed(self, idx):
+        if idx == -1:
+            return
+        # TODO: this event causes to send to 2 Start notifications
+        #if self._pid != "" and self._pid != self.comboPids.currentText():
+        #    self._stop_monitoring()
+        #    self._pid = self.comboPids.currentText()
+        #    self._start_monitoring()
+
+    def _cb_action_clicked(self):
+        if not self.cmdAction.isChecked():
+            self._stop_monitoring()
+        else:
+            self._start_monitoring()
+        self.cmdAction.setChecked(self.cmdAction.isChecked())
+
+    def _show_message(self, message):
+        msgBox = QtWidgets.QMessageBox()
+        msgBox.setText(message)
+        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
+        msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msgBox.exec_()
+
+    def _reset(self):
+        self._app_name = None
+        self._app_icon = None
+        self.comboPids.clear()
+        self.labelProcName.setText("loading...")
+        self.labelProcArgs.setText("loading...")
+        self.labelProcIcon.clear()
+        self.labelStatm.setText("")
+        self.labelCwd.setText("")
+        for tidx in range(0, len(self.TABS)):
+            self.TABS[tidx]['text'].setPlainText("")
+    
+    def _close(self):
+        self._stop_monitoring()
+        self.comboPids.clear()
+        self._pid = ""
+        self.hide()
+
+    def monitor(self, pids):
+        self._data_loaded = False
+        self._pids = pids
+        self._reset()
+        for pid in pids:
+            self.comboPids.addItem(pid)
+
+        self.show()
+        self._start_monitoring()
+
+    def _set_tab_text(self, tab_idx, text):
+        self.TABS[tab_idx]['scrollPos'] = self.TABS[tab_idx]['text'].verticalScrollBar().value()
+        self.TABS[tab_idx]['text'].setPlainText(text)
+        self.TABS[tab_idx]['text'].verticalScrollBar().setValue(self.TABS[tab_idx]['scrollPos'])
+            
+    def _start_monitoring(self):
+        try:
+            # avoid to send notifications without a pid
+            if self._pid != "":
+                return
+
+            self._pid = self.comboPids.currentText()
+            if self._pid == "":
+                return
+
+            self.cmdAction.setChecked(True)
+            noti = ui_pb2.Notification(clientName="", serverName="", type=ui_pb2.MONITOR_PROCESS, data=self._pid, rules=[])
+            self._nid = self._nodes.send_notification(self._pids[self._pid], noti, self._notification_callback)
+            self._notifications_sent[self._nid] = noti
+        except Exception as e:
+            print(self.LOG_TAG + "exception starting monitoring: ", e)
+
+    def _stop_monitoring(self):
+        if self._pid == "":
+            return
+
+        self.cmdAction.setChecked(False)
+        noti = ui_pb2.Notification(clientName="", serverName="", type=ui_pb2.STOP_MONITOR_PROCESS, data=str(self._pid), rules=[])
+        self._nid = self._nodes.send_notification(self._pids[self._pid], noti, self._notification_callback)
+        self._notifications_sent[self._nid] = noti
+        self._pid = ""
+        
+        self._app_icon = None
+
+    def _load_data(self, data):
+        tab_idx = self.tabWidget.currentIndex()
+
+        try:
+            proc = json.loads(data)
+            self._load_app_icon(proc['Path'])
+            if self._app_name != None:
+                self.labelProcName.setText("<b>" + self._app_name + "</b>")
+
+            #if proc['Path'] not in proc['Args']:
+            #    proc['Args'].insert(0, proc['Path'])
+
+            self.labelProcArgs.setText(" ".join(proc['Args']))
+            self.labelCwd.setText("<b>CWD: </b>" + proc['CWD'])
+            self._load_mem_data(proc['Statm'])
+
+            if tab_idx == self.TAB_STATUS:
+                self._set_tab_text(tab_idx, proc['Status'])
+
+            elif tab_idx == self.TAB_DESCRIPTORS:
+                self._load_descriptors(proc['Descriptors'])
+
+            elif tab_idx == self.TAB_IOSTATS:
+                self._load_iostats(proc['IOStats'])
+
+            elif tab_idx == self.TAB_MAPS:
+                self._set_tab_text(tab_idx, proc['Maps'])
+
+            elif tab_idx == self.TAB_STACK:
+                self._set_tab_text(tab_idx, proc['Stack'])
+
+            elif tab_idx == self.TAB_ENVS:
+                self._load_env_vars(proc['Env'])
+
+            self._data_loaded = True
+
+        except Exception as e:
+            print(self.LOG_TAG + "exception loading data: ", e)
+
+    def _load_app_icon(self, proc_path):
+        if self._app_icon != None:
+            return
+
+        self._app_name, self._app_icon, _ = self._apps_parser.get_info_by_path(proc_path, "terminal")
+        
+        icon = QtGui.QIcon().fromTheme(self._app_icon)
+        pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+        self.labelProcIcon.setPixmap(pixmap)
+
+        if self._app_name == None:
+            self._app_name = proc_path
+
+    def _load_iostats(self, iostats):
+        ioText = "%-16s %dMB<br>%-16s %dMB<br>%-16s %d<br>%-16s %d<br>%-16s %dMB<br>%-16s %dMB<br>" % (
+                "<b>Chars read:</b>",
+                ((iostats['RChar'] / 1024) / 1024),
+                "<b>Chars written:</b>",
+                ((iostats['WChar'] / 1024) / 1024),
+                "<b>Syscalls read:</b>",
+                (iostats['SyscallRead']),
+                "<b>Syscalls write:</b>",
+                (iostats['SyscallWrite']),
+                "<b>KB read:</b>",
+                ((iostats['ReadBytes'] / 1024) / 1024),
+                "<b>KB written: </b>",
+                ((iostats['WriteBytes'] / 1024) / 1024)
+                )
+
+        self.textIOStats.setPlainText("")
+        self.textIOStats.appendHtml(ioText)
+
+    def _load_mem_data(self, mem):
+        # assuming page size == 4096
+        pagesize = 4096
+        memText = "<b>VIRT:</b> %dMB, <b>RSS:</b> %dMB, <b>Libs:</b> %dMB, <b>Data:</b> %dMB, <b>Text:</b> %dMB" % (
+                ((mem['Size'] * pagesize) / 1024) / 1024,
+                ((mem['Resident'] * pagesize) / 1024) / 1024,
+                ((mem['Lib'] * pagesize) / 1024) / 1024,
+                ((mem['Data'] * pagesize) / 1024) / 1024,
+                ((mem['Text'] * pagesize) / 1024) / 1024
+                )
+        self.labelStatm.setText(memText)
+
+    def _load_descriptors(self, descriptors):
+        text = "%-8s\t%-35s\t%4s -> %s\n\n" % ("Size", "Time", "Name", "Symlink")
+        for d in descriptors:
+            text += "%-8s\t%-35s\t%4s -> %s\n" % (str(d['Size']), d['ModTime'], d['Name'], d['SymLink'])
+
+        self._set_tab_text(self.TAB_DESCRIPTORS, text)
+
+    def _load_env_vars(self, envs):
+        if envs == {}:
+            self._set_tab_text(self.TAB_ENVS, "<no environment variables>")
+            return
+
+        text = "%-15s\t%s\n\n" % ("Name", "Value")
+        for env_name in envs:
+            text += "%-15s:\t%s\n" % (env_name, envs[env_name])
+
+        self._set_tab_text(self.TAB_ENVS, text)
+
+
