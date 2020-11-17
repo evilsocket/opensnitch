@@ -90,7 +90,12 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
 
                 # if we haven't loaded any data yet, just close the window
                 if self._data_loaded == False:
-                    self._close()
+                    # but if there're more than 1 pid keep the window open.
+                    # we may have one pid already closed and one alive.
+                    if self.comboPids.count() <= 1:
+                        self._close()
+
+                self._delete_notification(reply.id)
                 return
 
             if noti.type == ui_pb2.MONITOR_PROCESS and reply.data != "":
@@ -99,8 +104,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             elif noti.type == ui_pb2.STOP_MONITOR_PROCESS:
                 if reply.data != "":
                     self.show_message("<b>Error stopping monitoring process:</b><br><br>" + reply.data)
-                
-                self._notifications_sent = {}
+
+                self._delete_notification(reply.id)
         else:
             print("[stats] unknown notification received: ", reply.id)
 
@@ -133,6 +138,10 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
         msgBox.exec_()
 
+    def _delete_notification(self, nid):
+        if nid in self._notifications_sent:
+            del self._notifications_sent[nid]
+
     def _reset(self):
         self._app_name = None
         self._app_icon = None
@@ -152,6 +161,9 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.hide()
 
     def monitor(self, pids):
+        if self._pid != "":
+            self._stop_monitoring()
+
         self._data_loaded = False
         self._pids = pids
         self._reset()
@@ -165,7 +177,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.TABS[tab_idx]['scrollPos'] = self.TABS[tab_idx]['text'].verticalScrollBar().value()
         self.TABS[tab_idx]['text'].setPlainText(text)
         self.TABS[tab_idx]['text'].verticalScrollBar().setValue(self.TABS[tab_idx]['scrollPos'])
-            
+
     def _start_monitoring(self):
         try:
             # avoid to send notifications without a pid
@@ -192,7 +204,6 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self._nid = self._nodes.send_notification(self._pids[self._pid], noti, self._notification_callback)
         self._notifications_sent[self._nid] = noti
         self._pid = ""
-        
         self._app_icon = None
 
     def _load_data(self, data):
