@@ -745,7 +745,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _restore_rules_tab_widgets(self, active):
         self.delRuleButton.setVisible(not active)
         self.editRuleButton.setVisible(not active)
-        self.nodeRuleLabel.setText("" if active)
+        self.nodeRuleLabel.setText("")
         self.rulesFilterLine.setVisible(active)
 
     def _set_rules_tab_active(self, row, cur_idx):
