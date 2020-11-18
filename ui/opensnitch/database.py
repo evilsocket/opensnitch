@@ -1,5 +1,4 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery
+from PyQt5.QtSql import QSqlDatabase, QSqlQueryModel, QSqlQuery
 import threading
 import sys
 
@@ -36,6 +35,9 @@ class Database:
 
     def get_db(self):
         return self.db
+
+    def get_new_qsql_model(self):
+        return QSqlQueryModel()
 
     def get_db_name(self):
         return self.db_name
@@ -235,7 +237,7 @@ class Database:
         for idx in db_columns:
             qstr += "?,"
         qstr = qstr[0:len(qstr)-1] + ")"
-        
+
         if self._insert_batch(qstr, fields, values) == False:
             self.update_batch(table, db_fields, db_columns, fields, values, update_field, update_value, action_on_conflict)
 

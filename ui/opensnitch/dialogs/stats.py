@@ -1,16 +1,10 @@
 import threading
-import logging
 import datetime
-import operator
 import sys
 import os
 import csv
-import time
-import json
 
-from PyQt5 import Qt, QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery, QSqlTableModel
-from PyQt5.QtGui import QColor
+from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
 import ui_pb2
 from config import Config
@@ -75,7 +69,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "tipLabel": None,
             "cmd": None,
             "view": None,
-            "delegate": None,
             "model": None,
             "delegate": commonDelegateConf,
             "display_fields": "*"
@@ -138,7 +131,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "cmd": None,
                 "view": None,
                 "filterLine": None,
-                "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
@@ -152,7 +144,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "cmd": None,
                 "view": None,
                 "filterLine": None,
-                "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
@@ -166,7 +157,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "cmd": None,
                 "view": None,
                 "filterLine": None,
-                "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
@@ -180,7 +170,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "cmd": None,
                 "view": None,
                 "filterLine": None,
-                "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
@@ -194,7 +183,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "cmd": None,
                 "view": None,
                 "filterLine": None,
-                "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
@@ -208,7 +196,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "cmd": None,
                 "view": None,
                 "filterLine": None,
-                "delegate": None,
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
@@ -966,7 +953,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", limit="", resize_cols=(), model=None, delegate=None):
         tableWidget.setSortingEnabled(True)
         if model == None:
-            model = QSqlQueryModel()
+            model = self._db.get_new_qsql_model()
         if delegate != None:
             tableWidget.setItemDelegate(ColorizedDelegate(self, config=delegate))
         self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " DESC" + limit)
