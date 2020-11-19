@@ -1,12 +1,9 @@
 import threading
-import logging
 import sys
 import time
 import os
 import pwd
 import json
-import re
-from datetime import datetime
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
@@ -75,6 +72,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._ischeckAdvanceded = False
         self.checkAdvanced.toggled.connect(self._checkbox_toggled)
 
+        if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
+            self.applyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
+            self.denyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCancelButton")))
+
     def showEvent(self, event):
         super(PromptDialog, self).showEvent(event)
         self.resize(540, 300)
@@ -114,7 +115,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._tick_thread.start()
             # wait for user choice or timeout
             self._done.wait()
-            
+
             return self._rule, self._timeout_triggered
 
     def _timeout_worker(self):
@@ -133,7 +134,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._tick -= 1
             self._tick_trigger.emit()
             time.sleep(1)
-        
+
         if not self._done.is_set():
             self._timeout_trigger.emit()
 
@@ -286,7 +287,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if not event.key() == QtCore.Qt.Key_Escape:
             super(PromptDialog, self).keyPressEvent(event)
 
-    # prevent a click on the window's x 
+    # prevent a click on the window's x
     # from quitting the whole application
     def closeEvent(self, e):
         self._send_rule()
@@ -407,7 +408,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.checkAdvanced.toggle()
         self._idcheckAdvanceded = False
 
-        # signal that the user took a decision and 
+        # signal that the user took a decision and
         # a new rule is available
         self._done.set()
-

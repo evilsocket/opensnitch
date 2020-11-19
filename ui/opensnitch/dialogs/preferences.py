@@ -1,10 +1,7 @@
-import threading
-import logging
 import sys
 import time
 import os
 import json
-from datetime import datetime
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
@@ -20,7 +17,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     CFG_DEFAULT_DURATION = "global/default_duration"
     CFG_DEFAULT_TARGET   = "global/default_target"
     CFG_DEFAULT_TIMEOUT  = "global/default_timeout"
-    
+
     LOG_TAG = "[Preferences] "
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
@@ -39,9 +36,14 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.applyButton.clicked.connect(self._cb_apply_button_clicked)
         self.cancelButton.clicked.connect(self._cb_cancel_button_clicked)
 
+        if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
+            self.applyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
+            self.cancelButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCloseButton")))
+            self.acceptButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton")))
+
     def showEvent(self, event):
         super(PreferencesDialog, self).showEvent(event)
-        
+
         try:
             self._reset_status_message()
             self._hide_status_label()
@@ -57,7 +59,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             print(self.LOG_TAG + "exception loading nodes", e)
 
         self._load_settings()
-        
+
         # connect the signals after loading settings, to avoid firing
         # the signals
         self.comboNodes.currentIndexChanged.connect(self._cb_node_combo_changed)
@@ -69,7 +71,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodeAddress.currentIndexChanged.connect(self._cb_node_needs_update)
         self.checkInterceptUnknown.clicked.connect(self._cb_node_needs_update)
         self.checkApplyToNodes.clicked.connect(self._cb_node_needs_update)
-    
+
         # True when any node option changes
         self._node_needs_update = False
 
@@ -129,7 +131,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings(self.CFG_DEFAULT_DURATION, self.comboUIDuration.currentText())
             self._cfg.setSettings(self.CFG_DEFAULT_TARGET, self.comboUITarget.currentIndex())
             self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, self.spinUITimeout.value())
-        
+
         elif self.tabWidget.currentIndex() == 1:
             self._show_status_label()
 
@@ -155,7 +157,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 except Exception as e:
                     print(self.LOG_TAG + "exception saving config: ", e)
                     self._set_status_error("Exception saving config: %s" % str(e))
-        
+
             self._node_needs_update = False
 
     def _save_node_config(self, notifObject, addr):
@@ -239,7 +241,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_apply_button_clicked(self):
         self._save_settings()
-    
+
     def _cb_cancel_button_clicked(self):
         self.reject()
 
@@ -247,4 +249,4 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._load_node_settings()
 
     def _cb_node_needs_update(self):
-        self._node_needs_update = True 
+        self._node_needs_update = True

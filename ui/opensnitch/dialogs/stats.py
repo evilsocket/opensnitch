@@ -373,6 +373,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             'users.csv'
         )
 
+        if QtGui.QIcon.hasThemeIcon("document-new") == False:
+            self._configure_buttons_icons()
+
     def showEvent(self, event):
         super(StatsDialog, self).showEvent(event)
         self._shown_trigger.emit()
@@ -383,6 +386,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._load_settings()
         self.setWindowTitle(window_title)
         self._refresh_active_table()
+
+    def _configure_buttons_icons(self):
+        self.newRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileIcon")))
+        self.delRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TrashIcon")))
+        self.editRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogDetailedView")))
+        self.saveButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton")))
+        self.prefsButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogDetailedView")))
+        self.startButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPlay")))
+        self.cmdProcDetails.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogContentsView")))
+        self.TABLES[self.TAB_MAIN]['cmdCleanStats'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogResetButton")))
+        for idx in range(1,8):
+            self.TABLES[idx]['cmd'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowLeft")))
+            if "cmdCleanStats" in self.TABLES[idx]:
+                self.TABLES[idx]['cmdCleanStats'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogResetButton")))
 
     def _load_settings(self):
         dialog_geometry = self._cfg.getSettings("statsDialog/geometry")

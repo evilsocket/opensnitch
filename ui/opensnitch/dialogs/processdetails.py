@@ -2,9 +2,7 @@ import os
 import sys
 import json
 
-from PyQt5 import Qt, QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtSql import QSqlDatabase, QSqlDatabase, QSqlQueryModel, QSqlQuery, QSqlTableModel
-from PyQt5.QtGui import QColor
+from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
 import ui_pb2
 from nodes import Nodes
@@ -12,9 +10,9 @@ from desktop_parser import LinuxDesktopParser
 
 DIALOG_UI_PATH = "%s/../res/process_details.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
-    
+
     LOG_TAG = "[ProcessDetails]: "
-    
+
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
     TAB_STATUS          = 0
@@ -56,17 +54,17 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(QtCore.Qt.Window)
         self.setupUi(self)
-        
+
         self._app_name = None
         self._app_icon = None
         self._apps_parser = LinuxDesktopParser()
         self._nodes = Nodes.instance()
         self._notification_callback.connect(self._cb_notification_callback)
-        
+
         self._nid = None
         self._pid = ""
         self._notifications_sent = {}
-        
+
         self.cmdClose.clicked.connect(self._cb_close_clicked)
         self.cmdAction.clicked.connect(self._cb_action_clicked)
         self.comboPids.currentIndexChanged.connect(self._cb_combo_pids_changed)
@@ -77,6 +75,14 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.TABS[self.TAB_MAPS]['text'] = self.textMappedFiles
         self.TABS[self.TAB_STACK]['text'] = self.textStack
         self.TABS[self.TAB_ENVS]['text'] = self.textEnv
+
+        self.iconStart = QtGui.QIcon.fromTheme("media-playback-start")
+        self.iconPause = QtGui.QIcon.fromTheme("media-playback-pause")
+
+        if QtGui.QIcon.hasThemeIcon("window-close") == False:
+            self.cmdClose.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCloseButton")))
+            self.iconStart = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPlay"))
+            self.iconPause = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPause"))
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
@@ -114,7 +120,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
 
     def _cb_close_clicked(self):
         self._close()
-    
+
     def _cb_combo_pids_changed(self, idx):
         if idx == -1:
             return
@@ -127,9 +133,10 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
     def _cb_action_clicked(self):
         if not self.cmdAction.isChecked():
             self._stop_monitoring()
+            self.cmdAction.setIcon(self.iconStart)
         else:
+            self.cmdAction.setIcon(self.iconPause)
             self._start_monitoring()
-        self.cmdAction.setChecked(self.cmdAction.isChecked())
 
     def _show_message(self, message):
         msgBox = QtWidgets.QMessageBox()
@@ -153,7 +160,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.labelCwd.setText("")
         for tidx in range(0, len(self.TABS)):
             self.TABS[tidx]['text'].setPlainText("")
-    
+
     def _close(self):
         self._stop_monitoring()
         self.comboPids.clear()
@@ -188,6 +195,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             if self._pid == "":
                 return
 
+            self.cmdAction.setIcon(self.iconPause)
             self.cmdAction.setChecked(True)
             noti = ui_pb2.Notification(clientName="", serverName="", type=ui_pb2.MONITOR_PROCESS, data=self._pid, rules=[])
             self._nid = self._nodes.send_notification(self._pids[self._pid], noti, self._notification_callback)
@@ -199,6 +207,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         if self._pid == "":
             return
 
+        self.cmdAction.setIcon(self.iconStart)
         self.cmdAction.setChecked(False)
         noti = ui_pb2.Notification(clientName="", serverName="", type=ui_pb2.STOP_MONITOR_PROCESS, data=str(self._pid), rules=[])
         self._nid = self._nodes.send_notification(self._pids[self._pid], noti, self._notification_callback)
@@ -250,7 +259,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             return
 
         self._app_name, self._app_icon, _ = self._apps_parser.get_info_by_path(proc_path, "terminal")
-        
+
         icon = QtGui.QIcon().fromTheme(self._app_icon)
         pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
         self.labelProcIcon.setPixmap(pixmap)

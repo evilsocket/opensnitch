@@ -1,5 +1,5 @@
 
-from PyQt5 import Qt, QtCore, QtGui, uic, QtWidgets
+from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from slugify import slugify
 from datetime import datetime
 import re
@@ -42,6 +42,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.uidCheck.toggled.connect(self._cb_uid_check_toggled)
         self.dstIPCheck.toggled.connect(self._cb_dstip_check_toggled)
         self.dstHostCheck.toggled.connect(self._cb_dsthost_check_toggled)
+
+        if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
+            self.actionAllowRadio.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
+            self.actionDenyRadio.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCancelButton")))
 
         if _rule != None:
             self._load_rule(rule=_rule)
@@ -140,19 +144,19 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.procCheck.setChecked(False)
         self.procLine.setText("")
-            
+
         self.cmdlineCheck.setChecked(False)
         self.cmdlineLine.setText("")
-            
+
         self.uidCheck.setChecked(False)
         self.uidLine.setText("")
-            
+
         self.dstPortCheck.setChecked(False)
         self.dstPortLine.setText("")
-            
+
         self.dstIPCheck.setChecked(False)
         self.dstIPLine.setText("")
-            
+
         self.dstHostCheck.setChecked(False)
         self.dstHostLine.setText("")
 
@@ -168,7 +172,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.actionAllowRadio.setChecked(True)
 
         self.durationCombo.setCurrentText(self.rule.duration)
-        
+
         if self.rule.operator.type != "list":
             self._load_rule_operator(self.rule.operator)
         else:
@@ -180,7 +184,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
                 op = ui_pb2.Operator(type=r['type'], operand=r['operand'], data=r['data'], sensitive=_sensitive)
                 self._load_rule_operator(op)
-    
+
     def _load_rule_operator(self, operator):
         self.sensitiveCheck.setChecked(operator.sensitive)
         if operator.operand == "protocol":
@@ -266,7 +270,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._notifications_sent[nid] = notif
         except Exception as e:
             print(self.LOG_TAG, "add_rule() exception: ", e)
-    
+
     def _delete_rule(self):
         try:
             if self._old_rule_name != None:
@@ -286,8 +290,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._old_rule_name = None
         except Exception as e:
             print(self.LOG_TAG, "delete_rule() exception: ", e)
-    
-    
+
+
     def _save_rule(self):
         """
         Create a new rule based on the fields selected.
@@ -304,7 +308,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule.precedence = self.precedenceCheck.isChecked()
         self.rule.action = "deny" if self.actionDenyRadio.isChecked() else "allow"
         self.rule.duration = self.durationCombo.currentText()
-        
+
         # FIXME: there should be a sensitive checkbox per operand
         self.rule.operator.sensitive = self.sensitiveCheck.isChecked()
         rule_data = []
@@ -361,7 +365,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.cmdlineLine.text()) == False:
                     return False, "Command line regexp error"
-        
+
         if self.dstPortCheck.isChecked():
             if self.dstPortLine.text() == "":
                 return False, "Dest port can not be empty"
@@ -379,7 +383,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.dstPortLine.text()) == False:
                     return False, "Dst port regexp error"
-        
+
         if self.dstHostCheck.isChecked():
             if self.dstHostLine.text() == "":
                 return False, "Dest host can not be empty"
@@ -397,7 +401,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.dstHostLine.text()) == False:
                     return False, "Dst host regexp error"
-        
+
         if self.dstIPCheck.isChecked():
             if self.dstIPLine.text() == "":
                 return False, "Dest IP can not be empty"
@@ -415,7 +419,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.dstIPLine.text()) == False:
                     return False, "Dst IP regexp error"
-        
+
         if self.uidCheck.isChecked():
             if self.uidLine.text() == "":
                 return False, "User ID can not be empty"
@@ -464,7 +468,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule.operator.data = "" if records.value(10) == None else str(records.value(10))
 
         self._old_rule_name = records.value(2)
-        
+
         self._load_rule(addr=_addr, rule=self.rule)
         self.show()
 
