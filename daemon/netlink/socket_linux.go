@@ -11,8 +11,8 @@ import (
 	"github.com/vishvananda/netlink/nl"
 )
 
-// This is a copy of https://github.com/vishvananda/netlink socket_linux.go
-// which adds support for query UDP, UDPLITE and IPv6 sockets
+// This is a modification of https://github.com/vishvananda/netlink socket_linux.go - Apache2.0 license
+// which adds support for query UDP, UDPLITE and IPv6 sockets to SocketGet()
 
 const (
 	sizeofSocketID      = 0x30
@@ -26,10 +26,10 @@ var (
 	TCP_ALL      = uint32(0xfff)
 )
 
-// netinet/tcp.h
+// https://elixir.bootlin.com/linux/latest/source/include/net/tcp_states.h
 const (
-	_               = iota
-	TCP_ESTABLISHED = iota
+	TCP_INVALID = iota
+	TCP_ESTABLISHED
 	TCP_SYN_SENT
 	TCP_SYN_RECV
 	TCP_FIN_WAIT1
@@ -40,10 +40,13 @@ const (
 	TCP_LAST_ACK
 	TCP_LISTEN
 	TCP_CLOSING
+	TCP_NEW_SYN_REC
+	TCP_MAX_STATES
 )
 
 // TCPStatesMap holds the list of TCP states
 var TCPStatesMap = map[uint8]string{
+	TCP_INVALID:     "invalid",
 	TCP_ESTABLISHED: "established",
 	TCP_SYN_SENT:    "syn_sent",
 	TCP_SYN_RECV:    "syn_recv",
@@ -117,10 +120,15 @@ func (r *SocketRequest) Serialize() []byte {
 	native.PutUint32(b.Next(4), r.States)
 	networkOrder.PutUint16(b.Next(2), r.ID.SourcePort)
 	networkOrder.PutUint16(b.Next(2), r.ID.DestinationPort)
-	copy(b.Next(4), r.ID.Source.To4())
-	b.Next(12)
-	copy(b.Next(4), r.ID.Destination.To4())
-	b.Next(12)
+	if r.Family == syscall.AF_INET6 {
+		copy(b.Next(16), r.ID.Source)
+		copy(b.Next(16), r.ID.Destination)
+	} else {
+		copy(b.Next(4), r.ID.Source.To4())
+		b.Next(12)
+		copy(b.Next(4), r.ID.Destination.To4())
+		b.Next(12)
+	}
 	native.PutUint32(b.Next(4), r.ID.Interface)
 	native.PutUint32(b.Next(4), r.ID.Cookie[0])
 	native.PutUint32(b.Next(4), r.ID.Cookie[1])
@@ -158,10 +166,15 @@ func (s *Socket) deserialize(b []byte) error {
 	s.Retrans = rb.Read()
 	s.ID.SourcePort = networkOrder.Uint16(rb.Next(2))
 	s.ID.DestinationPort = networkOrder.Uint16(rb.Next(2))
-	s.ID.Source = net.IPv4(rb.Read(), rb.Read(), rb.Read(), rb.Read())
-	rb.Next(12)
-	s.ID.Destination = net.IPv4(rb.Read(), rb.Read(), rb.Read(), rb.Read())
-	rb.Next(12)
+	if s.Family == syscall.AF_INET6 {
+		s.ID.Source = net.IP(rb.Next(16))
+		s.ID.Destination = net.IP(rb.Next(16))
+	} else {
+		s.ID.Source = net.IPv4(rb.Read(), rb.Read(), rb.Read(), rb.Read())
+		rb.Next(12)
+		s.ID.Destination = net.IPv4(rb.Read(), rb.Read(), rb.Read(), rb.Read())
+		rb.Next(12)
+	}
 	s.ID.Interface = native.Uint32(rb.Next(4))
 	s.ID.Cookie[0] = native.Uint32(rb.Next(4))
 	s.ID.Cookie[1] = native.Uint32(rb.Next(4))
@@ -182,13 +195,28 @@ func SocketGet(family uint8, proto uint8, srcPort, dstPort uint16, local, remote
 		Cookie:     [2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
 	}
 
-	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, syscall.NLM_F_DUMP)
 	sockReq := &SocketRequest{
 		Family:   family,
 		Protocol: proto,
 		States:   TCP_ALL,
 		ID:       _Id,
 	}
+
+	return netlinkRequest(sockReq, family, proto, srcPort, dstPort, local, remote)
+}
+
+// SocketsDump returns the list of all connections from the kernel
+func SocketsDump(family uint8, proto uint8) ([]*Socket, error) {
+	sockReq := &SocketRequest{
+		Family:   family,
+		Protocol: proto,
+		States:   TCP_ALL,
+	}
+	return netlinkRequest(sockReq, 0, 0, 0, 0, nil, nil)
+}
+
+func netlinkRequest(sockReq *SocketRequest, family uint8, proto uint8, srcPort, dstPort uint16, local, remote net.IP) ([]*Socket, error) {
+	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, syscall.NLM_F_DUMP)
 	req.AddData(sockReq)
 	msgs, err := req.Execute(syscall.NETLINK_INET_DIAG, 0)
 	if err != nil {

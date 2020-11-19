@@ -5,11 +5,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/dns"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netlink"
 )
+
+var socketsRegex, _ = regexp.Compile(`socket:\[([0-9]+)\]`)
 
 // GetInfo collects information of a process.
 func (p *Process) GetInfo() error {
@@ -99,6 +104,19 @@ func (p *Process) readDescriptors() {
 		}
 		if link, err := os.Readlink(fmt.Sprint("/proc/", p.ID, "/fd/", fd.Name())); err == nil {
 			tempFd.SymLink = link
+			socket := socketsRegex.FindStringSubmatch(link)
+			if len(socket) > 0 {
+				socketInfo, err := netlink.GetSocketInfoByInode(socket[1])
+				if err == nil {
+					tempFd.SymLink = fmt.Sprintf("socket:[%s] - %d:%s -> %s:%d, state: %s", fd.Name(),
+						socketInfo.ID.SourcePort,
+						socketInfo.ID.Source.String(),
+						dns.HostOr(socketInfo.ID.Destination, socketInfo.ID.Destination.String()),
+						socketInfo.ID.DestinationPort,
+						netlink.TCPStatesMap[socketInfo.State])
+				}
+			}
+
 			if linkInfo, err := os.Lstat(link); err == nil {
 				tempFd.Size = linkInfo.Size()
 				tempFd.ModTime = linkInfo.ModTime()

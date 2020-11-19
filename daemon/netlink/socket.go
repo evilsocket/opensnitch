@@ -1,7 +1,9 @@
 package netlink
 
 import (
+	"fmt"
 	"net"
+	"strconv"
 	"syscall"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
@@ -83,4 +85,34 @@ func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPo
 	}
 
 	return uid, inodes
+}
+
+// GetSocketInfoByInode dumps the kernel sockets table and searchs the given
+// inode on it.
+func GetSocketInfoByInode(inodeStr string) (*Socket, error) {
+	inode, err := strconv.ParseUint(inodeStr, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	type inetStruct struct{ family, proto uint8 }
+	socketTypes := []inetStruct{
+		{syscall.AF_INET, syscall.IPPROTO_TCP},
+		{syscall.AF_INET, syscall.IPPROTO_UDP},
+		{syscall.AF_INET6, syscall.IPPROTO_TCP},
+		{syscall.AF_INET6, syscall.IPPROTO_UDP},
+	}
+
+	for _, socket := range socketTypes {
+		socketList, err := SocketsDump(socket.family, socket.proto)
+		if err != nil {
+			return nil, err
+		}
+		for idx := range socketList {
+			if uint32(inode) == socketList[idx].INode {
+				return socketList[idx], nil
+			}
+		}
+	}
+	return nil, fmt.Errorf("Inode not found")
 }
