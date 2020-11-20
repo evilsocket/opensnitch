@@ -1,3 +1,9 @@
+opensnitch-ui (1.3.0~rc-1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Fri, 20 Nov 2020 13:32:07 +0100
+
 opensnitch-ui (1.2.0-1) unstable; urgency=medium
 
   * Sort rules by name.
