@@ -76,6 +76,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.TABS[self.TAB_STACK]['text'] = self.textStack
         self.TABS[self.TAB_ENVS]['text'] = self.textEnv
 
+        self.TABS[self.TAB_DESCRIPTORS]['text'].setFont(QtGui.QFont("monospace"))
+
         self.iconStart = QtGui.QIcon.fromTheme("media-playback-start")
         self.iconPause = QtGui.QIcon.fromTheme("media-playback-pause")
 
@@ -299,9 +301,9 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.labelStatm.setText(memText)
 
     def _load_descriptors(self, descriptors):
-        text = "%-8s\t%-35s\t%4s -> %s\n\n" % ("Size", "Time", "Name", "Symlink")
+        text = "%-12s%-40s%-8s -> %s\n\n" % ("Size", "Time", "Name", "Symlink")
         for d in descriptors:
-            text += "%-8s\t%-35s\t%4s -> %s\n" % (str(d['Size']), d['ModTime'], d['Name'], d['SymLink'])
+            text += "{:<12}{:<40}{:<8} -> {}\n".format(str(d['Size']), d['ModTime'], d['Name'], d['SymLink'])
 
         self._set_tab_text(self.TAB_DESCRIPTORS, text)
 

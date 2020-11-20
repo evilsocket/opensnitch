@@ -80,6 +80,9 @@
        <property name="text">
         <string>CWD: loading...</string>
        </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -118,7 +121,7 @@
        <string>Status</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
+       <item row="0" column="1">
         <widget class="QPlainTextEdit" name="textStatus">
          <property name="undoRedoEnabled">
           <bool>false</bool>
@@ -209,7 +212,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboPids"/>
+      <widget class="QComboBox" name="comboPids">
+       <property name="maxVisibleItems">
+        <number>100</number>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer_3">
