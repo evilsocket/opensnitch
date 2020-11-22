@@ -83,8 +83,11 @@ var (
 	// Lock holds a mutex
 	Lock   sync.RWMutex
 	ourPid = os.Getpid()
-	events []*Event
-	// EventChan is an output channel where incoming auditd events will be written.
+	// cache of events
+	events            []*Event
+	eventsCleaner     *time.Ticker
+	eventsCleanerChan = make(chan bool)
+	// TODO: EventChan is an output channel where incoming auditd events will be written.
 	// If a client opens it.
 	EventChan = (chan Event)(nil)
 	auditConn net.Conn
@@ -131,12 +134,15 @@ func sortEvents() {
 	})
 }
 
-// CleanoldEvents deletes the PIDs which do not exist or that are too old to
+// cleanOldEvents deletes the PIDs which do not exist or that are too old to
 // live.
 // We start searching from the oldest to the newest.
 // If the last network activity of a PID has been greater than MaxEventAge,
 // then it'll be deleted.
 func cleanOldEvents() {
+	Lock.Lock()
+	defer Lock.Unlock()
+
 	for n := len(events) - 1; n >= 0; n-- {
 		now := time.Now()
 		elapsedTime := now.Sub(events[n].LastSeen)
@@ -176,7 +182,6 @@ func AddEvent(aevent *Event) {
 	Lock.Lock()
 	defer Lock.Unlock()
 
-	cleanOldEvents()
 	for n := 0; n < len(events); n++ {
 		if events[n].Pid == aevent.Pid && events[n].Syscall == aevent.Syscall {
 			if aevent.ProcCmdLine != "" || (aevent.ProcCmdLine == events[n].ProcCmdLine) {
@@ -190,6 +195,21 @@ func AddEvent(aevent *Event) {
 	}
 	aevent.LastSeen = time.Now()
 	events = append([]*Event{aevent}, events...)
+}
+
+// startEventsCleaner will review if the events in the cache need to be cleaned
+// every 5 minutes.
+func startEventsCleaner() {
+	for {
+		select {
+		case <-eventsCleanerChan:
+			goto Exit
+		case <-eventsCleaner.C:
+			cleanOldEvents()
+		}
+	}
+Exit:
+	log.Info("cleanerRoutine stopped")
 }
 
 func addRules() bool {
@@ -244,6 +264,7 @@ func Reader(r io.Reader, eventChan chan<- Event) {
 		return
 	}
 	reader := bufio.NewReader(r)
+	go startEventsCleaner()
 
 	for {
 		buf, _, err := reader.ReadLine()
@@ -286,6 +307,9 @@ func connect() (net.Conn, error) {
 
 // Stop stops listening for events from auditd and delete the auditd rules.
 func Stop() {
+	eventsCleanerChan <- true
+	eventsCleaner.Stop()
+
 	if auditConn != nil {
 		if err := auditConn.Close(); err != nil {
 			log.Warning("audit.Stop() error closing socket: %v", err)
@@ -308,5 +332,6 @@ func Start() (net.Conn, error) {
 	}
 
 	configureSyscalls()
+	eventsCleaner = time.NewTicker(time.Minute * 5)
 	return auditConn, err
 }
