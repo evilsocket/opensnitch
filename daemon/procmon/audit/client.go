@@ -89,8 +89,9 @@ var (
 	eventsCleanerChan = make(chan bool)
 	// TODO: EventChan is an output channel where incoming auditd events will be written.
 	// If a client opens it.
-	EventChan = (chan Event)(nil)
-	auditConn net.Conn
+	EventChan      = (chan Event)(nil)
+	eventsExitChan = make(chan bool)
+	auditConn      net.Conn
 	// TODO: we may need arm arch
 	rule64      = []string{"exit,always", "-F", "arch=b64", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socket,connect", "-k", "opensnitch"}
 	rule32      = []string{"exit,always", "-F", "arch=b32", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socketcall", "-F", "a0=1", "-k", "opensnitch"}
@@ -209,7 +210,7 @@ func startEventsCleaner() {
 		}
 	}
 Exit:
-	log.Info("cleanerRoutine stopped")
+	log.Debug("audit: cleanerRoutine stopped")
 }
 
 func addRules() bool {
@@ -267,23 +268,29 @@ func Reader(r io.Reader, eventChan chan<- Event) {
 	go startEventsCleaner()
 
 	for {
-		buf, _, err := reader.ReadLine()
-		if err != nil {
-			if err == io.EOF {
-				log.Error("AuditReader: auditd stopped, reconnecting in 30s", err)
-				if newReader, err := reconnect(); err == nil {
-					reader = bufio.NewReader(newReader)
-					log.Important("Auditd reconnected, continue reading")
+		select {
+		case <-eventsExitChan:
+			goto Exit
+		default:
+			buf, _, err := reader.ReadLine()
+			if err != nil {
+				if err == io.EOF {
+					log.Error("AuditReader: auditd stopped, reconnecting in 30s", err)
+					if newReader, err := reconnect(); err == nil {
+						reader = bufio.NewReader(newReader)
+						log.Important("Auditd reconnected, continue reading")
+					}
+					continue
 				}
-				continue
+				log.Warning("AuditReader: auditd error", err)
+				break
 			}
-			log.Warning("AuditReader: auditd error", err)
-			break
-		}
 
-		parseEvent(string(buf[0:len(buf)]), eventChan)
+			parseEvent(string(buf[0:len(buf)]), eventChan)
+		}
 	}
-	log.Info("audit.Reader() closed")
+Exit:
+	log.Debug("audit.Reader() closed")
 }
 
 // StartChannel creates a channel to receive events from Audit.
@@ -307,6 +314,7 @@ func connect() (net.Conn, error) {
 
 // Stop stops listening for events from auditd and delete the auditd rules.
 func Stop() {
+	eventsExitChan <- true
 	eventsCleanerChan <- true
 	eventsCleaner.Stop()
 
