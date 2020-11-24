@@ -76,9 +76,9 @@ func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
 	return nil
 }
 
-func newConnectionImpl(nfp *netfilter.Packet, c *Connection) (cr *Connection, err error) {
+func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (cr *Connection, err error) {
 	// no errors but not enough info neither
-	if c.parseDirection() == false {
+	if c.parseDirection(protoType) == false {
 		return nil, nil
 	}
 	log.Debug("new connection %s => %d:%v -> %v:%d uid: ", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort, nfp.UID)
@@ -148,7 +148,7 @@ func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err e
 		DstHost: dns.HostOr(ip.DstIP, ""),
 		pkt:     nfp,
 	}
-	return newConnectionImpl(nfp, c)
+	return newConnectionImpl(nfp, c, "")
 }
 
 // NewConnection6 creates a IPv6 new Connection object, and returns the details of it.
@@ -159,51 +159,42 @@ func NewConnection6(nfp *netfilter.Packet, ip *layers.IPv6) (c *Connection, err 
 		DstHost: dns.HostOr(ip.DstIP, ""),
 		pkt:     nfp,
 	}
-	return newConnectionImpl(nfp, c)
+	return newConnectionImpl(nfp, c, "6")
 }
 
-func (c *Connection) parseDirection() bool {
+func (c *Connection) parseDirection(protoType string) bool {
 	ret := false
-	for _, layer := range c.pkt.Packet.Layers() {
-		if layer.LayerType() == layers.LayerTypeTCP {
-			if tcp, ok := layer.(*layers.TCP); ok == true && tcp != nil {
-				c.Protocol = "tcp"
-				c.DstPort = uint(tcp.DstPort)
-				c.SrcPort = uint(tcp.SrcPort)
-				ret = true
+	if tcpLayer := c.pkt.Packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
+		if tcp, ok := tcpLayer.(*layers.TCP); ok == true && tcp != nil {
+			c.Protocol = "tcp" + protoType
+			c.DstPort = uint(tcp.DstPort)
+			c.SrcPort = uint(tcp.SrcPort)
+			ret = true
 
-				if tcp.DstPort == 53 {
-					c.getDomains(c.pkt, c)
-				}
+			if tcp.DstPort == 53 {
+				c.getDomains(c.pkt, c)
 			}
-		} else if layer.LayerType() == layers.LayerTypeUDP {
-			if udp, ok := layer.(*layers.UDP); ok == true && udp != nil {
-				c.Protocol = "udp"
-				c.DstPort = uint(udp.DstPort)
-				c.SrcPort = uint(udp.SrcPort)
-				ret = true
+		}
+	} else if udpLayer := c.pkt.Packet.Layer(layers.LayerTypeUDP); udpLayer != nil {
+		if udp, ok := udpLayer.(*layers.UDP); ok == true && udp != nil {
+			c.Protocol = "udp" + protoType
+			c.DstPort = uint(udp.DstPort)
+			c.SrcPort = uint(udp.SrcPort)
+			ret = true
 
-				if udp.DstPort == 53 {
-					c.getDomains(c.pkt, c)
-				}
+			if udp.DstPort == 53 {
+				c.getDomains(c.pkt, c)
 			}
-		} else if layer.LayerType() == layers.LayerTypeUDPLite {
-			if udplite, ok := layer.(*layers.UDPLite); ok == true && udplite != nil {
-				c.Protocol = "udplite"
-				c.DstPort = uint(udplite.DstPort)
-				c.SrcPort = uint(udplite.SrcPort)
-				ret = true
-			}
+		}
+	} else if udpliteLayer := c.pkt.Packet.Layer(layers.LayerTypeUDPLite); udpliteLayer != nil {
+		if udplite, ok := udpliteLayer.(*layers.UDPLite); ok == true && udplite != nil {
+			c.Protocol = "udplite" + protoType
+			c.DstPort = uint(udplite.DstPort)
+			c.SrcPort = uint(udplite.SrcPort)
+			ret = true
 		}
 	}
 
-	for _, layer := range c.pkt.Packet.Layers() {
-		if layer.LayerType() == layers.LayerTypeIPv6 {
-			if tcp, ok := layer.(*layers.IPv6); ok == true && tcp != nil {
-				c.Protocol += "6"
-			}
-		}
-	}
 	return ret
 }
 
@@ -216,7 +207,7 @@ func (c *Connection) getDomains(nfp *netfilter.Packet, con *Connection) {
 	}
 }
 
-// To returns the destination host a connection.
+// To returns the destination host of a connection.
 func (c *Connection) To() string {
 	if c.DstHost == "" {
 		return c.DstIP.String()
