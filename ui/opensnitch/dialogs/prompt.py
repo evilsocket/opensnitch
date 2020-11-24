@@ -93,6 +93,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkUserID.setVisible(state)
         self._ischeckAdvanceded = state
 
+    def _set_elide_text(self, widget, text, max_size=128):
+        if len(text) > max_size:
+            text = text[:max_size] + "..."
+
+        widget.setText(text)
+
     def promptUser(self, connection, is_local, peer):
         # one at a time
         with self._lock:
@@ -191,8 +197,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _render_connection(self, con):
         app_name, app_icon, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
         if app_name != con.process_path and con.process_path not in con.process_args:
-            self.appPathLabel.setFixedHeight(20)
-            self.appPathLabel.setText("(%s)" % con.process_path)
+            self.appPathLabel.setToolTip("Process path: %s" % con.process_path)
+            self._set_elide_text(self.appPathLabel, "(%s)" % con.process_path)
         else:
             self.appPathLabel.setFixedHeight(1)
             self.appPathLabel.setText("")
@@ -202,9 +208,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.appNameLabel.setText("Outgoing connection")
         else:
             self.appNameLabel.setText(app_name)
+            self.appNameLabel.setToolTip(app_name)
 
         self.cwdLabel.setText(con.process_cwd)
-        self.cwdLabel.setToolTip(con.process_cwd)
+        self.cwdLabel.setToolTip("Process launched from: %s" % con.process_cwd)
+        self._set_elide_text(self.cwdLabel, con.process_cwd)
 
         icon = QtGui.QIcon().fromTheme(app_icon)
         pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
@@ -225,6 +233,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         con.dst_port )
 
         self.messageLabel.setText(message)
+        self.messageLabel.setToolTip(message)
 
         self.sourceIPLabel.setText(con.src_ip)
         self.destIPLabel.setText(con.dst_ip)
@@ -240,17 +249,17 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.uidLabel.setText(uid)
         self.pidLabel.setText("%s" % con.process_id)
-        self.argsLabel.setText(' '.join(con.process_args))
+        self._set_elide_text(self.argsLabel, ' '.join(con.process_args))
         self.argsLabel.setToolTip(' '.join(con.process_args))
 
         self.whatCombo.clear()
         self.whatIPCombo.clear()
         if int(con.process_id) > 0:
-            self.whatCombo.addItem("from this process", "process_path")
+            self.whatCombo.addItem("from this executable", "process_path")
 
         self.whatCombo.addItem("from this command line", "process_args")
         if self.argsLabel.text() == "":
-            self.argsLabel.setText(con.process_path)
+            self._set_elide_text(self.argsLabel, con.process_path)
 
         # the order of the entries must match those in the preferences dialog
         self.whatCombo.addItem("to port %d" % con.dst_port, "dst_port")
@@ -330,7 +339,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return "simple", "process.path", self._con.process_path
 
         elif combo.itemData(what_idx) == "process_args":
-            return "simple", "process.command", self.argsLabel.text()
+            return "simple", "process.command", ' '.join(self._con.process_args)
 
         elif combo.itemData(what_idx) == "user_id":
             return "simple", "user.id", "%s" % self._con.user_id
