@@ -4,6 +4,7 @@ import (
 	"net"
 	"strings"
 
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
@@ -14,7 +15,7 @@ func FindEntry(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPort u
 	}
 
 	ipv6Suffix := "6"
-	if strings.HasSuffix(proto, ipv6Suffix) == false {
+	if core.IPv6Enabled && strings.HasSuffix(proto, ipv6Suffix) == false {
 		otherProto := proto + ipv6Suffix
 		log.Debug("Searching for %s netstat entry instead of %s", otherProto, proto)
 		if entry := findEntryForProtocol(otherProto, srcIP, srcPort, dstIP, dstPort); entry != nil {

@@ -59,18 +59,22 @@ func RunRule(action Action, enable bool, logError bool, rule []string) error {
 	lock.Lock()
 	defer lock.Unlock()
 
-	_, err4 := core.Exec("iptables", rule)
-	_, err6 := core.Exec("ip6tables", rule)
-	if err4 != nil && err6 != nil {
+	if _, err := core.Exec("iptables", rule); err != nil {
 		if logError {
-			log.Error("Error while running firewall rule, ipv4 err: %s, ipv6 err: %s", err4, err6)
+			log.Error("Error while running firewall rule, ipv4 err: %s", err)
 			log.Error("rule: %s", rule)
 		}
-		return nil
-	} else if err4 != nil {
-		return err4
-	} else if err6 != nil {
-		return err6
+		return err
+	}
+
+	if core.IPv6Enabled {
+		if _, err := core.Exec("ip6tables", rule); err != nil {
+			if logError {
+				log.Error("Error while running firewall rule, ipv6 err: %s", err)
+				log.Error("rule: %s", rule)
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -167,11 +171,10 @@ func AreRulesLoaded() bool {
 	lock.Lock()
 	defer lock.Unlock()
 
+	var outDrop6 string
+	var outMangle6 string
+
 	outDrop, err := core.Exec("iptables", []string{"-n", "-L", "OUTPUT"})
-	if err != nil {
-		return false
-	}
-	outDrop6, err := core.Exec("ip6tables", []string{"-n", "-L", "OUTPUT"})
 	if err != nil {
 		return false
 	}
@@ -179,9 +182,16 @@ func AreRulesLoaded() bool {
 	if err != nil {
 		return false
 	}
-	outMangle6, err := core.Exec("ip6tables", []string{"-n", "-L", "OUTPUT", "-t", "mangle"})
-	if err != nil {
-		return false
+
+	if core.IPv6Enabled {
+		outDrop6, err = core.Exec("ip6tables", []string{"-n", "-L", "OUTPUT"})
+		if err != nil {
+			return false
+		}
+		outMangle6, err = core.Exec("ip6tables", []string{"-n", "-L", "OUTPUT", "-t", "mangle"})
+		if err != nil {
+			return false
+		}
 	}
 
 	systemRulesLoaded := true
@@ -193,20 +203,27 @@ func AreRulesLoaded() bool {
 					break
 				}
 			}
-			if chainOut6, err6 := core.Exec("ip6tables", []string{"-n", "-L", rule.Chain, "-t", rule.Table}); err6 == nil {
-				if regexSystemRulesQuery.FindString(chainOut6) == "" {
-					systemRulesLoaded = false
-					break
+			if core.IPv6Enabled {
+				if chainOut6, err6 := core.Exec("ip6tables", []string{"-n", "-L", rule.Chain, "-t", rule.Table}); err6 == nil {
+					if regexSystemRulesQuery.FindString(chainOut6) == "" {
+						systemRulesLoaded = false
+						break
+					}
 				}
 			}
 		}
 	}
 
-	return regexRulesQuery.FindString(outMangle) != "" &&
-		regexRulesQuery.FindString(outMangle6) != "" &&
-		regexDropQuery.FindString(outDrop) != "" &&
-		regexDropQuery.FindString(outDrop6) != "" &&
+	result := regexDropQuery.FindString(outDrop) != "" &&
+		regexRulesQuery.FindString(outMangle) != "" &&
 		systemRulesLoaded
+
+	if core.IPv6Enabled {
+		result = result && regexDropQuery.FindString(outDrop6) != "" &&
+			regexRulesQuery.FindString(outMangle6) != ""
+	}
+
+	return result
 }
 
 // StartCheckingRules checks periodically if the rules are loaded.

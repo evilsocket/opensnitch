@@ -5,6 +5,11 @@ import (
 	"strings"
 )
 
+var (
+	// IPv6Enabled indicates if IPv6 protocol is enabled in the system
+	IPv6Enabled = Exists("/proc/sys/net/ipv6")
+)
+
 // GetHostname returns the name of the host where the damon is running.
 func GetHostname() string {
 	hostname, _ := ioutil.ReadFile("/proc/sys/kernel/hostname")

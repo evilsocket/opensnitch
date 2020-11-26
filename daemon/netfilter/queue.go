@@ -202,19 +202,21 @@ func go_callback(queueID C.int, data *C.uchar, length C.int, mark C.uint, idx ui
 
 	xdata := C.GoBytes(unsafe.Pointer(data), length)
 
+	p := Packet{
+		verdictChannel:  make(chan VerdictContainer),
+		Mark:            uint32(mark),
+		UID:             uid,
+		NetworkProtocol: xdata[0] >> 4, // first 4 bits is the version
+	}
+
 	var packet gopacket.Packet
-	if (xdata[0] >> 4) == 4 { // first 4 bits is the version
+	if p.IsIPv4() {
 		packet = gopacket.NewPacket(xdata, layers.LayerTypeIPv4, gopacketDecodeOptions)
 	} else {
 		packet = gopacket.NewPacket(xdata, layers.LayerTypeIPv6, gopacketDecodeOptions)
 	}
 
-	p := Packet{
-		verdictChannel: make(chan VerdictContainer),
-		Mark:           uint32(mark),
-		Packet:         packet,
-		UID:            uid,
-	}
+	p.Packet = packet
 
 	select {
 	case *queueChannel <- p:

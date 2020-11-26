@@ -1,10 +1,12 @@
 package conman
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"os"
 
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/dns"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netfilter"
@@ -36,44 +38,30 @@ var showUnknownCons = false
 // process generated a connection.
 func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
 	showUnknownCons = interceptUnknown
-	ipLayer := nfp.Packet.Layer(layers.LayerTypeIPv4)
-	ipLayer6 := nfp.Packet.Layer(layers.LayerTypeIPv6)
-	if ipLayer == nil && ipLayer6 == nil {
+
+	if nfp.IsIPv4() {
+		con, err := NewConnection(&nfp)
+		if err != nil {
+			log.Debug("%s", err)
+			return nil
+		} else if con == nil {
+			return nil
+		}
+		return con
+	}
+
+	if core.IPv6Enabled == false {
 		return nil
 	}
-
-	if ipLayer == nil {
-		ip, ok := ipLayer6.(*layers.IPv6)
-		if ok == false || ip == nil {
-			return nil
-		}
-
-		con, err := NewConnection6(&nfp, ip)
-		if err != nil {
-			log.Debug("%s", err)
-			return nil
-		} else if con == nil {
-			return nil
-		}
-		return con
+	con, err := NewConnection6(&nfp)
+	if err != nil {
+		log.Debug("%s", err)
+		return nil
+	} else if con == nil {
+		return nil
 	}
-	if ipLayer != nil {
-		ip, ok := ipLayer.(*layers.IPv4)
-		if ok == false || ip == nil {
-			return nil
-		}
+	return con
 
-		con, err := NewConnection(&nfp, ip)
-		if err != nil {
-			log.Debug("%s", err)
-			return nil
-		} else if con == nil {
-			return nil
-		}
-		return con
-	}
-
-	return nil
 }
 
 func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (cr *Connection, err error) {
@@ -141,7 +129,15 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 }
 
 // NewConnection creates a new Connection object, and returns the details of it.
-func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err error) {
+func NewConnection(nfp *netfilter.Packet) (c *Connection, err error) {
+	ipv4 := nfp.Packet.Layer(layers.LayerTypeIPv4)
+	if ipv4 == nil {
+		return nil, errors.New("Error getting IPv4 layer")
+	}
+	ip, ok := ipv4.(*layers.IPv4)
+	if !ok {
+		return nil, errors.New("Error getting IPv4 layer data")
+	}
 	c = &Connection{
 		SrcIP:   ip.SrcIP,
 		DstIP:   ip.DstIP,
@@ -152,7 +148,15 @@ func NewConnection(nfp *netfilter.Packet, ip *layers.IPv4) (c *Connection, err e
 }
 
 // NewConnection6 creates a IPv6 new Connection object, and returns the details of it.
-func NewConnection6(nfp *netfilter.Packet, ip *layers.IPv6) (c *Connection, err error) {
+func NewConnection6(nfp *netfilter.Packet) (c *Connection, err error) {
+	ipv6 := nfp.Packet.Layer(layers.LayerTypeIPv6)
+	if ipv6 == nil {
+		return nil, errors.New("Error getting IPv6 layer")
+	}
+	ip, ok := ipv6.(*layers.IPv6)
+	if !ok {
+		return nil, errors.New("Error getting IPv6 layer data")
+	}
 	c = &Connection{
 		SrcIP:   ip.SrcIP,
 		DstIP:   ip.DstIP,
