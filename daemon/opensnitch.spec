@@ -1,5 +1,5 @@
 Name:           opensnitch
-Version:        1.3.0rc
+Version:        1.3.0rc2
 Release:        1%{?dist}
 Summary:        OpenSnitch is a GNU/Linux application firewall
 
@@ -87,4 +87,5 @@ rm -rf %{buildroot}
 %{_bindir}/opensnitchd
 /usr/lib/systemd/system/opensnitch.service
 %{_sysconfdir}/opensnitchd/default-config.json
+%{_sysconfdir}/opensnitchd/system-fw.json
 %{_sysconfdir}/logrotate.d/opensnitch
