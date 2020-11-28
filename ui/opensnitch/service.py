@@ -82,7 +82,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             0x8912,  # SIOCGIFCONF
             struct.pack('iL', bytes, names.buffer_info()[0])
         ))[0]
-        namestr = names.tostring()
+        namestr = names.tobytes()
         self._interfaces = {}
         for i in range(0, outbytes, 40):
             name = namestr[i:i+16].split(b'\0', 1)[0]
