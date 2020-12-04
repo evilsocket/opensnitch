@@ -18,7 +18,7 @@ BuildArch: noarch
 Vendor: Simone "evilsocket" Margaritelli <evilsocket@protonmail.com>
 Url: https://github.com/evilsocket/opensnitch
 Requires: python3, python3-pip, (python3-pyinotify or python3-inotify), python3-qt5
-Recommends: (python3-slugify or python3-python-slugify)
+Recommends: (python3-slugify or python3-python-slugify), python3-protobuf >= 3.0
 
 # avoid to depend on a particular python version
 %global __requires_exclude ^python\\(abi\\) = 3\\..$
@@ -97,7 +97,7 @@ fi
 python3 setup.py build
 
 %install
-python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUILD_ROOT --prefix=/usr --record=INSTALLED_FILES
+python3 setup.py install --install-lib=/usr/lib/python3/dist-packages/ --single-version-externally-managed -O1 --root=$RPM_BUILD_ROOT --prefix=/usr --record=INSTALLED_FILES
 
 %clean
 rm -rf $RPM_BUILD_ROOT
