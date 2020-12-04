@@ -8,6 +8,7 @@ import sys
 import os
 import ui_pb2
 import time
+import ipaddress
 
 from config import Config
 from nodes import Nodes
@@ -17,6 +18,13 @@ DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     LOG_TAG = "[rules editor]"
+    classA_net = "10\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+    classB_net = "172\.1[6-9]\.\d+\.\d+|172\.2[0-9]\.\d+\.\d+|172\.3[0-1]+\.\d{1,3}\.\d{1,3}"
+    classC_net = "192\.168\.\d{1,3}\.\d{1,3}"
+    others_net = "127\.\d{1,3}\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3}"
+    LAN_RANGES = "^(" + others_net + "|" + classC_net + "|" + classB_net + "|" + classA_net + "|::1|f[cde].*::.*)$"
+    LAN_LABEL = "LAN"
+
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
     def __init__(self, parent=None, _rule=None):
@@ -81,7 +89,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.uidLine.setEnabled(state)
 
     def _cb_dstip_check_toggled(self, state):
-        self.dstIPLine.setEnabled(state)
+        self.dstIPCombo.setEnabled(state)
 
     def _cb_dsthost_check_toggled(self, state):
         self.dstHostLine.setEnabled(state)
@@ -155,7 +163,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstPortLine.setText("")
 
         self.dstIPCheck.setChecked(False)
-        self.dstIPLine.setText("")
+        self.dstIPCombo.setCurrentText("")
 
         self.dstHostCheck.setChecked(False)
         self.dstHostLine.setText("")
@@ -212,10 +220,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dstPortLine.setEnabled(True)
             self.dstPortLine.setText(operator.data)
 
-        if operator.operand == "dest.ip":
+        if operator.operand == "dest.ip" or operator.operand == "dest.network":
             self.dstIPCheck.setChecked(True)
-            self.dstIPLine.setEnabled(True)
-            self.dstIPLine.setText(operator.data)
+            self.dstIPCombo.setEnabled(True)
+            if operator.data == self.LAN_RANGES:
+                self.dstIPCombo.setCurrentText(self.LAN_LABEL)
+            else:
+                self.dstIPCombo.setCurrentText(operator.data)
 
         if operator.operand == "dest.host":
             self.dstHostCheck.setChecked(True)
@@ -308,13 +319,14 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule.precedence = self.precedenceCheck.isChecked()
         self.rule.action = "deny" if self.actionDenyRadio.isChecked() else "allow"
         self.rule.duration = self.durationCombo.currentText()
+        self.rule.operator.type = "simple"
 
         # FIXME: there should be a sensitive checkbox per operand
         self.rule.operator.sensitive = self.sensitiveCheck.isChecked()
         rule_data = []
         if self.protoCheck.isChecked():
             if self.protoCombo.currentText() == "":
-                return False, "protocol can not be empty, or uncheck it"
+                return False, "Protocol can not be empty"
 
             self.rule.operator.operand = "protocol"
             self.rule.operator.data = self.protoCombo.currentText()
@@ -328,11 +340,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.protoCombo.currentText()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.protoCombo.currentText()) == False:
-                    return False, "Protocol regexp error"
+                    return False, "Protocol error: invalid regular expression"
 
         if self.procCheck.isChecked():
             if self.procLine.text() == "":
-                return False, "process path can not be empty"
+                return False, "Process path can not be empty"
 
             self.rule.operator.operand = "process.path"
             self.rule.operator.data = self.procLine.text()
@@ -350,7 +362,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if self.cmdlineCheck.isChecked():
             if self.cmdlineLine.text() == "":
-                return False, "command line can not be empty"
+                return False, "Command line can not be empty"
 
             self.rule.operator.operand = "process.command"
             self.rule.operator.data = self.cmdlineLine.text()
@@ -368,7 +380,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if self.dstPortCheck.isChecked():
             if self.dstPortLine.text() == "":
-                return False, "Dest port can not be empty"
+                return False, "Destination port can not be empty"
 
             self.rule.operator.operand = "dest.port"
             self.rule.operator.data = self.dstPortLine.text()
@@ -382,11 +394,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.dstPortLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.dstPortLine.text()) == False:
-                    return False, "Dst port regexp error"
+                    return False, "Destination port error: regular expression not valid"
 
         if self.dstHostCheck.isChecked():
             if self.dstHostLine.text() == "":
-                return False, "Dest host can not be empty"
+                return False, "Destination host can not be empty"
 
             self.rule.operator.operand = "dest.host"
             self.rule.operator.data = self.dstHostLine.text()
@@ -400,25 +412,40 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.dstHostLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.dstHostLine.text()) == False:
-                    return False, "Dst host regexp error"
+                    return False, "Destination host error: regular expression not valid"
 
         if self.dstIPCheck.isChecked():
-            if self.dstIPLine.text() == "":
-                return False, "Dest IP can not be empty"
+            if self.dstIPCombo.currentText() == "":
+                return False, "Destination IP/Network can not be empty"
 
-            self.rule.operator.operand = "dest.ip"
-            self.rule.operator.data = self.dstIPLine.text()
+            dstIPtext = self.dstIPCombo.currentText()
+
+            if dstIPtext == self.LAN_LABEL:
+                self.rule.operator.operand = "dest.ip"
+                self.rule.operator.type = "regexp"
+                dstIPtext = self.LAN_RANGES
+            else:
+                try:
+                    if type(ipaddress.ip_address(self.dstIPCombo.currentText())) == ipaddress.IPv4Address \
+                    or type(ipaddress.ip_address(self.dstIPCombo.currentText())) == ipaddress.IPv6Address:
+                        self.rule.operator.operand = "dest.ip"
+                        self.rule.operator.type = "simple"
+                except Exception:
+                    self.rule.operator.operand = "dest.network"
+                    self.rule.operator.type = "network"
+
+                if self._is_regex(dstIPtext):
+                    self.rule.operator.type = "regexp"
+                    if self._is_valid_regex(self.dstIPCombo.currentText()) == False:
+                        return False, "Destination IP error: regular expression not valid"
+
             rule_data.append(
                     {
-                        'type': 'simple',
-                        'operand': 'dest.ip',
-                        'data': self.dstIPLine.text(),
+                        'type': self.rule.operator.type,
+                        'operand': self.rule.operator.operand,
+                        'data': dstIPtext,
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
-            if self._is_regex(self.dstIPLine.text()):
-                rule_data[len(rule_data)-1]['type'] = "regexp"
-                if self._is_valid_regex(self.dstIPLine.text()) == False:
-                    return False, "Dst IP regexp error"
 
         if self.uidCheck.isChecked():
             if self.uidLine.text() == "":
@@ -436,14 +463,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.uidLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.uidLine.text()) == False:
-                    return False, "User ID regexp error"
+                    return False, "User ID error: invalid regular expression"
 
         if len(rule_data) > 1:
             self.rule.operator.type = "list"
             self.rule.operator.operand = ""
             self.rule.operator.data = json.dumps(rule_data)
         elif len(rule_data) == 1:
-            self.rule.operator.type = "simple"
             self.rule.operator.operand = rule_data[0]['operand']
             self.rule.operator.data = rule_data[0]['data']
             if self._is_regex(self.rule.operator.data):
