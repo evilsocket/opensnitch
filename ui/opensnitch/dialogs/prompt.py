@@ -4,6 +4,7 @@ import time
 import os
 import pwd
 import json
+import ipaddress
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
@@ -25,6 +26,31 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     ACTION_ALLOW = "allow"
     ACTION_DENY  = "deny"
+
+    FIELD_REGEX_HOST    = "regex_host"
+    FIELD_REGEX_IP      = "regex_ip"
+    FIELD_PROC_PATH     = "process_path"
+    FIELD_PROC_ARGS     = "process_args"
+    FIELD_USER_ID       = "user_id"
+    FIELD_DST_IP        = "dst_ip"
+    FIELD_DST_PORT      = "dst_port"
+    FIELD_DST_NETWORK   = "dst_network"
+    FIELD_DST_HOST      = "simple_host"
+
+    DURATION_once   = "once"
+    DURATION_30s    = "30s"
+    DURATION_5m     = "5m"
+    DURATION_15m    = "15m"
+    DURATION_30m    = "30m"
+    DURATION_1h     = "1h"
+    # label displayed in the pop-up combo
+    DURATION_session = "for this session"
+    # field of a rule
+    DURATION_restart = "until restart"
+    # label displayed in the pop-up combo
+    DURATION_forever = "forever"
+    # field of a rule
+    DURATION_always  = "always"
 
     CFG_DEFAULT_TIMEOUT = "global/default_timeout"
     CFG_DEFAULT_ACTION = "global/default_action"
@@ -165,21 +191,21 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._send_rule()
 
     def _configure_default_duration(self):
-        if self._cfg.getSettings("global/default_duration") == "once":
+        if self._cfg.getSettings("global/default_duration") == self.DURATION_once:
             self.durationCombo.setCurrentIndex(0)
-        elif self._cfg.getSettings("global/default_duration") == "30s":
+        elif self._cfg.getSettings("global/default_duration") == self.DURATION_30s:
             self.durationCombo.setCurrentIndex(1)
-        elif self._cfg.getSettings("global/default_duration") == "5m":
+        elif self._cfg.getSettings("global/default_duration") == self.DURATION_5m:
             self.durationCombo.setCurrentIndex(2)
-        elif self._cfg.getSettings("global/default_duration") == "15m":
+        elif self._cfg.getSettings("global/default_duration") == self.DURATION_15m:
             self.durationCombo.setCurrentIndex(3)
-        elif self._cfg.getSettings("global/default_duration") == "30m":
+        elif self._cfg.getSettings("global/default_duration") == self.DURATION_30m:
             self.durationCombo.setCurrentIndex(4)
-        elif self._cfg.getSettings("global/default_duration") == "1h":
+        elif self._cfg.getSettings("global/default_duration") == self.DURATION_1h:
             self.durationCombo.setCurrentIndex(5)
-        elif self._cfg.getSettings("global/default_duration") == "for this session":
+        elif self._cfg.getSettings("global/default_duration") == self.DURATION_session:
             self.durationCombo.setCurrentIndex(6)
-        elif self._cfg.getSettings("global/default_duration") == "forever":
+        elif self._cfg.getSettings("global/default_duration") == self.DURATION_forever:
             self.durationCombo.setCurrentIndex(7)
         else:
             # default to "for this session"
@@ -196,7 +222,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _render_connection(self, con):
         app_name, app_icon, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
-        if app_name != con.process_path and con.process_path not in con.process_args:
+        if app_name != con.process_path and len(con.process_args) > 1 and con.process_path not in con.process_args:
             self.appPathLabel.setToolTip("Process path: %s" % con.process_path)
             self._set_elide_text(self.appPathLabel, "(%s)" % con.process_path)
         else:
@@ -210,9 +236,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.appNameLabel.setText(app_name)
             self.appNameLabel.setToolTip(app_name)
 
-        self.cwdLabel.setText(con.process_cwd)
         self.cwdLabel.setToolTip("Process launched from: %s" % con.process_cwd)
-        self._set_elide_text(self.cwdLabel, con.process_cwd)
+        self._set_elide_text(self.cwdLabel, con.process_cwd, max_size=32)
 
         icon = QtGui.QIcon().fromTheme(app_icon)
         pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
@@ -255,28 +280,33 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.whatCombo.clear()
         self.whatIPCombo.clear()
         if int(con.process_id) > 0:
-            self.whatCombo.addItem("from this executable", "process_path")
+            self.whatCombo.addItem("from this executable", self.FIELD_PROC_PATH)
 
-        self.whatCombo.addItem("from this command line", "process_args")
+        self.whatCombo.addItem("from this command line", self.FIELD_PROC_ARGS)
         if self.argsLabel.text() == "":
             self._set_elide_text(self.argsLabel, con.process_path)
 
         # the order of the entries must match those in the preferences dialog
-        self.whatCombo.addItem("to port %d" % con.dst_port, "dst_port")
-        self.whatCombo.addItem("to %s" % con.dst_ip, "dst_ip")
+        # prefs -> UI -> Default target
+        self.whatCombo.addItem("to port %d" % con.dst_port, self.FIELD_DST_PORT)
+        self.whatCombo.addItem("to %s" % con.dst_ip, self.FIELD_DST_IP)
         if int(con.user_id) >= 0:
-            self.whatCombo.addItem("from user %s" % uid, "user_id")
+            self.whatCombo.addItem("from user %s" % uid, self.FIELD_USER_ID)
+
+        self._add_dst_networks_to_combo(self.whatCombo, con.dst_ip)
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
             self._add_dsthost_to_combo(con.dst_host)
 
-        self.whatIPCombo.addItem("to %s" % con.dst_ip, "dst_ip")
+        self.whatIPCombo.addItem("to %s" % con.dst_ip, self.FIELD_DST_IP)
 
         parts = con.dst_ip.split('.')
         nparts = len(parts)
         for i in range(1, nparts):
-            self.whatCombo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
-            self.whatIPCombo.addItem("to %s.*" % '.'.join(parts[:i]), "regex_ip")
+            self.whatCombo.addItem("to %s.*" % '.'.join(parts[:i]), self.FIELD_REGEX_IP)
+            self.whatIPCombo.addItem("to %s.*" % '.'.join(parts[:i]), self.FIELD_REGEX_IP)
+
+        self._add_dst_networks_to_combo(self.whatIPCombo, con.dst_ip)
 
         self._default_action = self._cfg.getSettings(self.CFG_DEFAULT_ACTION)
 
@@ -302,61 +332,74 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._send_rule()
         e.ignore()
 
+    def _add_dst_networks_to_combo(self, combo, dst_ip):
+        if type(ipaddress.ip_address(dst_ip)) == ipaddress.IPv4Address:
+            combo.addItem("to %s" % ipaddress.ip_network(dst_ip + "/24", strict=False),  self.FIELD_DST_NETWORK)
+            combo.addItem("to %s" % ipaddress.ip_network(dst_ip + "/16", strict=False),  self.FIELD_DST_NETWORK)
+            combo.addItem("to %s" % ipaddress.ip_network(dst_ip + "/8", strict=False),   self.FIELD_DST_NETWORK)
+        else:
+            combo.addItem("to %s" % ipaddress.ip_network(dst_ip + "/64", strict=False),  self.FIELD_DST_NETWORK)
+            combo.addItem("to %s" % ipaddress.ip_network(dst_ip + "/128", strict=False), self.FIELD_DST_NETWORK)
+
     def _add_dsthost_to_combo(self, dst_host):
-        self.whatCombo.addItem("%s" % dst_host, "simple_host")
-        self.whatIPCombo.addItem("%s" % dst_host, "simple_host")
+        self.whatCombo.addItem("%s" % dst_host, self.FIELD_DST_HOST)
+        self.whatIPCombo.addItem("%s" % dst_host, self.FIELD_DST_HOST)
 
         parts = dst_host.split('.')[1:]
         nparts = len(parts)
         for i in range(0, nparts - 1):
-            self.whatCombo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
-            self.whatIPCombo.addItem("to *.%s" % '.'.join(parts[i:]), "regex_host")
+            self.whatCombo.addItem("to *.%s" % '.'.join(parts[i:]), self.FIELD_REGEX_HOST)
+            self.whatIPCombo.addItem("to *.%s" % '.'.join(parts[i:]), self.FIELD_REGEX_HOST)
 
         if nparts == 1:
-            self.whatCombo.addItem("to *%s" % dst_host, "regex_host")
-            self.whatIPCombo.addItem("to *%s" % dst_host, "regex_host")
+            self.whatCombo.addItem("to *%s" % dst_host, self.FIELD_REGEX_HOST)
+            self.whatIPCombo.addItem("to *%s" % dst_host, self.FIELD_REGEX_HOST)
 
     def _get_duration(self, duration_idx):
         if duration_idx == 0:
-            return "once"
+            return self.DURATION_once
         elif duration_idx == 1:
-            return "30s"
+            return self.DURATION_30s
         elif duration_idx == 2:
-            return "5m"
+            return self.DURATION_5m
         elif duration_idx == 3:
-            return "15m"
+            return self.DURATION_15m
         elif duration_idx == 4:
-            return "30m"
+            return self.DURATION_30m
         elif duration_idx == 5:
-            return "1h"
+            return self.DURATION_1h
         elif duration_idx == 6:
-            return "until restart"
+            return self.DURATION_restart
         else:
-            return "always"
+            return self.DURATION_always
 
     def _get_combo_operator(self, combo, what_idx):
-        if combo.itemData(what_idx) == "process_path":
+        if combo.itemData(what_idx) == self.FIELD_PROC_PATH:
             return "simple", "process.path", self._con.process_path
 
-        elif combo.itemData(what_idx) == "process_args":
+        elif combo.itemData(what_idx) == self.FIELD_PROC_ARGS:
             return "simple", "process.command", ' '.join(self._con.process_args)
 
-        elif combo.itemData(what_idx) == "user_id":
+        elif combo.itemData(what_idx) == self.FIELD_USER_ID:
             return "simple", "user.id", "%s" % self._con.user_id
 
-        elif combo.itemData(what_idx) == "dst_port":
+        elif combo.itemData(what_idx) == self.FIELD_DST_PORT:
             return "simple", "dest.port", "%s" % self._con.dst_port
 
-        elif combo.itemData(what_idx) == "dst_ip":
+        elif combo.itemData(what_idx) == self.FIELD_DST_IP:
             return "simple", "dest.ip", self._con.dst_ip
 
-        elif combo.itemData(what_idx) == "simple_host":
+        elif combo.itemData(what_idx) == self.FIELD_DST_HOST:
             return "simple", "dest.host", combo.currentText()
 
-        elif combo.itemData(what_idx) == "regex_host":
+        elif combo.itemData(what_idx) == self.FIELD_DST_NETWORK:
+            # strip "to ": "to x.x.x/20" -> "x.x.x/20"
+            return "simple", "dest.network", combo.currentText()[3:]
+
+        elif combo.itemData(what_idx) == self.FIELD_REGEX_HOST:
             return "regexp", "dest.host", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
 
-        elif combo.itemData(what_idx) == "regex_ip":
+        elif combo.itemData(what_idx) == self.FIELD_REGEX_IP:
             return "regexp", "dest.ip", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
 
     def _on_deny_clicked(self):
@@ -367,13 +410,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._default_action = self.ACTION_ALLOW
         self._send_rule()
 
-    def _get_rule_name(self):
-        rule_temp_name = slugify("%s %s" % (self._rule.action, self._rule.duration))
+    def _get_rule_name(self, rule):
+        rule_temp_name = slugify("%s %s" % (rule.action, rule.duration))
         if self._ischeckAdvanceded:
             rule_temp_name = "%s-list" % rule_temp_name
         else:
             rule_temp_name = "%s-simple" % rule_temp_name
-        rule_temp_name = slugify("%s %s" % (rule_temp_name, self._rule.operator.data))
+        rule_temp_name = slugify("%s %s" % (rule_temp_name, rule.operator.data))
 
         return rule_temp_name
 
@@ -386,21 +429,27 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         what_idx = self.whatCombo.currentIndex()
         self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self.whatCombo, what_idx)
+        if self._rule.operator.data == "":
+            self._rule = None
+            self._done.set()
+            print("Invalid rule, discarding")
+            return
 
-        rule_temp_name = self._get_rule_name()
+        rule_temp_name = self._get_rule_name(self._rule)
+        self._rule.name = rule_temp_name
 
         # TODO: move to a method
         data=[]
-        if self._ischeckAdvanceded and self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != "dst_ip":
+        if self._ischeckAdvanceded and self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_IP:
             _type, _operand, _data = self._get_combo_operator(self.whatIPCombo, self.whatIPCombo.currentIndex())
             data.append({"type": _type, "operand": _operand, "data": _data})
             rule_temp_name = slugify("%s %s" % (rule_temp_name, _data))
 
-        if self._ischeckAdvanceded and self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != "dst_port":
+        if self._ischeckAdvanceded and self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_PORT:
             data.append({"type": "simple", "operand": "dest.port", "data": str(self._con.dst_port)})
             rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.dst_port)))
 
-        if self._ischeckAdvanceded and self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != "user_id":
+        if self._ischeckAdvanceded and self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_USER_ID:
             data.append({"type": "simple", "operand": "user.id", "data": str(self._con.user_id)})
             rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.user_id)))
 
