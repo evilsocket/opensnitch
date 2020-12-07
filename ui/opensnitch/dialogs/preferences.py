@@ -17,6 +17,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     CFG_DEFAULT_DURATION = "global/default_duration"
     CFG_DEFAULT_TARGET   = "global/default_target"
     CFG_DEFAULT_TIMEOUT  = "global/default_timeout"
+    CFG_SHOW_POPUPS          = "global/show_popups"
 
     LOG_TAG = "[Preferences] "
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
@@ -35,6 +36,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.acceptButton.clicked.connect(self._cb_accept_button_clicked)
         self.applyButton.clicked.connect(self._cb_apply_button_clicked)
         self.cancelButton.clicked.connect(self._cb_cancel_button_clicked)
+        self.popupsCheck.clicked.connect(self._cb_popups_check_toggled)
 
         if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
             self.applyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
@@ -80,11 +82,15 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._default_duration = self._cfg.getSettings(self.CFG_DEFAULT_DURATION)
         self._default_target = self._cfg.getSettings(self.CFG_DEFAULT_TARGET)
         self._default_timeout = self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)
+        self._show_popups = self._cfg.getSettings(self.CFG_SHOW_POPUPS)
 
         self.comboUIDuration.setCurrentText(self._default_duration)
         self.comboUIAction.setCurrentText(self._default_action)
         self.comboUITarget.setCurrentIndex(int(self._default_target))
         self.spinUITimeout.setValue(int(self._default_timeout))
+        self.popupsCheck.setChecked(bool(self._show_popups))
+        if self._show_popups != None:
+            self.spinUITimeout.setEnabled(not self.popupsCheck.isChecked())
 
         self._load_node_settings()
 
@@ -131,6 +137,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings(self.CFG_DEFAULT_DURATION, self.comboUIDuration.currentText())
             self._cfg.setSettings(self.CFG_DEFAULT_TARGET, self.comboUITarget.currentIndex())
             self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, self.spinUITimeout.value())
+            self._cfg.setSettings(self.CFG_SHOW_POPUPS, self.popupsCheck.isChecked())
+            # this is a workaround for not display pop-ups.
+            # see #79 for more information.
+            if self.popupsCheck.isChecked():
+                self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, 0)
 
         elif self.tabWidget.currentIndex() == 1:
             self._show_status_label()
@@ -244,6 +255,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_cancel_button_clicked(self):
         self.reject()
+
+    def _cb_popups_check_toggled(self, checked):
+        self.spinUITimeout.setEnabled(not checked)
+        if not checked:
+            self.spinUITimeout.setValue(15)
 
     def _cb_node_combo_changed(self, index):
         self._load_node_settings()
