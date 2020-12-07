@@ -71,6 +71,23 @@ var (
 // parseNetLine parses a SOCKADDR message type of the form:
 // saddr string: inet6 host:2001:4860:4860::8888 serv:53
 func parseNetLine(line string, decode bool) (family string, dstHost net.IP, dstPort int) {
+
+	// 0:4 - type
+	// 4:8 - port
+	// 8:16 - ip
+	switch family := line[0:4]; family {
+	// local
+	// case "0100":
+	// ipv4
+	case "0200":
+		octet2 := decodeString(line[4:8])
+		octet := decodeString(line[8:16])
+		host := fmt.Sprint(octet[0], ".", octet[1], ".", octet[2], ".", octet[3])
+		fmt.Printf("dest ip: %s -- %s:%s\n", line[4:8], octet2, host)
+		// ipv6
+		//case "0A00":
+	}
+
 	if decode == true {
 		line = decodeString(line)
 	}
@@ -138,27 +155,32 @@ func populateEvent(aevent *Event, eventFields *map[string]string) *Event {
 		switch k {
 		//case "a0":
 		//case "a1":
+		//case "a2":
 		case "fam":
+			if v == "local" {
+				return nil
+			}
 			aevent.NetFamily = v
 		case "lport":
 			aevent.DstPort, _ = strconv.Atoi(v)
+		// TODO
+		/*case "addr":
+			fmt.Println("addr: ", v)
+		case "daddr":
+			fmt.Println("daddr: ", v)
 		case "laddr":
 			aevent.DstHost = net.ParseIP(v)
 		case "saddr":
-			// TODO
-			/*
-				if aevent.NetFamily == "" {
-					aevent.NetFamily, aevent.DstHost, aevent.DstPort = parseNetLine(v, true)
-				} else {
-					_, aevent.DstHost, aevent.DstPort = parseNetLine(v, true)
-				}
-			*/
+		parseNetLine(v, true)
+		fmt.Println("saddr:", v)
+		*/
 		case "exe":
 			aevent.ProcPath = strings.Trim(decodeString(v), "\"")
 		case "comm":
 			aevent.ProcName = strings.Trim(decodeString(v), "\"")
-		case "proctitle":
-			aevent.ProcCmdLine = strings.Trim(decodeString(v), "\"")
+		// proctitle may be truncated to 128 characters, so don't rely on it, parse /proc/<pid>/instead
+		//case "proctitle":
+		//	aevent.ProcCmdLine = strings.Trim(decodeString(v), "\"")
 		case "tty":
 			aevent.TTY = v
 		case "pid":

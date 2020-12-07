@@ -3,7 +3,6 @@ package procmon
 import (
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
@@ -94,7 +93,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		if aevent := audit.GetEventByPid(pid); aevent != nil {
 			audit.Lock.RLock()
 			proc := NewProcess(pid, aevent.ProcPath)
-			proc.Args = strings.Split(strings.Replace(aevent.ProcCmdLine, "\x00", " ", -1), " ")
+			proc.readCmdline()
 			proc.setCwd(aevent.ProcDir)
 			audit.Lock.RUnlock()
 			// if the proc dir contains non alhpa-numeric chars the field is empty
