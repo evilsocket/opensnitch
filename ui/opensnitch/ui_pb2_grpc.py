@@ -24,6 +24,16 @@ class UIStub(object):
         request_serializer=ui__pb2.Connection.SerializeToString,
         response_deserializer=ui__pb2.Rule.FromString,
         )
+    self.Subscribe = channel.unary_unary(
+        '/protocol.UI/Subscribe',
+        request_serializer=ui__pb2.ClientConfig.SerializeToString,
+        response_deserializer=ui__pb2.ClientConfig.FromString,
+        )
+    self.Notifications = channel.stream_stream(
+        '/protocol.UI/Notifications',
+        request_serializer=ui__pb2.NotificationReply.SerializeToString,
+        response_deserializer=ui__pb2.Notification.FromString,
+        )
 
 
 class UIServicer(object):
@@ -44,6 +54,20 @@ class UIServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def Subscribe(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def Notifications(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_UIServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -56,6 +80,16 @@ def add_UIServicer_to_server(servicer, server):
           servicer.AskRule,
           request_deserializer=ui__pb2.Connection.FromString,
           response_serializer=ui__pb2.Rule.SerializeToString,
+      ),
+      'Subscribe': grpc.unary_unary_rpc_method_handler(
+          servicer.Subscribe,
+          request_deserializer=ui__pb2.ClientConfig.FromString,
+          response_serializer=ui__pb2.ClientConfig.SerializeToString,
+      ),
+      'Notifications': grpc.stream_stream_rpc_method_handler(
+          servicer.Notifications,
+          request_deserializer=ui__pb2.NotificationReply.FromString,
+          response_serializer=ui__pb2.Notification.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

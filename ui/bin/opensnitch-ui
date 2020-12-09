@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
@@ -15,6 +15,10 @@ from concurrent import futures
 
 import grpc
 
+dist_path = '/usr/lib/python3/dist-packages/'
+if dist_path not in sys.path:
+    sys.path.append(dist_path)
+
 from opensnitch.service import UIService
 from opensnitch.config import Config
 import opensnitch.version
@@ -26,22 +30,33 @@ def on_exit():
     server.stop(0)
     sys.exit(0)
 
+def supported_qt_version(major, medium, minor):
+    q = QtCore.QT_VERSION_STR.split(".")
+    return int(q[0]) >= major and int(q[1]) >= medium and int(q[2]) >= minor
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.')
     parser.add_argument("--socket", dest="socket", default="unix:///tmp/osui.sock", help="Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).", metavar="FILE")
-    parser.add_argument("--config", dest="config", default="~/.opensnitch/ui-config.json", help="Path of the UI json configuration file.", metavar="FILE")
+    parser.add_argument("--max-clients", dest="serverWorkers", default=10, help="Max number of allowed clients (incoming connections).")
 
     args = parser.parse_args()
-    
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    app = QtWidgets.QApplication(sys.argv)
-    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
-    service = UIService(app, on_exit, args.config)
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    if supported_qt_version(5,6,0):
+        try:
+            # NOTE: maybe we also need Qt::AA_UseHighDpiPixmaps
+            QtCore.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+        except Exception:
+            pass
+
+    app = QtWidgets.QApplication(sys.argv)
+
+    service = UIService(app, on_exit)
+    # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=int(args.serverWorkers)))
 
     add_UIServicer_to_server(service, server)
-    
+
     if args.socket.startswith("unix://"):
         socket = args.socket[7:]
         socket = os.path.abspath(socket)

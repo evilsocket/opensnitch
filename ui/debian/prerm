@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+. /usr/share/debconf/confmodule
+
+db_purge
+
+case "$1" in
+    remove)
+        echo
+        echo " If you don't need them anymore, remember to uninstall unicode_slugify, grcpio-tools and protobuf:"
+        echo
+        echo "  pip3 uninstall unicode_slugify"
+        echo "  pip3 uninstall grcpio-tools"
+        echo "  pip3 uninstall protobuf"
+        echo
+
+        ;;
+esac

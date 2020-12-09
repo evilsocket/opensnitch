@@ -1,0 +1,108 @@
+opensnitch (1.3.0~rc-2) UNRELEASED; urgency=medium
+
+  * Non-maintainer upload.
+  *
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Fri, 27 Nov 2020 23:21:31 +0100
+
+opensnitch (1.3.0~rc-1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Fri, 13 Nov 2020 00:51:34 +0100
+
+opensnitch (1.2.0-1) unstable; urgency=medium
+
+  * Fixed memleaks.
+  * Sort rules by name
+  * Added priority field to rules.
+  * Other fixes
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Mon, 09 Nov 2020 22:55:13 +0100
+
+opensnitch (1.0.1-1) unstable; urgency=medium
+
+  * Fixed app exit when IPv6 is not supported.
+  * Other fixes.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Thu, 30 Jul 2020 21:56:20 +0200
+
+opensnitch (1.0.0-1) unstable; urgency=medium
+
+  * v1.0.0 released.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Thu, 16 Jul 2020 00:19:26 +0200
+
+opensnitch (1.0.0rc11-1) unstable; urgency=medium
+
+  * Fixed multiple race conditions.
+  * Fixed CWD parsing when using audit proc monitor method.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Wed, 24 Jun 2020 00:10:38 +0200
+
+opensnitch (1.0.0rc10-1) unstable; urgency=medium
+
+  * Fixed checking UID functions availability.
+  * Improved process path parsing.
+  * Fixed applying config from the UI.
+  * Fixed default log level.
+  * Gather CWD and process environment vars.
+  * Increase default timeout when asking for a rule.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Sat, 13 Jun 2020 18:45:02 +0200
+
+opensnitch (1.0.0rc9-1) unstable; urgency=medium
+
+  * Ignore malformed rules from loading.
+  * Allow to modify and add rules from the UI.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Sun, 17 May 2020 18:18:24 +0200
+
+opensnitch (1.0.0rc8) unstable; urgency=medium
+
+  * Allow to change settings from the UI.
+  * Improved connection handling with the UI.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Wed, 29 Apr 2020 21:52:27 +0200
+
+opensnitch (1.0.0rc7-1) unstable; urgency=medium
+
+  * Stability, performance and realiability improvements.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Sun, 12 Apr 2020 23:25:41 +0200
+
+opensnitch (1.0.0rc6-1) unstable; urgency=medium
+
+  * Fixed iptables rules deletion.
+  * Improved PIDs cache.
+  * Added audit process monitoring method.
+  * Added logrotate file.
+  * Added default configuration file.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Sun, 08 Mar 2020 20:47:58 +0100
+
+opensnitch (1.0.0rc-5) unstable; urgency=medium
+
+  * Fixed netlink socket querying.
+  * Added check to reload firewall rules if missing.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Mon, 24 Feb 2020 19:55:06 +0100
+
+opensnitch (1.0.0rc-3) unstable; urgency=medium
+
+  * @see: https://github.com/gustavo-iniguez-goya/opensnitch/releases
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Tue, 18 Feb 2020 10:09:45 +0100
+
+opensnitch (1.0.0rc-2) unstable; urgency=medium
+
+  * UI minor changes
+  * Expand deb package compatibility.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Wed, 05 Feb 2020 21:50:20 +0100
+
+opensnitch (1.0.0rc-1) unstable; urgency=medium
+
+  * Initial release
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Fri, 22 Nov 2019 01:14:08 +0100

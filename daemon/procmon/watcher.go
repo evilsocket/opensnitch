@@ -6,6 +6,14 @@ import (
 	"sync"
 
 	"github.com/evilsocket/ftrace"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+)
+
+// monitor method supported types
+const (
+	MethodFtrace = "ftrace"
+	MethodProc   = "proc"
+	MethodAudit  = "audit"
 )
 
 const (
@@ -25,7 +33,9 @@ var (
 		"sched/sched_process_exit",
 	}
 
-	watcher = ftrace.NewProbe(probeName, syscallName, subEvents)
+	watcher       = ftrace.NewProbe(probeName, syscallName, subEvents)
+	isAvailable   = false
+	monitorMethod = MethodProc
 
 	index = make(map[int]*procData)
 	lock  = sync.RWMutex{}
@@ -94,11 +104,18 @@ func eventConsumer() {
 	}
 }
 
+// Start enables the ftrace monitor method.
+// This method configures a kprobe to intercept execve() syscalls.
+// The kernel must have configured and enabled debugfs.
 func Start() (err error) {
 	// start from a clean state
-	watcher.Reset()
+	if err := watcher.Reset(); err != nil && watcher.Enabled() {
+		log.Warning("ftrace.Reset() error: %v", err)
+	}
 
 	if err = watcher.Enable(); err == nil {
+		isAvailable = true
+
 		go eventConsumer()
 		// track running processes
 		if ls, err := ioutil.ReadDir("/proc/"); err == nil {
@@ -108,10 +125,19 @@ func Start() (err error) {
 				}
 			}
 		}
+	} else {
+		isAvailable = false
 	}
 	return
 }
 
+// Stop disables ftrace monitor method, removing configured kprobe.
 func Stop() error {
+	isAvailable = false
 	return watcher.Disable()
+}
+
+// IsWatcherAvailable checks if ftrace (debugfs) is
+func IsWatcherAvailable() bool {
+	return isAvailable
 }

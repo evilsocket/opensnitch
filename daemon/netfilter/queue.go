@@ -3,7 +3,7 @@ package netfilter
 /*
 #cgo pkg-config: libnetfilter_queue
 #cgo CFLAGS: -Wall -I/usr/include
-#cgo LDFLAGS: -L/usr/lib64/
+#cgo LDFLAGS: -L/usr/lib64/ -ldl
 
 #include "queue.h"
 */
@@ -18,6 +18,7 @@ import (
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
 const (
@@ -38,12 +39,20 @@ const (
 var (
 	queueIndex     = make(map[uint32]*chan Packet, 0)
 	queueIndexLock = sync.RWMutex{}
+	exitChan       = make(chan bool, 1)
 
 	gopacketDecodeOptions = gopacket.DecodeOptions{Lazy: true, NoCopy: true}
 )
 
+// VerdictContainerC is the struct that contains the mark, action, length and
+// payload of a packet.
+// It's defined in queue.h, and filled on go_callback()
 type VerdictContainerC C.verdictContainer
 
+// Queue holds the information of a netfilter queue.
+// The handles of the connection to the kernel and the created queue.
+// A channel where the intercepted packets will be received.
+// The ID of the queue.
 type Queue struct {
 	h       *C.struct_nfq_handle
 	qh      *C.struct_nfq_q_handle
@@ -52,36 +61,25 @@ type Queue struct {
 	idx     uint32
 }
 
-func NewQueue(queueId uint16) (q *Queue, err error) {
+// NewQueue opens a new netfilter queue to receive packets marked with a mark.
+func NewQueue(queueID uint16) (q *Queue, err error) {
 	q = &Queue{
 		idx:     uint32(time.Now().UnixNano()),
 		packets: make(chan Packet),
 	}
 
-	if err = q.create(queueId); err != nil {
+	if err = q.create(queueID); err != nil {
 		return nil, err
 	} else if err = q.setup(); err != nil {
 		return nil, err
 	}
 
-	go q.run()
+	go q.run(exitChan)
 
-	return
+	return q, nil
 }
 
-func (q *Queue) destroy() {
-	if q.qh != nil {
-		C.nfq_destroy_queue(q.qh)
-		q.qh = nil
-	}
-
-	if q.h != nil {
-		C.nfq_close(q.h)
-		q.h = nil
-	}
-}
-
-func (q *Queue) create(queueId uint16) (err error) {
+func (q *Queue) create(queueID uint16) (err error) {
 	var ret C.int
 
 	if q.h, err = C.nfq_open(); err != nil {
@@ -94,7 +92,7 @@ func (q *Queue) create(queueId uint16) (err error) {
 		return fmt.Errorf("Error binding to AF_INET protocol family: %v", err)
 	} else if ret, err := C.nfq_bind_pf(q.h, AF_INET6); err != nil || ret < 0 {
 		return fmt.Errorf("Error binding to AF_INET6 protocol family: %v", err)
-	} else if q.qh, err = C.CreateQueue(q.h, C.u_int16_t(queueId), C.u_int32_t(q.idx)); err != nil || q.qh == nil {
+	} else if q.qh, err = C.CreateQueue(q.h, C.u_int16_t(queueID), C.u_int32_t(q.idx)); err != nil || q.qh == nil {
 		q.destroy()
 		return fmt.Errorf("Error binding to queue: %v", err)
 	}
@@ -124,31 +122,71 @@ func (q *Queue) setup() (err error) {
 		return fmt.Errorf("Unable to get queue file-descriptor. %v", err)
 	} else if C.nfnl_rcvbufsiz(C.nfq_nfnlh(q.h), totSize) < 0 {
 		q.destroy()
-		return fmt.Errorf("Unable to increase netfilter buffer space size.")
+		return fmt.Errorf("Unable to increase netfilter buffer space size")
 	}
 
 	return nil
 }
 
+func (q *Queue) run(exitCh chan<- bool) {
+	if errno := C.Run(q.h, q.fd); errno != 0 {
+		fmt.Fprintf(os.Stderr, "Terminating, unable to receive packet due to errno=%d", errno)
+	}
+	exitChan <- true
+}
+
+// Close ensures that nfqueue resources are freed and closed.
+// C.stop_reading_packets() stops the reading packets loop, which causes
+// go-subroutine run() to exit.
+// After exit, listening queue is destroyed and closed.
+// If for some reason any of the steps stucks while closing it, we'll exit by timeout.
 func (q *Queue) Close() {
+	close(q.packets)
+	C.stop_reading_packets()
 	q.destroy()
 	queueIndexLock.Lock()
 	delete(queueIndex, q.idx)
 	queueIndexLock.Unlock()
 }
 
+func (q *Queue) destroy() {
+	// we'll try to exit cleanly, but sometimes nfqueue gets stucked
+	time.AfterFunc(5*time.Second, func() {
+		log.Warning("queue stucked, closing by timeout")
+		if q != nil {
+			C.close(q.fd)
+			q.closeNfq()
+		}
+		os.Exit(0)
+	})
+	C.nfq_unbind_pf(q.h, AF_INET)
+	C.nfq_unbind_pf(q.h, AF_INET6)
+	if q.qh != nil {
+		if ret := C.nfq_destroy_queue(q.qh); ret != 0 {
+			log.Warning("Queue.destroy(), nfq_destroy_queue() not closed: %d", ret)
+		}
+	}
+
+	q.closeNfq()
+}
+
+func (q *Queue) closeNfq() {
+	if q.h != nil {
+		if ret := C.nfq_close(q.h); ret != 0 {
+			log.Warning("Queue.destroy(), nfq_close() not closed: %d", ret)
+		}
+	}
+}
+
+// Packets return the list of enqueued packets.
 func (q *Queue) Packets() <-chan Packet {
 	return q.packets
 }
 
-func (q *Queue) run() {
-	if errno := C.Run(q.h, q.fd); errno != 0 {
-		fmt.Fprintf(os.Stderr, "Terminating, unable to receive packet due to errno=%d", errno)
-	}
-}
+// FYI: the export keyword is mandatory to specify that go_callback is defined elsewhere
 
 //export go_callback
-func go_callback(queueId C.int, data *C.uchar, length C.int, mark C.uint, idx uint32, vc *VerdictContainerC) {
+func go_callback(queueID C.int, data *C.uchar, length C.int, mark C.uint, idx uint32, vc *VerdictContainerC, uid uint32) {
 	(*vc).verdict = C.uint(NF_ACCEPT)
 	(*vc).data = nil
 	(*vc).mark_set = 0
@@ -164,18 +202,21 @@ func go_callback(queueId C.int, data *C.uchar, length C.int, mark C.uint, idx ui
 
 	xdata := C.GoBytes(unsafe.Pointer(data), length)
 
+	p := Packet{
+		verdictChannel:  make(chan VerdictContainer),
+		Mark:            uint32(mark),
+		UID:             uid,
+		NetworkProtocol: xdata[0] >> 4, // first 4 bits is the version
+	}
+
 	var packet gopacket.Packet
-	if (xdata[0] >> 4) == 4 { // first 4 bits is the version
+	if p.IsIPv4() {
 		packet = gopacket.NewPacket(xdata, layers.LayerTypeIPv4, gopacketDecodeOptions)
 	} else {
 		packet = gopacket.NewPacket(xdata, layers.LayerTypeIPv6, gopacketDecodeOptions)
 	}
 
-	p := Packet{
-		verdictChannel: make(chan VerdictContainer),
-		Mark:           uint32(mark),
-		Packet:         packet,
-	}
+	p.Packet = packet
 
 	select {
 	case *queueChannel <- p:

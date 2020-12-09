@@ -4,28 +4,35 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/evilsocket/opensnitch/daemon/conman"
-	"github.com/evilsocket/opensnitch/daemon/core"
-	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/conman"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 
 	"github.com/fsnotify/fsnotify"
 )
 
+// Loader is the object that holds the rules loaded from disk, as well as the
+// rules watcher.
 type Loader struct {
 	sync.RWMutex
 	path              string
 	rules             map[string]*Rule
+	rulesKeys         []string
 	watcher           *fsnotify.Watcher
 	liveReload        bool
 	liveReloadRunning bool
 }
 
+// NewLoader loads rules from disk, and watches for changes made to the rules files
+// on disk.
 func NewLoader(liveReload bool) (*Loader, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -40,15 +47,17 @@ func NewLoader(liveReload bool) (*Loader, error) {
 	}, nil
 }
 
+// NumRules returns he number of loaded rules.
 func (l *Loader) NumRules() int {
 	l.RLock()
 	defer l.RUnlock()
 	return len(l.rules)
 }
 
+// Load loads rules files from disk.
 func (l *Loader) Load(path string) error {
 	if core.Exists(path) == false {
-		return fmt.Errorf("Path '%s' does not exist.", path)
+		return fmt.Errorf("Path '%s' does not exist", path)
 	}
 
 	expr := filepath.Join(path, "*.json")
@@ -61,7 +70,10 @@ func (l *Loader) Load(path string) error {
 	defer l.Unlock()
 
 	l.path = path
-	l.rules = make(map[string]*Rule)
+	if len(l.rules) == 0 {
+		l.rules = make(map[string]*Rule)
+	}
+	diskRules := make(map[string]string)
 
 	for _, fileName := range matches {
 		log.Debug("Reading rule from %s", fileName)
@@ -74,14 +86,26 @@ func (l *Loader) Load(path string) error {
 
 		err = json.Unmarshal(raw, &r)
 		if err != nil {
-			return fmt.Errorf("Error while parsing rule from %s: %s", fileName, err)
+			log.Error("Error parsing rule from %s: %s", fileName, err)
+			continue
 		}
 
 		r.Operator.Compile()
+		diskRules[r.Name] = r.Name
 
 		log.Debug("Loaded rule from %s: %s", fileName, r.String())
 		l.rules[r.Name] = &r
 	}
+	for ruleName, inMemoryRule := range l.rules {
+		if _, ok := diskRules[ruleName]; ok == false {
+			if inMemoryRule.Duration == Always {
+				log.Debug("Rule deleted from disk, updating rules list: ", ruleName)
+				delete(l.rules, ruleName)
+			}
+		}
+	}
+
+	l.sortRules()
 
 	if l.liveReload && l.liveReloadRunning == false {
 		go l.liveReloadWorker()
@@ -118,8 +142,16 @@ func (l *Loader) liveReloadWorker() {
 	}
 }
 
+// Reload reloads the rules from disk.
 func (l *Loader) Reload() error {
 	return l.Load(l.path)
+}
+
+// GetAll returns the loaded rules.
+func (l *Loader) GetAll() map[string]*Rule {
+	l.RLock()
+	defer l.RUnlock()
+	return l.rules
 }
 
 func (l *Loader) isUniqueName(name string) bool {
@@ -128,6 +160,9 @@ func (l *Loader) isUniqueName(name string) bool {
 }
 
 func (l *Loader) setUniqueName(rule *Rule) {
+	l.Lock()
+	defer l.Unlock()
+
 	idx := 1
 	base := rule.Name
 	for l.isUniqueName(rule.Name) == false {
@@ -136,13 +171,52 @@ func (l *Loader) setUniqueName(rule *Rule) {
 	}
 }
 
-func (l *Loader) addUserRule(rule *Rule) {
-	l.Lock()
-	l.setUniqueName(rule)
-	l.rules[rule.Name] = rule
-	l.Unlock()
+func (l *Loader) sortRules() {
+	l.rulesKeys = make([]string, 0, len(l.rules))
+	for k := range l.rules {
+		l.rulesKeys = append(l.rulesKeys, k)
+	}
+	sort.Strings(l.rulesKeys)
 }
 
+func (l *Loader) addUserRule(rule *Rule) {
+	if rule.Duration == Once {
+		return
+	}
+
+	l.setUniqueName(rule)
+	l.replaceUserRule(rule)
+}
+
+func (l *Loader) replaceUserRule(rule *Rule) {
+	l.Lock()
+	if rule.Operator.Type == List {
+		if err := json.Unmarshal([]byte(rule.Operator.Data), &rule.Operator.List); err != nil {
+			log.Error("Error loading rule of type list", err)
+		}
+	}
+	l.rules[rule.Name] = rule
+	l.sortRules()
+	l.Unlock()
+
+	if rule.Duration == Restart || rule.Duration == Always {
+		return
+	}
+
+	tTime, err := time.ParseDuration(string(rule.Duration))
+	if err != nil {
+		return
+	}
+
+	time.AfterFunc(tTime, func() {
+		l.Lock()
+		delete(l.rules, rule.Name)
+		l.sortRules()
+		l.Unlock()
+	})
+}
+
+// Add adds a rule to the list of rules, and optionally saves it to disk.
 func (l *Loader) Add(rule *Rule, saveToDisk bool) error {
 	l.addUserRule(rule)
 	if saveToDisk {
@@ -152,6 +226,20 @@ func (l *Loader) Add(rule *Rule, saveToDisk bool) error {
 	return nil
 }
 
+// Replace adds a rule to the list of rules, and optionally saves it to disk.
+func (l *Loader) Replace(rule *Rule, saveToDisk bool) error {
+	l.replaceUserRule(rule)
+	if saveToDisk {
+		l.Lock()
+		defer l.Unlock()
+
+		fileName := filepath.Join(l.path, fmt.Sprintf("%s.json", rule.Name))
+		return l.Save(rule, fileName)
+	}
+	return nil
+}
+
+// Save a rule to disk.
 func (l *Loader) Save(rule *Rule, path string) error {
 	rule.Updated = time.Now()
 	raw, err := json.MarshalIndent(rule, "", "  ")
@@ -166,16 +254,48 @@ func (l *Loader) Save(rule *Rule, path string) error {
 	return nil
 }
 
+// Delete deletes a rule from the list.
+// If the duration is Always (i.e: saved on disk), it'll attempt to delete
+// it from disk.
+func (l *Loader) Delete(ruleName string) error {
+	l.Lock()
+	defer l.Unlock()
+
+	rule := l.rules[ruleName]
+	if rule == nil {
+		return nil
+	}
+
+	delete(l.rules, ruleName)
+	l.sortRules()
+
+	if rule.Duration != Always {
+		return nil
+	}
+
+	log.Info("Delete() rule: ", rule)
+	path := fmt.Sprint(l.path, "/", ruleName, ".json")
+	return os.Remove(path)
+}
+
+// FindFirstMatch will try match the connection against the existing rule set.
 func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 	l.RLock()
 	defer l.RUnlock()
 
-	for _, rule := range l.rules {
+	for _, ruleIdx := range l.rulesKeys {
+		rule, valid := l.rules[ruleIdx]
+		if !valid {
+			continue
+		}
 		// if we already have a match, we don't need
 		// to evaluate 'allow' rules anymore, we only
 		// need to make sure there's no 'deny' rule
 		// matching this specific connection
 		if match != nil && rule.Action == Allow {
+			if rule.Precedence {
+				break
+			}
 			continue
 		} else if rule.Match(con) == true {
 			// only return if we found a deny

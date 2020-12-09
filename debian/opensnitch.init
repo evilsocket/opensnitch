@@ -1,0 +1,78 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          opensnitchd
+# Required-Start:    $network $local_fs
+# Required-Stop:     $network $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: opensnitchd daemon
+# Description: opensnitch application firewall
+### END INIT INFO
+
+NAME=opensnitchd
+PIDDIR=/var/run/$NAME
+OPENSNITCHDPID=$PIDDIR/$NAME.pid
+
+# clear conflicting settings from the environment
+unset TMPDIR
+
+test -x /usr/bin/$NAME || exit 0
+
+. /lib/lsb/init-functions
+
+case $1 in
+    start)
+        log_daemon_msg "Starting opensnitch daemon" $NAME
+        if [ ! -d /etc/$NAME/rules ]; then
+            mkdir -p /etc/$NAME/rules &>/dev/null
+        fi
+
+        # Make sure we have our PIDDIR, even if it's on a tmpfs
+        install -o root -g root -m 755 -d $PIDDIR
+
+        if ! start-stop-daemon --start --quiet --oknodo --pidfile $OPENSNITCHDPID --background --exec /usr/bin/$NAME -- -rules-path /etc/$NAME/rules; then
+            log_end_msg 1
+            exit 1
+        fi
+
+        log_end_msg 0
+        ;;
+    stop)
+
+        log_daemon_msg "Stopping $NAME daemon" $NAME
+
+        start-stop-daemon --stop --quiet --signal QUIT --name $NAME
+        # Wait a little and remove stale PID file
+        sleep 1
+        if [ -f $OPENSNITCHDPID ] && ! ps h `cat $OPENSNITCHDPID` > /dev/null
+        then
+            rm -f $OPENSNITCHDPID
+        fi
+
+        log_end_msg 0
+
+        ;;
+    reload)
+        log_daemon_msg "Reloading $NAME" $NAME
+
+        start-stop-daemon --stop --quiet --signal HUP --pidfile $OPENSNITCHDPID
+
+        log_end_msg 0
+        ;;
+    restart|force-reload)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+        status)
+        status_of_proc /usr/bin/$NAME $NAME
+        exit $?
+        ;;
+    *)
+        echo "Usage: /etc/init.d/opensnitchd {start|stop|reload|restart|force-reload|status}"
+        exit 1
+        ;;
+esac
+
+exit 0

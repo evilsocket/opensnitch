@@ -5,6 +5,8 @@ package protocol;
 service UI {
     rpc Ping(PingRequest) returns (PingReply) {}
     rpc AskRule (Connection) returns (Rule) {}
+    rpc Subscribe (ClientConfig) returns (ClientConfig) {}
+    rpc Notifications (stream NotificationReply) returns (stream Notification) {}
 }
 
 message Event {
@@ -52,18 +54,73 @@ message Connection {
     uint32 user_id = 7;
     uint32 process_id = 8;
     string process_path = 9;
-    repeated string process_args = 10;
+    string process_cwd = 10;
+    repeated string process_args = 11;
+    map<string, string> process_env = 12;
 }
 
 message Operator {
     string type = 1;
     string operand = 2;
     string data = 3;
+    bool sensitive = 4;
 }
 
 message Rule {
     string name = 1;
-    string action = 2;
-    string duration = 3;
-    Operator operator = 4;
+    bool enabled = 2;
+    bool precedence = 3;
+    string action = 4;
+    string duration = 5;
+    Operator operator = 6;
+}
+
+enum Action {
+    NONE = 0;
+    LOAD_FIREWALL = 1;
+    UNLOAD_FIREWALL = 2;
+    CHANGE_CONFIG = 3;
+    ENABLE_RULE = 4;
+    DISABLE_RULE = 5;
+    DELETE_RULE = 6;
+    CHANGE_RULE = 7;
+    LOG_LEVEL = 8;
+    STOP = 9;
+    MONITOR_PROCESS = 10;
+    STOP_MONITOR_PROCESS = 11;
+}
+
+// client configuration sent on Subscribe()
+message ClientConfig {
+    uint64 id = 1;
+    string name = 2;
+    string version = 3;
+    bool isFirewallRunning = 4;
+    // daemon configuration as json string
+    string config = 5;
+    uint32 logLevel = 6;
+    repeated Rule rules = 7;
+}
+
+// notification sent to the clients (daemons)
+message Notification {
+    uint64 id = 1;
+    string clientName = 2;
+    string serverName = 3;
+    // CHANGE_CONFIG: 2, data: {"default_timeout": 1, ...}
+    Action type = 4;
+    string data = 5;   
+    repeated Rule rules = 6;
+}
+
+// notification reply sent to the server (GUI)
+message NotificationReply {
+    uint64 id = 1;
+    NotificationReplyCode code = 2;
+    string data = 3;
+}
+
+enum NotificationReplyCode {
+    OK = 0;
+    ERROR = 1;
 }

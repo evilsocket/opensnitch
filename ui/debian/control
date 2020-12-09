@@ -1,0 +1,26 @@
+Source: opensnitch-ui
+Maintainer: Gustavo Iñiguez Goia <gooffy1@gmail.com>
+Uploaders:
+ Gustavo Iniguez Goya <gooffy@gmail.com>,
+Priority: optional
+Homepage: https://github.com/gustavo-iniguez-goya/opensnitch
+Build-Depends: python3-setuptools, python3-all, debhelper (>= 7.4.3), dh-python
+Standards-Version: 3.9.1
+
+
+Package: python3-opensnitch-ui
+Architecture: all
+Section: net
+Depends:
+ debconf, libqt5sql5-sqlite, python3:any, python3-setuptools, python3-six, python3-pyqt5,
+ python3-pyqt5.qtsql, python3-pyinotify, python3-pip, whiptail | dialog
+Description: opensnitch application firewall GUI
+ opensnitch-ui is a GUI for opensnitch written in Python.
+ It allows the user to view live outgoing connections, as well as search
+ for details of the intercepted connections.
+ .
+ The user can decide if block outgoing connections based on properties of
+ the connection: by port, by uid, by dst ip, by program or a combination
+ of them.
+ .
+ These rules can last forever, until restart the daemon or just one time.

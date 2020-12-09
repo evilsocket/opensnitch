@@ -2,70 +2,103 @@ package rule
 
 import (
 	"fmt"
+	"net"
 	"regexp"
 	"strings"
 
-	"github.com/evilsocket/opensnitch/daemon/conman"
-	"github.com/evilsocket/opensnitch/daemon/core"
-	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/conman"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
 )
 
+// Type is the type of rule.
+// Every type has its own way of checking the user data against connections.
 type Type string
 
+// Sensitive defines if a rule is case-sensitive or not. By default no.
+type Sensitive bool
+
+// Operand is what we check on a connection.
+type Operand string
+
+// Available types
 const (
 	Simple  = Type("simple")
 	Regexp  = Type("regexp")
 	Complex = Type("complex") // for future use
 	List    = Type("list")
+	Network = Type("network")
 )
 
-type Operand string
-
+// Available operands
 const (
 	OpTrue                = Operand("true")
+	OpProcessID           = Operand("process.id")
 	OpProcessPath         = Operand("process.path")
 	OpProcessCmd          = Operand("process.command")
 	OpProcessEnvPrefix    = Operand("process.env.")
 	OpProcessEnvPrefixLen = 12
-	OpUserId              = Operand("user.id")
+	OpUserID              = Operand("user.id")
 	OpDstIP               = Operand("dest.ip")
 	OpDstHost             = Operand("dest.host")
 	OpDstPort             = Operand("dest.port")
+	OpDstNetwork          = Operand("dest.network")
+	OpProto               = Operand("protocol")
 	OpList                = Operand("list")
 )
 
-type opCallback func(value string) bool
+type opCallback func(value interface{}) bool
 
+// Operator represents what we want to filter of a connection, and how.
 type Operator struct {
-	Type    Type    `json:"type"`
-	Operand Operand `json:"operand"`
-	Data    string  `json:"data"`
-	List    []Operator  `json:"list"`
+	Type      Type       `json:"type"`
+	Operand   Operand    `json:"operand"`
+	Sensitive Sensitive  `json:"sensitive"`
+	Data      string     `json:"data"`
+	List      []Operator `json:"list"`
 
-	cb opCallback
-	re *regexp.Regexp
+	cb      opCallback
+	re      *regexp.Regexp
+	netMask *net.IPNet
 }
 
-func NewOperator(t Type, o Operand, data string, list []Operator) Operator {
+// NewOperator returns a new operator object
+func NewOperator(t Type, s Sensitive, o Operand, data string, list []Operator) (*Operator, error) {
 	op := Operator{
-		Type:    t,
-		Operand: o,
-		Data:    data,
-		List:    list,
+		Type:      t,
+		Sensitive: s,
+		Operand:   o,
+		Data:      data,
+		List:      list,
 	}
-	op.Compile()
-	return op
+	if err := op.Compile(); err != nil {
+		log.Error("NewOperator() failed to compile:", err)
+		return nil, err
+	}
+	return &op, nil
 }
 
-func (o *Operator) Compile() {
+// Compile translates the operator type field to its callback counterpart
+func (o *Operator) Compile() error {
 	if o.Type == Simple {
 		o.cb = o.simpleCmp
 	} else if o.Type == Regexp {
 		o.cb = o.reCmp
-		o.re = regexp.MustCompile(o.Data)
+		re, err := regexp.Compile(o.Data)
+		if err != nil {
+			return err
+		}
+		o.re = re
 	} else if o.Type == List {
 		o.Operand = OpList
+		o.cb = o.listMatch
+	} else if o.Type == Network {
+		o.cb = o.cmpNetwork
+		// compile data once, so we don't have to do it on every rule check.
+		_, o.netMask, _ = net.ParseCIDR(o.Data)
 	}
+
+	return nil
 }
 
 func (o *Operator) String() string {
@@ -76,29 +109,49 @@ func (o *Operator) String() string {
 	return fmt.Sprintf("%s %s '%s'", log.Bold(string(o.Operand)), how, log.Yellow(string(o.Data)))
 }
 
-func (o *Operator) simpleCmp(v string) bool {
+func (o *Operator) simpleCmp(v interface{}) bool {
+	if o.Sensitive == false {
+		return strings.EqualFold(v.(string), o.Data)
+	}
 	return v == o.Data
 }
 
-func (o *Operator) reCmp(v string) bool {
-	return o.re.MatchString(v)
+func (o *Operator) reCmp(v interface{}) bool {
+	if o.Sensitive == false {
+		v = strings.ToLower(v.(string))
+	}
+	return o.re.MatchString(v.(string))
 }
 
-func (o *Operator) listMatch(con *conman.Connection) bool {
+func (o *Operator) cmpNetwork(destIP interface{}) bool {
+	// 192.0.2.1/24, 2001:db8:a0b:12f0::1/32
+	if o.netMask == nil {
+		return false
+	}
+	return o.netMask.Contains(destIP.(net.IP))
+}
+
+func (o *Operator) listMatch(con interface{}) bool {
 	res := true
 	for i := 0; i < len(o.List); i += 1 {
 		o := o.List[i]
-		o.Compile()
-		res = res && o.Match(con)
+		if err := o.Compile(); err != nil {
+			return false
+		}
+		res = res && o.Match(con.(*conman.Connection))
 	}
 	return res
 }
 
+// Match tries to match parts of a connection with the given operator.
 func (o *Operator) Match(con *conman.Connection) bool {
+
 	if o.Operand == OpTrue {
 		return true
-	} else if o.Operand == OpUserId {
+	} else if o.Operand == OpUserID {
 		return o.cb(fmt.Sprintf("%d", con.Entry.UserId))
+	} else if o.Operand == OpProcessID {
+		return o.cb(fmt.Sprint(con.Process.ID))
 	} else if o.Operand == OpProcessPath {
 		return o.cb(con.Process.Path)
 	} else if o.Operand == OpProcessCmd {
@@ -109,12 +162,16 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(envVarValue)
 	} else if o.Operand == OpDstIP {
 		return o.cb(con.DstIP.String())
-	} else if o.Operand == OpDstHost {
+	} else if o.Operand == OpDstHost && con.DstHost != "" {
 		return o.cb(con.DstHost)
+	} else if o.Operand == OpProto {
+		return o.cb(con.Protocol)
 	} else if o.Operand == OpDstPort {
 		return o.cb(fmt.Sprintf("%d", con.DstPort))
+	} else if o.Operand == OpDstNetwork {
+		return o.cmpNetwork(con.DstIP)
 	} else if o.Operand == OpList {
-		return o.listMatch(con)
+		return o.cb(con)
 	}
 
 	return false

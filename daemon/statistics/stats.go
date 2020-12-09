@@ -5,11 +5,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/evilsocket/opensnitch/daemon/conman"
-	"github.com/evilsocket/opensnitch/daemon/core"
-	"github.com/evilsocket/opensnitch/daemon/log"
-	"github.com/evilsocket/opensnitch/daemon/rule"
-	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/conman"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/rule"
+	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui/protocol"
 )
 
 const (
@@ -26,7 +26,7 @@ type conEvent struct {
 }
 
 type Statistics struct {
-	sync.Mutex
+	sync.RWMutex
 
 	Started      time.Time
 	DNSResponses int
@@ -134,7 +134,7 @@ func (s *Statistics) onConnection(con *conman.Connection, match *rule.Rule, wasM
 		s.RuleHits++
 	}
 
-	if match.Action == rule.Allow {
+	if wasMissed == false && match.Action == rule.Allow {
 		s.Accepted++
 	} else {
 		s.Dropped++
@@ -154,6 +154,9 @@ func (s *Statistics) onConnection(con *conman.Connection, match *rule.Rule, wasM
 	nEvents := len(s.Events)
 	if nEvents == maxEvents {
 		s.Events = s.Events[1:]
+	}
+	if wasMissed {
+		return
 	}
 	s.Events = append(s.Events, NewEvent(con, match))
 }

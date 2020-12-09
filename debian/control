@@ -1,0 +1,49 @@
+Source: opensnitch
+Maintainer: Debian Go Packaging Team <team+pkg-go@tracker.debian.org>
+Uploaders:
+ Gustavo Iniguez Goya <gooffy@gmail.com>,
+Section: devel
+Testsuite: autopkgtest-pkg-go
+Priority: optional
+Build-Depends:
+ debhelper-compat (= 12),
+ debhelper (>= 9),
+ dh-systemd (>= 1.5),
+ dh-golang,
+ golang-any,
+ golang-github-vishvananda-netlink-dev,
+ golang-github-evilsocket-ftrace-dev,
+ golang-github-google-gopacket-dev,
+ golang-github-fsnotify-fsnotify-dev,
+ golang-golang-x-net-dev,
+ golang-google-grpc-dev,
+ golang-goprotobuf-dev,
+ pkg-config,
+ libnetfilter-queue-dev,
+ libmnl-dev
+Standards-Version: 4.4.0
+Vcs-Browser: https://salsa.debian.org/go-team/packages/opensnitch
+Vcs-Git: https://salsa.debian.org/go-team/packages/opensnitch.git
+Homepage: https://github.com/gustavo-iniguez-goya/opensnitch
+Rules-Requires-Root: no
+XS-Go-Import-Path: github.com/gustavo-iniguez-goya/opensnitch
+
+Package: opensnitch
+Section: net
+Architecture: any
+Depends:
+ ${misc:Depends}, ${shlibs:Depends},
+Built-Using: ${misc:Built-Using}
+Description: GNU/Linux firewall application
+ OpenSnitch is a GNU/Linux firewall application.
+ Whenever a program makes a connection, it'll prompt the user to allow or deny
+ it.
+ .
+ The user can decide if block the outgoing connection based on properties of
+ the connection: by port, by uid, by dst ip, by program or a combination
+ of them.
+ .
+ These rules can last forever, until the app restart or just one time.
+ .
+ The GUI allows the user to view live outgoing connections, as well as search
+ by process, user, host or port.
