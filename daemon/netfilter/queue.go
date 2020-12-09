@@ -18,7 +18,7 @@ import (
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
 const (

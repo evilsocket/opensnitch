@@ -4,7 +4,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/log"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"

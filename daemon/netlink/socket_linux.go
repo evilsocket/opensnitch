@@ -7,7 +7,7 @@ import (
 	"net"
 	"syscall"
 
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/vishvananda/netlink/nl"
 )
 

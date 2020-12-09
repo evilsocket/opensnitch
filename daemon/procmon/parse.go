@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon/audit"
+	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/procmon/audit"
 )
 
 func getPIDFromAuditEvents(inode int, inodeKey string, expect string) (int, int) {

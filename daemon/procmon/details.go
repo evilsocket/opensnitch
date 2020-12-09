@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/dns"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netlink"
+	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/evilsocket/opensnitch/daemon/dns"
+	"github.com/evilsocket/opensnitch/daemon/netlink"
 )
 
 var socketsRegex, _ = regexp.Compile(`socket:\[([0-9]+)\]`)

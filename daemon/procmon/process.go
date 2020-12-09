@@ -3,8 +3,8 @@ package procmon
 import (
 	"time"
 
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon/audit"
+	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/procmon/audit"
 )
 
 // man 5 proc; man procfs

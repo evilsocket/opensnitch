@@ -4,8 +4,8 @@ import (
 	"net"
 	"strings"
 
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
 // FindEntry looks for the connection in the list of known connections in ProcFS.
