@@ -18,11 +18,9 @@
 
 Please, refer to [the documentation](https://github.com/gustavo-iniguez-goya/opensnitch/wiki) for detailed information.
 
-### Credits
+### Contributors
 
-OpenSnitch was originally created by **Simone Margaritelli** ([evilsocket](https://github.com/evilsocket)), 2017-2019.
-
-Many others have also contributed over time, [see the list](https://github.com/gustavo-iniguez-goya/opensnitch/graphs/contributors)
+[See the list](https://github.com/gustavo-iniguez-goya/opensnitch/graphs/contributors)
 
 ### Disclaimer
 
