@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/conman"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui/protocol"
+	"github.com/evilsocket/opensnitch/daemon/conman"
+	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
 // Action of a rule

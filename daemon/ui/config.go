@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/rule"
+	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/evilsocket/opensnitch/daemon/rule"
 )
 
 func (c *Client) getSocketPath(socketPath string) string {

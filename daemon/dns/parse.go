@@ -1,8 +1,8 @@
 package dns
 
 import (
+	"github.com/evilsocket/opensnitch/daemon/netfilter"
 	"github.com/google/gopacket/layers"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netfilter"
 )
 
 // GetQuestions retrieves the domain names a process is trying to resolve.

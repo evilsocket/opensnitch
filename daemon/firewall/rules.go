@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
 // DropMark is the mark we place on a connection when we deny it.

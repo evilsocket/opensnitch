@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
 var (

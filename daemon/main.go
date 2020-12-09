@@ -13,16 +13,16 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/conman"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/core"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/dns"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/firewall"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/netfilter"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/procmon"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/rule"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/statistics"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/ui"
+	"github.com/evilsocket/opensnitch/daemon/conman"
+	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/evilsocket/opensnitch/daemon/dns"
+	"github.com/evilsocket/opensnitch/daemon/firewall"
+	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/netfilter"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/evilsocket/opensnitch/daemon/rule"
+	"github.com/evilsocket/opensnitch/daemon/statistics"
+	"github.com/evilsocket/opensnitch/daemon/ui"
 )
 
 var (

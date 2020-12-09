@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/evilsocket/ftrace"
-	"github.com/gustavo-iniguez-goya/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
 // monitor method supported types
