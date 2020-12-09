@@ -8,6 +8,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/fsnotify/fsnotify"
+	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
 var (
