@@ -98,7 +98,7 @@ func (o *Operator) Compile() error {
 		var err error
 		_, o.netMask, err = net.ParseCIDR(o.Data)
 		if err != nil {
-			return err
+			log.Warning("compile() network failed: %v", err)
 		}
 		o.cb = o.cmpNetwork
 	}
