@@ -91,11 +91,13 @@ func (o *Operator) Compile() error {
 		o.re = re
 	} else if o.Type == List {
 		o.Operand = OpList
-		o.cb = o.listMatch
 	} else if o.Type == Network {
+		var err error
+		_, o.netMask, err = net.ParseCIDR(o.Data)
+		if err != nil {
+			log.Warning("compile() network failed: %v", err)
+		}
 		o.cb = o.cmpNetwork
-		// compile data once, so we don't have to do it on every rule check.
-		_, o.netMask, _ = net.ParseCIDR(o.Data)
 	}
 
 	return nil
@@ -126,6 +128,7 @@ func (o *Operator) reCmp(v interface{}) bool {
 func (o *Operator) cmpNetwork(destIP interface{}) bool {
 	// 192.0.2.1/24, 2001:db8:a0b:12f0::1/32
 	if o.netMask == nil {
+		log.Warning("cmpNetwork() NULL: %s", destIP)
 		return false
 	}
 	return o.netMask.Contains(destIP.(net.IP))
@@ -169,9 +172,9 @@ func (o *Operator) Match(con *conman.Connection) bool {
 	} else if o.Operand == OpDstPort {
 		return o.cb(fmt.Sprintf("%d", con.DstPort))
 	} else if o.Operand == OpDstNetwork {
-		return o.cmpNetwork(con.DstIP)
+		return o.cb(con.DstIP)
 	} else if o.Operand == OpList {
-		return o.cb(con)
+		return o.listMatch(con)
 	}
 
 	return false
