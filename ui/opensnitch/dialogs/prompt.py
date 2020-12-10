@@ -119,7 +119,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkUserID.setVisible(state)
         self._ischeckAdvanceded = state
 
-    def _set_elide_text(self, widget, text, max_size=128):
+    def _set_elide_text(self, widget, text, max_size=132):
         if len(text) > max_size:
             text = text[:max_size] + "..."
 
@@ -394,7 +394,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         elif combo.itemData(what_idx) == self.FIELD_DST_NETWORK:
             # strip "to ": "to x.x.x/20" -> "x.x.x/20"
-            return "simple", "dest.network", combo.currentText()[3:]
+            return "network", "dest.network", combo.currentText()[3:]
 
         elif combo.itemData(what_idx) == self.FIELD_REGEX_HOST:
             return "regexp", "dest.host", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
@@ -418,7 +418,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             rule_temp_name = "%s-simple" % rule_temp_name
         rule_temp_name = slugify("%s %s" % (rule_temp_name, rule.operator.data))
 
-        return rule_temp_name
+        return rule_temp_name[:128]
 
     def _send_rule(self):
         self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
@@ -430,9 +430,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         what_idx = self.whatCombo.currentIndex()
         self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self.whatCombo, what_idx)
         if self._rule.operator.data == "":
+            print("Invalid rule, discarding: ", self._rule)
             self._rule = None
             self._done.set()
-            print("Invalid rule, discarding")
             return
 
         rule_temp_name = self._get_rule_name(self._rule)
@@ -464,7 +464,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.hide()
         if self._ischeckAdvanceded:
             self.checkAdvanced.toggle()
-        self._idcheckAdvanceded = False
+        self._ischeckAdvanceded = False
 
         # signal that the user took a decision and
         # a new rule is available
