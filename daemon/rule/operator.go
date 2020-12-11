@@ -84,6 +84,9 @@ func (o *Operator) Compile() error {
 		o.cb = o.simpleCmp
 	} else if o.Type == Regexp {
 		o.cb = o.reCmp
+		if o.Sensitive == false {
+			o.Data = strings.ToLower(o.Data)
+		}
 		re, err := regexp.Compile(o.Data)
 		if err != nil {
 			return err
@@ -95,7 +98,7 @@ func (o *Operator) Compile() error {
 		var err error
 		_, o.netMask, err = net.ParseCIDR(o.Data)
 		if err != nil {
-			log.Warning("compile() network failed: %v", err)
+			return err
 		}
 		o.cb = o.cmpNetwork
 	}
