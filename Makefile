@@ -22,9 +22,9 @@ clean:
 	@cd proto && make clean
 
 run:
-	cd ui && sudo pip3 install --upgrade . && cd ..
+	cd ui && pip3 install --upgrade . && cd ..
 	opensnitch-ui --socket unix:///tmp/osui.sock &
-	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock -cpu-profile cpu.profile -mem-profile mem.profile
+	./daemon/opensnitchd -rules-path /etc/opensnitchd/rules -ui-socket unix:///tmp/osui.sock -cpu-profile cpu.profile -mem-profile mem.profile
 
 test: 
 	clear 
@@ -43,8 +43,8 @@ adblocker:
 	clear
 	python make_ads_rules.py
 	clear
-	cd ui && sudo pip3 install --upgrade . && cd ..
+	cd ui && pip3 install --upgrade . && cd ..
 	opensnitch-ui --socket unix:///tmp/osui.sock &
-	sudo ./daemon/opensnitchd -ui-socket unix:///tmp/osui.sock 
+	./daemon/opensnitchd -rules-path /etc/opensnitchd/rules -ui-socket unix:///tmp/osui.sock
 
 

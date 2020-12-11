@@ -7,7 +7,7 @@ opensnitch/resources_rc.py: deps
 	@pyrcc5 -o opensnitch/resources_rc.py opensnitch/res/resources.qrc
 
 deps:
-	@sudo pip3 install -r requirements.txt
+	@pip3 install -r requirements.txt
 
 clean:
 	@rm -rf *.pyc
