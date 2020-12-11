@@ -41,3 +41,6 @@ class Config:
 
     def getSettings(self, path):
         return self.settings.value(path)
+
+    def getBool(self, path):
+        return self.settings.value(path, False, type=bool)

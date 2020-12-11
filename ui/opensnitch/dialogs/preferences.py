@@ -17,7 +17,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     CFG_DEFAULT_DURATION = "global/default_duration"
     CFG_DEFAULT_TARGET   = "global/default_target"
     CFG_DEFAULT_TIMEOUT  = "global/default_timeout"
-    CFG_SHOW_POPUPS          = "global/show_popups"
+    CFG_DISABLE_POPUPS   = "global/disable_popups"
 
     LOG_TAG = "[Preferences] "
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
@@ -82,15 +82,14 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._default_duration = self._cfg.getSettings(self.CFG_DEFAULT_DURATION)
         self._default_target = self._cfg.getSettings(self.CFG_DEFAULT_TARGET)
         self._default_timeout = self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)
-        self._show_popups = self._cfg.getSettings(self.CFG_SHOW_POPUPS)
+        self._disable_popups = self._cfg.getBool(self.CFG_DISABLE_POPUPS)
 
         self.comboUIDuration.setCurrentText(self._default_duration)
         self.comboUIAction.setCurrentText(self._default_action)
         self.comboUITarget.setCurrentIndex(int(self._default_target))
         self.spinUITimeout.setValue(int(self._default_timeout))
-        self.popupsCheck.setChecked(bool(self._show_popups))
-        if self._show_popups != None:
-            self.spinUITimeout.setEnabled(not self.popupsCheck.isChecked())
+        self.spinUITimeout.setEnabled(not self._disable_popups)
+        self.popupsCheck.setChecked(self._disable_popups)
 
         self._load_node_settings()
 
@@ -137,7 +136,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings(self.CFG_DEFAULT_DURATION, self.comboUIDuration.currentText())
             self._cfg.setSettings(self.CFG_DEFAULT_TARGET, self.comboUITarget.currentIndex())
             self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, self.spinUITimeout.value())
-            self._cfg.setSettings(self.CFG_SHOW_POPUPS, self.popupsCheck.isChecked())
+            self._cfg.setSettings(self.CFG_DISABLE_POPUPS, bool(self.popupsCheck.isChecked()))
             # this is a workaround for not display pop-ups.
             # see #79 for more information.
             if self.popupsCheck.isChecked():
