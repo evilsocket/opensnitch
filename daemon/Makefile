@@ -5,6 +5,7 @@ install:
 	@cp opensnitchd /usr/local/bin/
 	@cp opensnitchd.service /etc/systemd/system/
 	@cp default-config.json /etc/opensnitchd/
+	@cp system-fw.json /etc/opensnitchd/
 	@systemctl daemon-reload
 
 opensnitchd:
