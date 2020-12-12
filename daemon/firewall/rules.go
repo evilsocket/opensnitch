@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/fsnotify/fsnotify"
 )
 
 // DropMark is the mark we place on a connection when we deny it.
@@ -39,7 +39,7 @@ var (
 	queueNum = 0
 	running  = false
 	// check that rules are loaded every 30s
-	rulesChecker             = time.NewTicker(time.Second * 30)
+	rulesChecker             *time.Ticker
 	rulesCheckerChan         = make(chan bool)
 	regexRulesQuery, _       = regexp.Compile(`NFQUEUE.*ctstate NEW,RELATED.*NFQUEUE num.*bypass`)
 	regexDropQuery, _        = regexp.Compile(`DROP.*mark match 0x18ba5`)
@@ -49,7 +49,7 @@ var (
 )
 
 // RunRule inserts or deletes a firewall rule.
-func RunRule(action Action, enable bool, logError bool, rule []string) error {
+func RunRule(action Action, enable bool, logError bool, rule []string) (err4, err6 error) {
 	if enable == false {
 		action = "-D"
 	}
@@ -59,31 +59,29 @@ func RunRule(action Action, enable bool, logError bool, rule []string) error {
 	lock.Lock()
 	defer lock.Unlock()
 
-	if _, err := core.Exec("iptables", rule); err != nil {
+	if _, err4 = core.Exec("iptables", rule); err4 != nil {
 		if logError {
-			log.Error("Error while running firewall rule, ipv4 err: %s", err)
+			log.Error("Error while running firewall rule, ipv4 err: %s", err4)
 			log.Error("rule: %s", rule)
 		}
-		return err
 	}
 
 	if core.IPv6Enabled {
-		if _, err := core.Exec("ip6tables", rule); err != nil {
+		if _, err6 = core.Exec("ip6tables", rule); err6 != nil {
 			if logError {
-				log.Error("Error while running firewall rule, ipv6 err: %s", err)
+				log.Error("Error while running firewall rule, ipv6 err: %s", err6)
 				log.Error("rule: %s", rule)
 			}
-			return err
 		}
 	}
 
-	return nil
+	return
 }
 
 // QueueDNSResponses redirects DNS responses to us, in order to keep a cache
 // of resolved domains.
 // INPUT --protocol udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
-func QueueDNSResponses(enable bool, logError bool, qNum int) (err error) {
+func QueueDNSResponses(enable bool, logError bool, qNum int) (err4, err6 error) {
 	return RunRule(INSERT, enable, logError, []string{
 		"INPUT",
 		"--protocol", "udp",
@@ -97,7 +95,7 @@ func QueueDNSResponses(enable bool, logError bool, qNum int) (err error) {
 // QueueConnections inserts the firewall rule which redirects connections to us.
 // They are queued until the user denies/accept them, or reaches a timeout.
 // OUTPUT -t mangle -m conntrack --ctstate NEW,RELATED -j NFQUEUE --queue-num 0 --queue-bypass
-func QueueConnections(enable bool, logError bool, qNum int) (err error) {
+func QueueConnections(enable bool, logError bool, qNum int) (err4, err6 error) {
 	return RunRule(INSERT, enable, logError, []string{
 		"OUTPUT",
 		"-t", "mangle",
@@ -111,7 +109,7 @@ func QueueConnections(enable bool, logError bool, qNum int) (err error) {
 
 // DropMarked rejects packets marked by OpenSnitch.
 // OUTPUT -m mark --mark 101285 -j DROP
-func DropMarked(enable bool, logError bool) (err error) {
+func DropMarked(enable bool, logError bool) (err4, err6 error) {
 	return RunRule(ADD, enable, logError, []string{
 		"OUTPUT",
 		"-m", "mark",
@@ -129,7 +127,7 @@ func CreateSystemRule(rule *fwRule, logErrors bool) {
 	RunRule(NEWCHAIN, true, logErrors, []string{chainName, "-t", rule.Table})
 
 	// Insert the rule at the top of the chain
-	if err := RunRule(INSERT, true, logErrors, []string{rule.Chain, "-t", rule.Table, "-j", chainName}); err == nil {
+	if err4, err6 := RunRule(INSERT, true, logErrors, []string{rule.Chain, "-t", rule.Table, "-j", chainName}); err4 == nil && err6 == nil {
 		systemChains[rule.Table+"-"+chainName] = rule
 	}
 }
@@ -149,7 +147,7 @@ func DeleteSystemRules(logErrors bool) {
 }
 
 // AddSystemRule inserts a new rule.
-func AddSystemRule(action Action, rule *fwRule, enable bool) (err error) {
+func AddSystemRule(action Action, rule *fwRule, enable bool) (err4, err6 error) {
 	chain := systemRulePrefix + "-" + rule.Chain
 	if rule.Table == "" {
 		rule.Table = "filter"
@@ -249,8 +247,13 @@ Exit:
 
 // StopCheckingRules stops checking if the firewall rules are loaded.
 func StopCheckingRules() {
-	rulesChecker.Stop()
+	if rulesChecker != nil {
+		rulesChecker.Stop()
+	}
 	rulesCheckerChan <- true
+	if configWatcher != nil {
+		rulesCheckerChan <- true
+	}
 }
 
 // IsRunning returns if the firewall rules are loaded or not.
@@ -267,12 +270,12 @@ func CleanRules(logErrors bool) {
 }
 
 func insertRules() {
-	if err := QueueDNSResponses(true, true, queueNum); err != nil {
-		log.Error("Error while running DNS firewall rule: %s", err)
-	} else if err = QueueConnections(true, true, queueNum); err != nil {
-		log.Fatal("Error while running conntrack firewall rule: %s", err)
-	} else if err = DropMarked(true, true); err != nil {
-		log.Fatal("Error while running drop firewall rule: %s", err)
+	if err4, err6 := QueueDNSResponses(true, true, queueNum); err4 != nil || err6 != nil {
+		log.Error("Error while running DNS firewall rule: %s", err4, err6)
+	} else if err4, err6 = QueueConnections(true, true, queueNum); err4 != nil || err6 != nil {
+		log.Fatal("Error while running conntrack firewall rule: %s", err4, err6)
+	} else if err4, err6 = DropMarked(true, true); err4 != nil || err6 != nil {
+		log.Fatal("Error while running drop firewall rule: %s", err4, err6)
 	}
 }
 
@@ -285,7 +288,10 @@ func Stop(qNum *int) {
 		queueNum = *qNum
 	}
 
-	configWatcher.Close()
+	if configWatcher != nil {
+		configWatcher.Remove(configFile)
+		configWatcher.Close()
+	}
 	StopCheckingRules()
 	CleanRules(log.GetLogLevel() == log.DEBUG)
 
@@ -302,11 +308,13 @@ func Init(qNum *int) {
 	}
 	insertRules()
 
-	if watcher, err := fsnotify.NewWatcher(); err == nil {
-		configWatcher = watcher
+	var err error
+	if configWatcher, err = fsnotify.NewWatcher(); err != nil {
+		log.Warning("Error creating firewall config watcher:", err)
 	}
 	loadDiskConfiguration(false)
 
+	rulesChecker = time.NewTicker(time.Second * 30)
 	go StartCheckingRules()
 
 	running = true
