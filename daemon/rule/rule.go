@@ -62,9 +62,6 @@ func (r *Rule) String() string {
 // Match performs on a connection the checks a Rule has, to determine if it
 // must be allowed or denied.
 func (r *Rule) Match(con *conman.Connection) bool {
-	if r.Enabled == false {
-		return false
-	}
 	return r.Operator.Match(con)
 }
 
