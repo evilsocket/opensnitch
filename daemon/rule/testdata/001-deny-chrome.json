@@ -1,0 +1,16 @@
+{
+  "created": "2020-12-13T17:54:49.067148304+01:00",
+  "updated": "2020-12-13T17:54:49.067213602+01:00",
+  "name": "001-deny-chrome",
+  "enabled": true,
+  "precedence": false,
+  "action": "deny",
+  "duration": "always",
+  "operator": {
+    "type": "simple",
+    "operand": "process.path",
+    "sensitive": false,
+    "data": "/opt/google/chrome/chrome",
+    "list": []
+  }
+}
