@@ -99,7 +99,7 @@ func (l *Loader) Load(path string) error {
 	for ruleName, inMemoryRule := range l.rules {
 		if _, ok := diskRules[ruleName]; ok == false {
 			if inMemoryRule.Duration == Always {
-				log.Debug("Rule deleted from disk, updating rules list: ", ruleName)
+				log.Debug("Rule deleted from disk, updating rules list: %s", ruleName)
 				delete(l.rules, ruleName)
 			}
 		}
@@ -192,7 +192,7 @@ func (l *Loader) replaceUserRule(rule *Rule) {
 	l.Lock()
 	if rule.Operator.Type == List {
 		if err := json.Unmarshal([]byte(rule.Operator.Data), &rule.Operator.List); err != nil {
-			log.Error("Error loading rule of type list", err)
+			log.Error("Error loading rule of type list: %s", err)
 		}
 	}
 	l.rules[rule.Name] = rule
@@ -273,7 +273,7 @@ func (l *Loader) Delete(ruleName string) error {
 		return nil
 	}
 
-	log.Info("Delete() rule: ", rule)
+	log.Info("Delete() rule: %s", rule)
 	path := fmt.Sprint(l.path, "/", ruleName, ".json")
 	return os.Remove(path)
 }
@@ -283,30 +283,15 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 	l.RLock()
 	defer l.RUnlock()
 
-	for _, ruleIdx := range l.rulesKeys {
-		rule, valid := l.rules[ruleIdx]
-		if !valid {
-			continue
-		}
-		// if we already have a match, we don't need
-		// to evaluate 'allow' rules anymore, we only
-		// need to make sure there's no 'deny' rule
-		// matching this specific connection
-		if match != nil && rule.Action == Allow {
-			if rule.Precedence {
-				break
-			}
-			continue
-		} else if rule.Match(con) == true {
-			// only return if we found a deny
-			// rule, otherwise keep searching as we
-			// might have situations like:
-			//
-			//     rule 1: allow chrome
-			//     rule 2: block www.google.com
+	for _, idx := range l.rulesKeys {
+		rule, _ := l.rules[idx]
+		if rule.Match(con) {
+			// We have a match.
+			// Save the rule in order to don't ask the user to take action,
+			// and keep iterating until a Deny or a Priority rule appears.
 			match = rule
-			if rule.Action == Deny {
-				break
+			if rule.Action == Deny || rule.Precedence == true {
+				return rule
 			}
 		}
 	}
