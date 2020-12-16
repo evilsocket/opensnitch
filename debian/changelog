@@ -1,9 +1,12 @@
-opensnitch (1.3.0~rc-2) UNRELEASED; urgency=medium
+opensnitch (1.3.0-1) unstable; urgency=medium
 
-  * Non-maintainer upload.
-  *
+  * Fixed how we check rules
+  * Fixed cpu spike after disable interception.
+  * Fixed cleaning up fw rules on exit.
+  * make regexp rules case-insensitive by default
+  * allow to filter by dst network.
 
- -- gustavo-iniguez-goya <gooffy1@gmail.com>  Fri, 27 Nov 2020 23:21:31 +0100
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Wed, 16 Dec 2020 01:15:03 +0100
 
 opensnitch (1.3.0~rc-1) unstable; urgency=medium
 

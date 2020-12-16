@@ -1,9 +1,9 @@
-opensnitch-ui (1.3.0~rc-2) UNRELEASED; urgency=medium
+opensnitch-ui (1.3.0-1) unstable; urgency=medium
 
-  * Non-maintainer upload.
-  *
+  * Allow to filter by dst networks.
+  * Added check for configure showing pop-ups.
 
- -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Fri, 27 Nov 2020 23:22:08 +0100
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Wed, 16 Dec 2020 01:18:31 +0100
 
 opensnitch-ui (1.3.0~rc-1) unstable; urgency=medium
 
