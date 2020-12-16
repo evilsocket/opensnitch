@@ -4,8 +4,8 @@ Release:        1%{?dist}
 Summary:        OpenSnitch is a GNU/Linux application firewall
 
 License:        GPLv3+
-URL:            https://github.com/gustavo-iniguez-goya/%{name}
-Source0:        https://github.com/gustavo-iniguez-goya/%{name}/releases/download/v%{version}/%{name}_%{version}.orig.tar.gz
+URL:            https://github.com/evilsocket/%{name}
+Source0:        https://github.com/evilsocket/%{name}/releases/download/v%{version}/%{name}_%{version}.orig.tar.gz
 #BuildArch:     x86_64
 
 #BuildRequires:  godep
@@ -31,10 +31,10 @@ rm -rf %{buildroot}
 %setup
 
 %build
-mkdir -p go/src/github.com/gustavo-iniguez-goya
-ln -s $(pwd) go/src/github.com/gustavo-iniguez-goya/opensnitch
+mkdir -p go/src/github.com/evilsocket
+ln -s $(pwd) go/src/github.com/evilsocket/opensnitch
 export GOPATH=$(pwd)/go
-cd go/src/github.com/gustavo-iniguez-goya/opensnitch/daemon/
+cd go/src/github.com/evilsocket/opensnitch/daemon/
 go build -o opensnitchd .
 
 %install
