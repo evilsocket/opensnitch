@@ -1,5 +1,5 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Source: https://github.com/gustavo-iniguez-goya/opensnitch
+Source: https://github.com/evilsocket/opensnitch
 Upstream-Name: opensnitch-ui
 Files: *
 Copyright:

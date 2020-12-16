@@ -3,7 +3,7 @@ Maintainer: Gustavo Iñiguez Goia <gooffy1@gmail.com>
 Uploaders:
  Gustavo Iniguez Goya <gooffy@gmail.com>,
 Priority: optional
-Homepage: https://github.com/gustavo-iniguez-goya/opensnitch
+Homepage: https://github.com/evilsocket/opensnitch
 Build-Depends: python3-setuptools, python3-all, debhelper (>= 7.4.3), dh-python
 Standards-Version: 3.9.1
 
