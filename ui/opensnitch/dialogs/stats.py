@@ -452,12 +452,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.limitCombo.setCurrentIndex(4)
             self.limitCombo.setCurrentIndex(int(dialog_general_limit_results))
 
-        rules_splitter_pos = self._cfg.getSettings("statsDialog/rules_splitter_pos")
-        if type(rules_splitter_pos) == QtCore.QByteArray:
-            self.rulesSplitter.restoreState(rules_splitter_pos)
-        else:
-            self.rulesSplitter.setSizes([200, self.rulesSplitter.width() - 200])
-
         header = self.eventsTable.horizontalHeader()
         header.blockSignals(True);
         eventsColState = self._cfg.getSettings("statsDialog/general_columns_state")

@@ -1596,15 +1596,13 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
+  <customwidgets>
   <customwidget>
    <class>ConnectionsTableView</class>
    <extends>QTableView</extends>
    <header>customwidgets</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
