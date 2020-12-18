@@ -457,32 +457,43 @@
         </layout>
        </item>
        <item>
-        <widget class="QTreeView" name="eventsTable">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
-         </property>
-         <property name="autoScroll">
-          <bool>false</bool>
-         </property>
-         <property name="verticalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
-         </property>
-         <property name="indentation">
-          <number>10</number>
-         </property>
-         <property name="uniformRowHeights">
-          <bool>true</bool>
-         </property>
-         <property name="animated">
-          <bool>true</bool>
-         </property>
-        </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_16">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+          <widget class="ConnectionsTableView" name="eventsTable">
+          <property name="styleSheet">
+            <string notr="true"/>
+          </property>
+          <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+            <enum>QFrame::Plain</enum>
+          </property>
+          <property name="autoScroll">
+            <bool>false</bool>
+          </property>
+          <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+          </widget>
+        </item>
+        <item>
+          <widget class="QScrollBar" name="connectionsTableScrollBar">
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+       </layout>
        </item>
       </layout>
      </widget>
@@ -1525,6 +1536,13 @@
    </item>
   </layout>
  </widget>
+  <customwidgets>
+  <customwidget>
+   <class>ConnectionsTableView</class>
+   <extends>QTableView</extends>
+   <header>customwidgets</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

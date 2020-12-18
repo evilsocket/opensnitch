@@ -13,7 +13,8 @@ from nodes import Nodes
 from dialogs.preferences import PreferencesDialog
 from dialogs.ruleseditor import RulesEditorDialog
 from dialogs.processdetails import ProcessDetailsDialog
-from customwidgets import ColorizedDelegate
+from customwidgets import ColorizedDelegate, ConnectionsTableModel
+
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -259,12 +260,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeRuleLabel.setVisible(False)
         self.cmdProcDetails.clicked.connect(self._cb_proc_details_clicked)
 
-        self.TABLES[self.TAB_MAIN]['view'] = self._setup_table(QtWidgets.QTreeView, self.eventsTable, "connections",
+        self.TABLES[self.TAB_MAIN]['view'] = self._setup_table(QtWidgets.QTableView, self.eventsTable, "connections",
                 self.TABLES[self.TAB_MAIN]['display_fields'],
                 order_by="1",
                 group_by=self.TABLES[self.TAB_MAIN]['group_by'],
                 delegate=self.TABLES[self.TAB_MAIN]['delegate'],
-                resize_cols=(),)
+                resize_cols=(),
+                model=ConnectionsTableModel(),
+                verticalScrollBar=self.connectionsTableScrollBar
+                )
         self.TABLES[self.TAB_NODES]['view'] = self._setup_table(QtWidgets.QTableView, self.nodesTable, "nodes",
                 self.TABLES[self.TAB_NODES]['display_fields'],
                 order_by="3,2,1",
@@ -423,7 +427,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.limitCombo.setCurrentIndex(4)
             self.limitCombo.setCurrentIndex(int(dialog_general_limit_results))
 
-        header = self.eventsTable.header()
+        header = self.eventsTable.horizontalHeader()
         header.blockSignals(True);
         eventsColState = self._cfg.getSettings("statsDialog/general_columns_state")
         if type(eventsColState) == QtCore.QByteArray:
@@ -450,7 +454,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings("statsDialog/general_limit_results", self.limitCombo.currentIndex())
         self._cfg.setSettings("statsDialog/general_filter_text", self.filterLine.text())
 
-        header = self.eventsTable.header()
+        header = self.eventsTable.horizontalHeader()
         self._cfg.setSettings("statsDialog/general_columns_state", header.saveState())
         nodesHeader = self.nodesTable.horizontalHeader()
         self._cfg.setSettings("statsDialog/nodes_columns_state", nodesHeader.saveState())
@@ -781,10 +785,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if action != "":
                 action += " AND "
             qstr += " WHERE " + action + " ("\
-                    " Node LIKE '%" + filter_text + "%'" \
+                    " Process LIKE '%" + filter_text + "%'" \
+                    " OR Destination LIKE '%" + filter_text + "%'" \
+                    " OR Rule LIKE '%" + filter_text + "%'" \
+                    " OR Node LIKE '%" + filter_text + "%'" \
                     " OR Time = \"" + filter_text + "\" " \
-                    " OR Protocol = \"" + filter_text + "\" OR Destination LIKE '%" + filter_text + "%'" + \
-                    " OR Process LIKE '%" + filter_text + "%' OR Rule LIKE '%" + filter_text + "%')"
+                    " OR Protocol = \"" + filter_text + "\")" \
 
         qstr += self._get_order() + self._get_limit()
         self.setQuery(model, qstr)
@@ -961,26 +967,27 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 w = csv.writer(csvfile, dialect='excel')
                 w.writerow(cols)
 
-                for row in range(0, nrows):
-                    values = []
-                    for col in range(0, ncols):
-                        values.append(table.model().index(row, col).data())
-                    w.writerow(values)
+                if tab_idx == self.TAB_MAIN:
+                    w.writerows(table.model().dumpRows())
+                else:
+                    for row in range(0, nrows):
+                        values = []
+                        for col in range(0, ncols):
+                            values.append(table.model().index(row, col).data())
+                        w.writerow(values)
 
-    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", limit="", resize_cols=(), model=None, delegate=None):
+    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", limit="", resize_cols=(), model=None, delegate=None, verticalScrollBar=None):
         tableWidget.setSortingEnabled(True)
         if model == None:
             model = self._db.get_new_qsql_model()
         if delegate != None:
             tableWidget.setItemDelegate(ColorizedDelegate(self, config=delegate))
+        if verticalScrollBar != None:
+            tableWidget.setVerticalScrollBar(verticalScrollBar)
         self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " DESC" + limit)
         tableWidget.setModel(model)
 
-        try:
-            header = tableWidget.horizontalHeader()
-        except Exception:
-            header = tableWidget.header()
-
+        header = tableWidget.horizontalHeader()
         if header != None:
             header.sortIndicatorChanged.connect(self._cb_table_header_clicked)
 

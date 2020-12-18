@@ -50,6 +50,8 @@ class Database:
         q.exec_()
         q = QSqlQuery("PRAGMA cache_size=10000", self.db)
         q.exec_()
+        q = QSqlQuery("PRAGMA optimize", self.db)
+        q.exec_()
         q = QSqlQuery("create table if not exists connections (" \
                 "time text, " \
                 "node text, " \
@@ -68,6 +70,21 @@ class Database:
                 "rule text, " \
                 "UNIQUE(node, action, protocol, src_ip, src_port, dst_ip, dst_port, uid, pid, process, process_args))",
                 self.db)
+        q = QSqlQuery("create index action_index on connections (action)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index protocol_index on connections (protocol)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index dst_host_index on connections (dst_host)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index process_index on connections (process)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index dst_ip_index on connections (dst_ip)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index dst_port_index on connections (dst_port)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index rule_index on connections (rule)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index node_index on connections (node)", self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists rules (" \
                 "time text, " \
