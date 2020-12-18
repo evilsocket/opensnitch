@@ -285,6 +285,9 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 
 	for _, idx := range l.rulesKeys {
 		rule, _ := l.rules[idx]
+		if rule.Enabled == false {
+			continue
+		}
 		if rule.Match(con) {
 			// We have a match.
 			// Save the rule in order to don't ask the user to take action,
