@@ -79,7 +79,7 @@ func Deserialize(reply *protocol.Rule) (*Rule, error) {
 		make([]Operator, 0),
 	)
 	if err != nil {
-		log.Warning("Deserialize rule, NewOperator() error:", err)
+		log.Warning("Deserialize rule, NewOperator() error: %s", err)
 		return nil, err
 	}
 

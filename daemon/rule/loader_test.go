@@ -20,19 +20,16 @@ func TestRuleLoader(t *testing.T) {
 	}
 	if err = l.Load("/non/existent/path/"); err == nil {
 		t.Error("non existent path test: err should not be nil")
-		t.Fail()
 	}
 
 	if err = l.Load("testdata/"); err != nil {
 		t.Error("Error loading test rules: ", err)
-		t.Fail()
 	}
 
 	testNumRules(t, l, 2)
 
 	if err = l.Add(inMem1sRule, false); err != nil {
 		t.Error("Error adding temporary rule")
-		t.Fail()
 	}
 	testNumRules(t, l, 3)
 
@@ -42,33 +39,29 @@ func TestRuleLoader(t *testing.T) {
 
 	if err = l.Add(inMemUntilRestartRule, false); err != nil {
 		t.Error("Error adding temporary rule (2)")
-		t.Fail()
 	}
 	testNumRules(t, l, 3)
 	testRulesOrder(t, l)
 	testSortRules(t, l)
 	testFindMatch(t, l)
+	testFindEnabled(t, l)
 }
 
 func testNumRules(t *testing.T, l *Loader, num int) {
 	if l.NumRules() != num {
 		t.Error("rules number should be (2): ", num)
-		t.Fail()
 	}
 }
 
 func testRulesOrder(t *testing.T, l *Loader) {
 	if l.rulesKeys[0] != "000-aaa-name" {
 		t.Error("Rules not in order (0): ", l.rulesKeys)
-		t.Fail()
 	}
 	if l.rulesKeys[1] != "000-allow-chrome" {
 		t.Error("Rules not in order (1): ", l.rulesKeys)
-		t.Fail()
 	}
 	if l.rulesKeys[2] != "001-deny-chrome" {
 		t.Error("Rules not in order (2): ", l.rulesKeys)
-		t.Fail()
 	}
 }
 
@@ -78,11 +71,9 @@ func testSortRules(t *testing.T, l *Loader) {
 	l.sortRules()
 	if l.rulesKeys[1] != "000-allow-chrome" {
 		t.Error("Rules not in order (1): ", l.rulesKeys)
-		t.Fail()
 	}
 	if l.rulesKeys[2] != "001-deny-chrome" {
 		t.Error("Rules not in order (2): ", l.rulesKeys)
-		t.Fail()
 	}
 }
 
@@ -99,13 +90,11 @@ func testFindMatch(t *testing.T, l *Loader) {
 func testFindPriorityMatch(t *testing.T, l *Loader) {
 	match := l.FindFirstMatch(conn)
 	if match == nil {
-		t.Error("FindFirstMatch didn't match")
-		t.Fail()
+		t.Error("FindPriorityMatch didn't match")
 	}
 	// test 000-allow-chrome, priority == true
 	if match.Name != "000-allow-chrome" {
-		t.Error("findFirstMatch: priority rule failed: ", match)
-		t.Fail()
+		t.Error("findPriorityMatch: priority rule failed: ", match)
 	}
 
 }
@@ -116,12 +105,10 @@ func testFindDenyMatch(t *testing.T, l *Loader) {
 	// 001-deny-chrome must match
 	match := l.FindFirstMatch(conn)
 	if match == nil {
-		t.Error("FindFirstMatch deny didn't match")
-		t.Fail()
+		t.Error("FindDenyMatch deny didn't match")
 	}
 	if match.Name != "001-deny-chrome" {
-		t.Error("findFirstMatch: deny rule failed: ", match)
-		t.Fail()
+		t.Error("findDenyMatch: deny rule failed: ", match)
 	}
 }
 
@@ -132,11 +119,24 @@ func testFindAllowMatch(t *testing.T, l *Loader) {
 	// 001-deny-chrome must match
 	match := l.FindFirstMatch(conn)
 	if match == nil {
-		t.Error("FindFirstMatch allow didn't match")
-		t.Fail()
+		t.Error("FindAllowMatch allow didn't match")
 	}
 	if match.Name != "001-deny-chrome" {
-		t.Error("findFirstMatch: allow rule failed: ", match)
-		t.Fail()
+		t.Error("findAllowMatch: allow rule failed: ", match)
+	}
+}
+
+func testFindEnabled(t *testing.T, l *Loader) {
+	l.rules["000-allow-chrome"].Precedence = false
+	l.rules["001-deny-chrome"].Action = Allow
+	l.rules["001-deny-chrome"].Enabled = false
+	// test 000-allow-chrome, priority == false
+	// 001-deny-chrome must match
+	match := l.FindFirstMatch(conn)
+	if match == nil {
+		t.Error("FindEnabledMatch, match nil")
+	}
+	if match.Name == "001-deny-chrome" {
+		t.Error("findEnabkedMatch: deny rule shouldn't have matched: ", match)
 	}
 }

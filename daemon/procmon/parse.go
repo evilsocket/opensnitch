@@ -48,20 +48,20 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 
 	expect := fmt.Sprintf("socket:[%d]", inode)
 	if cachedPidInode := getPidByInodeFromCache(inodeKey); cachedPidInode != -1 {
-		log.Debug("Inode found in cache", time.Since(start), inodesCache[inodeKey], inode, inodeKey)
+		log.Debug("Inode found in cache: %v %v %v %v", time.Since(start), inodesCache[inodeKey], inode, inodeKey)
 		return cachedPidInode
 	}
 
 	cachedPid, pos := getPidFromCache(inode, inodeKey, expect)
 	if cachedPid != -1 {
-		log.Debug("Socket found in known pids %v, pid: %d, inode: %d, pids in cache: %d", time.Since(start), cachedPid, inode, "pos", pos, len(pidsCache))
+		log.Debug("Socket found in known pids %v, pid: %d, inode: %d, pos: %d, pids in cache: %d", time.Since(start), cachedPid, inode, pos, len(pidsCache))
 		sortProcEntries()
 		return cachedPid
 	}
 
 	if methodIsAudit() {
 		if aPid, pos := getPIDFromAuditEvents(inode, inodeKey, expect); aPid != -1 {
-			log.Debug("PID found via audit events", time.Since(start), "position", pos)
+			log.Debug("PID found via audit events: %v, position: %d", time.Since(start), pos)
 			return aPid
 		}
 	} else if methodIsFtrace() && IsWatcherAvailable() {
@@ -77,7 +77,7 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 	if found == -1 || methodIsProc() {
 		found = lookupPidInProc("/proc/", expect, inodeKey, inode)
 	}
-	log.Debug("new pid lookup took", found, time.Since(start))
+	log.Debug("new pid lookup took (%d): %v", found, time.Since(start))
 
 	return found
 }
