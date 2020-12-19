@@ -36,10 +36,13 @@ func (p *Process) setCwd(cwd string) {
 	p.CWD = cwd
 }
 
-func (p *Process) readCwd() {
-	if link, err := os.Readlink(fmt.Sprintf("/proc/%d/cwd", p.ID)); err == nil {
-		p.CWD = link
+func (p *Process) readCwd() error {
+	link, err := os.Readlink(fmt.Sprintf("/proc/%d/cwd", p.ID))
+	if err != nil {
+		return err
 	}
+	p.CWD = link
+	return nil
 }
 
 // read and parse environment variables of a process.

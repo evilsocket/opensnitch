@@ -72,7 +72,7 @@ func NewOperator(t Type, s Sensitive, o Operand, data string, list []Operator) (
 		List:      list,
 	}
 	if err := op.Compile(); err != nil {
-		log.Error("NewOperator() failed to compile:", err)
+		log.Error("NewOperator() failed to compile: %s", err)
 		return nil, err
 	}
 	return &op, nil
