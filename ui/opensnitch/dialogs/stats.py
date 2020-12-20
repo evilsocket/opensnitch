@@ -70,10 +70,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     FILTER_TREE_APPS = 0
     FILTER_TREE_NODES = 3
 
-    FIREWALL_STOPPED  = "Not running"
-    FIREWALL_DISABLED = "Disabled"
-    FIREWALL_RUNNING  = "Running"
-
     commonDelegateConf = {
             'deny':      RED,
             'allow':     GREEN,
@@ -452,6 +448,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.limitCombo.setCurrentIndex(4)
             self.limitCombo.setCurrentIndex(int(dialog_general_limit_results))
 
+        rules_splitter_pos = self._cfg.getSettings("statsDialog/rules_splitter_pos")
+        if type(rules_splitter_pos) == QtCore.QByteArray:
+            self.rulesSplitter.restoreState(rules_splitter_pos)
+        else:
+            self.rulesSplitter.setSizes([200, self.rulesSplitter.width() - 200])
+
         header = self.eventsTable.horizontalHeader()
         header.blockSignals(True);
         eventsColState = self._cfg.getSettings("statsDialog/general_columns_state")
@@ -791,15 +793,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         rule.enabled = state
         noti = ui_pb2.Notification(type=notType, rules=[rule])
         self._notification_trigger.emit(noti)
-
-    def _update_status_label(self, running=False, text=FIREWALL_DISABLED):
-        self.statusLabel.setText("%12s" % text)
-        if running:
-            self.statusLabel.setStyleSheet('color: green; margin: 5px')
-            self.startButton.setIcon(self.iconPause)
-        else:
-            self.statusLabel.setStyleSheet('color: rgb(206, 92, 0); margin: 5px')
-            self.startButton.setIcon(self.iconStart)
 
     def _get_rulesTree_item(self, index):
         try:
