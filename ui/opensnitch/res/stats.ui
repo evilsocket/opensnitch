@@ -596,17 +596,8 @@
       <attribute name="title">
        <string>Rules</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
         <layout class="QHBoxLayout" name="rulesToolbarLayout">
          <item>
           <widget class="QPushButton" name="cmdRulesBack">
@@ -677,7 +668,7 @@
          </item>
         </layout>
        </item>
-       <item>
+       <item row="1" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_8">
          <item>
           <widget class="QLabel" name="tipRulesLabel">
@@ -707,28 +698,111 @@
          </item>
         </layout>
        </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_16">
-         <property name="spacing">
-          <number>2</number>
+       <item row="2" column="0">
+        <widget class="QSplitter" name="rulesSplitter">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="topMargin">
-          <number>4</number>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
-         <item>
-          <widget class="QTableView" name="rulesTable">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+         <widget class="QTreeWidget" name="rulesTreePanel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <attribute name="headerVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
            </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
+          </column>
+          <item>
+           <property name="text">
+            <string>Application rules</string>
            </property>
-           <property name="horizontalScrollMode">
-            <enum>QAbstractItemView::ScrollPerPixel</enum>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
            </property>
-          </widget>
-         </item>
-        </layout>
+           <property name="icon">
+            <iconset theme="system-run">
+             <normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
+           </property>
+           <item>
+            <property name="text">
+             <string>Permanent</string>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="icon">
+             <iconset theme="security-medium">
+              <normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Temporary</string>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="icon">
+             <iconset theme="edit-clear">
+              <normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
+            </property>
+           </item>
+          </item>
+          <item>
+           <property name="text">
+            <string>Nodes</string>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="icon">
+            <iconset theme="system">
+             <normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
+           </property>
+          </item>
+         </widget>
+         <widget class="QTableView" name="rulesTable">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="horizontalScrollMode">
+           <enum>QAbstractItemView::ScrollPerPixel</enum>
+          </property>
+         </widget>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -1536,7 +1610,7 @@
    </item>
   </layout>
  </widget>
-  <customwidgets>
+ <customwidgets>
   <customwidget>
    <class>ConnectionsTableView</class>
    <extends>QTableView</extends>
