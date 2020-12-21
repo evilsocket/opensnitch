@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="pics">
+    <file>icon-white.svg</file>
     <file>icon-white.png</file>
     <file>icon-red.png</file>
     <file>icon.png</file>

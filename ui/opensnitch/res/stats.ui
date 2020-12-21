@@ -33,6 +33,15 @@
   <property name="windowTitle">
    <string>OpenSnitch Network Statistics</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/pics/icon-white.svg</normaloff>
+    <normalon>:/pics/icon-white.svg</normalon>
+    <disabledoff>:/pics/icon-white.svg</disabledoff>
+    <disabledon>:/pics/icon-white.svg</disabledon>
+    <activeoff>:/pics/icon-white.svg</activeoff>
+    <activeon>:/pics/icon-white.svg</activeon>:/pics/icon-white.svg</iconset>
+  </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>
   </property>
@@ -96,7 +105,7 @@
            <string>Save to CSV.</string>
           </property>
           <property name="text">
-           <string>Save</string>
+           <string/>
           </property>
           <property name="icon">
            <iconset theme="document-save">
@@ -1617,6 +1626,8 @@
    <header>customwidgets</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
