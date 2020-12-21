@@ -70,6 +70,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     FILTER_TREE_APPS = 0
     FILTER_TREE_NODES = 3
 
+    FIREWALL_STOPPED  = "Not running"
+    FIREWALL_DISABLED = "Disabled"
+    FIREWALL_RUNNING  = "Running"
+
     commonDelegateConf = {
             'deny':      RED,
             'allow':     GREEN,
@@ -391,6 +395,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             'users.csv'
         )
 
+        self.iconStart = QtGui.QIcon().fromTheme("media-playback-start")
+        self.iconPause = QtGui.QIcon().fromTheme("media-playback-pause")
+
         if QtGui.QIcon.hasThemeIcon("document-new") == False:
             self._configure_buttons_icons()
 
@@ -407,12 +414,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._refresh_active_table()
 
     def _configure_buttons_icons(self):
+        self.iconStart = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPlay"))
+        self.iconPause = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPause"))
+
         self.newRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileIcon")))
         self.delRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TrashIcon")))
         self.editRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogDetailedView")))
         self.saveButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton")))
         self.prefsButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogDetailedView")))
-        self.startButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPlay")))
+        self.startButton.setIcon(self.iconStart)
         self.cmdProcDetails.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogContentsView")))
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogResetButton")))
         for idx in range(1,8):
@@ -730,19 +740,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_start_clicked(self):
         if self.daemon_connected == False:
             self.startButton.setChecked(False)
+            self.startButton.setIcon(self.iconStart)
             return
-        self.statusLabel.setStyleSheet('color: green')
 
-        # TODO: move to a new method: node.load_firewall(), unload_firewall()
-        notType = ui_pb2.UNLOAD_FIREWALL
         if self.startButton.isChecked():
-            self.statusLabel.setText("running")
-            notType = ui_pb2.LOAD_FIREWALL
+            self._update_status_label(running=True, text=self.FIREWALL_RUNNING)
+            nid, noti = self._nodes.start_interception(_callback=self._notification_callback)
         else:
-            self.statusLabel.setText("running/disabled")
+            self._update_status_label(running=False, text=self.FIREWALL_DISABLED)
+            nid, noti = self._nodes.stop_interception(_callback=self._notification_callback)
 
-        noti = ui_pb2.Notification(clientName="", serverName="", type=notType, data="", rules=[])
-        nid = self._nodes.send_notifications(noti, self._notification_callback)
         self._notifications_sent[nid] = noti
 
     def _cb_new_rule_clicked(self):
@@ -790,6 +797,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         rule.enabled = state
         noti = ui_pb2.Notification(type=notType, rules=[rule])
         self._notification_trigger.emit(noti)
+
+    def _update_status_label(self, running=False, text=FIREWALL_DISABLED):
+        self.statusLabel.setText("%12s" % text)
+        if running:
+            self.statusLabel.setStyleSheet('color: green; margin: 5px')
+            self.startButton.setIcon(self.iconPause)
+        else:
+            self.statusLabel.setStyleSheet('color: rgb(206, 92, 0); margin: 5px')
+            self.startButton.setIcon(self.iconStart)
 
     def _get_rulesTree_item(self, index):
         try:
@@ -880,6 +896,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setQuery(model, qstr)
 
     def _set_nodes_query(self, data):
+
         s = "AND c.src_ip='%s'" % data if '/' not in data else ''
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
@@ -1111,11 +1128,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.startButton.setChecked(self.daemon_connected)
         self.startButton.setDisabled(not self.daemon_connected)
         if self.daemon_connected:
-            self.statusLabel.setText("running")
-            self.statusLabel.setStyleSheet('color: green')
+            self._update_status_label(running=True, text=self.FIREWALL_RUNNING)
         else:
-            self.statusLabel.setText("not running")
-            self.statusLabel.setStyleSheet('color: red')
+            self._update_status_label(running=False, text=self.FIREWALL_STOPPED)
+            self.statusLabel.setStyleSheet('color: red; margin: 5px')
 
     @QtCore.pyqtSlot(bool, bool)
     def _on_update_triggered(self, is_local, need_query_update=False):
