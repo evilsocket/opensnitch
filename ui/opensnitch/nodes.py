@@ -152,6 +152,21 @@ class Nodes():
         except Exception as e:
             print(self.LOG_TAG + " exception saving nodes config: ", e, config)
 
+    def start_interception(self, _addr=None, _callback=None):
+        return self.firewall(not_type=ui_pb2.LOAD_FIREWALL, addr=_addr, callback=_callback)
+
+    def stop_interception(self, _addr=None, _callback=None):
+        return self.firewall(not_type=ui_pb2.UNLOAD_FIREWALL, addr=_addr, callback=_callback)
+
+    def firewall(self, not_type=ui_pb2.LOAD_FIREWALL, addr=None, callback=None):
+        noti = ui_pb2.Notification(clientName="", serverName="", type=not_type, data="", rules=[])
+        if addr == None:
+            nid = self.send_notifications(noti, callback)
+        else:
+            nid = self.send_notification(addr, noti, callback)
+
+        return nid, noti
+
     def send_notification(self, addr, notification, callback_signal=None):
         try:
             notification.id = int(str(time.time()).replace(".", ""))
