@@ -306,14 +306,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if addr not in self._last_stats:
                 self._last_stats[addr] = []
 
-            for row, event in enumerate(stats.events):
-                if event in self._last_stats[addr]:
+            for event in stats.events:
+                if event.unixnano in self._last_stats[addr]:
                     continue
                 need_refresh=True
-                # FIXME Since every node may have different time, and the daemon doesn't send the unix timestamp, use the time we insert it in the db
                 db.insert("connections",
                         "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, pid, process, process_args, process_cwd, rule)",
-                        (str(datetime.now()), "%s:%s" % (proto, addr), event.rule.action,
+                        (str(datetime.fromtimestamp(event.unixnano/1000000000)), "%s:%s" % (proto, addr), event.rule.action,
                             event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
                             event.connection.dst_ip, event.connection.dst_host, str(event.connection.dst_port),
                             str(event.connection.user_id), str(event.connection.process_id),
@@ -333,7 +332,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                         action_on_conflict="IGNORE")
 
             details_need_refresh = self._populate_stats_details(db, addr, stats)
-            self._last_stats[addr] = stats.events
+            self._last_stats[addr] = []
+            for event in stats.events:
+                self._last_stats[addr].append(event.unixnano)
         except Exception as e:
             print("_populate_stats() exception: ", e)
 
