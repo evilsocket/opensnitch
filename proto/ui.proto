@@ -13,6 +13,7 @@ message Event {
     string time = 1;
     Connection connection = 2;
     Rule rule = 3;
+    int64 unixnano = 4;
 }
 
 message Statistics {

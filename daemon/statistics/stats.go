@@ -14,7 +14,7 @@ import (
 
 const (
 	// max number of events to keep in the buffer
-	maxEvents = 50
+	maxEvents = 100
 	// max number of entries for each By* map
 	maxStats = 25
 )
