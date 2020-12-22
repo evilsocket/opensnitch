@@ -27,5 +27,6 @@ func (e *Event) Serialize() *protocol.Event {
 		Time:       e.Time.Format("2006-01-02 15:04:05"),
 		Connection: e.Connection.Serialize(),
 		Rule:       e.Rule.Serialize(),
+		Unixnano:   e.Time.UnixNano(),
 	}
 }
