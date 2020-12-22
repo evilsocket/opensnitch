@@ -132,11 +132,13 @@ func CreateSystemRule(rule *fwRule, logErrors bool) {
 	}
 }
 
-// DeleteSystemRules deletes the system rules
-func DeleteSystemRules(logErrors bool) {
+// DeleteSystemRules deletes the system rules.
+// If force is false and the rule has not been previously added,
+// it won't try to delete the rules. Otherwise it'll try to delete them.
+func DeleteSystemRules(force, logErrors bool) {
 	for _, r := range fwConfig.SystemRules {
 		chain := systemRulePrefix + "-" + r.Rule.Chain
-		if _, ok := systemChains[r.Rule.Table+"-"+chain]; !ok {
+		if _, ok := systemChains[r.Rule.Table+"-"+chain]; !ok && !force {
 			continue
 		}
 		RunRule(FLUSH, true, logErrors, []string{chain, "-t", r.Rule.Table})
@@ -266,7 +268,7 @@ func CleanRules(logErrors bool) {
 	QueueDNSResponses(false, logErrors, queueNum)
 	QueueConnections(false, logErrors, queueNum)
 	DropMarked(false, logErrors)
-	DeleteSystemRules(logErrors)
+	DeleteSystemRules(true, logErrors)
 }
 
 func insertRules() {
