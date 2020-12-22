@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"sync"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/fsnotify/fsnotify"
 )
 
 var (
@@ -61,12 +61,14 @@ func loadConfiguration(rawConfig []byte) bool {
 	fwConfig.Lock()
 	defer fwConfig.Unlock()
 
-	DeleteSystemRules(log.GetLogLevel() == log.DEBUG)
+	// delete old system rules, that may be different from the new ones
+	DeleteSystemRules(false, log.GetLogLevel() == log.DEBUG)
 	if err := json.Unmarshal(rawConfig, &fwConfig); err != nil {
 		log.Error("Error parsing firewall configuration %s: %s", configFile, err)
 		return false
 	}
 
+	DeleteSystemRules(true, log.GetLogLevel() == log.DEBUG)
 	for _, r := range fwConfig.SystemRules {
 		if r.Rule.Chain == "" {
 			continue
