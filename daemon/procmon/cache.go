@@ -95,7 +95,7 @@ func cleanUpCaches() {
 
 func getPidByInodeFromCache(inodeKey string) int {
 	if _, found := inodesCache[inodeKey]; found == true {
-		// sometimes the process may have dissapeared at this point
+		// sometimes the process may have disappeared at this point
 		if _, err := os.Lstat(fmt.Sprint("/proc/", inodesCache[inodeKey].Pid, "/exe")); err == nil {
 			return inodesCache[inodeKey].Pid
 		}

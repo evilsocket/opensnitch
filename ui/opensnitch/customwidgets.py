@@ -174,7 +174,7 @@ class ConnectionsTableModel(QStandardItemModel):
                         self.map.insert(0, {'from':upperBound, 'to':lowerBound, 'hits':rowsInRange})
                     self.prependedRowCount += rowsInRange
                     if time.time() - starttime > 0.5:
-                        #dont freeze the UI when fetching too many recent rows
+                        #don't freeze the UI when fetching too many recent rows
                         break
 
             self.totalRowCount = 0

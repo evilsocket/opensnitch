@@ -29,7 +29,7 @@ func getPIDFromAuditEvents(inode int, inodeKey string, expect string) (int, int)
 	return -1, -1
 }
 
-// GetPIDFromINode tries to get the PID from a socket inode follwing these steps:
+// GetPIDFromINode tries to get the PID from a socket inode following these steps:
 // 1. Get the PID from the cache of Inodes.
 // 2. Get the PID from the cache of PIDs.
 // 3. Look for the PID using one of these methods:

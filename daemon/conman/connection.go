@@ -18,7 +18,7 @@ import (
 	"github.com/google/gopacket/layers"
 )
 
-// Connection represents an outgoing connecion.
+// Connection represents an outgoing connection.
 type Connection struct {
 	Protocol string
 	SrcIP    net.IP

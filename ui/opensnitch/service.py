@@ -459,7 +459,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         context.add_callback(_on_client_closed)
 
-        # TODO: move to notificatons.py
+        # TODO: move to notifications.py
         def new_node_message():
             print("new node connected, listening for client responses...", addr)
             while self._exit == False:
