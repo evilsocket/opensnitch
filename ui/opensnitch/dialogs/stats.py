@@ -253,6 +253,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.nodeLabel.setText("")
         self.nodeLabel.setStyleSheet('color: green;font-size:12pt; font-weight:600;')
+        self.rulesSplitter.setStretchFactor(0,0)
+        self.rulesSplitter.setStretchFactor(1,2)
 
         self.startButton.clicked.connect(self._cb_start_clicked)
         self.prefsButton.clicked.connect(self._cb_prefs_clicked)
