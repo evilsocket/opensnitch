@@ -268,7 +268,7 @@ func (c *Client) listenForNotifications() {
 	}
 	// send the first notification
 	if err := notisStream.Send(streamReply); err != nil {
-		log.Error("sending notfication HELLO", err)
+		log.Error("sending notification HELLO", err)
 		return
 	}
 	log.Info("Start receiving notifications")

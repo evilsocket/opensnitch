@@ -22,7 +22,7 @@ class LinuxDesktopParser(threading.Thread):
         self.apps_by_name = {}
         # some things are just weird
         # (not really, i don't want to keep track of parent pids
-        # just because of icons tho, this hack is way easier)
+        # just because of icons though, this hack is way easier)
         self.fixes = {
             '/opt/google/chrome/chrome': '/opt/google/chrome/google-chrome',
             '/usr/lib/firefox/firefox': '/usr/lib/firefox/firefox.sh',

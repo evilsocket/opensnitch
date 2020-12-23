@@ -87,7 +87,7 @@ func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPo
 	return uid, inodes
 }
 
-// GetSocketInfoByInode dumps the kernel sockets table and searchs the given
+// GetSocketInfoByInode dumps the kernel sockets table and searches the given
 // inode on it.
 func GetSocketInfoByInode(inodeStr string) (*Socket, error) {
 	inode, err := strconv.ParseUint(inodeStr, 10, 32)

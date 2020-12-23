@@ -85,7 +85,7 @@ func (c *Client) Close() {
 }
 
 // ProcMonitorMethod returns the monitor method configured.
-// If it's not present in the config file, it'll return an emptry string.
+// If it's not present in the config file, it'll return an empty string.
 func (c *Client) ProcMonitorMethod() string {
 	config.RLock()
 	defer config.RUnlock()

@@ -150,9 +150,9 @@ func (q *Queue) Close() {
 }
 
 func (q *Queue) destroy() {
-	// we'll try to exit cleanly, but sometimes nfqueue gets stucked
+	// we'll try to exit cleanly, but sometimes nfqueue gets stuck
 	time.AfterFunc(5*time.Second, func() {
-		log.Warning("queue stucked, closing by timeout")
+		log.Warning("queue stuck, closing by timeout")
 		if q != nil {
 			C.close(q.fd)
 			q.closeNfq()
