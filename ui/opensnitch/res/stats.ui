@@ -1596,7 +1596,7 @@
    </item>
   </layout>
  </widget>
-  <customwidgets>
+ <customwidgets>
   <customwidget>
    <class>ConnectionsTableView</class>
    <extends>QTableView</extends>
