@@ -1,11 +1,23 @@
 package rule
 
 import (
+	"io"
+	"math/rand"
+	"os"
 	"testing"
 	"time"
 )
 
+var tmpDir string
+
+func TestMain(m *testing.M) {
+	tmpDir = "/tmp/ostest_" + randString()
+	os.Mkdir(tmpDir, 0777)
+	defer os.RemoveAll(tmpDir)
+	os.Exit(m.Run())
+}
 func TestRuleLoader(t *testing.T) {
+	t.Parallel()
 	t.Log("Test rules loader")
 
 	var list []Operator
@@ -45,6 +57,74 @@ func TestRuleLoader(t *testing.T) {
 	testSortRules(t, l)
 	testFindMatch(t, l)
 	testFindEnabled(t, l)
+}
+
+func TestLiveReload(t *testing.T) {
+	t.Parallel()
+	t.Log("Test rules loader with live reload")
+	l, err := NewLoader(true)
+	if err != nil {
+		t.Fail()
+	}
+	if err = Copy("testdata/000-allow-chrome.json", tmpDir+"/000-allow-chrome.json"); err != nil {
+		t.Error("Error copying rule into a temp dir")
+	}
+	if err = Copy("testdata/001-deny-chrome.json", tmpDir+"/001-deny-chrome.json"); err != nil {
+		t.Error("Error copying rule into a temp dir")
+	}
+	if err = l.Load(tmpDir); err != nil {
+		t.Error("Error loading test rules: ", err)
+	}
+	//wait for watcher to activate
+	time.Sleep(time.Second)
+	if err = Copy("testdata/live_reload/test-live-reload-remove.json", tmpDir+"/test-live-reload-remove.json"); err != nil {
+		t.Error("Error copying rules into temp dir")
+	}
+	if err = Copy("testdata/live_reload/test-live-reload-delete.json", tmpDir+"/test-live-reload-delete.json"); err != nil {
+		t.Error("Error copying rules into temp dir")
+	}
+	//wait for watcher to pick up the changes
+	time.Sleep(time.Second)
+	testNumRules(t, l, 4)
+	if err = os.Remove(tmpDir + "/test-live-reload-remove.json"); err != nil {
+		t.Error("Error Remove()ing file from temp dir")
+	}
+	if err = l.Delete("test-live-reload-delete"); err != nil {
+		t.Error("Error Delete()ing file from temp dir")
+	}
+	//wait for watcher to pick up the changes
+	time.Sleep(time.Second)
+	testNumRules(t, l, 2)
+}
+
+func randString() string {
+	rand.Seed(time.Now().UnixNano())
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]rune, 10)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
+
+func Copy(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+	return out.Close()
 }
 
 func testNumRules(t *testing.T, l *Loader, num int) {
