@@ -1,7 +1,7 @@
 {
     "created": "2020-12-13T18:06:52.209804547+01:00",
     "updated": "2020-12-13T18:06:52.209857713+01:00",
-    "name": "rule4",
+    "name": "test-live-reload-remove",
     "enabled": true,
     "precedence": true,
     "action": "deny",

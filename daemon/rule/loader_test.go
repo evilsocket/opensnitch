@@ -77,19 +77,19 @@ func TestLiveReload(t *testing.T) {
 	}
 	//wait for watcher to activate
 	time.Sleep(time.Second)
-	if err = Copy("testdata2/rule3.json", tmpDir+"/rule3.json"); err != nil {
+	if err = Copy("testdata/live_reload/test-live-reload-remove.json", tmpDir+"/test-live-reload-remove.json"); err != nil {
 		t.Error("Error copying rules into temp dir")
 	}
-	if err = Copy("testdata2/rule4.json", tmpDir+"/rule4.json"); err != nil {
+	if err = Copy("testdata/live_reload/test-live-reload-delete.json", tmpDir+"/test-live-reload-delete.json"); err != nil {
 		t.Error("Error copying rules into temp dir")
 	}
 	//wait for watcher to pick up the changes
 	time.Sleep(time.Second)
 	testNumRules(t, l, 4)
-	if err = os.Remove(tmpDir + "/rule3.json"); err != nil {
+	if err = os.Remove(tmpDir + "/test-live-reload-remove.json"); err != nil {
 		t.Error("Error Remove()ing file from temp dir")
 	}
-	if err = l.Delete("rule4"); err != nil {
+	if err = l.Delete("test-live-reload-delete"); err != nil {
 		t.Error("Error Delete()ing file from temp dir")
 	}
 	//wait for watcher to pick up the changes
