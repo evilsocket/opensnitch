@@ -1,7 +1,7 @@
 Template: python3-opensnitch-ui/question1
 Type: boolean
 Description: Do you want to install them now?
- OpenSnitch GUI needs to install manually 3 more packages using python3-pip:
+ OpenSnitch GUI needs to install system-wide packages, using python3-pip:
  .
- unicode_slugify, grpcio-tools and protobuf.
+ unicode_slugify, grpcio-tools and their dependencies (protobuf).
  .
