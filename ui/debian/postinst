@@ -10,7 +10,7 @@ install_pip_pkgs()
         echo "Installing grpcio-tools..."
         pip3 -q install grpcio-tools || echo "Unable to install grpcio, try it manually."
         echo
-        echo "Installing slugify..."
+        echo "Installing unicode_slugify..."
         pip3 -q install unicode_slugify || echo "Unable to install unicode_slugify, try it manually."
         echo "Done."
     else
