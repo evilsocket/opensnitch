@@ -1164,7 +1164,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     # from quitting the whole application
     def closeEvent(self, e):
         self._save_settings()
-        e.ignore()
+        e.accept()
         self.hide()
 
     def hideEvent(self, e):
