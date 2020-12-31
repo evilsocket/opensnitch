@@ -309,7 +309,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             for event in stats.events:
                 if event.unixnano in self._last_stats[addr]:
                     continue
-                need_refresh=True
+                main_need_refresh=True
                 db.insert("connections",
                         "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, pid, process, process_args, process_cwd, rule)",
                         (str(datetime.fromtimestamp(event.unixnano/1000000000)), "%s:%s" % (proto, addr), event.rule.action,
