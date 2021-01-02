@@ -1,2 +1,3 @@
 recursive-include opensnitch/res *
+recursive-include opensnitch/i18n *
 include LICENSE
