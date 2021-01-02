@@ -78,14 +78,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._node_needs_update = False
 
     def _load_settings(self):
-        self._default_action = self._cfg.getSettings(self.CFG_DEFAULT_ACTION)
-        self._default_duration = self._cfg.getSettings(self.CFG_DEFAULT_DURATION)
+        self._default_action = self._cfg.getInt(self.CFG_DEFAULT_ACTION)
+        self._default_duration = self._cfg.getInt(self.CFG_DEFAULT_DURATION)
         self._default_target = self._cfg.getSettings(self.CFG_DEFAULT_TARGET)
         self._default_timeout = self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)
         self._disable_popups = self._cfg.getBool(self.CFG_DISABLE_POPUPS)
 
-        self.comboUIDuration.setCurrentText(self._default_duration)
-        self.comboUIAction.setCurrentText(self._default_action)
+        # TODO: move to config.get_duration()
+        self.comboUIDuration.setCurrentIndex(self._default_duration)
+
+        self.comboUIAction.setCurrentIndex(self._default_action)
         self.comboUITarget.setCurrentIndex(int(self._default_target))
         self.spinUITimeout.setValue(int(self._default_timeout))
         self.spinUITimeout.setEnabled(not self._disable_popups)
@@ -132,8 +134,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _save_settings(self):
         if self.tabWidget.currentIndex() == 0:
-            self._cfg.setSettings(self.CFG_DEFAULT_ACTION, self.comboUIAction.currentText())
-            self._cfg.setSettings(self.CFG_DEFAULT_DURATION, self.comboUIDuration.currentText())
+            self._cfg.setSettings(self.CFG_DEFAULT_ACTION, self.comboUIAction.currentIndex())
+            self._cfg.setSettings(self.CFG_DEFAULT_DURATION, int(self.comboUIDuration.currentIndex()))
             self._cfg.setSettings(self.CFG_DEFAULT_TARGET, self.comboUITarget.currentIndex())
             self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, self.spinUITimeout.value())
             self._cfg.setSettings(self.CFG_DISABLE_POPUPS, bool(self.popupsCheck.isChecked()))
@@ -166,13 +168,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                             return
                 except Exception as e:
                     print(self.LOG_TAG + "exception saving config: ", e)
-                    self._set_status_error("Exception saving config: %s" % str(e))
+                    self._set_status_error(QtCore.QCoreApplication.translate("preferences", "Exception saving config: %s").format(str(e)))
 
             self._node_needs_update = False
 
     def _save_node_config(self, notifObject, addr):
         try:
-            self._set_status_message("Applying configuration on %s ..." % addr)
+            self._set_status_message(QtCore.QCoreApplication.translate("preferences", "Applying configuration on %s ...").format(addr))
             notifObject.data, error = self._load_node_config(addr)
             if error != None:
                 return error
@@ -183,7 +185,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._notifications_sent[nid] = notifObject
         except Exception as e:
             print(self.LOG_TAG + "exception saving node config on %s: " % addr, e)
-            self._set_status_error("Exception saving node config %s: %s" % (addr, str(e)))
+            self._set_status_error(QtCore.QCoreApplication.translate("Exception saving node config %s: %s").format((addr, str(e))))
             return addr + ": " + str(e)
 
         return None
@@ -191,10 +193,21 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _load_node_config(self, addr):
         try:
             if self.comboNodeAddress.currentText() == "":
-                return None, "Server address can not be empty"
+                return None, QtCore.QCoreApplication.translate("preferences", "Server address can not be empty")
+
+            node_action = Config.ACTION_DENY
+            if self.comboNodeAction.currentIndex() == 1:
+                node_action = Config.ACTION_ALLOW
+
+            node_duration = Config.DURATION_ONCE
+            if self.comboNodeDuration.currentIndex() == 1:
+                node_duration = Config.DURATION_UNTIL_RESTART
+            elif self.comboNodeDuration.currentIndex() == 2:
+                node_duration = Config.DURATION_ALWAYS
+
             node_config = json.loads(self._nodes.get_node_config(addr))
-            node_config['DefaultAction'] = self.comboNodeAction.currentText()
-            node_config['DefaultDuration'] = self.comboNodeDuration.currentText()
+            node_config['DefaultAction'] = node_action
+            node_config['DefaultDuration'] = node_duration
             node_config['ProcMonitorMethod'] = self.comboNodeMonitorMethod.currentText()
             node_config['LogLevel'] = self.comboNodeLogLevel.currentIndex()
             node_config['InterceptUnknown'] = self.checkInterceptUnknown.isChecked()
@@ -211,7 +224,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         except Exception as e:
             print(self.LOG_TAG + "exception loading node config on %s: " % addr, e)
 
-        return None, "Error loading %s configuration" % addr
+        return None, QtCore.QCoreApplication.translate("preferences", "Error loading %s configuration").format(addr)
 
     def _hide_status_label(self):
         self.statusLabel.hide()
@@ -239,9 +252,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         #print(self.LOG_TAG, "Config notification received: ", reply.id, reply.code)
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.OK:
-                self._set_status_successful("Configuration applied.")
+                self._set_status_successful(QtCore.QCoreApplication.translate("preferences", "Configuration applied."))
             else:
-                self._set_status_error("Error applying configuration: %s" % reply.data)
+                self._set_status_error(QtCore.QCoreApplication.translate("preferences", "Error applying configuration: %s").format(reply.data))
 
             del self._notifications_sent[reply.id]
 

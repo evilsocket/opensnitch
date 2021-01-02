@@ -24,8 +24,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     DEFAULT_TIMEOUT = 15
 
-    ACTION_ALLOW = "allow"
-    ACTION_DENY  = "deny"
+    ACTION_IDX_DENY = 0
+    ACTION_IDX_ALLOW = 1
 
     FIELD_REGEX_HOST    = "regex_host"
     FIELD_REGEX_IP      = "regex_ip"
@@ -37,20 +37,18 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     FIELD_DST_NETWORK   = "dst_network"
     FIELD_DST_HOST      = "simple_host"
 
-    DURATION_once   = "once"
+    # don't translate
     DURATION_30s    = "30s"
     DURATION_5m     = "5m"
     DURATION_15m    = "15m"
     DURATION_30m    = "30m"
     DURATION_1h     = "1h"
+    # don't translate
+
     # label displayed in the pop-up combo
-    DURATION_session = "for this session"
-    # field of a rule
-    DURATION_restart = "until restart"
+    DURATION_session = QtCore.QCoreApplication.translate("popups", "until reboot")
     # label displayed in the pop-up combo
-    DURATION_forever = "forever"
-    # field of a rule
-    DURATION_always  = "always"
+    DURATION_forever = QtCore.QCoreApplication.translate("popups", "forever")
 
     CFG_DEFAULT_TIMEOUT = "global/default_timeout"
     CFG_DEFAULT_ACTION = "global/default_action"
@@ -86,9 +84,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.denyButton.clicked.connect(self._on_deny_clicked)
         # also accept button
         self.applyButton.clicked.connect(self._on_apply_clicked)
-        self._apply_text = "Allow"
-        self._deny_text = "Deny"
-        self._default_action = self._cfg.getSettings(self.CFG_DEFAULT_ACTION)
+        self._apply_text = QtCore.QCoreApplication.translate("popups", "Allow")
+        self._deny_text = QtCore.QCoreApplication.translate("popups", "Deny")
+        self._default_action = self._cfg.getInt(self.CFG_DEFAULT_ACTION)
 
         self.whatIPCombo.setVisible(False)
         self.checkDstIP.setVisible(False)
@@ -178,12 +176,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def on_tick_triggered(self):
-        if self._cfg.getSettings(self.CFG_DEFAULT_ACTION) == self.ACTION_ALLOW:
-            self._timeout_text = "%s (%d)" % (self._apply_text, self._tick)
-            self.applyButton.setText(self._timeout_text)
-        else:
-            self._timeout_text = "%s (%d)" % (self._deny_text, self._tick)
-            self.denyButton.setText(self._timeout_text)
+        self._set_cmd_action_text()
 
     @QtCore.pyqtSlot()
     def on_timeout_triggered(self):
@@ -191,34 +184,16 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._send_rule()
 
     def _configure_default_duration(self):
-        if self._cfg.getSettings("global/default_duration") == self.DURATION_once:
-            self.durationCombo.setCurrentIndex(0)
-        elif self._cfg.getSettings("global/default_duration") == self.DURATION_30s:
-            self.durationCombo.setCurrentIndex(1)
-        elif self._cfg.getSettings("global/default_duration") == self.DURATION_5m:
-            self.durationCombo.setCurrentIndex(2)
-        elif self._cfg.getSettings("global/default_duration") == self.DURATION_15m:
-            self.durationCombo.setCurrentIndex(3)
-        elif self._cfg.getSettings("global/default_duration") == self.DURATION_30m:
-            self.durationCombo.setCurrentIndex(4)
-        elif self._cfg.getSettings("global/default_duration") == self.DURATION_1h:
-            self.durationCombo.setCurrentIndex(5)
-        elif self._cfg.getSettings("global/default_duration") == self.DURATION_session:
-            self.durationCombo.setCurrentIndex(6)
-        elif self._cfg.getSettings("global/default_duration") == self.DURATION_forever:
-            self.durationCombo.setCurrentIndex(7)
-        else:
-            # default to "for this session"
-            self.durationCombo.setCurrentIndex(6)
+        cur_idx = self._cfg.getInt("global/default_duration")
+        self.durationCombo.setCurrentIndex(cur_idx)
 
     def _set_cmd_action_text(self):
-        if self._cfg.getSettings(self.CFG_DEFAULT_ACTION) == self.ACTION_ALLOW:
+        if self._cfg.getInt(self.CFG_DEFAULT_ACTION) == self.ACTION_IDX_ALLOW:
             self.applyButton.setText("%s (%d)" % (self._apply_text, self._tick))
             self.denyButton.setText(self._deny_text)
         else:
             self.denyButton.setText("%s (%d)" % (self._deny_text, self._tick))
             self.applyButton.setText(self._apply_text)
-        self.checkAdvanced.setFocus()
 
     def _render_connection(self, con):
         app_name, app_icon, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
@@ -230,13 +205,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.appPathLabel.setText("")
 
         if app_name == "":
-            app_name = "Unknown process"
-            self.appNameLabel.setText("Outgoing connection")
+            app_name = QtCore.QCoreApplication.translate("popups", "Unknown process")
+            self.appNameLabel.setText(QtCore.QCoreApplication.translate("popups", "Outgoing connection"))
         else:
             self.appNameLabel.setText(app_name)
             self.appNameLabel.setToolTip(app_name)
 
-        self.cwdLabel.setToolTip("Process launched from: %s" % con.process_cwd)
+        self.cwdLabel.setToolTip("%s %s" % (QtCore.QCoreApplication.translate("popups", "Process launched from:"), con.process_cwd))
         self._set_elide_text(self.cwdLabel, con.process_cwd, max_size=32)
 
         icon = QtGui.QIcon().fromTheme(app_icon)
@@ -244,13 +219,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.iconLabel.setPixmap(pixmap)
 
         if self._local:
-            message = "<b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
+            message = QtCore.QCoreApplication.translate("popups", "<b>%s</b> is connecting to <b>%s</b> on %s port %d") % ( \
                         app_name,
                         con.dst_host or con.dst_ip,
                         con.protocol,
                         con.dst_port )
         else:
-            message = "<b>Remote</b> process <b>%s</b> running on <b>%s</b> is connecting to <b>%s</b> on %s port %d" % ( \
+            message = QtCore.QCoreApplication.translate("popups", "<b>Remote</b> process <b>%s</b> running on <b>%s</b> is connecting to <b>%s</b> on %s port %d") % ( \
                         app_name,
                         self._peer.split(':')[1],
                         con.dst_host or con.dst_ip,
@@ -280,35 +255,35 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.whatCombo.clear()
         self.whatIPCombo.clear()
         if int(con.process_id) > 0:
-            self.whatCombo.addItem("from this executable", self.FIELD_PROC_PATH)
+            self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "from this executable"), self.FIELD_PROC_PATH)
 
-        self.whatCombo.addItem("from this command line", self.FIELD_PROC_ARGS)
+        self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "from this command line"), self.FIELD_PROC_ARGS)
         if self.argsLabel.text() == "":
             self._set_elide_text(self.argsLabel, con.process_path)
 
         # the order of the entries must match those in the preferences dialog
         # prefs -> UI -> Default target
-        self.whatCombo.addItem("to port %d" % con.dst_port, self.FIELD_DST_PORT)
-        self.whatCombo.addItem("to %s" % con.dst_ip, self.FIELD_DST_IP)
+        self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "to port {0}").format(con.dst_port), self.FIELD_DST_PORT)
+        self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "to {0}").format(con.dst_ip), self.FIELD_DST_IP)
         if int(con.user_id) >= 0:
-            self.whatCombo.addItem("from user %s" % uid, self.FIELD_USER_ID)
+            self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "from user {0}").format(uid), self.FIELD_USER_ID)
 
         self._add_dst_networks_to_combo(self.whatCombo, con.dst_ip)
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
             self._add_dsthost_to_combo(con.dst_host)
 
-        self.whatIPCombo.addItem("to %s" % con.dst_ip, self.FIELD_DST_IP)
+        self.whatIPCombo.addItem(QtCore.QCoreApplication.translate("popups", "to {0}").format(con.dst_ip), self.FIELD_DST_IP)
 
         parts = con.dst_ip.split('.')
         nparts = len(parts)
         for i in range(1, nparts):
-            self.whatCombo.addItem("to %s.*" % '.'.join(parts[:i]), self.FIELD_REGEX_IP)
-            self.whatIPCombo.addItem("to %s.*" % '.'.join(parts[:i]), self.FIELD_REGEX_IP)
+            self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "to {0}.*").format('.'.join(parts[:i])), self.FIELD_REGEX_IP)
+            self.whatIPCombo.addItem(QtCore.QCoreApplication.translate("popups", "to {0}.*").format( '.'.join(parts[:i])), self.FIELD_REGEX_IP)
 
         self._add_dst_networks_to_combo(self.whatIPCombo, con.dst_ip)
 
-        self._default_action = self._cfg.getSettings(self.CFG_DEFAULT_ACTION)
+        self._default_action = self._cfg.getInt(self.CFG_DEFAULT_ACTION)
 
         self._configure_default_duration()
 
@@ -318,6 +293,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.whatCombo.setCurrentIndex(2)
 
         self._set_cmd_action_text()
+        self.checkAdvanced.setFocus()
 
         self.setFixedSize(self.size())
 
@@ -334,12 +310,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _add_dst_networks_to_combo(self, combo, dst_ip):
         if type(ipaddress.ip_address(dst_ip)) == ipaddress.IPv4Address:
-            combo.addItem("to %s" % ipaddress.ip_network(dst_ip + "/24", strict=False),  self.FIELD_DST_NETWORK)
-            combo.addItem("to %s" % ipaddress.ip_network(dst_ip + "/16", strict=False),  self.FIELD_DST_NETWORK)
-            combo.addItem("to %s" % ipaddress.ip_network(dst_ip + "/8", strict=False),   self.FIELD_DST_NETWORK)
+            combo.addItem(QtCore.QCoreApplication.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/24", strict=False)),  self.FIELD_DST_NETWORK)
+            combo.addItem(QtCore.QCoreApplication.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/16", strict=False)),  self.FIELD_DST_NETWORK)
+            combo.addItem(QtCore.QCoreApplication.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/8", strict=False)),   self.FIELD_DST_NETWORK)
         else:
-            combo.addItem("to %s" % ipaddress.ip_network(dst_ip + "/64", strict=False),  self.FIELD_DST_NETWORK)
-            combo.addItem("to %s" % ipaddress.ip_network(dst_ip + "/128", strict=False), self.FIELD_DST_NETWORK)
+            combo.addItem(QtCore.QCoreApplication.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/64", strict=False)),  self.FIELD_DST_NETWORK)
+            combo.addItem(QtCore.QCoreApplication.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/128", strict=False)), self.FIELD_DST_NETWORK)
 
     def _add_dsthost_to_combo(self, dst_host):
         self.whatCombo.addItem("%s" % dst_host, self.FIELD_DST_HOST)
@@ -348,16 +324,16 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         parts = dst_host.split('.')[1:]
         nparts = len(parts)
         for i in range(0, nparts - 1):
-            self.whatCombo.addItem("to *.%s" % '.'.join(parts[i:]), self.FIELD_REGEX_HOST)
-            self.whatIPCombo.addItem("to *.%s" % '.'.join(parts[i:]), self.FIELD_REGEX_HOST)
+            self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "to *.{0}").format('.'.join(parts[i:])), self.FIELD_REGEX_HOST)
+            self.whatIPCombo.addItem(QtCore.QCoreApplication.translate("popups", "to *.{0}").format('.'.join(parts[i:])), self.FIELD_REGEX_HOST)
 
         if nparts == 1:
-            self.whatCombo.addItem("to *%s" % dst_host, self.FIELD_REGEX_HOST)
-            self.whatIPCombo.addItem("to *%s" % dst_host, self.FIELD_REGEX_HOST)
+            self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "to *{0}").format(dst_host), self.FIELD_REGEX_HOST)
+            self.whatIPCombo.addItem(QtCore.QCoreApplication.translate("popups", "to *{0}").format(dst_host), self.FIELD_REGEX_HOST)
 
     def _get_duration(self, duration_idx):
         if duration_idx == 0:
-            return self.DURATION_once
+            return Config.DURATION_ONCE
         elif duration_idx == 1:
             return self.DURATION_30s
         elif duration_idx == 2:
@@ -369,9 +345,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif duration_idx == 5:
             return self.DURATION_1h
         elif duration_idx == 6:
-            return self.DURATION_restart
+            return Config.DURATION_UNTIL_RESTART
         else:
-            return self.DURATION_always
+            return Config.DURATION_ALWAYS
 
     def _get_combo_operator(self, combo, what_idx):
         if combo.itemData(what_idx) == self.FIELD_PROC_PATH:
@@ -403,11 +379,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return "regexp", "dest.ip", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
 
     def _on_deny_clicked(self):
-        self._default_action = self.ACTION_DENY
+        self._default_action = self.ACTION_IDX_DENY
         self._send_rule()
 
     def _on_apply_clicked(self):
-        self._default_action = self.ACTION_ALLOW
+        self._default_action = self.ACTION_IDX_ALLOW
         self._send_rule()
 
     def _get_rule_name(self, rule):
@@ -424,7 +400,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
         self._rule = ui_pb2.Rule(name="user.choice")
         self._rule.enabled = True
-        self._rule.action = self._default_action
+        self._rule.action = Config.ACTION_DENY if self._default_action == self.ACTION_IDX_DENY else Config.ACTION_ALLOW
         self._rule.duration = self._get_duration(self.durationCombo.currentIndex())
 
         what_idx = self.whatCombo.currentIndex()

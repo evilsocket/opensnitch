@@ -70,9 +70,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     FILTER_TREE_APPS = 0
     FILTER_TREE_NODES = 3
 
-    FIREWALL_STOPPED  = "Not running"
+    # FIXME: don't translate, used only for default argument on _update_status_label
     FIREWALL_DISABLED = "Disabled"
-    FIREWALL_RUNNING  = "Running"
 
     commonDelegateConf = {
             'deny':      RED,
@@ -226,6 +225,26 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(QtCore.Qt.Window)
         self.setupUi(self)
+
+
+        # columns names
+        self.COL_STR_NAME = QtCore.QCoreApplication.translate("stats", "Name")
+        self.COL_STR_ADDR = QtCore.QCoreApplication.translate("stats", "Address")
+        self.COL_STR_STATUS = QtCore.QCoreApplication.translate("stats", "Status")
+        self.COL_STR_HOSTNAME = QtCore.QCoreApplication.translate("stats", "Hostname")
+        self.COL_STR_VERSION = QtCore.QCoreApplication.translate("stats", "Version")
+        self.COL_STR_RULES_NUM = QtCore.QCoreApplication.translate("stats", "Rules")
+        self.COL_STR_TIME = QtCore.QCoreApplication.translate("stats", "Time")
+        self.COL_STR_ACTION = QtCore.QCoreApplication.translate("stats", "Action")
+        self.COL_STR_DURATION = QtCore.QCoreApplication.translate("stats", "Duration")
+        self.COL_STR_NODE = QtCore.QCoreApplication.translate("stats", "Node")
+        self.COL_STR_ENABLED = QtCore.QCoreApplication.translate("stats", "Enabled")
+        self.COL_STR_HITS = QtCore.QCoreApplication.translate("stats", "Hits")
+        self.COL_STR_PROTOCOL = QtCore.QCoreApplication.translate("stats", "Protocol")
+
+        self.FIREWALL_STOPPED  = QtCore.QCoreApplication.translate("stats", "Not running")
+        self.FIREWALL_DISABLED = QtCore.QCoreApplication.translate("stats", "Disabled")
+        self.FIREWALL_RUNNING  = QtCore.QCoreApplication.translate("stats", "Running")
 
         self._db = db
         self._db_sqlite = self._db.get_db()
@@ -406,9 +425,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def showEvent(self, event):
         super(StatsDialog, self).showEvent(event)
         self._shown_trigger.emit()
-        window_title = "OpenSnitch Network Statistics - %s " % version
+        window_title = QtCore.QCoreApplication.translate("stats", "OpenSnitch Network Statistics {0}").format(version)
         if self._address is not None:
-            window_title = "OpenSnitch Network Statistics for %s" % self._address
+            window_title = QtCore.QCoreApplication.translate("stats", "OpenSnitch Network Statistics for {0}").format(self._address)
             self.nodeLabel.setText(self._address)
         self._load_settings()
         self._add_rulesTree_nodes()
@@ -577,7 +596,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 row, column = i.row(), i.column()
             menu = QtWidgets.QMenu()
             if cur_idx == self.TAB_RULES:
-                _table_menu_delete = menu.addAction("Delete")
+                _table_menu_delete = menu.addAction(QtCore.QCoreApplication.translate("stats", "Delete"))
 
             # move away menu a few pixels to the right, to avoid clicking on it by mistake
             point = QtCore.QPoint(pos.x()+10, pos.y()+5)
@@ -771,9 +790,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_del_rule_clicked(self):
         msgBox = QtWidgets.QMessageBox()
-        msgBox.setText("    Your are about to delete this rule.    ")
+        msgBox.setText(QtCore.QCoreApplication.translate("stats", "    Your are about to delete this rule.    "))
         msgBox.setIcon(QtWidgets.QMessageBox.Warning)
-        msgBox.setInformativeText("    Are you sure?")
+        msgBox.setInformativeText(QtCore.QCoreApplication.translate("stats", "    Are you sure?"))
         msgBox.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Yes)
         msgBox.setDefaultButton(QtWidgets.QMessageBox.Save)
         ret = msgBox.exec_()
@@ -876,8 +895,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         filter_text = self.filterLine.text()
         action = ""
-        if self.comboAction.currentText() != "-":
-            action = "Action = \"" + self.comboAction.currentText().lower() + "\""
+        if self.comboAction.currentIndex() == 1:
+            action = "Action = \"" + Config.ACTION_ALLOW + "\""
+        elif self.comboAction.currentIndex() == 2:
+            action = "Action = \"" + Config.ACTION_DENY + "\""
 
         # FIXME: use prepared statements
         if filter_text == "":
@@ -903,10 +924,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "n.last_connection as LastConnection, " \
-                "n.status as Status, " \
+                "n.status as %s, " \
                 "count(c.process) as Hits, " \
                 "c.uid as UserID, " \
-                "c.protocol as Protocol, " \
+                "c.protocol as %s, " \
                 "c.dst_ip as DstIP, " \
                 "c.dst_host as DstHost, " \
                 "c.dst_port as DstPort, " \
@@ -914,7 +935,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD " \
             "FROM nodes as n, connections as c " \
-            "WHERE n.addr = '%s' %s GROUP BY Process, Args, UserID, DstIP, DstHost, DstPort, Protocol, Status %s" % (data, s, self._get_order()))
+            "WHERE n.addr = '%s' %s GROUP BY Process, Args, UserID, DstIP, DstHost, DstPort, c.protocol, n.status %s" %
+                      (
+                          self.COL_STR_STATUS,
+                          self.COL_STR_PROTOCOL,
+                          data, s, self._get_order()))
 
     def _set_rules_filter(self, section=FILTER_TREE_APPS, what=""):
 
@@ -937,18 +962,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as Time, " \
-                "r.node as Node, " \
+                "c.time as %s, " \
+                "r.node as %s, " \
                 "count(c.process) as Hits, " \
-                "r.enabled as Enabled, " \
+                "r.enabled as %s, " \
                 "r.precedence as Precedence, " \
-                "r.action as Action, " \
+                "r.action as %s, " \
                 "r.duration as Duration, " \
                 "r.operator_type as RuleType, " \
                 "r.operator_sensitive as CaseSensitive, " \
                 "r.operator_operand as RuleOperand, " \
                 "c.uid as UserID, " \
-                "c.protocol as Protocol, " \
+                "c.protocol as %s, " \
                 "c.dst_port as DstPort, " \
                 "CASE c.dst_host WHEN ''" \
                 "   THEN c.dst_ip " \
@@ -958,17 +983,24 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_args as Args, " \
                 "c.process_cwd as CWD " \
             "FROM rules as r, connections as c " \
-            "WHERE %s %s r.name = c.rule AND r.node = c.node GROUP BY Process, Args, UserID, Destination, DstPort %s" % (node, rule_name, self._get_order()))
+            "WHERE %s %s r.name = c.rule AND r.node = c.node GROUP BY Process, Args, UserID, Destination, DstPort %s" %
+                      (
+                          self.COL_STR_TIME,
+                          self.COL_STR_NODE,
+                          self.COL_STR_ENABLED,
+                          self.COL_STR_ACTION,
+                          self.COL_STR_PROTOCOL,
+                          node, rule_name, self._get_order()))
 
     def _set_hosts_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as Time, " \
-                "c.node as Node, " \
+                "c.time as %s, " \
+                "c.node as %s, " \
                 "count(c.process) as Hits, " \
-                "c.action as Action, " \
+                "c.action as %s, " \
                 "c.uid as UserID, " \
-                "c.protocol as Protocol, " \
+                "c.protocol as %s, " \
                 "c.dst_port as DstPort, " \
                 "c.dst_ip as DstIP, " \
                 "c.process || ' (' || c.pid || ')' as Process, " \
@@ -976,15 +1008,21 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM hosts as h, connections as c " \
-            "WHERE h.what = '%s' AND c.dst_host = h.what GROUP BY c.pid, Process, Args, DstIP, DstPort, Protocol, Action, Node %s" % (data, self._get_order()))
+            "WHERE h.what = '%s' AND c.dst_host = h.what GROUP BY c.pid, Process, Args, DstIP, DstPort, c.protocol, c.action, c.node %s" %
+                      (
+                          self.COL_STR_TIME,
+                          self.COL_STR_NODE,
+                          self.COL_STR_ACTION,
+                          self.COL_STR_PROTOCOL,
+                          data, self._get_order()))
 
     def _set_process_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as Time, " \
-                "c.node as Node, " \
+                "c.time as %s, " \
+                "c.node as %s, " \
                 "count(c.dst_host) as Hits, " \
-                "c.action as Action, " \
+                "c.action as %s, " \
                 "c.uid as UserID, " \
                 "CASE c.dst_host WHEN ''" \
                 "   THEN c.dst_ip || '  ->  ' || c.dst_port " \
@@ -995,7 +1033,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM procs as p, connections as c " \
-            "WHERE p.what = '%s' AND p.what = c.process GROUP BY c.dst_ip, c.dst_host, c.dst_port, UserID, Action, Node %s" % (data, self._get_order()))
+            "WHERE p.what = '%s' AND p.what = c.process GROUP BY c.dst_ip, c.dst_host, c.dst_port, UserID, c.action, c.node %s" %
+                      (
+                          self.COL_STR_TIME,
+                          self.COL_STR_NODE,
+                          self.COL_STR_ACTION,
+                          data, self._get_order()))
 
         nrows = self._get_active_table().model().rowCount()
         self.cmdProcDetails.setVisible(nrows != 0)
@@ -1003,12 +1046,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _set_addrs_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as Time, " \
-                "c.node as Node, " \
+                "c.time as %s, " \
+                "c.node as %s, " \
                 "count(c.dst_ip) as Hits, " \
-                "c.action as Action, " \
+                "c.action as %s, " \
                 "c.uid as UserID, " \
-                "c.protocol as Protocol, " \
+                "c.protocol as %s, " \
                 "CASE c.dst_host WHEN ''" \
                 "   THEN c.dst_ip " \
                 "   ELSE c.dst_host " \
@@ -1019,17 +1062,23 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM addrs as a, connections as c " \
-            "WHERE a.what = '%s' AND c.dst_ip = a.what GROUP BY c.pid, Process, Args, DstPort, Destination, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
+            "WHERE a.what = '%s' AND c.dst_ip = a.what GROUP BY c.pid, Process, Args, DstPort, Destination, c.protocol, c.action, UserID, c.node %s" %
+                      (
+                          self.COL_STR_TIME,
+                          self.COL_STR_NODE,
+                          self.COL_STR_ACTION,
+                          self.COL_STR_PROTOCOL,
+                          data, self._get_order()))
 
     def _set_ports_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as Time, " \
-                "c.node as Node, " \
+                "c.time as %s, " \
+                "c.node as %s, " \
                 "count(c.dst_ip) as Hits, " \
-                "c.action as Action, " \
+                "c.action as %s, " \
                 "c.uid as UserID, " \
-                "c.protocol as Protocol, " \
+                "c.protocol as %s, " \
                 "c.dst_ip as DstIP, " \
                 "CASE c.dst_host WHEN ''" \
                 "   THEN c.dst_ip " \
@@ -1040,16 +1089,22 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM ports as p, connections as c " \
-            "WHERE p.what = '%s' AND c.dst_port = p.what GROUP BY c.pid, Process, Args, Destination, DstIP, Protocol, Action, UserID, Node %s" % (data, self._get_order()))
+            "WHERE p.what = '%s' AND c.dst_port = p.what GROUP BY c.pid, Process, Args, Destination, DstIP, c.protocol, c.action, UserID, c.node %s" %
+                      (
+                          self.COL_STR_TIME,
+                          self.COL_STR_NODE,
+                          self.COL_STR_ACTION,
+                          self.COL_STR_PROTOCOL,
+                          data, self._get_order()))
 
     def _set_users_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as Time, " \
-                "c.node as Node, " \
+                "c.time as %s, " \
+                "c.node as %s, " \
                 "count(c.dst_ip) as Hits, " \
-                "c.action as Action, " \
-                "c.protocol as Protocol, " \
+                "c.action as %s, " \
+                "c.protocol as %s, " \
                 "c.dst_ip as DstIP, " \
                 "CASE c.dst_host WHEN ''" \
                 "   THEN c.dst_ip " \
@@ -1061,13 +1116,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM users as u, connections as c " \
-            "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, Process, Args, DstIP, Destination, DstPort, Protocol, Action, Node %s" % (data, self._get_order()))
+            "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, Process, Args, DstIP, Destination, DstPort, c.protocol, c.action, c.node %s" %
+                      (
+                          self.COL_STR_TIME,
+                          self.COL_STR_NODE,
+                          self.COL_STR_ACTION,
+                          self.COL_STR_PROTOCOL,
+                          data, self._get_order()))
 
     def _on_save_clicked(self):
         tab_idx = self.tabWidget.currentIndex()
 
         filename = QtWidgets.QFileDialog.getSaveFileName(self,
-                    'Save as CSV',
+                    QtCore.QCoreApplication.translate("stats", 'Save as CSV'),
                     self._file_names[tab_idx],
                     'All Files (*);;CSV Files (*.csv)')[0].strip()
         if filename == '':
