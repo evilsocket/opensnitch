@@ -19,10 +19,19 @@
  - linguist locales/es_ES/opensnitch-es_ES.ts
 
 3. create .qm file:
- - lrelease locales/es_ES/opensnitch-es_ES.ts -qm locales/es_ES/es_ES.qm
+ - lrelease locales/es_ES/opensnitch-es_ES.ts -qm locales/es_ES/opensnitch-es_ES.qm
 
 or:
 
 1. make
 2. linguist locales/es_ES/opensnitch-es_ES.ts
 3. make
+
+### Installing translations (manually)
+
+In order to test a new translation:
+
+`mkdir -p /usr/lib/python3/dist-packages/opensnitch/i18n/<YOUR LOCALE>/`
+`cp locales/<YOUR LOCALE>/opensnitch-<YOUR LOCALE>.qm /usr/lib/python3/dist-packages/opensnitch/i18n/<YOUR LOCALE>/`
+
+Note: the destination path may vary depending on your system.
