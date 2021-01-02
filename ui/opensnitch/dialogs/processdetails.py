@@ -92,7 +92,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             noti = self._notifications_sent[reply.id]
 
             if reply.code == ui_pb2.ERROR:
-                self._show_message("<b>Error loading process information:</b> <br><br>\n\n" + reply.data)
+                self._show_message(QtCore.QCoreApplication.translate("proc_details", "<b>Error loading process information:</b> <br><br>\n\n") + reply.data)
                 self.cmdAction.setChecked(False)
                 self._pid = ""
 
@@ -111,7 +111,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
 
             elif noti.type == ui_pb2.STOP_MONITOR_PROCESS:
                 if reply.data != "":
-                    self.show_message("<b>Error stopping monitoring process:</b><br><br>" + reply.data)
+                    self.show_message(QtCore.QCoreApplication.translate("proc_details", "<b>Error stopping monitoring process:</b><br><br>") + reply.data)
 
                 self._delete_notification(reply.id)
         else:
@@ -155,8 +155,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self._app_name = None
         self._app_icon = None
         self.comboPids.clear()
-        self.labelProcName.setText("loading...")
-        self.labelProcArgs.setText("loading...")
+        self.labelProcName.setText(QtCore.QCoreApplication.translate("proc_details", "loading..."))
+        self.labelProcArgs.setText(QtCore.QCoreApplication.translate("proc_details", "loading..."))
         self.labelProcIcon.clear()
         self.labelStatm.setText("")
         self.labelCwd.setText("")
@@ -225,12 +225,16 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             self._load_app_icon(proc['Path'])
             if self._app_name != None:
                 self.labelProcName.setText("<b>" + self._app_name + "</b>")
+                self.labelProcName.setToolTip("<b>" + self._app_name + "</b>")
 
             #if proc['Path'] not in proc['Args']:
             #    proc['Args'].insert(0, proc['Path'])
 
+            self.labelProcArgs.setFixedHeight(30)
             self.labelProcArgs.setText(" ".join(proc['Args']))
+            self.labelProcArgs.setToolTip(" ".join(proc['Args']))
             self.labelCwd.setText("<b>CWD: </b>" + proc['CWD'])
+            self.labelCwd.setToolTip("<b>CWD: </b>" + proc['CWD'])
             self._load_mem_data(proc['Statm'])
 
             if tab_idx == self.TAB_STATUS:

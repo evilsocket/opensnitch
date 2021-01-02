@@ -49,7 +49,13 @@ if __name__ == '__main__':
         except Exception:
             pass
 
+    locale = QtCore.QLocale.system()
+    i18n_path = os.path.dirname(os.path.realpath(opensnitch.__file__)) + "/i18n"
+    print("Loading translations:", i18n_path, "locale:", locale.name())
+    translator = QtCore.QTranslator()
+    translator.load(i18n_path + "/" + locale.name() + "/opensnitch_" + locale.name() + ".qm")
     app = QtWidgets.QApplication(sys.argv)
+    app.installTranslator(translator)
 
     service = UIService(app, on_exit)
     # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object

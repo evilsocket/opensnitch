@@ -6,6 +6,14 @@ class Config:
 
     HELP_URL = "https://github.com/gustavo-iniguez-goya/opensnitch/wiki/Configurations"
 
+    # don't translate
+    ACTION_ALLOW = "allow"
+    ACTION_DENY = "deny"
+    DURATION_UNTIL_RESTART = "until restart"
+    DURATION_ALWAYS = "always"
+    DURATION_ONCE = "once"
+    # don't translate
+
     @staticmethod
     def init():
         Config.__instance = Config()
@@ -44,3 +52,9 @@ class Config:
 
     def getBool(self, path):
         return self.settings.value(path, False, type=bool)
+
+    def getInt(self, path):
+        try:
+            return self.settings.value(path, False, type=int)
+        except Exception:
+            return 0

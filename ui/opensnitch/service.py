@@ -117,18 +117,18 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _setup_tray(self):
         self._menu = QtWidgets.QMenu()
-        self._stats_action = self._menu.addAction("Statistics")
+        self._stats_action = self._menu.addAction(QtCore.QCoreApplication.translate("contextual_menu","Statistics"))
 
         self._tray = QtWidgets.QSystemTrayIcon(self.off_icon)
         self._tray.setContextMenu(self._menu)
         self._tray.activated.connect(self._on_tray_icon_activated)
 
-        self._menu.addAction("Help").triggered.connect(
+        self._menu.addAction(QtCore.QCoreApplication.translate("contextual_menu", "Help")).triggered.connect(
                 lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_URL))
                 )
 
         self._stats_action.triggered.connect(self._show_stats_dialog)
-        self._menu.addAction("Close").triggered.connect(self._on_close)
+        self._menu.addAction(QtCore.QCoreApplication.translate("contextual_menu", "Close")).triggered.connect(self._on_close)
 
         self._tray.show()
         if not self._tray.isSystemTrayAvailable():
