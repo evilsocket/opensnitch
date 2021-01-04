@@ -1242,12 +1242,12 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
         <source>Exception saving config: %s</source>
-        <translation type="obsolete">Error al guarda la configuración: %s</translation>
+        <translation>Error al guarda la configuración: %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
         <source>Applying configuration on %s ...</source>
-        <translation type="obsolete">Aplicando configuración en %s ...</translation>
+        <translation>Aplicando configuración en %s ...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="196"/>
@@ -1257,7 +1257,7 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="227"/>
         <source>Error loading %s configuration</source>
-        <translation type="obsolete">Error al cargar la configuración %s</translation>
+        <translation>Error al cargar la configuración %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="255"/>
@@ -1267,27 +1267,7 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="257"/>
         <source>Error applying configuration: %s</source>
-        <translation type="obsolete">Error al aplicar la configuración: %s</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
-        <source>Exception saving config: {0}</source>
-        <translation>Error al guardar la configuración: {0}</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
-        <source>Applying configuration on {0} ...</source>
-        <translation>Aplicando configuración en {0} ...</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="227"/>
-        <source>Error loading {0} configuration</source>
-        <translation>Error al cargar la configuración {0}</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="257"/>
-        <source>Error applying configuration: {0}</source>
-        <translation>Error al aplicar la configuración: {0}</translation>
+        <translation>Error al aplicar la configuración: %s</translation>
     </message>
 </context>
 <context>
@@ -1327,7 +1307,7 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="123"/>
         <source>Error applying rule: %s</source>
-        <translation type="obsolete">Error al aplicar la regla: %s</translation>
+        <translation>Error al aplicar la regla: %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="343"/>
@@ -1399,11 +1379,6 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
         <source>User ID regexp error</source>
         <translation>Error en la expresión regular del ID de Usuario</translation>
     </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="123"/>
-        <source>Error applying rule: {0}</source>
-        <translation>Error al aplicar la regla: {0}</translation>
-    </message>
 </context>
 <context>
     <name>stats</name>
@@ -1433,12 +1408,12 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
         <translation type="obsolete">Eventos de OpenSnitch de</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="793"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="794"/>
         <source>    Your are about to delete this rule.    </source>
         <translation>    Estás a punto de borrar esta regla.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="795"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="796"/>
         <source>    Are you sure?</source>
         <translation>    ¿Estás seguro?</translation>
     </message>
@@ -1513,7 +1488,7 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
         <translation>Protocolo</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1130"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1131"/>
         <source>Save as CSV</source>
         <translation>Guardar como CSV</translation>
     </message>
@@ -1523,7 +1498,7 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
         <translation>Habilitado</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="599"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="600"/>
         <source>Delete</source>
         <translation>Eliminar</translation>
     </message>
@@ -1531,6 +1506,11 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
         <location filename="../../../opensnitch/dialogs/stats.py" line="948"/>
         <source>always</source>
         <translation type="obsolete">siempre</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="571"/>
+        <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;{0}</source>
+        <translation>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;{0}</translation>
     </message>
 </context>
 <context>

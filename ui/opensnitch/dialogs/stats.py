@@ -568,9 +568,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.ERROR:
                 msgBox = QtWidgets.QMessageBox()
-                msgBox.setText(reply.data)
+                msgBox.setText(QtCore.QCoreApplication.translate("stats", "<b>Error:</b><br><br>{0}").format(reply.data))
                 msgBox.setIcon(QtWidgets.QMessageBox.Warning)
                 msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
+                msgBox.exec_()
 
         else:
             print("[stats] unknown notification received: ", self._notifications_sent[reply.id].type)
