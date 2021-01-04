@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="es_ES" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.1" language="es_ES">
 <context>
     <name>Dialog</name>
     <message>
@@ -1241,12 +1242,12 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
         <source>Exception saving config: %s</source>
-        <translation>Error al guarda la configuración: %s</translation>
+        <translation type="obsolete">Error al guarda la configuración: %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
         <source>Applying configuration on %s ...</source>
-        <translation>Aplicando configuración en %s ...</translation>
+        <translation type="obsolete">Aplicando configuración en %s ...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="196"/>
@@ -1254,19 +1255,39 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
         <translation>La dirección del servidor no puede estar vacía</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="216"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="227"/>
         <source>Error loading %s configuration</source>
-        <translation>Error al cargar la configuración %s</translation>
+        <translation type="obsolete">Error al cargar la configuración %s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="244"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="255"/>
         <source>Configuration applied.</source>
         <translation>Configuración aplicada.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="246"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="257"/>
         <source>Error applying configuration: %s</source>
-        <translation>Error al aplicar la configuración: %s</translation>
+        <translation type="obsolete">Error al aplicar la configuración: %s</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
+        <source>Exception saving config: {0}</source>
+        <translation>Error al guardar la configuración: {0}</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
+        <source>Applying configuration on {0} ...</source>
+        <translation>Aplicando configuración en {0} ...</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="227"/>
+        <source>Error loading {0} configuration</source>
+        <translation>Error al cargar la configuración {0}</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="257"/>
+        <source>Error applying configuration: {0}</source>
+        <translation>Error al aplicar la configuración: {0}</translation>
     </message>
 </context>
 <context>
@@ -1306,7 +1327,7 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="123"/>
         <source>Error applying rule: %s</source>
-        <translation>Error al aplicar la regla: %s</translation>
+        <translation type="obsolete">Error al aplicar la regla: %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="343"/>
@@ -1377,6 +1398,11 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="480"/>
         <source>User ID regexp error</source>
         <translation>Error en la expresión regular del ID de Usuario</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="123"/>
+        <source>Error applying rule: {0}</source>
+        <translation>Error al aplicar la regla: {0}</translation>
     </message>
 </context>
 <context>
@@ -1487,7 +1513,7 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
         <translation>Protocolo</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1128"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1130"/>
         <source>Save as CSV</source>
         <translation>Guardar como CSV</translation>
     </message>

@@ -168,13 +168,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                             return
                 except Exception as e:
                     print(self.LOG_TAG + "exception saving config: ", e)
-                    self._set_status_error(QtCore.QCoreApplication.translate("preferences", "Exception saving config: %s").format(str(e)))
+                    self._set_status_error(QtCore.QCoreApplication.translate("preferences", "Exception saving config: {0}").format(str(e)))
 
             self._node_needs_update = False
 
     def _save_node_config(self, notifObject, addr):
         try:
-            self._set_status_message(QtCore.QCoreApplication.translate("preferences", "Applying configuration on %s ...").format(addr))
+            self._set_status_message(QtCore.QCoreApplication.translate("preferences", "Applying configuration on {0} ...").format(addr))
             notifObject.data, error = self._load_node_config(addr)
             if error != None:
                 return error
@@ -185,7 +185,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._notifications_sent[nid] = notifObject
         except Exception as e:
             print(self.LOG_TAG + "exception saving node config on %s: " % addr, e)
-            self._set_status_error(QtCore.QCoreApplication.translate("Exception saving node config %s: %s").format((addr, str(e))))
+            self._set_status_error(QtCore.QCoreApplication.translate("Exception saving node config {0}: {1}").format((addr, str(e))))
             return addr + ": " + str(e)
 
         return None
@@ -224,7 +224,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         except Exception as e:
             print(self.LOG_TAG + "exception loading node config on %s: " % addr, e)
 
-        return None, QtCore.QCoreApplication.translate("preferences", "Error loading %s configuration").format(addr)
+        return None, QtCore.QCoreApplication.translate("preferences", "Error loading {0} configuration").format(addr)
 
     def _hide_status_label(self):
         self.statusLabel.hide()
@@ -254,7 +254,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if reply.code == ui_pb2.OK:
                 self._set_status_successful(QtCore.QCoreApplication.translate("preferences", "Configuration applied."))
             else:
-                self._set_status_error(QtCore.QCoreApplication.translate("preferences", "Error applying configuration: %s").format(reply.data))
+                self._set_status_error(QtCore.QCoreApplication.translate("preferences", "Error applying configuration: {0}").format(reply.data))
 
             del self._notifications_sent[reply.id]
 

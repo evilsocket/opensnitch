@@ -1153,33 +1153,33 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
 <context>
     <name>preferences</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
-        <source>Exception saving config: %s</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
-        <source>Applying configuration on %s ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="196"/>
         <source>Server address can not be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="216"/>
-        <source>Error loading %s configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="244"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="255"/>
         <source>Configuration applied.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="246"/>
-        <source>Error applying configuration: %s</source>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
+        <source>Exception saving config: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
+        <source>Applying configuration on {0} ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="227"/>
+        <source>Error loading {0} configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="257"/>
+        <source>Error applying configuration: {0}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1213,11 +1213,6 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="121"/>
         <source>Rule applied.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="123"/>
-        <source>Error applying rule: %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1288,6 +1283,11 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="480"/>
         <source>User ID regexp error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="123"/>
+        <source>Error applying rule: {0}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1389,7 +1389,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1128"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1130"/>
         <source>Save as CSV</source>
         <translation type="unfinished"></translation>
     </message>

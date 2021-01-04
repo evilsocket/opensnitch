@@ -121,7 +121,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if reply.code == ui_pb2.OK:
                 self._set_status_message(QtCore.QCoreApplication.translate("rules", "Rule applied."))
             else:
-                self._set_status_error(QtCore.QCoreApplication.translate("rules", "Error applying rule: %s").format(reply.data))
+                self._set_status_error(QtCore.QCoreApplication.translate("rules", "Error applying rule: {0}").format(reply.data))
 
             del self._notifications_sent[reply.id]
 
