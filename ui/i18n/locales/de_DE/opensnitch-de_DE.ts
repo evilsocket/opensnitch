@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="de_DE" sourcelanguage="">
+<TS version="2.1" language="de_DE">
 <context>
     <name>Dialog</name>
     <message>
@@ -46,7 +46,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="504"/>
         <source>Chromium Web Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Chromium-Webbrowser</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="535"/>
@@ -61,7 +61,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="595"/>
         <source>Chromium Web Browser wants to connect to www.evilsocket.net on tcp port 443. And maybe to www.goodsocket.net on port 344</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Chromium-Webbrowser möchte eine Verbindung zu www.evilsocket.net über TCP-Port 443 herstellen. Und möglicherweise zu www.goodsocket.net über Port 344</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="632"/>
@@ -194,27 +194,27 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="117"/>
         <source>center</source>
-        <translation type="unfinished"></translation>
+        <translation>mittig</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="122"/>
         <source>top right</source>
-        <translation type="unfinished"></translation>
+        <translation>oben rechts</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="127"/>
         <source>bottom right</source>
-        <translation type="unfinished"></translation>
+        <translation>unten rechts</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="132"/>
         <source>top left</source>
-        <translation type="unfinished"></translation>
+        <translation>oben links</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="137"/>
         <source>bottom left</source>
-        <translation type="unfinished"></translation>
+        <translation>unten links</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="167"/>
