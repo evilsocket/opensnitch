@@ -188,32 +188,50 @@ func (l *Loader) addUserRule(rule *Rule) {
 	l.replaceUserRule(rule)
 }
 
-func (l *Loader) replaceUserRule(rule *Rule) {
-	l.Lock()
-	if rule.Operator.Type == List {
-		if err := json.Unmarshal([]byte(rule.Operator.Data), &rule.Operator.List); err != nil {
-			log.Error("Error loading rule of type list: %s", err)
+func (l *Loader) replaceUserRule(rule *Rule) (err error) {
+	if oldRule, found := l.rules[rule.Name]; found {
+		// The rule has changed from Always (saved on disk) to !Always (temporary), so
+		// we need to delete the rule from disk and keep it in memory.
+		if oldRule.Duration == Always && rule.Duration != Always {
+			// Log the error if we can't delete the rule from disk, but don't exit here,
+			// modify the existing rule to a non-persistent rule.
+			if err = l.Delete(oldRule.Name); err != nil {
+				log.Error("Error deleting old rule from disk: %s", oldRule.Name)
+			}
 		}
 	}
+	// TODO: allow to delete rules from disk if the user changes the name of the rule.
+
+	l.Lock()
 	l.rules[rule.Name] = rule
 	l.sortRules()
 	l.Unlock()
-
-	if rule.Duration == Restart || rule.Duration == Always {
-		return
+	if rule.Operator.Type == List {
+		// TODO: use List protobuf object insted of un/marshalling to/from json
+		if err = json.Unmarshal([]byte(rule.Operator.Data), &rule.Operator.List); err != nil {
+			return fmt.Errorf("Error loading rule of type list: %s", err)
+		}
 	}
 
-	tTime, err := time.ParseDuration(string(rule.Duration))
+	if rule.Duration == Restart || rule.Duration == Always || rule.Duration == Once {
+		return err
+	}
+
+	var tTime time.Duration
+	tTime, err = time.ParseDuration(string(rule.Duration))
 	if err != nil {
-		return
+		return err
 	}
 
 	time.AfterFunc(tTime, func() {
 		l.Lock()
+		log.Info("Temporary rule expired: %s - %s", rule.Name, rule.Duration)
 		delete(l.rules, rule.Name)
 		l.sortRules()
 		l.Unlock()
 	})
+
+	return err
 }
 
 // Add adds a rule to the list of rules, and optionally saves it to disk.
@@ -228,7 +246,9 @@ func (l *Loader) Add(rule *Rule, saveToDisk bool) error {
 
 // Replace adds a rule to the list of rules, and optionally saves it to disk.
 func (l *Loader) Replace(rule *Rule, saveToDisk bool) error {
-	l.replaceUserRule(rule)
+	if err := l.replaceUserRule(rule); err != nil {
+		return err
+	}
 	if saveToDisk {
 		l.Lock()
 		defer l.Unlock()
