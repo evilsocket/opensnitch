@@ -18,4 +18,5 @@ FORMS += ../opensnitch/res/prompt.ui \
 	    ../opensnitch/res/stats.ui
 TRANSLATIONS += locales/es_ES/opensnitch-es_ES.ts \
                 locales/eu_ES/opensnitch-eu_ES.ts \
-                locales/de_DE/opensnitch-de_DE.ts
+                locales/de_DE/opensnitch-de_DE.ts \
+                locales/pt_BR/opensnitch-pt_BR.ts
