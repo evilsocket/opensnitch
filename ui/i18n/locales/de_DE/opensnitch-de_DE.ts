@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="de_DE" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.0" language="de_DE" sourcelanguage="">
 <context>
     <name>Dialog</name>
     <message>
@@ -1240,12 +1241,12 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
         <source>Exception saving config: %s</source>
-        <translation type="obsolete">Error al guarda la configuración: %s</translation>
+        <translation>Fehler beim Speichern der Konfiguration: %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
         <source>Applying configuration on %s ...</source>
-        <translation type="obsolete">Aplicando configuración en %s ...</translation>
+        <translation>Konfiguration in %s anwenden ...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="196"/>
@@ -1255,7 +1256,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="227"/>
         <source>Error loading %s configuration</source>
-        <translation type="obsolete">Error al cargar la configuración %s</translation>
+        <translation>Fehler beim Laden der Konfiguration %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="255"/>
@@ -1265,27 +1266,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="257"/>
         <source>Error applying configuration: %s</source>
-        <translation type="obsolete">Error al aplicar la configuración: %s</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
-        <source>Exception saving config: {0}</source>
-        <translation>Fehler beim Speichern der Konfiguration: {0}</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
-        <source>Applying configuration on {0} ...</source>
-        <translation>Konfiguration in {0} anwenden ...</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="227"/>
-        <source>Error loading {0} configuration</source>
-        <translation>Fehler beim Laden der Konfiguration {0}</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="257"/>
-        <source>Error applying configuration: {0}</source>
-        <translation>Fehler beim Anwenden der Konfiguration: {0}</translation>
+        <translation>Fehler beim Anwenden der Konfiguration: %s</translation>
     </message>
 </context>
 <context>
@@ -1397,11 +1378,6 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
         <source>User ID regexp error</source>
         <translation>Regexp-Fehler der Benutzer-ID</translation>
     </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="123"/>
-        <source>Error applying rule: {0}</source>
-        <translation>Fehler beim Anwenden der Regel: {0}</translation>
-    </message>
 </context>
 <context>
     <name>stats</name>
@@ -1431,12 +1407,12 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
         <translation type="obsolete">Eventos de OpenSnitch de</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="793"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="794"/>
         <source>    Your are about to delete this rule.    </source>
         <translation>    Sie sind im Begriff, diese Regel zu löschen.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="795"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="796"/>
         <source>    Are you sure?</source>
         <translation>    Bist du sicher?</translation>
     </message>
@@ -1511,7 +1487,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1130"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1131"/>
         <source>Save as CSV</source>
         <translation>Als CSV speichern</translation>
     </message>
@@ -1521,7 +1497,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
         <translation>Aktiviert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="599"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="600"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
@@ -1529,6 +1505,11 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
         <location filename="../../../opensnitch/dialogs/stats.py" line="948"/>
         <source>always</source>
         <translation type="obsolete">siempre</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="571"/>
+        <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;{0}</source>
+        <translation>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;{0}</translation>
     </message>
 </context>
 <context>
