@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="pt_BR">
+<!DOCTYPE TS><TS version="2.0" language="pt_BR" sourcelanguage="">
 <context>
     <name>Dialog</name>
     <message>
@@ -16,7 +15,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="129"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Executed from&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>Executado</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Executado de&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="408"/>
@@ -159,7 +158,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="54"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>Este tempo limite é a contagem regressiva que você vê quando uma caixa de diálogo pop-up é exibida.</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Este tempo limite é a contagem regressiva que você vê quando uma caixa de diálogo pop-up é exibida.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="57"/>
@@ -314,16 +313,12 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="309"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>A duração padrão ocorrerá quando não houver interface do usuário conectada.</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A duração padrão ocorrerá quando não houver interface do usuário conectada.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="319"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it&apos;s a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>Endereço do nó.
-
-Padrão: unix:///tmp/osui.sock (unix:// é obrigatório se for um soquete Unix)
-
-Também pode ser um endereço IP com a porta: 127.0.0.1:50051, 192.168.1.122:12345, etc..</translation>
+        <translation>Endereço do nó.&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Padrão: unix:///tmp/osui.sock (unix:// é obrigatório se for um soquete Unix)&lt;/p&gt;&lt;p&gt;Também pode ser um endereço IP com a porta: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="322"/>
@@ -343,7 +338,7 @@ Também pode ser um endereço IP com a porta: 127.0.0.1:50051, 192.168.1.122:123
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="359"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>A ação padrão ocorrerá quando não houver interface do usuário conectada.</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A ação padrão ocorrerá quando não houver interface do usuário conectada.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="377"/>
@@ -363,9 +358,7 @@ Também pode ser um endereço IP com a porta: 127.0.0.1:50051, 192.168.1.122:123
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="436"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log file to write logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>Arquivo de log para gravar logs.
-
-/dev/stdout irá imprimir registros na saída padrão.</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Arquivo de log para gravar logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout irá imprimir registros na saída padrão.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="439"/>
@@ -405,12 +398,7 @@ Também pode ser um endereço IP com a porta: 127.0.0.1:50051, 192.168.1.122:123
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="480"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, opensnitch will prompt you to allow or deny connections that don&apos;t have an asocciated PID, due to several reasons.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>Se marcado, o opensnitch solicitará que você permita ou negue conexões que não tenham um PID associado, devido a vários motivos.
-
-A caixa de diálogo pop-up conterá apenas informações sobre a conexão de rede.
-
-Nota: Essas conexões não precisam indicar que algo suspeito está acontecendo. Simplesmente
-é que não descobrimos o PID (por exemplo, conexões que não se originam da máquina, ou pacotes ruins).</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Se marcado, o opensnitch solicitará que você permita ou negue conexões que não tenham um PID associado, devido a vários motivos.&lt;/p&gt;&lt;p&gt;A caixa de diálogo pop-up conterá apenas informações sobre a conexão de rede.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="483"/>
@@ -682,7 +670,7 @@ gnu.org         - só vai filtrar gnu.org, não filtrará www.gnu.org, nem ftp.g
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="294"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>Apenas TCP, UDP ou UDPLITE são permitidos. Você pode usar expressão regulares, ou seja: ^(TCP|UDP)$</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apenas TCP, UDP ou UDPLITE são permitidos&lt;/p&gt;&lt;p&gt;Você pode usar expressão regulares, ou seja: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="304"/>
@@ -889,11 +877,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="614"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the field of the rules are case-insensitive, i.e., if a process tries to access gOOgle.CoM and you have a rule to Deny .*google.com, the connection will be blocked.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you check this box, you have to specify the exact string (domain, executable, command line) that you want to filter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>Por padrão, o campo das regras não diferencia maiúsculas de minúsculas, ou seja, 
-se um processo tentar acessar gOOgle.CoM e você tiver uma regra para Negar. *Google.com, a conexão será bloqueada.
-
-Se você marcar esta caixa, deverá especificar a string exata (domínio, executável, linha de comando) que deseja filtrar.
-        </translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Por padrão, o campo das regras não diferencia maiúsculas de minúsculas, ou seja, se um processo tentar acessar gOOgle.CoM e você tiver uma regra para Negar. *Google.com, a conexão será bloqueada.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Se você marcar esta caixa, deverá especificar a string exata (domínio, executável, linha de comando) que deseja filtrar.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="617"/>
@@ -903,13 +887,7 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="507"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>Você pode especificar várias portas usando expressões regulares:
-
-- 53, 80 o 443:
-^(53|80|443)$
-
-- 53, 443 o 5551, 5552, 5553, etc:
-^(53|443|555[0-9])$</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Você pode especificar várias portas usando expressões regulares:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 o 443::&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 o 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -1007,7 +985,7 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="552"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on the Addr column to view details of a node)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>(clique duas vezes na coluna endereço para ver os detalhes de um nó)</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(clique duas vezes na coluna endereço para ver os detalhes de um node)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1489"/>
@@ -1022,7 +1000,7 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="662"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on the Name column to view details of a rule)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>(clique duas vezes na coluna Nome para ver os detalhes de uma regra)</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(clique duas vezes na coluna Nome para ver os detalhes de uma regra)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="681"/>
@@ -1052,7 +1030,7 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1248"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>(clique duas vezes para ver os detalhes de um item)</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(clique duas vezes para ver os detalhes de um item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="906"/>
@@ -1193,17 +1171,17 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="330"/>
         <source>&lt;b&gt;Remote&lt;/b&gt; process %s running on &lt;b&gt;%s&lt;/b&gt;</source>
-        <translation>Processo remoto %s rodando em</translation>
+        <translation>&lt;b&gt;Processo remoto %s rodando em &lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="334"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
-        <translation>está conectando em %s na porta %d</translation>
+        <translation>está conectando a &lt;b&gt;%s&lt;/b&gt; em %s na porta %d</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="340"/>
         <source>is attempting to resolve &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</source>
-        <translation>está tentando resolver via %s, %s porta %d</translation>
+        <translation>está tentando resolver &lt;b&gt;%s&lt;/b&gt; via %s, %s porta %d</translation>
     </message>
 </context>
 <context>
@@ -1246,12 +1224,14 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
         <source>&lt;b&gt;Error loading process information:&lt;/b&gt; &lt;br&gt;&lt;br&gt;
 
 </source>
-        <translation>Erro ao carregar as informações do processo:</translation>
+        <translation>&lt;b&gt;Erro ao carregar as informações do processo:&lt;/b&gt; &lt;br&gt;&lt;br&gt;
+
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/processdetails.py" line="114"/>
         <source>&lt;b&gt;Error stopping monitoring process:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
-        <translation>Erro ao parar o processo de monitoramento</translation>
+        <translation>&lt;b&gt;Erro ao parar o processo de monitoramento:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/processdetails.py" line="159"/>
@@ -1365,12 +1345,12 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
         <translation>Ativado</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="793"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="794"/>
         <source>    Your are about to delete this rule.    </source>
         <translation>    Você está prestes a excluir esta regra.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="795"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="796"/>
         <source>    Are you sure?</source>
         <translation>    Você tem certeza?</translation>
     </message>
@@ -1402,7 +1382,7 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="234"/>
         <source>Hostname</source>
-        <translation>Nome de host</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="235"/>
@@ -1445,7 +1425,7 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
         <translation>Protocolo</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1130"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1131"/>
         <source>Save as CSV</source>
         <translation>Salvar como CSV</translation>
     </message>
@@ -1455,9 +1435,14 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
         <translation>Ativado</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="599"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="600"/>
         <source>Delete</source>
-        <translation>Excluir</translation>
+        <translation>Deletar</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="571"/>
+        <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;{0}</source>
+        <translation>&lt;b&gt;Erro:&lt;/b&gt;&lt;br&gt;&lt;br&gt;{0}</translation>
     </message>
 </context>
 </TS>
