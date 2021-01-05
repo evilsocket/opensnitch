@@ -207,7 +207,7 @@ func (l *Loader) replaceUserRule(rule *Rule) (err error) {
 	l.sortRules()
 	l.Unlock()
 	if rule.Operator.Type == List {
-		// TODO: use List protobuf object insted of un/marshalling to/from json
+		// TODO: use List protobuf object instead of un/marshalling to/from json
 		if err = json.Unmarshal([]byte(rule.Operator.Data), &rule.Operator.List); err != nil {
 			return fmt.Errorf("Error loading rule of type list: %s", err)
 		}
