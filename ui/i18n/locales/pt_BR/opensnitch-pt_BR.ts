@@ -1151,54 +1151,59 @@ Se você marcar esta caixa, deverá especificar a string exata (domínio, execut
         <translation>Processo lançado de:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="258"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="246"/>
         <source>from this executable</source>
         <translation>a partir deste executável</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="260"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="248"/>
         <source>from this command line</source>
         <translation>a partir desta linha de comando</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="222"/>
-        <source>&lt;b&gt;%s&lt;/b&gt; is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="266"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="254"/>
         <source>to port {0}</source>
         <translation>para a porta {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="318"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="306"/>
         <source>to {0}</source>
         <translation>para {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="269"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="257"/>
         <source>from user {0}</source>
         <translation>do usuário {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="282"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="270"/>
         <source>to {0}.*</source>
         <translation>para {0}.*</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="328"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="316"/>
         <source>to *.{0}</source>
         <translation>para *.{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="332"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="320"/>
         <source>to *{0}</source>
         <translation>para *{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="228"/>
-        <source>&lt;b&gt;Remote&lt;/b&gt; process &lt;b&gt;%s&lt;/b&gt; running on &lt;b&gt;%s&lt;/b&gt; is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
-        <translation type="unfinished"></translation>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="330"/>
+        <source>&lt;b&gt;Remote&lt;/b&gt; process %s running on &lt;b&gt;%s&lt;/b&gt;</source>
+        <translation>Processo remoto %s rodando em</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="334"/>
+        <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
+        <translation>está conectando em %s na porta %d</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="340"/>
+        <source>is attempting to resolve &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</source>
+        <translation>está tentando resolver via %s, %s porta %d</translation>
     </message>
 </context>
 <context>
