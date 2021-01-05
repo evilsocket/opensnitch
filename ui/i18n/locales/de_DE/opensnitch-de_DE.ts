@@ -45,7 +45,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="504"/>
         <source>Chromium Web Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Chromium-Webbrowser</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="535"/>
@@ -60,7 +60,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="595"/>
         <source>Chromium Web Browser wants to connect to www.evilsocket.net on tcp port 443. And maybe to www.goodsocket.net on port 344</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Chromium-Webbrowser möchte eine Verbindung zu www.evilsocket.net über TCP-Port 443 herstellen. Und möglicherweise zu www.goodsocket.net über Port 344</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="632"/>
@@ -193,27 +193,27 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="117"/>
         <source>center</source>
-        <translation type="unfinished"></translation>
+        <translation>mittig</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="122"/>
         <source>top right</source>
-        <translation type="unfinished"></translation>
+        <translation>oben rechts</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="127"/>
         <source>bottom right</source>
-        <translation type="unfinished"></translation>
+        <translation>unten rechts</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="132"/>
         <source>top left</source>
-        <translation type="unfinished"></translation>
+        <translation>oben links</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="137"/>
         <source>bottom left</source>
-        <translation type="unfinished"></translation>
+        <translation>unten links</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="167"/>
@@ -1167,12 +1167,12 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
         <translation>Prozess ausgeführt von:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="260"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="248"/>
         <source>from this command line</source>
         <translation>von dieser Kommandozeile</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="258"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="246"/>
         <source>from this executable</source>
         <translation>von dieser ausführbaren Datei</translation>
     </message>
@@ -1187,7 +1187,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
         <translation>Bis zum Neustart</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="266"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="254"/>
         <source>to port {0}</source>
         <translation>zum Port {0}</translation>
     </message>
@@ -1202,29 +1202,44 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
         <translation>&lt;b&gt;Remote-Prozess &lt;b&gt;%s&lt;/b&gt;, der auf &lt;b&gt;%s&lt;/b&gt; ausgeführt wird, stellt eine Verbindung zu &lt;b&gt;%s&lt;/b&gt; auf %s Port %d her</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="318"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="306"/>
         <source>to {0}</source>
         <translation>zu {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="269"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="257"/>
         <source>from user {0}</source>
         <translation>UID {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="282"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="270"/>
         <source>to {0}.*</source>
         <translation>zu {0}.*</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="328"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="316"/>
         <source>to *.{0}</source>
         <translation>zu *.{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="332"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="320"/>
         <source>to *{0}</source>
         <translation>zu *{0}</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="330"/>
+        <source>&lt;b&gt;Remote&lt;/b&gt; process %s running on &lt;b&gt;%s&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Remote-Prozess &lt;/b&gt; %s wird ausgeführt auf &lt;b&gt;%s&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="334"/>
+        <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
+        <translation>stellt eine Verbindung zu &lt;b&gt;%s&lt;/b&gt; auf %s Port %d her</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="340"/>
+        <source>is attempting to resolve &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</source>
+        <translation>versucht &lt;b&gt;%s&lt;/b&gt; über%s,%s Port%d aufzulösen</translation>
     </message>
 </context>
 <context>
@@ -1240,12 +1255,12 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
         <source>Exception saving config: %s</source>
-        <translation type="obsolete">Error al guarda la configuración: %s</translation>
+        <translation>Fehler beim Speichern der Konfiguration: %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
         <source>Applying configuration on %s ...</source>
-        <translation type="obsolete">Aplicando configuración en %s ...</translation>
+        <translation>Konfiguration in %s anwenden ...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="196"/>
@@ -1255,7 +1270,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="227"/>
         <source>Error loading %s configuration</source>
-        <translation type="obsolete">Error al cargar la configuración %s</translation>
+        <translation>Fehler beim Laden der Konfiguration %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="255"/>
@@ -1265,27 +1280,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="257"/>
         <source>Error applying configuration: %s</source>
-        <translation type="obsolete">Error al aplicar la configuración: %s</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
-        <source>Exception saving config: {0}</source>
-        <translation>Fehler beim Speichern der Konfiguration: {0}</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
-        <source>Applying configuration on {0} ...</source>
-        <translation>Konfiguration in {0} anwenden ...</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="227"/>
-        <source>Error loading {0} configuration</source>
-        <translation>Fehler beim Laden der Konfiguration {0}</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="257"/>
-        <source>Error applying configuration: {0}</source>
-        <translation>Fehler beim Anwenden der Konfiguration: {0}</translation>
+        <translation>Fehler beim Anwenden der Konfiguration: %s</translation>
     </message>
 </context>
 <context>
@@ -1325,7 +1320,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="123"/>
         <source>Error applying rule: %s</source>
-        <translation type="obsolete">Error al aplicar la regla: %s</translation>
+        <translation>Fehler beim Anwenden der Regel:%s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="343"/>
@@ -1396,11 +1391,6 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="480"/>
         <source>User ID regexp error</source>
         <translation>Regexp-Fehler der Benutzer-ID</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="123"/>
-        <source>Error applying rule: {0}</source>
-        <translation>Fehler beim Anwenden der Regel: {0}</translation>
     </message>
 </context>
 <context>
