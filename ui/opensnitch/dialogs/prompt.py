@@ -218,19 +218,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
         self.iconLabel.setPixmap(pixmap)
 
-        if self._local:
-            message = QtCore.QCoreApplication.translate("popups", "<b>%s</b> is connecting to <b>%s</b> on %s port %d") % ( \
-                        app_name,
-                        con.dst_host or con.dst_ip,
-                        con.protocol,
-                        con.dst_port )
-        else:
-            message = QtCore.QCoreApplication.translate("popups", "<b>Remote</b> process <b>%s</b> running on <b>%s</b> is connecting to <b>%s</b> on %s port %d") % ( \
-                        app_name,
-                        self._peer.split(':')[1],
-                        con.dst_host or con.dst_ip,
-                        con.protocol,
-                        con.dst_port )
+        message = self._get_popup_message(app_name, con)
 
         self.messageLabel.setText(message)
         self.messageLabel.setToolTip(message)
@@ -330,6 +318,32 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if nparts == 1:
             self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "to *{0}").format(dst_host), self.FIELD_REGEX_HOST)
             self.whatIPCombo.addItem(QtCore.QCoreApplication.translate("popups", "to *{0}").format(dst_host), self.FIELD_REGEX_HOST)
+
+    def _get_popup_message(self, app_name, con):
+        """
+        _get_popup_message helps constructing the message that is displayed on
+        the pop-up dialog. Example:
+            curl is connecting to www.opensnitch.io on TCP port 443
+        """
+        message = "<b>%s</b>" % app_name
+        if not self._local:
+            message = QtCore.QCoreApplication.translate("popups", "<b>Remote</b> process %s running on <b>%s</b>") % ( \
+                message,
+                self._peer.split(':')[1])
+
+        msg_action = QtCore.QCoreApplication.translate("popups", "is connecting to <b>%s</b> on %s port %d") % ( \
+            con.dst_host or con.dst_ip,
+            con.protocol.upper(),
+            con.dst_port )
+
+        if con.dst_port == 53 and con.dst_ip != con.dst_host and con.dst_host != "":
+            msg_action = QtCore.QCoreApplication.translate("popups", "is attempting to resolve <b>%s</b> via %s, %s port %d") % ( \
+                con.dst_host,
+                con.dst_ip,
+                con.protocol.upper(),
+                con.dst_port)
+
+        return "%s %s" % (message, msg_action)
 
     def _get_duration(self, duration_idx):
         if duration_idx == 0:
