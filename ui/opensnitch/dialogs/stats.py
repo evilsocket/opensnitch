@@ -14,7 +14,7 @@ from dialogs.preferences import PreferencesDialog
 from dialogs.ruleseditor import RulesEditorDialog
 from dialogs.processdetails import ProcessDetailsDialog
 from customwidgets import ColorizedDelegate, ConnectionsTableModel
-
+from utils import Message
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -572,11 +572,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         #print("[stats dialog] notification reply: ", reply.id, reply.code)
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.ERROR:
-                msgBox = QtWidgets.QMessageBox()
-                msgBox.setText(QtCore.QCoreApplication.translate("stats", "<b>Error:</b><br><br>{0}").format(reply.data))
-                msgBox.setIcon(QtWidgets.QMessageBox.Warning)
-                msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
-                msgBox.exec_()
+                Message.ok(
+                    QtCore.QCoreApplication.translate("stats", "<b>Error:</b><br><br>{0}").format(reply.data),
+                    "",
+                    QtWidgets.QMessageBox.Warning)
 
         else:
             print("[stats] unknown notification received: ", self._notifications_sent[reply.id].type)
@@ -609,6 +608,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             action = menu.exec_(table.mapToGlobal(point))
 
             if action == _table_menu_delete:
+                ret = Message.yes_no(
+                    QtCore.QCoreApplication.translate("stats", "    Your are about to delete this rule.    "),
+                    QtCore.QCoreApplication.translate("stats", "    Are you sure?"),
+                    QtWidgets.QMessageBox.Warning)
+                if ret == QtWidgets.QMessageBox.Cancel:
+                    return
                 self._table_menu_delete(row, column)
 
         self._context_menu_active = False
@@ -790,13 +795,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._rules_dialog.edit_rule(records, self.nodeRuleLabel.text())
 
     def _cb_del_rule_clicked(self):
-        msgBox = QtWidgets.QMessageBox()
-        msgBox.setText(QtCore.QCoreApplication.translate("stats", "    Your are about to delete this rule.    "))
-        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
-        msgBox.setInformativeText(QtCore.QCoreApplication.translate("stats", "    Are you sure?"))
-        msgBox.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Yes)
-        msgBox.setDefaultButton(QtWidgets.QMessageBox.Save)
-        ret = msgBox.exec_()
+        ret = Message.yes_no(
+            QtCore.QCoreApplication.translate("stats", "    Your are about to delete this rule.    "),
+            QtCore.QCoreApplication.translate("stats", "    Are you sure?"),
+            QtWidgets.QMessageBox.Warning)
         if ret == QtWidgets.QMessageBox.Cancel:
             return
 

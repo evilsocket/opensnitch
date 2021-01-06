@@ -7,6 +7,7 @@ from PyQt5 import QtCore, QtGui, uic, QtWidgets
 import ui_pb2
 from nodes import Nodes
 from desktop_parser import LinuxDesktopParser
+from utils import Message
 
 DIALOG_UI_PATH = "%s/../res/process_details.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -140,12 +141,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             self.cmdAction.setIcon(self.iconPause)
             self._start_monitoring()
 
-    def _show_message(self, message):
-        msgBox = QtWidgets.QMessageBox()
-        msgBox.setText(message)
-        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
-        msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
-        msgBox.exec_()
+    def _show_message(self, text):
+        Message.ok(text, "", QtWidgets.QMessageBox.Warning)
 
     def _delete_notification(self, nid):
         if nid in self._notifications_sent:
