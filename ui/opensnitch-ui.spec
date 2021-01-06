@@ -94,6 +94,8 @@ fi
 
 
 %build
+cd i18n; make; cd ..
+cp -r i18n/locales/ opensnitch/i18n
 python3 setup.py build
 
 %install

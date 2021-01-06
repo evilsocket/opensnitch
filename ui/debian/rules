@@ -8,6 +8,7 @@
 
 
 override_dh_auto_clean:
+	rm -rf opensnitch/i18n/
 	python3 setup.py clean -a
 	find . -name \*.pyc -exec rm {} \;
 
@@ -19,6 +20,8 @@ override_dh_auto_build:
 
 
 override_dh_auto_install:
+	cd i18n; make
+	cp -r i18n/locales/ opensnitch/i18n/
 	python3 setup.py install --force --root=debian/python3-opensnitch-ui --no-compile -O0 --install-layout=deb  
 
 
