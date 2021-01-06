@@ -96,6 +96,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
+                "cmdCleanStats": None,
                 "view": None,
                 "filterLine": None,
                 "model": None,
@@ -119,6 +120,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
+                "cmdCleanStats": None,
                 "view": None,
                 "filterLine": None,
                 "model": None,
@@ -145,6 +147,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
+                "cmdCleanStats": None,
                 "view": None,
                 "filterLine": None,
                 "model": None,
@@ -158,6 +161,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
+                "cmdCleanStats": None,
                 "view": None,
                 "filterLine": None,
                 "model": None,
@@ -171,6 +175,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
+                "cmdCleanStats": None,
                 "view": None,
                 "filterLine": None,
                 "model": None,
@@ -184,6 +189,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
+                "cmdCleanStats": None,
                 "view": None,
                 "filterLine": None,
                 "model": None,
@@ -197,6 +203,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
+                "cmdCleanStats": None,
                 "view": None,
                 "filterLine": None,
                 "model": None,
@@ -210,6 +217,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "label": None,
                 "tipLabel": None,
                 "cmd": None,
+                "cmdCleanStats": None,
                 "view": None,
                 "filterLine": None,
                 "model": None,
@@ -280,12 +288,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.saveButton.clicked.connect(self._on_save_clicked)
         self.comboAction.currentIndexChanged.connect(self._cb_combo_action_changed)
         self.limitCombo.currentIndexChanged.connect(self._cb_limit_combo_changed)
-        self.cmdCleanSql.clicked.connect(self._cb_clean_sql_clicked)
-        self.cmdCleanHosts.clicked.connect(self._cb_clean_sql_clicked)
-        self.cmdCleanProcs.clicked.connect(self._cb_clean_sql_clicked)
-        self.cmdCleanAddrs.clicked.connect(self._cb_clean_sql_clicked)
-        self.cmdCleanPorts.clicked.connect(self._cb_clean_sql_clicked)
-        self.cmdCleanUsers.clicked.connect(self._cb_clean_sql_clicked)
         self.tabWidget.currentChanged.connect(self._cb_tab_changed)
         self.delRuleButton.clicked.connect(self._cb_del_rule_clicked)
         self.rulesSplitter.splitterMoved.connect(self._cb_rules_splitter_moved)
@@ -372,6 +374,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_ADDRS]['cmdCleanStats'] = self.cmdCleanAddrs
         self.TABLES[self.TAB_PORTS]['cmdCleanStats'] = self.cmdCleanPorts
         self.TABLES[self.TAB_USERS]['cmdCleanStats'] = self.cmdCleanUsers
+        self.TABLES[self.TAB_MAIN]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(self.TAB_MAIN))
 
         self.TABLES[self.TAB_MAIN]['filterLine'] = self.filterLine
         self.TABLES[self.TAB_RULES]['filterLine'] = self.rulesFilterLine
@@ -388,6 +391,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         for idx in range(1,8):
             self.TABLES[idx]['cmd'].hide()
             self.TABLES[idx]['cmd'].clicked.connect(lambda: self._cb_cmd_back_clicked(idx))
+            if self.TABLES[idx]['cmdCleanStats'] != None:
+                self.TABLES[idx]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(idx))
             self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
             self.TABLES[idx]['label'].setStyleSheet('color: blue; font-size:9pt; font-weight:600;')
             if self.TABLES[idx]['filterLine'] != None:
@@ -448,7 +453,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogResetButton")))
         for idx in range(1,8):
             self.TABLES[idx]['cmd'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowLeft")))
-            if "cmdCleanStats" in self.TABLES[idx]:
+            if self.TABLES[idx]['cmdCleanStats'] != None:
                 self.TABLES[idx]['cmdCleanStats'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogResetButton")))
 
     def _load_settings(self):
@@ -646,13 +651,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings("statsDialog/general_filter_text", text)
             self._set_events_query()
             return
-        elif cur_idx == StatsDialog.TAB_RULES:
-            qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + " WHERE " + \
-                    " name LIKE '%" + text + "%'" + self._get_order()
-        elif cur_idx == StatsDialog.TAB_HOSTS or cur_idx == StatsDialog.TAB_PROCS or \
-             cur_idx == StatsDialog.TAB_ADDRS or cur_idx == StatsDialog.TAB_PORTS:
-            qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + " WHERE " + \
-                    " what LIKE '%" + text + "%'" + self._get_order()
+
+        where_clause = self._get_filter_line_clause(cur_idx, text)
+        qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + \
+            where_clause + self._get_order()
 
         if qstr != None:
             self.setQuery(model, qstr)
@@ -667,7 +669,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings("statsDialog/general_filter_action", idx)
         self._set_events_query()
 
-    def _cb_clean_sql_clicked(self):
+    def _cb_clean_sql_clicked(self, idx):
         self._db.clean(self.TABLES[self.tabWidget.currentIndex()]['name'])
         self._refresh_active_table()
 
@@ -676,11 +678,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._set_active_widgets(False)
         if cur_idx == StatsDialog.TAB_RULES:
             self._restore_rules_tab_widgets(True)
+            # return here and now, the query is set via set_rules_filter()
+            return
         elif cur_idx == StatsDialog.TAB_PROCS:
             self.cmdProcDetails.setVisible(False)
 
         model = self._get_active_table().model()
-        self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields']) + self._get_order())
+        where_clause = ""
+        if self.TABLES[cur_idx]['filterLine'] != None:
+            filter_text = self.TABLES[cur_idx]['filterLine'].text()
+            where_clause = self._get_filter_line_clause(cur_idx, filter_text)
+
+        self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields']) + where_clause + " " + self._get_order())
 
     def _cb_main_table_double_clicked(self, row):
         data = row.data()
@@ -738,23 +747,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         """
         Event fired when the user clicks on the left panel of the rules tab
         """
-        model = self.rulesTreePanel.indexFromItem(item, col)
+        item_model = self.rulesTreePanel.indexFromItem(item, col)
         parent = item.parent()
         parent_row = -1
         if parent != None:
             parent_model = self.rulesTreePanel.indexFromItem(parent, col)
             parent_row = parent_model.row()
 
-        if parent_row == -1:
-            if model.row() == self.RULES_TREE_APPS:
-                self._set_rules_filter(section=self.FILTER_TREE_APPS, what="")
-        elif parent_row == self.RULES_TREE_APPS:
-            if model.row() == self.RULES_TREE_PERMANENT:
-                self._set_rules_filter(section=self.FILTER_TREE_APPS, what=self.RULES_TYPE_PERMANENT)
-            elif model.row() == self.RULES_TREE_TEMPORARY:
-                self._set_rules_filter(section=self.FILTER_TREE_APPS, what=self.RULES_TYPE_TEMPORARY)
-        elif parent_row == self.RULES_TREE_NODES:
-            self._set_rules_filter(section=self.FILTER_TREE_NODES, what=item.text(0))
+        self._set_rules_filter(parent_row, item_model.row(), item.text(0))
 
     def _cb_rules_splitter_moved(self, pos, index):
         self._cfg.setSettings("statsDialog/rules_splitter_pos", self.rulesSplitter.saveState())
@@ -842,6 +842,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             for n in self._nodes.get_nodes():
                 nodesItem.addChild(QtWidgets.QTreeWidgetItem([n]))
 
+    def _get_filter_line_clause(self, idx, text):
+        if text == "":
+            return ""
+
+        if idx == StatsDialog.TAB_RULES:
+            return " WHERE rules.name LIKE '%{0}%' ".format(text)
+        elif idx == StatsDialog.TAB_HOSTS or idx == StatsDialog.TAB_PROCS or \
+             idx == StatsDialog.TAB_ADDRS or idx == StatsDialog.TAB_PORTS:
+            return " WHERE what LIKE '%{0}%' ".format(text)
+
+        return ""
+
     def _get_limit(self):
         return " " + self.LIMITS[self.limitCombo.currentIndex()]
 
@@ -877,6 +889,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeRuleLabel.setText("")
         self.rulesFilterLine.setVisible(active)
         self.rulesTreePanel.setVisible(active)
+
+        if active:
+            items = self.rulesTreePanel.selectedItems()
+            if len(items) == 0:
+                self._set_rules_filter()
+                return
+
+            item_m = self.rulesTreePanel.indexFromItem(items[0], 0)
+            parent = item_m.parent()
+            if parent != None:
+                self._set_rules_filter(parent.row(), item_m.row(), "")
 
     def _set_rules_tab_active(self, row, cur_idx):
         data = row.data()
@@ -942,15 +965,43 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_PROTOCOL,
                           data, s, self._get_order()))
 
-    def _set_rules_filter(self, section=FILTER_TREE_APPS, what=""):
+    def _set_rules_filter(self, parent_row=-1, item_row=0, what=""):
+        section = self.FILTER_TREE_APPS
+
+        if parent_row == -1:
+            if item_row == self.RULES_TREE_APPS:
+                section=self.FILTER_TREE_APPS
+                what=""
+            elif item_row == self.RULES_TREE_NODES:
+                section=self.FILTER_TREE_NODES
+                what=""
+
+        elif parent_row == self.RULES_TREE_APPS:
+            if item_row == self.RULES_TREE_PERMANENT:
+                section=self.FILTER_TREE_APPS
+                what=self.RULES_TYPE_PERMANENT
+            elif item_row == self.RULES_TREE_TEMPORARY:
+                section=self.FILTER_TREE_APPS
+                what=self.RULES_TYPE_TEMPORARY
+
+        elif parent_row == self.RULES_TREE_NODES:
+            section=self.FILTER_TREE_NODES
 
         if section == self.FILTER_TREE_APPS:
             if what == self.RULES_TYPE_PERMANENT:
-                what = "WHERE r.duration = 'always'"
+                what = "WHERE r.duration = '%s'" % Config.DURATION_ALWAYS
             if what == self.RULES_TYPE_TEMPORARY:
-                what = "WHERE r.duration != 'always'"
+                what = "WHERE r.duration != '%s'" % Config.DURATION_ALWAYS
         elif section == self.FILTER_TREE_NODES:
             what = "WHERE r.node = '%s'" % what
+
+        filter_text = self.TABLES[self.TAB_RULES]['filterLine'].text()
+        if filter_text != "":
+            if what == "":
+                what = "WHERE"
+            else:
+                what = what + " AND"
+            what = what + " r.name LIKE '%{0}%'".format(filter_text)
 
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT * FROM rules as r %s ORDER BY name ASC" % what)
