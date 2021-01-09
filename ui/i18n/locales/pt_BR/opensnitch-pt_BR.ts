@@ -145,7 +145,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="706"/>
         <source>until reboot</source>
-        <translation type="unfinished">até reiniciar</translation>
+        <translation>até reiniciar</translation>
     </message>
 </context>
 <context>
@@ -488,7 +488,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="240"/>
         <source>until reboot</source>
-        <translation type="unfinished">até reiniciar</translation>
+        <translation>até reiniciar</translation>
     </message>
 </context>
 <context>
@@ -902,7 +902,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="230"/>
         <source>until reboot</source>
-        <translation type="unfinished">até reiniciar</translation>
+        <translation>até reiniciar</translation>
     </message>
 </context>
 <context>
@@ -1090,32 +1090,32 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="439"/>
         <source>Delete all intercepted events</source>
-        <translation type="unfinished"></translation>
+        <translation>Excluir todos os eventos interceptados</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="612"/>
         <source>Edit rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar regra</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="626"/>
         <source>Delete rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Excluir regra</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="878"/>
         <source>Delete all intercepted hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Excluir todos os hosts interceptadas</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1003"/>
         <source>Delete all intercepted applications</source>
-        <translation type="unfinished"></translation>
+        <translation>Excluir todos os aplicativos interceptadas</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1099"/>
         <source>Delete all intercepted addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Excluir todos os endereços interceptados</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1189"/>
@@ -1133,7 +1133,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/service.py" line="120"/>
         <source>Statistics</source>
-        <translation>Estatisticas</translation>
+        <translation>Estatísticas</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/service.py" line="126"/>
