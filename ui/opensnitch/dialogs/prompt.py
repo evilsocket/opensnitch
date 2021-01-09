@@ -384,13 +384,20 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         elif combo.itemData(what_idx) == self.FIELD_DST_NETWORK:
             # strip "to ": "to x.x.x/20" -> "x.x.x/20"
-            return "network", "dest.network", combo.currentText()[3:]
+            # we assume that to is one word in all languages
+            parts = combo.currentText().split(' ')
+            text = parts[len(parts)-1]
+            return "network", "dest.network", text
 
         elif combo.itemData(what_idx) == self.FIELD_REGEX_HOST:
-            return "regexp", "dest.host", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
+            parts = combo.currentText().split(' ')
+            text = parts[len(parts)-1]
+            return "regexp", "dest.host", "%s" % '\.'.join(text.split('.')).replace("*", ".*")
 
         elif combo.itemData(what_idx) == self.FIELD_REGEX_IP:
-            return "regexp", "dest.ip", "%s" % '\.'.join(combo.currentText().split('.')).replace("*", ".*")[3:]
+            parts = combo.currentText().split(' ')
+            text = parts[len(parts)-1]
+            return "regexp", "dest.ip", "%s" % '\.'.join(text.split('.')).replace("*", ".*")
 
     def _on_deny_clicked(self):
         self._default_action = self.ACTION_IDX_DENY
