@@ -703,7 +703,7 @@
        </item>
        <item>
         <property name="text">
-         <string>for this session</string>
+         <string>until reboot</string>
         </property>
        </item>
        <item>

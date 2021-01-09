@@ -227,7 +227,7 @@
         </item>
         <item>
          <property name="text">
-          <string>until restart</string>
+          <string>until reboot</string>
          </property>
         </item>
         <item>
@@ -469,7 +469,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
           </property>
           <property name="icon">
            <iconset theme="emblem-important">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -492,7 +492,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
           </property>
           <property name="icon">
            <iconset theme="emblem-default">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
          </widget>
         </item>
@@ -557,7 +557,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
       <string/>
      </property>
      <property name="wordWrap">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
     </widget>
    </item>

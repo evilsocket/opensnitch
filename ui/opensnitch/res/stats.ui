@@ -435,6 +435,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="cmdCleanSql">
+           <property name="toolTip">
+            <string>Delete all intercepted events</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -605,6 +608,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="editRuleButton">
+           <property name="toolTip">
+            <string>Edit rule</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -616,6 +622,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="delRuleButton">
+           <property name="toolTip">
+            <string>Delete rule</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -865,6 +874,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="cmdCleanHosts">
+           <property name="toolTip">
+            <string>Delete all intercepted hosts</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -987,6 +999,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="cmdCleanProcs">
+           <property name="toolTip">
+            <string>Delete all intercepted applications</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -1080,6 +1095,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="cmdCleanAddrs">
+           <property name="toolTip">
+            <string>Delete all intercepted addresses</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -1167,6 +1185,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="cmdCleanPorts">
+           <property name="toolTip">
+            <string>Delete all intercepted ports</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -1264,6 +1285,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="cmdCleanUsers">
+           <property name="toolTip">
+            <string>Delete all intercepted users</string>
+           </property>
            <property name="text">
             <string/>
            </property>
