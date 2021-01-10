@@ -42,7 +42,6 @@ var (
 	rulesChecker             *time.Ticker
 	rulesCheckerChan         = make(chan bool)
 	regexRulesQuery, _       = regexp.Compile(`NFQUEUE.*ctstate NEW,RELATED.*NFQUEUE num.*bypass`)
-	regexDropQuery, _        = regexp.Compile(`DROP.*mark match 0x18ba5`)
 	regexSystemRulesQuery, _ = regexp.Compile(systemRulePrefix + ".*")
 
 	systemChains = make(map[string]*fwRule)
@@ -107,17 +106,6 @@ func QueueConnections(enable bool, logError bool, qNum int) (err4, err6 error) {
 	})
 }
 
-// DropMarked rejects packets marked by OpenSnitch.
-// OUTPUT -m mark --mark 101285 -j DROP
-func DropMarked(enable bool, logError bool) (err4, err6 error) {
-	return RunRule(ADD, enable, logError, []string{
-		"OUTPUT",
-		"-m", "mark",
-		"--mark", fmt.Sprintf("%d", DropMark),
-		"-j", "DROP",
-	})
-}
-
 // CreateSystemRule create the custom firewall chains and adds them to system.
 func CreateSystemRule(rule *fwRule, logErrors bool) {
 	chainName := systemRulePrefix + "-" + rule.Chain
@@ -171,23 +159,14 @@ func AreRulesLoaded() bool {
 	lock.Lock()
 	defer lock.Unlock()
 
-	var outDrop6 string
 	var outMangle6 string
 
-	outDrop, err := core.Exec("iptables", []string{"-n", "-L", "OUTPUT"})
-	if err != nil {
-		return false
-	}
 	outMangle, err := core.Exec("iptables", []string{"-n", "-L", "OUTPUT", "-t", "mangle"})
 	if err != nil {
 		return false
 	}
 
 	if core.IPv6Enabled {
-		outDrop6, err = core.Exec("ip6tables", []string{"-n", "-L", "OUTPUT"})
-		if err != nil {
-			return false
-		}
 		outMangle6, err = core.Exec("ip6tables", []string{"-n", "-L", "OUTPUT", "-t", "mangle"})
 		if err != nil {
 			return false
@@ -214,13 +193,11 @@ func AreRulesLoaded() bool {
 		}
 	}
 
-	result := regexDropQuery.FindString(outDrop) != "" &&
-		regexRulesQuery.FindString(outMangle) != "" &&
+	result := regexRulesQuery.FindString(outMangle) != "" &&
 		systemRulesLoaded
 
 	if core.IPv6Enabled {
-		result = result && regexDropQuery.FindString(outDrop6) != "" &&
-			regexRulesQuery.FindString(outMangle6) != ""
+		result = result && regexRulesQuery.FindString(outMangle6) != ""
 	}
 
 	return result
@@ -267,7 +244,6 @@ func IsRunning() bool {
 func CleanRules(logErrors bool) {
 	QueueDNSResponses(false, logErrors, queueNum)
 	QueueConnections(false, logErrors, queueNum)
-	DropMarked(false, logErrors)
 	DeleteSystemRules(true, logErrors)
 }
 
@@ -276,8 +252,6 @@ func insertRules() {
 		log.Error("Error while running DNS firewall rule: %s", err4, err6)
 	} else if err4, err6 = QueueConnections(true, true, queueNum); err4 != nil || err6 != nil {
 		log.Fatal("Error while running conntrack firewall rule: %s", err4, err6)
-	} else if err4, err6 = DropMarked(true, true); err4 != nil || err6 != nil {
-		log.Fatal("Error while running drop firewall rule: %s", err4, err6)
 	}
 }
 
