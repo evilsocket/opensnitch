@@ -5,7 +5,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="40"/>
         <source>opensnitch-qt</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenSnitch Firewall</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="95"/>
@@ -55,7 +55,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="563"/>
         <source>(/path/to/bin/chromium)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Pfad/zur/bin/chromium)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="595"/>
@@ -145,7 +145,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="706"/>
         <source>until reboot</source>
-        <translation type="unfinished">Bis zum Neustart</translation>
+        <translation>bis zum Neustart</translation>
     </message>
 </context>
 <context>
@@ -163,7 +163,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="54"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>Dieses Zeitlimit ist der Countdown, der angezeigt wird, wenn ein Popup-Fenster angezeigt wird.</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dieses Zeitlimit ist der Countdown, der angezeigt wird, wenn ein Popup-Fenster angezeigt wird.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="57"/>
@@ -173,7 +173,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="64"/>
         <source>Pop-up default duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Popup-Standarddauer</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="312"/>
@@ -183,7 +183,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="74"/>
         <source>Pop-up default action</source>
-        <translation type="unfinished"></translation>
+        <translation>Popup-Standardaktion</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="362"/>
@@ -319,7 +319,7 @@ nur eine Warnung anzeigen</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="309"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>Die Standarddauer gilt, wenn keine Benutzeroberfläche verbunden ist.</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Die Standarddauer gilt, wenn keine Benutzeroberfläche verbunden ist.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="319"/>
@@ -481,7 +481,7 @@ Knoten an</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="669"/>
         <source>/path/to/the/file.db</source>
-        <translation type="unfinished"></translation>
+        <translation>/Pfad/zu/der/Datei.db</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="695"/>
@@ -501,7 +501,7 @@ Knoten an</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="240"/>
         <source>until reboot</source>
-        <translation type="unfinished">Bis zum Neustart</translation>
+        <translation>Bis zum Neustart</translation>
     </message>
 </context>
 <context>
@@ -926,7 +926,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="230"/>
         <source>until reboot</source>
-        <translation type="unfinished">Bis zum Neustart</translation>
+        <translation>Bis zum Neustart</translation>
     </message>
 </context>
 <context>
@@ -1114,42 +1114,42 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="439"/>
         <source>Delete all intercepted events</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen Sie alle abgefangenen Ereignisse</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="612"/>
         <source>Edit rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Regel bearbeiten</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="626"/>
         <source>Delete rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Regel löschen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="878"/>
         <source>Delete all intercepted hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen Sie alle abgefangenen Hosts</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1003"/>
         <source>Delete all intercepted applications</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen Sie alle abgefangenen Anwendungen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1099"/>
         <source>Delete all intercepted addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen Sie alle abgefangenen Adressen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1189"/>
         <source>Delete all intercepted ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen Sie alle abgefangenen Ports</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1289"/>
         <source>Delete all intercepted users</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen Sie alle abgefangenen Benutzer</translation>
     </message>
 </context>
 <context>
@@ -1340,22 +1340,22 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="171"/>
         <source>Exception saving config: {0}</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Speichern der Konfiguration: {0}</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="177"/>
         <source>Applying configuration on {0} ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguration in {0} anwenden ...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="227"/>
         <source>Error loading {0} configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Laden der Konfiguration {0}</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="257"/>
         <source>Error applying configuration: {0}</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Anwenden der Konfiguration: {0}</translation>
     </message>
 </context>
 <context>
@@ -1470,7 +1470,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="123"/>
         <source>Error applying rule: {0}</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Anwenden der Regel: {0}</translation>
     </message>
 </context>
 <context>
@@ -1603,7 +1603,7 @@ die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).</trans
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="575"/>
         <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;{0}</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;{0}</translation>
     </message>
 </context>
 <context>
