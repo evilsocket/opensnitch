@@ -482,7 +482,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if type(rules_splitter_pos) == QtCore.QByteArray:
             self.rulesSplitter.restoreState(rules_splitter_pos)
         else:
-            self.rulesSplitter.setSizes([200, self.rulesSplitter.width() - 200])
+            w = self.rulesSplitter.width()
+            self.rulesSplitter.setSizes([w/4, w/2])
 
         header = self.eventsTable.horizontalHeader()
         header.blockSignals(True);
