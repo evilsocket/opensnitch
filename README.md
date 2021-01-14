@@ -21,7 +21,3 @@ Please, refer to [the documentation](https://github.com/gustavo-iniguez-goya/ope
 ### Contributors
 
 [See the list](https://github.com/gustavo-iniguez-goya/opensnitch/graphs/contributors)
-
-### Disclaimer
-
-THIS SOFTWARE IS A WORK IN PROGRESS, DO NOT EXPECT IT TO BE BUG FREE AND DO NOT RELY ON IT FOR ANY TYPE OF SECURITY.
