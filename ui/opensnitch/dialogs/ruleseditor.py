@@ -450,6 +450,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self.rule.operator.type = "network"
 
                 if self._is_regex(dstIPtext):
+                    self.rule.operator.operand = "dest.ip"
                     self.rule.operator.type = "regexp"
                     if self._is_valid_regex(self.dstIPCombo.currentText()) == False:
                         return False, QtCore.QCoreApplication.translate("rules", "Dst IP regexp error")

@@ -3,6 +3,7 @@ package rule
 import (
 	"fmt"
 	"net"
+	"reflect"
 	"regexp"
 	"strings"
 
@@ -122,6 +123,10 @@ func (o *Operator) simpleCmp(v interface{}) bool {
 }
 
 func (o *Operator) reCmp(v interface{}) bool {
+	if vt := reflect.ValueOf(v).Kind(); vt != reflect.String {
+		log.Warning("Operator.reCmp() bad interface type: %T", v)
+		return false
+	}
 	if o.Sensitive == false {
 		v = strings.ToLower(v.(string))
 	}
