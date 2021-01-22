@@ -119,7 +119,7 @@ class Nodes():
         peer = peer.split(":")
         # WA for backward compatibility
         if peer[0] == "unix" and peer[1] == "":
-            peer[1] = "local"
+            peer[1] = "/local"
         return peer[0], peer[1]
 
     def get_notifications(self):

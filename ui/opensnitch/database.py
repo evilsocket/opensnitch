@@ -188,28 +188,29 @@ class Database:
 
         return False
 
-    def insert(self, table, fields, columns, update_field=None, update_value=None, action_on_conflict="REPLACE"):
+    def insert(self, table, fields, columns, update_field=None, update_values=None, action_on_conflict="REPLACE"):
         if update_field != None:
             action_on_conflict = ""
+        else:
+            action_on_conflict = "OR " + action_on_conflict
 
-        qstr = "INSERT OR " + action_on_conflict + " INTO " + table + " " + fields + " VALUES("
+        qstr = "INSERT " + action_on_conflict + " INTO " + table + " " + fields + " VALUES("
         update_fields=""
         for col in columns:
             qstr += "?,"
         qstr = qstr[0:len(qstr)-1] + ")"
 
         if update_field != None:
-            for field in fields:
-                update_fields += str(field) + "=excluded." + str(field)
+            qstr += " ON CONFLICT (" + update_field + ") DO UPDATE SET "
+            for idx, field in enumerate(update_values):
+                qstr += str(field) + "=excluded." + str(field) + ","
 
-            qstr += " ON CONFLICT(" + update_field + ") DO UPDATE SET " + \
-                update_fields + \
-                " WHERE " + update_field + "=excluded." + update_field
+            qstr = qstr[0:len(qstr)-1]
 
         return self._insert(qstr, columns)
 
-    def update(self, table, fields, values, action_on_conflict="OR IGNORE"):
-        qstr = "UPDATE " + action_on_conflict + " " + table + " SET " + fields
+    def update(self, table, fields, values, condition, action_on_conflict="OR IGNORE"):
+        qstr = "UPDATE " + action_on_conflict + " " + table + " SET " + fields + " WHERE " + condition
         try:
             with self._lock:
                 q = QSqlQuery(qstr, self.db)

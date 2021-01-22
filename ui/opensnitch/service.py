@@ -258,11 +258,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         [::]:50051      -> ipv6:[::1]:59680
         0.0.0.0:50051   -> ipv6:[::1]:59654
         """
-        p = peer.split(":")
-        # WA for backward compatibility
-        if p[0] == "unix" and p[1] == "":
-            p[1] = "local"
-        return p[0], p[1]
+        return self._nodes.get_addr(peer)
 
     def _delete_node(self, peer):
         try:
@@ -324,11 +320,14 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 # TODO: remove, and add them only ondemand
                 db.insert("rules",
                         "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
-                            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "%s:%s" % (proto, addr),
+                            (str(datetime.fromtimestamp(event.unixnano/1000000000)),
+                                "%s:%s" % (proto, addr),
                                 event.rule.name, str(event.rule.enabled), str(event.rule.precedence),
                                 event.rule.action, event.rule.duration,
                                 event.rule.operator.type, str(event.rule.operator.sensitive),
                                 event.rule.operator.operand, event.rule.operator.data),
+                          update_field="node,name",
+                          update_values=["time"],
                         action_on_conflict="IGNORE")
 
             details_need_refresh = self._populate_stats_details(db, addr, stats)
