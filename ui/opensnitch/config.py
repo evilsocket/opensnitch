@@ -6,6 +6,8 @@ class Config:
 
     HELP_URL = "https://github.com/gustavo-iniguez-goya/opensnitch/wiki/Configurations"
 
+    RulesTypes = ("list", "simple", "regexp", "network")
+
     # don't translate
     ACTION_ALLOW = "allow"
     ACTION_DENY = "deny"

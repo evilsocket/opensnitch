@@ -1,5 +1,6 @@
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt5.QtCore import QCoreApplication as QC
 from slugify import slugify
 from datetime import datetime
 import re
@@ -13,6 +14,8 @@ import ipaddress
 from config import Config
 from nodes import Nodes
 from database import Database
+from version import version
+from utils import Message
 
 DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -108,7 +111,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_status_error(error)
             return
         if self.nodesCombo.count() == 0:
-            self._set_status_error(QtCore.QCoreApplication.translate("rules", "There're no nodes connected."))
+            self._set_status_error(QC.translate("rules", "There're no nodes connected."))
             return
 
         self._add_rule()
@@ -119,9 +122,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         #print(self.LOG_TAG, "Rule notification received: ", reply.id, reply.code)
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.OK:
-                self._set_status_message(QtCore.QCoreApplication.translate("rules", "Rule applied."))
+                self._set_status_message(QC.translate("rules", "Rule applied."))
             else:
-                self._set_status_error(QtCore.QCoreApplication.translate("rules", "Error applying rule: {0}").format(reply.data))
+                self._set_status_error(QC.translate("rules", "Error applying rule: {0}").format(reply.data))
 
             del self._notifications_sent[reply.id]
 
@@ -139,6 +142,19 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         except re.error as e:
             self.statusLabel.setText(str(e))
             return False
+
+    def get_rule_from_records(self, records):
+        rule = ui_pb2.Rule(name=records.value(2))
+        rule.enabled = self._bool(records.value(3))
+        rule.precedence = self._bool(records.value(4))
+        rule.action = records.value(5)
+        rule.duration = records.value(6)
+        rule.operator.type = records.value(7)
+        rule.operator.sensitive = self._bool(records.value(8))
+        rule.operator.operand = records.value(9)
+        rule.operator.data = "" if records.value(10) == None else str(records.value(10))
+
+        return rule
 
     def _reset_state(self):
         self.ruleNameEdit.setText("")
@@ -341,7 +357,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         rule_data = []
         if self.protoCheck.isChecked():
             if self.protoCombo.currentText() == "":
-                return False, QtCore.QCoreApplication.translate("rules", "protocol can not be empty, or uncheck it")
+                return False, QC.translate("rules", "protocol can not be empty, or uncheck it")
 
             self.rule.operator.operand = "protocol"
             self.rule.operator.data = self.protoCombo.currentText()
@@ -355,11 +371,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.protoCombo.currentText()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.protoCombo.currentText()) == False:
-                    return False, QtCore.QCoreApplication.translate("rules", "Protocol regexp error")
+                    return False, QC.translate("rules", "Protocol regexp error")
 
         if self.procCheck.isChecked():
             if self.procLine.text() == "":
-                return False, QtCore.QCoreApplication.translate("rules", "process path can not be empty")
+                return False, QC.translate("rules", "process path can not be empty")
 
             self.rule.operator.operand = "process.path"
             self.rule.operator.data = self.procLine.text()
@@ -373,11 +389,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.procLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.procLine.text()) == False:
-                    return False, QtCore.QCoreApplication.translate("rules", "Process path regexp error")
+                    return False, QC.translate("rules", "Process path regexp error")
 
         if self.cmdlineCheck.isChecked():
             if self.cmdlineLine.text() == "":
-                return False, QtCore.QCoreApplication.translate("rules", "command line can not be empty")
+                return False, QC.translate("rules", "command line can not be empty")
 
             self.rule.operator.operand = "process.command"
             self.rule.operator.data = self.cmdlineLine.text()
@@ -391,11 +407,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.cmdlineLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.cmdlineLine.text()) == False:
-                    return False, QtCore.QCoreApplication.translate("rules", "Command line regexp error")
+                    return False, QC.translate("rules", "Command line regexp error")
 
         if self.dstPortCheck.isChecked():
             if self.dstPortLine.text() == "":
-                return False, QtCore.QCoreApplication.translate("rules", "Dest port can not be empty")
+                return False, QC.translate("rules", "Dest port can not be empty")
 
             self.rule.operator.operand = "dest.port"
             self.rule.operator.data = self.dstPortLine.text()
@@ -409,11 +425,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.dstPortLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.dstPortLine.text()) == False:
-                    return False, QtCore.QCoreApplication.translate("rules", "Dst port regexp error")
+                    return False, QC.translate("rules", "Dst port regexp error")
 
         if self.dstHostCheck.isChecked():
             if self.dstHostLine.text() == "":
-                return False, QtCore.QCoreApplication.translate("rules", "Dest host can not be empty")
+                return False, QC.translate("rules", "Dest host can not be empty")
 
             self.rule.operator.operand = "dest.host"
             self.rule.operator.data = self.dstHostLine.text()
@@ -427,11 +443,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.dstHostLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.dstHostLine.text()) == False:
-                    return False, QtCore.QCoreApplication.translate("rules", "Dst host regexp error")
+                    return False, QC.translate("rules", "Dst host regexp error")
 
         if self.dstIPCheck.isChecked():
             if self.dstIPCombo.currentText() == "":
-                return False, QtCore.QCoreApplication.translate("rules", "Dest IP/Network can not be empty")
+                return False, QC.translate("rules", "Dest IP/Network can not be empty")
 
             dstIPtext = self.dstIPCombo.currentText()
 
@@ -453,7 +469,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self.rule.operator.operand = "dest.ip"
                     self.rule.operator.type = "regexp"
                     if self._is_valid_regex(self.dstIPCombo.currentText()) == False:
-                        return False, QtCore.QCoreApplication.translate("rules", "Dst IP regexp error")
+                        return False, QC.translate("rules", "Dst IP regexp error")
 
             rule_data.append(
                     {
@@ -465,7 +481,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if self.uidCheck.isChecked():
             if self.uidLine.text() == "":
-                return False, QtCore.QCoreApplication.translate("rules", "User ID can not be empty")
+                return False, QC.translate("rules", "User ID can not be empty")
 
             self.rule.operator.operand = "user.id"
             self.rule.operator.data = self.uidLine.text()
@@ -479,7 +495,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.uidLine.text()):
                 rule_data[len(rule_data)-1]['type'] = "regexp"
                 if self._is_valid_regex(self.uidLine.text()) == False:
-                    return False, QtCore.QCoreApplication.translate("rules", "User ID regexp error")
+                    return False, QC.translate("rules", "User ID regexp error")
 
         if len(rule_data) > 1:
             self.rule.operator.type = "list"
@@ -499,15 +515,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def edit_rule(self, records, _addr=None):
         self._reset_state()
 
-        self.rule = ui_pb2.Rule(name=records.value(2))
-        self.rule.enabled = self._bool(records.value(3))
-        self.rule.precedence = self._bool(records.value(4))
-        self.rule.action = records.value(5)
-        self.rule.duration = records.value(6)
-        self.rule.operator.type = records.value(7)
-        self.rule.operator.sensitive = self._bool(records.value(8))
-        self.rule.operator.operand = records.value(9)
-        self.rule.operator.data = "" if records.value(10) == None else str(records.value(10))
+        self.rule = self.get_rule_from_records(records)
+        if self.rule.operator.type not in Config.RulesTypes:
+            Message.ok(QC.translate("rules", "<b>Rule not supported</b>"),
+                       QC.translate("rules", "This type of rule ({0}) is not supported by version {1}".format(self.rule.operator.type, version)),
+                       QtWidgets.QMessageBox.Warning)
+            self.hide()
+            return
 
         self._old_rule_name = records.value(2)
 

@@ -43,6 +43,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_WHAT   = 0
 
     # rules
+    COL_R_NODE = 1
+    COL_R_NAME = 2
     COL_R_ENABLED = 3
     COL_R_ACTION = 4
     COL_R_DURATION = 5
@@ -595,41 +597,117 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_table_context_menu(self, pos):
         cur_idx = self.tabWidget.currentIndex()
+        if cur_idx != self.TAB_RULES:
+            # the only table with context menu for now is the rules table
+            return
+
         table = self._get_active_table()
+        model = table.model()
         self._context_menu_active = True
-        if table.selectionModel().selection().indexes():
-            for i in table.selectionModel().selection().indexes():
-                row, column = i.row(), i.column()
+
+        selection = table.selectionModel().selectedRows()
+        if selection:
             menu = QtWidgets.QMenu()
-            if cur_idx == self.TAB_RULES:
-                _table_menu_delete = menu.addAction(QtCore.QCoreApplication.translate("stats", "Delete"))
+
+            is_rule_enabled = model.index(selection[0].row(), self.COL_R_ENABLED).data()
+            menu_label_enable = QtCore.QCoreApplication.translate("stats", "Disable")
+            if is_rule_enabled == "False":
+                menu_label_enable = QtCore.QCoreApplication.translate("stats", "Enable")
+
+            _menu_enable = menu.addAction(QtCore.QCoreApplication.translate("stats", menu_label_enable))
+            _menu_duplicate = menu.addAction(QtCore.QCoreApplication.translate("stats", "Duplicate"))
+            _menu_edit = menu.addAction(QtCore.QCoreApplication.translate("stats", "Edit"))
+            _menu_delete = menu.addAction(QtCore.QCoreApplication.translate("stats", "Delete"))
 
             # move away menu a few pixels to the right, to avoid clicking on it by mistake
             point = QtCore.QPoint(pos.x()+10, pos.y()+5)
             action = menu.exec_(table.mapToGlobal(point))
 
-            if action == _table_menu_delete:
+            model = table.model()
+            if action == _menu_delete:
                 ret = Message.yes_no(
                     QtCore.QCoreApplication.translate("stats", "    Your are about to delete this rule.    "),
                     QtCore.QCoreApplication.translate("stats", "    Are you sure?"),
                     QtWidgets.QMessageBox.Warning)
                 if ret == QtWidgets.QMessageBox.Cancel:
                     return
-                self._table_menu_delete(row, column)
+                self._table_menu_delete(cur_idx, model, selection)
+            elif action == _menu_edit:
+                self._table_menu_edit(cur_idx, model, selection)
+            elif action == _menu_enable:
+                self._table_menu_enable(cur_idx, model, selection, is_rule_enabled)
+            elif action == _menu_duplicate:
+                self._table_menu_duplicate(cur_idx, model, selection)
 
         self._context_menu_active = False
         self._refresh_active_table()
 
-    def _table_menu_delete(self, row, column):
-        cur_idx = self.tabWidget.currentIndex()
-        table = self._get_active_table()
-        if table.selectionModel().selection().indexes():
-            for idx in table.selectionModel().selection().indexes():
+    def _table_menu_duplicate(self, cur_idx, model, selection):
 
-                if cur_idx == self.TAB_RULES:
-                    name = table.model().index(idx.row(), 2).data()
-                    node = table.model().index(idx.row(), 1).data()
-                    self._del_rule(name, node)
+        for idx in selection:
+            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+
+            records = None
+            for idx in range(0,100):
+                records = self._get_rule(rule_name, node_addr)
+                if records == None or records.size() == -1:
+                    rule = self._rules_dialog.get_rule_from_records(records)
+                    rule.name = "cloned-{0}-{1}".format(idx, rule.name)
+                    self._db.insert("rules",
+                        "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
+                            (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                node_addr, rule.name,
+                                str(rule.enabled), str(rule.precedence),
+                                rule.action, rule.duration, rule.operator.type,
+                                str(rule.operator.sensitive), rule.operator.operand, rule.operator.data),
+                            action_on_conflict="IGNORE")
+                    break
+
+            if records != None and records.size() == -1:
+                noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
+                nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
+                self._notifications_sent[nid] = noti
+
+    def _table_menu_enable(self, cur_idx, model, selection, is_rule_enabled):
+        rule_status = "False" if is_rule_enabled == "True" else "True"
+
+        for idx in selection:
+            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+
+            records = self._get_rule(rule_name, node_addr)
+            rule = self._rules_dialog.get_rule_from_records(records)
+            rule_type = ui_pb2.DISABLE_RULE if is_rule_enabled == "True" else ui_pb2.ENABLE_RULE
+
+            self._db.update(table="rules", fields="enabled=?",
+                            values=[rule_status], condition="name='{0}'".format(rule_name),
+                            action_on_conflict="")
+
+            noti = ui_pb2.Notification(type=rule_type, rules=[rule])
+            nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
+            self._notifications_sent[nid] = noti
+
+    def _table_menu_delete(self, cur_idx, model, selection):
+
+        for idx in selection:
+            name = model.index(idx.row(), self.COL_R_NAME).data()
+            node = model.index(idx.row(), self.COL_R_NODE).data()
+            self._del_rule(name, node)
+
+    def _table_menu_edit(self, cur_idx, model, selection):
+
+        for idx in selection:
+            name = model.index(idx.row(), self.COL_R_NAME).data()
+            node = model.index(idx.row(), self.COL_R_NODE).data()
+            records = self._get_rule(name, node)
+            if records == None or records == -1:
+                Message.ok("Rule error",
+                           QtCore.QCoreApplication.translate("stats", "Rule not found by that name and node"),
+                           QtWidgets.QMessageBox.Warning)
+                return
+            self._rules_dialog.edit_rule(records, name)
+            break
 
     def _cb_table_header_clicked(self, pos, sortIdx):
         cur_idx = self.tabWidget.currentIndex()
@@ -712,7 +790,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_process_tab_active(data)
         elif idx == StatsDialog.COL_RULES:
             cur_idx = 2
-            self._set_rules_tab_active(row, cur_idx)
+            self._set_rules_tab_active(row, cur_idx, self.COL_RULES, self.COL_NODE)
         else:
             return
 
@@ -720,21 +798,23 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_table_double_clicked(self, row):
         cur_idx = self.tabWidget.currentIndex()
-        if cur_idx == self.TAB_NODES and row.column() != 1:
-            return
-        if cur_idx == self.TAB_RULES and row.column() != 2:
-            return
-        if cur_idx > self.TAB_RULES and row.column() != self.COL_WHAT:
-            return
-
-
         data = row.data()
+
+        if cur_idx == self.TAB_RULES:
+            rule_name = row.model().index(row.row(), self.COL_R_NAME).data()
+            self._set_active_widgets(True, rule_name)
+            self._set_rules_tab_active(row, cur_idx, self.COL_R_NAME, self.COL_R_NODE)
+            return
+        if cur_idx == self.TAB_NODES:
+            data = row.model().index(row.row(), self.COL_NODE).data()
+        if cur_idx > self.TAB_RULES:
+            data = row.model().index(row.row(), self.COL_WHAT).data()
+
+
         self._set_active_widgets(True, str(data))
 
         if cur_idx == StatsDialog.TAB_NODES:
             self._set_nodes_query(data)
-        elif cur_idx == StatsDialog.TAB_RULES:
-            self._set_rules_tab_active(row, cur_idx)
         elif cur_idx == StatsDialog.TAB_HOSTS:
             self._set_hosts_query(data)
         elif cur_idx == StatsDialog.TAB_PROCS:
@@ -785,12 +865,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_edit_rule_clicked(self):
         cur_idx = self.tabWidget.currentIndex()
-        records = self._db.select("SELECT * from rules WHERE name='%s' AND node='%s'" % (
-            self.TABLES[cur_idx]['label'].text(),
-           self.nodeRuleLabel.text()))
-        if records.next() == False:
-            print("[stats dialog] edit rule, no records: ", self.TABLES[self.tabWidget.currentIndex()]['label'].text())
-            self.TABLES[cur_idx]['cmd'].click()
+        records = self._get_rule(self.TABLES[cur_idx]['label'].text(), self.nodeRuleLabel.text())
+        if records == None:
             return
 
         self._rules_dialog.edit_rule(records, self.nodeRuleLabel.text())
@@ -844,6 +920,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             nodesItem.takeChildren()
             for n in self._nodes.get_nodes():
                 nodesItem.addChild(QtWidgets.QTreeWidgetItem([n]))
+
+    def _get_rule(self, rule_name, node_name):
+        """
+        get rule records, given the name of the rule and the node
+        """
+        cur_idx = self.tabWidget.currentIndex()
+        records = self._db.select("SELECT * from rules WHERE name='%s' AND node='%s'" % (
+            rule_name, node_name))
+        if records.next() == False:
+            print("[stats dialog] edit rule, no records: ", rule_name, node_name)
+            self.TABLES[cur_idx]['cmd'].click()
+            return None
+
+        return records
 
     def _get_filter_line_clause(self, idx, text):
         if text == "":
@@ -902,16 +992,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             item_m = self.rulesTreePanel.indexFromItem(items[0], 0)
             parent = item_m.parent()
             if parent != None:
-                self._set_rules_filter(parent.row(), item_m.row(), "")
+                self._set_rules_filter(parent.row(), item_m.row(), item_m.data())
 
-    def _set_rules_tab_active(self, row, cur_idx):
+    def _set_rules_tab_active(self, row, cur_idx, name_idx, node_idx):
         data = row.data()
         self._restore_rules_tab_widgets(False)
 
-        node = row.model().index(row.row(), 1)
-        self.nodeRuleLabel.setText(node.data())
+        r_name = row.model().index(row.row(), name_idx).data()
+        node = row.model().index(row.row(), node_idx).data()
+        self.nodeRuleLabel.setText(node)
         self.tabWidget.setCurrentIndex(cur_idx)
-        self._set_rules_query(rule_name=data)
+        self._set_rules_query(rule_name=r_name)
 
     def _set_events_query(self):
         if self.tabWidget.currentIndex() != self.TAB_MAIN:
@@ -951,7 +1042,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "n.last_connection as LastConnection, " \
-                "n.status as %s, " \
+                "c.action as %s, " \
                 "count(c.process) as Hits, " \
                 "c.uid as UserID, " \
                 "c.protocol as %s, " \
@@ -964,7 +1055,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "FROM nodes as n, connections as c " \
             "WHERE n.addr = '%s' %s GROUP BY Process, Args, UserID, DstIP, DstHost, DstPort, c.protocol, n.status %s" %
                       (
-                          self.COL_STR_STATUS,
+                          self.COL_STR_ACTION,
                           self.COL_STR_PROTOCOL,
                           data, s, self._get_order()))
 
@@ -972,11 +1063,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         section = self.FILTER_TREE_APPS
 
         if parent_row == -1:
-            if item_row == self.RULES_TREE_APPS:
-                section=self.FILTER_TREE_APPS
-                what=""
-            elif item_row == self.RULES_TREE_NODES:
+            if item_row == self.RULES_TREE_NODES:
                 section=self.FILTER_TREE_NODES
+                what=""
+            else:
+                section=self.FILTER_TREE_APPS
                 what=""
 
         elif parent_row == self.RULES_TREE_APPS:
@@ -991,11 +1082,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             section=self.FILTER_TREE_NODES
 
         if section == self.FILTER_TREE_APPS:
-            if what == self.RULES_TYPE_PERMANENT:
-                what = "WHERE r.duration = '%s'" % Config.DURATION_ALWAYS
             if what == self.RULES_TYPE_TEMPORARY:
                 what = "WHERE r.duration != '%s'" % Config.DURATION_ALWAYS
-        elif section == self.FILTER_TREE_NODES:
+            elif what == self.RULES_TYPE_PERMANENT:
+                what = "WHERE r.duration = '%s'" % Config.DURATION_ALWAYS
+        elif section == self.FILTER_TREE_NODES and what != "":
             what = "WHERE r.node = '%s'" % what
 
         filter_text = self.TABLES[self.TAB_RULES]['filterLine'].text()
@@ -1005,7 +1096,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             else:
                 what = what + " AND"
             what = what + " r.name LIKE '%{0}%'".format(filter_text)
-
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT * FROM rules as r %s ORDER BY name ASC" % what)
 
@@ -1020,13 +1110,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.time as %s, " \
                 "r.node as %s, " \
                 "count(c.process) as Hits, " \
-                "r.enabled as %s, " \
-                "r.precedence as Precedence, " \
-                "r.action as %s, " \
-                "r.duration as Duration, " \
-                "r.operator_type as RuleType, " \
-                "r.operator_sensitive as CaseSensitive, " \
-                "r.operator_operand as RuleOperand, " \
                 "c.uid as UserID, " \
                 "c.protocol as %s, " \
                 "c.dst_port as DstPort, " \
@@ -1042,8 +1125,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                       (
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
-                          self.COL_STR_ENABLED,
-                          self.COL_STR_ACTION,
                           self.COL_STR_PROTOCOL,
                           node, rule_name, self._get_order()))
 

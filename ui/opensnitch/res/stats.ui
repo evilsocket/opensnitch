@@ -564,6 +564,9 @@
          <property name="frameShadow">
           <enum>QFrame::Plain</enum>
          </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>
@@ -793,6 +796,9 @@
           <property name="frameShadow">
            <enum>QFrame::Plain</enum>
           </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
           <property name="horizontalScrollMode">
            <enum>QAbstractItemView::ScrollPerPixel</enum>
           </property>
@@ -892,6 +898,9 @@
         <widget class="QTableView" name="hostsTable">
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <property name="sortingEnabled">
           <bool>false</bool>
@@ -1021,6 +1030,9 @@
          <property name="frameShadow">
           <enum>QFrame::Plain</enum>
          </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
          <property name="sortingEnabled">
           <bool>false</bool>
          </property>
@@ -1111,6 +1123,9 @@
        </item>
        <item>
         <widget class="QTableView" name="addrTable">
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
          <property name="sortingEnabled">
           <bool>false</bool>
          </property>
@@ -1201,6 +1216,9 @@
        </item>
        <item>
         <widget class="QTableView" name="portsTable">
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
          <property name="sortingEnabled">
           <bool>false</bool>
          </property>
@@ -1301,6 +1319,9 @@
        </item>
        <item>
         <widget class="QTableView" name="usersTable">
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
          <property name="sortingEnabled">
           <bool>false</bool>
          </property>
