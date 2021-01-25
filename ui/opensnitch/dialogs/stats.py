@@ -156,7 +156,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
                 "last_order_by": "2",
-                "last_order_to": 1
+                "last_order_to": 0
                 },
             TAB_HOSTS: {
                 "name": "hosts",
@@ -320,7 +320,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_RULES]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.rulesTable, "rules",
                 delegate=self.TABLES[self.TAB_RULES]['delegate'],
-                order_by="1")
+                order_by="2",
+                sort_direction=self.SORT_ORDER[0])
         self.TABLES[self.TAB_HOSTS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.hostsTable, "hosts",
                 resize_cols=(self.COL_WHAT,),
@@ -1097,7 +1098,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 what = what + " AND"
             what = what + " r.name LIKE '%{0}%'".format(filter_text)
         model = self._get_active_table().model()
-        self.setQuery(model, "SELECT * FROM rules as r %s ORDER BY name ASC" % what)
+        self.setQuery(model, "SELECT * FROM rules as r %s %s" % (what, self._get_order()))
 
     def _set_rules_query(self, rule_name="", node=""):
         if node != "":
@@ -1292,7 +1293,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                             values.append(table.model().index(row, col).data())
                         w.writerow(values)
 
-    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", limit="", resize_cols=(), model=None, delegate=None, verticalScrollBar=None):
+    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", sort_direction=SORT_ORDER[1], limit="", resize_cols=(), model=None, delegate=None, verticalScrollBar=None):
         tableWidget.setSortingEnabled(True)
         if model == None:
             model = self._db.get_new_qsql_model()
@@ -1300,7 +1301,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             tableWidget.setItemDelegate(ColorizedDelegate(self, config=delegate))
         if verticalScrollBar != None:
             tableWidget.setVerticalScrollBar(verticalScrollBar)
-        self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " DESC" + limit)
+        self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " " + sort_direction + limit)
         tableWidget.setModel(model)
 
         header = tableWidget.horizontalHeader()

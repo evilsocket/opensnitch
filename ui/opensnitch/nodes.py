@@ -215,13 +215,14 @@ class Nodes():
     def update(self, proto, addr, status=ONLINE):
         try:
             self._db.update("nodes",
-                    "hostname=?,version=?,last_connection=?,status=? WHERE addr=?",
+                    "hostname=?,version=?,last_connection=?,status=?",
                     (
                         self._nodes[proto+":"+addr]['data'].name,
                         self._nodes[proto+":"+addr]['data'].version,
                         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         status,
-                        addr)
+                        addr),
+                        "addr=?"
                     )
         except Exception as e:
             print(self.LOG_TAG + " exception updating DB: ", e, addr)
