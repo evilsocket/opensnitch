@@ -172,7 +172,7 @@ func doCleanup(queue *netfilter.Queue) {
 func onPacket(packet netfilter.Packet) {
 	// DNS response, just parse, track and accept.
 	if dns.TrackAnswers(packet.Packet) == true {
-		packet.SetVerdict(netfilter.NF_ACCEPT)
+		packet.SetVerdictAndMark(netfilter.NF_ACCEPT, packet.Mark)
 		stats.OnDNSResponse()
 		return
 	}
@@ -197,7 +197,7 @@ func onPacket(packet netfilter.Packet) {
 
 func applyDefaultAction(packet *netfilter.Packet) {
 	if uiClient.DefaultAction() == rule.Allow {
-		packet.SetVerdict(netfilter.NF_ACCEPT)
+		packet.SetVerdictAndMark(netfilter.NF_ACCEPT, packet.Mark)
 	} else {
 		if uiClient.DefaultDuration() == rule.Always {
 			packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
@@ -264,7 +264,7 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 
 	} else if r.Action == rule.Allow {
 		if packet != nil {
-			packet.SetVerdict(netfilter.NF_ACCEPT)
+			packet.SetVerdictAndMark(netfilter.NF_ACCEPT, packet.Mark)
 		}
 
 		ruleName := log.Green(r.Name)
