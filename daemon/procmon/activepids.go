@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"io/ioutil"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
