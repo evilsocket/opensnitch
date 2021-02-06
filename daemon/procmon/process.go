@@ -125,4 +125,5 @@ func Init() {
 	// if any of the above methods have failed, fallback to proc
 	log.Info("Process monitor method /proc")
 	SetMonitorMethod(MethodProc)
+	go monitorActivePids()
 }

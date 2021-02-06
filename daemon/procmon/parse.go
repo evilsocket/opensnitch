@@ -107,6 +107,10 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		}
 	}
 
+	if proc := findProcessInActivePidsCache(uint32(pid)); proc != nil {
+		return proc
+	}
+
 	linkName := fmt.Sprint("/proc/", pid, "/exe")
 	if _, err := os.Lstat(linkName); err != nil {
 		return nil
@@ -120,6 +124,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		proc.readEnv()
 		proc.cleanPath()
 
+		addToActivePidsCache(uint32(pid), proc)
 		return proc
 	}
 	return nil
