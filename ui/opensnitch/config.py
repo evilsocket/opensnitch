@@ -8,12 +8,19 @@ class Config:
 
     RulesTypes = ("list", "simple", "regexp", "network")
 
+    DEFAULT_DURATION_IDX = 6 # until restart
+    DEFAULT_TARGET_PROCESS = 0
     # don't translate
     ACTION_ALLOW = "allow"
     ACTION_DENY = "deny"
     DURATION_UNTIL_RESTART = "until restart"
     DURATION_ALWAYS = "always"
     DURATION_ONCE = "once"
+
+    DEFAULT_TIMEOUT_KEY  = "global/default_timeout"
+    DEFAULT_ACTION_KEY   = "global/default_action"
+    DEFAULT_DURATION_KEY = "global/default_duration"
+    DEFAULT_TARGET_KEY   = "global/default_target"
     # don't translate
 
     @staticmethod
@@ -30,14 +37,14 @@ class Config:
     def __init__(self):
         self.settings = QtCore.QSettings("opensnitch", "settings")
 
-        if self.settings.value("global/default_timeout") == None:
-            self.setSettings("global/default_timeout", 15)
-        if self.settings.value("global/default_action") == None:
-            self.setSettings("global/default_action", "allow")
-        if self.settings.value("global/default_duration") == None:
-            self.setSettings("global/default_duration", "until restart")
-        if self.settings.value("global/default_target") == None:
-            self.setSettings("global/default_target", 0)
+        if self.settings.value(self.DEFAULT_TIMEOUT_KEY) == None:
+            self.setSettings(self.DEFAULT_TIMEOUT_KEY, 15)
+        if self.settings.value(self.DEFAULT_ACTION_KEY) == None:
+            self.setSettings(self.DEFAULT_ACTION_KEY, self.ACTION_ALLOW)
+        if self.settings.value(self.DEFAULT_DURATION_KEY) == None:
+            self.setSettings(self.DEFAULT_DURATION_KEY, self.DEFAULT_DURATION_IDX)
+        if self.settings.value(self.DEFAULT_TARGET_KEY) == None:
+            self.setSettings(self.DEFAULT_TARGET_KEY, self.DEFAULT_TARGET_PROCESS)
 
     def reload(self):
         self.settings = QtCore.QSettings("opensnitch", "settings")

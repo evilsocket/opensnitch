@@ -13,10 +13,6 @@ import ui_pb2
 DIALOG_UI_PATH = "%s/../res/preferences.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
-    CFG_DEFAULT_ACTION   = "global/default_action"
-    CFG_DEFAULT_DURATION = "global/default_duration"
-    CFG_DEFAULT_TARGET   = "global/default_target"
-    CFG_DEFAULT_TIMEOUT  = "global/default_timeout"
     CFG_DISABLE_POPUPS   = "global/disable_popups"
 
     LOG_TAG = "[Preferences] "
@@ -78,13 +74,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._node_needs_update = False
 
     def _load_settings(self):
-        self._default_action = self._cfg.getInt(self.CFG_DEFAULT_ACTION)
-        self._default_duration = self._cfg.getInt(self.CFG_DEFAULT_DURATION)
-        self._default_target = self._cfg.getSettings(self.CFG_DEFAULT_TARGET)
-        self._default_timeout = self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)
+        self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
+        self._default_target = self._cfg.getSettings(self._cfg.DEFAULT_TARGET_KEY)
+        self._default_timeout = self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY)
         self._disable_popups = self._cfg.getBool(self.CFG_DISABLE_POPUPS)
 
-        # TODO: move to config.get_duration()
+        if self._cfg.hasKey(self._cfg.DEFAULT_DURATION_KEY):
+            self._default_duration = self._cfg.getInt(self._cfg.DEFAULT_DURATION_KEY)
+        else:
+            self._default_duration = self._cfg.DEFAULT_DURATION_IDX
+
         self.comboUIDuration.setCurrentIndex(self._default_duration)
 
         self.comboUIAction.setCurrentIndex(self._default_action)
@@ -134,15 +133,15 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _save_settings(self):
         if self.tabWidget.currentIndex() == 0:
-            self._cfg.setSettings(self.CFG_DEFAULT_ACTION, self.comboUIAction.currentIndex())
-            self._cfg.setSettings(self.CFG_DEFAULT_DURATION, int(self.comboUIDuration.currentIndex()))
-            self._cfg.setSettings(self.CFG_DEFAULT_TARGET, self.comboUITarget.currentIndex())
-            self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, self.spinUITimeout.value())
+            self._cfg.setSettings(self._cfg.DEFAULT_ACTION_KEY, self.comboUIAction.currentIndex())
+            self._cfg.setSettings(self._cfg.DEFAULT_DURATION_KEY, int(self.comboUIDuration.currentIndex()))
+            self._cfg.setSettings(self._cfg.DEFAULT_TARGET_KEY, self.comboUITarget.currentIndex())
+            self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, self.spinUITimeout.value())
             self._cfg.setSettings(self.CFG_DISABLE_POPUPS, bool(self.popupsCheck.isChecked()))
             # this is a workaround for not display pop-ups.
             # see #79 for more information.
             if self.popupsCheck.isChecked():
-                self._cfg.setSettings(self.CFG_DEFAULT_TIMEOUT, 0)
+                self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, 0)
 
         elif self.tabWidget.currentIndex() == 1:
             self._show_status_label()

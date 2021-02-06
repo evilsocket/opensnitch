@@ -50,9 +50,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     # label displayed in the pop-up combo
     DURATION_forever = QtCore.QCoreApplication.translate("popups", "forever")
 
-    CFG_DEFAULT_TIMEOUT = "global/default_timeout"
-    CFG_DEFAULT_ACTION = "global/default_action"
-
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
         # Other interesting flags: QtCore.Qt.Tool | QtCore.Qt.BypassWindowManagerHint
@@ -73,7 +70,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._prompt_trigger.connect(self.on_connection_prompt_triggered)
         self._timeout_trigger.connect(self.on_timeout_triggered)
         self._tick_trigger.connect(self.on_tick_triggered)
-        self._tick = int(self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)) if self._cfg.hasKey(self.CFG_DEFAULT_TIMEOUT) else self.DEFAULT_TIMEOUT
+        self._tick = int(self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY)) if self._cfg.hasKey(self._cfg.DEFAULT_TIMEOUT_KEY) else self.DEFAULT_TIMEOUT
         self._tick_thread = None
         self._done = threading.Event()
         self._timeout_text = ""
@@ -86,7 +83,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.applyButton.clicked.connect(self._on_apply_clicked)
         self._apply_text = QtCore.QCoreApplication.translate("popups", "Allow")
         self._deny_text = QtCore.QCoreApplication.translate("popups", "Deny")
-        self._default_action = self._cfg.getInt(self.CFG_DEFAULT_ACTION)
+        self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
 
         self.whatIPCombo.setVisible(False)
         self.checkDstIP.setVisible(False)
@@ -130,7 +127,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._tick_thread != None and self._tick_thread.is_alive():
                 self._tick_thread.join()
             self._cfg.reload()
-            self._tick = int(self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT)) if self._cfg.hasKey(self.CFG_DEFAULT_TIMEOUT) else self.DEFAULT_TIMEOUT
+            self._tick = int(self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY)) if self._cfg.hasKey(self._cfg.DEFAULT_TIMEOUT_KEY) else self.DEFAULT_TIMEOUT
             self._tick_thread = threading.Thread(target=self._timeout_worker)
             self._tick_thread.stop = self._ischeckAdvanceded
             self._timeout_triggered = False
@@ -157,7 +154,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             t = threading.currentThread()
             # stop only stops the coundtdown, not the thread itself.
             if getattr(t, "stop", True):
-                self._tick = int(self._cfg.getSettings(self.CFG_DEFAULT_TIMEOUT))
+                self._tick = int(self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY))
                 time.sleep(1)
                 continue
 
@@ -184,11 +181,14 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._send_rule()
 
     def _configure_default_duration(self):
-        cur_idx = self._cfg.getInt("global/default_duration")
-        self.durationCombo.setCurrentIndex(cur_idx)
+        if self._cfg.hasKey(self._cfg.DEFAULT_DURATION_KEY):
+            cur_idx = self._cfg.getInt(self._cfg.DEFAULT_DURATION_KEY)
+            self.durationCombo.setCurrentIndex(cur_idx)
+        else:
+            self.durationCombo.setCurrentIndex(self._cfg.DEFAULT_DURATION_IDX)
 
     def _set_cmd_action_text(self):
-        if self._cfg.getInt(self.CFG_DEFAULT_ACTION) == self.ACTION_IDX_ALLOW:
+        if self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY) == self.ACTION_IDX_ALLOW:
             self.applyButton.setText("%s (%d)" % (self._apply_text, self._tick))
             self.denyButton.setText(self._deny_text)
         else:
@@ -197,7 +197,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _render_connection(self, con):
         app_name, app_icon, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
-        if app_name != con.process_path and len(con.process_args) > 1 and con.process_path not in con.process_args:
+        if app_name != con.process_path and con.process_path not in con.process_args:
             self.appPathLabel.setToolTip("Process path: %s" % con.process_path)
             self._set_elide_text(self.appPathLabel, "(%s)" % con.process_path)
         else:
@@ -271,12 +271,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._add_dst_networks_to_combo(self.whatIPCombo, con.dst_ip)
 
-        self._default_action = self._cfg.getInt(self.CFG_DEFAULT_ACTION)
+        self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
 
         self._configure_default_duration()
 
         if int(con.process_id) > 0:
-            self.whatCombo.setCurrentIndex(int(self._cfg.getSettings("global/default_target")))
+            self.whatCombo.setCurrentIndex(int(self._cfg.getSettings(self._cfg.DEFAULT_TARGET_KEY)))
         else:
             self.whatCombo.setCurrentIndex(2)
 
