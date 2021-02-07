@@ -197,15 +197,32 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _render_connection(self, con):
         app_name, app_icon, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
-        if app_name != con.process_path and con.process_path not in con.process_args:
+        app_args = " ".join(con.process_args)
+
+        # show the binary path if it's not part of the cmdline args:
+        # cmdline: telnet 1.1.1.1 (path: /usr/bin/telnet.netkit)
+        # cmdline: /usr/bin/telnet.netkit 1.1.1.1 (the binary path is part of the cmdline args, no need to display it)
+        if con.process_path != "" and len(con.process_args) >= 1 and con.process_path not in con.process_args:
             self.appPathLabel.setToolTip("Process path: %s" % con.process_path)
             self._set_elide_text(self.appPathLabel, "(%s)" % con.process_path)
+            self.appPathLabel.setVisible(True)
         else:
-            self.appPathLabel.setFixedHeight(1)
+            self.appPathLabel.setVisible(False)
             self.appPathLabel.setText("")
 
+        self.argsLabel.setVisible(True)
+        self._set_elide_text(self.argsLabel, app_args)
+        self.argsLabel.setToolTip(app_args)
+
+        # if the app name and the args are the same, there's no need to display
+        # the args label (amule for example)
+        if app_name.lower() == app_args:
+            self.argsLabel.setVisible(False)
+
         if app_name == "":
-            app_name = QtCore.QCoreApplication.translate("popups", "Unknown process")
+            self.appPathLabel.setVisible(False)
+            self.argsLabel.setVisible(False)
+            app_name = QtCore.QCoreApplication.translate("popups", "Unknown process: %s" % con.process_path)
             self.appNameLabel.setText(QtCore.QCoreApplication.translate("popups", "Outgoing connection"))
         else:
             self.appNameLabel.setText(app_name)
@@ -237,8 +254,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.uidLabel.setText(uid)
         self.pidLabel.setText("%s" % con.process_id)
-        self._set_elide_text(self.argsLabel, ' '.join(con.process_args))
-        self.argsLabel.setToolTip(' '.join(con.process_args))
 
         self.whatCombo.clear()
         self.whatIPCombo.clear()
@@ -246,8 +261,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "from this executable"), self.FIELD_PROC_PATH)
 
         self.whatCombo.addItem(QtCore.QCoreApplication.translate("popups", "from this command line"), self.FIELD_PROC_ARGS)
-        if self.argsLabel.text() == "":
-            self._set_elide_text(self.argsLabel, con.process_path)
 
         # the order of the entries must match those in the preferences dialog
         # prefs -> UI -> Default target
