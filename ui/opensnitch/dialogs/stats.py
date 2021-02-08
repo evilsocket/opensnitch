@@ -22,6 +22,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     GREEN = QtGui.QColor(0x2e, 0x90, 0x59)
 
     _trigger = QtCore.pyqtSignal(bool, bool)
+    _status_changed_trigger = QtCore.pyqtSignal(bool)
     _shown_trigger = QtCore.pyqtSignal()
     _notification_trigger = QtCore.pyqtSignal(ui_pb2.Notification)
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
@@ -855,9 +856,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.startButton.isChecked():
             self._update_status_label(running=True, text=self.FIREWALL_RUNNING)
             nid, noti = self._nodes.start_interception(_callback=self._notification_callback)
+            self._status_changed_trigger.emit(False)
         else:
             self._update_status_label(running=False, text=self.FIREWALL_DISABLED)
             nid, noti = self._nodes.stop_interception(_callback=self._notification_callback)
+            self._status_changed_trigger.emit(True)
 
         self._notifications_sent[nid] = noti
 

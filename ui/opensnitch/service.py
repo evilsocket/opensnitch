@@ -97,6 +97,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._new_remote_trigger.connect(self._on_new_remote)
         self._update_stats_trigger.connect(self._on_update_stats)
         self._stats_dialog._shown_trigger.connect(self._on_stats_dialog_shown)
+        self._stats_dialog._status_changed_trigger.connect(self._on_stats_status_changed)
 
     def _setup_icons(self):
         self.off_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-off.png"))
@@ -108,6 +109,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.red_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-red.png"))
         self.red_icon = QtGui.QIcon()
         self.red_icon.addPixmap(self.red_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.pause_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-pause.png"))
+        self.pause_icon = QtGui.QIcon()
+        self.pause_icon.addPixmap(self.pause_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.alert_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-alert.png"))
         self.alert_icon = QtGui.QIcon()
         self.alert_icon.addPixmap(self.alert_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -152,8 +156,16 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._on_exit()
 
     def _show_stats_dialog(self):
-        self._tray.setIcon(self.white_icon)
+        if self._connected:
+            self._tray.setIcon(self.white_icon)
         self._stats_dialog.show()
+
+    @QtCore.pyqtSlot(bool)
+    def _on_stats_status_changed(self, paused):
+        if paused:
+            self._tray.setIcon(self.pause_icon)
+        else:
+            self._tray.setIcon(self.white_icon)
 
     @QtCore.pyqtSlot()
     def _on_status_change(self):
