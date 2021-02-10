@@ -1120,12 +1120,12 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1189"/>
         <source>Delete all intercepted ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Excluir todas as portas interceptadas</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1289"/>
         <source>Delete all intercepted users</source>
-        <translation type="unfinished"></translation>
+        <translation>Excluir todos os usuários interceptados</translation>
     </message>
 </context>
 <context>
