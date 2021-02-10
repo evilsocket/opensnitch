@@ -474,7 +474,7 @@
       </layout>
      </item>
      <item row="0" column="1">
-      <layout class="QGridLayout" name="gridLayout_4">
+      <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,1">
        <property name="verticalSpacing">
         <number>0</number>
        </property>
