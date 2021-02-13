@@ -201,6 +201,9 @@ class Database:
         qstr = qstr[0:len(qstr)-1] + ")"
 
         if update_field != None:
+            # NOTE: UPSERTS on sqlite are only supported from v3.24 on.
+            # On Ubuntu16.04/18 for example (v3.11/3.22) updating a record on conflict
+            # fails with "Parameter count error"
             qstr += " ON CONFLICT (" + update_field + ") DO UPDATE SET "
             for idx, field in enumerate(update_values):
                 qstr += str(field) + "=excluded." + str(field) + ","

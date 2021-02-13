@@ -338,9 +338,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                                 event.rule.action, event.rule.duration,
                                 event.rule.operator.type, str(event.rule.operator.sensitive),
                                 event.rule.operator.operand, event.rule.operator.data),
-                          update_field="node,name",
-                          update_values=["time"],
-                        action_on_conflict="IGNORE")
+                          action_on_conflict="REPLACE")
 
             details_need_refresh = self._populate_stats_details(db, addr, stats)
             self._last_stats[addr] = []
