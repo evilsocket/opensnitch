@@ -109,7 +109,7 @@ func (c *Client) saveConfiguration(rawConfig string) (err error) {
 	}
 
 	if err = ioutil.WriteFile(configFile, []byte(rawConfig), 0644); err != nil {
-		log.Error("writing configuration to disk: ", err)
+		log.Error("writing configuration to disk: %s", err)
 		return err
 	}
 	return nil

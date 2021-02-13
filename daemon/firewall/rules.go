@@ -249,9 +249,9 @@ func CleanRules(logErrors bool) {
 
 func insertRules() {
 	if err4, err6 := QueueDNSResponses(true, true, queueNum); err4 != nil || err6 != nil {
-		log.Error("Error while running DNS firewall rule: %s", err4, err6)
+		log.Error("Error while running DNS firewall rule: %s %s", err4, err6)
 	} else if err4, err6 = QueueConnections(true, true, queueNum); err4 != nil || err6 != nil {
-		log.Fatal("Error while running conntrack firewall rule: %s", err4, err6)
+		log.Fatal("Error while running conntrack firewall rule: %s %s", err4, err6)
 	}
 }
 
@@ -286,7 +286,7 @@ func Init(qNum *int) {
 
 	var err error
 	if configWatcher, err = fsnotify.NewWatcher(); err != nil {
-		log.Warning("Error creating firewall config watcher:", err)
+		log.Warning("Error creating firewall config watcher: %s", err)
 	}
 	loadDiskConfiguration(false)
 

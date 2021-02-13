@@ -275,14 +275,14 @@ func Reader(r io.Reader, eventChan chan<- Event) {
 			buf, _, err := reader.ReadLine()
 			if err != nil {
 				if err == io.EOF {
-					log.Error("AuditReader: auditd stopped, reconnecting in 30s", err)
+					log.Error("AuditReader: auditd stopped, reconnecting in 30s %s", err)
 					if newReader, err := reconnect(); err == nil {
 						reader = bufio.NewReader(newReader)
 						log.Important("Auditd reconnected, continue reading")
 					}
 					continue
 				}
-				log.Warning("AuditReader: auditd error", err)
+				log.Warning("AuditReader: auditd error %s", err)
 				break
 			}
 

@@ -95,7 +95,7 @@ func setupLogging() {
 	if logFile != "" {
 		log.Close()
 		if err := log.OpenFile(logFile); err != nil {
-			log.Error("Error opening user defined log: ", logFile, err)
+			log.Error("Error opening user defined log: %s %s", logFile, err)
 		}
 	}
 }
@@ -125,7 +125,7 @@ func worker(id int) {
 		default:
 			pkt, ok := <-wrkChan
 			if !ok {
-				log.Debug("worker channel closed", id)
+				log.Debug("worker channel closed %d", id)
 				goto Exit
 			}
 			onPacket(pkt)
