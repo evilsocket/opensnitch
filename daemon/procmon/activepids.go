@@ -2,12 +2,13 @@ package procmon
 
 import (
 	"fmt"
-	"github.com/evilsocket/opensnitch/daemon/log"
 	"io/ioutil"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
 type value struct {
