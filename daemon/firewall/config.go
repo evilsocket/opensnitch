@@ -83,7 +83,7 @@ func loadConfiguration(rawConfig []byte) bool {
 func saveConfiguration(rawConfig string) error {
 	conf, err := json.Marshal([]byte(rawConfig))
 	if err != nil {
-		log.Error("saving json firewall configuration: ", err, conf)
+		log.Error("saving json firewall configuration: %s %s", err, conf)
 		return err
 	}
 
@@ -92,7 +92,7 @@ func saveConfiguration(rawConfig string) error {
 	}
 
 	if err = ioutil.WriteFile(configFile, []byte(rawConfig), 0644); err != nil {
-		log.Error("writing firewall configuration to disk: ", err)
+		log.Error("writing firewall configuration to disk: %s", err)
 		return err
 	}
 	return nil

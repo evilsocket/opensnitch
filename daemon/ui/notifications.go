@@ -101,7 +101,7 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 	// this save operation triggers a re-loadConfiguration()
 	err = c.saveConfiguration(notification.Data)
 	if err != nil {
-		log.Warning("[notification] CHANGE_CONFIG not applied", err)
+		log.Warning("[notification] CHANGE_CONFIG not applied %s", err)
 	} else if err == nil && procMonitorEqual == false {
 		procmon.Init()
 	}
@@ -112,7 +112,7 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 func (c *Client) handleActionEnableRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	var err error
 	for _, rul := range notification.Rules {
-		log.Info("[notification] enable rule: ", rul.Name)
+		log.Info("[notification] enable rule: %s", rul.Name)
 		// protocol.Rule(protobuf) != rule.Rule(json)
 		r, _ := rule.Deserialize(rul)
 		r.Enabled = true
@@ -125,7 +125,7 @@ func (c *Client) handleActionEnableRule(stream protocol.UI_NotificationsClient, 
 func (c *Client) handleActionDisableRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	var err error
 	for _, rul := range notification.Rules {
-		log.Info("[notification] disable rule: ", rul)
+		log.Info("[notification] disable rule: %s", rul)
 		r, _ := rule.Deserialize(rul)
 		r.Enabled = false
 		err = c.rules.Replace(r, r.Duration == rule.Always)
@@ -141,9 +141,9 @@ func (c *Client) handleActionChangeRule(stream protocol.UI_NotificationsClient, 
 			rErr = fmt.Errorf("Invalid rule, %s", err)
 			continue
 		}
-		log.Info("[notification] change rule: ", r, notification.Id)
+		log.Info("[notification] change rule: %s %d", r, notification.Id)
 		if err := c.rules.Replace(r, r.Duration == rule.Always); err != nil {
-			log.Warning("[notification] Error changing rule: ", err, r)
+			log.Warning("[notification] Error changing rule: %s %s", err, r)
 			rErr = err
 		}
 	}
@@ -153,10 +153,10 @@ func (c *Client) handleActionChangeRule(stream protocol.UI_NotificationsClient, 
 func (c *Client) handleActionDeleteRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	var err error
 	for _, rul := range notification.Rules {
-		log.Info("[notification] delete rule: ", rul.Name, notification.Id)
+		log.Info("[notification] delete rule: %s %d", rul.Name, notification.Id)
 		err = c.rules.Delete(rul.Name)
 		if err != nil {
-			log.Error("[notification] Error deleting rule: ", err, rul)
+			log.Error("[notification] Error deleting rule: %s %s", err, rul)
 		}
 	}
 	c.sendNotificationReply(stream, notification.Id, "", err)
@@ -179,7 +179,7 @@ func (c *Client) handleActionStopMonitorProcess(stream protocol.UI_Notifications
 	pid, err := strconv.Atoi(notification.Data)
 	if err != nil {
 		log.Error("parsing PID to stop monitor")
-		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error stopping monitor: ", notification.Data))
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error stopping monitor: %s", notification.Data))
 		return
 	}
 	stopMonitoringProcess <- pid
@@ -230,7 +230,7 @@ func (c *Client) sendNotificationReply(stream protocol.UI_NotificationsClient, n
 		reply.Data = fmt.Sprint(err)
 	}
 	if err := stream.Send(reply); err != nil {
-		log.Error("Error replying to notification:", err, reply.Id)
+		log.Error("Error replying to notification: %s %d", err, reply.Id)
 		return err
 	}
 
@@ -245,7 +245,7 @@ func (c *Client) Subscribe() {
 	defer cancel()
 
 	if _, err := c.client.Subscribe(ctx, c.getClientConfig()); err != nil {
-		log.Error("Subscribing to GUI", err)
+		log.Error("Subscribing to GUI %s", err)
 		return
 	}
 	c.listenForNotifications()
@@ -263,12 +263,12 @@ func (c *Client) listenForNotifications() {
 	streamReply := &protocol.NotificationReply{Id: 0, Code: protocol.NotificationReplyCode_OK}
 	notisStream, err := c.client.Notifications(ctx)
 	if err != nil {
-		log.Error("establishing notifications channel", err)
+		log.Error("establishing notifications channel %s", err)
 		return
 	}
 	// send the first notification
 	if err := notisStream.Send(streamReply); err != nil {
-		log.Error("sending notification HELLO", err)
+		log.Error("sending notification HELLO %s", err)
 		return
 	}
 	log.Info("Start receiving notifications")
@@ -283,7 +283,7 @@ func (c *Client) listenForNotifications() {
 				goto Exit
 			}
 			if err != nil {
-				log.Error("getting notifications: ", err, noti)
+				log.Error("getting notifications: %s %s", err, noti)
 				goto Exit
 			}
 			c.handleNotification(notisStream, noti)

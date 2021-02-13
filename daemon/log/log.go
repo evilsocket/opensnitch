@@ -164,11 +164,11 @@ func OpenFile(logFile string) (err error) {
 	}
 
 	if Output, err = os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
-		Error("Error opening log: ", logFile, err)
+		Error("Error opening log: %s %s", logFile, err)
 		//fallback to stdout
 		setDefaultLogOutput()
 	}
-	Important("Start writing logs to ", logFile)
+	Important("Start writing logs to %s", logFile)
 
 	return err
 }
