@@ -1,0 +1,32 @@
+name: Update wiki
+on:
+  push:
+    paths:
+    - 'wiki/**'
+  pull_request:
+    paths:
+    - 'wiki/**'
+
+jobs:
+  job1:
+    name: Update wiki
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone opensnitch repo
+      uses: actions/checkout@v2
+    - name: Clone wiki repo and update
+      env:
+        ORG: "evilsocket"
+        REPO_SOURCE: "opensnitch"
+        REPO_DEST: "opensnitch.wiki"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        GH_REPO_DEST="github.com/$ORG/$REPO_DEST.git"
+        git clone https://$GH_REPO_DEST
+        mv -f wiki/* $REPO_DEST/
+        cd $REPO_DEST
+        git config user.name "wiki auto updater"
+        git add .
+        git commit -m "updated after opensnitch repo commit $GITHUB_SHA"
+        git remote add origin-wiki "https://$ORG:$GITHUB_TOKEN@$GH_REPO_DEST"
+        git push origin-wiki master
