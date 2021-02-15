@@ -1,3 +1,10 @@
+UPDATE: development of Opensnitch has moved to a new place https://github.com/evilsocket/opensnitch 
+
+The code in this repository is outdated.
+
+Please start any discussions / open issues in the new repository. 
+
+
 <p align="center">
   <img alt="opensnitch" src="https://raw.githubusercontent.com/gustavo-iniguez-goya/opensnitch/master/ui/opensnitch/res/icon.png" height="160" />
   <p align="center">
