@@ -92,11 +92,15 @@ func setupLogging() {
 		log.SetLogLevel(log.INFO)
 	}
 
-	if logFile != "" {
-		log.Close()
-		if err := log.OpenFile(logFile); err != nil {
-			log.Error("Error opening user defined log: %s %s", logFile, err)
-		}
+	var logFileToUse string
+	if logFile == "" {
+		logFileToUse = log.StdoutFile
+	} else {
+		logFileToUse = logFile
+	}
+	log.Close()
+	if err := log.OpenFile(logFileToUse); err != nil {
+		log.Error("Error opening user defined log: %s %s", logFileToUse, err)
 	}
 }
 
