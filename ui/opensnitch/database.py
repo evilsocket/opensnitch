@@ -17,15 +17,19 @@ class Database:
     def __init__(self, dbname="db"):
         self._lock = threading.RLock()
         self.db = None
-        self.db_type = Database.DB_IN_MEMORY
+        self.db_file = Database.DB_IN_MEMORY
         self.db_name = dbname
-        self.initialize()
 
-    def initialize(self):
+    def initialize(self, dbfile):
+        if self.db != None:
+            QSqlDatabase.removeDatabase(self.db_name)
+            self.close()
+        self.db_file = dbfile
+
         self.db = QSqlDatabase.addDatabase("QSQLITE", self.db_name)
-        self.db.setDatabaseName(self.db_type)
+        self.db.setDatabaseName(self.db_file)
         if not self.db.open():
-            print("\n ** Error opening DB: SQLite driver not loaded. DB name: %s\n" % self.db_type)
+            print("\n ** Error opening DB: SQLite driver not loaded. DB name: %s\n" % self.db_file)
             print("\n    Available drivers: ", QSqlDatabase.drivers())
             sys.exit(-1)
         self._create_tables()
@@ -35,6 +39,9 @@ class Database:
 
     def get_db(self):
         return self.db
+
+    def get_db_file(self):
+        return self.db_file
 
     def get_new_qsql_model(self):
         return QSqlQueryModel()

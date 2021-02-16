@@ -1,5 +1,6 @@
 import os
 from PyQt5 import QtCore
+from database import Database
 
 class Config:
     __instance = None
@@ -21,6 +22,8 @@ class Config:
     DEFAULT_ACTION_KEY   = "global/default_action"
     DEFAULT_DURATION_KEY = "global/default_duration"
     DEFAULT_TARGET_KEY   = "global/default_target"
+    DEFAULT_DB_TYPE_KEY  = "database/type"
+    DEFAULT_DB_FILE_KEY  = "database/file"
     # don't translate
 
     @staticmethod
@@ -45,6 +48,9 @@ class Config:
             self.setSettings(self.DEFAULT_DURATION_KEY, self.DEFAULT_DURATION_IDX)
         if self.settings.value(self.DEFAULT_TARGET_KEY) == None:
             self.setSettings(self.DEFAULT_TARGET_KEY, self.DEFAULT_TARGET_PROCESS)
+        if self.settings.value(self.DEFAULT_DB_TYPE_KEY) == None:
+            self.setSettings(self.DEFAULT_DB_TYPE_KEY, Database.DB_TYPE_MEMORY)
+            self.setSettings(self.DEFAULT_DB_FILE_KEY, Database.DB_IN_MEMORY)
 
     def reload(self):
         self.settings = QtCore.QSettings("opensnitch", "settings")

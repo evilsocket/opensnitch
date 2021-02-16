@@ -34,9 +34,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def __init__(self, app, on_exit):
         super(UIService, self).__init__()
 
-        self._db = Database.instance()
-        self._db_sqlite = self._db.get_db()
         self._cfg = Config.init()
+        self._db = Database.instance()
+        self._db.initialize(
+            dbfile=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
+        )
+        self._db_sqlite = self._db.get_db()
         self._last_ping = None
         self._version_warning_shown = False
         self._asking = False
