@@ -1290,7 +1290,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="199"/>
         <source>You must select a file for the database&lt;br&gt;or choose &quot;In memory&quot; type.</source>
-        <translation>Você deve selecionar um arquivo para o banco de dados&lt;br&gt;ou escolha &quot;Em memória&quot; type.</translation>
+        <translation>Você deve selecionar um arquivo para o banco de dados&lt;br&gt;ou escolher o tipo &quot;Na memória&quot;.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="205"/>
