@@ -56,6 +56,8 @@ type Client struct {
 	client              protocol.UIClient
 	configWatcher       *fsnotify.Watcher
 	streamNotifications protocol.UI_NotificationsClient
+	//isAsking is set to true if the client is awaiting a decision from the GUI
+	isAsking bool
 }
 
 // NewClient creates and configures a new client.
@@ -64,6 +66,7 @@ func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Load
 		stats:        stats,
 		rules:        rules,
 		isUnixSocket: false,
+		isAsking:     false,
 	}
 	c.clientCtx, c.clientCancel = context.WithCancel(context.Background())
 
@@ -116,12 +119,26 @@ func (c *Client) DefaultDuration() rule.Duration {
 
 // Connected checks if the client has established a connection with the server.
 func (c *Client) Connected() bool {
-	c.Lock()
-	defer c.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 	if c.con == nil || c.con.GetState() != connectivity.Ready {
 		return false
 	}
 	return true
+}
+
+//GetIsAsking returns the isAsking flag
+func (c *Client) GetIsAsking() bool {
+	c.RLock()
+	defer c.RUnlock()
+	return c.isAsking
+}
+
+//SetIsAsking sets the isAsking flag
+func (c *Client) SetIsAsking(flag bool) {
+	c.Lock()
+	defer c.Unlock()
+	c.isAsking = flag
 }
 
 func (c *Client) poller() {
@@ -253,28 +270,21 @@ func (c *Client) ping(ts time.Time) (err error) {
 
 // Ask sends a request to the server, with the values of a connection to be
 // allowed or denied.
-func (c *Client) Ask(con *conman.Connection) (*rule.Rule, bool) {
-	if c.Connected() == false {
-		return clientDisconnectedRule, false
-	}
-
-	c.Lock()
-	defer c.Unlock()
-
+func (c *Client) Ask(con *conman.Connection) *rule.Rule {
 	// FIXME: if timeout is fired, the rule is not added to the list in the GUI
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
 	defer cancel()
 	reply, err := c.client.AskRule(ctx, con.Serialize())
 	if err != nil {
 		log.Warning("Error while asking for rule: %s - %v", err, con)
-		return nil, false
+		return nil
 	}
 
 	r, err := rule.Deserialize(reply)
 	if err != nil {
-		return nil, false
+		return nil
 	}
-	return r, true
+	return r
 }
 
 func (c *Client) monitorConfigWorker() {
