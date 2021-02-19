@@ -58,9 +58,10 @@ type Operator struct {
 	Data      string     `json:"data"`
 	List      []Operator `json:"list"`
 
-	cb      opCallback
-	re      *regexp.Regexp
-	netMask *net.IPNet
+	cb         opCallback
+	re         *regexp.Regexp
+	netMask    *net.IPNet
+	isCompiled bool
 }
 
 // NewOperator returns a new operator object
@@ -81,6 +82,9 @@ func NewOperator(t Type, s Sensitive, o Operand, data string, list []Operator) (
 
 // Compile translates the operator type field to its callback counterpart
 func (o *Operator) Compile() error {
+	if o.isCompiled {
+		return nil
+	}
 	if o.Type == Simple {
 		o.cb = o.simpleCmp
 	} else if o.Type == Regexp {
@@ -103,6 +107,8 @@ func (o *Operator) Compile() error {
 		}
 		o.cb = o.cmpNetwork
 	}
+	log.Debug("Operator compiled: %s", o)
+	o.isCompiled = true
 
 	return nil
 }
@@ -144,12 +150,11 @@ func (o *Operator) cmpNetwork(destIP interface{}) bool {
 
 func (o *Operator) listMatch(con interface{}) bool {
 	res := true
-	for i := 0; i < len(o.List); i += 1 {
-		o := o.List[i]
-		if err := o.Compile(); err != nil {
+	for i := 0; i < len(o.List); i++ {
+		if err := o.List[i].Compile(); err != nil {
 			return false
 		}
-		res = res && o.Match(con.(*conman.Connection))
+		res = res && o.List[i].Match(con.(*conman.Connection))
 	}
 	return res
 }
