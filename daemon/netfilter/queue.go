@@ -16,9 +16,9 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
 const (
@@ -236,7 +236,7 @@ func go_callback(queueID C.int, data *C.uchar, length C.int, mark C.uint, idx ui
 			}
 		}
 
-	default:
-		fmt.Fprintf(os.Stderr, "Error sending packet to queue channel %d\n", idx)
+	case <-time.After(1 * time.Millisecond):
+		fmt.Fprintf(os.Stderr, "Timed out while sending packet to queue channel %d\n", idx)
 	}
 }
