@@ -91,7 +91,8 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
 			return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
 		}
-		if c.Entry.INode != -1 {
+		if c.Entry.INode > 0 {
+			log.Debug("connection found in netstat: %v", c.Entry)
 			inodeList = append([]int{c.Entry.INode}, inodeList...)
 		}
 	}
