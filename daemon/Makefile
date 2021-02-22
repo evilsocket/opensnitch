@@ -1,3 +1,6 @@
+#SRC contains all *.go *.c *.h files in daemon/ and its subfolders 
+SRC := $(shell find . -type f -name '*.go' -o -name '*.h' -o -name '*.c')
+
 all: opensnitchd
 
 install:
@@ -8,7 +11,7 @@ install:
 	@cp system-fw.json /etc/opensnitchd/
 	@systemctl daemon-reload
 
-opensnitchd:
+opensnitchd: $(SRC)
 	@go build -o opensnitchd . 
 
 clean:
