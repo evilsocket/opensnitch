@@ -1,19 +1,19 @@
 ### Installation from sources
 
-(tested on Debian sid and Ubuntu 20. It may fail on other distributions.)
+(tested on Debian sid and Ubuntu 18 and 20. It may fail on other distributions.)
 
 Make sure you have a correctly configured **Go >= 1.13** environment (it also may work with >= 1.11), that the `$GOPATH` environment variable is defined and then:
 
 ```bash
 # install dependencies
-sudo apt-get install git golang libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip pyqt5-dev-tools
+sudo apt-get install git golang libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip pyqt5-dev-tools qttools5-dev-tools qt5-default
 go get github.com/golang/protobuf/protoc-gen-go
 export GOPATH=~/go #you may want to change this if your Go directory is different
 export PATH=$PATH:$GOPATH/bin
 python3 -m pip install --user grpcio-tools
-# clone the repository (ignore the message about no Go files being found)
-go get github.com/gustavo-iniguez-goya/opensnitch
-cd $GOPATH/src/github.com/gustavo-iniguez-goya/opensnitch
+# clone the repository 
+git clone https://github.com/evilsocket/opensnitch
+cd opensnitch
 # compile && install
 make
 sudo make install
@@ -55,14 +55,20 @@ The user interface is a Python 3 software running as a `gRPC` server on a unix s
 
 **Tip 1:** If pip fails installing pyqt5, try changing the pyqt5 version in `requirements.txt` to install pyqt5==5.10 or other version that work for you.
 
-**Tip 2:** On newer distros, you may need to upgrade pip (`pip3 install --upgrade --user pip`) [#305](https://github.com/evilsocket/opensnitch/issues/305)
+**Tip 2:** On newer distros, you may need to upgrade pip (`python3 -m pip install --upgrade --user pip`) [#305](https://github.com/evilsocket/opensnitch/issues/305)
 
 The UI is pip installable itself:
 
     sudo pip3 install .
 
 This will install the `opensnitch-ui` command on your system (you can auto startup it by `cp opensnitch_ui.desktop ~/.config/autostart/`).
-  
+
+**Tip 3:** If you get errors about unicode-slugify, try these commands
+
+    sudo apt install locales
+    sudo locale-gen en_US.UTF-8
+    export LC_CTYPE=en_US.UTF-8
+    
 
 
 ***
