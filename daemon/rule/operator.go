@@ -29,6 +29,7 @@ const (
 	Complex = Type("complex") // for future use
 	List    = Type("list")
 	Network = Type("network")
+	Lists   = Type("lists")
 )
 
 // Available operands
@@ -46,6 +47,7 @@ const (
 	OpDstNetwork          = Operand("dest.network")
 	OpProto               = Operand("protocol")
 	OpList                = Operand("list")
+	OpDomainsLists        = Operand("lists.domains")
 )
 
 type opCallback func(value interface{}) bool
@@ -62,6 +64,7 @@ type Operator struct {
 	re         *regexp.Regexp
 	netMask    *net.IPNet
 	isCompiled bool
+	lists      map[string]string
 }
 
 // NewOperator returns a new operator object
@@ -97,6 +100,14 @@ func (o *Operator) Compile() error {
 			return err
 		}
 		o.re = re
+	} else if o.Type == Lists && o.Operand == OpDomainsLists {
+		if o.Data == "" {
+			return fmt.Errorf("Operand lists is empty, nothing to load: %s", o)
+		}
+		if err := o.loadLists(); err != nil {
+			return err
+		}
+		o.cb = o.domainsListCmp
 	} else if o.Type == List {
 		o.Operand = OpList
 	} else if o.Type == Network {
@@ -148,6 +159,18 @@ func (o *Operator) cmpNetwork(destIP interface{}) bool {
 	return o.netMask.Contains(destIP.(net.IP))
 }
 
+func (o *Operator) domainsListCmp(v interface{}) bool {
+	dstHost := v.(string)
+	if dstHost == "" {
+		return false
+	}
+	if _, found := o.lists[dstHost]; found {
+		log.Debug("%s: %s, %s", log.Red("domain list match"), dstHost, o.lists[dstHost])
+		return true
+	}
+	return false
+}
+
 func (o *Operator) listMatch(con interface{}) bool {
 	res := true
 	for i := 0; i < len(o.List); i++ {
@@ -188,6 +211,8 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(con.DstIP)
 	} else if o.Operand == OpList {
 		return o.listMatch(con)
+	} else if o.Operand == OpDomainsLists {
+		return o.cb(con.DstHost)
 	}
 
 	return false

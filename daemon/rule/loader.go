@@ -93,7 +93,9 @@ func (l *Loader) Load(path string) error {
 		r.Operator.Compile()
 		if r.Operator.Type == List {
 			for i := 0; i < len(r.Operator.List); i++ {
-				r.Operator.List[i].Compile()
+				if err := r.Operator.List[i].Compile(); err != nil {
+					log.Warning("Operator.Compile() error: %s: ", err)
+				}
 			}
 		}
 		diskRules[r.Name] = r.Name
@@ -211,14 +213,24 @@ func (l *Loader) replaceUserRule(rule *Rule) (err error) {
 	l.rules[rule.Name] = rule
 	l.sortRules()
 	l.Unlock()
+
+	rule.Operator.isCompiled = false
+	if err := rule.Operator.Compile(); err != nil {
+		log.Warning("Operator.Compile() error: %s: ", err, rule.Operator.Data)
+	}
+
 	if rule.Operator.Type == List {
 		// TODO: use List protobuf object instead of un/marshalling to/from json
 		if err = json.Unmarshal([]byte(rule.Operator.Data), &rule.Operator.List); err != nil {
 			return fmt.Errorf("Error loading rule of type list: %s", err)
 		}
+
+		// force re-Compile() changed rule
 		for i := 0; i < len(rule.Operator.List); i++ {
 			rule.Operator.List[i].isCompiled = false
-			rule.Operator.List[i].Compile()
+			if err := rule.Operator.Compile(); err != nil {
+				log.Warning("Operator.Compile() error: %s: ", err)
+			}
 		}
 	}
 

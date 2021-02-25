@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>651</width>
-    <height>526</height>
+    <height>543</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -96,7 +96,7 @@
      <property name="checked">
       <bool>false</bool>
      </property>
-     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,0">
+     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,0,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
@@ -109,22 +109,15 @@
       <property name="verticalSpacing">
        <number>12</number>
       </property>
-      <item row="7" column="1">
-       <widget class="QCheckBox" name="cmdlineCheck">
+      <item row="11" column="1">
+       <widget class="QCheckBox" name="dstIPCheck">
         <property name="text">
-         <string>From this command line</string>
+         <string>To this IP / Network</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
-       <widget class="QCheckBox" name="procCheck">
-        <property name="text">
-         <string>From this executable</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <spacer name="horizontalSpacer_5">
+      <item row="10" column="4" colspan="2">
+       <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -136,8 +129,18 @@
         </property>
        </spacer>
       </item>
-      <item row="3" column="3">
-       <spacer name="horizontalSpacer_4">
+      <item row="6" column="4" colspan="3">
+       <widget class="QLineEdit" name="procLine">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="placeholderText">
+         <string>/path/to/executable, .*/bin/executable[0-9\.]+$, ...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="4" colspan="2">
+       <spacer name="horizontalSpacer_3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -156,87 +159,6 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="3" colspan="3">
-       <widget class="QLineEdit" name="procLine">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="placeholderText">
-         <string>/path/to/executable, .*/bin/executable[0-9\.]+$, ...</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="3" colspan="2">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="11" column="1">
-       <widget class="QCheckBox" name="dstIPCheck">
-        <property name="text">
-         <string>To this IP / Network</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="5">
-       <widget class="QLineEdit" name="uidLine">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="5">
-       <widget class="QComboBox" name="durationCombo">
-        <item>
-         <property name="text">
-          <string>once</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>30s</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>5m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>15m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>30m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>1h</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>until reboot</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>always</string>
-         </property>
-        </item>
-       </widget>
-      </item>
       <item row="8" column="1">
        <widget class="QCheckBox" name="dstPortCheck">
         <property name="text">
@@ -244,36 +166,15 @@
         </property>
        </widget>
       </item>
-      <item row="10" column="1">
-       <widget class="QCheckBox" name="uidCheck">
+      <item row="13" column="1">
+       <widget class="QCheckBox" name="dstListsCheck">
         <property name="text">
-         <string>From this user ID</string>
+         <string>To this list of domains</string>
         </property>
        </widget>
       </item>
-      <item row="12" column="3" colspan="3">
-       <widget class="QLineEdit" name="dstHostLine">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Commas or spaces are not allowed to specify multiple domains. 
-
-Use regular expressions instead: 
-.*(opensnitch|duckduckgo).com
-.*\.google.com
-
-or a single domain:
-www.gnu.org - it'll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
-gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</string>
-        </property>
-        <property name="placeholderText">
-         <string>www.domain.org, .*\.domain.org</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="3" colspan="2">
-       <spacer name="horizontalSpacer_2">
+      <item row="4" column="4">
+       <spacer name="horizontalSpacer_5">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -285,53 +186,7 @@ gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ..
         </property>
        </spacer>
       </item>
-      <item row="5" column="5">
-       <widget class="QComboBox" name="protoCombo">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="currentText">
-         <string>TCP</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>TCP</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>UDP</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>UDPLITE</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>TCP6</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>UDP6</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>UDPLITE6</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="11" column="3" colspan="3">
+      <item row="11" column="4" colspan="3">
        <widget class="QComboBox" name="dstIPCombo">
         <property name="enabled">
          <bool>false</bool>
@@ -426,17 +281,98 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
         </item>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Duration</string>
+      <item row="3" column="4">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="10" column="6">
+       <widget class="QLineEdit" name="uidLine">
+        <property name="enabled">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
-       <widget class="QCheckBox" name="protoCheck">
-        <property name="text">
-         <string>Protocol</string>
+      <item row="8" column="6">
+       <widget class="QLineEdit" name="dstPortLine">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="6">
+       <widget class="QComboBox" name="durationCombo">
+        <item>
+         <property name="text">
+          <string>once</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>30s</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>5m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>15m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>30m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>1h</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>until reboot</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>always</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="12" column="4" colspan="3">
+       <widget class="QLineEdit" name="dstHostLine">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Commas or spaces are not allowed to specify multiple domains. 
+
+Use regular expressions instead: 
+.*(opensnitch|duckduckgo).com
+.*\.google.com
+
+or a single domain:
+www.gnu.org - it'll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
+gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</string>
+        </property>
+        <property name="placeholderText">
+         <string>www.domain.org, .*\.domain.org</string>
         </property>
        </widget>
       </item>
@@ -447,14 +383,81 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="3" colspan="3">
+      <item row="7" column="4" colspan="3">
        <widget class="QLineEdit" name="cmdlineLine">
         <property name="enabled">
          <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="3" column="5">
+      <item row="4" column="1">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Duration</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="6">
+       <widget class="QComboBox" name="protoCombo">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="currentText">
+         <string>TCP</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>TCP</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>UDP</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>UDPLITE</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>TCP6</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>UDP6</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>UDPLITE6</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="protoCheck">
+        <property name="text">
+         <string>Protocol</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QCheckBox" name="procCheck">
+        <property name="text">
+         <string>From this executable</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="6">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QRadioButton" name="actionDenyRadio">
@@ -498,15 +501,46 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
         </item>
        </layout>
       </item>
-      <item row="8" column="5">
-       <widget class="QLineEdit" name="dstPortLine">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <item row="7" column="1">
+       <widget class="QCheckBox" name="cmdlineCheck">
+        <property name="text">
+         <string>From this command line</string>
         </property>
        </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="QCheckBox" name="uidCheck">
+        <property name="text">
+         <string>From this user ID</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="4" colspan="3">
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QPushButton" name="selectListButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset theme="search"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="dstListsLine">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

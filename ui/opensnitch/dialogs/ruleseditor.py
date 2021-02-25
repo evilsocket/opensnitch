@@ -15,7 +15,7 @@ from config import Config
 from nodes import Nodes
 from database import Database
 from version import version
-from utils import Message
+from utils import Message, FileDialog
 
 DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -46,6 +46,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Close).clicked.connect(self._cb_close_clicked)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Apply).clicked.connect(self._cb_apply_clicked)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Help).clicked.connect(self._cb_help_clicked)
+        self.selectListButton.clicked.connect(self._cb_select_list_button_clicked)
         self.protoCheck.toggled.connect(self._cb_proto_check_toggled)
         self.procCheck.toggled.connect(self._cb_proc_check_toggled)
         self.cmdlineCheck.toggled.connect(self._cb_cmdline_check_toggled)
@@ -53,6 +54,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.uidCheck.toggled.connect(self._cb_uid_check_toggled)
         self.dstIPCheck.toggled.connect(self._cb_dstip_check_toggled)
         self.dstHostCheck.toggled.connect(self._cb_dsthost_check_toggled)
+        self.dstListsCheck.toggled.connect(self._cb_dstlists_check_toggled)
 
         if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
             self.actionAllowRadio.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
@@ -76,6 +78,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_help_clicked(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_URL))
 
+    def _cb_select_list_button_clicked(self):
+        dirName = FileDialog.select_dir(self, self.dstListsLine.text())
+        if dirName != None and dirName != "":
+            self.dstListsLine.setText(dirName)
+
     def _cb_proto_check_toggled(self, state):
         self.protoCombo.setEnabled(state)
 
@@ -96,6 +103,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_dsthost_check_toggled(self, state):
         self.dstHostLine.setEnabled(state)
+
+    def _cb_dstlists_check_toggled(self, state):
+        self.dstListsLine.setEnabled(state)
+        self.selectListButton.setEnabled(state)
 
     def _set_status_error(self, msg):
         self.statusLabel.setStyleSheet('color: red')
@@ -184,6 +195,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstHostCheck.setChecked(False)
         self.dstHostLine.setText("")
 
+        self.selectListButton.setEnabled(False)
+        self.dstListsCheck.setChecked(False)
+        self.dstListsLine.setText("")
+
     def _load_rule(self, addr=None, rule=None):
         self._load_nodes(addr)
 
@@ -254,6 +269,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dstHostCheck.setChecked(True)
             self.dstHostLine.setEnabled(True)
             self.dstHostLine.setText(operator.data)
+
+        if operator.operand == "lists.domains":
+            self.dstListsCheck.setChecked(True)
+            self.dstListsCheck.setEnabled(True)
+            self.dstListsLine.setText(operator.data)
+            self.selectListButton.setEnabled(True)
 
     def _load_nodes(self, addr=None):
         try:
@@ -332,7 +353,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         Ensure that some constraints are met:
         - Determine if a field can be a regexp.
         - Validate regexp.
-        - Fields cam not be empty.
+        - Fields cannot be empty.
         - If the user has not provided a rule name, auto assign one.
         """
         self.rule = ui_pb2.Rule()
@@ -497,11 +518,29 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if self._is_valid_regex(self.uidLine.text()) == False:
                     return False, QC.translate("rules", "User ID regexp error")
 
+        if self.dstListsCheck.isChecked():
+            if self.dstListsLine.text() == "":
+                return False, QC.translate("rules", "Lists field cannot be empty")
+            if os.path.isdir(self.dstListsLine.text()) == False:
+                return False, QC.translate("rules", "Lists field must be a directory")
+
+            self.rule.operator.type = "lists"
+            self.rule.operator.operand = "lists.domains"
+            rule_data.append(
+                    {
+                        'type': 'lists',
+                        'operand': 'lists.domains',
+                        'data': self.dstListsLine.text(),
+                        'sensitive': self.sensitiveCheck.isChecked()
+                        })
+            self.rule.operator.data = json.dumps(rule_data)
+
+
         if len(rule_data) > 1:
             self.rule.operator.type = "list"
             self.rule.operator.operand = ""
             self.rule.operator.data = json.dumps(rule_data)
-        elif len(rule_data) == 1:
+        else:
             self.rule.operator.operand = rule_data[0]['operand']
             self.rule.operator.data = rule_data[0]['data']
             if self._is_regex(self.rule.operator.data):

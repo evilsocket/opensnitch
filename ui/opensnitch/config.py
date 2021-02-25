@@ -7,7 +7,7 @@ class Config:
 
     HELP_URL = "https://github.com/gustavo-iniguez-goya/opensnitch/wiki/Configurations"
 
-    RulesTypes = ("list", "simple", "regexp", "network")
+    RulesTypes = ("list", "lists", "simple", "regexp", "network")
 
     DEFAULT_DURATION_IDX = 6 # until restart
     DEFAULT_TARGET_PROCESS = 0
