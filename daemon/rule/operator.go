@@ -76,10 +76,6 @@ func NewOperator(t Type, s Sensitive, o Operand, data string, list []Operator) (
 		Data:      data,
 		List:      list,
 	}
-	if err := op.Compile(); err != nil {
-		log.Error("NewOperator() failed to compile: %s", err)
-		return nil, err
-	}
 	return &op, nil
 }
 
@@ -174,9 +170,6 @@ func (o *Operator) domainsListCmp(v interface{}) bool {
 func (o *Operator) listMatch(con interface{}) bool {
 	res := true
 	for i := 0; i < len(o.List); i++ {
-		if err := o.List[i].Compile(); err != nil {
-			return false
-		}
 		res = res && o.List[i].Match(con.(*conman.Connection))
 	}
 	return res

@@ -9,7 +9,8 @@ import (
 	"strings"
 )
 
-func (o *Operator) clearLists() {
+// ClearLists deletes all the entries of a list
+func (o *Operator) ClearLists() {
 	log.Debug("clearing domains lists: %d - %s", len(o.lists), o.Data)
 	for k := range o.lists {
 		delete(o.lists, k)
@@ -21,7 +22,7 @@ func (o *Operator) clearLists() {
 func (o *Operator) loadLists() error {
 	log.Info("loading domains lists: %s, %s, %s", o.Type, o.Operand, o.Data)
 
-	o.clearLists()
+	o.ClearLists()
 	var dups uint64
 
 	// this list is particular to this operator/rule
