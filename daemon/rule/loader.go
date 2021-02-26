@@ -89,9 +89,30 @@ func (l *Loader) Load(path string) error {
 			log.Error("Error parsing rule from %s: %s", fileName, err)
 			continue
 		}
-
-		r.Operator.Compile()
 		diskRules[r.Name] = r.Name
+
+		if r.Enabled {
+			r.Operator.Compile()
+			if r.Operator.Type == List {
+				for i := 0; i < len(r.Operator.List); i++ {
+					if err := r.Operator.List[i].Compile(); err != nil {
+						log.Warning("Operator.Compile() error: %s: ", err)
+					}
+				}
+			}
+		} else {
+			// if we're reloading the list of rules (due to changes on disk),
+			// we need to clear up any possible loaded lists.
+			if r.Operator.Type == Lists {
+				r.Operator.ClearLists()
+			} else if r.Operator.Type == List {
+				for i := 0; i < len(r.Operator.List); i++ {
+					if r.Operator.List[i].Type == Lists {
+						r.Operator.ClearLists()
+					}
+				}
+			}
+		}
 
 		log.Debug("Loaded rule from %s: %s", fileName, r.String())
 		l.rules[r.Name] = &r
@@ -200,16 +221,37 @@ func (l *Loader) replaceUserRule(rule *Rule) (err error) {
 			}
 		}
 	}
-	// TODO: allow to delete rules from disk if the user changes the name of the rule.
 
 	l.Lock()
 	l.rules[rule.Name] = rule
 	l.sortRules()
 	l.Unlock()
+
+	if rule.Enabled == false && rule.Operator.Type == Lists {
+		rule.Operator.ClearLists()
+	} else {
+		rule.Operator.isCompiled = false
+		if err := rule.Operator.Compile(); err != nil {
+			log.Warning("Operator.Compile() error: %s: ", err, rule.Operator.Data)
+		}
+	}
+
 	if rule.Operator.Type == List {
 		// TODO: use List protobuf object instead of un/marshalling to/from json
 		if err = json.Unmarshal([]byte(rule.Operator.Data), &rule.Operator.List); err != nil {
 			return fmt.Errorf("Error loading rule of type list: %s", err)
+		}
+
+		for i := 0; i < len(rule.Operator.List); i++ {
+			if rule.Enabled == false && rule.Operator.List[i].Type == Lists {
+				rule.Operator.ClearLists()
+				continue
+			}
+			// force re-Compile() changed rule
+			rule.Operator.List[i].isCompiled = false
+			if err := rule.Operator.List[i].Compile(); err != nil {
+				log.Warning("Operator.Compile() error: %s: ", err)
+			}
 		}
 	}
 

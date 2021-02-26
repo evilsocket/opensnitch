@@ -1,4 +1,4 @@
-all: protocol daemon/opensnitchd ui/resources_rc.py
+all: protocol opensnitch_daemon gui
 
 install:
 	@cd daemon && make install	
@@ -7,19 +7,16 @@ install:
 protocol:
 	@cd proto && make
 
-daemon/opensnitchd:
+opensnitch_daemon:
 	@cd daemon && make
 
-ui/resources_rc.py:
+gui:
 	@cd ui && make
-
-deps:
-	@cd daemon && make deps
-	@cd ui && make deps
 
 clean:
 	@cd daemon && make clean
 	@cd proto && make clean
+	@cd ui && make clean
 
 run:
 	cd ui && pip3 install --upgrade . && cd ..

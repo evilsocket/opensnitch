@@ -18,12 +18,17 @@ jobs:
 
     - name: Get dependencies
       run: |
+        sudo apt-get install git libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
+        export GOPATH=~/go
+        export PATH=$PATH:$GOPATH/bin
+        go get github.com/golang/protobuf/protoc-gen-go
+        cd proto
+        make ../daemon/ui/protocol/ui.pb.go
         go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
-        sudo apt-get install git libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
 
     - name: Build
       run: |
