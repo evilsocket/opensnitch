@@ -139,6 +139,10 @@ func TestNewOperatorSimple(t *testing.T) {
 			t.Error("NewOperator simple.dstHost.sensitive err should be nil: ", err)
 			t.Fail()
 		}
+		if err = opSimple.Compile(); err != nil {
+			t.Error("NewOperator simple.dstHost.sensitive Compile() err:", err)
+			t.Fail()
+		}
 		conn.DstHost = "OpEnsNitCh.io"
 		if opSimple.Match(conn) == false {
 			t.Error("Test NewOperator() simple.dstHost.sensitive doesn't match")

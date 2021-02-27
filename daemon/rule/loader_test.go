@@ -23,6 +23,7 @@ func TestRuleLoader(t *testing.T) {
 	var list []Operator
 	dur1s := Duration("1s")
 	dummyOper, _ := NewOperator(Simple, false, OpTrue, "", list)
+	dummyOper.Compile()
 	inMem1sRule := Create("000-xxx-name", true, false, Allow, dur1s, dummyOper)
 	inMemUntilRestartRule := Create("000-aaa-name", true, false, Allow, Restart, dummyOper)
 
