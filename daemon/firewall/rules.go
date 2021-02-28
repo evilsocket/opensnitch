@@ -12,10 +12,6 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-// DropMark is the mark we place on a connection when we deny it.
-// The connection is dropped later on OUTPUT chain.
-const DropMark = 0x18BA5
-
 // Action is the modifier we apply to a rule.
 type Action string
 
