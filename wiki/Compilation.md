@@ -2,7 +2,7 @@
 
 (tested on Debian sid and Ubuntu 18 and 20. It may fail on other distributions.)
 
-Make sure you have a correctly configured **Go >= 1.13** environment (it also may work with >= 1.11), that the `$GOPATH` environment variable is defined and then:
+Make sure you have a correctly configured **Go >= 1.12** environment, that the `$GOPATH` environment variable is defined and then:
 
 ```bash
 # install dependencies
