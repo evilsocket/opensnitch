@@ -130,10 +130,8 @@ func (l *Loader) loadRule(fileName string) error {
 	}
 
 	log.Debug("Loaded rule from %s: %s", fileName, r.String())
-	l.Lock()
 	l.rules[r.Name] = &r
 	l.sortRules()
-	l.Unlock()
 
 	if l.isTemporary(&r) {
 		err = l.scheduleTemporaryRule(&r)
@@ -256,7 +254,11 @@ func (l *Loader) addUserRule(rule *Rule) {
 }
 
 func (l *Loader) replaceUserRule(rule *Rule) (err error) {
-	if oldRule, found := l.rules[rule.Name]; found {
+	l.Lock()
+	oldRule, found := l.rules[rule.Name]
+	l.Unlock()
+
+	if found {
 		// If the rule has changed from Always (saved on disk) to !Always (temporary),
 		// we need to delete the rule from disk and keep it in memory.
 		l.deleteOldRuleFromDisk(oldRule, rule)
