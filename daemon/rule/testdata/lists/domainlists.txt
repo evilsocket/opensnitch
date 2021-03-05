@@ -1,0 +1,4 @@
+# this line must be ignored, 0.0.0.0 www.test.org
+0.0.0.0 www.test.org
+127.0.0.1 www.test.org
+0.0.0.0 opensnitch.io
