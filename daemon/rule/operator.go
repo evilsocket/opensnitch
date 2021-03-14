@@ -162,8 +162,8 @@ func (o *Operator) domainsListCmp(v interface{}) bool {
 	if dstHost == "" {
 		return false
 	}
-	o.Lock()
-	defer o.Unlock()
+	o.RLock()
+	defer o.RUnlock()
 
 	if _, found := o.lists[dstHost]; found {
 		log.Debug("%s: %s, %s", log.Red("domain list match"), dstHost, o.lists[dstHost])

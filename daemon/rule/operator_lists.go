@@ -21,6 +21,7 @@ func (o *Operator) monitorLists() {
 	modTimes := make(map[string]time.Time)
 	totalFiles := 0
 	needReload := false
+	numFiles := 0
 
 	expr := filepath.Join(o.Data, "/*.*")
 	for {
@@ -30,15 +31,18 @@ func (o *Operator) monitorLists() {
 		default:
 			fileList, err := filepath.Glob(expr)
 			if err != nil {
-				needReload = false
-				continue
+				log.Warning("Error reading directory of domains list: %s, %s", o.Data, err)
+				goto Exit
 			}
-			if len(fileList) != totalFiles {
-				needReload = true
-			}
-			totalFiles = len(fileList)
+			numFiles = 0
 
 			for _, filename := range fileList {
+				// ignore hidden files
+				name := filepath.Base(filename)
+				if name[:1] == "." {
+					delete(modTimes, filename)
+					continue
+				}
 				// an overwrite operation performs two tasks: truncate the file and save the new content,
 				// causing the file time to be modified twice.
 				modTime, err := core.GetFileModTime(filename)
@@ -52,8 +56,14 @@ func (o *Operator) monitorLists() {
 					}
 				}
 				modTimes[filename] = modTime
+				numFiles++
 			}
 			fileList = nil
+
+			if numFiles != totalFiles {
+				needReload = true
+			}
+			totalFiles = numFiles
 
 			if needReload {
 				// we can't reload a single list, because the domains of all lists are added to the same map.
@@ -142,13 +152,18 @@ func (o *Operator) readLists() error {
 	o.lists = make(map[string]string)
 	o.Unlock()
 
-	expr := filepath.Join(o.Data, "/*.*")
+	expr := filepath.Join(o.Data, "*.*")
 	fileList, err := filepath.Glob(expr)
 	if err != nil {
 		return fmt.Errorf("Error loading domains lists '%s': %s", expr, err)
 	}
 
 	for _, fileName := range fileList {
+		// ignore hidden files
+		name := filepath.Base(fileName)
+		if name[:1] == "." {
+			continue
+		}
 		dups += o.readList(fileName)
 	}
 	log.Info("%d lists loaded, %d domains, %d duplicated", len(fileList), len(o.lists), dups)
