@@ -43,6 +43,7 @@ var (
 func addProcEntry(fdPath string, fdList []string, pid int) {
 	for n := range pidsCache {
 		if pidsCache[n].Pid == pid {
+			pidsCache[n].Descriptors = fdList
 			pidsCache[n].Time = time.Now()
 			return
 		}
@@ -105,15 +106,21 @@ func getPidByInodeFromCache(inodeKey string) int {
 	return -1
 }
 
-func getPidDescriptorsFromCache(pid int, fdPath string, expect string, descriptors []string) int {
-	for fdIdx := 0; fdIdx < len(descriptors); fdIdx++ {
-		descLink := fmt.Sprint(fdPath, descriptors[fdIdx])
+func getPidDescriptorsFromCache(fdPath string, expect string, descriptors *[]string) (int, *[]string) {
+	for fdIdx := 0; fdIdx < len(*descriptors); fdIdx++ {
+		descLink := fmt.Sprint(fdPath, (*descriptors)[fdIdx])
 		if link, err := os.Readlink(descLink); err == nil && link == expect {
-			return fdIdx
+			if fdIdx > 0 {
+				// reordering helps to reduce look up times by a factor of 10.
+				fd := (*descriptors)[fdIdx]
+				*descriptors = append((*descriptors)[:fdIdx], (*descriptors)[fdIdx+1:]...)
+				*descriptors = append([]string{fd}, *descriptors...)
+			}
+			return fdIdx, descriptors
 		}
 	}
 
-	return -1
+	return -1, descriptors
 }
 
 func getPidFromCache(inode int, inodeKey string, expect string) (int, int) {
@@ -121,20 +128,28 @@ func getPidFromCache(inode int, inodeKey string, expect string) (int, int) {
 	for n := 0; n < len(pidsCache); n++ {
 		procEntry := pidsCache[n]
 
-		if idxDesc := getPidDescriptorsFromCache(procEntry.Pid, procEntry.FdPath, expect, procEntry.Descriptors); idxDesc != -1 {
+		if idxDesc, newFdList := getPidDescriptorsFromCache(procEntry.FdPath, expect, &procEntry.Descriptors); idxDesc != -1 {
 			pidsCache[n].Time = time.Now()
+			pidsCache[n].Descriptors = *newFdList
 			return procEntry.Pid, n
 		}
+	}
+	// inode not found in cache, we need to refresh the list of descriptors
+	// to see if any of the known PIDs has opened a new socket, and update
+	// the new list of file descriptors for that PID.
 
-		descriptors := lookupPidDescriptors(procEntry.FdPath)
+	for n := 0; n < len(pidsCache); n++ {
+		procEntry := pidsCache[n]
+		descriptors := lookupPidDescriptors(procEntry.FdPath, procEntry.Pid)
 		if descriptors == nil {
 			deleteProcEntry(procEntry.Pid)
 			continue
 		}
 
 		pidsCache[n].Descriptors = descriptors
-		if idxDesc := getPidDescriptorsFromCache(procEntry.Pid, procEntry.FdPath, expect, descriptors); idxDesc != -1 {
+		if idxDesc, newFdList := getPidDescriptorsFromCache(procEntry.FdPath, expect, &descriptors); idxDesc != -1 {
 			pidsCache[n].Time = time.Now()
+			pidsCache[n].Descriptors = *newFdList
 			return procEntry.Pid, n
 		}
 	}
