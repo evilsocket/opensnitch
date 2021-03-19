@@ -15,7 +15,21 @@
 * `Error while creating queue #0: Error binding to queue: operation not permitted.`
 * `Error opening Queue handle: protocol not supported`
 * `Could not open socket to kernel: Address family not supported by protocol (IPv6)`
-* `Error while creating queue #0: Error unbinding existing q handler from AF_INET protocol` see [#323](https://github.com/evilsocket/opensnitch/issues/323). Issue not solved, if you can provide more information open a new issue please.
+* `Error while creating queue #0: Error unbinding existing q handler from AF_INET protocol` see [#323](https://github.com/evilsocket/opensnitch/issues/323) and [#204](https://github.com/evilsocket/opensnitch/issues/204#issuecomment-802932344). Issue not solved, if you can provide more information open a new issue please.
+
+For all these options, be sure that you have NFQUEUE support in the kernel (=y or =m):
+```
+$ grep -E "(NFT|NETLINK|NFQUEUE) /boot/config-$(uname -r)"
+CONFIG_NFT_QUEUE=y
+CONFIG_NETFILTER_NETLINK_QUEUE=y
+CONFIG_NETFILTER_XT_TARGET_NFQUEUE=y
+```
+and that the needed modules are loaded:
+```
+$ lsmod | grep -i nfqueue
+xt_NFQUEUE             16384  4
+x_tables               53248  20 xt_conntrack,nft_compat,xt_LOG,xt_multiport,xt_tcpudp,xt_addrtype,xt_CHECKSUM,xt_recent,xt_nat,ip6t_rt,xt_set,ip6_tables,ipt_REJECT,ip_tables,xt_limit,xt_hl,xt_MASQUERADE,ip6t_REJECT,xt_NFQUEUE,xt_mark
+```
 
 [Kernel panic on >= 5.6.16 || kernel hardening incompatibilities](#kernel-panics)
 
