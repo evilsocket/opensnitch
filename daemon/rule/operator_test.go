@@ -1,12 +1,14 @@
 package rule
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"net"
 	"testing"
+	"time"
 )
 
 var (
@@ -38,6 +40,23 @@ var (
 		Entry:    netEntry,
 	}
 )
+
+func compileListOperators(list *[]Operator, t *testing.T) {
+	op := *list
+	for i := 0; i < len(*list); i++ {
+		if err := op[i].Compile(); err != nil {
+			t.Error("NewOperator List, Compile() subitem error:", err)
+		}
+	}
+}
+
+func unmarshalListData(data string, t *testing.T) (op *[]Operator) {
+	if err := json.Unmarshal([]byte(data), &op); err != nil {
+		t.Error("Error unmarshalling list data:", err, data)
+		return nil
+	}
+	return op
+}
 
 func restoreConnection() {
 	conn.Process.Path = defaultProcPath
@@ -137,6 +156,10 @@ func TestNewOperatorSimple(t *testing.T) {
 		opSimple, err = NewOperator(Simple, true, OpDstHost, "OpEnsNitCh.io", list)
 		if err != nil {
 			t.Error("NewOperator simple.dstHost.sensitive err should be nil: ", err)
+			t.Fail()
+		}
+		if err = opSimple.Compile(); err != nil {
+			t.Error("NewOperator simple.dstHost.sensitive Compile() err:", err)
 			t.Fail()
 		}
 		conn.DstHost = "OpEnsNitCh.io"
@@ -300,67 +323,155 @@ func TestNewOperatorRegexpSensitive(t *testing.T) {
 }
 
 func TestNewOperatorList(t *testing.T) {
-	t.Log("Test NewOperator() regexp")
+	t.Log("Test NewOperator() List")
 	var list []Operator
 	listData := `[{"type": "simple", "operand": "dest.ip", "data": "185.53.178.14", "sensitive": false}, {"type": "simple", "operand": "dest.port", "data": "443", "sensitive": false}]`
 
 	// simple list
 	opList, err := NewOperator(List, false, OpProto, listData, list)
+	t.Run("Operator List simple case-insensitive", func(t *testing.T) {
+		if err != nil {
+			t.Error("NewOperator list.regexp.err should be nil: ", err)
+			t.Fail()
+		}
+		if err = opList.Compile(); err != nil {
+			t.Fail()
+		}
+		opList.List = *unmarshalListData(opList.Data, t)
+		compileListOperators(&opList.List, t)
+		if opList.Match(conn) == false {
+			t.Error("Test NewOperator() list simple doesn't match")
+			t.Fail()
+		}
+	})
+
+	t.Run("Operator List regexp case-insensitive", func(t *testing.T) {
+		// list with regexp, case-insensitive
+		listData = `[{"type": "regexp", "operand": "process.path", "data": "^/usr/bin/.*", "sensitive": false},{"type": "simple", "operand": "dest.ip", "data": "185.53.178.14", "sensitive": false}, {"type": "simple", "operand": "dest.port", "data": "443", "sensitive": false}]`
+		opList.List = *unmarshalListData(listData, t)
+		compileListOperators(&opList.List, t)
+		if err = opList.Compile(); err != nil {
+			t.Fail()
+		}
+		if opList.Match(conn) == false {
+			t.Error("Test NewOperator() list regexp doesn't match")
+			t.Fail()
+		}
+	})
+
+	t.Run("Operator List regexp case-sensitive", func(t *testing.T) {
+		// list with regexp, case-sensitive
+		// "data": "^/usr/BiN/.*" must match conn.Process.Path (sensitive)
+		listData = `[{"type": "regexp", "operand": "process.path", "data": "^/usr/BiN/.*", "sensitive": false},{"type": "simple", "operand": "dest.ip", "data": "185.53.178.14", "sensitive": false}, {"type": "simple", "operand": "dest.port", "data": "443", "sensitive": false}]`
+		opList.List = *unmarshalListData(listData, t)
+		compileListOperators(&opList.List, t)
+		conn.Process.Path = "/usr/BiN/opensnitchd"
+		opList.Sensitive = true
+		if err = opList.Compile(); err != nil {
+			t.Fail()
+		}
+		if opList.Match(conn) == false {
+			t.Error("Test NewOperator() list.regexp.sensitive doesn't match:", conn.Process.Path)
+			t.Fail()
+		}
+	})
+
+	t.Run("Operator List regexp case-insensitive 2", func(t *testing.T) {
+		// "data": "^/usr/BiN/.*" must not match conn.Process.Path (insensitive)
+		opList.Sensitive = false
+		conn.Process.Path = "/USR/BiN/opensnitchd"
+		if err = opList.Compile(); err != nil {
+			t.Fail()
+		}
+		if opList.Match(conn) == false {
+			t.Error("Test NewOperator() list.regexp.insensitive match:", conn.Process.Path)
+			t.Fail()
+		}
+	})
+
+	t.Run("Operator List regexp case-insensitive 3", func(t *testing.T) {
+		// "data": "^/usr/BiN/.*" must match conn.Process.Path (insensitive)
+		opList.Sensitive = false
+		conn.Process.Path = "/USR/bin/opensnitchd"
+		if err = opList.Compile(); err != nil {
+			t.Fail()
+		}
+		if opList.Match(conn) == false {
+			t.Error("Test NewOperator() list.regexp.insensitive match:", conn.Process.Path)
+			t.Fail()
+		}
+	})
+
+	restoreConnection()
+}
+
+func TestNewOperatorListsSimple(t *testing.T) {
+	t.Log("Test NewOperator() Lists simple")
+	var dummyList []Operator
+
+	opLists, err := NewOperator(Lists, false, OpDomainsLists, "testdata/lists/", dummyList)
 	if err != nil {
-		t.Error("NewOperator list.regexp.err should be nil: ", err)
+		t.Error("NewOperator Lists, shouldn't be nil: ", err)
 		t.Fail()
 	}
-	if err = opList.Compile(); err != nil {
-		t.Fail()
+	if err = opLists.Compile(); err != nil {
+		t.Error("NewOperator Lists, Compile() error:", err)
 	}
-	if opList.Match(conn) == false {
-		t.Error("Test NewOperator() list simple doesn't match")
-		t.Fail()
+	time.Sleep(time.Second)
+	t.Log("testing Lists, DstHost:", conn.DstHost)
+	// The list contains 4 lines, 1 is a comment and there's a domain duplicated.
+	// We should only load lines that start with 0.0.0.0 or 127.0.0.1
+	if len(opLists.lists) != 2 {
+		t.Error("NewOperator Lists, number of domains error:", opLists.lists, len(opLists.lists))
 	}
-
-	// list with regexp, case-insensitive
-	listData = `["type": "regexp", "operand": "process.path", "data": "^/usr/bin/.*", "sensitive": false},{"type": "simple", "operand": "dest.ip", "data": "185.53.178.14", "sensitive": false}, {"type": "simple", "operand": "dest.port", "data": "443", "sensitive": false}]`
-	if err = opList.Compile(); err != nil {
-		t.Fail()
-	}
-	if opList.Match(conn) == false {
-		t.Error("Test NewOperator() list regexp doesn't match")
-		t.Fail()
+	if opLists.Match(conn) == false {
+		t.Error("Test NewOperator() lists doesn't match")
 	}
 
-	// list with regexp, case-sensitive
-	// "data": "^/usr/BiN/.*" must match conn.Process.Path (sensitive)
-	opList.Data = `["type": "regexp", "operand": "process.path", "data": "^/usr/BiN/.*", "sensitive": false},{"type": "simple", "operand": "dest.ip", "data": "185.53.178.14", "sensitive": false}, {"type": "simple", "operand": "dest.port", "data": "443", "sensitive": false}]`
-	conn.Process.Path = "/usr/BiN/opensnitchd"
-	opList.Sensitive = true
-	if err = opList.Compile(); err != nil {
-		t.Fail()
-	}
-	if opList.Match(conn) == false {
-		t.Error("Test NewOperator() list.regexp.sensitive doesn't match:", conn.Process.Path)
-		t.Fail()
+	opLists.StopMonitoringLists()
+	time.Sleep(time.Second)
+	if len(opLists.lists) != 0 {
+		t.Error("NewOperator Lists, number should be 0 after stop:", opLists.lists, len(opLists.lists))
 	}
 
-	// "data": "^/usr/BiN/.*" must not match conn.Process.Path (insensitive)
-	opList.Sensitive = false
-	conn.Process.Path = "/USR/BiN/opensnitchd"
-	if err = opList.Compile(); err != nil {
+	restoreConnection()
+}
+
+func TestNewOperatorListsComplex(t *testing.T) {
+	t.Log("Test NewOperator() Lists complex")
+	var subOp *Operator
+	var list []Operator
+	listData := `[{"type": "simple", "operand": "user.id", "data": "666", "sensitive": false}, {"type": "lists", "operand": "lists.domains", "data": "testdata/lists/", "sensitive": false}]`
+
+	opLists, err := NewOperator(List, false, OpList, listData, list)
+	if err != nil {
+		t.Error("NewOperator Lists complex, shouldn't be nil: ", err)
 		t.Fail()
 	}
-	if opList.Match(conn) == false {
-		t.Error("Test NewOperator() list.regexp.insensitive match:", conn.Process.Path)
-		t.Fail()
+	if err := opLists.Compile(); err != nil {
+		t.Error("NewOperator Lists complex, Compile() error:", err)
+	}
+	opLists.List = *unmarshalListData(opLists.Data, t)
+	for i := 0; i < len(opLists.List); i++ {
+		if err := opLists.List[i].Compile(); err != nil {
+			t.Error("NewOperator Lists complex, Compile() subitem error:", err)
+		}
+		if opLists.List[i].Type == Lists {
+			subOp = &opLists.List[i]
+		}
+	}
+	time.Sleep(time.Second)
+	if len(subOp.lists) != 2 {
+		t.Error("NewOperator Lists complex, number of domains error:", subOp.lists)
+	}
+	if opLists.Match(conn) == false {
+		t.Error("Test NewOperator() Lists complex, doesn't match")
 	}
 
-	// "data": "^/usr/BiN/.*" must match conn.Process.Path (insensitive)
-	opList.Sensitive = false
-	conn.Process.Path = "/USR/bin/opensnitchd"
-	if err = opList.Compile(); err != nil {
-		t.Fail()
-	}
-	if opList.Match(conn) == false {
-		t.Error("Test NewOperator() list.regexp.insensitive match:", conn.Process.Path)
-		t.Fail()
+	subOp.StopMonitoringLists()
+	time.Sleep(time.Second)
+	if len(subOp.lists) != 0 {
+		t.Error("NewOperator Lists number should be 0:", subOp.lists, len(subOp.lists))
 	}
 
 	restoreConnection()

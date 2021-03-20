@@ -1,11 +1,13 @@
 package core
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 const (
@@ -54,4 +56,13 @@ func ExpandPath(path string) (string, error) {
 		return filepath.Abs(path)
 	}
 	return "", nil
+}
+
+// GetFileModTime checks if a file has been modified.
+func GetFileModTime(filepath string) (time.Time, error) {
+	fi, err := os.Stat(filepath)
+	if err != nil || fi.IsDir() {
+		return time.Now(), fmt.Errorf("GetFileModTime() Invalid file")
+	}
+	return fi.ModTime(), nil
 }

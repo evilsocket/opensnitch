@@ -206,11 +206,7 @@ func applyDefaultAction(packet *netfilter.Packet) {
 	if uiClient.DefaultAction() == rule.Allow {
 		packet.SetVerdictAndMark(netfilter.NF_ACCEPT, packet.Mark)
 	} else {
-		if uiClient.DefaultDuration() == rule.Always {
-			packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
-		} else {
-			packet.SetVerdict(netfilter.NF_DROP)
-		}
+		packet.SetVerdict(netfilter.NF_DROP)
 	}
 }
 
@@ -313,7 +309,7 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
 	} else {
 		if packet != nil {
-			packet.SetVerdictAndMark(netfilter.NF_DROP, firewall.DropMark)
+			packet.SetVerdict(netfilter.NF_DROP)
 		}
 
 		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))

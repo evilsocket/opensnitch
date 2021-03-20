@@ -10,11 +10,8 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/fsnotify/fsnotify"
+	"github.com/vishvananda/netlink"
 )
-
-// DropMark is the mark we place on a connection when we deny it.
-// The connection is dropped later on OUTPUT chain.
-const DropMark = 0x18BA5
 
 // Action is the modifier we apply to a rule.
 type Action string
@@ -94,8 +91,8 @@ func QueueDNSResponses(enable bool, logError bool, qNum int) (err4, err6 error) 
 // QueueConnections inserts the firewall rule which redirects connections to us.
 // They are queued until the user denies/accept them, or reaches a timeout.
 // OUTPUT -t mangle -m conntrack --ctstate NEW,RELATED -j NFQUEUE --queue-num 0 --queue-bypass
-func QueueConnections(enable bool, logError bool, qNum int) (err4, err6 error) {
-	return RunRule(INSERT, enable, logError, []string{
+func QueueConnections(enable bool, logError bool, qNum int) (error, error) {
+	err4, err6 := RunRule(INSERT, enable, logError, []string{
 		"OUTPUT",
 		"-t", "mangle",
 		"-m", "conntrack",
@@ -104,6 +101,12 @@ func QueueConnections(enable bool, logError bool, qNum int) (err4, err6 error) {
 		"--queue-num", fmt.Sprintf("%d", qNum),
 		"--queue-bypass",
 	})
+	// flush conntrack as soon as netfilter rule is set. This ensures that already-established
+	// connections will go to netfilter queue.
+	if err := netlink.ConntrackTableFlush(netlink.ConntrackTable); err != nil {
+		log.Error("error in ConntrackTableFlush %s", err)
+	}
+	return err4, err6
 }
 
 // CreateSystemRule create the custom firewall chains and adds them to system.

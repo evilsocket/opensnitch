@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
@@ -60,11 +61,14 @@ type Operator struct {
 	Data      string     `json:"data"`
 	List      []Operator `json:"list"`
 
-	cb         opCallback
-	re         *regexp.Regexp
-	netMask    *net.IPNet
-	isCompiled bool
-	lists      map[string]string
+	sync.RWMutex
+	cb                  opCallback
+	re                  *regexp.Regexp
+	netMask             *net.IPNet
+	isCompiled          bool
+	lists               map[string]string
+	listsMonitorRunning bool
+	exitMonitorChan     chan (bool)
 }
 
 // NewOperator returns a new operator object
@@ -96,13 +100,11 @@ func (o *Operator) Compile() error {
 			return err
 		}
 		o.re = re
-	} else if o.Type == Lists && o.Operand == OpDomainsLists {
+	} else if o.Operand == OpDomainsLists {
 		if o.Data == "" {
 			return fmt.Errorf("Operand lists is empty, nothing to load: %s", o)
 		}
-		if err := o.loadLists(); err != nil {
-			return err
-		}
+		o.loadLists()
 		o.cb = o.domainsListCmp
 	} else if o.Type == List {
 		o.Operand = OpList
@@ -160,6 +162,9 @@ func (o *Operator) domainsListCmp(v interface{}) bool {
 	if dstHost == "" {
 		return false
 	}
+	o.RLock()
+	defer o.RUnlock()
+
 	if _, found := o.lists[dstHost]; found {
 		log.Debug("%s: %s, %s", log.Red("domain list match"), dstHost, o.lists[dstHost])
 		return true
