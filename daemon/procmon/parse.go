@@ -89,6 +89,11 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 	if interceptUnknown && pid < 0 {
 		return NewProcess(0, "")
 	}
+
+	if proc := findProcessInActivePidsCache(uint32(pid)); proc != nil {
+		return proc
+	}
+
 	if methodIsAudit() {
 		if aevent := audit.GetEventByPid(pid); aevent != nil {
 			audit.Lock.RLock()
@@ -103,12 +108,9 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 			proc.readEnv()
 			proc.cleanPath()
 
+			addToActivePidsCache(uint32(pid), proc)
 			return proc
 		}
-	}
-
-	if proc := findProcessInActivePidsCache(uint32(pid)); proc != nil {
-		return proc
 	}
 
 	linkName := fmt.Sprint("/proc/", pid, "/exe")
