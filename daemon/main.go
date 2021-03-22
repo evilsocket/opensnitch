@@ -27,6 +27,7 @@ import (
 )
 
 var (
+	showVersion    = false
 	procmonMethod  = ""
 	logFile        = ""
 	rulesPath      = "rules"
@@ -59,6 +60,8 @@ var (
 )
 
 func init() {
+	flag.BoolVar(&showVersion, "version", debug, "Show daemon version of this executable and exit.")
+
 	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "How to search for processes path. Options: ftrace, audit (experimental), proc (default)")
 	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
 	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
@@ -322,6 +325,11 @@ func main() {
 	ctx, cancel = context.WithCancel(context.Background())
 	defer cancel()
 	flag.Parse()
+
+	if showVersion {
+		fmt.Println(core.Version)
+		os.Exit(0)
+	}
 
 	// clean any possible residual firewall rule
 	firewall.CleanRules(false)
