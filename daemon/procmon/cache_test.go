@@ -3,6 +3,7 @@ package procmon
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestCacheProcs(t *testing.T) {
@@ -22,8 +23,10 @@ func TestCacheProcs(t *testing.T) {
 		if len(pidsCache) != 1 {
 			t.Error("pidsCache should be still 1!", pidsCache)
 		}
-		if oldPid.Time.Equal(pidsCache[0].Time) == false {
-			t.Error("pidsCache, time not updated: ", oldPid.Time, pidsCache[0].Time)
+		oldTime := time.Unix(0, oldPid.LastSeen)
+		newTime := time.Unix(0, pidsCache[0].LastSeen)
+		if oldTime.Equal(newTime) == false {
+			t.Error("pidsCache, time not updated: ", oldTime, newTime)
 		}
 	})
 
@@ -42,16 +45,27 @@ func TestCacheProcs(t *testing.T) {
 		}
 	})
 
-	for pid := 3; pid < 27; pid++ {
-		addProcEntry(fmt.Sprint("/proc/", pid, "/fd/"), fdList, pid)
-	}
-	if len(pidsCache) != 25 {
-		t.Error("pidsCache should be 0:", len(pidsCache))
-	}
-	cleanUpCaches()
-	t.Run("Test cleanUpCaches", func(t *testing.T) {
-		if len(pidsCache) != 0 {
-			t.Error("pidsCache should be 0:", len(pidsCache))
+	// the key of an inodeCache entry is formed as: inodeNumer + srcIP + srcPort + dstIP + dstPort
+	inodeKey := "000000000127.0.0.144444127.0.0.153"
+	addInodeEntry(inodeKey, "/proc/fd/123", myPid)
+	t.Run("Test addInodeEntry", func(t *testing.T) {
+		if _, found := inodesCache[inodeKey]; !found {
+			t.Error("inodesCache, inode not added:", len(inodesCache), inodesCache)
+		}
+	})
+
+	pid = getPidByInodeFromCache(inodeKey)
+	t.Run("Test getPidByInodeFromCache", func(t *testing.T) {
+		if pid != myPid {
+			t.Error("inode not found in cache", pid, inodeKey, len(inodesCache), inodesCache)
+		}
+	})
+
+	// should delete all inodes of a pid
+	deleteInodeEntry(myPid)
+	t.Run("Test deleteInodeEntry", func(t *testing.T) {
+		if _, found := inodesCache[inodeKey]; found {
+			t.Error("inodesCache, key found in cache but it should not exist", inodeKey, len(inodesCache), inodesCache)
 		}
 	})
 }

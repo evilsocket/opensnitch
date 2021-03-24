@@ -7,6 +7,10 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/procmon/audit"
 )
 
+var (
+	cacheMonitorsRunning = false
+)
+
 // man 5 proc; man procfs
 type procIOstats struct {
 	RChar        int64
@@ -104,6 +108,12 @@ func End() {
 
 // Init starts parsing connections using the method specified.
 func Init() {
+	if cacheMonitorsRunning == false {
+		go monitorActivePids()
+		go cacheCleanerTask()
+		cacheMonitorsRunning = true
+	}
+
 	if methodIsFtrace() {
 		err := Start()
 		if err == nil {
@@ -125,5 +135,4 @@ func Init() {
 	// if any of the above methods have failed, fallback to proc
 	log.Info("Process monitor method /proc")
 	SetMonitorMethod(MethodProc)
-	go monitorActivePids()
 }

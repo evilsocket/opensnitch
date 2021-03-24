@@ -44,7 +44,6 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 		return found
 	}
 	start := time.Now()
-	cleanUpCaches()
 
 	expect := fmt.Sprintf("socket:[%d]", inode)
 	if cachedPidInode := getPidByInodeFromCache(inodeKey); cachedPidInode != -1 {
