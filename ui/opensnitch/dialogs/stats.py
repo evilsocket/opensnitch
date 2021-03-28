@@ -52,6 +52,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_R_OP_TYPE = 6
     COL_R_OP_OPERAND = 7
 
+    # procs
+    COL_PID = 9
+
     TAB_MAIN  = 0
     TAB_NODES = 1
     TAB_RULES = 2
@@ -565,8 +568,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         nrows = table.model().rowCount()
         pids = {}
         for row in range(0, nrows):
-            pid = table.model().index(row, 6).data()
-            node = table.model().index(row, 1).data()
+            pid = table.model().index(row, self.COL_PID).data()
+            node = table.model().index(row, self.COL_NODE).data()
             if pid not in pids:
                 pids[pid] = node
 

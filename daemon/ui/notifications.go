@@ -165,7 +165,7 @@ func (c *Client) handleActionDeleteRule(stream protocol.UI_NotificationsClient, 
 func (c *Client) handleActionMonitorProcess(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	pid, err := strconv.Atoi(notification.Data)
 	if err != nil {
-		log.Error("parsing PID to monitor")
+		log.Error("parsing PID to monitor: %d, err: %s", pid, err)
 		return
 	}
 	if !core.Exists(fmt.Sprint("/proc/", pid)) {
@@ -178,7 +178,7 @@ func (c *Client) handleActionMonitorProcess(stream protocol.UI_NotificationsClie
 func (c *Client) handleActionStopMonitorProcess(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	pid, err := strconv.Atoi(notification.Data)
 	if err != nil {
-		log.Error("parsing PID to stop monitor")
+		log.Error("parsing PID to stop monitor: %d, err: %s", pid, err)
 		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error stopping monitor: %s", notification.Data))
 		return
 	}

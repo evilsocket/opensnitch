@@ -94,8 +94,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
 
             if reply.code == ui_pb2.ERROR:
                 self._show_message(QtCore.QCoreApplication.translate("proc_details", "<b>Error loading process information:</b> <br><br>\n\n") + reply.data)
-                self.cmdAction.setChecked(False)
                 self._pid = ""
+                self._set_button_running(False)
 
                 # if we haven't loaded any data yet, just close the window
                 if self._data_loaded == False:
@@ -113,6 +113,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             elif noti.type == ui_pb2.STOP_MONITOR_PROCESS:
                 if reply.data != "":
                     self.show_message(QtCore.QCoreApplication.translate("proc_details", "<b>Error stopping monitoring process:</b><br><br>") + reply.data)
+                    self._set_button_running(False)
 
                 self._delete_notification(reply.id)
         else:
@@ -136,9 +137,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
     def _cb_action_clicked(self):
         if not self.cmdAction.isChecked():
             self._stop_monitoring()
-            self.cmdAction.setIcon(self.iconStart)
         else:
-            self.cmdAction.setIcon(self.iconPause)
             self._start_monitoring()
 
     def _show_message(self, text):
@@ -159,6 +158,14 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.labelCwd.setText("")
         for tidx in range(0, len(self.TABS)):
             self.TABS[tidx]['text'].setPlainText("")
+
+    def _set_button_running(self, yes):
+        if yes:
+            self.cmdAction.setChecked(True)
+            self.cmdAction.setIcon(self.iconPause)
+        else:
+            self.cmdAction.setChecked(False)
+            self.cmdAction.setIcon(self.iconStart)
 
     def _close(self):
         self._stop_monitoring()
@@ -194,8 +201,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             if self._pid == "":
                 return
 
-            self.cmdAction.setIcon(self.iconPause)
-            self.cmdAction.setChecked(True)
+            self._set_button_running(True)
             noti = ui_pb2.Notification(clientName="", serverName="", type=ui_pb2.MONITOR_PROCESS, data=self._pid, rules=[])
             self._nid = self._nodes.send_notification(self._pids[self._pid], noti, self._notification_callback)
             self._notifications_sent[self._nid] = noti
@@ -206,8 +212,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         if self._pid == "":
             return
 
-        self.cmdAction.setIcon(self.iconStart)
-        self.cmdAction.setChecked(False)
+        self._set_button_running(False)
         noti = ui_pb2.Notification(clientName="", serverName="", type=ui_pb2.STOP_MONITOR_PROCESS, data=str(self._pid), rules=[])
         self._nid = self._nodes.send_notification(self._pids[self._pid], noti, self._notification_callback)
         self._notifications_sent[self._nid] = noti
@@ -261,7 +266,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         if self._app_icon != None:
             return
 
-        self._app_name, self._app_icon, _ = self._apps_parser.get_info_by_path(proc_path, "terminal")
+        self._app_name, self._app_icon, _, _ = self._apps_parser.get_info_by_path(proc_path, "terminal")
 
         icon = QtGui.QIcon().fromTheme(self._app_icon)
         pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))

@@ -526,7 +526,7 @@ gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ..
            <string/>
           </property>
           <property name="icon">
-           <iconset theme="search"/>
+           <iconset theme="system-search"/>
           </property>
          </widget>
         </item>
