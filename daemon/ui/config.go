@@ -46,7 +46,21 @@ func (c *Client) parseConf(rawConfig string) (conf Config, err error) {
 func (c *Client) loadDiskConfiguration(reload bool) {
 	raw, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		fmt.Errorf("Error loading disk configuration %s: %s", configFile, err)
+		log.Warning("Error loading disk configuration %s: %s", configFile, err)
+		log.Info("Continuing with default values")
+		defaults := `{
+			"Server":
+			{
+				"Address":"unix:///tmp/osui.sock",
+				"LogFile":"/var/log/opensnitchd.log"
+			},
+			"DefaultAction": "allow",
+			"DefaultDuration": "once",
+			"InterceptUnknown": false,
+			"ProcMonitorMethod": "proc",
+			"LogLevel": 2
+		}`;
+		raw = []byte(defaults);
 	}
 
 	if ok := c.loadConfiguration(raw); ok {
