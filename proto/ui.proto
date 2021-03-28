@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package protocol;
 
+option go_package = "github.com/evilsocket/opensnitch/daemon/ui/protocol";
+
 service UI {
     rpc Ping(PingRequest) returns (PingReply) {}
     rpc AskRule (Connection) returns (Rule) {}
