@@ -107,7 +107,7 @@ func End() {
 }
 
 // Init starts parsing connections using the method specified.
-func Init() {
+func Init() (err error) {
 	if cacheMonitorsRunning == false {
 		go monitorActivePids()
 		go cacheCleanerTask()
@@ -115,10 +115,10 @@ func Init() {
 	}
 
 	if methodIsFtrace() {
-		err := Start()
+		err = Start()
 		if err == nil {
 			log.Info("Process monitor method ftrace")
-			return
+			return nil
 		}
 		log.Warning("error starting ftrace monitor method: %v", err)
 
@@ -127,7 +127,7 @@ func Init() {
 		if err == nil {
 			log.Info("Process monitor method audit")
 			go audit.Reader(auditConn, (chan<- audit.Event)(audit.EventChan))
-			return
+			return nil
 		}
 		log.Warning("error starting audit monitor method: %v", err)
 	}
@@ -135,4 +135,5 @@ func Init() {
 	// if any of the above methods have failed, fallback to proc
 	log.Info("Process monitor method /proc")
 	SetMonitorMethod(MethodProc)
+	return err
 }

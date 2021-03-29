@@ -103,7 +103,9 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 	if err != nil {
 		log.Warning("[notification] CHANGE_CONFIG not applied %s", err)
 	} else if err == nil && procMonitorEqual == false {
-		procmon.Init()
+		if err := procmon.Init(); err != nil {
+			c.sendNotificationReply(stream, notification.Id, "", err)
+		}
 	}
 
 	c.sendNotificationReply(stream, notification.Id, "", err)
