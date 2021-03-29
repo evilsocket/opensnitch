@@ -1,6 +1,7 @@
 package procmon
 
 import (
+	"net"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -123,7 +124,8 @@ func Init() (err error) {
 		log.Warning("error starting ftrace monitor method: %v", err)
 
 	} else if methodIsAudit() {
-		auditConn, err := audit.Start()
+		var auditConn net.Conn
+		auditConn, err = audit.Start()
 		if err == nil {
 			log.Info("Process monitor method audit")
 			go audit.Reader(auditConn, (chan<- audit.Event)(audit.EventChan))

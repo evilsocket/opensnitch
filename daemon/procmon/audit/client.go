@@ -86,11 +86,11 @@ var (
 	// cache of events
 	events            []*Event
 	eventsCleaner     *time.Ticker
-	eventsCleanerChan = make(chan bool)
+	eventsCleanerChan = (chan bool)(nil)
 	// TODO: EventChan is an output channel where incoming auditd events will be written.
 	// If a client opens it.
 	EventChan      = (chan Event)(nil)
-	eventsExitChan = make(chan bool)
+	eventsExitChan = (chan bool)(nil)
 	auditConn      net.Conn
 	// TODO: we may need arm arch
 	rule64      = []string{"exit,always", "-F", "arch=b64", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socket,connect", "-k", "opensnitch"}
@@ -314,14 +314,22 @@ func connect() (net.Conn, error) {
 
 // Stop stops listening for events from auditd and delete the auditd rules.
 func Stop() {
-	eventsExitChan <- true
-	eventsCleanerChan <- true
-	eventsCleaner.Stop()
-
 	if auditConn != nil {
 		if err := auditConn.Close(); err != nil {
 			log.Warning("audit.Stop() error closing socket: %v", err)
 		}
+	}
+
+	if eventsCleaner != nil {
+		eventsCleaner.Stop()
+	}
+	if eventsExitChan != nil {
+		eventsExitChan <- true
+		close(eventsExitChan)
+	}
+	if eventsCleanerChan != nil {
+		eventsCleanerChan <- true
+		close(eventsCleanerChan)
 	}
 
 	deleteRules()
@@ -341,5 +349,7 @@ func Start() (net.Conn, error) {
 
 	configureSyscalls()
 	eventsCleaner = time.NewTicker(time.Minute * 5)
+	eventsCleanerChan = make(chan bool)
+	eventsExitChan = make(chan bool)
 	return auditConn, err
 }
