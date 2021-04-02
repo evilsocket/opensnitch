@@ -2,7 +2,7 @@
 
 Yes, it does. But only the first time it is used. Once you configure which processes/connections you want to allow/deny, you won't notice that it's running. Really.
 
-In the future, maybe we add an option to queue events, and allow/deny them from the GUI applying th default configured action until further interaction from the user.
+In the future, maybe we can add an option to queue events, and allow/deny them from the GUI: applying the default configured action until further interaction from the user.
 
 
 **Why Qt and not GTK?**
@@ -18,11 +18,11 @@ The UI service is able to use a TCP listener instead of a UNIX socket, that mean
 
 We currently (>= v1.0.0-rc4) only intercept new connections (iptables/conntrack state NEW) of TCP, UDP and UDPLITE protocols, to/from any port.
 
-**What means "intercept unknown connections" configuration option**
+**What does the "intercept unknown connections" configuration option mean?**
 
 When a process establishes a new connection, we first receive the connection information (src/dst IP, src/dst port, but no PID, nor process command line/path). Thus, we try to get who created the connection.
 
-Sometimes we fail to discover the PID of the process, or the path of the PID, thus in these cases if you check this option, a pop-up will be appear to allow or deny an "unknown connection".
+Sometimes we fail to discover the PID of the process, or the path of the PID, thus in these cases if you check this option, a pop-up will appear to allow or deny an "unknown connection".
 
 **What's the behaviour of daemon's default action "deny"**
 
