@@ -13,6 +13,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 	"golang.org/x/net/context"
@@ -95,7 +96,7 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 	// in such case close the current method, and start the new one.
 	procMonitorEqual := c.isProcMonitorEqual(newConf.ProcMonitorMethod)
 	if procMonitorEqual == false {
-		procmon.End()
+		monitor.End()
 	}
 
 	// this save operation triggers a re-loadConfiguration()
@@ -103,7 +104,7 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 	if err != nil {
 		log.Warning("[notification] CHANGE_CONFIG not applied %s", err)
 	} else if err == nil && procMonitorEqual == false {
-		if err := procmon.Init(); err != nil {
+		if err := monitor.Init(); err != nil {
 			c.sendNotificationReply(stream, notification.Id, "", err)
 		}
 	}

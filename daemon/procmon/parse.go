@@ -58,12 +58,12 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 		return cachedPid
 	}
 
-	if methodIsAudit() {
+	if MethodIsAudit() {
 		if aPid, pos := getPIDFromAuditEvents(inode, inodeKey, expect); aPid != -1 {
 			log.Debug("PID found via audit events: %v, position: %d", time.Since(start), pos)
 			return aPid
 		}
-	} else if methodIsFtrace() && IsWatcherAvailable() {
+	} else if MethodIsFtrace() && IsWatcherAvailable() {
 		forEachProcess(func(pid int, path string, args []string) bool {
 			if inodeFound("/proc/", expect, inodeKey, inode, pid) {
 				found = pid
@@ -85,6 +85,9 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 // If it exists in /proc, a new Process{} object is returned with  the details
 // to identify a process (cmdline, name, environment variables, etc).
 func FindProcess(pid int, interceptUnknown bool) *Process {
+	if pid == -100 {
+		return NewProcess(-100, "Linux kernel")
+	}
 	if interceptUnknown && pid < 0 {
 		return NewProcess(0, "")
 	}
@@ -93,7 +96,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		return proc
 	}
 
-	if methodIsAudit() {
+	if MethodIsAudit() {
 		if aevent := audit.GetEventByPid(pid); aevent != nil {
 			audit.Lock.RLock()
 			proc := NewProcess(pid, aevent.ProcPath)

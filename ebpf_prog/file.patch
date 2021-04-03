@@ -1,0 +1,11 @@
+--- linux-5.8/tools/lib/bpf/bpf_helpers.h	2020-08-03 00:21:45.000000000 +0300
++++ linux-5.8/tools/lib/bpf/bpf_helpersnew.h	2021-02-23 18:45:21.789624834 +0300
+@@ -54,7 +54,7 @@
+  * Helper structure used by eBPF C program
+  * to describe BPF map attributes to libbpf loader
+  */
+-struct bpf_map_def {
++struct bpf_map_defold {
+ 	unsigned int type;
+ 	unsigned int key_size;
+ 	unsigned int value_size;
