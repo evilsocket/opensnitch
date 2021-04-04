@@ -134,7 +134,9 @@ func Start() error {
 
 func Stop() {
 	stop = true
-	m.Close()
+	if m != nil {
+		m.Close()
+	}
 }
 
 // delete all map's elements which have counter value <= maxToDelete
@@ -216,8 +218,12 @@ func monitorMaps() {
 }
 
 // GetPid looks up process pid in a bpf map. If not found there, then it searches
-// already-eastablished TCP connections.
+// already-established TCP connections.
 func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (int, int, error) {
+        if hostByteOrder == nil {
+                return -1, -1, fmt.Errorf("eBPF monitoring method not initialized yet")
+        }
+
 	if pid, uid := getPidFromEbpf(proto, srcPort, srcIP, dstIP, dstPort); pid != -1 {
 		return pid, uid, nil
 	}
