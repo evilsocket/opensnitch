@@ -145,11 +145,11 @@ func deleteOld(bpfmap *elf.Map, isIPv6 bool, maxToDelete uint64) {
 	if !isIPv6 {
 		lookupKey = make([]byte, 12)
 		nextKey = make([]byte, 12)
-		value = make([]byte, 16)
+		value = make([]byte, 24)
 	} else {
 		lookupKey = make([]byte, 36)
 		nextKey = make([]byte, 36)
-		value = make([]byte, 16)
+		value = make([]byte, 24)
 	}
 	firstrun := true
 	i := 0
@@ -175,7 +175,7 @@ func deleteOld(bpfmap *elf.Map, isIPv6 bool, maxToDelete uint64) {
 			continue
 		}
 		// last 8 bytes of value is counter value
-		counterValue := hostByteOrder.Uint64(value[8:16])
+		counterValue := hostByteOrder.Uint64(value[16:24])
 		if counterValue > maxToDelete {
 			copy(lookupKey, nextKey)
 			continue
@@ -207,7 +207,6 @@ func monitorMaps() {
 				log.Error("m.LookupElement", err)
 			}
 			counterValue := hostByteOrder.Uint64(value)
-			//fmt.Println("counterValue, ebpfMap.lastPurgedMax", counterValue, ebpfMap.lastPurgedMax)
 			if counterValue-ebpfMap.lastPurgedMax > 10000 {
 				ebpfMap.lastPurgedMax = counterValue - 5000
 				deleteOld(ebpfMap.bpfmap, name == "tcp6" || name == "udp6", ebpfMap.lastPurgedMax)
@@ -217,20 +216,20 @@ func monitorMaps() {
 }
 
 // GetPid looks up process pid in a bpf map. If not found there, then it searches
-// already-eastablished TCP connections
-func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (int, error) {
-	if pid := getPidFromEbpf(proto, srcPort, srcIP, dstIP, dstPort); pid != -1 {
-		return pid, nil
+// already-eastablished TCP connections.
+func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (int, int, error) {
+	if pid, uid := getPidFromEbpf(proto, srcPort, srcIP, dstIP, dstPort); pid != -1 {
+		return pid, uid, nil
 	}
 	//check if it comes from already established TCP
 	if proto == "tcp" || proto == "tcp6" {
-		if pid, err := findInAlreadyEstablishedTCP(proto, srcPort, srcIP, dstIP, dstPort); err == nil && pid != -1 {
-			return pid, nil
+		if pid, uid, err := findInAlreadyEstablishedTCP(proto, srcPort, srcIP, dstIP, dstPort); err == nil {
+			return pid, uid, nil
 		}
 	}
 	//using netlink.GetSocketInfo to check if UID is 0 (in-kernel connection)
 	if uid, _ := daemonNetlink.GetSocketInfo(proto, srcIP, srcPort, dstIP, dstPort); uid == 0 {
-		return -100, nil
+		return -100, -100, nil
 	}
 	if !findAddressInLocalAddresses(srcIP) {
 		// systemd-resolved sometimes makes a TCP Fast Open connection to a DNS server (8.8.8.8 on my machine)
@@ -239,9 +238,9 @@ func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint
 		// resolved's TCP Fast Open packet, nor the response
 		// Until this is better understood, we simply do not allow this machine to make connections with
 		// arbitrary source IPs
-		return -1, fmt.Errorf("Packet with unknown source IP: %s", srcIP)
+		return -1, -1, fmt.Errorf("Packet with unknown source IP: %s", srcIP)
 	}
-	return -1, nil
+	return -1, -1, nil
 }
 
 // getPidFromEbpf looks up a connection in bpf map and returns PID if found
@@ -256,23 +255,24 @@ func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint
 
 // struct tcp_value_t{
 // 	u64 pid;
+//  u64 uid;
 // 	u64 counter;
 // }__attribute__((packed));;
 
-func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) int {
+func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (pid int, uid int) {
 	var key []byte
 	var value []byte
 	var isIP4 bool = (proto == "tcp") || (proto == "udp") || (proto == "udplite")
 
 	if isIP4 {
 		key = make([]byte, 12)
-		value = make([]byte, 16)
+		value = make([]byte, 24)
 		copy(key[2:6], dstIP)
 		binary.BigEndian.PutUint16(key[6:8], uint16(dstPort))
 		copy(key[8:12], srcIP)
 	} else { // IPv6
 		key = make([]byte, 36)
-		value = make([]byte, 16)
+		value = make([]byte, 24)
 		copy(key[2:18], dstIP)
 		binary.BigEndian.PutUint16(key[18:20], uint16(dstPort))
 		copy(key[20:36], srcIP)
@@ -304,15 +304,16 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	}
 	if err != nil {
 		// key not found in bpf map
-		return -1
+		return -1, -1
 	}
-	pid := int(hostByteOrder.Uint32(value[0:4]))
-	return pid
+	pid = int(hostByteOrder.Uint32(value[0:4]))
+	uid = int(hostByteOrder.Uint32(value[8:12]))
+	return pid, uid
 }
 
 // FindInAlreadyEstablishedTCP searches those TCP connections which were already established at the time
 // when opensnitch started
-func findInAlreadyEstablishedTCP(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (int, error) {
+func findInAlreadyEstablishedTCP(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (int, int, error) {
 	var alreadyEstablished map[*daemonNetlink.Socket]int
 	if proto == "tcp" {
 		alreadyEstablished = alreadyEstablishedTCP
@@ -322,10 +323,10 @@ func findInAlreadyEstablishedTCP(proto string, srcPort uint, srcIP net.IP, dstIP
 	for sock, v := range alreadyEstablished {
 		if (*sock).ID.SourcePort == uint16(srcPort) && (*sock).ID.Source.Equal(srcIP) &&
 			(*sock).ID.Destination.Equal(dstIP) && (*sock).ID.DestinationPort == uint16(dstPort) {
-			return v, nil
+			return v, int((*sock).UID), nil
 		}
 	}
-	return 0, fmt.Errorf("Inode not found")
+	return -1, -1, fmt.Errorf("Inode not found")
 }
 
 //returns true if addr is in the list of this machine's addresses
@@ -450,11 +451,11 @@ func dumpMap(bpfmap *elf.Map, isIPv6 bool) {
 	if !isIPv6 {
 		lookupKey = make([]byte, 12)
 		nextKey = make([]byte, 12)
-		value = make([]byte, 16)
+		value = make([]byte, 24)
 	} else {
 		lookupKey = make([]byte, 36)
 		nextKey = make([]byte, 36)
-		value = make([]byte, 16)
+		value = make([]byte, 24)
 	}
 	firstrun := true
 	i := 0

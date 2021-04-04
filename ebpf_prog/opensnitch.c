@@ -36,7 +36,8 @@ enum bpf_pin_type {
 //-----------------------------------
 
 // even though we only need 32 bits of pid, on x86_32 ebpf verifier complained when pid type was set to u32
-typedef u64 pid_size_t; 
+typedef u64 pid_size_t;
+typedef u64 uid_size_t; 
 
 struct tcp_key_t {
 	u16 sport;
@@ -46,7 +47,8 @@ struct tcp_key_t {
 }__attribute__((packed));
 
 struct tcp_value_t{
-	pid_size_t pid; 
+	pid_size_t pid;
+	uid_size_t uid;
 	u64 counter;
 }__attribute__((packed));
 
@@ -65,6 +67,7 @@ struct tcpv6_key_t {
 
 struct tcpv6_value_t{
 	pid_size_t pid;
+	uid_size_t uid;
 	u64 counter; 
 }__attribute__((packed));;
 
@@ -77,6 +80,7 @@ struct udp_key_t {
 
 struct udp_value_t{
 	pid_size_t pid;
+	uid_size_t uid;
 	u64 counter; 
 }__attribute__((packed));
 
@@ -89,6 +93,7 @@ struct udpv6_key_t {
 
 struct udpv6_value_t{
 	pid_size_t pid;
+	uid_size_t uid;
 	u64 counter;
 }__attribute__((packed));
 
@@ -245,6 +250,7 @@ int kretprobe__tcp_v4_connect(struct pt_regs *ctx)
 	struct tcp_value_t tcp_value;
 	__builtin_memset(&tcp_value, 0, sizeof(tcp_value));
 	tcp_value.pid = pid_tgid >> 32;
+	tcp_value.uid = bpf_get_current_uid_gid() >> 32;
 	tcp_value.counter = *val;
 	bpf_map_update_elem(&tcpMap, &tcp_key, &tcp_value, BPF_ANY);
 	u64 newval = *val + 1;
@@ -300,6 +306,7 @@ int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
 	struct tcpv6_value_t tcpv6_value;
     __builtin_memset(&tcpv6_value, 0, sizeof(tcpv6_value));
 	tcpv6_value.pid = pid_tgid >> 32;
+	tcpv6_value.uid = bpf_get_current_uid_gid() >> 32;
 	tcpv6_value.counter = *val;
 	bpf_map_update_elem(&tcpv6Map, &tcpv6_key, &tcpv6_value, BPF_ANY);
 	u64 newval = *val + 1;
@@ -349,6 +356,7 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
 		struct udp_value_t udp_value;
         __builtin_memset(&udp_value, 0, sizeof(udp_value));
 		udp_value.pid = pid;
+		udp_value.uid = bpf_get_current_uid_gid() >> 32;
 		udp_value.counter = *counterVal;
 		bpf_map_update_elem(&udpMap, &udp_key, &udp_value, BPF_ANY);
 		u64 newval = *counterVal + 1;
@@ -408,6 +416,7 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 		struct udpv6_value_t udpv6_value;
         __builtin_memset(&udpv6_value, 0, sizeof(udpv6_value));
 		udpv6_value.pid = pid;
+		udpv6_value.uid = bpf_get_current_uid_gid() >> 32;
 		udpv6_value.counter = *counterVal;
 		bpf_map_update_elem(&udpv6Map, &udpv6_key, &udpv6_value, BPF_ANY);
 		u64 newval = *counterVal + 1;

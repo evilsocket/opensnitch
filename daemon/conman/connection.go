@@ -83,8 +83,9 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 	}
 
 	var pid int
+	var uid int
 	if procmon.MethodIsEbpf() {
-		pid, err = ebpf.GetPid(c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort)
+		pid, uid, err = ebpf.GetPid(c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort)
 		if err != nil {
 			return nil, nil
 		}
@@ -94,7 +95,8 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		// 2. lookup pid by inode
 		// 3. if this is coming from us, just accept
 		// 4. lookup process info by pid
-		uid, inodeList := netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)
+		var inodeList []int
+		uid, inodeList = netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)
 		if len(inodeList) == 0 {
 			if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
 				return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
@@ -109,20 +111,9 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 			return nil, nil
 		}
 
-		if uid != -1 {
-			c.Entry.UserId = uid
-		} else if c.Entry.UserId == -1 && nfp.UID != 0xffffffff {
-			c.Entry.UserId = int(nfp.UID)
-		}
-
 		pid = -1
 		for n, inode := range inodeList {
-			if pid = procmon.GetPIDFromINode(inode, fmt.Sprint(inode, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)); pid == os.Getpid() {
-				// return a Process object with our PID, to be able to exclude our own connections
-				// (to the UI on a local socket for example)
-				c.Process = procmon.NewProcess(pid, "")
-				return c, nil
-			}
+			pid = procmon.GetPIDFromINode(inode, fmt.Sprint(inode, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort))
 			if pid != -1 {
 				log.Debug("[%d] PID found %d", n, pid)
 				c.Entry.INode = inode
@@ -130,12 +121,25 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 			}
 		}
 	}
+
+	if uid != -1 {
+		c.Entry.UserId = uid
+	} else if c.Entry.UserId == -1 && nfp.UID != 0xffffffff {
+		c.Entry.UserId = int(nfp.UID)
+	}
+
+	if pid == os.Getpid() {
+		// return a Process object with our PID, to be able to exclude our own connections
+		// (to the UI on a local socket for example)
+		c.Process = procmon.NewProcess(pid, "")
+		return c, nil
+	}
+
 	if c.Process = procmon.FindProcess(pid, showUnknownCons); c.Process == nil {
 		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
 	}
 
 	return c, nil
-
 }
 
 // NewConnection creates a new Connection object, and returns the details of it.
