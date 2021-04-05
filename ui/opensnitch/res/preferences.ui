@@ -379,6 +379,11 @@
          </item>
          <item>
           <property name="text">
+           <string>ebpf</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>audit</string>
           </property>
          </item>
