@@ -95,18 +95,24 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 	// check if the current monitor method is different from the one received.
 	// in such case close the current method, and start the new one.
 	procMonitorEqual := c.isProcMonitorEqual(newConf.ProcMonitorMethod)
+	oldMethod := c.ProcMonitorMethod()
 	if procMonitorEqual == false {
 		monitor.End()
+		procmon.SetMonitorMethod(newConf.ProcMonitorMethod)
+		// if the new monitor method fails to start, rollback the change and exit
+		// without saving the configuration. Otherwise we can end up with the wrong
+		// monitor method configured and saved to file.
+		if err = monitor.Init(); err != nil {
+			procmon.SetMonitorMethod(oldMethod)
+			c.sendNotificationReply(stream, notification.Id, "", err)
+			return
+		}
 	}
 
 	// this save operation triggers a re-loadConfiguration()
 	err = c.saveConfiguration(notification.Data)
 	if err != nil {
 		log.Warning("[notification] CHANGE_CONFIG not applied %s", err)
-	} else if err == nil && procMonitorEqual == false {
-		if err := monitor.Init(); err != nil {
-			c.sendNotificationReply(stream, notification.Id, "", err)
-		}
 	}
 
 	c.sendNotificationReply(stream, notification.Id, "", err)
