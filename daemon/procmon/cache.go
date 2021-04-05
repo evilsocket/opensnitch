@@ -110,7 +110,7 @@ func deleteInodeEntry(pid int) {
 	}
 }
 
-func cacheCleanerTask() {
+func CacheCleanerTask() {
 	for {
 		select {
 		case <-cacheTicker.C:
