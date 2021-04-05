@@ -82,14 +82,18 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		INode:   -1,
 	}
 
-	var pid int
+	pid := -1
 	var uid int
 	if procmon.MethodIsEbpf() {
 		pid, uid, err = ebpf.GetPid(c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort)
 		if err != nil {
+			log.Warning("ebpf warning: %v", err)
 			return nil, nil
 		}
-	} else {
+	} 
+	// sometimes when using eBPF the connection is not found, but falling back to legacy
+	// methods helps to find it and avoid "unknown/kernel pop-ups". TODO: investigate
+	if pid == -1 {
 		// 0. lookup uid and inode via netlink. Can return several inodes.
 		// 1. lookup uid and inode using /proc/net/(udp|tcp|udplite)
 		// 2. lookup pid by inode
@@ -111,7 +115,6 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 			return nil, nil
 		}
 
-		pid = -1
 		for n, inode := range inodeList {
 			pid = procmon.GetPIDFromINode(inode, fmt.Sprint(inode, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort))
 			if pid != -1 {
