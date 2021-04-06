@@ -1,9 +1,11 @@
 **tl;dr**
-- because we don't use eBPF.
+- ~because we don't use eBPF.~ Since commit [dbe7861](https://github.com/evilsocket/opensnitch/commit/9497cf8394a6afb179fd0303a9b046d6259191d5) we use eBPF and almost all the problems we had are now solved. There're still some rare corner cases that we need to debug (06/04/2021).
 
-- a process is opening connections too fast (nmap for example, firefox sometimes...).
+if eBPF is not used, and Proc or Audit monitor method are used:
 
-- the system has a high load and we're unable to find the process in time.
+- a process is opening connections too fast (nmap for example, firefox sometimes...). [#343](https://github.com/evilsocket/opensnitch/issues/343#issuecomment-813531496)
+
+- the system has a high load and we're unable to find the process in time. 
 
 - _netlink_ does not return the connection we're querying for, thus we can't search for the PID.
 
@@ -11,9 +13,15 @@
 
 - the Inode does not exist under `/proc/<PID>/fd/`
 
+- the PID is a TID in reality, under `/proc/<PID>/task/<TID>/`
+
+- the PID runs inside a container, and the connection is not in `/proc/net/*` but in `/proc/<PID>/net`
+
 - the PID entry does not exist under `/proc/`
 
-Some discussions you may want to read: [#10](https://github.com/gustavo-iniguez-goya/opensnitch/issues/10#issuecomment-608428026) and [#84](https://github.com/gustavo-iniguez-goya/opensnitch/issues/84#issuecomment-721663451)
+- because ~conntrack~ the night is dark and full of terrors https://blog.cloudflare.com/conntrack-turns-a-blind-eye-to-dropped-syns/
+
+Some discussions you may want to read: [#10](https://github.com/gustavo-iniguez-goya/opensnitch/issues/10#issuecomment-608428026) , [#84](https://github.com/gustavo-iniguez-goya/opensnitch/issues/84#issuecomment-721663451) and [#343](https://github.com/evilsocket/opensnitch/issues/343#issuecomment-813531496)
 
 ***
 
@@ -68,21 +76,6 @@ If we use a [netfilter queue](https://home.regit.org/netfilter-en/using-nfqueue-
 If we launch a process that listens on that queue, we can get the details of every NEW connection that is opened.
 
 So, we know that a connection is about to leave the system, and now we have the source port/ip and destination/port, how do we find out the PID of the process?
-
-**Notes:**
-> In this case we only redirect NEW connections in the _mangle_ table. That means that we can access and use the information of connections statuses provided by the conntrack kernel module. [[1]](#1---Demystifying-the-Linux-Kernel-Socket-File-Systems).
->
-> nanoseconds prior to this point, a socket has been created by a local process, but it may be too late to get the socket Inode (if it's written to `/proc` at all) or the application can bypass that rule by crafting a special packet with an invalid state.
->
-> One thing you can play with is, to add a rule to intercept connections in the RAW table:
-> > iptables -t raw -I OUTPUT -j NFQUEUE --queue-num 0 --queue-bypass
->
-> Notice that at this point of the path, we can't know if a connection is NEW, ESTABLISHED or INVALID, so every packet is forwarded to opensnitch. That means that the performance may be degraded, using too much CPU. 
->
-> But on the other hand, we're intercepting connections faster and earlier than on the MANGLE table, so maybe we can get processes faster and not miss them.
->
-> You can also add the following rule (notice that we exclude ESTABLISHED state):
-> > iptables -t mangle -I OUTPUT -m conntrack --ctstate NEW,RELATED,INVALID,SNAT,DNAT -j NFQUEUE --queue-num 0 --queue-bypass
 
 
 #
@@ -222,6 +215,8 @@ mar 08 18:37:48 ono-sendai audit: SOCKADDR saddr=01002FF2756E2F7FF573613030302F3
 If you look close enough, you'll see that it's reporting the PID which opened the socket (pid=12704). And this is reported very fast, as soon as it happens.
 
 Thus, we can go directly to `/proc/<PID>`, without having to iterate over all the `/proc` entries.
+
+Unfortunately auditd doesn't report the source port of a connection, thus we can't compare a connection from NFQUEUE against an event from auditd.
 
 #### FTrace (kprobes)
 Another method we can use is ftrace:
