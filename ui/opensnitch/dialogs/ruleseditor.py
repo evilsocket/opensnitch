@@ -200,7 +200,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstListsLine.setText("")
 
     def _load_rule(self, addr=None, rule=None):
-        self._load_nodes(addr)
+        if self._load_nodes(addr) == False:
+            return False
 
         self.ruleNameEdit.setText(rule.name)
         self.enableCheck.setChecked(rule.enabled)
@@ -229,6 +230,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
                 op = ui_pb2.Operator(type=r['type'], operand=r['operand'], data=r['data'], sensitive=_sensitive)
                 self._load_rule_operator(op)
+
+        return True
 
     def _load_rule_operator(self, operator):
         self.sensitiveCheck.setChecked(operator.sensitive)
@@ -279,8 +282,14 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _load_nodes(self, addr=None):
         try:
             self.nodesCombo.clear()
-
             self._node_list = self._nodes.get()
+
+            if addr != None and addr not in self._node_list:
+                Message.ok(QC.translate("rules", "<b>Error loading rule</b>"),
+                        QC.translate("rules", "node {0} not connected".format(addr)),
+                        QtWidgets.QMessageBox.Warning)
+                return False
+
             if len(self._node_list) <= 1:
                 self.nodeApplyAllCheck.setVisible(False)
 
@@ -292,6 +301,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         except Exception as e:
             print(self.LOG_TAG, "exception loading nodes: ", e, addr)
+            return False
+
+        return True
 
     def _insert_rule_to_db(self, node_addr):
         self._db.insert("rules",
@@ -564,8 +576,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._old_rule_name = records.value(2)
 
-        self._load_rule(addr=_addr, rule=self.rule)
-        self.show()
+        if self._load_rule(addr=_addr, rule=self.rule):
+            self.show()
 
     def new_rule(self):
         self._reset_state()

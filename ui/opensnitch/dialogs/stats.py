@@ -577,16 +577,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
-        #print("[stats dialog] notification reply: ", reply.id, reply.code)
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.ERROR:
                 Message.ok(
-                    QC.translate("stats", "<b>Error:</b><br><br>{0}").format(reply.data),
-                    "",
+                    QC.translate("stats",
+                                 "<b>Error:</b><br><br>",
+                                 "{0}").format(reply.data),
                     QtWidgets.QMessageBox.Warning)
 
         else:
-            print("[stats] unknown notification received: ", self._notifications_sent[reply.id].type)
+            Message.ok(
+                QC.translate("stats", "Warning:"),
+                "{0}".format(reply.data),
+                QtWidgets.QMessageBox.Warning)
 
     def _cb_tab_changed(self, index):
         if index == self.TAB_MAIN:
@@ -706,7 +709,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if records != None and records.size() == -1:
                 noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
                 nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
-                self._notifications_sent[nid] = noti
+                if nid != None:
+                    self._notifications_sent[nid] = noti
 
     def _table_menu_change_rule_field(self, cur_idx, model, selection, field, value):
         for idx in selection:
@@ -729,7 +733,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
             nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
-            self._notifications_sent[nid] = noti
+            if nid != None:
+                self._notifications_sent[nid] = noti
 
     def _table_menu_enable(self, cur_idx, model, selection, is_rule_enabled):
         rule_status = "False" if is_rule_enabled == "True" else "True"
@@ -748,7 +753,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             noti = ui_pb2.Notification(type=rule_type, rules=[rule])
             nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
-            self._notifications_sent[nid] = noti
+            if nid != None:
+                self._notifications_sent[nid] = noti
 
     def _table_menu_delete(self, cur_idx, model, selection):
 
@@ -768,7 +774,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                            QC.translate("stats", "Rule not found by that name and node"),
                            QtWidgets.QMessageBox.Warning)
                 return
-            self._rules_dialog.edit_rule(records, name)
+            self._rules_dialog.edit_rule(records, node)
             break
 
     def _cb_table_header_clicked(self, pos, sortIdx):
