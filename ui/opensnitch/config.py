@@ -17,6 +17,10 @@ class Config:
     DURATION_UNTIL_RESTART = "until restart"
     DURATION_ALWAYS = "always"
     DURATION_ONCE = "once"
+    DURATION_1h = "1h"
+    DURATION_30m = "30m"
+    DURATION_15m = "15m"
+    DURATION_5m = "5m"
 
     DEFAULT_TIMEOUT_KEY  = "global/default_timeout"
     DEFAULT_ACTION_KEY   = "global/default_action"
