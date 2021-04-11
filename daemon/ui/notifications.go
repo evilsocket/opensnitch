@@ -301,4 +301,7 @@ func (c *Client) listenForNotifications() {
 Exit:
 	notisStream.CloseSend()
 	log.Info("Stop receiving notifications")
+	if c.Connected() {
+		c.disconnect()
+	}
 }

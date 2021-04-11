@@ -16,6 +16,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
+	"google.golang.org/grpc/keepalive"
 )
 
 var (
@@ -165,7 +166,7 @@ func (c *Client) poller() {
 			if c.Connected() == true {
 				// if the client is connected and ready, send a ping
 				if err := c.ping(time.Now()); err != nil {
-					log.Warning("Error while pinging UI service: %s", err)
+					log.Warning("Error while pinging UI service: %s, state: %v", err, c.con.GetState())
 				}
 			}
 
@@ -220,7 +221,17 @@ func (c *Client) openSocket() (err error) {
 				return net.DialTimeout("unix", addr, timeout)
 			}))
 	} else {
-		c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure())
+		// https://pkg.go.dev/google.golang.org/grpc/keepalive#ClientParameters
+		var kacp = keepalive.ClientParameters{
+			Time: 5 * time.Second,
+			// if there's no activity after ^, wait 20s and close
+			// server timeout is 20s by default.
+			Timeout: 22 * time.Second,
+			// send pings even without active streams
+			PermitWithoutStream: true,
+		}
+
+		c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure(), grpc.WithKeepaliveParams(kacp))
 	}
 
 	return err
@@ -271,6 +282,10 @@ func (c *Client) ping(ts time.Time) (err error) {
 // Ask sends a request to the server, with the values of a connection to be
 // allowed or denied.
 func (c *Client) Ask(con *conman.Connection) *rule.Rule {
+	if c.client == nil {
+		return nil
+	}
+
 	// FIXME: if timeout is fired, the rule is not added to the list in the GUI
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
 	defer cancel()

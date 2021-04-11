@@ -37,12 +37,12 @@ class Nodes():
                         'online':        True,
                         'last_seen':     datetime.now()
                         }
-                self.add_data(addr, client_config)
-                return self._nodes[addr]
+            else:
+                self._nodes[addr]['last_seen'] = datetime.now()
 
-            self._nodes[addr]['last_seen'] = datetime.now()
+            self._nodes[addr]['online'] = True
             self.add_data(addr, client_config)
-            self._nodes.update(proto, addr)
+            self.update(proto, _addr)
 
             return self._nodes[addr]
 
