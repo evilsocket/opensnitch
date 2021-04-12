@@ -38,6 +38,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._cfg = Config.init()
         self._db = Database.instance()
         self._db.initialize(
+            dbtype=self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY),
             dbfile=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
         )
         self._db_sqlite = self._db.get_db()
