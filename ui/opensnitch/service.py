@@ -57,8 +57,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         self._setup_interfaces()
         self._setup_icons()
-        self._setup_tray()
         self._stats_dialog = StatsDialog(dbname="general", db=self._db)
+        self._setup_tray()
         self._setup_slots()
 
         self._nodes = Nodes.instance()

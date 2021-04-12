@@ -5,7 +5,7 @@ from database import Database
 class Config:
     __instance = None
 
-    HELP_URL = "https://github.com/gustavo-iniguez-goya/opensnitch/wiki/Configurations"
+    HELP_URL = "https://github.com/evilsocket/opensnitch/wiki/Configurations"
 
     RulesTypes = ("list", "lists", "simple", "regexp", "network")
 
