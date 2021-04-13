@@ -18,7 +18,7 @@ This packages are provided to you in the aim of being useful and ease the instal
 
 **Errors?**
 
-- LinuxMint >= 18: see: [#16](https://github.com/gustavo-iniguez-goya/opensnitch/issues/16) or `apt-get install g++ python3-dev python3-wheel python3-slugify`
+- LinuxMint <= 19: see: [#16](https://github.com/gustavo-iniguez-goya/opensnitch/issues/16) or `apt-get install g++ python3-dev python3-wheel python3-slugify`
 - MXLinux >= 19.x: You need to install additional packages: `apt-get install python3-dev python3-wheel`
 - Pop!_ OS: if you find that opensnitch is not behaving correctly (it slowdowns your system for some reason), reinstall it using the one-liner above from the command line. It seems that there're troubles installing it using the graphical installer `eddy`.
 - Fedora >= 3x: You can install `python3-grpcio` instead of the pip package.
@@ -47,7 +47,7 @@ Select the right package for your architecture: `$(uname -m) == x86_64` -> opens
 ***
 
 **These packages have been (briefly) tested on:**
- * Daemon (v1.0.0-rc5):
+ * Daemon (v1.3.6):
    - RedHat Enterprise >= 7.0
    - CentOS 8.x
    - Fedora >= 24
@@ -57,19 +57,21 @@ Select the right package for your architecture: `$(uname -m) == x86_64` -> opens
    - OpenSuse
    - Pop!_OS
    - MX Linux 19.x
- * UI (v1.0.0-rc4):
+   - PureOS (Librem5)
+ * UI (v1.3.6):
    - Debian >= 9
    - Ubuntu >= 16.x
-   - Fedora 3x
+   - Fedora >= 29
    - OpenSuse Tumbleweed
    - LinuxMint >= 18 
-   - MX Linux
+   - MX Linux 19.x
    - Pop!_OS
+   - PureOS (Librem5)
 
  * Window Managers:
    - Cinnamon
    - KDE
-   - Gnome-Shell (no systray icon? [see this for information](Known-problems#OpenSnitch-icon-does-not-show-up-on-gnome-shell))
+   - Gnome Shell (no systray icon? [see this for information](Known-problems#OpenSnitch-icon-does-not-show-up-on-gnome-shell))
    - Xfce
    - i3
 
