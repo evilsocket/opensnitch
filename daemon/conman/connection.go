@@ -13,6 +13,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/evilsocket/opensnitch/daemon/procmon/ebpf"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 
 	"github.com/google/gopacket/layers"
@@ -81,24 +82,47 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		INode:   -1,
 	}
 
-	// 0. lookup uid and inode via netlink. Can return several inodes.
-	// 1. lookup uid and inode using /proc/net/(udp|tcp|udplite)
-	// 2. lookup pid by inode
-	// 3. if this is coming from us, just accept
-	// 4. lookup process info by pid
-	uid, inodeList := netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)
-	if len(inodeList) == 0 {
-		if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
-			return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
+	pid := -1
+	var uid int
+	if procmon.MethodIsEbpf() {
+		pid, uid, err = ebpf.GetPid(c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort)
+		if err != nil {
+			log.Warning("ebpf warning: %v", err)
+			return nil, nil
 		}
-		if c.Entry.INode > 0 {
-			log.Debug("connection found in netstat: %v", c.Entry)
-			inodeList = append([]int{c.Entry.INode}, inodeList...)
+	} 
+	// sometimes when using eBPF the connection is not found, but falling back to legacy
+	// methods helps to find it and avoid "unknown/kernel pop-ups". TODO: investigate
+	if pid == -1 {
+		// 0. lookup uid and inode via netlink. Can return several inodes.
+		// 1. lookup uid and inode using /proc/net/(udp|tcp|udplite)
+		// 2. lookup pid by inode
+		// 3. if this is coming from us, just accept
+		// 4. lookup process info by pid
+		var inodeList []int
+		uid, inodeList = netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)
+		if len(inodeList) == 0 {
+			if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
+				return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
+			}
+			if c.Entry.INode > 0 {
+				log.Debug("connection found in netstat: %v", c.Entry)
+				inodeList = append([]int{c.Entry.INode}, inodeList...)
+			}
 		}
-	}
-	if len(inodeList) == 0 {
-		log.Debug("<== no inodes found, applying default action.")
-		return nil, nil
+		if len(inodeList) == 0 {
+			log.Debug("<== no inodes found, applying default action.")
+			return nil, nil
+		}
+
+		for n, inode := range inodeList {
+			pid = procmon.GetPIDFromINode(inode, fmt.Sprint(inode, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort))
+			if pid != -1 {
+				log.Debug("[%d] PID found %d", n, pid)
+				c.Entry.INode = inode
+				break
+			}
+		}
 	}
 
 	if uid != -1 {
@@ -107,26 +131,18 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		c.Entry.UserId = int(nfp.UID)
 	}
 
-	pid := -1
-	for n, inode := range inodeList {
-		if pid = procmon.GetPIDFromINode(inode, fmt.Sprint(inode, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)); pid == os.Getpid() {
-			// return a Process object with our PID, to be able to exclude our own connections
-			// (to the UI on a local socket for example)
-			c.Process = procmon.NewProcess(pid, "")
-			return c, nil
-		}
-		if pid != -1 {
-			log.Debug("[%d] PID found %d", n, pid)
-			c.Entry.INode = inode
-			break
-		}
+	if pid == os.Getpid() {
+		// return a Process object with our PID, to be able to exclude our own connections
+		// (to the UI on a local socket for example)
+		c.Process = procmon.NewProcess(pid, "")
+		return c, nil
 	}
+
 	if c.Process = procmon.FindProcess(pid, showUnknownCons); c.Process == nil {
 		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
 	}
 
 	return c, nil
-
 }
 
 // NewConnection creates a new Connection object, and returns the details of it.

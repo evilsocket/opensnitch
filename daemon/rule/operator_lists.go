@@ -86,6 +86,9 @@ Exit:
 
 // ClearLists deletes all the entries of a list
 func (o *Operator) ClearLists() {
+	o.Lock()
+	defer o.Unlock()
+
 	log.Info("clearing domains lists: %d - %s", len(o.lists), o.Data)
 	for k := range o.lists {
 		delete(o.lists, k)
@@ -132,9 +135,7 @@ func (o *Operator) readList(fileName string) (dups uint64) {
 			dups++
 			continue
 		}
-		o.Lock()
 		o.lists[host] = fileName
-		o.Unlock()
 	}
 	raw = nil
 	lines = nil
@@ -149,8 +150,8 @@ func (o *Operator) readLists() error {
 	var dups uint64
 	// this list is particular to this operator and rule
 	o.Lock()
+	defer o.Unlock()
 	o.lists = make(map[string]string)
-	o.Unlock()
 
 	expr := filepath.Join(o.Data, "*.*")
 	fileList, err := filepath.Glob(expr)

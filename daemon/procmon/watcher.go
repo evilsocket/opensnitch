@@ -14,6 +14,7 @@ const (
 	MethodFtrace = "ftrace"
 	MethodProc   = "proc"
 	MethodAudit  = "audit"
+	MethodEbpf   = "ebpf"
 )
 
 const (

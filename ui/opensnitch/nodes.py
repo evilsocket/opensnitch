@@ -37,17 +37,17 @@ class Nodes():
                         'online':        True,
                         'last_seen':     datetime.now()
                         }
-                self.add_data(addr, client_config)
-                return self._nodes[addr]
+            else:
+                self._nodes[addr]['last_seen'] = datetime.now()
 
-            self._nodes[addr]['last_seen'] = datetime.now()
+            self._nodes[addr]['online'] = True
             self.add_data(addr, client_config)
-            self._nodes.update(proto, addr)
+            self.update(proto, _addr)
 
             return self._nodes[addr]
 
         except Exception as e:
-            print(self.LOG_TAG + " exception adding/updating node: ", e, addr, client_config)
+            print(self.LOG_TAG, "exception adding/updating node: ", e, "addr:", addr, "config:", client_config)
 
         return None
 
@@ -68,7 +68,7 @@ class Nodes():
                                 str(r.operator.sensitive),
                                 r.operator.operand,
                                 r.operator.data),
-                            action_on_conflict="IGNORE")
+                            action_on_conflict="REPLACE")
         except Exception as e:
             print(self.LOG_TAG + " exception adding node to db: ", e)
 
@@ -170,6 +170,17 @@ class Nodes():
     def send_notification(self, addr, notification, callback_signal=None):
         try:
             notification.id = int(str(time.time()).replace(".", ""))
+            if addr not in self._nodes:
+                # FIXME: the reply is sent before we return the notification id
+                callback_signal.emit(
+                    ui_pb2.NotificationReply(
+                        id=notification.id,
+                        code=ui_pb2.ERROR,
+                        data="node not connected: {0}".format(addr)
+                    )
+                )
+                return notification.id
+
             self._nodes[addr]['notifications'].put(notification)
             self._notifications_sent[notification.id] = {
                     'callback': callback_signal,
@@ -177,6 +188,14 @@ class Nodes():
                     }
         except Exception as e:
             print(self.LOG_TAG + " exception sending notification: ", e, addr, notification)
+            if callback_signal != None:
+                callback_signal.emit(
+                    ui_pb2.NotificationReply(
+                        id=notification.id,
+                        code=ui_pb2.ERROR,
+                        data="Notification not sent ({0}):<br>{1}".format(addr, e)
+                    )
+                )
 
         return notification.id
 

@@ -13,6 +13,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 	"golang.org/x/net/context"
@@ -94,16 +95,24 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 	// check if the current monitor method is different from the one received.
 	// in such case close the current method, and start the new one.
 	procMonitorEqual := c.isProcMonitorEqual(newConf.ProcMonitorMethod)
+	oldMethod := c.ProcMonitorMethod()
 	if procMonitorEqual == false {
-		procmon.End()
+		monitor.End()
+		procmon.SetMonitorMethod(newConf.ProcMonitorMethod)
+		// if the new monitor method fails to start, rollback the change and exit
+		// without saving the configuration. Otherwise we can end up with the wrong
+		// monitor method configured and saved to file.
+		if err = monitor.Init(); err != nil {
+			procmon.SetMonitorMethod(oldMethod)
+			c.sendNotificationReply(stream, notification.Id, "", err)
+			return
+		}
 	}
 
 	// this save operation triggers a re-loadConfiguration()
 	err = c.saveConfiguration(notification.Data)
 	if err != nil {
 		log.Warning("[notification] CHANGE_CONFIG not applied %s", err)
-	} else if err == nil && procMonitorEqual == false {
-		procmon.Init()
 	}
 
 	c.sendNotificationReply(stream, notification.Id, "", err)
@@ -165,7 +174,7 @@ func (c *Client) handleActionDeleteRule(stream protocol.UI_NotificationsClient, 
 func (c *Client) handleActionMonitorProcess(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	pid, err := strconv.Atoi(notification.Data)
 	if err != nil {
-		log.Error("parsing PID to monitor")
+		log.Error("parsing PID to monitor: %d, err: %s", pid, err)
 		return
 	}
 	if !core.Exists(fmt.Sprint("/proc/", pid)) {
@@ -178,7 +187,7 @@ func (c *Client) handleActionMonitorProcess(stream protocol.UI_NotificationsClie
 func (c *Client) handleActionStopMonitorProcess(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	pid, err := strconv.Atoi(notification.Data)
 	if err != nil {
-		log.Error("parsing PID to stop monitor")
+		log.Error("parsing PID to stop monitor: %d, err: %s", pid, err)
 		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error stopping monitor: %s", notification.Data))
 		return
 	}
@@ -292,4 +301,7 @@ func (c *Client) listenForNotifications() {
 Exit:
 	notisStream.CloseSend()
 	log.Info("Stop receiving notifications")
+	if c.Connected() {
+		c.disconnect()
+	}
 }

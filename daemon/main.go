@@ -21,12 +21,14 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/netfilter"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 	"github.com/evilsocket/opensnitch/daemon/ui"
 )
 
 var (
+	showVersion    = false
 	procmonMethod  = ""
 	logFile        = ""
 	rulesPath      = "rules"
@@ -59,7 +61,9 @@ var (
 )
 
 func init() {
-	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "How to search for processes path. Options: ftrace, audit (experimental), proc (default)")
+	flag.BoolVar(&showVersion, "version", debug, "Show daemon version of this executable and exit.")
+
+	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "How to search for processes path. Options: ftrace, audit (experimental), ebpf (experimental), proc (default)")
 	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
 	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
@@ -153,7 +157,7 @@ func setupWorkers() {
 func doCleanup(queue, repeatQueue *netfilter.Queue) {
 	log.Info("Cleaning up ...")
 	firewall.Stop(&queueNum)
-	procmon.End()
+	monitor.End()
 	uiClient.Close()
 	queue.Close()
 	repeatQueue.Close()
@@ -323,6 +327,11 @@ func main() {
 	defer cancel()
 	flag.Parse()
 
+	if showVersion {
+		fmt.Println(core.Version)
+		os.Exit(0)
+	}
+
 	// clean any possible residual firewall rule
 	firewall.CleanRules(false)
 
@@ -379,7 +388,7 @@ func main() {
 	if procmonMethod != "" {
 		procmon.SetMonitorMethod(procmonMethod)
 	}
-	procmon.Init()
+	monitor.Init()
 
 	// queue is ready, run firewall rules
 	firewall.Init(&queueNum)

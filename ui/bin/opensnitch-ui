@@ -59,7 +59,17 @@ if __name__ == '__main__':
 
     service = UIService(app, on_exit)
     # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=int(args.serverWorkers)))
+    server = grpc.server(futures.ThreadPoolExecutor(),
+                         options=(
+                             # https://github.com/grpc/grpc/blob/master/doc/keepalive.md
+                             # https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
+                             # send keepalive ping every 5 second, default is 2 hours)
+                             ('grpc.keepalive_time_ms', 5000),
+                             # after 5s of inactivity, wait 20s and close the connection if
+                             # there's no response.
+                             ('grpc.keepalive_timeout_ms', 20000),
+                             ('grpc.keepalive_permit_without_calls', True),
+                         ))
 
     add_UIServicer_to_server(service, server)
 

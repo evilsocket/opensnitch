@@ -20,11 +20,13 @@ class Database:
         self.db_file = Database.DB_IN_MEMORY
         self.db_name = dbname
 
-    def initialize(self, dbfile):
+    def initialize(self, dbtype=DB_TYPE_MEMORY, dbfile=DB_IN_MEMORY):
+        if dbtype != Database.DB_TYPE_MEMORY:
+            self.db_file = dbfile
+
         if self.db != None:
             QSqlDatabase.removeDatabase(self.db_name)
             self.close()
-        self.db_file = dbfile
 
         self.db = QSqlDatabase.addDatabase("QSQLITE", self.db_name)
         self.db.setDatabaseName(self.db_file)

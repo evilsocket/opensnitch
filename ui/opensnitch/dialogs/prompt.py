@@ -199,12 +199,14 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.applyButton.setText(self._apply_text)
 
     def _set_app_description(self, description):
-        if description != None:
+        if description != None and description != "":
             self.appDescriptionLabel.setVisible(True)
+            self.appDescriptionLabel.setFixedHeight(50)
             self.appDescriptionLabel.setToolTip(description)
             self._set_elide_text(self.appDescriptionLabel, "%s" % description)
         else:
             self.appDescriptionLabel.setVisible(False)
+            self.appDescriptionLabel.setFixedHeight(0)
             self.appDescriptionLabel.setText("")
 
     def _set_app_path(self, app_name, app_args, con):

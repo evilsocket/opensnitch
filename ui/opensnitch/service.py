@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 
 from datetime import datetime, timedelta
 from threading import Thread, Lock, Event
+import grpc
 import time
 import os
 import socket
@@ -37,6 +38,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._cfg = Config.init()
         self._db = Database.instance()
         self._db.initialize(
+            dbtype=self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY),
             dbfile=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
         )
         self._db_sqlite = self._db.get_db()
@@ -50,18 +52,14 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._exit = False
         self._msg = QtWidgets.QMessageBox()
         self._prompt_dialog = PromptDialog()
-        self._stats_dialog = StatsDialog(dbname="general", db=self._db)
         self._remote_lock = Lock()
         self._remote_stats = {}
 
         self._setup_interfaces()
-        self._setup_slots()
         self._setup_icons()
+        self._stats_dialog = StatsDialog(dbname="general", db=self._db)
         self._setup_tray()
-
-        self.check_thread = Thread(target=self._async_worker)
-        self.check_thread.daemon = True
-        self.check_thread.start()
+        self._setup_slots()
 
         self._nodes = Nodes.instance()
 
@@ -215,29 +213,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _on_remote_stats_menu(self, address):
         self._remote_stats[address]['dialog'].show()
-
-    def _async_worker(self):
-        was_connected = False
-        self._status_change_trigger.emit()
-
-        while True:
-            time.sleep(1)
-
-            # we didn't see any daemon so far ...
-            if self._last_ping is None:
-                continue
-            # a prompt is being shown, ping is on pause
-            elif self._asking is True:
-                continue
-
-            # the daemon will ping the ui every second
-            # we expect a 3 seconds delay -at most-
-            time_not_seen = datetime.now() - self._last_ping
-            secs_not_seen = time_not_seen.seconds + time_not_seen.microseconds / 1E6
-            self._connected = ( secs_not_seen < 3 )
-            if was_connected != self._connected:
-                self._status_change_trigger.emit()
-                was_connected = self._connected
 
     def _check_versions(self, daemon_version):
         lMayor, lMinor, lPatch = version.split(".")
@@ -423,6 +398,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         return ui_pb2.PingReply(id=request.id)
 
     def AskRule(self, request, context):
+        # TODO: allow connections originated from ourselves: os.getpid() == request.pid)
         self._asking = True
         proto, addr = self._get_peer(context.peer())
         rule, timeout_triggered = self._prompt_dialog.promptUser(request, self._is_local_request(proto, addr), context.peer())
@@ -431,8 +407,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if _title == "":
                 _title = "%s:%d (%s)" % (request.dst_host if request.dst_host != "" else request.dst_ip, request.dst_port, request.protocol)
 
+            node_text = "" if self._is_local_request(proto, addr) else "on node {0}:{1}".format(proto, addr)
             self._tray.setIcon(self.alert_icon)
-            self._tray.showMessage(_title, "%s action applied\nArguments: %s" % (rule.action, request.process_args), QtWidgets.QSystemTrayIcon.NoIcon, 0)
+            self._tray.showMessage(_title,
+                                   "{0} action applied {1}\nArguments: {2}"
+                                   .format(rule.action, node_text, request.process_args),
+                                   QtWidgets.QSystemTrayIcon.NoIcon,
+                                   0)
 
         self._last_ping = datetime.now()
         self._asking = False
@@ -447,6 +428,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         @doc: https://grpc.github.io/grpc/python/grpc.html#service-side-context
         """
         try:
+            proto, addr = self._get_peer(context.peer())
+            if self._is_local_request(proto, addr) == False:
+                self._tray.showMessage("New node connected",
+                                    "({0})".format(context.peer()),
+                                    QtWidgets.QSystemTrayIcon.Information,
+                                    5000)
             n = self._nodes.add(context, node_config)
         except Exception as e:
             print("[Notifications] exception adding new node:", e)
@@ -460,6 +447,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         client, in order to send them notifications.
 
         @doc: https://grpc.github.io/grpc/python/grpc.html#service-side-context
+        @doc: https://grpc.io/docs/what-is-grpc/core-concepts/
         """
         proto, addr = self._get_peer(context.peer())
         _node = self._nodes.get_node("%s:%s" % (proto, addr))
@@ -469,11 +457,18 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             stop_event.set()
             self._delete_node(context.peer())
 
+            if self._nodes.count() == 0:
+                self._connected = False
+                self._status_change_trigger.emit()
+
         context.add_callback(_on_client_closed)
 
         # TODO: move to notifications.py
         def new_node_message():
             print("new node connected, listening for client responses...", addr)
+            self._connected = True
+            self._status_change_trigger.emit()
+
             while self._exit == False:
                 try:
                     if stop_event.is_set():
@@ -482,10 +477,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     if in_message == None:
                         continue
                     self._nodes.reply_notification(addr, in_message)
-                except StopIteration as e:
-                    print("[Notifications] Node exited")
+                except StopIteration:
+                    print("[Notifications] Node {0} exited".format(addr))
+                    break
+                except grpc.RpcError as e:
+                    print("[Notifications] grpc exception new_node_message(): ", addr)
                 except Exception as e:
-                    print("[Notifications] exception new_node_message(): ", addr, e)
+                    print("[Notifications] unexpected exception new_node_message(): ", addr, e)
 
         read_thread = Thread(target=new_node_message)
         read_thread.daemon = True

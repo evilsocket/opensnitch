@@ -23,10 +23,10 @@ var (
 	activePidsLock = sync.RWMutex{}
 )
 
-//monitorActivePids checks that each process in activePids
+//MonitorActivePids checks that each process in activePids
 //is still running and if not running (or another process with the same pid is running),
 //removes the pid from activePids
-func monitorActivePids() {
+func MonitorActivePids() {
 	for {
 		time.Sleep(time.Second)
 		activePidsLock.Lock()
@@ -35,12 +35,14 @@ func monitorActivePids() {
 			if err != nil {
 				//file does not exists, pid has quit
 				delete(activePids, k)
+				deleteProcEntry(int(k))
 				continue
 			}
 			startTime, err := strconv.Atoi(strings.Split(string(data), " ")[21])
 			if err != nil {
 				log.Error("Could not find or convert Starttime. This should never happen. Please report this incident to the Opensnitch developers.")
 				delete(activePids, k)
+				deleteProcEntry(int(k))
 				continue
 			}
 			if uint32(startTime) != v.Starttime {
@@ -48,6 +50,7 @@ func monitorActivePids() {
 				//was started with the same PID - all this in less than 1 second
 				log.Error("Same PID but different Starttime. Please report this incident to the Opensnitch developers.")
 				delete(activePids, k)
+				deleteProcEntry(int(k))
 				continue
 			}
 		}

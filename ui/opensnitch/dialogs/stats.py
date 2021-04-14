@@ -5,6 +5,7 @@ import os
 import csv
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt5.QtCore import QCoreApplication as QC
 
 import ui_pb2
 from config import Config
@@ -51,6 +52,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_R_DURATION = 5
     COL_R_OP_TYPE = 6
     COL_R_OP_OPERAND = 7
+
+    # procs
+    COL_PID = 6
 
     TAB_MAIN  = 0
     TAB_NODES = 1
@@ -237,25 +241,24 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setWindowFlags(QtCore.Qt.Window)
         self.setupUi(self)
 
-
         # columns names
-        self.COL_STR_NAME = QtCore.QCoreApplication.translate("stats", "Name")
-        self.COL_STR_ADDR = QtCore.QCoreApplication.translate("stats", "Address")
-        self.COL_STR_STATUS = QtCore.QCoreApplication.translate("stats", "Status")
-        self.COL_STR_HOSTNAME = QtCore.QCoreApplication.translate("stats", "Hostname")
-        self.COL_STR_VERSION = QtCore.QCoreApplication.translate("stats", "Version")
-        self.COL_STR_RULES_NUM = QtCore.QCoreApplication.translate("stats", "Rules")
-        self.COL_STR_TIME = QtCore.QCoreApplication.translate("stats", "Time")
-        self.COL_STR_ACTION = QtCore.QCoreApplication.translate("stats", "Action")
-        self.COL_STR_DURATION = QtCore.QCoreApplication.translate("stats", "Duration")
-        self.COL_STR_NODE = QtCore.QCoreApplication.translate("stats", "Node")
-        self.COL_STR_ENABLED = QtCore.QCoreApplication.translate("stats", "Enabled")
-        self.COL_STR_HITS = QtCore.QCoreApplication.translate("stats", "Hits")
-        self.COL_STR_PROTOCOL = QtCore.QCoreApplication.translate("stats", "Protocol")
+        self.COL_STR_NAME = QC.translate("stats", "Name")
+        self.COL_STR_ADDR = QC.translate("stats", "Address")
+        self.COL_STR_STATUS = QC.translate("stats", "Status")
+        self.COL_STR_HOSTNAME = QC.translate("stats", "Hostname")
+        self.COL_STR_VERSION = QC.translate("stats", "Version")
+        self.COL_STR_RULES_NUM = QC.translate("stats", "Rules")
+        self.COL_STR_TIME = QC.translate("stats", "Time")
+        self.COL_STR_ACTION = QC.translate("stats", "Action")
+        self.COL_STR_DURATION = QC.translate("stats", "Duration")
+        self.COL_STR_NODE = QC.translate("stats", "Node")
+        self.COL_STR_ENABLED = QC.translate("stats", "Enabled")
+        self.COL_STR_HITS = QC.translate("stats", "Hits")
+        self.COL_STR_PROTOCOL = QC.translate("stats", "Protocol")
 
-        self.FIREWALL_STOPPED  = QtCore.QCoreApplication.translate("stats", "Not running")
-        self.FIREWALL_DISABLED = QtCore.QCoreApplication.translate("stats", "Disabled")
-        self.FIREWALL_RUNNING  = QtCore.QCoreApplication.translate("stats", "Running")
+        self.FIREWALL_STOPPED  = QC.translate("stats", "Not running")
+        self.FIREWALL_DISABLED = QC.translate("stats", "Disabled")
+        self.FIREWALL_RUNNING  = QC.translate("stats", "Running")
 
         self._db = db
         self._db_sqlite = self._db.get_db()
@@ -434,9 +437,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def showEvent(self, event):
         super(StatsDialog, self).showEvent(event)
         self._shown_trigger.emit()
-        window_title = QtCore.QCoreApplication.translate("stats", "OpenSnitch Network Statistics {0}").format(version)
+        window_title = QC.translate("stats", "OpenSnitch Network Statistics {0}").format(version)
         if self._address is not None:
-            window_title = QtCore.QCoreApplication.translate("stats", "OpenSnitch Network Statistics for {0}").format(self._address)
+            window_title = QC.translate("stats", "OpenSnitch Network Statistics for {0}").format(self._address)
             self.nodeLabel.setText(self._address)
         self._load_settings()
         self._add_rulesTree_nodes()
@@ -565,8 +568,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         nrows = table.model().rowCount()
         pids = {}
         for row in range(0, nrows):
-            pid = table.model().index(row, 6).data()
-            node = table.model().index(row, 1).data()
+            pid = table.model().index(row, self.COL_PID).data()
+            node = table.model().index(row, self.COL_NODE).data()
             if pid not in pids:
                 pids[pid] = node
 
@@ -574,16 +577,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
-        #print("[stats dialog] notification reply: ", reply.id, reply.code)
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.ERROR:
                 Message.ok(
-                    QtCore.QCoreApplication.translate("stats", "<b>Error:</b><br><br>{0}").format(reply.data),
-                    "",
+                    QC.translate("stats",
+                                 "<b>Error:</b><br><br>",
+                                 "{0}").format(reply.data),
                     QtWidgets.QMessageBox.Warning)
 
         else:
-            print("[stats] unknown notification received: ", self._notifications_sent[reply.id].type)
+            Message.ok(
+                QC.translate("stats", "Warning:"),
+                "{0}".format(reply.data),
+                QtWidgets.QMessageBox.Warning)
 
     def _cb_tab_changed(self, index):
         if index == self.TAB_MAIN:
@@ -603,23 +609,42 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # the only table with context menu for now is the rules table
             return
 
+        self._context_menu_active = True
+        self._configure_rules_contextual_menu(pos)
+        self._context_menu_active = False
+
+    def _configure_rules_contextual_menu(self, pos):
+        cur_idx = self.tabWidget.currentIndex()
         table = self._get_active_table()
         model = table.model()
-        self._context_menu_active = True
 
         selection = table.selectionModel().selectedRows()
         if selection:
             menu = QtWidgets.QMenu()
+            durMenu = QtWidgets.QMenu(self.COL_STR_DURATION)
+            actionMenu = QtWidgets.QMenu(self.COL_STR_ACTION)
+
+            _actAllow = actionMenu.addAction(QC.translate("stats", "Allow"))
+            _actDeny = actionMenu.addAction(QC.translate("stats", "Deny"))
+            menu.addMenu(actionMenu)
+
+            _durAlways = durMenu.addAction(QC.translate("stats", "Always"))
+            _durUntilReboot = durMenu.addAction(QC.translate("stats", "Until reboot"))
+            _dur1h = durMenu.addAction(Config.DURATION_1h)
+            _dur30m = durMenu.addAction(Config.DURATION_30m)
+            _dur15m = durMenu.addAction(Config.DURATION_15m)
+            _dur5m = durMenu.addAction(Config.DURATION_5m)
+            menu.addMenu(durMenu)
 
             is_rule_enabled = model.index(selection[0].row(), self.COL_R_ENABLED).data()
-            menu_label_enable = QtCore.QCoreApplication.translate("stats", "Disable")
+            menu_label_enable = QC.translate("stats", "Disable")
             if is_rule_enabled == "False":
-                menu_label_enable = QtCore.QCoreApplication.translate("stats", "Enable")
+                menu_label_enable = QC.translate("stats", "Enable")
 
-            _menu_enable = menu.addAction(QtCore.QCoreApplication.translate("stats", menu_label_enable))
-            _menu_duplicate = menu.addAction(QtCore.QCoreApplication.translate("stats", "Duplicate"))
-            _menu_edit = menu.addAction(QtCore.QCoreApplication.translate("stats", "Edit"))
-            _menu_delete = menu.addAction(QtCore.QCoreApplication.translate("stats", "Delete"))
+            _menu_enable = menu.addAction(QC.translate("stats", menu_label_enable))
+            _menu_duplicate = menu.addAction(QC.translate("stats", "Duplicate"))
+            _menu_edit = menu.addAction(QC.translate("stats", "Edit"))
+            _menu_delete = menu.addAction(QC.translate("stats", "Delete"))
 
             # move away menu a few pixels to the right, to avoid clicking on it by mistake
             point = QtCore.QPoint(pos.x()+10, pos.y()+5)
@@ -628,8 +653,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             model = table.model()
             if action == _menu_delete:
                 ret = Message.yes_no(
-                    QtCore.QCoreApplication.translate("stats", "    Your are about to delete this rule.    "),
-                    QtCore.QCoreApplication.translate("stats", "    Are you sure?"),
+                    QC.translate("stats", "    Your are about to delete this rule.    "),
+                    QC.translate("stats", "    Are you sure?"),
                     QtWidgets.QMessageBox.Warning)
                 if ret == QtWidgets.QMessageBox.Cancel:
                     return
@@ -640,8 +665,23 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._table_menu_enable(cur_idx, model, selection, is_rule_enabled)
             elif action == _menu_duplicate:
                 self._table_menu_duplicate(cur_idx, model, selection)
+            elif action == _durAlways:
+                self._table_menu_change_rule_field(cur_idx, model, selection, "duration", Config.DURATION_ALWAYS)
+            elif action == _dur1h:
+                self._table_menu_change_rule_field(cur_idx, model, selection, "duration", Config.DURATION_1h)
+            elif action == _dur30m:
+                self._table_menu_change_rule_field(cur_idx, model, selection, "duration", Config.DURATION_30m)
+            elif action == _dur15m:
+                self._table_menu_change_rule_field(cur_idx, model, selection, "duration", Config.DURATION_15m)
+            elif action == _dur5m:
+                self._table_menu_change_rule_field(cur_idx, model, selection, "duration", Config.DURATION_5m)
+            elif action == _durUntilReboot:
+                self._table_menu_change_rule_field(cur_idx, model, selection, "duration", Config.DURATION_UNTIL_RESTART)
+            elif action == _actAllow:
+                self._table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_ALLOW)
+            elif action == _actDeny:
+                self._table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_DENY)
 
-        self._context_menu_active = False
         self._refresh_active_table()
 
     def _table_menu_duplicate(self, cur_idx, model, selection):
@@ -669,6 +709,31 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if records != None and records.size() == -1:
                 noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
                 nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
+                if nid != None:
+                    self._notifications_sent[nid] = noti
+
+    def _table_menu_change_rule_field(self, cur_idx, model, selection, field, value):
+        for idx in selection:
+            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+
+            records = self._get_rule(rule_name, node_addr)
+            rule = self._rules_dialog.get_rule_from_records(records)
+
+            self._db.update(table="rules", fields="{0}=?".format(field),
+                            values=[value], condition="name='{0}' AND node='{1}'".format(rule_name, node_addr),
+                            action_on_conflict="")
+
+            if field == "action":
+                rule.action = value
+            elif field == "duration":
+                rule.duration = value
+            elif field == "precedence":
+                rule.precedence = value
+
+            noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
+            nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
+            if nid != None:
                 self._notifications_sent[nid] = noti
 
     def _table_menu_enable(self, cur_idx, model, selection, is_rule_enabled):
@@ -683,12 +748,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             rule_type = ui_pb2.DISABLE_RULE if is_rule_enabled == "True" else ui_pb2.ENABLE_RULE
 
             self._db.update(table="rules", fields="enabled=?",
-                            values=[rule_status], condition="name='{0}'".format(rule_name),
+                            values=[rule_status], condition="name='{0}' AND node='{1}'".format(rule_name, node_addr),
                             action_on_conflict="")
 
             noti = ui_pb2.Notification(type=rule_type, rules=[rule])
             nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
-            self._notifications_sent[nid] = noti
+            if nid != None:
+                self._notifications_sent[nid] = noti
 
     def _table_menu_delete(self, cur_idx, model, selection):
 
@@ -705,10 +771,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             records = self._get_rule(name, node)
             if records == None or records == -1:
                 Message.ok("Rule error",
-                           QtCore.QCoreApplication.translate("stats", "Rule not found by that name and node"),
+                           QC.translate("stats", "Rule not found by that name and node"),
                            QtWidgets.QMessageBox.Warning)
                 return
-            self._rules_dialog.edit_rule(records, name)
+            self._rules_dialog.edit_rule(records, node)
             break
 
     def _cb_table_header_clicked(self, pos, sortIdx):
@@ -877,8 +943,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_del_rule_clicked(self):
         ret = Message.yes_no(
-            QtCore.QCoreApplication.translate("stats", "    Your are about to delete this rule.    "),
-            QtCore.QCoreApplication.translate("stats", "    Are you sure?"),
+            QC.translate("stats", "    You are about to delete this rule.    "),
+            QC.translate("stats", "    Are you sure?"),
             QtWidgets.QMessageBox.Warning)
         if ret == QtWidgets.QMessageBox.Cancel:
             return
@@ -1268,7 +1334,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         tab_idx = self.tabWidget.currentIndex()
 
         filename = QtWidgets.QFileDialog.getSaveFileName(self,
-                    QtCore.QCoreApplication.translate("stats", 'Save as CSV'),
+                    QC.translate("stats", 'Save as CSV'),
                     self._file_names[tab_idx],
                     'All Files (*);;CSV Files (*.csv)')[0].strip()
         if filename == '':
@@ -1377,12 +1443,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             super(StatsDialog, self).keyPressEvent(event)
 
     def setQuery(self, model, q):
+        if self._context_menu_active == True:
+            return
         with self._lock:
             try:
-                if self._context_menu_active == False:
-                    model.query().clear()
-                    model.setQuery(q, self._db_sqlite)
-                    if model.lastError().isValid():
-                        print("setQuery() error: ", model.lastError().text())
+                model.query().clear()
+                model.setQuery(q, self._db_sqlite)
+                if model.lastError().isValid():
+                    print("setQuery() error: ", model.lastError().text())
             except Exception as e:
                 print(self._address, "setQuery() exception: ", e)

@@ -4,7 +4,7 @@ Uploaders:
  Gustavo Iniguez Goya <gooffy@gmail.com>,
 Priority: optional
 Homepage: https://github.com/evilsocket/opensnitch
-Build-Depends: python3-setuptools, python3-all, debhelper (>= 7.4.3), dh-python
+Build-Depends: python3-setuptools, pyqt5-dev-tools, python3-all, debhelper (>= 7.4.3), dh-python
 Standards-Version: 3.9.1
 
 
