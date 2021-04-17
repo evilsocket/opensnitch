@@ -919,14 +919,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.startButton.setIcon(self.iconStart)
             return
 
+        self.update_interception_status(self.startButton.isChecked())
+        self._status_changed_trigger.emit(self.startButton.isChecked())
+
         if self.startButton.isChecked():
-            self._update_status_label(running=True, text=self.FIREWALL_RUNNING)
             nid, noti = self._nodes.start_interception(_callback=self._notification_callback)
-            self._status_changed_trigger.emit(False)
         else:
-            self._update_status_label(running=False, text=self.FIREWALL_DISABLED)
             nid, noti = self._nodes.stop_interception(_callback=self._notification_callback)
-            self._status_changed_trigger.emit(True)
 
         self._notifications_sent[nid] = noti
 
@@ -1381,6 +1380,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 header.setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
 
         return tableWidget
+
+    def update_interception_status(self, enabled):
+        self.startButton.setDown(enabled)
+        self.startButton.setChecked(enabled)
+        if enabled:
+            self._update_status_label(running=True, text=self.FIREWALL_RUNNING)
+        else:
+            self._update_status_label(running=False, text=self.FIREWALL_DISABLED)
 
     # launched from a thread
     def update(self, is_local=True, stats=None, need_query_update=True):
