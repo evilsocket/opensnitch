@@ -102,8 +102,20 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def showEvent(self, event):
         super(PromptDialog, self).showEvent(event)
-        self.resize(540, 300)
         self.activateWindow()
+        self.move_popup()
+
+    def move_popup(self):
+        popup_pos = self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION)
+        point = QtWidgets.QDesktopWidget().availableGeometry()
+        if popup_pos == self._cfg.POPUP_TOP_RIGHT:
+            self.move(point.topRight())
+        elif popup_pos == self._cfg.POPUP_TOP_LEFT:
+            self.move(point.topLeft())
+        elif popup_pos == self._cfg.POPUP_BOTTOM_RIGHT:
+            self.move(point.bottomRight())
+        elif popup_pos == self._cfg.POPUP_BOTTOM_LEFT:
+            self.move(point.bottomLeft())
 
     def _checkbox_toggled(self, state):
         self.applyButton.setText("%s" % self._apply_text)

@@ -110,7 +110,7 @@
        <item row="5" column="3">
         <widget class="QComboBox" name="comboUIDialogPos">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <item>
           <property name="text">
@@ -164,7 +164,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Prompt dialog default position on screen</string>
+          <string>Pop-ups default position on screen</string>
          </property>
         </widget>
        </item>
@@ -669,7 +669,8 @@
           <string>Select</string>
          </property>
          <property name="icon">
-          <iconset theme="document-open"/>
+          <iconset theme="document-open">
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </widget>
        </item>
