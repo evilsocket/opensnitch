@@ -4,12 +4,7 @@ from datetime import datetime, timedelta
 from threading import Thread, Lock, Event
 import grpc
 import os
-import socket
-import fcntl
-import struct
-import array
 import sys
-import pwd
 
 path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(path)
@@ -24,12 +19,16 @@ from nodes import Nodes
 from config import Config
 from version import version
 from database import Database
+from utils import Utils
+from version import version
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _new_remote_trigger = QtCore.pyqtSignal(str, ui_pb2.PingRequest)
     _update_stats_trigger = QtCore.pyqtSignal(str, str, ui_pb2.PingRequest)
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
+    _status_change_trigger = QtCore.pyqtSignal(bool)
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
+    _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
 
     MENU_ENTRY_STATS = QtCore.QCoreApplication.translate("contextual_menu", "Statistics")
     MENU_ENTRY_FW_ENABLE = QtCore.QCoreApplication.translate("contextual_menu", "Enable")
@@ -80,16 +79,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     # https://gist.github.com/pklaus/289646
     def _setup_interfaces(self):
-        max_possible = 128  # arbitrary. raise if needed.
-        bytes = max_possible * 32
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        names = array.array('B', b'\0' * bytes)
-        outbytes = struct.unpack('iL', fcntl.ioctl(
-            s.fileno(),
-            0x8912,  # SIOCGIFCONF
-            struct.pack('iL', bytes, names.buffer_info()[0])
-        ))[0]
-        namestr = names.tobytes()
+        namestr, outbytes = Utils.get_interfaces()
         self._interfaces = {}
         for i in range(0, outbytes, 40):
             name = namestr[i:i+16].split(b'\0', 1)[0]
@@ -102,8 +92,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._version_warning_trigger.connect(self._on_diff_versions)
         self._new_remote_trigger.connect(self._on_new_remote)
         self._update_stats_trigger.connect(self._on_update_stats)
+        self._status_change_trigger.connect(self._on_status_changed)
         self._stats_dialog._shown_trigger.connect(self._on_stats_dialog_shown)
         self._stats_dialog._status_changed_trigger.connect(self._on_stats_status_changed)
+        self._show_message_trigger.connect(self._show_systray_message)
 
     def _setup_icons(self):
         self.off_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-off.png"))
@@ -163,13 +155,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._on_exit()
 
     def _show_stats_dialog(self):
-        if self._connected and not self._fw_enabled:
+        if self._connected and self._fw_enabled:
             self._tray.setIcon(self.white_icon)
         self._stats_dialog.show()
 
     @QtCore.pyqtSlot(bool)
     def _on_stats_status_changed(self, enabled):
         self._update_fw_status(enabled)
+
+    @QtCore.pyqtSlot(bool)
+    def _on_status_changed(self, enabled):
+        self._set_daemon_connected(enabled)
 
     @QtCore.pyqtSlot(str, str)
     def _on_diff_versions(self, daemon_ver, ui_ver):
@@ -219,6 +215,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _on_remote_stats_menu(self, address):
         self._remote_stats[address]['dialog'].show()
 
+    @QtCore.pyqtSlot(str, str, int, int)
+    def _show_systray_message(self, title, body, icon, timeout):
+        if icon == QtWidgets.QSystemTrayIcon.NoIcon:
+            self._tray.setIcon(self.alert_icon)
+        self._tray.showMessage(title, body, icon, timeout)
+
     def _on_enable_interception_clicked(self):
         self._enable_interception(self._fw_enabled)
 
@@ -226,6 +228,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         """_update_fw_status updates the status of the menu entry
         to disable or enable the firewall of the daemon.
         """
+        self._fw_enabled = enabled
         if self._connected == False:
             return
 
@@ -236,7 +239,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         else:
             self._tray.setIcon(self.pause_icon)
             self._menu_enable_fw.setText(self.MENU_ENTRY_FW_ENABLE)
-        self._fw_enabled = enabled
 
     def _set_daemon_connected(self, connected):
         """_set_daemon_connected only updates the connection status of the daemon(s),
@@ -290,12 +292,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         self._stats_dialog._status_changed_trigger.emit(not enable)
 
-    def _check_versions(self, daemon_version):
-        lMayor, lMinor, lPatch = version.split(".")
-        rMayor, rMinor, rPatch = daemon_version.split(".")
-        if lMayor != rMayor or (lMayor == rMayor and lMinor != rMinor):
-            self._version_warning_trigger.emit(daemon_version, version)
-
     def _is_local_request(self, proto, addr):
         if proto == "unix":
             return True
@@ -306,16 +302,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     return True
 
         return False
-
-    def _get_user_id(self, uid):
-        pw_name = uid
-        try:
-            pw_name = pwd.getpwuid(int(uid)).pw_name + " (" + uid + ")"
-        except Exception:
-            #pw_name += " (error)"
-            pass
-
-        return pw_name
 
     def _get_peer(self, peer):
         """
@@ -436,7 +422,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 # FIXME: this is suboptimal
                 # BUG: there can be users with same id on different machines but with different names
                 if table == "users":
-                    what = self._get_user_id(what)
+                    what = Utils.get_user_id(what)
                 fields.append(what)
                 values.append(int(hits))
             # FIXME: default action on conflict is to replace. If there're multiple nodes connected,
@@ -453,7 +439,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def Ping(self, request, context):
         try:
             self._last_ping = datetime.now()
-            self._check_versions(request.stats.daemon_version)
+            if Utils.check_versions(request.stats.daemon_version):
+                self._version_warning_trigger.emit(request.stats.daemon_version, version)
 
             proto, addr = self._get_peer(context.peer())
             # do not update db here, do it on the main thread
@@ -483,13 +470,14 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if _title == "":
                 _title = "%s:%d (%s)" % (request.dst_host if request.dst_host != "" else request.dst_ip, request.dst_port, request.protocol)
 
+
             node_text = "" if self._is_local_request(proto, addr) else "on node {0}:{1}".format(proto, addr)
-            self._tray.setIcon(self.alert_icon)
-            self._tray.showMessage(_title,
-                                   "{0} action applied {1}\nArguments: {2}"
-                                   .format(rule.action, node_text, request.process_args),
-                                   QtWidgets.QSystemTrayIcon.NoIcon,
-                                   0)
+            self._show_message_trigger.emit(_title,
+                                            "{0} action applied {1}\nArguments: {2}"
+                                            .format(rule.action, node_text, request.process_args),
+                                            QtWidgets.QSystemTrayIcon.NoIcon,
+                                            0,
+                                            self.alert_icon)
 
         self._last_ping = datetime.now()
         self._asking = False
@@ -506,14 +494,14 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         try:
             proto, addr = self._get_peer(context.peer())
             if self._is_local_request(proto, addr) == False:
-                self._tray.showMessage("New node connected",
+                self._show_message_trigger.emit("New node connected",
                                     "({0})".format(context.peer()),
                                     QtWidgets.QSystemTrayIcon.Information,
                                     5000)
             n = self._nodes.add(context, node_config)
 
             if n != None:
-                self._set_daemon_connected(True)
+                self._status_change_trigger.emit(True)
                 # if there're more than one node, we can't update the status
                 # based on the fw status, only if the daemon is running or not
                 if self._nodes.count() <= 1:
@@ -543,7 +531,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             stop_event.set()
             self._delete_node(context.peer())
 
-            self._set_daemon_connected(False)
+            self._status_change_trigger.emit(False)
             # TODO: handle the situation when a node disconnects, and the
             # remaining node has the fw disabled.
             #if self._nodes.count() == 1:
@@ -551,7 +539,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             #    if nd[0].get_config().isFirewallRunning:
 
             if self._is_local_request(proto, addr) == False:
-                self._tray.showMessage("node exited",
+                self._show_message_trigger.emit("node exited",
                                     "({0})".format(context.peer()),
                                     QtWidgets.QSystemTrayIcon.Information,
                                     5000)
