@@ -92,7 +92,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		return NewProcess(0, "")
 	}
 
-	if proc := findProcessInActivePidsCache(uint32(pid)); proc != nil {
+	if proc := findProcessInActivePidsCache(uint64(pid)); proc != nil {
 		return proc
 	}
 
@@ -110,7 +110,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 			proc.readEnv()
 			proc.cleanPath()
 
-			addToActivePidsCache(uint32(pid), proc)
+			addToActivePidsCache(uint64(pid), proc)
 			return proc
 		}
 	}
@@ -128,7 +128,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		proc.readEnv()
 		proc.cleanPath()
 
-		addToActivePidsCache(uint32(pid), proc)
+		addToActivePidsCache(uint64(pid), proc)
 		return proc
 	}
 	return nil

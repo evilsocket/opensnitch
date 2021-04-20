@@ -28,7 +28,7 @@ func TestMonitorActivePids(t *testing.T) {
 	fmt.Println("tmp dir", tmpDir)
 	defer os.RemoveAll(tmpDir)
 
-	go monitorActivePids()
+	go MonitorActivePids()
 
 	//build a "helper binary" with "go test -c -o /tmp/path" and put it into a tmp dir
 	helperBinaryPath := tmpDir + "/helper1"
@@ -58,7 +58,7 @@ func TestMonitorActivePids(t *testing.T) {
 		pid := helperCmd.Process.Pid
 		proc := NewProcess(pid, helperBinaryPath)
 		helperProcs = append(helperProcs, proc)
-		addToActivePidsCache(uint32(pid), proc)
+		addToActivePidsCache(uint64(pid), proc)
 	}
 	//sleep to make sure all processes started before we proceed
 	time.Sleep(time.Second * 1)
@@ -66,7 +66,7 @@ func TestMonitorActivePids(t *testing.T) {
 	for i := 0; i < numberOfHelpers; i++ {
 		proc := helperProcs[i]
 		pid := proc.ID
-		foundProc := findProcessInActivePidsCache(uint32(pid))
+		foundProc := findProcessInActivePidsCache(uint64(pid))
 		if foundProc == nil {
 			t.Error("PID not found among active processes", pid)
 		}
@@ -84,7 +84,7 @@ func TestMonitorActivePids(t *testing.T) {
 	time.Sleep(time.Second * 1)
 
 	//make sure only the alive process is in the cache
-	foundProc := findProcessInActivePidsCache(uint32(helperProcs[numberOfHelpers-1].ID))
+	foundProc := findProcessInActivePidsCache(uint64(helperProcs[numberOfHelpers-1].ID))
 	if foundProc == nil {
 		t.Error("last alive PID is not found among active processes", foundProc)
 	}
