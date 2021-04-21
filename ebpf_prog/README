@@ -17,3 +17,13 @@ cd ../../../daemon
 --start opensnitchd with:
 
 opensnitchd -rules-path /etc/opensnitchd/rules -process-monitor-method ebpf
+
+The kernel where you intend to run it must have some options activated:
+
+$ grep BPF /boot/config-$(uname -r)
+CONFIG_CGROUP_BPF=y
+CONFIG_BPF=y
+CONFIG_BPF_SYSCALL=y
+CONFIG_BPF_EVENTS=y
+CONFIG_KPROBES=y
+CONFIG_KPROBE_EVENTS=y

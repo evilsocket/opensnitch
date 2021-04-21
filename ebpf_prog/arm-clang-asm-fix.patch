@@ -1,0 +1,14 @@
+--- ../../arch/arm/include/asm/unified.h	2021-04-20 10:47:54.075834124 +0000
++++ ../../arch/arm/include/asm/unified-clang-fix.h	2021-04-20 10:47:38.943811970 +0000
+@@ -11,7 +11,10 @@
+ #if defined(__ASSEMBLY__)
+ 	.syntax unified
+ #else
+-__asm__(".syntax unified");
++//__asm__(".syntax unified");
++#ifndef __clang__
++	__asm__(".syntax unified");
++#endif
+ #endif
+ 
+ #ifdef CONFIG_CPU_V7M
