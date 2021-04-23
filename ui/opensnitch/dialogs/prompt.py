@@ -94,7 +94,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.appDescriptionLabel.setVisible(False)
 
         self._ischeckAdvanceded = False
-        self.checkAdvanced.toggled.connect(self._checkbox_toggled)
+        self.checkAdvanced.toggled.connect(self._check_advanced_toggled)
 
         if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
             self.applyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
@@ -117,7 +117,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif popup_pos == self._cfg.POPUP_BOTTOM_LEFT:
             self.move(point.bottomLeft())
 
-    def _checkbox_toggled(self, state):
+    def _check_advanced_toggled(self, state):
         self.applyButton.setText("%s" % self._apply_text)
         self.denyButton.setText("%s" % self._deny_text)
         self._tick_thread.stop = state
@@ -327,6 +327,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self.whatCombo.setCurrentIndex(2)
 
+
+        self.checkDstIP.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP))
+        self.checkDstPort.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT))
+        self.checkUserID.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_UID))
+        if self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED):
+            self.checkAdvanced.toggle()
+
         self._set_cmd_action_text()
         self.checkAdvanced.setFocus()
 
@@ -474,9 +481,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._default_action = self.ACTION_IDX_ALLOW
         self._send_rule()
 
+    def _is_list_rule(self):
+        return self.checkUserID.isChecked() or self.checkDstPort.isChecked() or self.checkDstIP.isChecked()
+
     def _get_rule_name(self, rule):
         rule_temp_name = slugify("%s %s" % (rule.action, rule.duration))
-        if self._ischeckAdvanceded:
+        if self._is_list_rule():
             rule_temp_name = "%s-list" % rule_temp_name
         else:
             rule_temp_name = "%s-simple" % rule_temp_name
@@ -504,20 +514,20 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         # TODO: move to a method
         data=[]
-        if self._ischeckAdvanceded and self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_IP:
+        if self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_IP:
             _type, _operand, _data = self._get_combo_operator(self.whatIPCombo, self.whatIPCombo.currentIndex())
             data.append({"type": _type, "operand": _operand, "data": _data})
             rule_temp_name = slugify("%s %s" % (rule_temp_name, _data))
 
-        if self._ischeckAdvanceded and self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_PORT:
+        if self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_PORT:
             data.append({"type": "simple", "operand": "dest.port", "data": str(self._con.dst_port)})
             rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.dst_port)))
 
-        if self._ischeckAdvanceded and self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_USER_ID:
+        if self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_USER_ID:
             data.append({"type": "simple", "operand": "user.id", "data": str(self._con.user_id)})
             rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.user_id)))
 
-        if self._ischeckAdvanceded:
+        if self._is_list_rule():
             data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
             self._rule.operator.data = json.dumps(data)
             self._rule.operator.type = "list"

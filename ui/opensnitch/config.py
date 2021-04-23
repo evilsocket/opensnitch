@@ -28,11 +28,16 @@ class Config:
     POPUP_TOP_LEFT = 3
     POPUP_BOTTOM_LEFT = 4
 
+    DEFAULT_DISABLE_POPUPS = "global/disable_popups"
     DEFAULT_TIMEOUT_KEY  = "global/default_timeout"
     DEFAULT_ACTION_KEY   = "global/default_action"
     DEFAULT_DURATION_KEY = "global/default_duration"
     DEFAULT_TARGET_KEY   = "global/default_target"
     DEFAULT_POPUP_POSITION = "global/default_popup_position"
+    DEFAULT_POPUP_ADVANCED = "global/default_popup_advanced"
+    DEFAULT_POPUP_ADVANCED_DSTIP = "global/default_popup_advanced_dstip"
+    DEFAULT_POPUP_ADVANCED_DSTPORT = "global/default_popup_advanced_dstport"
+    DEFAULT_POPUP_ADVANCED_UID = "global/default_popup_advanced_uid"
     DEFAULT_DB_TYPE_KEY  = "database/type"
     DEFAULT_DB_FILE_KEY  = "database/file"
     # don't translate

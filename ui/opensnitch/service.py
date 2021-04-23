@@ -476,8 +476,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                                             "{0} action applied {1}\nArguments: {2}"
                                             .format(rule.action, node_text, request.process_args),
                                             QtWidgets.QSystemTrayIcon.NoIcon,
-                                            0,
-                                            self.alert_icon)
+                                            0)
 
         self._last_ping = datetime.now()
         self._asking = False

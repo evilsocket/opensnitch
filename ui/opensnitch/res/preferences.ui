@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>601</width>
-    <height>388</height>
+    <width>626</width>
+    <height>394</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,7 +33,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -42,56 +42,7 @@
        <string>UI</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="0">
-        <widget class="QLabel" name="label">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Default timeout</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="toolTip">
-          <string>Pop-up default duration</string>
-         </property>
-         <property name="text">
-          <string>Default duration</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="toolTip">
-          <string>Pop-up default action</string>
-         </property>
-         <property name="text">
-          <string>Default action</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Default target</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
+       <item row="1" column="2">
         <widget class="QSpinBox" name="spinUITimeout">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -107,56 +58,8 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="3">
-        <widget class="QComboBox" name="comboUIDialogPos">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>center</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>top right</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bottom right</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>top left</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bottom left</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_4">
+       <item row="0" column="2">
+        <widget class="QCheckBox" name="popupsCheck">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -164,115 +67,311 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Pop-ups default position on screen</string>
+          <string/>
          </property>
         </widget>
        </item>
-       <item row="4" column="3">
-        <widget class="QComboBox" name="comboUITarget">
-         <item>
-          <property name="text">
-           <string>by executable</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>by command line</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>by destination port</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>by destination ip</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>by user id</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="3" column="3">
-        <widget class="QComboBox" name="comboUIDuration">
+       <item row="2" column="0" colspan="3">
+        <widget class="QGroupBox" name="groupBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <item>
-          <property name="text">
-           <string>once</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>30s</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>5m</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>15m</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>30m</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>1h</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>until reboot</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>forever</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="2" column="3">
-        <widget class="QComboBox" name="comboUIAction">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+         <property name="toolTip">
+          <string>Configure the</string>
          </property>
-         <item>
-          <property name="text">
-           <string>deny</string>
-          </property>
-          <property name="icon">
-           <iconset theme="emblem-important">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>allow</string>
-          </property>
-          <property name="icon">
-           <iconset theme="emblem-default">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-          </property>
-         </item>
+         <property name="title">
+          <string>Pop-ups default options</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0">
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Pop-ups default position on screen</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_17">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The advanced view allows you to apply more filters on a connection&lt;/p&gt;&lt;p&gt;when a pop-up appears.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Show advanced view by default</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="comboUIDuration">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>once</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>30s</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>5m</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>15m</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>30m</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>1h</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>until reboot</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>forever</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="toolTip">
+             <string>Pop-up default action</string>
+            </property>
+            <property name="text">
+             <string>Action</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Default target</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QCheckBox" name="showAdvancedCheck">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboUIAction">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>deny</string>
+             </property>
+             <property name="icon">
+              <iconset theme="emblem-important">
+               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>allow</string>
+             </property>
+             <property name="icon">
+              <iconset theme="emblem-default">
+               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="comboUITarget">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>by executable</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>by command line</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>by destination port</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>by destination ip</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>by user id</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QComboBox" name="comboUIDialogPos">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>center</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>top right</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>bottom right</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>top left</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>bottom left</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="toolTip">
+             <string>Pop-up default duration</string>
+            </property>
+            <property name="text">
+             <string>Duration</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_18">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you'll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Filter connections also by:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
+            <item>
+             <widget class="QCheckBox" name="uidCheck">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>If checked, this field will be checked when a pop-up is displayed</string>
+              </property>
+              <property name="text">
+               <string>User ID</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="dstPortCheck">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>If checked, this field will be checked when a pop-up is displayed</string>
+              </property>
+              <property name="text">
+               <string>Destination port</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="dstIPCheck">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>If checked, this field will be checked when a pop-up is displayed</string>
+              </property>
+              <property name="text">
+               <string>Destination IP</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
        <item row="0" column="0">
@@ -282,10 +381,19 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="3">
-        <widget class="QCheckBox" name="popupsCheck">
+       <item row="1" column="0" colspan="2">
+        <widget class="QLabel" name="label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;p&gt;If the pop-up is not answered, the default options will be applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="text">
-          <string/>
+          <string>Default timeout</string>
          </property>
         </widget>
        </item>
