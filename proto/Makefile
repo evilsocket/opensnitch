@@ -1,7 +1,10 @@
 all: ../daemon/ui/protocol/ui.pb.go ../ui/opensnitch/ui_pb2.py
 
 ../daemon/ui/protocol/ui.pb.go: ui.proto
-	protoc -I. ui.proto --go_out=plugins=grpc:../daemon/ui/protocol/ --go_opt=paths=source_relative
+	# This assumes protoc-gen-go prior to v1.20.0, which you can get with
+	# `go get github.com/golang/protobuf/protoc-gen-go` (and not with
+	# `go get google.golang.org/protobuf/cmd/protoc-gen-go`)
+	protoc -I. ui.proto --go_out=plugins=grpc,paths=source_relative:../daemon/ui/protocol/
 
 ../ui/opensnitch/ui_pb2.py: ui.proto
 	python3 -m grpc_tools.protoc -I. --python_out=../ui/opensnitch/ --grpc_python_out=../ui/opensnitch/ ui.proto
