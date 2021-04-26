@@ -314,7 +314,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 delegate=self.TABLES[self.TAB_MAIN]['delegate'],
                 resize_cols=(),
                 model=ConnectionsTableModel(),
-                verticalScrollBar=self.connectionsTableScrollBar
+                verticalScrollBar=self.connectionsTableScrollBar,
+                limit=self._get_limit()
                 )
         self.TABLES[self.TAB_NODES]['view'] = self._setup_table(QtWidgets.QTableView, self.nodesTable, "nodes",
                 self.TABLES[self.TAB_NODES]['display_fields'],
@@ -482,6 +483,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.comboAction.setCurrentIndex(int(dialog_general_filter_action))
         if dialog_general_limit_results != None:
             # XXX: a little hack, because if the saved index is 0, the signal is not fired.
+            # XXX: this causes to fire the event twice
             self.limitCombo.setCurrentIndex(4)
             self.limitCombo.setCurrentIndex(int(dialog_general_limit_results))
 

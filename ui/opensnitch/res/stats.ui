@@ -404,7 +404,7 @@
          <item>
           <widget class="QComboBox" name="limitCombo">
            <property name="currentIndex">
-            <number>4</number>
+            <number>0</number>
            </property>
            <item>
             <property name="text">
@@ -671,7 +671,7 @@
          <item>
           <widget class="QLabel" name="tipRulesLabel">
            <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on the Name column to view details of a rule)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on a row to view details of a rule)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="textFormat">
             <enum>Qt::RichText</enum>
