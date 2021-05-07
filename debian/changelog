@@ -1,3 +1,10 @@
+opensnitch (1.4.0~rc2-1) unstable; urgency=medium
+
+  * Added eBPF support.
+  * Fixes and improvements.
+
+ -- gustavo-iniguez-goya <gooffy1@gmail.com>  Fri, 07 May 2021 01:08:02 +0200
+
 opensnitch (1.4.0~rc-1) unstable; urgency=medium
 
   * Bug fix and improvements release.
