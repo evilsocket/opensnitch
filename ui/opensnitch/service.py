@@ -30,14 +30,15 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
     _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
 
-    MENU_ENTRY_STATS = QtCore.QCoreApplication.translate("contextual_menu", "Statistics")
-    MENU_ENTRY_FW_ENABLE = QtCore.QCoreApplication.translate("contextual_menu", "Enable")
-    MENU_ENTRY_FW_DISABLE = QtCore.QCoreApplication.translate("contextual_menu", "Disable")
-    MENU_ENTRY_HELP = QtCore.QCoreApplication.translate("contextual_menu", "Help")
-    MENU_ENTRY_CLOSE = QtCore.QCoreApplication.translate("contextual_menu", "Close")
-
     def __init__(self, app, on_exit):
         super(UIService, self).__init__()
+
+
+        self.MENU_ENTRY_STATS = QtCore.QCoreApplication.translate("contextual_menu", "Statistics")
+        self.MENU_ENTRY_FW_ENABLE = QtCore.QCoreApplication.translate("contextual_menu", "Enable")
+        self.MENU_ENTRY_FW_DISABLE = QtCore.QCoreApplication.translate("contextual_menu", "Disable")
+        self.MENU_ENTRY_HELP = QtCore.QCoreApplication.translate("contextual_menu", "Help")
+        self.MENU_ENTRY_CLOSE = QtCore.QCoreApplication.translate("contextual_menu", "Close")
 
         self._cfg = Config.init()
         self._db = Database.instance()
