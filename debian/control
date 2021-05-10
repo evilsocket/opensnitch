@@ -32,7 +32,7 @@ Package: opensnitch
 Section: net
 Architecture: any
 Depends:
- ${misc:Depends}, ${shlibs:Depends},
+ libnetfilter-queue1, libc6, libnfnetlink0
 Built-Using: ${misc:Built-Using}
 Description: GNU/Linux firewall application
  OpenSnitch is a GNU/Linux firewall application.

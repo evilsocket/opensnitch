@@ -16,8 +16,6 @@ import ui_pb2
 DIALOG_UI_PATH = "%s/../res/preferences.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
-    CFG_DISABLE_POPUPS   = "global/disable_popups"
-
     LOG_TAG = "[Preferences] "
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
@@ -87,7 +85,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
         self._default_target = self._cfg.getSettings(self._cfg.DEFAULT_TARGET_KEY)
         self._default_timeout = self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY)
-        self._disable_popups = self._cfg.getBool(self.CFG_DISABLE_POPUPS)
+        self._disable_popups = self._cfg.getBool(self._cfg.DEFAULT_DISABLE_POPUPS)
 
         if self._cfg.hasKey(self._cfg.DEFAULT_DURATION_KEY):
             self._default_duration = self._cfg.getInt(self._cfg.DEFAULT_DURATION_KEY)
@@ -95,12 +93,18 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._default_duration = self._cfg.DEFAULT_DURATION_IDX
 
         self.comboUIDuration.setCurrentIndex(self._default_duration)
+        self.comboUIDialogPos.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION))
 
         self.comboUIAction.setCurrentIndex(self._default_action)
         self.comboUITarget.setCurrentIndex(int(self._default_target))
         self.spinUITimeout.setValue(int(self._default_timeout))
         self.spinUITimeout.setEnabled(not self._disable_popups)
         self.popupsCheck.setChecked(self._disable_popups)
+
+        self.showAdvancedCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED))
+        self.dstIPCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP))
+        self.dstPortCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT))
+        self.uidCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_UID))
 
         self.comboDBType.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY))
         if self.comboDBType.currentIndex() != Database.DB_TYPE_MEMORY:
@@ -149,15 +153,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _save_settings(self):
         if self.tabWidget.currentIndex() == 0:
-            self._cfg.setSettings(self._cfg.DEFAULT_ACTION_KEY, self.comboUIAction.currentIndex())
-            self._cfg.setSettings(self._cfg.DEFAULT_DURATION_KEY, int(self.comboUIDuration.currentIndex()))
-            self._cfg.setSettings(self._cfg.DEFAULT_TARGET_KEY, self.comboUITarget.currentIndex())
-            self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, self.spinUITimeout.value())
-            self._cfg.setSettings(self.CFG_DISABLE_POPUPS, bool(self.popupsCheck.isChecked()))
-            # this is a workaround for not display pop-ups.
-            # see #79 for more information.
-            if self.popupsCheck.isChecked():
-                self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, 0)
+            self._save_ui_config()
 
         elif self.tabWidget.currentIndex() == 1:
             self._show_status_label()
@@ -188,24 +184,44 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._node_needs_update = False
 
         elif self.tabWidget.currentIndex() == 2:
-            dbtype = self.comboDBType.currentIndex()
-            self._cfg.setSettings(Config.DEFAULT_DB_TYPE_KEY, dbtype)
-            if dbtype == self._db.get_db_file():
-                return
-            if self.comboDBType.currentIndex() != Database.DB_TYPE_MEMORY:
-                if self.dbLabel.text() != "":
-                    self._cfg.setSettings(Config.DEFAULT_DB_FILE_KEY, self.dbLabel.text())
-                else:
-                    Message.ok(
-                        QC.translate("preferences", "Warning"),
-                        QC.translate("preferences", "You must select a file for the database<br>or choose \"In memory\" type."),
-                        QtWidgets.QMessageBox.Warning)
-                    return
+            self._save_db_config()
 
-            Message.ok(
-                QC.translate("preferences", "DB type changed"),
-                QC.translate("preferences", "Restart the GUI in order effects to take effect"),
-                QtWidgets.QMessageBox.Warning)
+    def _save_db_config(self):
+        dbtype = self.comboDBType.currentIndex()
+        self._cfg.setSettings(Config.DEFAULT_DB_TYPE_KEY, dbtype)
+        if dbtype == self._db.get_db_file():
+            return
+        if self.comboDBType.currentIndex() != Database.DB_TYPE_MEMORY:
+            if self.dbLabel.text() != "":
+                self._cfg.setSettings(Config.DEFAULT_DB_FILE_KEY, self.dbLabel.text())
+            else:
+                Message.ok(
+                    QC.translate("preferences", "Warning"),
+                    QC.translate("preferences", "You must select a file for the database<br>or choose \"In memory\" type."),
+                    QtWidgets.QMessageBox.Warning)
+                return
+
+        Message.ok(
+            QC.translate("preferences", "DB type changed"),
+            QC.translate("preferences", "Restart the GUI in order effects to take effect"),
+            QtWidgets.QMessageBox.Warning)
+
+    def _save_ui_config(self):
+        self._cfg.setSettings(self._cfg.DEFAULT_ACTION_KEY, self.comboUIAction.currentIndex())
+        self._cfg.setSettings(self._cfg.DEFAULT_DURATION_KEY, int(self.comboUIDuration.currentIndex()))
+        self._cfg.setSettings(self._cfg.DEFAULT_TARGET_KEY, self.comboUITarget.currentIndex())
+        self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, self.spinUITimeout.value())
+        self._cfg.setSettings(self._cfg.DEFAULT_DISABLE_POPUPS, bool(self.popupsCheck.isChecked()))
+        self._cfg.setSettings(self._cfg.DEFAULT_POPUP_POSITION, int(self.comboUIDialogPos.currentIndex()))
+
+        self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED, bool(self.showAdvancedCheck.isChecked()))
+        self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP, bool(self.dstIPCheck.isChecked()))
+        self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT, bool(self.dstPortCheck.isChecked()))
+        self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_UID, bool(self.uidCheck.isChecked()))
+        # this is a workaround for not display pop-ups.
+        # see #79 for more information.
+        if self.popupsCheck.isChecked():
+            self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, 0)
 
     def _save_node_config(self, notifObject, addr):
         try:

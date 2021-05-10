@@ -1,6 +1,6 @@
 
 ### Adding a new translation:
-
+0. Install needed packages: `apt install qtchooser pyqt5-dev-tools`
 1. mkdir `locales/<YOUR LOCALE>/`
  (echo $LANG)
 2. add the path to opensnitch_i18n.pro:

@@ -80,6 +80,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     # FIXME: don't translate, used only for default argument on _update_status_label
     FIREWALL_DISABLED = "Disabled"
 
+    # if the user clicks on an item of a table, it'll enter into the detail
+    # view. From there, deny further clicks on the items.
+    IN_DETAIL_VIEW = {
+        0: False,
+        1: False,
+        2: False,
+        3: False,
+        4: False,
+        5: False,
+        6: False,
+        7: False
+    }
+
     commonDelegateConf = {
             'deny':      RED,
             'allow':     GREEN,
@@ -314,7 +327,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 delegate=self.TABLES[self.TAB_MAIN]['delegate'],
                 resize_cols=(),
                 model=ConnectionsTableModel(),
-                verticalScrollBar=self.connectionsTableScrollBar
+                verticalScrollBar=self.connectionsTableScrollBar,
+                limit=self._get_limit()
                 )
         self.TABLES[self.TAB_NODES]['view'] = self._setup_table(QtWidgets.QTableView, self.nodesTable, "nodes",
                 self.TABLES[self.TAB_NODES]['display_fields'],
@@ -482,6 +496,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.comboAction.setCurrentIndex(int(dialog_general_filter_action))
         if dialog_general_limit_results != None:
             # XXX: a little hack, because if the saved index is 0, the signal is not fired.
+            # XXX: this causes to fire the event twice
             self.limitCombo.setCurrentIndex(4)
             self.limitCombo.setCurrentIndex(int(dialog_general_limit_results))
 
@@ -599,7 +614,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._add_rulesTree_nodes()
 
             if index == self.TAB_PROCS:
-                self.cmdProcDetails.setVisible(False)
+                # make the button visible depending if we're in the detail view
+                nrows = self._get_active_table().model().rowCount()
+                self.cmdProcDetails.setVisible(self.IN_DETAIL_VIEW[index] and nrows > 0)
 
             self._refresh_active_table()
 
@@ -827,6 +844,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_cmd_back_clicked(self, idx):
         cur_idx = self.tabWidget.currentIndex()
+        self.IN_DETAIL_VIEW[cur_idx] = False
+
         self._set_active_widgets(False)
         if cur_idx == StatsDialog.TAB_RULES:
             self._restore_rules_tab_widgets(True)
@@ -849,15 +868,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         cur_idx = 1
         if idx == StatsDialog.COL_NODE:
             cur_idx = 1
+            self.IN_DETAIL_VIEW[cur_idx] = True
             self.tabWidget.setCurrentIndex(cur_idx)
             p, addr = self._nodes.get_addr(data)
             self._set_nodes_query(addr)
         elif idx == StatsDialog.COL_PROCS:
             cur_idx = 4
+            self.IN_DETAIL_VIEW[cur_idx] = True
             self.tabWidget.setCurrentIndex(cur_idx)
             self._set_process_tab_active(data)
         elif idx == StatsDialog.COL_RULES:
             cur_idx = 2
+            self.IN_DETAIL_VIEW[cur_idx] = True
             self._set_rules_tab_active(row, cur_idx, self.COL_RULES, self.COL_NODE)
         else:
             return
@@ -866,6 +888,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_table_double_clicked(self, row):
         cur_idx = self.tabWidget.currentIndex()
+        if self.IN_DETAIL_VIEW[cur_idx]:
+            return
+        self.IN_DETAIL_VIEW[cur_idx] = True
+
         data = row.data()
 
         if cur_idx == self.TAB_RULES:
@@ -919,14 +945,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.startButton.setIcon(self.iconStart)
             return
 
+        self.update_interception_status(self.startButton.isChecked())
+        self._status_changed_trigger.emit(self.startButton.isChecked())
+
         if self.startButton.isChecked():
-            self._update_status_label(running=True, text=self.FIREWALL_RUNNING)
             nid, noti = self._nodes.start_interception(_callback=self._notification_callback)
-            self._status_changed_trigger.emit(False)
         else:
-            self._update_status_label(running=False, text=self.FIREWALL_DISABLED)
             nid, noti = self._nodes.stop_interception(_callback=self._notification_callback)
-            self._status_changed_trigger.emit(True)
 
         self._notifications_sent[nid] = noti
 
@@ -1227,7 +1252,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setQuery(model, "SELECT " \
                 "c.time as %s, " \
                 "c.node as %s, " \
-                "count(c.dst_host) as Hits, " \
+                "count(c.dst_ip) as Hits, " \
                 "c.action as %s, " \
                 "c.uid as UserID, " \
                 "CASE c.dst_host WHEN ''" \
@@ -1239,7 +1264,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as Rule " \
             "FROM procs as p, connections as c " \
-            "WHERE p.what = '%s' AND p.what = c.process GROUP BY c.dst_ip, c.dst_host, c.dst_port, UserID, c.action, c.node %s" %
+            "WHERE p.what = '%s' AND p.what = c.process " \
+                      "GROUP BY c.dst_ip, c.dst_host, c.dst_port, c.uid, c.action, c.node, c.pid, c.process_args %s" %
                       (
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
@@ -1381,6 +1407,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 header.setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
 
         return tableWidget
+
+    def update_interception_status(self, enabled):
+        self.startButton.setDown(enabled)
+        self.startButton.setChecked(enabled)
+        if enabled:
+            self._update_status_label(running=True, text=self.FIREWALL_RUNNING)
+        else:
+            self._update_status_label(running=False, text=self.FIREWALL_DISABLED)
 
     # launched from a thread
     def update(self, is_local=True, stats=None, need_query_update=True):

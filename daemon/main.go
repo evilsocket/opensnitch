@@ -225,7 +225,7 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		// 1) connected and running and 2) we are not already asking
 		if uiClient.Connected() == false || uiClient.GetIsAsking() == true {
 			applyDefaultAction(packet)
-			log.Debug("UI is not running or busy")
+			log.Debug("UI is not running or busy, connected: %v, running: %v", uiClient.Connected(), uiClient.GetIsAsking())
 			return nil
 		}
 
@@ -379,6 +379,9 @@ func main() {
 	}
 	repeatPktChan = repeatQueue.Packets()
 
+	// queue is ready, run firewall rules
+	firewall.Init(&queueNum)
+
 	uiClient = ui.NewClient(uiSocket, stats, rules)
 	if overwriteLogging() {
 		setupLogging()
@@ -389,9 +392,6 @@ func main() {
 		procmon.SetMonitorMethod(procmonMethod)
 	}
 	monitor.Init()
-
-	// queue is ready, run firewall rules
-	firewall.Init(&queueNum)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for {
