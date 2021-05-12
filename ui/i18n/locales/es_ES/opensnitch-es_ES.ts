@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="es_ES">
+<!DOCTYPE TS><TS version="2.0" language="es_ES" sourcelanguage="">
 <context>
     <name>Dialog</name>
     <message>
@@ -9,112 +8,112 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="475"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="311"/>
         <source>User ID</source>
         <translation>UID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="509"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="345"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Executed from&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>Ejecutado desde</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="803"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="639"/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="602"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="438"/>
         <source>Source IP</source>
         <translation>IP origen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="625"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="461"/>
         <source>Process ID</source>
         <translation>PID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="755"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="591"/>
         <source>Destination IP</source>
         <translation>IP destino</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="778"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="614"/>
         <source>Dst Port</source>
         <translation>Puerto destino</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="124"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="150"/>
         <source>Chromium Web Browser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="153"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="179"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;/opt/google/chrome/bin/chrome --something abc --more-long  def --for-word-wrapping&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="200"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="226"/>
         <source>(/path/to/bin/chromium)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="827"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="271"/>
         <source>Chromium Web Browser wants to connect to www.evilsocket.net on tcp port 443. And maybe to www.goodsocket.net on port 344</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="273"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="688"/>
         <source>from this executable</source>
         <translation>de este ejecutable</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="278"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="693"/>
         <source>from this command line</source>
         <translation>de este comando</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="283"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="698"/>
         <source>this destination port</source>
         <translation>este puerto destino</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="288"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="703"/>
         <source>this user</source>
         <translation>este usuario</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="293"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="708"/>
         <source>this destination ip</source>
         <translation>esta IP destino</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="348"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="732"/>
         <source>once</source>
         <translation>una vez</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="353"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="737"/>
         <source>30s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="358"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="742"/>
         <source>5m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="363"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="747"/>
         <source>15m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="368"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="752"/>
         <source>30m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="373"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="757"/>
         <source>1h</source>
         <translation type="unfinished"></translation>
     </message>
@@ -124,27 +123,27 @@
         <translation type="obsolete">durante esta sesión</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="383"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="767"/>
         <source>forever</source>
         <translation>para siempre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="409"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="793"/>
         <source>Deny</source>
         <translation>Denegar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="438"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="822"/>
         <source>Allow</source>
         <translation>Permitir</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="319"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="851"/>
         <source>+</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="378"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="762"/>
         <source>until reboot</source>
         <translation>Hasta reiniciar</translation>
     </message>
@@ -1262,27 +1261,27 @@ el dominio exacto que quieres filtrar (en este caso: gOOgle.CoM).</translation>
 <context>
     <name>contextual_menu</name>
     <message>
-        <location filename="../../../opensnitch/service.py" line="33"/>
+        <location filename="../../../opensnitch/service.py" line="37"/>
         <source>Statistics</source>
         <translation>Eventos</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="36"/>
+        <location filename="../../../opensnitch/service.py" line="40"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="37"/>
+        <location filename="../../../opensnitch/service.py" line="41"/>
         <source>Close</source>
         <translation>Cerrar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="34"/>
+        <location filename="../../../opensnitch/service.py" line="38"/>
         <source>Enable</source>
         <translation>Habilitar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="35"/>
+        <location filename="../../../opensnitch/service.py" line="39"/>
         <source>Disable</source>
         <translation>Deshabilitar</translation>
     </message>

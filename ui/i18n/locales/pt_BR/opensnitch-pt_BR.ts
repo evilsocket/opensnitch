@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="pt_BR">
+<!DOCTYPE TS><TS version="2.0" language="pt_BR" sourcelanguage="">
 <context>
     <name>Dialog</name>
     <message>
@@ -167,57 +166,57 @@
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Este tempo limite é a contagem regressiva que você vê quando uma caixa de diálogo pop-up é exibida.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="396"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="393"/>
         <source>Default timeout</source>
         <translation>Tempo limite padrão</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="299"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="296"/>
         <source>Pop-up default duration</source>
         <translation>Duração padrão do pop-up</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="447"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="444"/>
         <source>Default duration</source>
         <translation>Duração padrão</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="165"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="162"/>
         <source>Pop-up default action</source>
         <translation>Ação padrão de pop-up</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="486"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="483"/>
         <source>Default action</source>
         <translation>Ação padrão</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="175"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="172"/>
         <source>Default target</source>
         <translation>Alvo padrão</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="271"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="268"/>
         <source>center</source>
         <translation>centro</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="276"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="273"/>
         <source>top right</source>
         <translation>superior direito</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="281"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="278"/>
         <source>bottom right</source>
         <translation>inferior direito</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="286"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="283"/>
         <source>top left</source>
         <translation>superior esquerdo</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="291"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="288"/>
         <source>bottom left</source>
         <translation>inferior esquerdo</translation>
     </message>
@@ -227,27 +226,27 @@
         <translation type="obsolete">Posição padrão da caixa de diálogo de prompt na tela</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="233"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="230"/>
         <source>by executable</source>
         <translation>por executável</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="238"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="235"/>
         <source>by command line</source>
         <translation>por linha de comando</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="243"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="240"/>
         <source>by destination port</source>
         <translation>por porta de destino</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="248"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="245"/>
         <source>by destination ip</source>
         <translation>por ip de destino</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="253"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="250"/>
         <source>by user id</source>
         <translation>por id de usuário</translation>
     </message>
@@ -257,27 +256,27 @@
         <translation>uma vez</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="127"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="124"/>
         <source>30s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="132"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="129"/>
         <source>5m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="137"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="134"/>
         <source>15m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="142"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="139"/>
         <source>30m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="147"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="144"/>
         <source>1h</source>
         <translation type="unfinished"></translation>
     </message>
@@ -287,7 +286,7 @@
         <translation type="obsolete">para esta sessão</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="157"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="154"/>
         <source>forever</source>
         <translation>para sempre</translation>
     </message>
@@ -302,22 +301,22 @@
         <translation>permitir</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="380"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="377"/>
         <source>Disable pop-ups, only display an alert</source>
         <translation>Desativar pop-ups, exibir apenas um alerta</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="404"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="401"/>
         <source>Nodes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="410"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="407"/>
         <source>Process monitor method</source>
         <translation>Método de monitoramento de processo</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="444"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="441"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A duração padrão ocorrerá quando não houver interface do usuário conectada.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -332,7 +331,7 @@
         <translation>Endereço</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="708"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="711"/>
         <source>Default log level</source>
         <translation>Nível de registro padrão</translation>
     </message>
@@ -342,7 +341,7 @@
         <translation>Versão</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="483"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="480"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A ação padrão ocorrerá quando não houver interface do usuário conectada.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -362,42 +361,42 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="427"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="424"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log file to write logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Arquivo de log para gravar logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout irá imprimir registros na saída padrão.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="430"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="427"/>
         <source>Log file</source>
         <translation>Arquivo de log</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="630"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="633"/>
         <source>DEBUG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="635"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="638"/>
         <source>INFO</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="640"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="643"/>
         <source>IMPORTANT</source>
         <translation>IMPORTANTE</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="645"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="648"/>
         <source>WARNING</source>
         <translation>ADVERTÊNCIA</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="650"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="653"/>
         <source>ERROR</source>
         <translation>ERRO</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="655"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="658"/>
         <source>FATAL</source>
         <translation type="unfinished"></translation>
     </message>
@@ -412,12 +411,12 @@
         <translation>Interceptar conexões desconhecidas</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="499"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="496"/>
         <source>HostName</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="667"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="670"/>
         <source>unix:///tmp/osui.sock</source>
         <translation type="unfinished"></translation>
     </message>
@@ -432,22 +431,22 @@
         <translation>sempre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="679"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="682"/>
         <source>/var/log/opensnitchd.log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="684"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="687"/>
         <source>/dev/stdout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="460"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="457"/>
         <source>Apply configuration to all nodes</source>
         <translation>Aplicar configuração a todos os nodes</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="723"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="726"/>
         <source>Database</source>
         <translation>Base de dados</translation>
     </message>
@@ -457,12 +456,12 @@
         <translation type="obsolete">Nome do banco de dados</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="798"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="801"/>
         <source>In memory</source>
         <translation>Na memória</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="803"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="806"/>
         <source>File</source>
         <translation>Arquivo</translation>
     </message>
@@ -472,113 +471,123 @@
         <translation type="obsolete">/caminho/para/o/arquivo.db</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="840"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="843"/>
         <source>Close</source>
         <translation>Fechar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="851"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="854"/>
         <source>Apply</source>
         <translation>Aplicar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="862"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="865"/>
         <source>Save</source>
         <translation>Salvar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="152"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="149"/>
         <source>until reboot</source>
         <translation>até reiniciar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="770"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="773"/>
         <source>Database type</source>
         <translation>Tipo de banco de dados</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="777"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="780"/>
         <source>Select</source>
         <translation>Selecionar</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="83"/>
         <source>Configure the</source>
-        <translation>Configure o</translation>
+        <translation type="obsolete">Configure o</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="86"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="83"/>
         <source>Pop-ups default options</source>
         <translation>Opções padrão de pop-ups</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="92"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="89"/>
         <source>Pop-ups default position on screen</source>
         <translation>Posição padrão dos pop-ups na tela</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="105"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The advanced view allows you to apply more filters on a connection&lt;/p&gt;&lt;p&gt;when a pop-up appears.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A visualização avançada permite que você aplique mais filtros em uma conexão&lt;/p&gt;&lt;p&gt;quando um pop-up aparece.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A visualização avançada permite que você aplique mais filtros em uma conexão&lt;/p&gt;&lt;p&gt;quando um pop-up aparece.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="108"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="105"/>
         <source>Show advanced view by default</source>
         <translation>Mostrar visualização avançada por padrão</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="168"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="165"/>
         <source>Action</source>
         <translation>Ação</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="188"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="185"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Se marcado, os pop-ups serão exibidos com a visualização avançada ativa.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="302"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="299"/>
         <source>Duration</source>
         <translation>Duração</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="315"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="312"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Por padrão, quando um novo pop-up aparece, em sua forma mais simples, você será capaz de filtrar conexões ou aplicativos por uma propriedade da conexão (executável, porta, IP, etc).&lt;/p&gt;&lt;p&gt;Com essas opções, você pode escolher vários campos para filtrar conexões para.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="318"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="315"/>
         <source>Filter connections also by:</source>
         <translation>Filtre as conexões também por:</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="365"/>
         <source>If checked, this field will be checked when a pop-up is displayed</source>
-        <translation>Se marcado, este campo será verificado quando um pop-up for exibido</translation>
+        <translation type="obsolete">Se marcado, este campo será verificado quando um pop-up for exibido</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="336"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="333"/>
         <source>User ID</source>
         <translation>ID do usuário</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="352"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="349"/>
         <source>Destination port</source>
         <translation>Porta de destino</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="368"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="365"/>
         <source>Destination IP</source>
         <translation>IP de destino</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="393"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="390"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;p&gt;If the pop-up is not answered, the default options will be applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Este tempo limite é a contagem regressiva que você vê quando uma caixa de diálogo pop-up é exibida.&lt;/p&gt;&lt;p&gt;Se o pop-up não for respondido, as opções padrão serão aplicadas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="531"/>
         <source>ebpf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="102"/>
+        <source>The advanced view allows you to easily select multiple fields to filter connections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="362"/>
+        <source>If checked, this field will be selected when a pop-up is displayed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
