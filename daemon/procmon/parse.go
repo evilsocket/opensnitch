@@ -85,7 +85,7 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 // If it exists in /proc, a new Process{} object is returned with  the details
 // to identify a process (cmdline, name, environment variables, etc).
 func FindProcess(pid int, interceptUnknown bool) *Process {
-	if pid == -100 {
+	if interceptUnknown && pid == -100 {
 		return NewProcess(-100, "Linux kernel")
 	}
 	if interceptUnknown && pid < 0 {
