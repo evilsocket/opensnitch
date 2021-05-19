@@ -8,14 +8,12 @@ Rules can be edited from the GUI, by clicking on the name of the rule:
 
 
 #### Parameters
-
-[x] Enable - Enables or disables the rule.
-
-[x] Priority -  Indicates that this rule has precedence over the rest.
-
-[x] Case sensitive - Make the comparison case-sensitive for ALL fields.
-
-[x] Duration - Always writes the rule to disk.
+field | descrption
+----- | ----------
+Enable | Enables or disables the rule.
+Priority |  Indicates that this rule has precedence over the rest.
+Case sensitive | Make the comparison case-sensitive for ALL fields.
+Duration | Always writes the rule to disk.
 
 ---
 
@@ -68,7 +66,7 @@ Some examples:
      ![](https://user-images.githubusercontent.com/2742953/85209253-aa994a00-b336-11ea-87d9-a7a650510b6b.png)
 
 - Filtering LAN IPs or multiple ranges:
-     ^(127\..*|172\..*|192.168\..*|10\..*)$
+     `^(127\..*|172\..*|192.168\..*|10\..*)$`
 
 See these issues for some discussions and more examples: [#17](https://github.com/gustavo-iniguez-goya/opensnitch/issues/17), [#31](https://github.com/gustavo-iniguez-goya/opensnitch/issues/31), [#73](https://github.com/gustavo-iniguez-goya/opensnitch/issues/73)
 
@@ -95,17 +93,6 @@ However you can use negated chars classes. For example, block all outgoing conne
 
 ***
 
-
-**Unconditionally blocking lists**
-
-As of v1.0.0rc10 there's no support for blocking or allowing connections ignoring the rest of the rules (see [#36](https://github.com/gustavo-iniguez-goya/opensnitch/issues/36)).
-
-But you can achieve it using iptables:
-- Allow ICMP:
-`iptables -t mangle -I OUTPUT -p icmp -j ACCEPT`
-
-- Allow localhost connections:
-`iptables -t mangle -I OUTPUT -d 127.0.0.1 -j ACCEPT`
 
 Note on allowing all connections to localhost:
 
