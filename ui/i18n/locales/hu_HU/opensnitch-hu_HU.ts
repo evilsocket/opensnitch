@@ -404,7 +404,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="536"/>
         <source>audit</source>
-        <translation>naplózás</translation>
+        <translation>audit</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="541"/>
@@ -1639,12 +1639,12 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="672"/>
         <source>    Your are about to delete this rule.    </source>
-        <translation>    Törölni készül ezt a szabályt.    </translation>
+        <translation>Törölni készül ezt a szabályt.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="970"/>
         <source>    Are you sure?</source>
-        <translation>    Biztos benne?</translation>
+        <translation>Biztos benne?</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="790"/>
@@ -1654,7 +1654,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="970"/>
         <source>    You are about to delete this rule.    </source>
-        <translation>    Törölni készül ezt a szabályt.    </translation>
+        <translation>Törölni készül ezt a szabályt.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1362"/>
