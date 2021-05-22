@@ -1,5 +1,6 @@
 ### Installation using the packages
 
+(get the packages from here: https://github.com/evilsocket/opensnitch/releases)
 
 **tl;dr: use the command line**
 
