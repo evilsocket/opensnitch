@@ -364,6 +364,7 @@ func (l *Loader) Delete(ruleName string) error {
 	if rule == nil {
 		return nil
 	}
+	l.cleanListsRule(rule)
 
 	delete(l.rules, ruleName)
 	l.sortRules()
