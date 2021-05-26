@@ -67,13 +67,17 @@ func PrintEverything() {
 		_, _ = exec.Command(bash, "-c", "bpftool map dump id "+strconv.Itoa(j)+" > dump"+strconv.Itoa(j)).Output()
 	}
 
-	for sock1, v := range alreadyEstablishedTCP {
+	alreadyEstablished.RLock()
+	for sock1, v := range alreadyEstablished.TCP {
 		fmt.Println(*sock1, v)
 	}
+
 	fmt.Println("---------------------")
-	for sock1, v := range alreadyEstablishedTCPv6 {
+	for sock1, v := range alreadyEstablished.TCPv6 {
 		fmt.Println(*sock1, v)
 	}
+	alreadyEstablished.RUnlock()
+
 	fmt.Println("---------------------")
 	sockets, _ := daemonNetlink.SocketsDump(syscall.AF_INET, syscall.IPPROTO_TCP)
 	for idx := range sockets {

@@ -32,19 +32,30 @@ type bpf_lookup_elem_t struct {
 	value uintptr
 }
 
+type alreadyEstablishedConns struct {
+	sync.RWMutex
+	TCP   map[*daemonNetlink.Socket]int
+	TCPv6 map[*daemonNetlink.Socket]int
+}
+
 var (
 	m        *elf.Module
+	lock     = sync.RWMutex{}
 	mapSize  = 12000
 	ebpfMaps map[string]*ebpfMapsForProto
 	//connections which were established at the time when opensnitch started
-	alreadyEstablishedTCP   = make(map[*daemonNetlink.Socket]int)
-	alreadyEstablishedTCPv6 = make(map[*daemonNetlink.Socket]int)
+	alreadyEstablished = alreadyEstablishedConns{
+		TCP:   make(map[*daemonNetlink.Socket]int),
+		TCPv6: make(map[*daemonNetlink.Socket]int),
+	}
+
 	//stop == true is a signal for all goroutines to stop
 	stop = false
+
 	// list of local addresses of this machine
-	localAddresses     []net.IP
-	localAddressesLock sync.RWMutex
-	hostByteOrder      binary.ByteOrder
+	localAddresses []net.IP
+
+	hostByteOrder binary.ByteOrder
 )
 
 //Start installs ebpf kprobes
@@ -80,6 +91,7 @@ func Start() error {
 		}
 	}
 
+	lock.Lock()
 	//determine host byte order
 	buf := [2]byte{}
 	*(*uint16)(unsafe.Pointer(&buf[0])) = uint16(0xABCD)
@@ -91,6 +103,7 @@ func Start() error {
 	default:
 		log.Error("Could not determine host byte order.")
 	}
+	lock.Unlock()
 
 	ebpfMaps = map[string]*ebpfMapsForProto{
 		"tcp": {lastPurgedMax: 0,
@@ -117,7 +130,9 @@ func Start() error {
 		inode := int((*sock).INode)
 		pid := procmon.GetPIDFromINode(inode, fmt.Sprint(inode,
 			(*sock).ID.Source, (*sock).ID.SourcePort, (*sock).ID.Destination, (*sock).ID.DestinationPort))
-		alreadyEstablishedTCP[sock] = pid
+		alreadyEstablished.Lock()
+		alreadyEstablished.TCP[sock] = pid
+		alreadyEstablished.Unlock()
 	}
 
 	socketListTCPv6, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET6), uint8(syscall.IPPROTO_TCP))
@@ -129,7 +144,9 @@ func Start() error {
 		inode := int((*sock).INode)
 		pid := procmon.GetPIDFromINode(inode, fmt.Sprint(inode,
 			(*sock).ID.Source, (*sock).ID.SourcePort, (*sock).ID.Destination, (*sock).ID.DestinationPort))
-		alreadyEstablishedTCPv6[sock] = pid
+		alreadyEstablished.Lock()
+		alreadyEstablished.TCPv6[sock] = pid
+		alreadyEstablished.Unlock()
 	}
 
 	go monitorMaps()
@@ -140,10 +157,19 @@ func Start() error {
 
 // Stop stops monitoring connections using kprobes
 func Stop() {
+	lock.Lock()
 	stop = true
+	lock.Unlock()
 	if m != nil {
 		m.Close()
 	}
+}
+
+func isStopped() bool {
+	lock.RLock()
+	defer lock.RUnlock()
+
+	return stop
 }
 
 //make bpf() syscall with bpf_lookup prepared by the caller
