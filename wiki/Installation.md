@@ -81,12 +81,28 @@ Note: You can install the UI from the sources, using pip3, and it'll work in som
 
 ***
 
+### Upgrading opensnitch
+
+Use the installation commands mentioned above. The package managers will take care of the upgrading process.
+(you don't need to uninstall previous version in order to install a new one).
+
 ### Uninstalling opensnitch
 
-**deb packages:**
-- `apt remove opensnitch python3-opensnitch-ui`
-  * remove `/etc/opensnitchd/` after that: `rm -rf /etc/opensnitchd/`
+This steps will remove opensnitch from your system. That includes the rules and the configuration.
 
-**UI**
+**Note:** If you're installing a new version, you don't need to uninstall the old one first. Just install the new version, and it'll be upgraded.
+
+**deb packages:**
+
+Remove the package, keeping the configuration and rules:
+- `apt remove opensnitch python3-opensnitch-ui`
+
+Remove the packages + rules + configuration:
+- `apt remove --purge opensnitch python3-opensnitch-ui`
+
+**rpm packages**
+
 - `yum remove opensnitch opensnitch-ui` or `zypper remove opensnitch opensnitch-ui`
+
+If you installed pip packages:
 - `pip3 uninstall grpcio-tools unicode_slugify pyinotify`
