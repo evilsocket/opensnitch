@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"unsafe"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
@@ -123,8 +124,7 @@ func Start() error {
 	// save already established connections
 	socketListTCP, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET), uint8(syscall.IPPROTO_TCP))
 	if err != nil {
-		log.Error("eBPF could not dump TCP sockets via netlink: %v", err)
-		return err
+		log.Debug("eBPF could not dump TCP sockets via netlink: %v", err)
 	}
 	for _, sock := range socketListTCP {
 		inode := int((*sock).INode)
@@ -135,18 +135,20 @@ func Start() error {
 		alreadyEstablished.Unlock()
 	}
 
-	socketListTCPv6, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET6), uint8(syscall.IPPROTO_TCP))
-	if err != nil {
-		log.Error("eBPF could not dump TCPv6 sockets via netlink: %v", err)
-		return err
-	}
-	for _, sock := range socketListTCPv6 {
-		inode := int((*sock).INode)
-		pid := procmon.GetPIDFromINode(inode, fmt.Sprint(inode,
-			(*sock).ID.Source, (*sock).ID.SourcePort, (*sock).ID.Destination, (*sock).ID.DestinationPort))
-		alreadyEstablished.Lock()
-		alreadyEstablished.TCPv6[sock] = pid
-		alreadyEstablished.Unlock()
+	if core.IPv6Enabled {
+		socketListTCPv6, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET6), uint8(syscall.IPPROTO_TCP))
+		if err != nil {
+			log.Debug("eBPF could not dump TCPv6 sockets via netlink: %v", err)
+		} else {
+			for _, sock := range socketListTCPv6 {
+				inode := int((*sock).INode)
+				pid := procmon.GetPIDFromINode(inode, fmt.Sprint(inode,
+					(*sock).ID.Source, (*sock).ID.SourcePort, (*sock).ID.Destination, (*sock).ID.DestinationPort))
+				alreadyEstablished.Lock()
+				alreadyEstablished.TCPv6[sock] = pid
+				alreadyEstablished.Unlock()
+			}
+		}
 	}
 
 	go monitorMaps()

@@ -5,6 +5,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	elf "github.com/iovisor/gobpf/elf"
@@ -70,7 +71,7 @@ func monitorAlreadyEstablished() {
 		}
 		socketListTCP, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET), uint8(syscall.IPPROTO_TCP))
 		if err != nil {
-			log.Error("eBPF error in dumping TCP sockets via netlink")
+			log.Debug("eBPF error in dumping TCP sockets via netlink")
 			continue
 		}
 		alreadyEstablished.Lock()
@@ -94,31 +95,33 @@ func monitorAlreadyEstablished() {
 		}
 		alreadyEstablished.Unlock()
 
-		socketListTCPv6, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET6), uint8(syscall.IPPROTO_TCP))
-		if err != nil {
-			log.Error("eBPF error in dumping TCPv6 sockets via netlink")
-			continue
-		}
-		alreadyEstablished.Lock()
-		for aesock := range alreadyEstablished.TCPv6 {
-			found := false
-			for _, sock := range socketListTCPv6 {
-				if (*aesock).INode == (*sock).INode &&
-					//inodes are unique enough, so the matches below will never have to be checked
-					(*aesock).ID.SourcePort == (*sock).ID.SourcePort &&
-					(*aesock).ID.Source.Equal((*sock).ID.Source) &&
-					(*aesock).ID.Destination.Equal((*sock).ID.Destination) &&
-					(*aesock).ID.DestinationPort == (*sock).ID.DestinationPort &&
-					(*aesock).UID == (*sock).UID {
-					found = true
-					break
+		if core.IPv6Enabled {
+			socketListTCPv6, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET6), uint8(syscall.IPPROTO_TCP))
+			if err != nil {
+				log.Debug("eBPF error in dumping TCPv6 sockets via netlink: %s", err)
+				continue
+			}
+			alreadyEstablished.Lock()
+			for aesock := range alreadyEstablished.TCPv6 {
+				found := false
+				for _, sock := range socketListTCPv6 {
+					if (*aesock).INode == (*sock).INode &&
+						//inodes are unique enough, so the matches below will never have to be checked
+						(*aesock).ID.SourcePort == (*sock).ID.SourcePort &&
+						(*aesock).ID.Source.Equal((*sock).ID.Source) &&
+						(*aesock).ID.Destination.Equal((*sock).ID.Destination) &&
+						(*aesock).ID.DestinationPort == (*sock).ID.DestinationPort &&
+						(*aesock).UID == (*sock).UID {
+						found = true
+						break
+					}
+				}
+				if !found {
+					delete(alreadyEstablished.TCPv6, aesock)
 				}
 			}
-			if !found {
-				delete(alreadyEstablished.TCPv6, aesock)
-			}
+			alreadyEstablished.Unlock()
 		}
-		alreadyEstablished.Unlock()
 	}
 }
 
