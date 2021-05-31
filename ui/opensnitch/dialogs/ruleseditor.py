@@ -168,6 +168,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return rule
 
     def _reset_state(self):
+        self._old_rule_name = None
+        self.rule = None
+
         self.ruleNameEdit.setText("")
         self.statusLabel.setText("")
 
@@ -550,7 +553,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if len(rule_data) > 1:
             self.rule.operator.type = "list"
-            self.rule.operator.operand = ""
+            self.rule.operator.operand = "list"
             self.rule.operator.data = json.dumps(rule_data)
         else:
             self.rule.operator.operand = rule_data[0]['operand']
