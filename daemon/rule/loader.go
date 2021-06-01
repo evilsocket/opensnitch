@@ -305,10 +305,17 @@ func (l *Loader) scheduleTemporaryRule(rule *Rule) error {
 
 	time.AfterFunc(tTime, func() {
 		l.Lock()
+		defer l.Unlock()
+
 		log.Info("Temporary rule expired: %s - %s", rule.Name, rule.Duration)
-		delete(l.rules, rule.Name)
-		l.sortRules()
-		l.Unlock()
+		if newRule, found := l.rules[rule.Name]; found {
+			if newRule.Duration != rule.Duration {
+				log.Debug("%s temporary rule expired, but has new Duration, old: %s, new: %s", rule.Name, newRule.Duration, rule.Duration)
+				return
+			}
+			delete(l.rules, rule.Name)
+			l.sortRules()
+		}
 	})
 	return nil
 }
