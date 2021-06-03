@@ -134,7 +134,7 @@ func (l *Loader) loadRule(fileName string) error {
 	l.sortRules()
 
 	if l.isTemporary(&r) {
-		err = l.scheduleTemporaryRule(&r)
+		err = l.scheduleTemporaryRule(r)
 	}
 
 	return nil
@@ -291,13 +291,14 @@ func (l *Loader) replaceUserRule(rule *Rule) (err error) {
 	l.Unlock()
 
 	if l.isTemporary(rule) {
-		err = l.scheduleTemporaryRule(rule)
+		err = l.scheduleTemporaryRule(*rule)
 	}
 
 	return err
 }
 
-func (l *Loader) scheduleTemporaryRule(rule *Rule) error {
+func (l *Loader) scheduleTemporaryRule(rule Rule) error {
+	fmt.Println("scheduling temporary rule:", rule.Duration)
 	tTime, err := time.ParseDuration(string(rule.Duration))
 	if err != nil {
 		return err
@@ -310,7 +311,7 @@ func (l *Loader) scheduleTemporaryRule(rule *Rule) error {
 		log.Info("Temporary rule expired: %s - %s", rule.Name, rule.Duration)
 		if newRule, found := l.rules[rule.Name]; found {
 			if newRule.Duration != rule.Duration {
-				log.Debug("%s temporary rule expired, but has new Duration, old: %s, new: %s", rule.Name, newRule.Duration, rule.Duration)
+				log.Debug("%s temporary rule expired, but has new Duration, old: %s, new: %s", rule.Name, rule.Duration, newRule.Duration)
 				return
 			}
 			delete(l.rules, rule.Name)
