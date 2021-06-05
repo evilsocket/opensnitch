@@ -146,7 +146,12 @@ func (l *Loader) loadRule(fileName string) error {
 func (l *Loader) deleteRule(filePath string) {
 	fileName := filepath.Base(filePath)
 	ruleName := fileName[:len(fileName)-5]
-	if rule, found := l.rules[ruleName]; found && rule.Duration == Always {
+
+	l.RLock()
+	rule, found := l.rules[ruleName]
+	delRule := found && rule.Duration == Always
+	l.RUnlock()
+	if delRule {
 		l.Delete(ruleName)
 	}
 }
