@@ -156,7 +156,7 @@ func setupWorkers() {
 
 func doCleanup(queue, repeatQueue *netfilter.Queue) {
 	log.Info("Cleaning up ...")
-	firewall.Stop(&queueNum)
+	firewall.Stop()
 	monitor.End()
 	uiClient.Close()
 	queue.Close()
@@ -331,9 +331,6 @@ func main() {
 		fmt.Println(core.Version)
 		os.Exit(0)
 	}
-
-	// clean any possible residual firewall rule
-	firewall.CleanRules(false)
 
 	setupLogging()
 
