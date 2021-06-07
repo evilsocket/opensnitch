@@ -114,17 +114,15 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 // FindInAlreadyEstablishedTCP searches those TCP connections which were already established at the time
 // when opensnitch started
 func findInAlreadyEstablishedTCP(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (int, int, error) {
-	lock.RLock()
-	defer lock.RUnlock()
-
 	alreadyEstablished.RLock()
+	defer alreadyEstablished.RUnlock()
+
 	var _alreadyEstablished map[*daemonNetlink.Socket]int
 	if proto == "tcp" {
 		_alreadyEstablished = alreadyEstablished.TCP
 	} else if proto == "tcp6" {
 		_alreadyEstablished = alreadyEstablished.TCPv6
 	}
-	alreadyEstablished.RUnlock()
 
 	for sock, v := range _alreadyEstablished {
 		if (*sock).ID.SourcePort == uint16(srcPort) && (*sock).ID.Source.Equal(srcIP) &&
