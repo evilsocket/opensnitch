@@ -90,10 +90,10 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 			log.Warning("ebpf warning: %v", err)
 			return nil, nil
 		}
-	} 
+	}
 	// sometimes when using eBPF the connection is not found, but falling back to legacy
 	// methods helps to find it and avoid "unknown/kernel pop-ups". TODO: investigate
-	if pid == -1 {
+	if pid < 0 {
 		// 0. lookup uid and inode via netlink. Can return several inodes.
 		// 1. lookup uid and inode using /proc/net/(udp|tcp|udplite)
 		// 2. lookup pid by inode
