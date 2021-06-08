@@ -664,6 +664,19 @@
            </property>
           </spacer>
          </item>
+         <item>
+          <widget class="QPushButton" name="cmdCleanRules">
+           <property name="toolTip">
+            <string>Delete connections that matched this rule</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="edit-clear"/>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item row="1" column="0">

@@ -391,6 +391,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'] = self.cmdCleanSql
         self.TABLES[self.TAB_HOSTS]['cmdCleanStats'] = self.cmdCleanHosts
+        self.TABLES[self.TAB_RULES]['cmdCleanStats'] = self.cmdCleanRules
+        # the rules clean button is only for a particular rule, not all.
+        self.TABLES[self.TAB_RULES]['cmdCleanStats'].setVisible(False)
         self.TABLES[self.TAB_PROCS]['cmdCleanStats'] = self.cmdCleanProcs
         self.TABLES[self.TAB_ADDRS]['cmdCleanStats'] = self.cmdCleanAddrs
         self.TABLES[self.TAB_PORTS]['cmdCleanStats'] = self.cmdCleanPorts
@@ -575,8 +578,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
         self._notifications_sent[nid] = noti
 
-        self._db.remove("DELETE FROM rules WHERE name='%s' AND node='%s'" % (rule.name, node_addr))
-        self._refresh_active_table()
+        self._db.delete_rule(rule.name, node_addr)
 
     def _cb_proc_details_clicked(self):
         table = self._tables[self.tabWidget.currentIndex()]
@@ -627,8 +629,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         self._context_menu_active = True
-        self._configure_rules_contextual_menu(pos)
+        refresh_table = self._configure_rules_contextual_menu(pos)
         self._context_menu_active = False
+        if refresh_table:
+            self._refresh_active_table()
 
     def _configure_rules_contextual_menu(self, pos):
         cur_idx = self.tabWidget.currentIndex()
@@ -674,7 +678,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     QC.translate("stats", "    Are you sure?"),
                     QtWidgets.QMessageBox.Warning)
                 if ret == QtWidgets.QMessageBox.Cancel:
-                    return
+                    return False
                 self._table_menu_delete(cur_idx, model, selection)
             elif action == _menu_edit:
                 self._table_menu_edit(cur_idx, model, selection)
@@ -699,7 +703,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             elif action == _actDeny:
                 self._table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_DENY)
 
-        self._refresh_active_table()
+        return True
 
     def _table_menu_duplicate(self, cur_idx, model, selection):
 
@@ -839,7 +843,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._set_events_query()
 
     def _cb_clean_sql_clicked(self, idx):
-        self._db.clean(self.TABLES[self.tabWidget.currentIndex()]['name'])
+        if self.tabWidget.currentIndex() == StatsDialog.TAB_RULES:
+            self._db.empty_rule(self.TABLES[self.tabWidget.currentIndex()]['label'].text())
+        else:
+            self._db.clean(self.TABLES[self.tabWidget.currentIndex()]['name'])
         self._refresh_active_table()
 
     def _cb_cmd_back_clicked(self, idx):
@@ -977,6 +984,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._del_rule(self.TABLES[self.tabWidget.currentIndex()]['label'].text(), self.nodeRuleLabel.text())
         self.TABLES[self.TAB_RULES]['cmd'].click()
         self.nodeRuleLabel.setText("")
+        self._refresh_active_table()
 
     def _cb_enable_rule_toggled(self, state):
         rule = ui_pb2.Rule(name=self.TABLES[self.tabWidget.currentIndex()]['label'].text())
@@ -1065,7 +1073,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.TABLES[cur_idx]['filterLine'] != None:
             self.TABLES[cur_idx]['filterLine'].setVisible(not state)
         if self.TABLES[cur_idx].get('cmdCleanStats') != None:
-            self.TABLES[cur_idx]['cmdCleanStats'].setVisible(not state)
+            if cur_idx == StatsDialog.TAB_RULES:
+                self.TABLES[cur_idx]['cmdCleanStats'].setVisible(state)
+            else:
+                self.TABLES[cur_idx]['cmdCleanStats'].setVisible(not state)
 
     def _set_process_tab_active(self, data):
         self.cmdProcDetails.setVisible(False)

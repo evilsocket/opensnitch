@@ -139,6 +139,31 @@ class Database:
             q = QSqlQuery("delete from " + table, self.db)
             q.exec_()
 
+    def empty_rule(self, name=""):
+        if name == "":
+            return
+        qstr = "DELETE FROM connections WHERE rule = ?"
+
+        with self._lock:
+            q = QSqlQuery(qstr, self.db)
+            q.prepare(qstr)
+            q.addBindValue(name)
+            if not q.exec_():
+                print("db, empty_rule() ERROR: ", qstr)
+                print(q.lastError().driverText())
+
+    def delete_rule(self, name, node):
+        qstr = "DELETE FROM rules WHERE name=? AND node=?"
+
+        with self._lock:
+            q = QSqlQuery(qstr, self.db)
+            q.prepare(qstr)
+            q.addBindValue(name)
+            q.addBindValue(node)
+            if not q.exec_():
+                print("db, delete_rule() ERROR: ", qstr)
+                print(q.lastError().driverText())
+
     def clone_db(self, name):
         return QSqlDatabase.cloneDatabase(self.db, name)
 
