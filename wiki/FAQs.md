@@ -36,11 +36,7 @@ If you need to allow this kind of traffic, you can add a rule directly to iptabl
 
 **In which order does opensnitch check configured rules?**
 
-~As of version 1.0.1, there's no order to check the rules, it's random per each connection.~
-
-~See this issue for more information regarding this question: [#36](https://github.com/gustavo-iniguez-goya/opensnitch/issues/36)~
-
-Since version 1.2.0, rules checked in alphabetical order. There's a new field to mark a rule as Important.
+Since version 1.2.0, rules are checked in alphabetical order. There's also a new field to mark a rule as Important.
 
 So if you want to prioritize some rules over others:
 1. Name the rule as 000-max-priority, 001-notsomax-priority, 002-less-preiority, not-priority
