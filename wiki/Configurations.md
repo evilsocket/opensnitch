@@ -14,29 +14,32 @@ Some default working options can be customized in the file _/etc/opensnitchd/def
   "LogLevel": 1
 }
 ```
- * Address: Unix socket (unix:///tmp/osui.sock, the "unix:///" part is mandatory) or TCP socket (192.168.1.100:50051)
- * DefaultAction: allow | deny
- * DefaultDuration: once | always | until restart | 30s | 5m | 15m | 30m | 1h
- * InterceptUnknown: true | false
-   - Block or allow connections whose process path has not been found.
- * ProcMonitorMethod: proc | ftrace | audit
- * LogLevel: 0 to 4 (debug, info, important, warning, error)
+
+Option | Value
+-------|------
+Address | Unix socket (unix:///tmp/osui.sock, the "unix:///" part is mandatory) or TCP socket (192.168.1.100:50051)
+DefaultAction | allow, deny
+DefaultDuration | once, always, until restart, 30s, 5m, 15m, 30m, 1h
+InterceptUnknown | true, false
+ProcMonitorMethod | ebpf, proc, ftrace, audit
+LogLevel | 0 to 4 (debug, info, important, warning, error)
 
 If you change the configuration or the rules under _/etc/opensnitchd/_, they'll be reloaded. No restart is needed.
 
-**NOTE about _intercept_unknown_ option**: It was added when OpenSnitch used to miss a lot of connections (couldn't find pid/process in /proc). As of v1.0.0rc5 version, maybe it's safe to set it to false, and just let drop those unknown spare connections. It's up to you.
+**NOTE about _intercept_unknown_ option**: It was added when OpenSnitch used to miss a lot of connections (couldn't find pid/process in /proc). As of v1.4.0rc2 version, it's safe to set it to false, and just let drop those unknown spare connections. It's up to you.
+Most of the connections intercepted by this option are those in a bad state or similar.
 
 ***
 
 ### GUI
 
-By default OpenSnitch UI listen in a local Unix socket in /tmp/osui.sock.
+By default OpenSnitch UI listens on a local Unix socket in /tmp/osui.sock.
 
 In some distros, /tmp is cleared out every time in a while, so you're encouraged to change it to other location.
 
 **Single UI with many computers**
 
-Use --socket "[::]:50051" to have the UI use TCP instead of a Unix socket and run the daemon on another computer with -ui-socket "x.x.x.x:50051" (where x.x.x.x is the IP of the computer running the UI service).
+Use `--socket "[::]:50051"` to have the UI use TCP instead of a Unix socket and run the daemon on another computer with `-ui-socket "x.x.x.x:50051"` (where x.x.x.x is the IP of the computer running the UI service).
 
 `# /usr/bin/opensnitchd -rules-path /etc/opensnitchd/rules -ui-socket 172.17.0.1:50051`
 
