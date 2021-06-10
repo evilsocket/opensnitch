@@ -43,3 +43,12 @@ So if you want to prioritize some rules over others:
 2. [x] Priority field checked (Action: allow)
 3. OR Action: deny (not need to check the Priority field in these rules)
 
+**Appimages confuse the firewall**
+
+Appimages create a random directory under `/tmp/` from where they're executed, so if you allow or deny an appimage by path or command line when the pop-up appears, the next time the app is executed, the path to the binary will be different and OpenSnitch will prompt you again to deny or allow it.
+
+You need to use regular expressions to match the directory by editing the rule:
+
+[x] From this executable: ^(/tmp/\.mount_Archiv[0-9A-Za-z]+/.*)$
+
+See this issue for context and more information: [#408](https://github.com/evilsocket/opensnitch/issues/408)
