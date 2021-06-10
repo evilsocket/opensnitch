@@ -5,11 +5,15 @@
 * ModuleNotFoundError: No module named 'grpc'
 * Others...
 
+[The GUI doesn't change to dark style theme](#The-GUI-does-not-change-to-dark-style-theme)
+
 [no icons on the GUI](#no-icons-on-the-GUI)
 
 [GUI size problems on 4k monitors](#GUI-size-problems-on-4k-monitors)
 
 [OpenSnitch icon doesn't show up on Gnome-Shell](#OpenSnitch-icon-does-not-show-up-on-gnome-shell)
+
+[Kernel panic on >= 5.6.16 || kernel hardening incompatibilities](#kernel-panics)
 
 [opensnitchd/daemon does not start](#opensnitchd-does-not-start):
 * `Error while creating queue #0: Error binding to queue: operation not permitted.`
@@ -33,7 +37,6 @@ xt_NFQUEUE             16384  4
 x_tables               53248  20 xt_conntrack,nft_compat,xt_LOG,xt_multiport,xt_tcpudp,xt_addrtype,xt_CHECKSUM,xt_recent,xt_nat,ip6t_rt,xt_set,ip6_tables,ipt_REJECT,ip_tables,xt_limit,xt_hl,xt_MASQUERADE,ip6t_REJECT,xt_NFQUEUE,xt_mark
 ```
 
-[Kernel panic on >= 5.6.16 || kernel hardening incompatibilities](#kernel-panics)
 
 ***
 
@@ -77,7 +80,8 @@ If you have installed it by double clicking on the pkgs, using a graphical insta
 
 See [issue #25](https://github.com/gustavo-iniguez-goya/opensnitch/issues/25), [issue #16](https://github.com/gustavo-iniguez-goya/opensnitch/issues/16) and [issue #32](https://github.com/gustavo-iniguez-goya/opensnitch/issues/32) for additional information.
 
---
+
+***
 
 You have to install `unicode_slugify` and `grpcio-tools`, usually not available in many distros. You can install them using pip:
 
@@ -86,7 +90,7 @@ pip3 install unicode_slugify
 pip3 install grpcio-tools
 ```
 
---
+***
 
 Check that you don't have a previous installation of opensnitch GUI in _/usr/lib/python3*/*/opensnitch/_ or _/usr/local/lib/python3*/*/opensnitch/_
 
@@ -109,11 +113,31 @@ For ArchLinux/Manjaro users this worked:
 
 > removed it and installed python-unicode-slugify 0.1.3-1.
 
---
+
+***
+
+
+### The GUI does not change to dark style theme
+
+It's usually a problem of the Desktop Environment. You can try to configure the theme by using `qt5ct`, or executing the following commands: 
+```
+sudo apt-get install -y qt5-style-plugins
+sudo cat << EOF | sudo tee  /etc/environment
+QT_QPA_PLATFORMTHEME=gtk2
+EOF
+```
+
+More info: [#303](https://github.com/evilsocket/opensnitch/issues/303)
+
+
+***
 
 ### No icons on the GUI
 
 Be sure that you have properly set the icon theme of your Window Manager. [More information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/53#issuecomment-671419790)
+
+
+***
 
 ### GUI size problems on 4k monitors
 
@@ -129,7 +153,8 @@ export QT_SCREEN_SCALE_FACTORS=1 (or 1.25, 1.5, 2, ...)
 In case of multiple displays:
 `export "QT_SCREEN_SCALE_FACTORS=1;1"`
 
---
+
+***
 
 ### OpenSnitch icon does not show up on Gnome-Shell
 
@@ -140,7 +165,8 @@ On Gnome-Shell >= 3.16, systray icons have been removed. You have to install the
 
 See this comment/issue for more information: [#44](https://github.com/gustavo-iniguez-goya/opensnitch/issues/44#issuecomment-654373737)
 
---
+
+***
 
 ### opensnitchd does not start
 
@@ -171,20 +197,23 @@ Quoting `anreiple` in issue [#235](https://github.com/evilsocket/opensnitch/issu
 
 Starting from version [v1.0.0-rc3](https://github.com/gustavo-iniguez-goya/opensnitch/releases/tag/v1.0.0-rc3), there's an alternative method to workaround this problem.
 
----
+
+--
 
 **Error while creating queue #0: Error binding to queue: operation not permitted**
 > [2020-06-13 17:07:34]  !!!  Error while creating queue #0: Error binding to queue: operation not permitted.
 
 Fixed in 1.0.0rc10. If you still see this error open a new issue and [provide the following information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/18#issuecomment-643661484)
 
-***
+
+--
 
 **Address family not supported**
 
 [See this issue for more information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/52)
 
-***
+
+--
 
 **Error opening Queue handle: protocol not supported**
 > [2020-10-09 19:11:15]  !!!  Error while creating queue #0: Error opening Queue handle: protocol not supported
@@ -194,6 +223,7 @@ Check that you have the needed iptables modules loaded: nfnetlink, nfnetlink_que
 `# lsmod | grep nfnetlink`
 
 See this issue [#71](https://github.com/gustavo-iniguez-goya/opensnitch/issues/71) for more information.
+
 
 ***
 
