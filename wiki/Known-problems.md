@@ -5,6 +5,8 @@
 * ModuleNotFoundError: No module named 'grpc'
 * Others...
 
+[GUI not working across reboots](#GUI-not-working-across-reboots)
+
 [The GUI doesn't change to dark style theme](#The-GUI-does-not-change-to-dark-style-theme)
 
 [no icons on the GUI](#no-icons-on-the-GUI)
@@ -16,41 +18,20 @@
 [Kernel panic on >= 5.6.16 || kernel hardening incompatibilities](#kernel-panics)
 
 [opensnitchd/daemon does not start](#opensnitchd-does-not-start):
-* `Error while creating queue #0: Error binding to queue: operation not permitted.`
-* `Error while enabling probe descriptor for opensnitch_exec_probe: write /sys/kernel/debug/tracing/kprobe_events: no such file or directory`
-* `Error while creating queue #0: Error binding to queue: operation not permitted.`
-* `Error opening Queue handle: protocol not supported`
-* `Could not open socket to kernel: Address family not supported by protocol (IPv6)`
-* `Error while creating queue #0: Error unbinding existing q handler from AF_INET protocol` see [#323](https://github.com/evilsocket/opensnitch/issues/323) and [#204](https://github.com/evilsocket/opensnitch/issues/204#issuecomment-802932344). Issue not solved, if you can provide more information open a new issue please.
-
-For all these options, be sure that you have NFQUEUE support in the kernel (=y or =m):
-```
-$ grep -E "(NFT|NETLINK|NFQUEUE) /boot/config-$(uname -r)"
-CONFIG_NFT_QUEUE=y
-CONFIG_NETFILTER_NETLINK_QUEUE=y
-CONFIG_NETFILTER_XT_TARGET_NFQUEUE=y
-```
-and that the needed modules are loaded:
-```
-$ lsmod | grep -i nfqueue
-xt_NFQUEUE             16384  4
-x_tables               53248  20 xt_conntrack,nft_compat,xt_LOG,xt_multiport,xt_tcpudp,xt_addrtype,xt_CHECKSUM,xt_recent,xt_nat,ip6t_rt,xt_set,ip6_tables,ipt_REJECT,ip_tables,xt_limit,xt_hl,xt_MASQUERADE,ip6t_REJECT,xt_NFQUEUE,xt_mark
-```
 
 
 ***
 
 ### Desktop Environment does not boot up
 
-If after installing OpenSnitch, or after changing the Default Action to `deny`, the Desktop Environment does not show up, try:
+If after installing OpenSnitch, or after changing the Default Action to `deny`, the Desktop Environment does not show up (after restart), try:
 
 1. setting the `DefaultAction` back to `allow`
 2. adding a rule to allow system apps.
 
-In both cases the idea is to allow certain programs needed by KDE, Gnome, etc: dirmngr, xbrlapi, host, kdeinit5. [more info #402](https://github.com/evilsocket/opensnitch/issues/402)
+In both cases the idea is to allow certain programs needed by KDE, Gnome, etc: dirmngr, xbrlapi, host, kdeinit5. [more info #402](https://github.com/evilsocket/opensnitch/issues/402):
 
-You can also allow all traffic to localhost.
-
+Save it to `/etc/opensnitchd/rules/000-allow-system-cmds.json`
 ```
 {
   "created": "2021-04-26T09:58:03.704090244+02:00",
@@ -65,6 +46,26 @@ You can also allow all traffic to localhost.
     "operand": "process.path",
     "sensitive": false,
     "data": "^(/usr/bin/host|/usr/bin/xbrlapi|/usr/bin/dirmngr)",
+    "list": []
+  }
+}
+```
+
+You can also allow all traffic to localhost (save it to `/etc/opensnitchd/rules/000-allow-localhost.json`):
+```
+{
+  "created": "2021-04-26T09:58:03.704090244+02:00",
+  "updated": "2021-04-26T09:58:03.704216578+02:00",
+  "name": "000-allow-localhost",
+  "enabled": true,
+  "precedence": true,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "network",
+    "operand": "dest.network",
+    "sensitive": false,
+    "data": "127.0.0.0/8",
     "list": []
   }
 }
@@ -116,6 +117,23 @@ For ArchLinux/Manjaro users this worked:
 
 ***
 
+### Opensnicth GUI not working across reboots
+
+If after installing OpenSnitch and reboot, the GUI does not show up upon login to your Desktop Environment, be sure that the following path exist in your $HOME:
+
+`ls ~/.config/autostart/opensnitch_ui.desktop`
+
+If it doesn't exist, create it:
+```
+$ mkdir -p ~/.config/autostart/
+$ ln -s /usr/share/applications/opensnitch_ui.desktop ~/.config/autostart/
+```
+
+If you have installed the GUI from the repositories of a distribution, tell the maintainer of the package to create that symbolic link after installation.
+
+see issue [#434](https://github.com/evilsocket/opensnitch/issues/434#issuecomment-859968103) for more information.
+
+***
 
 ### The GUI does not change to dark style theme
 
@@ -170,59 +188,28 @@ See this comment/issue for more information: [#44](https://github.com/gustavo-in
 
 ### opensnitchd does not start
 
-A common error you may encounter (in the original repo):
+For all these options, 
 
-> [2019-08-08 11:51:14]  !!!  Error while enabling probe descriptor for opensnitch_exec_probe: write /sys/kernel/debug/tracing/kprobe_events: no such file or directory
+* `Error while creating queue #0: Error binding to queue: operation not permitted.`
+* `Error while enabling probe descriptor for opensnitch_exec_probe: write /sys/kernel/debug/tracing/kprobe_events: no such file or directory`
+* `Error while creating queue #0: Error binding to queue: operation not permitted.`
+* `Error opening Queue handle: protocol not supported`
+* `Could not open socket to kernel: Address family not supported by protocol (IPv6)`
+* `Error while creating queue #0: Error unbinding existing q handler from AF_INET protocol` see [#323](https://github.com/evilsocket/opensnitch/issues/323) and [#204](https://github.com/evilsocket/opensnitch/issues/204#issuecomment-802932344). Issue not solved, if you can provide more information open a new issue please.
 
-This is because opensnitch uses [ftrace](https://www.kernel.org/doc/Documentation/trace/ftrace.txt) to get running processes (PIDs). 
-
-`ftrace` mounts a file system called _debugfs_ in /sys/kernel/debugfs, and outputs kernel events to _/sys/kernel/debugfs/tracing/trace_ and _/sys/kernel/debugfs/tracing/trace_pipe_
-
-If for some reason those files can not be opened, opensnitch will not work. 
-
-Some reasons because `ftrace` is not available:
-
-* debugfs is not mounted. If it's mounted you should see a similar output:
+be sure that you have NFQUEUE support in the kernel (=y or =m):
 ```
-  $ mount | grep debugfs
-  none on /sys/kernel/debug type debugfs (rw)
-  $
+$ grep -E "(NFT|NETLINK|NFQUEUE) /boot/config-$(uname -r)"
+CONFIG_NFT_QUEUE=y
+CONFIG_NETFILTER_NETLINK_QUEUE=y
+CONFIG_NETFILTER_XT_TARGET_NFQUEUE=y
 ```
-
-* log in syslog or journalctl: _Lockdown: opensnitchd: Use of kprobes is restricted; see man kernel_lockdown.7_
-
-Quoting `anreiple` in issue [#235](https://github.com/evilsocket/opensnitch/issues/235):
-
-> Since kernel 4.17 if you have UEFI Secure Boot enabled then kernel does lockdown - using kernel probes, 3rd party kernel modules (even signed), etc is restricted
-
-Starting from version [v1.0.0-rc3](https://github.com/gustavo-iniguez-goya/opensnitch/releases/tag/v1.0.0-rc3), there's an alternative method to workaround this problem.
-
-
---
-
-**Error while creating queue #0: Error binding to queue: operation not permitted**
-> [2020-06-13 17:07:34]  !!!  Error while creating queue #0: Error binding to queue: operation not permitted.
-
-Fixed in 1.0.0rc10. If you still see this error open a new issue and [provide the following information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/18#issuecomment-643661484)
-
-
---
-
-**Address family not supported**
-
-[See this issue for more information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/52)
-
-
---
-
-**Error opening Queue handle: protocol not supported**
-> [2020-10-09 19:11:15]  !!!  Error while creating queue #0: Error opening Queue handle: protocol not supported
-
-Check that you have the needed iptables modules loaded: nfnetlink, nfnetlink_queue and x_tables.
-
-`# lsmod | grep nfnetlink`
-
-See this issue [#71](https://github.com/gustavo-iniguez-goya/opensnitch/issues/71) for more information.
+and that the needed modules are loaded:
+```
+$ lsmod | grep -i nfqueue
+xt_NFQUEUE             16384  4
+x_tables               53248  20 xt_conntrack,nft_compat,xt_LOG,xt_multiport,xt_tcpudp,xt_addrtype,xt_CHECKSUM,xt_recent,xt_nat,ip6t_rt,xt_set,ip6_tables,ipt_REJECT,ip_tables,xt_limit,xt_hl,xt_MASQUERADE,ip6t_REJECT,xt_NFQUEUE,xt_mark
+```
 
 
 ***
