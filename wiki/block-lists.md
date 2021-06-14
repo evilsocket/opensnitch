@@ -3,7 +3,8 @@ Starting from version [1.4.0rc1](https://github.com/evilsocket/opensnitch/releas
 It can be used to block ads, or limit to what domains an application connects to.
 
 
-### How to add a global rule to block ads/malware/etc:
+How to add a global rule to block ads/malware/etc:
+---
 
 1. Create a new rule: `000-block-domains`
 2. Check `[x] Enable`, `[x] Priority`, `Duration: always`, `[x] To this list of domains`
@@ -20,9 +21,10 @@ $ wget https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended
 
 ![image](https://user-images.githubusercontent.com/2742953/115919049-981cff00-a478-11eb-9201-360463302399.png)
 
----
 
-### Limiting to what domains an application can connect to:
+
+Limiting to what domains an application can connect to:
+---
 
 We'll create 2 rules: 
 - one for allow connections from an app to a limited number of domains.
@@ -59,6 +61,8 @@ Remember that you may need to add the domain without the subdomains (`domain.com
 ### Resources
 
 Lists of ads, tracking, malware, etc that you can use:
+
+https://filterlists.com/ (filter by Syntaxis: hosts)
 
 https://www.github.developerdan.com/hosts/
 
