@@ -6,3 +6,4 @@ List of real world examples of opensnitch in action (if you want to share an exp
   - Note: In this case it's the expected behavior, but it's good to know these things.
 
 - [Firefox sending a crash report, even having it configured to not do it.](https://user-images.githubusercontent.com/2742953/100526334-1de99680-31c8-11eb-904e-06a6e2de2377.png)
+- [Spotify launching wget to download images](https://github.com/evilsocket/opensnitch/discussions/401)
