@@ -1,6 +1,6 @@
 1. [Installation](Installation)
 2. [Getting started](Getting-started)
-   1. Events window
+   1. [Events window](The-Events-window)
    2. [Process monitor dialog](Process-monitor-dialog)
 3. [Configuration](Configurations)
    1. [Monitor method: audit](monitor-method-auditd)
