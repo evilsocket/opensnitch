@@ -23,8 +23,10 @@ var (
 	configFile             = "/etc/opensnitchd/default-config.json"
 	dummyOperator, _       = rule.NewOperator(rule.Simple, false, rule.OpTrue, "", make([]rule.Operator, 0))
 	clientDisconnectedRule = rule.Create("ui.client.disconnected", true, false, rule.Allow, rule.Once, dummyOperator)
-	clientErrorRule        = rule.Create("ui.client.error", true, false, rule.Allow, rule.Once, dummyOperator)
-	config                 Config
+	// While the GUI is connected, deny by default everything until the user takes an action.
+	clientConnectedRule = rule.Create("ui.client.connected", true, false, rule.Deny, rule.Once, dummyOperator)
+	clientErrorRule     = rule.Create("ui.client.error", true, false, rule.Allow, rule.Once, dummyOperator)
+	config              Config
 )
 
 type serverConfig struct {
@@ -105,8 +107,15 @@ func (c *Client) InterceptUnknown() bool {
 
 // DefaultAction returns the default configured action for
 func (c *Client) DefaultAction() rule.Action {
+	isConnected := c.Connected()
+
 	c.RLock()
 	defer c.RUnlock()
+
+	if isConnected {
+		return clientConnectedRule.Action
+	}
+
 	return clientDisconnectedRule.Action
 }
 
