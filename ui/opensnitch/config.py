@@ -1,6 +1,6 @@
 import os
 from PyQt5 import QtCore
-from database import Database
+from opensnitch.database import Database
 
 class Config:
     __instance = None

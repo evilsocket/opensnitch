@@ -1,6 +1,6 @@
 
 from PyQt5 import QtCore, QtWidgets
-from version import version
+from opensnitch.version import version
 import pwd
 import socket
 import fcntl

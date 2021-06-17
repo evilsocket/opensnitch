@@ -7,15 +7,15 @@ import csv
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
 
-import ui_pb2
-from config import Config
-from version import version
-from nodes import Nodes
-from dialogs.preferences import PreferencesDialog
-from dialogs.ruleseditor import RulesEditorDialog
-from dialogs.processdetails import ProcessDetailsDialog
-from customwidgets import ColorizedDelegate, ConnectionsTableModel
-from utils import Message
+from opensnitch import ui_pb2
+from opensnitch.config import Config
+from opensnitch.version import version
+from opensnitch.nodes import Nodes
+from opensnitch.dialogs.preferences import PreferencesDialog
+from opensnitch.dialogs.ruleseditor import RulesEditorDialog
+from opensnitch.dialogs.processdetails import ProcessDetailsDialog
+from opensnitch.customwidgets import ColorizedDelegate, ConnectionsTableModel
+from opensnitch.utils import Message
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
