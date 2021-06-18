@@ -112,7 +112,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
 
             elif noti.type == ui_pb2.STOP_MONITOR_PROCESS:
                 if reply.data != "":
-                    self.show_message(QtCore.QCoreApplication.translate("proc_details", "<b>Error stopping monitoring process:</b><br><br>") + reply.data)
+                    self._show_message(QtCore.QCoreApplication.translate("proc_details", "<b>Error stopping monitoring process:</b><br><br>") + reply.data)
                     self._set_button_running(False)
 
                 self._delete_notification(reply.id)
