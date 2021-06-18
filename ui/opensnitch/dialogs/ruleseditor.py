@@ -7,15 +7,15 @@ import re
 import json
 import sys
 import os
-import ui_pb2
+from opensnitch import ui_pb2
 import time
 import ipaddress
 
-from config import Config
-from nodes import Nodes
-from database import Database
-from version import version
-from utils import Message, FileDialog
+from opensnitch.config import Config
+from opensnitch.nodes import Nodes
+from opensnitch.database import Database
+from opensnitch.version import version
+from opensnitch.utils import Message, FileDialog
 
 DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):

@@ -3,8 +3,8 @@ from datetime import datetime
 import time
 import json
 
-import ui_pb2
-from database import Database
+from opensnitch import ui_pb2
+from opensnitch.database import Database
 
 class Nodes():
     __instance = None

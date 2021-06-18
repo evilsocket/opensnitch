@@ -6,12 +6,12 @@ import json
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
 
-from config import Config
-from nodes import Nodes
-from database import Database
-from utils import Message
+from opensnitch.config import Config
+from opensnitch.nodes import Nodes
+from opensnitch.database import Database
+from opensnitch.utils import Message
 
-import ui_pb2
+from opensnitch import ui_pb2
 
 DIALOG_UI_PATH = "%s/../res/preferences.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
