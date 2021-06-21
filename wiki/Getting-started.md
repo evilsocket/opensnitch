@@ -1,29 +1,45 @@
-After installing opensnitch, the daemon will start intercepting connections and by default it'll allow them.
+After [installing opensnitch](https://github.com/evilsocket/opensnitch/wiki/Installation), notice that a new icon appeared on the systray:
+
+![image](https://user-images.githubusercontent.com/2742953/122753129-1556cb80-d292-11eb-8a70-36a270132c56.png)
+
+You can launch the GUI from that icon or from the system menu (Internet -> OpenSnitch)
+
+
+The daemon will start intercepting connections, prompting you to allow or deny them. The default action is to allow them, and if you don't apply an action, after 15 seconds it'll apply the default action configured.
 
 ![](https://user-images.githubusercontent.com/2742953/85336535-0acaf000-b4df-11ea-9d69-c7bd7b597886.png)
 
 
-When you open the GUI, you'll see all the connections and processes that has intercepted, and it'll prompt you to allow or deny new outgoing connections.
+When you open the GUI, you'll see all the connections and processes that has intercepted. Double click on a row to view the details of a process, rule, host or user.
 
 ![](https://user-images.githubusercontent.com/2742953/85336893-bf651180-b4df-11ea-908e-6202e989a8ae.png)
 
 
-The default action is to allow outgoing connections, so you can let it run for a while (hours, days, weeks), and observe what your machine is doing.
+As the default action is to allow outgoing connections, you can let it run for a while (hours, days, weeks), and observe passively what your machine is doing.
 
 ![](https://user-images.githubusercontent.com/2742953/85336695-55e50300-b4df-11ea-86d5-b70b78fd7896.png)
 
 
-Once you know which are the common processes, IPs and hosts that your machine is connecting to, you can start creating rules to deny or allow them. 
+To see and modify the rules accumulated so far, click on the OpenSnitch icon in the System Tray. A GUI listing the rules will appear. You can click on each rule and then click on the Trash Can icon to delete it. Or you can click on a rule and right-click on it to modify allow/deny or duration etc. The list may take up to 15 seconds to show the update in the GUI. Note: if you modify the action of a rule (e.g. change from deny to allow), the name of it may not change (e.g. may stay as "deny-...").
 
-A common practice is to apply a rule of "Least privilege", i.e., block all by default and allow only those processes or connections that you want to.
+![image](https://user-images.githubusercontent.com/2742953/122754068-729f4c80-d293-11eb-8496-c1d98b393cbd.png)
+
+Once you know which are the common processes, IPs and hosts that your machine is connecting to, you can start creating permanent rules (Duration: always) to deny or allow them. You can also convert temporary rules to permanent by right-clicking on a temporary rule or by double-clicking on it, and then edit it.
+
+![image](https://user-images.githubusercontent.com/2742953/122754509-0f61ea00-d294-11eb-990b-2377b0add1f3.png)
+
+A common practice is to apply a rule of "Least privilege", i.e., block everything by default and allow only those processes or connections that you want to.
 
 [Read more about rules.](Rules)
 
+[Read more about blicking lists](block-lists)
 
 ![](https://user-images.githubusercontent.com/2742953/85337403-b294ed80-b4e0-11ea-8c65-d8251c6af25b.png)
 
 ![](https://user-images.githubusercontent.com/2742953/85337070-136ff600-b4e0-11ea-838a-439366c70668.png)
 
+Notes
+---
 
 Some processes are part of the GNU/Linux ecosystem, and critical to the well functioning of it. Some of these processes are:
 ```
@@ -39,6 +55,7 @@ Some others are not critical, but as part of the system they have their function
 /usr/libexec/dleyna-server-service
 /lib/systemd/systemd-timesyncd
 /usr/lib/systemd/systemd-resolved
+/usr/sbin/ntpd
 ```
 
 Some applications launch external processes, so for example, you may be prompted to allow application A, and just right away asked to allow application B.
