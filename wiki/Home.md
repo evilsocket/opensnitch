@@ -6,7 +6,9 @@ Download opensnitch from the [release](https://github.com/evilsocket/opensnitch/
 Documentation
 ---
 
-How to install opensnitch [from packages](Installation) or [compile from sources](Compilation).
+How to install opensnitch [using packages](Installation) or [compile from sources](Compilation).
+
+After installing, read the section [Getting started](Getting-started), to read about the basics and useful tips.
 
 [What can you configure and how it works.](Configurations)
 
