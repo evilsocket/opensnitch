@@ -15,7 +15,9 @@ When you open the GUI, you'll see all the connections and processes that has int
 ![](https://user-images.githubusercontent.com/2742953/85336893-bf651180-b4df-11ea-908e-6202e989a8ae.png)
 
 
-As the default action is to allow outgoing connections, you can let it run for a while (hours, days, weeks), and observe passively what your machine is doing.
+You can configure the default action to Deny (Preferences -> UI -> Default Action, and optionally [x] Disable pop-ups), let it run for a while (hours, days, weeks), and observe passively what your machine is doing.
+
+This action has two advantages: you learn about your system and OpenSnitch creates the rules for you (Rules tab -> Temporary)
 
 ![](https://user-images.githubusercontent.com/2742953/85336695-55e50300-b4df-11ea-86d5-b70b78fd7896.png)
 
@@ -32,7 +34,7 @@ A common practice is to apply a rule of "Least privilege", i.e., block everythin
 
 [Read more about rules.](Rules)
 
-[Read more about blicking lists](block-lists)
+[Read more about blocking lists](block-lists)
 
 ![](https://user-images.githubusercontent.com/2742953/85337403-b294ed80-b4e0-11ea-8c65-d8251c6af25b.png)
 
