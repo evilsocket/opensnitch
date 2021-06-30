@@ -1,8 +1,9 @@
 1. [Installation](Installation)
-2. [Getting started](Getting-started)
+   1. [Dependencies and how it works](Dependencies-and-how-it-works)
+3. [Getting started](Getting-started)
    1. [Events window](The-Events-window)
    2. [Process monitor dialog](Process-monitor-dialog)
-3. [Configuration](Configurations)
+4. [Configuration](Configurations)
    1. [Monitor method: audit](monitor-method-auditd)
    2. [Monitor method: eBPF](monitor-method-ebpf)
    3. [Rules](Rules)
@@ -10,13 +11,13 @@
       1. [Rules examples](Rules-examples)
    6. [System rules](System-rules)
    7. [Block lists, ads|malware|...](block-lists)
-4. [Compilation](Compilation)
+5. [Compilation](Compilation)
    1. [Cross-compilation for arm](Cross-compilation)
    2. [Building packages with pbuilder](Building-packages-with-pbuilder)
-5. GUI translations
+6. GUI translations
    1. [Adding, updating and installing translations](Adding,-updating-and-installing-new-translations)
-6. FAQs and common errors
+7. FAQs and common errors
    1. [Known problems](Known-problems)
    2. [FAQs](FAQs)
    3. [Why OpenSnitch does not intercept application XXX](Why-OpenSnitch-does-not-intercept-application-XXX)
-7. [Examples OpenSnitch in action](OpenSnitch-in-action)
+8. [Examples OpenSnitch in action](OpenSnitch-in-action)
