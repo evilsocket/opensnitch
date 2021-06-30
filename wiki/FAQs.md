@@ -52,3 +52,9 @@ You need to use regular expressions to match the directory by editing the rule:
 [x] From this executable: ^(/tmp/\.mount_Archiv[0-9A-Za-z]+/.*)$
 
 See this issue for context and more information: [#408](https://github.com/evilsocket/opensnitch/issues/408)
+
+**Do I need to turn off or uninstall other firewalling (firewalld, ufw, gufw) before installing OpenSnitch ? Will the OpenSnitch install or app turn them off automatically ?**
+
+No, you don't need to turn off or uninstall other firewalling. OpenSnitch doesn't turn them off, nor delete their rules.
+
+[Read more](https://github.com/evilsocket/opensnitch/wiki/Dependencies-and-how-it-works)
