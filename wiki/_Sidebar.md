@@ -3,6 +3,7 @@
 3. [Getting started](Getting-started)
    1. [Events window](The-Events-window)
    2. [Process monitor dialog](Process-monitor-dialog)
+   3. [Pop-up dialogs](Pop-ups-dialogs)
 4. [Configuration](Configurations)
    1. [Monitor method: audit](monitor-method-auditd)
    2. [Monitor method: eBPF](monitor-method-ebpf)
