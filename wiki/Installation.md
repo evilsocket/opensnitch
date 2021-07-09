@@ -47,7 +47,7 @@ Select the right package for your architecture: `$(uname -m) == x86_64` -> opens
 ***
 
 **These packages have been (briefly) tested on:**
- * Daemon (v1.3.6):
+ * Daemon ([v1.4.0rc2](https://github.com/evilsocket/opensnitch/releases)):
    - RedHat Enterprise >= 7.0
    - CentOS 8.x
    - Fedora >= 24
@@ -58,11 +58,11 @@ Select the right package for your architecture: `$(uname -m) == x86_64` -> opens
    - Pop!_OS
    - MX Linux 19.x
    - PureOS (Librem5)
- * UI (v1.3.6):
+ * UI ([v1.4.0rc2](https://github.com/evilsocket/opensnitch/releases)):
    - Debian >= 9
    - Ubuntu >= 16.x
    - Fedora >= 29
-   - OpenSuse Tumbleweed
+   - OpenSuse Tumbleweed 15.3
    - LinuxMint >= 18 
    - MX Linux 19.x
    - Pop!_OS
