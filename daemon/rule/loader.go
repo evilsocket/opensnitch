@@ -303,7 +303,6 @@ func (l *Loader) replaceUserRule(rule *Rule) (err error) {
 }
 
 func (l *Loader) scheduleTemporaryRule(rule Rule) error {
-	fmt.Println("scheduling temporary rule:", rule.Duration)
 	tTime, err := time.ParseDuration(string(rule.Duration))
 	if err != nil {
 		return err
