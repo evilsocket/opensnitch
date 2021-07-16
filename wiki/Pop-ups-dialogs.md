@@ -15,6 +15,11 @@ Notes:
 - If the text of a field is too large to fit in the window, 3 dots are added to the end of the text (![image](https://user-images.githubusercontent.com/2742953/124112656-cc113380-da6a-11eb-9c04-1f8d61059320.png)
 ) . Place the cursor over the text to see all the text.
 
+You can also select and copy the text of the fields:
+
+![image](https://user-images.githubusercontent.com/2742953/126013032-fe8dc76c-e4d0-45eb-b4d7-9ea973969778.png)
+
+
 Advanced view
 ---
 
