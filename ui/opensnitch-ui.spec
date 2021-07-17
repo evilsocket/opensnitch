@@ -96,6 +96,8 @@ fi
 %build
 cd i18n; make; cd ..
 cp -r i18n/locales/ opensnitch/i18n
+pyrcc5 -o opensnitch/resources_rc.py opensnitch/res/resources.qrc
+sed -i 's/^import ui_pb2/from . import ui_pb2/' opensnitch/ui_pb2*
 python3 setup.py build
 
 %install
