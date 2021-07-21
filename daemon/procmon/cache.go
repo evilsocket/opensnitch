@@ -10,26 +10,37 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/core"
 )
 
-var (
-	cLock       = sync.RWMutex{}
-	cacheTicker = time.NewTicker(2 * time.Minute)
-)
+// InodeItem represents an item of the InodesCache.
+type InodeItem struct {
+	sync.RWMutex
 
-// Inode represents an item of the InodesCache.
-// the key is formed as follow:
-// inode+srcip+srcport+dstip+dstport
-type Inode struct {
 	Pid      int
 	FdPath   string
 	LastSeen int64
 }
 
-// ProcEntry represents an item of the pidsCache
-type ProcEntry struct {
+// ProcItem represents an item of the pidsCache
+type ProcItem struct {
+	sync.RWMutex
+
 	Pid         int
 	FdPath      string
 	Descriptors []string
 	LastSeen    int64
+}
+
+// CacheProcs holds the cache of processes that have established connections.
+type CacheProcs struct {
+	sync.RWMutex
+	items []*ProcItem
+}
+
+// CacheInodes holds the cache of Inodes.
+// The key is formed as follow:
+// inode+srcip+srcport+dstip+dstport
+type CacheInodes struct {
+	sync.RWMutex
+	items map[string]*InodeItem
 }
 
 var (
@@ -40,8 +51,8 @@ var (
 	// - we've blocked a connection and the process retries it several times until it gives up,
 	// - or when a process timeouts connecting to an IP/domain and it retries it again,
 	// - or when a process resolves a domain and then connects to the IP.
-	inodesCache = make(map[string]*Inode)
-	maxTTL      = 5 // maximum 5 minutes of inactivity in cache. Really rare, usually they lasts less than a minute.
+	inodesCache = NewCacheOfInodes()
+	maxTTL      = 3 // maximum 3 minutes of inactivity in cache. Really rare, usually they lasts less than a minute.
 
 	// 2nd cache of already known running pids, which also saves time by
 	// iterating only over a few pids' descriptors, (30us-20ms vs. 50-80ms)
@@ -49,105 +60,255 @@ var (
 	// same (running) processes.
 	// The cache is ordered by time, placing in the first places those PIDs with
 	// active connections.
-	pidsCache            []*ProcEntry
+	pidsCache            CacheProcs
 	pidsDescriptorsCache = make(map[int][]string)
+
+	cacheTicker = time.NewTicker(2 * time.Minute)
 )
 
-func addProcEntry(fdPath string, fdList []string, pid int) {
-	for n := range pidsCache {
-		if pidsCache[n].Pid == pid {
-			pidsCache[n].Descriptors = fdList
-			pidsCache[n].LastSeen = time.Now().UnixNano()
+// CacheCleanerTask checks periodically if the inodes in the cache must be removed.
+func CacheCleanerTask() {
+	for {
+		select {
+		case <-cacheTicker.C:
+			inodesCache.cleanup()
+		}
+	}
+}
+
+// NewCacheOfInodes returns a new cache for inodes.
+func NewCacheOfInodes() *CacheInodes {
+	return &CacheInodes{
+		items: make(map[string]*InodeItem),
+	}
+}
+
+//******************************************************************************
+// items of the caches.
+
+func (i *InodeItem) updateTime() {
+	i.Lock()
+	i.LastSeen = time.Now().UnixNano()
+	i.Unlock()
+}
+
+func (i *InodeItem) getTime() int64 {
+	i.RLock()
+	defer i.RUnlock()
+	return i.LastSeen
+}
+
+func (p *ProcItem) updateTime() {
+	p.Lock()
+	p.LastSeen = time.Now().UnixNano()
+	p.Unlock()
+}
+
+func (p *ProcItem) updateDescriptors(descriptors []string) {
+	p.Lock()
+	p.Descriptors = descriptors
+	p.Unlock()
+}
+
+//******************************************************************************
+// cache of processes
+
+func (c *CacheProcs) add(fdPath string, fdList []string, pid int) {
+	c.Lock()
+	defer c.Unlock()
+	for n := range c.items {
+		item := c.items[n]
+		if item == nil {
+			continue
+		}
+		if item.Pid == pid {
+			item.updateTime()
 			return
 		}
 	}
-	procEntry := &ProcEntry{
+
+	procItem := &ProcItem{
 		Pid:         pid,
 		FdPath:      fdPath,
 		Descriptors: fdList,
 		LastSeen:    time.Now().UnixNano(),
 	}
-	pidsCache = append([]*ProcEntry{procEntry}, pidsCache...)
+
+	c.setItems([]*ProcItem{procItem}, c.items)
 }
 
-func addInodeEntry(key, descLink string, pid int) {
-	cLock.Lock()
-	defer cLock.Unlock()
+func (c *CacheProcs) sort(pid int) {
+	item := c.getItem(0)
+	if item != nil && item.Pid == pid {
+		return
+	}
+	c.RLock()
+	defer c.RUnlock()
 
-	inodesCache[key] = &Inode{
+	sort.Slice(c.items, func(i, j int) bool {
+		t := c.items[i].LastSeen
+		u := c.items[j].LastSeen
+		return t > u || t == u
+	})
+}
+
+func (c *CacheProcs) delete(pid int) {
+	c.Lock()
+	defer c.Unlock()
+
+	for n, procItem := range c.items {
+		if procItem.Pid == pid {
+			c.setItems(c.items[:n], c.items[n+1:])
+			inodesCache.delete(pid)
+			break
+		}
+	}
+}
+
+func (c *CacheProcs) deleteItem(pos int) {
+	tempItems := c.getItems()
+	c.setItems(tempItems[:pos], tempItems[pos+1:])
+}
+
+func (c *CacheProcs) setItems(newItems []*ProcItem, oldItems []*ProcItem) {
+	c.items = append(newItems, oldItems...)
+}
+
+func (c *CacheProcs) getItem(index int) *ProcItem {
+	c.RLock()
+	defer c.RUnlock()
+
+	if index >= len(c.items) {
+		return nil
+	}
+
+	return c.items[index]
+}
+
+func (c *CacheProcs) getItems() []*ProcItem {
+	return c.items
+}
+
+func (c *CacheProcs) countItems() int {
+	return len(c.items)
+}
+
+// loop over the processes that have generated connections
+func (c *CacheProcs) getPid(inode int, inodeKey string, expect string) (int, int) {
+	c.Lock()
+	defer c.Unlock()
+
+	for n, procItem := range c.items {
+		if procItem == nil {
+			continue
+		}
+
+		if idxDesc, _ := getPidDescriptorsFromCache(procItem.FdPath, inodeKey, expect, &procItem.Descriptors, procItem.Pid); idxDesc != -1 {
+			procItem.updateTime()
+			return procItem.Pid, n
+		}
+
+		descriptors := lookupPidDescriptors(procItem.FdPath, procItem.Pid)
+		if descriptors == nil {
+			// FIXME: out of bounds may occur
+			c.setItems(c.items[:n], c.items[n+1:])
+			continue
+		}
+
+		procItem.updateDescriptors(descriptors)
+		if idxDesc, _ := getPidDescriptorsFromCache(procItem.FdPath, inodeKey, expect, &descriptors, procItem.Pid); idxDesc != -1 {
+			procItem.updateTime()
+			return procItem.Pid, n
+		}
+	}
+
+	return -1, -1
+}
+
+//******************************************************************************
+// cache of inodes
+
+func (i *CacheInodes) add(key, descLink string, pid int) {
+	i.Lock()
+	defer i.Unlock()
+
+	if descLink == "" {
+		descLink = fmt.Sprint("/proc/", pid, "/exe")
+	}
+	i.items[key] = &InodeItem{
 		FdPath:   descLink,
 		Pid:      pid,
 		LastSeen: time.Now().UnixNano(),
 	}
 }
 
-func sortProcEntries() {
-	sort.Slice(pidsCache, func(i, j int) bool {
-		t := pidsCache[i].LastSeen
-		u := pidsCache[j].LastSeen
-		return t > u || t == u
-	})
-}
+func (i *CacheInodes) delete(pid int) {
+	i.Lock()
+	defer i.Unlock()
 
-func deleteProcEntry(pid int) {
-	for n, procEntry := range pidsCache {
-		if procEntry.Pid == pid {
-			pidsCache = append(pidsCache[:n], pidsCache[n+1:]...)
-			deleteInodeEntry(pid)
-			break
+	for k, inodeItem := range i.items {
+		if inodeItem.Pid == pid {
+			delete(i.items, k)
 		}
 	}
 }
 
-func deleteInodeEntry(pid int) {
-	cLock.Lock()
-	defer cLock.Unlock()
-
-	for k, inodeEntry := range inodesCache {
-		if inodeEntry.Pid == pid {
-			delete(inodesCache, k)
-		}
-	}
-}
-
-func CacheCleanerTask() {
-	for {
-		select {
-		case <-cacheTicker.C:
-			cleanupInodes()
-		}
-	}
-}
-
-func cleanupInodes() {
-	cLock.Lock()
-	defer cLock.Unlock()
-
-	now := time.Now()
-	for k := range inodesCache {
-		lastSeen := now.Sub(
-			time.Unix(0, inodesCache[k].LastSeen),
-		)
-		if core.Exists(inodesCache[k].FdPath) == false || int(lastSeen.Minutes()) > maxTTL {
-			delete(inodesCache, k)
-		}
-	}
-}
-
-func getPidByInodeFromCache(inodeKey string) int {
-	cLock.Lock()
-	defer cLock.Unlock()
-
-	if _, found := inodesCache[inodeKey]; found == true {
+func (i *CacheInodes) getPid(inodeKey string) int {
+	if item, ok := i.isInCache(inodeKey); ok {
 		// sometimes the process may have disappeared at this point
-		if _, err := os.Lstat(fmt.Sprint("/proc/", inodesCache[inodeKey].Pid, "/exe")); err == nil {
-			inodesCache[inodeKey].LastSeen = time.Now().UnixNano()
-			return inodesCache[inodeKey].Pid
+		if _, err := os.Lstat(item.FdPath); err == nil {
+			item.updateTime()
+			return item.Pid
 		}
-		deleteProcEntry(inodesCache[inodeKey].Pid)
+		pidsCache.delete(item.Pid)
+		i.delItem(inodeKey)
 	}
 
 	return -1
+}
+
+func (i *CacheInodes) delItem(inodeKey string) {
+	i.Lock()
+	defer i.Unlock()
+	delete(i.items, inodeKey)
+}
+
+func (i *CacheInodes) getItem(inodeKey string) *InodeItem {
+	i.RLock()
+	defer i.RUnlock()
+
+	return i.items[inodeKey]
+}
+
+func (i *CacheInodes) getItems() map[string]*InodeItem {
+	i.RLock()
+	defer i.RUnlock()
+
+	return i.items
+}
+
+func (i *CacheInodes) isInCache(inodeKey string) (*InodeItem, bool) {
+	i.RLock()
+	defer i.RUnlock()
+
+	if item, found := i.items[inodeKey]; found {
+		return item, true
+	}
+	return nil, false
+}
+
+func (i *CacheInodes) cleanup() {
+	now := time.Now()
+	i.Lock()
+	defer i.Unlock()
+	for k := range i.items {
+		lastSeen := now.Sub(
+			time.Unix(0, i.items[k].getTime()),
+		)
+		if core.Exists(i.items[k].FdPath) == false || int(lastSeen.Minutes()) > maxTTL {
+			delete(i.items, k)
+		}
+	}
 }
 
 func getPidDescriptorsFromCache(fdPath, inodeKey, expect string, descriptors *[]string, pid int) (int, *[]string) {
@@ -160,41 +321,12 @@ func getPidDescriptorsFromCache(fdPath, inodeKey, expect string, descriptors *[]
 				*descriptors = append((*descriptors)[:fdIdx], (*descriptors)[fdIdx+1:]...)
 				*descriptors = append([]string{fd}, *descriptors...)
 			}
-			if _, found := inodesCache[inodeKey]; !found {
-				addInodeEntry(inodeKey, descLink, pid)
+			if _, ok := inodesCache.isInCache(inodeKey); ok {
+				inodesCache.add(inodeKey, descLink, pid)
 			}
 			return fdIdx, descriptors
 		}
 	}
 
 	return -1, descriptors
-}
-
-func getPidFromCache(inode int, inodeKey string, expect string) (int, int) {
-	// loop over the processes that have generated connections
-	for n := 0; n < len(pidsCache); n++ {
-		if idxDesc, newFdList := getPidDescriptorsFromCache(pidsCache[n].FdPath, inodeKey, expect, &pidsCache[n].Descriptors, pidsCache[n].Pid); idxDesc != -1 {
-			pidsCache[n].LastSeen = time.Now().UnixNano()
-			pidsCache[n].Descriptors = *newFdList
-			return pidsCache[n].Pid, n
-		}
-	}
-	// inode not found in cache, we need to refresh the list of descriptors
-	// to see if any known PID has opened a new socket
-	for n := 0; n < len(pidsCache); n++ {
-		descriptors := lookupPidDescriptors(pidsCache[n].FdPath, pidsCache[n].Pid)
-		if descriptors == nil {
-			deleteProcEntry(pidsCache[n].Pid)
-			continue
-		}
-
-		pidsCache[n].Descriptors = descriptors
-		if idxDesc, newFdList := getPidDescriptorsFromCache(pidsCache[n].FdPath, inodeKey, expect, &descriptors, pidsCache[n].Pid); idxDesc != -1 {
-			pidsCache[n].LastSeen = time.Now().UnixNano()
-			pidsCache[n].Descriptors = *newFdList
-			return pidsCache[n].Pid, n
-		}
-	}
-
-	return -1, -1
 }

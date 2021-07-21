@@ -35,14 +35,14 @@ func MonitorActivePids() {
 			if err != nil {
 				//file does not exists, pid has quit
 				delete(activePids, k)
-				deleteProcEntry(int(k))
+				pidsCache.delete(int(k))
 				continue
 			}
 			startTime, err := strconv.ParseInt(strings.Split(string(data), " ")[21], 10, 64)
 			if err != nil {
 				log.Error("Could not find or convert Starttime. This should never happen. Please report this incident to the Opensnitch developers: %v", err)
 				delete(activePids, k)
-				deleteProcEntry(int(k))
+				pidsCache.delete(int(k))
 				continue
 			}
 			if uint64(startTime) != v.Starttime {
@@ -50,7 +50,7 @@ func MonitorActivePids() {
 				//was started with the same PID - all this in less than 1 second
 				log.Error("Same PID but different Starttime. Please report this incident to the Opensnitch developers.")
 				delete(activePids, k)
-				deleteProcEntry(int(k))
+				pidsCache.delete(int(k))
 				continue
 			}
 		}
