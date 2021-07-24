@@ -453,33 +453,36 @@
         </layout>
        </item>
        <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_16">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_16">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
           <widget class="ConnectionsTableView" name="eventsTable">
-          <property name="styleSheet">
+           <property name="styleSheet">
             <string notr="true"/>
-          </property>
-          <property name="frameShape">
+           </property>
+           <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
+           </property>
+           <property name="frameShadow">
             <enum>QFrame::Plain</enum>
-          </property>
-          <property name="autoScroll">
+           </property>
+           <property name="autoScroll">
             <bool>false</bool>
-          </property>
-          <property name="editTriggers">
+           </property>
+           <property name="editTriggers">
             <set>QAbstractItemView::NoEditTriggers</set>
            </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectRows</enum>
            </property>
+           <property name="showGrid">
+            <bool>false</bool>
+           </property>
           </widget>
-        </item>
-        <item>
+         </item>
+         <item>
           <widget class="QScrollBar" name="connectionsTableScrollBar">
            <property name="styleSheet">
             <string notr="true"/>
@@ -489,7 +492,7 @@
            </property>
           </widget>
          </item>
-       </layout>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -566,6 +569,9 @@
          </property>
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="showGrid">
+          <bool>false</bool>
          </property>
          <property name="sortingEnabled">
           <bool>true</bool>
@@ -673,7 +679,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="edit-clear"/>
+            <iconset theme="edit-clear">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -815,6 +822,9 @@
           <property name="horizontalScrollMode">
            <enum>QAbstractItemView::ScrollPerPixel</enum>
           </property>
+          <property name="showGrid">
+           <bool>false</bool>
+          </property>
          </widget>
         </widget>
        </item>
@@ -914,6 +924,9 @@
          </property>
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="showGrid">
+          <bool>false</bool>
          </property>
          <property name="sortingEnabled">
           <bool>false</bool>
@@ -1046,6 +1059,9 @@
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
+         <property name="showGrid">
+          <bool>false</bool>
+         </property>
          <property name="sortingEnabled">
           <bool>false</bool>
          </property>
@@ -1139,6 +1155,9 @@
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
+         <property name="showGrid">
+          <bool>false</bool>
+         </property>
          <property name="sortingEnabled">
           <bool>false</bool>
          </property>
@@ -1231,6 +1250,9 @@
         <widget class="QTableView" name="portsTable">
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="showGrid">
+          <bool>false</bool>
          </property>
          <property name="sortingEnabled">
           <bool>false</bool>
@@ -1334,6 +1356,9 @@
         <widget class="QTableView" name="usersTable">
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="showGrid">
+          <bool>false</bool>
          </property>
          <property name="sortingEnabled">
           <bool>false</bool>

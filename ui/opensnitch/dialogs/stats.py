@@ -566,19 +566,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
 
     def _del_rule(self, rule_name, node_addr):
-        rule = ui_pb2.Rule(name=rule_name)
-        rule.enabled = False
-        rule.action = ""
-        rule.duration = ""
-        rule.operator.type = ""
-        rule.operator.operand = ""
-        rule.operator.data = ""
-
-        noti = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[rule])
-        nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
+        nid, noti = self._nodes.delete_rule(rule_name, node_addr, self._notification_callback)
         self._notifications_sent[nid] = noti
-
-        self._db.delete_rule(rule.name, node_addr)
 
     def _cb_proc_details_clicked(self):
         table = self._tables[self.tabWidget.currentIndex()]

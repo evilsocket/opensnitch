@@ -29,6 +29,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _status_change_trigger = QtCore.pyqtSignal(bool)
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
     _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
+    _delete_temp_rule_trigger = QtCore.pyqtSignal(str, str)
 
     def __init__(self, app, on_exit):
         super(UIService, self).__init__()
@@ -97,6 +98,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._stats_dialog._shown_trigger.connect(self._on_stats_dialog_shown)
         self._stats_dialog._status_changed_trigger.connect(self._on_stats_status_changed)
         self._show_message_trigger.connect(self._show_systray_message)
+        self._delete_temp_rule_trigger.connect(self._delete_temporary_rule)
 
     def _setup_icons(self):
         self.off_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-off.png"))
@@ -129,7 +131,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._menu_enable_fw.setEnabled(False)
         self._menu_enable_fw.triggered.connect(self._on_enable_interception_clicked)
         self._menu.addAction(self.MENU_ENTRY_HELP).triggered.connect(
-                lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_URL))
+                lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_CONFIG_URL))
                 )
         self._menu.addAction(self.MENU_ENTRY_CLOSE).triggered.connect(self._on_close)
 
@@ -369,17 +371,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                             event.connection.process_cwd, event.rule.name),
                         action_on_conflict="IGNORE"
                         )
-                # TODO: move to nodes.add_node()
-                # TODO: remove, and add them only ondemand
-                db.insert("rules",
-                        "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
-                            (str(datetime.fromtimestamp(event.unixnano/1000000000)),
-                                "%s:%s" % (proto, addr),
-                                event.rule.name, str(event.rule.enabled), str(event.rule.precedence),
-                                event.rule.action, event.rule.duration,
-                                event.rule.operator.type, str(event.rule.operator.sensitive),
-                                event.rule.operator.operand, event.rule.operator.data),
-                          action_on_conflict="REPLACE")
+
 
             details_need_refresh = self._populate_stats_details(db, addr, stats)
             self._last_stats[addr] = []
@@ -437,6 +429,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         return need_refresh
 
+    def _delete_temporary_rule(self, name, addr):
+        self._db.delete_rule(name, addr)
+
     def Ping(self, request, context):
         try:
             self._last_ping = datetime.now()
@@ -481,6 +476,15 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         self._last_ping = datetime.now()
         self._asking = False
+
+        if rule.duration in Config.RULES_DURATION_FILTER:
+            self._delete_temporary_rule(rule.name, context.peer())
+        else:
+            self._nodes.add_rule((datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                                 "{0}:{1}".format(proto, addr),
+                                rule.name, str(rule.enabled), str(rule.precedence), rule.action, rule.duration,
+                                rule.operator.type, str(rule.operator.sensitive), rule.operator.operand,
+                                rule.operator.data)
 
         return rule
 

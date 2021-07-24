@@ -19,6 +19,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     LOG_TAG = "[Preferences] "
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
+    TAB_POPUPS = 0
+    TAB_UI = 1
+    TAB_NODES = 2
+    TAB_DB = 3
+
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
@@ -33,12 +38,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.dbFileButton.setVisible(False)
         self.dbLabel.setVisible(False)
+        self.dbType = None
 
         self.acceptButton.clicked.connect(self._cb_accept_button_clicked)
         self.applyButton.clicked.connect(self._cb_apply_button_clicked)
         self.cancelButton.clicked.connect(self._cb_cancel_button_clicked)
+        self.helpButton.clicked.connect(self._cb_help_button_clicked)
         self.popupsCheck.clicked.connect(self._cb_popups_check_toggled)
         self.dbFileButton.clicked.connect(self._cb_file_db_clicked)
+        self.checkUIRules.toggled.connect(self._cb_check_ui_rules_toggled)
+        self.helpButton.setToolTipDuration(10 * 1000)
 
         if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
             self.applyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
@@ -73,7 +82,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodeMonitorMethod.currentIndexChanged.connect(self._cb_node_needs_update)
         self.comboNodeLogLevel.currentIndexChanged.connect(self._cb_node_needs_update)
         self.comboNodeLogFile.currentIndexChanged.connect(self._cb_node_needs_update)
-        self.comboNodeAddress.currentIndexChanged.connect(self._cb_node_needs_update)
+        self.comboNodeAddress.currentTextChanged.connect(self._cb_node_needs_update)
         self.checkInterceptUnknown.clicked.connect(self._cb_node_needs_update)
         self.checkApplyToNodes.clicked.connect(self._cb_node_needs_update)
         self.comboDBType.currentIndexChanged.connect(self._cb_db_type_changed)
@@ -95,6 +104,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboUIDuration.setCurrentIndex(self._default_duration)
         self.comboUIDialogPos.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION))
 
+        self.comboUIRules.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES))
+        self.checkUIRules.setChecked(self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES))
+        self.comboUIRules.setEnabled(self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES))
+        #self._set_rules_duration_filter()
+
+        self._cfg.setRulesDurationFilter(
+            self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES),
+            self._cfg.getInt(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES)
+        )
+
         self.comboUIAction.setCurrentIndex(self._default_action)
         self.comboUITarget.setCurrentIndex(int(self._default_target))
         self.spinUITimeout.setValue(int(self._default_timeout))
@@ -106,7 +125,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstPortCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT))
         self.uidCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_UID))
 
-        self.comboDBType.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY))
+        self.dbType = self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY)
+        self.comboDBType.setCurrentIndex(self.dbType)
         if self.comboDBType.currentIndex() != Database.DB_TYPE_MEMORY:
             self.dbFileButton.setVisible(True)
             self.dbLabel.setVisible(True)
@@ -152,10 +172,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.labelNodeVersion.setText("")
 
     def _save_settings(self):
-        if self.tabWidget.currentIndex() == 0:
-            self._save_ui_config()
+        self._save_ui_config()
+        self._save_db_config()
 
-        elif self.tabWidget.currentIndex() == 1:
+        if self.tabWidget.currentIndex() == self.TAB_NODES:
             self._show_status_label()
 
             addr = self.comboNodes.currentText()
@@ -183,14 +203,17 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self._node_needs_update = False
 
-        elif self.tabWidget.currentIndex() == 2:
-            self._save_db_config()
 
     def _save_db_config(self):
         dbtype = self.comboDBType.currentIndex()
         self._cfg.setSettings(Config.DEFAULT_DB_TYPE_KEY, dbtype)
+
+        if self.comboDBType.currentIndex() == self.dbType:
+            return
+
         if dbtype == self._db.get_db_file():
             return
+
         if self.comboDBType.currentIndex() != Database.DB_TYPE_MEMORY:
             if self.dbLabel.text() != "":
                 self._cfg.setSettings(Config.DEFAULT_DB_FILE_KEY, self.dbLabel.text())
@@ -206,7 +229,17 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             QC.translate("preferences", "Restart the GUI in order effects to take effect"),
             QtWidgets.QMessageBox.Warning)
 
+        self.dbType = self.comboDBType.currentIndex()
+
     def _save_ui_config(self):
+        self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES, int(self.comboUIRules.currentIndex()))
+        self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_RULES, bool(self.checkUIRules.isChecked()))
+        #self._set_rules_duration_filter()
+        self._cfg.setRulesDurationFilter(
+            bool(self.checkUIRules.isChecked()),
+            int(self.comboUIRules.currentIndex())
+        )
+
         self._cfg.setSettings(self._cfg.DEFAULT_ACTION_KEY, self.comboUIAction.currentIndex())
         self._cfg.setSettings(self._cfg.DEFAULT_DURATION_KEY, int(self.comboUIDuration.currentIndex()))
         self._cfg.setSettings(self._cfg.DEFAULT_TARGET_KEY, self.comboUITarget.currentIndex())
@@ -230,10 +263,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if error != None:
                 return error
 
-            self._nodes.save_node_config(addr, notifObject.data)
-            nid = self._nodes.send_notification(addr, notifObject, self._notification_callback)
+            if addr.startswith("unix://"):
+                self._cfg.setSettings(self._cfg.DEFAULT_DEFAULT_SERVER_ADDR, self.comboNodeAddress.currentText())
+            else:
+                self._nodes.save_node_config(addr, notifObject.data)
+                nid = self._nodes.send_notification(addr, notifObject, self._notification_callback)
 
-            self._notifications_sent[nid] = notifObject
+                self._notifications_sent[nid] = notifObject
         except Exception as e:
             print(self.LOG_TAG + "exception saving node config on %s: " % addr, e)
             self._set_status_error(QC.translate("Exception saving node config {0}: {1}").format((addr, str(e))))
@@ -268,8 +304,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if self.checkApplyToNodes.isChecked():
                     node_config['Server']['Address'] = self.comboNodeAddress.currentText()
                 node_config['Server']['LogFile'] = self.comboNodeLogFile.currentText()
-            #else:
-            #    print(addr, " doesn't have Server item")
+            else:
+                print(addr, " doesn't have Server item")
             return json.dumps(node_config), None
         except Exception as e:
             print(self.LOG_TAG + "exception loading node config on %s: " % addr, e)
@@ -332,6 +368,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_cancel_button_clicked(self):
         self.reject()
 
+    def _cb_help_button_clicked(self):
+        QtWidgets.QToolTip.showText(QtGui.QCursor.pos(),
+                                    QC.translate("preferences",
+                                                 "Hover the mouse over the texts to display the help<br><br>Don't forget to visit the wiki: <a href=\"{0}\">{0}</a>").format(Config.HELP_URL))
+
     def _cb_popups_check_toggled(self, checked):
         self.spinUITimeout.setEnabled(not checked)
         if not checked:
@@ -342,3 +383,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_node_needs_update(self):
         self._node_needs_update = True
+
+    def _cb_check_ui_rules_toggled(self, state):
+        self.comboUIRules.setEnabled(state)

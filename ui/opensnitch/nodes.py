@@ -5,6 +5,7 @@ import json
 
 from opensnitch import ui_pb2
 from opensnitch.database import Database
+from opensnitch.config import Config
 
 class Nodes():
     __instance = None
@@ -56,19 +57,27 @@ class Nodes():
             self._nodes[addr]['data'] = self.get_client_config(client_config)
             self.add_rules(addr, client_config.rules)
 
+    def add_rule(self, time, node, name, enabled, precedence, action, duration, op_type, op_sensitive, op_operand, op_data):
+        # don't add rule if the user has selected to exclude temporary
+        # rules
+        if duration in Config.RULES_DURATION_FILTER:
+            return
+
+        self._db.insert("rules",
+                  "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
+                  (time, node, name, enabled, precedence, action, duration, op_type, op_sensitive, op_operand, op_data),
+                        action_on_conflict="REPLACE")
+
     def add_rules(self, addr, rules):
         try:
             for _,r in enumerate(rules):
-                self._db.insert("rules",
-                        "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
-                            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                self.add_rule(datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                                 addr,
                                 r.name, str(r.enabled), str(r.precedence), r.action, r.duration,
                                 r.operator.type,
                                 str(r.operator.sensitive),
                                 r.operator.operand,
-                                r.operator.data),
-                            action_on_conflict="REPLACE")
+                                r.operator.data)
         except Exception as e:
             print(self.LOG_TAG + " exception adding node to db: ", e)
 
@@ -172,20 +181,21 @@ class Nodes():
             notification.id = int(str(time.time()).replace(".", ""))
             if addr not in self._nodes:
                 # FIXME: the reply is sent before we return the notification id
-                callback_signal.emit(
-                    ui_pb2.NotificationReply(
-                        id=notification.id,
-                        code=ui_pb2.ERROR,
-                        data="node not connected: {0}".format(addr)
+                if callback_signal != None:
+                    callback_signal.emit(
+                        ui_pb2.NotificationReply(
+                            id=notification.id,
+                            code=ui_pb2.ERROR,
+                            data="node not connected: {0}".format(addr)
+                        )
                     )
-                )
                 return notification.id
 
-            self._nodes[addr]['notifications'].put(notification)
             self._notifications_sent[notification.id] = {
                     'callback': callback_signal,
                     'type': notification.type
                     }
+            self._nodes[addr]['notifications'].put(notification)
         except Exception as e:
             print(self.LOG_TAG + " exception sending notification: ", e, addr, notification)
             if callback_signal != None:
@@ -221,9 +231,11 @@ class Nodes():
         if reply == None:
             print(self.LOG_TAG, " reply notification None")
             return
+
         if reply.id in self._notifications_sent:
             if self._notifications_sent[reply.id] != None:
-                self._notifications_sent[reply.id]['callback'].emit(reply)
+                if self._notifications_sent[reply.id]['callback'] != None:
+                    self._notifications_sent[reply.id]['callback'].emit(reply)
 
                 # delete only one-time notifications
                 # we need the ID of streaming notifications from the server
@@ -245,3 +257,18 @@ class Nodes():
                     )
         except Exception as e:
             print(self.LOG_TAG + " exception updating DB: ", e, addr)
+
+    def delete_rule(self, rule_name, addr, callback):
+        rule = ui_pb2.Rule(name=rule_name)
+        rule.enabled = False
+        rule.action = ""
+        rule.duration = ""
+        rule.operator.type = ""
+        rule.operator.operand = ""
+        rule.operator.data = ""
+
+        noti = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[rule])
+        nid = self.send_notification(addr, noti, None)
+        self._db.delete_rule(rule.name, addr)
+
+        return nid, noti
