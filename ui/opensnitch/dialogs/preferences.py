@@ -133,6 +133,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dbLabel.setText(self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY))
 
         self._load_node_settings()
+        self._load_ui_columns_config()
 
     def _load_node_settings(self):
         addr = self.comboNodes.currentText()
@@ -161,6 +162,63 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self.comboNodeLogFile.setEnabled(False)
             except Exception as e:
                 print(self.LOG_TAG + "exception loading config: ", e)
+
+    def _load_node_config(self, addr):
+        try:
+            if self.comboNodeAddress.currentText() == "":
+                return None, QC.translate("preferences", "Server address can not be empty")
+
+            node_action = Config.ACTION_DENY
+            if self.comboNodeAction.currentIndex() == 1:
+                node_action = Config.ACTION_ALLOW
+
+            node_duration = Config.DURATION_ONCE
+            if self.comboNodeDuration.currentIndex() == 1:
+                node_duration = Config.DURATION_UNTIL_RESTART
+            elif self.comboNodeDuration.currentIndex() == 2:
+                node_duration = Config.DURATION_ALWAYS
+
+            node_config = json.loads(self._nodes.get_node_config(addr))
+            node_config['DefaultAction'] = node_action
+            node_config['DefaultDuration'] = node_duration
+            node_config['ProcMonitorMethod'] = self.comboNodeMonitorMethod.currentText()
+            node_config['LogLevel'] = self.comboNodeLogLevel.currentIndex()
+            node_config['InterceptUnknown'] = self.checkInterceptUnknown.isChecked()
+
+            if node_config.get('Server') != None:
+                # skip setting Server Address if we're applying the config to all nodes
+                if self.checkApplyToNodes.isChecked():
+                    node_config['Server']['Address'] = self.comboNodeAddress.currentText()
+                node_config['Server']['LogFile'] = self.comboNodeLogFile.currentText()
+            else:
+                print(addr, " doesn't have Server item")
+            return json.dumps(node_config), None
+        except Exception as e:
+            print(self.LOG_TAG + "exception loading node config on %s: " % addr, e)
+
+        return None, QC.translate("preferences", "Error loading {0} configuration").format(addr)
+
+    def _load_ui_columns_config(self):
+        cols = self._cfg.getSettings(Config.STATS_SHOW_COLUMNS)
+        if cols == None:
+            return
+
+        for c in range(7):
+            checked = str(c) in cols
+            if c == 0:
+                self.checkHideTime.setChecked(checked)
+            elif c == 1:
+                self.checkHideNode.setChecked(checked)
+            elif c == 2:
+                self.checkHideAction.setChecked(checked)
+            elif c == 3:
+                self.checkHideDst.setChecked(checked)
+            elif c == 4:
+                self.checkHideProto.setChecked(checked)
+            elif c == 5:
+                self.checkHideProc.setChecked(checked)
+            elif c == 6:
+                self.checkHideRule.setChecked(checked)
 
     def _reset_node_settings(self):
         self.comboNodeAction.setCurrentIndex(0)
@@ -232,6 +290,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dbType = self.comboDBType.currentIndex()
 
     def _save_ui_config(self):
+        self._save_ui_columns_config()
+
         self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES, int(self.comboUIRules.currentIndex()))
         self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_RULES, bool(self.checkUIRules.isChecked()))
         #self._set_rules_duration_filter()
@@ -256,6 +316,25 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.popupsCheck.isChecked():
             self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, 0)
 
+    def _save_ui_columns_config(self):
+        cols=list()
+        if self.checkHideTime.isChecked():
+            cols.append("0")
+        if self.checkHideNode.isChecked():
+            cols.append("1")
+        if self.checkHideAction.isChecked():
+            cols.append("2")
+        if self.checkHideDst.isChecked():
+            cols.append("3")
+        if self.checkHideProto.isChecked():
+            cols.append("4")
+        if self.checkHideProc.isChecked():
+            cols.append("5")
+        if self.checkHideRule.isChecked():
+            cols.append("6")
+
+        self._cfg.setSettings(Config.STATS_SHOW_COLUMNS, cols)
+
     def _save_node_config(self, notifObject, addr):
         try:
             self._set_status_message(QC.translate("preferences", "Applying configuration on {0} ...").format(addr))
@@ -276,41 +355,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return addr + ": " + str(e)
 
         return None
-
-    def _load_node_config(self, addr):
-        try:
-            if self.comboNodeAddress.currentText() == "":
-                return None, QC.translate("preferences", "Server address can not be empty")
-
-            node_action = Config.ACTION_DENY
-            if self.comboNodeAction.currentIndex() == 1:
-                node_action = Config.ACTION_ALLOW
-
-            node_duration = Config.DURATION_ONCE
-            if self.comboNodeDuration.currentIndex() == 1:
-                node_duration = Config.DURATION_UNTIL_RESTART
-            elif self.comboNodeDuration.currentIndex() == 2:
-                node_duration = Config.DURATION_ALWAYS
-
-            node_config = json.loads(self._nodes.get_node_config(addr))
-            node_config['DefaultAction'] = node_action
-            node_config['DefaultDuration'] = node_duration
-            node_config['ProcMonitorMethod'] = self.comboNodeMonitorMethod.currentText()
-            node_config['LogLevel'] = self.comboNodeLogLevel.currentIndex()
-            node_config['InterceptUnknown'] = self.checkInterceptUnknown.isChecked()
-
-            if node_config.get('Server') != None:
-                # skip setting Server Address if we're applying the config to all nodes
-                if self.checkApplyToNodes.isChecked():
-                    node_config['Server']['Address'] = self.comboNodeAddress.currentText()
-                node_config['Server']['LogFile'] = self.comboNodeLogFile.currentText()
-            else:
-                print(addr, " doesn't have Server item")
-            return json.dumps(node_config), None
-        except Exception as e:
-            print(self.LOG_TAG + "exception loading node config on %s: " % addr, e)
-
-        return None, QC.translate("preferences", "Error loading {0} configuration").format(addr)
 
     def _hide_status_label(self):
         self.statusLabel.hide()

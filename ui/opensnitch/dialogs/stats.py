@@ -40,6 +40,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_PROTO  = 4
     COL_PROCS  = 5
     COL_RULES  = 6
+    GENERAL_COL_NUM = 7
 
     # stats
     COL_WHAT   = 0
@@ -70,6 +71,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     RULES_TREE_NODES = 1
     RULES_TREE_PERMANENT = 0
     RULES_TREE_TEMPORARY = 1
+
+    RULES_COMBO_PERMANENT = 1
+    RULES_COMBO_TEMPORARY = 2
 
     RULES_TYPE_PERMANENT = 0
     RULES_TYPE_TEMPORARY = 1
@@ -314,11 +318,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.enableRuleCheck.clicked.connect(self._cb_enable_rule_toggled)
         self.editRuleButton.clicked.connect(self._cb_edit_rule_clicked)
         self.newRuleButton.clicked.connect(self._cb_new_rule_clicked)
+        self.cmdProcDetails.clicked.connect(self._cb_proc_details_clicked)
+        self.comboRulesFilter.currentIndexChanged.connect(self._cb_rules_filter_combo_changed)
+
         self.enableRuleCheck.setVisible(False)
         self.delRuleButton.setVisible(False)
         self.editRuleButton.setVisible(False)
         self.nodeRuleLabel.setVisible(False)
-        self.cmdProcDetails.clicked.connect(self._cb_proc_details_clicked)
+        self.comboRulesFilter.setVisible(False)
 
         self.TABLES[self.TAB_MAIN]['view'] = self._setup_table(QtWidgets.QTableView, self.eventsTable, "connections",
                 self.TABLES[self.TAB_MAIN]['display_fields'],
@@ -414,11 +421,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_RULES]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
         for idx in range(1,8):
             self.TABLES[idx]['cmd'].hide()
+            self.TABLES[idx]['cmd'].setVisible(False)
             self.TABLES[idx]['cmd'].clicked.connect(lambda: self._cb_cmd_back_clicked(idx))
             if self.TABLES[idx]['cmdCleanStats'] != None:
                 self.TABLES[idx]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(idx))
             self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
             self.TABLES[idx]['label'].setStyleSheet('color: blue; font-size:9pt; font-weight:600;')
+            self.TABLES[idx]['label'].setVisible(False)
+
             if self.TABLES[idx]['filterLine'] != None:
                 self.TABLES[idx]['filterLine'].textChanged.connect(self._cb_events_filter_line_changed)
 
@@ -481,11 +491,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.TABLES[idx]['cmdCleanStats'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogResetButton")))
 
     def _load_settings(self):
-        dialog_geometry = self._cfg.getSettings("statsDialog/geometry")
-        dialog_last_tab = self._cfg.getSettings("statsDialog/last_tab")
-        dialog_general_filter_text = self._cfg.getSettings("statsDialog/general_filter_text")
-        dialog_general_filter_action = self._cfg.getSettings("statsDialog/general_filter_action")
-        dialog_general_limit_results = self._cfg.getSettings("statsDialog/general_limit_results")
+        dialog_geometry = self._cfg.getSettings(Config.STATS_GEOMETRY)
+        dialog_last_tab = self._cfg.getSettings(Config.STATS_LAST_TAB)
+        dialog_general_filter_text = self._cfg.getSettings(Config.STATS_FILTER_TEXT)
+        dialog_general_filter_action = self._cfg.getSettings(Config.STATS_FILTER_ACTION)
+        dialog_general_limit_results = self._cfg.getSettings(Config.STATS_LIMIT_RESULTS)
         if dialog_geometry != None:
             self.restoreGeometry(dialog_geometry)
         if dialog_last_tab != None:
@@ -503,41 +513,44 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.limitCombo.setCurrentIndex(4)
             self.limitCombo.setCurrentIndex(int(dialog_general_limit_results))
 
-        rules_splitter_pos = self._cfg.getSettings("statsDialog/rules_splitter_pos")
+        rules_splitter_pos = self._cfg.getSettings(Config.STATS_RULES_SPLITTER_POS)
         if type(rules_splitter_pos) == QtCore.QByteArray:
             self.rulesSplitter.restoreState(rules_splitter_pos)
+            rulesSizes = self.rulesSplitter.sizes()
+            if len(rulesSizes) > 0:
+                self.comboRulesFilter.setVisible(rulesSizes[0] == 0)
         else:
             w = self.rulesSplitter.width()
             self.rulesSplitter.setSizes([w/4, w/2])
 
         header = self.eventsTable.horizontalHeader()
         header.blockSignals(True);
-        eventsColState = self._cfg.getSettings("statsDialog/general_columns_state")
+        eventsColState = self._cfg.getSettings(Config.STATS_GENERAL_COL_STATE)
         if type(eventsColState) == QtCore.QByteArray:
             header.restoreState(eventsColState)
         header.blockSignals(False);
 
         nodesHeader = self.nodesTable.horizontalHeader()
         nodesHeader.blockSignals(True);
-        nodesColState = self._cfg.getSettings("statsDialog/nodes_columns_state")
+        nodesColState = self._cfg.getSettings(Config.STATS_NODES_COL_STATE)
         if type(nodesColState) == QtCore.QByteArray:
             nodesHeader.restoreState(nodesColState)
         nodesHeader.blockSignals(False);
 
         rulesHeader = self.rulesTable.horizontalHeader()
         rulesHeader.blockSignals(True);
-        rulesColState = self._cfg.getSettings("statsDialog/rules_columns_state")
+        rulesColState = self._cfg.getSettings(Config.STATS_RULES_COL_STATE)
         if type(rulesColState) == QtCore.QByteArray:
             rulesHeader.restoreState(rulesColState)
         rulesHeader.blockSignals(False);
 
 
-        rulesTreeNodes_expanded = self._cfg.getBool("statsDialog/rules_tree_1_expanded")
+        rulesTreeNodes_expanded = self._cfg.getBool(Config.STATS_RULES_TREE_EXPANDED_1)
         if rulesTreeNodes_expanded != None:
             rules_tree_nodes = self._get_rulesTree_item(self.RULES_TREE_NODES)
             if rules_tree_nodes != None:
                 rules_tree_nodes.setExpanded(rulesTreeNodes_expanded)
-        rulesTreeApps_expanded = self._cfg.getBool("statsDialog/rules_tree_0_expanded")
+        rulesTreeApps_expanded = self._cfg.getBool(Config.STATS_RULES_TREE_EXPANDED_0)
         if rulesTreeApps_expanded != None:
             rules_tree_apps = self._get_rulesTree_item(self.RULES_TREE_APPS)
             if rules_tree_apps != None:
@@ -545,24 +558,24 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
 
     def _save_settings(self):
-        self._cfg.setSettings("statsDialog/geometry", self.saveGeometry())
-        self._cfg.setSettings("statsDialog/last_tab", self.tabWidget.currentIndex())
-        self._cfg.setSettings("statsDialog/general_limit_results", self.limitCombo.currentIndex())
-        self._cfg.setSettings("statsDialog/general_filter_text", self.filterLine.text())
+        self._cfg.setSettings(Config.STATS_GEOMETRY, self.saveGeometry())
+        self._cfg.setSettings(Config.STATS_LAST_TAB, self.tabWidget.currentIndex())
+        self._cfg.setSettings(Config.STATS_LIMIT_RESULTS, self.limitCombo.currentIndex())
+        self._cfg.setSettings(Config.STATS_FILTER_TEXT, self.filterLine.text())
 
         header = self.eventsTable.horizontalHeader()
-        self._cfg.setSettings("statsDialog/general_columns_state", header.saveState())
+        self._cfg.setSettings(Config.STATS_GENERAL_COL_STATE, header.saveState())
         nodesHeader = self.nodesTable.horizontalHeader()
-        self._cfg.setSettings("statsDialog/nodes_columns_state", nodesHeader.saveState())
+        self._cfg.setSettings(Config.STATS_NODES_COL_STATE, nodesHeader.saveState())
         rulesHeader = self.rulesTable.horizontalHeader()
-        self._cfg.setSettings("statsDialog/rules_columns_state", rulesHeader.saveState())
+        self._cfg.setSettings(Config.STATS_RULES_COL_STATE, rulesHeader.saveState())
 
         rules_tree_apps = self._get_rulesTree_item(self.RULES_TREE_APPS)
         if rules_tree_apps != None:
-            self._cfg.setSettings("statsDialog/rules_tree_0_expanded", rules_tree_apps.isExpanded())
+            self._cfg.setSettings(Config.STATS_RULES_TREE_EXPANDED_0, rules_tree_apps.isExpanded())
         rules_tree_nodes = self._get_rulesTree_item(self.RULES_TREE_NODES)
         if rules_tree_nodes != None:
-            self._cfg.setSettings("statsDialog/rules_tree_1_expanded", rules_tree_nodes.isExpanded())
+            self._cfg.setSettings(Config.STATS_RULES_TREE_EXPANDED_1, rules_tree_nodes.isExpanded())
 
 
     def _del_rule(self, rule_name, node_addr):
@@ -810,7 +823,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         model = self.TABLES[cur_idx]['view'].model()
         qstr = None
         if cur_idx == StatsDialog.TAB_MAIN:
-            self._cfg.setSettings("statsDialog/general_filter_text", text)
+            self._cfg.setSettings(Config.STATS_FILTER_TEXT, text)
             self._set_events_query()
             return
 
@@ -828,7 +841,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.tabWidget.currentIndex() != self.TAB_MAIN:
             return
 
-        self._cfg.setSettings("statsDialog/general_filter_action", idx)
+        self._cfg.setSettings(Config.STATS_GENERAL_FILTER_ACTION, idx)
         self._set_events_query()
 
     def _cb_clean_sql_clicked(self, idx):
@@ -919,6 +932,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_prefs_clicked(self):
         self._prefs_dialog.show()
 
+    def _cb_rules_filter_combo_changed(self, idx):
+        if idx == self.RULES_TREE_APPS:
+            self._set_rules_filter()
+        elif idx == self.RULES_COMBO_PERMANENT:
+            self._set_rules_filter(self.RULES_TREE_APPS, self.RULES_TREE_PERMANENT)
+        elif idx == self.RULES_COMBO_TEMPORARY:
+            self._set_rules_filter(self.RULES_TREE_APPS, self.RULES_TREE_TEMPORARY)
+
     def _cb_rules_tree_item_clicked(self, item, col):
         """
         Event fired when the user clicks on the left panel of the rules tab
@@ -933,7 +954,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._set_rules_filter(parent_row, item_model.row(), item.text(0))
 
     def _cb_rules_splitter_moved(self, pos, index):
-        self._cfg.setSettings("statsDialog/rules_splitter_pos", self.rulesSplitter.saveState())
+        self.comboRulesFilter.setVisible(pos == 0)
+        self._cfg.setSettings(Config.STATS_RULES_SPLITTER_POS, self.rulesSplitter.saveState())
 
     def _cb_start_clicked(self):
         if self.daemon_connected == False:
@@ -990,6 +1012,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         rule.enabled = state
         noti = ui_pb2.Notification(type=notType, rules=[rule])
         self._notification_trigger.emit(noti)
+
+    # must be called after setModel() or setQuery()
+    def _show_columns(self):
+        cols = self._cfg.getSettings(Config.STATS_SHOW_COLUMNS)
+        if cols == None:
+            return
+
+        for c in range(StatsDialog.GENERAL_COL_NUM):
+            self.eventsTable.setColumnHidden(c, str(c) not in cols)
 
     def _update_status_label(self, running=False, text=FIREWALL_DISABLED):
         self.statusLabel.setText("%12s" % text)
@@ -1079,6 +1110,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rulesTreePanel.setVisible(active)
 
         if active:
+            self.rulesSplitter.refresh()
+            self.comboRulesFilter.setVisible(self.rulesTreePanel.width() == 0)
+
             items = self.rulesTreePanel.selectedItems()
             if len(items) == 0:
                 self._set_rules_filter()
@@ -1092,6 +1126,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _set_rules_tab_active(self, row, cur_idx, name_idx, node_idx):
         data = row.data()
         self._restore_rules_tab_widgets(False)
+
+        self.comboRulesFilter.setVisible(False)
 
         r_name = row.model().index(row.row(), name_idx).data()
         node = row.model().index(row.row(), node_idx).data()
@@ -1487,3 +1523,5 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     print("setQuery() error: ", model.lastError().text())
             except Exception as e:
                 print(self._address, "setQuery() exception: ", e)
+            finally:
+                self._show_columns()

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>626</width>
-    <height>394</height>
+    <height>403</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -82,8 +82,8 @@
          <property name="title">
           <string>Default options</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0,0" columnstretch="1,0">
-          <item row="4" column="0" colspan="2">
+         <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0,0,0" columnstretch="1,0">
+          <item row="7" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
             <item>
              <widget class="QCheckBox" name="uidCheck">
@@ -173,20 +173,42 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="label_17">
+          <item row="3" column="1">
+           <widget class="QComboBox" name="comboUIDialogPos">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="toolTip">
-             <string>The advanced view allows you to easily select multiple fields to filter connections</string>
-            </property>
-            <property name="text">
-             <string>Show advanced view by default</string>
-            </property>
+            <item>
+             <property name="text">
+              <string>center</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>top right</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>bottom right</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>top left</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>bottom left</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="1" column="1">
@@ -239,7 +261,7 @@
             </item>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="6" column="0">
            <widget class="QLabel" name="label_18">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -252,6 +274,9 @@
             </property>
             <property name="text">
              <string>Filter connections also by:</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -290,42 +315,11 @@
             </item>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QComboBox" name="comboUIDialogPos">
-            <property name="enabled">
-             <bool>true</bool>
+          <item row="4" column="0" colspan="2">
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <item>
-             <property name="text">
-              <string>center</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>top right</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>bottom right</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>top left</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>bottom left</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="2" column="0">
@@ -335,19 +329,13 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
-           <widget class="QCheckBox" name="showAdvancedCheck">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_4">
             <property name="text">
-             <string/>
+             <string>Default position on screen</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -362,9 +350,37 @@
            </widget>
           </item>
           <item row="5" column="0">
-           <widget class="QLabel" name="label_4">
+           <widget class="QLabel" name="label_17">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>The advanced view allows you to easily select multiple fields to filter connections</string>
+            </property>
             <property name="text">
-             <string>Default position on screen</string>
+             <string>Show advanced view by default</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QCheckBox" name="showAdvancedCheck">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>
@@ -392,6 +408,9 @@
          <property name="text">
           <string>Disable pop-ups, only display an alert</string>
          </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
@@ -401,6 +420,19 @@
        <string>UI</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
+       <item row="2" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="0" column="1">
         <widget class="QComboBox" name="comboUIRules">
          <item>
@@ -426,17 +458,83 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Show events columns</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
+         <layout class="QGridLayout" name="gridLayout_7">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkHideTime">
+            <property name="text">
+             <string>Time</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="checkHideDst">
+            <property name="text">
+             <string>Destination</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="checkHideProto">
+            <property name="text">
+             <string>Protocol</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="checkHideProc">
+            <property name="text">
+             <string>Process</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QCheckBox" name="checkHideRule">
+            <property name="text">
+             <string>Rule</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkHideNode">
+            <property name="text">
+             <string>Node</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkHideAction">
+            <property name="text">
+             <string>Action</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -525,6 +623,9 @@
          </property>
          <property name="text">
           <string>Default action when the GUI is disconnected</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -880,7 +981,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset theme="help"/>
+        <iconset theme="help-browser">
+         <normaloff>.</normaloff>.</iconset>
        </property>
        <property name="flat">
         <bool>true</bool>

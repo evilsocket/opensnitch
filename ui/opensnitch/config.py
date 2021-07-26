@@ -6,6 +6,7 @@ class Config:
     __instance = None
 
     HELP_URL = "https://github.com/evilsocket/opensnitch/wiki/"
+    HELP_RULES_URL = "https://github.com/evilsocket/opensnitch/wiki/Rules"
     HELP_CONFIG_URL = "https://github.com/evilsocket/opensnitch/wiki/Configurations"
 
     RULE_TYPE_LIST = "list"
@@ -21,6 +22,7 @@ class Config:
     DEFAULT_TARGET_PROCESS = 0
     ACTION_DENY_IDX = 0
     ACTION_ALLOW_IDX = 1
+
     # don't translate
     ACTION_ALLOW = "allow"
     ACTION_DENY = "deny"
@@ -54,6 +56,22 @@ class Config:
     DEFAULT_SERVER_ADDR  = "global/server_address"
     DEFAULT_DB_TYPE_KEY  = "database/type"
     DEFAULT_DB_FILE_KEY  = "database/file"
+
+
+    STATS_GEOMETRY = "statsDialog/geometry"
+    STATS_LAST_TAB = "statsDialog/last_tab"
+    STATS_FILTER_TEXT = "statsDialog/general_filter_text"
+    STATS_FILTER_ACTION = "statsDialog/general_filter_action"
+    STATS_LIMIT_RESULTS = "statsDialog/general_limit_results"
+    STATS_SHOW_COLUMNS = "statsDialog/show_columns"
+    STATS_NODES_COL_STATE = "statsDialog/nodes_columns_state"
+    STATS_GENERAL_COL_STATE = "statsDialog/general_columns_state"
+    STATS_GENERAL_FILTER_TEXT = "statsDialog/"
+    STATS_GENERAL_FILTER_ACTION = "statsDialog/"
+    STATS_RULES_COL_STATE = "statsDialog/rules_columns_state"
+    STATS_RULES_TREE_EXPANDED_0 = "statsDialog/rules_tree_0_expanded"
+    STATS_RULES_TREE_EXPANDED_1 = "statsDialog/rules_tree_1_expanded"
+    STATS_RULES_SPLITTER_POS = "statsDialog/rules_splitter_pos"
     # don't translate
 
     @staticmethod
