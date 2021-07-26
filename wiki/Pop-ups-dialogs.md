@@ -8,12 +8,15 @@ Fields meaning:
 2. The command that the user typed.
 3. The path to the executable.
 
-Notes:
+**Notes:**
 
 - If the user typed the absolute path to the binary, then the 3rd field is not displayed.
-- If the typed command equals to the name of the binary (like in `curl -L http://..`), the 1st and 2nd executable name will be equal. It seems logical, but in some cases as the one shown in the screen shot, it's not always the case.
+- If the typed command equals to the name of the binary (like in `curl -L http://..`), the 1st and 2nd executable name will be equal. It seems logical, but in some cases as the one shown in the screenshot, it's not always the case.
 - If the text of a field is too large to fit in the window, 3 dots are added to the end of the text (![image](https://user-images.githubusercontent.com/2742953/124112656-cc113380-da6a-11eb-9c04-1f8d61059320.png)
 ) . Place the cursor over the text to see all the text.
+
+**Extra note:**
+- Notice in the screenshot above that the[+] icon has the focus. Use the arrow keys ⬅️ ➡️ to quickly select Accept or Deny.
 
 You can also select and copy the text of the fields:
 
