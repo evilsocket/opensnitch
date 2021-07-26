@@ -20,7 +20,11 @@ For example: double click on a Node to open all the connections of that node:
 
 Others columns that are clickable: Process, Rule
 
+
 ![image](https://user-images.githubusercontent.com/2742953/122285201-b6d6c980-ceee-11eb-9d7b-b34c16307466.png)
+
+**Note:** The size of the columns is saved when closing the GUI, and restored whe you open it again.
+
 
 The Rules tab
 ---
