@@ -15,6 +15,7 @@ from slugify import slugify
 from opensnitch.desktop_parser import LinuxDesktopParser
 from opensnitch.config import Config
 from opensnitch.version import version
+
 from opensnitch import ui_pb2
 
 DIALOG_UI_PATH = "%s/../res/prompt.ui" % os.path.dirname(sys.modules[__name__].__file__)
@@ -56,6 +57,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # Other interesting flags: QtCore.Qt.Tool | QtCore.Qt.BypassWindowManagerHint
         self._cfg = Config.get()
         self.setupUi(self)
+
+        self._width = self.width()
+        self._height = self.height()
 
         dialog_geometry = self._cfg.getSettings("promptDialog/geometry")
         if dialog_geometry == QtCore.QByteArray:
@@ -102,6 +106,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def showEvent(self, event):
         super(PromptDialog, self).showEvent(event)
         self.activateWindow()
+        self.setMaximumSize(self._width, self._height)
         self.move_popup()
 
     def move_popup(self):
@@ -256,10 +261,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if app_name == "":
             self.appPathLabel.setVisible(False)
             self.argsLabel.setVisible(False)
-            app_name = QC.translate("popups", "Unknown process: %s" % con.process_path)
+            app_name = QC.translate("popups", "Unknown process %s" % con.process_path)
             self.appNameLabel.setText(QC.translate("popups", "Outgoing connection"))
         else:
-            self.appNameLabel.setText(app_name)
+            self._set_elide_text(self.appNameLabel, "%s" % app_name, max_size=42)
             self.appNameLabel.setToolTip(app_name)
 
         self.cwdLabel.setToolTip("%s %s" % (QC.translate("popups", "Process launched from:"), con.process_cwd))
