@@ -72,12 +72,20 @@ func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPo
 
 		if len(inodes) == 0 && len(sockList) > 0 {
 			for n, sock := range sockList {
-				inodes = append([]int{int(sock.INode)}, inodes...)
-				log.Debug("netlink socket not found, adding entry:  %d:%v -> %v:%d || %d:%v -> %v:%d inode: %d state: %s",
-					srcPort, srcIP, dstIP, dstPort,
-					sockList[n].ID.SourcePort, sockList[n].ID.Source,
-					sockList[n].ID.Destination, sockList[n].ID.DestinationPort,
-					sockList[n].INode, TCPStatesMap[sock.State])
+				if sockList[n].ID.Destination.Equal(net.IPv4zero) || sockList[n].ID.Destination.Equal(net.IPv6zero) {
+					inodes = append([]int{int(sock.INode)}, inodes...)
+					log.Debug("netlink socket not found, adding entry:  %d:%v -> %v:%d || %d:%v -> %v:%d inode: %d state: %s",
+						srcPort, srcIP, dstIP, dstPort,
+						sockList[n].ID.SourcePort, sockList[n].ID.Source,
+						sockList[n].ID.Destination, sockList[n].ID.DestinationPort,
+						sockList[n].INode, TCPStatesMap[sock.State])
+				} else {
+					log.Debug("netlink socket not found, EXCLUDING entry:  %d:%v -> %v:%d || %d:%v -> %v:%d inode: %d state: %s",
+						srcPort, srcIP, dstIP, dstPort,
+						sockList[n].ID.SourcePort, sockList[n].ID.Source,
+						sockList[n].ID.Destination, sockList[n].ID.DestinationPort,
+						sockList[n].INode, TCPStatesMap[sock.State])
+				}
 			}
 		}
 	} else {
