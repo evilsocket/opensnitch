@@ -20,6 +20,7 @@ from opensnitch.config import Config
 from opensnitch.version import version
 from opensnitch.database import Database
 from opensnitch.utils import Utils
+from opensnitch.utils import Message
 from opensnitch.version import version
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
@@ -43,10 +44,21 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         self._cfg = Config.init()
         self._db = Database.instance()
-        self._db.initialize(
+        db_file=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
+        db_status, db_error = self._db.initialize(
             dbtype=self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY),
-            dbfile=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
+            dbfile=db_file
         )
+        if db_status is False:
+            Message.ok(
+                QtCore.QCoreApplication.translate("preferences", "Warning"),
+                QtCore.QCoreApplication.translate("preferences",
+                                                  "The DB is corrupted and it's not safe to continue.<br>\
+                                                  Remove, backup or recover the file before continuing.<br><br>\
+                                                  Corrupted database file: {0}".format(db_file)),
+                QtWidgets.QMessageBox.Warning)
+            sys.exit(-1)
+
         self._db_sqlite = self._db.get_db()
         self._last_ping = None
         self._version_warning_shown = False
