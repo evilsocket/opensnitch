@@ -1,4 +1,3 @@
-import os
 from PyQt5 import QtCore
 from opensnitch.database import Database
 
@@ -72,6 +71,8 @@ class Config:
     STATS_RULES_TREE_EXPANDED_0 = "statsDialog/rules_tree_0_expanded"
     STATS_RULES_TREE_EXPANDED_1 = "statsDialog/rules_tree_1_expanded"
     STATS_RULES_SPLITTER_POS = "statsDialog/rules_splitter_pos"
+    STATS_VIEW_COL_STATE =  "statsDialog/view_columns_state"
+    STATS_VIEW_DETAILS_COL_STATE =  "statsDialog/view_details_columns_state"
     # don't translate
 
     @staticmethod

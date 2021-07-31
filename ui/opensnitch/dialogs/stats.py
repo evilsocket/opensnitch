@@ -523,27 +523,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             w = self.rulesSplitter.width()
             self.rulesSplitter.setSizes([w/4, w/2])
 
-        header = self.eventsTable.horizontalHeader()
-        header.blockSignals(True);
-        eventsColState = self._cfg.getSettings(Config.STATS_GENERAL_COL_STATE)
-        if type(eventsColState) == QtCore.QByteArray:
-            header.restoreState(eventsColState)
-        header.blockSignals(False);
-
-        nodesHeader = self.nodesTable.horizontalHeader()
-        nodesHeader.blockSignals(True);
-        nodesColState = self._cfg.getSettings(Config.STATS_NODES_COL_STATE)
-        if type(nodesColState) == QtCore.QByteArray:
-            nodesHeader.restoreState(nodesColState)
-        nodesHeader.blockSignals(False);
-
-        rulesHeader = self.rulesTable.horizontalHeader()
-        rulesHeader.blockSignals(True);
-        rulesColState = self._cfg.getSettings(Config.STATS_RULES_COL_STATE)
-        if type(rulesColState) == QtCore.QByteArray:
-            rulesHeader.restoreState(rulesColState)
-        rulesHeader.blockSignals(False);
-
+        self._restore_details_view_columns(self.eventsTable.horizontalHeader(), Config.STATS_GENERAL_COL_STATE)
+        self._restore_details_view_columns(self.nodesTable.horizontalHeader(), Config.STATS_NODES_COL_STATE)
+        self._restore_details_view_columns(self.rulesTable.horizontalHeader(), Config.STATS_RULES_COL_STATE)
 
         rulesTreeNodes_expanded = self._cfg.getBool(Config.STATS_RULES_TREE_EXPANDED_1)
         if rulesTreeNodes_expanded != None:
@@ -858,6 +840,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._set_active_widgets(False)
         if cur_idx == StatsDialog.TAB_RULES:
             self._restore_rules_tab_widgets(True)
+            self._restore_details_view_columns(
+                self.TABLES[cur_idx]['view'].horizontalHeader(),
+                "{0}{1}".format(Config.STATS_VIEW_COL_STATE, cur_idx)
+            )
             # return here and now, the query is set via set_rules_filter()
             return
         elif cur_idx == StatsDialog.TAB_PROCS:
@@ -870,6 +856,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             where_clause = self._get_filter_line_clause(cur_idx, filter_text)
 
         self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields']) + where_clause + " " + self._get_order())
+        self._restore_details_view_columns(
+            self.TABLES[cur_idx]['view'].horizontalHeader(),
+            "{0}{1}".format(Config.STATS_VIEW_COL_STATE, cur_idx)
+        )
 
     def _cb_main_table_double_clicked(self, row):
         data = row.data()
@@ -907,6 +897,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             rule_name = row.model().index(row.row(), self.COL_R_NAME).data()
             self._set_active_widgets(True, rule_name)
             self._set_rules_tab_active(row, cur_idx, self.COL_R_NAME, self.COL_R_NODE)
+            self._restore_details_view_columns(
+                self.TABLES[cur_idx]['view'].horizontalHeader(),
+                "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
+            )
             return
         if cur_idx == self.TAB_NODES:
             data = row.model().index(row.row(), self.COL_NODE).data()
@@ -928,6 +922,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_ports_query(data)
         elif cur_idx == StatsDialog.TAB_USERS:
             self._set_users_query(data)
+
+        self._restore_details_view_columns(
+            self.TABLES[cur_idx]['view'].horizontalHeader(),
+            "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
+        )
 
     def _cb_prefs_clicked(self):
         self._prefs_dialog.show()
@@ -1098,9 +1097,29 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             else:
                 self.TABLES[cur_idx]['cmdCleanStats'].setVisible(not state)
 
+        header = self.TABLES[cur_idx]['view'].horizontalHeader()
+        if state == True:
+            # going to normal state
+            self._cfg.setSettings("{0}{1}".format(Config.STATS_VIEW_COL_STATE, cur_idx), header.saveState())
+        else:
+            # going to details state
+            self._cfg.setSettings("{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx), header.saveState())
+
     def _set_process_tab_active(self, data):
         self.cmdProcDetails.setVisible(False)
         self._set_process_query(data)
+
+    def _restore_details_view_columns(self, header, settings_key):
+        header.blockSignals(True);
+
+         #header = self.TABLES[cur_idx]['view'].horizontalHeader()
+            #col_state = self._cfg.getSettings("{0}{1}_details".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx))
+        col_state = self._cfg.getSettings(settings_key)
+
+        if type(col_state) == QtCore.QByteArray:
+            header.restoreState(col_state)
+
+        header.blockSignals(False);
 
     def _restore_rules_tab_widgets(self, active):
         self.delRuleButton.setVisible(not active)
@@ -1116,6 +1135,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             items = self.rulesTreePanel.selectedItems()
             if len(items) == 0:
                 self._set_rules_filter()
+                self._restore_details_view_columns(
+                    self.TABLES[self.TAB_RULES]['view'].horizontalHeader(),
+                    "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, self.TAB_RULES)
+                )
                 return
 
             item_m = self.rulesTreePanel.indexFromItem(items[0], 0)
@@ -1442,6 +1465,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             for _, col in enumerate(resize_cols):
                 header.setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
 
+        cur_idx = self.tabWidget.currentIndex()
+        self._cfg.setSettings("{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx), header.saveState())
         return tableWidget
 
     def update_interception_status(self, enabled):
