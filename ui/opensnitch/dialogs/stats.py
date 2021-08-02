@@ -257,21 +257,29 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(QtCore.Qt.Window)
         self.setupUi(self)
-
-        # columns names
-        self.COL_STR_NAME = QC.translate("stats", "Name")
-        self.COL_STR_ADDR = QC.translate("stats", "Address")
-        self.COL_STR_STATUS = QC.translate("stats", "Status")
-        self.COL_STR_HOSTNAME = QC.translate("stats", "Hostname")
-        self.COL_STR_VERSION = QC.translate("stats", "Version")
-        self.COL_STR_RULES_NUM = QC.translate("stats", "Rules")
-        self.COL_STR_TIME = QC.translate("stats", "Time")
-        self.COL_STR_ACTION = QC.translate("stats", "Action")
-        self.COL_STR_DURATION = QC.translate("stats", "Duration")
-        self.COL_STR_NODE = QC.translate("stats", "Node")
-        self.COL_STR_ENABLED = QC.translate("stats", "Enabled")
-        self.COL_STR_HITS = QC.translate("stats", "Hits")
-        self.COL_STR_PROTOCOL = QC.translate("stats", "Protocol")
+        # columns names. Must be added here in order to names be translated.
+        self.COL_STR_NAME = QC.translate("stats", "Name", "This is a word, without spaces and symbols.")
+        self.COL_STR_ADDR = QC.translate("stats", "Address", "This is a word, without spaces and symbols.")
+        self.COL_STR_STATUS = QC.translate("stats", "Status", "This is a word, without spaces and symbols.")
+        self.COL_STR_HOSTNAME = QC.translate("stats", "Hostname", "This is a word, without spaces and symbols.")
+        self.COL_STR_VERSION = QC.translate("stats", "Version", "This is a word, without spaces and symbols.")
+        self.COL_STR_RULES_NUM = QC.translate("stats", "Rules", "This is a word, without spaces and symbols.")
+        self.COL_STR_TIME = QC.translate("stats", "Time", "This is a word, without spaces and symbols.")
+        self.COL_STR_ACTION = QC.translate("stats", "Action", "This is a word, without spaces and symbols.")
+        self.COL_STR_DURATION = QC.translate("stats", "Duration", "This is a word, without spaces and symbols.")
+        self.COL_STR_NODE = QC.translate("stats", "Node", "This is a word, without spaces and symbols.")
+        self.COL_STR_ENABLED = QC.translate("stats", "Enabled", "This is a word, without spaces and symbols.")
+        self.COL_STR_HITS = QC.translate("stats", "Hits", "This is a word, without spaces and symbols.")
+        self.COL_STR_PROTOCOL = QC.translate("stats", "Protocol", "This is a word, without spaces and symbols.")
+        self.COL_STR_PROCESS = QC.translate("stats", "Process", "This is a word, without spaces and symbols.")
+        self.COL_STR_PROC_ARGS = QC.translate("stats", "Args", "This is a word, without spaces and symbols.")
+        self.COL_STR_DESTINATION = QC.translate("stats", "Destination", "This is a word, without spaces and symbols.")
+        self.COL_STR_DST_IP = QC.translate("stats", "DstIP", "This is a word, without spaces and symbols.")
+        self.COL_STR_DST_HOST = QC.translate("stats", "DstHost", "This is a word, without spaces and symbols.")
+        self.COL_STR_DST_PORT = QC.translate("stats", "DstPort", "This is a word, without spaces and symbols.")
+        self.COL_STR_RULE = QC.translate("stats", "Rule", "This is a word, without spaces and symbols.")
+        self.COL_STR_UID = QC.translate("stats", "UserID", "This is a word, without spaces and symbols.")
+        self.COL_STR_LAST_CONNECTION = QC.translate("stats", "LastConnection", "This is a word, without spaces and symbols.")
 
         self.FIREWALL_STOPPED  = QC.translate("stats", "Not running")
         self.FIREWALL_DISABLED = QC.translate("stats", "Disabled")
@@ -865,25 +873,33 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         data = row.data()
         idx = row.column()
         cur_idx = 1
+
         if idx == StatsDialog.COL_NODE:
-            cur_idx = 1
-            self.IN_DETAIL_VIEW[cur_idx] = True
+            cur_idx = self.TAB_NODES
             self.tabWidget.setCurrentIndex(cur_idx)
+            self._set_active_widgets(True, str(data))
             p, addr = self._nodes.get_addr(data)
             self._set_nodes_query(addr)
+
         elif idx == StatsDialog.COL_PROCS:
-            cur_idx = 4
-            self.IN_DETAIL_VIEW[cur_idx] = True
+            cur_idx = self.TAB_PROCS
             self.tabWidget.setCurrentIndex(cur_idx)
-            self._set_process_tab_active(data)
+            self._set_active_widgets(True, str(data))
+            self._set_process_query(data)
+
         elif idx == StatsDialog.COL_RULES:
-            cur_idx = 2
+            cur_idx = self.TAB_RULES
             self.IN_DETAIL_VIEW[cur_idx] = True
             self._set_rules_tab_active(row, cur_idx, self.COL_RULES, self.COL_NODE)
+            self._set_active_widgets(True, str(data))
+
         else:
             return
 
-        self._set_active_widgets(True, str(data))
+        self._restore_details_view_columns(
+            self.TABLES[cur_idx]['view'].horizontalHeader(),
+            "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
+        )
 
     def _cb_table_double_clicked(self, row):
         cur_idx = self.tabWidget.currentIndex()
@@ -1105,10 +1121,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # going to details state
             self._cfg.setSettings("{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx), header.saveState())
 
-    def _set_process_tab_active(self, data):
-        self.cmdProcDetails.setVisible(False)
-        self._set_process_query(data)
-
     def _restore_details_view_columns(self, header, settings_key):
         header.blockSignals(True);
 
@@ -1168,9 +1180,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         filter_text = self.filterLine.text()
         action = ""
         if self.comboAction.currentIndex() == 1:
-            action = "Action = \"" + Config.ACTION_ALLOW + "\""
+            action = "Action = \"{0}\"".format(Config.ACTION_ALLOW)
         elif self.comboAction.currentIndex() == 2:
-            action = "Action = \"" + Config.ACTION_DENY + "\""
+            action = "Action = \"{0}\"".format(Config.ACTION_DENY)
 
         # FIXME: use prepared statements
         if filter_text == "":
@@ -1195,23 +1207,32 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         s = "AND c.src_ip='%s'" % data if '/' not in data else ''
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "n.last_connection as LastConnection, " \
-                "c.action as %s, " \
-                "count(c.process) as Hits, " \
-                "c.uid as UserID, " \
-                "c.protocol as %s, " \
-                "c.dst_ip as DstIP, " \
-                "c.dst_host as DstHost, " \
-                "c.dst_port as DstPort, " \
-                "c.process || ' (' || c.pid || ')' as Process, " \
-                "c.process_args as Args, " \
+                "n.last_connection as {0}, " \
+                "c.action as {1}, " \
+                "count(c.process) as {2}, " \
+                "c.uid as {3}, " \
+                "c.protocol as {4}, " \
+                "c.dst_ip as {5}, " \
+                "c.dst_host as {6}, " \
+                "c.dst_port as {7}, " \
+                "c.process || ' (' || c.pid || ')' as {8}, " \
+                "c.process_args as {9}, " \
                 "c.process_cwd as CWD " \
             "FROM nodes as n, connections as c " \
-            "WHERE n.addr = '%s' %s GROUP BY Process, Args, UserID, DstIP, DstHost, DstPort, c.protocol, n.status %s" %
-                      (
-                          self.COL_STR_ACTION,
-                          self.COL_STR_PROTOCOL,
-                          data, s, self._get_order()))
+            "WHERE n.addr = '{10}' {11} GROUP BY {12}, c.process_args, c.uid, c.dst_ip, c.dst_host, c.dst_port, c.protocol, n.status {13}".format(
+                self.COL_STR_LAST_CONNECTION,
+                self.COL_STR_ACTION,
+                self.COL_STR_HITS,
+                self.COL_STR_UID,
+                self.COL_STR_PROTOCOL,
+                self.COL_STR_DST_IP,
+                self.COL_STR_DST_HOST,
+                self.COL_STR_DST_PORT,
+                self.COL_STR_PROCESS,
+                self.COL_STR_PROC_ARGS,
+                data, s,
+                self.COL_STR_PROCESS,
+                self._get_order()))
 
     def _set_rules_filter(self, parent_row=-1, item_row=0, what=""):
         section = self.FILTER_TREE_APPS
@@ -1261,75 +1282,96 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as %s, " \
-                "r.node as %s, " \
-                "count(c.process) as Hits, " \
-                "c.uid as UserID, " \
-                "c.protocol as %s, " \
-                "c.dst_port as DstPort, " \
+                "c.time as {0}, " \
+                "r.node as {1}, " \
+                "count(c.process) as {2}, " \
+                "c.uid as {3}, " \
+                "c.protocol as {4}, " \
+                "c.dst_port as {5}, " \
                 "CASE c.dst_host WHEN ''" \
                 "   THEN c.dst_ip " \
                 "   ELSE c.dst_host " \
-                "END Destination, " \
-                "c.process as Process, " \
-                "c.process_args as Args, " \
+                "END {6}, " \
+                "c.process as {7}, " \
+                "c.process_args as {8}, " \
                 "c.process_cwd as CWD " \
             "FROM rules as r, connections as c " \
-            "WHERE %s %s r.name = c.rule AND r.node = c.node GROUP BY Process, Args, UserID, Destination, DstPort %s" %
-                      (
-                          self.COL_STR_TIME,
-                          self.COL_STR_NODE,
-                          self.COL_STR_PROTOCOL,
-                          node, rule_name, self._get_order()))
+            "WHERE {9} {10} r.name = c.rule AND r.node = c.node GROUP BY c.process, c.process_args, c.uid, {11}, c.dst_port {12}".format(
+                self.COL_STR_TIME,
+                self.COL_STR_NODE,
+                self.COL_STR_HITS,
+                self.COL_STR_UID,
+                self.COL_STR_PROTOCOL,
+                self.COL_STR_DST_PORT,
+                self.COL_STR_DESTINATION,
+                self.COL_STR_PROCESS,
+                self.COL_STR_PROC_ARGS,
+                node,
+                rule_name,
+                self.COL_STR_DESTINATION,
+                self._get_order()))
 
     def _set_hosts_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as %s, " \
-                "c.node as %s, " \
-                "count(c.process) as Hits, " \
-                "c.action as %s, " \
-                "c.uid as UserID, " \
-                "c.protocol as %s, " \
-                "c.dst_port as DstPort, " \
-                "c.dst_ip as DstIP, " \
-                "c.process || ' (' || c.pid || ')' as Process, " \
-                "c.process_args as Args, " \
+                "c.time as {0}, " \
+                "c.node as {1}, " \
+                "count(c.process) as {2}, " \
+                "c.action as {3}, " \
+                "c.uid as {4}, " \
+                "c.protocol as {5}, " \
+                "c.dst_port as {6}, " \
+                "c.dst_ip as {7}, " \
+                "c.process || ' (' || c.pid || ')' as {8}, " \
+                "c.process_args as {9}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as Rule " \
+                "c.rule as {10} " \
             "FROM hosts as h, connections as c " \
-            "WHERE h.what = '%s' AND c.dst_host = h.what GROUP BY c.pid, Process, Args, DstIP, DstPort, c.protocol, c.action, c.node %s" %
-                      (
+            "WHERE h.what = '{11}' AND c.dst_host = h.what GROUP BY c.pid, {12}, c.process_args, c.dst_ip, c.dst_port, c.protocol, c.action, c.node {13}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
+                          self.COL_STR_HITS,
                           self.COL_STR_ACTION,
+                          self.COL_STR_UID,
                           self.COL_STR_PROTOCOL,
-                          data, self._get_order()))
+                          self.COL_STR_DST_PORT,
+                          self.COL_STR_DST_IP,
+                          self.COL_STR_PROCESS,
+                          self.COL_STR_PROC_ARGS,
+                          self.COL_STR_RULE,
+                          data,
+                          self.COL_STR_PROCESS,
+                self._get_order()))
 
     def _set_process_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as %s, " \
-                "c.node as %s, " \
-                "count(c.dst_ip) as Hits, " \
-                "c.action as %s, " \
-                "c.uid as UserID, " \
+                "c.time as {0}, " \
+                "c.node as {1}, " \
+                "count(c.dst_ip) as {2}, " \
+                "c.action as {3}, " \
+                "c.uid as {4}, " \
                 "CASE c.dst_host WHEN ''" \
                 "   THEN c.dst_ip || '  ->  ' || c.dst_port " \
                 "   ELSE c.dst_host || '  ->  ' || c.dst_port " \
-                "END Destination, " \
+                "END {5}, " \
                 "c.pid as PID, " \
-                "c.process_args as Args, " \
+                "c.process_args as {6}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as Rule " \
+                "c.rule as {7} " \
             "FROM procs as p, connections as c " \
-            "WHERE p.what = '%s' AND p.what = c.process " \
-                      "GROUP BY c.dst_ip, c.dst_host, c.dst_port, c.uid, c.action, c.node, c.pid, c.process_args %s" %
-                      (
+            "WHERE p.what = '{8}' AND p.what = c.process " \
+                      "GROUP BY c.dst_ip, c.dst_host, c.dst_port, c.uid, c.action, c.node, c.pid, c.process_args {9}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
+                          self.COL_STR_HITS,
                           self.COL_STR_ACTION,
-                          data, self._get_order()))
+                          self.COL_STR_UID,
+                          self.COL_STR_DESTINATION,
+                          self.COL_STR_PROC_ARGS,
+                          self.COL_STR_RULE,
+                          data,
+                          self._get_order()))
 
         nrows = self._get_active_table().model().rowCount()
         self.cmdProcDetails.setVisible(nrows != 0)
@@ -1337,83 +1379,110 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _set_addrs_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as %s, " \
-                "c.node as %s, " \
-                "count(c.dst_ip) as Hits, " \
-                "c.action as %s, " \
-                "c.uid as UserID, " \
-                "c.protocol as %s, " \
+                "c.time as {0}, " \
+                "c.node as {1}, " \
+                "count(c.dst_ip) as {2}, " \
+                "c.action as {3}, " \
+                "c.uid as {4}, " \
+                "c.protocol as {5}, " \
                 "CASE c.dst_host WHEN ''" \
                 "   THEN c.dst_ip " \
                 "   ELSE c.dst_host " \
-                "END Destination, " \
-                "c.dst_port as DstPort, " \
-                "c.process || ' (' || c.pid || ')' as Process, " \
-                "c.process_args as Args, " \
+                "END {6}, " \
+                "c.dst_port as {7}, " \
+                "c.process || ' (' || c.pid || ')' as {8}, " \
+                "c.process_args as {9}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as Rule " \
+                "c.rule as {10} " \
             "FROM addrs as a, connections as c " \
-            "WHERE a.what = '%s' AND c.dst_ip = a.what GROUP BY c.pid, Process, Args, DstPort, Destination, c.protocol, c.action, UserID, c.node %s" %
-                      (
+            "WHERE a.what = '{11}' AND c.dst_ip = a.what GROUP BY c.pid, {12}, c.process_args, c.dst_port, {13}, c.protocol, c.action, c.uid, c.node {14}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
+                          self.COL_STR_HITS,
                           self.COL_STR_ACTION,
+                          self.COL_STR_UID,
                           self.COL_STR_PROTOCOL,
-                          data, self._get_order()))
+                          self.COL_STR_DESTINATION,
+                          self.COL_STR_DST_PORT,
+                          self.COL_STR_PROCESS,
+                          self.COL_STR_PROC_ARGS,
+                          self.COL_STR_RULE,
+                          data,
+                          self.COL_STR_PROCESS,
+                          self.COL_STR_DESTINATION,
+                          self._get_order()))
 
     def _set_ports_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as %s, " \
-                "c.node as %s, " \
-                "count(c.dst_ip) as Hits, " \
-                "c.action as %s, " \
-                "c.uid as UserID, " \
-                "c.protocol as %s, " \
-                "c.dst_ip as DstIP, " \
+                "c.time as {0}, " \
+                "c.node as {1}, " \
+                "count(c.dst_ip) as {2}, " \
+                "c.action as {3}, " \
+                "c.uid as {4}, " \
+                "c.protocol as {5}, " \
+                "c.dst_ip as {6}, " \
                 "CASE c.dst_host WHEN ''" \
                 "   THEN c.dst_ip " \
                 "   ELSE c.dst_host " \
-                "END Destination, " \
-                "c.process || ' (' || c.pid || ')' as Process, " \
-                "c.process_args as Args, " \
+                "END {7}, " \
+                "c.process || ' (' || c.pid || ')' as {8}, " \
+                "c.process_args as {9}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as Rule " \
+                "c.rule as {10} " \
             "FROM ports as p, connections as c " \
-            "WHERE p.what = '%s' AND c.dst_port = p.what GROUP BY c.pid, Process, Args, Destination, DstIP, c.protocol, c.action, UserID, c.node %s" %
-                      (
+            "WHERE p.what = '{11}' AND c.dst_port = p.what GROUP BY c.pid, {12}, c.process_args, {13}, c.dst_ip, c.protocol, c.action, c.uid, c.node {14}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
+                          self.COL_STR_HITS,
                           self.COL_STR_ACTION,
+                          self.COL_STR_UID,
                           self.COL_STR_PROTOCOL,
-                          data, self._get_order()))
+                          self.COL_STR_DST_IP,
+                          self.COL_STR_DESTINATION,
+                          self.COL_STR_PROCESS,
+                          self.COL_STR_PROC_ARGS,
+                          self.COL_STR_RULE,
+                          data,
+                          self.COL_STR_PROCESS,
+                          self.COL_STR_DESTINATION,
+                          self._get_order()))
 
     def _set_users_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as %s, " \
-                "c.node as %s, " \
-                "count(c.dst_ip) as Hits, " \
-                "c.action as %s, " \
-                "c.protocol as %s, " \
-                "c.dst_ip as DstIP, " \
+                "c.time as {0}, " \
+                "c.node as {1}, " \
+                "count(c.dst_ip) as {2}, " \
+                "c.action as {3}, " \
+                "c.protocol as {4}, " \
+                "c.dst_ip as {5}, " \
                 "CASE c.dst_host WHEN ''" \
                 "   THEN c.dst_ip " \
                 "   ELSE c.dst_host " \
-                "END Destination, " \
-                "c.dst_port as DstPort, " \
-                "c.process || ' (' || c.pid || ')' as Process, " \
-                "c.process_args as Args, " \
+                "END {6}, " \
+                "c.dst_port as {7}, " \
+                "c.process || ' (' || c.pid || ')' as {8}, " \
+                "c.process_args as {9}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as Rule " \
+                "c.rule as {10} " \
             "FROM users as u, connections as c " \
-            "WHERE u.what = '%s' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, Process, Args, DstIP, Destination, DstPort, c.protocol, c.action, c.node %s" %
-                      (
+            "WHERE u.what = '{11}' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, {12}, c.process_args, c.dst_ip, {13}, c.dst_port, c.protocol, c.action, c.node {14}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
+                          self.COL_STR_HITS,
                           self.COL_STR_ACTION,
                           self.COL_STR_PROTOCOL,
-                          data, self._get_order()))
+                          self.COL_STR_DST_IP,
+                          self.COL_STR_DESTINATION,
+                          self.COL_STR_DST_PORT,
+                          self.COL_STR_PROCESS,
+                          self.COL_STR_PROC_ARGS,
+                          self.COL_STR_RULE,
+                          data,
+                          self.COL_STR_PROCESS,
+                          self.COL_STR_DESTINATION,
+                          self._get_order()))
 
     def _on_save_clicked(self):
         tab_idx = self.tabWidget.currentIndex()

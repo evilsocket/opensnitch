@@ -28,9 +28,6 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <property name="documentMode">
-      <bool>false</bool>
-     </property>
      <widget class="QWidget" name="tab">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -460,7 +457,7 @@
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>Show events columns</string>
+          <string>Events tab columns</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="0" column="0">
@@ -666,24 +663,27 @@
          <property name="accessibleDescription">
           <string notr="true"/>
          </property>
+         <property name="placeholderText">
+          <string notr="true"/>
+         </property>
          <item>
           <property name="text">
-           <string>proc</string>
+           <string notr="true">proc</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>ebpf</string>
+           <string notr="true">ebpf</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>audit</string>
+           <string notr="true">audit</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>ftrace</string>
+           <string notr="true">ftrace</string>
           </property>
          </item>
         </widget>
@@ -775,32 +775,32 @@
          </property>
          <item>
           <property name="text">
-           <string>DEBUG</string>
+           <string notr="true">DEBUG</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>INFO</string>
+           <string notr="true">INFO</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>IMPORTANT</string>
+           <string notr="true">IMPORTANT</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>WARNING</string>
+           <string notr="true">WARNING</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>ERROR</string>
+           <string notr="true">ERROR</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>FATAL</string>
+           <string notr="true">FATAL</string>
           </property>
          </item>
         </widget>
