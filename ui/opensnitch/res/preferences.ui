@@ -663,9 +663,6 @@
          <property name="accessibleDescription">
           <string notr="true"/>
          </property>
-         <property name="placeholderText">
-          <string notr="true"/>
-         </property>
          <item>
           <property name="text">
            <string notr="true">proc</string>
