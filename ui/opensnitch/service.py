@@ -383,7 +383,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                             event.connection.process_cwd, event.rule.name),
                         action_on_conflict="IGNORE"
                         )
-
+                self._nodes.update_rule_time(
+                    str(datetime.fromtimestamp(event.unixnano/1000000000)),
+                    event.rule.name,
+                    "%s:%s" % (proto, addr)
+                )
 
             details_need_refresh = self._populate_stats_details(db, addr, stats)
             self._last_stats[addr] = []

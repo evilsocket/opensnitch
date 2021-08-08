@@ -81,6 +81,14 @@ class Nodes():
         except Exception as e:
             print(self.LOG_TAG + " exception adding node to db: ", e)
 
+    def update_rule_time(self, time, rule_name, addr):
+        self._db.update("rules",
+                        "time=?",
+                        (time, rule_name, addr),
+                        "name=? AND node=?",
+                        action_on_conflict="OR REPLACE"
+                        )
+
     def delete_all(self):
         self.send_notifications(None)
         self._nodes = {}
