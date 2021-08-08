@@ -548,87 +548,87 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="166"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. new outgoing connections are denied.&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Előugró ablak alapértelmezett művelete.&lt;/p&gt;&lt;p&gt;Amikor új kimenő kapcsolat jön létre, ez a művelet alapértelmezés szerint ki lesz választva, tehát ha az időtúllépés aktiválódik, akkor ez az opció lesz alkalmazva.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Miközben egy előugró ablak kéri a felhasználót, hogy engedélyezze vagy tagadja meg a kapcsolatot:&lt;/p&gt;&lt;p&gt;1. megtagadják az új kimenő kapcsolatokat.&lt;/p&gt;&lt;p&gt;2. az ismert kapcsolatok a felhasználó által meghatározott szabályok alapján engedélyezhetők vagy megtagadhatók.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="622"/>
         <source>Default action when the GUI is disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>Alapértelmezett művelet a grafikus felhasználói felület leválasztása esetén</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="726"/>
         <source>Debug invalid connections</source>
-        <translation type="unfinished"></translation>
+        <translation>Érvénytelen kapcsolatok hibakeresése</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="39"/>
         <source>Pop-ups</source>
-        <translation type="unfinished"></translation>
+        <translation>Előugró ablakok</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="80"/>
         <source>Default options</source>
-        <translation type="unfinished"></translation>
+        <translation>Alapértelmezett beállítások</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="332"/>
         <source>Default position on screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Alapértelmezett hely a képernyőn</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="437"/>
         <source>any temporary rules</source>
-        <translation type="unfinished"></translation>
+        <translation>bármilyen ideiglenes szabályt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="450"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ha ezt az opciót választja, a kiválasztott időtartam szabályai nem kerülnek hozzáadásra a grafikus felhasználói felület ideiglenes szabályainak listájához.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Az ideiglenes szabályok továbbra is érvényesek, és használhatja őket, amikor a rendszer kéri az új kapcsolat engedélyezését/elutasítását.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="453"/>
         <source>Don&apos;t save rules of duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne mentse az időtartam szabályait</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="466"/>
         <source>Time</source>
-        <translation type="unfinished">Idő</translation>
+        <translation>Idő</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="476"/>
         <source>Destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Cél</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="486"/>
         <source>Protocol</source>
-        <translation type="unfinished">Protokoll</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="496"/>
         <source>Process</source>
-        <translation type="unfinished"></translation>
+        <translation>Folyamat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="506"/>
         <source>Rule</source>
-        <translation type="unfinished">Szabály</translation>
+        <translation>Szabály</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="516"/>
         <source>Node</source>
-        <translation type="unfinished">Csomópont</translation>
+        <translation>Csomópont</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="723"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, opensnitch will prompt you to allow or deny connections that don&apos;t have an asocciated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using wireguard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ha be van jelölve, az OpenSnitch felszólítja Önt, hogy engedélyezze vagy utasítsa el azokat a kapcsolatokat, amelyek nem rendelkeznek aszocizált folyamatazonosítóval, több okból, főleg a rossz állapotú kapcsolatok miatt.&lt;/p&gt;&lt;p&gt;Az előugró párbeszédablak csak a hálózati kapcsolatra vonatkozó adatokat tartalmazza.&lt;/p&gt;&lt;p&gt;Vannak azonban olyan esetek, amikor ezek érvényes kapcsolatok, például amikor virtuális magánhálózatot hoznak létre a WireGuard használatával.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="460"/>
         <source>Events tab columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Események lap oszlopai</translation>
     </message>
 </context>
 <context>
@@ -1210,7 +1210,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="926"/>
         <source>Delete all intercepted hosts</source>
-        <translation type="unfinished">Az összes elfogott gazdagép törlése</translation>
+        <translation>Az összes elfogott gazdagép törlése</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="984"/>
@@ -1230,7 +1230,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1159"/>
         <source>Delete all intercepted addresses</source>
-        <translation type="unfinished">Az összes elfogott cím törlése</translation>
+        <translation>Az összes elfogott cím törlése</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1211"/>
@@ -1240,7 +1240,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1261"/>
         <source>Delete all intercepted ports</source>
-        <translation type="unfinished">Az összes elfogott kikötő törlése</translation>
+        <translation>Az összes elfogott kikötő törlése</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1313"/>
@@ -1250,7 +1250,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1371"/>
         <source>Delete all intercepted users</source>
-        <translation type="unfinished">Az összes elfogott felhasználó törlése</translation>
+        <translation>Az összes elfogott felhasználó törlése</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1436"/>
@@ -1275,12 +1275,12 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="665"/>
         <source>Delete connections that matched this rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapcsolat törlése amelyek megfelelnek ennek a szabálynak</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="712"/>
         <source>All applications</source>
-        <translation type="unfinished"></translation>
+        <translation>Minden alkalmazás</translation>
     </message>
 </context>
 <context>
@@ -1454,7 +1454,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="416"/>
         <source>Hover the mouse over the texts to display the help&lt;br&gt;&lt;br&gt;Don&apos;t forget to visit the wiki: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>A súgó megjelenítéséhez vigye az egeret a szövegek fölé&lt;br&gt;&lt;br&gt;Emlékezzen meglátogatni a wikit: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -1859,133 +1859,133 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <location filename="../../../opensnitch/dialogs/stats.py" line="261"/>
         <source>Name</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Név</translation>
+        <translation>Név</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="262"/>
         <source>Address</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Cím</translation>
+        <translation>Cím</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="263"/>
         <source>Status</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Állapot</translation>
+        <translation>Állapot</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="264"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Állomásnév</translation>
+        <translation>Állomásnév</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="265"/>
         <source>Version</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Változat</translation>
+        <translation>Változat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="266"/>
         <source>Rules</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Szabályok</translation>
+        <translation>Szabályok</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="267"/>
         <source>Time</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Idő</translation>
+        <translation>Idő</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="268"/>
         <source>Action</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Művelet</translation>
+        <translation>Művelet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="269"/>
         <source>Duration</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Időtartam</translation>
+        <translation>Időtartam</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="270"/>
         <source>Node</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Csomópont</translation>
+        <translation>Csomópont</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="271"/>
         <source>Enabled</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Engedélyezve</translation>
+        <translation>Engedélyezve</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="272"/>
         <source>Hits</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Találatok száma</translation>
+        <translation>Találatok</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="273"/>
         <source>Protocol</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Protokoll</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="274"/>
         <source>Process</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Folyamat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="276"/>
         <source>Destination</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Cél</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="280"/>
         <source>Rule</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Szabály</translation>
+        <translation>Szabály</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="281"/>
         <source>UserID</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Felhasználóazonosító</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="282"/>
         <source>LastConnection</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>LegutóbbiCsatlakozás</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="275"/>
         <source>Args</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Argumentumok</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="277"/>
         <source>DstIP</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>CélIPcíme</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="278"/>
         <source>DstHost</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Célállomásneve</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="279"/>
         <source>DstPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Célkikötő</translation>
     </message>
 </context>
 </TS>
