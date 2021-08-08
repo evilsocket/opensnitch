@@ -8,5 +8,6 @@
     "DefaultDuration": "once",
     "InterceptUnknown": false,
     "ProcMonitorMethod": "proc",
-    "LogLevel": 2
+    "LogLevel": 2,
+    "Firewall": "iptables"
 }

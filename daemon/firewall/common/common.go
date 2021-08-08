@@ -19,7 +19,7 @@ type (
 	// Common holds common fields and functionality of both firewalls,
 	// iptables and nftables.
 	Common struct {
-		sync.Mutex
+		sync.RWMutex
 		QueueNum        uint16
 		Running         bool
 		RulesChecker    *time.Ticker
@@ -58,6 +58,9 @@ func (c *Common) SetQueueNum(qNum *int) {
 
 // IsRunning returns if the firewall is running or not.
 func (c *Common) IsRunning() bool {
+	c.RLock()
+	defer c.RUnlock()
+
 	return c != nil && c.Running
 }
 

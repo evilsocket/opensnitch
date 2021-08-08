@@ -1,13 +1,10 @@
 package iptables
 
 import (
-	"fmt"
 	"os/exec"
 	"regexp"
-	"strings"
 	"sync"
 
-	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -15,6 +12,13 @@ import (
 
 // Action is the modifier we apply to a rule.
 type Action string
+
+const (
+	// Name is the name that identifies this firewall
+	Name = "iptables"
+	// SystemRulePrefix prefix added to each system rule
+	SystemRulePrefix = "opensnitch-filter"
+)
 
 // Actions we apply to the firewall.
 const (
@@ -24,8 +28,6 @@ const (
 	FLUSH    = Action("-F")
 	NEWCHAIN = Action("-N")
 	DELCHAIN = Action("-X")
-
-	SystemRulePrefix = "opensnitch-filter"
 )
 
 // SystemChains holds the fw rules defined by the user
@@ -51,7 +53,7 @@ type Iptables struct {
 
 // Fw initializes a new Iptables object
 func Fw() (*Iptables, error) {
-	if err := IsSupported(); err != nil {
+	if err := IsAvailable(); err != nil {
 		return nil, err
 	}
 
@@ -70,7 +72,7 @@ func Fw() (*Iptables, error) {
 
 // Name returns the firewall name
 func (ipt *Iptables) Name() string {
-	return "iptables"
+	return Name
 }
 
 // Init inserts the firewall rules and starts monitoring for firewall
@@ -110,20 +112,12 @@ func (ipt *Iptables) Stop() {
 	ipt.Running = false
 }
 
-// IsSupported checks if iptables is installed in the system and what version it is.
-// If it's not installed or if it's nftables, nftables will be used instead.
-func IsSupported() error {
-	raw, err := exec.Command("iptables", []string{"-V"}...).CombinedOutput()
+// IsAvailable checks if iptables is installed in the system.
+func IsAvailable() error {
+	_, err := exec.Command("iptables", []string{"-V"}...).CombinedOutput()
 	if err != nil {
 		return err
 	}
-	version := strings.Split(string(raw), " ")
-	log.Info("iptables version: %s", version)
-	// format: iptables v1.8.7 (nf_tables), iptables v1.8.7 (legacy), iptables v1.8.7
-	if len(version) > 2 && core.Trim(version[2]) == "(nf_tables)" {
-		return fmt.Errorf("fw, using nftables instead of iptables (%v)", version)
-	}
-
 	return nil
 }
 

@@ -11,16 +11,17 @@ import (
 )
 
 const (
-	mangleTableName = "opensnitch-mangle"
-	filterTableName = "opensnitch-filter"
+	// Name is the name that identifies this firewall
+	Name = "nftables"
+
+	mangleTableName = "mangle"
+	filterTableName = "filter"
 	// The following chains will be under our own mangle or filter tables.
 	// There shouldn't be other chains with the same name here.
 	outputChain = "output"
 	inputChain  = "input"
 	// key assigned to every fw rule we add, in order to get rules by this key.
-	fwKey        = "opesnitch-key"
-	dnsRuleKey   = fwKey + "-dns"
-	connsRuleKey = fwKey + "-conns"
+	fwKey = "opensnitch-key"
 )
 
 var (
@@ -75,7 +76,7 @@ func Fw() (*Nft, error) {
 
 // Name returns the name of the firewall
 func (n *Nft) Name() string {
-	return "nftables"
+	return Name
 }
 
 // Init inserts the firewall rules and starts monitoring for firewall
@@ -118,6 +119,7 @@ func (n *Nft) Stop() {
 
 // InsertRules adds fw rules to intercept connections
 func (n *Nft) InsertRules() {
+	n.delInterceptionRules()
 	n.addGlobalTables()
 	n.addGlobalChains()
 
@@ -130,10 +132,7 @@ func (n *Nft) InsertRules() {
 
 // CleanRules deletes the rules we added.
 func (n *Nft) CleanRules(logErrors bool) {
-	n.conn.DelTable(mangleTable)
-	n.conn.DelTable(mangleTable6)
-	n.conn.DelTable(filterTable)
-	n.conn.DelTable(filterTable6)
+	n.delInterceptionRules()
 	err := n.conn.Flush()
 	if err != nil && logErrors {
 		log.Error("Error cleaning nftables tables: %s", err)

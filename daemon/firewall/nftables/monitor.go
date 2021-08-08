@@ -17,7 +17,7 @@ func (n *Nft) AreRulesLoaded() bool {
 			return false
 		}
 		for _, r := range rules {
-			if string(r.UserData) == connsRuleKey {
+			if string(r.UserData) == fwKey {
 				nRules++
 			}
 		}
@@ -35,7 +35,7 @@ func (n *Nft) AreRulesLoaded() bool {
 			return false
 		}
 		for _, r := range rules {
-			if string(r.UserData) == dnsRuleKey {
+			if string(r.UserData) == fwKey {
 				nRules++
 			}
 		}
@@ -49,7 +49,7 @@ func (n *Nft) AreRulesLoaded() bool {
 }
 
 func (n *Nft) reloadRulesCallback() {
-	log.Important("firewall rules changed, reloading")
+	log.Important("nftables firewall rules changed, reloading")
 	n.AddSystemRules()
 	n.InsertRules()
 }

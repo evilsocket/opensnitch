@@ -376,10 +376,11 @@ func main() {
 	}
 	repeatPktChan = repeatQueue.Packets()
 
-	// queue is ready, run firewall rules
-	firewall.Init(&queueNum)
-
 	uiClient = ui.NewClient(uiSocket, stats, rules)
+
+	// queue is ready, run firewall rules
+	firewall.Init(uiClient.GetFirewallType(), &queueNum)
+
 	if overwriteLogging() {
 		setupLogging()
 	}

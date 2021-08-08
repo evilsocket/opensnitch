@@ -92,7 +92,7 @@ func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
 				},
 			},
 			// rule key, to allow get it later by key
-			UserData: []byte(dnsRuleKey),
+			UserData: []byte(fwKey),
 		})
 	}
 	// apply changes
@@ -139,7 +139,7 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 				},
 			},
 			// rule key, to allow get it later by key
-			UserData: []byte(connsRuleKey),
+			UserData: []byte(fwKey),
 		})
 	}
 	// apply changes
@@ -148,4 +148,51 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 	}
 
 	return nil, nil
+}
+
+func (n *Nft) delInterceptionRules() {
+	n.delRulesByKey(fwKey)
+}
+
+func (n *Nft) delRulesByKey(key string) {
+	chains, err := n.conn.ListChains()
+	if err != nil {
+		log.Warning("nftables, error listing chains: %s", err)
+		return
+	}
+	commit := false
+	for _, c := range chains {
+		deletedRules := 0
+		rules, err := n.conn.GetRule(c.Table, c)
+		if err != nil {
+			log.Warning("nftables, error listing rules: %s", err)
+			continue
+		}
+
+		for _, r := range rules {
+			if string(r.UserData) == key {
+				// just passing the rule object doesn't work.
+				if err := n.conn.DelRule(&nftables.Rule{
+					Table:  c.Table,
+					Chain:  c,
+					Handle: r.Handle,
+				}); err != nil {
+					log.Warning("nftables, error deleting interception rule: %s", err)
+					continue
+				}
+				deletedRules++
+				commit = true
+			}
+		}
+		if deletedRules == len(rules) {
+			n.conn.DelTable(c.Table)
+		}
+	}
+	if commit {
+		if err := n.conn.Flush(); err != nil {
+			log.Warning("nftables, error applying interception rules: %s", err)
+		}
+	}
+
+	return
 }

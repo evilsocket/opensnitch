@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
+	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
@@ -43,6 +44,7 @@ type Config struct {
 	InterceptUnknown  bool         `json:"InterceptUnknown"`
 	ProcMonitorMethod string       `json:"ProcMonitorMethod"`
 	LogLevel          *uint32      `json:"LogLevel"`
+	Firewall          string       `json:"Firewall"`
 }
 
 // Client holds the connection information of a client.
@@ -103,6 +105,16 @@ func (c *Client) InterceptUnknown() bool {
 	config.RLock()
 	defer config.RUnlock()
 	return config.InterceptUnknown
+}
+
+// GetFirewallType returns the firewall to use
+func (c *Client) GetFirewallType() string {
+	config.RLock()
+	defer config.RUnlock()
+	if config.Firewall == "" {
+		return iptables.Name
+	}
+	return config.Firewall
 }
 
 // DefaultAction returns the default configured action for
