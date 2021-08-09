@@ -255,6 +255,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def __init__(self, parent=None, address=None, db=None, dbname="db"):
         super(StatsDialog, self).__init__(parent)
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
+
+        self._current_desktop = os.environ['XDG_CURRENT_DESKTOP'] if os.environ.get("XDG_CURRENT_DESKTOP") != None else None
+
         self.setWindowFlags(QtCore.Qt.Window)
         self.setupUi(self)
         # columns names. Must be added here in order to names be translated.
@@ -468,6 +471,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if QtGui.QIcon.hasThemeIcon("document-new") == False:
             self._configure_buttons_icons()
+
+    #Sometimes a maximized window which had been minimized earlier won't unminimize
+    #To workaround, we explicitely maximize such windows when unminimizing happens
+    def changeEvent(self, event):
+        if event.type() == QtCore.QEvent.WindowStateChange:
+            if event.oldState() & QtCore.Qt.WindowMinimized and event.oldState() & QtCore.Qt.WindowMaximized:
+                #a previously minimized maximized window ...
+                if self.windowState() ^ QtCore.Qt.WindowMinimized and self._current_desktop == "KDE":
+                    #is not minimized anymore, i.e. it was unminimized
+                    self.setWindowState(QtCore.Qt.WindowNoState)
+                    self.setWindowState(QtCore.Qt.WindowMaximized)
 
     def showEvent(self, event):
         super(StatsDialog, self).showEvent(event)
