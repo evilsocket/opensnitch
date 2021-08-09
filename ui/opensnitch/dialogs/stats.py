@@ -525,7 +525,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if type(rules_splitter_pos) == QtCore.QByteArray:
             self.rulesSplitter.restoreState(rules_splitter_pos)
             rulesSizes = self.rulesSplitter.sizes()
-            if len(rulesSizes) > 0:
+            if self.IN_DETAIL_VIEW[self.TAB_RULES] == True:
+                self.comboRulesFilter.setVisible(False)
+            elif len(rulesSizes) > 0:
                 self.comboRulesFilter.setVisible(rulesSizes[0] == 0)
         else:
             w = self.rulesSplitter.width()

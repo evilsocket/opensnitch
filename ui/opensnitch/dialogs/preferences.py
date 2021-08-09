@@ -192,7 +192,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 node_config['Server']['LogFile'] = self.comboNodeLogFile.currentText()
             else:
                 print(addr, " doesn't have Server item")
-            return json.dumps(node_config), None
+            return json.dumps(node_config, indent="    "), None
         except Exception as e:
             print(self.LOG_TAG + "exception loading node config on %s: " % addr, e)
 
