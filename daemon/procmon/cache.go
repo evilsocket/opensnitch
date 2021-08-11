@@ -158,7 +158,7 @@ func (c *CacheProcs) delete(pid int) {
 
 	for n, procItem := range c.items {
 		if procItem.Pid == pid {
-			c.setItems(c.items[:n], c.items[n+1:])
+			c.deleteItem(n)
 			inodesCache.delete(pid)
 			break
 		}
@@ -166,8 +166,10 @@ func (c *CacheProcs) delete(pid int) {
 }
 
 func (c *CacheProcs) deleteItem(pos int) {
-	tempItems := c.getItems()
-	c.setItems(tempItems[:pos], tempItems[pos+1:])
+	nItems := len(c.items)
+	if pos < nItems {
+		c.setItems(c.items[:pos], c.items[pos+1:])
+	}
 }
 
 func (c *CacheProcs) setItems(newItems []*ProcItem, oldItems []*ProcItem) {
@@ -190,6 +192,9 @@ func (c *CacheProcs) getItems() []*ProcItem {
 }
 
 func (c *CacheProcs) countItems() int {
+	c.RLock()
+	defer c.RUnlock()
+
 	return len(c.items)
 }
 
@@ -210,8 +215,7 @@ func (c *CacheProcs) getPid(inode int, inodeKey string, expect string) (int, int
 
 		descriptors := lookupPidDescriptors(procItem.FdPath, procItem.Pid)
 		if descriptors == nil {
-			// FIXME: out of bounds may occur
-			c.setItems(c.items[:n], c.items[n+1:])
+			c.deleteItem(n)
 			continue
 		}
 

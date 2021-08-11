@@ -45,6 +45,22 @@ func TestCacheProcs(t *testing.T) {
 		}
 	})
 
+	// should not crash, and the number of items should still be 1
+	pidsCache.deleteItem(1)
+	t.Run("Test deleteItem check bounds", func(t *testing.T) {
+		if pidsCache.countItems() != 1 {
+			t.Error("deleteItem check bounds error", pidsCache.countItems())
+		}
+	})
+
+	pidsCache.deleteItem(0)
+	t.Run("Test deleteItem", func(t *testing.T) {
+		if pidsCache.countItems() != 0 {
+			t.Error("deleteItem error", pidsCache.countItems())
+		}
+	})
+	t.Log("items in cache:", pidsCache.countItems())
+
 	// the key of an inodeCache entry is formed as: inodeNumer + srcIP + srcPort + dstIP + dstPort
 	inodeKey := "000000000127.0.0.144444127.0.0.153"
 	// add() expects a path to the inode fd (/proc/<pid>/fd/12345), but as getPid() will check the path in order to retrieve the pid,

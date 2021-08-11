@@ -252,7 +252,7 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 
 		//check if the pulled out packet is the same we put in
 		if res := bytes.Compare(packet.Packet.Data(), pkt.Packet.Data()); res != 0 {
-			log.Error("The packet which was requeued has changed abruptly. This should never happen. Please report this incident to the Opensnitch developers. %s %s ", packet, pkt)
+			log.Error("The packet which was requeued has changed abruptly. This should never happen. Please report this incident to the Opensnitch developers. %v %v ", packet, pkt)
 			return nil
 		}
 		packet = &pkt
