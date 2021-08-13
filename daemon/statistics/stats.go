@@ -12,12 +12,11 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
-const (
-	// max number of events to keep in the buffer
-	maxEvents = 100
-	// max number of entries for each By* map
-	maxStats = 25
-)
+// StatsConfig holds the stats confguration
+type StatsConfig struct {
+	MaxEvents int `json:"MaxEvents"`
+	MaxStats  int `json:"MaxStats"`
+}
 
 type conEvent struct {
 	con       *conman.Connection
@@ -25,6 +24,8 @@ type conEvent struct {
 	wasMissed bool
 }
 
+// Statistics holds the connections and statistics the daemon intercepts.
+// The connections are stored in the Events slice.
 type Statistics struct {
 	sync.RWMutex
 
@@ -46,8 +47,13 @@ type Statistics struct {
 
 	rules *rule.Loader
 	jobs  chan conEvent
+	// max number of events to keep in the buffer
+	maxEvents int
+	// max number of entries for each By* map
+	maxStats int
 }
 
+// New returns a new Statistics object and initializes the go routines to update the stats.
 func New(rules *rule.Loader) (stats *Statistics) {
 	stats = &Statistics{
 		Started:      time.Now(),
@@ -59,8 +65,10 @@ func New(rules *rule.Loader) (stats *Statistics) {
 		ByUID:        make(map[string]uint64),
 		ByExecutable: make(map[string]uint64),
 
-		rules: rules,
-		jobs:  make(chan conEvent),
+		rules:     rules,
+		jobs:      make(chan conEvent),
+		maxEvents: 150,
+		maxStats:  25,
 	}
 
 	go stats.eventWorker(0)
@@ -71,6 +79,19 @@ func New(rules *rule.Loader) (stats *Statistics) {
 	return stats
 }
 
+// SetConfig configures the max events to keep in the backlog before sending
+// the stats to the UI, or while the UI is not connected.
+// if the backlog is full, it'll be shifted by one.
+func (s *Statistics) SetConfig(config StatsConfig) {
+	if config.MaxEvents > 0 {
+		s.maxEvents = config.MaxEvents
+	}
+	if config.MaxStats > 0 {
+		s.maxStats = config.MaxStats
+	}
+}
+
+// OnDNSResponse increases the counter of dns and accepted connections.
 func (s *Statistics) OnDNSResponse() {
 	s.Lock()
 	defer s.Unlock()
@@ -78,6 +99,7 @@ func (s *Statistics) OnDNSResponse() {
 	s.Accepted++
 }
 
+// OnIgnored increases the counter of ignored and accepted connections.
 func (s *Statistics) OnIgnored() {
 	s.Lock()
 	defer s.Unlock()
@@ -89,7 +111,7 @@ func (s *Statistics) incMap(m *map[string]uint64, key string) {
 	if val, found := (*m)[key]; found == false {
 		// do we have enough space left?
 		nElems := len(*m)
-		if nElems >= maxStats {
+		if nElems >= s.maxStats {
 			// find the element with less hits
 			nMin := uint64(9999999999)
 			minKey := ""
@@ -152,7 +174,7 @@ func (s *Statistics) onConnection(con *conman.Connection, match *rule.Rule, wasM
 	// if we reached the limit, shift everything back
 	// by one position
 	nEvents := len(s.Events)
-	if nEvents == maxEvents {
+	if nEvents == s.maxEvents {
 		s.Events = s.Events[1:]
 	}
 	if wasMissed {
@@ -161,6 +183,8 @@ func (s *Statistics) onConnection(con *conman.Connection, match *rule.Rule, wasM
 	s.Events = append(s.Events, NewEvent(con, match))
 }
 
+// OnConnectionEvent sends the details of a new connection throughout a channel,
+// in order to add the connection to the stats.
 func (s *Statistics) OnConnectionEvent(con *conman.Connection, match *rule.Rule, wasMissed bool) {
 	s.jobs <- conEvent{
 		con:       con,
@@ -180,8 +204,22 @@ func (s *Statistics) serializeEvents() []*protocol.Event {
 	return serialized
 }
 
+// emptyStats empties the stats once we've sent them to the GUI.
+// We don't need them anymore here.
+func (s *Statistics) emptyStats() {
+	s.Lock()
+	if len(s.Events) > 0 {
+		s.Events = make([]*Event, 0)
+	}
+	s.Unlock()
+}
+
+// Serialize returns the collected statistics.
+// After return the stats, the Events are emptied, to keep collecting more stats
+// and not miss connections.
 func (s *Statistics) Serialize() *protocol.Statistics {
 	s.Lock()
+	defer s.emptyStats()
 	defer s.Unlock()
 
 	return &protocol.Statistics{

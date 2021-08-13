@@ -38,13 +38,14 @@ type serverConfig struct {
 // Config holds the values loaded from configFile
 type Config struct {
 	sync.RWMutex
-	Server            serverConfig `json:"Server"`
-	DefaultAction     string       `json:"DefaultAction"`
-	DefaultDuration   string       `json:"DefaultDuration"`
-	InterceptUnknown  bool         `json:"InterceptUnknown"`
-	ProcMonitorMethod string       `json:"ProcMonitorMethod"`
-	LogLevel          *uint32      `json:"LogLevel"`
-	Firewall          string       `json:"Firewall"`
+	Server            serverConfig           `json:"Server"`
+	DefaultAction     string                 `json:"DefaultAction"`
+	DefaultDuration   string                 `json:"DefaultDuration"`
+	InterceptUnknown  bool                   `json:"InterceptUnknown"`
+	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
+	LogLevel          *uint32                `json:"LogLevel"`
+	Firewall          string                 `json:"Firewall"`
+	Stats             statistics.StatsConfig `json:"Stats"`
 }
 
 // Client holds the connection information of a client.
@@ -105,6 +106,13 @@ func (c *Client) InterceptUnknown() bool {
 	config.RLock()
 	defer config.RUnlock()
 	return config.InterceptUnknown
+}
+
+// GetStatsConfig returns the stats config from disk
+func (c *Client) GetStatsConfig() statistics.StatsConfig {
+	config.RLock()
+	defer config.RUnlock()
+	return config.Stats
 }
 
 // GetFirewallType returns the firewall to use

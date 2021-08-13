@@ -9,5 +9,9 @@
     "InterceptUnknown": false,
     "ProcMonitorMethod": "proc",
     "LogLevel": 2,
-    "Firewall": "iptables"
+    "Firewall": "iptables",
+    "Stats": {
+        "MaxEvents": 150,
+        "MaxStats": 25
+    }
 }

@@ -377,6 +377,7 @@ func main() {
 	repeatPktChan = repeatQueue.Packets()
 
 	uiClient = ui.NewClient(uiSocket, stats, rules)
+	stats.SetConfig(uiClient.GetStatsConfig())
 
 	// queue is ready, run firewall rules
 	firewall.Init(uiClient.GetFirewallType(), &queueNum)
