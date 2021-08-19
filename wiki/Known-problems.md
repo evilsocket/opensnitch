@@ -1,4 +1,14 @@
+**eBPF**
+
+[cannot open kprove_events](#cannot-open-kprove_events): open /sys/kernel/debug/tracing/kprobe_events: permission denied
+
+[cannot write ... kprobe_events: file exists](#kprobe_events-file-exists)
+
+**General**
+
 [KDE/Gnome/Xfce/... does not boot up](#desktop-environment-does-not-bootup)
+
+**GUI**
 
 [GUI crash/exception/does not show up](#GUI-crash-exception-or-does-not-show-up):
 * NameError: name 'unicode' is not defined
@@ -15,12 +25,42 @@
 
 [OpenSnitch icon doesn't show up on Gnome-Shell](#OpenSnitch-icon-does-not-show-up-on-gnome-shell)
 
+**daemon**
+
 [Kernel panic on >= 5.6.16 || kernel hardening incompatibilities](#kernel-panics)
 
 [opensnitchd/daemon does not start](#opensnitchd-does-not-start):
 
 
 ***
+
+### Cannot open kprove_events
+
+If after enabling eBPF you see the following error:
+
+cannot open kprobe_events: open /sys/kernel/debug/tracing/kprobe_events: permission denied
+
+you'll need to allow opensnitch in selinux or set it to permissive:
+
+```
+$ sudo journalctl -ar | grep "opensnitch.*lockdown"
+Aug 19 06:18:28 localhost-live audit[2443]: AVC avc:  denied  { confidentiality } for  pid=2443 comm=opensnitchd lockdown_reason=use of tracefs scontext=system_u:system_r:unconfined_service_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=lockdown permissive=0
+
+$ echo "Aug 19 06:18:28 localhost-live audit[2443]: AVC avc:  denied  { confidentiality } for  pid=2443 comm=opensnitchd lockdown_reason=use of tracefs scontext=system_u:system_r:unconfined_service_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=lockdown permissive=0" > opensnitch_lockdown.txt
+
+$ sudo su
+# audit2allow -M opensnitchd < opensnitch_lockdown.txt
+# semanage -i opensnitchd.pp
+```
+
+### kprobe_events file exists
+
+This error indicates that the network hooks are already added, you'll need to delete them manually:
+
+```
+$ sudo su
+# > /sys/kernel/debug/tracing/kprobe_events
+```
 
 ### Desktop Environment does not boot up
 
