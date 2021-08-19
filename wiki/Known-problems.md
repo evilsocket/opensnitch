@@ -53,6 +53,14 @@ $ sudo su
 # semanage -i opensnitchd.pp
 ```
 
+You can download this generic selinux policy from here: 
+https://github.com/evilsocket/opensnitch/issues/475#issuecomment-901838324
+
+Useful links:
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/security-enhanced_linux/sect-security-enhanced_linux-fixing_problems-allowing_access_audit2allow
+https://danwalsh.livejournal.com/24750.html
+https://learn.netdata.cloud/docs/agent/collectors/ebpf.plugin
+
 ### kprobe_events file exists
 
 This error indicates that the network hooks are already added, you'll need to delete them manually:
