@@ -208,12 +208,12 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 
 	case notification.Type == protocol.Action_LOAD_FIREWALL:
 		log.Info("[notification] starting firewall")
-		firewall.Init(nil)
+		firewall.Init(c.GetFirewallType(), nil)
 		c.sendNotificationReply(stream, notification.Id, "", nil)
 
 	case notification.Type == protocol.Action_UNLOAD_FIREWALL:
 		log.Info("[notification] stopping firewall")
-		firewall.Stop(nil)
+		firewall.Stop()
 		c.sendNotificationReply(stream, notification.Id, "", nil)
 
 	// ENABLE_RULE just replaces the rule on disk

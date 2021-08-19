@@ -1,2 +1,3 @@
 daemon/default-config.json etc/opensnitchd/
 daemon/system-fw.json etc/opensnitchd/
+ebpf_prog/opensnitch.o etc/opensnitchd/

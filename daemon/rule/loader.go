@@ -134,7 +134,7 @@ func (l *Loader) loadRule(fileName string) error {
 	l.sortRules()
 
 	if l.isTemporary(&r) {
-		err = l.scheduleTemporaryRule(&r)
+		err = l.scheduleTemporaryRule(r)
 	}
 
 	return nil
@@ -146,7 +146,12 @@ func (l *Loader) loadRule(fileName string) error {
 func (l *Loader) deleteRule(filePath string) {
 	fileName := filepath.Base(filePath)
 	ruleName := fileName[:len(fileName)-5]
-	if rule, found := l.rules[ruleName]; found && rule.Duration == Always {
+
+	l.RLock()
+	rule, found := l.rules[ruleName]
+	delRule := found && rule.Duration == Always
+	l.RUnlock()
+	if delRule {
 		l.Delete(ruleName)
 	}
 }
@@ -291,13 +296,13 @@ func (l *Loader) replaceUserRule(rule *Rule) (err error) {
 	l.Unlock()
 
 	if l.isTemporary(rule) {
-		err = l.scheduleTemporaryRule(rule)
+		err = l.scheduleTemporaryRule(*rule)
 	}
 
 	return err
 }
 
-func (l *Loader) scheduleTemporaryRule(rule *Rule) error {
+func (l *Loader) scheduleTemporaryRule(rule Rule) error {
 	tTime, err := time.ParseDuration(string(rule.Duration))
 	if err != nil {
 		return err
@@ -305,10 +310,17 @@ func (l *Loader) scheduleTemporaryRule(rule *Rule) error {
 
 	time.AfterFunc(tTime, func() {
 		l.Lock()
+		defer l.Unlock()
+
 		log.Info("Temporary rule expired: %s - %s", rule.Name, rule.Duration)
-		delete(l.rules, rule.Name)
-		l.sortRules()
-		l.Unlock()
+		if newRule, found := l.rules[rule.Name]; found {
+			if newRule.Duration != rule.Duration {
+				log.Debug("%s temporary rule expired, but has new Duration, old: %s, new: %s", rule.Name, rule.Duration, newRule.Duration)
+				return
+			}
+			delete(l.rules, rule.Name)
+			l.sortRules()
+		}
 	})
 	return nil
 }
@@ -364,6 +376,7 @@ func (l *Loader) Delete(ruleName string) error {
 	if rule == nil {
 		return nil
 	}
+	l.cleanListsRule(rule)
 
 	delete(l.rules, ruleName)
 	l.sortRules()

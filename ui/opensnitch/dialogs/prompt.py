@@ -12,11 +12,11 @@ from PyQt5.QtCore import QCoreApplication as QC
 
 from slugify import slugify
 
-from desktop_parser import LinuxDesktopParser
-from config import Config
-from version import version
+from opensnitch.desktop_parser import LinuxDesktopParser
+from opensnitch.config import Config
+from opensnitch.version import version
 
-import ui_pb2
+from opensnitch import ui_pb2
 
 DIALOG_UI_PATH = "%s/../res/prompt.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -57,6 +57,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # Other interesting flags: QtCore.Qt.Tool | QtCore.Qt.BypassWindowManagerHint
         self._cfg = Config.get()
         self.setupUi(self)
+
+        self._width = self.width()
+        self._height = self.height()
 
         dialog_geometry = self._cfg.getSettings("promptDialog/geometry")
         if dialog_geometry == QtCore.QByteArray:
@@ -103,6 +106,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def showEvent(self, event):
         super(PromptDialog, self).showEvent(event)
         self.activateWindow()
+        self.setMaximumSize(self._width, self._height)
         self.move_popup()
 
     def move_popup(self):
@@ -257,10 +261,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if app_name == "":
             self.appPathLabel.setVisible(False)
             self.argsLabel.setVisible(False)
-            app_name = QC.translate("popups", "Unknown process: %s" % con.process_path)
+            app_name = QC.translate("popups", "Unknown process %s" % con.process_path)
             self.appNameLabel.setText(QC.translate("popups", "Outgoing connection"))
         else:
-            self.appNameLabel.setText(app_name)
+            self._set_elide_text(self.appNameLabel, "%s" % app_name, max_size=42)
             self.appNameLabel.setToolTip(app_name)
 
         self.cwdLabel.setToolTip("%s %s" % (QC.translate("popups", "Process launched from:"), con.process_cwd))
@@ -442,39 +446,42 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _get_combo_operator(self, combo, what_idx):
         if combo.itemData(what_idx) == self.FIELD_PROC_PATH:
-            return "simple", "process.path", self._con.process_path
+            return Config.RULE_TYPE_SIMPLE, "process.path", self._con.process_path
 
         elif combo.itemData(what_idx) == self.FIELD_PROC_ARGS:
-            return "simple", "process.command", ' '.join(self._con.process_args)
+            # this should not happen
+            if len(self._con.process_args) == 0:
+                return Config.RULE_TYPE_SIMPLE, "process.command", self._con.process_path
+            return Config.RULE_TYPE_SIMPLE, "process.command", ' '.join(self._con.process_args)
 
         elif combo.itemData(what_idx) == self.FIELD_USER_ID:
-            return "simple", "user.id", "%s" % self._con.user_id
+            return Config.RULE_TYPE_SIMPLE, "user.id", "%s" % self._con.user_id
 
         elif combo.itemData(what_idx) == self.FIELD_DST_PORT:
-            return "simple", "dest.port", "%s" % self._con.dst_port
+            return Config.RULE_TYPE_SIMPLE, "dest.port", "%s" % self._con.dst_port
 
         elif combo.itemData(what_idx) == self.FIELD_DST_IP:
-            return "simple", "dest.ip", self._con.dst_ip
+            return Config.RULE_TYPE_SIMPLE, "dest.ip", self._con.dst_ip
 
         elif combo.itemData(what_idx) == self.FIELD_DST_HOST:
-            return "simple", "dest.host", combo.currentText()
+            return Config.RULE_TYPE_SIMPLE, "dest.host", combo.currentText()
 
         elif combo.itemData(what_idx) == self.FIELD_DST_NETWORK:
             # strip "to ": "to x.x.x/20" -> "x.x.x/20"
             # we assume that to is one word in all languages
             parts = combo.currentText().split(' ')
             text = parts[len(parts)-1]
-            return "network", "dest.network", text
+            return Config.RULE_TYPE_NETWORK, "dest.network", text
 
         elif combo.itemData(what_idx) == self.FIELD_REGEX_HOST:
             parts = combo.currentText().split(' ')
             text = parts[len(parts)-1]
-            return "regexp", "dest.host", "%s" % '\.'.join(text.split('.')).replace("*", ".*")
+            return Config.RULE_TYPE_REGEXP, "dest.host", "%s" % '\.'.join(text.split('.')).replace("*", ".*")
 
         elif combo.itemData(what_idx) == self.FIELD_REGEX_IP:
             parts = combo.currentText().split(' ')
             text = parts[len(parts)-1]
-            return "regexp", "dest.ip", "%s" % '\.'.join(text.split('.')).replace("*", ".*")
+            return Config.RULE_TYPE_REGEXP, "dest.ip", "%s" % '\.'.join(text.split('.')).replace("*", ".*")
 
     def _on_deny_clicked(self):
         self._default_action = self.ACTION_IDX_DENY
@@ -523,18 +530,18 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             rule_temp_name = slugify("%s %s" % (rule_temp_name, _data))
 
         if self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_PORT:
-            data.append({"type": "simple", "operand": "dest.port", "data": str(self._con.dst_port)})
+            data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": "dest.port", "data": str(self._con.dst_port)})
             rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.dst_port)))
 
         if self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_USER_ID:
-            data.append({"type": "simple", "operand": "user.id", "data": str(self._con.user_id)})
+            data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": "user.id", "data": str(self._con.user_id)})
             rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.user_id)))
 
         if self._is_list_rule():
             data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
             self._rule.operator.data = json.dumps(data)
-            self._rule.operator.type = "list"
-            self._rule.operator.operand = ""
+            self._rule.operator.type = Config.RULE_TYPE_LIST
+            self._rule.operator.operand = Config.RULE_TYPE_LIST
 
         self._rule.name = rule_temp_name
 

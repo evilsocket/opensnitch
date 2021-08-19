@@ -114,13 +114,17 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 // FindInAlreadyEstablishedTCP searches those TCP connections which were already established at the time
 // when opensnitch started
 func findInAlreadyEstablishedTCP(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (int, int, error) {
-	var alreadyEstablished map[*daemonNetlink.Socket]int
+	alreadyEstablished.RLock()
+	defer alreadyEstablished.RUnlock()
+
+	var _alreadyEstablished map[*daemonNetlink.Socket]int
 	if proto == "tcp" {
-		alreadyEstablished = alreadyEstablishedTCP
+		_alreadyEstablished = alreadyEstablished.TCP
 	} else if proto == "tcp6" {
-		alreadyEstablished = alreadyEstablishedTCPv6
+		_alreadyEstablished = alreadyEstablished.TCPv6
 	}
-	for sock, v := range alreadyEstablished {
+
+	for sock, v := range _alreadyEstablished {
 		if (*sock).ID.SourcePort == uint16(srcPort) && (*sock).ID.Source.Equal(srcIP) &&
 			(*sock).ID.Destination.Equal(dstIP) && (*sock).ID.DestinationPort == uint16(dstPort) {
 			return v, int((*sock).UID), nil
@@ -131,8 +135,8 @@ func findInAlreadyEstablishedTCP(proto string, srcPort uint, srcIP net.IP, dstIP
 
 //returns true if addr is in the list of this machine's addresses
 func findAddressInLocalAddresses(addr net.IP) bool {
-	localAddressesLock.Lock()
-	defer localAddressesLock.Unlock()
+	lock.Lock()
+	defer lock.Unlock()
 	for _, a := range localAddresses {
 		if addr.String() == a.String() {
 			return true

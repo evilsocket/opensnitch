@@ -3,6 +3,7 @@ import threading
 import sys
 
 class Database:
+    db = None
     __instance = None
     DB_IN_MEMORY   = ":memory:"
     DB_TYPE_MEMORY = 0
@@ -34,10 +35,28 @@ class Database:
             print("\n ** Error opening DB: SQLite driver not loaded. DB name: %s\n" % self.db_file)
             print("\n    Available drivers: ", QSqlDatabase.drivers())
             sys.exit(-1)
+
+        db_status, db_error = self.is_db_ok()
+        if db_status is False:
+            print("db.initialize() error:", db_error)
+            return False, db_error
+
         self._create_tables()
+        return True, None
 
     def close(self):
         self.db.close()
+
+    def is_db_ok(self):
+        q = QSqlQuery("PRAGMA integrity_check;", self.db)
+        if q.exec_() is not True:
+            print(q.lastError().driverText())
+            return False, q.lastError().driverText()
+
+        if q.next() and q.value(0) != "ok":
+            return False, "Database is corrupted (1)"
+
+        return True, None
 
     def get_db(self):
         return self.db
@@ -53,14 +72,17 @@ class Database:
 
     def _create_tables(self):
         # https://www.sqlite.org/wal.html
-        q = QSqlQuery("PRAGMA journal_mode = OFF", self.db)
-        q.exec_()
-        q = QSqlQuery("PRAGMA synchronous = OFF", self.db)
-        q.exec_()
-        q = QSqlQuery("PRAGMA cache_size=10000", self.db)
-        q.exec_()
-        q = QSqlQuery("PRAGMA optimize", self.db)
-        q.exec_()
+        if self.db_file == Database.DB_IN_MEMORY:
+            q = QSqlQuery("PRAGMA journal_mode = OFF", self.db)
+            q.exec_()
+            q = QSqlQuery("PRAGMA synchronous = OFF", self.db)
+            q.exec_()
+            q = QSqlQuery("PRAGMA cache_size=10000", self.db)
+            q.exec_()
+        else:
+            q = QSqlQuery("PRAGMA optimize", self.db)
+            q.exec_()
+
         q = QSqlQuery("create table if not exists connections (" \
                 "time text, " \
                 "node text, " \
@@ -138,6 +160,31 @@ class Database:
         with self._lock:
             q = QSqlQuery("delete from " + table, self.db)
             q.exec_()
+
+    def empty_rule(self, name=""):
+        if name == "":
+            return
+        qstr = "DELETE FROM connections WHERE rule = ?"
+
+        with self._lock:
+            q = QSqlQuery(qstr, self.db)
+            q.prepare(qstr)
+            q.addBindValue(name)
+            if not q.exec_():
+                print("db, empty_rule() ERROR: ", qstr)
+                print(q.lastError().driverText())
+
+    def delete_rule(self, name, node):
+        qstr = "DELETE FROM rules WHERE name=? AND node=?"
+
+        with self._lock:
+            q = QSqlQuery(qstr, self.db)
+            q.prepare(qstr)
+            q.addBindValue(name)
+            q.addBindValue(node)
+            if not q.exec_():
+                print("db, delete_rule() ERROR: ", qstr)
+                print(q.lastError().driverText())
 
     def clone_db(self, name):
         return QSqlDatabase.cloneDatabase(self.db, name)

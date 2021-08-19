@@ -223,7 +223,7 @@ func netlinkRequest(sockReq *SocketRequest, family uint8, proto uint8, srcPort, 
 		return nil, err
 	}
 	if len(msgs) == 0 {
-		return nil, errors.New("Warning, no message nor error from netlink")
+		return nil, errors.New("Warning, no message nor error from netlink, or no connections found")
 	}
 	var sock []*Socket
 	for n, m := range msgs {

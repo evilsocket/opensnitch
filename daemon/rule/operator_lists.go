@@ -11,13 +11,9 @@ import (
 	"time"
 )
 
-var (
-	count = 0
-)
-
 func (o *Operator) monitorLists() {
-	count++
-	log.Info("monitor lists started: %s, %d", o.Data, count)
+	log.Info("monitor lists started: %s", o.Data)
+
 	modTimes := make(map[string]time.Time)
 	totalFiles := 0
 	needReload := false

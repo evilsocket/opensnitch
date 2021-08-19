@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>626</width>
-    <height>394</height>
+    <height>403</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,9 +28,6 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <property name="documentMode">
-      <bool>false</bool>
-     </property>
      <widget class="QWidget" name="tab">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -39,7 +36,7 @@
        </sizepolicy>
       </property>
       <attribute name="title">
-       <string>UI</string>
+       <string>Pop-ups</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="1" column="2">
@@ -79,34 +76,136 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="toolTip">
-          <string>Configure the</string>
-         </property>
          <property name="title">
-          <string>Pop-ups default options</string>
+          <string>Default options</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0">
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Pop-ups default position on screen</string>
-            </property>
-           </widget>
+         <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0,0,0" columnstretch="1,0">
+          <item row="7" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
+            <item>
+             <widget class="QCheckBox" name="uidCheck">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>If checked, this field will be selected when a pop-up is displayed</string>
+              </property>
+              <property name="text">
+               <string>User ID</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="dstPortCheck">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>If checked, this field will be selected when a pop-up is displayed</string>
+              </property>
+              <property name="text">
+               <string>Destination port</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="dstIPCheck">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>If checked, this field will be selected when a pop-up is displayed</string>
+              </property>
+              <property name="text">
+               <string>Destination IP</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="label_17">
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboUIAction">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <item>
+             <property name="text">
+              <string>deny</string>
+             </property>
+             <property name="icon">
+              <iconset theme="emblem-important">
+               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>allow</string>
+             </property>
+             <property name="icon">
+              <iconset theme="emblem-default">
+               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The advanced view allows you to apply more filters on a connection&lt;/p&gt;&lt;p&gt;when a pop-up appears.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. new outgoing connections are denied.&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Show advanced view by default</string>
+             <string>Action</string>
             </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="comboUIDialogPos">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>center</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>top right</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>bottom right</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>top left</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>bottom left</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="1" column="1">
@@ -159,65 +258,23 @@
             </item>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="toolTip">
-             <string>Pop-up default action</string>
-            </property>
-            <property name="text">
-             <string>Action</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Default target</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <widget class="QCheckBox" name="showAdvancedCheck">
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_18">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you'll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string/>
+             <string>Filter connections also by:</string>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="comboUIAction">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
-            <item>
-             <property name="text">
-              <string>deny</string>
-             </property>
-             <property name="icon">
-              <iconset theme="emblem-important">
-               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>allow</string>
-             </property>
-             <property name="icon">
-              <iconset theme="emblem-default">
-               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="2" column="1">
@@ -255,42 +312,28 @@
             </item>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QComboBox" name="comboUIDialogPos">
-            <property name="enabled">
+          <item row="4" column="0" colspan="2">
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Default target</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Default position on screen</string>
+            </property>
+            <property name="wordWrap">
              <bool>true</bool>
             </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <item>
-             <property name="text">
-              <string>center</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>top right</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>bottom right</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>top left</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>bottom left</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="1" column="0">
@@ -303,82 +346,42 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_18">
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_17">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you'll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>The advanced view allows you to easily select multiple fields to filter connections</string>
             </property>
             <property name="text">
-             <string>Filter connections also by:</string>
+             <string>Show advanced view by default</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
-            <item>
-             <widget class="QCheckBox" name="uidCheck">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>If checked, this field will be checked when a pop-up is displayed</string>
-              </property>
-              <property name="text">
-               <string>User ID</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="dstPortCheck">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>If checked, this field will be checked when a pop-up is displayed</string>
-              </property>
-              <property name="text">
-               <string>Destination port</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="dstIPCheck">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>If checked, this field will be checked when a pop-up is displayed</string>
-              </property>
-              <property name="text">
-               <string>Destination IP</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item row="5" column="1">
+           <widget class="QCheckBox" name="showAdvancedCheck">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
           </item>
          </layout>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>Disable pop-ups, only display an alert</string>
-         </property>
         </widget>
        </item>
        <item row="1" column="0" colspan="2">
@@ -395,6 +398,139 @@
          <property name="text">
           <string>Default timeout</string>
          </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string>Disable pop-ups, only display an alert</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>UI</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="2" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="comboUIRules">
+         <item>
+          <property name="text">
+           <string>any temporary rules</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>once</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="checkUIRules">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected, the rules of the selected duration won't be added to the list of temporary rules in the GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Don't save rules of duration</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Events tab columns</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_7">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkHideTime">
+            <property name="text">
+             <string>Time</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="checkHideDst">
+            <property name="text">
+             <string>Destination</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="checkHideProto">
+            <property name="text">
+             <string>Protocol</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="checkHideProc">
+            <property name="text">
+             <string>Process</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QCheckBox" name="checkHideRule">
+            <property name="text">
+             <string>Rule</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkHideNode">
+            <property name="text">
+             <string>Node</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkHideAction">
+            <property name="text">
+             <string>Action</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -483,7 +619,10 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>Default action</string>
+          <string>Default action when the GUI is disconnected</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -521,24 +660,27 @@
        </item>
        <item row="9" column="2">
         <widget class="QComboBox" name="comboNodeMonitorMethod">
+         <property name="accessibleDescription">
+          <string notr="true"/>
+         </property>
          <item>
           <property name="text">
-           <string>proc</string>
+           <string notr="true">proc</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>ebpf</string>
+           <string notr="true">ebpf</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>audit</string>
+           <string notr="true">audit</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>ftrace</string>
+           <string notr="true">ftrace</string>
           </property>
          </item>
         </widget>
@@ -575,10 +717,10 @@
        <item row="8" column="0">
         <widget class="QLabel" name="label_12">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, opensnitch will prompt you to allow or deny connections that don't have an asocciated PID, due to several reasons.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don't have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There're some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>Intercept Unknown Connections</string>
+          <string>Debug invalid connections</string>
          </property>
         </widget>
        </item>
@@ -625,34 +767,37 @@
        </item>
        <item row="10" column="2">
         <widget class="QComboBox" name="comboNodeLogLevel">
+         <property name="accessibleDescription">
+          <string notr="true"/>
+         </property>
          <item>
           <property name="text">
-           <string>DEBUG</string>
+           <string notr="true">DEBUG</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>INFO</string>
+           <string notr="true">INFO</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>IMPORTANT</string>
+           <string notr="true">IMPORTANT</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>WARNING</string>
+           <string notr="true">WARNING</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>ERROR</string>
+           <string notr="true">ERROR</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>FATAL</string>
+           <string notr="true">FATAL</string>
           </property>
          </item>
         </widget>
@@ -821,6 +966,26 @@
    </item>
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="helpButton">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="help-browser">
+         <normaloff>.</normaloff>.</iconset>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer_4">
        <property name="orientation">

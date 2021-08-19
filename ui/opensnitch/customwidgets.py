@@ -1,10 +1,12 @@
 from PyQt5 import Qt, QtCore
-from PyQt5.QtGui import QColor, QPen, QBrush, QStandardItemModel, QStandardItem
-from PyQt5.QtSql import QSqlDatabase, QSqlQueryModel, QSqlQuery, QSql
+from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
+from PyQt5.QtSql import QSqlQueryModel, QSqlQuery, QSql
 from PyQt5.QtWidgets import QTableView
 from PyQt5.QtCore import QItemSelectionModel, pyqtSignal, QEvent
 import time
 import math
+
+from PyQt5.QtCore import QCoreApplication as QC
 
 class ColorizedDelegate(Qt.QItemDelegate):
     def __init__(self, parent=None, *args, config=None):
@@ -15,7 +17,7 @@ class ColorizedDelegate(Qt.QItemDelegate):
     def paint(self, painter, option, index):
         if not index.isValid():
             return super().paint(painter, option, index)
-        
+
         nocolor=True
 
         value = index.data(QtCore.Qt.DisplayRole)
@@ -41,7 +43,7 @@ class ColorizedQSqlQueryModel(QSqlQueryModel):
         model=CustomQSqlQueryModel(
             modelData=
                 {
-                'colorize': 
+                'colorize':
                       {'offline': (QColor(QtCore.Qt.red), 2)},
                 'alignment': { Qt.AlignLeft, 2 }
                 }
@@ -72,7 +74,6 @@ class ColorizedQSqlQueryModel(QSqlQueryModel):
         return QSqlQueryModel.data(self, index, role)
 
 class ConnectionsTableModel(QStandardItemModel):
-    headerLabels = ['Time', 'Node', 'Action', 'Destination', 'Protocol', 'Process', 'Rule']
     rowCountChanged = pyqtSignal()
 
     #max rowid in the db; starts with 1, not with 0
@@ -89,16 +90,16 @@ class ConnectionsTableModel(QStandardItemModel):
     db = None
     #original query string before we modify it
     origQueryStr = QSqlQuery()
-    #modified query object 
+    #modified query object
     realQuery = QSqlQuery()
     #previous original query string; used to check if the query has changed
     prevQueryStr = ''
     #whether or not the original query has a filter (a WHERE condition)
     isQueryFilter = False
     limit = None
- 
+
     #a map for fast lookup or rows when filter is enabled
-    #contains ranges of rowids and count of filter hits 
+    #contains ranges of rowids and count of filter hits
     #range format {'from': <rowid>, 'to': <rowid>, 'hits':<int>}
     #including the 'from' rowid up to but NOT including the 'to' rowid
     map = []
@@ -110,6 +111,15 @@ class ConnectionsTableModel(QStandardItemModel):
     distinctLastUpdateTime = time.time()
 
     def __init__(self):
+        self.headerLabels = [
+            QC.translate("stats", "Time", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Node", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Action", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Destination", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Protocol", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Process", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Rule", "This is a word, without spaces and symbols."),
+        ]
         QStandardItemModel.__init__(self, 0, len(self.headerLabels))
         self.setHorizontalHeaderLabels(self.headerLabels)
 
@@ -142,7 +152,7 @@ class ConnectionsTableModel(QStandardItemModel):
         self.updateDistinctIfNeeded()
         self.limit = int(q.split(' ')[-1]) if q.split(' ')[-2] == 'LIMIT' else None
         self.isQueryFilter = True if ("LIKE '%" in q and "LIKE '% %'" not in q) or 'Action = "' in q else False
-        
+
         self.realQuery = QSqlQuery(db)
         isTotalRowCountChanged = False
         isQueryChanged = False
@@ -160,7 +170,7 @@ class ConnectionsTableModel(QStandardItemModel):
                 self.realQuery.setForwardOnly(True)
                 for offset in range(0, newRowsCount, self.rangeSize):
                     lowerBound = largestRowIdInMap + offset
-                    upperBound = min(lowerBound + self.rangeSize, self.maxRowId) 
+                    upperBound = min(lowerBound + self.rangeSize, self.maxRowId)
                     part1, part2 = q.split('ORDER')
                     qStr = part1 + 'AND rowid>'+ str(lowerBound) + ' AND rowid<=' + str(upperBound) + ' ORDER' + part2
                     self.realQuery.exec(qStr)
@@ -174,7 +184,7 @@ class ConnectionsTableModel(QStandardItemModel):
                         self.map.insert(0, {'from':upperBound, 'to':lowerBound, 'hits':rowsInRange})
                     self.prependedRowCount += rowsInRange
                     if time.time() - starttime > 0.5:
-                        #don't freeze the UI when fetching too many recent rows
+                        #dont freeze the UI when fetching too many recent rows
                         break
 
             self.totalRowCount = 0
@@ -205,8 +215,8 @@ class ConnectionsTableModel(QStandardItemModel):
         #we only want to know the count of matching rows
         qStr = "SELECT COUNT(*) from connections WHERE (rowid> :lowerBound AND rowid<= :upperBound)"
         if actionStr:
-            qStr += ' AND ' + actionStr 
-        matchStr = self.getMatch(filterStr) if filterStr else None 
+            qStr += ' AND ' + actionStr
+        matchStr = self.getMatch(filterStr) if filterStr else None
         if matchStr:
             qStr += ' AND ' + matchStr
         qStr += ' LIMIT ' + str(self.limit) if self.limit else ''
@@ -242,7 +252,7 @@ class ConnectionsTableModel(QStandardItemModel):
         q = QSqlQuery(self.db)
         q.setForwardOnly(True)
         for column in self.distinct.keys():
-            q.exec('SELECT DISTINCT ' + column + ' FROM connections WHERE rowid>' 
+            q.exec('SELECT DISTINCT ' + column + ' FROM connections WHERE rowid>'
             + str(self.distinctLastRowId) + ' AND rowid<=' + str(self.maxRowId))
             while q.next():
                 if q.value(0) not in self.distinct[column]:
@@ -267,7 +277,7 @@ class ConnectionsTableModel(QStandardItemModel):
             qStr = self.origQueryStr.split('WHERE')[0] + ' WHERE '
             actionStr = self.getActionStr()
             if actionStr:
-                qStr += actionStr + " AND " 
+                qStr += actionStr + " AND "
             #find inside the map the range(s) in which top and bottom rows are located
             total, offsetInRange, botRowFound, topRowFound = 0, None, False, False
             ranges = [{'from':0, 'to':0, 'hits':0}]
@@ -275,7 +285,7 @@ class ConnectionsTableModel(QStandardItemModel):
                 if total + i['hits'] >= botRowNo:
                     botRowFound = True
                 if total + i['hits'] >= topRowNo:
-                    topRowFound = True                    
+                    topRowFound = True
                 if botRowFound and i['hits'] > 0:
                     if i['to'] == ranges[-1]['from']:
                         #merge two adjacent ranges
@@ -296,14 +306,14 @@ class ConnectionsTableModel(QStandardItemModel):
                 rangeStr = rangeStr[:-3] #remove trailing 'OR '
                 rangeStr += ') AND '
             qStr += rangeStr
-            
+
             filterStr = self.getFilterStr()
-            matchStr = self.getMatch(filterStr) if filterStr else None 
+            matchStr = self.getMatch(filterStr) if filterStr else None
             if matchStr:
                 qStr += matchStr + " AND "
             qStr = qStr[:-4] #remove trailing ' AND'
             qStr += ' ORDER '+ self.origQueryStr.split('ORDER')[1]
-        
+
         q.exec(qStr)
         q.last()
         rowsFound = max(0, q.at()+1)
@@ -311,8 +321,8 @@ class ConnectionsTableModel(QStandardItemModel):
             q.seek(QSql.BeforeFirstRow)
         else:
             #position the db cursor on topRowNo
-            q.seek(QSql.BeforeFirstRow if offsetInRange == 0 else offsetInRange-1) 
-        upperBound = min(maxRowsInViewport, rowsFound)       
+            q.seek(QSql.BeforeFirstRow if offsetInRange == 0 else offsetInRange-1)
+        upperBound = min(maxRowsInViewport, rowsFound)
         self.setRowCount(upperBound)
         #only visible rows will be filled with data
         if upperBound > 0:
@@ -324,7 +334,7 @@ class ConnectionsTableModel(QStandardItemModel):
                     self.setItem(x, col, QStandardItem(q.value(col)))
             self.blockSignals(False)
             self.dataChanged.emit(self.createIndex(0,0), self.createIndex(upperBound, len(self.headerLabels)))
-       
+
     #form a condition string for the query: if filterStr is (partially) present in any of the columns
     def getMatch (self, filterStr):
         match = {}
@@ -335,7 +345,7 @@ class ConnectionsTableModel(QStandardItemModel):
                     match[column].append(value)
         matchStr = None
         if any([match[col] for col in match]):
-            matchStr = '( ' 
+            matchStr = '( '
             if match['process']:
                 matchStr += "process IN ('" + "','".join(match['process']) + "') OR"
             if match['dst_host']:
@@ -385,7 +395,7 @@ class ConnectionsTableModel(QStandardItemModel):
         return rows
 
 class ConnectionsTableView(QTableView):
-    # how many rows can potentially be displayed in viewport 
+    # how many rows can potentially be displayed in viewport
     # the actual number of rows currently displayed may be less than this
     maxRowsInViewport = 0
     #vertical scroll bar
@@ -400,7 +410,7 @@ class ConnectionsTableView(QTableView):
         self.horizontalHeader().setStretchLastSection(True)
         #the built-in vertical scrollBar of this view is always off
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-       
+
     def setVerticalScrollBar(self, vScrollBar):
         self.vScrollBar = vScrollBar
         self.vScrollBar.valueChanged.connect(self.onValueChanged)
@@ -418,7 +428,7 @@ class ConnectionsTableView(QTableView):
     #stretch the bottom row; we don't want partial-height rows at the bottom
     #this will only trigger if rowCount value was changed
     def onRowsInsertedOrRemoved(self, parent, start, end):
-        if self.model().rowCount() == self.maxRowsInViewport:      
+        if self.model().rowCount() == self.maxRowsInViewport:
             self.verticalHeader().setStretchLastSection(True)
         else:
             self.verticalHeader().setStretchLastSection(False)
@@ -428,7 +438,7 @@ class ConnectionsTableView(QTableView):
         #refresh the viewport data based on new geometry
         self.calculateRowsInViewport()
         self.model().setRowCount(min(self.maxRowsInViewport, self.model().totalRowCount))
-        self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport)  
+        self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport)
 
     def calculateRowsInViewport(self):
         rowHeight = self.verticalHeader().defaultSectionSize()
@@ -437,14 +447,14 @@ class ConnectionsTableView(QTableView):
 
     def onValueChanged(self, vSBNewValue):
         savedIndex = self.selectionModel().currentIndex()
-        self.model().refreshViewport(vSBNewValue, self.maxRowsInViewport)  
-        #restore selection which was removed by model's refreshing the data 
+        self.model().refreshViewport(vSBNewValue, self.maxRowsInViewport)
+        #restore selection which was removed by model's refreshing the data
         self.selectionModel().setCurrentIndex(savedIndex, QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent)
 
     # if ( scrollbar at the top or row limit set):
     #   let new rows "push down" older rows without changing the scrollbar position
     # else:
-    #   don't update data in viewport, only change scrollbar position.      
+    #   don't update data in viewport, only change scrollbar position.
     def onRowCountChanged(self):
         totalCount = self.model().totalRowCount
         scrollBar = self.vScrollBar
@@ -455,16 +465,16 @@ class ConnectionsTableView(QTableView):
             scrollBar.setMinimum(0)
             scrollBar.setMaximum( min(totalCount, self.model().limit) - self.maxRowsInViewport)
             if scrollBarValue != newValue:
-                #setValue does not trigger valueChanged if new value is the same as old 
+                #setValue does not trigger valueChanged if new value is the same as old
                 scrollBar.setValue(newValue)
             else:
-                scrollBar.valueChanged.emit(newValue)  
+                scrollBar.valueChanged.emit(newValue)
         else:
-            scrollBar.setMinimum(0) 
+            scrollBar.setMinimum(0)
             scrollBar.setMaximum(max(0, totalCount - self.maxRowsInViewport))
             if scrollBarValue == 0:
-                scrollBar.valueChanged.emit(0)  
-            elif scrollBarValue > 0: 
+                scrollBar.valueChanged.emit(0)
+            elif scrollBarValue > 0:
                 if self.model().prependedRowCount == 0:
                     scrollBar.valueChanged.emit(scrollBarValue)
                 else:
@@ -480,11 +490,11 @@ class ConnectionsTableView(QTableView):
 
     def onKeyHome(self):
         self.vScrollBar.setValue(0)
-        self.selectionModel().setCurrentIndex(self.model().createIndex(0, 0), QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent)  
+        self.selectionModel().setCurrentIndex(self.model().createIndex(0, 0), QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent)
 
     def onKeyEnd(self):
         self.vScrollBar.setValue(self.vScrollBar.maximum())
-        self.selectionModel().setCurrentIndex(self.model().createIndex(min(self.maxRowsInViewport, self.model().totalRowCount) - 1, 0), QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent) 
+        self.selectionModel().setCurrentIndex(self.model().createIndex(min(self.maxRowsInViewport, self.model().totalRowCount) - 1, 0), QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent)
 
     def onKeyPageUp(self):
         #scroll up only when on the first row

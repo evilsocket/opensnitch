@@ -1,5 +1,5 @@
 Name:           opensnitch
-Version:        1.4.0rc2
+Version:        1.4.0rc4
 Release:        1%{?dist}
 Summary:        OpenSnitch is a GNU/Linux application firewall
 
@@ -34,7 +34,10 @@ rm -rf %{buildroot}
 mkdir -p go/src/github.com/evilsocket
 ln -s $(pwd) go/src/github.com/evilsocket/opensnitch
 export GOPATH=$(pwd)/go
+cd go/src/github.com/evilsocket/opensnitch/
+make protocol
 cd go/src/github.com/evilsocket/opensnitch/daemon/
+go mod vendor
 go build -o opensnitchd .
 
 %install
@@ -55,6 +58,8 @@ if [ -f /etc/opensnitchd/system-fw.json ]; then
     B="-b"
 fi
 install -m 644 -b $B daemon/system-fw.json %{buildroot}/etc/opensnitchd/system-fw.json
+
+install -m 644 ebpf_prog/opensnitch.o %{buildroot}/etc/opensnitchd/opensnitch.o
 
 # upgrade, uninstall
 %preun
@@ -88,4 +93,5 @@ rm -rf %{buildroot}
 /usr/lib/systemd/system/opensnitch.service
 %{_sysconfdir}/opensnitchd/default-config.json
 %{_sysconfdir}/opensnitchd/system-fw.json
+%{_sysconfdir}/opensnitchd/opensnitch.o
 %{_sysconfdir}/logrotate.d/opensnitch

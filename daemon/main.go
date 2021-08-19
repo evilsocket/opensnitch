@@ -156,7 +156,7 @@ func setupWorkers() {
 
 func doCleanup(queue, repeatQueue *netfilter.Queue) {
 	log.Info("Cleaning up ...")
-	firewall.Stop(&queueNum)
+	firewall.Stop()
 	monitor.End()
 	uiClient.Close()
 	queue.Close()
@@ -252,7 +252,7 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 
 		//check if the pulled out packet is the same we put in
 		if res := bytes.Compare(packet.Packet.Data(), pkt.Packet.Data()); res != 0 {
-			log.Error("The packet which was requeued has changed abruptly. This should never happen. Please report this incident to the Opensnitch developers. %s %s ", packet, pkt)
+			log.Error("The packet which was requeued has changed abruptly. This should never happen. Please report this incident to the Opensnitch developers. %v %v ", packet, pkt)
 			return nil
 		}
 		packet = &pkt
@@ -332,9 +332,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	// clean any possible residual firewall rule
-	firewall.CleanRules(false)
-
 	setupLogging()
 
 	if cpuProfile != "" {
@@ -379,10 +376,12 @@ func main() {
 	}
 	repeatPktChan = repeatQueue.Packets()
 
-	// queue is ready, run firewall rules
-	firewall.Init(&queueNum)
-
 	uiClient = ui.NewClient(uiSocket, stats, rules)
+	stats.SetConfig(uiClient.GetStatsConfig())
+
+	// queue is ready, run firewall rules
+	firewall.Init(uiClient.GetFirewallType(), &queueNum)
+
 	if overwriteLogging() {
 		setupLogging()
 	}

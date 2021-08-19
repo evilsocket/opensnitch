@@ -31,8 +31,8 @@ func inodeFound(pidsPath, expect, inodeKey string, inode, pid int) bool {
 	for idx := 0; idx < len(fdList); idx++ {
 		descLink := fmt.Sprint(fdPath, fdList[idx])
 		if link, err := os.Readlink(descLink); err == nil && link == expect {
-			addInodeEntry(inodeKey, descLink, pid)
-			addProcEntry(fdPath, fdList, pid)
+			inodesCache.add(inodeKey, descLink, pid)
+			pidsCache.add(fdPath, fdList, pid)
 			return true
 		}
 	}

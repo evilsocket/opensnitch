@@ -5,6 +5,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	elf "github.com/iovisor/gobpf/elf"
@@ -17,7 +18,7 @@ func monitorMaps() {
 	zeroKey := make([]byte, 4)
 	for {
 		time.Sleep(time.Second * 1)
-		if stop {
+		if isStopped() {
 			return
 		}
 		for name, ebpfMap := range ebpfMaps {
@@ -26,7 +27,9 @@ func monitorMaps() {
 				unsafe.Pointer(&zeroKey[0]), unsafe.Pointer(&value[0])); err != nil {
 				log.Error("eBPF m.LookupElement error: %v", err)
 			}
+			lock.RLock()
 			counterValue := hostByteOrder.Uint64(value)
+			lock.RUnlock()
 			if counterValue-ebpfMap.lastPurgedMax > 10000 {
 				ebpfMap.lastPurgedMax = counterValue - 5000
 				deleteOld(ebpfMap.bpfmap, name == "tcp6" || name == "udp6", ebpfMap.lastPurgedMax)
@@ -36,6 +39,7 @@ func monitorMaps() {
 }
 
 // maintains a list of this machine's local addresses
+// TODO: use netlink.AddrSubscribeWithOptions()
 func monitorLocalAddresses() {
 	for {
 		addr, err := netlink.AddrList(nil, netlink.FAMILY_ALL)
@@ -43,14 +47,14 @@ func monitorLocalAddresses() {
 			log.Error("eBPF error looking up this machine's addresses via netlink: %v", err)
 			continue
 		}
-		localAddressesLock.Lock()
+		lock.Lock()
 		localAddresses = nil
 		for _, a := range addr {
 			localAddresses = append(localAddresses, a.IP)
 		}
-		localAddressesLock.Unlock()
+		lock.Unlock()
 		time.Sleep(time.Second * 1)
-		if stop {
+		if isStopped() {
 			return
 		}
 	}
@@ -62,15 +66,16 @@ func monitorLocalAddresses() {
 func monitorAlreadyEstablished() {
 	for {
 		time.Sleep(time.Second * 1)
-		if stop {
+		if isStopped() {
 			return
 		}
 		socketListTCP, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET), uint8(syscall.IPPROTO_TCP))
 		if err != nil {
-			log.Error("eBPF error in dumping TCP sockets via netlink")
+			log.Debug("eBPF error in dumping TCP sockets via netlink")
 			continue
 		}
-		for aesock := range alreadyEstablishedTCP {
+		alreadyEstablished.Lock()
+		for aesock := range alreadyEstablished.TCP {
 			found := false
 			for _, sock := range socketListTCP {
 				if (*aesock).INode == (*sock).INode &&
@@ -85,32 +90,37 @@ func monitorAlreadyEstablished() {
 				}
 			}
 			if !found {
-				delete(alreadyEstablishedTCP, aesock)
+				delete(alreadyEstablished.TCP, aesock)
 			}
 		}
+		alreadyEstablished.Unlock()
 
-		socketListTCPv6, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET6), uint8(syscall.IPPROTO_TCP))
-		if err != nil {
-			log.Error("eBPF error in dumping TCPv6 sockets via netlink")
-			continue
-		}
-		for aesock := range alreadyEstablishedTCPv6 {
-			found := false
-			for _, sock := range socketListTCPv6 {
-				if (*aesock).INode == (*sock).INode &&
-					//inodes are unique enough, so the matches below will never have to be checked
-					(*aesock).ID.SourcePort == (*sock).ID.SourcePort &&
-					(*aesock).ID.Source.Equal((*sock).ID.Source) &&
-					(*aesock).ID.Destination.Equal((*sock).ID.Destination) &&
-					(*aesock).ID.DestinationPort == (*sock).ID.DestinationPort &&
-					(*aesock).UID == (*sock).UID {
-					found = true
-					break
+		if core.IPv6Enabled {
+			socketListTCPv6, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET6), uint8(syscall.IPPROTO_TCP))
+			if err != nil {
+				log.Debug("eBPF error in dumping TCPv6 sockets via netlink: %s", err)
+				continue
+			}
+			alreadyEstablished.Lock()
+			for aesock := range alreadyEstablished.TCPv6 {
+				found := false
+				for _, sock := range socketListTCPv6 {
+					if (*aesock).INode == (*sock).INode &&
+						//inodes are unique enough, so the matches below will never have to be checked
+						(*aesock).ID.SourcePort == (*sock).ID.SourcePort &&
+						(*aesock).ID.Source.Equal((*sock).ID.Source) &&
+						(*aesock).ID.Destination.Equal((*sock).ID.Destination) &&
+						(*aesock).ID.DestinationPort == (*sock).ID.DestinationPort &&
+						(*aesock).UID == (*sock).UID {
+						found = true
+						break
+					}
+				}
+				if !found {
+					delete(alreadyEstablished.TCPv6, aesock)
 				}
 			}
-			if !found {
-				delete(alreadyEstablishedTCPv6, aesock)
-			}
+			alreadyEstablished.Unlock()
 		}
 	}
 }
@@ -153,7 +163,9 @@ func deleteOld(bpfmap *elf.Map, isIPv6 bool, maxToDelete uint64) {
 			continue
 		}
 		// last 8 bytes of value is counter value
+		lock.RLock()
 		counterValue := hostByteOrder.Uint64(value[16:24])
+		lock.RUnlock()
 		if counterValue > maxToDelete {
 			copy(lookupKey, nextKey)
 			continue

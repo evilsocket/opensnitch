@@ -7,6 +7,11 @@
     "DefaultAction": "allow",
     "DefaultDuration": "once",
     "InterceptUnknown": false,
-    "ProcMonitorMethod": "proc",
-    "LogLevel": 2
+    "ProcMonitorMethod": "ebpf",
+    "LogLevel": 2,
+    "Firewall": "iptables",
+    "Stats": {
+        "MaxEvents": 150,
+        "MaxStats": 25
+    }
 }

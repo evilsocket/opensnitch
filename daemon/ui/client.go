@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
+	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
@@ -23,8 +24,10 @@ var (
 	configFile             = "/etc/opensnitchd/default-config.json"
 	dummyOperator, _       = rule.NewOperator(rule.Simple, false, rule.OpTrue, "", make([]rule.Operator, 0))
 	clientDisconnectedRule = rule.Create("ui.client.disconnected", true, false, rule.Allow, rule.Once, dummyOperator)
-	clientErrorRule        = rule.Create("ui.client.error", true, false, rule.Allow, rule.Once, dummyOperator)
-	config                 Config
+	// While the GUI is connected, deny by default everything until the user takes an action.
+	clientConnectedRule = rule.Create("ui.client.connected", true, false, rule.Deny, rule.Once, dummyOperator)
+	clientErrorRule     = rule.Create("ui.client.error", true, false, rule.Allow, rule.Once, dummyOperator)
+	config              Config
 )
 
 type serverConfig struct {
@@ -35,12 +38,14 @@ type serverConfig struct {
 // Config holds the values loaded from configFile
 type Config struct {
 	sync.RWMutex
-	Server            serverConfig `json:"Server"`
-	DefaultAction     string       `json:"DefaultAction"`
-	DefaultDuration   string       `json:"DefaultDuration"`
-	InterceptUnknown  bool         `json:"InterceptUnknown"`
-	ProcMonitorMethod string       `json:"ProcMonitorMethod"`
-	LogLevel          *uint32      `json:"LogLevel"`
+	Server            serverConfig           `json:"Server"`
+	DefaultAction     string                 `json:"DefaultAction"`
+	DefaultDuration   string                 `json:"DefaultDuration"`
+	InterceptUnknown  bool                   `json:"InterceptUnknown"`
+	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
+	LogLevel          *uint32                `json:"LogLevel"`
+	Firewall          string                 `json:"Firewall"`
+	Stats             statistics.StatsConfig `json:"Stats"`
 }
 
 // Client holds the connection information of a client.
@@ -103,10 +108,34 @@ func (c *Client) InterceptUnknown() bool {
 	return config.InterceptUnknown
 }
 
+// GetStatsConfig returns the stats config from disk
+func (c *Client) GetStatsConfig() statistics.StatsConfig {
+	config.RLock()
+	defer config.RUnlock()
+	return config.Stats
+}
+
+// GetFirewallType returns the firewall to use
+func (c *Client) GetFirewallType() string {
+	config.RLock()
+	defer config.RUnlock()
+	if config.Firewall == "" {
+		return iptables.Name
+	}
+	return config.Firewall
+}
+
 // DefaultAction returns the default configured action for
 func (c *Client) DefaultAction() rule.Action {
+	isConnected := c.Connected()
+
 	c.RLock()
 	defer c.RUnlock()
+
+	if isConnected {
+		return clientConnectedRule.Action
+	}
+
 	return clientDisconnectedRule.Action
 }
 

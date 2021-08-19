@@ -46,15 +46,16 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 	start := time.Now()
 
 	expect := fmt.Sprintf("socket:[%d]", inode)
-	if cachedPidInode := getPidByInodeFromCache(inodeKey); cachedPidInode != -1 {
-		log.Debug("Inode found in cache: %v %v %v %v", time.Since(start), inodesCache[inodeKey], inode, inodeKey)
+	if cachedPidInode := inodesCache.getPid(inodeKey); cachedPidInode != -1 {
+		log.Debug("Inode found in cache: %v %v %v %v", time.Since(start), inodesCache.getPid(inodeKey), inode, inodeKey)
 		return cachedPidInode
 	}
 
-	cachedPid, pos := getPidFromCache(inode, inodeKey, expect)
+	cachedPid, pos := pidsCache.getPid(inode, inodeKey, expect)
 	if cachedPid != -1 {
-		log.Debug("Socket found in known pids %v, pid: %d, inode: %d, pos: %d, pids in cache: %d", time.Since(start), cachedPid, inode, pos, len(pidsCache))
-		sortProcEntries()
+		log.Debug("Socket found in known pids %v, pid: %d, inode: %d, pos: %d, pids in cache: %d", time.Since(start), cachedPid, inode, pos, pidsCache.countItems())
+		pidsCache.sort(cachedPid)
+		inodesCache.add(inodeKey, "", cachedPid)
 		return cachedPid
 	}
 
@@ -85,7 +86,7 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 // If it exists in /proc, a new Process{} object is returned with  the details
 // to identify a process (cmdline, name, environment variables, etc).
 func FindProcess(pid int, interceptUnknown bool) *Process {
-	if pid == -100 {
+	if interceptUnknown && pid == -100 {
 		return NewProcess(-100, "Linux kernel")
 	}
 	if interceptUnknown && pid < 0 {

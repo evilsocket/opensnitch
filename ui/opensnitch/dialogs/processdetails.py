@@ -4,10 +4,10 @@ import json
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
-import ui_pb2
-from nodes import Nodes
-from desktop_parser import LinuxDesktopParser
-from utils import Message
+from opensnitch import ui_pb2
+from opensnitch.nodes import Nodes
+from opensnitch.desktop_parser import LinuxDesktopParser
+from opensnitch.utils import Message
 
 DIALOG_UI_PATH = "%s/../res/process_details.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -112,7 +112,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
 
             elif noti.type == ui_pb2.STOP_MONITOR_PROCESS:
                 if reply.data != "":
-                    self.show_message(QtCore.QCoreApplication.translate("proc_details", "<b>Error stopping monitoring process:</b><br><br>") + reply.data)
+                    self._show_message(QtCore.QCoreApplication.translate("proc_details", "<b>Error stopping monitoring process:</b><br><br>") + reply.data)
                     self._set_button_running(False)
 
                 self._delete_notification(reply.id)
