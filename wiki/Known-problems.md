@@ -4,6 +4,8 @@
 
 [cannot write ... kprobe_events: file exists](#kprobe_events-file-exists)
 
+[error while loading "kprobe/(...)": invalid argument](#error-while-loading-kprobes-invalid-argument)
+
 **General**
 
 [KDE/Gnome/Xfce/... does not boot up](#desktop-environment-does-not-bootup)
@@ -69,6 +71,23 @@ This error indicates that the network hooks are already added, you'll need to de
 $ sudo su
 # > /sys/kernel/debug/tracing/kprobe_events
 ```
+
+### Error while loading kprobes: invalid argument
+
+> eBPF Failed to load /etc/opensnitchd/opensnitch.o: error while loading "kprobe/tcp_v4_connect" (invalid argument):
+
+This error may indicate that your kernel doesn't have [ftrace](https://www.kernel.org/doc/html/latest/trace/ftrace.html) support, which is needed for eBPF to work.
+
+CONFIG_FTRACE should be **y** and the directory `/sys/kernel/debug/tracing/` must exist.
+
+```
+$ grep CONFIG_FTRACE /boot/config-$(uname-r)
+CONFIG_FTRACE=y
+```
+
+If the output is `# CONFIG_FTRACE is not set`, your kernel is not compiled with ftrace support.
+
+Read more: #475
 
 ### Desktop Environment does not boot up
 
