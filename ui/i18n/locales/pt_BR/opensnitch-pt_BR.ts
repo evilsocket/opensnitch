@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="pt_BR" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.1" language="pt_BR">
 <context>
     <name>Dialog</name>
     <message>
@@ -543,27 +544,27 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="358"/>
         <source>The advanced view allows you to easily select multiple fields to filter connections</source>
-        <translation type="unfinished"></translation>
+        <translation>A visualização avançada permite que você selecione facilmente vários campos para filtrar conexões</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="126"/>
         <source>If checked, this field will be selected when a pop-up is displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Se marcado, este campo será selecionado quando um pop-up for exibido</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="166"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. new outgoing connections are denied.&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ação padrão de pop-up.&lt;/p&gt;&lt;p&gt;Quando uma nova conexão de saída está prestes a ser estabelecida, esta ação será selecionada por padrão, então se o tempo limite disparar, esta é a opção que será aplicada.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Enquanto um pop-up pede ao usuário para permitir ou negar uma conexão:&lt;/p&gt;&lt;p&gt;1. novas conexões de saída são negadas.&lt;/p&gt;&lt;p&gt;2. conexões conhecidas são permitidas ou negadas com base nas regras definidas pelo usuário.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="622"/>
         <source>Default action when the GUI is disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>Ação padrão quando a GUI é desconectada</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="726"/>
         <source>Debug invalid connections</source>
-        <translation type="unfinished"></translation>
+        <translation>Depurar conexões inválidas</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="39"/>
@@ -573,52 +574,52 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="80"/>
         <source>Default options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opções padrão</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="332"/>
         <source>Default position on screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição padrão na tela</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="437"/>
         <source>any temporary rules</source>
-        <translation type="unfinished"></translation>
+        <translation>quaisquer regras temporárias</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="450"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quando esta opção é selecionada, as regras da duração selecionada não serão adicionadas à lista de regras temporárias na GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;As regras temporárias ainda serão válidas e você pode usá-las quando solicitado a permitir/negar uma nova conexão.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="453"/>
         <source>Don&apos;t save rules of duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Não salve regras de duração</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="466"/>
         <source>Time</source>
-        <translation type="unfinished">Tempo</translation>
+        <translation>Tempo</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="476"/>
         <source>Destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Destino</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="486"/>
         <source>Protocol</source>
-        <translation type="unfinished">Protocolo</translation>
+        <translation>Protocolo</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="496"/>
         <source>Process</source>
-        <translation type="unfinished"></translation>
+        <translation>Processo</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="506"/>
         <source>Rule</source>
-        <translation type="unfinished">Regra</translation>
+        <translation>Regra</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="516"/>
@@ -628,12 +629,12 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="723"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, opensnitch will prompt you to allow or deny connections that don&apos;t have an asocciated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using wireguard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Se marcado, o opensnitch solicitará que você permita ou negue conexões que não tenham um PID asocciado, devido a vários motivos, principalmente devido a conexões de mau estado.&lt;/p&gt;&lt;p&gt;A caixa de diálogo pop-up conterá apenas informações sobre a conexão de rede.&lt;/p&gt;&lt;p&gt;Existem alguns cenários em que essas conexões são válidas, como ao estabelecer uma VPN usando wireguard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="460"/>
         <source>Events tab columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Colunas da guia de eventos</translation>
     </message>
 </context>
 <context>
@@ -1260,7 +1261,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="926"/>
         <source>Delete all intercepted hosts</source>
-        <translation type="unfinished">Excluir todos os hosts interceptadas</translation>
+        <translation>Excluir todos os hosts interceptadas</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1051"/>
@@ -1270,17 +1271,17 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1159"/>
         <source>Delete all intercepted addresses</source>
-        <translation type="unfinished">Excluir todos os endereços interceptados</translation>
+        <translation>Excluir todos os endereços interceptados</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1261"/>
         <source>Delete all intercepted ports</source>
-        <translation type="unfinished">Excluir todas as portas interceptadas</translation>
+        <translation>Excluir todas as portas interceptadas</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1371"/>
         <source>Delete all intercepted users</source>
-        <translation type="unfinished">Excluir todos os usuários interceptados</translation>
+        <translation>Excluir todos os usuários interceptados</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="699"/>
@@ -1290,12 +1291,12 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="665"/>
         <source>Delete connections that matched this rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Exclua conexões que correspondam a esta regra</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="712"/>
         <source>All applications</source>
-        <translation type="unfinished"></translation>
+        <translation>Todos os aplicativos</translation>
     </message>
 </context>
 <context>
@@ -1474,7 +1475,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="416"/>
         <source>Hover the mouse over the texts to display the help&lt;br&gt;&lt;br&gt;Don&apos;t forget to visit the wiki: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Passe o mouse sobre os textos para exibir a ajuda&lt;br&gt;&lt;br&gt;Não se esqueça de visitar a wiki: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -1862,19 +1863,19 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
         <location filename="../../../opensnitch/dialogs/stats.py" line="261"/>
         <source>Name</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Nome</translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="262"/>
         <source>Address</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Endereço</translation>
+        <translation>Endereço</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="263"/>
         <source>Status</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Estado</translation>
+        <translation>Estado</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="264"/>
@@ -1886,31 +1887,31 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
         <location filename="../../../opensnitch/dialogs/stats.py" line="265"/>
         <source>Version</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Versão</translation>
+        <translation>Versão</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="266"/>
         <source>Rules</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Regras</translation>
+        <translation>Regras</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="267"/>
         <source>Time</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Tempo</translation>
+        <translation>Tempo</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="268"/>
         <source>Action</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Ação</translation>
+        <translation>Ação</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="269"/>
         <source>Duration</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Duração</translation>
+        <translation>Duração</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="270"/>
@@ -1922,37 +1923,37 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
         <location filename="../../../opensnitch/dialogs/stats.py" line="271"/>
         <source>Enabled</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Ativado</translation>
+        <translation>Habilitado</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="272"/>
         <source>Hits</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Acertos</translation>
+        <translation>Acessos</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="273"/>
         <source>Protocol</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Protocolo</translation>
+        <translation>Protocolo</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="274"/>
         <source>Process</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Processo</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="276"/>
         <source>Destination</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Destino</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="280"/>
         <source>Rule</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Regra</translation>
+        <translation>Regra</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="281"/>
