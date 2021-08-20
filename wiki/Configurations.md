@@ -12,22 +12,33 @@ Some default working options can be customized in the file _/etc/opensnitchd/def
   "InterceptUnknown":   true,
   "ProcMonitorMethod": "proc",
   "LogLevel": 1
+  "Firewall": "iptables",
+  "Stats": {
+    "MaxEvents": 150,
+    "MaxStats": 25
+  }
 }
 ```
 
 Option | Value
 -------|------
-Address | Unix socket (unix:///tmp/osui.sock, the "unix:///" part is mandatory) or TCP socket (192.168.1.100:50051)
+Server.Address | Unix socket (unix:///tmp/osui.sock, the "unix:///" part is mandatory) or TCP socket (192.168.1.100:50051)
+Server.LogFile | file to write logs to (use /dev/stdout to write logs to standard output)
 DefaultAction | allow, deny
 DefaultDuration | once, always, until restart, 30s, 5m, 15m, 30m, 1h
 InterceptUnknown | true, false
 ProcMonitorMethod | ebpf, proc, ftrace, audit
 LogLevel | 0 to 4 (debug, info, important, warning, error)
+Firewall | "iptables" or "nftables"
+Stats.MaxEvents | Max events to send to the GUI every second. If you think that you're missing some connections increased this value.
+Stats.MaxStats | Max stats per item (port, host, IP, process, etc) to keep in the backlog.
 
 If you change the configuration or the rules under _/etc/opensnitchd/_, they'll be reloaded. No restart is needed.
 
 **NOTE about _intercept_unknown_ option**: It was added when OpenSnitch used to miss a lot of connections (couldn't find pid/process in /proc). As of v1.4.0rc2 version, it's safe to set it to false, and just let drop those unknown spare connections. It's up to you.
 Most of the connections intercepted by this option are those in a bad state or similar.
+
+There's at least one scenario where this option is useful, and is when connecting a WireGuard VPN. As the connection is originated from kernel-space, you need to enable this option in order to allow the outgoing connection.
 
 ***
 
