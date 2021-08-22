@@ -127,6 +127,8 @@ func (o *Operator) readList(fileName string) (dups uint64) {
 		if host == "local" || host == "localhost" || host == "localhost.localdomain" || host == "broadcasthost" {
 			continue
 		}
+
+		host = core.Trim(host)
 		if _, found := o.lists[host]; found {
 			dups++
 			continue
