@@ -90,6 +90,7 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	}
 	if config.DefaultAction != "" {
 		clientDisconnectedRule.Action = rule.Action(config.DefaultAction)
+		clientConnectedRule.Action = rule.Action(config.DefaultAction)
 		clientErrorRule.Action = rule.Action(config.DefaultAction)
 	}
 	if config.DefaultDuration != "" {

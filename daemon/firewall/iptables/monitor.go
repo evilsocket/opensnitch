@@ -55,6 +55,8 @@ func (ipt *Iptables) AreRulesLoaded() bool {
 
 func (ipt *Iptables) reloadRulesCallback() {
 	log.Important("firewall rules changed, reloading")
-	ipt.AddSystemRules()
+	ipt.QueueDNSResponses(false, false)
+	ipt.QueueConnections(false, false)
 	ipt.InsertRules()
+	ipt.AddSystemRules()
 }

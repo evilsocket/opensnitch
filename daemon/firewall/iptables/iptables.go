@@ -91,9 +91,9 @@ func (ipt *Iptables) Init(qNum *int) {
 
 	// start from a clean state
 	ipt.CleanRules(false)
-	ipt.AddSystemRules()
-
 	ipt.InsertRules()
+
+	ipt.AddSystemRules()
 	// start monitoring firewall rules to intercept network traffic
 	ipt.NewRulesChecker(ipt.AreRulesLoaded, ipt.reloadRulesCallback)
 
