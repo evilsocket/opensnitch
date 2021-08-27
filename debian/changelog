@@ -1,3 +1,9 @@
+opensnitch (1.4.0-1) unstable; urgency=medium
+
+  * final release.
+
+ -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  Fri, 27 Aug 2021 13:33:07 +0200
+
 opensnitch (1.4.0~rc4-1) unstable; urgency=medium
 
   * Bug fix release.

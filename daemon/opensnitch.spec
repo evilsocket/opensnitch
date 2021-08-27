@@ -1,5 +1,5 @@
 Name:           opensnitch
-Version:        1.4.0rc4
+Version:        1.4.0
 Release:        1%{?dist}
 Summary:        OpenSnitch is a GNU/Linux application firewall
 
