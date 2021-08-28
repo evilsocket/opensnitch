@@ -1,3 +1,6 @@
+General
+---
+
 **OpenSnitch displays too many dialogs to allow/deny connections**
 
 Yes, it does. But only the first time it is used. Once you configure which processes/connections you want to allow/deny, you won't notice that it's running. Really.
@@ -14,11 +17,21 @@ I tried, but for very fast updates it failed bad on my configuration (failed bad
 
 The UI service is able to use a TCP listener instead of a UNIX socket, that means the UI service itself can be executed on any operating system, while receiving messages from a single local daemon instance or multiple instances from remote computers in the network, therefore DBUS would have made the protocol and logic uselessly GNU/Linux specific.
 
+Connections
+---
+
+**Why is WireGuard not working with OpenSnitch?**
+
+WireGuard initiates connections from kernel space, so there's no really a process that initiates them. In order to see these connections enable the option `[x] Debug invalid connections` under Preferences->Nodes.
+
 **Which connections does OpenSnitch intercept?**
 
 We currently (>= v1.0.0-rc4) only intercept new connections (iptables/conntrack state NEW) of TCP, UDP and UDPLITE protocols, to/from any port.
 
-**What does the "intercept unknown connections" configuration option mean?**
+Configuration
+---
+
+**What does the "Debug invalid connections" configuration option mean?**
 
 When a process establishes a new connection, we first receive the connection information (src/dst IP, src/dst port, but no PID, nor process command line/path). Thus, we try to get who created the connection.
 
@@ -33,6 +46,9 @@ But not only that, because as we don't intercept ICMP, IGMP or SCTP (among other
 If you need to allow this kind of traffic, you can add a rule directly to iptables/nftables:
 
 `iptables -t mangle -I OUTPUT -p icmp -j ACCEPT`
+
+Rules
+---
 
 **In which order does opensnitch check configured rules?**
 
@@ -52,6 +68,9 @@ You need to use regular expressions to match the directory by editing the rule:
 [x] From this executable: ^(/tmp/\.mount_Archiv[0-9A-Za-z]+/.*)$
 
 See this issue for context and more information: [#408](https://github.com/evilsocket/opensnitch/issues/408)
+
+Other
+---
 
 **Do I need to turn off or uninstall other firewalling (firewalld, ufw, gufw) before installing OpenSnitch ? Will the OpenSnitch install or app turn them off automatically ?**
 
