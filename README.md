@@ -18,6 +18,12 @@
 
 Please, refer to [the documentation](https://github.com/evilsocket/opensnitch/wiki) for detailed information.
 
+### Translations
+
+Translation of OpenSnitch is done using [Weblate](https://hosted.weblate.org/projects/opensnitch/gui/).
+
+Thank you so much for your effort in helping us keep it available in many languages!
+
 ### Contributors
 
 [See the list](https://github.com/evilsocket/opensnitch/graphs/contributors)
