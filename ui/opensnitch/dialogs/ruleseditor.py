@@ -139,6 +139,43 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             del self._notifications_sent[reply.id]
 
+    def _get_duration(self, duration_idx):
+        if duration_idx == 0:
+            return Config.DURATION_ONCE
+        elif duration_idx == 1:
+            return Config.DURATION_30s
+        elif duration_idx == 2:
+            return Config.DURATION_5m
+        elif duration_idx == 3:
+            return Config.DURATION_15m
+        elif duration_idx == 4:
+            return Config.DURATION_30m
+        elif duration_idx == 5:
+            return Config.DURATION_1h
+        elif duration_idx == 6:
+            return Config.DURATION_UNTIL_RESTART
+        else:
+            return Config.DURATION_ALWAYS
+
+    def _load_duration(self, duration):
+        if duration == Config.DURATION_ONCE:
+            return 0
+        elif duration == Config.DURATION_30s:
+            return 1
+        elif duration == Config.DURATION_5m:
+            return 2
+        elif duration == Config.DURATION_15m:
+            return 3
+        elif duration == Config.DURATION_30m:
+            return 4
+        elif duration == Config.DURATION_1h:
+            return 5
+        elif duration == Config.DURATION_UNTIL_RESTART:
+            return 6
+        else:
+            # always
+            return 7
+
     def _is_regex(self, text):
         charset="\\*{[|^?$"
         for c in charset:
@@ -214,13 +251,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif rule.action == Config.ACTION_ALLOW:
             self.actionAllowRadio.setChecked(True)
 
-        # TODO move to config.get_duration()
-        if self.rule.duration == Config.DURATION_UNTIL_RESTART:
-            self.durationCombo.setCurrentIndex(6)
-        elif self.rule.duration == Config.DURATION_ALWAYS:
-            self.durationCombo.setCurrentIndex(7)
-        else:
-            self.durationCombo.setCurrentText(self.rule.duration)
+        self.durationCombo.setCurrentIndex(self._load_duration(self.rule.duration))
 
         if self.rule.operator.type != Config.RULE_TYPE_LIST:
             self._load_rule_operator(self.rule.operator)
@@ -378,15 +409,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule.action = Config.ACTION_DENY if self.actionDenyRadio.isChecked() else Config.ACTION_ALLOW
         self.rule.operator.type = Config.RULE_TYPE_SIMPLE
 
-        # TODO: move to config.get_duration()
-        if self.durationCombo.currentIndex() == 0:
-            self.rule.duration = Config.DURATION_ONCE
-        elif self.durationCombo.currentIndex() == 6:
-            self.rule.duration = Config.DURATION_UNTIL_RESTART
-        elif self.durationCombo.currentIndex() == 7:
-            self.rule.duration = Config.DURATION_ALWAYS
-        else:
-            self.rule.duration = self.durationCombo.currentText()
+        self.rule.duration = self._get_duration(self.durationCombo.currentIndex())
 
         # FIXME: there should be a sensitive checkbox per operand
         self.rule.operator.sensitive = self.sensitiveCheck.isChecked()
@@ -551,15 +574,17 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.rule.operator.data = json.dumps(rule_data)
 
 
-        if len(rule_data) > 1:
+        if len(rule_data) >= 2:
             self.rule.operator.type = Config.RULE_TYPE_LIST
             self.rule.operator.operand = Config.RULE_TYPE_LIST
             self.rule.operator.data = json.dumps(rule_data)
-        else:
+        elif len(rule_data) == 1:
             self.rule.operator.operand = rule_data[0]['operand']
             self.rule.operator.data = rule_data[0]['data']
             if self._is_regex(self.rule.operator.data):
                 self.rule.operator.type = Config.RULE_TYPE_REGEXP
+        else:
+            return False, ""
 
         if self.ruleNameEdit.text() == "":
             self.rule.name = slugify("%s %s %s" % (self.rule.action, self.rule.operator.type, self.rule.operator.data))
