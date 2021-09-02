@@ -306,6 +306,9 @@ func (i *CacheInodes) cleanup() {
 	i.Lock()
 	defer i.Unlock()
 	for k := range i.items {
+		if i.items[k] == nil {
+			continue
+		}
 		lastSeen := now.Sub(
 			time.Unix(0, i.items[k].getTime()),
 		)
