@@ -253,9 +253,14 @@ func (c *Client) Subscribe() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if _, err := c.client.Subscribe(ctx, c.getClientConfig()); err != nil {
+	clientCfg, err := c.client.Subscribe(ctx, c.getClientConfig())
+	if err != nil {
 		log.Error("Subscribing to GUI %s", err)
 		return
+	}
+
+	if tempConf, err := c.parseConf(clientCfg.Config); err == nil {
+		clientConnectedRule.Action = rule.Action(tempConf.DefaultAction)
 	}
 	c.listenForNotifications()
 }

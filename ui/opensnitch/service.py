@@ -5,6 +5,7 @@ from threading import Thread, Lock, Event
 import grpc
 import os
 import sys
+import json
 
 path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(path)
@@ -21,7 +22,6 @@ from opensnitch.version import version
 from opensnitch.database import Database
 from opensnitch.utils import Utils
 from opensnitch.utils import Message
-from opensnitch.version import version
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _new_remote_trigger = QtCore.pyqtSignal(str, ui_pb2.PingRequest)
@@ -343,8 +343,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             print("_delete_node() exception:", e)
 
     def _populate_stats(self, db, proto, addr, stats):
-        fields = []
-        values = []
         main_need_refresh = False
         details_need_refresh = False
         try:
@@ -381,7 +379,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                             str(event.connection.user_id), str(event.connection.process_id),
                             event.connection.process_path, " ".join(event.connection.process_args),
                             event.connection.process_cwd, event.rule.name),
-                        action_on_conflict="IGNORE"
+                            action_on_conflict="IGNORE"
                         )
                 self._nodes.update_rule_time(
                     str(datetime.fromtimestamp(event.unixnano/1000000000)),
@@ -447,6 +445,22 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _delete_temporary_rule(self, name, addr):
         self._db.delete_rule(name, addr)
+
+    def _overwrite_nodes_config(self, node_config):
+        _default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
+        temp_cfg = json.loads(node_config)
+        try:
+            if _default_action == Config.ACTION_DENY_IDX:
+                temp_cfg['DefaultAction'] = Config.ACTION_DENY
+            else:
+                temp_cfg['DefaultAction'] = Config.ACTION_ALLOW
+
+            node_config = json.dumps(temp_cfg)
+        except Exception as e:
+            print("error parsing node's configuration:", e)
+
+        return node_config
+
 
     def Ping(self, request, context):
         try:
@@ -533,6 +547,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             print("[Notifications] exception adding new node:", e)
             context.cancel()
 
+        node_config.config = self._overwrite_nodes_config(node_config.config)
+
         return node_config
 
     def Notifications(self, node_iter, context):
@@ -577,6 +593,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     in_message = next(node_iter)
                     if in_message == None:
                         continue
+
                     self._nodes.reply_notification(addr, in_message)
                 except StopIteration:
                     print("[Notifications] Node {0} exited".format(addr))
