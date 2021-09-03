@@ -20,6 +20,17 @@ The UI service is able to use a TCP listener instead of a UNIX socket, that mean
 Connections
 ---
 
+**Status is Not Running**
+
+Be sure that the daemon is running: `pgrep opensnitchd`
+
+If it's not running, you may need to enable and start it: 
+
+```
+$ sudo systemctl enable opensnitchd
+$ sudo systemctl start opensnitchd.service 
+```
+
 **Why is WireGuard not working with OpenSnitch?**
 
 WireGuard initiates connections from kernel space, so there's no really a process that initiates them. In order to see these connections enable the option `[x] Debug invalid connections` under Preferences->Nodes.
