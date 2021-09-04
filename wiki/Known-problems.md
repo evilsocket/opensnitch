@@ -36,7 +36,7 @@
 
 ***
 
-### Cannot open kprove_events
+### Cannot open kprobe_events
 
 If after enabling eBPF you see the following error:
 
@@ -74,6 +74,8 @@ This error indicates that the network hooks are already added, you'll need to de
 $ sudo su
 # > /sys/kernel/debug/tracing/kprobe_events
 ```
+
+If it complains with "resource busy" or similar, restart the daemon.
 
 ### Error while loading kprobes: invalid argument
 
