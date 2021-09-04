@@ -20,7 +20,6 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/netfilter"
-	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
@@ -388,9 +387,10 @@ func main() {
 	// overwrite monitor method from configuration if the user has passed
 	// the option via command line.
 	if procmonMethod != "" {
-		procmon.SetMonitorMethod(procmonMethod)
+		if err := monitor.ReconfigureMonitorMethod(procmonMethod); err != nil {
+			log.Warning("Unable to set process monitor method via parameter: %v", err)
+		}
 	}
-	monitor.Init()
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for {
