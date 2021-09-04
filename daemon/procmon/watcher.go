@@ -9,14 +9,6 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
-// monitor method supported types
-const (
-	MethodFtrace = "ftrace"
-	MethodProc   = "proc"
-	MethodAudit  = "audit"
-	MethodEbpf   = "ebpf"
-)
-
 const (
 	probeName   = "opensnitch_exec_probe"
 	syscallName = "do_execve"

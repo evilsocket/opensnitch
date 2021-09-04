@@ -60,6 +60,10 @@ func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint
 // }__attribute__((packed));;
 
 func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (pid int, uid int) {
+	if hostByteOrder == nil {
+		return -1, -1
+	}
+
 	var key []byte
 	var value []byte
 	var isIP4 bool = (proto == "tcp") || (proto == "udp") || (proto == "udplite")

@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
-	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 )
 
@@ -97,7 +97,9 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 		clientErrorRule.Duration = rule.Duration(config.DefaultDuration)
 	}
 	if config.ProcMonitorMethod != "" {
-		procmon.SetMonitorMethod(config.ProcMonitorMethod)
+		if err := monitor.ReconfigureMonitorMethod(config.ProcMonitorMethod); err != nil {
+			log.Warning("Unable to set new process monitor method from disk: %v", err)
+		}
 	}
 
 	return true

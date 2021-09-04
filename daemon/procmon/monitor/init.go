@@ -13,13 +13,26 @@ var (
 	cacheMonitorsRunning = false
 )
 
-// monitor method supported types
-const (
-	MethodFtrace = "ftrace"
-	MethodProc   = "proc"
-	MethodAudit  = "audit"
-	MethodEbpf   = "ebpf"
-)
+// ReconfigureMonitorMethod configures a new method for parsing connections.
+func ReconfigureMonitorMethod(newMonitorMethod string) error {
+
+	if procmon.GetMonitorMethod() == newMonitorMethod {
+		return nil
+	}
+
+	oldMethod := procmon.GetMonitorMethod()
+	End()
+	procmon.SetMonitorMethod(newMonitorMethod)
+	// if the new monitor method fails to start, rollback the change and exit
+	// without saving the configuration. Otherwise we can end up with the wrong
+	// monitor method configured and saved to file.
+	if err := Init(); err != nil {
+		procmon.SetMonitorMethod(oldMethod)
+		return err
+	}
+
+	return nil
+}
 
 // End stops the way of parsing new connections.
 func End() {
@@ -50,6 +63,9 @@ func Init() (err error) {
 			log.Info("Process monitor method ebpf")
 			return nil
 		}
+		// we need to stop this method even if it has failed to start, in order to clean up the kprobes
+		// It helps with the error "cannot write...kprobe_events: file exists".
+		ebpf.Stop()
 		log.Warning("error starting ebpf monitor method: %v", err)
 	} else if procmon.MethodIsFtrace() {
 		err = procmon.Start()
@@ -72,6 +88,6 @@ func Init() (err error) {
 
 	// if any of the above methods have failed, fallback to proc
 	log.Info("Process monitor method /proc")
-	procmon.SetMonitorMethod(MethodProc)
+	procmon.SetMonitorMethod(procmon.MethodProc)
 	return err
 }
