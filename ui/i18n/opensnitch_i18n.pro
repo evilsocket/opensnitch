@@ -22,4 +22,5 @@ TRANSLATIONS += locales/de_DE/opensnitch-de_DE.ts \
                 locales/hu_HU/opensnitch-hu_HU.ts \
                 locales/ja_JP/opensnitch-ja_JP.ts \
                 locales/pt_BR/opensnitch-pt_BR.ts \
-                locales/ro_RO/opensnitch-ro_RO.ts
+                locales/ro_RO/opensnitch-ro_RO.ts \
+                locales/ro_RO/opensnitch-fr_FR.ts
