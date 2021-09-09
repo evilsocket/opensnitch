@@ -1,6 +1,6 @@
 **eBPF**
 
-[cannot open kprove_events](#cannot-open-kprove_events): open /sys/kernel/debug/tracing/kprobe_events: permission denied
+[cannot open kprbve_events](#cannot-open-kprobe_events): open /sys/kernel/debug/tracing/kprobe_events: permission denied
 
 [cannot write ... kprobe_events: file exists](#kprobe_events-file-exists)
 
