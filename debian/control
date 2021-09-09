@@ -8,7 +8,6 @@ Priority: optional
 Build-Depends:
  debhelper-compat (= 12),
  debhelper (>= 9),
- dh-systemd (>= 1.5),
  dh-golang,
  golang-any,
  golang-github-vishvananda-netlink-dev,
