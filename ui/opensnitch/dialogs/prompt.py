@@ -451,7 +451,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif combo.itemData(what_idx) == self.FIELD_PROC_ARGS:
             # this should not happen
             if len(self._con.process_args) == 0:
-                return Config.RULE_TYPE_SIMPLE, "process.command", self._con.process_path
+                return Config.RULE_TYPE_SIMPLE, "process.path", self._con.process_path
             return Config.RULE_TYPE_SIMPLE, "process.command", ' '.join(self._con.process_args)
 
         elif combo.itemData(what_idx) == self.FIELD_USER_ID:
