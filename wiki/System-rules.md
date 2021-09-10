@@ -90,6 +90,24 @@ Some more examples:
 
 The list of protocols you can allow or deny are defined in the file `/etc/protocols`
 
+Intercepting connections from containers
+---
+
+In order to intercept connections from containers, you need to select in `Preferences->Nodes->Process monitor method: ebpf`, and add the following rule to `/etc/opensnitchd/system-fw.json`:
+```
+        {
+            "Rule": {
+                "Enabled": true,
+                "Description": "",
+                "Table": "mangle",
+                "Chain": "FORWARD",
+                "Parameters": "-m conntrack --ctstate NEW",
+                "Target": "NFQUEUE",
+                "TargetParameters": "--queue-num 0 --queue-bypass"
+            }
+        }
+```
+
 nftables
 ---
 
