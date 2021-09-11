@@ -17,7 +17,10 @@ Why is it better to use this process monitor method?
 ---
 This technology allow us to intercept processes faster and in a more secure way. ProcFS is easier to fool:
 
-https://github.com/gianlucaborello/libprocesshider
+- https://github.com/gianlucaborello/libprocesshider
+- https://xcellerator.github.io/posts/linux_rootkits_06/
+- https://xcellerator.github.io/posts/linux_rootkits_07/
+- https://xcellerator.github.io/posts/linux_rootkits_08/
 
 
 We can also intercept connections initiated from kernel space, like those initiated by rootkits or VPNs:
