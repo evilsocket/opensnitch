@@ -21,6 +21,7 @@ DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     RED = QtGui.QColor(0xff, 0x63, 0x47)
     GREEN = QtGui.QColor(0x2e, 0x90, 0x59)
+    PURPLE = QtGui.QColor(0x7f, 0x00, 0xff)
 
     _trigger = QtCore.pyqtSignal(bool, bool)
     _status_changed_trigger = QtCore.pyqtSignal(bool)
@@ -98,8 +99,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     }
 
     commonDelegateConf = {
-            'deny':      RED,
-            'allow':     GREEN,
+            Config.ACTION_DENY:     RED,
+            Config.ACTION_REJECT:   PURPLE,
+            Config.ACTION_ALLOW:    GREEN,
             'alignment': QtCore.Qt.AlignCenter | QtCore.Qt.AlignHCenter
             }
 
@@ -655,6 +657,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             _actAllow = actionMenu.addAction(QC.translate("stats", "Allow"))
             _actDeny = actionMenu.addAction(QC.translate("stats", "Deny"))
+            _actReject = actionMenu.addAction(QC.translate("stats", "Reject"))
             menu.addMenu(actionMenu)
 
             _durAlways = durMenu.addAction(QC.translate("stats", "Always"))
@@ -710,6 +713,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_ALLOW)
             elif action == _actDeny:
                 self._table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_DENY)
+            elif action == _actReject:
+                self._table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_REJECT)
 
         return True
 
@@ -1199,6 +1204,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             action = "Action = \"{0}\"".format(Config.ACTION_ALLOW)
         elif self.comboAction.currentIndex() == 2:
             action = "Action = \"{0}\"".format(Config.ACTION_DENY)
+        elif self.comboAction.currentIndex() == 3:
+            action = "Action = \"{0}\"".format(Config.ACTION_REJECT)
 
         # FIXME: use prepared statements
         if filter_text == "":

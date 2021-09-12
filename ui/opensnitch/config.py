@@ -25,6 +25,7 @@ class Config:
     # don't translate
     ACTION_ALLOW = "allow"
     ACTION_DENY = "deny"
+    ACTION_REJECT = "reject"
     DURATION_UNTIL_RESTART = "until restart"
     DURATION_ALWAYS = "always"
     DURATION_ONCE = "once"

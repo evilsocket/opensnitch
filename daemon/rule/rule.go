@@ -14,8 +14,9 @@ type Action string
 
 // Actions of rules
 const (
-	Allow = Action("allow")
-	Deny  = Action("deny")
+	Allow  = Action("allow")
+	Deny   = Action("deny")
+	Reject = Action("reject")
 )
 
 // Duration of a rule

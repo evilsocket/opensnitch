@@ -20,6 +20,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/netfilter"
+	"github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
@@ -295,6 +296,10 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		}
 
 	}
+	if packet == nil {
+		log.Debug("Packet nil after processing rules")
+		return r
+	}
 
 	if r.Enabled == false {
 		applyDefaultAction(packet)
@@ -302,18 +307,17 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		log.Info("DISABLED (%s) %s %s -> %s:%d (%s)", uiClient.DefaultAction(), log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
 
 	} else if r.Action == rule.Allow {
-		if packet != nil {
-			packet.SetVerdictAndMark(netfilter.NF_ACCEPT, packet.Mark)
-		}
+		packet.SetVerdictAndMark(netfilter.NF_ACCEPT, packet.Mark)
 		ruleName := log.Green(r.Name)
 		if r.Operator.Operand == rule.OpTrue {
 			ruleName = log.Dim(r.Name)
 		}
 		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
 	} else {
-		if packet != nil {
-			packet.SetVerdict(netfilter.NF_DROP)
+		if r.Action == rule.Reject {
+			netlink.KillSocket(con.Protocol, con.SrcIP, con.SrcPort, con.DstIP, con.DstPort)
 		}
+		packet.SetVerdict(netfilter.NF_DROP)
 
 		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
 	}

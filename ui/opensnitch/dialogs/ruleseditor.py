@@ -250,6 +250,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.actionDenyRadio.setChecked(True)
         elif rule.action == Config.ACTION_ALLOW:
             self.actionAllowRadio.setChecked(True)
+        elif rule.action == Config.ACTION_REJECT:
+            self.actionRejectRadio.setChecked(True)
 
         self.durationCombo.setCurrentIndex(self._load_duration(self.rule.duration))
 
@@ -406,8 +408,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule.name = self.ruleNameEdit.text()
         self.rule.enabled = self.enableCheck.isChecked()
         self.rule.precedence = self.precedenceCheck.isChecked()
-        self.rule.action = Config.ACTION_DENY if self.actionDenyRadio.isChecked() else Config.ACTION_ALLOW
         self.rule.operator.type = Config.RULE_TYPE_SIMPLE
+        self.rule.action = Config.ACTION_DENY
+        if self.actionAllowRadio.isChecked():
+            self.rule.action = Config.ACTION_ALLOW
+        elif self.actionRejectRadio.isChecked():
+            self.rule.action = Config.ACTION_REJECT
 
         self.rule.duration = self._get_duration(self.durationCombo.currentIndex())
 

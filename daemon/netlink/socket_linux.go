@@ -15,6 +15,7 @@ import (
 // which adds support for query UDP, UDPLITE and IPv6 sockets to SocketGet()
 
 const (
+	SOCK_DESTROY        = 21
 	sizeofSocketID      = 0x30
 	sizeofSocketRequest = sizeofSocketID + 0x8
 	sizeofSocket        = sizeofSocketID + 0x18
@@ -183,6 +184,24 @@ func (s *Socket) deserialize(b []byte) error {
 	s.WQueue = native.Uint32(rb.Next(4))
 	s.UID = native.Uint32(rb.Next(4))
 	s.INode = native.Uint32(rb.Next(4))
+	return nil
+}
+
+// SocketKill kills a connection
+func socketKill(family, proto uint8, sockID SocketID) error {
+
+	sockReq := &SocketRequest{
+		Family:   family,
+		Protocol: proto,
+		ID:       sockID,
+	}
+
+	req := nl.NewNetlinkRequest(SOCK_DESTROY, syscall.NLM_F_REQUEST|syscall.NLM_F_ACK)
+	req.AddData(sockReq)
+	_, err := req.Execute(syscall.NETLINK_INET_DIAG, 0)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -404,7 +404,7 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 			// Save the rule in order to don't ask the user to take action,
 			// and keep iterating until a Deny or a Priority rule appears.
 			match = rule
-			if rule.Action == Deny || rule.Precedence == true {
+			if rule.Action == Reject || rule.Action == Deny || rule.Precedence == true {
 				return rule
 			}
 		}

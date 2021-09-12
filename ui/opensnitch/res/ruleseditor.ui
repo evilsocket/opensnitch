@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>651</width>
-    <height>543</height>
+    <height>548</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -476,6 +476,16 @@ gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ..
           </property>
           <property name="checked">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="actionRejectRadio">
+          <property name="text">
+           <string>Reject</string>
+          </property>
+          <property name="icon">
+           <iconset theme="window-close"/>
           </property>
          </widget>
         </item>
