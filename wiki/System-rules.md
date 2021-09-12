@@ -43,6 +43,8 @@ Besides this, some services like **OpenVPN** uses **ICMP** to keep the tunnel up
                 "Target": "ACCEPT",
                 "TargetParameters": ""
             },
+        },
+        {
             "Rule": {
                 "Description": "Allow OUTPUT ICMPv6",
                 "Table": "mangle",
