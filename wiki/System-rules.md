@@ -98,6 +98,20 @@ Some more examples:
 }
 ```
 
+Allow nfs connections to mount a remote share:
+```
+        {
+            "Rule": {
+                "Description": "Allow nfs", 
+                "Table": "mangle",
+                "Chain": "OUTPUT",
+                "Parameters": "-p tcp --dport 2049",
+                "Target": "ACCEPT", 
+                "TargetParameters": ""
+            }
+        }
+```
+
 The list of protocols you can allow or deny are defined in the file `/etc/protocols`
 
 Intercepting connections from containers
