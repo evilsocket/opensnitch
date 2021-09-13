@@ -1,6 +1,6 @@
 opensnitch.c is an eBPF program. Compilation requires getting kernel source.
 
-sudo apt install clang llvm libelf-dev libzip-dev
+sudo apt install clang llvm libelf-dev libzip-dev flex bison libssl-dev bc rsync python3
 cd opensnitch
 wget https://github.com/torvalds/linux/archive/v5.8.tar.gz
 tar -xf v5.8.tar.gz
