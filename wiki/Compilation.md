@@ -7,7 +7,7 @@ Make sure you have a correctly configured **Go >= 1.12** environment, that the `
 ```bash
 # install dependencies
 sudo apt-get install git golang libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip pyqt5-dev-tools qttools5-dev-tools qt5-default
-go get github.com/golang/protobuf/protoc-gen-go
+go get google.golang.org/protobuf
 export GOPATH=~/go #you may want to change this if your Go directory is different
 export PATH=$PATH:$GOPATH/bin
 python3 -m pip install --user grpcio-tools
