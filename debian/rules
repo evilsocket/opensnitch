@@ -9,5 +9,8 @@ override_dh_dwz:
 override_dh_installsystemd:
 	dh_installsystemd --restart-after-upgrade
 
+execute_before_dh_auto_build:
+	cd proto; make ../daemon/ui/protocol/ui.pb.go
+
 %:
 	dh $@ --builddirectory=_build --buildsystem=golang --with=golang
