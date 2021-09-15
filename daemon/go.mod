@@ -5,7 +5,6 @@ go 1.14
 require (
 	github.com/evilsocket/ftrace v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7
-	github.com/golang/protobuf v1.5.0
 	github.com/google/gopacket v1.1.14
 	github.com/google/nftables v0.0.0-20210514154851-a285acebcad3
 	github.com/iovisor/gobpf v0.2.0
