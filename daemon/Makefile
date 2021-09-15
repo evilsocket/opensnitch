@@ -12,6 +12,7 @@ install:
 	@systemctl daemon-reload
 
 opensnitchd: $(SRC)
+	@go get
 	@go build -o opensnitchd . 
 
 clean:
