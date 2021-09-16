@@ -33,16 +33,20 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 | operator.operand | What element of the connection to compare, can be one of: |
 | |* `true` (will always match) |
 | |* `process.path` (the path of the executable) |
-| |*`process.id` PID|
-| |*`process.command` (full command line, including path and arguments)|
-| |*`provess.env.ENV_VAR_NAME` (use the value of an environment variable of the process given its name)
-| |*`user.id` (UID)|
-| |*`protocol`|
-| |*`dest.ip` |
-| |*`dest.host` |
-| |*`dest.network` (>= v1.3.0)|
-| |* `dest.port`. |
-| operator.data    | The data to compare the `operand` to, can be a regular expression if `type` is `regexp`. |
+| |* `process.id` PID|
+| |* `process.command` (full command line, including path and arguments)|
+| |* `provess.env.ENV_VAR_NAME` (use the value of an environment variable of the process given its name)
+| |* `user.id` (UID)|
+| |* `protocol`|
+| |* `dest.ip` |
+| |* `dest.host` |
+| |* `dest.network` (>= v1.3.0)|
+| |* `dest.port` |
+| |* `lists.domains` (>= 1.4.0) lists of domains in hosts format [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| |* `lists.domains_regexp` (>= 1.5.0) list of domains with regular expressions (`.*\.example\.com`) [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| |* `lists.ips` (>= 1.5.0) list of IPs [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| |* `lists.nets` (>= 1.5.0) list of network ranges [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| operator.data    | The data to compare the `operand` to, can be a regular expression if `type` is `regexp`, or a path to a directory with list of IPs/domains in the case of `lists`. |
 
 ### Some considerations
  
