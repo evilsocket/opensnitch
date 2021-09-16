@@ -18,6 +18,15 @@
 
 Please, refer to [the documentation](https://github.com/evilsocket/opensnitch/wiki) for detailed information.
 
+### Translations
+
+You can help translating OpenSnitch to your language following these instructions:<br>
+https://github.com/evilsocket/opensnitch/tree/master/ui/i18n
+
+If you wish you can use [Weblate](https://hosted.weblate.org/projects/opensnitch/gui/) for this task.
+
+Thank you so much for your effort in helping us keep it available in many languages!
+
 ### Contributors
 
 [See the list](https://github.com/evilsocket/opensnitch/graphs/contributors)
