@@ -140,7 +140,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset theme="preferences-desktop">
+           <iconset theme="preferences-system">
             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
           <property name="autoRaise">
@@ -375,7 +375,8 @@
              <string>Reject</string>
             </property>
             <property name="icon">
-             <iconset theme="window-close"/>
+             <iconset theme="window-close">
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </item>
           </widget>
@@ -720,7 +721,8 @@
                <string>All applications</string>
               </property>
               <property name="icon">
-               <iconset theme="system-run"/>
+               <iconset theme="system-run">
+                <normaloff>.</normaloff>.</iconset>
               </property>
              </item>
              <item>
@@ -728,7 +730,8 @@
                <string>Permanent</string>
               </property>
               <property name="icon">
-               <iconset theme="security-medium"/>
+               <iconset theme="security-medium">
+                <normaloff>.</normaloff>.</iconset>
               </property>
              </item>
              <item>
@@ -736,7 +739,8 @@
                <string>Temporary</string>
               </property>
               <property name="icon">
-               <iconset theme="edit-clear"/>
+               <iconset theme="edit-clear">
+                <normaloff>.</normaloff>.</iconset>
               </property>
              </item>
             </widget>
@@ -877,7 +881,7 @@
      </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="icon">
-       <iconset theme="system">
+       <iconset theme="computer">
         <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">

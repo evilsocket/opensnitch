@@ -49,6 +49,9 @@ const (
 	OpProto               = Operand("protocol")
 	OpList                = Operand("list")
 	OpDomainsLists        = Operand("lists.domains")
+	OpDomainsRegexpLists  = Operand("lists.domains_regexp")
+	OpIPLists             = Operand("lists.ips")
+	OpNetLists            = Operand("lists.nets")
 )
 
 type opCallback func(value interface{}) bool
@@ -66,7 +69,7 @@ type Operator struct {
 	re                  *regexp.Regexp
 	netMask             *net.IPNet
 	isCompiled          bool
-	lists               map[string]string
+	lists               map[string]interface{}
 	listsMonitorRunning bool
 	exitMonitorChan     chan (bool)
 }
@@ -106,6 +109,24 @@ func (o *Operator) Compile() error {
 		}
 		o.loadLists()
 		o.cb = o.domainsListCmp
+	} else if o.Operand == OpDomainsRegexpLists {
+		if o.Data == "" {
+			return fmt.Errorf("Operand regexp lists is empty, nothing to load: %s", o)
+		}
+		o.loadLists()
+		o.cb = o.reListCmp
+	} else if o.Operand == OpIPLists {
+		if o.Data == "" {
+			return fmt.Errorf("Operand ip lists is empty, nothing to load: %s", o)
+		}
+		o.loadLists()
+		o.cb = o.ipListCmp
+	} else if o.Operand == OpNetLists {
+		if o.Data == "" {
+			return fmt.Errorf("Operand net lists is empty, nothing to load: %s", o)
+		}
+		o.loadLists()
+		o.cb = o.ipNetCmp
 	} else if o.Type == List {
 		o.Operand = OpList
 	} else if o.Type == Network {
@@ -162,12 +183,62 @@ func (o *Operator) domainsListCmp(v interface{}) bool {
 	if dstHost == "" {
 		return false
 	}
+	if o.Sensitive == false {
+		dstHost = strings.ToLower(dstHost)
+	}
 	o.RLock()
 	defer o.RUnlock()
 
 	if _, found := o.lists[dstHost]; found {
 		log.Debug("%s: %s, %s", log.Red("domain list match"), dstHost, o.lists[dstHost])
 		return true
+	}
+	return false
+}
+
+func (o *Operator) ipListCmp(v interface{}) bool {
+	dstIP := v.(string)
+	if dstIP == "" {
+		return false
+	}
+	o.RLock()
+	defer o.RUnlock()
+
+	if _, found := o.lists[dstIP]; found {
+		log.Debug("%s: %s, %s", log.Red("IP list match"), dstIP, o.lists[dstIP].(string))
+		return true
+	}
+	return false
+}
+
+func (o *Operator) ipNetCmp(dstIP interface{}) bool {
+	o.RLock()
+	defer o.RUnlock()
+
+	for host, netMask := range o.lists {
+		n := netMask.(*net.IPNet)
+		if n.Contains(dstIP.(net.IP)) {
+			log.Debug("%s: %s, %s", log.Red("Net list match"), dstIP, host)
+			return true
+		}
+	}
+	return false
+}
+
+func (o *Operator) reListCmp(v interface{}) bool {
+	dstHost := v.(string)
+	if dstHost == "" {
+		return false
+	}
+	if o.Sensitive == false {
+		dstHost = strings.ToLower(dstHost)
+	}
+	for file, re := range o.lists {
+		r := re.(*regexp.Regexp)
+		if r.MatchString(dstHost) {
+			log.Debug("%s: %s, %s", log.Red("Regexp list match"), dstHost, file)
+			return true
+		}
 	}
 	return false
 }
@@ -185,32 +256,38 @@ func (o *Operator) Match(con *conman.Connection) bool {
 
 	if o.Operand == OpTrue {
 		return true
-	} else if o.Operand == OpUserID {
-		return o.cb(fmt.Sprintf("%d", con.Entry.UserId))
-	} else if o.Operand == OpProcessID {
-		return o.cb(fmt.Sprint(con.Process.ID))
+	} else if o.Operand == OpList {
+		return o.listMatch(con)
 	} else if o.Operand == OpProcessPath {
 		return o.cb(con.Process.Path)
 	} else if o.Operand == OpProcessCmd {
 		return o.cb(strings.Join(con.Process.Args, " "))
+	} else if o.Operand == OpDstHost && con.DstHost != "" {
+		return o.cb(con.DstHost)
+	} else if o.Operand == OpDstIP {
+		return o.cb(con.DstIP.String())
+	} else if o.Operand == OpDstPort {
+		return o.cb(fmt.Sprintf("%d", con.DstPort))
+	} else if o.Operand == OpUserID {
+		return o.cb(fmt.Sprintf("%d", con.Entry.UserId))
+	} else if o.Operand == OpProcessID {
+		return o.cb(fmt.Sprint(con.Process.ID))
+	} else if o.Operand == OpDomainsLists {
+		return o.cb(con.DstHost)
+	} else if o.Operand == OpIPLists {
+		return o.cb(con.DstIP.String())
+	} else if o.Operand == OpDstNetwork {
+		return o.cb(con.DstIP)
+	} else if o.Operand == OpNetLists {
+		return o.cb(con.DstIP)
+	} else if o.Operand == OpDomainsRegexpLists {
+		return o.cb(con.DstHost)
+	} else if o.Operand == OpProto {
+		return o.cb(con.Protocol)
 	} else if strings.HasPrefix(string(o.Operand), string(OpProcessEnvPrefix)) {
 		envVarName := core.Trim(string(o.Operand[OpProcessEnvPrefixLen:]))
 		envVarValue, _ := con.Process.Env[envVarName]
 		return o.cb(envVarValue)
-	} else if o.Operand == OpDstIP {
-		return o.cb(con.DstIP.String())
-	} else if o.Operand == OpDstHost && con.DstHost != "" {
-		return o.cb(con.DstHost)
-	} else if o.Operand == OpProto {
-		return o.cb(con.Protocol)
-	} else if o.Operand == OpDstPort {
-		return o.cb(fmt.Sprintf("%d", con.DstPort))
-	} else if o.Operand == OpDstNetwork {
-		return o.cb(con.DstIP)
-	} else if o.Operand == OpList {
-		return o.listMatch(con)
-	} else if o.Operand == OpDomainsLists {
-		return o.cb(con.DstHost)
 	}
 
 	return false

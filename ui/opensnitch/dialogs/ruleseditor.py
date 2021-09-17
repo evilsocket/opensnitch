@@ -47,6 +47,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Apply).clicked.connect(self._cb_apply_clicked)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Help).clicked.connect(self._cb_help_clicked)
         self.selectListButton.clicked.connect(self._cb_select_list_button_clicked)
+        self.selectListRegexpButton.clicked.connect(self._cb_select_regexp_list_button_clicked)
+        self.selectIPsListButton.clicked.connect(self._cb_select_ips_list_button_clicked)
+        self.selectNetsListButton.clicked.connect(self._cb_select_nets_list_button_clicked)
         self.protoCheck.toggled.connect(self._cb_proto_check_toggled)
         self.procCheck.toggled.connect(self._cb_proc_check_toggled)
         self.cmdlineCheck.toggled.connect(self._cb_cmdline_check_toggled)
@@ -55,6 +58,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstIPCheck.toggled.connect(self._cb_dstip_check_toggled)
         self.dstHostCheck.toggled.connect(self._cb_dsthost_check_toggled)
         self.dstListsCheck.toggled.connect(self._cb_dstlists_check_toggled)
+        self.dstListRegexpCheck.toggled.connect(self._cb_dstregexplists_check_toggled)
+        self.dstListIPsCheck.toggled.connect(self._cb_dstiplists_check_toggled)
+        self.dstListNetsCheck.toggled.connect(self._cb_dstnetlists_check_toggled)
 
         if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
             self.actionAllowRadio.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
@@ -83,6 +89,21 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if dirName != None and dirName != "":
             self.dstListsLine.setText(dirName)
 
+    def _cb_select_nets_list_button_clicked(self):
+        dirName = FileDialog.select_dir(self, self.dstListNetsLine.text())
+        if dirName != None and dirName != "":
+            self.dstListNetsLine.setText(dirName)
+
+    def _cb_select_ips_list_button_clicked(self):
+        dirName = FileDialog.select_dir(self, self.dstListIPsLine.text())
+        if dirName != None and dirName != "":
+            self.dstListIPsLine.setText(dirName)
+
+    def _cb_select_regexp_list_button_clicked(self):
+        dirName = FileDialog.select_dir(self, self.dstRegexpListsLine.text())
+        if dirName != None and dirName != "":
+            self.dstRegexpListsLine.setText(dirName)
+
     def _cb_proto_check_toggled(self, state):
         self.protoCombo.setEnabled(state)
 
@@ -107,6 +128,18 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_dstlists_check_toggled(self, state):
         self.dstListsLine.setEnabled(state)
         self.selectListButton.setEnabled(state)
+
+    def _cb_dstregexplists_check_toggled(self, state):
+        self.dstRegexpListsLine.setEnabled(state)
+        self.selectListRegexpButton.setEnabled(state)
+
+    def _cb_dstiplists_check_toggled(self, state):
+        self.dstListIPsLine.setEnabled(state)
+        self.selectIPsListButton.setEnabled(state)
+
+    def _cb_dstnetlists_check_toggled(self, state):
+        self.dstListNetsLine.setEnabled(state)
+        self.selectNetsListButton.setEnabled(state)
 
     def _set_status_error(self, msg):
         self.statusLabel.setStyleSheet('color: red')
@@ -239,6 +272,18 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstListsCheck.setChecked(False)
         self.dstListsLine.setText("")
 
+        self.selectListRegexpButton.setEnabled(False)
+        self.dstListRegexpCheck.setChecked(False)
+        self.dstRegexpListsLine.setText("")
+
+        self.selectIPsListButton.setEnabled(False)
+        self.dstListIPsCheck.setChecked(False)
+        self.dstListIPsLine.setText("")
+
+        self.selectNetsListButton.setEnabled(False)
+        self.dstListNetsCheck.setChecked(False)
+        self.dstListNetsLine.setText("")
+
     def _load_rule(self, addr=None, rule=None):
         if self._load_nodes(addr) == False:
             return False
@@ -314,6 +359,24 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dstListsCheck.setEnabled(True)
             self.dstListsLine.setText(operator.data)
             self.selectListButton.setEnabled(True)
+
+        if operator.operand == "lists.domains_regexp":
+            self.dstListRegexpCheck.setChecked(True)
+            self.dstListRegexpCheck.setEnabled(True)
+            self.dstRegexpListsLine.setText(operator.data)
+            self.selectListRegexpButton.setEnabled(True)
+
+        if operator.operand == "lists.ips":
+            self.dstListIPsCheck.setChecked(True)
+            self.dstListIPsCheck.setEnabled(True)
+            self.dstListIPsLine.setText(operator.data)
+            self.selectIPsListButton.setEnabled(True)
+
+        if operator.operand == "lists.nets":
+            self.dstListNetsCheck.setChecked(True)
+            self.dstListNetsCheck.setEnabled(True)
+            self.dstListNetsLine.setText(operator.data)
+            self.selectNetsListButton.setEnabled(True)
 
     def _load_nodes(self, addr=None):
         try:
@@ -579,6 +642,57 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         })
             self.rule.operator.data = json.dumps(rule_data)
 
+        if self.dstListRegexpCheck.isChecked():
+            if self.dstRegexpListsLine.text() == "":
+                return False, QC.translate("rules", "Lists field cannot be empty")
+            if os.path.isdir(self.dstRegexpListsLine.text()) == False:
+                return False, QC.translate("rules", "Lists field must be a directory")
+
+            self.rule.operator.type = Config.RULE_TYPE_LISTS
+            self.rule.operator.operand = "lists.domains_regexp"
+            rule_data.append(
+                    {
+                        'type': Config.RULE_TYPE_LISTS,
+                        'operand': 'lists.domains_regexp',
+                        'data': self.dstRegexpListsLine.text(),
+                        'sensitive': self.sensitiveCheck.isChecked()
+                        })
+            self.rule.operator.data = json.dumps(rule_data)
+
+        if self.dstListNetsCheck.isChecked():
+            if self.dstListNetsLine.text() == "":
+                return False, QC.translate("rules", "Lists field cannot be empty")
+            if os.path.isdir(self.dstListNetsLine.text()) == False:
+                return False, QC.translate("rules", "Lists field must be a directory")
+
+            self.rule.operator.type = Config.RULE_TYPE_LISTS
+            self.rule.operator.operand = "lists.nets"
+            rule_data.append(
+                    {
+                        'type': Config.RULE_TYPE_LISTS,
+                        'operand': 'lists.nets',
+                        'data': self.dstListNetsLine.text(),
+                        'sensitive': self.sensitiveCheck.isChecked()
+                        })
+            self.rule.operator.data = json.dumps(rule_data)
+
+
+        if self.dstListIPsCheck.isChecked():
+            if self.dstListIPsLine.text() == "":
+                return False, QC.translate("rules", "Lists field cannot be empty")
+            if os.path.isdir(self.dstListIPsLine.text()) == False:
+                return False, QC.translate("rules", "Lists field must be a directory")
+
+            self.rule.operator.type = Config.RULE_TYPE_LISTS
+            self.rule.operator.operand = "lists.ips"
+            rule_data.append(
+                    {
+                        'type': Config.RULE_TYPE_LISTS,
+                        'operand': 'lists.ips',
+                        'data': self.dstListIPsLine.text(),
+                        'sensitive': self.sensitiveCheck.isChecked()
+                        })
+            self.rule.operator.data = json.dumps(rule_data)
 
         if len(rule_data) >= 2:
             self.rule.operator.type = Config.RULE_TYPE_LIST

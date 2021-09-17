@@ -2,13 +2,16 @@ package rule
 
 import (
 	"fmt"
-	"github.com/evilsocket/opensnitch/daemon/core"
-	"github.com/evilsocket/opensnitch/daemon/log"
 	"io/ioutil"
+	"net"
 	"path/filepath"
+	"regexp"
 	"runtime/debug"
 	"strings"
 	"time"
+
+	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
 func (o *Operator) monitorLists() {
@@ -101,15 +104,8 @@ func (o *Operator) StopMonitoringLists() {
 	}
 }
 
-func (o *Operator) readList(fileName string) (dups uint64) {
-	log.Debug("Loading domains list: %s", fileName)
-	raw, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		log.Warning("Error reading list of domains (%s): %s", fileName, err)
-		return
-	}
-
-	log.Debug("domains list size: %d", len(raw))
+func (o *Operator) readDomainsList(raw, fileName string) (dups uint64) {
+	log.Debug("Loading domains list: %s, size: %d", fileName, len(raw))
 	lines := strings.Split(string(raw), "\n")
 	for _, domain := range lines {
 		if len(domain) < 9 {
@@ -135,9 +131,78 @@ func (o *Operator) readList(fileName string) (dups uint64) {
 		}
 		o.lists[host] = fileName
 	}
-	raw = nil
 	lines = nil
 	log.Info("%d domains loaded, %s", len(o.lists), fileName)
+
+	return dups
+}
+
+func (o *Operator) readNetList(raw, fileName string) (dups uint64) {
+	log.Debug("Loading nets list: %s, size: %d", fileName, len(raw))
+	lines := strings.Split(string(raw), "\n")
+	for _, line := range lines {
+		if line == "" || line[0] == '#' {
+			continue
+		}
+		host := core.Trim(line)
+		if _, found := o.lists[host]; found {
+			dups++
+			continue
+		}
+		_, netMask, err := net.ParseCIDR(host)
+		if err != nil {
+			log.Warning("Error parsing net from list: %s, (%s)", err, fileName)
+			continue
+		}
+		o.lists[host] = netMask
+	}
+	lines = nil
+	log.Info("%d nets loaded, %s", len(o.lists), fileName)
+
+	return dups
+}
+
+func (o *Operator) readRegexpList(raw, fileName string) (dups uint64) {
+	log.Debug("Loading regexp list: %s, size: %d", fileName, len(raw))
+	lines := strings.Split(string(raw), "\n")
+	for n, line := range lines {
+		if line == "" || line[0] == '#' {
+			continue
+		}
+		host := core.Trim(line)
+		if _, found := o.lists[host]; found {
+			dups++
+			continue
+		}
+		re, err := regexp.Compile(line)
+		if err != nil {
+			log.Warning("Error compiling regexp from list: %s, (%d:%s)", err, n, fileName)
+			continue
+		}
+		o.lists[line] = re
+	}
+	lines = nil
+	log.Info("%d regexps loaded, %s", len(o.lists), fileName)
+
+	return dups
+}
+
+func (o *Operator) readIPList(raw, fileName string) (dups uint64) {
+	log.Debug("Loading IPs list: %s, size: %d", fileName, len(raw))
+	lines := strings.Split(string(raw), "\n")
+	for _, line := range lines {
+		if line == "" || line[0] == '#' {
+			continue
+		}
+		ip := core.Trim(line)
+		if _, found := o.lists[ip]; found {
+			dups++
+			continue
+		}
+		o.lists[ip] = fileName
+	}
+	lines = nil
+	log.Info("%d IPs loaded, %s", len(o.lists), fileName)
 
 	return dups
 }
@@ -149,7 +214,7 @@ func (o *Operator) readLists() error {
 	// this list is particular to this operator and rule
 	o.Lock()
 	defer o.Unlock()
-	o.lists = make(map[string]string)
+	o.lists = make(map[string]interface{})
 
 	expr := filepath.Join(o.Data, "*.*")
 	fileList, err := filepath.Glob(expr)
@@ -163,7 +228,24 @@ func (o *Operator) readLists() error {
 		if name[:1] == "." {
 			continue
 		}
-		dups += o.readList(fileName)
+
+		raw, err := ioutil.ReadFile(fileName)
+		if err != nil {
+			log.Warning("Error reading list of IPs (%s): %s", fileName, err)
+			continue
+		}
+
+		if o.Operand == OpDomainsLists {
+			dups += o.readDomainsList(string(raw), fileName)
+		} else if o.Operand == OpDomainsRegexpLists {
+			dups += o.readRegexpList(string(raw), fileName)
+		} else if o.Operand == OpNetLists {
+			dups += o.readNetList(string(raw), fileName)
+		} else if o.Operand == OpIPLists {
+			dups += o.readIPList(string(raw), fileName)
+		} else {
+			log.Warning("Unknown lists operand type: %s", o.Operand)
+		}
 	}
 	log.Info("%d lists loaded, %d domains, %d duplicated", len(fileList), len(o.lists), dups)
 	return nil
