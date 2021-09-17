@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon/audit"
 )
@@ -86,9 +87,6 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 // If it exists in /proc, a new Process{} object is returned with  the details
 // to identify a process (cmdline, name, environment variables, etc).
 func FindProcess(pid int, interceptUnknown bool) *Process {
-	if interceptUnknown && pid == -100 {
-		return NewProcess(-100, "Linux kernel")
-	}
 	if interceptUnknown && pid < 0 {
 		return NewProcess(0, "")
 	}
@@ -115,22 +113,33 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 			return proc
 		}
 	}
-
-	linkName := fmt.Sprint("/proc/", pid, "/exe")
-	if _, err := os.Lstat(linkName); err != nil {
+	// if the PID dir doesn't exist, the process may have exited or be a kernel connection
+	// XXX: can a kernel connection exist without an entry in ProcFS?
+	if core.Exists(fmt.Sprint("/proc/", pid)) == false {
+		log.Warning("PID can't be read /proc/", pid)
 		return nil
 	}
 
-	if link, err := os.Readlink(linkName); err == nil {
-		proc := NewProcess(pid, link)
+	linkName := fmt.Sprint("/proc/", pid, "/exe")
+	link, err := os.Readlink(linkName)
+	proc := NewProcess(pid, link)
+	proc.readCmdline()
+	proc.readCwd()
+	proc.readEnv()
+	proc.cleanPath()
 
-		proc.readCmdline()
-		proc.readCwd()
-		proc.readEnv()
-		proc.cleanPath()
-
-		addToActivePidsCache(uint64(pid), proc)
-		return proc
+	if len(proc.Args) == 0 {
+		fmt.Println("cmdline empty")
+		proc.Args = make([]string, 0)
+		proc.Args = append(proc.Args, proc.Comm)
 	}
-	return nil
+
+	// If the link to the binary can't be read, the PID may be of a kernel task
+	if err != nil || proc.Path == "" {
+		proc.Path = "Kernel connection"
+		fmt.Printf("Kernel Comm: %s, cmdline: %v\n", proc.Comm, proc.Args)
+	}
+
+	addToActivePidsCache(uint64(pid), proc)
+	return proc
 }
