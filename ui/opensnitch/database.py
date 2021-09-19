@@ -324,14 +324,17 @@ class Database:
                 print("db, empty_rule() ERROR: ", qstr)
                 print(q.lastError().driverText())
 
-    def delete_rule(self, name, node):
-        qstr = "DELETE FROM rules WHERE name=? AND node=?"
+    def delete_rule(self, name, node_addr):
+        qstr = "DELETE FROM rules WHERE name=?"
+        if node_addr != None:
+            qstr = qstr + " AND node=?"
 
         with self._lock:
             q = QSqlQuery(qstr, self.db)
             q.prepare(qstr)
             q.addBindValue(name)
-            q.addBindValue(node)
+            if node_addr != None:
+                q.addBindValue(node_addr)
             if not q.exec_():
                 print("db, delete_rule() ERROR: ", qstr)
                 print(q.lastError().driverText())
@@ -347,7 +350,8 @@ class Database:
         q = QSqlQuery(qstr, self.db)
         q.prepare(qstr)
         q.addBindValue(rule_name)
-        q.addBindValue(node_addr)
+        if node_addr != None:
+            q.addBindValue(node_addr)
         q.exec_()
 
         return q

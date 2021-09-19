@@ -130,7 +130,15 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         node = self.nodesCombo.currentText()
-        if self._db.get_rule(rule_name, node).next() == True:
+        # avoid to overwrite rules when:
+        # - adding a new rule.
+        # - when a rule is renamed, i.e., the rule is edited or added and the
+        #   user changes the name.
+        if self.WORK_MODE == self.ADD_RULE and self._db.get_rule(rule_name, node).next() == True:
+            self._set_status_error(QC.translate("rules", "There's already a rule with this name."))
+            return
+        elif self.WORK_MODE == self.EDIT_RULE and rule_name != self._old_rule_name and \
+            self._db.get_rule(rule_name, node).next() == True:
             self._set_status_error(QC.translate("rules", "There's already a rule with this name."))
             return
 
@@ -144,6 +152,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._delete_rule()
 
         self._old_rule_name = rule_name
+
+        # after adding a new rule, we enter into EDIT mode, to allow further
+        # changes without closing the dialog.
+        if self.WORK_MODE == self.ADD_RULE:
+            self.WORK_MODE = self.EDIT_RULE
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
