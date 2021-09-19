@@ -276,7 +276,10 @@ class Nodes():
         rule.operator.data = ""
 
         noti = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[rule])
-        nid = self.send_notification(addr, noti, None)
+        if addr != None:
+            nid = self.send_notification(addr, noti, None)
+        else:
+            nid = self.send_notifications(noti, None)
         self._db.delete_rule(rule.name, addr)
 
         return nid, noti

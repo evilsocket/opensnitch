@@ -28,6 +28,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     LAN_RANGES = "^(" + others_net + "|" + classC_net + "|" + classB_net + "|" + classA_net + "|::1|f[cde].*::.*)$"
     LAN_LABEL = "LAN"
 
+    ADD_RULE = 0
+    EDIT_RULE = 1
+    WORK_MODE = ADD_RULE
+
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
     def __init__(self, parent=None, _rule=None):
@@ -117,16 +121,29 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.statusLabel.setText(msg)
 
     def _cb_apply_clicked(self):
-        result, error = self._save_rule()
-        if result == False:
-            self._set_status_error(error)
-            return
         if self.nodesCombo.count() == 0:
             self._set_status_error(QC.translate("rules", "There're no nodes connected."))
             return
 
+        rule_name = self.ruleNameEdit.text()
+        if rule_name == "":
+            return
+
+        node = self.nodesCombo.currentText()
+        if self._db.get_rule(rule_name, node).next() == True:
+            self._set_status_error(QC.translate("rules", "There's already a rule with this name."))
+            return
+
+        result, error = self._save_rule()
+        if result == False:
+            self._set_status_error(error)
+            return
+
         self._add_rule()
-        self._delete_rule()
+        if self._old_rule_name != None and self._old_rule_name != self.rule.name:
+            self._delete_rule()
+
+        self._old_rule_name = rule_name
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
@@ -373,21 +390,18 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _delete_rule(self):
         try:
-            if self._old_rule_name != None:
+            # if the rule name has changed, we need to remove the old one
+            if self._old_rule_name != self.rule.name:
+                node = self.nodesCombo.currentText()
+                old_rule = self.rule
+                old_rule.name = self._old_rule_name
+                if self.nodeApplyAllCheck.isChecked():
+                    nid, noti = self._nodes.delete_rule(rule_name=self._old_rule_name, addr=None, callback=self._notification_callback)
+                    self._notifications_sent[nid] = noti
+                else:
+                    nid, noti = self._nodes.delete_rule(self._old_rule_name, node, self._notification_callback)
+                    self._notifications_sent[nid] = noti
 
-                # if the rule name has changed, we need to remove the old one
-                if self._old_rule_name != self.rule.name:
-                    self._db.remove("DELETE FROM rules WHERE name='%s'" % self._old_rule_name)
-
-                    old_rule = self.rule
-                    old_rule.name = self._old_rule_name
-                    notif_delete = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[old_rule])
-                    if self.nodeApplyAllCheck.isChecked():
-                        nid = self._nodes.send_notifications(notif_delete, self._notification_callback)
-                    else:
-                        nid = self._nodes.send_notification(self.nodesCombo.currentText(), notif_delete, self._notification_callback)
-
-                self._old_rule_name = None
         except Exception as e:
             print(self.LOG_TAG, "delete_rule() exception: ", e)
 
@@ -584,7 +598,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._is_regex(self.rule.operator.data):
                 self.rule.operator.type = Config.RULE_TYPE_REGEXP
         else:
-            return False, ""
+            return False, QC.translate("rules", "Select at least one field.")
 
         if self.ruleNameEdit.text() == "":
             self.rule.name = slugify("%s %s %s" % (self.rule.action, self.rule.operator.type, self.rule.operator.data))
@@ -592,6 +606,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return True, ""
 
     def edit_rule(self, records, _addr=None):
+        self.WORK_MODE = self.EDIT_RULE
         self._reset_state()
 
         self.rule = self.get_rule_from_records(records)
@@ -608,6 +623,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.show()
 
     def new_rule(self):
+        self.WORK_MODE = self.ADD_RULE
         self._reset_state()
         self._load_nodes()
         self.show()
