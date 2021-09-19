@@ -1085,8 +1085,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         get rule records, given the name of the rule and the node
         """
         cur_idx = self.tabWidget.currentIndex()
-        records = self._db.select("SELECT * from rules WHERE name='%s' AND node='%s'" % (
-            rule_name, node_name))
+        records = self._db.get_rule(rule_name, node_name)
         if records.next() == False:
             print("[stats dialog] edit rule, no records: ", rule_name, node_name)
             self.TABLES[cur_idx]['cmd'].click()
