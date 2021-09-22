@@ -36,6 +36,15 @@ func (p *Process) setCwd(cwd string) {
 	p.CWD = cwd
 }
 
+func (p *Process) readComm() error {
+	data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/comm", p.ID))
+	if err != nil {
+		return err
+	}
+	p.Comm = core.Trim(string(data))
+	return nil
+}
+
 func (p *Process) readCwd() error {
 	link, err := os.Readlink(fmt.Sprintf("/proc/%d/cwd", p.ID))
 	if err != nil {
@@ -74,6 +83,9 @@ func (p *Process) readPath() error {
 
 func (p *Process) readCmdline() {
 	if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/cmdline", p.ID)); err == nil {
+		if len(data) == 0 {
+			return
+		}
 		for i, b := range data {
 			if b == 0x00 {
 				data[i] = byte(' ')

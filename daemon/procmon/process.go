@@ -46,6 +46,7 @@ type procStatm struct {
 // Process holds the details of a process.
 type Process struct {
 	ID          int
+	Comm        string
 	Path        string
 	Args        []string
 	Env         map[string]string

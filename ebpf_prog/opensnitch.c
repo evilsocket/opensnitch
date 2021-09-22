@@ -3,12 +3,15 @@
 //uncomment if building on x86_32
 //#define OPENSNITCH_x86_32
 
+#include <linux/sched.h>
 #include <linux/ptrace.h>
 #include <linux/version.h>
 #include <uapi/linux/bpf.h>
+#include <uapi/linux/tcp.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_tracing.h> 
 #include <net/sock.h>
+#include <net/udp_tunnel.h>
 #include <net/inet_sock.h>
 
 #define MAPSIZE 12000
@@ -96,6 +99,7 @@ struct udpv6_value_t{
 	uid_size_t uid;
 	u64 counter;
 }__attribute__((packed));
+
 
 // on x86_32 "struct sock" is arranged differently from x86_64 (at least on Debian kernels).
 // We hardcode offsets of IP addresses.
@@ -224,7 +228,6 @@ int kprobe__tcp_v4_connect(struct pt_regs *ctx)
 	return 0;
 };
 
-
 SEC("kretprobe/tcp_v4_connect")
 int kretprobe__tcp_v4_connect(struct pt_regs *ctx)
 {
@@ -253,6 +256,7 @@ int kretprobe__tcp_v4_connect(struct pt_regs *ctx)
 	tcp_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
 	tcp_value.counter = *val;
 	bpf_map_update_elem(&tcpMap, &tcp_key, &tcp_value, BPF_ANY);
+
 	u64 newval = *val + 1;
 	bpf_map_update_elem(&tcpcounter, &zero_key, &newval, BPF_ANY);
 	bpf_map_delete_elem(&tcpsock, &pid_tgid);
@@ -274,6 +278,7 @@ int kprobe__tcp_v6_connect(struct pt_regs *ctx)
 	bpf_map_update_elem(&tcpv6sock, &pid_tgid, &skp, BPF_ANY);
 	return 0;
 };
+
 SEC("kretprobe/tcp_v6_connect")
 int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
 {
@@ -309,6 +314,7 @@ int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
 	tcpv6_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
 	tcpv6_value.counter = *val;
 	bpf_map_update_elem(&tcpv6Map, &tcpv6_key, &tcpv6_value, BPF_ANY);
+
 	u64 newval = *val + 1;
 	bpf_map_update_elem(&tcpv6counter, &zero_key, &newval, BPF_ANY);
 	bpf_map_delete_elem(&tcpv6sock, &pid_tgid);
@@ -359,6 +365,7 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
 		udp_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
 		udp_value.counter = *counterVal;
 		bpf_map_update_elem(&udpMap, &udp_key, &udp_value, BPF_ANY);
+
 		u64 newval = *counterVal + 1;
 		bpf_map_update_elem(&udpcounter, &zero_key, &newval, BPF_ANY);
 	}
@@ -425,6 +432,61 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 	//else nothing to do
 	return 0;
 	
+};
+
+SEC("kprobe/iptunnel_xmit")
+int kprobe__iptunnel_xmit(struct pt_regs *ctx)
+{
+	#ifdef OPENSNITCH_x86_32
+	// TODO
+	return 0;
+	#else
+		struct sk_buff *skb = (struct sk_buff *)PT_REGS_PARM3(ctx);
+		u32 src = (u32)PT_REGS_PARM4(ctx);
+		u32 dst = (u32)PT_REGS_PARM5(ctx);
+	#endif
+
+	u16 sport = 0;
+	unsigned char *head;
+	u16 pkt_hdr;
+	__builtin_memset(&head, 0, sizeof(head));
+	__builtin_memset(&pkt_hdr, 0, sizeof(pkt_hdr));
+	bpf_probe_read(&head, sizeof(head), &skb->head);
+	bpf_probe_read(&pkt_hdr, sizeof(pkt_hdr), &skb->transport_header);
+	struct udphdr *udph;
+	__builtin_memset(&udph, 0, sizeof(udph));
+
+	udph = (struct udphdr *)(head + pkt_hdr);
+	bpf_probe_read(&sport, sizeof(sport), &udph->source);
+	sport = (sport >> 8) | ((sport << 8) & 0xff00);
+
+	struct udp_key_t udp_key;
+	struct udp_value_t udp_value;
+	u32 zero_key = 0;
+	__builtin_memset(&udp_key, 0, sizeof(udp_key));
+	__builtin_memset(&udp_value, 0, sizeof(udp_value));
+
+	bpf_probe_read(&udp_key.sport, sizeof(udp_key.sport), &sport);
+	bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &udph->dest);
+	bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &src);
+	bpf_probe_read(&udp_key.daddr, sizeof(udp_key.daddr), &dst);
+
+	u64 *counterVal = bpf_map_lookup_elem(&udpcounter, &zero_key);
+	if (counterVal == NULL){return 0;}
+
+	struct udp_value_t *lookedupValue = bpf_map_lookup_elem(&udpMap, &udp_key);
+	u64 pid = bpf_get_current_pid_tgid() >> 32;
+	if ( lookedupValue == NULL || lookedupValue->pid != pid) {
+		udp_value.pid = pid;
+		udp_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
+		udp_value.counter = *counterVal;
+		bpf_map_update_elem(&udpMap, &udp_key, &udp_value, BPF_ANY);
+		u64 newval = *counterVal + 1;
+		bpf_map_update_elem(&udpcounter, &zero_key, &newval, BPF_ANY);
+	}
+
+	return 0;
+
 };
 
 // debug only: increment key's value by 1 in map "bytes"
