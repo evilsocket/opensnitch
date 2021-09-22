@@ -116,7 +116,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 	// if the PID dir doesn't exist, the process may have exited or be a kernel connection
 	// XXX: can a kernel connection exist without an entry in ProcFS?
 	if core.Exists(fmt.Sprint("/proc/", pid)) == false {
-		log.Warning("PID can't be read /proc/", pid)
+		log.Debug("PID can't be read /proc/", pid)
 		return nil
 	}
 
@@ -129,7 +129,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 	proc.cleanPath()
 
 	if len(proc.Args) == 0 {
-		fmt.Println("cmdline empty")
+		proc.readComm()
 		proc.Args = make([]string, 0)
 		proc.Args = append(proc.Args, proc.Comm)
 	}
@@ -137,7 +137,6 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 	// If the link to the binary can't be read, the PID may be of a kernel task
 	if err != nil || proc.Path == "" {
 		proc.Path = "Kernel connection"
-		fmt.Printf("Kernel Comm: %s, cmdline: %v\n", proc.Comm, proc.Args)
 	}
 
 	addToActivePidsCache(uint64(pid), proc)

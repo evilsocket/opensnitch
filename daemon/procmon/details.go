@@ -41,7 +41,7 @@ func (p *Process) readComm() error {
 	if err != nil {
 		return err
 	}
-	p.Comm = string(data)
+	p.Comm = core.Trim(string(data))
 	return nil
 }
 
