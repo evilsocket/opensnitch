@@ -1,9 +1,18 @@
 Starting from version [1.4.0rc1](https://github.com/evilsocket/opensnitch/releases/tag/v1.4.0-rc.1), you can block or allow lists of domains.
 
-It can be used to block ads, or limit to what domains an application connects to.
+It can be used to block ads, trackers, malware domains or limit to what domains an application connects to.
 
+[How to add a global rule to block malware](#how-to-add-a-global-rule-to-block-ads-or-trackers)
 
-How to add a global rule to block ads/malware/etc:
+[Limiting to what domains an application can connect to](#limiting-to-what-domains-an-application-can-connect-to)
+
+[Notes](#notes)
+
+[Resources](#resources)
+
+---
+
+How to add a global rule to block ads or trackers:
 ---
 
 1. Create a new rule: `000-block-domains`
@@ -70,7 +79,7 @@ Remember that you may need to add the domain without the subdomains (`domain.com
 
 ### Resources
 
-Lists of ads, tracking, malware, etc that you can use:
+Lists of ads, trackers, malware domains, etc that you can use:
 
 https://filterlists.com/ (filter by Syntaxis: hosts)
 
