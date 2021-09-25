@@ -310,6 +310,11 @@
               <string>by user id</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>by PID</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="4" column="0" colspan="2">

@@ -59,6 +59,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdlineCheck.toggled.connect(self._cb_cmdline_check_toggled)
         self.dstPortCheck.toggled.connect(self._cb_dstport_check_toggled)
         self.uidCheck.toggled.connect(self._cb_uid_check_toggled)
+        self.pidCheck.toggled.connect(self._cb_pid_check_toggled)
         self.dstIPCheck.toggled.connect(self._cb_dstip_check_toggled)
         self.dstHostCheck.toggled.connect(self._cb_dsthost_check_toggled)
         self.dstListsCheck.toggled.connect(self._cb_dstlists_check_toggled)
@@ -122,6 +123,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_uid_check_toggled(self, state):
         self.uidLine.setEnabled(state)
+
+    def _cb_pid_check_toggled(self, state):
+        self.pidLine.setEnabled(state)
 
     def _cb_dstip_check_toggled(self, state):
         self.dstIPCombo.setEnabled(state)
@@ -289,6 +293,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.uidCheck.setChecked(False)
         self.uidLine.setText("")
 
+        self.pidCheck.setChecked(False)
+        self.pidLine.setText("")
+
         self.dstPortCheck.setChecked(False)
         self.dstPortLine.setText("")
 
@@ -365,6 +372,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.uidCheck.setChecked(True)
             self.uidLine.setEnabled(True)
             self.uidLine.setText(operator.data)
+
+        if operator.operand == "process.id":
+            self.pidCheck.setChecked(True)
+            self.pidLine.setEnabled(True)
+            self.pidLine.setText(operator.data)
 
         if operator.operand == "dest.port":
             self.dstPortCheck.setChecked(True)
@@ -651,6 +663,24 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
                 if self._is_valid_regex(self.uidLine.text()) == False:
                     return False, QC.translate("rules", "User ID regexp error")
+
+        if self.pidCheck.isChecked():
+            if self.pidLine.text() == "":
+                return False, QC.translate("rules", "PID field can not be empty")
+
+            self.rule.operator.operand = "process.id"
+            self.rule.operator.data = self.pidLine.text()
+            rule_data.append(
+                    {
+                        'type': Config.RULE_TYPE_SIMPLE,
+                        'operand': 'process.id',
+                        'data': self.pidLine.text(),
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
+            if self._is_regex(self.pidLine.text()):
+                rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
+                if self._is_valid_regex(self.pidLine.text()) == False:
+                    return False, QC.translate("rules", "PID field regexp error")
 
         if self.dstListsCheck.isChecked():
             if self.dstListsLine.text() == "":

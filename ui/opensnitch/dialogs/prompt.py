@@ -33,6 +33,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     FIELD_REGEX_IP      = "regex_ip"
     FIELD_PROC_PATH     = "process_path"
     FIELD_PROC_ARGS     = "process_args"
+    FIELD_PROC_ID       = "process_id"
     FIELD_USER_ID       = "user_id"
     FIELD_DST_IP        = "dst_ip"
     FIELD_DST_PORT      = "dst_port"
@@ -295,17 +296,23 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.whatCombo.clear()
         self.whatIPCombo.clear()
-        if int(con.process_id) > 0:
-            self.whatCombo.addItem(QC.translate("popups", "from this executable"), self.FIELD_PROC_PATH)
+
+        # the order of these combobox entries must match those in the preferences dialog
+        # prefs -> UI -> Default target
+        self.whatCombo.addItem(QC.translate("popups", "from this executable"), self.FIELD_PROC_PATH)
+        if int(con.process_id) < 0:
+            self.whatCombo.model().item(0).setEnabled(False)
 
         self.whatCombo.addItem(QC.translate("popups", "from this command line"), self.FIELD_PROC_ARGS)
 
-        # the order of the entries must match those in the preferences dialog
-        # prefs -> UI -> Default target
         self.whatCombo.addItem(QC.translate("popups", "to port {0}").format(con.dst_port), self.FIELD_DST_PORT)
         self.whatCombo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), self.FIELD_DST_IP)
-        if int(con.user_id) >= 0:
-            self.whatCombo.addItem(QC.translate("popups", "from user {0}").format(uid), self.FIELD_USER_ID)
+
+        self.whatCombo.addItem(QC.translate("popups", "from user {0}").format(uid), self.FIELD_USER_ID)
+        if int(con.user_id) < 0:
+            self.whatCombo.model().item(4).setEnabled(False)
+
+        self.whatCombo.addItem(QC.translate("popups", "from this PID"), self.FIELD_PROC_ID)
 
         self._add_dst_networks_to_combo(self.whatCombo, con.dst_ip)
 
@@ -453,6 +460,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if len(self._con.process_args) == 0:
                 return Config.RULE_TYPE_SIMPLE, "process.path", self._con.process_path
             return Config.RULE_TYPE_SIMPLE, "process.command", ' '.join(self._con.process_args)
+
+        elif combo.itemData(what_idx) == self.FIELD_PROC_ID:
+            return Config.RULE_TYPE_SIMPLE, "process.id", "{0}".format(self._con.process_id)
 
         elif combo.itemData(what_idx) == self.FIELD_USER_ID:
             return Config.RULE_TYPE_SIMPLE, "user.id", "%s" % self._con.user_id

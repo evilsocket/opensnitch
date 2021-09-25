@@ -170,20 +170,6 @@ You must name the rule in such manner that it'll be checked first, because they'
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QCheckBox" name="procCheck">
-         <property name="text">
-          <string>From this executable</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="cmdlineCheck">
-         <property name="text">
-          <string>From this command line</string>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_8">
          <item>
@@ -214,16 +200,10 @@ You must name the rule in such manner that it'll be checked first, because they'
          </item>
         </layout>
        </item>
-       <item row="1" column="1" colspan="2">
-        <widget class="QLineEdit" name="cmdlineLine">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>This field will match the command line that was executed by the user</string>
-         </property>
-         <property name="placeholderText">
-          <string notr="true">curl -L https://www.domain.com</string>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="procCheck">
+         <property name="text">
+          <string>From this executable</string>
          </property>
         </widget>
        </item>
@@ -233,12 +213,69 @@ You must name the rule in such manner that it'll be checked first, because they'
           <bool>false</bool>
          </property>
          <property name="toolTip">
-          <string>This field will only match the executable path.</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will only match the executable path. It is not modifiable by the user.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;You can use regular expressions to deny executions from /tmp for example:&lt;br/&gt;&lt;/p&gt;&lt;p&gt;^/tmp/.*$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="placeholderText">
           <string notr="true">/path/to/executable, .*/bin/executable[0-9\.]+$, ...</string>
          </property>
         </widget>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <widget class="QLineEdit" name="cmdlineLine">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will contain and match the command line that was executed by the user.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the command, only the command will appear:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the absolute or relative path to the command, that is what will appear:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="placeholderText">
+          <string notr="true">curl -L https://www.domain.com</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="cmdlineCheck">
+         <property name="text">
+          <string>From this command line</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="pidCheck">
+         <property name="text">
+          <string>From this PID</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <spacer name="horizontalSpacer_11">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="pidLine">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

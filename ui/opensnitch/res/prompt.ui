@@ -699,6 +699,11 @@
          <string>this destination ip</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>from this PID</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
