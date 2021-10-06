@@ -22,6 +22,8 @@ jobs:
         export GOPATH=~/go
         export PATH=$PATH:$GOPATH/bin
         go get github.com/golang/protobuf/protoc-gen-go
+        go install google.golang.org/protobuf/cmd/protoc-gen-go
+        go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
         cd proto
         make ../daemon/ui/protocol/ui.pb.go
         go get -v -t -d ./...
