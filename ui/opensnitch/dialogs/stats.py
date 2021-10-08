@@ -545,7 +545,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.comboRulesFilter.setVisible(rulesSizes[0] == 0)
         else:
             w = self.rulesSplitter.width()
-            self.rulesSplitter.setSizes([w/4, w/2])
+            self.rulesSplitter.setSizes([int(w/4), int(w/2)])
 
         self._restore_details_view_columns(self.eventsTable.horizontalHeader(), Config.STATS_GENERAL_COL_STATE)
         self._restore_details_view_columns(self.nodesTable.horizontalHeader(), Config.STATS_NODES_COL_STATE)
