@@ -1,3 +1,9 @@
+opensnitch-ui (1.5.0~rc1-1) unstable; urgency=medium
+
+  * New features.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Thu, 07 Oct 2021 14:58:39 +0200
+
 opensnitch-ui (1.4.0-1) unstable; urgency=medium
 
   * Final release.
