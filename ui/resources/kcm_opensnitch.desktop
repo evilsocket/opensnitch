@@ -3,10 +3,7 @@ Exec=opensnitch-ui
 Icon=opensnitch-ui
 Type=Service
 X-KDE-ServiceTypes=SystemSettingsExternalApp
-X-KDE-System-Settings-Parent-Category=system-administration
-
 Name=OpenSnitch Firewall
-
 Comment=OpenSnitch Firewall Graphical Interface
-
 X-KDE-Keywords=system,firewall,policies,security,polkit,policykit,douane
+X-KDE-Autostart-after=panel

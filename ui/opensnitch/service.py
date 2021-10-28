@@ -148,9 +148,19 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._menu.addAction(self.MENU_ENTRY_CLOSE).triggered.connect(self._on_close)
 
         self._tray.show()
-        if not self._tray.isSystemTrayAvailable():
-            self._stats_dialog.show()
+        self._show_gui_if_tray_not_available()
 
+    def _show_gui_if_tray_not_available(self):
+        """If the system tray is not available or ready, show the GUI after
+        10s. This delay helps to skip showing up the GUI when DEs' autologin is on.
+        """
+        tray = self._tray
+        gui = self._stats_dialog
+        def __show_gui():
+            if not tray.isSystemTrayAvailable():
+                gui.show()
+
+        QtCore.QTimer.singleShot(10000, __show_gui)
 
     def _on_tray_icon_activated(self, reason):
         if reason == QtWidgets.QSystemTrayIcon.Trigger or reason == QtWidgets.QSystemTrayIcon.MiddleClick:
