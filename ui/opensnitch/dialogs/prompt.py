@@ -58,8 +58,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg = Config.get()
         self.setupUi(self)
 
-        self._width = self.width()
-        self._height = self.height()
+        self._width = None
+        self._height = None
 
         dialog_geometry = self._cfg.getSettings("promptDialog/geometry")
         if dialog_geometry == QtCore.QByteArray:
@@ -106,6 +106,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def showEvent(self, event):
         super(PromptDialog, self).showEvent(event)
         self.activateWindow()
+
+        if self._width is None or self._height is None:
+            self._width = self.width()
+            self._height = self.height()
+
+        self.setMinimumSize(self._width, self._height)
         self.setMaximumSize(self._width, self._height)
         self.move_popup()
 
