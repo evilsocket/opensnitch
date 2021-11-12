@@ -1,0 +1,31 @@
+{
+  "created": "2020-12-13T18:06:52.209804547+01:00",
+  "updated": "2020-12-13T18:06:52.209857713+01:00",
+  "name": "invalid-regexp-list",
+  "enabled": true,
+  "precedence": true,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "list",
+    "operand": "list",
+    "sensitive": false,
+    "data": "[{\"type\": \"regexp\", \"operand\": \"process.path\", \"sensitive\": false, \"data\": \"^(/di(rmngr$\"}, {\"type\": \"simple\", \"operand\": \"dest.port\", \"data\": \"53\", \"sensitive\": false}]",
+    "list": [
+        {
+        "type": "regexp",
+        "operand": "process.path",
+        "sensitive": false,
+        "data": "^(/di(rmngr)$",
+        "list": null
+      },
+      {
+        "type": "simple",
+        "operand": "dest.port",
+        "sensitive": false,
+        "data": "53",
+        "list": null
+      }
+    ]
+  }
+}

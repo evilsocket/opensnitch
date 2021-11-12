@@ -1,0 +1,16 @@
+{
+  "created": "2020-12-13T18:06:52.209804547+01:00",
+  "updated": "2020-12-13T18:06:52.209857713+01:00",
+  "name": "invalid-regexp",
+  "enabled": true,
+  "precedence": true,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "regexp",
+    "operand": "process.path",
+    "sensitive": false,
+    "data": "/opt/((.*)google/chrome/chrome",
+    "list": []
+  }
+}
