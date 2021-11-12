@@ -16,6 +16,7 @@ func TestMain(m *testing.M) {
 	defer os.RemoveAll(tmpDir)
 	os.Exit(m.Run())
 }
+
 func TestRuleLoader(t *testing.T) {
 	t.Parallel()
 	t.Log("Test rules loader")
@@ -59,6 +60,39 @@ func TestRuleLoader(t *testing.T) {
 	testFindMatch(t, l)
 	testFindEnabled(t, l)
 	testDurationChange(t, l)
+}
+
+func TestRuleLoaderInvalidRegexp(t *testing.T) {
+	t.Parallel()
+	t.Log("Test rules loader: invalid regexp")
+
+	l, err := NewLoader(true)
+	if err != nil {
+		t.Fail()
+	}
+	t.Run("loadRule() from disk test (simple)", func(t *testing.T) {
+		if err := l.loadRule("testdata/invalid-regexp.json"); err == nil {
+			t.Error("invalid regexp rule loaded: loadRule()")
+		}
+	})
+
+	t.Run("loadRule() from disk test (list)", func(t *testing.T) {
+		if err := l.loadRule("testdata/invalid-regexp-list.json"); err == nil {
+			t.Error("invalid regexp rule loaded: loadRule()")
+		}
+	})
+
+	var list []Operator
+	dur30m := Duration("30m")
+	opListData := `[{"type": "regexp", "operand": "process.path", "sensitive": false, "data": "^(/di(rmngr)$"}, {"type": "simple", "operand": "dest.port", "data": "53", "sensitive": false}]`
+	invalidRegexpOp, _ := NewOperator(List, false, OpList, opListData, list)
+	invalidRegexpRule := Create("invalid-regexp", true, false, Allow, dur30m, invalidRegexpOp)
+
+	t.Run("replaceUserRule() test list", func(t *testing.T) {
+		if err := l.replaceUserRule(invalidRegexpRule); err == nil {
+			t.Error("invalid regexp rule loaded: replaceUserRule()")
+		}
+	})
 }
 
 func TestLiveReload(t *testing.T) {

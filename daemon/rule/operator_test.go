@@ -276,6 +276,23 @@ func TestNewOperatorRegexp(t *testing.T) {
 	restoreConnection()
 }
 
+func TestNewOperatorInvalidRegexp(t *testing.T) {
+	t.Log("Test NewOperator() invalid regexp")
+	var dummyList []Operator
+
+	opRE, err := NewOperator(Regexp, false, OpProto, "^TC(P$", dummyList)
+	if err != nil {
+		t.Error("NewOperator regexp.err should be nil: ", err)
+		t.Fail()
+	}
+	if err = opRE.Compile(); err == nil {
+		t.Error("NewOperator() invalid regexp. It should fail: ", err)
+		t.Fail()
+	}
+
+	restoreConnection()
+}
+
 func TestNewOperatorRegexpSensitive(t *testing.T) {
 	t.Log("Test NewOperator() regexp sensitive")
 	var dummyList []Operator
