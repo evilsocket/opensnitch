@@ -44,8 +44,9 @@ func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPo
 			if sock.UID != 0xffffffff {
 				uid = int(sock.UID)
 			}
-			log.Debug("[%d/%d] outgoing connection: %d:%v -> %v:%d || netlink response: %d:%v -> %v:%d inode: %d - loopback: %v multicast: %v unspecified: %v linklocalunicast: %v ifaceLocalMulticast: %v GlobalUni: %v ",
+			log.Debug("[%d/%d] outgoing connection uid: %d, %d:%v -> %v:%d || netlink response: %d:%v -> %v:%d inode: %d - loopback: %v multicast: %v unspecified: %v linklocalunicast: %v ifaceLocalMulticast: %v GlobalUni: %v ",
 				n, len(sockList),
+				int(sock.UID),
 				srcPort, srcIP, dstIP, dstPort,
 				sock.ID.SourcePort, sock.ID.Source,
 				sock.ID.Destination, sock.ID.DestinationPort, sock.INode,
@@ -62,14 +63,11 @@ func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPo
 				((sock.ID.Destination.IsGlobalUnicast() || sock.ID.Destination.IsLoopback()) && sock.ID.Destination.Equal(dstIP)) {
 				inodes = append([]int{int(sock.INode)}, inodes...)
 				continue
-			} else if sock.ID.SourcePort == uint16(srcPort) && sock.ID.Source.Equal(srcIP) &&
-				(sock.ID.DestinationPort == uint16(dstPort)) {
-				inodes = append([]int{int(sock.INode)}, inodes...)
-				continue
 			}
 			log.Debug("GetSocketInfo() invalid: %d:%v -> %v:%d", sock.ID.SourcePort, sock.ID.Source, sock.ID.Destination, sock.ID.DestinationPort)
 		}
 
+		// handle special cases (see function description): ntp queries (123), broadcasts, incomming connections.
 		if len(inodes) == 0 && len(sockList) > 0 {
 			for n, sock := range sockList {
 				if sockList[n].ID.Destination.Equal(net.IPv4zero) || sockList[n].ID.Destination.Equal(net.IPv6zero) {
@@ -79,6 +77,10 @@ func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPo
 						sockList[n].ID.SourcePort, sockList[n].ID.Source,
 						sockList[n].ID.Destination, sockList[n].ID.DestinationPort,
 						sockList[n].INode, TCPStatesMap[sock.State])
+				} else if sock.ID.SourcePort == uint16(srcPort) && sock.ID.Source.Equal(srcIP) &&
+					(sock.ID.DestinationPort == uint16(dstPort)) {
+					inodes = append([]int{int(sock.INode)}, inodes...)
+					continue
 				} else {
 					log.Debug("netlink socket not found, EXCLUDING entry:  %d:%v -> %v:%d || %d:%v -> %v:%d inode: %d state: %s",
 						srcPort, srcIP, dstIP, dstPort,

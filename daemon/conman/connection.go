@@ -83,7 +83,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 	}
 
 	pid := -1
-	var uid int
+	uid := -1
 	if procmon.MethodIsEbpf() {
 		pid, uid, err = ebpf.GetPid(c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort)
 		if err != nil {
@@ -118,17 +118,17 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		for n, inode := range inodeList {
 			pid = procmon.GetPIDFromINode(inode, fmt.Sprint(inode, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort))
 			if pid != -1 {
-				log.Debug("[%d] PID found %d", n, pid)
+				log.Debug("[%d] PID found %d [%d]", n, pid, inode)
 				c.Entry.INode = inode
 				break
 			}
 		}
 	}
 
-	if uid != -1 {
-		c.Entry.UserId = uid
-	} else if c.Entry.UserId == -1 && nfp.UID != 0xffffffff {
+	if nfp.UID != 0xffffffff {
 		c.Entry.UserId = int(nfp.UID)
+	} else {
+		c.Entry.UserId = uid
 	}
 
 	if pid == os.Getpid() {
