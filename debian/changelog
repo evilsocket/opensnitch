@@ -1,3 +1,9 @@
+opensnitch (1.4.1-1) unstable; urgency=medium
+
+  * Fixed crash when loading invalid rules.
+
+ -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  Mon, 22 Nov 2021 21:40:36 +0100
+
 opensnitch (1.4.0-1) unstable; urgency=medium
 
   * final release.
