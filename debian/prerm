@@ -1,6 +1,0 @@
-#!/bin/sh
-
-set -e
-
-service opensnitch stop || true
-systemctl disable opensnitch.service || true
