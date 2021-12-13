@@ -10,6 +10,16 @@
 #### RPM
 > $ sudo yum localinstall opensnitch-1*.rpm; sudo yum localinstall opensnitch-ui*.rpm 
 
+**Remember:**
+
+If the daemon doesn't start after installing these packages (or others from other distributions), enable and start it manually:
+```
+sudo systemctl enable --now opensnitch
+sudo systemctl start opensnitch
+```
+
+(use `opensnitchd` if `opensnitch` doesn't work)
+
 **Note:**
 
 This packages are provided to you in the aim of being useful and ease the installation. They have some no-no's (like calling pip on post install scripts), and apart from that don't expect them to be bug free or lintian errors/warnings free.
