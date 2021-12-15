@@ -386,9 +386,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.whatCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), self.FIELD_REGEX_HOST)
             self.whatIPCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), self.FIELD_REGEX_HOST)
 
-        if nparts == 1:
-            self.whatCombo.addItem(QC.translate("popups", "to *{0}").format(dst_host), self.FIELD_REGEX_HOST)
-            self.whatIPCombo.addItem(QC.translate("popups", "to *{0}").format(dst_host), self.FIELD_REGEX_HOST)
 
     def _get_app_icon(self, app_icon):
         """we try to get the icon of an app from the system.
@@ -492,7 +489,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif combo.itemData(what_idx) == self.FIELD_REGEX_HOST:
             parts = combo.currentText().split(' ')
             text = parts[len(parts)-1]
-            return Config.RULE_TYPE_REGEXP, "dest.host", "%s" % '\.'.join(text.split('.')).replace("*", ".*")
+            # ^(|.*\.)yahoo\.com
+            dsthost = '\.'.join(text.split('.')).replace("*", "")
+            dsthost = "^(|.*\.)%s" % dsthost[2:]
+            return Config.RULE_TYPE_REGEXP, "dest.host", dsthost
 
         elif combo.itemData(what_idx) == self.FIELD_REGEX_IP:
             parts = combo.currentText().split(' ')
