@@ -139,7 +139,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "rule as Rule",
                 "group_by": LAST_GROUP_BY,
                 "last_order_by": "1",
-                "last_order_to": 1
+                "last_order_to": 1,
+                "rows_selected": False
                 },
             TAB_NODES: {
                 "name": "nodes",
@@ -166,7 +167,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "cons_dropped as Dropped," \
                         "version as Version",
                 "last_order_by": "2",
-                "last_order_to": 1
+                "last_order_to": 1,
+                "rows_selected": False
                 },
             TAB_RULES: {
                 "name": "rules",
@@ -180,7 +182,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
                 "last_order_by": "2",
-                "last_order_to": 0
+                "last_order_to": 0,
+                "rows_selected": False
                 },
             TAB_HOSTS: {
                 "name": "hosts",
@@ -194,7 +197,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
                 "last_order_by": "2",
-                "last_order_to": 1
+                "last_order_to": 1,
+                "rows_selected": False
                 },
             TAB_PROCS: {
                 "name": "procs",
@@ -208,7 +212,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
                 "last_order_by": "2",
-                "last_order_to": 1
+                "last_order_to": 1,
+                "rows_selected": False
                 },
             TAB_ADDRS: {
                 "name": "addrs",
@@ -222,7 +227,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
                 "last_order_by": "2",
-                "last_order_to": 1
+                "last_order_to": 1,
+                "rows_selected": False
                 },
             TAB_PORTS: {
                 "name": "ports",
@@ -236,7 +242,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
                 "last_order_by": "2",
-                "last_order_to": 1
+                "last_order_to": 1,
+                "rows_selected": False
                 },
             TAB_USERS: {
                 "name": "users",
@@ -250,7 +257,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
                 "last_order_by": "2",
-                "last_order_to": 1
+                "last_order_to": 1,
+                "rows_selected": False
                 }
             }
 
@@ -439,6 +447,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.TABLES[idx]['cmdCleanStats'] != None:
                 self.TABLES[idx]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(idx))
             self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
+            self.TABLES[idx]['view'].clicked.connect(self._cb_table_clicked)
+            self.TABLES[idx]['view'].selectionModel().selectionChanged.connect(self._cb_table_selection_changed)
             self.TABLES[idx]['label'].setStyleSheet('color: blue; font-size:9pt; font-weight:600;')
             self.TABLES[idx]['label'].setVisible(False)
 
@@ -716,6 +726,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             elif action == _actReject:
                 self._table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_REJECT)
 
+        self._clear_rows_selection()
         return True
 
     def _table_menu_duplicate(self, cur_idx, model, selection):
@@ -965,6 +976,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
         )
 
+    def _cb_table_clicked(self, row):
+        cur_idx = self.tabWidget.currentIndex()
+        if self.TABLES[cur_idx]['rows_selected'] and self.TABLES[cur_idx]['view'].selectionModel().isSelected(row):
+            self._clear_rows_selection()
+
+    def _cb_table_selection_changed(self, selected, deselected):
+        cur_idx = self.tabWidget.currentIndex()
+        self.TABLES[cur_idx]['rows_selected'] = selected.count() > 0
+
     def _cb_prefs_clicked(self):
         self._prefs_dialog.show()
 
@@ -1080,6 +1100,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             for n in self._nodes.get_nodes():
                 nodesItem.addChild(QtWidgets.QTreeWidgetItem([n]))
 
+    def _clear_rows_selection(self):
+        cur_idx = self.tabWidget.currentIndex()
+        self.TABLES[cur_idx]['view'].selectionModel().reset()
+        self.TABLES[cur_idx]['rows_selected'] = False
+
+    def _are_rows_selected(self):
+        cur_idx = self.tabWidget.currentIndex()
+        return self.TABLES[cur_idx]['rows_selected']
+
     def _get_rule(self, rule_name, node_name):
         """
         get rule records, given the name of the rule and the node
@@ -1113,6 +1142,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return " ORDER BY %s %s" % (self.TABLES[cur_idx]['last_order_by'], self.SORT_ORDER[self.TABLES[cur_idx]['last_order_to']])
 
     def _refresh_active_table(self):
+        if self._are_rows_selected():
+            return
         model = self._get_active_table().model()
         self.setQuery(model, model.query().lastQuery())
 
