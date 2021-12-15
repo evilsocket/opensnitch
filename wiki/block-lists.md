@@ -1,5 +1,7 @@
 Starting from version [1.4.0rc1](https://github.com/evilsocket/opensnitch/releases/tag/v1.4.0-rc.1), you can block or allow lists of domains.
 
+Since version [1.5.0rc1](https://github.com/evilsocket/opensnitch/releases/tag/v1.5.0-rc.1) you can also use lists of IPs, network ranges and domains with regular expressions.
+
 It can be used to block ads, trackers, malware domains or limit to what domains an application connects to.
 
 [How to add a global rule to block malware](#how-to-add-a-global-rule-to-block-ads-or-trackers)
@@ -58,11 +60,42 @@ Remember that you may need to add the domain without the subdomains (`domain.com
 ---
 
 ### Notes
-- The format of the files must be in hosts format:
+Lists of domains:
+- It must be in hosts format:
 ```
+# this is a comment, it's ignored
+# https://www.github.developerdan.com/hosts/
 0.0.0.0 www.domain.com
 127.0.0.1 www.domain.com
 ```
+
+
+Lists of domains with regular expressions:
+- one regular expression per line:
+```
+# https://raw.githubusercontent.com/mmotti/pihole-regex/master/whitelist.list
+adtrack(er|ing)?[0-9]*[_.-]
+^analytics?[_.-]
+^pixel?[-.]
+^stat(s|istics)?[0-9]*[_.-]
+```
+
+Lists of IPs or NETs:
+- One per line:
+IPs
+```
+# https://iplists.firehol.org/
+6.7.8.9
+9.8.7.6
+```
+Nets:
+```
+# https://iplists.firehol.org/
+1.0.1.0/24
+1.2.3.0/16
+```
+
+
 - Lines started with # are ignored. Write comments always on a new line, not after a domain.
 - The domains `local`, `localhost`, `localhost.localdomain` and `broadcasthost` are ignored.
 - Whenever you save the file to disk, OpenSnitch will reload the list.
@@ -81,6 +114,8 @@ Remember that you may need to add the domain without the subdomains (`domain.com
 
 Lists of ads, trackers, malware domains, etc that you can use:
 
+https://oisd.nl/?p=dl
+
 https://filterlists.com/ (filter by Syntaxis: hosts)
 
 https://www.github.developerdan.com/hosts/
@@ -90,3 +125,5 @@ https://firebog.net/
 https://github.com/StevenBlack/hosts
 
 https://pgl.yoyo.org/adservers/
+
+https://iplists.firehol.org/
