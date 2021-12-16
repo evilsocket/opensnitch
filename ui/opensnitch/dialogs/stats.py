@@ -1249,8 +1249,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     " OR Destination LIKE '%" + filter_text + "%'" \
                     " OR Rule LIKE '%" + filter_text + "%'" \
                     " OR Node LIKE '%" + filter_text + "%'" \
-                    " OR Time = \"" + filter_text + "\" " \
-                    " OR Protocol = \"" + filter_text + "\")" \
+                    " OR Time LIKE '%" + filter_text + "%'" \
+                    " OR Protocol LIKE '%" + filter_text + "%')" \
 
         qstr += self._get_order() + self._get_limit()
         self.setQuery(model, qstr)

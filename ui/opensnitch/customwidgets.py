@@ -105,7 +105,7 @@ class ConnectionsTableModel(QStandardItemModel):
     map = []
     rangeSize = 1000
     #all unique/distinct values for each column will be stored here
-    distinct = {'process':[], 'dst_host':[], 'dst_ip':[], 'dst_port':[], 'rule':[], 'node':[], 'protocol':[]}
+    distinct = {'time':[], 'process':[], 'dst_host':[], 'dst_ip':[], 'dst_port':[], 'rule':[], 'node':[], 'protocol':[]}
     #what was the last rowid\time when the distinct value were updates
     distinctLastRowId = 0
     distinctLastUpdateTime = time.time()
@@ -248,7 +248,7 @@ class ConnectionsTableModel(QStandardItemModel):
         if (self.maxRowId < self.distinctLastRowId):
             #the db has been cleared, re-init the values
             self.distinctLastRowId = 0
-            self.distinct = {'process':[], 'dst_host':[], 'dst_ip':[], 'dst_port':[], 'rule':[], 'node':[], 'protocol':[]}
+            self.distinct = {'time':[], 'process':[], 'dst_host':[], 'dst_ip':[], 'dst_port':[], 'rule':[], 'node':[], 'protocol':[]}
         q = QSqlQuery(self.db)
         q.setForwardOnly(True)
         for column in self.distinct.keys():
@@ -346,6 +346,8 @@ class ConnectionsTableModel(QStandardItemModel):
         matchStr = None
         if any([match[col] for col in match]):
             matchStr = '( '
+            if match['time']:
+                matchStr += "time IN ('" + "','".join(match['time']) + "') OR"
             if match['process']:
                 matchStr += "process IN ('" + "','".join(match['process']) + "') OR"
             if match['dst_host']:
