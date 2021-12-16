@@ -100,6 +100,14 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._ischeckAdvanceded = False
         self.checkAdvanced.toggled.connect(self._check_advanced_toggled)
 
+        self.checkAdvanced.clicked.connect(self._button_clicked)
+        self.durationCombo.activated.connect(self._button_clicked)
+        self.whatCombo.activated.connect(self._button_clicked)
+        self.whatIPCombo.activated.connect(self._button_clicked)
+        self.checkDstIP.clicked.connect(self._button_clicked)
+        self.checkDstPort.clicked.connect(self._button_clicked)
+        self.checkUserID.clicked.connect(self._button_clicked)
+
         if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
             self.applyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
             self.denyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCancelButton")))
@@ -128,17 +136,21 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif popup_pos == self._cfg.POPUP_BOTTOM_LEFT:
             self.move(point.bottomLeft())
 
-    def _check_advanced_toggled(self, state):
+    def _stop_countdown(self):
         self.applyButton.setText("%s" % self._apply_text)
         self.denyButton.setText("%s" % self._deny_text)
-        self._tick_thread.stop = state
+        self._tick_thread.stop = True
 
+    def _check_advanced_toggled(self, state):
         self.checkDstIP.setVisible(state)
         self.whatIPCombo.setVisible(state)
         self.destIPLabel.setVisible(not state)
         self.checkDstPort.setVisible(state)
         self.checkUserID.setVisible(state)
         self._ischeckAdvanceded = state
+
+    def _button_clicked(self):
+        self._stop_countdown()
 
     def _set_elide_text(self, widget, text, max_size=132):
         if len(text) > max_size:
