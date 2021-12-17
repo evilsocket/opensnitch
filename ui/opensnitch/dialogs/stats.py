@@ -3,6 +3,7 @@ import datetime
 import sys
 import os
 import csv
+import io
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
@@ -436,6 +437,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_PORTS]['filterLine'] = self.portsFilterLine
 
         self.TABLES[self.TAB_MAIN]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
+        self.TABLES[self.TAB_MAIN]['view'].installEventFilter(self)
         self.TABLES[self.TAB_MAIN]['filterLine'].textChanged.connect(self._cb_events_filter_line_changed)
 
         self.TABLES[self.TAB_RULES]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -446,11 +448,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.TABLES[idx]['cmd'].clicked.connect(lambda: self._cb_cmd_back_clicked(idx))
             if self.TABLES[idx]['cmdCleanStats'] != None:
                 self.TABLES[idx]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(idx))
+            self.TABLES[idx]['label'].setStyleSheet('color: blue; font-size:9pt; font-weight:600;')
+            self.TABLES[idx]['label'].setVisible(False)
             self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
             self.TABLES[idx]['view'].clicked.connect(self._cb_table_clicked)
             self.TABLES[idx]['view'].selectionModel().selectionChanged.connect(self._cb_table_selection_changed)
-            self.TABLES[idx]['label'].setStyleSheet('color: blue; font-size:9pt; font-weight:600;')
-            self.TABLES[idx]['label'].setVisible(False)
+            self.TABLES[idx]['view'].installEventFilter(self)
 
             if self.TABLES[idx]['filterLine'] != None:
                 self.TABLES[idx]['filterLine'].textChanged.connect(self._cb_events_filter_line_changed)
@@ -506,6 +509,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._add_rulesTree_nodes()
         self.setWindowTitle(window_title)
         self._refresh_active_table()
+
+    def eventFilter(self, source, event):
+        if (event.type() == QtCore.QEvent.KeyPress and
+            event.matches(QtGui.QKeySequence.Copy)):
+            self._copy_selected_rows()
+            return True
+        return super(StatsDialog, self).eventFilter(source, event)
 
     def _configure_buttons_icons(self):
         self.iconStart = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPlay"))
@@ -653,6 +663,25 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._context_menu_active = False
         if refresh_table:
             self._refresh_active_table()
+
+    # https://stackoverflow.com/questions/40225270/copy-paste-multiple-items-from-qtableview-in-pyqt4
+    def _copy_selected_rows(self):
+        cur_idx = self.tabWidget.currentIndex()
+        selection = self.TABLES[cur_idx]['view'].selectedIndexes()
+        if selection:
+            rows = sorted(index.row() for index in selection)
+            columns = sorted(index.column() for index in selection)
+            rowcount = rows[-1] - rows[0] + 1
+            colcount = columns[-1] - columns[0] + 1
+            table = [[''] * colcount for _ in range(rowcount)]
+            for index in selection:
+                row = index.row() - rows[0]
+                column = index.column() - columns[0]
+                table[row][column] = index.data()
+            stream = io.StringIO()
+            csv.writer(stream, delimiter=',').writerows(table)
+            QtWidgets.qApp.clipboard().setText(stream.getvalue())
+
 
     def _configure_rules_contextual_menu(self, pos):
         cur_idx = self.tabWidget.currentIndex()
