@@ -63,6 +63,11 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	if hostByteOrder == nil {
 		return -1, -1
 	}
+	// Some connections, like broadcasts, are only seen in eBPF once,
+	// but some applications send 1 connection per network interface.
+	// If we delete the eBPF entry the first time we see it, we won't find
+	// the connection the next times.
+	delItemIfFound := true
 
 	var key []byte
 	var value []byte
@@ -83,11 +88,18 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	}
 	hostByteOrder.PutUint16(key[0:2], uint16(srcPort))
 
+	k := fmt.Sprint(proto, srcPort, srcIP.String(), dstIP.String(), dstPort)
+	cacheItem, isInCache := ebpfCache.isInCache(k)
+	if isInCache {
+		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))
+		return cacheItem.Pid, cacheItem.UID
+	}
+
 	err := m.LookupElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&key[0]), unsafe.Pointer(&value[0]))
 	if err != nil {
 		// key not found
-		// maybe srcIP is 0.0.0.0 Happens especially with UDP sendto()
-		// TODO: can this happen with TCP?
+		// sometimes srcIP is 0.0.0.0. Happens especially with UDP sendto()
+		// for example: 57621:10.0.3.1 -> 10.0.3.255:57621 , reported as: 0.0.0.0 -> 10.0.3.255
 		if isIP4 {
 			zeroes := make([]byte, 4)
 			copy(key[8:12], zeroes)
@@ -96,6 +108,9 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 			copy(key[20:36], zeroes)
 		}
 		err = m.LookupElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&key[0]), unsafe.Pointer(&value[0]))
+		if err == nil {
+			delItemIfFound = false
+		}
 	}
 	if err != nil && proto == "udp" && srcIP.String() == dstIP.String() {
 		// very rarely I see this connection. It has srcIP and dstIP == 0.0.0.0 in ebpf map
@@ -106,12 +121,18 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		copy(key[2:6], zeroes)
 		err = m.LookupElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&key[0]), unsafe.Pointer(&value[0]))
 	}
+
 	if err != nil {
-		// key not found in bpf map
+		// key not found in bpf maps
 		return -1, -1
 	}
 	pid = int(hostByteOrder.Uint32(value[0:4]))
 	uid = int(hostByteOrder.Uint32(value[8:12]))
+
+	ebpfCache.addNewItem(k, key, pid, uid)
+	if delItemIfFound {
+		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))
+	}
 	return pid, uid
 }
 

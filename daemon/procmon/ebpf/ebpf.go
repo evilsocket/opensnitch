@@ -17,9 +17,8 @@ import (
 
 //contains pointers to ebpf maps for a given protocol (tcp/udp/v6)
 type ebpfMapsForProto struct {
-	counterMap    *elf.Map
-	bpfmap        *elf.Map
-	lastPurgedMax uint64 // max counter value up to and including which the map was purged on the last purge
+	counterMap *elf.Map
+	bpfmap     *elf.Map
 }
 
 //Not in use, ~4usec faster lookup compared to m.LookupElement()
@@ -34,15 +33,15 @@ type bpf_lookup_elem_t struct {
 }
 
 type alreadyEstablishedConns struct {
-	sync.RWMutex
 	TCP   map[*daemonNetlink.Socket]int
 	TCPv6 map[*daemonNetlink.Socket]int
+	sync.RWMutex
 }
 
 var (
 	m        *elf.Module
 	lock     = sync.RWMutex{}
-	mapSize  = 12000
+	mapSize  = uint(12000)
 	ebpfMaps map[string]*ebpfMapsForProto
 	//connections which were established at the time when opensnitch started
 	alreadyEstablished = alreadyEstablishedConns{
@@ -91,6 +90,7 @@ func Start() error {
 			return err
 		}
 	}
+	ebpfCache = NewEbpfCache()
 
 	lock.Lock()
 	//determine host byte order
@@ -107,24 +107,38 @@ func Start() error {
 	lock.Unlock()
 
 	ebpfMaps = map[string]*ebpfMapsForProto{
-		"tcp": {lastPurgedMax: 0,
+		"tcp": {
 			counterMap: m.Map("tcpcounter"),
 			bpfmap:     m.Map("tcpMap")},
-		"tcp6": {lastPurgedMax: 0,
+		"tcp6": {
 			counterMap: m.Map("tcpv6counter"),
 			bpfmap:     m.Map("tcpv6Map")},
-		"udp": {lastPurgedMax: 0,
+		"udp": {
 			counterMap: m.Map("udpcounter"),
 			bpfmap:     m.Map("udpMap")},
-		"udp6": {lastPurgedMax: 0,
+		"udp6": {
 			counterMap: m.Map("udpv6counter"),
 			bpfmap:     m.Map("udpv6Map")},
 	}
 
+	saveEstablishedConnections(uint8(syscall.AF_INET))
+	if core.IPv6Enabled {
+		saveEstablishedConnections(uint8(syscall.AF_INET6))
+	}
+
+	go monitorCache()
+	go monitorMaps()
+	go monitorLocalAddresses()
+	go monitorAlreadyEstablished()
+	return nil
+}
+
+func saveEstablishedConnections(commDomain uint8) error {
 	// save already established connections
-	socketListTCP, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET), uint8(syscall.IPPROTO_TCP))
+	socketListTCP, err := daemonNetlink.SocketsDump(commDomain, uint8(syscall.IPPROTO_TCP))
 	if err != nil {
-		log.Debug("eBPF could not dump TCP sockets via netlink: %v", err)
+		log.Debug("eBPF could not dump TCP (%d) sockets via netlink: %v", commDomain, err)
+		return err
 	}
 	for _, sock := range socketListTCP {
 		inode := int((*sock).INode)
@@ -135,25 +149,6 @@ func Start() error {
 		alreadyEstablished.Unlock()
 	}
 
-	if core.IPv6Enabled {
-		socketListTCPv6, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET6), uint8(syscall.IPPROTO_TCP))
-		if err != nil {
-			log.Debug("eBPF could not dump TCPv6 sockets via netlink: %v", err)
-		} else {
-			for _, sock := range socketListTCPv6 {
-				inode := int((*sock).INode)
-				pid := procmon.GetPIDFromINode(inode, fmt.Sprint(inode,
-					(*sock).ID.Source, (*sock).ID.SourcePort, (*sock).ID.Destination, (*sock).ID.DestinationPort))
-				alreadyEstablished.Lock()
-				alreadyEstablished.TCPv6[sock] = pid
-				alreadyEstablished.Unlock()
-			}
-		}
-	}
-
-	go monitorMaps()
-	go monitorLocalAddresses()
-	go monitorAlreadyEstablished()
 	return nil
 }
 
@@ -165,6 +160,7 @@ func Stop() {
 	if m != nil {
 		m.Close()
 	}
+	ebpfCache.clear()
 }
 
 func isStopped() bool {
