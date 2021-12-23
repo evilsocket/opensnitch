@@ -99,10 +99,10 @@ Nets:
 - Lines started with # are ignored. Write comments always on a new line, not after a domain.
 - The domains `local`, `localhost`, `localhost.localdomain` and `broadcasthost` are ignored.
 - Whenever you save the file to disk, OpenSnitch will reload the list.
-- OpenSnitch doesn't refresh periodically the list loaded, but you can do it with this script: [update_adlists.sh.txt](https://github.com/evilsocket/opensnitch/files/6680314/update_adlists.sh.txt)
-  1. Rename it to .sh and give it execution permissions:
+- OpenSnitch doesn't refresh periodically the list loaded, but you can do it with this script: [update_adlists.sh](https://raw.githubusercontent.com/evilsocket/opensnitch/master/utils/scripts/ads/update_adlists.sh)
+  1. Give it execution permissions:
   
-     `mv update_adlists.sh.txt update_adlists.sh; chmod +x update_adlists.sh`
+     `chmod +x update_adlists.sh`
   2. Edit the script, and modify the **adsDir** path to point to the directory where you want to save the lists.
   3. Add the script to your user's crontab (in this example, the script will be executed every day at 11am, 17pm and 23pm):
      ```
