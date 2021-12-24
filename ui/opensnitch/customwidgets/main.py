@@ -448,10 +448,11 @@ class ConnectionsTableView(QTableView):
         self.maxRowsInViewport = math.floor(self.viewport().height() / rowHeight)
 
     def onValueChanged(self, vSBNewValue):
-        savedIndex = self.selectionModel().currentIndex()
-        self.model().refreshViewport(vSBNewValue, self.maxRowsInViewport)
-        #restore selection which was removed by model's refreshing the data
-        self.selectionModel().setCurrentIndex(savedIndex, QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent)
+        if len(self.selectionModel().selectedRows(0)) == 1:
+            savedIndex = self.selectionModel().currentIndex()
+            self.model().refreshViewport(vSBNewValue, self.maxRowsInViewport)
+            #restore selection which was removed by model's refreshing the data
+            self.selectionModel().setCurrentIndex(savedIndex, QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent)
 
     # if ( scrollbar at the top or row limit set):
     #   let new rows "push down" older rows without changing the scrollbar position

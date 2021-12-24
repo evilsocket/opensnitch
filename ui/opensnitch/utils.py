@@ -1,11 +1,16 @@
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from opensnitch.version import version
 import pwd
 import socket
 import fcntl
 import struct
 import array
+
+class QuickHelp():
+    @staticmethod
+    def show(help_str):
+        QtWidgets.QToolTip.showText(QtGui.QCursor.pos(), help_str)
 
 class Utils():
     @staticmethod

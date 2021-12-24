@@ -15,8 +15,9 @@ from opensnitch.nodes import Nodes
 from opensnitch.dialogs.preferences import PreferencesDialog
 from opensnitch.dialogs.ruleseditor import RulesEditorDialog
 from opensnitch.dialogs.processdetails import ProcessDetailsDialog
-from opensnitch.customwidgets import ColorizedDelegate, ConnectionsTableModel
-from opensnitch.utils import Message
+from opensnitch.customwidgets.main import ColorizedDelegate, ConnectionsTableModel
+from opensnitch.customwidgets.generictableview import GenericTableModel
+from opensnitch.utils import Message, QuickHelp
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -109,7 +110,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     commonTableConf = {
             "name": "",
             "label": None,
-            "tipLabel": None,
             "cmd": None,
             "view": None,
             "model": None,
@@ -121,7 +121,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             TAB_MAIN: {
                 "name": "connections",
                 "label": None,
-                "tipLabel": None,
                 "cmd": None,
                 "cmdCleanStats": None,
                 "view": None,
@@ -146,13 +145,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             TAB_NODES: {
                 "name": "nodes",
                 "label": None,
-                "tipLabel": None,
                 "cmd": None,
                 "cmdCleanStats": None,
                 "view": None,
                 "filterLine": None,
                 "model": None,
                 "delegate": {
+                    Config.ACTION_DENY:     RED,
+                    Config.ACTION_REJECT:   PURPLE,
+                    Config.ACTION_ALLOW:    GREEN,
                     Nodes.OFFLINE: RED,
                     Nodes.ONLINE:  GREEN,
                     'alignment': QtCore.Qt.AlignCenter | QtCore.Qt.AlignHCenter
@@ -167,14 +168,25 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "cons as Connections," \
                         "cons_dropped as Dropped," \
                         "version as Version",
-                "last_order_by": "2",
+                "header_labels": [
+                    QC.translate("stats", "LastConnection", ""),
+                    QC.translate("stats", "Addr", ""),
+                    QC.translate("stats", "Status", ""),
+                    QC.translate("stats", "Hostname", ""),
+                    QC.translate("stats", "Version", ""),
+                    QC.translate("stats", "Uptime", ""),
+                    QC.translate("stats", "Rules", ""),
+                    QC.translate("stats", "Connections", ""),
+                    QC.translate("stats", "Dropped", ""),
+                    QC.translate("stats", "Version", ""),
+                ],
+                "last_order_by": "1",
                 "last_order_to": 1,
                 "rows_selected": False
                 },
             TAB_RULES: {
                 "name": "rules",
                 "label": None,
-                "tipLabel": None,
                 "cmd": None,
                 "cmdCleanStats": None,
                 "view": None,
@@ -182,6 +194,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
+                "header_labels": [
+                ],
                 "last_order_by": "2",
                 "last_order_to": 0,
                 "rows_selected": False
@@ -189,7 +203,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             TAB_HOSTS: {
                 "name": "hosts",
                 "label": None,
-                "tipLabel": None,
                 "cmd": None,
                 "cmdCleanStats": None,
                 "view": None,
@@ -197,6 +210,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
+                "header_labels": [
+                    QC.translate("stats", "What", ""),
+                    QC.translate("stats", "Hits", ""),
+                ],
                 "last_order_by": "2",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -204,7 +221,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             TAB_PROCS: {
                 "name": "procs",
                 "label": None,
-                "tipLabel": None,
                 "cmd": None,
                 "cmdCleanStats": None,
                 "view": None,
@@ -212,6 +228,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
+                "header_labels": [
+                    QC.translate("stats", "What", ""),
+                    QC.translate("stats", "Hits", ""),
+                ],
                 "last_order_by": "2",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -219,7 +239,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             TAB_ADDRS: {
                 "name": "addrs",
                 "label": None,
-                "tipLabel": None,
                 "cmd": None,
                 "cmdCleanStats": None,
                 "view": None,
@@ -227,6 +246,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
+                "header_labels": [
+                    QC.translate("stats", "What", ""),
+                    QC.translate("stats", "Hits", ""),
+                ],
                 "last_order_by": "2",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -234,7 +257,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             TAB_PORTS: {
                 "name": "ports",
                 "label": None,
-                "tipLabel": None,
                 "cmd": None,
                 "cmdCleanStats": None,
                 "view": None,
@@ -242,6 +264,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
+                "header_labels": [
+                    QC.translate("stats", "What", ""),
+                    QC.translate("stats", "Hits", ""),
+                ],
                 "last_order_by": "2",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -249,7 +275,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             TAB_USERS: {
                 "name": "users",
                 "label": None,
-                "tipLabel": None,
                 "cmd": None,
                 "cmdCleanStats": None,
                 "view": None,
@@ -257,6 +282,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
+                "header_labels": [
+                    QC.translate("stats", "What", ""),
+                    QC.translate("stats", "Hits", ""),
+                ],
                 "last_order_by": "2",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -308,10 +337,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         # TODO: allow to display multiples dialogs
         self._proc_details_dialog = ProcessDetailsDialog()
+        # TODO: allow to navigate records by offsets
+        self.prevButton.setVisible(False)
+        self.nextButton.setVisible(False)
 
         self.daemon_connected = False
         # skip table updates if a context menu is active
         self._context_menu_active = False
+        # used to skip updates while the user is moving the scrollbar
+        self.scrollbar_active = False
 
         self._lock = threading.RLock()
         self._address = address
@@ -342,12 +376,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.newRuleButton.clicked.connect(self._cb_new_rule_clicked)
         self.cmdProcDetails.clicked.connect(self._cb_proc_details_clicked)
         self.comboRulesFilter.currentIndexChanged.connect(self._cb_rules_filter_combo_changed)
+        self.helpButton.clicked.connect(self._cb_help_button_clicked)
+        self.nextButton.clicked.connect(self._cb_next_button_clicked)
+        self.prevButton.clicked.connect(self._cb_prev_button_clicked)
 
         self.enableRuleCheck.setVisible(False)
         self.delRuleButton.setVisible(False)
         self.editRuleButton.setVisible(False)
         self.nodeRuleLabel.setVisible(False)
         self.comboRulesFilter.setVisible(False)
+
+
 
         self.TABLES[self.TAB_MAIN]['view'] = self._setup_table(QtWidgets.QTableView, self.eventsTable, "connections",
                 self.TABLES[self.TAB_MAIN]['display_fields'],
@@ -363,52 +402,70 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.TABLES[self.TAB_NODES]['display_fields'],
                 order_by="3,2,1",
                 resize_cols=(self.COL_NODE,),
+                model=GenericTableModel("nodes", self.TABLES[self.TAB_NODES]['header_labels']),
+                verticalScrollBar=self.verticalScrollBar,
+                sort_direction=self.SORT_ORDER[1],
                 delegate=self.TABLES[self.TAB_NODES]['delegate'])
         self.TABLES[self.TAB_RULES]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.rulesTable, "rules",
+                model=GenericTableModel("rules", self.TABLES[self.TAB_RULES]['header_labels']),
+                verticalScrollBar=self.rulesScrollBar,
                 delegate=self.TABLES[self.TAB_RULES]['delegate'],
                 order_by="2",
                 sort_direction=self.SORT_ORDER[0])
         self.TABLES[self.TAB_HOSTS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.hostsTable, "hosts",
+                model=GenericTableModel("hosts", self.TABLES[self.TAB_HOSTS]['header_labels']),
+                verticalScrollBar=self.hostsScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_HOSTS]['delegate'],
-                order_by="2")
+                order_by="2",
+                limit=self._get_limit()
+                )
         self.TABLES[self.TAB_PROCS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.procsTable, "procs",
+                model=GenericTableModel("procs", self.TABLES[self.TAB_HOSTS]['header_labels']),
+                verticalScrollBar=self.procsScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_PROCS]['delegate'],
-                order_by="2")
+                order_by="2",
+                limit=self._get_limit()
+                )
         self.TABLES[self.TAB_ADDRS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.addrTable, "addrs",
+                model=GenericTableModel("addrs", self.TABLES[self.TAB_HOSTS]['header_labels']),
+                verticalScrollBar=self.addrsScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_ADDRS]['delegate'],
-                order_by="2")
+                order_by="2",
+                limit=self._get_limit()
+                )
         self.TABLES[self.TAB_PORTS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.portsTable, "ports",
+                model=GenericTableModel("ports", self.TABLES[self.TAB_HOSTS]['header_labels']),
+                verticalScrollBar=self.portsScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_PORTS]['delegate'],
-                order_by="2")
+                order_by="2",
+                limit=self._get_limit()
+                )
         self.TABLES[self.TAB_USERS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.usersTable, "users",
+                model=GenericTableModel("users", self.TABLES[self.TAB_HOSTS]['header_labels']),
+                verticalScrollBar=self.usersScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_USERS]['delegate'],
-                order_by="2")
+                order_by="2",
+                limit=self._get_limit()
+                )
 
-        self.TABLES[self.TAB_NODES]['label']    = self.nodesLabel
-        self.TABLES[self.TAB_NODES]['tipLabel'] = self.tipNodesLabel
-        self.TABLES[self.TAB_RULES]['label']    = self.ruleLabel
-        self.TABLES[self.TAB_RULES]['tipLabel'] = self.tipRulesLabel
-        self.TABLES[self.TAB_HOSTS]['label']    = self.hostsLabel
-        self.TABLES[self.TAB_HOSTS]['tipLabel'] = self.tipHostsLabel
-        self.TABLES[self.TAB_PROCS]['label']    = self.procsLabel
-        self.TABLES[self.TAB_PROCS]['tipLabel'] = self.tipProcsLabel
-        self.TABLES[self.TAB_ADDRS]['label']    = self.addrsLabel
-        self.TABLES[self.TAB_ADDRS]['tipLabel'] = self.tipAddrsLabel
-        self.TABLES[self.TAB_PORTS]['label']    = self.portsLabel
-        self.TABLES[self.TAB_PORTS]['tipLabel'] = self.tipPortsLabel
-        self.TABLES[self.TAB_USERS]['label']    = self.usersLabel
-        self.TABLES[self.TAB_USERS]['tipLabel'] = self.tipUsersLabel
+        self.TABLES[self.TAB_NODES]['label'] = self.nodesLabel
+        self.TABLES[self.TAB_RULES]['label'] = self.ruleLabel
+        self.TABLES[self.TAB_HOSTS]['label'] = self.hostsLabel
+        self.TABLES[self.TAB_PROCS]['label'] = self.procsLabel
+        self.TABLES[self.TAB_ADDRS]['label'] = self.addrsLabel
+        self.TABLES[self.TAB_PORTS]['label'] = self.portsLabel
+        self.TABLES[self.TAB_USERS]['label'] = self.usersLabel
 
         self.TABLES[self.TAB_NODES]['cmd'] = self.cmdNodesBack
         self.TABLES[self.TAB_RULES]['cmd'] = self.cmdRulesBack
@@ -419,23 +476,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_USERS]['cmd'] = self.cmdUsersBack
 
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'] = self.cmdCleanSql
-        self.TABLES[self.TAB_HOSTS]['cmdCleanStats'] = self.cmdCleanHosts
+        self.TABLES[self.TAB_NODES]['cmdCleanStats'] = self.cmdCleanSql
         self.TABLES[self.TAB_RULES]['cmdCleanStats'] = self.cmdCleanRules
         # the rules clean button is only for a particular rule, not all.
         self.TABLES[self.TAB_RULES]['cmdCleanStats'].setVisible(False)
-        self.TABLES[self.TAB_PROCS]['cmdCleanStats'] = self.cmdCleanProcs
-        self.TABLES[self.TAB_ADDRS]['cmdCleanStats'] = self.cmdCleanAddrs
-        self.TABLES[self.TAB_PORTS]['cmdCleanStats'] = self.cmdCleanPorts
-        self.TABLES[self.TAB_USERS]['cmdCleanStats'] = self.cmdCleanUsers
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(self.TAB_MAIN))
-
         self.TABLES[self.TAB_MAIN]['filterLine'] = self.filterLine
-        self.TABLES[self.TAB_RULES]['filterLine'] = self.rulesFilterLine
-        self.TABLES[self.TAB_HOSTS]['filterLine'] = self.hostsFilterLine
-        self.TABLES[self.TAB_PROCS]['filterLine'] = self.procsFilterLine
-        self.TABLES[self.TAB_ADDRS]['filterLine'] = self.addrsFilterLine
-        self.TABLES[self.TAB_PORTS]['filterLine'] = self.portsFilterLine
-
         self.TABLES[self.TAB_MAIN]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
         self.TABLES[self.TAB_MAIN]['view'].installEventFilter(self)
         self.TABLES[self.TAB_MAIN]['filterLine'].textChanged.connect(self._cb_events_filter_line_changed)
@@ -451,12 +497,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.TABLES[idx]['label'].setStyleSheet('color: blue; font-size:9pt; font-weight:600;')
             self.TABLES[idx]['label'].setVisible(False)
             self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
-            self.TABLES[idx]['view'].clicked.connect(self._cb_table_clicked)
             self.TABLES[idx]['view'].selectionModel().selectionChanged.connect(self._cb_table_selection_changed)
             self.TABLES[idx]['view'].installEventFilter(self)
-
-            if self.TABLES[idx]['filterLine'] != None:
-                self.TABLES[idx]['filterLine'].textChanged.connect(self._cb_events_filter_line_changed)
 
         self._load_settings()
 
@@ -609,60 +651,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _del_rule(self, rule_name, node_addr):
         nid, noti = self._nodes.delete_rule(rule_name, node_addr, self._notification_callback)
         self._notifications_sent[nid] = noti
-
-    def _cb_proc_details_clicked(self):
-        table = self._tables[self.tabWidget.currentIndex()]
-        nrows = table.model().rowCount()
-        pids = {}
-        for row in range(0, nrows):
-            pid = table.model().index(row, self.COL_PID).data()
-            node = table.model().index(row, self.COL_NODE).data()
-            if pid not in pids:
-                pids[pid] = node
-
-        self._proc_details_dialog.monitor(pids)
-
-    @QtCore.pyqtSlot(ui_pb2.NotificationReply)
-    def _cb_notification_callback(self, reply):
-        if reply.id in self._notifications_sent:
-            if reply.code == ui_pb2.ERROR:
-                Message.ok(
-                    QC.translate("stats",
-                                 "<b>Error:</b><br><br>",
-                                 "{0}").format(reply.data),
-                    QtWidgets.QMessageBox.Warning)
-
-        else:
-            Message.ok(
-                QC.translate("stats", "Warning:"),
-                "{0}".format(reply.data),
-                QtWidgets.QMessageBox.Warning)
-
-    def _cb_tab_changed(self, index):
-        if index == self.TAB_MAIN:
-            self._set_events_query()
-        else:
-            if index == self.TAB_RULES:
-                self._add_rulesTree_nodes()
-
-            if index == self.TAB_PROCS:
-                # make the button visible depending if we're in the detail view
-                nrows = self._get_active_table().model().rowCount()
-                self.cmdProcDetails.setVisible(self.IN_DETAIL_VIEW[index] and nrows > 0)
-
-            self._refresh_active_table()
-
-    def _cb_table_context_menu(self, pos):
-        cur_idx = self.tabWidget.currentIndex()
-        if cur_idx != self.TAB_RULES:
-            # the only table with context menu for now is the rules table
-            return
-
-        self._context_menu_active = True
-        refresh_table = self._configure_rules_contextual_menu(pos)
-        self._context_menu_active = False
-        if refresh_table:
-            self._refresh_active_table()
 
     # https://stackoverflow.com/questions/40225270/copy-paste-multiple-items-from-qtableview-in-pyqt4
     def _copy_selected_rows(self):
@@ -851,6 +839,72 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rules_dialog.edit_rule(records, node)
             break
 
+    # ignore updates while the user is using the scrollbar.
+    def _cb_scrollbar_pressed(self):
+        self.scrollbar_active = True
+
+    def _cb_scrollbar_released(self):
+        self.scrollbar_active = False
+
+    def _cb_proc_details_clicked(self):
+        table = self._tables[self.tabWidget.currentIndex()]
+        nrows = table.model().rowCount()
+        pids = {}
+        for row in range(0, nrows):
+            pid = table.model().index(row, self.COL_PID).data()
+            node = table.model().index(row, self.COL_NODE).data()
+            if pid not in pids:
+                pids[pid] = node
+
+        self._proc_details_dialog.monitor(pids)
+
+    @QtCore.pyqtSlot(ui_pb2.NotificationReply)
+    def _cb_notification_callback(self, reply):
+        if reply.id in self._notifications_sent:
+            if reply.code == ui_pb2.ERROR:
+                Message.ok(
+                    QC.translate("stats",
+                                 "<b>Error:</b><br><br>",
+                                 "{0}").format(reply.data),
+                    QtWidgets.QMessageBox.Warning)
+
+        else:
+            Message.ok(
+                QC.translate("stats", "Warning:"),
+                "{0}".format(reply.data),
+                QtWidgets.QMessageBox.Warning)
+
+    def _cb_tab_changed(self, index):
+        self.comboAction.setVisible(index == self.TAB_MAIN)
+
+        if index == self.TAB_MAIN:
+            self._set_events_query()
+        else:
+            if index == self.TAB_RULES:
+                self.TABLES[index]['cmdCleanStats'].setVisible(False)
+                self._add_rulesTree_nodes()
+
+            elif index == self.TAB_PROCS:
+                # make the button visible depending if we're in the detail view
+                nrows = self._get_active_table().model().rowCount()
+                self.cmdProcDetails.setVisible(self.IN_DETAIL_VIEW[index] and nrows > 0)
+            elif index == self.TAB_NODES:
+                self.TABLES[index]['cmdCleanStats'].setVisible(False)
+
+        self._refresh_active_table()
+
+    def _cb_table_context_menu(self, pos):
+        cur_idx = self.tabWidget.currentIndex()
+        if cur_idx != self.TAB_RULES:
+            # the only table with context menu for now is the rules table
+            return
+
+        self._context_menu_active = True
+        refresh_table = self._configure_rules_contextual_menu(pos)
+        self._context_menu_active = False
+        if refresh_table:
+            self._refresh_active_table()
+
     def _cb_table_header_clicked(self, pos, sortIdx):
         cur_idx = self.tabWidget.currentIndex()
         model = self._get_active_table().model()
@@ -863,9 +917,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             q = qstr.strip(" ") + self._get_order()
 
-        if cur_idx == self.TAB_MAIN:
-            q += self._get_limit()
-
+        q += self._get_limit()
         self.setQuery(model, q)
 
     def _cb_events_filter_line_changed(self, text):
@@ -877,16 +929,32 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings(Config.STATS_FILTER_TEXT, text)
             self._set_events_query()
             return
-
-        where_clause = self._get_filter_line_clause(cur_idx, text)
-        qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + \
-            where_clause + self._get_order()
+        elif cur_idx == StatsDialog.TAB_NODES:
+            qstr = self._get_nodes_filter_query(model.query().lastQuery(), text)
+        elif self.IN_DETAIL_VIEW[cur_idx] == True:
+            qstr = self._get_indetail_filter_query(model.query().lastQuery(), text)
+        else:
+            where_clause = self._get_filter_line_clause(cur_idx, text)
+            qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + \
+                where_clause + self._get_order()
 
         if qstr != None:
             self.setQuery(model, qstr)
 
     def _cb_limit_combo_changed(self, idx):
-        self._set_events_query()
+        if self.tabWidget.currentIndex() == self.TAB_MAIN:
+            self._set_events_query()
+        else:
+            model = self._get_active_table().model()
+            qstr = model.query().lastQuery()
+            if "LIMIT" in qstr:
+                qs = qstr.split(" LIMIT ")
+                q = qs[0]
+                l = qs[1]
+                qstr = q + self._get_limit()
+            else:
+                qstr = qstr + self._get_limit()
+            self.setQuery(model, qstr)
 
     def _cb_combo_action_changed(self, idx):
         if self.tabWidget.currentIndex() != self.TAB_MAIN:
@@ -896,14 +964,42 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._set_events_query()
 
     def _cb_clean_sql_clicked(self, idx):
+        cur_idx = self.tabWidget.currentIndex()
         if self.tabWidget.currentIndex() == StatsDialog.TAB_RULES:
-            self._db.empty_rule(self.TABLES[self.tabWidget.currentIndex()]['label'].text())
+            self._db.empty_rule(self.TABLES[cur_idx]['label'].text())
+        elif self.IN_DETAIL_VIEW[cur_idx]:
+            model = self._get_active_table().model()
+            # get left side of the query: * GROUP BY ...
+            qstr = model.query().lastQuery().split("GROUP BY")[0]
+            # get right side of the query: ... WHERE *
+            q = qstr.split("WHERE")
+
+            table = self.TABLES[cur_idx]['name']
+            label = self.TABLES[cur_idx]['label'].text()
+
+            field = "dst_host"
+            if cur_idx == self.TAB_NODES:
+                field = "node"
+                if label[0] == '/':
+                    label = "unix:{0}".format(label)
+            elif cur_idx == self.TAB_PROCS:
+                field = "process"
+            elif cur_idx == self.TAB_ADDRS:
+                field = "dst_ip"
+            elif cur_idx == self.TAB_PORTS:
+                field = "dst_port"
+            elif cur_idx == self.TAB_USERS:
+                field = "uid"
+
+            self._db.remove("DELETE FROM {0} WHERE what = '{1}'".format(table, label))
+            self._db.remove("DELETE FROM connections WHERE {0} = '{1}'".format(field, label))
         else:
-            self._db.clean(self.TABLES[self.tabWidget.currentIndex()]['name'])
+            self._db.clean(self.TABLES[cur_idx]['name'])
         self._refresh_active_table()
 
     def _cb_cmd_back_clicked(self, idx):
         cur_idx = self.tabWidget.currentIndex()
+        self._clear_rows_selection()
         self.IN_DETAIL_VIEW[cur_idx] = False
 
         self._set_active_widgets(False)
@@ -924,7 +1020,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             filter_text = self.TABLES[cur_idx]['filterLine'].text()
             where_clause = self._get_filter_line_clause(cur_idx, filter_text)
 
-        self.setQuery(model, self._db.get_query(self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields']) + where_clause + " " + self._get_order())
+        self.setQuery(model,
+                      self._db.get_query(
+                          self.TABLES[cur_idx]['name'],
+                          self.TABLES[cur_idx]['display_fields']) + where_clause + " " + self._get_order() + self._get_limit()
+                      )
         self._restore_details_view_columns(
             self.TABLES[cur_idx]['view'].horizontalHeader(),
             "{0}{1}".format(Config.STATS_VIEW_COL_STATE, cur_idx)
@@ -1005,14 +1105,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
         )
 
-    def _cb_table_clicked(self, row):
-        cur_idx = self.tabWidget.currentIndex()
-        if self.TABLES[cur_idx]['rows_selected'] and self.TABLES[cur_idx]['view'].selectionModel().isSelected(row):
-            self._clear_rows_selection()
-
+    # selection changes occur before tableview's clicked event
+    # if there're no rows selected, accept the selection. Otherwise clean it.
     def _cb_table_selection_changed(self, selected, deselected):
         cur_idx = self.tabWidget.currentIndex()
-        self.TABLES[cur_idx]['rows_selected'] = selected.count() > 0
+
+        # only update the flag (that updates data), if there's more than 1
+        # row selected. When using the keyboard to move around, 1 row will
+        # be selected to indicate where you are.
+
+        # NOTE: in some qt versions you can select a row and setQuery() won't
+        # reset the selection, but in others it gets resetted.
+        self.TABLES[cur_idx]['rows_selected'] = len(self.TABLES[cur_idx]['view'].selectionModel().selectedRows(0)) > 1
 
     def _cb_prefs_clicked(self):
         self._prefs_dialog.show()
@@ -1098,6 +1202,29 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         noti = ui_pb2.Notification(type=notType, rules=[rule])
         self._notification_trigger.emit(noti)
 
+    def _cb_prev_button_clicked(self):
+        model = self._get_active_table().model()
+        model.fetchMore()
+
+    def _cb_next_button_clicked(self):
+        model = self._get_active_table().model()
+        model.fetchMore()
+
+    def _cb_help_button_clicked(self):
+        QuickHelp.show(
+            QC.translate("stats",
+                         "<p><b>Quick help</b></p>" \
+                         "<p>- Use CTRL+c to copy selected rows.</p>" \
+                         "<p>- Use Home,End,PgUp,PgDown,PgUp,Up or Down keys to navigate rows.</p>" \
+                         "<p>- On the Events view, clicking on columns Node, Process or Rule<br>" \
+                         "jumps to the view of the selected item.</p>" \
+                         "<p>- On the rest of the views, double click on a row to get detailed<br>" \
+                         " information.</p><br>" \
+                         "<p>For more information visit the <a href=\"{0}\">wiki</a></p>" \
+                         "<br>".format(Config.HELP_URL)
+                         )
+        )
+
     # must be called after setModel() or setQuery()
     def _show_columns(self):
         cols = self._cfg.getSettings(Config.STATS_SHOW_COLUMNS)
@@ -1166,25 +1293,29 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _get_limit(self):
         return " " + self.LIMITS[self.limitCombo.currentIndex()]
 
-    def _get_order(self):
+    def _get_order(self, field=None):
         cur_idx = self.tabWidget.currentIndex()
-        return " ORDER BY %s %s" % (self.TABLES[cur_idx]['last_order_by'], self.SORT_ORDER[self.TABLES[cur_idx]['last_order_to']])
+        order_field = self.TABLES[cur_idx]['last_order_by']
+        if field != None:
+           order_field  = field
+        return " ORDER BY %s %s" % (order_field, self.SORT_ORDER[self.TABLES[cur_idx]['last_order_to']])
 
     def _refresh_active_table(self):
-        if self._are_rows_selected():
-            return
         model = self._get_active_table().model()
-        self.setQuery(model, model.query().lastQuery())
+        lastQuery = model.query().lastQuery()
+        if "LIMIT" not in lastQuery:
+            lastQuery += self._get_limit()
+        self.setQuery(model, lastQuery)
 
     def _get_active_table(self):
         return self.TABLES[self.tabWidget.currentIndex()]['view']
 
     def _set_active_widgets(self, state, label_txt=""):
         cur_idx = self.tabWidget.currentIndex()
+        self._clear_rows_selection()
         self.TABLES[cur_idx]['label'].setVisible(state)
         self.TABLES[cur_idx]['label'].setText(label_txt)
         self.TABLES[cur_idx]['cmd'].setVisible(state)
-        self.TABLES[cur_idx]['tipLabel'].setVisible(not state)
         if self.TABLES[cur_idx]['filterLine'] != None:
             self.TABLES[cur_idx]['filterLine'].setVisible(not state)
         if self.TABLES[cur_idx].get('cmdCleanStats') != None:
@@ -1192,6 +1323,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.TABLES[cur_idx]['cmdCleanStats'].setVisible(state)
             else:
                 self.TABLES[cur_idx]['cmdCleanStats'].setVisible(not state)
+            if cur_idx == StatsDialog.TAB_NODES:
+                self.TABLES[cur_idx]['cmdCleanStats'].setVisible(state)
 
         header = self.TABLES[cur_idx]['view'].horizontalHeader()
         if state == True:
@@ -1217,7 +1350,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.delRuleButton.setVisible(not active)
         self.editRuleButton.setVisible(not active)
         self.nodeRuleLabel.setText("")
-        self.rulesFilterLine.setVisible(active)
         self.rulesTreePanel.setVisible(active)
 
         if active:
@@ -1289,7 +1421,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         s = "AND c.src_ip='%s'" % data if '/' not in data else ''
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "n.last_connection as {0}, " \
+                "c.time as {0}, " \
                 "c.action as {1}, " \
                 "count(c.process) as {2}, " \
                 "c.uid as {3}, " \
@@ -1300,9 +1432,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process || ' (' || c.pid || ')' as {8}, " \
                 "c.process_args as {9}, " \
                 "c.process_cwd as CWD " \
-            "FROM nodes as n, connections as c " \
-            "WHERE n.addr = '{10}' {11} GROUP BY {12}, c.process_args, c.uid, c.dst_ip, c.dst_host, c.dst_port, c.protocol, n.status {13}".format(
-                self.COL_STR_LAST_CONNECTION,
+            "FROM connections as c " \
+            "WHERE c.node LIKE '%{10}%' {11} GROUP BY {12}, c.process_args, c.uid, c.dst_ip, c.dst_host, c.dst_port, c.protocol {13}".format(
+                self.COL_STR_TIME,
                 self.COL_STR_ACTION,
                 self.COL_STR_HITS,
                 self.COL_STR_UID,
@@ -1314,7 +1446,65 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.COL_STR_PROC_ARGS,
                 data, s,
                 self.COL_STR_PROCESS,
-                self._get_order()))
+                self._get_order() + self._get_limit()))
+
+    def _get_nodes_filter_query(self, lastQuery, text):
+        base_query = lastQuery.split("GROUP BY")
+        qstr = base_query[0]
+        if "AND" in qstr:
+            # strip out ANDs if any
+            os = qstr.split('AND')
+            qstr = os[0]
+
+        if text != "":
+            qstr += "AND (c.time LIKE '%{0}%' OR " \
+                "c.action LIKE '%{0}%' OR " \
+                "c.pid LIKE '%{0}%' OR " \
+                "c.src_port LIKE '%{0}%' OR " \
+                "c.dst_port LIKE '%{0}%' OR " \
+                "c.src_ip LIKE '%{0}%' OR " \
+                "c.dst_ip LIKE '%{0}%' OR " \
+                "c.dst_host LIKE '%{0}%' OR " \
+                "c.process LIKE '%{0}%' OR " \
+                "c.process_args LIKE '%{0}%')".format(text)
+        if len(base_query) > 1:
+            qstr += " GROUP BY" + base_query[1]
+
+        return qstr
+
+
+    # get the query with filter by text when a tab is in the detail view.
+    def _get_indetail_filter_query(self, lastQuery, text):
+        cur_idx = self.tabWidget.currentIndex()
+        base_query = lastQuery.split("GROUP BY")
+        qstr = base_query[0]
+        if "AND" in qstr:
+            # strip out ANDs if any
+            os = qstr.split('AND')
+            qstr = os[0]
+
+        if text != "":
+            qstr += " AND (c.time LIKE '%{0}%' OR " \
+                "c.action LIKE '%{0}%' OR " \
+                "c.pid LIKE '%{0}%' OR " \
+                "c.src_port LIKE '%{0}%' OR " \
+                "c.src_ip LIKE '%{0}%' OR ".format(text)
+
+            # exclude from query the field of the view we're filtering by
+            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_PORTS:
+                qstr += "c.dst_port LIKE '%{0}%' OR ".format(text)
+            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_ADDRS:
+                qstr += "c.dst_ip LIKE '%{0}%' OR ".format(text)
+            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_HOSTS:
+                qstr += "c.dst_host LIKE '%{0}%' OR ".format(text)
+            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_PROCS:
+                qstr += "c.process LIKE '%{0}%' OR ".format(text)
+
+            qstr += "c.process_args LIKE '%{0}%')".format(text)
+        if len(base_query) > 1:
+            qstr += " GROUP BY" + base_query[1]
+
+        return qstr
 
     def _set_rules_filter(self, parent_row=-1, item_row=0, what=""):
         section = self.FILTER_TREE_APPS
@@ -1346,7 +1536,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif section == self.FILTER_TREE_NODES and what != "":
             what = "WHERE r.node = '%s'" % what
 
-        filter_text = self.TABLES[self.TAB_RULES]['filterLine'].text()
+        filter_text = self.filterLine.text()
         if filter_text != "":
             if what == "":
                 what = "WHERE"
@@ -1408,8 +1598,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_args as {9}, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as {10} " \
-            "FROM hosts as h, connections as c " \
-            "WHERE h.what = '{11}' AND c.dst_host = h.what GROUP BY c.pid, {12}, c.process_args, c.dst_ip, c.dst_port, c.protocol, c.action, c.node {13}".format(
+            "FROM connections as c " \
+            "WHERE c.dst_host = '{11}' GROUP BY c.pid, {12}, c.process_args, c.dst_ip, c.dst_port, c.protocol, c.action, c.node {13}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
@@ -1423,7 +1613,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_RULE,
                           data,
                           self.COL_STR_PROCESS,
-                self._get_order()))
+                self._get_order("1") + self._get_limit()))
 
     def _set_process_query(self, data):
         model = self._get_active_table().model()
@@ -1441,8 +1631,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_args as {6}, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as {7} " \
-            "FROM procs as p, connections as c " \
-            "WHERE p.what = '{8}' AND p.what = c.process " \
+            "FROM connections as c " \
+            "WHERE c.process = '{8}' " \
                       "GROUP BY c.dst_ip, c.dst_host, c.dst_port, c.uid, c.action, c.node, c.pid, c.process_args {9}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
@@ -1453,7 +1643,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_PROC_ARGS,
                           self.COL_STR_RULE,
                           data,
-                          self._get_order()))
+                          self._get_order("1") + self._get_limit()))
 
         nrows = self._get_active_table().model().rowCount()
         self.cmdProcDetails.setVisible(nrows != 0)
@@ -1476,8 +1666,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_args as {9}, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as {10} " \
-            "FROM addrs as a, connections as c " \
-            "WHERE a.what = '{11}' AND c.dst_ip = a.what GROUP BY c.pid, {12}, c.process_args, c.dst_port, {13}, c.protocol, c.action, c.uid, c.node {14}".format(
+            "FROM connections as c " \
+            "WHERE c.dst_ip = '{11}' GROUP BY c.pid, {12}, c.process_args, c.dst_port, {13}, c.protocol, c.action, c.uid, c.node {14}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
@@ -1492,7 +1682,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           data,
                           self.COL_STR_PROCESS,
                           self.COL_STR_DESTINATION,
-                          self._get_order()))
+                          self._get_order("1") + self._get_limit()))
 
     def _set_ports_query(self, data):
         model = self._get_active_table().model()
@@ -1512,8 +1702,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_args as {9}, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as {10} " \
-            "FROM ports as p, connections as c " \
-            "WHERE p.what = '{11}' AND c.dst_port = p.what GROUP BY c.pid, {12}, c.process_args, {13}, c.dst_ip, c.protocol, c.action, c.uid, c.node {14}".format(
+            "FROM connections as c " \
+            "WHERE c.dst_port = '{11}' GROUP BY c.pid, {12}, c.process_args, {13}, c.dst_ip, c.protocol, c.action, c.uid, c.node {14}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
@@ -1528,7 +1718,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           data,
                           self.COL_STR_PROCESS,
                           self.COL_STR_DESTINATION,
-                          self._get_order()))
+                          self._get_order("1") + self._get_limit()))
 
     def _set_users_query(self, data):
         model = self._get_active_table().model()
@@ -1564,7 +1754,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           data,
                           self.COL_STR_PROCESS,
                           self.COL_STR_DESTINATION,
-                          self._get_order()))
+                          self._get_order("1") + self._get_limit()))
 
     def _on_save_clicked(self):
         tab_idx = self.tabWidget.currentIndex()
@@ -1604,8 +1794,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             model = self._db.get_new_qsql_model()
         if delegate != None:
             tableWidget.setItemDelegate(ColorizedDelegate(self, config=delegate))
+
         if verticalScrollBar != None:
             tableWidget.setVerticalScrollBar(verticalScrollBar)
+        tableWidget.vScrollBar.sliderPressed.connect(self._cb_scrollbar_pressed)
+        tableWidget.vScrollBar.sliderReleased.connect(self._cb_scrollbar_released)
+
         self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " " + sort_direction + limit)
         tableWidget.setModel(model)
 
@@ -1689,7 +1883,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             super(StatsDialog, self).keyPressEvent(event)
 
     def setQuery(self, model, q):
-        if self._context_menu_active == True:
+        if self._context_menu_active == True or self.scrollbar_active == True or self._are_rows_selected():
             return
         with self._lock:
             try:
@@ -1697,6 +1891,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 model.setQuery(q, self._db_sqlite)
                 if model.lastError().isValid():
                     print("setQuery() error: ", model.lastError().text())
+
+                if self.tabWidget.currentIndex() != self.TAB_MAIN:
+                    self.labelRowsCount.setText("{0}".format(model.rowCount()))
+                else:
+                    self.labelRowsCount.setText("")
             except Exception as e:
                 print(self._address, "setQuery() exception: ", e)
             finally:
