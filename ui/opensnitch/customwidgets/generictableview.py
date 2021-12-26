@@ -26,6 +26,9 @@ class GenericTableModel(QStandardItemModel):
     # modified query object
     realQuery = QSqlQuery()
 
+    items = []
+    lastItems = []
+
     def __init__(self, tableName, headerLabels):
         self.tableName = tableName
         self.headerLabels = headerLabels
@@ -50,6 +53,13 @@ class GenericTableModel(QStandardItemModel):
     def clear(self):
         pass
 
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        if role == QtCore.Qt.DisplayRole:
+            items_count = len(self.items)
+            if index.isValid() and items_count > 0 and index.row() < items_count:
+                return self.items[index.row()][index.column()]
+        return QStandardItemModel.data(self, index, role)
+
     # set columns based on query's fields
     def setModelColumns(self, newColumns):
         self.headerLabels = []
@@ -59,15 +69,14 @@ class GenericTableModel(QStandardItemModel):
             self.headerLabels.append(self.realQuery.record().fieldName(col))
         self.lastColumnCount = newColumns
         self.setHorizontalHeaderLabels(self.headerLabels)
+        self.setColumnCount(len(self.headerLabels))
 
     def setQuery(self, q, db):
         self.origQueryStr = q
         self.db = db
         #print("q:", q)
 
-        isQueryChanged = False
         if self.prevQueryStr != self.origQueryStr:
-            isQueryChanged = True
             self.realQuery = QSqlQuery(q, db)
 
         self.realQuery.exec_()
@@ -82,10 +91,6 @@ class GenericTableModel(QStandardItemModel):
         if queryColumns != self.lastColumnCount:
             self.setModelColumns(queryColumns)
 
-        isTotalRowCountChanged = False
-        if self.totalRowCount != queryRows:
-            isTotalRowCountChanged = True
-
         self.prevQueryStr = self.origQueryStr
         self.rowCountChanged.emit()
 
@@ -98,13 +103,15 @@ class GenericTableModel(QStandardItemModel):
         q.seek(min(cur_pos, cur_pos-offset))
 
     # refresh the viewport with data from the db.
-    def refreshViewport(self, scrollValue, maxRowsInViewport):
+    def refreshViewport(self, scrollValue, maxRowsInViewport, force=False):
+        # set records position to last, in order to get correctly the number of
+        # rows.
+        self.realQuery.last()
         rowsFound = max(0, self.realQuery.at()+1)
         if scrollValue == 0 or self.realQuery.at() == QSql.BeforeFirstRow:
             self.realQuery.seek(QSql.BeforeFirstRow)
         elif self.realQuery.at() == QSql.AfterLastRow:
             self.realQuery.seek(rowsFound - maxRowsInViewport)
-            print(">>> 2:", rowsFound, maxRowsInViewport, rowsFound - maxRowsInViewport)
         else:
             self.realQuery.seek(min(scrollValue-1, self.realQuery.at()))
 
@@ -114,12 +121,14 @@ class GenericTableModel(QStandardItemModel):
         # only visible rows will be filled with data, and only if we're not
         # updating the viewport already.
         if upperBound > 0 or self.realQuery.at() < 0:
-            self.fillRows(self.realQuery, upperBound)
+            self.fillRows(self.realQuery, upperBound, force)
 
-    def fillRows(self, q, upperBound):
+    def fillRows(self, q, upperBound, force=False):
         rowsLabels = []
         self.setVerticalHeaderLabels(rowsLabels)
 
+        self.items = []
+        cols = []
         self.blockSignals(True)
         #don't trigger setItem's signals for each cell, instead emit dataChanged for all cells
         for x in range(0, upperBound):
@@ -130,15 +139,18 @@ class GenericTableModel(QStandardItemModel):
                 q.seek(upperBound)
                 break
             rowsLabels.append(str(q.at()+1))
+            cols = []
             for col in range(0, len(self.headerLabels)):
-                try:
-                    self.setItem(x, col, QStandardItem(str(q.value(col))))
-                except Exception:
-                    break
+                cols.append(str(q.value(col)))
+
+            self.items.append(cols)
         self.blockSignals(False)
 
         self.setVerticalHeaderLabels(rowsLabels)
-        self.dataChanged.emit(self.createIndex(0,0), self.createIndex(upperBound, len(self.headerLabels)))
+        if self.lastItems != self.items or force == True:
+            self.dataChanged.emit(self.createIndex(0,0), self.createIndex(upperBound, len(self.headerLabels)))
+        self.lastItems = self.items
+        del cols
 
     def dumpRows(self):
         rows = []
@@ -198,15 +210,16 @@ class GenericTableView(QTableView):
         #refresh the viewport data based on new geometry
         self.calculateRowsInViewport()
         self.model().setRowCount(min(self.maxRowsInViewport, self.model().totalRowCount))
-        self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport)
+        self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=True)
 
     def calculateRowsInViewport(self):
         rowHeight = self.verticalHeader().defaultSectionSize()
+        columnSize = self.horizontalHeader().defaultSectionSize()
         # we don't want partial-height rows in viewport, hence .floor()
         self.maxRowsInViewport = math.floor(self.viewport().height() / rowHeight)+1
 
     def onValueChanged(self, vSBNewValue):
-        self.model().refreshViewport(vSBNewValue, self.maxRowsInViewport)
+        self.model().refreshViewport(vSBNewValue, self.maxRowsInViewport, force=True)
 
     def onRowCountChanged(self):
         scrollBar = self.vScrollBar
@@ -222,28 +235,29 @@ class GenericTableView(QTableView):
         self.model().refreshViewport(scrollBar.value(), self.maxRowsInViewport)
 
     def _selectLastRow(self):
+        internalId = self.selectionModel().currentIndex().internalId()
+        idx = self.model().createIndex(self.maxRowsInViewport-2, 0, internalId)
         self.selectionModel().setCurrentIndex(
-            self.model().createIndex(
-                min(self.maxRowsInViewport-1, self.model().totalRowCount) - 1, 1),
-            QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
+            idx, QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
         )
 
     def _selectRow(self, pos):
+        internalId = self.selectionModel().currentIndex().internalId()
         self.selectionModel().setCurrentIndex(
-            self.model().createIndex(pos, 0), QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
+            self.model().createIndex(pos, 1, internalId), QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
         )
 
     def onKeyUp(self):
-        if self.selectionModel().currentIndex().row() >= 0:
+        if self.selectionModel().currentIndex().row() == 0:
             self.vScrollBar.setValue(max(0, self.vScrollBar.value() - 1))
 
     def onKeyDown(self):
         if self.vScrollBar.isVisible() == False:
             return
 
-        newValue = self.vScrollBar.value() + 1
-        if self.selectionModel().currentIndex().row() >= self.maxRowsInViewport - 2:
-            self.vScrollBar.setValue(newValue)
+        if self.selectionModel().currentIndex().row() >= self.maxRowsInViewport-2:
+            self.vScrollBar.setValue(self.vScrollBar.value() + 1)
+            self._selectLastRow()
 
     def onKeyHome(self):
         self.vScrollBar.setValue(0)
@@ -261,13 +275,14 @@ class GenericTableView(QTableView):
         if self.vScrollBar.isVisible() == False:
             return
 
-        newValue = self.vScrollBar.value() + (self.maxRowsInViewport-1)
-        if newValue >= self.vScrollBar.maximum():
+        newValue = self.vScrollBar.value() + (self.maxRowsInViewport-2)
+        if newValue >= self.model().rowCount():
             self._selectLastRow()
             return
 
-        if newValue < self.vScrollBar.maximum():
-            self.vScrollBar.setValue(self.vScrollBar.value() + self.maxRowsInViewport)
+        if newValue < self.model().rowCount():
+            self.vScrollBar.setValue(newValue)
+            self._selectRow(0)
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress:
