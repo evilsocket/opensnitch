@@ -431,7 +431,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         QtWidgets.QMessageBox.Warning)
                 return False
 
-            if len(self._node_list) <= 1:
+            if len(self._node_list) < 2:
                 self.nodeApplyAllCheck.setVisible(False)
 
             for node in self._node_list:

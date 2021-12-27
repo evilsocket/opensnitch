@@ -672,15 +672,25 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
 
     def _configure_rules_contextual_menu(self, pos):
-        cur_idx = self.tabWidget.currentIndex()
-        table = self._get_active_table()
-        model = table.model()
+        try:
+            cur_idx = self.tabWidget.currentIndex()
+            table = self._get_active_table()
+            model = table.model()
 
-        selection = table.selectionModel().selectedRows()
-        if selection:
+            selection = table.selectionModel().selectedRows()
+            if not selection:
+                return
+
             menu = QtWidgets.QMenu()
             durMenu = QtWidgets.QMenu(self.COL_STR_DURATION)
             actionMenu = QtWidgets.QMenu(self.COL_STR_ACTION)
+            nodesMenu = QtWidgets.QMenu(QC.translate("stats", "Apply to"))
+
+            nodes_menu = []
+            if self._nodes.count() > 0:
+                for node in self._nodes.get_nodes():
+                    nodes_menu.append([nodesMenu.addAction(node), node])
+                menu.addMenu(nodesMenu)
 
             _actAllow = actionMenu.addAction(QC.translate("stats", "Allow"))
             _actDeny = actionMenu.addAction(QC.translate("stats", "Deny"))
@@ -710,6 +720,21 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             action = menu.exec_(table.mapToGlobal(point))
 
             model = table.model()
+
+            if self._nodes.count() > 0:
+                for nmenu in nodes_menu:
+                    node_action = nmenu[0]
+                    node_addr = nmenu[1]
+                    if action == node_action:
+                        ret = Message.yes_no(
+                            QC.translate("stats", "    Apply this rule to {0}  ".format(node_addr)),
+                            QC.translate("stats", "    Are you sure?"),
+                            QtWidgets.QMessageBox.Warning)
+                        if ret == QtWidgets.QMessageBox.Cancel:
+                            return False
+                        self._table_menu_apply_to_node(cur_idx, model, selection, node_addr)
+                        return
+
             if action == _menu_delete:
                 ret = Message.yes_no(
                     QC.translate("stats", "    Your are about to delete this rule.    "),
@@ -743,8 +768,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             elif action == _actReject:
                 self._table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_REJECT)
 
-        self._clear_rows_selection()
-        return True
+        except Exception as e:
+            print(e)
+        finally:
+            self._clear_rows_selection()
+            return True
 
     def _table_menu_duplicate(self, cur_idx, model, selection):
 
@@ -758,14 +786,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if records == None or records.size() == -1:
                     rule = self._rules_dialog.get_rule_from_records(records)
                     rule.name = "cloned-{0}-{1}".format(idx, rule.name)
-                    self._db.insert("rules",
-                        "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
-                            (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                node_addr, rule.name,
-                                str(rule.enabled), str(rule.precedence),
-                                rule.action, rule.duration, rule.operator.type,
-                                str(rule.operator.sensitive), rule.operator.operand, rule.operator.data),
-                            action_on_conflict="IGNORE")
+                    self._db.insert_rule(rule, node_addr)
                     break
 
             if records != None and records.size() == -1:
@@ -773,6 +794,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
                 if nid != None:
                     self._notifications_sent[nid] = noti
+
+    def _table_menu_apply_to_node(self, cur_idx, model, selection, node_addr):
+
+        for idx in selection:
+            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+            records = self._get_rule(rule_name, None)
+            rule = self._rules_dialog.get_rule_from_records(records)
+
+            noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
+            nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
+            if nid != None:
+                self._db.insert_rule(rule, node_addr)
+                self._notifications_sent[nid] = noti
 
     def _table_menu_change_rule_field(self, cur_idx, model, selection, field, value):
         for idx in selection:
@@ -904,6 +938,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._context_menu_active = False
         if refresh_table:
             self._refresh_active_table()
+
 
     def _cb_table_header_clicked(self, pos, sortIdx):
         cur_idx = self.tabWidget.currentIndex()
@@ -1216,6 +1251,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                          "<p><b>Quick help</b></p>" \
                          "<p>- Use CTRL+c to copy selected rows.</p>" \
                          "<p>- Use Home,End,PgUp,PgDown,PgUp,Up or Down keys to navigate rows.</p>" \
+                         "<p>- Use right click on a row to stop refreshing the view.</p>" \
+                         "<p>- Selecting more than one row also stops refreshing the view.</p>."
                          "<p>- On the Events view, clicking on columns Node, Process or Rule<br>" \
                          "jumps to the view of the selected item.</p>" \
                          "<p>- On the rest of the views, double click on a row to get detailed<br>" \
@@ -1421,7 +1458,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         s = "AND c.src_ip='%s'" % data if '/' not in data else ''
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as {0}, " \
+                "MAX(c.time) as {0}, " \
                 "c.action as {1}, " \
                 "count(c.process) as {2}, " \
                 "c.uid as {3}, " \
@@ -1431,9 +1468,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.dst_port as {7}, " \
                 "c.process || ' (' || c.pid || ')' as {8}, " \
                 "c.process_args as {9}, " \
-                "c.process_cwd as CWD " \
+                "c.process_cwd as CWD, " \
+                "c.rule as {10} " \
             "FROM connections as c " \
-            "WHERE c.node LIKE '%{10}%' {11} GROUP BY {12}, c.process_args, c.uid, c.dst_ip, c.dst_host, c.dst_port, c.protocol {13}".format(
+            "WHERE c.node LIKE '%{11}%' {12} GROUP BY {13}, c.process_args, c.uid, c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.protocol {14}".format(
                 self.COL_STR_TIME,
                 self.COL_STR_ACTION,
                 self.COL_STR_HITS,
@@ -1444,6 +1482,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.COL_STR_DST_PORT,
                 self.COL_STR_PROCESS,
                 self.COL_STR_PROC_ARGS,
+                self.COL_STR_RULE,
                 data, s,
                 self.COL_STR_PROCESS,
                 self._get_order() + self._get_limit()))
@@ -1467,40 +1506,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.dst_host LIKE '%{0}%' OR " \
                 "c.process LIKE '%{0}%' OR " \
                 "c.process_args LIKE '%{0}%')".format(text)
-        if len(base_query) > 1:
-            qstr += " GROUP BY" + base_query[1]
-
-        return qstr
-
-
-    # get the query with filter by text when a tab is in the detail view.
-    def _get_indetail_filter_query(self, lastQuery, text):
-        cur_idx = self.tabWidget.currentIndex()
-        base_query = lastQuery.split("GROUP BY")
-        qstr = base_query[0]
-        if "AND" in qstr:
-            # strip out ANDs if any
-            os = qstr.split('AND')
-            qstr = os[0]
-
-        if text != "":
-            qstr += " AND (c.time LIKE '%{0}%' OR " \
-                "c.action LIKE '%{0}%' OR " \
-                "c.pid LIKE '%{0}%' OR " \
-                "c.src_port LIKE '%{0}%' OR " \
-                "c.src_ip LIKE '%{0}%' OR ".format(text)
-
-            # exclude from query the field of the view we're filtering by
-            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_PORTS:
-                qstr += "c.dst_port LIKE '%{0}%' OR ".format(text)
-            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_ADDRS:
-                qstr += "c.dst_ip LIKE '%{0}%' OR ".format(text)
-            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_HOSTS:
-                qstr += "c.dst_host LIKE '%{0}%' OR ".format(text)
-            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_PROCS:
-                qstr += "c.process LIKE '%{0}%' OR ".format(text)
-
-            qstr += "c.process_args LIKE '%{0}%')".format(text)
         if len(base_query) > 1:
             qstr += " GROUP BY" + base_query[1]
 
@@ -1554,7 +1559,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as {0}, " \
+                "MAX(c.time) as {0}, " \
                 "r.node as {1}, " \
                 "count(c.process) as {2}, " \
                 "c.uid as {3}, " \
@@ -1586,7 +1591,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _set_hosts_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as {0}, " \
+                "MAX(c.time) as {0}, " \
                 "c.node as {1}, " \
                 "count(c.process) as {2}, " \
                 "c.action as {3}, " \
@@ -1599,7 +1604,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as {10} " \
             "FROM connections as c " \
-            "WHERE c.dst_host = '{11}' GROUP BY c.pid, {12}, c.process_args, c.dst_ip, c.dst_port, c.protocol, c.action, c.node {13}".format(
+            "WHERE c.dst_host = '{11}' GROUP BY c.pid, {12}, c.process_args, c.src_ip, c.dst_ip, c.dst_port, c.protocol, c.action, c.node {13}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
@@ -1618,7 +1623,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _set_process_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as {0}, " \
+                "MAX(c.time) as {0}, " \
                 "c.node as {1}, " \
                 "count(c.dst_ip) as {2}, " \
                 "c.action as {3}, " \
@@ -1633,7 +1638,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.rule as {7} " \
             "FROM connections as c " \
             "WHERE c.process = '{8}' " \
-                      "GROUP BY c.dst_ip, c.dst_host, c.dst_port, c.uid, c.action, c.node, c.pid, c.process_args {9}".format(
+                      "GROUP BY c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.uid, c.action, c.node, c.pid, c.process_args {9}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
@@ -1651,7 +1656,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _set_addrs_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as {0}, " \
+                "MAX(c.time) as {0}, " \
                 "c.node as {1}, " \
                 "count(c.dst_ip) as {2}, " \
                 "c.action as {3}, " \
@@ -1667,7 +1672,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as {10} " \
             "FROM connections as c " \
-            "WHERE c.dst_ip = '{11}' GROUP BY c.pid, {12}, c.process_args, c.dst_port, {13}, c.protocol, c.action, c.uid, c.node {14}".format(
+            "WHERE c.dst_ip = '{11}' GROUP BY c.pid, {12}, c.process_args, c.src_ip, c.dst_port, {13}, c.protocol, c.action, c.uid, c.node {14}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
@@ -1687,7 +1692,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _set_ports_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as {0}, " \
+                "MAX(c.time) as {0}, " \
                 "c.node as {1}, " \
                 "count(c.dst_ip) as {2}, " \
                 "c.action as {3}, " \
@@ -1703,7 +1708,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as {10} " \
             "FROM connections as c " \
-            "WHERE c.dst_port = '{11}' GROUP BY c.pid, {12}, c.process_args, {13}, c.dst_ip, c.protocol, c.action, c.uid, c.node {14}".format(
+            "WHERE c.dst_port = '{11}' GROUP BY c.pid, {12}, c.process_args, {13}, c.src_ip, c.dst_ip, c.protocol, c.action, c.uid, c.node {14}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
@@ -1723,7 +1728,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _set_users_query(self, data):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
-                "c.time as {0}, " \
+                "MAX(c.time) as {0}, " \
                 "c.node as {1}, " \
                 "count(c.dst_ip) as {2}, " \
                 "c.action as {3}, " \
@@ -1739,7 +1744,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as {10} " \
             "FROM users as u, connections as c " \
-            "WHERE u.what = '{11}' AND u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, {12}, c.process_args, c.dst_ip, {13}, c.dst_port, c.protocol, c.action, c.node {14}".format(
+            "WHERE u.what = '{11}' OR u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, {12}, c.process_args, c.src_ip, c.dst_ip, {13}, c.dst_port, c.protocol, c.action, c.node {14}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
@@ -1755,6 +1760,39 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_PROCESS,
                           self.COL_STR_DESTINATION,
                           self._get_order("1") + self._get_limit()))
+
+    # get the query with filter by text when a tab is in the detail view.
+    def _get_indetail_filter_query(self, lastQuery, text):
+        cur_idx = self.tabWidget.currentIndex()
+        base_query = lastQuery.split("GROUP BY")
+        qstr = base_query[0]
+        if "AND" in qstr:
+            # strip out ANDs if any
+            os = qstr.split('AND')
+            qstr = os[0]
+
+        if text != "":
+            qstr += " AND (c.time LIKE '%{0}%' OR " \
+                "c.action LIKE '%{0}%' OR " \
+                "c.pid LIKE '%{0}%' OR " \
+                "c.src_port LIKE '%{0}%' OR " \
+                "c.src_ip LIKE '%{0}%' OR ".format(text)
+
+            # exclude from query the field of the view we're filtering by
+            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_PORTS:
+                qstr += "c.dst_port LIKE '%{0}%' OR ".format(text)
+            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_ADDRS:
+                qstr += "c.dst_ip LIKE '%{0}%' OR ".format(text)
+            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_HOSTS:
+                qstr += "c.dst_host LIKE '%{0}%' OR ".format(text)
+            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_PROCS:
+                qstr += "c.process LIKE '%{0}%' OR ".format(text)
+
+            qstr += "c.process_args LIKE '%{0}%')".format(text)
+        if len(base_query) > 1:
+            qstr += " GROUP BY" + base_query[1]
+
+        return qstr
 
     def _on_save_clicked(self):
         tab_idx = self.tabWidget.currentIndex()

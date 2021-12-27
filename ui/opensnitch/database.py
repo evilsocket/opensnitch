@@ -1,6 +1,7 @@
 from PyQt5.QtSql import QSqlDatabase, QSqlQueryModel, QSqlQuery
 import threading
 import sys
+from datetime import datetime, timedelta
 
 class Database:
     db = None
@@ -24,10 +25,6 @@ class Database:
     def initialize(self, dbtype=DB_TYPE_MEMORY, dbfile=DB_IN_MEMORY):
         if dbtype != Database.DB_TYPE_MEMORY:
             self.db_file = dbfile
-
-        if self.db != None:
-            QSqlDatabase.removeDatabase(self.db_name)
-            self.close()
 
         self.db = QSqlDatabase.addDatabase("QSQLITE", self.db_name)
         self.db.setDatabaseName(self.db_file)
@@ -101,6 +98,8 @@ class Database:
                 "rule text, " \
                 "UNIQUE(node, action, protocol, src_ip, src_port, dst_ip, dst_port, uid, pid, process, process_args))",
                 self.db)
+        q = QSqlQuery("create index time_index on connections (time)", self.db)
+        q.exec_()
         q = QSqlQuery("create index action_index on connections (action)", self.db)
         q.exec_()
         q = QSqlQuery("create index protocol_index on connections (protocol)", self.db)
@@ -116,6 +115,8 @@ class Database:
         q = QSqlQuery("create index rule_index on connections (rule)", self.db)
         q.exec_()
         q = QSqlQuery("create index node_index on connections (node)", self.db)
+        q.exec_()
+        q = QSqlQuery("CREATE INDEX details_query_index on connections (process, process_args, uid, pid, dst_ip, dst_host, dst_port, action, node, protocol)", self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists rules (" \
                 "time text, " \
@@ -355,3 +356,13 @@ class Database:
         q.exec_()
 
         return q
+
+    def insert_rule(self, rule, node_addr):
+        self.insert("rules",
+            "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
+                (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    node_addr, rule.name,
+                    str(rule.enabled), str(rule.precedence),
+                    rule.action, rule.duration, rule.operator.type,
+                    str(rule.operator.sensitive), rule.operator.operand, rule.operator.data),
+                action_on_conflict="IGNORE")
