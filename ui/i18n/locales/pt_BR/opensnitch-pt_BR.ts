@@ -16,7 +16,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="333"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Executed from&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;&amp;lt;span style=&amp;quot; font-weight:600;&amp;quot;&amp;gt;Executado de&amp;lt;/span&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Executado de&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="630"/>
@@ -159,7 +159,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="54"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Este tempo limite é a contagem regressiva que você vê quando uma caixa de diálogo pop-up é exibida.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Este tempo limite é a contagem regressiva que você vê quando uma caixa de diálogo pop-up é exibida.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="404"/>
@@ -314,12 +314,12 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="585"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;A duração padrão ocorrerá quando não houver interface do usuário conectada.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A duração padrão ocorrerá quando não houver interface do usuário conectada.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="715"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it&apos;s a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Endereço do nó.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Padrão: unix:///tmp/osui.sock (unix:// é obrigatório se for um soquete Unix)&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Também pode ser um endereço IP com a porta: 127.0.0.1:50051&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Endereço do node&lt;/p&gt;&lt;p&gt;Padrão: unix:///tmp/osui.sock (unix:// é obrigatório se for um soquete Unix)&lt;/p&gt;&lt;p&gt;Também pode ser um endereço IP com a porta: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="718"/>
@@ -339,7 +339,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="624"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;A ação padrão ocorrerá quando não houver interface do usuário conectada.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A ação padrão ocorrerá quando não houver interface do usuário conectada.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="681"/>
@@ -349,7 +349,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="568"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log file to write logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Arquivo de log para gravar logs.&amp;lt;br/&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;/dev/stdout irá imprimir registros na saída padrão.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Arquivo de log para gravar logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout irá imprimir registros na saída padrão.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="571"/>
@@ -489,7 +489,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="105"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The advanced view allows you to apply more filters on a connection&lt;/p&gt;&lt;p&gt;when a pop-up appears.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;A visualização avançada permite que você aplique mais filtros em uma conexão&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;quando um pop-up aparece.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A visualização avançada permite que você aplique mais filtros em uma conexão&lt;/p&gt;&lt;p&gt;quando um pop-up aparece.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="366"/>
@@ -504,7 +504,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="382"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Se marcado, os pop-ups serão exibidos com a visualização avançada ativa.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Se marcado, os pop-ups serão exibidos com a visualização avançada ativa.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="350"/>
@@ -514,7 +514,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="270"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Por padrão, quando um novo pop-up aparece, em sua forma mais simples, você será capaz de filtrar conexões ou aplicativos por uma propriedade da conexão (executável, porta, IP, etc).&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Com essas opções, você pode escolher vários campos para filtrar conexões para.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Por padrão, quando um novo pop-up aparece, em sua forma mais simples, você será capaz de filtrar conexões ou aplicativos por uma propriedade da conexão (executável, porta, IP, etc).&lt;/p&gt;&lt;p&gt;Com essas opções, você pode escolher vários campos para filtrar conexões para.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="273"/>
@@ -544,7 +544,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="401"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;p&gt;If the pop-up is not answered, the default options will be applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Este tempo limite é a contagem regressiva que você vê quando uma caixa de diálogo pop-up é exibida.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Se o pop-up não for respondido, as opções padrão serão aplicadas.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Este tempo limite é a contagem regressiva que você vê quando uma caixa de diálogo pop-up é exibida.&lt;/p&gt;&lt;p&gt;Se o pop-up não for respondido, as opções padrão serão aplicadas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="363"/>
@@ -559,7 +559,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="166"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. new outgoing connections are denied.&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Ação padrão de pop-up.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Quando uma nova conexão de saída está prestes a ser estabelecida, esta ação será selecionada por padrão, então se o tempo limite disparar, esta é a opção que será aplicada.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;lt;br/&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Enquanto um pop-up pede ao usuário para permitir ou negar uma conexão:&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;1. novas conexões de saída são negadas.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;2. conexões conhecidas são permitidas ou negadas com base nas regras definidas pelo usuário.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ação padrão de pop-up.&lt;/p&gt;&lt;p&gt;Quando uma nova conexão de saída está prestes a ser estabelecida, esta ação será selecionada por padrão, então se o tempo limite disparar, esta é a opção que será aplicada.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Enquanto um pop-up pede ao usuário para permitir ou negar uma conexão:&lt;/p&gt;&lt;p&gt;1. novas conexões de saída são negadas.&lt;/p&gt;&lt;p&gt;2. conexões conhecidas são permitidas ou negadas com base nas regras definidas pelo usuário.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="627"/>
@@ -594,7 +594,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="455"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Quando esta opção é selecionada, as regras da duração selecionada não serão adicionadas à lista de regras temporárias na GUI.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;lt;br/&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;As regras temporárias ainda serão válidas e você pode usá-las quando solicitado a permitir/negar uma nova conexão.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quando esta opção é selecionada, as regras da duração selecionada não serão adicionadas à lista de regras temporárias na GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;As regras temporárias ainda serão válidas e você pode usá-las quando solicitado a permitir/negar uma nova conexão.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="458"/>
@@ -760,7 +760,7 @@
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="383"/>
         <source>To this IP / Network</source>
-        <translation>Para este IP/Rede</translation>
+        <translation>Para este IP / Rede</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="792"/>
@@ -841,7 +841,7 @@ gnu.org         - só vai filtrar gnu.org, não filtrará www.gnu.org, nem ftp.g
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="323"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Apenas TCP, UDP ou UDPLITE são permitidos&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Você pode usar expressão regulares, ou seja: ^(TCP|UDP)$&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apenas TCP, UDP ou UDPLITE são permitidos&lt;/p&gt;&lt;p&gt;Você pode usar expressão regulares, ou seja: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="333"/>
@@ -1048,7 +1048,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="74"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the field of the rules are case-insensitive, i.e., if a process tries to access gOOgle.CoM and you have a rule to Deny .*google.com, the connection will be blocked.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you check this box, you have to specify the exact string (domain, executable, command line) that you want to filter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Por padrão, o campo das regras não diferencia maiúsculas de minúsculas, ou seja, se um processo tentar acessar gOOgle.CoM e você tiver uma regra para Negar. *Google.com, a conexão será bloqueada.&amp;lt;br/&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Se você marcar esta caixa, deverá especificar a string exata (domínio, executável, linha de comando) que deseja filtrar.&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Por padrão, o campo das regras não diferencia maiúsculas de minúsculas, ou seja, se um processo tentar acessar gOOgle.CoM e você tiver uma regra para Negar. *Google.com, a conexão será bloqueada.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Se você marcar esta caixa, deverá especificar a string exata (domínio, executável, linha de comando) que deseja filtrar.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="77"/>
@@ -1058,7 +1058,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="369"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Você pode especificar várias portas usando expressões regulares:&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;lt;br/&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;- 53, 80 o 443::&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;^(53|80|443)$&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;lt;br/&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;- 53, 443 o 5551, 5552, 5553, etc:&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;^(53|443|555[0-9])$&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Você pode especificar várias portas usando expressões regulares:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 o 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 o 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="822"/>
@@ -1073,7 +1073,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="539"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Selecione um diretório com listas de domínios para bloquear ou permitir.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Coloque dentro desse diretório arquivos com qualquer extensão que contenha listas de domínios.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;lt;br/&amp;gt;O formato de cada entrada de uma lista é o seguinte (formato de hosts):&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;127.0.0.1 www.dominio.com&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;ou &amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;0.0.0.0 www.dominio.com&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecione um diretório com listas de domínios para bloquear ou permitir.&lt;/p&gt;&lt;p&gt;Coloque dentro desse diretório arquivos com qualquer extensão que contenha listas de domínios.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;O formato de cada entrada de uma lista é o seguinte (formato de hosts):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.dominio.com&lt;/p&gt;&lt;p&gt;ou &lt;/p&gt;&lt;p&gt;0.0.0.0 www.dominio.com&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="163"/>
@@ -1243,7 +1243,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="554"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on the Addr column to view details of a node)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;&amp;lt;span style=&amp;quot; font-size:7pt;&amp;quot;&amp;gt;(clique duas vezes na coluna endereço para ver os detalhes de um node)&amp;lt;/span&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(clique duas vezes na coluna endereço para ver os detalhes de um node)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1569"/>
@@ -1258,7 +1258,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="674"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on the Name column to view details of a rule)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;&amp;lt;span style=&amp;quot; font-size:7pt;&amp;quot;&amp;gt;(clique duas vezes na coluna Nome para ver os detalhes de uma regra)&amp;lt;/span&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(clique duas vezes na coluna Nome para ver os detalhes de uma regra)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="692"/>
@@ -1288,7 +1288,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1364"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click to view details of an item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;&amp;lt;span style=&amp;quot; font-size:7pt;&amp;quot;&amp;gt;(clique duas vezes para ver os detalhes de um item)&amp;lt;/span&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(clique duas vezes para ver os detalhes de um item)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1020"/>
@@ -1373,7 +1373,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="699"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(double click on a row to view details of a rule)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;&amp;lt;span style=&amp;quot; font-size:7pt;&amp;quot;&amp;gt;(clique duas vezes em uma linha para ver os detalhes de uma regra)&amp;lt;/span&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(clique duas vezes em uma linha para ver os detalhes de uma regra)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="912"/>
@@ -1504,17 +1504,17 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="433"/>
         <source>&lt;b&gt;Remote&lt;/b&gt; process %s running on &lt;b&gt;%s&lt;/b&gt;</source>
-        <translation>&amp;lt;b&amp;gt;Processo remoto&amp;lt;/b&amp;gt; %s rodando em &amp;lt;b&amp;gt;%s&amp;lt;/b&amp;gt;</translation>
+        <translation>&lt;b&gt;Processo remoto&lt;/b&gt; %s rodando em &lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="437"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
-        <translation>está conectando a &amp;lt;b&amp;gt;%s&amp;lt;/b&amp;gt; em %s na porta %d</translation>
+        <translation>está conectando a &lt;b&gt;%s&lt;/b&gt; em %s na porta %d</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="443"/>
         <source>is attempting to resolve &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</source>
-        <translation>está tentando resolver &amp;lt;b&amp;gt;%s&amp;lt;/b&amp;gt; via %s, %s porta %d</translation>
+        <translation>está tentando resolver &lt;b&gt;%s&lt;/b&gt; via %s, %s porta %d</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="333"/>
@@ -1587,14 +1587,14 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
         <source>&lt;b&gt;Error loading process information:&lt;/b&gt; &lt;br&gt;&lt;br&gt;
 
 </source>
-        <translation>&amp;lt;b&amp;gt;Erro ao carregar as informações do processo:&amp;lt;/b&amp;gt; &amp;lt;br&amp;gt;&amp;lt;br&amp;gt;
+        <translation>&lt;b&gt;Erro ao carregar as informações do processo:&lt;/b&gt; &lt;br&gt;&lt;br&gt;
 
 </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/processdetails.py" line="115"/>
         <source>&lt;b&gt;Error stopping monitoring process:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
-        <translation>&amp;lt;b&amp;gt;Erro ao parar o processo de monitoramento:&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;</translation>
+        <translation>&lt;b&gt;Erro ao parar o processo de monitoramento:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/processdetails.py" line="155"/>
@@ -1692,7 +1692,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="776"/>
         <source>&lt;b&gt;Rule not supported&lt;/b&gt;</source>
-        <translation>&amp;lt;b&amp;gt;Regra não suportada&amp;lt;/b&amp;gt;</translation>
+        <translation>&lt;b&gt;Regra não suportada&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="738"/>
@@ -1707,7 +1707,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="428"/>
         <source>&lt;b&gt;Error loading rule&lt;/b&gt;</source>
-        <translation>&amp;lt;b&amp;gt;Erro ao carregar regra&amp;lt;/b&amp;gt;</translation>
+        <translation>&lt;b&gt;Erro ao carregar regra&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="178"/>
@@ -1866,7 +1866,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
         <location filename="../../../opensnitch/dialogs/stats.py" line="865"/>
         <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
-        <translation>&amp;lt;b&amp;gt;Erro:&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;</translation>
+        <translation>&lt;b&gt;Erro:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="872"/>
