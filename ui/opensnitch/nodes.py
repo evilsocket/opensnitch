@@ -28,9 +28,9 @@ class Nodes():
     def count(self):
         return len(self._nodes)
 
-    def add(self, context, client_config=None):
+    def add(self, peer, client_config=None):
         try:
-            proto, _addr = self.get_addr(context.peer())
+            proto, _addr = self.get_addr(peer)
             addr = "%s:%s" % (proto, _addr)
             if addr not in self._nodes:
                 self._nodes[addr] = {

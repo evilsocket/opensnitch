@@ -26,6 +26,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     PURPLE = QtGui.QColor(0x7f, 0x00, 0xff)
 
     _trigger = QtCore.pyqtSignal(bool, bool)
+    settings_saved = QtCore.pyqtSignal()
     _status_changed_trigger = QtCore.pyqtSignal(bool)
     _shown_trigger = QtCore.pyqtSignal()
     _notification_trigger = QtCore.pyqtSignal(ui_pb2.Notification)
@@ -354,6 +355,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._prefs_dialog = PreferencesDialog()
         self._rules_dialog = RulesEditorDialog()
+        self._prefs_dialog.saved.connect(self._on_settings_saved)
         self._trigger.connect(self._on_update_triggered)
         self._notification_callback.connect(self._cb_notification_callback)
 
@@ -1793,6 +1795,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             qstr += " GROUP BY" + base_query[1]
 
         return qstr
+
+    @QtCore.pyqtSlot()
+    def _on_settings_saved(self):
+        self.settings_saved.emit()
 
     def _on_save_clicked(self):
         tab_idx = self.tabWidget.currentIndex()

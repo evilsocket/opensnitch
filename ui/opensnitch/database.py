@@ -22,7 +22,7 @@ class Database:
         self.db_file = Database.DB_IN_MEMORY
         self.db_name = dbname
 
-    def initialize(self, dbtype=DB_TYPE_MEMORY, dbfile=DB_IN_MEMORY):
+    def initialize(self, dbtype=DB_TYPE_MEMORY, dbfile=DB_IN_MEMORY, db_name="db"):
         if dbtype != Database.DB_TYPE_MEMORY:
             self.db_file = dbfile
 
@@ -133,6 +133,9 @@ class Database:
                 "UNIQUE(node, name)"
                 ")", self.db)
         q.exec_()
+        q = QSqlQuery("create index rules_index on rules (time)", self.db)
+        q.exec_()
+
         q = QSqlQuery("create table if not exists hosts (what text primary key, hits integer)", self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists procs (what text primary key, hits integer)", self.db)
@@ -143,6 +146,7 @@ class Database:
         q.exec_()
         q = QSqlQuery("create table if not exists users (what text primary key, hits integer)", self.db)
         q.exec_()
+
         q = QSqlQuery("create table if not exists nodes (" \
                 "addr text primary key," \
                 "hostname text," \
@@ -162,6 +166,10 @@ class Database:
             q = QSqlQuery("delete from " + table, self.db)
             q.exec_()
 
+    def vacuum(self):
+        q = QSqlQuery("VACUUM;", self.db)
+        q.exec_()
+
     def clone_db(self, name):
         return QSqlDatabase.cloneDatabase(self.db, name)
 
@@ -177,6 +185,56 @@ class Database:
 
     def rollback(self):
         self.db.rollback()
+
+    def get_total_records(self):
+        try:
+            q = QSqlQuery("SELECT count(*) FROM connections", self.db)
+            if q.exec_() and q.first():
+                r = q.value(0)
+        except Exception as e:
+            print("db, get_total_records() error:", e)
+
+    def get_newest_record(self):
+        try:
+            q = QSqlQuery("SELECT time FROM connections ORDER BY 1 DESC LIMIT 1", self.db)
+            if q.exec_() and q.first():
+                return q.value(0)
+        except Exception as e:
+            print("db, get_newest_record() error:", e)
+        return 0
+
+    def get_oldest_record(self):
+        try:
+            q = QSqlQuery("SELECT time FROM connections ORDER BY 1 ASC LIMIT 1", self.db)
+            if q.exec_() and q.first():
+                return q.value(0)
+        except Exception as e:
+            print("db, get_oldest_record() error:", e)
+        return 0
+
+    def purge_oldest(self, max_days_to_keep):
+        try:
+            oldt = self.get_oldest_record()
+            newt = self.get_newest_record()
+            if oldt == None or newt == None or oldt == 0 or newt == 0:
+                return -1
+
+            oldest = datetime.fromisoformat(oldt)
+            newest = datetime.fromisoformat(newt)
+            diff = newest - oldest
+            date_to_purge = datetime.now() - timedelta(days=max_days_to_keep)
+
+            if diff.days >= max_days_to_keep:
+                q = QSqlQuery(self.db)
+                q.prepare("DELETE FROM connections WHERE time < ?")
+                q.bindValue(0, str(date_to_purge))
+                if q.exec_():
+                    print("purge_oldest() {0} records deleted".format(q.numRowsAffected()))
+                    return q.numRowsAffected()
+        except Exception as e:
+            print("db, purge_oldest() error:", e)
+
+        return -1
 
     def select(self, qstr):
         try:

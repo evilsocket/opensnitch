@@ -20,17 +20,17 @@ from opensnitch.nodes import Nodes
 from opensnitch.config import Config
 from opensnitch.version import version
 from opensnitch.database import Database
-from opensnitch.utils import Utils
+from opensnitch.utils import Utils, CleanerTask
 from opensnitch.utils import Message
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _new_remote_trigger = QtCore.pyqtSignal(str, ui_pb2.PingRequest)
+    _node_actions_trigger = QtCore.pyqtSignal(dict)
     _update_stats_trigger = QtCore.pyqtSignal(str, str, ui_pb2.PingRequest)
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal(bool)
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
     _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
-    _delete_temp_rule_trigger = QtCore.pyqtSignal(str, str)
 
     def __init__(self, app, on_exit):
         super(UIService, self).__init__()
@@ -41,6 +41,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.MENU_ENTRY_FW_DISABLE = QtCore.QCoreApplication.translate("contextual_menu", "Disable")
         self.MENU_ENTRY_HELP = QtCore.QCoreApplication.translate("contextual_menu", "Help")
         self.MENU_ENTRY_CLOSE = QtCore.QCoreApplication.translate("contextual_menu", "Close")
+
+        self.NODE_ADD = 0
+        self.NODE_UPDATE = 1
+        self.NODE_DELETE = 2
+        self.ADD_RULE = 3
+        self.DELETE_RULE = 4
 
         self._cfg = Config.init()
         self._db = Database.instance()
@@ -58,6 +64,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                                                   Corrupted database file: {0}".format(db_file)),
                 QtWidgets.QMessageBox.Warning)
             sys.exit(-1)
+
+        self._cleaner = None
+        if self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST):
+            self._start_db_cleaner()
 
         self._db_sqlite = self._db.get_db()
         self._last_ping = None
@@ -105,12 +115,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._app.setQuitOnLastWindowClosed(False)
         self._version_warning_trigger.connect(self._on_diff_versions)
         self._new_remote_trigger.connect(self._on_new_remote)
+        self._node_actions_trigger.connect(self._on_node_actions)
         self._update_stats_trigger.connect(self._on_update_stats)
         self._status_change_trigger.connect(self._on_status_changed)
         self._stats_dialog._shown_trigger.connect(self._on_stats_dialog_shown)
         self._stats_dialog._status_changed_trigger.connect(self._on_stats_status_changed)
+        self._stats_dialog.settings_saved.connect(self._on_settings_saved)
         self._show_message_trigger.connect(self._show_systray_message)
-        self._delete_temp_rule_trigger.connect(self._delete_temporary_rule)
 
     def _setup_icons(self):
         self.off_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-off.png"))
@@ -177,6 +188,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _on_close(self):
         self._exit = True
+        self._db.vacuum()
+        self._stop_db_cleaner()
         self._on_exit()
 
     def _show_stats_dialog(self):
@@ -248,6 +261,29 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _on_enable_interception_clicked(self):
         self._enable_interception(self._fw_enabled)
+
+    @QtCore.pyqtSlot()
+    def _on_settings_saved(self):
+        if self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST):
+            if self._cleaner != None:
+                self._stop_db_cleaner()
+            self._start_db_cleaner()
+        elif self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST) == False and self._cleaner != None:
+            self._stop_db_cleaner()
+
+    def _stop_db_cleaner(self):
+        if self._cleaner != None:
+            self._cleaner.stop()
+            self._cleaner = None
+
+    def _start_db_cleaner(self):
+        def _cleaner_task(db):
+            oldest = self._cfg.getInt(self._cfg.DEFAULT_DB_MAX_DAYS)
+            if oldest > 0:
+                db.purge_oldest(oldest)
+
+        self._cleaner = CleanerTask((60 * 60), _cleaner_task)
+        self._cleaner.start()
 
     def _update_fw_status(self, enabled):
         """_update_fw_status updates the status of the menu entry
@@ -453,9 +489,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         return need_refresh
 
-    def _delete_temporary_rule(self, name, addr):
-        self._db.delete_rule(name, addr)
-
     def _overwrite_nodes_config(self, node_config):
         _default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
         temp_cfg = json.loads(node_config)
@@ -471,6 +504,18 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         return node_config
 
+    @QtCore.pyqtSlot(dict)
+    def _on_node_actions(self, kwargs):
+        if kwargs['action'] == self.ADD_RULE:
+            rule = kwargs['rule']
+            proto, addr = self._get_peer(kwargs['peer'])
+            self._nodes.add_rule((datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                                 "{0}:{1}".format(proto, addr),
+                                rule.name, str(rule.enabled), str(rule.precedence), rule.action, rule.duration,
+                                rule.operator.type, str(rule.operator.sensitive), rule.operator.operand,
+                                rule.operator.data)
+        elif kwargs['action'] == self.DELETE_RULE:
+            self._db.delete_rule(kwargs['name'], kwargs['addr'])
 
     def Ping(self, request, context):
         try:
@@ -518,13 +563,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._asking = False
 
         if rule.duration in Config.RULES_DURATION_FILTER:
-            self._delete_temporary_rule(rule.name, context.peer())
+            self._node_actions_trigger.emit({'action': self.DELETE_RULE, 'name': rule.name, 'addr': context.peer()})
         else:
-            self._nodes.add_rule((datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                                 "{0}:{1}".format(proto, addr),
-                                rule.name, str(rule.enabled), str(rule.precedence), rule.action, rule.duration,
-                                rule.operator.type, str(rule.operator.sensitive), rule.operator.operand,
-                                rule.operator.data)
+            self._node_actions_trigger.emit({'action': self.ADD_RULE, 'peer': context.peer(), 'rule': rule})
 
         return rule
 
@@ -542,8 +583,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                                     "({0})".format(context.peer()),
                                     QtWidgets.QSystemTrayIcon.Information,
                                     5000)
-            n = self._nodes.add(context, node_config)
 
+            # FIXME: this must occur on the main thread.
+            # however _node_actions_trigger.emit() is sometimes executed after
+            # Notifications()
+            n = self._nodes.add(context.peer(), node_config)
             if n != None:
                 self._status_change_trigger.emit(True)
                 # if there're more than one node, we can't update the status
@@ -552,7 +596,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     self._update_fw_status(node_config.isFirewallRunning)
                 else:
                     self._update_fw_status(True)
-
         except Exception as e:
             print("[Notifications] exception adding new node:", e)
             context.cancel()
@@ -571,6 +614,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         """
         proto, addr = self._get_peer(context.peer())
         _node = self._nodes.get_node("%s:%s" % (proto, addr))
+        if _node == None:
+            return
 
         stop_event = Event()
         def _on_client_closed():

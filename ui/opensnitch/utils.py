@@ -1,11 +1,48 @@
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from opensnitch.version import version
+from opensnitch.database import Database
+from opensnitch.config import Config
+from threading import Thread, Event
 import pwd
 import socket
 import fcntl
 import struct
 import array
+
+class CleanerTask(Thread):
+    interval = 1
+    stop_flag = None
+    callback = None
+
+    def __init__(self, _interval, _callback):
+        Thread.__init__(self)
+        self.interval = _interval
+        self.stop_flag = Event()
+        self.callback = _callback
+        self._cfg = Config.init()
+
+        # We need to instantiate a new QsqlDatabase object with a unique name,
+        # because it's not thread safe:
+        # "A connection can only be used from within the thread that created it."
+        # https://doc.qt.io/qt-5/threads-modules.html#threads-and-the-sql-module
+        # The filename and type is the same, the one chosen by the user.
+        self.db = Database("db-cleaner")
+        self.db_status, db_error = self.db.initialize(
+            dbtype=self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY),
+            dbfile=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
+        )
+
+    def run(self):
+        if self.db_status == False:
+            return
+        while not self.stop_flag.wait(self.interval):
+            if self.stop_flag.is_set():
+                break
+            self.callback(self.db)
+
+    def stop(self):
+        self.stop_flag.set()
 
 class QuickHelp():
     @staticmethod

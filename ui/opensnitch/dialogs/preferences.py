@@ -9,7 +9,7 @@ from PyQt5.QtCore import QCoreApplication as QC
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
-from opensnitch.utils import Message
+from opensnitch.utils import Message, QuickHelp
 
 from opensnitch import ui_pb2
 
@@ -18,6 +18,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     LOG_TAG = "[Preferences] "
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
+    saved = QtCore.pyqtSignal()
 
     TAB_POPUPS = 0
     TAB_UI = 1
@@ -131,6 +132,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dbFileButton.setVisible(True)
             self.dbLabel.setVisible(True)
             self.dbLabel.setText(self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY))
+        dbMaxDays = self._cfg.getInt(self._cfg.DEFAULT_DB_MAX_DAYS)
+        self.checkDBMaxDays.setChecked(self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST))
+        self.spinDBMaxDays.setValue(dbMaxDays)
 
         self._load_node_settings()
         self._load_ui_columns_config()
@@ -261,10 +265,14 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self._node_needs_update = False
 
+        self.saved.emit()
+
 
     def _save_db_config(self):
         dbtype = self.comboDBType.currentIndex()
         self._cfg.setSettings(Config.DEFAULT_DB_TYPE_KEY, dbtype)
+        self._cfg.setSettings(Config.DEFAULT_DB_PURGE_OLDEST, bool(self.checkDBMaxDays.isChecked()))
+        self._cfg.setSettings(Config.DEFAULT_DB_MAX_DAYS, int(self.spinDBMaxDays.value()))
 
         if self.comboDBType.currentIndex() == self.dbType:
             return
@@ -403,8 +411,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dbLabel.setVisible(True)
 
     def _cb_accept_button_clicked(self):
-        self._save_settings()
         self.accept()
+        self._save_settings()
 
     def _cb_apply_button_clicked(self):
         self._save_settings()
@@ -413,9 +421,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.reject()
 
     def _cb_help_button_clicked(self):
-        QtWidgets.QToolTip.showText(QtGui.QCursor.pos(),
-                                    QC.translate("preferences",
-                                                 "Hover the mouse over the texts to display the help<br><br>Don't forget to visit the wiki: <a href=\"{0}\">{0}</a>").format(Config.HELP_URL))
+        QuickHelp.show(
+            QC.translate("preferences",
+                         "Hover the mouse over the texts to display the help<br><br>Don't forget to visit the wiki: <a href=\"{0}\">{0}</a>"
+                         ).format(Config.HELP_URL))
 
     def _cb_popups_check_toggled(self, checked):
         self.spinUITimeout.setEnabled(not checked)
