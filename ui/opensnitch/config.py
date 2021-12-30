@@ -56,6 +56,8 @@ class Config:
     DEFAULT_SERVER_ADDR  = "global/server_address"
     DEFAULT_DB_TYPE_KEY  = "database/type"
     DEFAULT_DB_FILE_KEY  = "database/file"
+    DEFAULT_DB_PURGE_OLDEST  = "database/purge_oldest"
+    DEFAULT_DB_MAX_DAYS  = "database/max_days"
 
 
     STATS_GEOMETRY = "statsDialog/geometry"

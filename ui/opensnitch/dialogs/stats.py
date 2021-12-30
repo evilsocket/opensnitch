@@ -947,6 +947,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_table_header_clicked(self, pos, sortIdx):
         cur_idx = self.tabWidget.currentIndex()
+        # TODO: allow ordering by Network column
+        if cur_idx == self.TAB_ADDRS and pos == 2:
+            return
+
         model = self._get_active_table().model()
         qstr = model.query().lastQuery().split("ORDER BY")[0]
 
@@ -1138,7 +1142,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if lbl_text != "":
                 asn = self.asndb.get_asn(lbl_text)
                 if asn != "":
-                    lbl_text += " - " + asn
+                    lbl_text += " (" + asn + ")"
             self.TABLES[cur_idx]['label'].setText(lbl_text)
             self._set_addrs_query(data)
         elif cur_idx == StatsDialog.TAB_PORTS:

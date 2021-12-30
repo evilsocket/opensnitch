@@ -76,7 +76,10 @@ class AsnDB():
         Return the name of the network if found, otherwise nothing.
         """
         try:
-            return self.asndb.get_as_name(asn)
+            asname = self.asndb.get_as_name(asn)
+            if asname == None:
+                asname = ""
+            return asname
         except Exception:
             return ""
 
