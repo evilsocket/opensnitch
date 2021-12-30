@@ -17,7 +17,8 @@ from opensnitch.dialogs.ruleseditor import RulesEditorDialog
 from opensnitch.dialogs.processdetails import ProcessDetailsDialog
 from opensnitch.customwidgets.main import ColorizedDelegate, ConnectionsTableModel
 from opensnitch.customwidgets.generictableview import GenericTableModel
-from opensnitch.utils import Message, QuickHelp
+from opensnitch.customwidgets.addresstablemodel import AddressTableModel
+from opensnitch.utils import Message, QuickHelp, AsnDB
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -333,6 +334,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._db_sqlite = self._db.get_db()
         self._db_name = dbname
 
+        self.asndb = AsnDB.instance()
+
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
 
@@ -435,7 +438,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 )
         self.TABLES[self.TAB_ADDRS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.addrTable, "addrs",
-                model=GenericTableModel("addrs", self.TABLES[self.TAB_HOSTS]['header_labels']),
+                model=AddressTableModel("addrs", self.TABLES[self.TAB_HOSTS]['header_labels']),
                 verticalScrollBar=self.addrsScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_ADDRS]['delegate'],
@@ -1131,6 +1134,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif cur_idx == StatsDialog.TAB_PROCS:
             self._set_process_query(data)
         elif cur_idx == StatsDialog.TAB_ADDRS:
+            lbl_text = self.TABLES[cur_idx]['label'].text()
+            if lbl_text != "":
+                asn = self.asndb.get_asn(lbl_text)
+                if asn != "":
+                    lbl_text += " - " + asn
+            self.TABLES[cur_idx]['label'].setText(lbl_text)
             self._set_addrs_query(data)
         elif cur_idx == StatsDialog.TAB_PORTS:
             self._set_ports_query(data)

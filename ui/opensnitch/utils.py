@@ -9,6 +9,84 @@ import socket
 import fcntl
 import struct
 import array
+import os
+
+class AsnDB():
+    __instance = None
+    asndb = None
+
+    @staticmethod
+    def instance():
+        if AsnDB.__instance == None:
+            AsnDB.__instance = AsnDB()
+        return AsnDB.__instance
+
+    def __init__(self):
+        self.ASN_AVAILABLE = True
+        self.load()
+
+    def is_available(self):
+        return self.ASN_AVAILABLE
+
+    def load(self):
+        """Load the ASN DB from disk.
+
+        It'll try to load it from user's opensnitch directory if these file exist:
+            - ~/.config/opensnitch/ipasn_db.dat.gz
+            - ~/.config/opensnitch/asnames.json
+        Otherwise it'll try to load it from python3-pyasn package.
+        """
+        try:
+            if self.asndb != None:
+                return
+
+            import pyasn
+
+            IPASN_DB_PATH = os.path.expanduser('~/.config/opensnitch/ipasn_db.dat.gz')
+            # .gz not supported for asnames
+            AS_NAMES_FILE_PATH = os.path.expanduser('~/.config/opensnitch/asnames.json')
+
+            # if the user hasn't downloaded an updated ipasn db, use the one
+            # shipped with the python3-pyasn package
+            if os.path.isfile(IPASN_DB_PATH) == False:
+                IPASN_DB_PATH = '/usr/lib/python3/dist-packages/data/ipasn_20140513_v12.dat.gz'
+            if os.path.isfile(AS_NAMES_FILE_PATH) == False:
+                AS_NAMES_FILE_PATH = '/usr/lib/python3/dist-packages/data/asnames.json'
+
+            print("using IPASN DB:", IPASN_DB_PATH)
+            self.asndb = pyasn.pyasn(IPASN_DB_PATH, as_names_file=AS_NAMES_FILE_PATH)
+        except Exception as e:
+            self.ASN_AVAILABLE = False
+            print("exception loading ipasn db:", e)
+
+
+    def lookup(self, ip):
+        """Lookup the IP in the ASN DB.
+
+        Return the net range and the prefix if found, otherwise nothing.
+        """
+        try:
+            return self.asndb.lookup(ip)
+        except Exception:
+            return "", ""
+
+    def get_as_name(self, asn):
+        """Get the ASN name given a network range.
+
+        Return the name of the network if found, otherwise nothing.
+        """
+        try:
+            return self.asndb.get_as_name(asn)
+        except Exception:
+            return ""
+
+    def get_asn(self, ip):
+        try:
+            asn, prefix = self.lookup(ip)
+            return self.get_as_name(asn)
+        except Exception:
+            return ""
+
 
 class CleanerTask(Thread):
     interval = 1
