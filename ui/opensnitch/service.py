@@ -413,6 +413,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if addr not in self._last_stats:
                 self._last_stats[addr] = []
 
+            db.transaction()
             for event in stats.events:
                 if event.unixnano in self._last_stats[addr]:
                     continue
@@ -432,6 +433,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     event.rule.name,
                     "%s:%s" % (proto, addr)
                 )
+            db.commit()
 
             details_need_refresh = self._populate_stats_details(db, addr, stats)
             self._last_stats[addr] = []
