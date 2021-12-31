@@ -934,8 +934,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_table_context_menu(self, pos):
         cur_idx = self.tabWidget.currentIndex()
-        if cur_idx != self.TAB_RULES:
-            # the only table with context menu for now is the rules table
+        if cur_idx != self.TAB_RULES or self.IN_DETAIL_VIEW[self.TAB_RULES] == True:
+            # the only table with context menu for now is the main rules table
             return
 
         self._context_menu_active = True
