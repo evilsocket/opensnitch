@@ -32,6 +32,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
     _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
 
+    # .desktop filename located under /usr/share/applications/
+    DESKTOP_FILENAME = "opensnitch_ui.desktop"
+
     def __init__(self, app, on_exit):
         super(UIService, self).__init__()
 
@@ -42,6 +45,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.MENU_ENTRY_HELP = QtCore.QCoreApplication.translate("contextual_menu", "Help")
         self.MENU_ENTRY_CLOSE = QtCore.QCoreApplication.translate("contextual_menu", "Close")
 
+        # set of actions that must be performed on the main thread
         self.NODE_ADD = 0
         self.NODE_UPDATE = 1
         self.NODE_DELETE = 2
@@ -141,6 +145,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.alert_icon.addPixmap(self.alert_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         self._app.setWindowIcon(self.white_icon)
+        self._app.setDesktopFileName(self.DESKTOP_FILENAME)
         self._prompt_dialog.setWindowIcon(self.white_icon)
 
     def _setup_tray(self):
@@ -519,6 +524,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         elif kwargs['action'] == self.DELETE_RULE:
             self._db.delete_rule(kwargs['name'], kwargs['addr'])
 
+        elif kwargs['action'] == self.NODE_DELETE:
+            self._delete_node(kwargs['peer'])
+
     def Ping(self, request, context):
         try:
             self._last_ping = datetime.now()
@@ -622,7 +630,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         stop_event = Event()
         def _on_client_closed():
             stop_event.set()
-            self._delete_node(context.peer())
+            self._node_actions_trigger.emit(
+                {'action': self.NODE_DELETE,
+                 'peer': context.peer(),
+                 })
 
             self._status_change_trigger.emit(False)
             # TODO: handle the situation when a node disconnects, and the
