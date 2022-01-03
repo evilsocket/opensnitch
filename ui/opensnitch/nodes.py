@@ -266,6 +266,23 @@ class Nodes():
         except Exception as e:
             print(self.LOG_TAG + " exception updating DB: ", e, addr)
 
+    def update_all(self, status=OFFLINE):
+        try:
+            for peer in self._nodes:
+                proto, addr = self.get_addr(peer)
+                self._db.update("nodes",
+                        "hostname=?,version=?,last_connection=?,status=?",
+                        (
+                            self._nodes[proto+":"+addr]['data'].name,
+                            self._nodes[proto+":"+addr]['data'].version,
+                            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            status,
+                            addr),
+                            "addr=?"
+                        )
+        except Exception as e:
+            print(self.LOG_TAG + " exception updating nodes: ", e)
+
     def delete_rule(self, rule_name, addr, callback):
         rule = ui_pb2.Rule(name=rule_name)
         rule.enabled = False

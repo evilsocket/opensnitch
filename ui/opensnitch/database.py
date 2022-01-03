@@ -42,7 +42,12 @@ class Database:
         return True, None
 
     def close(self):
-        self.db.close()
+        try:
+            if self.db.isOpen():
+                self.db.removeDatabase(self.db_name)
+                self.db.close()
+        except Exception as e:
+            print("db.close() exception:", e)
 
     def is_db_ok(self):
         q = QSqlQuery("PRAGMA integrity_check;", self.db)

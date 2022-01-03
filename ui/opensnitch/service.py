@@ -193,7 +193,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _on_close(self):
         self._exit = True
+        self._nodes.update_all(Nodes.OFFLINE)
         self._db.vacuum()
+        self._db.close()
         self._stop_db_cleaner()
         self._on_exit()
 
@@ -513,7 +515,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     @QtCore.pyqtSlot(dict)
     def _on_node_actions(self, kwargs):
-        if kwargs['action'] == self.ADD_RULE:
+        if kwargs['action'] == self.NODE_ADD:
+            n = self._nodes.add(kwargs['peer'], kwargs['node_config'])
+            if n != None:
+                self._status_change_trigger.emit(True)
+                # if there're more than one node, we can't update the status
+                # based on the fw status, only if the daemon is running or not
+                if self._nodes.count() <= 1:
+                    self._update_fw_status(kwargs['node_config'].isFirewallRunning)
+                else:
+                    self._update_fw_status(True)
+        elif kwargs['action'] == self.ADD_RULE:
             rule = kwargs['rule']
             proto, addr = self._get_peer(kwargs['peer'])
             self._nodes.add_rule((datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
@@ -594,18 +606,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                                     QtWidgets.QSystemTrayIcon.Information,
                                     5000)
 
-            # FIXME: this must occur on the main thread.
-            # however _node_actions_trigger.emit() is sometimes executed after
-            # Notifications()
-            n = self._nodes.add(context.peer(), node_config)
-            if n != None:
-                self._status_change_trigger.emit(True)
-                # if there're more than one node, we can't update the status
-                # based on the fw status, only if the daemon is running or not
-                if self._nodes.count() <= 1:
-                    self._update_fw_status(node_config.isFirewallRunning)
-                else:
-                    self._update_fw_status(True)
+            self._node_actions_trigger.emit({
+                    'action': self.NODE_ADD,
+                    'peer': context.peer(),
+                    'node_config': node_config
+                 })
         except Exception as e:
             print("[Notifications] exception adding new node:", e)
             context.cancel()
