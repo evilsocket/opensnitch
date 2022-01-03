@@ -43,7 +43,7 @@ class LinuxDesktopParser(threading.Thread):
         try:
             self.locale = locale.getlocale()[0]
             self.locale_country = self.locale.split("_")[0]
-        except Exception as e:
+        except Exception:
             self.locale = ""
             self.locale_country = ""
 
@@ -140,6 +140,12 @@ class LinuxDesktopParser(threading.Thread):
 
         app_name = self.apps.get(path)
         if app_name == None:
+            # last try to get a default terminal icon
+            for def_icon in ("utilities-terminal", "gnome-terminal", "xfce-terminal"):
+                test = self.apps.get(def_name, (def_name, def_icon, "", None))
+                if test != None:
+                    return test
+
             return self.apps.get(def_name, (def_name, default_icon, "", None))
 
         return self.apps.get(path, (def_name, default_icon, "", None))
