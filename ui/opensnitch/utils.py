@@ -58,6 +58,7 @@ class AsnDB():
         except Exception as e:
             self.ASN_AVAILABLE = False
             print("exception loading ipasn db:", e)
+            print("Install python3-pyasn to display IP's network name.")
 
 
     def lookup(self, ip):
@@ -97,8 +98,8 @@ class CleanerTask(Thread):
     callback = None
 
     def __init__(self, _interval, _callback):
-        Thread.__init__(self)
-        self.interval = _interval
+        Thread.__init__(self, name="cleaner_db_thread")
+        self.interval = _interval * 60
         self.stop_flag = Event()
         self.callback = _callback
         self._cfg = Config.init()
@@ -108,7 +109,7 @@ class CleanerTask(Thread):
         # "A connection can only be used from within the thread that created it."
         # https://doc.qt.io/qt-5/threads-modules.html#threads-and-the-sql-module
         # The filename and type is the same, the one chosen by the user.
-        self.db = Database("db-cleaner")
+        self.db = Database("db-cleaner-connection")
         self.db_status, db_error = self.db.initialize(
             dbtype=self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY),
             dbfile=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
@@ -117,13 +118,13 @@ class CleanerTask(Thread):
     def run(self):
         if self.db_status == False:
             return
-        while not self.stop_flag.wait(self.interval):
-            if self.stop_flag.is_set():
-                break
+        while not self.stop_flag.is_set():
+            self.stop_flag.wait(self.interval)
             self.callback(self.db)
 
     def stop(self):
         self.stop_flag.set()
+        self.db.close()
 
 class QuickHelp():
     @staticmethod

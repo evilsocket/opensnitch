@@ -285,11 +285,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _start_db_cleaner(self):
         def _cleaner_task(db):
-            oldest = self._cfg.getInt(self._cfg.DEFAULT_DB_MAX_DAYS)
-            if oldest > 0:
-                db.purge_oldest(oldest)
+            oldest = self._cfg.getInt(self._cfg.DEFAULT_DB_MAX_DAYS, 1)
+            db.purge_oldest(oldest)
 
-        self._cleaner = CleanerTask((60 * 60), _cleaner_task)
+        interval = self._cfg.getInt(self._cfg.DEFAULT_DB_PURGE_INTERVAL, 5)
+        self._cleaner = CleanerTask(interval, _cleaner_task)
         self._cleaner.start()
 
     def _update_fw_status(self, enabled):

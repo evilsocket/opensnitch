@@ -87,6 +87,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkInterceptUnknown.clicked.connect(self._cb_node_needs_update)
         self.checkApplyToNodes.clicked.connect(self._cb_node_needs_update)
         self.comboDBType.currentIndexChanged.connect(self._cb_db_type_changed)
+        self.checkDBMaxDays.toggled.connect(self._cb_db_max_days_toggled)
 
         # True when any node option changes
         self._node_needs_update = False
@@ -132,9 +133,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dbFileButton.setVisible(True)
             self.dbLabel.setVisible(True)
             self.dbLabel.setText(self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY))
-        dbMaxDays = self._cfg.getInt(self._cfg.DEFAULT_DB_MAX_DAYS)
-        self.checkDBMaxDays.setChecked(self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST))
+        dbMaxDays = self._cfg.getInt(self._cfg.DEFAULT_DB_MAX_DAYS, 1)
+        dbPurgeInterval = self._cfg.getInt(self._cfg.DEFAULT_DB_PURGE_INTERVAL, 5)
+        self._enable_db_cleaner_options(self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST), dbMaxDays)
         self.spinDBMaxDays.setValue(dbMaxDays)
+        self.spinDBPurgeInterval.setValue(dbPurgeInterval)
 
         self._load_node_settings()
         self._load_ui_columns_config()
@@ -273,6 +276,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings(Config.DEFAULT_DB_TYPE_KEY, dbtype)
         self._cfg.setSettings(Config.DEFAULT_DB_PURGE_OLDEST, bool(self.checkDBMaxDays.isChecked()))
         self._cfg.setSettings(Config.DEFAULT_DB_MAX_DAYS, int(self.spinDBMaxDays.value()))
+        self._cfg.setSettings(Config.DEFAULT_DB_PURGE_INTERVAL, int(self.spinDBPurgeInterval.value()))
 
         if self.comboDBType.currentIndex() == self.dbType:
             return
@@ -385,6 +389,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _reset_status_message(self):
         self.statusLabel.setText("")
 
+    def _enable_db_cleaner_options(self, enable, db_max_days):
+        self.checkDBMaxDays.setChecked(enable)
+        self.spinDBMaxDays.setEnabled(enable)
+        self.spinDBPurgeInterval.setEnabled(enable)
+        self.labelDBPurgeInterval.setEnabled(enable)
+
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
         #print(self.LOG_TAG, "Config notification received: ", reply.id, reply.code)
@@ -439,3 +449,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_check_ui_rules_toggled(self, state):
         self.comboUIRules.setEnabled(state)
+
+    def _cb_db_max_days_toggled(self, state):
+        self._enable_db_cleaner_options(state, 1)

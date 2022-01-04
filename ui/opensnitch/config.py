@@ -58,6 +58,7 @@ class Config:
     DEFAULT_DB_FILE_KEY  = "database/file"
     DEFAULT_DB_PURGE_OLDEST  = "database/purge_oldest"
     DEFAULT_DB_MAX_DAYS  = "database/max_days"
+    DEFAULT_DB_PURGE_INTERVAL  = "database/purge_interval"
 
 
     STATS_GEOMETRY = "statsDialog/geometry"
@@ -125,11 +126,11 @@ class Config:
     def getBool(self, path):
         return self.settings.value(path, False, type=bool)
 
-    def getInt(self, path):
+    def getInt(self, path, default_value=0):
         try:
-            return self.settings.value(path, False, type=int)
+            return self.settings.value(path, type=int, defaultValue=default_value)
         except Exception:
-            return 0
+            return default_value
 
     def getDefaultAction(self):
         _default_action = self.getInt(self.DEFAULT_ACTION_KEY)
