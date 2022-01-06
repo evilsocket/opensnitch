@@ -1,3 +1,7 @@
+<a href="https://repology.org/project/opensnitch/versions">
+    <img src="https://repology.org/badge/vertical-allrepos/opensnitch.svg" alt="Packaging status" align="right">
+</a>
+
 Welcome to the opensnitch wiki!
 
 
