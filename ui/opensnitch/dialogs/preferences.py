@@ -25,6 +25,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     TAB_NODES = 2
     TAB_DB = 3
 
+    SUM = 1
+    REST = 0
+
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
@@ -48,6 +51,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.popupsCheck.clicked.connect(self._cb_popups_check_toggled)
         self.dbFileButton.clicked.connect(self._cb_file_db_clicked)
         self.checkUIRules.toggled.connect(self._cb_check_ui_rules_toggled)
+        self.cmdTimeoutUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUITimeout, self.SUM))
+        self.cmdTimeoutDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUITimeout, self.REST))
+        self.cmdDBMaxDaysUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBMaxDays, self.SUM))
+        self.cmdDBMaxDaysDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBMaxDays, self.REST))
+        self.cmdDBPurgesUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBPurgeInterval, self.SUM))
+        self.cmdDBPurgesDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBPurgeInterval, self.REST))
         self.helpButton.setToolTipDuration(10 * 1000)
 
         if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
@@ -55,6 +64,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.cancelButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCloseButton")))
             self.acceptButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton")))
             self.dbFileButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirOpenIcon")))
+        if QtGui.QIcon.hasThemeIcon("zoom-in") == False:
+            self.cmdTimeoutUp.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowUp")))
+            self.cmdTimeoutDown.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowDown")))
+            self.cmdDBMaxDaysUp.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowUp")))
+            self.cmdDBMaxDaysDown.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowDown")))
+            self.cmdDBPurgesUp.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowUp")))
+            self.cmdDBPurgesDown.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowDown")))
 
     def showEvent(self, event):
         super(PreferencesDialog, self).showEvent(event)
@@ -394,6 +410,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.spinDBMaxDays.setEnabled(enable)
         self.spinDBPurgeInterval.setEnabled(enable)
         self.labelDBPurgeInterval.setEnabled(enable)
+        self.cmdTimeoutUp.setEnabled(enable)
+        self.cmdTimeoutDown.setEnabled(enable)
+        self.cmdDBMaxDaysUp.setEnabled(enable)
+        self.cmdDBMaxDaysDown.setEnabled(enable)
+        self.cmdDBPurgesUp.setEnabled(enable)
+        self.cmdDBPurgesDown.setEnabled(enable)
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
@@ -452,3 +474,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_db_max_days_toggled(self, state):
         self._enable_db_cleaner_options(state, 1)
+
+    def _cb_cmd_spin_clicked(self, spinWidget, operation):
+        if operation == self.SUM:
+            spinWidget.setValue(spinWidget.value() + 1)
+        else:
+            spinWidget.setValue(spinWidget.value() - 1)
