@@ -83,6 +83,9 @@ class DesktopNotifications():
 
         # timeouts seems to be ignored (on Cinnamon at least)
         timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
+        # -1 and 0 are special values
+        if timeout > 0:
+            timeout = timeout * 1000
         ntf.set_timeout(timeout)
         ntf.timeout = timeout
 
