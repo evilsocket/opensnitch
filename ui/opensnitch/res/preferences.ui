@@ -41,6 +41,12 @@
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="3">
         <widget class="QCheckBox" name="popupsCheck">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -124,7 +130,7 @@
              </property>
              <property name="icon">
               <iconset theme="emblem-important">
-               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
              </property>
             </item>
             <item>
@@ -133,7 +139,7 @@
              </property>
              <property name="icon">
               <iconset theme="emblem-default">
-               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
              </property>
             </item>
            </widget>
@@ -385,7 +391,7 @@
            </property>
            <property name="icon">
             <iconset theme="list-add">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -424,7 +430,7 @@
            </property>
            <property name="icon">
             <iconset theme="list-remove">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -436,7 +442,7 @@
        <item row="1" column="0" colspan="3">
         <widget class="QLabel" name="label">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -449,10 +455,10 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0" colspan="2">
+       <item row="0" column="0" colspan="3">
         <widget class="QLabel" name="label_16">
          <property name="text">
-          <string>Disable pop-ups, only display an alert</string>
+          <string>Disable pop-ups, only display an notification</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -480,85 +486,6 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>Events tab columns</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_7">
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="checkHideTime">
-            <property name="text">
-             <string>Time</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="checkHideDst">
-            <property name="text">
-             <string>Destination</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="checkHideProto">
-            <property name="text">
-             <string>Protocol</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QCheckBox" name="checkHideProc">
-            <property name="text">
-             <string>Process</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QCheckBox" name="checkHideRule">
-            <property name="text">
-             <string>Rule</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="checkHideNode">
-            <property name="text">
-             <string>Node</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="checkHideAction">
-            <property name="text">
-             <string>Action</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QCheckBox" name="checkUIRules">
          <property name="toolTip">
@@ -567,6 +494,214 @@
          <property name="text">
           <string>Don't save rules of duration</string>
          </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupNotifs">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Desktop notifications</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="radioSysNotifs">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Use system notifications</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="radioQtNotifs">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Use Qt notifications</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="labelNotifsWarning">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="cmdTestNotifs">
+              <property name="text">
+               <string>Test</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Events tab columns</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_7">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkHideTime">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Time</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QCheckBox" name="checkHideRule">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Rule</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="checkHideNode">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Node</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="checkHideProto">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Protocol</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkHideAction">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Action</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="checkHideDst">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Destination</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QCheckBox" name="checkHideProc">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Process</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -771,7 +906,7 @@
           </property>
           <property name="icon">
            <iconset theme="emblem-important">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
          </item>
          <item>
@@ -780,7 +915,7 @@
           </property>
           <property name="icon">
            <iconset theme="emblem-default">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
          </item>
         </widget>
@@ -966,7 +1101,7 @@
          </property>
          <property name="icon">
           <iconset theme="document-open">
-           <normaloff>.</normaloff>.</iconset>
+           <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
          </property>
         </widget>
        </item>
@@ -1030,7 +1165,7 @@
            </property>
            <property name="icon">
             <iconset theme="list-add">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -1116,7 +1251,7 @@
            </property>
            <property name="icon">
             <iconset theme="list-remove">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -1136,7 +1271,7 @@
            </property>
            <property name="icon">
             <iconset theme="list-add">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -1156,7 +1291,7 @@
            </property>
            <property name="icon">
             <iconset theme="list-remove">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -1184,7 +1319,7 @@
        </property>
        <property name="icon">
         <iconset theme="help-browser">
-         <normaloff>.</normaloff>.</iconset>
+         <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
        </property>
        <property name="flat">
         <bool>true</bool>
@@ -1211,7 +1346,7 @@
        </property>
        <property name="icon">
         <iconset theme="window-close">
-         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>
@@ -1222,7 +1357,7 @@
        </property>
        <property name="icon">
         <iconset theme="document-save">
-         <normaloff>.</normaloff>.</iconset>
+         <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>
@@ -1233,7 +1368,7 @@
        </property>
        <property name="icon">
         <iconset theme="emblem-default">
-         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>

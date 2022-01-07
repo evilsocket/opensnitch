@@ -10,6 +10,7 @@ from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
 from opensnitch.utils import Message, QuickHelp
+from opensnitch.notifications import DesktopNotifications
 
 from opensnitch import ui_pb2
 
@@ -57,14 +58,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdDBMaxDaysDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBMaxDays, self.REST))
         self.cmdDBPurgesUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBPurgeInterval, self.SUM))
         self.cmdDBPurgesDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBPurgeInterval, self.REST))
-        self.helpButton.setToolTipDuration(10 * 1000)
+        self.cmdTestNotifs.clicked.connect(self._cb_test_notifs_clicked)
+        self.helpButton.setToolTipDuration(30 * 1000)
 
         if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
             self.applyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
             self.cancelButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCloseButton")))
             self.acceptButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton")))
             self.dbFileButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirOpenIcon")))
-        if QtGui.QIcon.hasThemeIcon("zoom-in") == False:
+
+        if QtGui.QIcon.hasThemeIcon("list-add") == False:
             self.cmdTimeoutUp.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowUp")))
             self.cmdTimeoutDown.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowDown")))
             self.cmdDBMaxDaysUp.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowUp")))
@@ -76,6 +79,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         super(PreferencesDialog, self).showEvent(event)
 
         try:
+            self._settingsSaved = False
             self._reset_status_message()
             self._hide_status_label()
             self.comboNodes.clear()
@@ -142,6 +146,14 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstIPCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP))
         self.dstPortCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT))
         self.uidCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_UID))
+
+        self.groupNotifs.setChecked(self._cfg.getBool(Config.NOTIFICATIONS_ENABLED))
+        self.radioSysNotifs.setChecked(
+            True if self._cfg.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_SYSTEM else False
+        )
+        self.radioQtNotifs.setChecked(
+            True if self._cfg.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_QT else False
+        )
 
         self.dbType = self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY)
         self.comboDBType.setCurrentIndex(self.dbType)
@@ -285,7 +297,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._node_needs_update = False
 
         self.saved.emit()
-
+        self._settingsSaved = True
 
     def _save_db_config(self):
         dbtype = self.comboDBType.currentIndex()
@@ -339,6 +351,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP, bool(self.dstIPCheck.isChecked()))
         self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT, bool(self.dstPortCheck.isChecked()))
         self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_UID, bool(self.uidCheck.isChecked()))
+
+        self._cfg.setSettings(self._cfg.NOTIFICATIONS_ENABLED, bool(self.groupNotifs.isChecked()))
+        self._cfg.setSettings(self._cfg.NOTIFICATIONS_TYPE,
+                              int(Config.NOTIFICATION_TYPE_SYSTEM if self.radioSysNotifs.isChecked() else Config.NOTIFICATION_TYPE_QT))
+
         # this is a workaround for not display pop-ups.
         # see #79 for more information.
         if self.popupsCheck.isChecked():
@@ -444,7 +461,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_accept_button_clicked(self):
         self.accept()
-        self._save_settings()
+        if not self._settingsSaved:
+            self._save_settings()
 
     def _cb_apply_button_clicked(self):
         self._save_settings()
@@ -456,7 +474,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         QuickHelp.show(
             QC.translate("preferences",
                          "Hover the mouse over the texts to display the help<br><br>Don't forget to visit the wiki: <a href=\"{0}\">{0}</a>"
-                         ).format(Config.HELP_URL))
+                         ).format(Config.HELP_URL)
+        )
 
     def _cb_popups_check_toggled(self, checked):
         self.spinUITimeout.setEnabled(not checked)
@@ -480,3 +499,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             spinWidget.setValue(spinWidget.value() + 1)
         else:
             spinWidget.setValue(spinWidget.value() - 1)
+
+    def _cb_test_notifs_clicked(self):
+        if self.radioSysNotifs.isChecked():
+            DesktopNotifications().show("title", "body")
+        else:
+            pass

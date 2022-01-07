@@ -16,6 +16,7 @@ from opensnitch import ui_pb2_grpc
 from opensnitch.dialogs.prompt import PromptDialog
 from opensnitch.dialogs.stats import StatsDialog
 
+from opensnitch.notifications import DesktopNotifications
 from opensnitch.nodes import Nodes
 from opensnitch.config import Config
 from opensnitch.version import version
@@ -30,7 +31,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal(bool)
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
-    _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
+    _show_message_trigger = QtCore.pyqtSignal(str, str, int)
 
     # .desktop filename located under /usr/share/applications/
     DESKTOP_FILENAME = "opensnitch_ui.desktop"
@@ -69,10 +70,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 QtWidgets.QMessageBox.Warning)
             sys.exit(-1)
 
-        self._cleaner = None
-        if self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST):
-            self._start_db_cleaner()
-
         self._db_sqlite = self._db.get_db()
         self._last_ping = None
         self._version_warning_shown = False
@@ -88,6 +85,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._remote_lock = Lock()
         self._remote_stats = {}
 
+        self._desktop_notifications = DesktopNotifications()
         self._setup_interfaces()
         self._setup_icons()
         self._stats_dialog = StatsDialog(dbname="general", db=self._db)
@@ -104,6 +102,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 'ports':{},
                 'users':{}
                 }
+
+        self._show_gui_if_tray_not_available()
+
+        self._cleaner = None
+        if self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST):
+            self._start_db_cleaner()
 
     # https://gist.github.com/pklaus/289646
     def _setup_interfaces(self):
@@ -146,11 +150,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         self._app.setWindowIcon(self.white_icon)
         self._app.setDesktopFileName(self.DESKTOP_FILENAME)
-        self._prompt_dialog.setWindowIcon(self.white_icon)
 
     def _setup_tray(self):
-        self._menu = QtWidgets.QMenu()
         self._tray = QtWidgets.QSystemTrayIcon(self.off_icon)
+        self._tray.show()
+
+        self._menu = QtWidgets.QMenu()
         self._tray.setContextMenu(self._menu)
         self._tray.activated.connect(self._on_tray_icon_activated)
 
@@ -162,9 +167,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_CONFIG_URL))
                 )
         self._menu.addAction(self.MENU_ENTRY_CLOSE).triggered.connect(self._on_close)
-
-        self._tray.show()
-        self._show_gui_if_tray_not_available()
 
     def _show_gui_if_tray_not_available(self):
         """If the system tray is not available or ready, show the GUI after
@@ -260,11 +262,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _on_remote_stats_menu(self, address):
         self._remote_stats[address]['dialog'].show()
 
-    @QtCore.pyqtSlot(str, str, int, int)
-    def _show_systray_message(self, title, body, icon, timeout):
+    @QtCore.pyqtSlot(str, str, int)
+    def _show_systray_message(self, title, body, icon):
+        if DesktopNotifications.areEnabled():
+            if self._desktop_notifications.is_available() and self._cfg.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_SYSTEM:
+                self._desktop_notifications.show(title, body, os.path.join(self._path, "res/icon-white.svg"))
+            else:
+                timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
+                self._tray.showMessage(title, body, icon, timeout)
+
         if icon == QtWidgets.QSystemTrayIcon.NoIcon:
             self._tray.setIcon(self.alert_icon)
-        self._tray.showMessage(title, body, icon, timeout)
 
     def _on_enable_interception_clicked(self):
         self._enable_interception(self._fw_enabled)
@@ -564,6 +572,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         return ui_pb2.PingReply(id=request.id)
 
     def AskRule(self, request, context):
+        #def callback(ntf, action, connection):
+        # TODO
+
+        #if self._desktop_notifications.support_actions():
+        #    self._desktop_notifications.ask(request, callback)
+
         # TODO: allow connections originated from ourselves: os.getpid() == request.pid)
         self._asking = True
         proto, addr = self._get_peer(context.peer())
@@ -576,18 +590,29 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
             node_text = "" if self._is_local_request(proto, addr) else "on node {0}:{1}".format(proto, addr)
             self._show_message_trigger.emit(_title,
-                                            "{0} action applied {1}\nArguments: {2}"
-                                            .format(rule.action, node_text, request.process_args),
-                                            QtWidgets.QSystemTrayIcon.NoIcon,
-                                            0)
+                                            "{0} action applied {1}\nCommand line: {2}"
+                                            .format(rule.action, node_text, " ".join(request.process_args)),
+                                            QtWidgets.QSystemTrayIcon.NoIcon)
 
         self._last_ping = datetime.now()
         self._asking = False
 
         if rule.duration in Config.RULES_DURATION_FILTER:
-            self._node_actions_trigger.emit({'action': self.DELETE_RULE, 'name': rule.name, 'addr': context.peer()})
+            self._node_actions_trigger.emit(
+                {
+                    'action': self.DELETE_RULE,
+                    'name': rule.name,
+                    'addr': context.peer()
+                }
+            )
         else:
-            self._node_actions_trigger.emit({'action': self.ADD_RULE, 'peer': context.peer(), 'rule': rule})
+            self._node_actions_trigger.emit(
+                {
+                    'action': self.ADD_RULE,
+                    'peer': context.peer(),
+                    'rule': rule
+                }
+            )
 
         return rule
 
@@ -599,18 +624,20 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         @doc: https://grpc.github.io/grpc/python/grpc.html#service-side-context
         """
         try:
-            proto, addr = self._get_peer(context.peer())
-            if self._is_local_request(proto, addr) == False:
-                self._show_message_trigger.emit("New node connected",
-                                    "({0})".format(context.peer()),
-                                    QtWidgets.QSystemTrayIcon.Information,
-                                    5000)
-
             self._node_actions_trigger.emit({
                     'action': self.NODE_ADD,
                     'peer': context.peer(),
                     'node_config': node_config
                  })
+            # force events processing, to add the node ^ before the
+            # Notifications() call arrives.
+            QtWidgets.QApplication.processEvents()
+
+            proto, addr = self._get_peer(context.peer())
+            if self._is_local_request(proto, addr) == False:
+                self._show_message_trigger.emit("New node connected",
+                                    "({0})".format(context.peer()),
+                                    QtWidgets.QSystemTrayIcon.Information)
         except Exception as e:
             print("[Notifications] exception adding new node:", e)
             context.cancel()
@@ -650,8 +677,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if self._is_local_request(proto, addr) == False:
                 self._show_message_trigger.emit("node exited",
                                     "({0})".format(context.peer()),
-                                    QtWidgets.QSystemTrayIcon.Information,
-                                    5000)
+                                    QtWidgets.QSystemTrayIcon.Information)
 
         context.add_callback(_on_client_closed)
 

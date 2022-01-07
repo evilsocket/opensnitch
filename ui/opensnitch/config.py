@@ -60,6 +60,11 @@ class Config:
     DEFAULT_DB_MAX_DAYS  = "database/max_days"
     DEFAULT_DB_PURGE_INTERVAL  = "database/purge_interval"
 
+    NOTIFICATIONS_ENABLED = "notifications/enabled"
+    NOTIFICATIONS_TYPE = "notifications/type"
+    NOTIFICATION_TYPE_SYSTEM = 0
+    NOTIFICATION_TYPE_QT = 1
+
 
     STATS_GEOMETRY = "statsDialog/geometry"
     STATS_LAST_TAB = "statsDialog/last_tab"
@@ -123,8 +128,8 @@ class Config:
     def getSettings(self, path):
         return self.settings.value(path)
 
-    def getBool(self, path):
-        return self.settings.value(path, False, type=bool)
+    def getBool(self, path, default_value=False):
+        return self.settings.value(path, type=bool, defaultValue=default_value)
 
     def getInt(self, path, default_value=0):
         try:

@@ -1,0 +1,129 @@
+#!/usr/bin/python
+
+from PyQt5.QtCore import QCoreApplication as QC
+import os
+from utils import Utils
+from opensnitch.config import Config
+
+class DesktopNotifications():
+    """DesktopNotifications display informative pop-ups using the system D-Bus.
+    The notifications are handled and configured by the system.
+
+    The notification daemon also decides where to show the notifications, as well
+    as how to group them.
+
+    The body of a notification supports markup (if the implementation supports it):
+        https://people.gnome.org/~mccann/docs/notification-spec/notification-spec-latest.html#markup
+    Basically: <a>, <u>, <b>, <i> and <img>. New lines can be added with the regular \n.
+
+    It also support actions (buttons).
+
+    https://notify2.readthedocs.io/en/latest/
+    """
+
+    _cfg = Config.init()
+
+    # list of hints:
+    # https://people.gnome.org/~mccann/docs/notification-spec/notification-spec-latest.html#hints
+    HINT_DESKTOP_ENTRY = "desktop-entry"
+    CATEGORY_NETWORK = "network"
+
+    EXPIRES_DEFAULT = 0
+    NEVER_EXPIRES = -1
+
+    def __init__(self):
+        self.ACTION_ALLOW = QC.translate("popups", "Allow")
+        self.ACTION_DENY = QC.translate("popups", "Deny")
+        self.IS_LIBNOTIFY_AVAILABLE = True
+        self.DOES_SUPPORT_ACTIONS = True
+
+        try:
+            import notify2
+            self.ntf2 = notify2
+            mloop = 'glib'
+
+            # First try to initialise the D-Bus connection with the given
+            # mainloop.
+            # If it fails, we'll try to initialise it without it.
+            try:
+                self.ntf2.init("opensnitch", mainloop=mloop)
+            except Exception:
+                self.DOES_SUPPORT_ACTIONS = False
+
+                # usually because dbus mainloop is not initiated, specially
+                # with 'qt'
+                # FIXME: figure out how to init it, or how to connect to an
+                # existing session.
+                print("DesktopNotifications(): system doesn't support actions. Available capabilities:")
+                print(self.ntf2.get_server_caps())
+
+                self.ntf2.init("opensnitch")
+
+            # Example: ['actions', 'action-icons', 'body', 'body-markup', 'icon-static', 'persistence', 'sound']
+            if ('actions' not in self.ntf2.get_server_caps()):
+                self.DOES_SUPPORT_ACTIONS = False
+
+        except Exception as e:
+            print("DesktopNotifications not available (install python3-notify2):", e)
+            self.IS_LIBNOTIFY_AVAILABLE = False
+
+    def is_available(self):
+        return self.IS_LIBNOTIFY_AVAILABLE and self._cfg.getBool(Config.NOTIFICATIONS_ENABLED)
+
+    def support_actions(self):
+        """Returns true if the notifications daemon support actions(buttons).
+        This depends on 2 factors:
+            - If the notification server actually supports it (get_server_caps()).
+            - If there's a dbus instance running.
+        """
+        return self.DOES_SUPPORT_ACTIONS
+
+    def show(self, title, body, icon="dialog-information"):
+        ntf = self.ntf2.Notification(title, body, icon)
+
+        # timeouts seems to be ignored (on Cinnamon at least)
+        timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
+        ntf.set_timeout(timeout)
+        ntf.timeout = timeout
+
+        ntf.set_category(self.CATEGORY_NETWORK)
+        # used to display our app icon an name.
+        ntf.set_hint(self.HINT_DESKTOP_ENTRY, "opensnitch_ui")
+        ntf.show()
+
+    # TODO:
+    #  - construct a rule with the default configured parameters.
+    #  - create a common dialogs/prompt.py:_send_rule(), maybe in utils.py
+    def ask(self, connection, timeout, callback):
+        c = connection
+        title = QC.translate("popups", "New outgoing connection")
+        body = """
+        {0}
+
+        {1} {2}:{3} -> {4}:{5}
+        UID: {6} PID: {7}
+        """.format(c.process_path, c.protocol.upper(),
+                   c.src_port, c.src_ip,
+                   c.dst_host if c.dst_host != "" else c.dst_ip, c.dst_port,
+                   c.user_id, c.process_id
+        )
+        ntf = self.ntf2.Notification(title, body, "dialog-warning")
+        timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
+        ntf.set_timeout(timeout * 1000)
+        ntf.timeout = timeout * 1000
+        if self.DOES_SUPPORT_ACTIONS:
+            ntf.set_urgency(self.ntf2.URGENCY_CRITICAL)
+            ntf.add_action("allow", self.ACTION_ALLOW, callback, connection)
+            ntf.add_action("deny", self.ACTION_DENY, callback, connection)
+            #ntf.add_action("open-gui", QC.translate("popups", "View"), callback, connection)
+        ntf.set_category(self.CATEGORY_NETWORK)
+        ntf.set_hint(self.HINT_DESKTOP_ENTRY, "opensnitch_ui")
+        ntf.show()
+
+    @staticmethod
+    def areEnabled():
+        """Return if notifications are enabled.
+
+        Default: True
+        """
+        return DesktopNotifications._cfg.getBool(DesktopNotifications._cfg.NOTIFICATIONS_ENABLED, True)
