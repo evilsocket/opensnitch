@@ -264,12 +264,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     @QtCore.pyqtSlot(str, str, int)
     def _show_systray_message(self, title, body, icon):
-        if DesktopNotifications.areEnabled():
-            if self._desktop_notifications.is_available() and self._cfg.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_SYSTEM:
+        if self._desktop_notifications.are_enabled():
+            timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
+
+            if self._desktop_notifications.is_available() and self._cfg.getInt(Config.NOTIFICATIONS_TYPE, 1) == Config.NOTIFICATION_TYPE_SYSTEM:
                 self._desktop_notifications.show(title, body, os.path.join(self._path, "res/icon-white.svg"))
             else:
-                timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
-                self._tray.showMessage(title, body, icon, timeout)
+                self._tray.showMessage(title, body, icon, timeout * 1000)
 
         if icon == QtWidgets.QSystemTrayIcon.NoIcon:
             self._tray.setIcon(self.alert_icon)

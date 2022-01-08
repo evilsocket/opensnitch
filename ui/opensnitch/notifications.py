@@ -68,7 +68,10 @@ class DesktopNotifications():
             self.IS_LIBNOTIFY_AVAILABLE = False
 
     def is_available(self):
-        return self.IS_LIBNOTIFY_AVAILABLE and self._cfg.getBool(Config.NOTIFICATIONS_ENABLED)
+        return self.IS_LIBNOTIFY_AVAILABLE
+
+    def are_enabled(self):
+        return self._cfg.getBool(Config.NOTIFICATIONS_ENABLED, True)
 
     def support_actions(self):
         """Returns true if the notifications daemon support actions(buttons).
@@ -86,8 +89,8 @@ class DesktopNotifications():
         # -1 and 0 are special values
         if timeout > 0:
             timeout = timeout * 1000
-        ntf.set_timeout(timeout)
-        ntf.timeout = timeout
+        ntf.set_timeout(timeout * 1000)
+        ntf.timeout = timeout * 1000
 
         ntf.set_category(self.CATEGORY_NETWORK)
         # used to display our app icon an name.
@@ -100,16 +103,12 @@ class DesktopNotifications():
     def ask(self, connection, timeout, callback):
         c = connection
         title = QC.translate("popups", "New outgoing connection")
-        body = """
-        {0}
+        body = c.process_path + "\n"
+        body = body + QC.translate("popups", "is connecting to <b>%s</b> on %s port %d") % ( \
+            c.dst_host or c.dst_ip,
+            c.protocol.upper(),
+            c.dst_port )
 
-        {1} {2}:{3} -> {4}:{5}
-        UID: {6} PID: {7}
-        """.format(c.process_path, c.protocol.upper(),
-                   c.src_port, c.src_ip,
-                   c.dst_host if c.dst_host != "" else c.dst_ip, c.dst_port,
-                   c.user_id, c.process_id
-        )
         ntf = self.ntf2.Notification(title, body, "dialog-warning")
         timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
         ntf.set_timeout(timeout * 1000)
@@ -122,11 +121,3 @@ class DesktopNotifications():
         ntf.set_category(self.CATEGORY_NETWORK)
         ntf.set_hint(self.HINT_DESKTOP_ENTRY, "opensnitch_ui")
         ntf.show()
-
-    @staticmethod
-    def areEnabled():
-        """Return if notifications are enabled.
-
-        Default: True
-        """
-        return DesktopNotifications._cfg.getBool(DesktopNotifications._cfg.NOTIFICATIONS_ENABLED, True)

@@ -38,6 +38,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._notification_callback.connect(self._cb_notification_callback)
         self._notifications_sent = {}
+        self._desktop_notifications = DesktopNotifications()
 
         self.setupUi(self)
 
@@ -59,6 +60,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdDBPurgesUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBPurgeInterval, self.SUM))
         self.cmdDBPurgesDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBPurgeInterval, self.REST))
         self.cmdTestNotifs.clicked.connect(self._cb_test_notifs_clicked)
+        self.radioSysNotifs.clicked.connect(self._cb_radio_system_notifications)
         self.helpButton.setToolTipDuration(30 * 1000)
 
         if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
@@ -147,12 +149,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstPortCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT))
         self.uidCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_UID))
 
-        self.groupNotifs.setChecked(self._cfg.getBool(Config.NOTIFICATIONS_ENABLED))
+        # by default, if no configuration exists, enable notifications.
+        self.groupNotifs.setChecked(self._cfg.getBool(Config.NOTIFICATIONS_ENABLED, True))
         self.radioSysNotifs.setChecked(
-            True if self._cfg.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_SYSTEM else False
+            True if self._cfg.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_SYSTEM and self._desktop_notifications.is_available() == True else False
         )
         self.radioQtNotifs.setChecked(
-            True if self._cfg.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_QT else False
+            True if self._cfg.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_QT or self._desktop_notifications.is_available() == False else False
         )
 
         self.dbType = self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY)
@@ -408,19 +411,23 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.statusLabel.show()
 
     def _set_status_error(self, msg):
+        self._show_status_label()
         self.statusLabel.setStyleSheet('color: red')
         self.statusLabel.setText(msg)
 
     def _set_status_successful(self, msg):
+        self._show_status_label()
         self.statusLabel.setStyleSheet('color: green')
         self.statusLabel.setText(msg)
 
     def _set_status_message(self, msg):
+        self._show_status_label()
         self.statusLabel.setStyleSheet('color: darkorange')
         self.statusLabel.setText(msg)
 
     def _reset_status_message(self):
         self.statusLabel.setText("")
+        self._hide_status_label()
 
     def _enable_db_cleaner_options(self, enable, db_max_days):
         self.checkDBMaxDays.setChecked(enable)
@@ -500,8 +507,19 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             spinWidget.setValue(spinWidget.value() - 1)
 
+    def _cb_radio_system_notifications(self):
+        if self._desktop_notifications.is_available() == False:
+            self.radioSysNotifs.setChecked(False)
+            self.radioQtNotifs.setChecked(True)
+            self._set_status_error(QC.translate("notifications", "System notifications are not available, you need to install python3-notify2."))
+            return
+
     def _cb_test_notifs_clicked(self):
+        if self._desktop_notifications.is_available() == False:
+            self._set_status_error(QC.translate("notifications", "System notifications are not available, you need to install python3-notify2."))
+            return
+
         if self.radioSysNotifs.isChecked():
-            DesktopNotifications().show("title", "body")
+            self._desktop_notifications.show("title", "body")
         else:
             pass
