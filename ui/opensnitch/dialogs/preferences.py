@@ -434,8 +434,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.spinDBMaxDays.setEnabled(enable)
         self.spinDBPurgeInterval.setEnabled(enable)
         self.labelDBPurgeInterval.setEnabled(enable)
-        self.cmdTimeoutUp.setEnabled(enable)
-        self.cmdTimeoutDown.setEnabled(enable)
         self.cmdDBMaxDaysUp.setEnabled(enable)
         self.cmdDBMaxDaysDown.setEnabled(enable)
         self.cmdDBPurgesUp.setEnabled(enable)
