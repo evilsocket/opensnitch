@@ -257,6 +257,10 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		}
 		packet = &pkt
 
+		// Update the hostname again.
+		// This is required due to a race between the ebpf dns hook and the actual first packet beeing sent
+		con.DstHost = dns.HostOr(con.DstIP, con.DstHost)
+
 		r = uiClient.Ask(con)
 		if r == nil {
 			log.Error("Invalid rule received, applying default action")
@@ -395,6 +399,13 @@ func main() {
 			log.Warning("Unable to set process monitor method via parameter: %v", err)
 		}
 	}
+
+	go func() {
+		err := dns.DnsListenerEbpf()
+		if err != nil {
+			log.Warning("EBPF-DNS: Unable to attach ebpf listener.")
+		}
+	}()
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for {
