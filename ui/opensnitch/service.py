@@ -149,7 +149,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.alert_icon.addPixmap(self.alert_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         self._app.setWindowIcon(self.white_icon)
-        self._app.setDesktopFileName(self.DESKTOP_FILENAME)
+        # NOTE: only available since pyqt 5.7
+        if hasattr(self._app, "setDesktopFileName"):
+            self._app.setDesktopFileName(self.DESKTOP_FILENAME)
 
     def _setup_tray(self):
         self._tray = QtWidgets.QSystemTrayIcon(self.off_icon)
@@ -197,6 +199,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._exit = True
         self._nodes.update_all(Nodes.OFFLINE)
         self._db.vacuum()
+        self._db.optimize()
         self._db.close()
         self._stop_db_cleaner()
         self._on_exit()

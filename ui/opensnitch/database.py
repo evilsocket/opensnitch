@@ -50,7 +50,9 @@ class Database:
             print("db.close() exception:", e)
 
     def is_db_ok(self):
-        q = QSqlQuery("PRAGMA integrity_check;", self.db)
+        # XXX: quick_check may not be fast enough with some DBs on slow
+        # hardware.
+        q = QSqlQuery("PRAGMA quick_check;", self.db)
         if q.exec_() is not True:
             print(q.lastError().driverText())
             return False, q.lastError().driverText()
@@ -82,7 +84,7 @@ class Database:
             q = QSqlQuery("PRAGMA cache_size=10000", self.db)
             q.exec_()
         else:
-            q = QSqlQuery("PRAGMA optimize", self.db)
+            q = QSqlQuery("PRAGMA synchronous = NORMAL", self.db)
             q.exec_()
 
         q = QSqlQuery("create table if not exists connections (" \
@@ -164,6 +166,12 @@ class Database:
                 "status text, " \
                 "last_connection text)"
                 , self.db)
+        q.exec_()
+
+    def optimize(self):
+        """https://www.sqlite.org/pragma.html#pragma_optimize
+        """
+        q = QSqlQuery("PRAGMA optimize;", self.db)
         q.exec_()
 
     def clean(self, table):
