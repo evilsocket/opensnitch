@@ -53,11 +53,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     # label displayed in the pop-up combo
     DURATION_forever = QC.translate("popups", "forever")
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, appicon=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
         # Other interesting flags: QtCore.Qt.Tool | QtCore.Qt.BypassWindowManagerHint
         self._cfg = Config.get()
         self.setupUi(self)
+        self.setWindowIcon(appicon)
 
         self._width = None
         self._height = None

@@ -29,7 +29,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     SUM = 1
     REST = 0
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, appicon=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
         self._cfg = Config.get()
@@ -41,6 +41,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._desktop_notifications = DesktopNotifications()
 
         self.setupUi(self)
+        self.setWindowIcon(appicon)
 
         self.dbFileButton.setVisible(False)
         self.dbLabel.setVisible(False)

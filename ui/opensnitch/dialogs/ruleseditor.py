@@ -34,7 +34,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
-    def __init__(self, parent=None, _rule=None):
+    def __init__(self, parent=None, _rule=None, appicon=None):
         super(RulesEditorDialog, self).__init__(parent)
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
@@ -45,6 +45,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._old_rule_name = None
 
         self.setupUi(self)
+        self.setWindowIcon(appicon)
 
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Reset).clicked.connect(self._cb_reset_clicked)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Close).clicked.connect(self._cb_close_clicked)

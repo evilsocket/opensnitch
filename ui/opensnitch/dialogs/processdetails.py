@@ -50,11 +50,12 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
                 }
             }
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, appicon=None):
         super(ProcessDetailsDialog, self).__init__(parent)
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(QtCore.Qt.Window)
         self.setupUi(self)
+        self.setWindowIcon(appicon)
 
         self._app_name = None
         self._app_icon = None
@@ -181,7 +182,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self._pids = pids
         self._reset()
         for pid in pids:
-            self.comboPids.addItem(pid)
+            if pid != None:
+                self.comboPids.addItem(pid)
 
         self.show()
         self._start_monitoring()

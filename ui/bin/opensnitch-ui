@@ -27,10 +27,10 @@ import opensnitch.ui_pb2
 from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
 
 def on_exit():
-    app.quit()
     server.stop(0)
     # try to exit gracefully. Otherwise after 10s force exit.
-    Timer(10, __force_exit__).start()
+    Timer(5, __force_exit__).start()
+    app.quit()
     sys.exit(0)
 
 def __force_exit__():

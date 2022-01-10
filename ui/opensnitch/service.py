@@ -81,14 +81,14 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._on_exit = on_exit
         self._exit = False
         self._msg = QtWidgets.QMessageBox()
-        self._prompt_dialog = PromptDialog()
         self._remote_lock = Lock()
         self._remote_stats = {}
 
         self._desktop_notifications = DesktopNotifications()
         self._setup_interfaces()
         self._setup_icons()
-        self._stats_dialog = StatsDialog(dbname="general", db=self._db)
+        self._prompt_dialog = PromptDialog(appicon=self.white_icon)
+        self._stats_dialog = StatsDialog(dbname="general", db=self._db, appicon=self.white_icon)
         self._setup_tray()
         self._setup_slots()
 
@@ -197,6 +197,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _on_close(self):
         self._exit = True
+        self._tray.setIcon(self.off_icon)
+        self._app.processEvents()
         self._nodes.update_all(Nodes.OFFLINE)
         self._db.vacuum()
         self._db.optimize()
@@ -635,7 +637,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                  })
             # force events processing, to add the node ^ before the
             # Notifications() call arrives.
-            QtWidgets.QApplication.processEvents()
+            self._app.processEvents()
 
             proto, addr = self._get_peer(context.peer())
             if self._is_local_request(proto, addr) == False:

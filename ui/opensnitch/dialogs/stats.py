@@ -294,7 +294,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 }
             }
 
-    def __init__(self, parent=None, address=None, db=None, dbname="db"):
+    def __init__(self, parent=None, address=None, db=None, dbname="db", appicon=None):
         super(StatsDialog, self).__init__(parent)
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
@@ -302,6 +302,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.setWindowFlags(QtCore.Qt.Window)
         self.setupUi(self)
+        self.setWindowIcon(appicon)
+
         # columns names. Must be added here in order to names be translated.
         self.COL_STR_NAME = QC.translate("stats", "Name", "This is a word, without spaces and symbols.")
         self.COL_STR_ADDR = QC.translate("stats", "Address", "This is a word, without spaces and symbols.")
@@ -340,7 +342,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._nodes = Nodes.instance()
 
         # TODO: allow to display multiples dialogs
-        self._proc_details_dialog = ProcessDetailsDialog()
+        self._proc_details_dialog = ProcessDetailsDialog(appicon=appicon)
         # TODO: allow to navigate records by offsets
         self.prevButton.setVisible(False)
         self.nextButton.setVisible(False)
@@ -356,8 +358,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._stats = None
         self._notifications_sent = {}
 
-        self._prefs_dialog = PreferencesDialog()
-        self._rules_dialog = RulesEditorDialog()
+        self._prefs_dialog = PreferencesDialog(appicon=appicon)
+        self._rules_dialog = RulesEditorDialog(appicon=appicon)
         self._prefs_dialog.saved.connect(self._on_settings_saved)
         self._trigger.connect(self._on_update_triggered)
         self._notification_callback.connect(self._cb_notification_callback)
@@ -1267,7 +1269,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                          "<p>- Use CTRL+c to copy selected rows.</p>" \
                          "<p>- Use Home,End,PgUp,PgDown,PgUp,Up or Down keys to navigate rows.</p>" \
                          "<p>- Use right click on a row to stop refreshing the view.</p>" \
-                         "<p>- Selecting more than one row also stops refreshing the view.</p>."
+                         "<p>- Selecting more than one row also stops refreshing the view.</p>"
                          "<p>- On the Events view, clicking on columns Node, Process or Rule<br>" \
                          "jumps to the view of the selected item.</p>" \
                          "<p>- On the rest of the views, double click on a row to get detailed<br>" \
