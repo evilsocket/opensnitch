@@ -3,7 +3,7 @@
 #
 
 import json
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from opensnitch.config import Config
 from opensnitch.dialogs.ruleseditor import RulesEditorDialog
@@ -12,7 +12,8 @@ class TestRulesEditor():
 
     @classmethod
     def setup_method(self):
-        self.rd = RulesEditorDialog()
+        white_icon = QtGui.QIcon("../res/icon-white.svg")
+        self.rd = RulesEditorDialog(appicon=white_icon)
         self.rd.show()
         self.rd.ruleNameEdit.setText("xxx")
         self.rd.nodesCombo.addItem("unix:/tmp/osui.sock")

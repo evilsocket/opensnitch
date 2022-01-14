@@ -4,7 +4,7 @@
 import os
 import time
 import json
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from opensnitch.config import Config
 from opensnitch.dialogs.preferences import PreferencesDialog
@@ -20,8 +20,9 @@ class TestPreferences():
 
     @classmethod
     def setup_method(self):
+        white_icon = QtGui.QIcon("../res/icon-white.svg")
         self.reset_settings()
-        self.prefs = PreferencesDialog()
+        self.prefs = PreferencesDialog(appicon=white_icon)
         self.prefs.show()
 
     def run(self, qtbot):
