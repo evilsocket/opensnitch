@@ -641,9 +641,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
             proto, addr = self._get_peer(context.peer())
             if self._is_local_request(proto, addr) == False:
-                self._show_message_trigger.emit("New node connected",
-                                    "({0})".format(context.peer()),
-                                    QtWidgets.QSystemTrayIcon.Information)
+                self._show_message_trigger.emit(
+                    QtCore.QCoreApplication.translate("stats", "New node connected"),
+                    "({0})".format(context.peer()),
+                    QtWidgets.QSystemTrayIcon.Information)
         except Exception as e:
             print("[Notifications] exception adding new node:", e)
             context.cancel()

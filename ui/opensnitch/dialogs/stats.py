@@ -170,18 +170,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "cons as Connections," \
                         "cons_dropped as Dropped," \
                         "version as Version",
-                "header_labels": [
-                    QC.translate("stats", "LastConnection", ""),
-                    QC.translate("stats", "Addr", ""),
-                    QC.translate("stats", "Status", ""),
-                    QC.translate("stats", "Hostname", ""),
-                    QC.translate("stats", "Version", ""),
-                    QC.translate("stats", "Uptime", ""),
-                    QC.translate("stats", "Rules", ""),
-                    QC.translate("stats", "Connections", ""),
-                    QC.translate("stats", "Dropped", ""),
-                    QC.translate("stats", "Version", ""),
-                ],
+                "header_labels": [],
                 "last_order_by": "1",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -196,8 +185,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
-                "header_labels": [
-                ],
+                "header_labels": [],
                 "last_order_by": "2",
                 "last_order_to": 0,
                 "rows_selected": False
@@ -212,10 +200,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
-                "header_labels": [
-                    QC.translate("stats", "What", ""),
-                    QC.translate("stats", "Hits", ""),
-                ],
+                "header_labels": [],
                 "last_order_by": "2",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -230,10 +215,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
-                "header_labels": [
-                    QC.translate("stats", "What", ""),
-                    QC.translate("stats", "Hits", ""),
-                ],
+                "header_labels": [],
                 "last_order_by": "2",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -284,10 +266,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
-                "header_labels": [
-                    QC.translate("stats", "What", ""),
-                    QC.translate("stats", "Hits", ""),
-                ],
+                "header_labels": [],
                 "last_order_by": "2",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -393,7 +372,43 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeRuleLabel.setVisible(False)
         self.comboRulesFilter.setVisible(False)
 
+        # translations must be done here, otherwise they don't take effect
+        self.TABLES[self.TAB_NODES]['header_labels'] = [
+            QC.translate("stats", "LastConnection", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Addr", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Status", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Hostname", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Version", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Uptime", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Rules", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Connections", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Dropped", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Version", "This is a word, without spaces and symbols."),
+        ]
 
+        self.TABLES[self.TAB_RULES]['header_labels'] = [
+            QC.translate("stats", "Time", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Node", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Name", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Enabled", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Precedence", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Action", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Duration", "This is a word, without spaces and symbols."),
+            "operator_type",
+            "operator_sensitive",
+            "operator_operand",
+            "operator_data",
+        ]
+
+        stats_headers = [
+            QC.translate("stats", "What", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Hits", "This is a word, without spaces and symbols."),
+        ]
+
+        self.TABLES[self.TAB_HOSTS]['header_labels'] = stats_headers
+        self.TABLES[self.TAB_PROCS]['header_labels'] = stats_headers
+        self.TABLES[self.TAB_ADDRS]['header_labels'] = stats_headers
+        self.TABLES[self.TAB_USERS]['header_labels'] = stats_headers
 
         self.TABLES[self.TAB_MAIN]['view'] = self._setup_table(QtWidgets.QTableView, self.eventsTable, "connections",
                 self.TABLES[self.TAB_MAIN]['display_fields'],

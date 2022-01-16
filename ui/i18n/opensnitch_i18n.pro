@@ -5,6 +5,9 @@
 
 # Input
 SOURCES +=  ../opensnitch/service.py \
+	    ../opensnitch/notifications.py \
+	    ../opensnitch/customwidgets/addresstablemodel.py \
+	    ../opensnitch/customwidgets/main.py \
 	    ../opensnitch/dialogs/prompt.py \
 	    ../opensnitch/dialogs/preferences.py \
 	    ../opensnitch/dialogs/ruleseditor.py \
