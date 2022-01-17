@@ -1,6 +1,6 @@
 %define name opensnitch-ui
-%define version 1.5.0rc1
-%define unmangled_version 1.5.0rc1
+%define version 1.5.0rc2
+%define unmangled_version 1.5.0rc2
 %define release 1
 %define __python python3
 %define desktop_file opensnitch_ui.desktop
@@ -17,7 +17,7 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: Simone "evilsocket" Margaritelli <evilsocket@protonmail.com>
 Url: https://github.com/evilsocket/opensnitch
-Requires: python3, python3-pip, (python3-pyinotify or python3-inotify), python3-qt5
+Requires: python3, python3-pip, (python3-pyinotify or python3-inotify), python3-qt5, python3-notify2
 Recommends: (python3-slugify or python3-python-slugify), python3-protobuf >= 3.0
 
 # avoid to depend on a particular python version
