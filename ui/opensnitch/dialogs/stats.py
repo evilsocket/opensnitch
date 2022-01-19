@@ -230,10 +230,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
-                "header_labels": [
-                    QC.translate("stats", "What", ""),
-                    QC.translate("stats", "Hits", ""),
-                ],
+                "header_labels": [],
                 "last_order_by": "2",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -248,10 +245,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "model": None,
                 "delegate": commonDelegateConf,
                 "display_fields": "*",
-                "header_labels": [
-                    QC.translate("stats", "What", ""),
-                    QC.translate("stats", "Hits", ""),
-                ],
+                "header_labels": [],
                 "last_order_by": "2",
                 "last_order_to": 1,
                 "rows_selected": False
@@ -288,6 +282,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.COL_STR_ADDR = QC.translate("stats", "Address", "This is a word, without spaces and symbols.")
         self.COL_STR_STATUS = QC.translate("stats", "Status", "This is a word, without spaces and symbols.")
         self.COL_STR_HOSTNAME = QC.translate("stats", "Hostname", "This is a word, without spaces and symbols.")
+        self.COL_STR_UPTIME = QC.translate("stats", "Uptime", "This is a word, without spaces and symbols.")
         self.COL_STR_VERSION = QC.translate("stats", "Version", "This is a word, without spaces and symbols.")
         self.COL_STR_RULES_NUM = QC.translate("stats", "Rules", "This is a word, without spaces and symbols.")
         self.COL_STR_TIME = QC.translate("stats", "Time", "This is a word, without spaces and symbols.")
@@ -295,6 +290,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.COL_STR_DURATION = QC.translate("stats", "Duration", "This is a word, without spaces and symbols.")
         self.COL_STR_NODE = QC.translate("stats", "Node", "This is a word, without spaces and symbols.")
         self.COL_STR_ENABLED = QC.translate("stats", "Enabled", "This is a word, without spaces and symbols.")
+        self.COL_STR_PRECEDENCE = QC.translate("stats", "Precedence", "This is a word, without spaces and symbols.")
         self.COL_STR_HITS = QC.translate("stats", "Hits", "This is a word, without spaces and symbols.")
         self.COL_STR_PROTOCOL = QC.translate("stats", "Protocol", "This is a word, without spaces and symbols.")
         self.COL_STR_PROCESS = QC.translate("stats", "Process", "This is a word, without spaces and symbols.")
@@ -374,12 +370,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         # translations must be done here, otherwise they don't take effect
         self.TABLES[self.TAB_NODES]['header_labels'] = [
-            QC.translate("stats", "LastConnection", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Addr", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Status", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Hostname", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Version", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Uptime", "This is a word, without spaces and symbols."),
+            self.COL_STR_LAST_CONNECTION,
+            self.COL_STR_ADDR,
+            self.COL_STR_STATUS,
+            self.COL_STR_HOSTNAME,
+            self.COL_STR_VERSION,
+            self.COL_STR_UPTIME,
             QC.translate("stats", "Rules", "This is a word, without spaces and symbols."),
             QC.translate("stats", "Connections", "This is a word, without spaces and symbols."),
             QC.translate("stats", "Dropped", "This is a word, without spaces and symbols."),
@@ -387,13 +383,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         ]
 
         self.TABLES[self.TAB_RULES]['header_labels'] = [
-            QC.translate("stats", "Time", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Node", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Name", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Enabled", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Precedence", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Action", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Duration", "This is a word, without spaces and symbols."),
+            self.COL_STR_TIME,
+            self.COL_STR_NODE,
+            self.COL_STR_NAME,
+            self.COL_STR_ENABLED,
+            self.COL_STR_PRECEDENCE,
+            self.COL_STR_ACTION,
+            self.COL_STR_DURATION,
             "operator_type",
             "operator_sensitive",
             "operator_operand",
@@ -416,7 +412,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 group_by=self.TABLES[self.TAB_MAIN]['group_by'],
                 delegate=self.TABLES[self.TAB_MAIN]['delegate'],
                 resize_cols=(),
-                model=ConnectionsTableModel(),
+                model=GenericTableModel("connections", [
+                    self.COL_STR_TIME,
+                    self.COL_STR_NODE,
+                    self.COL_STR_ACTION,
+                    self.COL_STR_DESTINATION,
+                    self.COL_STR_PROTOCOL,
+                    self.COL_STR_PROCESS,
+                    self.COL_STR_RULE,
+                ]),
                 verticalScrollBar=self.connectionsTableScrollBar,
                 limit=self._get_limit()
                 )
