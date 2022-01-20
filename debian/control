@@ -6,7 +6,7 @@ Section: devel
 Testsuite: autopkgtest-pkg-go
 Priority: optional
 Build-Depends:
- debhelper-compat (= 12),
+ debhelper-compat (= 11),
  debhelper (>= 9),
  dh-golang,
  golang-any,
