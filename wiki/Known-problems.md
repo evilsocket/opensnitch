@@ -15,6 +15,7 @@
 [GUI crash/exception/does not show up](#GUI-crash-exception-or-does-not-show-up):
 * NameError: name 'unicode' is not defined
 * ModuleNotFoundError: No module named 'grpc'
+* TypeError: __new__() got an unexpected keyword argument ...
 * Others...
 
 [GUI not working across reboots](#GUI-not-working-across-reboots)
@@ -156,12 +157,20 @@ See [issue #25](https://github.com/gustavo-iniguez-goya/opensnitch/issues/25), [
 
 ***
 
-You have to install `unicode_slugify` and `grpcio-tools`, usually not available in many distros. You can install them using pip:
+You have to install `unicode_slugify` and `grpcio-tools`, usually not available in old distros. You can install them using pip:
 
 ```
 pip3 install unicode_slugify
-pip3 install grpcio-tools
+pip3 install grpcio protobuf
 ```
+
+If grpcio fails to compile, you can try specifying a version: `pip3 install grpcio==1.16.1`
+
+***
+
+**TypeError: __new__() got an unexpected keyword argument ...**
+
+This error means that your `python3-protobuf` is not compatible with OpenSnitch. Try uninstalling or upgragind it. If the GUI keeps failing with the same error, install protobuf using pip3: `pip3 install protobuf`
 
 ***
 
