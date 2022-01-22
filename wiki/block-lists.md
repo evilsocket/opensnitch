@@ -60,7 +60,7 @@ Remember that you may need to add the domain without the subdomains (`domain.com
 ---
 
 ### Notes
-Lists of domains:
+Lists of domains (only in version >= **v1.4.x**):
 - It must be in hosts format:
 ```
 # this is a comment, it's ignored
@@ -70,7 +70,7 @@ Lists of domains:
 ```
 
 
-Lists of domains with regular expressions:
+Lists of domains with regular expressions (only in version >= **v1.5.x**):
 - one regular expression per line:
 ```
 # https://raw.githubusercontent.com/mmotti/pihole-regex/master/whitelist.list
@@ -80,7 +80,7 @@ adtrack(er|ing)?[0-9]*[_.-]
 ^stat(s|istics)?[0-9]*[_.-]
 ```
 
-Lists of IPs or NETs:
+Lists of IPs (only in version >= **v1.5.x**):
 - One per line:
 IPs
 ```
@@ -88,6 +88,8 @@ IPs
 6.7.8.9
 9.8.7.6
 ```
+
+Lists of NETs (only in version >= **v1.5.x**):
 Nets:
 ```
 # https://iplists.firehol.org/
