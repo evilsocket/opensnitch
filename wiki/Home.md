@@ -21,7 +21,7 @@ After installing, read the section [Getting started](Getting-started), to read a
 
 [Known problems](Known-problems)
 
-[Examples of opensnitch in action](OpenSnitch-in-action)
+[Examples of opensnitch in action](OpenSnitch-in-action) (have some to share? [submit yours!](https://github.com/evilsocket/opensnitch/discussions/new?category=show-and-tell))
 
 HOWTOs
 ---
@@ -31,3 +31,13 @@ HOWTOs
 [Block ads, tracking or malware domains system-wide](https://github.com/evilsocket/opensnitch/wiki/block-lists)
 
 [Deny everything from an application, allowing only a few domains](https://github.com/evilsocket/opensnitch/wiki/block-lists)
+
+`>>` [Add more](https://github.com/evilsocket/opensnitch/discussions/new?category=show-and-tell) `<<`
+
+Reviews
+---
+v1.3.6 [OpenSnitch a free opensource selfhosted outbound application firewall made for Linux!](https://www.youtube.com/watch?v=_0RRp6N6apo)
+
+v1.5.0rcX [Opensnitch Linux Firewall: Detect + Block Malware Connections](https://www.youtube.com/watch?v=0_xS3u_p2xM)
+
+v1.5.0rcX [Quickie: first Impression of Pinephone Keyboard Case + opensnitch firewall works on Arch + faraday bag](https://www.youtube.com/watch?v=Xntd5lx2Av0)
