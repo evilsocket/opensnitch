@@ -233,6 +233,9 @@ func (o *Operator) reListCmp(v interface{}) bool {
 	if o.Sensitive == false {
 		dstHost = strings.ToLower(dstHost)
 	}
+	o.RLock()
+	defer o.RUnlock()
+
 	for file, re := range o.lists {
 		r := re.(*regexp.Regexp)
 		if r.MatchString(dstHost) {
