@@ -3,12 +3,14 @@ package rule
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/evilsocket/opensnitch/daemon/conman"
-	"github.com/evilsocket/opensnitch/daemon/netstat"
-	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"net"
 	"testing"
 	"time"
+
+	"github.com/evilsocket/opensnitch/daemon/conman"
+	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/evilsocket/opensnitch/daemon/netstat"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 )
 
 var (
@@ -426,7 +428,7 @@ func TestNewOperatorListsSimple(t *testing.T) {
 	t.Log("Test NewOperator() Lists simple")
 	var dummyList []Operator
 
-	opLists, err := NewOperator(Lists, false, OpDomainsLists, "testdata/lists/", dummyList)
+	opLists, err := NewOperator(Lists, false, OpDomainsLists, "testdata/lists/domains/", dummyList)
 	if err != nil {
 		t.Error("NewOperator Lists, shouldn't be nil: ", err)
 		t.Fail()
@@ -447,9 +449,119 @@ func TestNewOperatorListsSimple(t *testing.T) {
 
 	opLists.StopMonitoringLists()
 	time.Sleep(time.Second)
+	opLists.Lock()
 	if len(opLists.lists) != 0 {
 		t.Error("NewOperator Lists, number should be 0 after stop:", opLists.lists, len(opLists.lists))
 	}
+	opLists.Unlock()
+
+	restoreConnection()
+}
+
+func TestNewOperatorListsIPs(t *testing.T) {
+	t.Log("Test NewOperator() Lists domains_regexp")
+
+	var subOp *Operator
+	var list []Operator
+	listData := `[{"type": "simple", "operand": "user.id", "data": "666", "sensitive": false}, {"type": "lists", "operand": "lists.ips", "data": "testdata/lists/ips/", "sensitive": false}]`
+
+	opLists, err := NewOperator(List, false, OpList, listData, list)
+	if err != nil {
+		t.Error("NewOperator Lists domains_regexp, shouldn't be nil: ", err)
+		t.Fail()
+	}
+	if err := opLists.Compile(); err != nil {
+		t.Error("NewOperator Lists domains_regexp, Compile() error:", err)
+	}
+	opLists.List = *unmarshalListData(opLists.Data, t)
+	for i := 0; i < len(opLists.List); i++ {
+		if err := opLists.List[i].Compile(); err != nil {
+			t.Error("NewOperator Lists domains_regexp, Compile() subitem error:", err)
+		}
+		if opLists.List[i].Type == Lists {
+			subOp = &opLists.List[i]
+		}
+	}
+
+	time.Sleep(time.Second)
+	if opLists.Match(conn) == false {
+		t.Error("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
+	}
+
+	subOp.Lock()
+	listslen := len(subOp.lists)
+	subOp.Unlock()
+	if listslen != 2 {
+		t.Error("NewOperator Lists domains_regexp, number of domains error:", subOp.lists)
+	}
+
+	//t.Log("checking lists.domains_regexp:", tries, conn.DstHost)
+	if opLists.Match(conn) == false {
+		// we don't care about if it matches, we're testing race conditions
+		t.Log("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
+	}
+
+	subOp.StopMonitoringLists()
+	time.Sleep(time.Second)
+	subOp.Lock()
+	if len(subOp.lists) != 0 {
+		t.Error("NewOperator Lists number should be 0:", subOp.lists, len(subOp.lists))
+	}
+	subOp.Unlock()
+
+	restoreConnection()
+}
+
+func TestNewOperatorListsNETs(t *testing.T) {
+	t.Log("Test NewOperator() Lists domains_regexp")
+
+	var subOp *Operator
+	var list []Operator
+	listData := `[{"type": "simple", "operand": "user.id", "data": "666", "sensitive": false}, {"type": "lists", "operand": "lists.nets", "data": "testdata/lists/nets/", "sensitive": false}]`
+
+	opLists, err := NewOperator(List, false, OpList, listData, list)
+	if err != nil {
+		t.Error("NewOperator Lists domains_regexp, shouldn't be nil: ", err)
+		t.Fail()
+	}
+	if err := opLists.Compile(); err != nil {
+		t.Error("NewOperator Lists domains_regexp, Compile() error:", err)
+	}
+	opLists.List = *unmarshalListData(opLists.Data, t)
+	for i := 0; i < len(opLists.List); i++ {
+		if err := opLists.List[i].Compile(); err != nil {
+			t.Error("NewOperator Lists domains_regexp, Compile() subitem error:", err)
+		}
+		if opLists.List[i].Type == Lists {
+			subOp = &opLists.List[i]
+		}
+	}
+
+	time.Sleep(time.Second)
+	if opLists.Match(conn) == false {
+		t.Error("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
+	}
+
+	subOp.Lock()
+	listslen := len(subOp.lists)
+	subOp.Unlock()
+	if listslen != 2 {
+		t.Error("NewOperator Lists domains_regexp, number of domains error:", subOp.lists)
+	}
+
+	//t.Log("checking lists.domains_regexp:", tries, conn.DstHost)
+	if opLists.Match(conn) == false {
+		// we don't care about if it matches, we're testing race conditions
+		t.Log("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
+	}
+
+	subOp.StopMonitoringLists()
+	time.Sleep(time.Second)
+	subOp.Lock()
+	if len(subOp.lists) != 0 {
+		t.Error("NewOperator Lists number should be 0:", subOp.lists, len(subOp.lists))
+	}
+	subOp.Unlock()
 
 	restoreConnection()
 }
@@ -458,7 +570,7 @@ func TestNewOperatorListsComplex(t *testing.T) {
 	t.Log("Test NewOperator() Lists complex")
 	var subOp *Operator
 	var list []Operator
-	listData := `[{"type": "simple", "operand": "user.id", "data": "666", "sensitive": false}, {"type": "lists", "operand": "lists.domains", "data": "testdata/lists/", "sensitive": false}]`
+	listData := `[{"type": "simple", "operand": "user.id", "data": "666", "sensitive": false}, {"type": "lists", "operand": "lists.domains", "data": "testdata/lists/domains/", "sensitive": false}]`
 
 	opLists, err := NewOperator(List, false, OpList, listData, list)
 	if err != nil {
@@ -478,18 +590,153 @@ func TestNewOperatorListsComplex(t *testing.T) {
 		}
 	}
 	time.Sleep(time.Second)
+	subOp.Lock()
 	if len(subOp.lists) != 2 {
 		t.Error("NewOperator Lists complex, number of domains error:", subOp.lists)
 	}
+	subOp.Unlock()
 	if opLists.Match(conn) == false {
 		t.Error("Test NewOperator() Lists complex, doesn't match")
 	}
 
 	subOp.StopMonitoringLists()
 	time.Sleep(time.Second)
+	subOp.Lock()
 	if len(subOp.lists) != 0 {
 		t.Error("NewOperator Lists number should be 0:", subOp.lists, len(subOp.lists))
 	}
+	subOp.Unlock()
+
+	restoreConnection()
+}
+
+func TestNewOperatorListsDomainsRegexp(t *testing.T) {
+	t.Log("Test NewOperator() Lists domains_regexp")
+
+	var subOp *Operator
+	var list []Operator
+	listData := `[{"type": "simple", "operand": "user.id", "data": "666", "sensitive": false}, {"type": "lists", "operand": "lists.domains_regexp", "data": "testdata/lists/regexp/", "sensitive": false}]`
+
+	opLists, err := NewOperator(List, false, OpList, listData, list)
+	if err != nil {
+		t.Error("NewOperator Lists domains_regexp, shouldn't be nil: ", err)
+		t.Fail()
+	}
+	if err := opLists.Compile(); err != nil {
+		t.Error("NewOperator Lists domains_regexp, Compile() error:", err)
+	}
+	opLists.List = *unmarshalListData(opLists.Data, t)
+	for i := 0; i < len(opLists.List); i++ {
+		if err := opLists.List[i].Compile(); err != nil {
+			t.Error("NewOperator Lists domains_regexp, Compile() subitem error:", err)
+		}
+		if opLists.List[i].Type == Lists {
+			subOp = &opLists.List[i]
+		}
+	}
+
+	time.Sleep(time.Second)
+	if opLists.Match(conn) == false {
+		t.Error("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
+	}
+
+	subOp.Lock()
+	listslen := len(subOp.lists)
+	subOp.Unlock()
+	if listslen != 2 {
+		t.Error("NewOperator Lists domains_regexp, number of domains error:", subOp.lists)
+	}
+
+	//t.Log("checking lists.domains_regexp:", tries, conn.DstHost)
+	if opLists.Match(conn) == false {
+		// we don't care about if it matches, we're testing race conditions
+		t.Log("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
+	}
+
+	subOp.StopMonitoringLists()
+	time.Sleep(time.Second)
+	subOp.Lock()
+	if len(subOp.lists) != 0 {
+		t.Error("NewOperator Lists number should be 0:", subOp.lists, len(subOp.lists))
+	}
+	subOp.Unlock()
+
+	restoreConnection()
+}
+
+// Must be launched with -race to test that we don't cause leaks
+// Race occured on operator.go:241 reListCmp().MathString()
+// fixed here: 53419fe
+func TestRaceNewOperatorListsDomainsRegexp(t *testing.T) {
+	t.Log("Test NewOperator() Lists domains_regexp")
+
+	var subOp *Operator
+	var list []Operator
+	listData := `[{"type": "simple", "operand": "user.id", "data": "666", "sensitive": false}, {"type": "lists", "operand": "lists.domains_regexp", "data": "testdata/lists/regexp/", "sensitive": false}]`
+
+	opLists, err := NewOperator(List, false, OpList, listData, list)
+	if err != nil {
+		t.Error("NewOperator Lists domains_regexp, shouldn't be nil: ", err)
+		t.Fail()
+	}
+	if err := opLists.Compile(); err != nil {
+		t.Error("NewOperator Lists domains_regexp, Compile() error:", err)
+	}
+	opLists.List = *unmarshalListData(opLists.Data, t)
+	for i := 0; i < len(opLists.List); i++ {
+		if err := opLists.List[i].Compile(); err != nil {
+			t.Error("NewOperator Lists domains_regexp, Compile() subitem error:", err)
+		}
+		if opLists.List[i].Type == Lists {
+			subOp = &opLists.List[i]
+		}
+	}
+
+	// touch domains list in background, to force a reload.
+	go func() {
+		touches := 1000
+		for {
+			if touches < 0 {
+				break
+			}
+			core.Exec("/bin/touch", []string{"testdata/lists/regexp/domainsregexp.txt"})
+			touches--
+			time.Sleep(100 * time.Millisecond)
+			//t.Log("touching:", touches)
+		}
+	}()
+
+	time.Sleep(time.Second)
+
+	subOp.Lock()
+	listslen := len(subOp.lists)
+	subOp.Unlock()
+	if listslen != 2 {
+		t.Error("NewOperator Lists domains_regexp, number of domains error:", subOp.lists)
+	}
+
+	tries := 10000
+	for {
+		if tries < 0 {
+			break
+		}
+		//t.Log("checking lists.domains_regexp:", tries, conn.DstHost)
+		if opLists.Match(conn) == false {
+			// we don't care about if it matches, we're testing race conditions
+			t.Log("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
+		}
+
+		tries--
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	subOp.StopMonitoringLists()
+	time.Sleep(time.Second)
+	subOp.Lock()
+	if len(subOp.lists) != 0 {
+		t.Error("NewOperator Lists number should be 0:", subOp.lists, len(subOp.lists))
+	}
+	subOp.Unlock()
 
 	restoreConnection()
 }

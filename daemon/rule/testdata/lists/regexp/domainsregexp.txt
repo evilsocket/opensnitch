@@ -1,0 +1,4 @@
+# this line must be ignored, 0.0.0.0 www.test.org
+www.test.org
+www.test.org
+opensnitch.io

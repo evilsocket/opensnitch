@@ -1,0 +1,8 @@
+# this line must be ignored, 0.0.0.0 www.test.org
+
+# empty lines are also ignored
+1.1.1.0/24
+185.53.178.0/24
+# duplicated entries should be ignored
+1.1.1.0/24
+
