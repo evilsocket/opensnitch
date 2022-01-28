@@ -238,12 +238,16 @@ func (c *Client) sendNotificationReply(stream protocol.UI_NotificationsClient, n
 // receiving notifications.
 // It firstly sends the daemon status and configuration.
 func (c *Client) Subscribe() {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
 	clientCfg, err := c.client.Subscribe(ctx, c.getClientConfig())
 	if err != nil {
 		log.Error("Subscribing to GUI %s", err)
+		// When connecting to the GUI via TCP, sometimes the notifications channel is
+		// not established, and the main channel is never closed.
+		// We need to disconnect everything after a timeout and try it again.
+		c.disconnect()
 		return
 	}
 
@@ -294,7 +298,5 @@ func (c *Client) listenForNotifications() {
 Exit:
 	notisStream.CloseSend()
 	log.Info("Stop receiving notifications")
-	if c.Connected() {
-		c.disconnect()
-	}
+	c.disconnect()
 }
