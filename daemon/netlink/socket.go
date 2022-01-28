@@ -146,7 +146,7 @@ func KillSocket(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPort 
 	if sockList, err := SocketGet(family, ipproto, uint16(srcPort), uint16(dstPort), srcIP, dstIP); err == nil {
 		for _, s := range sockList {
 			if err := socketKill(family, ipproto, s.ID); err != nil {
-				log.Debug("Unable to kill socket:", srcPort, dstPort, err)
+				log.Debug("Unable to kill socket: %d, %d, %v", srcPort, dstPort, err)
 			}
 		}
 	}
