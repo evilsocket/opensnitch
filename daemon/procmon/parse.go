@@ -116,7 +116,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 	// if the PID dir doesn't exist, the process may have exited or be a kernel connection
 	// XXX: can a kernel connection exist without an entry in ProcFS?
 	if core.Exists(fmt.Sprint("/proc/", pid)) == false {
-		log.Debug("PID can't be read /proc/", pid)
+		log.Debug("PID can't be read /proc/ %d", pid)
 		return nil
 	}
 
