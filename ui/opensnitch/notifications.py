@@ -82,20 +82,23 @@ class DesktopNotifications():
         return self.DOES_SUPPORT_ACTIONS
 
     def show(self, title, body, icon="dialog-information"):
-        ntf = self.ntf2.Notification(title, body, icon)
+        try:
+            ntf = self.ntf2.Notification(title, body, icon)
 
-        # timeouts seems to be ignored (on Cinnamon at least)
-        timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
-        # -1 and 0 are special values
-        if timeout > 0:
-            timeout = timeout * 1000
-        ntf.set_timeout(timeout * 1000)
-        ntf.timeout = timeout * 1000
+            # timeouts seems to be ignored (on Cinnamon at least)
+            timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
+            # -1 and 0 are special values
+            if timeout > 0:
+                timeout = timeout * 1000
+            ntf.set_timeout(timeout * 1000)
+            ntf.timeout = timeout * 1000
 
-        ntf.set_category(self.CATEGORY_NETWORK)
-        # used to display our app icon an name.
-        ntf.set_hint(self.HINT_DESKTOP_ENTRY, "opensnitch_ui")
-        ntf.show()
+            ntf.set_category(self.CATEGORY_NETWORK)
+            # used to display our app icon an name.
+            ntf.set_hint(self.HINT_DESKTOP_ENTRY, "opensnitch_ui")
+            ntf.show()
+        except Exception as e:
+            print("[notifications] show() exception:", e)
 
     # TODO:
     #  - construct a rule with the default configured parameters.
