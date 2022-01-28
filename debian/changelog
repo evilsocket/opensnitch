@@ -1,3 +1,14 @@
+opensnitch (1.5.0-1) unstable; urgency=medium
+
+  * New release.
+  * Added Reject option.
+  * New lists types to block ads/malware/...
+  * Better connections interception.
+  * Better VPNs handling.
+  * Bug fixes.
+
+ -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  Fri, 28 Jan 2022 23:20:38 +0100
+
 opensnitch (1.5.0~rc2-1) unstable; urgency=medium
 
   * Better connections interception.
