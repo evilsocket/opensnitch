@@ -459,7 +459,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 )
         self.TABLES[self.TAB_ADDRS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.addrTable, "addrs",
-                model=AddressTableModel("addrs", self.TABLES[self.TAB_HOSTS]['header_labels']),
+                model=AddressTableModel("addrs", self.TABLES[self.TAB_ADDRS]['header_labels']),
                 verticalScrollBar=self.addrsScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_ADDRS]['delegate'],
@@ -468,7 +468,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 )
         self.TABLES[self.TAB_PORTS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.portsTable, "ports",
-                model=GenericTableModel("ports", self.TABLES[self.TAB_HOSTS]['header_labels']),
+                model=GenericTableModel("ports", self.TABLES[self.TAB_PORTS]['header_labels']),
                 verticalScrollBar=self.portsScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_PORTS]['delegate'],
@@ -477,7 +477,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 )
         self.TABLES[self.TAB_USERS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.usersTable, "users",
-                model=GenericTableModel("users", self.TABLES[self.TAB_HOSTS]['header_labels']),
+                model=GenericTableModel("users", self.TABLES[self.TAB_USERS]['header_labels']),
                 verticalScrollBar=self.usersScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_USERS]['delegate'],
@@ -579,10 +579,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._refresh_active_table()
 
     def eventFilter(self, source, event):
-        if (event.type() == QtCore.QEvent.KeyPress and
-            event.matches(QtGui.QKeySequence.Copy)):
-            self._copy_selected_rows()
-            return True
+        if event.type() == QtCore.QEvent.KeyPress:
+            if event.matches(QtGui.QKeySequence.Copy):
+                self._copy_selected_rows()
+                return True
+            elif event.key() == QtCore.Qt.Key_Delete:
+                table = self._get_active_table()
+                selection = table.selectionModel().selectedRows()
+                if selection:
+                    model = table.model()
+                    self._table_menu_delete(2, model, selection)
+                    # we need to manually refresh the model
+                    table.selectionModel().clear()
+                    self._refresh_active_table()
+                return True
         return super(StatsDialog, self).eventFilter(source, event)
 
     def _configure_buttons_icons(self):
@@ -762,12 +772,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         return
 
             if action == _menu_delete:
-                ret = Message.yes_no(
-                    QC.translate("stats", "    Your are about to delete this rule.    "),
-                    QC.translate("stats", "    Are you sure?"),
-                    QtWidgets.QMessageBox.Warning)
-                if ret == QtWidgets.QMessageBox.Cancel:
-                    return False
                 self._table_menu_delete(cur_idx, model, selection)
             elif action == _menu_edit:
                 self._table_menu_edit(cur_idx, model, selection)
@@ -879,6 +883,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._notifications_sent[nid] = noti
 
     def _table_menu_delete(self, cur_idx, model, selection):
+        ret = Message.yes_no(
+            QC.translate("stats", "    Your are about to delete this rule.    "),
+            QC.translate("stats", "    Are you sure?"),
+            QtWidgets.QMessageBox.Warning)
+        if ret == QtWidgets.QMessageBox.Cancel:
+            return False
 
         for idx in selection:
             name = model.index(idx.row(), self.COL_R_NAME).data()
