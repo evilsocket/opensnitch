@@ -13,7 +13,7 @@ func (n *Nft) AreRulesLoaded() bool {
 	for _, table := range n.mangleTables {
 		rules, err := n.conn.GetRule(table, n.outputChains[table])
 		if err != nil {
-			log.Error("nftables mangle rules error:", table.Name, n.outputChains[table].Name)
+			log.Error("nftables mangle rules error: %s, %s", table.Name, n.outputChains[table].Name)
 			return false
 		}
 		for _, r := range rules {
@@ -31,7 +31,7 @@ func (n *Nft) AreRulesLoaded() bool {
 	for _, table := range n.filterTables {
 		rules, err := n.conn.GetRule(table, n.inputChains[table])
 		if err != nil {
-			log.Error("nftables filter rules error:", table.Name, n.inputChains[table].Name)
+			log.Error("nftables filter rules error: %s, %s", table.Name, n.inputChains[table].Name)
 			return false
 		}
 		for _, r := range rules {

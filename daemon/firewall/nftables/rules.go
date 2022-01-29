@@ -49,7 +49,7 @@ func (n *Nft) addGlobalChains() error {
 	}
 	// apply changes
 	if err := n.conn.Flush(); err != nil {
-		log.Warning("Error adding nftables mangle tables:", err)
+		log.Warning("Error adding nftables mangle tables: %v", err)
 	}
 
 	return nil
