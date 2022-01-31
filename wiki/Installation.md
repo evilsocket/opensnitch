@@ -5,10 +5,12 @@
 **tl;dr: use the command line**
 
 #### DEB
-> $ sudo dpkg -i opensnitch*.deb python3-opensnitch-ui*.deb; sudo apt -f install
+> $ sudo apt install ./opensnitch*.deb ./python3-opensnitch-ui*.deb
 
 #### RPM
 > $ sudo yum localinstall opensnitch-1*.rpm; sudo yum localinstall opensnitch-ui*.rpm 
+
+(You can also double-click on the downloaded files)
 
 **Remember:**
 
