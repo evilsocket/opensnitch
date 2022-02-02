@@ -1,5 +1,5 @@
 [Unit]
-Description=OpenSnitch is a GNU/Linux application firewall.
+Description=Application firewall OpenSnitch
 Documentation=https://github.com/gustavo-iniguez-goya/opensnitch/wiki
 Wants=network.target
 After=network.target
