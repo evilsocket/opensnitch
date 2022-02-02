@@ -450,7 +450,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 )
         self.TABLES[self.TAB_PROCS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.procsTable, "procs",
-                model=GenericTableModel("procs", self.TABLES[self.TAB_HOSTS]['header_labels']),
+                model=ProcessTableModel("procs", self.TABLES[self.TAB_PROCS]['header_labels']),
                 verticalScrollBar=self.procsScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_PROCS]['delegate'],
@@ -503,10 +503,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'] = self.cmdCleanSql
         self.TABLES[self.TAB_NODES]['cmdCleanStats'] = self.cmdCleanSql
-        self.TABLES[self.TAB_RULES]['cmdCleanStats'] = self.cmdCleanRules
+        self.TABLES[self.TAB_RULES]['cmdCleanStats'] = self.cmdCleanSql
+        self.TABLES[self.TAB_HOSTS]['cmdCleanStats'] = self.cmdCleanSql
+        self.TABLES[self.TAB_PROCS]['cmdCleanStats'] = self.cmdCleanSql
+        self.TABLES[self.TAB_ADDRS]['cmdCleanStats'] = self.cmdCleanSql
+        self.TABLES[self.TAB_PORTS]['cmdCleanStats'] = self.cmdCleanSql
+        self.TABLES[self.TAB_USERS]['cmdCleanStats'] = self.cmdCleanSql
         # the rules clean button is only for a particular rule, not all.
         self.TABLES[self.TAB_RULES]['cmdCleanStats'].setVisible(False)
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(self.TAB_MAIN))
+
         self.TABLES[self.TAB_MAIN]['filterLine'] = self.filterLine
         self.TABLES[self.TAB_MAIN]['view'].doubleClicked.connect(self._cb_main_table_double_clicked)
         self.TABLES[self.TAB_MAIN]['view'].installEventFilter(self)
@@ -947,11 +953,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_tab_changed(self, index):
         self.comboAction.setVisible(index == self.TAB_MAIN)
 
+        self.TABLES[index]['cmdCleanStats'].setVisible(True)
         if index == self.TAB_MAIN:
             self._set_events_query()
         else:
             if index == self.TAB_RULES:
-                self.TABLES[index]['cmdCleanStats'].setVisible(False)
+                # display the clean buton only if not in detail view
+                self.TABLES[index]['cmdCleanStats'].setVisible( self.IN_DETAIL_VIEW[index] )
                 self._add_rulesTree_nodes()
 
             elif index == self.TAB_PROCS:
@@ -959,7 +967,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 nrows = self._get_active_table().model().rowCount()
                 self.cmdProcDetails.setVisible(self.IN_DETAIL_VIEW[index] and nrows > 0)
             elif index == self.TAB_NODES:
-                self.TABLES[index]['cmdCleanStats'].setVisible(False)
+                self.TABLES[index]['cmdCleanStats'].setVisible( self.IN_DETAIL_VIEW[index] )
 
         self._refresh_active_table()
 
@@ -1399,14 +1407,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[cur_idx]['label'].setVisible(state)
         self.TABLES[cur_idx]['label'].setText(label_txt)
         self.TABLES[cur_idx]['cmd'].setVisible(state)
+
         if self.TABLES[cur_idx]['filterLine'] != None:
             self.TABLES[cur_idx]['filterLine'].setVisible(not state)
+
         if self.TABLES[cur_idx].get('cmdCleanStats') != None:
-            if cur_idx == StatsDialog.TAB_RULES:
-                self.TABLES[cur_idx]['cmdCleanStats'].setVisible(state)
-            else:
-                self.TABLES[cur_idx]['cmdCleanStats'].setVisible(not state)
-            if cur_idx == StatsDialog.TAB_NODES:
+            if cur_idx == StatsDialog.TAB_RULES or cur_idx == StatsDialog.TAB_NODES:
                 self.TABLES[cur_idx]['cmdCleanStats'].setVisible(state)
 
         header = self.TABLES[cur_idx]['view'].horizontalHeader()
