@@ -450,7 +450,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 )
         self.TABLES[self.TAB_PROCS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.procsTable, "procs",
-                model=ProcessTableModel("procs", self.TABLES[self.TAB_PROCS]['header_labels']),
+                model=GenericTableModel("procs", self.TABLES[self.TAB_PROCS]['header_labels']),
                 verticalScrollBar=self.procsScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_PROCS]['delegate'],
