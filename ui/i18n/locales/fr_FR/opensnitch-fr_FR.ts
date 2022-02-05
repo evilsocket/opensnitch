@@ -615,7 +615,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="461"/>
-        <source>Disable pop-ups, only display an notification</source>
+        <source>Disable pop-ups, only display a notification</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
