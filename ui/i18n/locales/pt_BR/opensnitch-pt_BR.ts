@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+f<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="pt_BR">
 <context>
@@ -656,7 +656,7 @@
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="461"/>
-        <source>Disable pop-ups, only display an notification</source>
+        <source>Disable pop-ups, only display a notification</source>
         <translation>Desativar pop-ups, exibir apenas uma notificação</translation>
     </message>
     <message>
