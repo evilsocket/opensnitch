@@ -32,9 +32,10 @@ This packages are provided to you in the aim of being useful and ease the instal
 **Errors?**
 
 - LinuxMint <= 19: see: [#16](https://github.com/gustavo-iniguez-goya/opensnitch/issues/16) or `apt-get install g++ python3-dev python3-wheel python3-slugify`
-- MXLinux >= 19.x: You need to install additional packages: `apt-get install python3-dev python3-wheel`
+- MXLinux <= 19.x: You need to install additional packages: `apt-get install python3-dev python3-wheel`
 - Pop!_ OS: if you find that opensnitch is not behaving correctly (it slowdowns your system for some reason), reinstall it using the one-liner above from the command line. It seems that there're troubles installing it using the graphical installer `eddy`.
 - Ubuntu 16.04.x: Do not install the dependencies when the installer ask you to do so. After installing the package execute: `sudo pip3 install grpcio==1.16.1 protobuf`
+- /etc/opensnitchd/opensnitch.o: no such file or directory (#554) -> you need to compile the [ebpf module](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog), or install it if your distro packages it as a package (https://aur.archlinux.org/packages/opensnitch-ebpf-module/)
 
 ---
 
