@@ -79,6 +79,16 @@ targets ports 5551, 5552, 5553, 5554 OR 5555.
 
 `  [x] From this executable: ^/usr/bin/python[0-9\.]*$`
 
+**Filtering python scripts (applicable to java and others interpreters)**
+---
+The general recommendation is to either allow or deny by `Command line` or better, by Process path + Command line:
+
+![image](https://user-images.githubusercontent.com/2742953/152648281-01e5797b-662d-46d2-b11c-1966feecc54c.png)
+
+If you allow python3, you'll allow ANY python3 script, so be careful. This is also true for other interpreted languages, like Java, Ruby, Perl and others.
+
+https://github.com/evilsocket/opensnitch/discussions/612#discussioncomment-2116878
+
 
 **Filtering LAN IPs or multiple ranges**
 ---
