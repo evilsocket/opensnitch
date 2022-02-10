@@ -588,6 +588,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._asking = True
         proto, addr = self._get_peer(context.peer())
         rule, timeout_triggered = self._prompt_dialog.promptUser(request, self._is_local_request(proto, addr), context.peer())
+        self._last_ping = datetime.now()
+        self._asking = False
+        if rule == None:
+            return None
+
         if timeout_triggered:
             _title = request.process_path
             if _title == "":
@@ -600,8 +605,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                                             .format(rule.action, node_text, " ".join(request.process_args)),
                                             QtWidgets.QSystemTrayIcon.NoIcon)
 
-        self._last_ping = datetime.now()
-        self._asking = False
 
         if rule.duration in Config.RULES_DURATION_FILTER:
             self._node_actions_trigger.emit(

@@ -473,7 +473,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         elif combo.itemData(what_idx) == self.FIELD_PROC_ARGS:
             # this should not happen
-            if len(self._con.process_args) == 0:
+            if len(self._con.process_args) == 0 or self._con.process_args[0] == "":
                 return Config.RULE_TYPE_SIMPLE, "process.path", self._con.process_path
             return Config.RULE_TYPE_SIMPLE, "process.command", ' '.join(self._con.process_args)
 
@@ -534,51 +534,55 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return rule_temp_name[:128]
 
     def _send_rule(self):
-        self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
-        self._rule = ui_pb2.Rule(name="user.choice")
-        self._rule.enabled = True
-        self._rule.action = Config.ACTION_DENY if self._default_action == self.ACTION_IDX_DENY else Config.ACTION_ALLOW
-        self._rule.duration = self._get_duration(self.durationCombo.currentIndex())
+        try:
+            self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
+            self._rule = ui_pb2.Rule(name="user.choice")
+            self._rule.enabled = True
+            self._rule.action = Config.ACTION_DENY if self._default_action == self.ACTION_IDX_DENY else Config.ACTION_ALLOW
+            self._rule.duration = self._get_duration(self.durationCombo.currentIndex())
 
-        what_idx = self.whatCombo.currentIndex()
-        self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self.whatCombo, what_idx)
-        if self._rule.operator.data == "":
-            print("Invalid rule, discarding: ", self._rule)
-            self._rule = None
+            what_idx = self.whatCombo.currentIndex()
+            self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self.whatCombo, what_idx)
+            if self._rule.operator.data == "":
+                print("Invalid rule, discarding: ", self._rule)
+                self._rule = None
+                return
+
+            rule_temp_name = self._get_rule_name(self._rule)
+            self._rule.name = rule_temp_name
+
+            # TODO: move to a method
+            data=[]
+            if self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_IP:
+                _type, _operand, _data = self._get_combo_operator(self.whatIPCombo, self.whatIPCombo.currentIndex())
+                data.append({"type": _type, "operand": _operand, "data": _data})
+                rule_temp_name = slugify("%s %s" % (rule_temp_name, _data))
+
+            if self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_PORT:
+                data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": "dest.port", "data": str(self._con.dst_port)})
+                rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.dst_port)))
+
+            if self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_USER_ID:
+                data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": "user.id", "data": str(self._con.user_id)})
+                rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.user_id)))
+
+            if self._is_list_rule():
+                data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
+                self._rule.operator.data = json.dumps(data)
+                self._rule.operator.type = Config.RULE_TYPE_LIST
+                self._rule.operator.operand = Config.RULE_TYPE_LIST
+
+            self._rule.name = rule_temp_name
+
+            self.hide()
+            if self._ischeckAdvanceded:
+                self.checkAdvanced.toggle()
+            self._ischeckAdvanceded = False
+
+        except Exception as e:
+            print("[pop-up] exception creating a rule:", e)
+        finally:
+            # signal that the user took a decision and
+            # a new rule is available
             self._done.set()
-            return
-
-        rule_temp_name = self._get_rule_name(self._rule)
-        self._rule.name = rule_temp_name
-
-        # TODO: move to a method
-        data=[]
-        if self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_IP:
-            _type, _operand, _data = self._get_combo_operator(self.whatIPCombo, self.whatIPCombo.currentIndex())
-            data.append({"type": _type, "operand": _operand, "data": _data})
-            rule_temp_name = slugify("%s %s" % (rule_temp_name, _data))
-
-        if self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_PORT:
-            data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": "dest.port", "data": str(self._con.dst_port)})
-            rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.dst_port)))
-
-        if self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_USER_ID:
-            data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": "user.id", "data": str(self._con.user_id)})
-            rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.user_id)))
-
-        if self._is_list_rule():
-            data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
-            self._rule.operator.data = json.dumps(data)
-            self._rule.operator.type = Config.RULE_TYPE_LIST
-            self._rule.operator.operand = Config.RULE_TYPE_LIST
-
-        self._rule.name = rule_temp_name
-
-        self.hide()
-        if self._ischeckAdvanceded:
-            self.checkAdvanced.toggle()
-        self._ischeckAdvanceded = False
-
-        # signal that the user took a decision and
-        # a new rule is available
-        self._done.set()
+            self.hide()
