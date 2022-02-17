@@ -511,6 +511,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_USERS]['cmdCleanStats'] = self.cmdCleanSql
         # the rules clean button is only for a particular rule, not all.
         self.TABLES[self.TAB_RULES]['cmdCleanStats'].setVisible(False)
+        self.TABLES[self.TAB_NODES]['cmdCleanStats'].setVisible(False)
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(self.TAB_MAIN))
 
         self.TABLES[self.TAB_MAIN]['filterLine'] = self.filterLine
@@ -1081,37 +1082,34 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._refresh_active_table()
 
     def _cb_cmd_back_clicked(self, idx):
-        cur_idx = self.tabWidget.currentIndex()
-        self._clear_rows_selection()
-        self.IN_DETAIL_VIEW[cur_idx] = False
+        try:
+            cur_idx = self.tabWidget.currentIndex()
+            self._clear_rows_selection()
+            self.IN_DETAIL_VIEW[cur_idx] = False
 
-        self._set_active_widgets(False)
-        if cur_idx == StatsDialog.TAB_RULES:
-            self._restore_rules_tab_widgets(True)
+            self._set_active_widgets(False)
+            if cur_idx == StatsDialog.TAB_RULES:
+                self._restore_rules_tab_widgets(True)
+                return
+            elif cur_idx == StatsDialog.TAB_PROCS:
+                self.cmdProcDetails.setVisible(False)
+
+            model = self._get_active_table().model()
+            where_clause = ""
+            if self.TABLES[cur_idx]['filterLine'] != None:
+                filter_text = self.TABLES[cur_idx]['filterLine'].text()
+                where_clause = self._get_filter_line_clause(cur_idx, filter_text)
+
+            self.setQuery(model,
+                        self._db.get_query(
+                            self.TABLES[cur_idx]['name'],
+                            self.TABLES[cur_idx]['display_fields']) + where_clause + " " + self._get_order() + self._get_limit()
+                        )
+        finally:
             self._restore_details_view_columns(
                 self.TABLES[cur_idx]['view'].horizontalHeader(),
                 "{0}{1}".format(Config.STATS_VIEW_COL_STATE, cur_idx)
             )
-            # return here and now, the query is set via set_rules_filter()
-            return
-        elif cur_idx == StatsDialog.TAB_PROCS:
-            self.cmdProcDetails.setVisible(False)
-
-        model = self._get_active_table().model()
-        where_clause = ""
-        if self.TABLES[cur_idx]['filterLine'] != None:
-            filter_text = self.TABLES[cur_idx]['filterLine'].text()
-            where_clause = self._get_filter_line_clause(cur_idx, filter_text)
-
-        self.setQuery(model,
-                      self._db.get_query(
-                          self.TABLES[cur_idx]['name'],
-                          self.TABLES[cur_idx]['display_fields']) + where_clause + " " + self._get_order() + self._get_limit()
-                      )
-        self._restore_details_view_columns(
-            self.TABLES[cur_idx]['view'].horizontalHeader(),
-            "{0}{1}".format(Config.STATS_VIEW_COL_STATE, cur_idx)
-        )
 
     def _cb_main_table_double_clicked(self, row):
         data = row.data()
@@ -1120,6 +1118,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if idx == StatsDialog.COL_NODE:
             cur_idx = self.TAB_NODES
+            self.IN_DETAIL_VIEW[cur_idx] = True
             self.tabWidget.setCurrentIndex(cur_idx)
             self._set_active_widgets(True, str(data))
             p, addr = self._nodes.get_addr(data)
@@ -1127,6 +1126,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         elif idx == StatsDialog.COL_PROCS:
             cur_idx = self.TAB_PROCS
+            self.IN_DETAIL_VIEW[cur_idx] = True
             self.tabWidget.setCurrentIndex(cur_idx)
             self._set_active_widgets(True, str(data))
             self._set_process_query(data)
@@ -1134,8 +1134,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif idx == StatsDialog.COL_RULES:
             cur_idx = self.TAB_RULES
             self.IN_DETAIL_VIEW[cur_idx] = True
-            self._set_rules_tab_active(row, cur_idx, self.COL_RULES, self.COL_NODE)
+            r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_RULES, self.COL_NODE)
             self._set_active_widgets(True, str(data))
+            self._set_rules_query(r_name, node)
 
         else:
             return
@@ -1156,7 +1157,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if cur_idx == self.TAB_RULES:
             rule_name = row.model().index(row.row(), self.COL_R_NAME).data()
             self._set_active_widgets(True, rule_name)
-            self._set_rules_tab_active(row, cur_idx, self.COL_R_NAME, self.COL_R_NODE)
+            r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_R_NAME, self.COL_R_NODE)
+            self._set_rules_query(r_name, node)
             self._restore_details_view_columns(
                 self.TABLES[cur_idx]['view'].horizontalHeader(),
                 "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
@@ -1426,8 +1428,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _restore_details_view_columns(self, header, settings_key):
         header.blockSignals(True);
 
-         #header = self.TABLES[cur_idx]['view'].horizontalHeader()
-            #col_state = self._cfg.getSettings("{0}{1}_details".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx))
         col_state = self._cfg.getSettings(settings_key)
 
         if type(col_state) == QtCore.QByteArray:
@@ -1448,10 +1448,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             items = self.rulesTreePanel.selectedItems()
             if len(items) == 0:
                 self._set_rules_filter()
-                self._restore_details_view_columns(
-                    self.TABLES[self.TAB_RULES]['view'].horizontalHeader(),
-                    "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, self.TAB_RULES)
-                )
                 return
 
             item_m = self.rulesTreePanel.indexFromItem(items[0], 0)
@@ -1469,7 +1465,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         node = row.model().index(row.row(), node_idx).data()
         self.nodeRuleLabel.setText(node)
         self.tabWidget.setCurrentIndex(cur_idx)
-        self._set_rules_query(rule_name=r_name)
+
+        return r_name, node
 
     def _set_events_query(self):
         if self.tabWidget.currentIndex() != self.TAB_MAIN:
@@ -1602,6 +1599,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             what = what + " r.name LIKE '%{0}%'".format(filter_text)
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT * FROM rules as r %s %s" % (what, self._get_order()))
+        self._restore_details_view_columns(
+            self.TABLES[self.TAB_RULES]['view'].horizontalHeader(),
+            "{0}{1}".format(Config.STATS_VIEW_COL_STATE, self.TAB_RULES)
+        )
 
     def _set_rules_query(self, rule_name="", node=""):
         if node != "":
