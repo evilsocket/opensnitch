@@ -162,35 +162,38 @@ func (n *Nft) delRulesByKey(key string) {
 	}
 	commit := false
 	for _, c := range chains {
-		deletedRules := 0
 		rules, err := n.conn.GetRule(c.Table, c)
 		if err != nil {
-			log.Warning("nftables, error listing rules: %s", err)
+			log.Warning("nftables, error listing rules (%s): %s", c.Table.Name, err)
 			continue
 		}
 
+		commit = false
 		for _, r := range rules {
-			if string(r.UserData) == key {
-				// just passing the rule object doesn't work.
-				if err := n.conn.DelRule(&nftables.Rule{
-					Table:  c.Table,
-					Chain:  c,
-					Handle: r.Handle,
-				}); err != nil {
-					log.Warning("nftables, error deleting interception rule: %s", err)
-					continue
-				}
-				deletedRules++
-				commit = true
+			if string(r.UserData) != key {
+				continue
+			}
+			// just passing the rule object doesn't work.
+			if err := n.conn.DelRule(&nftables.Rule{
+				Table:  c.Table,
+				Chain:  c,
+				Handle: r.Handle,
+			}); err != nil {
+				log.Warning("nftables, error adding rule to be deleted (%s/%s): %s", c.Table.Name, c.Name, err)
+				continue
+			}
+			commit = true
+		}
+		if commit {
+			if err := n.conn.Flush(); err != nil {
+				log.Warning("nftables, error deleting interception rules (%s/%s): %s", c.Table.Name, c.Name, err)
 			}
 		}
-		if deletedRules == len(rules) {
-			n.conn.DelTable(c.Table)
-		}
-	}
-	if commit {
-		if err := n.conn.Flush(); err != nil {
-			log.Warning("nftables, error applying interception rules: %s", err)
+		if rules, err := n.conn.GetRule(c.Table, c); err == nil {
+			if commit && len(rules) == 0 {
+				n.conn.DelChain(c)
+				n.conn.Flush()
+			}
 		}
 	}
 
