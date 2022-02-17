@@ -152,7 +152,9 @@ func DnsListenerEbpf() error {
 		var event nameLookupEvent
 		for {
 			data := <-channel
-			log.Debug("EBPF-DNS: LookupEvent %d %x %x %x", len(data), data[:4], data[4:20], data[20:])
+			if len(data) > 0 {
+				log.Debug("EBPF-DNS: LookupEvent %d %x %x %x", len(data), data[:4], data[4:20], data[20:])
+			}
 			err := binary.Read(bytes.NewBuffer(data), binary.LittleEndian, &event)
 			if err != nil {
 				log.Warning("EBPF-DNS: Failed to decode ebpf nameLookupEvent: %s\n", err)
