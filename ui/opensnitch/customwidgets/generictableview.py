@@ -208,6 +208,9 @@ class GenericTableView(QTableView):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         #refresh the viewport data based on new geometry
+        self.refresh()
+
+    def refresh(self):
         self.calculateRowsInViewport()
         self.model().setRowCount(min(self.maxRowsInViewport, self.model().totalRowCount))
         self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=True)
@@ -234,15 +237,28 @@ class GenericTableView(QTableView):
 
         self.model().refreshViewport(scrollBar.value(), self.maxRowsInViewport)
 
+    def getCurrentIndex(self):
+        return self.selectionModel().currentIndex().internalId()
+
+    def selectItem(self, _data, _column):
+        """Select a row based on the data displayed on the given column.
+        """
+        items = self.model().findItems(_data, column=_column)
+        if len(items) > 0:
+            self.selectionModel().setCurrentIndex(
+                items[0].index(),
+                QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
+            )
+
     def _selectLastRow(self):
-        internalId = self.selectionModel().currentIndex().internalId()
+        internalId = self.getCurrentIndex()
         idx = self.model().createIndex(self.maxRowsInViewport-2, 0, internalId)
         self.selectionModel().setCurrentIndex(
             idx, QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
         )
 
     def _selectRow(self, pos):
-        internalId = self.selectionModel().currentIndex().internalId()
+        internalId = self.getCurrentIndex()
         self.selectionModel().setCurrentIndex(
             self.model().createIndex(pos, 1, internalId), QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
         )

@@ -92,15 +92,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     # if the user clicks on an item of a table, it'll enter into the detail
     # view. From there, deny further clicks on the items.
     IN_DETAIL_VIEW = {
-        0: False,
-        1: False,
-        2: False,
-        3: False,
-        4: False,
-        5: False,
-        6: False,
-        7: False
+        TAB_MAIN: False,
+        TAB_NODES: False,
+        TAB_RULES: False,
+        TAB_HOSTS: False,
+        TAB_PROCS: False,
+        TAB_ADDRS: False,
+        TAB_PORTS: False,
+        TAB_USERS: False
     }
+    # restore scrollbar position when going back from a detail view
+    LAST_SCROLL_VALUE = None
+    # try to restore last selection
+    LAST_SELECTED_ITEM = ""
 
     commonDelegateConf = {
             Config.ACTION_DENY:     RED,
@@ -1110,6 +1114,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.TABLES[cur_idx]['view'].horizontalHeader(),
                 "{0}{1}".format(Config.STATS_VIEW_COL_STATE, cur_idx)
             )
+            self._restore_scroll_value()
+            self._restore_last_selected_row()
 
     def _cb_main_table_double_clicked(self, row):
         data = row.data()
@@ -1119,6 +1125,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if idx == StatsDialog.COL_NODE:
             cur_idx = self.TAB_NODES
             self.IN_DETAIL_VIEW[cur_idx] = True
+            self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_NODE).data()
             self.tabWidget.setCurrentIndex(cur_idx)
             self._set_active_widgets(True, str(data))
             p, addr = self._nodes.get_addr(data)
@@ -1127,6 +1134,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif idx == StatsDialog.COL_PROCS:
             cur_idx = self.TAB_PROCS
             self.IN_DETAIL_VIEW[cur_idx] = True
+            self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_PROCS).data()
             self.tabWidget.setCurrentIndex(cur_idx)
             self._set_active_widgets(True, str(data))
             self._set_process_query(data)
@@ -1134,6 +1142,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif idx == StatsDialog.COL_RULES:
             cur_idx = self.TAB_RULES
             self.IN_DETAIL_VIEW[cur_idx] = True
+            self.LAST_SELECTED_ITEM = row.model().index(row.row(), COL_RULES).data()
             r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_RULES, self.COL_NODE)
             self._set_active_widgets(True, str(data))
             self._set_rules_query(r_name, node)
@@ -1151,6 +1160,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.IN_DETAIL_VIEW[cur_idx]:
             return
         self.IN_DETAIL_VIEW[cur_idx] = True
+        self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_TIME).data()
+        self.LAST_SCROLL_VALUE = self.TABLES[cur_idx]['view'].vScrollBar.value()
 
         data = row.data()
 
@@ -1158,6 +1169,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             rule_name = row.model().index(row.row(), self.COL_R_NAME).data()
             self._set_active_widgets(True, rule_name)
             r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_R_NAME, self.COL_R_NODE)
+            self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_R_NAME).data()
             self._set_rules_query(r_name, node)
             self._restore_details_view_columns(
                 self.TABLES[cur_idx]['view'].horizontalHeader(),
@@ -1166,7 +1178,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
         if cur_idx == self.TAB_NODES:
             data = row.model().index(row.row(), self.COL_NODE).data()
+            self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_NODE).data()
         if cur_idx > self.TAB_RULES:
+            self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_WHAT).data()
             data = row.model().index(row.row(), self.COL_WHAT).data()
 
 
@@ -1425,11 +1439,27 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # going to details state
             self._cfg.setSettings("{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx), header.saveState())
 
+    def _restore_last_selected_row(self):
+        cur_idx = self.tabWidget.currentIndex()
+        col = self.COL_TIME
+        if cur_idx == self.TAB_RULES:
+            col = self.TAB_RULES
+        elif cur_idx == self.TAB_NODES:
+            col = self.TAB_RULES
+
+        self.TABLES[cur_idx]['view'].selectItem(self.LAST_SELECTED_ITEM, col)
+        self.LAST_SELECTED_ITEM = ""
+
+    def _restore_scroll_value(self):
+        if self.LAST_SCROLL_VALUE != None:
+            cur_idx = self.tabWidget.currentIndex()
+            self.TABLES[cur_idx]['view'].vScrollBar.setValue(self.LAST_SCROLL_VALUE)
+            self.LAST_SCROLL_VALUE = None
+
     def _restore_details_view_columns(self, header, settings_key):
         header.blockSignals(True);
 
         col_state = self._cfg.getSettings(settings_key)
-
         if type(col_state) == QtCore.QByteArray:
             header.restoreState(col_state)
 
@@ -1779,25 +1809,28 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self._get_order("1") + self._get_limit()))
 
     def _set_users_query(self, data):
+        uid = data.split(" ")
+        if len(uid) == 2:
+            uid = uid[1].strip("()")
+        else:
+            uid = uid[0]
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "MAX(c.time) as {0}, " \
+                "c.uid, " \
                 "c.node as {1}, " \
                 "count(c.dst_ip) as {2}, " \
                 "c.action as {3}, " \
                 "c.protocol as {4}, " \
                 "c.dst_ip as {5}, " \
-                "CASE c.dst_host WHEN ''" \
-                "   THEN c.dst_ip " \
-                "   ELSE c.dst_host " \
-                "END {6}, " \
+                "c.dst_host as {6}, " \
                 "c.dst_port as {7}, " \
                 "c.process || ' (' || c.pid || ')' as {8}, " \
                 "c.process_args as {9}, " \
                 "c.process_cwd as CWD, " \
                 "c.rule as {10} " \
-            "FROM users as u, connections as c " \
-            "WHERE u.what = '{11}' OR u.what LIKE '%%(' || c.uid || ')' GROUP BY c.pid, {12}, c.process_args, c.src_ip, c.dst_ip, {13}, c.dst_port, c.protocol, c.action, c.node {14}".format(
+            "FROM connections as c " \
+            "WHERE c.uid = '{11}' GROUP BY c.pid, {12}, c.process_args, c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.protocol, c.action, c.node {13}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
@@ -1809,9 +1842,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_PROCESS,
                           self.COL_STR_PROC_ARGS,
                           self.COL_STR_RULE,
-                          data,
+                          uid,
                           self.COL_STR_PROCESS,
-                          self.COL_STR_DESTINATION,
                           self._get_order("1") + self._get_limit()))
 
     # get the query with filter by text when a tab is in the detail view.
