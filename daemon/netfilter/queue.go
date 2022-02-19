@@ -92,7 +92,7 @@ func (q *Queue) create(queueID uint16) (err error) {
 		return fmt.Errorf("Error binding to AF_INET protocol family: %v", err)
 	} else if ret, err := C.nfq_bind_pf(q.h, AF_INET6); err != nil || ret < 0 {
 		return fmt.Errorf("Error binding to AF_INET6 protocol family: %v", err)
-	} else if q.qh, err = C.CreateQueue(q.h, C.u_int16_t(queueID), C.u_int32_t(q.idx)); err != nil || q.qh == nil {
+	} else if q.qh, err = C.CreateQueue(q.h, C.uint16_t(queueID), C.uint32_t(q.idx)); err != nil || q.qh == nil {
 		q.destroy()
 		return fmt.Errorf("Error binding to queue: %v", err)
 	}
@@ -107,14 +107,14 @@ func (q *Queue) create(queueID uint16) (err error) {
 func (q *Queue) setup() (err error) {
 	var ret C.int
 
-	queueSize := C.u_int32_t(NF_DEFAULT_QUEUE_SIZE)
+	queueSize := C.uint32_t(NF_DEFAULT_QUEUE_SIZE)
 	bufferSize := C.uint(NF_DEFAULT_PACKET_SIZE)
 	totSize := C.uint(NF_DEFAULT_QUEUE_SIZE * NF_DEFAULT_PACKET_SIZE)
 
 	if ret, err = C.nfq_set_queue_maxlen(q.qh, queueSize); err != nil || ret < 0 {
 		q.destroy()
 		return fmt.Errorf("Unable to set max packets in queue: %v", err)
-	} else if C.nfq_set_mode(q.qh, C.u_int8_t(2), bufferSize) < 0 {
+	} else if C.nfq_set_mode(q.qh, C.uint8_t(2), bufferSize) < 0 {
 		q.destroy()
 		return fmt.Errorf("Unable to set packets copy mode: %v", err)
 	} else if q.fd, err = C.nfq_fd(q.h); err != nil {
