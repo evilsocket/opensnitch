@@ -15,16 +15,16 @@
 #include <libnetfilter_queue/libnetfilter_queue.h>
 
 typedef struct {
-    uint verdict;
-    uint mark;
-    uint mark_set;
-    uint length;
+    unsigned int verdict;
+    unsigned int mark;
+    unsigned int mark_set;
+    unsigned int length;
     unsigned char *data;
 } verdictContainer;
 
 static void *get_uid = NULL;
 
-extern void go_callback(int id, unsigned char* data, int len, uint mark, u_int32_t idx, verdictContainer *vc, uint32_t uid);
+extern void go_callback(int id, unsigned char* data, int len, unsigned int mark, uint32_t idx, verdictContainer *vc, uint32_t uid);
 
 static uint8_t stop = 0;
 
@@ -80,7 +80,7 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
     return nfq_set_verdict2(qh, id, vc.verdict, vc.mark, vc.length, vc.data);
 }
 
-static inline struct nfq_q_handle* CreateQueue(struct nfq_handle *h, u_int16_t queue, u_int32_t idx) {
+static inline struct nfq_q_handle* CreateQueue(struct nfq_handle *h, uint16_t queue, uint32_t idx) {
     struct nfq_q_handle* qh = nfq_create_queue(h, queue, &nf_callback, (void*)((uintptr_t)idx));
     if (qh == NULL){
         printf("ERROR: nfq_create_queue() queue not created\n");
