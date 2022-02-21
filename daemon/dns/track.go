@@ -59,7 +59,7 @@ func Track(resolved string, hostname string) {
 	lock.Lock()
 	defer lock.Unlock()
 
-	if resolved == "127.0.0.1" {
+	if resolved == "127.0.0.1" || resolved == "::1" {
 		return
 	}
 	responses[resolved] = hostname
