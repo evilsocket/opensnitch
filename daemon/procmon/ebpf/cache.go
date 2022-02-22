@@ -19,8 +19,8 @@ type ebpfCacheType struct {
 }
 
 var (
-	maxTTL          = 1 // Minutes
-	maxCacheItems   = 1000
+	maxTTL          = 20 // Seconds
+	maxCacheItems   = 5000
 	ebpfCache       *ebpfCacheType
 	ebpfCacheTicker *time.Ticker
 )
@@ -40,12 +40,12 @@ func (i *ebpfCacheItem) isValid() bool {
 	lastSeen := time.Now().Sub(
 		time.Unix(0, i.LastSeen),
 	)
-	return int(lastSeen.Minutes()) < maxTTL
+	return int(lastSeen.Seconds()) < maxTTL
 }
 
 // NewEbpfCache creates a new cache store.
 func NewEbpfCache() *ebpfCacheType {
-	ebpfCacheTicker = time.NewTicker(4 * time.Minute)
+	ebpfCacheTicker = time.NewTicker(1 * time.Minute)
 	return &ebpfCacheType{
 		Items: make(map[string]*ebpfCacheItem, 0),
 	}
@@ -97,11 +97,9 @@ func (e *ebpfCacheType) DeleteOldItems() {
 	e.Lock()
 	defer e.Unlock()
 
-	i := 0
 	for k, item := range e.Items {
-		if length > maxCacheItems || item.isValid() {
+		if length > maxCacheItems || !item.isValid() {
 			delete(e.Items, k)
-			i++
 		}
 	}
 }
