@@ -1142,7 +1142,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif idx == StatsDialog.COL_RULES:
             cur_idx = self.TAB_RULES
             self.IN_DETAIL_VIEW[cur_idx] = True
-            self.LAST_SELECTED_ITEM = row.model().index(row.row(), COL_RULES).data()
+            self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_RULES).data()
             r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_RULES, self.COL_NODE)
             self._set_active_widgets(True, str(data))
             self._set_rules_query(r_name, node)
