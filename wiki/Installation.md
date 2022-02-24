@@ -117,4 +117,4 @@ Remove the packages + rules + configuration:
 - `yum remove opensnitch opensnitch-ui` or `zypper remove opensnitch opensnitch-ui`
 
 If you installed pip packages:
-- `pip3 uninstall grpcio-tools unicode_slugify pyinotify`
+- `pip3 uninstall grpcio grpcio-tools unicode_slugify pyinotify PyQt5`
