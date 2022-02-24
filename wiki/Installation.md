@@ -117,4 +117,5 @@ Remove the packages + rules + configuration:
 - `yum remove opensnitch opensnitch-ui` or `zypper remove opensnitch opensnitch-ui`
 
 If you installed pip packages:
-- `pip3 uninstall grpcio grpcio-tools unicode_slugify pyinotify PyQt5`
+- `pip3 uninstall grpcio-tools unicode_slugify pyinotify`
+- `pip3 uninstall grpcio PyQt5 Unidecode`_(transient dependencies, can check with `pip show` to validate how original installation was done. If you find installation location is not `/usr/lib/` then these are not installed through apt)_
