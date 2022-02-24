@@ -118,3 +118,4 @@ Remove the packages + rules + configuration:
 
 If you installed pip packages:
 - `pip3 uninstall grpcio-tools unicode_slugify pyinotify`
+- `pip3 uninstall grpcio PyQt5 Unidecode`_(transient dependencies, can check with `pip show` to validate how original installation was done. If you find installation location is not `/usr/lib/` then these are not installed through apt)_
