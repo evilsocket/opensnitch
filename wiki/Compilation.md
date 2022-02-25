@@ -1,8 +1,8 @@
 ### Installation from sources
 
-(tested on Debian sid and Ubuntu 18 and 20. It may fail on other distributions.)
+(tested on Debian Sid and Ubuntu 18 and 20. It may fail on other distributions.)
 
-Make sure you have a correctly configured **Go >= 1.12** environment, that the `$GOPATH` environment variable is defined and then:
+Make sure you have a correctly configured **Go >= 1.15** environment, that the `$GOPATH` environment variable is defined and then:
 
 ```bash
 # install dependencies
