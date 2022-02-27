@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=OpenSnitch
-Exec=/bin/sh -c 'pkill -15 opensnitch-ui; opensnitch-ui'
+Exec=/bin/sh -c "pkill -15 opensnitch-ui; opensnitch-ui"
 Icon=opensnitch-ui
 GenericName=OpenSnitch Firewall
 GenericName[hu]=OpenSnitch-tűzfal
