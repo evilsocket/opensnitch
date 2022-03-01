@@ -1025,6 +1025,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             where_clause = self._get_filter_line_clause(cur_idx, text)
             qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + \
                 where_clause + self._get_order()
+            if text == "":
+                qstr = qstr + self._get_limit()
 
         if qstr != None:
             self.setQuery(model, qstr)
@@ -1389,6 +1391,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if text == "":
             return ""
 
+
         if idx == StatsDialog.TAB_RULES:
             return " WHERE rules.name LIKE '%{0}%' ".format(text)
         elif idx == StatsDialog.TAB_HOSTS or idx == StatsDialog.TAB_PROCS or \
@@ -1628,7 +1631,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 what = what + " AND"
             what = what + " r.name LIKE '%{0}%'".format(filter_text)
         model = self._get_active_table().model()
-        self.setQuery(model, "SELECT * FROM rules as r %s %s" % (what, self._get_order()))
+        self.setQuery(model, "SELECT * FROM rules as r %s %s %s" % (what, self._get_order(), self._get_limit()))
         self._restore_details_view_columns(
             self.TABLES[self.TAB_RULES]['view'].horizontalHeader(),
             "{0}{1}".format(Config.STATS_VIEW_COL_STATE, self.TAB_RULES)
@@ -1636,14 +1639,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _set_rules_query(self, rule_name="", node=""):
         if node != "":
-            node = "c.node = '%s' AND" % node
+            node = "c.node = '%s'" % node
         if rule_name != "":
-            rule_name = "r.name = '%s' AND" % rule_name
+            rule_name = "c.rule = '%s'" % rule_name
+
+        condition = "%s AND %s" % (rule_name, node) if rule_name != "" and node != "" else ""
 
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "MAX(c.time) as {0}, " \
-                "r.node as {1}, " \
+                "c.node as {1}, " \
                 "count(c.process) as {2}, " \
                 "c.uid as {3}, " \
                 "c.protocol as {4}, " \
@@ -1655,8 +1660,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process as {7}, " \
                 "c.process_args as {8}, " \
                 "c.process_cwd as CWD " \
-            "FROM rules as r, connections as c " \
-            "WHERE {9} {10} r.name = c.rule AND r.node = c.node GROUP BY c.process, c.process_args, c.uid, {11}, c.dst_port {12}".format(
+            "FROM connections as c " \
+            "WHERE {9} GROUP BY c.process, c.process_args, c.uid, {10}, c.dst_port {11}".format(
                 self.COL_STR_TIME,
                 self.COL_STR_NODE,
                 self.COL_STR_HITS,
@@ -1666,10 +1671,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.COL_STR_DESTINATION,
                 self.COL_STR_PROCESS,
                 self.COL_STR_PROC_ARGS,
-                node,
-                rule_name,
+                condition,
                 self.COL_STR_DESTINATION,
-                self._get_order()))
+                self._get_order() + self._get_limit()))
 
     def _set_hosts_query(self, data):
         model = self._get_active_table().model()
@@ -1846,18 +1850,23 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_PROCESS,
                           self._get_order("1") + self._get_limit()))
 
-    # get the query with filter by text when a tab is in the detail view.
+    # get the query filtering by text when a tab is in the detail view.
     def _get_indetail_filter_query(self, lastQuery, text):
-        cur_idx = self.tabWidget.currentIndex()
-        base_query = lastQuery.split("GROUP BY")
-        qstr = base_query[0]
-        if "AND" in qstr:
-            # strip out ANDs if any
-            os = qstr.split('AND')
-            qstr = os[0]
+        try:
+            cur_idx = self.tabWidget.currentIndex()
+            base_query = lastQuery.split("GROUP BY")
+            qstr = base_query[0]
+            where = qstr.split("WHERE")[1]  # get SELECT ... WHERE (*)
+            ands = where.split("AND (")[0] # get WHERE (*) AND (...)
+            qstr = qstr.split("WHERE")[0]  # get * WHERE ...
+            qstr += "WHERE %s" % ands
 
-        if text != "":
-            qstr += " AND (c.time LIKE '%{0}%' OR " \
+            # if there's no text to filter, strip the filter "AND ()", and
+            # return the original query.
+            if text == "":
+                return
+
+            qstr += "AND (c.time LIKE '%{0}%' OR " \
                 "c.action LIKE '%{0}%' OR " \
                 "c.pid LIKE '%{0}%' OR " \
                 "c.src_port LIKE '%{0}%' OR " \
@@ -1874,10 +1883,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 qstr += "c.process LIKE '%{0}%' OR ".format(text)
 
             qstr += "c.process_args LIKE '%{0}%')".format(text)
-        if len(base_query) > 1:
-            qstr += " GROUP BY" + base_query[1]
 
-        return qstr
+        finally:
+            if len(base_query) > 1:
+                qstr += " GROUP BY" + base_query[1]
+            return qstr
 
     @QtCore.pyqtSlot()
     def _on_settings_saved(self):
