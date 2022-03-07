@@ -5,12 +5,12 @@ cd opensnitch
 wget https://github.com/torvalds/linux/archive/v5.8.tar.gz
 tar -xf v5.8.tar.gz
 patch linux-5.8/tools/lib/bpf/bpf_helpers.h < ebpf_prog/file.patch
-cp ebpf_prog/opensnitch.c ebpf_prog/Makefile linux-5.8/samples/bpf
+cp ebpf_prog/opensnitch*.c ebpf_prog/Makefile linux-5.8/samples/bpf
 cd linux-5.8 && yes "" | make oldconfig && make prepare && make headers_install # (1 min)
 cd samples/bpf && make
 objdump -h opensnitch.o #you should see many section, number 1 should be called kprobe/tcp_v4_connect
 llvm-strip -g opensnitch.o #remove debug info
-sudo cp opensnitch.o /etc/opensnitchd/ 
+sudo cp opensnitch*.o /etc/opensnitchd/ 
 cd ../../../daemon
 
 --opensnitchd expects to find opensnitch.o in /etc/opensnitchd/
