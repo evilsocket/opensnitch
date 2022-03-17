@@ -1,3 +1,10 @@
+opensnitch-ui (1.5.1-1) unstable; urgency=medium
+
+  * Better UX experience.
+  * Fixed error when app args were empty.
+
+ -- Gustavo Iñiguez Goia <gooffy1@gmail.com>  Fri, 25 Feb 2022 01:23:43 +0100
+
 opensnitch-ui (1.5.0-1) unstable; urgency=medium
 
   * New release.

@@ -1,3 +1,11 @@
+opensnitch (1.5.1-1) unstable; urgency=medium
+
+  * Better eBPF cache.
+  * Fixed error resolving domains to localhost.
+  * Fixed error deleting our nftables rules.
+
+ -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  Fri, 25 Feb 2022 01:21:38 +0100
+
 opensnitch (1.5.0-1) unstable; urgency=medium
 
   * New release.
