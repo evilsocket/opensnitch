@@ -233,8 +233,8 @@
          <iconset theme="edit-clear-all">
           <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
         </property>
-        <property name="autoDefault">
-         <bool>false</bool>
+        <property name="flat">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -279,13 +279,7 @@
       <item row="0" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_10">
         <item>
-         <widget class="QToolButton" name="saveButton">
-          <property name="minimumSize">
-           <size>
-            <width>32</width>
-            <height>32</height>
-           </size>
-          </property>
+         <widget class="QPushButton" name="saveButton">
           <property name="toolTip">
            <string>Save to CSV.</string>
           </property>
@@ -299,27 +293,18 @@
           <property name="shortcut">
            <string>Ctrl+S</string>
           </property>
-          <property name="toolButtonStyle">
-           <enum>Qt::ToolButtonFollowStyle</enum>
-          </property>
-          <property name="autoRaise">
+          <property name="flat">
            <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="prefsButton">
+         <widget class="QPushButton" name="prefsButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>32</width>
-            <height>32</height>
-           </size>
           </property>
           <property name="text">
            <string/>
@@ -328,24 +313,18 @@
            <iconset theme="preferences-system">
             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
-          <property name="autoRaise">
+          <property name="flat">
            <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="newRuleButton">
+         <widget class="QPushButton" name="newRuleButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>32</horstretch>
             <verstretch>32</verstretch>
            </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>32</width>
-            <height>32</height>
-           </size>
           </property>
           <property name="toolTip">
            <string>Create a new rule</string>
@@ -357,7 +336,7 @@
            <iconset theme="document-new">
             <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
           </property>
-          <property name="autoRaise">
+          <property name="flat">
            <bool>true</bool>
           </property>
          </widget>
@@ -453,13 +432,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="startButton">
-          <property name="minimumSize">
-           <size>
-            <width>32</width>
-            <height>32</height>
-           </size>
-          </property>
+         <widget class="QPushButton" name="startButton">
           <property name="toolTip">
            <string>Start or Stop interception</string>
           </property>
@@ -476,7 +449,7 @@
           <property name="checked">
            <bool>false</bool>
           </property>
-          <property name="autoRaise">
+          <property name="flat">
            <bool>true</bool>
           </property>
          </widget>

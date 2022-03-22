@@ -9,7 +9,7 @@ from PyQt5.QtCore import QCoreApplication as QC
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
-from opensnitch.utils import Message, QuickHelp
+from opensnitch.utils import Message, QuickHelp, Themes
 from opensnitch.notifications import DesktopNotifications
 
 from opensnitch import ui_pb2
@@ -31,6 +31,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def __init__(self, parent=None, appicon=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
+
+        self._themes = Themes.instance()
+        self._saved_theme = ""
 
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
@@ -115,10 +118,28 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # True when any node option changes
         self._node_needs_update = False
 
+    def _load_themes(self):
+        theme_idx, self._saved_theme = self._themes.get_saved_theme()
+
+        self.labelThemeError.setVisible(False)
+        self.labelThemeError.setText("")
+        self.comboUITheme.clear()
+        self.comboUITheme.addItem(QC.translate("preferences", "System"))
+        if self._themes.available():
+            themes = self._themes.list_themes()
+            self.comboUITheme.addItems(themes)
+        else:
+            self._saved_theme = ""
+            self.labelThemeError.setStyleSheet('color: red')
+            self.labelThemeError.setVisible(True)
+            self.labelThemeError.setText(QC.translate("preferences", "Themes not available. Install qt-material: pip3 install qt-material"))
+
+        self.comboUITheme.setCurrentIndex(theme_idx)
+
     def _load_settings(self):
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
-        self._default_target = self._cfg.getSettings(self._cfg.DEFAULT_TARGET_KEY)
-        self._default_timeout = self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY)
+        self._default_target = self._cfg.getInt(self._cfg.DEFAULT_TARGET_KEY, 0)
+        self._default_timeout = self._cfg.getInt(self._cfg.DEFAULT_TIMEOUT_KEY, 15)
         self._disable_popups = self._cfg.getBool(self._cfg.DEFAULT_DISABLE_POPUPS)
 
         if self._cfg.hasKey(self._cfg.DEFAULT_DURATION_KEY):
@@ -140,8 +161,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         )
 
         self.comboUIAction.setCurrentIndex(self._default_action)
-        self.comboUITarget.setCurrentIndex(int(self._default_target))
-        self.spinUITimeout.setValue(int(self._default_timeout))
+        self.comboUITarget.setCurrentIndex(self._default_target)
+        self.spinUITimeout.setValue(self._default_timeout)
         self.spinUITimeout.setEnabled(not self._disable_popups)
         self.popupsCheck.setChecked(self._disable_popups)
 
@@ -171,6 +192,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.spinDBMaxDays.setValue(dbMaxDays)
         self.spinDBPurgeInterval.setValue(dbPurgeInterval)
 
+        self._load_themes()
         self._load_node_settings()
         self._load_ui_columns_config()
 
@@ -359,6 +381,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings(self._cfg.NOTIFICATIONS_ENABLED, bool(self.groupNotifs.isChecked()))
         self._cfg.setSettings(self._cfg.NOTIFICATIONS_TYPE,
                               int(Config.NOTIFICATION_TYPE_SYSTEM if self.radioSysNotifs.isChecked() else Config.NOTIFICATION_TYPE_QT))
+
+        self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText())
+        if self._themes.available() and self._saved_theme != self.comboUITheme.currentText():
+            Message.ok(
+                QC.translate("preferences", "UI theme changed"),
+                QC.translate("preferences", "Restart the GUI in order to apply the new theme"),
+                QtWidgets.QMessageBox.Warning)
 
         # this is a workaround for not display pop-ups.
         # see #79 for more information.
