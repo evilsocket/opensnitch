@@ -41,6 +41,7 @@ class Config:
     POPUP_TOP_LEFT = 3
     POPUP_BOTTOM_LEFT = 4
 
+    DEFAULT_THEME = "global/theme"
     DEFAULT_DISABLE_POPUPS = "global/disable_popups"
     DEFAULT_TIMEOUT_KEY  = "global/default_timeout"
     DEFAULT_ACTION_KEY   = "global/default_action"
@@ -64,7 +65,6 @@ class Config:
     NOTIFICATIONS_TYPE = "notifications/type"
     NOTIFICATION_TYPE_SYSTEM = 0
     NOTIFICATION_TYPE_QT = 1
-
 
     STATS_GEOMETRY = "statsDialog/geometry"
     STATS_LAST_TAB = "statsDialog/last_tab"

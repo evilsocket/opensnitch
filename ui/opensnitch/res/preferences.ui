@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>626</width>
-    <height>405</height>
+    <height>442</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -472,21 +472,7 @@
        <string>UI</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="0" column="1">
-        <widget class="QComboBox" name="comboUIRules">
-         <item>
-          <property name="text">
-           <string>any temporary rules</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>once</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="0" column="0">
+       <item row="2" column="0">
         <widget class="QCheckBox" name="checkUIRules">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected, the rules of the selected duration won't be added to the list of temporary rules in the GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -496,7 +482,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="3" column="0" colspan="2">
         <widget class="QGroupBox" name="groupNotifs">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -577,7 +563,16 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="0" column="1">
+        <widget class="QComboBox" name="comboUITheme">
+         <item>
+          <property name="text">
+           <string>System</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -702,6 +697,34 @@
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_21">
+         <property name="text">
+          <string>Theme</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="comboUIRules">
+         <item>
+          <property name="text">
+           <string>any temporary rules</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>once</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QLabel" name="labelThemeError">
+         <property name="text">
+          <string/>
+         </property>
         </widget>
        </item>
       </layout>

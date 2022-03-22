@@ -22,6 +22,7 @@ if dist_path not in sys.path:
 
 from opensnitch.service import UIService
 from opensnitch.config import Config
+from opensnitch.utils import Themes
 import opensnitch.version
 import opensnitch.ui_pb2
 from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
@@ -40,6 +41,15 @@ def supported_qt_version(major, medium, minor):
     q = QtCore.QT_VERSION_STR.split(".")
     return int(q[0]) >= major and int(q[1]) >= medium and int(q[2]) >= minor
 
+def load_translations():
+    locale = QtCore.QLocale.system()
+    i18n_path = os.path.dirname(os.path.realpath(opensnitch.__file__)) + "/i18n"
+    print("Loading translations:", i18n_path, "locale:", locale.name())
+    translator = QtCore.QTranslator()
+    translator.load(i18n_path + "/" + locale.name() + "/opensnitch-" + locale.name() + ".qm")
+
+    return translator
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.')
     parser.add_argument("--socket", dest="socket", default="unix:///tmp/osui.sock", help="Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).", metavar="FILE")
@@ -55,13 +65,11 @@ if __name__ == '__main__':
         except Exception:
             pass
 
-    locale = QtCore.QLocale.system()
-    i18n_path = os.path.dirname(os.path.realpath(opensnitch.__file__)) + "/i18n"
-    print("Loading translations:", i18n_path, "locale:", locale.name())
-    translator = QtCore.QTranslator()
-    translator.load(i18n_path + "/" + locale.name() + "/opensnitch-" + locale.name() + ".qm")
+    translator = load_translations()
     app = QtWidgets.QApplication(sys.argv)
     app.installTranslator(translator)
+    thm = Themes.instance()
+    thm.load_theme(app)
 
     service = UIService(app, on_exit)
     # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
