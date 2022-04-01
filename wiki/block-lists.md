@@ -10,6 +10,8 @@ It can be used to block ads, trackers, malware domains or limit to what domains 
 
 [Notes](#notes)
 
+[Troubleshooting](#troubleshooting)
+
 [Resources](#resources)
 
 **Important note:** This feature may not work if your system uses `systemd-resolved` to resolve domains. Compiling `opensnitch-dns.c` [eBPF module](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog) may help to workaround this problem. If blocklists don't work, change your nameserver in `/etc/resolv.conf` to 1.1.1.1, 9.9.9.9, etc... and see if it works.
@@ -30,6 +32,8 @@ $ mkdir /media/ads-list/
 $ wget https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt -O /media/ads-list/ads-and-tracking-extended.txt
 ```
 
+**Note:** be sure that the files have an extension (.dat, .txt, .list, etc...). Don't drop files without extension into the directory
+
 4. Visit any website, and filter by the name of the rule `000-block-domains` . You can use `block-test.developerdan.com` which is included in the above list.
 
 ![image](https://user-images.githubusercontent.com/2742953/115919049-981cff00-a478-11eb-9201-360463302399.png)
@@ -48,10 +52,13 @@ We'll create 2 rules:
 
 ![image](https://user-images.githubusercontent.com/2742953/121044328-c1d67f00-c7b5-11eb-84c6-14e3abfc94a6.png)
 
-Inside `/media/app/` write a file with a list of domains the app can connect to in hosts format:
+Inside `/media/app/` write a file (`allowlist.txt` for example) with a list of domains the app can connect to in hosts format:
+
 ```
 127.0.0.1 xxx.domain.com
 ```
+
+**Note:** be sure that the file has an extension (.dat, .txt, .list, etc...).
 
 Remember that you may need to add the domain without the subdomains (`domain.com`, `xxx.domain.com`, etc)
 
@@ -113,6 +120,27 @@ Nets:
      $ crontab -e
      0 11,17,23 * * * /home/ga/utils/opensnitch/update_adlists.sh
      ```
+
+### Troubleshooting
+
+When you define a blocklist/allowlist rule, the directory choosen is monitored for changes. If you delete, add or modify a file under that directory, the lists will be reloaded. You'd see these logs in `/var/log/opensnitchd.log`:
+
+```
+[2022-03-31 23:58:19]  INF  clearing domains lists: 2 - /etc/opensnitchd/allowlists/regexp
+[2022-03-31 23:58:19]  DBG  Loading regexp list: /etc/opensnitchd/allowlists/regexp/allow-re.txt, size: 72
+[2022-03-31 23:58:19]  INF  2 regexps loaded, /etc/opensnitchd/allowlists/regexp/allow-re.txt
+[2022-03-31 23:58:19]  INF  2 lists loaded, 2 domains, 0 duplicated
+```
+
+
+This feature may not work if your system uses `systemd-resolved` to resolve domains. Compiling `opensnitch-dns.c` [eBPF module](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog) may help to workaround this problem. 
+
+If blocklists still don't work:
+- stop systemd-resolved: `systemctl stop systemd-resolved`
+- change your nameserver in `/etc/resolv.conf` to 1.1.1.1, 9.9.9.9, etc... and see if it works. A simple telnet to an entry of the list should be blocked and logged accordingly.
+
+
+See this issue #646 for more information.
 
 ### Resources
 
