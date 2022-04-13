@@ -42,6 +42,10 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 		ruleList[idx] = r.Serialize()
 		idx++
 	}
+	sysfw, err := firewall.Serialize()
+	if err != nil {
+		log.Warning("firewall.Serialize() error: %s", err)
+	}
 	return &protocol.ClientConfig{
 		Id:                uint64(ts.UnixNano()),
 		Name:              nodeName,
@@ -50,6 +54,7 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 		Config:            strings.Replace(string(raw), "\n", "", -1),
 		LogLevel:          uint32(log.MinLevel),
 		Rules:             ruleList,
+		SystemFirewall:    sysfw,
 	}
 }
 
@@ -194,14 +199,37 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 	case notification.Type == protocol.Action_CHANGE_CONFIG:
 		c.handleActionChangeConfig(stream, notification)
 
-	case notification.Type == protocol.Action_LOAD_FIREWALL:
-		log.Info("[notification] starting firewall")
-		firewall.Init(c.GetFirewallType(), nil)
+	case notification.Type == protocol.Action_ENABLE_INTERCEPTION:
+		log.Info("[notification] starting interception")
+		if err := firewall.EnableInterception(); err != nil {
+			log.Warning("firewall.EnableInterception() error: %s", err)
+			c.sendNotificationReply(stream, notification.Id, "", err)
+			return
+		}
 		c.sendNotificationReply(stream, notification.Id, "", nil)
 
-	case notification.Type == protocol.Action_UNLOAD_FIREWALL:
-		log.Info("[notification] stopping firewall")
-		firewall.Stop()
+	case notification.Type == protocol.Action_DISABLE_INTERCEPTION:
+		log.Info("[notification] stopping interception")
+		if err := firewall.DisableInterception(); err != nil {
+			log.Warning("firewall.DisableInterception() error: %s", err)
+			c.sendNotificationReply(stream, notification.Id, "", err)
+			return
+		}
+		c.sendNotificationReply(stream, notification.Id, "", nil)
+
+	case notification.Type == protocol.Action_RELOAD_FW_RULES:
+		log.Info("[notification] reloading firewall")
+
+		sysfw, err := firewall.Deserialize(notification.SysFirewall)
+		if err != nil {
+			log.Warning("firewall.Deserialize() error: %s", err)
+			c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error reloading firewall, invalid rules"))
+			return
+		}
+		if err := firewall.SaveConfiguration(sysfw); err != nil {
+			c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error saving system firewall rules: %s", err))
+			return
+		}
 		c.sendNotificationReply(stream, notification.Id, "", nil)
 
 	// ENABLE_RULE just replaces the rule on disk

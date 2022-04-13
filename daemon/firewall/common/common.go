@@ -12,22 +12,24 @@ type (
 	callbackBool func() bool
 
 	stopChecker struct {
-		sync.RWMutex
 		ch chan bool
+		sync.RWMutex
 	}
 
 	// Common holds common fields and functionality of both firewalls,
 	// iptables and nftables.
 	Common struct {
-		sync.RWMutex
-		QueueNum        uint16
-		Running         bool
 		RulesChecker    *time.Ticker
 		stopCheckerChan *stopChecker
+		QueueNum        uint16
+		Running         bool
+		Intercepting    bool
+		FwEnabled       bool
+		sync.RWMutex
 	}
 )
 
-func (s *stopChecker) exit() chan bool {
+func (s *stopChecker) exit() <-chan bool {
 	s.RLock()
 	defer s.RUnlock()
 	return s.ch
@@ -64,13 +66,35 @@ func (c *Common) IsRunning() bool {
 	return c != nil && c.Running
 }
 
-// NewRulesChecker starts monitoring firewall for configuration or rules changes.
+// IsFirewallEnabled returns if the firewall is running or not.
+func (c *Common) IsFirewallEnabled() bool {
+	c.RLock()
+	defer c.RUnlock()
+
+	return c != nil && c.FwEnabled
+}
+
+// IsIntercepting returns if the firewall is running or not.
+func (c *Common) IsIntercepting() bool {
+	c.RLock()
+	defer c.RUnlock()
+
+	return c != nil && c.Intercepting
+}
+
+// NewRulesChecker starts monitoring interception rules.
+// We expect to have 2 rules loaded: one to intercept DNS responses and another one
+// to intercept network traffic.
 func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callback) {
 	c.Lock()
 	defer c.Unlock()
+	if c.stopCheckerChan != nil {
+		c.stopCheckerChan.stop()
+		c.stopCheckerChan = nil
+	}
 
 	c.stopCheckerChan = &stopChecker{ch: make(chan bool, 1)}
-	c.RulesChecker = time.NewTicker(time.Second * 30)
+	c.RulesChecker = time.NewTicker(time.Second * 15)
 
 	go c.startCheckingRules(areRulesLoaded, reloadRules)
 }
@@ -90,13 +114,22 @@ func (c *Common) startCheckingRules(areRulesLoaded callbackBool, reloadRules cal
 	}
 
 Exit:
-	log.Info("exit checking iptables rules")
+	log.Info("exit checking firewall rules")
 }
 
 // StopCheckingRules stops checking if firewall rules are loaded.
 func (c *Common) StopCheckingRules() {
+	c.RLock()
+	defer c.RUnlock()
+
 	if c.RulesChecker != nil {
 		c.RulesChecker.Stop()
 	}
-	c.stopCheckerChan.stop()
+	if c.stopCheckerChan != nil {
+		c.stopCheckerChan.stop()
+	}
+}
+
+func (c *Common) reloadCallback(callback func()) {
+	callback()
 }

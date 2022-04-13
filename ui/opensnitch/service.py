@@ -17,6 +17,7 @@ from opensnitch.dialogs.prompt import PromptDialog
 from opensnitch.dialogs.stats import StatsDialog
 
 from opensnitch.notifications import DesktopNotifications
+from opensnitch.firewall import Rules as FwRules
 from opensnitch.nodes import Nodes
 from opensnitch.config import Config
 from opensnitch.version import version
@@ -530,8 +531,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     @QtCore.pyqtSlot(dict)
     def _on_node_actions(self, kwargs):
         if kwargs['action'] == self.NODE_ADD:
-            n = self._nodes.add(kwargs['peer'], kwargs['node_config'])
+            n, addr = self._nodes.add(kwargs['peer'], kwargs['node_config'])
             if n != None:
+                self._nodes.add_fw_rules(
+                    addr,
+                    FwRules.to_dict(kwargs['node_config'].systemFirewall.SystemRules)
+                )
                 self._status_change_trigger.emit(True)
                 # if there're more than one node, we can't update the status
                 # based on the fw status, only if the daemon is running or not

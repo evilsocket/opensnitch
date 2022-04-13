@@ -1,40 +1,140 @@
 package nftables
 
 import (
+	"strings"
+
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
+	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
+	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/google/nftables"
+	"github.com/google/nftables/expr"
+	"github.com/google/uuid"
 )
+
+var (
+	logTag    = "nftables:"
+	sysTables map[string]*nftables.Table
+	sysChains map[string]*nftables.Chain
+	sysSets   []*nftables.Set
+)
+
+func initMapsStore() {
+	sysTables = make(map[string]*nftables.Table)
+	sysChains = make(map[string]*nftables.Chain)
+}
 
 // CreateSystemRule create the custom firewall chains and adds them to system.
 // nft insert rule ip opensnitch-filter opensnitch-input udp dport 1153
-func (n *Nft) CreateSystemRule(rule *config.FwRule, logErrors bool) {
-	// TODO
+func (n *Nft) CreateSystemRule(chain *config.FwChain, logErrors bool) bool {
+	if chain.IsInvalid() {
+		log.Warning("%s CreateSystemRule(), Chain's field Name and Family cannot be empty", logTag)
+		return false
+	}
+
+	tableName := chain.Table
+	if getTable(chain.Table, chain.Family) == nil {
+		n.AddTable(chain.Table, chain.Family)
+	}
+
+	// regular chains doesn't have a hook, nor a type
+	if chain.Hook == "" && chain.Type == "" {
+		n.addRegularChain(chain.Name, tableName, chain.Family)
+		return n.Commit()
+	}
+
+	chainPolicy := nftables.ChainPolicyAccept
+	if iptables.Action(strings.ToLower(chain.Policy)) == exprs.VERDICT_DROP {
+		chainPolicy = nftables.ChainPolicyDrop
+	}
+
+	chainHook := getHook(chain.Hook)
+	chainPrio, chainType := getChainPriority(chain.Family, chain.Type, chain.Hook)
+	if chainPrio == nil {
+		log.Warning("%s Invalid system firewall combination: %s, %s", logTag, chain.Type, chain.Hook)
+		return false
+	}
+
+	if ret := n.AddChain(chain.Name, chain.Table, chain.Family, *chainPrio,
+		chainType, *chainHook, chainPolicy); ret == nil {
+		log.Warning("%s error adding chain: %s, table: %s", logTag, chain.Name, chain.Table)
+		return false
+	}
+
+	return n.Commit()
+}
+
+// AddSystemRules creates the system firewall from configuration.
+func (n *Nft) AddSystemRules(reload bool) {
+	n.SysConfig.RLock()
+	defer n.SysConfig.RUnlock()
+
+	if n.SysConfig.Enabled == false {
+		log.Important("[nftables] AddSystemRules() fw disabled")
+		return
+	}
+
+	for _, fwCfg := range n.SysConfig.SystemRules {
+		for _, chain := range fwCfg.Chains {
+			if !n.CreateSystemRule(chain, true) {
+				continue
+			}
+			for _, r := range chain.Rules {
+				if r.UUID == "" {
+					uuid := uuid.New()
+					r.UUID = uuid.String()
+				}
+				if r.Enabled {
+					n.AddSystemRule(r, chain)
+				}
+			}
+		}
+	}
 }
 
 // DeleteSystemRules deletes the system rules.
 // If force is false and the rule has not been previously added,
-// it won't try to delete the rules. Otherwise it'll try to delete them.
+// it won't try to delete the tables and chains. Otherwise it'll try to delete them.
 func (n *Nft) DeleteSystemRules(force, logErrors bool) {
-	// TODO
+	n.Lock()
+	defer n.Unlock()
+
+	if err := n.delRulesByKey(systemRuleKey); err != nil {
+		log.Warning("error deleting interception rules: %s", err)
+	}
+
+	if force {
+		n.delSystemTables()
+	}
+
+	for k := range sysChains {
+		delete(sysChains, k)
+	}
+	for _, set := range sysSets {
+		n.conn.DelSet(set)
+	}
+	if len(sysSets) > 0 {
+		n.Commit()
+	}
+
 }
 
 // AddSystemRule inserts a new rule.
-func (n *Nft) AddSystemRule(rule *config.FwRule, enable bool) (error, error) {
-	// TODO
-	return nil, nil
-}
+func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) (err4, err6 error) {
+	n.Lock()
+	defer n.Unlock()
+	exprList := []expr.Any{}
 
-// AddSystemRules creates the system firewall from configuration
-func (n *Nft) AddSystemRules() {
-	n.DeleteSystemRules(true, false)
-
-	for _, r := range n.SysConfig.SystemRules {
-		n.CreateSystemRule(r.Rule, true)
-		n.AddSystemRule(r.Rule, true)
+	for _, expression := range rule.Expressions {
+		if exprsOfRule := n.parseExpression(chain.Table, chain.Name, chain.Family, expression); exprsOfRule != nil {
+			exprList = append(exprList, *exprsOfRule...)
+		}
 	}
-}
+	if len(exprList) > 0 {
+		exprVerdict := exprs.NewExprVerdict(rule.Target, rule.TargetParameters)
+		exprList = append(exprList, *exprVerdict...)
+		n.addRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList)
+	}
 
-// preloadConfCallback gets called before the fw configuration is reloaded
-func (n *Nft) preloadConfCallback() {
-	n.DeleteSystemRules(true, log.GetLogLevel() == log.DEBUG)
+	return nil, nil
 }

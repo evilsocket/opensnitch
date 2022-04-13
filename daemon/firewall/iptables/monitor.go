@@ -53,10 +53,16 @@ func (ipt *Iptables) AreRulesLoaded() bool {
 	return result
 }
 
+// reloadRulesCallback gets called when the interception rules are not present or after the configuration file changes.
 func (ipt *Iptables) reloadRulesCallback() {
 	log.Important("firewall rules changed, reloading")
-	ipt.QueueDNSResponses(false, false)
-	ipt.QueueConnections(false, false)
-	ipt.InsertRules()
-	ipt.AddSystemRules()
+	ipt.CleanRules(false)
+	ipt.AddSystemRules(true)
+	ipt.EnableInterception()
+}
+
+// preloadConfCallback gets called before the fw configuration is reloaded
+func (ipt *Iptables) preloadConfCallback() {
+	log.Info("iptables config changed, reloading")
+	ipt.DeleteSystemRules(true, log.GetLogLevel() == log.DEBUG)
 }

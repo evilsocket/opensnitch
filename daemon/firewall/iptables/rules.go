@@ -54,10 +54,10 @@ func (ipt *Iptables) QueueDNSResponses(enable bool, logError bool) (err4, err6 e
 }
 
 // QueueConnections inserts the firewall rule which redirects connections to us.
-// They are queued until the user denies/accept them, or reaches a timeout.
+// Connections are queued until the user denies/accept them, or reaches a timeout.
 // OUTPUT -t mangle -m conntrack --ctstate NEW,RELATED -j NFQUEUE --queue-num 0 --queue-bypass
 func (ipt *Iptables) QueueConnections(enable bool, logError bool) (error, error) {
-	err4, err6 := ipt.RunRule(INSERT, enable, logError, []string{
+	err4, err6 := ipt.RunRule(ADD, enable, logError, []string{
 		"OUTPUT",
 		"-t", "mangle",
 		"-m", "conntrack",

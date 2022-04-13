@@ -1,14 +1,231 @@
 {
-    "SystemRules": [
+  "Enabled": true,
+  "Version": 1,
+  "SystemRules": [
+    {
+      "Rule": {
+        "Table": "mangle",
+        "Chain": "OUTPUT",
+        "Enabled": false,
+        "Position": "0",
+        "Description": "Allow icmp",
+        "Parameters": "-p icmp",
+        "Expressions": [
+        ],
+        "Target": "ACCEPT",
+        "TargetParameters": ""
+      },
+      "Chains": [
+      ]
+    },
+    {
+      "Chains": [
         {
-            "Rule": {
-                "Description": "Allow icmp",
-                "Table": "mangle",
-                "Chain": "OUTPUT",
-                "Parameters": "-p icmp",
-                "Target": "ACCEPT",
-                "TargetParameters": ""
+          "Name": "forward",
+          "Table": "filter",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "filter",
+          "Hook": "forward",
+          "Policy": "accept",
+          "Rules": [
+          ]
+        },
+        {
+          "Name": "output",
+          "Table": "filter",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "filter",
+          "Hook": "output",
+          "Policy": "accept",
+          "Rules": [
+          ]
+        },
+        {
+          "Name": "input",
+          "Table": "filter",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "filter",
+          "Hook": "input",
+          "Policy": "accept",
+          "Rules": [
+            {
+              "Enabled": false,
+              "Position": "0",
+              "Description": "Allow network traffic when input policy is DROP",
+              "Parameters": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "iifname",
+                    "Values": [
+                      {
+                        "Key": "lo",
+                        "Value": ""
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            },
+            {
+              "Enabled": true,
+              "Position": "0",
+              "Description": "Allow network traffic when input policy is DROP",
+              "Parameters": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "ct",
+                    "Values": [
+                      {
+                        "Key": "state",
+                        "Value": "related"
+                      },
+                      {
+                        "Key": "state",
+                        "Value": "established"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
             }
+          ]
+        },
+        {
+          "Name": "filter-prerouting",
+          "Table": "nat",
+          "Family": "ip",
+          "Priority": "",
+          "Type": "filter",
+          "Hook": "prerouting",
+          "Policy": "accept",
+          "Rules": [
+          ]
+        },
+        {
+          "Name": "prerouting",
+          "Table": "mangle",
+          "Family": "ip",
+          "Priority": "",
+          "Type": "mangle",
+          "Hook": "prerouting",
+          "Policy": "accept",
+          "Rules": [
+          ]
+        },
+        {
+          "Name": "postrouting",
+          "Table": "mangle",
+          "Family": "ip",
+          "Priority": "",
+          "Type": "mangle",
+          "Hook": "postrouting",
+          "Policy": "accept",
+          "Rules": [
+          ]
+        },
+        {
+          "Name": "prerouting",
+          "Table": "nat",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "natdest",
+          "Hook": "prerouting",
+          "Policy": "accept",
+          "Rules": [
+          ]
+        },
+        {
+          "Name": "postrouting",
+          "Table": "nat",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "natsource",
+          "Hook": "postrouting",
+          "Policy": "accept",
+          "Rules": [
+          ]
+        },
+        {
+          "Name": "input",
+          "Table": "nat",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "natsource",
+          "Hook": "input",
+          "Policy": "accept",
+          "Rules": [
+          ]
+        },
+        {
+          "Name": "output",
+          "Table": "nat",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "natdest",
+          "Hook": "output",
+          "Policy": "accept",
+          "Rules": [
+          ]
+        },
+        {
+          "Name": "output",
+          "Table": "mangle",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "mangle",
+          "Hook": "output",
+          "Policy": "accept",
+          "Rules": [
+            {
+              "Enabled": true,
+              "Position": "0",
+              "Description": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "icmp",
+                    "Values": [
+                      {
+                        "Key": "type",
+                        "Value": "echo-request"
+                      },
+                      {
+                        "Key": "type",
+                        "Value": "echo-reply"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            }
+          ]
+        },
+        {
+          "Name": "forward",
+          "Table": "mangle",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "mangle",
+          "Hook": "forward",
+          "Policy": "accept",
+          "Rules": [
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }
