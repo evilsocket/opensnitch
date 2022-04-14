@@ -12,21 +12,24 @@
 
 **GUI**
 
-[GUI crash/exception/does not show up](#GUI-crash-exception-or-does-not-show-up):
+[GUI crash/exception or does not show up](#gui-crash-exception-or-does-not-show-up):
+
 * NameError: name 'unicode' is not defined
 * ModuleNotFoundError: No module named 'grpc'
 * TypeError: __new__() got an unexpected keyword argument ...
 * Others...
 
-[GUI not working across reboots](#GUI-not-working-across-reboots)
+[GUI crash/exception/does not show up on old distros (Ubuntu 16.04, etc)](#gui-crash-exception-does-not-show-up-on-old-distros):
 
-[The GUI doesn't change to dark style theme](#The-GUI-does-not-change-to-dark-style-theme)
+[GUI not working across reboots](#gui-not-working-across-reboots)
 
-[no icons on the GUI](#no-icons-on-the-GUI)
+[The GUI doesn't change to dark style theme](#the-gui-does-not-change-to-dark-style-theme)
 
-[GUI size problems on 4k monitors](#GUI-size-problems-on-4k-monitors)
+[no icons on the GUI](#no-icons-on-the-gui)
 
-[OpenSnitch icon doesn't show up on Gnome-Shell](#OpenSnitch-icon-does-not-show-up-on-gnome-shell)
+[GUI size problems on 4k monitors](#gui-size-problems-on-4k-monitors)
+
+[OpenSnitch icon doesn't show up on Gnome-Shell](#opensnitch-icon-does-not-show-up-on-gnome-shell)
 
 **daemon**
 
@@ -170,7 +173,7 @@ If grpcio fails to compile, you can try specifying a version: `pip3 install grpc
 
 **TypeError: __new__() got an unexpected keyword argument ...**
 
-This error means that your `python3-protobuf` is not compatible with OpenSnitch. Try uninstalling or upgragind it. If the GUI keeps failing with the same error, install protobuf using pip3: `pip3 install protobuf`
+This error means that your `python3-protobuf` is not compatible with OpenSnitch. Try uninstalling or upgragind it. If the GUI keeps failing with the same error, install protobuf using pip3: `pip3 install protobuf==3.6`
 
 ***
 
@@ -194,6 +197,20 @@ For ArchLinux/Manjaro users this worked:
 > installed was from AUR python-unicode-slugify-git r43.b696c37-1
 
 > removed it and installed python-unicode-slugify 0.1.3-1.
+
+
+***
+
+### GUI crash/exception/does not show up on old distros
+
+Install needed packages from pip:
+```
+$ pip3 install grpcio==1.16.1
+$ pip3 install unicode_slugify
+$ pip3 install protobuf=3.6
+```
+
+You may need to uninstall setuptools if it keeps failing: `$ pip3 uninstall setuptools`
 
 
 ***
@@ -228,6 +245,7 @@ EOF
 
 More info: [#303](https://github.com/evilsocket/opensnitch/issues/303)
 
+Since version v1.5.1, you can change GUI theme from the Preferences -> UI -> Theme . You'll need to install qt-material: `pip3 install qt-material`
 
 ***
 
