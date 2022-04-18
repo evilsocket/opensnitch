@@ -387,10 +387,8 @@
           </property>
           <property name="font">
            <font>
-            <family>Ubuntu</family>
             <pointsize>11</pointsize>
             <weight>75</weight>
-            <italic>false</italic>
             <bold>true</bold>
             <kerning>true</kerning>
            </font>
@@ -1354,10 +1352,8 @@
          </property>
          <property name="font">
           <font>
-           <family>DejaVu Sans</family>
-           <pointsize>8</pointsize>
+           <pointsize>10</pointsize>
            <weight>75</weight>
-           <italic>false</italic>
            <bold>true</bold>
            <kerning>true</kerning>
           </font>
@@ -1383,7 +1379,6 @@
          </property>
          <property name="font">
           <font>
-           <family>DejaVu Sans</family>
            <pointsize>8</pointsize>
            <kerning>true</kerning>
           </font>
@@ -1409,10 +1404,8 @@
          </property>
          <property name="font">
           <font>
-           <family>DejaVu Sans</family>
-           <pointsize>8</pointsize>
+           <pointsize>10</pointsize>
            <weight>75</weight>
-           <italic>false</italic>
            <bold>true</bold>
            <kerning>true</kerning>
           </font>
@@ -1438,7 +1431,6 @@
          </property>
          <property name="font">
           <font>
-           <family>DejaVu Sans</family>
            <pointsize>8</pointsize>
            <kerning>true</kerning>
           </font>
@@ -1464,10 +1456,8 @@
          </property>
          <property name="font">
           <font>
-           <family>DejaVu Sans</family>
-           <pointsize>8</pointsize>
+           <pointsize>10</pointsize>
            <weight>75</weight>
-           <italic>false</italic>
            <bold>true</bold>
            <kerning>true</kerning>
           </font>
@@ -1493,7 +1483,6 @@
          </property>
          <property name="font">
           <font>
-           <family>DejaVu Sans</family>
            <pointsize>8</pointsize>
            <kerning>true</kerning>
           </font>
@@ -1519,10 +1508,8 @@
          </property>
          <property name="font">
           <font>
-           <family>DejaVu Sans</family>
-           <pointsize>8</pointsize>
+           <pointsize>10</pointsize>
            <weight>75</weight>
-           <italic>false</italic>
            <bold>true</bold>
            <kerning>true</kerning>
           </font>
@@ -1548,7 +1535,6 @@
          </property>
          <property name="font">
           <font>
-           <family>DejaVu Sans</family>
            <pointsize>8</pointsize>
            <kerning>true</kerning>
           </font>
@@ -1589,10 +1575,8 @@
        </property>
        <property name="font">
         <font>
-         <family>DejaVu Sans</family>
-         <pointsize>8</pointsize>
+         <pointsize>10</pointsize>
          <weight>75</weight>
-         <italic>false</italic>
          <bold>true</bold>
          <kerning>true</kerning>
         </font>

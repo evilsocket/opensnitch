@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>520</width>
-    <height>308</height>
+    <height>302</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -287,10 +287,8 @@
        </property>
        <property name="font">
         <font>
-         <family>Ubuntu</family>
          <pointsize>10</pointsize>
          <weight>75</weight>
-         <italic>false</italic>
          <bold>true</bold>
          <kerning>true</kerning>
         </font>
@@ -414,10 +412,8 @@
        </property>
        <property name="font">
         <font>
-         <family>Ubuntu</family>
          <pointsize>10</pointsize>
          <weight>75</weight>
-         <italic>false</italic>
          <bold>true</bold>
          <kerning>true</kerning>
         </font>
@@ -437,10 +433,8 @@
        </property>
        <property name="font">
         <font>
-         <family>Ubuntu</family>
          <pointsize>10</pointsize>
          <weight>75</weight>
-         <italic>false</italic>
          <bold>true</bold>
          <kerning>true</kerning>
         </font>
@@ -570,10 +564,8 @@
        </property>
        <property name="font">
         <font>
-         <family>Ubuntu</family>
          <pointsize>10</pointsize>
          <weight>75</weight>
-         <italic>false</italic>
          <bold>true</bold>
          <kerning>true</kerning>
         </font>
@@ -593,10 +585,8 @@
        </property>
        <property name="font">
         <font>
-         <family>Ubuntu</family>
          <pointsize>10</pointsize>
          <weight>75</weight>
-         <italic>false</italic>
          <bold>true</bold>
          <kerning>true</kerning>
         </font>
