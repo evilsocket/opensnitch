@@ -1,9 +1,8 @@
 import sys
-import time
 import os
 import os.path
 
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt5 import QtCore, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
 
 from opensnitch.nodes import Nodes
@@ -43,6 +42,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._notifications_sent = {}
 
         self.uuid = ""
+        self.simple_port_idx = None
 
         self._nodes.nodesUpdated.connect(self._cb_nodes_updated)
         self.cmdClose.clicked.connect(self._cb_close_clicked)
@@ -53,8 +53,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.net_srv = NetworkServices()
         self.comboPorts.addItems(self.net_srv.to_array())
-        #self.comboPorts.currentIndexChanged.connect(self._cb_combo_ports_index_changed)
-
+        self.comboPorts.currentIndexChanged.connect(self._cb_combo_ports_index_changed)
 
     def showEvent(self, event):
         super(FwRuleDialog, self).showEvent(event)
@@ -71,7 +70,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if 'operation' in rep and rep['operation'] == self.OP_DELETE:
                     self.tabWidget.setDisabled(True)
                     self._set_status_successful(QC.translate("firewall", "Rule deleted"))
-                    self._disable_buttons()
+                    self._disable_controls()
                     return
 
                 self._set_status_successful(QC.translate("firewall", "Rule added"))
@@ -87,6 +86,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def closeEvent(self, e):
         self._close()
+
+    def _cb_combo_ports_index_changed(self, idx):
+        self.simple_port_idx = idx
 
     def _cb_help_button_clicked(self):
         QuickHelp.show(
@@ -112,7 +114,6 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_status_error(QC.translate("firewall", "Error updating rule"))
             return
 
-        self._enable_buttons(False)
         self.send_notification(node_addr, node['firewall'], self.OP_DELETE)
 
     def _cb_save_clicked(self):
@@ -122,8 +123,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
-        if self._fw.update_rule(node_addr, self.uuid, chain) == False:
-            self._set_status_error(QC.translate("firewall", "Error updating rule"))
+        ok, err = self._fw.update_rule(node_addr, self.uuid, chain)
+        if not ok:
+            self._set_status_error(QC.translate("firewall", "Error updating rule: {0}".format(err)))
             return
 
         self._enable_buttons(False)
@@ -134,8 +136,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if node_addr == None:
             self._set_status_error(QC.translate("firewall", "Invalid rule, review parameters"))
             return
-        if self._fw.insert_rule(node_addr, chain) == False:
-            self._set_status_error(QC.translate("firewall", "Error adding new rule"))
+        ok, err = self._fw.insert_rule(node_addr, chain)
+        if not ok:
+            self._set_status_error(QC.translate("firewall", "Error adding rule: {0}".format(err)))
             return
         self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
         self._enable_buttons(False)
@@ -185,7 +188,8 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # TODO: implement complex rules
         if rule == None or \
                 (rule.Hook.lower() != Fw.Hooks.INPUT.value and rule.Hook.lower() != Fw.Hooks.OUTPUT.value):
-            self._set_status_error(QC.translate("firewall", "Rule type ({0}) not supported yet".format(rule.Hook)))
+            hook = "invalid" if rule == None else rule.Hook
+            self._set_status_error(QC.translate("firewall", "Rule type ({0}) not supported yet".format(hook)))
             self._disable_controls()
             return
         if len(rule.Rules[0].Expressions) > 1:
@@ -284,10 +288,13 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             try:
                 if "," in self.comboPorts.currentText() or "-" in self.comboPorts.currentText():
                     raise ValueError("port entered is multiport or a port range")
+                if self.simple_port_idx == None:
+                    raise ValueError("user didn't select a port from the list")
+
                 portValue = self.net_srv.port_by_index(
                     self.comboPorts.currentIndex()
                 )
-            except Exception as e:
+            except:
                 portValue = self.comboPorts.currentText()
 
             if portValue == "" or portValue == "0":
@@ -364,9 +371,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdDelete.setEnabled(enable)
 
     def _disable_buttons(self, disabled=True):
-        self.cmdSave.setEnabled(disabled)
-        self.cmdAdd.setEnabled(disabled)
-        self.cmdDelete.setEnabled(disabled)
+        self.cmdSave.setDisabled(disabled)
+        self.cmdAdd.setDisabled(disabled)
+        self.cmdDelete.setDisabled(disabled)
 
     def _disable_controls(self):
         self._disable_buttons()

@@ -1,8 +1,6 @@
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject
 
 from opensnitch.nodes import Nodes
-from opensnitch.config import Config
-from opensnitch import ui_pb2
 from .enums import *
 from .rules import *
 from .chains import *
@@ -77,7 +75,6 @@ class Firewall(QObject):
     def swap_rules(self, view, addr, uuid, old_pos, new_pos):
         return self.rules.swap(view, addr, uuid, old_pos, new_pos)
 
-
     def filter_by_table(self, addr, table, family):
         """get rules by table
         """
@@ -116,4 +113,3 @@ class Firewall(QObject):
 
     def get_rules(self):
         return self.rules.get()
-

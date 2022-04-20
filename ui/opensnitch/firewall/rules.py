@@ -1,4 +1,5 @@
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QCoreApplication as QC
 import uuid
 from opensnitch import ui_pb2
 
@@ -18,7 +19,10 @@ class Rules(QObject):
         """
         node = self._nodes.get_node(addr)
         if not 'firewall' in node:
-            return False
+            return False, QC.translate("firewall", "rule not found by its ID.")
+        if self.is_duplicated(addr, rule):
+            return False, QC.translate("firewall", "duplicated.")
+
         for sidx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
                 if c.Name == rule.Name and c.Hook == rule.Hook and \
@@ -31,14 +35,17 @@ class Rules(QObject):
                     self.rulesUpdated.emit()
                     return True
 
-        return False
+        return False, QC.translate("firewall", "firewall table/chain not properly configured.")
 
     def insert(self, addr, rule, position=0):
         """Insert a new rule to the corresponding table on the given node
         """
         node = self._nodes.get_node(addr)
         if not 'firewall' in node:
-            return False
+            return False, QC.translate("firewall", "this node doesn't have a firewall configuration, review it.")
+        if self.is_duplicated(addr, rule):
+            return False, QC.translate("firewall", "duplicated")
+
         for sidx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
                 if c.Name == rule.Name and c.Hook == rule.Hook and \
@@ -50,16 +57,15 @@ class Rules(QObject):
                     self._nodes.add_fw_rules(addr, node['fwrules'])
 
                     self.rulesUpdated.emit()
-                    return True
+                    return True, ""
 
-        return False
-
+        return False, QC.translate("firewall", "firewall table/chain not properly configured.")
 
 
     def update(self, addr, uuid, rule):
         node = self._nodes.get_node(addr)
         if not 'firewall' in node:
-            return False
+            return False, QC.translate("firewall", "this node doesn't have a firewall configuration, review it.")
         for sidx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
                 for idx, r in enumerate(c.Rules):
@@ -71,9 +77,9 @@ class Rules(QObject):
                         self._nodes.add_fw_rules(addr, node['fwrules'])
 
                         self.rulesUpdated.emit()
-                        return True
+                        return True, ""
 
-        return False
+        return False, QC.translate("firewall", "rule not found by its ID.")
 
     def get(self):
         rules = []
@@ -154,6 +160,35 @@ class Rules(QObject):
                         return True
         return False
 
+    def is_duplicated(self, addr, orig_rule):
+        # we need to duplicate the rule, otherwise we'd modify the UUID of the
+        # orig rule.
+        rule = ui_pb2.FwChain()
+        rule.CopyFrom(orig_rule)
+        # the UUID will be different, so zero it out.
+        rule.Rules[0].UUID = ""
+        node = self._nodes.get_node(addr)
+        if node == None:
+            return False
+        if not 'firewall' in node:
+            return False
+        for n in node['firewall'].SystemRules:
+            for c in n.Chains:
+                if c.Name == rule.Name and \
+                        c.Hook == rule.Hook and \
+                        c.Table == rule.Table and \
+                        c.Family == rule.Family and \
+                        c.Type == rule.Type:
+                    for rdx, r in enumerate(c.Rules):
+                        uuid = c.Rules[rdx].UUID
+                        c.Rules[rdx].UUID = ""
+                        is_equal = c.Rules[rdx].SerializeToString() == rule.Rules[0].SerializeToString()
+                        c.Rules[rdx].UUID = uuid
+
+                        if is_equal:
+                            return True
+        return False
+
     @staticmethod
     def new(
             enabled=True,
@@ -202,8 +237,8 @@ class Rules(QObject):
         This is the default format used to find rules in the table view.
         """
         rules={}
-        for c in sysRules:
-            for c in c.Chains:
+        for s in sysRules:
+            for c in s.Chains:
                 if len(c.Rules) == 0:
                     continue
                 for r in c.Rules:
@@ -233,5 +268,3 @@ class Rules(QObject):
         cols.append(rule.Target)
 
         return cols
-
-
