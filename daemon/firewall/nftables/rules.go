@@ -129,6 +129,30 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 	return nil, nil
 }
 
+func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
+	tbl := getTable(table, family)
+	if tbl == nil {
+		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
+	}
+
+	chainKey := getChainKey(chain, tbl)
+	chn := sysChains[chainKey]
+
+	rule := &nftables.Rule{
+		Position: position,
+		Table:    tbl,
+		Chain:    chn,
+		Exprs:    *exprs,
+		UserData: []byte(systemRuleKey),
+	}
+	n.conn.InsertRule(rule)
+	if !n.Commit() {
+		return fmt.Errorf("%s Error adding rule", logTag)
+	}
+
+	return nil
+}
+
 func (n *Nft) addRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
 	tbl := getTable(table, family)
 	if tbl == nil {
@@ -188,10 +212,10 @@ func (n *Nft) delRulesByKey(key string) error {
 			if !n.Commit() {
 				log.Warning("%s error deleting rules: %s", logTag, err)
 			}
-		}
-		if len(rules) == delRules {
-			// if there're no more rules in the tables, delete them
-			n.delChain(c)
+			if len(rules) == delRules {
+				// if there're no more rules in the tables, delete them
+				n.delChain(c)
+			}
 		}
 	}
 

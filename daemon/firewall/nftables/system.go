@@ -79,13 +79,13 @@ func (n *Nft) AddSystemRules(reload bool) {
 			if !n.CreateSystemRule(chain, true) {
 				continue
 			}
-			for _, r := range chain.Rules {
-				if r.UUID == "" {
+			for i := len(chain.Rules) - 1; i >= 0; i-- {
+				if chain.Rules[i].UUID == "" {
 					uuid := uuid.New()
-					r.UUID = uuid.String()
+					chain.Rules[i].UUID = uuid.String()
 				}
-				if r.Enabled {
-					n.AddSystemRule(r, chain)
+				if chain.Rules[i].Enabled {
+					n.AddSystemRule(chain.Rules[i], chain)
 				}
 			}
 		}
@@ -110,13 +110,6 @@ func (n *Nft) DeleteSystemRules(force, logErrors bool) {
 	for k := range sysChains {
 		delete(sysChains, k)
 	}
-	for _, set := range sysSets {
-		n.conn.DelSet(set)
-	}
-	if len(sysSets) > 0 {
-		n.Commit()
-	}
-
 }
 
 // AddSystemRule inserts a new rule.
@@ -133,7 +126,9 @@ func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) (err4, e
 	if len(exprList) > 0 {
 		exprVerdict := exprs.NewExprVerdict(rule.Target, rule.TargetParameters)
 		exprList = append(exprList, *exprVerdict...)
-		n.addRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList)
+		if err := n.insertRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList); err != nil {
+			log.Warning("error adding rule: %v", rule)
+		}
 	}
 
 	return nil, nil
