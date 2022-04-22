@@ -12,6 +12,7 @@ from opensnitch.nodes import Nodes
 from opensnitch.dialogs.firewall_rule import FwRuleDialog
 from opensnitch import ui_pb2
 import opensnitch.firewall as Fw
+import opensnitch.firewall.profiles as FwProfiles
 
 
 DIALOG_UI_PATH = "%s/../res/firewall.ui" % os.path.dirname(sys.modules[__name__].__file__)
@@ -29,6 +30,11 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setWindowIcon(appicon)
         self.appicon = appicon
 
+        # TODO: profiles are ready to be used. They need to be tested, and
+        # create some default profiles (home, office, public, ...)
+        self.comboProfile.setVisible(False)
+        self.lblProfile.setVisible(False)
+
         self.secHighIcon = QtGui.QIcon.fromTheme("security-high")
         self.secMediumIcon = QtGui.QIcon.fromTheme("security-medium")
         self.secLowIcon = QtGui.QIcon.fromTheme("security-low")
@@ -38,6 +44,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg = Config.get()
         self._fw = Fw.Firewall.instance()
         self._nodes = Nodes.instance()
+        self._fw_profiles = {}
 
         self._notification_callback.connect(self._cb_notification_callback)
         self._notifications_sent = {}
@@ -47,6 +54,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdExcludeService.clicked.connect(self._cb_exclude_service_clicked)
         self.comboInput.currentIndexChanged.connect(lambda: self._cb_combo_policy_changed(self.COMBO_IN))
         self.comboOutput.currentIndexChanged.connect(lambda: self._cb_combo_policy_changed(self.COMBO_OUT))
+        self.comboProfile.currentIndexChanged.connect(self._cb_combo_profile_changed)
         self.sliderFwEnable.valueChanged.connect(self._cb_enable_fw_changed)
         self.cmdClose.clicked.connect(self._cb_close_clicked)
 
@@ -69,31 +77,37 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_nodes_updated(self, total):
         self._check_fw_status()
 
-    # TODO: load json from a file (a set of rules for example) and deserialize
-    # it to protobuf: Parse(json.dumps(jobject), FwRule()), requires protobuf
-    # >= 3.15
-    # we wouldn't need to parse it manually.
-    def _cb_combo_policy_changed(self, combo):
-        pol_idx = 0
-        wantedHook = Fw.Hooks.INPUT.value
-        if combo == self.COMBO_OUT:
-            wantedHook = Fw.Hooks.OUTPUT.value
-            pol_idx = self.comboOutput.currentIndex()
-        else:
-            pol_idx = self.comboInput.currentIndex()
-
-        wantedPolicy = Fw.Policy.DROP.value
-        if pol_idx == 0:
-            wantedPolicy = Fw.Policy.ACCEPT.value
+    def _cb_combo_profile_changed(self, idx):
+        combo_profile = self._fw_profiles[idx]
+        json_profile = json.dumps(list(combo_profile.values())[0]['Profile'])
 
         for addr in self._nodes.get():
-            pol_changed = False
             fwcfg = self._nodes.get_node(addr)['firewall']
-            if self._fw.chains.set_policy(addr, hook=wantedHook, policy=wantedPolicy):
+            ok, err = self._fw.apply_profile(addr, json_profile)
+            if ok:
                 self.send_notification(addr, fwcfg)
             else:
-                print(self.LOG_TAG, "error applying policy:", combo, "index:", idx, "does the chain exist? table filter -> chain input filter")
-                self._set_status_message(QC.translate("firewall", "Policy not applied, check the firewall rules."))
+                self._set_status_error(QC.translate("firewall", "error adding profile extra rules:", err))
+
+    def _cb_combo_policy_changed(self, combo):
+        wantedProfile = FwProfiles.ProfileAcceptInput.value
+        if combo == self.COMBO_OUT:
+            wantedProfile = FwProfiles.ProfileAcceptOutput.value
+            if self.comboOutput.currentIndex() == 1:
+                wantedProfile = FwProfiles.ProfileDropOutput.value
+        else:
+            if self.comboInput.currentIndex() == 1:
+                wantedProfile = FwProfiles.ProfileDropInput.value
+
+        for addr in self._nodes.get():
+            fwcfg = self._nodes.get_node(addr)['firewall']
+
+            json_profile = json.dumps(wantedProfile)
+            ok, err = self._fw.apply_profile(addr, json_profile)
+            if ok:
+                self.send_notification(addr, fwcfg)
+            else:
+                self._set_status_error(QC.translate("firewall", "Policy not applied: {0}".format(err)))
 
     def _cb_new_rule_clicked(self):
         self.new_rule()
@@ -130,6 +144,11 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         super(FirewallDialog, self).showEvent(event)
         self._reset_fields()
         self._check_fw_status()
+        self._fw_profiles = FwProfiles.Profiles.load_predefined_profiles()
+        self.comboProfile.blockSignals(True)
+        for pr in self._fw_profiles:
+            self.comboProfile.addItem([pr[k] for k in pr][0]['Name'])
+        self.comboProfile.blockSignals(False)
 
     def send_notification(self, node_addr, fw_config):
         self._set_status_message(QC.translate("firewall", "Applying changes..."))
@@ -141,6 +160,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.sliderFwEnable.blockSignals(True)
         self.comboInput.blockSignals(True)
         self.comboOutput.blockSignals(True)
+        self.comboProfile.blockSignals(True)
 
         if self._nodes.count() == 0:
             self._disable_widgets()
@@ -203,6 +223,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.sliderFwEnable.blockSignals(False)
         self.comboInput.blockSignals(False)
         self.comboOutput.blockSignals(False)
+        self.comboProfile.blockSignals(False)
 
 
 

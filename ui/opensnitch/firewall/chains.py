@@ -62,23 +62,11 @@ class Chains():
                 # XXX: support only "inet" family (ipv4/ipv6)? or allow to
                 # specify ipv4 OR/AND ipv6? some systems have ipv6 disabled
                 if c.Hook.lower() == hook and c.Type.lower() == _type and c.Family.lower() == family:
-                    # FIXME: we need to apply extra rules if policy is DROP: iifname lo,
-                    # ct state related,established
-                    # noob users need it, otherwise internet access will be
-                    # blocked.
-                    #
-                    # add a description: "opensnitch autoadded, needed for pol drop"
-                    # so we could called it: apply_profile, apply_policy
-                    # https://wiki.nftables.org/wiki-nftables/index.php/Quick_reference-nftables_in_10_minutes#Simple_IP.2FIPv6_Firewall
                     fwcfg.SystemRules[sdx].Chains[cdx].Policy = policy
 
-                    # TODO: we need to check if the needed rules already
-                    # exists
-                    # should we delete them when changing from block to
-                    # allow ?
-                    # Those rules could have a prefix in the uuid to identify
-                    # them easyly:
-                    # "$PROFILE-ID-1111-2222-3333-4444"
+                    if wantedHook == Fw.Hooks.INPUT.value and wantedPolicy == Fw.Policy.DROP.value:
+                        fwcfg.SystemRules[sdx].Chains[cdx].Rules.append(rule.Rules[0])
+                        self._nodes.add_fw_config(node_addr, fwcfg)
                     return True
         return False
 

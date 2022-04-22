@@ -256,42 +256,7 @@ QSlider::sub-page:horizontal {
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="comboInput">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <item>
-             <property name="text">
-              <string>Allow</string>
-             </property>
-             <property name="icon">
-              <iconset theme="emblem-default">
-               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Deny</string>
-             </property>
-             <property name="icon">
-              <iconset theme="process-stop">
-               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Outcoming</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
+          <item row="2" column="1">
            <widget class="QComboBox" name="comboOutput">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -319,7 +284,42 @@ QSlider::sub-page:horizontal {
             </item>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="1" column="1">
+           <widget class="QComboBox" name="comboInput">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>Allow</string>
+             </property>
+             <property name="icon">
+              <iconset theme="emblem-default">
+               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Deny</string>
+             </property>
+             <property name="icon">
+              <iconset theme="process-stop">
+               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Outbound</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <property name="topMargin">
              <number>5</number>
@@ -362,7 +362,8 @@ QSlider::sub-page:horizontal {
                <string>Exclude service</string>
               </property>
               <property name="icon">
-               <iconset theme="go-jump"/>
+               <iconset theme="go-jump">
+                <normaloff>.</normaloff>.</iconset>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -371,7 +372,7 @@ QSlider::sub-page:horizontal {
             </item>
            </layout>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="4" column="0" colspan="2">
            <widget class="Line" name="line_2">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -384,12 +385,22 @@ QSlider::sub-page:horizontal {
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
+          <item row="1" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Incoming</string>
+             <string>Inbound</string>
             </property>
            </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="lblProfile">
+            <property name="text">
+             <string>Profile</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboProfile"/>
           </item>
          </layout>
         </widget>
@@ -444,15 +455,16 @@ QSlider::sub-page:horizontal {
     </layout>
    </item>
   </layout>
-  <action name="actionxxx">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>xxx</string>
-   </property>
-  </action>
  </widget>
+ <tabstops>
+  <tabstop>sliderFwEnable</tabstop>
+  <tabstop>comboInput</tabstop>
+  <tabstop>comboOutput</tabstop>
+  <tabstop>cmdNewRule</tabstop>
+  <tabstop>cmdExcludeService</tabstop>
+  <tabstop>cmdClose</tabstop>
+  <tabstop>tabWidget</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

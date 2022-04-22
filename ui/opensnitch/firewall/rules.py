@@ -23,11 +23,14 @@ class Rules(QObject):
         if self.is_duplicated(addr, rule):
             return False, QC.translate("firewall", "duplicated.")
 
-        for sidx, n in enumerate(node['firewall'].SystemRules):
+        for sdx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
-                if c.Name == rule.Name and c.Hook == rule.Hook and \
-                        c.Table == rule.Table and c.Family == rule.Family:
-                    node['firewall'].SystemRules[sidx].Chains[cdx].Rules.append(rule.Rules[0])
+                if c.Name == rule.Name and \
+                        c.Hook == rule.Hook and \
+                        c.Table == rule.Table and \
+                        c.Family == rule.Family and \
+                        c.Type == rule.Type:
+                    node['firewall'].SystemRules[sdx].Chains[cdx].Rules.append(rule.Rules[0])
                     node['fwrules'][rule.Rules[0].UUID] = rule
                     self._nodes.add_fw_config(addr, node['firewall'])
                     self._nodes.add_fw_rules(addr, node['fwrules'])
@@ -46,12 +49,14 @@ class Rules(QObject):
         if self.is_duplicated(addr, rule):
             return False, QC.translate("firewall", "duplicated")
 
-        for sidx, n in enumerate(node['firewall'].SystemRules):
+        for sdx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
-                if c.Name == rule.Name and c.Hook == rule.Hook and \
-                        c.Table == rule.Table and c.Family == rule.Family and \
+                if c.Name == rule.Name and \
+                        c.Hook == rule.Hook and \
+                        c.Table == rule.Table and \
+                        c.Family == rule.Family and \
                         c.Type == rule.Type:
-                    node['firewall'].SystemRules[sidx].Chains[cdx].Rules.insert(int(position), rule.Rules[0])
+                    node['firewall'].SystemRules[sdx].Chains[cdx].Rules.insert(int(position), rule.Rules[0])
                     node['fwrules'][rule.Rules[0].UUID] = rule
                     self._nodes.add_fw_config(addr, node['firewall'])
                     self._nodes.add_fw_rules(addr, node['fwrules'])
@@ -66,12 +71,12 @@ class Rules(QObject):
         node = self._nodes.get_node(addr)
         if not 'firewall' in node:
             return False, QC.translate("firewall", "this node doesn't have a firewall configuration, review it.")
-        for sidx, n in enumerate(node['firewall'].SystemRules):
+        for sdx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
-                for idx, r in enumerate(c.Rules):
+                for rdx, r in enumerate(c.Rules):
                     if r.UUID == uuid:
-                        c.Rules[idx].CopyFrom(rule.Rules[0])
-                        node['firewall'].SystemRules[sidx].Chains[cdx].Rules[idx].CopyFrom(rule.Rules[0])
+                        c.Rules[rdx].CopyFrom(rule.Rules[0])
+                        node['firewall'].SystemRules[sdx].Chains[cdx].Rules[rdx].CopyFrom(rule.Rules[0])
                         self._nodes.add_fw_config(addr, node['firewall'])
                         node['fwrules'][uuid] = rule
                         self._nodes.add_fw_rules(addr, node['fwrules'])

@@ -1,4 +1,6 @@
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, QCoreApplication as QC
+from google.protobuf import json_format
+from opensnitch import ui_pb2
 
 from opensnitch.nodes import Nodes
 from .enums import *
@@ -72,12 +74,49 @@ class Firewall(QObject):
 
         return chains
 
+    def apply_profile(self, node_addr, json_profile):
+        """
+        Apply a profile to the firewall configuration.
+
+        Given a chain (table+family+type+hook), apply its policy, and any rules
+        defined.
+        """
+        try:
+            holder = ui_pb2.FwChain()
+            profile = json_format.Parse(json_profile, holder)
+
+            fwcfg = self._nodes.get_node(node_addr)['firewall']
+            for sdx, n in enumerate(fwcfg.SystemRules):
+                for cdx, c in enumerate(n.Chains):
+
+                    if c.Hook.lower() == profile.Hook and \
+                            c.Type.lower() == profile.Type and \
+                            c.Family.lower() == profile.Family and \
+                            c.Table.lower() == profile.Table:
+
+                        fwcfg.SystemRules[sdx].Chains[cdx].Policy = profile.Policy
+                        for r in profile.Rules:
+                            temp_c = ui_pb2.FwChain()
+                            temp_c.CopyFrom(profile)
+                            del temp_c.Rules[:]
+                            temp_c.Rules.extend([r])
+
+                            if self.rules.is_duplicated(node_addr, temp_c):
+                                continue
+                            fwcfg.SystemRules[sdx].Chains[cdx].Rules.extend(profile.Rules)
+
+                        return True, ""
+        except Exception as e:
+            print("firewall: error applying profile:", e)
+            return False, "{0}".format(e)
+
+        return False, QC.translate("firewall", "profile not applied")
+
     def swap_rules(self, view, addr, uuid, old_pos, new_pos):
         return self.rules.swap(view, addr, uuid, old_pos, new_pos)
 
     def filter_by_table(self, addr, table, family):
-        """get rules by table
-        """
+        """get rules by table"""
         chains = []
         node = self._nodes.get_node(addr)
         if not 'firewall' in node:
@@ -91,8 +130,7 @@ class Firewall(QObject):
         return chains
 
     def filter_by_chain(self, addr, table, family, chain, hook):
-        """get rules by chain
-        """
+        """get rules by chain"""
         chains = []
         node = self._nodes.get_node(addr)
         if not 'firewall' in node:
