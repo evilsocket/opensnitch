@@ -31,9 +31,19 @@ $ sudo systemctl enable opensnitchd
 $ sudo systemctl start opensnitchd.service 
 ```
 
-**Why is WireGuard not working with OpenSnitch?**
+**Why is WireGuard/Mullvad/etc not working with OpenSnitch?**
 
-WireGuard initiates connections from kernel space, so there's no really a process that initiates them. In order to see these connections enable the option `[x] Debug invalid connections` under Preferences->Nodes.
+The common reason is because the eBPF module is not installed or not working.
+
+If you are using the packages from AUR, you need to install the additional package https://aur.archlinux.org/packages/opensnitch-ebpf-module
+
+Another reason could be , that the eBPF module insertion failed or the debugfs is not mounted. In both cases, execute the following command:
+
+`$ sudo cat /sys/kernel/debug/tracing/kprobe_event`
+
+If the output is empty or it fails, then you can try mounting it: `# mount -t debugfs none /sys/kernel/debug` then restart opensnitch: `sudo service opensnitch restart`
+
+If it still doesn't work, you can enable `[x] Debug invalid connections` under Preferences->Nodes.
 
 **Which connections does OpenSnitch intercept?**
 
