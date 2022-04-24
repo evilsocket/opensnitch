@@ -10,13 +10,11 @@
         "Position": "0",
         "Description": "Allow icmp",
         "Parameters": "-p icmp",
-        "Expressions": [
-        ],
+        "Expressions": [],
         "Target": "ACCEPT",
         "TargetParameters": ""
       },
-      "Chains": [
-      ]
+      "Chains": []
     },
     {
       "Chains": [
@@ -28,8 +26,7 @@
           "Type": "filter",
           "Hook": "forward",
           "Policy": "accept",
-          "Rules": [
-          ]
+          "Rules": []
         },
         {
           "Name": "output",
@@ -39,8 +36,7 @@
           "Type": "filter",
           "Hook": "output",
           "Policy": "accept",
-          "Rules": [
-          ]
+          "Rules": []
         },
         {
           "Name": "input",
@@ -104,35 +100,32 @@
         {
           "Name": "filter-prerouting",
           "Table": "nat",
-          "Family": "ip",
+          "Family": "inet",
           "Priority": "",
           "Type": "filter",
           "Hook": "prerouting",
           "Policy": "accept",
-          "Rules": [
-          ]
+          "Rules": []
         },
         {
           "Name": "prerouting",
           "Table": "mangle",
-          "Family": "ip",
+          "Family": "inet",
           "Priority": "",
           "Type": "mangle",
           "Hook": "prerouting",
           "Policy": "accept",
-          "Rules": [
-          ]
+          "Rules": []
         },
         {
           "Name": "postrouting",
           "Table": "mangle",
-          "Family": "ip",
+          "Family": "inet",
           "Priority": "",
           "Type": "mangle",
           "Hook": "postrouting",
           "Policy": "accept",
-          "Rules": [
-          ]
+          "Rules": []
         },
         {
           "Name": "prerouting",
@@ -142,8 +135,7 @@
           "Type": "natdest",
           "Hook": "prerouting",
           "Policy": "accept",
-          "Rules": [
-          ]
+          "Rules": []
         },
         {
           "Name": "postrouting",
@@ -153,8 +145,7 @@
           "Type": "natsource",
           "Hook": "postrouting",
           "Policy": "accept",
-          "Rules": [
-          ]
+          "Rules": []
         },
         {
           "Name": "input",
@@ -164,8 +155,7 @@
           "Type": "natsource",
           "Hook": "input",
           "Policy": "accept",
-          "Rules": [
-          ]
+          "Rules": []
         },
         {
           "Name": "output",
@@ -175,8 +165,7 @@
           "Type": "natdest",
           "Hook": "output",
           "Policy": "accept",
-          "Rules": [
-          ]
+          "Rules": []
         },
         {
           "Name": "output",
@@ -223,6 +212,28 @@
           "Hook": "forward",
           "Policy": "accept",
           "Rules": [
+            {
+              "UUID": "7d7394e1-100d-4b87-a90a-cd68c46edb0b",
+              "Enabled": false,
+              "Position": "0",
+              "Description": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "ct",
+                    "Values": [
+                      {
+                        "Key": "state",
+                        "Value": "new"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "queue",
+              "TargetParameters": "num 0"
+            }
           ]
         }
       ]

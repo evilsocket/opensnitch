@@ -324,15 +324,15 @@ class NetworkServices():
         for line in etcServices:
             if line[0] == "#":
                 continue
-            g = re.search("([a-zA-Z0-9]+)\t\t([0-9]+)\/([a-zA-Z0-9]+)(.*)\n", line)
+            g = re.search("([a-zA-Z0-9\-]+)( |\t)+([0-9]+)\/([a-zA-Z0-9\-]+)(.*)\n", line)
             if g:
                 self.srv_array.append("{0}/{1} {2}".format(
                     g.group(1),
-                    g.group(2),
-                    "" if g.group(4) == "" else "({0})".format(g.group(4).replace("\t", ""))
+                    g.group(3),
+                    "" if len(g.groups())>3 and g.group(4) == "" else "({0})".format(g.group(4).replace("\t", ""))
                 )
                 )
-                self.ports_list.append(g.group(2))
+                self.ports_list.append(g.group(3))
 
         # extra ports that don't exist in /etc/services
         self.srv_array.append("wireguard/51820 WireGuard VPN")
