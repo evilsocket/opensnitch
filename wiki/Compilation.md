@@ -6,13 +6,13 @@ Make sure you have a correctly configured **Go >= 1.15** environment, that the `
 
 ```bash
 # install dependencies
-sudo apt-get install git golang libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip pyqt5-dev-tools qttools5-dev-tools qt5-default
-go get google.golang.org/protobuf
-go install google.golang.org/protobuf/cmd/protoc-gen-go
-go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
+sudo apt-get install git golang libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip pyqt5-dev-tools qttools5-dev-tools qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools python-pyqt5.qtsql python3-notify2
+go install google.golang.org/protobuf@latest
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 export GOPATH=~/go #you may want to change this if your Go directory is different
 export PATH=$PATH:$GOPATH/bin
-python3 -m pip install --user grpcio-tools
+python3 -m pip install --user grpcio-tools qt-material
 # clone the repository 
 git clone https://github.com/evilsocket/opensnitch
 cd opensnitch
@@ -20,9 +20,8 @@ cd opensnitch
 make
 sudo make install
 # enable opensnitchd as a systemd service and start the UI
-sudo systemctl enable opensnitchd
-sudo service opensnitchd start
-opensnitch-ui
+sudo systemctl enable --now opensnitchd
+opensnitch-ui &
 ```
 
 **Daemon**
