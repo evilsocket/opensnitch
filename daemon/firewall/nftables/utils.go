@@ -109,10 +109,10 @@ func getChainPriority(family, nftKeyword, hook string) (*nftables.ChainPriority,
 		chainPrio = nftables.ChainPriorityMangle
 		// https://wiki.nftables.org/wiki-nftables/index.php/Configuring_chains#Base_chain_types
 		// (...) equivalent semantics to the mangle table but only for the output hook (for other hooks use type filter instead).
-		if hook == exprs.NFT_HOOK_OUTPUT {
-			chainType = nftables.ChainTypeRoute
-		}
-		// else: filter
+
+		// Despite of what is said on the wiki, mangle chains must be of filter type,
+		// otherwise on some kernels (4.19.x) table MANGLE hook OUTPUT chain is not created
+		chainType = nftables.ChainTypeFilter
 
 	case exprs.NFT_CHAIN_RAW:
 		// hook: all

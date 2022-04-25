@@ -21,4 +21,4 @@ class Utils():
         The protobuf operations append() and insert() were introduced on 3.8.0 version.
         """
         vparts = protobuf_version.split(".")
-        return vparts[0] >= 3 and vparts[1] >= 8
+        return int(vparts[0]) >= 3 and int(vparts[1]) >= 8

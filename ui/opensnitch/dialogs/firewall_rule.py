@@ -9,7 +9,8 @@ from opensnitch.nodes import Nodes
 from opensnitch.utils import NetworkServices, QuickHelp
 from opensnitch import ui_pb2
 import opensnitch.firewall as Fw
-import opensnitch.firewall.Utils as FwUtils
+from opensnitch.firewall.utils import Utils as FwUtils
+
 
 DIALOG_UI_PATH = "%s/../res/firewall_rule.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
