@@ -173,7 +173,7 @@ If grpcio fails to compile, you can try specifying a version: `pip3 install grpc
 
 **TypeError: __new__() got an unexpected keyword argument ...**
 
-This error means that your `python3-protobuf` is not compatible with OpenSnitch. Try uninstalling or upgragind it. If the GUI keeps failing with the same error, install protobuf using pip3: `pip3 install protobuf==3.6`
+This error means that your `python3-protobuf` is not compatible with OpenSnitch. Try uninstalling or upgrading it. If the GUI keeps failing with the same error, install protobuf using pip3: `pip3 install protobuf==3.6`
 
 ***
 
@@ -203,11 +203,14 @@ For ArchLinux/Manjaro users this worked:
 
 ### GUI crash/exception/does not show up on old distros
 
+> /usr/lib/python3.5/site-packages/google/protobuf/internal/containers.py, line 333
+> ... object does not support item assignment
+
 Install needed packages from pip:
 ```
 $ pip3 install grpcio==1.16.1
 $ pip3 install unicode_slugify
-$ pip3 install protobuf=3.6
+$ pip3 install protobuf==3.6
 ```
 
 You may need to uninstall setuptools if it keeps failing: `$ pip3 uninstall setuptools`
