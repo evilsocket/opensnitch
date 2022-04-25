@@ -9,7 +9,7 @@ from opensnitch.nodes import Nodes
 from opensnitch.utils import NetworkServices, QuickHelp
 from opensnitch import ui_pb2
 import opensnitch.firewall as Fw
-
+import opensnitch.firewall.Utils as FwUtils
 
 DIALOG_UI_PATH = "%s/../res/firewall_rule.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -58,6 +58,18 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def showEvent(self, event):
         super(FwRuleDialog, self).showEvent(event)
         self._reset_fields()
+
+        if FwUtils.isProtobufSupported() == False:
+            self._disable_controls()
+            self._disable_buttons()
+            self._set_status_error(
+                QC.translate(
+                    "firewall",
+                    "Your protobuf version is incompatible, you need to install protobuf 3.8.0 or superior\n(pip3 install --ignore-installed protobuf==3.8.0"
+                )
+            )
+            return
+
         self._load_nodes()
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)

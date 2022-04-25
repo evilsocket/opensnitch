@@ -1,4 +1,5 @@
 
+from google.protobuf import __version__ as protobuf_version
 from .enums import *
 
 class Utils():
@@ -13,3 +14,11 @@ class Utils():
                 value == Statements.UDPLITE.value or \
                 value == Statements.SCTP.value or \
                 value == Statements.DCCP.value
+
+    @staticmethod
+    def isProtobufSupported():
+        """
+        The protobuf operations append() and insert() were introduced on 3.8.0 version.
+        """
+        vparts = protobuf_version.split(".")
+        return vparts[0] >= 3 and vparts[1] >= 8
