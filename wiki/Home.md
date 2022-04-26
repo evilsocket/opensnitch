@@ -41,3 +41,5 @@ v1.3.6 [OpenSnitch a free opensource selfhosted outbound application firewall ma
 v1.5.0rcX [Opensnitch Linux Firewall: Detect + Block Malware Connections](https://www.youtube.com/watch?v=0_xS3u_p2xM)
 
 v1.5.0rcX [Quickie: first Impression of Pinephone Keyboard Case + opensnitch firewall works on Arch + faraday bag](https://www.youtube.com/watch?v=Xntd5lx2Av0)
+
+v1.4.x [LinuxFest Northwest 2022: Snitching on Apps That Snitch On You](https://www.youtube.com/watch?v=ZUrRCD2BQNs)
