@@ -215,15 +215,19 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         # TODO: support complex expressions: tcp dport 22 ip daddr != 127.0.0.1
         isNotSupported = True
-        for st in rule.Rules[0].Expressions:
-            if Fw.Utils.isExprPort(st.Statement.Name):
+        for exp in rule.Rules[0].Expressions:
+            if Fw.Utils.isExprPort(exp.Statement.Name):
                 try:
                     self.comboPorts.setCurrentIndex(
-                        self.net_srv.index_by_port(st.Statement.Values[0].Value)
+                        self.net_srv.index_by_port(exp.Statement.Values[0].Value)
                     )
                 except:
-                    self.comboPorts.setCurrentText(st.Statement.Values[0].Value)
+                    self.comboPorts.setCurrentText(exp.Statement.Values[0].Value)
 
+                op = Fw.Operator.EQUAL if exp.Statement.Op == "" else exp.Statement.Op
+                self.comboOperator.setCurrentIndex(
+                    Fw.Operator.values().index(op)
+                )
                 isNotSupported = False
                 break
         if isNotSupported:
@@ -235,6 +239,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.comboDirection.setCurrentIndex(0)
         else:
             self.comboDirection.setCurrentIndex(1)
+        # TODO: changing the direction of an existed rule needs work, it causes
+        # some nasty effects. Disabled for now.
+        self.comboDirection.setEnabled(False)
 
         self.comboVerdict.setCurrentIndex(
             Fw.Verdicts.values().index(
@@ -373,6 +380,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.lineDescription.setText("")
         self.comboPorts.setCurrentText("")
         self.comboDirection.setCurrentIndex(0)
+        self.comboDirection.setEnabled(True)
         self.comboVerdict.setCurrentIndex(0)
         self.uuid = ""
 

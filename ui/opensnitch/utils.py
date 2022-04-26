@@ -303,7 +303,7 @@ class Enums(enum.Enum):
 
     @classmethod
     def values(cls):
-        return list(cls._value2member_map_.keys())
+        return [v.value for v in cls]
 
 class NetworkServices():
     """Get a list of known ports. /etc/services
