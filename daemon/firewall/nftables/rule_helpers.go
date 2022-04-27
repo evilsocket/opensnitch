@@ -84,7 +84,7 @@ func (n *Nft) buildICMPRule(table, family string, icmpOptions []*config.ExprValu
 	return &ICMPrule
 }
 
-func (n *Nft) buildConntrackRule(table, chain string, ctOptions []*config.ExprValues) *[]expr.Any {
+func (n *Nft) buildConntrackRule(ctOptions []*config.ExprValues) *[]expr.Any {
 	exprList := []expr.Any{}
 
 	setMark := false

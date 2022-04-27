@@ -71,7 +71,7 @@ func NewExprNAT(parms, verdict string) (bool, bool, *[]expr.Any, error) {
 			return regAddr, regProto, &exprNAT, fmt.Errorf("Invalid Port: %s", dPort)
 		}
 		reg := uint32(2)
-		if verdict == VERDICT_TPROXY || verdict == VERDICT_MASQUERADE {
+		if verdict == VERDICT_TPROXY || verdict == VERDICT_MASQUERADE || verdict == VERDICT_REDIRECT {
 			reg = 1
 		}
 		exprNAT = append(exprNAT, []expr.Any{
@@ -99,7 +99,6 @@ func NewExprRedirect() *[]expr.Any {
 		// Redirect is a special case of DNAT where the destination is the current machine
 		&expr.Redir{
 			RegisterProtoMin: 1,
-			RegisterProtoMax: 2,
 		},
 	}
 }

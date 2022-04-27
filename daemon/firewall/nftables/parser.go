@@ -37,7 +37,7 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 	switch expression.Statement.Name {
 
 	case exprs.NFT_CT:
-		exprCt := n.buildConntrackRule(table, chain, expression.Statement.Values)
+		exprCt := n.buildConntrackRule(expression.Statement.Values)
 		if exprCt == nil {
 			log.Warning("%s Ct statement error", logTag)
 			return nil
