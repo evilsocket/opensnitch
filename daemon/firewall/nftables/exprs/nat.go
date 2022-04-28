@@ -86,8 +86,16 @@ func NewExprNAT(parms, verdict string) (bool, bool, *[]expr.Any, error) {
 }
 
 // NewExprMasquerade returns a new masquerade expression.
-func NewExprMasquerade(withPorts bool) *[]expr.Any {
-	exprMasq := &expr.Masq{ToPorts: withPorts, RegProtoMin: 1}
+func NewExprMasquerade(toPorts, random, fullRandom, persistent bool) *[]expr.Any {
+	exprMasq := &expr.Masq{
+		ToPorts:     toPorts,
+		Random:      random,
+		FullyRandom: fullRandom,
+		Persistent:  persistent,
+	}
+	if toPorts {
+		exprMasq.RegProtoMin = 1
+	}
 	return &[]expr.Any{
 		exprMasq,
 	}

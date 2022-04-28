@@ -94,8 +94,13 @@ func NewExprVerdict(verdict, parms string) *[]expr.Any {
 		m.Random, m.FullyRandom, m.Persistent = NewExprNATFlags(parms)
 		masqExpr := &[]expr.Any{m}
 
+		if parms == "" {
+			return masqExpr
+		}
+		// if any of the flag is set to true, toPorts must be false
+		toPorts := !(m.Random == true || m.FullyRandom == true || m.Persistent == true)
+		masqExpr = NewExprMasquerade(toPorts, m.Random, m.FullyRandom, m.Persistent)
 		if _, _, natParms, err := NewExprNAT(parms, VERDICT_MASQUERADE); err == nil {
-			masqExpr = NewExprMasquerade(true)
 			*masqExpr = append(*natParms, *masqExpr...)
 		}
 
