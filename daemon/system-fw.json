@@ -50,17 +50,17 @@
             {
               "Enabled": false,
               "Position": "0",
-              "Description": "Allow network traffic when input policy is DROP",
+              "Description": "Allow SSH server connections when input policy is DROP",
               "Parameters": "",
               "Expressions": [
                 {
                   "Statement": {
                     "Op": "",
-                    "Name": "iifname",
+                    "Name": "tcp",
                     "Values": [
                       {
-                        "Key": "lo",
-                        "Value": ""
+                        "Key": "dport",
+                        "Value": "22"
                       }
                     ]
                   }
@@ -68,33 +68,7 @@
               ],
               "Target": "accept",
               "TargetParameters": ""
-            },
-            {
-              "Enabled": true,
-              "Position": "0",
-              "Description": "Allow network traffic when input policy is DROP",
-              "Parameters": "",
-              "Expressions": [
-                {
-                  "Statement": {
-                    "Op": "",
-                    "Name": "ct",
-                    "Values": [
-                      {
-                        "Key": "state",
-                        "Value": "related"
-                      },
-                      {
-                        "Key": "state",
-                        "Value": "established"
-                      }
-                    ]
-                  }
-                }
-              ],
-              "Target": "accept",
-              "TargetParameters": ""
-            }
+            } 
           ]
         },
         {
@@ -179,7 +153,7 @@
             {
               "Enabled": true,
               "Position": "0",
-              "Description": "",
+              "Description": "Allow ICMP",
               "Expressions": [
                 {
                   "Statement": {
@@ -193,6 +167,28 @@
                       {
                         "Key": "type",
                         "Value": "echo-reply"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            },
+            {
+              "Enabled": false,
+              "Position": "0",
+              "Description": "Exclude WireGuard VPN from being intercepted",
+              "Parameters": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "tcp",
+                    "Values": [
+                      {
+                        "Key": "dport",
+                        "Value": "51820"
                       }
                     ]
                   }
@@ -216,7 +212,7 @@
               "UUID": "7d7394e1-100d-4b87-a90a-cd68c46edb0b",
               "Enabled": false,
               "Position": "0",
-              "Description": "",
+              "Description": "Intercept forwarded connections (docker, etc)",
               "Expressions": [
                 {
                   "Statement": {

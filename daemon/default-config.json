@@ -9,7 +9,7 @@
     "InterceptUnknown": false,
     "ProcMonitorMethod": "ebpf",
     "LogLevel": 2,
-    "Firewall": "iptables",
+    "Firewall": "nftables",
     "Stats": {
         "MaxEvents": 150,
         "MaxStats": 25
