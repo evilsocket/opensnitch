@@ -57,39 +57,39 @@ func getHook(chain string) *nftables.ChainHook {
 // https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
 // https://github.com/google/nftables/blob/master/chain.go#L48
 // man nft (table 6.)
-func getChainPriority(family, nftKeyword, hook string) (*nftables.ChainPriority, nftables.ChainType) {
+func getChainPriority(family, cType, hook string) (*nftables.ChainPriority, nftables.ChainType) {
 	// types: route, nat, filter
 	chainType := nftables.ChainTypeFilter
 	// priorities: raw, conntrack, mangle, natdest, filter, security
 	chainPrio := nftables.ChainPriorityFilter
 
 	family = strings.ToLower(family)
-	nftKeyword = strings.ToLower(nftKeyword)
+	cType = strings.ToLower(cType)
 	hook = strings.ToLower(hook)
 
 	// constraints
 	// https://www.netfilter.org/projects/nftables/manpage.html#lbAQ
-	if (nftKeyword == exprs.NFT_CHAIN_NATDEST || nftKeyword == exprs.NFT_CHAIN_NATSOURCE) && hook == exprs.NFT_HOOK_FORWARD {
-		log.Warning("[nftables] invalid nat combination of tables and hooks. chain: %s, hook: %s", nftKeyword, hook)
+	if (cType == exprs.NFT_CHAIN_NATDEST || cType == exprs.NFT_CHAIN_NATSOURCE) && hook == exprs.NFT_HOOK_FORWARD {
+		log.Warning("[nftables] invalid nat combination of tables and hooks. chain: %s, hook: %s", cType, hook)
 		return nil, chainType
 	}
-	if family == exprs.NFT_FAMILY_NETDEV && (nftKeyword != exprs.NFT_CHAIN_FILTER || (hook != exprs.NFT_HOOK_EGRESS || hook != exprs.NFT_HOOK_INGRESS)) {
-		log.Warning("[nftables] invalid netdev combination of tables and hooks. chain: %s, hook: %s", nftKeyword, hook)
+	if family == exprs.NFT_FAMILY_NETDEV && (cType != exprs.NFT_CHAIN_FILTER || (hook != exprs.NFT_HOOK_EGRESS || hook != exprs.NFT_HOOK_INGRESS)) {
+		log.Warning("[nftables] invalid netdev combination of tables and hooks. chain: %s, hook: %s", cType, hook)
 		return nil, chainType
 	}
-	if family == exprs.NFT_FAMILY_ARP && (nftKeyword != exprs.NFT_CHAIN_FILTER || (hook != exprs.NFT_HOOK_OUTPUT || hook != exprs.NFT_HOOK_INPUT)) {
-		log.Warning("[nftables] invalid arp combination of tables and hooks. chain: %s, hook: %s", nftKeyword, hook)
+	if family == exprs.NFT_FAMILY_ARP && (cType != exprs.NFT_CHAIN_FILTER || (hook != exprs.NFT_HOOK_OUTPUT || hook != exprs.NFT_HOOK_INPUT)) {
+		log.Warning("[nftables] invalid arp combination of tables and hooks. chain: %s, hook: %s", cType, hook)
 		return nil, chainType
 	}
-	if family == exprs.NFT_FAMILY_BRIDGE && (nftKeyword != exprs.NFT_CHAIN_FILTER || (hook == exprs.NFT_HOOK_EGRESS || hook == exprs.NFT_HOOK_INGRESS)) {
-		log.Warning("[nftables] invalid bridge combination of tables and hooks. chain: %s, hook: %s", nftKeyword, hook)
+	if family == exprs.NFT_FAMILY_BRIDGE && (cType != exprs.NFT_CHAIN_FILTER || (hook == exprs.NFT_HOOK_EGRESS || hook == exprs.NFT_HOOK_INGRESS)) {
+		log.Warning("[nftables] invalid bridge combination of tables and hooks. chain: %s, hook: %s", cType, hook)
 		return nil, chainType
 	}
 
 	// Standard priority names, family and hook compatibility matrix
 	// https://www.netfilter.org/projects/nftables/manpage.html#lbAQ
 
-	switch nftKeyword {
+	switch cType {
 	case exprs.NFT_CHAIN_FILTER:
 		if family == exprs.NFT_FAMILY_BRIDGE {
 			// bridge	all	filter	-200	NF_BR_PRI_FILTER_BRIDGED
@@ -124,6 +124,10 @@ func getChainPriority(family, nftKeyword, hook string) (*nftables.ChainPriority,
 	case exprs.NFT_CHAIN_NATDEST:
 		// hook: prerouting
 		chainPrio = nftables.ChainPriorityNATDest
+		switch hook {
+		case exprs.NFT_HOOK_OUTPUT:
+			chainPrio = nftables.ChainPriorityNATSource
+		}
 		chainType = nftables.ChainTypeNAT
 
 	case exprs.NFT_CHAIN_NATSOURCE:
@@ -156,7 +160,7 @@ func getConntrackPriority(hook string) (nftables.ChainPriority, nftables.ChainTy
 		chainPrio = nftables.ChainPriorityConntrack
 		// ChainTypeNAT not allowed here
 	case exprs.NFT_HOOK_OUTPUT:
-		chainPrio = nftables.ChainPriorityConntrack
+		chainPrio = nftables.ChainPriorityNATSource // 100 - ChainPriorityConntrack
 	case exprs.NFT_HOOK_POSTROUTING:
 		chainPrio = nftables.ChainPriorityConntrackHelper
 		chainType = nftables.ChainTypeNAT

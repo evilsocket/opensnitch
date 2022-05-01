@@ -177,10 +177,6 @@ func (n *Nft) addRule(chain, table, family string, position uint64, exprs *[]exp
 	return nil
 }
 
-func (n *Nft) delInterceptionRules() {
-	n.delRulesByKey(interceptionRuleKey)
-}
-
 func (n *Nft) delRulesByKey(key string) error {
 	chains, err := n.conn.ListChains()
 	if err != nil {
@@ -212,12 +208,17 @@ func (n *Nft) delRulesByKey(key string) error {
 			if !n.Commit() {
 				log.Warning("%s error deleting rules: %s", logTag, err)
 			}
-			if len(rules) == delRules {
-				// if there're no more rules in the tables, delete them
+		}
+		if len(rules) == 0 || len(rules) == delRules {
+			if _, ok := sysChains[getChainKey(c.Name, c.Table)]; ok {
 				n.delChain(c)
 			}
 		}
 	}
 
 	return nil
+}
+
+func (n *Nft) delInterceptionRules() {
+	n.delRulesByKey(interceptionRuleKey)
 }

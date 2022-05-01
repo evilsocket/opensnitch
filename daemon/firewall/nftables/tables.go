@@ -8,6 +8,24 @@ import (
 	"github.com/google/nftables"
 )
 
+// AddTable adds a new table to nftables.
+func (n *Nft) AddTable(name, family string) *nftables.Table {
+	famCode := getFamilyCode(family)
+	tbl := &nftables.Table{
+		Family: famCode,
+		Name:   name,
+	}
+	n.conn.AddTable(tbl)
+
+	if !n.Commit() {
+		log.Error("%s error adding system firewall table: %s, family: %s (%d)", logTag, name, family, famCode)
+		return nil
+	}
+	key := getTableKey(name, family)
+	sysTables[key] = tbl
+	return tbl
+}
+
 func getTable(name, family string) *nftables.Table {
 	return sysTables[getTableKey(name, family)]
 }
@@ -30,34 +48,39 @@ func (n *Nft) addSystemTables() {
 	n.AddTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET)
 }
 
-// AddTable adds a new table to nftables.
-func (n *Nft) AddTable(name, family string) *nftables.Table {
-	famCode := getFamilyCode(family)
-	tbl := &nftables.Table{
-		Family: famCode,
-		Name:   name,
+// return the number of rules that we didn't add.
+func (n *Nft) nonSystemRules(tbl *nftables.Table) int {
+	chains, err := n.conn.ListChains()
+	if err != nil {
+		return -1
 	}
-	n.conn.AddTable(tbl)
+	t := 0
+	for _, c := range chains {
+		if tbl.Name != c.Table.Name && tbl.Family != c.Table.Family {
+			continue
+		}
+		rules, err := n.conn.GetRule(c.Table, c)
+		if err != nil {
+			return -1
+		}
+		t += len(rules)
+	}
 
-	if !n.Commit() {
-		log.Error("%s error adding system firewall table: %s, family: %s (%d)", logTag, name, family, famCode)
-		return nil
-	}
-	key := getTableKey(name, family)
-	sysTables[key] = tbl
-	return tbl
+	return t
 }
 
 // FIXME: if the user configured chains policies to drop and disables the firewall,
 // the policy is not restored.
 func (n *Nft) delSystemTables() {
-	for _, tbl := range sysTables {
+	for k, tbl := range sysTables {
+		if n.nonSystemRules(tbl) != 0 {
+			continue
+		}
 		n.conn.DelTable(tbl)
-		delete(sysTables, tbl.Name)
-	}
-	if len(sysTables) > 0 {
 		if !n.Commit() {
 			log.Warning("error deleting system tables")
+			continue
 		}
+		delete(sysTables, k)
 	}
 }

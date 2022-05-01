@@ -9,22 +9,6 @@ import (
 	"github.com/google/nftables"
 )
 
-// getChainKey returns the identifier that will be used to link chains and rules.
-// When adding a new chain the key is stored, then later when adding a rule we get
-// the chain that the rule belongs to by this key.
-func getChainKey(name string, table *nftables.Table) string {
-	if table == nil {
-		return ""
-	}
-	return fmt.Sprintf("%s-%s-%d", name, table.Name, table.Family)
-}
-
-// get an existing chain
-func getChain(name string, table *nftables.Table) *nftables.Chain {
-	key := getChainKey(name, table)
-	return sysChains[key]
-}
-
 // AddChain adds a new chain to nftables.
 // https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
 func (n *Nft) AddChain(name, table, family string, priority nftables.ChainPriority, ctype nftables.ChainType, hook nftables.ChainHook, policy nftables.ChainPolicy) *nftables.Chain {
@@ -53,6 +37,22 @@ func (n *Nft) AddChain(name, table, family string, priority nftables.ChainPriori
 	key := getChainKey(name, tbl)
 	sysChains[key] = chain
 	return chain
+}
+
+// getChainKey returns the identifier that will be used to link chains and rules.
+// When adding a new chain the key is stored, then later when adding a rule we get
+// the chain that the rule belongs to by this key.
+func getChainKey(name string, table *nftables.Table) string {
+	if table == nil {
+		return ""
+	}
+	return fmt.Sprintf("%s-%s-%d", name, table.Name, table.Family)
+}
+
+// get an existing chain
+func getChain(name string, table *nftables.Table) *nftables.Chain {
+	key := getChainKey(name, table)
+	return sysChains[key]
 }
 
 // regular chains are user-defined chains, to better organize fw rules.
@@ -112,15 +112,10 @@ func (n *Nft) addInterceptionChains() error {
 }
 
 func (n *Nft) delChain(chain *nftables.Chain) error {
-	rules, err := n.conn.GetRule(chain.Table, chain)
-	if err != nil {
-		return err
-	}
-	if len(rules) == 0 {
-		n.conn.DelChain(chain)
-		if !n.Commit() {
-			return fmt.Errorf("delChain, error deleting %s", chain.Name)
-		}
+	n.conn.DelChain(chain)
+	delete(sysChains, getChainKey(chain.Name, chain.Table))
+	if !n.Commit() {
+		return fmt.Errorf("delChain, error deleting %s", chain.Name)
 	}
 
 	return nil

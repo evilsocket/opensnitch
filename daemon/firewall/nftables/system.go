@@ -33,9 +33,7 @@ func (n *Nft) CreateSystemRule(chain *config.FwChain, logErrors bool) bool {
 	}
 
 	tableName := chain.Table
-	if getTable(chain.Table, chain.Family) == nil {
-		n.AddTable(chain.Table, chain.Family)
-	}
+	n.AddTable(chain.Table, chain.Family)
 
 	// regular chains doesn't have a hook, nor a type
 	if chain.Hook == "" && chain.Type == "" {
@@ -77,6 +75,7 @@ func (n *Nft) AddSystemRules(reload bool) {
 	for _, fwCfg := range n.SysConfig.SystemRules {
 		for _, chain := range fwCfg.Chains {
 			if !n.CreateSystemRule(chain, true) {
+				log.Info("createSystem failed: %s %s", chain.Name, chain.Table)
 				continue
 			}
 			for i := len(chain.Rules) - 1; i >= 0; i-- {
@@ -105,10 +104,6 @@ func (n *Nft) DeleteSystemRules(force, logErrors bool) {
 
 	if force {
 		n.delSystemTables()
-	}
-
-	for k := range sysChains {
-		delete(sysChains, k)
 	}
 }
 
