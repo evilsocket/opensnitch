@@ -11,7 +11,6 @@ class Profiles():
         profiles = glob.glob("/etc/opensnitchd/system-fw.d/profiles/*.profile")
         p = []
         for pr_path in profiles:
-            print(pr_path)
             with open(pr_path) as f:
                 p.append({os.path.basename(pr_path): json.load(f)})
 
@@ -20,7 +19,7 @@ class Profiles():
 
 class ProfileAcceptOutput():
     value = {
-        "Name": "output",
+        "Name": "accept-mangle-output",
         "Table": "mangle",
         "Family": "inet",
         "Priority": "",
@@ -34,7 +33,7 @@ class ProfileAcceptOutput():
 
 class ProfileDropOutput():
     value = {
-        "Name": "output",
+        "Name": "drop-mangle-output",
         "Table": "mangle",
         "Family": "inet",
         "Priority": "",
@@ -48,7 +47,7 @@ class ProfileDropOutput():
 
 class ProfileAcceptForward():
     value = {
-        "Name": "forward",
+        "Name": "accept-mangle-forward",
         "Table": "mangle",
         "Family": "inet",
         "Priority": "",
@@ -62,7 +61,7 @@ class ProfileAcceptForward():
 
 class ProfileDropForward():
     value = {
-        "Name": "forward",
+        "Name": "drop-mangle-forward",
         "Table": "mangle",
         "Family": "inet",
         "Priority": "",
@@ -76,7 +75,7 @@ class ProfileDropForward():
 
 class ProfileAcceptInput():
     value = {
-        "Name": "input",
+        "Name": "accept-filter-input",
         "Table": "filter",
         "Family": "inet",
         "Priority": "",
@@ -96,7 +95,7 @@ class ProfileDropInput():
 
     # TODO: delete dropInput profile's rules
     value = {
-        "Name": "input",
+        "Name": "drop-filter-input",
         "Table": "filter",
         "Family": "inet",
         "Priority": "",

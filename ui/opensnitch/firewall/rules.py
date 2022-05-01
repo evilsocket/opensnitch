@@ -168,10 +168,10 @@ class Rules(QObject):
     def is_duplicated(self, addr, orig_rule):
         # we need to duplicate the rule, otherwise we'd modify the UUID of the
         # orig rule.
-        rule = ui_pb2.FwChain()
-        rule.CopyFrom(orig_rule)
+        temp_c = ui_pb2.FwChain()
+        temp_c.CopyFrom(orig_rule)
         # the UUID will be different, so zero it out.
-        rule.Rules[0].UUID = ""
+        temp_c.Rules[0].UUID = ""
         node = self._nodes.get_node(addr)
         if node == None:
             return False
@@ -179,15 +179,15 @@ class Rules(QObject):
             return False
         for n in node['firewall'].SystemRules:
             for c in n.Chains:
-                if c.Name == rule.Name and \
-                        c.Hook == rule.Hook and \
-                        c.Table == rule.Table and \
-                        c.Family == rule.Family and \
-                        c.Type == rule.Type:
+                if c.Name == temp_c.Name and \
+                        c.Hook == temp_c.Hook and \
+                        c.Table == temp_c.Table and \
+                        c.Family == temp_c.Family and \
+                        c.Type == temp_c.Type:
                     for rdx, r in enumerate(c.Rules):
                         uuid = c.Rules[rdx].UUID
                         c.Rules[rdx].UUID = ""
-                        is_equal = c.Rules[rdx].SerializeToString() == rule.Rules[0].SerializeToString()
+                        is_equal = c.Rules[rdx].SerializeToString() == temp_c.Rules[0].SerializeToString()
                         c.Rules[rdx].UUID = uuid
 
                         if is_equal:

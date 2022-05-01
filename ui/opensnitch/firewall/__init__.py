@@ -82,6 +82,7 @@ class Firewall(QObject):
         defined.
         """
         try:
+            profile_applied = False
             holder = ui_pb2.FwChain()
             profile = json_format.Parse(json_profile, holder)
 
@@ -97,14 +98,17 @@ class Firewall(QObject):
                         fwcfg.SystemRules[sdx].Chains[cdx].Policy = profile.Policy
                         for r in profile.Rules:
                             temp_c = ui_pb2.FwChain()
-                            temp_c.CopyFrom(profile)
+                            temp_c.CopyFrom(c)
                             del temp_c.Rules[:]
                             temp_c.Rules.extend([r])
 
                             if self.rules.is_duplicated(node_addr, temp_c):
                                 continue
-                            fwcfg.SystemRules[sdx].Chains[cdx].Rules.extend(profile.Rules)
+                            fwcfg.SystemRules[sdx].Chains[cdx].Rules.extend([r])
+                            profile_applied = True
 
+                        if profile_applied:
+                            self.rules.rulesUpdated.emit()
                         return True, ""
         except Exception as e:
             print("firewall: error applying profile:", e)
