@@ -363,8 +363,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
-        self._fw = Firewall()
-        self._nodes.fwReloaded.connect(self._cb_fw_rules_reloaded)
+        self._fw = Firewall().instance()
+        self._fw.rules.rulesUpdated.connect(self._cb_fw_rules_updated)
 
         # TODO: allow to display multiples dialogs
         self._proc_details_dialog = ProcessDetailsDialog(appicon=appicon)
@@ -1016,9 +1016,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rules_dialog.edit_rule(records, node)
             break
 
-    @QtCore.pyqtSlot(str, str)
-    def _cb_fw_rules_reloaded(self, node_addr, data):
-        self.TABLES[self.TAB_FIREWALL]['view'].refresh()
+    def _cb_fw_rules_updated(self):
+        self._add_rulesTree_fw_chains()
 
     @QtCore.pyqtSlot(str)
     def _cb_fw_table_rows_reordered(self, node_addr):
@@ -1532,7 +1531,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 nodesItem.addChild(QtWidgets.QTreeWidgetItem([n]))
 
     def _add_rulesTree_fw_chains(self):
+        expanded = list()
+        selected = None
+        scrollValue = self.rulesTreePanel.verticalScrollBar().value()
         fwItem = self.rulesTreePanel.topLevelItem(self.RULES_TREE_FIREWALL)
+        it = QtWidgets.QTreeWidgetItemIterator(fwItem)
+        while it.value():
+            x = it.value()
+            if x.isExpanded():
+                expanded.append(x)
+            if x.isSelected():
+                selected = x
+            it += 1
+
+        self.rulesTreePanel.setAnimated(False)
         fwItem.takeChildren()
         self.rulesTreePanel.setItemWidget(fwItem, 1, self.fwTreeEdit)
         chains = self._fw.get_chains()
@@ -1562,8 +1574,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         node = items[0]
                         node.addChild(nodeChain)
 
+        for item in expanded:
+            items = self.rulesTreePanel.findItems(item.text(0), QtCore.Qt.MatchRecursive)
+            for it in items:
+                it.setExpanded(True)
+                if selected != None and selected.text(0) == it.text(0):
+                    it.setSelected(True)
+
+        self.rulesTreePanel.verticalScrollBar().setValue(scrollValue)
+        self.rulesTreePanel.setAnimated(True)
         self.rulesTreePanel.resizeColumnToContents(0)
         self.rulesTreePanel.resizeColumnToContents(1)
+        expanded = None
 
     def _clear_rows_selection(self):
         cur_idx = self.tabWidget.currentIndex()

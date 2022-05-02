@@ -11,7 +11,6 @@ from opensnitch.config import Config
 class Nodes(QObject):
     __instance = None
     nodesUpdated = pyqtSignal(int) # total
-    fwReloaded = pyqtSignal(str, str)
 
     LOG_TAG = "[Nodes]: "
     ONLINE = "\u2713 online"

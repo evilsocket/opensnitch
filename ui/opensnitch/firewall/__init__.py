@@ -8,6 +8,7 @@ from .rules import *
 from .chains import *
 from .utils import Utils
 from .exprs import *
+from .profiles import *
 
 class Firewall(QObject):
     __instance = None
@@ -82,7 +83,6 @@ class Firewall(QObject):
         defined.
         """
         try:
-            profile_applied = False
             holder = ui_pb2.FwChain()
             profile = json_format.Parse(json_profile, holder)
 
@@ -105,16 +105,39 @@ class Firewall(QObject):
                             if self.rules.is_duplicated(node_addr, temp_c):
                                 continue
                             fwcfg.SystemRules[sdx].Chains[cdx].Rules.extend([r])
-                            profile_applied = True
 
-                        if profile_applied:
-                            self.rules.rulesUpdated.emit()
+                        self.rules.rulesUpdated.emit()
                         return True, ""
         except Exception as e:
             print("firewall: error applying profile:", e)
             return False, "{0}".format(e)
 
         return False, QC.translate("firewall", "profile not applied")
+
+    def delete_profile(self, node_addr, json_profile):
+        try:
+            holder = ui_pb2.FwChain()
+            profile = json_format.Parse(json_profile, holder)
+
+            fwcfg = self._nodes.get_node(node_addr)['firewall']
+            for sdx, n in enumerate(fwcfg.SystemRules):
+                for cdx, c in enumerate(n.Chains):
+                    if c.Hook.lower() == profile.Hook and \
+                            c.Type.lower() == profile.Type and \
+                            c.Family.lower() == profile.Family and \
+                            c.Table.lower() == profile.Table:
+
+                        if profile.Policy == ProfileDropInput.value:
+                            profile.Policy = ProfileAcceptInput.value
+
+                        for rdx, r in enumerate(c.Rules):
+                            for pr in profile.Rules:
+                                if r.UUID == pr.UUID:
+                                    print("delete_profile, rule:", r.UUID, r.Description)
+                                    del fwcfg.SystemRules[sdx].Chains[cdx].Rules[rdx]
+
+        except Exception as e:
+            print("firewall: error deleting profile:", e)
 
     def swap_rules(self, view, addr, uuid, old_pos, new_pos):
         return self.rules.swap(view, addr, uuid, old_pos, new_pos)
