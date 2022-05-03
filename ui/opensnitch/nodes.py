@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from queue import Queue
 from datetime import datetime
 import time
@@ -7,8 +8,10 @@ from opensnitch import ui_pb2
 from opensnitch.database import Database
 from opensnitch.config import Config
 
-class Nodes():
+class Nodes(QObject):
     __instance = None
+    nodesUpdated = pyqtSignal(int) # total
+
     LOG_TAG = "[Nodes]: "
     ONLINE = "\u2713 online"
     OFFLINE = "\u2613 offline"
@@ -21,6 +24,7 @@ class Nodes():
         return Nodes.__instance
 
     def __init__(self):
+        QObject.__init__(self)
         self._db = Database.instance()
         self._nodes = {}
         self._notifications_sent = {}
@@ -45,17 +49,26 @@ class Nodes():
             self.add_data(addr, client_config)
             self.update(proto, _addr)
 
-            return self._nodes[addr]
+            self.nodesUpdated.emit(self.count())
+
+            return self._nodes[addr], addr
 
         except Exception as e:
             print(self.LOG_TAG, "exception adding/updating node: ", e, "addr:", addr, "config:", client_config)
 
-        return None
+        return None, None
 
     def add_data(self, addr, client_config):
         if client_config != None:
             self._nodes[addr]['data'] = self.get_client_config(client_config)
+            self.add_fw_config(addr, client_config.systemFirewall)
             self.add_rules(addr, client_config.rules)
+
+    def add_fw_config(self, addr, fwconfig):
+        self._nodes[addr]['firewall'] = fwconfig
+
+    def add_fw_rules(self, addr, fwconfig):
+        self._nodes[addr]['fwrules'] = fwconfig
 
     def add_rule(self, time, node, name, enabled, precedence, action, duration, op_type, op_sensitive, op_operand, op_data):
         # don't add rule if the user has selected to exclude temporary
@@ -92,6 +105,7 @@ class Nodes():
     def delete_all(self):
         self.send_notifications(None)
         self._nodes = {}
+        self.nodesUpdated.emit(self.count())
 
     def delete(self, peer):
         proto, addr = self.get_addr(peer)
@@ -101,6 +115,7 @@ class Nodes():
         self._nodes[addr]['notifications'].put(None)
         if addr in self._nodes:
             del self._nodes[addr]
+            self.nodesUpdated.emit(self.count())
 
     def get(self):
         return self._nodes
@@ -170,12 +185,12 @@ class Nodes():
             print(self.LOG_TAG + " exception saving nodes config: ", e, config)
 
     def start_interception(self, _addr=None, _callback=None):
-        return self.firewall(not_type=ui_pb2.LOAD_FIREWALL, addr=_addr, callback=_callback)
+        return self.firewall(not_type=ui_pb2.ENABLE_INTERCEPTION, addr=_addr, callback=_callback)
 
     def stop_interception(self, _addr=None, _callback=None):
-        return self.firewall(not_type=ui_pb2.UNLOAD_FIREWALL, addr=_addr, callback=_callback)
+        return self.firewall(not_type=ui_pb2.DISABLE_INTERCEPTION, addr=_addr, callback=_callback)
 
-    def firewall(self, not_type=ui_pb2.LOAD_FIREWALL, addr=None, callback=None):
+    def firewall(self, not_type=ui_pb2.ENABLE_INTERCEPTION, addr=None, callback=None):
         noti = ui_pb2.Notification(clientName="", serverName="", type=not_type, data="", rules=[])
         if addr == None:
             nid = self.send_notifications(noti, callback)
@@ -236,20 +251,23 @@ class Nodes():
         return notification.id
 
     def reply_notification(self, addr, reply):
-        if reply == None:
-            print(self.LOG_TAG, " reply notification None")
-            return
+        try:
+            if reply == None:
+                print(self.LOG_TAG, " reply notification None")
+                return
 
-        if reply.id in self._notifications_sent:
-            if self._notifications_sent[reply.id] != None:
-                if self._notifications_sent[reply.id]['callback'] != None:
-                    self._notifications_sent[reply.id]['callback'].emit(reply)
+            if reply.id in self._notifications_sent:
+                if self._notifications_sent[reply.id] != None:
+                    if self._notifications_sent[reply.id]['callback'] != None:
+                        self._notifications_sent[reply.id]['callback'].emit(reply)
 
-                # delete only one-time notifications
-                # we need the ID of streaming notifications from the server
-                # (monitor_process for example) to keep track of the data sent to us.
-                if self._notifications_sent[reply.id]['type'] != ui_pb2.MONITOR_PROCESS:
-                    del self._notifications_sent[reply.id]
+                    # delete only one-time notifications
+                    # we need the ID of streaming notifications from the server
+                    # (monitor_process for example) to keep track of the data sent to us.
+                    if self._notifications_sent[reply.id]['type'] != ui_pb2.MONITOR_PROCESS:
+                        del self._notifications_sent[reply.id]
+        except Exception as e:
+            print(self.LOG_TAG, "notification exception:", e)
 
     def update(self, proto, addr, status=ONLINE):
         try:
@@ -300,3 +318,12 @@ class Nodes():
         self._db.delete_rule(rule.name, addr)
 
         return nid, noti
+
+    def reload_fw(self, addr, fw_config, callback):
+        notif = ui_pb2.Notification(
+                id=int(str(time.time()).replace(".", "")),
+                type=ui_pb2.RELOAD_FW_RULES,
+                sysFirewall=fw_config
+        )
+        nid = self.send_notification(addr, notif, callback)
+        return nid, notif

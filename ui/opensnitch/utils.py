@@ -10,6 +10,8 @@ import fcntl
 import struct
 import array
 import os, sys, glob
+import enum
+import re
 
 class AsnDB():
     __instance = None
@@ -289,3 +291,58 @@ class FileDialog():
         fileName = QtWidgets.QFileDialog.getExistingDirectory(parent, "", current_dir, options)
         return fileName
 
+# https://stackoverflow.com/questions/29503339/how-to-get-all-values-from-python-enum-class
+class Enums(enum.Enum):
+    @classmethod
+    def to_dict(cls):
+        return {e.name: e.value for e in cls}
+
+    @classmethod
+    def keys(cls):
+        return cls._member_names_
+
+    @classmethod
+    def values(cls):
+        return [v.value for v in cls]
+
+class NetworkServices():
+    """Get a list of known ports. /etc/services
+    """
+    __instance = None
+
+    @staticmethod
+    def instance():
+        if NetworkServices.__instance == None:
+            NetworkServices.__instance = NetworkServices()
+        return Services.__instance
+
+    srv_array = []
+    ports_list = []
+
+    def __init__(self):
+        etcServices = open("/etc/services")
+        for line in etcServices:
+            if line[0] == "#":
+                continue
+            g = re.search("([a-zA-Z0-9\-]+)( |\t)+([0-9]+)\/([a-zA-Z0-9\-]+)(.*)\n", line)
+            if g:
+                self.srv_array.append("{0}/{1} {2}".format(
+                    g.group(1),
+                    g.group(3),
+                    "" if len(g.groups())>3 and g.group(4) == "" else "({0})".format(g.group(4).replace("\t", ""))
+                )
+                )
+                self.ports_list.append(g.group(3))
+
+        # extra ports that don't exist in /etc/services
+        self.srv_array.append("wireguard/51820 WireGuard VPN")
+        self.ports_list.append("51820")
+
+    def to_array(self):
+        return self.srv_array
+
+    def port_by_index(self, idx):
+        return self.ports_list[idx]
+
+    def index_by_port(self, port):
+        return self.ports_list.index(str(port))

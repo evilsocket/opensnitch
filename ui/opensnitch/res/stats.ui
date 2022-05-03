@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>863</width>
-    <height>600</height>
+    <height>597</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -108,7 +108,7 @@
          </property>
          <property name="icon">
           <iconset theme="emblem-default">
-           <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+           <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
          </property>
         </item>
         <item>
@@ -117,7 +117,7 @@
          </property>
          <property name="icon">
           <iconset theme="emblem-important">
-           <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+           <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
          </property>
         </item>
         <item>
@@ -126,7 +126,7 @@
          </property>
          <property name="icon">
           <iconset theme="window-close">
-           <normaloff>.</normaloff>.</iconset>
+           <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
          </property>
         </item>
        </widget>
@@ -167,7 +167,7 @@
         </property>
         <property name="icon">
          <iconset theme="go-previous">
-          <normaloff>.</normaloff>.</iconset>
+          <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
         </property>
        </widget>
       </item>
@@ -185,7 +185,7 @@
         </property>
         <property name="icon">
          <iconset theme="go-next">
-          <normaloff>.</normaloff>.</iconset>
+          <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
         </property>
        </widget>
       </item>
@@ -193,6 +193,9 @@
        <widget class="QComboBox" name="limitCombo">
         <property name="currentIndex">
          <number>0</number>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
         </property>
         <item>
          <property name="text">
@@ -231,7 +234,7 @@
         </property>
         <property name="icon">
          <iconset theme="edit-clear-all">
-          <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+          <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
         </property>
         <property name="flat">
          <bool>true</bool>
@@ -245,7 +248,7 @@
         </property>
         <property name="icon">
          <iconset theme="help-browser">
-          <normaloff>.</normaloff>.</iconset>
+          <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
         </property>
        </widget>
       </item>
@@ -288,7 +291,7 @@
           </property>
           <property name="icon">
            <iconset theme="document-save">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
           <property name="shortcut">
            <string>Ctrl+S</string>
@@ -311,7 +314,7 @@
           </property>
           <property name="icon">
            <iconset theme="preferences-system">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
           <property name="flat">
            <bool>true</bool>
@@ -334,7 +337,20 @@
           </property>
           <property name="icon">
            <iconset theme="document-new">
-            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="fwButton">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset theme="security-high"/>
           </property>
           <property name="flat">
            <bool>true</bool>
@@ -439,7 +455,7 @@
           </property>
           <property name="icon">
            <iconset theme="media-playback-start">
-            <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -474,7 +490,7 @@
      <widget class="QWidget" name="tab">
       <attribute name="icon">
        <iconset theme="view-sort-ascending">
-        <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+        <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>Events</string>
@@ -545,7 +561,7 @@
      <widget class="QWidget" name="tab_8">
       <attribute name="icon">
        <iconset theme="network-workgroup">
-        <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+        <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>Nodes</string>
@@ -572,7 +588,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -641,7 +657,7 @@
      <widget class="QWidget" name="tab_3">
       <attribute name="icon">
        <iconset theme="address-book-new">
-        <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+        <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>Rules</string>
@@ -665,12 +681,23 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <attribute name="headerVisible">
+          <property name="animated">
+           <bool>true</bool>
+          </property>
+          <property name="headerHidden">
+           <bool>true</bool>
+          </property>
+          <attribute name="headerStretchLastSection">
            <bool>false</bool>
           </attribute>
           <column>
            <property name="text">
             <string notr="true">1</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>2</string>
            </property>
           </column>
           <item>
@@ -686,7 +713,7 @@
            </property>
            <property name="icon">
             <iconset theme="system-run">
-             <normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
            </property>
            <item>
             <property name="text">
@@ -699,7 +726,7 @@
             </property>
             <property name="icon">
              <iconset theme="security-medium">
-              <normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
+              <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
             </property>
            </item>
            <item>
@@ -713,7 +740,7 @@
             </property>
             <property name="icon">
              <iconset theme="edit-clear">
-              <normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
+              <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
             </property>
            </item>
           </item>
@@ -729,8 +756,23 @@
             </font>
            </property>
            <property name="icon">
-            <iconset theme="system">
-             <normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
+            <iconset theme="network-workgroup">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>System rules</string>
+           </property>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="icon">
+            <iconset theme="security-high">
+             <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </item>
          </widget>
@@ -739,6 +781,40 @@
            <property name="spacing">
             <number>0</number>
            </property>
+           <item>
+            <widget class="FirewallTableView" name="fwTable">
+             <property name="autoScroll">
+              <bool>false</bool>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::EditKeyPressed</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="showGrid">
+              <bool>false</bool>
+             </property>
+             <property name="sortingEnabled">
+              <bool>true</bool>
+             </property>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderMinimumSectionSize">
+              <number>25</number>
+             </attribute>
+             <attribute name="verticalHeaderDefaultSectionSize">
+              <number>42</number>
+             </attribute>
+            </widget>
+           </item>
            <item>
             <widget class="GenericTableView" name="rulesTable">
              <property name="selectionBehavior">
@@ -772,7 +848,7 @@
               </property>
               <property name="icon">
                <iconset theme="system-run">
-                <normaloff>.</normaloff>.</iconset>
+                <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
               </property>
              </item>
              <item>
@@ -781,7 +857,7 @@
               </property>
               <property name="icon">
                <iconset theme="security-medium">
-                <normaloff>.</normaloff>.</iconset>
+                <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
               </property>
              </item>
              <item>
@@ -790,7 +866,15 @@
               </property>
               <property name="icon">
                <iconset theme="edit-clear">
-                <normaloff>.</normaloff>.</iconset>
+                <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>System rules</string>
+              </property>
+              <property name="icon">
+               <iconset theme="security-high"/>
               </property>
              </item>
             </widget>
@@ -821,7 +905,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -842,7 +926,7 @@
            </property>
            <property name="icon">
             <iconset theme="accessories-text-editor">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -856,7 +940,7 @@
            </property>
            <property name="icon">
             <iconset theme="edit-delete">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -887,7 +971,7 @@
      <widget class="QWidget" name="tab_4">
       <attribute name="icon">
        <iconset theme="computer">
-        <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+        <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>Hosts</string>
@@ -911,7 +995,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -974,7 +1058,7 @@
      <widget class="QWidget" name="tab_7">
       <attribute name="icon">
        <iconset theme="system-run">
-        <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+        <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>Applications</string>
@@ -1001,7 +1085,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -1012,7 +1096,7 @@
            </property>
            <property name="icon">
             <iconset theme="system-search">
-             <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -1081,7 +1165,7 @@
      <widget class="QWidget" name="tab_2">
       <attribute name="icon">
        <iconset theme="emblem-web">
-        <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+        <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>Addresses</string>
@@ -1105,7 +1189,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -1168,7 +1252,7 @@
      <widget class="QWidget" name="tab_5">
       <attribute name="icon">
        <iconset theme="network-wired">
-        <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+        <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>Ports</string>
@@ -1192,7 +1276,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -1252,7 +1336,7 @@
      <widget class="QWidget" name="tab_6">
       <attribute name="icon">
        <iconset theme="system-users">
-        <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
+        <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>Users</string>
@@ -1276,7 +1360,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -1627,6 +1711,11 @@
    <class>GenericTableView</class>
    <extends>QTableView</extends>
    <header>customwidgets.generictableview</header>
+  </customwidget>
+  <customwidget>
+   <class>FirewallTableView</class>
+   <extends>QTableView</extends>
+   <header>customwidgets.firewalltableview</header>
   </customwidget>
  </customwidgets>
  <resources>

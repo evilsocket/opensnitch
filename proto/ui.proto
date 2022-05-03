@@ -80,17 +80,73 @@ message Rule {
 
 enum Action {
     NONE = 0;
-    LOAD_FIREWALL = 1;
-    UNLOAD_FIREWALL = 2;
-    CHANGE_CONFIG = 3;
-    ENABLE_RULE = 4;
-    DISABLE_RULE = 5;
-    DELETE_RULE = 6;
-    CHANGE_RULE = 7;
-    LOG_LEVEL = 8;
-    STOP = 9;
-    MONITOR_PROCESS = 10;
-    STOP_MONITOR_PROCESS = 11;
+    ENABLE_INTERCEPTION = 1;
+    DISABLE_INTERCEPTION = 2;
+    ENABLE_FIREWALL = 3;
+    DISABLE_FIREWALL = 4;
+    RELOAD_FW_RULES = 5;
+    CHANGE_CONFIG = 6;
+    ENABLE_RULE = 7;
+    DISABLE_RULE = 8;
+    DELETE_RULE = 9;
+    CHANGE_RULE = 10;
+    LOG_LEVEL = 11;
+    STOP = 12;
+    MONITOR_PROCESS = 13;
+    STOP_MONITOR_PROCESS = 14;
+}
+
+message StatementValues {
+    string Key = 1;
+    string Value = 2;
+}
+
+message Statement {
+    string Op = 1;
+    string Name = 2;
+    repeated StatementValues Values = 3;
+}
+
+message Expressions {
+    Statement Statement = 1;
+}
+
+message FwRule {
+    // DEPRECATED: for backward compatibility with iptables
+    string Table = 1;
+    string Chain = 2;
+
+    string UUID = 3;
+    bool Enabled = 4;
+    uint64 Position = 5;
+    string Description = 6;
+    string Parameters = 7;
+    repeated Expressions Expressions = 8;
+    string Target = 9;
+    string TargetParameters = 10;
+}
+
+message FwChain {
+    string Name = 1;
+    string Table = 2;
+    string Family = 3;
+    string Priority = 4;
+    string Type = 5;
+    string Hook = 6;
+    string Policy = 7;
+    repeated FwRule Rules = 8;
+}
+
+message FwChains {
+    // DEPRECATED: backward compatibility with iptables
+    FwRule Rule = 1;
+    repeated FwChain Chains = 2;
+}
+
+message SysFirewall {
+    bool Enabled = 1;
+    uint32 Version = 2;
+    repeated FwChains SystemRules = 3;
 }
 
 // client configuration sent on Subscribe()
@@ -103,6 +159,7 @@ message ClientConfig {
     string config = 5;
     uint32 logLevel = 6;
     repeated Rule rules = 7;
+    SysFirewall systemFirewall = 8;
 }
 
 // notification sent to the clients (daemons)
@@ -114,6 +171,7 @@ message Notification {
     Action type = 4;
     string data = 5;   
     repeated Rule rules = 6;
+    SysFirewall sysFirewall = 7;
 }
 
 // notification reply sent to the server (GUI)
