@@ -224,7 +224,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 except:
                     self.comboPorts.setCurrentText(exp.Statement.Values[0].Value)
 
-                op = Fw.Operator.EQUAL if exp.Statement.Op == "" else exp.Statement.Op
+                op = Fw.Operator.EQUAL.value if exp.Statement.Op == "" else exp.Statement.Op
                 self.comboOperator.setCurrentIndex(
                     Fw.Operator.values().index(op)
                 )

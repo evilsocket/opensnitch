@@ -1276,7 +1276,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if cur_idx == self.TAB_RULES and self.fwTable.isVisible():
             uuid = row.model().index(row.row(), 1).data(QtCore.Qt.UserRole+1)
             addr = row.model().index(row.row(), 2).data(QtCore.Qt.UserRole+1)
-            exprs = row.model().index(row.row(), 9).data(QtCore.Qt.UserRole+1)
             self._fw_dialog.load_rule(addr, uuid)
             return
 
@@ -1288,16 +1287,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         data = row.data()
 
         if cur_idx == self.TAB_RULES:
-            if self.rulesTable.isVisible():
-                rule_name = row.model().index(row.row(), self.COL_R_NAME).data()
-                self._set_active_widgets(True, rule_name)
-                r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_R_NAME, self.COL_R_NODE)
-                self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_R_NAME).data()
-                self._set_rules_query(r_name, node)
-                self._restore_details_view_columns(
-                    self.TABLES[cur_idx]['view'].horizontalHeader(),
-                    "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
-                )
+            rule_name = row.model().index(row.row(), self.COL_R_NAME).data()
+            self._set_active_widgets(True, rule_name)
+            r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_R_NAME, self.COL_R_NODE)
+            self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_R_NAME).data()
+            self._set_rules_query(r_name, node)
+            self._restore_details_view_columns(
+                self.TABLES[cur_idx]['view'].horizontalHeader(),
+                "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
+            )
+            return
         if cur_idx == self.TAB_NODES:
             data = row.model().index(row.row(), self.COL_NODE).data()
             self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_NODE).data()
@@ -1376,7 +1375,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         parent_row = -1
         node_addr = ""
         fw_table = ""
-        topItem = self.rulesTreePanel.indexOfTopLevelItem(item)
 
         # FIXME: find a clever way of handling these options
 
@@ -1713,14 +1711,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._set_rules_filter(parent.row(), item_m.row(), item_m.data())
 
     def _set_rules_tab_active(self, row, cur_idx, name_idx, node_idx):
-        data = row.data()
         self._restore_rules_tab_widgets(False)
-
         self.comboRulesFilter.setVisible(False)
 
         r_name = row.model().index(row.row(), name_idx).data()
         node = row.model().index(row.row(), node_idx).data()
         self.nodeRuleLabel.setText(node)
+
         self.tabWidget.setCurrentIndex(cur_idx)
 
         return r_name, node
