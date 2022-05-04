@@ -18,7 +18,7 @@ BuildArch: noarch
 Vendor: Simone "evilsocket" Margaritelli <evilsocket@protonmail.com>
 Url: https://github.com/evilsocket/opensnitch
 Requires: python3, python3-pip, (python3-pyinotify or python3-inotify), python3-qt5, python3-notify2
-Recommends: (python3-slugify or python3-python-slugify), python3-protobuf >= 3.0
+Recommends: (python3-slugify or python3-python-slugify), python3-protobuf >= 3.0, python3-grpcio >= 1.10.0
 
 # avoid to depend on a particular python version
 %global __requires_exclude ^python\\(abi\\) = 3\\..$
@@ -59,15 +59,6 @@ if [ $1 -ge 1 ]; then
     gtk-update-icon-cache /usr/share/icons/hicolor/ || true
 fi
 
-if [ $1 -eq 1 ]; then
-    echo -e "\n You need to install 2 more packages:
-        unicode_slugify and grpcio-tools.
-    
-        pip3 install grpcio-tools
-        pip3 install unicode_slugify
-    "
-fi
-
 %postun
 if [ $1 -eq 0 ]; then
     for i in $(ls /home)
@@ -77,19 +68,12 @@ if [ $1 -eq 0 ]; then
             if [ -h $path -o -f $path ]; then
                 rm -f $path
             else
-                echo "No desktop file for this user: $path"
+                echo "[INFO] No desktop file for this user: $path"
             fi
         fi
     done
 
     pkill -15 opensnitch-ui 2>/dev/null || true
-    
-    echo ""
-    echo "  Remember to uninstall grpcio-tools and unicode_slugify if you don't"
-    echo "  need them anymore:"
-    echo "  pip3 uninstall unicode_slugify"
-    echo "  pip3 uninstall grpcio-tools"
-    echo ""
 fi
 
 

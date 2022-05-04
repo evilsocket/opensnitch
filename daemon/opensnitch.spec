@@ -60,6 +60,7 @@ fi
 install -m 644 -b $B daemon/system-fw.json %{buildroot}/etc/opensnitchd/system-fw.json
 
 install -m 644 ebpf_prog/opensnitch.o %{buildroot}/etc/opensnitchd/opensnitch.o
+install -m 644 ebpf_prog/opensnitch-dns.o %{buildroot}/etc/opensnitchd/opensnitch-dns.o
 
 # upgrade, uninstall
 %preun
@@ -94,4 +95,5 @@ rm -rf %{buildroot}
 %{_sysconfdir}/opensnitchd/default-config.json
 %{_sysconfdir}/opensnitchd/system-fw.json
 %{_sysconfdir}/opensnitchd/opensnitch.o
+%{_sysconfdir}/opensnitchd/opensnitch-dns.o
 %{_sysconfdir}/logrotate.d/opensnitch
