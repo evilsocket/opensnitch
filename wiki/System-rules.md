@@ -1,177 +1,467 @@
-Since v1.3.0-rc.1 you can configure `iptables` rules by editing the file `/etc/opensnitchd/system-fw.json`.
+Starting from v1.6.0-rc.1 you can list and configure system firewall rules from the GUI.
 
-OpenSnitch will ensure that the rules you have configured there are not deleted from the system.
+The old configuration format will be supported for some time, but you're encouraged to migrate your rules to the new format.
 
-iptables
+The supported firewall is nftables. If you're using iptables, you won't be able to configure rules from the GUI. You can still add them to the configuration file.
+
+What's new
 ---
 
-#### Allowing VPN traffic and other things
+- Allow to configure chains' policies (>= v1.6.0rc1)
 
-If you configure the daemon to deny everything that is not specifically allowed by default, many services will be blocked, [like VPNs](https://github.com/gustavo-iniguez-goya/opensnitch/issues/47).
+You can apply a restrictive firewall policy for inbound connections by setting the inbound policy to Deny. This policy will add two extra rules to allow outbound connections (allow established connections + allow connections to localhost, needed for many services like DNS resolvers).
 
-In order to allow this type of traffic, you can add a rule like this (notice that the **Table** is **mangle**):
-```
-{
-    "SystemRules": [
-        {
-            "Rule": {
-                "Description": "Allow pptp VPNs",
-                "Table": "mangle",
-                "Chain": "OUTPUT",
-                "Parameters": "-p gre",
-                "Target": "ACCEPT",
-                "TargetParameters": ""
-            }
-        }
-    ]
-}
-```
+![image](https://user-images.githubusercontent.com/2742953/166963755-58eb268a-0d24-44f4-89a8-a25a252d1207.png)
 
-In this case we allow **GRE traffic** (`-p gre`) to allow **PPTP** connections, or you can allow traffic point to point (`-p udp --dport 1194`). Whatever you can do with iptables.
 
-Besides this, some services like **OpenVPN** uses **ICMP** to keep the tunnel up. Needless to say that [ICMP is very important for network communications](https://tools.ietf.org/html/rfc1191):
+- Add basic firewall rules (>= v1.6.0rc1)
 
-```
-{
-    "SystemRules": [
-        {
-            "Rule": {
-                "Description": "Allow OUTPUT ICMP",
-                "Table": "mangle",
-                "Chain": "OUTPUT",
-                "Parameters": "-p icmp",
-                "Target": "ACCEPT",
-                "TargetParameters": ""
-            },
-        },
-        {
-            "Rule": {
-                "Description": "Allow OUTPUT ICMPv6",
-                "Table": "mangle",
-                "Chain": "OUTPUT",
-                "Parameters": "-p ipv6-icmp",
-                "Target": "ACCEPT",
-                "TargetParameters": ""
-            }
-        }
-    ]
-}
-```
+Besides restricting what applications can access the internet, now you can configure general firewall rules.
 
-(you can allow only _echo_ and `reply`: `-p icmp --icmp-type echo-request`)
+![image](https://user-images.githubusercontent.com/2742953/166965334-939247ba-2002-4d7b-9232-ea2b225f02a8.png)
 
-Some more examples:
-```
-{
-    "SystemRules": [
-        {
-            "Rule": {
-                "Description": "",
-                "Table": "mangle",
-                "Chain": "OUTPUT",
-                "Parameters": "-p tcp ! --syn -m conntrack --ctstate NEW",
-                "Target": "DROP",
-                "TargetParameters": ""
-            }
-        },
-        {
-            "Rule": {
-                "Description": "",
-                "Table": "filter",
-                "Chain": "OUTPUT",
-                "Parameters": "-m conntrack --ctstate UNTRACKED,INVALID",
-                "Target": "DROP",
-                "TargetParameters": ""
-            }
-        },
-        {
-            "Rule": {
-                "Description": "",
-                "Table": "mangle",
-                "Chain": "PREROUTING",
-                "Parameters": "-m conntrack --ctstate INVALID,UNTRACKED",
-                "Target": "DROP",
-                "TargetParameters": ""
-            }
-        }
-    ]
-}
-```
+For now you can only configure basic inbound or outbound connections (TCP and UDP). For example you can allow inbound SSH and outbound WireGuard
 
-Allow nfs connections to mount a remote share:
-```
-        {
-            "Rule": {
-                "Description": "Allow nfs", 
-                "Table": "mangle",
-                "Chain": "OUTPUT",
-                "Parameters": "-p tcp --dport 2049",
-                "Target": "ACCEPT", 
-                "TargetParameters": ""
-            }
-        }
-```
+![image](https://user-images.githubusercontent.com/2742953/166966001-2ee27591-5271-48a2-a474-91bf8758c4fb.png)
 
-The list of protocols you can allow or deny are defined in the file `/etc/protocols`
 
-Intercepting connections from containers
+Firewall configuration format
 ---
 
-In order to intercept connections from containers, you need to select in `Preferences->Nodes->Process monitor method: ebpf`, and add the following rule to `/etc/opensnitchd/system-fw.json`:
-```
-        {
-            "Rule": {
-                "Enabled": true,
-                "Description": "",
-                "Table": "mangle",
-                "Chain": "FORWARD",
-                "Parameters": "-m conntrack --ctstate NEW",
-                "Target": "NFQUEUE",
-                "TargetParameters": "--queue-num 0 --queue-bypass"
-            }
-        }
-```
+The firewall configuration offers much more options to configure the system firewall.
 
-nftables
+
+Chains
 ---
 
-OpenSnitch system rules cannot be used yet with nftables as of v1.4.0, it's scheduled to be added for v1.5.0.
+Supported Chains are the ones defined according to this matrix:
 
-However if you need to use nftables you can combine OpenSnitch interception with the nftables firewall service:
+       Table 6. Standard priority names, family and hook compatibility matrix
+       ┌─────────┬───────┬────────────────┬─────────────┐
+       │Name     │ Value │ Families       │ Hooks       │
+       ├─────────┼───────┼────────────────┼─────────────┤
+       │raw      │ -300  │ ip, ip6, inet  │ all         │
+       ├─────────┼───────┼────────────────┼─────────────┤
+       │mangle   │ -150  │ ip, ip6, inet  │ all         │
+       ├─────────┼───────┼────────────────┼─────────────┤
+       │dstnat   │ -100  │ ip, ip6, inet  │ prerouting  │
+       ├─────────┼───────┼────────────────┼─────────────┤
+       │filter   │ 0     │ ip, ip6, inet, │ all         │
+       │         │       │ arp, netdev    │             │
+       ├─────────┼───────┼────────────────┼─────────────┤
+       │security │ 50    │ ip, ip6, inet  │ all         │
+       ├─────────┼───────┼────────────────┼─────────────┤
+       │srcnat   │ 100   │ ip, ip6, inet  │ postrouting │
+       └─────────┴───────┴────────────────┴─────────────┘
 
-1. Edit `/etc/opensnitchd/default-config.json` and set "Firewall" to "nftables".
-2. Edit `/etc/nftables.conf` and add these rules:
+https://www.netfilter.org/projects/nftables/manpage.html#lbAQ
+
+
+The format is as follow:
+
+```json
+        {
+          "Name": "input",
+          "Table": "filter",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "filter",
+          "Hook": "input",
+          "Policy": "accept",
+          "Rules": [
+          ]
 ```
-#!/usr/sbin/nft -f
 
-# docs: https://wiki.nftables.org/wiki-nftables/index.php/Simple_ruleset_for_a_server
+`Name` is just the name of the chain. It can be whatever you want.
 
-# flush ruleset
+Possible options that you can combine to create new chains:
 
-# inet == ipv4 && ipv6
+| Field | Options |
+|-------|---------|
+|Family| ip, ip6, inet, netdev, bridge|
+|Priority| not used|   
+|Type| filter, mangle, conntrack, natdest, natsource, raw, security, selinux|
+|Hook| prerouting, input, output, postrouting, forward, ingress|
+|Policy| drop, accept|
 
-# the name of the tables and hooks is not random, OpenSnitch adds filter and mangle, and output chains
-table inet filter {
-    chain input {
-        # block by default incoming connections
-        type filter hook input priority filter; policy drop;
-        
-        # allow already established connections
-        ct state { established, related } accept
-        ct state invalid drop
-        
-        # allow ssh
-        # tcp dport { 22 } accept
+All the possible options are described here:
+https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
+    
+Rules
+---
+    
+Example:
+```json
+    {
+              "UUID": "97dd2578-2f29-4bcc-a296-f4358c16501d",
+              "Enabled": true,
+              "Position": "0",
+              "Description": "Allow UDP navigation when INPUT policy is DROP",
+              "Expressions": []
+              "Target": "accept",
+              "TargetParameters": ""
     }
-}
 ```
-3. Enable nftables service:
-`$ sudo systemctl enable nftables`
-`$ sudo systemctl start nftables`
+
+ |Fields | Description|
+ |-------|------------|
+ |UUID|Unique identifier for this rule. If it's empty, a new temporal UUID will be generated|
+ |Enabled| true or false |
+ |Position| no used yet |
+ |Description| Description of the rule|
+ |Expressions| List of options to match against connections: tcp dport 22 (see below)|
+ |Target| Action applied on the connection: accept, deny, reject, return, jump, goto, stop, tproxy, redirect, dnat, snat|
+ |TargetParameters|Parameters of the given Target. For example: Target -> redirect, TargetParameters -> to :8080|
+    
+ Rules expressions
+ ---
+ 
+ Expressions are a list of statements that represent the actions to be performed on the connections. They can alter control flow (return, jump to a different chain, accept or drop the packet) or can perform actions, such as logging, rejecting a packet, etc. 
+ 
+ https://www.netfilter.org/projects/nftables/manpage.html#lbCV
+ https://wiki.nftables.org/wiki-nftables/index.php/Building_rules_through_expressions
+ 
+ Example:
+ ```json
+               "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "ct",
+                    "Values": [
+                      {
+                        "Key": "state",
+                        "Value": "invalid"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "log",
+                    "Values": [
+                      {
+                        "Key": "prefix",
+                        "Value": "invalid-in-packet"
+                      }
+                    ]
+                  }
+                }
+              ],
+```
+ 
+ Each statement has different values (Key and Value field). Not all official statements are supported, only the ones described on the following table:
+ 
+ |Statement Name|Values|Description|Example|
+ |---------|------|-----------|-------|
+ |log| Key: prefix . TODO: flags, log level|Logs connections to the system with the given prefix|Name: log, Key: prefix, Value: "ssh out"|
+ |iifname, oifname|Key: eth0, wlp3s0, etc.. (network interface name), Value field is ignored in this case.|Matches the input network interface (iifname) or the output one (oifname)|Name: iifname, Key: lo|
+ |ip,ip6|Key: daddr, saddr|Matches dest or source address. You can specify an IP, a range of IPs or IPs separated by commas|Name: ip, Key: daddr, Value: 127.0.0.1|
+ |limit||||
+ |udp,tcp,sctp,dccp|Key: sport,dport| Matches against dest or source port on the given network protocol. You can specify ports separated by commas and port ranges.| Name: tcp, Key: dport, Value: 22|
+ |quota|Key: quota|Applies the given verdict on connections matching certain criteria: like when going over a given mbytes, gbytes, etc|Name: quota, Key: over, Key: "mbytes", Value: "100"|
+ |counter| Key: name||Name: counter, Key: name, Value: "dport 22 counter"|
+ |ct|Key: state, mark; Value: invalid, new, established, related|Matches connections on the conntrack table||
+ |meta|Key: mark|||
+ 
+ The field `Op` is the operator to use on the statement: ==, >=, <=, >, <, != . If it's empty, by default the equal operator (==) will be used.
+ 
+ Examples of supported statements
+ ---
+ 
+ log:
+ ```json
+                   "Statement": {
+                    "Op": "",
+                    "Name": "log",
+                    "Values": [
+                      {
+                        "Key": "prefix",
+                        "Value": "invalid-in-packet"
+                      }
+                    ]
+                  }
+ ```
+ 
+ ---
+ 
+ iifname, oifname:
+ ```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "iifname",
+                    "Values": [
+                      {
+                        "Key": "lo",
+                        "Value": ""
+                      }
+                    ]
+                  }
+```
 
 ---
 
-In future versions you will be able to configure these rules from the GUI, but for now you have to add the rules to the file `/etc/opensnitchd/system-fw.json`.
+ip + daddr, IP ranges (network ranges not supported)
+```json
+                  "Statement": {
+                    "Op": "!=",
+                    "Name": "ip",
+                    "Values": [
+                      {
+                        "Key": "daddr",
+                        "Value": "192.168.2.100-192.168.2.200"
+                      }
+                    ]
+                  }
+```
 
-If you need or want a GUI, or you'd like to have more control on the rules, maybe you should try UFW, FwBuilder and the like.
+ip + saddr + multiple IPs separated by commas
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "ip",
+                    "Values": [
+                      {
+                        "Key": "saddr",
+                        "Value": "192.168.2.1,192.168.2.2"
+                      }
+                    ]
+                  }
+```
 
+ip + daddr + single IP
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "ip",
+                    "Values": [
+                      {
+                        "Key": "daddr",
+                        "Value": "192.168.2.100"
+                      }
+                    ]
+                  }
+```
+
+---
+
+tcp + dport, single dport
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "tcp",
+                    "Values": [
+                      {
+                        "Key": "dport",
+                        "Value": "443"
+                      }
+                    ]
+                  }
+```
+
+udp + dport + operator, dports range
+```json
+                  "Statement": {
+                    "Op": ">=",
+                    "Name": "udp",
+                    "Values": [
+                      {
+                        "Key": "dport",
+                        "Value": "15000-20000"
+                      }
+                    ]
+                  }
+```
+
+tcp + dport, multiple ports separated by commas
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "tcp",
+                    "Values": [
+                      {
+                        "Key": "dport",
+                        "Value": "8080,8081"
+                      }
+                    ]
+                  }
+```
+
+---
+
+Apply a quota on a connection when the given connection exceeds 1GB. When it exceeds the defined limit, the verdict you specify will be applied (deny, accept, etc)
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "quota",
+                    "Values": [
+                      {
+                        "Key": "over",
+                        "Value": ""
+                      },
+                      {
+                        "Key": "gbytes",
+                        "Value": "1"
+                      }
+                    ]
+                  }
+```
+
+---
+
+count packets of a given connection:
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "counter",
+                    "Values": [
+                      {
+                        "Key": "packets",
+                        "Value": ""
+                      },
+                      {
+                        "Key": "name",
+                        "Value": "dport 443 counter"
+                      }
+                    ]
+                  }
+```
+
+---
+
+matching conntrack states:
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "ct",
+                    "Values": [
+                      {
+                        "Key": "state",
+                        "Value": "invalid"
+                      }
+                    ]
+                  }
+```
+
+matching multiple conntrack states:
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "ct",
+                    "Values": [
+                      {
+                        "Key": "state",
+                        "Value": "related"
+                      },
+                      {
+                        "Key": "state",
+                        "Value": "established"
+                      }
+                    ]
+                  }
+```
+
+matching a conntrack mark (decimal value):
+```json
+                 "Statement": {
+                    "Name": "ct",
+                    "Values": [
+                      {
+                        "Key": "mark",
+                        "Value": "666"
+                      }
+                    ]
+                  }
+```
+
+setting a conntrack mark on packets (decimal value):
+```json
+                  "Statement": {
+                    "Name": "ct",
+                    "Values": [
+                      {
+                        "Key": "set",
+                        "Value": ""
+                      },
+                      {
+                        "Key": "mark",
+                        "Value": "666"
+                      }
+                    ]
+                  }
+```
+
+---
+
+Apply limits on connections, 1MB/s (you can combine it with tcp -> sport 443 to limit download bandwidth for example):
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "limit",
+                    "Values": [
+                      {
+                        "Key": "units",
+                        "Value": "1"
+                      },
+                      {
+                        "Key": "rate-units",
+                        "Value": "mbytes"
+                      },
+                      {
+                        "Key": "time-units",
+                        "Value": "second"
+                      }
+                    ]
+                  }
+```
+
+// TODO: add burst example
+
+---
+
+meta, set priority:
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "meta",
+                    "Values": [
+                      {
+                        "Key": "priority",
+                        "Value": "1"
+                      }
+                    ]
+                  }
+```
+
+meta, match packets by mark:
+```json
+                 "Statement": {
+                    "Op": "",
+                    "Name": "meta",
+                    "Values": [
+                      {
+                        "Key": "mark",
+                        "Value": "122"
+                      }
+                    ]
+                  }
+```
+
+meta, set mark on packets:
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "meta",
+                    "Values": [
+                      {
+                        "Key": "set",
+                        "Value": ""
+                      },
+                      {
+                        "Key": "mark",
+                        "Value": "57005"
+                      }
+                    ]
+                  }
+```
