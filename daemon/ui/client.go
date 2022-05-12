@@ -23,10 +23,10 @@ import (
 var (
 	configFile             = "/etc/opensnitchd/default-config.json"
 	dummyOperator, _       = rule.NewOperator(rule.Simple, false, rule.OpTrue, "", make([]rule.Operator, 0))
-	clientDisconnectedRule = rule.Create("ui.client.disconnected", true, false, rule.Allow, rule.Once, dummyOperator)
+	clientDisconnectedRule = rule.Create("ui.client.disconnected", "", true, false, rule.Allow, rule.Once, dummyOperator)
 	// While the GUI is connected, deny by default everything until the user takes an action.
-	clientConnectedRule = rule.Create("ui.client.connected", true, false, rule.Deny, rule.Once, dummyOperator)
-	clientErrorRule     = rule.Create("ui.client.error", true, false, rule.Allow, rule.Once, dummyOperator)
+	clientConnectedRule = rule.Create("ui.client.connected", "", true, false, rule.Deny, rule.Once, dummyOperator)
+	clientErrorRule     = rule.Create("ui.client.error", "", true, false, rule.Allow, rule.Once, dummyOperator)
 	config              Config
 )
 

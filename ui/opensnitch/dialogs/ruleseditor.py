@@ -269,6 +269,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         rule.operator.sensitive = self._bool(records.value(8))
         rule.operator.operand = records.value(9)
         rule.operator.data = "" if records.value(10) == None else str(records.value(10))
+        rule.description = records.value(11)
 
         return rule
 
@@ -277,6 +278,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule = None
 
         self.ruleNameEdit.setText("")
+        self.ruleDescEdit.setPlainText("")
         self.statusLabel.setText("")
 
         self.actionDenyRadio.setChecked(True)
@@ -327,6 +329,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return False
 
         self.ruleNameEdit.setText(rule.name)
+        self.ruleDescEdit.setPlainText(rule.description)
         self.enableCheck.setChecked(rule.enabled)
         self.precedenceCheck.setChecked(rule.precedence)
         if rule.action == Config.ACTION_DENY:
@@ -449,9 +452,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _insert_rule_to_db(self, node_addr):
         self._db.insert("rules",
-            "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
+            "(time, node, name, description, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
                 (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    node_addr, self.rule.name,
+                    node_addr, self.rule.name, self.rule.description,
                     str(self.rule.enabled), str(self.rule.precedence),
                     self.rule.action, self.rule.duration, self.rule.operator.type,
                     str(self.rule.operator.sensitive), self.rule.operator.operand, self.rule.operator.data),
@@ -509,6 +512,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         """
         self.rule = ui_pb2.Rule()
         self.rule.name = self.ruleNameEdit.text()
+        self.rule.description = self.ruleDescEdit.toPlainText()
         self.rule.enabled = self.enableCheck.isChecked()
         self.rule.precedence = self.precedenceCheck.isChecked()
         self.rule.operator.type = Config.RULE_TYPE_SIMPLE

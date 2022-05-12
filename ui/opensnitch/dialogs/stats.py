@@ -200,7 +200,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "filterLine": None,
                 "model": None,
                 "delegate": commonDelegateConf,
-                "display_fields": "*",
+                "display_fields": "time as Time," \
+                        "node as Node," \
+                        "name as Name," \
+                        "enabled as Enabled," \
+                        "action as Action," \
+                        "duration as Duration," \
+                        "description as Description",
                 "header_labels": [],
                 "last_order_by": "2",
                 "last_order_to": 0,
@@ -336,6 +342,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.COL_STR_TIME = QC.translate("stats", "Time", "This is a word, without spaces and symbols.")
         self.COL_STR_ACTION = QC.translate("stats", "Action", "This is a word, without spaces and symbols.")
         self.COL_STR_DURATION = QC.translate("stats", "Duration", "This is a word, without spaces and symbols.")
+        self.COL_STR_DESCRIPTION = QC.translate("stats", "Description", "This is a word, without spaces and symbols.")
         self.COL_STR_NODE = QC.translate("stats", "Node", "This is a word, without spaces and symbols.")
         self.COL_STR_ENABLED = QC.translate("stats", "Enabled", "This is a word, without spaces and symbols.")
         self.COL_STR_PRECEDENCE = QC.translate("stats", "Precedence", "This is a word, without spaces and symbols.")
@@ -447,13 +454,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.COL_STR_NODE,
             self.COL_STR_NAME,
             self.COL_STR_ENABLED,
-            self.COL_STR_PRECEDENCE,
             self.COL_STR_ACTION,
             self.COL_STR_DURATION,
-            "operator_type",
-            "operator_sensitive",
-            "operator_operand",
-            "operator_data",
+            self.COL_STR_DESCRIPTION,
         ]
 
         stats_headers = [
@@ -492,8 +495,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 verticalScrollBar=self.verticalScrollBar,
                 sort_direction=self.SORT_ORDER[1],
                 delegate=self.TABLES[self.TAB_NODES]['delegate'])
-        self.TABLES[self.TAB_RULES]['view'] = self._setup_table(QtWidgets.QTableView,
-                self.rulesTable, "rules",
+        self.TABLES[self.TAB_RULES]['view'] = self._setup_table(QtWidgets.QTableView, self.rulesTable, "rules",
+                fields=self.TABLES[self.TAB_RULES]['display_fields'],
                 model=GenericTableModel("rules", self.TABLES[self.TAB_RULES]['header_labels']),
                 verticalScrollBar=self.rulesScrollBar,
                 delegate=self.TABLES[self.TAB_RULES]['delegate'],
@@ -688,6 +691,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _configure_buttons_icons(self):
         self.iconStart = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPlay"))
         self.iconPause = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPause"))
+        fwIcon = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_VistaShield"))
 
         self.newRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileIcon")))
         self.delRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TrashIcon")))
@@ -695,6 +699,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.saveButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton")))
         self.prefsButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogDetailedView")))
         self.startButton.setIcon(self.iconStart)
+        self.fwButton.setIcon(fwIcon)
         self.cmdProcDetails.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogContentsView")))
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogResetButton")))
         for idx in range(1,8):
@@ -1869,7 +1874,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 what = what + " AND"
             what = what + " r.name LIKE '%{0}%'".format(filter_text)
         model = self._get_active_table().model()
-        self.setQuery(model, "SELECT * FROM rules as r %s %s %s" % (what, self._get_order(), self._get_limit()))
+        self.setQuery(model, "SELECT {0} FROM rules as r {1} {2} {3}".format(
+            self.TABLES[self.TAB_RULES]['display_fields'],
+            what,
+            self._get_order(),
+            self._get_limit()
+        ))
         self._restore_details_view_columns(
             self.TABLES[self.TAB_RULES]['view'].horizontalHeader(),
             "{0}{1}".format(Config.STATS_VIEW_COL_STATE, self.TAB_RULES)

@@ -1,6 +1,7 @@
 from PyQt5.QtSql import QSqlDatabase, QSqlQueryModel, QSqlQuery
 import threading
 import sys
+import os
 from datetime import datetime, timedelta
 
 class Database:
@@ -9,6 +10,8 @@ class Database:
     DB_IN_MEMORY   = ":memory:"
     DB_TYPE_MEMORY = 0
     DB_TYPE_FILE   = 1
+
+    DB_VERSION = 1
 
     @staticmethod
     def instance():
@@ -26,6 +29,8 @@ class Database:
         if dbtype != Database.DB_TYPE_MEMORY:
             self.db_file = dbfile
 
+        is_new_file = not os.path.isfile(self.db_file)
+
         self.db = QSqlDatabase.addDatabase("QSQLITE", self.db_name)
         self.db.setDatabaseName(self.db_file)
         if not self.db.open():
@@ -38,7 +43,13 @@ class Database:
             print("db.initialize() error:", db_error)
             return False, db_error
 
+
+        if is_new_file:
+            print("is new file, or IN MEMORY, setting initial schema version")
+            self.set_schema_version(self.DB_VERSION)
+
         self._create_tables()
+        self._upgrade_db_schema()
         return True, None
 
     def close(self):
@@ -77,6 +88,7 @@ class Database:
     def _create_tables(self):
         # https://www.sqlite.org/wal.html
         if self.db_file == Database.DB_IN_MEMORY:
+            self.set_schema_version(self.DB_VERSION)
             q = QSqlQuery("PRAGMA journal_mode = OFF", self.db)
             q.exec_()
             q = QSqlQuery("PRAGMA synchronous = OFF", self.db)
@@ -137,6 +149,7 @@ class Database:
                 "operator_sensitive text, " \
                 "operator_operand text, " \
                 "operator_data text, " \
+                "description text, " \
                 "UNIQUE(node, name)"
                 ")", self.db)
         q.exec_()
@@ -167,6 +180,49 @@ class Database:
                 "last_connection text)"
                 , self.db)
         q.exec_()
+
+    def get_schema_version(self):
+        q = QSqlQuery("PRAGMA user_version;", self.db)
+        q.exec_()
+        if q.next():
+            print("schema version:", q.value(0))
+            return int(q.value(0))
+
+        return 0
+
+    def set_schema_version(self, version):
+        print("setting schema version to:", version)
+        q = QSqlQuery("PRAGMA user_version = {0}".format(version), self.db)
+        q.exec_()
+
+    def _upgrade_db_schema(self):
+        migrations_path = os.path.dirname(os.path.realpath(__file__)) + "/migrations"
+        schema_version = self.get_schema_version()
+        if schema_version == self.DB_VERSION:
+            print("db schema is up to date")
+            return
+        while schema_version < self.DB_VERSION:
+            schema_version += 1
+            try:
+                print("applying schema upgrade:", schema_version)
+                self._apply_db_upgrade("{0}/upgrade_{1}.sql".format(migrations_path, schema_version))
+            except Exception:
+                print("Not applyging upgrade_{0}.sql".format(schema_version))
+        self.set_schema_version(schema_version)
+
+    def _apply_db_upgrade(self, file):
+        print("applying upgrade from:", file)
+        q = QSqlQuery(self.db)
+        with open(file) as f:
+            for line in f.readlines():
+                # skip comments
+                if line.startswith("--"):
+                    continue
+                print("applying upgrade:", line, end="")
+                if q.exec(line) == False:
+                    print("\tError:", q.lastError().text())
+                else:
+                    print("\tOK")
 
     def optimize(self):
         """https://www.sqlite.org/pragma.html#pragma_optimize
@@ -430,9 +486,9 @@ class Database:
 
     def insert_rule(self, rule, node_addr):
         self.insert("rules",
-            "(time, node, name, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
+            "(time, node, name, description, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
                 (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    node_addr, rule.name,
+                    node_addr, rule.name, rule.description,
                     str(rule.enabled), str(rule.precedence),
                     rule.action, rule.duration, rule.operator.type,
                     str(rule.operator.sensitive), rule.operator.operand, rule.operator.data),

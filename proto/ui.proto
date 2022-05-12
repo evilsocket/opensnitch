@@ -71,11 +71,12 @@ message Operator {
 
 message Rule {
     string name = 1;
-    bool enabled = 2;
-    bool precedence = 3;
-    string action = 4;
-    string duration = 5;
-    Operator operator = 6;
+    string description = 2;
+    bool enabled = 3;
+    bool precedence = 4;
+    string action = 5;
+    string duration = 6;
+    Operator operator = 7;
 }
 
 enum Action {

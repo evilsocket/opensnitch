@@ -33,26 +33,28 @@ const (
 // The fields match the ones saved as json to disk.
 // If a .json rule file is modified on disk, it's reloaded automatically.
 type Rule struct {
-	Created    time.Time `json:"created"`
-	Updated    time.Time `json:"updated"`
-	Name       string    `json:"name"`
-	Enabled    bool      `json:"enabled"`
-	Precedence bool      `json:"precedence"`
-	Action     Action    `json:"action"`
-	Duration   Duration  `json:"duration"`
-	Operator   Operator  `json:"operator"`
+	Created     time.Time `json:"created"`
+	Updated     time.Time `json:"updated"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Enabled     bool      `json:"enabled"`
+	Precedence  bool      `json:"precedence"`
+	Action      Action    `json:"action"`
+	Duration    Duration  `json:"duration"`
+	Operator    Operator  `json:"operator"`
 }
 
 // Create creates a new rule object with the specified parameters.
-func Create(name string, enabled bool, precedence bool, action Action, duration Duration, op *Operator) *Rule {
+func Create(name, description string, enabled bool, precedence bool, action Action, duration Duration, op *Operator) *Rule {
 	return &Rule{
-		Created:    time.Now(),
-		Enabled:    enabled,
-		Precedence: precedence,
-		Name:       name,
-		Action:     action,
-		Duration:   duration,
-		Operator:   *op,
+		Created:     time.Now(),
+		Enabled:     enabled,
+		Precedence:  precedence,
+		Name:        name,
+		Description: description,
+		Action:      action,
+		Duration:    duration,
+		Operator:    *op,
 	}
 }
 
@@ -86,6 +88,7 @@ func Deserialize(reply *protocol.Rule) (*Rule, error) {
 
 	return Create(
 		reply.Name,
+		reply.Description,
 		reply.Enabled,
 		reply.Precedence,
 		Action(reply.Action),
@@ -100,11 +103,12 @@ func (r *Rule) Serialize() *protocol.Rule {
 		return nil
 	}
 	return &protocol.Rule{
-		Name:       string(r.Name),
-		Enabled:    bool(r.Enabled),
-		Precedence: bool(r.Precedence),
-		Action:     string(r.Action),
-		Duration:   string(r.Duration),
+		Name:        string(r.Name),
+		Description: string(r.Description),
+		Enabled:     bool(r.Enabled),
+		Precedence:  bool(r.Precedence),
+		Action:      string(r.Action),
+		Duration:    string(r.Duration),
 		Operator: &protocol.Operator{
 			Type:      string(r.Operator.Type),
 			Sensitive: bool(r.Operator.Sensitive),

@@ -549,9 +549,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             proto, addr = self._get_peer(kwargs['peer'])
             self._nodes.add_rule((datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
                                  "{0}:{1}".format(proto, addr),
-                                rule.name, str(rule.enabled), str(rule.precedence), rule.action, rule.duration,
-                                rule.operator.type, str(rule.operator.sensitive), rule.operator.operand,
-                                rule.operator.data)
+                                 rule.name, rule.description, str(rule.enabled),
+                                 str(rule.precedence), rule.action, rule.duration,
+                                 rule.operator.type, str(rule.operator.sensitive), rule.operator.operand,
+                                 rule.operator.data)
         elif kwargs['action'] == self.DELETE_RULE:
             self._db.delete_rule(kwargs['name'], kwargs['addr'])
 
