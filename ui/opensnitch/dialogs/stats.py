@@ -1539,13 +1539,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         scrollValue = self.rulesTreePanel.verticalScrollBar().value()
         fwItem = self.rulesTreePanel.topLevelItem(self.RULES_TREE_FIREWALL)
         it = QtWidgets.QTreeWidgetItemIterator(fwItem)
-        while it.value():
-            x = it.value()
-            if x.isExpanded():
-                expanded.append(x)
-            if x.isSelected():
-                selected = x
-            it += 1
+        try:
+            while it.value():
+                x = it.value()
+                if x.isExpanded():
+                    expanded.append(x)
+                if x.isSelected():
+                    selected = x
+                it += 1
+        except Exception:
+            pass
 
         self.rulesTreePanel.setAnimated(False)
         fwItem.takeChildren()
