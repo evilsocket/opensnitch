@@ -19,6 +19,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/dns"
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/log/loggers"
 	"github.com/evilsocket/opensnitch/daemon/netfilter"
 	"github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
@@ -364,7 +365,6 @@ func main() {
 	} else if err = rules.Load(rulesPath); err != nil {
 		log.Fatal("%s", err)
 	}
-	stats = statistics.New(rules)
 
 	// prepare the queue
 	setupWorkers()
@@ -383,8 +383,9 @@ func main() {
 	}
 	repeatPktChan = repeatQueue.Packets()
 
-	uiClient = ui.NewClient(uiSocket, stats, rules)
-	stats.SetConfig(uiClient.GetStatsConfig())
+	loggerMgr := loggers.NewLoggerManager()
+	stats = statistics.New(rules)
+	uiClient = ui.NewClient(uiSocket, stats, rules, loggerMgr)
 
 	// queue is ready, run firewall rules
 	firewall.Init(uiClient.GetFirewallType(), &queueNum)

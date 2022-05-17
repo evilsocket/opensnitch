@@ -9,6 +9,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/log/loggers"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
@@ -31,8 +32,9 @@ var (
 )
 
 type serverConfig struct {
-	Address string `json:"Address"`
-	LogFile string `json:"LogFile"`
+	Address string                 `json:"Address"`
+	LogFile string                 `json:"LogFile"`
+	Loggers []loggers.LoggerConfig `json:"Loggers"`
 }
 
 // Config holds the values loaded from configFile
@@ -67,7 +69,7 @@ type Client struct {
 }
 
 // NewClient creates and configures a new client.
-func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Loader) *Client {
+func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Loader, loggers *loggers.LoggerManager) *Client {
 	c := &Client{
 		stats:        stats,
 		rules:        rules,
@@ -83,6 +85,9 @@ func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Load
 	if socketPath != "" {
 		c.setSocketPath(c.getSocketPath(socketPath))
 	}
+	loggers.Load(config.Server.Loggers, config.Stats.Workers)
+	stats.SetLimits(config.Stats)
+	stats.SetLoggers(loggers)
 
 	go c.poller()
 	return c
@@ -106,13 +111,6 @@ func (c *Client) InterceptUnknown() bool {
 	config.RLock()
 	defer config.RUnlock()
 	return config.InterceptUnknown
-}
-
-// GetStatsConfig returns the stats config from disk
-func (c *Client) GetStatsConfig() statistics.StatsConfig {
-	config.RLock()
-	defer config.RUnlock()
-	return config.Stats
 }
 
 // GetFirewallType returns the firewall to use

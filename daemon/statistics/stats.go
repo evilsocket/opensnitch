@@ -8,6 +8,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/log/loggers"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
@@ -16,6 +17,7 @@ import (
 type StatsConfig struct {
 	MaxEvents int `json:"MaxEvents"`
 	MaxStats  int `json:"MaxStats"`
+	Workers   int `json:"Workers"`
 }
 
 type conEvent struct {
@@ -51,6 +53,8 @@ type Statistics struct {
 	maxEvents int
 	// max number of entries for each By* map
 	maxStats int
+
+	logger *loggers.LoggerManager
 }
 
 // New returns a new Statistics object and initializes the go routines to update the stats.
@@ -71,24 +75,50 @@ func New(rules *rule.Loader) (stats *Statistics) {
 		maxStats:  25,
 	}
 
-	go stats.eventWorker(0)
-	go stats.eventWorker(1)
-	go stats.eventWorker(2)
-	go stats.eventWorker(3)
-
 	return stats
 }
 
-// SetConfig configures the max events to keep in the backlog before sending
+func (s *Statistics) SetLoggers(loggers *loggers.LoggerManager) {
+	s.logger = loggers
+}
+
+// SetLimits configures the max events to keep in the backlog before sending
 // the stats to the UI, or while the UI is not connected.
 // if the backlog is full, it'll be shifted by one.
-func (s *Statistics) SetConfig(config StatsConfig) {
+func (s *Statistics) SetLimits(config StatsConfig) {
 	if config.MaxEvents > 0 {
 		s.maxEvents = config.MaxEvents
 	}
 	if config.MaxStats > 0 {
 		s.maxStats = config.MaxStats
 	}
+	wrks := config.Workers
+	if wrks == 0 {
+		wrks = 4
+	}
+	log.Info("Stats, max events: %d, max stats: %d, max workers: %d", s.maxStats, s.maxEvents, wrks)
+	for i := 0; i < wrks; i++ {
+		go s.eventWorker(i)
+	}
+
+}
+
+// OnConnectionEvent sends the details of a new connection throughout a channel,
+// in order to add the connection to the stats.
+func (s *Statistics) OnConnectionEvent(con *conman.Connection, match *rule.Rule, wasMissed bool) {
+	s.jobs <- conEvent{
+		con:       con,
+		match:     match,
+		wasMissed: wasMissed,
+	}
+	action := "<nil>"
+	rname := "<nil>"
+	if match != nil {
+		action = string(match.Action)
+		rname = string(match.Name)
+	}
+
+	s.logger.Log(con.Serialize(), action, rname)
 }
 
 // OnDNSResponse increases the counter of dns and accepted connections.
@@ -181,16 +211,6 @@ func (s *Statistics) onConnection(con *conman.Connection, match *rule.Rule, wasM
 		return
 	}
 	s.Events = append(s.Events, NewEvent(con, match))
-}
-
-// OnConnectionEvent sends the details of a new connection throughout a channel,
-// in order to add the connection to the stats.
-func (s *Statistics) OnConnectionEvent(con *conman.Connection, match *rule.Rule, wasMissed bool) {
-	s.jobs <- conEvent{
-		con:       con,
-		match:     match,
-		wasMissed: wasMissed,
-	}
 }
 
 func (s *Statistics) serializeEvents() []*protocol.Event {
