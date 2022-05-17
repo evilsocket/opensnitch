@@ -42,11 +42,16 @@
 
 ### Cannot open kprobe_events
 
-If after enabling eBPF you see the following error:
+If after enabling eBPF you see the following error (even as root, specially on Fedora):
 
-cannot open kprobe_events: open /sys/kernel/debug/tracing/kprobe_events: permission denied
+**cannot open kprobe_events: open /sys/kernel/debug/tracing/kprobe_events: permission denied**
 
 you'll need to allow opensnitch in selinux or set it to permissive:
+```
+# setenforce 0
+```
+
+or:
 
 ```
 $ sudo journalctl -ar | grep "opensnitch.*lockdown"
@@ -61,6 +66,8 @@ $ sudo su
 
 You can download this generic selinux policy from here: 
 https://github.com/evilsocket/opensnitch/issues/475#issuecomment-901838324
+
+
 
 Useful links:
 
