@@ -73,11 +73,11 @@ func getChainPriority(family, cType, hook string) (*nftables.ChainPriority, nfta
 		log.Warning("[nftables] invalid nat combination of tables and hooks. chain: %s, hook: %s", cType, hook)
 		return nil, chainType
 	}
-	if family == exprs.NFT_FAMILY_NETDEV && (cType != exprs.NFT_CHAIN_FILTER || (hook != exprs.NFT_HOOK_EGRESS || hook != exprs.NFT_HOOK_INGRESS)) {
+	if family == exprs.NFT_FAMILY_NETDEV && (cType != exprs.NFT_CHAIN_FILTER || hook != exprs.NFT_HOOK_INGRESS) {
 		log.Warning("[nftables] invalid netdev combination of tables and hooks. chain: %s, hook: %s", cType, hook)
 		return nil, chainType
 	}
-	if family == exprs.NFT_FAMILY_ARP && (cType != exprs.NFT_CHAIN_FILTER || (hook != exprs.NFT_HOOK_OUTPUT || hook != exprs.NFT_HOOK_INPUT)) {
+	if family == exprs.NFT_FAMILY_ARP && (cType != exprs.NFT_CHAIN_FILTER || (hook != exprs.NFT_HOOK_OUTPUT && hook != exprs.NFT_HOOK_INPUT)) {
 		log.Warning("[nftables] invalid arp combination of tables and hooks. chain: %s, hook: %s", cType, hook)
 		return nil, chainType
 	}

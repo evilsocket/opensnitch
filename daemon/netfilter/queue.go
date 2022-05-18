@@ -2,7 +2,7 @@ package netfilter
 
 /*
 #cgo pkg-config: libnetfilter_queue
-#cgo CFLAGS: -Wall -I/usr/include
+#cgo CFLAGS: -I/usr/include
 #cgo LDFLAGS: -L/usr/lib64/ -ldl
 
 #include "queue.h"
