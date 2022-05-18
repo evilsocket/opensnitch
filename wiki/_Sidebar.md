@@ -14,6 +14,7 @@
    6. [System rules](System-rules)
       1. [System rules legacy](System-rules-legacy)
    8. [Block lists, ads|malware|...](block-lists)
+   9. [SIEM integration](SIEM-integration)
 5. [Compilation](Compilation)
    1. [Cross-compilation for arm](Cross-compilation)
    2. [Building packages with pbuilder](Building-packages-with-pbuilder)
