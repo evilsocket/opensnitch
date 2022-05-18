@@ -44,7 +44,7 @@ func NewSyslog(cfg *LoggerConfig) (*Syslog, error) {
 		log.Error("Error loading logger: %s", err)
 		return nil, err
 	}
-	log.Debug("[syslog logger] initialized: %v", cfg)
+	log.Info("[%s logger] initialized: %v", LOGGER_SYSLOG, cfg)
 
 	return sys, err
 }
@@ -68,7 +68,6 @@ func (s *Syslog) Close() error {
 
 // Reopen tries to reestablish the connection with the writer
 func (s *Syslog) Reopen() {
-	println(">>> REOPENING syslog connection <<<")
 	s.Close()
 	s.Open()
 }
@@ -83,7 +82,7 @@ func (s *Syslog) Transform(args ...interface{}) (out string) {
 
 func (s *Syslog) Write(msg string) {
 	if err := s.Writer.Notice(msg); err != nil {
-		log.Error("[syslog] write error: %s", err)
+		log.Error("[%s] write error: %s", LOGGER_SYSLOG, err)
 		s.Reopen()
 	}
 }

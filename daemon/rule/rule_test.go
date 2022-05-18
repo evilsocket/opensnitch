@@ -7,7 +7,7 @@ func TestCreate(t *testing.T) {
 
 	var list []Operator
 	oper, _ := NewOperator(Simple, false, OpTrue, "", list)
-	r := Create("000-test-name", true, false, Allow, Once, oper)
+	r := Create("000-test-name", "rule description 000", true, false, Allow, Once, oper)
 	t.Run("New rule must not be nil", func(t *testing.T) {
 		if r == nil {
 			t.Error("Create() returned nil")

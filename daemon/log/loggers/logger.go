@@ -67,11 +67,9 @@ func (l *LoggerManager) write(args ...interface{}) {
 }
 
 func newWorker(id int, lgmr *LoggerManager) {
-	var c int
 	for {
 		select {
 		case msg := <-lgmr.msgs:
-			c++
 			lgmr.write(msg)
 		}
 	}
