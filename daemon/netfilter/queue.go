@@ -39,7 +39,6 @@ const (
 var (
 	queueIndex     = make(map[uint32]*chan Packet, 0)
 	queueIndexLock = sync.RWMutex{}
-	exitChan       = make(chan bool, 1)
 
 	gopacketDecodeOptions = gopacket.DecodeOptions{Lazy: true, NoCopy: true}
 )
@@ -74,7 +73,7 @@ func NewQueue(queueID uint16) (q *Queue, err error) {
 		return nil, err
 	}
 
-	go q.run(exitChan)
+	go q.run()
 
 	return q, nil
 }
@@ -128,11 +127,10 @@ func (q *Queue) setup() (err error) {
 	return nil
 }
 
-func (q *Queue) run(exitCh chan<- bool) {
+func (q *Queue) run() {
 	if errno := C.Run(q.h, q.fd); errno != 0 {
 		fmt.Fprintf(os.Stderr, "Terminating, unable to receive packet due to errno=%d", errno)
 	}
-	exitChan <- true
 }
 
 // Close ensures that nfqueue resources are freed and closed.
