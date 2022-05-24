@@ -252,7 +252,9 @@ func (c *Client) Subscribe() {
 	}
 
 	if tempConf, err := c.parseConf(clientCfg.Config); err == nil {
+		c.Lock()
 		clientConnectedRule.Action = rule.Action(tempConf.DefaultAction)
+		c.Unlock()
 	}
 	c.listenForNotifications()
 }
