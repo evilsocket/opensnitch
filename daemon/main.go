@@ -59,6 +59,7 @@ var (
 	wrkChan       = (chan netfilter.Packet)(nil)
 	sigChan       = (chan os.Signal)(nil)
 	exitChan      = (chan bool)(nil)
+	loggerMgr     *loggers.LoggerManager
 )
 
 func init() {
@@ -108,6 +109,16 @@ func setupLogging() {
 	log.Close()
 	if err := log.OpenFile(logFileToUse); err != nil {
 		log.Error("Error opening user defined log: %s %s", logFileToUse, err)
+	}
+}
+
+func setupProfiling() {
+	if cpuProfile != "" {
+		if f, err := os.Create(cpuProfile); err != nil {
+			log.Fatal("%s", err)
+		} else if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("%s", err)
+		}
 	}
 }
 
@@ -341,14 +352,7 @@ func main() {
 	}
 
 	setupLogging()
-
-	if cpuProfile != "" {
-		if f, err := os.Create(cpuProfile); err != nil {
-			log.Fatal("%s", err)
-		} else if err := pprof.StartCPUProfile(f); err != nil {
-			log.Fatal("%s", err)
-		}
-	}
+	setupProfiling()
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
 
@@ -365,6 +369,9 @@ func main() {
 	} else if err = rules.Load(rulesPath); err != nil {
 		log.Fatal("%s", err)
 	}
+	stats = statistics.New(rules)
+	loggerMgr = loggers.NewLoggerManager()
+	uiClient = ui.NewClient(uiSocket, stats, rules, loggerMgr)
 
 	// prepare the queue
 	setupWorkers()
@@ -382,10 +389,6 @@ func main() {
 		log.Fatal("Error while creating queue #%d: %s", repeatQueueNum, rqerr)
 	}
 	repeatPktChan = repeatQueue.Packets()
-
-	loggerMgr := loggers.NewLoggerManager()
-	stats = statistics.New(rules)
-	uiClient = ui.NewClient(uiSocket, stats, rules, loggerMgr)
 
 	// queue is ready, run firewall rules
 	firewall.Init(uiClient.GetFirewallType(), &queueNum)

@@ -78,6 +78,7 @@ func New(rules *rule.Loader) (stats *Statistics) {
 	return stats
 }
 
+// SetLoggers sets the configured loggers where we'll write the events.
 func (s *Statistics) SetLoggers(loggers *loggers.LoggerManager) {
 	s.logger = loggers
 }

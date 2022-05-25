@@ -8,7 +8,6 @@ import (
 )
 
 const (
-	logTag        = "opensnitch"
 	LOGGER_SYSLOG = "syslog"
 )
 
@@ -28,7 +27,10 @@ func NewSyslog(cfg *LoggerConfig) (*Syslog, error) {
 	var err error
 	log.Info("NewSyslog logger: %v", cfg)
 
-	sys := &Syslog{cfg: cfg}
+	sys := &Syslog{
+		Name: LOGGER_SYSLOG,
+		cfg:  cfg,
+	}
 
 	sys.logFormat = formats.NewRfc5424()
 	if cfg.Format == formats.CSV {
@@ -44,7 +46,7 @@ func NewSyslog(cfg *LoggerConfig) (*Syslog, error) {
 		log.Error("Error loading logger: %s", err)
 		return nil, err
 	}
-	log.Info("[%s logger] initialized: %v", LOGGER_SYSLOG, cfg)
+	log.Info("[%s logger] initialized: %v", sys.Name, cfg)
 
 	return sys, err
 }
@@ -52,11 +54,7 @@ func NewSyslog(cfg *LoggerConfig) (*Syslog, error) {
 // Open opens a new connection with a server or with the daemon.
 func (s *Syslog) Open() error {
 	var err error
-	if s.cfg.Server != "" {
-		s.Writer, err = syslog.Dial(s.cfg.Protocol, s.cfg.Server, syslog.LOG_NOTICE|syslog.LOG_DAEMON, s.Tag)
-	} else {
-		s.Writer, err = syslog.New(syslog.LOG_NOTICE|syslog.LOG_DAEMON, logTag)
-	}
+	s.Writer, err = syslog.New(syslog.LOG_NOTICE|syslog.LOG_DAEMON, logTag)
 
 	return err
 }
@@ -64,12 +62,6 @@ func (s *Syslog) Open() error {
 // Close closes the writer object
 func (s *Syslog) Close() error {
 	return s.Writer.Close()
-}
-
-// Reopen tries to reestablish the connection with the writer
-func (s *Syslog) Reopen() {
-	s.Close()
-	s.Open()
 }
 
 // Transform transforms data for proper ingestion.
@@ -82,7 +74,6 @@ func (s *Syslog) Transform(args ...interface{}) (out string) {
 
 func (s *Syslog) Write(msg string) {
 	if err := s.Writer.Notice(msg); err != nil {
-		log.Error("[%s] write error: %s", LOGGER_SYSLOG, err)
-		s.Reopen()
+		log.Error("[%s] write error: %s", s.Name, err)
 	}
 }
