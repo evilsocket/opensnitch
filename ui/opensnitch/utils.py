@@ -314,7 +314,7 @@ class NetworkServices():
     def instance():
         if NetworkServices.__instance == None:
             NetworkServices.__instance = NetworkServices()
-        return Services.__instance
+        return NetworkServices.__instance
 
     srv_array = []
     ports_list = []
@@ -346,3 +346,38 @@ class NetworkServices():
 
     def index_by_port(self, port):
         return self.ports_list.index(str(port))
+
+class Icons():
+
+    defaults = {
+        'document-new': "SP_FileIcon",
+        'document-save': "SP_DialogSaveButton",
+        'document-open': "SP_DirOpenIcon",
+        'preferences-system': "SP_FileDialogDetailedView",
+        'security-high': "SP_VistaShield",
+        'edit-clear-all': "SP_DialogResetButton",
+        'go-previous': "SP_ArrowLeft",
+        'go-jump': "SP_CommandLink",
+        'help-browser': "SP_DialogHelpButton",
+        'emblem-important': "SP_DialogCancelButton",
+        'emblem-default': "SP_DialogApplyButton",
+        'window-close': "SP_DialogCloseButton",
+        'system-run': "",
+        'preferences-system-network': "",
+        'document-properties': "",
+        'edit-delete': "SP_DialogCancelButton",
+        'list-add': "SP_ArrowUp",
+        'list-remove': "SP_ArrowDown",
+        'system-search': "SP_FileDialogContentsView"
+    }
+
+    @staticmethod
+    def new(icon_name):
+        icon = QtGui.QIcon.fromTheme(icon_name, QtGui.QIcon.fromTheme(icon_name + "-symbolic"))
+        if icon.isNull():
+            try:
+                return self.style().standardIcon(getattr(QtWidgets.QStyle, NewIcon.defaults[icon_name]))
+            except:
+                pass
+
+        return icon

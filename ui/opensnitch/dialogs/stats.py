@@ -21,7 +21,7 @@ from opensnitch.customwidgets.main import ColorizedDelegate, ConnectionsTableMod
 from opensnitch.customwidgets.firewalltableview import FirewallTableModel
 from opensnitch.customwidgets.generictableview import GenericTableModel
 from opensnitch.customwidgets.addresstablemodel import AddressTableModel
-from opensnitch.utils import Message, QuickHelp, AsnDB
+from opensnitch.utils import Message, QuickHelp, AsnDB, Icons
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -630,8 +630,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             'users.csv'
         )
 
-        self.iconStart = QtGui.QIcon().fromTheme("media-playback-start")
-        self.iconPause = QtGui.QIcon().fromTheme("media-playback-pause")
+        self.iconStart = Icons.new("media-playback-start")
+        self.iconPause = Icons.new("media-playback-pause")
 
         self.fwTreeEdit = QtWidgets.QPushButton()
         self.fwTreeEdit.setIcon(QtGui.QIcon().fromTheme("preferences-desktop"))
@@ -640,12 +640,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.fwTreeEdit.setSizePolicy(
             QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
         )
-        if QtGui.QIcon().hasThemeIcon("preferences-desktop") == False:
-            self.fwTreeEdit.setText("+")
         self.fwTreeEdit.clicked.connect(self._cb_tree_edit_firewall_clicked)
-
-        if QtGui.QIcon.hasThemeIcon("document-new") == False:
-            self._configure_buttons_icons()
+        self._configure_buttons_icons()
 
     #Sometimes a maximized window which had been minimized earlier won't unminimize
     #To workaround, we explicitely maximize such windows when unminimizing happens
@@ -689,23 +685,35 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return super(StatsDialog, self).eventFilter(source, event)
 
     def _configure_buttons_icons(self):
-        self.iconStart = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPlay"))
-        self.iconPause = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPause"))
-        fwIcon = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_VistaShield"))
+        if QtGui.QIcon.hasThemeIcon("document-new"):
+            return
 
-        self.newRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileIcon")))
-        self.delRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TrashIcon")))
-        self.editRuleButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogDetailedView")))
-        self.saveButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton")))
-        self.prefsButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogDetailedView")))
+        newRuleIcon = Icons.new("document-new")
+        delRuleIcon = Icons.new("edit-delete")
+        editRuleIcon = Icons.new("accessories-text-editor")
+        saveIcon = Icons.new("document-save")
+        prefsIcon = Icons.new("preferences-system")
+        searchIcon = Icons.new("system-search")
+        clearIcon = Icons.new("edit-clear-all")
+        leftArrowIcon = Icons.new("go-previous")
+        fwIcon = Icons.new("security-high")
+
+        if QtGui.QIcon().hasThemeIcon("preferences-desktop") == False:
+            self.fwTreeEdit.setText("+")
+
+        self.newRuleButton.setIcon(newRuleIcon)
+        self.delRuleButton.setIcon(delRuleIcon)
+        self.editRuleButton.setIcon(editRuleIcon)
+        self.saveButton.setIcon(saveIcon)
+        self.prefsButton.setIcon(prefsIcon)
         self.startButton.setIcon(self.iconStart)
         self.fwButton.setIcon(fwIcon)
-        self.cmdProcDetails.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogContentsView")))
-        self.TABLES[self.TAB_MAIN]['cmdCleanStats'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogResetButton")))
+        self.cmdProcDetails.setIcon(searchIcon)
+        self.TABLES[self.TAB_MAIN]['cmdCleanStats'].setIcon(clearIcon)
         for idx in range(1,8):
-            self.TABLES[idx]['cmd'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowLeft")))
+            self.TABLES[idx]['cmd'].setIcon(leftArrowIcon)
             if self.TABLES[idx]['cmdCleanStats'] != None:
-                self.TABLES[idx]['cmdCleanStats'].setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogResetButton")))
+                self.TABLES[idx]['cmdCleanStats'].setIcon(clearIcon)
 
     def _load_settings(self):
         dialog_geometry = self._cfg.getSettings(Config.STATS_GEOMETRY)

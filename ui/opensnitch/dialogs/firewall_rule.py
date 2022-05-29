@@ -2,11 +2,11 @@ import sys
 import os
 import os.path
 
-from PyQt5 import QtCore, uic, QtWidgets
+from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
 
 from opensnitch.nodes import Nodes
-from opensnitch.utils import NetworkServices, QuickHelp
+from opensnitch.utils import NetworkServices, QuickHelp, Icons
 from opensnitch import ui_pb2
 import opensnitch.firewall as Fw
 from opensnitch.firewall.utils import Utils as FwUtils
@@ -55,6 +55,20 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.net_srv = NetworkServices()
         self.comboPorts.addItems(self.net_srv.to_array())
         self.comboPorts.currentIndexChanged.connect(self._cb_combo_ports_index_changed)
+
+        if QtGui.QIcon.hasThemeIcon("emblem-default"):
+            return
+
+        saveIcon = Icons.new("document-save")
+        delIcon = Icons.new("edit-delete")
+        closeIcon = Icons.new("window-close")
+        addIcon = Icons.new("list-add")
+        helpIcon = Icons.new("help-browser")
+        self.cmdSave.setIcon(saveIcon)
+        self.cmdDelete.setIcon(delIcon)
+        self.cmdClose.setIcon(closeIcon)
+        self.cmdAdd.setIcon(addIcon)
+        self.helpButton.setIcon(helpIcon)
 
     def showEvent(self, event):
         super(FwRuleDialog, self).showEvent(event)

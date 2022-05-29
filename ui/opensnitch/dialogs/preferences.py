@@ -9,7 +9,7 @@ from PyQt5.QtCore import QCoreApplication as QC
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
-from opensnitch.utils import Message, QuickHelp, Themes
+from opensnitch.utils import Message, QuickHelp, Themes, Icons
 from opensnitch.notifications import DesktopNotifications
 
 from opensnitch import ui_pb2
@@ -67,19 +67,29 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.radioSysNotifs.clicked.connect(self._cb_radio_system_notifications)
         self.helpButton.setToolTipDuration(30 * 1000)
 
-        if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
-            self.applyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
-            self.cancelButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCloseButton")))
-            self.acceptButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton")))
-            self.dbFileButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirOpenIcon")))
+        if QtGui.QIcon.hasThemeIcon("emblem-default"):
+            return
 
-        if QtGui.QIcon.hasThemeIcon("list-add") == False:
-            self.cmdTimeoutUp.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowUp")))
-            self.cmdTimeoutDown.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowDown")))
-            self.cmdDBMaxDaysUp.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowUp")))
-            self.cmdDBMaxDaysDown.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowDown")))
-            self.cmdDBPurgesUp.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowUp")))
-            self.cmdDBPurgesDown.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_ArrowDown")))
+        saveIcon = Icons.new("document-save")
+        applyIcon = Icons.new("emblem-default")
+        delIcon = Icons.new("edit-delete")
+        closeIcon = Icons.new("window-close")
+        openIcon = Icons.new("document-open")
+        helpIcon = Icons.new("help-browser")
+        addIcon = Icons.new("list-add")
+        delIcon = Icons.new("list-remove")
+        self.applyButton.setIcon(applyIcon)
+        self.cancelButton.setIcon(closeIcon)
+        self.acceptButton.setIcon(saveIcon)
+        self.helpButton.setIcon(helpIcon)
+        self.dbFileButton.setIcon(openIcon)
+
+        self.cmdTimeoutUp.setIcon(addIcon)
+        self.cmdTimeoutDown.setIcon(delIcon)
+        self.cmdDBMaxDaysUp.setIcon(addIcon)
+        self.cmdDBMaxDaysDown.setIcon(delIcon)
+        self.cmdDBPurgesUp.setIcon(addIcon)
+        self.cmdDBPurgesDown.setIcon(delIcon)
 
     def showEvent(self, event):
         super(PreferencesDialog, self).showEvent(event)

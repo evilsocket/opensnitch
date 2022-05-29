@@ -12,6 +12,7 @@ from PyQt5.QtCore import QCoreApplication as QC
 
 from slugify import slugify
 
+from opensnitch.utils import Icons
 from opensnitch.desktop_parser import LinuxDesktopParser
 from opensnitch.config import Config
 from opensnitch.version import version
@@ -109,9 +110,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkDstPort.clicked.connect(self._button_clicked)
         self.checkUserID.clicked.connect(self._button_clicked)
 
-        if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
-            self.applyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
-            self.denyButton.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCancelButton")))
+        if QtGui.QIcon.hasThemeIcon("emblem-default"):
+            return
+
+        applyIcon = Icons.new("emblem-default")
+        denyIcon = Icons.new("emblem-important")
+        self.applyButton.setIcon(applyIcon)
+        self.denyButton.setIcon(denyIcon)
 
     def showEvent(self, event):
         super(PromptDialog, self).showEvent(event)

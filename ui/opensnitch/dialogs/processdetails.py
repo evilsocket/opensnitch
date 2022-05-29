@@ -7,7 +7,7 @@ from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from opensnitch import ui_pb2
 from opensnitch.nodes import Nodes
 from opensnitch.desktop_parser import LinuxDesktopParser
-from opensnitch.utils import Message
+from opensnitch.utils import Message, Icons
 
 DIALOG_UI_PATH = "%s/../res/process_details.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -83,10 +83,13 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.iconStart = QtGui.QIcon.fromTheme("media-playback-start")
         self.iconPause = QtGui.QIcon.fromTheme("media-playback-pause")
 
-        if QtGui.QIcon.hasThemeIcon("window-close") == False:
-            self.cmdClose.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCloseButton")))
-            self.iconStart = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPlay"))
-            self.iconPause = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPause"))
+        if QtGui.QIcon.hasThemeIcon("window-close"):
+            return
+
+        closeIcon = Icons.new("window-close")
+        self.cmdClose.setIcon(closeIcon)
+        self.iconStart = Icons.new("media-playback-start")
+        self.iconPause = Icons.new("media-playback-pause")
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):

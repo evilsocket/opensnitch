@@ -7,6 +7,7 @@ import json
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
 
+from opensnitch.utils import Icons
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.dialogs.firewall_rule import FwRuleDialog
@@ -22,6 +23,9 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COMBO_IN = 0
     COMBO_OUT = 1
 
+    POLICY_ACCEPT = 0
+    POLICY_DROP = 1
+
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
     def __init__(self, parent=None, appicon=None, node=None):
@@ -35,10 +39,10 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboProfile.setVisible(False)
         self.lblProfile.setVisible(False)
 
-        self.secHighIcon = QtGui.QIcon.fromTheme("security-high")
-        self.secMediumIcon = QtGui.QIcon.fromTheme("security-medium")
-        self.secLowIcon = QtGui.QIcon.fromTheme("security-low")
-        self.lblStatusIcon.setPixmap( self.secHighIcon.pixmap(96,96) );
+        self.secHighIcon = Icons.new("security-high")
+        self.secMediumIcon = Icons.new("security-medium")
+        self.secLowIcon = Icons.new("security-low")
+        self.lblStatusIcon.setPixmap(self.secHighIcon.pixmap(96, 96))
 
         self._fwrule_dialog = FwRuleDialog(appicon=self.appicon)
         self._cfg = Config.get()
@@ -57,6 +61,17 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboProfile.currentIndexChanged.connect(self._cb_combo_profile_changed)
         self.sliderFwEnable.valueChanged.connect(self._cb_enable_fw_changed)
         self.cmdClose.clicked.connect(self._cb_close_clicked)
+
+
+        if QtGui.QIcon.hasThemeIcon("document-new"):
+            return
+
+        closeIcon = Icons.new("window-close")
+        excludeIcon = Icons.new("go-jump")
+        newIcon = Icons.new("document-new")
+        self.cmdClose.setIcon(closeIcon)
+        self.cmdExcludeService.setIcon(excludeIcon)
+        self.cmdNewRule.setIcon(newIcon)
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
@@ -93,10 +108,10 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         wantedProfile = FwProfiles.ProfileAcceptInput.value
         if combo == self.COMBO_OUT:
             wantedProfile = FwProfiles.ProfileAcceptOutput.value
-            if self.comboOutput.currentIndex() == 1:
+            if self.comboOutput.currentIndex() == self.POLICY_DROP:
                 wantedProfile = FwProfiles.ProfileDropOutput.value
         else:
-            if self.comboInput.currentIndex() == 1:
+            if self.comboInput.currentIndex() == self.POLICY_DROP:
                 wantedProfile = FwProfiles.ProfileDropInput.value
 
         for addr in self._nodes.get():
@@ -188,8 +203,8 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._disable_widgets()
                 self.lblFwStatus.setText(
                     QC.translate("firewall", "<html>The firewall configuration is outdated,\n"
-                                 "you need to update it to the new format: <a href=\""+ Config.HELP_SYS_RULES_URL + "\">learn more</a>"
-                                 "</html>"
+                                 "you need to update it to the new format: <a href=\"{0}\">learn more</a>"
+                                 "</html>".format(Config.HELP_SYS_RULES_URL)
                 ))
                 return
 

@@ -15,7 +15,7 @@ from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
 from opensnitch.version import version
-from opensnitch.utils import Message, FileDialog
+from opensnitch.utils import Message, FileDialog, Icons
 
 DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -68,9 +68,15 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstListIPsCheck.toggled.connect(self._cb_dstiplists_check_toggled)
         self.dstListNetsCheck.toggled.connect(self._cb_dstnetlists_check_toggled)
 
-        if QtGui.QIcon.hasThemeIcon("emblem-default") == False:
-            self.actionAllowRadio.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogApplyButton")))
-            self.actionDenyRadio.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogCancelButton")))
+        if QtGui.QIcon.hasThemeIcon("emblem-default"):
+            return
+
+        applyIcon = Icons.new("emblem-default")
+        denyIcon = Icons.new("emblem-important")
+        rejectIcon = Icons.new("window-close")
+        self.actionAllowRadio.setIcon(applyIcon)
+        self.actionDenyRadio.setIcon(denyIcon)
+        self.actionRejectRadio.setIcon(rejectIcon)
 
         if _rule != None:
             self._load_rule(rule=_rule)
