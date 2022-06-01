@@ -23,7 +23,7 @@ class Expr():
             exprValues = ui_pb2.StatementValues()
             exprValues.Key = val[0]
             exprValues.Value = val[1]
-            expr.Statement.Values.append(exprValues)
+            expr.Statement.Values.extend([exprValues])
 
         return expr
 

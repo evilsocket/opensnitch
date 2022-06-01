@@ -73,18 +73,6 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def showEvent(self, event):
         super(FwRuleDialog, self).showEvent(event)
         self._reset_fields()
-
-        if FwUtils.isProtobufSupported() == False:
-            self._disable_controls()
-            self._disable_buttons()
-            self._set_status_error(
-                QC.translate(
-                    "firewall",
-                    "Your protobuf version is incompatible, you need to install protobuf 3.8.0 or superior\n(pip3 install --ignore-installed protobuf==3.8.0"
-                )
-            )
-            return
-
         self._load_nodes()
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
@@ -341,9 +329,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 Fw.Statements.TCP.value,
                 [(Fw.Statements.DPORT.value, portValue)]
             )
-            rule.Expressions.append(exprs)
+            rule.Expressions.extend([exprs])
 
-        chain.Rules.append(rule)
+        chain.Rules.extend([rule])
 
         node_addr = self.comboNodes.currentText()
         node = self._nodes.get_node(node_addr)

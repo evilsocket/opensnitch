@@ -65,7 +65,7 @@ class Chains():
                     fwcfg.SystemRules[sdx].Chains[cdx].Policy = policy
 
                     if wantedHook == Fw.Hooks.INPUT.value and wantedPolicy == Fw.Policy.DROP.value:
-                        fwcfg.SystemRules[sdx].Chains[cdx].Rules.append(rule.Rules[0])
+                        fwcfg.SystemRules[sdx].Chains[cdx].Rules.extend([rule.Rules[0]])
                         self._nodes.add_fw_config(node_addr, fwcfg)
                     return True
         return False

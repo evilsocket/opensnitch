@@ -30,7 +30,7 @@ class Rules(QObject):
                         c.Table == rule.Table and \
                         c.Family == rule.Family and \
                         c.Type == rule.Type:
-                    node['firewall'].SystemRules[sdx].Chains[cdx].Rules.append(rule.Rules[0])
+                    node['firewall'].SystemRules[sdx].Chains[cdx].Rules.extend([rule.Rules[0]])
                     node['fwrules'][rule.Rules[0].UUID] = rule
                     self._nodes.add_fw_config(addr, node['firewall'])
                     self._nodes.add_fw_rules(addr, node['fwrules'])
@@ -56,7 +56,10 @@ class Rules(QObject):
                         c.Table == rule.Table and \
                         c.Family == rule.Family and \
                         c.Type == rule.Type:
-                    node['firewall'].SystemRules[sdx].Chains[cdx].Rules.insert(int(position), rule.Rules[0])
+                    if hasattr(node['firewall'].SystemRules[sdx].Chains[cdx].Rules, "insert"):
+                        node['firewall'].SystemRules[sdx].Chains[cdx].Rules.insert(int(position), rule.Rules[0])
+                    else:
+                        node['firewall'].SystemRules[sdx].Chains[cdx].Rules.extend([rule.Rules[0]])
                     node['fwrules'][rule.Rules[0].UUID] = rule
                     self._nodes.add_fw_config(addr, node['firewall'])
                     self._nodes.add_fw_rules(addr, node['fwrules'])
@@ -192,6 +195,7 @@ class Rules(QObject):
 
                         if is_equal:
                             return True
+
         return False
 
     @staticmethod
@@ -211,7 +215,7 @@ class Rules(QObject):
         rule.Enabled = enabled
         rule.Description = description
         if expressions != None:
-            rule.Expressions.append(expressions)
+            rule.Expressions.extend([expressions])
         rule.Target = target
         rule.TargetParameters = target_parms
 
