@@ -78,7 +78,7 @@ func findLibc() (string, error) {
 
 // Iterates over all symbols in an elf file and returns the offset matching the provided symbol name.
 func lookupSymbol(elffile *elf.File, symbolName string) (uint64, error) {
-	symbols, err := elffile.Symbols()
+	symbols, err := elffile.DynamicSymbols()
 	if err != nil {
 		return 0, err
 	}
