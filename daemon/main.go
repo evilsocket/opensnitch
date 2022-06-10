@@ -405,7 +405,7 @@ func main() {
 	}
 
 	go func() {
-		err := dns.DnsListenerEbpf()
+		err := dns.ListenerEbpf()
 		if err != nil {
 			log.Warning("EBPF-DNS: Unable to attach ebpf listener.")
 		}

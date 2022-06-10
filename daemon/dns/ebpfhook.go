@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 	bpf "github.com/iovisor/gobpf/elf"
@@ -61,7 +62,7 @@ import "C"
 
 type nameLookupEvent struct {
 	AddrType uint32
-	Ip       [16]uint8
+	IP       [16]uint8
 	Host     [252]byte
 }
 
@@ -87,10 +88,11 @@ func lookupSymbol(elffile *elf.File, symbolName string) (uint64, error) {
 			return symb.Value, nil
 		}
 	}
-	return 0, errors.New(fmt.Sprintf("Symbol: '%s' not found.", symbolName))
+	return 0, fmt.Errorf("Symbol: '%s' not found", symbolName)
 }
 
-func DnsListenerEbpf() error {
+// ListenerEbpf starts listening for DNS events.
+func ListenerEbpf() error {
 
 	m := bpf.NewModule("/etc/opensnitchd/opensnitch-dns.o")
 	if err := m.Load(nil); err != nil {
@@ -110,16 +112,16 @@ func DnsListenerEbpf() error {
 		return err
 	}
 
-	libc_elf, err := elf.Open(libcFile)
+	libcElf, err := elf.Open(libcFile)
 	if err != nil {
 		log.Error("EBPF-DNS: Failed to open %s: %v", libcFile, err)
 		return err
 	}
-	probes_attached := 0
+	probesAttached := 0
 	for uprobe := range m.IterUprobes() {
 		probeFunction := strings.Replace(uprobe.Name, "uretprobe/", "", 1)
 		probeFunction = strings.Replace(probeFunction, "uprobe/", "", 1)
-		offset, err := lookupSymbol(libc_elf, probeFunction)
+		offset, err := lookupSymbol(libcElf, probeFunction)
 		if err != nil {
 			log.Warning("EBPF-DNS: Failed to find symbol for uprobe %s : %s\n", uprobe.Name, err)
 			continue
@@ -129,12 +131,12 @@ func DnsListenerEbpf() error {
 			log.Error("EBPF-DNS: Failed to attach uprobe %s : %s\n", uprobe.Name, err)
 			return err
 		}
-		probes_attached++
+		probesAttached++
 	}
 
-	if probes_attached == 0 {
+	if probesAttached == 0 {
 		log.Warning("EBPF-DNS: Failed to find symbols for uprobes.")
-		return errors.New("Failed to find symbols for uprobes.")
+		return errors.New("Failed to find symbols for uprobes")
 	}
 
 	// Reading Events
@@ -146,18 +148,42 @@ func DnsListenerEbpf() error {
 		return err
 	}
 	sig := make(chan os.Signal, 1)
+	exitChannel := make(chan bool)
 	signal.Notify(sig, os.Interrupt, os.Kill)
 
-	go func() {
-		var event nameLookupEvent
-		for {
+	for i := 0; i < 5; i++ {
+		go spawnDNSWorker(i, channel, exitChannel)
+	}
+
+	perfMap.PollStart()
+	<-sig
+	log.Info("EBPF-DNS: Received signal: terminating ebpf dns hook.")
+	perfMap.PollStop()
+	for i := 0; i < 5; i++ {
+		exitChannel <- true
+	}
+	return nil
+}
+
+func spawnDNSWorker(id int, channel chan []byte, exitChannel chan bool) {
+
+	log.Debug("dns worker initialized #%d", id)
+	var event nameLookupEvent
+	for {
+		select {
+
+		case <-time.After(1 * time.Millisecond):
+			continue
+		case <-exitChannel:
+			goto Exit
+		default:
 			data := <-channel
 			if len(data) > 0 {
-				log.Debug("EBPF-DNS: LookupEvent %d %x %x %x", len(data), data[:4], data[4:20], data[20:])
+				log.Debug("(%d) EBPF-DNS: LookupEvent %d %x %x %x", id, len(data), data[:4], data[4:20], data[20:])
 			}
 			err := binary.Read(bytes.NewBuffer(data), binary.LittleEndian, &event)
 			if err != nil {
-				log.Warning("EBPF-DNS: Failed to decode ebpf nameLookupEvent: %s\n", err)
+				log.Warning("(%d) EBPF-DNS: Failed to decode ebpf nameLookupEvent: %s\n", id, err)
 				continue
 			}
 			// Convert C string (null-terminated) to Go string
@@ -165,19 +191,16 @@ func DnsListenerEbpf() error {
 			var ip net.IP
 			// 2 -> AF_INET (ipv4)
 			if event.AddrType == 2 {
-				ip = net.IP(event.Ip[:4])
+				ip = net.IP(event.IP[:4])
 			} else {
-				ip = net.IP(event.Ip[:])
+				ip = net.IP(event.IP[:])
 			}
 
-			log.Debug("EBPF-DNS: Tracking Resolved Message: %s -> %s\n", host, ip.String())
+			log.Debug("(%d) EBPF-DNS: Tracking Resolved Message: %s -> %s\n", id, host, ip.String())
 			Track(ip.String(), host)
 		}
-	}()
+	}
 
-	perfMap.PollStart()
-	<-sig
-	log.Info("EBPF-DNS: Received signal: terminating ebpf dns hook.")
-	perfMap.PollStop()
-	return nil
+Exit:
+	log.Debug("DNS worker #%d closed", id)
 }
