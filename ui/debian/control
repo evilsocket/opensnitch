@@ -12,6 +12,7 @@ Package: python3-opensnitch-ui
 Architecture: all
 Section: net
 Depends:
+ netbase,
  libqt5sql5-sqlite,
  python3:any,
  python3-six,

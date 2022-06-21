@@ -17,7 +17,7 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: Simone "evilsocket" Margaritelli <evilsocket@protonmail.com>
 Url: https://github.com/evilsocket/opensnitch
-Requires: python3, python3-pip, (python3-pyinotify or python3-inotify), python3-qt5, python3-notify2
+Requires: python3, python3-pip, (netcfg or setup), (python3-pyinotify or python3-inotify), python3-qt5, python3-notify2
 Recommends: (python3-slugify or python3-python-slugify), python3-protobuf >= 3.0, python3-grpcio >= 1.10.0
 
 # avoid to depend on a particular python version
