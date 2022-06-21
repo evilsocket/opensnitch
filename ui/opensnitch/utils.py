@@ -179,6 +179,35 @@ class Themes():
         themes += Themes.qtmaterial_themes()
         return themes
 
+class GenericTimer(Thread):
+    interval = 1
+    stop_flag = None
+    callback = None
+
+    def __init__(self, _interval, _callback, _args=()):
+        Thread.__init__(self, name="generic_timer_thread")
+        self.interval = _interval
+        self.stop_flag = Event()
+        self.callback = _callback
+        self.args = _args
+
+    def run(self):
+        while self.stop_flag.wait(self.interval):
+            if self.stop_flag.is_set():
+                self.callback(self.args)
+                break
+
+    def stop(self):
+        self.stop_flag.set()
+
+class OneshotTimer(GenericTimer):
+    def __init__(self, _interval, _callback, _args=()):
+        GenericTimer.__init__(self, _interval, _callback, _args)
+
+    def run(self):
+        self.stop_flag.wait(self.interval)
+        self.callback(self.args)
+
 class CleanerTask(Thread):
     interval = 1
     stop_flag = None
@@ -320,8 +349,12 @@ class NetworkServices():
     ports_list = []
 
     def __init__(self):
+        etcServicesPath = "/etc/services"
+        if not os.path.isfile(etcServicesPath) and os.path.isfile("/usr/etc/services"):
+            etcServicesPath = "/usr/etc/services"
+
         try:
-            etcServices = open("/etc/services")
+            etcServices = open(etcServicesPath)
             for line in etcServices:
                 if line[0] == "#":
                     continue
@@ -339,7 +372,7 @@ class NetworkServices():
             self.srv_array.append("wireguard/51820 WireGuard VPN")
             self.ports_list.append("51820")
         except Exception as e:
-            print("Error loading /etc/services:", e)
+            print("Error loading {0}: {1}".format(etcServicesPath, e))
 
     def to_array(self):
         return self.srv_array
