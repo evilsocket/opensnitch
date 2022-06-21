@@ -735,8 +735,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if dialog_general_limit_results != None:
             # XXX: a little hack, because if the saved index is 0, the signal is not fired.
             # XXX: this causes to fire the event twice
+            self.limitCombo.blockSignals(True);
             self.limitCombo.setCurrentIndex(4)
             self.limitCombo.setCurrentIndex(int(dialog_general_limit_results))
+            self.limitCombo.blockSignals(False);
 
         rules_splitter_pos = self._cfg.getSettings(Config.STATS_RULES_SPLITTER_POS)
         if type(rules_splitter_pos) == QtCore.QByteArray:
