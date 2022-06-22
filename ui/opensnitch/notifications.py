@@ -49,6 +49,7 @@ class DesktopNotifications():
                 self.ntf2.init("opensnitch", mainloop=mloop)
             except Exception:
                 self.DOES_SUPPORT_ACTIONS = False
+                self.ntf2.init("opensnitch")
 
                 # usually because dbus mainloop is not initiated, specially
                 # with 'qt'
@@ -57,7 +58,6 @@ class DesktopNotifications():
                 print("DesktopNotifications(): system doesn't support actions. Available capabilities:")
                 print(self.ntf2.get_server_caps())
 
-                self.ntf2.init("opensnitch")
 
             # Example: ['actions', 'action-icons', 'body', 'body-markup', 'icon-static', 'persistence', 'sound']
             if ('actions' not in self.ntf2.get_server_caps()):
