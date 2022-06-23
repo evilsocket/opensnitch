@@ -131,10 +131,17 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.exclude_service()
 
     def _cb_enable_fw_changed(self, enable):
+        self._disable_widgets(not enable)
         if enable:
             self._set_status_message(QC.translate("firewall", "Enabling firewall..."))
         else:
             self._set_status_message(QC.translate("firewall", "Disabling firewall..."))
+
+        # if previous input policy was DROP, when disabling the firewall it
+        # must be ACCEPT to allow output traffic.
+        # TODO: just update the fw configuration, instead of triggering a reload
+        if not enable and self.comboInput.currentIndex() == self.POLICY_DROP:
+            self.comboInput.setCurrentIndex(self.POLICY_ACCEPT)
 
         for addr in self._nodes.get():
             fwcfg = self._nodes.get_node(addr)['firewall']
@@ -144,7 +151,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.lblStatusIcon.setEnabled(enable)
         self.policiesBox.setEnabled(enable)
 
-        time.sleep(1)
+        time.sleep(0.5)
 
     def _cb_close_clicked(self):
         self._close()
@@ -177,8 +184,8 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboOutput.blockSignals(True)
         self.comboProfile.blockSignals(True)
 
+        self._disable_widgets()
         if self._nodes.count() == 0:
-            self._disable_widgets()
             return
 
         # TODO: handle nodes' firewall properly
@@ -192,6 +199,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             if j['Firewall'] == "iptables":
                 self._disable_widgets()
+                self.sliderFwEnable.setEnabled(False)
                 self.lblFwStatus.setText(
                     QC.translate("firewall",
                                  "OpenSnitch is using 'iptables' as firewall, but it's not configurable from the GUI.\n"
@@ -201,6 +209,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return
             if n['data'].systemFirewall.Version == 0:
                 self._disable_widgets()
+                self.sliderFwEnable.setEnabled(False)
                 self.lblFwStatus.setText(
                     QC.translate("firewall", "<html>The firewall configuration is outdated,\n"
                                  "you need to update it to the new format: <a href=\"{0}\">learn more</a>"
@@ -232,7 +241,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         #if not enableFw:
         #    self.lblFwStatus(QC.translate("firewall", "Some nodes have the firewall disabled"))
 
-        self._disable_widgets(False)
+        self._disable_widgets(not enableFw)
         self.lblStatusIcon.setEnabled(enableFw)
         self.sliderFwEnable.setValue(enableFw)
         self.sliderFwEnable.blockSignals(False)
@@ -274,7 +283,6 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._reset_status_message()
 
     def _disable_widgets(self, disable=True):
-        self.sliderFwEnable.setEnabled(not disable)
         self.comboInput.setEnabled(not disable)
         self.comboOutput.setEnabled(not disable)
         self.cmdNewRule.setEnabled(not disable)
