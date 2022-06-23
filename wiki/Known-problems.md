@@ -8,6 +8,8 @@
 
 **General**
 
+[Blank window after boot up](#blank-window-after-boot-up)
+
 [KDE/Gnome/Xfce/... does not boot up](#desktop-environment-does-not-bootup)
 
 **GUI**
@@ -105,6 +107,8 @@ If the output is `# CONFIG_FTRACE is not set`, your kernel is not compiled with 
 
 Read more: [#475](https://github.com/evilsocket/opensnitch/issues/475)
 
+### Blank window after boot up
+
 ### Desktop Environment does not boot up
 
 If after installing OpenSnitch, or after changing the Default Action to `deny`, the Desktop Environment does not show up (after restart), try:
@@ -128,7 +132,7 @@ Save it to `/etc/opensnitchd/rules/000-allow-system-cmds.json`
     "type": "regexp",
     "operand": "process.path",
     "sensitive": false,
-    "data": "^(/usr/bin/host|/usr/bin/xbrlapi|/usr/bin/dirmngr)",
+    "data": "^(/usr/bin/host|/usr/bin/xbrlapi|/usr/bin/dirmngr|/usr/bin/slim)",
     "list": []
   }
 }
@@ -331,7 +335,7 @@ nf_defrag_ipv4.ko, nf_conntrack_ipv4.ko, nfnetlink.ko
 
 ### Kernel panics
 
-Some users have reported kernel panics with kernel 5.6.16 ([#297](https://github.com/evilsocket/opensnitch/issues/297)) and other kernels([#41](https://github.com/gustavo-iniguez-goya/opensnitch/issues/41)). **deathtrip** found that the culprit in his/her case was a configuration of the Arch's [linux-hardened](https://www.archlinux.org/packages/extra/x86_64/linux-hardened/) kernel command line option. 
+Some users reported kernel panics with kernel 5.6.16 ([#297](https://github.com/evilsocket/opensnitch/issues/297)) and other kernels([#41](https://github.com/gustavo-iniguez-goya/opensnitch/issues/41)). **deathtrip** found that the culprit in his/her case was a configuration of the Arch's [linux-hardened](https://www.archlinux.org/packages/extra/x86_64/linux-hardened/) kernel command line option. 
 
 Removing the following options from the kernel booting parameters solved the issue:
 
