@@ -20,12 +20,11 @@ func dumpMap(bpfmap *elf.Map, isIPv6 bool) {
 	if !isIPv6 {
 		lookupKey = make([]byte, 12)
 		nextKey = make([]byte, 12)
-		value = make([]byte, 24)
 	} else {
 		lookupKey = make([]byte, 36)
 		nextKey = make([]byte, 36)
-		value = make([]byte, 24)
 	}
+	value = make([]byte, 40)
 	firstrun := true
 	i := 0
 	for {

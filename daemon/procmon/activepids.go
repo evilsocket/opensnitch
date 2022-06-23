@@ -67,7 +67,8 @@ func findProcessInActivePidsCache(pid uint64) *Process {
 	return nil
 }
 
-func addToActivePidsCache(pid uint64, proc *Process) {
+// AddToActivePidsCache adds the given pid to a list of known processes.
+func AddToActivePidsCache(pid uint64, proc *Process) {
 
 	data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/stat", pid))
 	if err != nil {

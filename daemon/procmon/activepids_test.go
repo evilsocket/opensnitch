@@ -58,7 +58,7 @@ func TestMonitorActivePids(t *testing.T) {
 		pid := helperCmd.Process.Pid
 		proc := NewProcess(pid, helperBinaryPath)
 		helperProcs = append(helperProcs, proc)
-		addToActivePidsCache(uint64(pid), proc)
+		AddToActivePidsCache(uint64(pid), proc)
 	}
 	//sleep to make sure all processes started before we proceed
 	time.Sleep(time.Second * 1)

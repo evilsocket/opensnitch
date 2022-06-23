@@ -16,6 +16,10 @@
 
 #define MAPSIZE 12000
 
+#ifndef TASK_COMM_LEN
+ #define TASK_COMM_LEN 16
+#endif
+
 //-------------------------------map definitions 
 // which github.com/iovisor/gobpf/elf expects
 #define BUF_SIZE_MAP_NS 256
@@ -49,10 +53,11 @@ struct tcp_key_t {
 	u32 saddr;
 }__attribute__((packed));
 
-struct tcp_value_t{
+struct tcp_value_t {
 	pid_size_t pid;
 	uid_size_t uid;
 	u64 counter;
+	char comm[TASK_COMM_LEN];
 }__attribute__((packed));
 
 // not using unsigned __int128 because it is not supported on x86_32
@@ -72,7 +77,8 @@ struct tcpv6_value_t{
 	pid_size_t pid;
 	uid_size_t uid;
 	u64 counter; 
-}__attribute__((packed));;
+	char comm[TASK_COMM_LEN];
+}__attribute__((packed));
 
 struct udp_key_t {
 	u16 sport;
@@ -85,6 +91,7 @@ struct udp_value_t{
 	pid_size_t pid;
 	uid_size_t uid;
 	u64 counter; 
+	char comm[TASK_COMM_LEN];
 }__attribute__((packed));
 
 struct udpv6_key_t {
@@ -98,6 +105,7 @@ struct udpv6_value_t{
 	pid_size_t pid;
 	uid_size_t uid;
 	u64 counter;
+	char comm[TASK_COMM_LEN];
 }__attribute__((packed));
 
 
@@ -224,7 +232,7 @@ int kprobe__tcp_v4_connect(struct pt_regs *ctx)
 
 	u64 skp = (u64)sk;
 	u64 pid_tgid = bpf_get_current_pid_tgid();
-    bpf_map_update_elem(&tcpsock, &pid_tgid, &skp, BPF_ANY);
+	bpf_map_update_elem(&tcpsock, &pid_tgid, &skp, BPF_ANY);
 	return 0;
 };
 
@@ -240,7 +248,7 @@ int kretprobe__tcp_v4_connect(struct pt_regs *ctx)
 	sk = (struct sock *)*skp;
 
 	struct tcp_key_t tcp_key;
-    __builtin_memset(&tcp_key, 0, sizeof(tcp_key));
+	__builtin_memset(&tcp_key, 0, sizeof(tcp_key));
 	bpf_probe_read(&tcp_key.dport, sizeof(tcp_key.dport), &sk->__sk_common.skc_dport);
 	bpf_probe_read(&tcp_key.sport, sizeof(tcp_key.sport), &sk->__sk_common.skc_num);
 	bpf_probe_read(&tcp_key.daddr, sizeof(tcp_key.daddr), &sk->__sk_common.skc_daddr);
@@ -249,20 +257,20 @@ int kretprobe__tcp_v4_connect(struct pt_regs *ctx)
 	u32 zero_key = 0;
 	u64 *val = bpf_map_lookup_elem(&tcpcounter, &zero_key);
 	if (val == NULL){return 0;}
+	u64 newval = 0;//*val + 1;
 
-	struct tcp_value_t tcp_value;
+	struct tcp_value_t tcp_value={0};
 	__builtin_memset(&tcp_value, 0, sizeof(tcp_value));
 	tcp_value.pid = pid_tgid >> 32;
 	tcp_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
-	tcp_value.counter = *val;
+	tcp_value.counter = 0;
+	bpf_get_current_comm(&tcp_value.comm, sizeof(tcp_value.comm));
 	bpf_map_update_elem(&tcpMap, &tcp_key, &tcp_value, BPF_ANY);
 
-	u64 newval = *val + 1;
 	bpf_map_update_elem(&tcpcounter, &zero_key, &newval, BPF_ANY);
 	bpf_map_delete_elem(&tcpsock, &pid_tgid);
 	return 0;
 };
-
 
 SEC("kprobe/tcp_v6_connect")
 int kprobe__tcp_v6_connect(struct pt_regs *ctx)
@@ -285,18 +293,19 @@ int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
 	u64 pid_tgid = bpf_get_current_pid_tgid();
 	u64 *skp = bpf_map_lookup_elem(&tcpv6sock, &pid_tgid);
 	if (skp == NULL) {return 0;}
+
 	struct sock *sk;
 	__builtin_memset(&sk, 0, sizeof(sk));
 	sk = (struct sock *)*skp;
 	
 	struct tcpv6_key_t tcpv6_key;
-    __builtin_memset(&tcpv6_key, 0, sizeof(tcpv6_key));
+	__builtin_memset(&tcpv6_key, 0, sizeof(tcpv6_key));
 	bpf_probe_read(&tcpv6_key.dport, sizeof(tcpv6_key.dport), &sk->__sk_common.skc_dport);
 	bpf_probe_read(&tcpv6_key.sport, sizeof(tcpv6_key.sport), &sk->__sk_common.skc_num);
 	#ifdef OPENSNITCH_x86_32
 		struct sock_on_x86_32_t sock;
-    	__builtin_memset(&sock, 0, sizeof(sock));
-    	bpf_probe_read(&sock, sizeof(sock), *(&sk));
+		__builtin_memset(&sock, 0, sizeof(sock));
+		bpf_probe_read(&sock, sizeof(sock), *(&sk));
 		tcpv6_key.daddr = sock.daddr;
 		tcpv6_key.saddr = sock.saddr;
 	#else
@@ -308,14 +317,15 @@ int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
 	u64 *val = bpf_map_lookup_elem(&tcpv6counter, &zero_key);
 	if (val == NULL){return 0;}
 
-	struct tcpv6_value_t tcpv6_value;
-    __builtin_memset(&tcpv6_value, 0, sizeof(tcpv6_value));
+	struct tcpv6_value_t tcpv6_value={0};
+	__builtin_memset(&tcpv6_value, 0, sizeof(tcpv6_value));
 	tcpv6_value.pid = pid_tgid >> 32;
 	tcpv6_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
-	tcpv6_value.counter = *val;
+	tcpv6_value.counter = 0;
+	bpf_get_current_comm(&tcpv6_value.comm, sizeof(tcpv6_value.comm));
 	bpf_map_update_elem(&tcpv6Map, &tcpv6_key, &tcpv6_value, BPF_ANY);
 
-	u64 newval = *val + 1;
+	u64 newval = 0;//*val + 1;
 	bpf_map_update_elem(&tcpv6counter, &zero_key, &newval, BPF_ANY);
 	bpf_map_delete_elem(&tcpv6sock, &pid_tgid);
 	return 0;
@@ -334,12 +344,12 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
 	#endif
 
 	u64 msg_name; //pointer
-    __builtin_memset(&msg_name, 0, sizeof(msg_name));
+	__builtin_memset(&msg_name, 0, sizeof(msg_name));
 	bpf_probe_read(&msg_name, sizeof(msg_name), &msg->msg_name);
 	struct sockaddr_in * usin = (struct sockaddr_in *)msg_name;
 
 	struct udp_key_t udp_key;
-    __builtin_memset(&udp_key, 0, sizeof(udp_key));
+	__builtin_memset(&udp_key, 0, sizeof(udp_key));
 	bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &usin->sin_port);
 	if (udp_key.dport != 0){ //likely
 		bpf_probe_read(&udp_key.daddr, sizeof(udp_key.daddr), &usin->sin_addr.s_addr);
@@ -353,25 +363,25 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
 	bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &sk->__sk_common.skc_rcv_saddr);
 	
 	u32 zero_key = 0;
-    __builtin_memset(&zero_key, 0, sizeof(zero_key));
+	__builtin_memset(&zero_key, 0, sizeof(zero_key));
 	u64 *counterVal = bpf_map_lookup_elem(&udpcounter, &zero_key);
 	if (counterVal == NULL){return 0;}
 	struct udp_value_t *lookedupValue = bpf_map_lookup_elem(&udpMap, &udp_key);
 	u64 pid = bpf_get_current_pid_tgid() >> 32;
 	if ( lookedupValue == NULL || lookedupValue->pid != pid) {
-		struct udp_value_t udp_value;
-        __builtin_memset(&udp_value, 0, sizeof(udp_value));
+		struct udp_value_t udp_value={0};
+       		__builtin_memset(&udp_value, 0, sizeof(udp_value));
 		udp_value.pid = pid;
 		udp_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
-		udp_value.counter = *counterVal;
+		udp_value.counter = 0;
+		bpf_get_current_comm(&udp_value.comm, sizeof(udp_value.comm));
 		bpf_map_update_elem(&udpMap, &udp_key, &udp_value, BPF_ANY);
 
-		u64 newval = *counterVal + 1;
+		u64 newval = 0;//*counterVal + 1;
 		bpf_map_update_elem(&udpcounter, &zero_key, &newval, BPF_ANY);
 	}
 	//else nothing to do
 	return 0;
-
 };
 
 
@@ -387,11 +397,11 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 	#endif
 
 	u64 msg_name; //a pointer
-    __builtin_memset(&msg_name, 0, sizeof(msg_name));
+	__builtin_memset(&msg_name, 0, sizeof(msg_name));
 	bpf_probe_read(&msg_name, sizeof(msg_name), &msg->msg_name);
 
 	struct udpv6_key_t udpv6_key;
-    __builtin_memset(&udpv6_key, 0, sizeof(udpv6_key));
+	__builtin_memset(&udpv6_key, 0, sizeof(udpv6_key));
 	bpf_probe_read(&udpv6_key.dport, sizeof(udpv6_key.dport), &sk->__sk_common.skc_dport);
 	if (udpv6_key.dport != 0){ //likely
 		bpf_probe_read(&udpv6_key.daddr, sizeof(udpv6_key.daddr), &sk->__sk_common.skc_v6_daddr.in6_u.u6_addr32);
@@ -407,11 +417,11 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 
 
 	#ifdef OPENSNITCH_x86_32
-		struct sock_on_x86_32_t sock;
+	struct sock_on_x86_32_t sock;
     	__builtin_memset(&sock, 0, sizeof(sock));
     	bpf_probe_read(&sock, sizeof(sock), *(&sk));
-		udpv6_key.daddr = sock.daddr;
-		udpv6_key.saddr = sock.saddr;
+	udpv6_key.daddr = sock.daddr;
+	udpv6_key.saddr = sock.saddr;
 	#endif
 
 	u32 zero_key = 0;
@@ -420,13 +430,14 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 	struct udpv6_value_t *lookedupValue = bpf_map_lookup_elem(&udpv6Map, &udpv6_key);
 	u64 pid = bpf_get_current_pid_tgid() >> 32;
 	if ( lookedupValue == NULL || lookedupValue->pid != pid) {
-		struct udpv6_value_t udpv6_value;
-        __builtin_memset(&udpv6_value, 0, sizeof(udpv6_value));
+		struct udpv6_value_t udpv6_value={0};
+		__builtin_memset(&udpv6_value, 0, sizeof(udpv6_value));
+		bpf_get_current_comm(&udpv6_value.comm, sizeof(udpv6_value.comm));
 		udpv6_value.pid = pid;
 		udpv6_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
-		udpv6_value.counter = *counterVal;
+		udpv6_value.counter = 0;
 		bpf_map_update_elem(&udpv6Map, &udpv6_key, &udpv6_value, BPF_ANY);
-		u64 newval = *counterVal + 1;
+		u64 newval = 0;//*counterVal + 1;
 		bpf_map_update_elem(&udpv6counter, &zero_key, &newval, BPF_ANY);	
 	}
 	//else nothing to do
@@ -437,14 +448,14 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 SEC("kprobe/iptunnel_xmit")
 int kprobe__iptunnel_xmit(struct pt_regs *ctx)
 {
-	#ifdef OPENSNITCH_x86_32
+#ifdef OPENSNITCH_x86_32
 	// TODO
 	return 0;
-	#else
-		struct sk_buff *skb = (struct sk_buff *)PT_REGS_PARM3(ctx);
-		u32 src = (u32)PT_REGS_PARM4(ctx);
-		u32 dst = (u32)PT_REGS_PARM5(ctx);
-	#endif
+#else
+
+	struct sk_buff *skb = (struct sk_buff *)PT_REGS_PARM3(ctx);
+	u32 src = (u32)PT_REGS_PARM4(ctx);
+	u32 dst = (u32)PT_REGS_PARM5(ctx);
 
 	u16 sport = 0;
 	unsigned char *head;
@@ -477,16 +488,19 @@ int kprobe__iptunnel_xmit(struct pt_regs *ctx)
 	struct udp_value_t *lookedupValue = bpf_map_lookup_elem(&udpMap, &udp_key);
 	u64 pid = bpf_get_current_pid_tgid() >> 32;
 	if ( lookedupValue == NULL || lookedupValue->pid != pid) {
+		bpf_get_current_comm(&udp_value.comm, sizeof(udp_value.comm));
 		udp_value.pid = pid;
 		udp_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
-		udp_value.counter = *counterVal;
+		udp_value.counter = 0;
 		bpf_map_update_elem(&udpMap, &udp_key, &udp_value, BPF_ANY);
-		u64 newval = *counterVal + 1;
+		u64 newval = 0;//*counterVal + 1;
 		bpf_map_update_elem(&udpcounter, &zero_key, &newval, BPF_ANY);
 	}
 
+	//else nothing to do
 	return 0;
 
+#endif
 };
 
 // debug only: increment key's value by 1 in map "bytes"

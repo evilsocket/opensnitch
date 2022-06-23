@@ -1,10 +1,25 @@
 package ebpf
 
 import (
+	"fmt"
 	"unsafe"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 )
+
+func mountDebugFS() error {
+	debugfsPath := "/sys/kernel/debug/"
+	kprobesPath := fmt.Sprint(debugfsPath, "tracing/kprobe_events")
+	if core.Exists(kprobesPath) == false {
+		if _, err := core.Exec("mount", []string{"-t", "debugfs", "none", debugfsPath}); err != nil {
+			log.Warning("eBPF debugfs error: %s", err)
+			return err
+		}
+	}
+
+	return nil
+}
 
 func deleteEbpfEntry(proto string, key unsafe.Pointer) bool {
 	if err := m.DeleteElement(ebpfMaps[proto].bpfmap, key); err != nil {
@@ -17,7 +32,7 @@ func getItems(proto string, isIPv6 bool) (items uint) {
 	isDup := make(map[string]uint8)
 	var lookupKey []byte
 	var nextKey []byte
-	var value []byte
+
 	if !isIPv6 {
 		lookupKey = make([]byte, 12)
 		nextKey = make([]byte, 12)
@@ -25,12 +40,12 @@ func getItems(proto string, isIPv6 bool) (items uint) {
 		lookupKey = make([]byte, 36)
 		nextKey = make([]byte, 36)
 	}
-	value = make([]byte, 24)
+	var value networkEventT
 	firstrun := true
 
 	for {
 		ok, err := m.LookupNextElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&lookupKey[0]),
-			unsafe.Pointer(&nextKey[0]), unsafe.Pointer(&value[0]))
+			unsafe.Pointer(&nextKey[0]), unsafe.Pointer(&value))
 		if !ok || err != nil { //reached end of map
 			log.Debug("[ebpf] %s map: %d active items", proto, items)
 			return
@@ -59,7 +74,6 @@ func deleteOldItems(proto string, isIPv6 bool, maxToDelete uint) (deleted uint) 
 	isDup := make(map[string]uint8)
 	var lookupKey []byte
 	var nextKey []byte
-	var value []byte
 	if !isIPv6 {
 		lookupKey = make([]byte, 12)
 		nextKey = make([]byte, 12)
@@ -67,7 +81,7 @@ func deleteOldItems(proto string, isIPv6 bool, maxToDelete uint) (deleted uint) 
 		lookupKey = make([]byte, 36)
 		nextKey = make([]byte, 36)
 	}
-	value = make([]byte, 24)
+	var value networkEventT
 	firstrun := true
 	i := uint(0)
 
@@ -77,11 +91,11 @@ func deleteOldItems(proto string, isIPv6 bool, maxToDelete uint) (deleted uint) 
 			return
 		}
 		ok, err := m.LookupNextElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&lookupKey[0]),
-			unsafe.Pointer(&nextKey[0]), unsafe.Pointer(&value[0]))
+			unsafe.Pointer(&nextKey[0]), unsafe.Pointer(&value))
 		if !ok || err != nil { //reached end of map
 			return
 		}
-		if counter, duped := isDup[string(lookupKey)]; duped && counter > 1 {
+		if _, duped := isDup[string(lookupKey)]; duped {
 			if deleteEbpfEntry(proto, unsafe.Pointer(&lookupKey[0])) {
 				deleted++
 				copy(lookupKey, nextKey)

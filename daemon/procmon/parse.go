@@ -2,10 +2,8 @@ package procmon
 
 import (
 	"fmt"
-	"os"
 	"time"
 
-	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon/audit"
 )
@@ -95,50 +93,12 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		return proc
 	}
 
-	if MethodIsAudit() {
-		if aevent := audit.GetEventByPid(pid); aevent != nil {
-			audit.Lock.RLock()
-			proc := NewProcess(pid, aevent.ProcPath)
-			proc.readCmdline()
-			proc.setCwd(aevent.ProcDir)
-			audit.Lock.RUnlock()
-			// if the proc dir contains non alhpa-numeric chars the field is empty
-			if proc.CWD == "" {
-				proc.readCwd()
-			}
-			proc.readEnv()
-			proc.cleanPath()
-
-			addToActivePidsCache(uint64(pid), proc)
-			return proc
-		}
-	}
-	// if the PID dir doesn't exist, the process may have exited or be a kernel connection
-	// XXX: can a kernel connection exist without an entry in ProcFS?
-	if core.Exists(fmt.Sprint("/proc/", pid)) == false {
-		log.Debug("PID can't be read /proc/ %d", pid)
+	proc := NewProcess(pid, "")
+	if err := proc.GetInfo(); err != nil {
+		log.Error("[%d] FindProcess() error: %s", pid, err)
 		return nil
 	}
 
-	linkName := fmt.Sprint("/proc/", pid, "/exe")
-	link, err := os.Readlink(linkName)
-	proc := NewProcess(pid, link)
-	proc.readCmdline()
-	proc.readCwd()
-	proc.readEnv()
-	proc.cleanPath()
-
-	if len(proc.Args) == 0 {
-		proc.readComm()
-		proc.Args = make([]string, 0)
-		proc.Args = append(proc.Args, proc.Comm)
-	}
-
-	// If the link to the binary can't be read, the PID may be of a kernel task
-	if err != nil || proc.Path == "" {
-		proc.Path = "Kernel connection"
-	}
-
-	addToActivePidsCache(uint64(pid), proc)
+	AddToActivePidsCache(uint64(pid), proc)
 	return proc
 }

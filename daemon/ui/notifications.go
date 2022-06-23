@@ -60,6 +60,7 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 
 func (c *Client) monitorProcessDetails(pid int, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	p := procmon.NewProcess(pid, "")
+	p.GetInfo()
 	ticker := time.NewTicker(2 * time.Second)
 
 	for {
@@ -70,7 +71,7 @@ func (c *Client) monitorProcessDetails(pid int, stream protocol.UI_Notifications
 			}
 			goto Exit
 		case <-ticker.C:
-			if err := p.GetInfo(); err != nil {
+			if err := p.GetExtraInfo(); err != nil {
 				c.sendNotificationReply(stream, notification.Id, notification.Data, err)
 				goto Exit
 			}

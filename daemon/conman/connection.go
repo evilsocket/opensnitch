@@ -13,6 +13,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/evilsocket/opensnitch/daemon/procmon/audit"
 	"github.com/evilsocket/opensnitch/daemon/procmon/ebpf"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 
@@ -85,14 +86,41 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 	pid := -1
 	uid := -1
 	if procmon.MethodIsEbpf() {
-		pid, uid, err = ebpf.GetPid(c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort)
+		c.Process, err = ebpf.GetPid(c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort)
+		if c.Process != nil {
+			c.Entry.UserId = c.Process.UID
+			return c, nil
+		}
 		if err != nil {
 			log.Warning("ebpf warning: %v", err)
 			return nil, nil
 		}
+	} else if procmon.MethodIsAudit() {
+		if aevent := audit.GetEventByPid(pid); aevent != nil {
+			audit.Lock.RLock()
+			c.Process = procmon.NewProcess(pid, aevent.ProcName)
+			c.Process.Path = aevent.ProcPath
+			c.Process.ReadCmdline()
+			c.Process.CWD = aevent.ProcDir
+			audit.Lock.RUnlock()
+			// if the proc dir contains non alhpa-numeric chars the field is empty
+			if c.Process.CWD == "" {
+				c.Process.ReadCwd()
+			}
+			c.Process.ReadEnv()
+			c.Process.CleanPath()
+
+			procmon.AddToActivePidsCache(uint64(pid), c.Process)
+			return c, nil
+		}
 	}
-	// sometimes when using eBPF the connection is not found, but falling back to legacy
-	// methods helps to find it and avoid "unknown/kernel pop-ups". TODO: investigate
+
+	// Sometimes when using eBPF, the PID is not found by the connection's parameters,
+	// but falling back to legacy methods helps to find it and avoid "unknown/kernel pop-ups".
+	//
+	// One of the reasons is because after coming back from suspend state, for some reason (bug?),
+	// gobpf/libbpf is unable to delete ebpf map entries, so when they reach the maximum capacity no
+	// more entries are added, nor updated.
 	if pid < 0 {
 		// 0. lookup uid and inode via netlink. Can return several inodes.
 		// 1. lookup uid and inode using /proc/net/(udp|tcp|udplite)
@@ -124,11 +152,9 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 			}
 		}
 	}
-
-	if nfp.UID != 0xffffffff {
-		c.Entry.UserId = int(nfp.UID)
-	} else {
-		c.Entry.UserId = uid
+	// we should have discovered the pid by this point.
+	if pid < 0 {
+		return nil, fmt.Errorf("(1) Could not find process by its pid %d for: %s", pid, c)
 	}
 
 	if pid == os.Getpid() {
@@ -138,8 +164,15 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		return c, nil
 	}
 
-	if c.Process = procmon.FindProcess(pid, showUnknownCons); c.Process == nil {
-		return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
+	if nfp.UID != 0xffffffff {
+		uid = int(nfp.UID)
+	}
+	c.Entry.UserId = uid
+
+	if c.Process == nil {
+		if c.Process = procmon.FindProcess(pid, showUnknownCons); c.Process == nil {
+			return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
+		}
 	}
 
 	return c, nil
@@ -238,11 +271,11 @@ func (c *Connection) To() string {
 
 func (c *Connection) String() string {
 	if c.Entry == nil {
-		return fmt.Sprintf("%s ->(%s)-> %s:%d", c.SrcIP, c.Protocol, c.To(), c.DstPort)
+		return fmt.Sprintf("%d:%s ->(%s)-> %s:%d", c.SrcPort, c.SrcIP, c.Protocol, c.To(), c.DstPort)
 	}
 
 	if c.Process == nil {
-		return fmt.Sprintf("%s (uid:%d) ->(%s)-> %s:%d", c.SrcIP, c.Entry.UserId, c.Protocol, c.To(), c.DstPort)
+		return fmt.Sprintf("%d:%s (uid:%d) ->(%s)-> %s:%d", c.SrcPort, c.SrcIP, c.Entry.UserId, c.Protocol, c.To(), c.DstPort)
 	}
 
 	return fmt.Sprintf("%s (%d) -> %s:%d (proto:%s uid:%d)", c.Process.Path, c.Process.ID, c.To(), c.DstPort, c.Protocol, c.Entry.UserId)

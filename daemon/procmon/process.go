@@ -45,9 +45,19 @@ type procStatm struct {
 
 // Process holds the details of a process.
 type Process struct {
-	ID          int
-	Comm        string
-	Path        string
+	ID   int
+	UID  int
+	Comm string
+	// Path is the absolute path to the binary
+	Path string
+	// Args is the command that the user typed. It MAY contain the absolute path
+	// of the binary:
+	// $ curl https://...
+	//   -> Path: /usr/bin/curl
+	//   -> Args: curl https://....
+	// $ /usr/bin/curl https://...
+	//   -> Path: /usr/bin/curl
+	//   -> Args: /usr/bin/curl https://....
 	Args        []string
 	Env         map[string]string
 	CWD         string
@@ -61,10 +71,10 @@ type Process struct {
 }
 
 // NewProcess returns a new Process structure.
-func NewProcess(pid int, path string) *Process {
+func NewProcess(pid int, comm string) *Process {
 	return &Process{
 		ID:   pid,
-		Path: path,
+		Comm: comm,
 		Args: make([]string, 0),
 		Env:  make(map[string]string),
 	}

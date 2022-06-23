@@ -7,20 +7,20 @@ import (
 
 var (
 	myPid = os.Getpid()
-	proc  = NewProcess(myPid, "/fake/path")
+	proc  = NewProcess(myPid, "fakeComm")
 )
 
 func TestNewProcess(t *testing.T) {
 	if proc.ID != myPid {
 		t.Error("NewProcess PID not equal to ", myPid)
 	}
-	if proc.Path != "/fake/path" {
-		t.Error("NewProcess path not equal to /fake/path")
+	if proc.Comm != "fakeComm" {
+		t.Error("NewProcess Comm not equal to fakeComm")
 	}
 }
 
 func TestProcPath(t *testing.T) {
-	if err := proc.readPath(); err != nil {
+	if err := proc.ReadPath(); err != nil {
 		t.Error("Proc path error:", err)
 	}
 	if proc.Path == "/fake/path" {
@@ -29,20 +29,15 @@ func TestProcPath(t *testing.T) {
 }
 
 func TestProcCwd(t *testing.T) {
-	err := proc.readCwd()
+	err := proc.ReadCwd()
 
 	if proc.CWD == "" {
 		t.Error("Proc readCwd() not read:", err)
 	}
-
-	proc.setCwd("/home")
-	if proc.CWD != "/home" {
-		t.Error("Proc setCwd() should be /home:", proc.CWD)
-	}
 }
 
 func TestProcCmdline(t *testing.T) {
-	proc.readCmdline()
+	proc.ReadCmdline()
 
 	if len(proc.Args) == 0 {
 		t.Error("Proc Args should not be empty:", proc.Args)
@@ -58,7 +53,7 @@ func TestProcDescriptors(t *testing.T) {
 }
 
 func TestProcEnv(t *testing.T) {
-	proc.readEnv()
+	proc.ReadEnv()
 
 	if len(proc.Env) == 0 {
 		t.Error("Proc Env should not be empty:", proc.Env)
@@ -128,7 +123,7 @@ func TestProcStatus(t *testing.T) {
 
 func TestProcCleanPath(t *testing.T) {
 	proc.Path = "/fake/path/binary (deleted)"
-	proc.cleanPath()
+	proc.CleanPath()
 	if proc.Path != "/fake/path/binary" {
 		t.Error("Proc cleanPath() not cleaned:", proc.Path)
 	}

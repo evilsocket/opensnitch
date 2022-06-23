@@ -60,7 +60,13 @@ var (
 
 //Start installs ebpf kprobes
 func Start() error {
+	if err := mountDebugFS(); err != nil {
+		return err
+	}
+
 	m = elf.NewModule("/etc/opensnitchd/opensnitch.o")
+	m.EnableOptionCompatProbe()
+
 	if err := m.Load(nil); err != nil {
 		log.Error("eBPF Failed to load /etc/opensnitchd/opensnitch.o: %v", err)
 		return err
@@ -68,6 +74,7 @@ func Start() error {
 
 	// if previous shutdown was unclean, then we must remove the dangling kprobe
 	// and install it again (close the module and load it again)
+
 	if err := m.EnableKprobes(0); err != nil {
 		m.Close()
 		if err := m.Load(nil); err != nil {
@@ -79,18 +86,6 @@ func Start() error {
 			return err
 		}
 	}
-
-	// init all connection counters to 0
-	zeroKey := make([]byte, 4)
-	zeroValue := make([]byte, 8)
-	for _, name := range []string{"tcpcounter", "tcpv6counter", "udpcounter", "udpv6counter"} {
-		err := m.UpdateElement(m.Map(name), unsafe.Pointer(&zeroKey[0]), unsafe.Pointer(&zeroValue[0]), 0)
-		if err != nil {
-			log.Error("eBPF could not init counters to zero: %v", err)
-			return err
-		}
-	}
-	ebpfCache = NewEbpfCache()
 
 	lock.Lock()
 	//determine host byte order
@@ -105,6 +100,18 @@ func Start() error {
 		log.Error("Could not determine host byte order.")
 	}
 	lock.Unlock()
+
+	// init all connection counters to 0
+	zeroKey := make([]byte, 4)
+	zeroValue := make([]byte, 8)
+	for _, name := range []string{"tcpcounter", "tcpv6counter", "udpcounter", "udpv6counter"} {
+		err := m.UpdateElement(m.Map(name), unsafe.Pointer(&zeroKey[0]), unsafe.Pointer(&zeroValue[0]), 0)
+		if err != nil {
+			log.Error("eBPF could not init counters to zero: %v", err)
+			return err
+		}
+	}
+	ebpfCache = NewEbpfCache()
 
 	ebpfMaps = map[string]*ebpfMapsForProto{
 		"tcp": {
@@ -126,6 +133,8 @@ func Start() error {
 		saveEstablishedConnections(uint8(syscall.AF_INET6))
 	}
 
+	initEventsStreamer()
+
 	go monitorCache()
 	go monitorMaps()
 	go monitorLocalAddresses()
@@ -140,6 +149,7 @@ func saveEstablishedConnections(commDomain uint8) error {
 		log.Debug("eBPF could not dump TCP (%d) sockets via netlink: %v", commDomain, err)
 		return err
 	}
+
 	for _, sock := range socketListTCP {
 		inode := int((*sock).INode)
 		pid := procmon.GetPIDFromINode(inode, fmt.Sprint(inode,
@@ -148,7 +158,6 @@ func saveEstablishedConnections(commDomain uint8) error {
 		alreadyEstablished.TCP[sock] = pid
 		alreadyEstablished.Unlock()
 	}
-
 	return nil
 }
 
@@ -157,10 +166,25 @@ func Stop() {
 	lock.Lock()
 	stop = true
 	lock.Unlock()
+	ebpfCache.clear()
+
+	for i := 0; i < eventWorkers; i++ {
+		stopStreamEvents <- true
+	}
+	for pm := range perfMapList {
+		if pm != nil {
+			pm.PollStop()
+		}
+	}
+	for _, mod := range perfMapList {
+		if mod != nil {
+			mod.Close()
+		}
+	}
+
 	if m != nil {
 		m.Close()
 	}
-	ebpfCache.clear()
 }
 
 func isStopped() bool {
@@ -174,7 +198,7 @@ func isStopped() bool {
 func makeBpfSyscall(bpf_lookup *bpf_lookup_elem_t) uintptr {
 	BPF_MAP_LOOKUP_ELEM := 1 //cmd number
 	syscall_BPF := 321       //syscall number
-	sizeOfStruct := 24       //sizeof bpf_lookup_elem_t struct
+	sizeOfStruct := 40       //sizeof bpf_lookup_elem_t struct
 
 	r1, _, _ := syscall.Syscall(uintptr(syscall_BPF), uintptr(BPF_MAP_LOOKUP_ELEM),
 		uintptr(unsafe.Pointer(bpf_lookup)), uintptr(sizeOfStruct))

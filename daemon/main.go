@@ -135,6 +135,10 @@ func setupSignals() {
 		log.Raw("\n")
 		log.Important("Got signal: %v", sig)
 		cancel()
+		time.AfterFunc(10*time.Second, func() {
+			log.Error("[REVIEW] closing due to timeout")
+			os.Exit(0)
+		})
 	}()
 }
 
