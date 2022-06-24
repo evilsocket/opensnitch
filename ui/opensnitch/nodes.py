@@ -251,6 +251,12 @@ class Nodes():
                 if self._notifications_sent[reply.id]['type'] != ui_pb2.MONITOR_PROCESS:
                     del self._notifications_sent[reply.id]
 
+    def stop_notifications(self):
+        """Send a dummy notification to force Notifications class to exit.
+        """
+        exit_noti = ui_pb2.Notification(clientName="", serverName="", type=0, data="", rules=[])
+        self.send_notifications(exit_noti)
+
     def update(self, proto, addr, status=ONLINE):
         try:
             self._db.update("nodes",

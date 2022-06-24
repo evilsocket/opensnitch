@@ -199,6 +199,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._exit = True
         self._tray.setIcon(self.off_icon)
         self._app.processEvents()
+        self._nodes.stop_notifications()
         self._nodes.update_all(Nodes.OFFLINE)
         self._db.vacuum()
         self._db.optimize()
@@ -632,6 +633,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         @doc: https://grpc.github.io/grpc/python/grpc.html#service-side-context
         """
+        # if the exit mark is set, don't accept new connections.
+        # db vacuum operation may take a lot of time to complete.
+        if self._exit:
+            return
         try:
             self._node_actions_trigger.emit({
                     'action': self.NODE_ADD,

@@ -29,13 +29,8 @@ from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
 
 def on_exit():
     server.stop(0)
-    # try to exit gracefully. Otherwise after 10s force exit.
-    Timer(5, __force_exit__).start()
     app.quit()
     sys.exit(0)
-
-def __force_exit__():
-    os._exit(1)
 
 def supported_qt_version(major, medium, minor):
     q = QtCore.QT_VERSION_STR.split(".")
