@@ -269,6 +269,12 @@ class Nodes(QObject):
         except Exception as e:
             print(self.LOG_TAG, "notification exception:", e)
 
+    def stop_notifications(self):
+        """Send a dummy notification to force Notifications class to exit.
+        """
+        exit_noti = ui_pb2.Notification(clientName="", serverName="", type=0, data="", rules=[])
+        self.send_notifications(exit_noti)
+
     def update(self, proto, addr, status=ONLINE):
         try:
             self._db.update("nodes",
