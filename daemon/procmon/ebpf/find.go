@@ -1,7 +1,6 @@
 package ebpf
 
 import (
-	"bytes"
 	"encoding/binary"
 	"fmt"
 	"net"
@@ -131,13 +130,13 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		return nil
 	}
 
-	comm := string(bytes.Trim(value.Comm[:], "\x00"))
+	comm := byteArrayToString(value.Comm[:])
 	proc = procmon.NewProcess(int(value.Pid), comm)
 	// use socket's UID. A process may have dropped privileges
 	proc.UID = int(value.UID)
 
 	if ev, found := execEvents.isInStore(value.Pid); found {
-		proc.Path = string(bytes.Trim(ev.Event.Filename[:], "\x00")) // ev.Proc.Path
+		proc.Path = byteArrayToString(ev.Event.Filename[:]) // ev.Proc.Path
 		proc.ReadCmdline()
 		proc.ReadCwd()
 		proc.ReadEnv()

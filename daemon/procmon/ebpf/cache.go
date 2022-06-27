@@ -16,8 +16,8 @@ func NewExecEvent(pid, ppid, uid uint64, path string, comm [16]byte) *execEvent 
 		UID:  uid,
 		Comm: comm,
 	}
-	length := 128
-	if len(path) < 128 {
+	length := MaxPathLen
+	if len(path) < MaxPathLen {
 		length = len(path)
 	}
 	copy(ev.Filename[:], path[:length])

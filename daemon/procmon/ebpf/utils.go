@@ -1,6 +1,7 @@
 package ebpf
 
 import (
+	"bytes"
 	"fmt"
 	"unsafe"
 
@@ -19,6 +20,21 @@ func mountDebugFS() error {
 	}
 
 	return nil
+}
+
+// Trim null characters, and return the left part of the byte array.
+// NOTE: using BPF_MAP_TYPE_PERCPU_ARRAY does not initialize strings to 0,
+// so we end up receiving events as follow:
+// event.filename -> /usr/bin/iptables
+// event.filename -> /bin/lsn/iptables (should be /bin/ls)
+// It turns out, that there's a 0x00 character between "/bin/ls" and "n/iptables":
+// [47 115 98 105 110 47 100 117 109 112 101 50 102 115 0 0 101 115
+//                                                      ^^^
+// TODO: investigate if there's any way of initializing the struct to 0
+// like using __builtin_memset() (can't be used with PERCPU apparently)
+func byteArrayToString(arr []byte) string {
+	temp := bytes.SplitAfter(arr, []byte("\x00"))[0]
+	return string(bytes.Trim(temp[:], "\x00"))
 }
 
 func deleteEbpfEntry(proto string, key unsafe.Pointer) bool {

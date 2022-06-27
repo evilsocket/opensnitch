@@ -10,13 +10,20 @@ import (
 	elf "github.com/iovisor/gobpf/elf"
 )
 
+// MaxPathLen defines the maximum length of a path, as defined by the kernel:
+// https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/limits.h#L13
+const MaxPathLen = 4096
+
+// TaskCommLen is the maximum num of characters of the comm field
+const TaskCommLen = 16
+
 type execEvent struct {
 	Type     uint64
 	PID      uint64
 	PPID     uint64
 	UID      uint64
-	Filename [128]byte
-	Comm     [16]byte
+	Filename [MaxPathLen]byte
+	Comm     [TaskCommLen]byte
 }
 
 // Struct that holds the metadata of a connection.
@@ -26,7 +33,7 @@ type networkEventT struct {
 	Pid     uint64
 	UID     uint64
 	Counter uint64
-	Comm    [16]byte
+	Comm    [TaskCommLen]byte
 }
 
 // List of supported events
@@ -57,8 +64,9 @@ func initEventsStreamer() {
 
 	tracepoints := []string{
 		"tracepoint/sched/sched_process_exit",
-		//		"tracepoint/sched/sched_process_exec",
-		//		"tracepoint/sched/sched_process_fork",
+		//"tracepoint/sched/sched_process_exec",
+		//"tracepoint/syscalls/sys_enter_execve",
+		//"tracepoint/sched/sched_process_fork",
 	}
 
 	// Enable tracepoints first, that way if kprobes fail loading we'll still have some
@@ -130,7 +138,9 @@ func streamEventsWorker(id int, chn chan []byte, execEvents *eventsStore) {
 
 				case EV_TYPE_SCHED_EXIT:
 					//log.Warning("::: EXIT EVENT -> %d", event.PID)
-					execEvents.delete(event.PID)
+					if _, found := execEvents.isInStore(event.PID); found {
+						execEvents.delete(event.PID)
+					}
 					continue
 				}
 				// TODO: delete old events (by timeout)
