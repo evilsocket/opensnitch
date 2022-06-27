@@ -252,6 +252,7 @@ class Message():
     @staticmethod
     def ok(title, message, icon):
         msgBox = QtWidgets.QMessageBox()
+        msgBox.setWindowFlags(msgBox.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         msgBox.setText("<b>{0}</b><br><br>{1}".format(title, message))
         msgBox.setIcon(icon)
         msgBox.setModal(True)
@@ -261,6 +262,7 @@ class Message():
     @staticmethod
     def yes_no(title, message, icon):
         msgBox = QtWidgets.QMessageBox()
+        msgBox.setWindowFlags(msgBox.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         msgBox.setText(title)
         msgBox.setIcon(icon)
         msgBox.setModal(True)
