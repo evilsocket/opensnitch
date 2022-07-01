@@ -70,9 +70,6 @@ int tracepoint__sched_sched_process_exit(struct pt_regs *ctx)
     return 0;
 };
 
-    return 0;
-};
-
 char _license[] SEC("license") = "GPL";
 // this number will be interpreted by the elf loader
 // to set the current running kernel version
