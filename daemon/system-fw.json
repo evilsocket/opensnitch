@@ -7,7 +7,7 @@
         "Table": "mangle",
         "Chain": "OUTPUT",
         "Enabled": false,
-        "Position": "0",
+        "Position": 0,
         "Description": "Allow icmp",
         "Parameters": "-p icmp",
         "Expressions": [],
@@ -49,7 +49,7 @@
           "Rules": [
             {
               "Enabled": false,
-              "Position": "0",
+              "Position": 0,
               "Description": "Allow SSH server connections when input policy is DROP",
               "Parameters": "",
               "Expressions": [
@@ -152,7 +152,7 @@
           "Rules": [
             {
               "Enabled": true,
-              "Position": "0",
+              "Position": 0,
               "Description": "Allow ICMP",
               "Expressions": [
                 {
@@ -177,7 +177,7 @@
             },
             {
               "Enabled": false,
-              "Position": "0",
+              "Position": 0,
               "Description": "Exclude WireGuard VPN from being intercepted",
               "Parameters": "",
               "Expressions": [
@@ -211,7 +211,7 @@
             {
               "UUID": "7d7394e1-100d-4b87-a90a-cd68c46edb0b",
               "Enabled": false,
-              "Position": "0",
+              "Position": 0,
               "Description": "Intercept forwarded connections (docker, etc)",
               "Expressions": [
                 {
