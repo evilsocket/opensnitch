@@ -12,15 +12,25 @@ import (
 
 // rules examples: https://github.com/google/nftables/blob/master/nftables_test.go
 
-func (n *Nft) buildICMPRule(table, family string, icmpOptions []*config.ExprValues) *[]expr.Any {
+func (n *Nft) buildICMPRule(table, family string, icmpProtoVersion string, icmpOptions []*config.ExprValues) *[]expr.Any {
 	tbl := getTable(table, family)
 	if tbl == nil {
 		return nil
 	}
 	offset := uint32(0)
-	setType := nftables.TypeICMPType
+	icmpType := uint8(0)
+	setType := nftables.SetDatatype{}
 
-	exprICMP, _ := exprs.NewExprProtocol(exprs.NFT_PROTO_ICMP)
+	switch icmpProtoVersion {
+	case exprs.NFT_PROTO_ICMP:
+		setType = nftables.TypeICMPType
+	case exprs.NFT_PROTO_ICMPv6:
+		setType = nftables.TypeICMP6Type
+	default:
+		return nil
+	}
+
+	exprICMP, _ := exprs.NewExprProtocol(icmpProtoVersion)
 	ICMPrule := []expr.Any{}
 	ICMPrule = append(ICMPrule, *exprICMP...)
 
@@ -29,10 +39,15 @@ func (n *Nft) buildICMPRule(table, family string, icmpOptions []*config.ExprValu
 	for _, icmp := range icmpOptions {
 		switch icmp.Key {
 		case exprs.NFT_ICMP_TYPE:
+			if exprs.NFT_PROTO_ICMPv6 == icmpProtoVersion {
+				icmpType = exprs.GetICMPv6Type(icmp.Value)
+			} else {
+				icmpType = exprs.GetICMPType(icmp.Value)
+			}
 			exprCmp := &expr.Cmp{
 				Op:       expr.CmpOpEq,
 				Register: 1,
-				Data:     []byte{exprs.GetICMPType(icmp.Value)},
+				Data:     []byte{icmpType},
 			}
 			ICMPtemp = append(ICMPtemp, []expr.Any{exprCmp}...)
 
@@ -40,7 +55,7 @@ func (n *Nft) buildICMPRule(table, family string, icmpOptions []*config.ExprValu
 			setElements = append(setElements,
 				[]nftables.SetElement{
 					{
-						Key: []byte{exprs.GetICMPType(icmp.Value)},
+						Key: []byte{icmpType},
 					},
 				}...)
 		case exprs.NFT_ICMP_CODE:

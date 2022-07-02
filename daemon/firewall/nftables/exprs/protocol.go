@@ -71,6 +71,16 @@ func NewExprProtocol(proto string) (*[]expr.Any, error) {
 			},
 		}, nil
 
+	case NFT_PROTO_ICMPv6:
+		return &[]expr.Any{
+			&expr.Meta{Key: expr.MetaKeyL4PROTO, Register: 1},
+			&expr.Cmp{
+				Op:       expr.CmpOpEq,
+				Register: 1,
+				Data:     []byte{unix.IPPROTO_ICMPV6},
+			},
+		}, nil
+
 	default:
 		return nil, fmt.Errorf("Not valid protocol rule, invalid or not supported protocol: %s", proto)
 	}

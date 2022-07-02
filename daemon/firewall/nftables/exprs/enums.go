@@ -170,4 +170,8 @@ const (
 	ICMP_ROUTER_SOLICITATION  = "router-solicitation"
 	ICMP_ADDRESS_MASK_REQUEST = "address-mask-request"
 	ICMP_ADDRESS_MASK_REPLY   = "address-mask-reply"
+
+	ICMP_PACKET_TOO_BIG          = "packet-too-big"
+	ICMP_NEIGHBOUR_SOLICITATION  = "neighbour-solicitation"
+	ICMP_NEIGHBOUR_ADVERTISEMENT = "neighbour-advertisement"
 )
