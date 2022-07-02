@@ -176,6 +176,31 @@
               "TargetParameters": ""
             },
             {
+              "Enabled": true,
+              "Position": 0,
+              "Description": "Allow ICMPv6",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "icmpv6",
+                    "Values": [
+                      {
+                        "Key": "type",
+                        "Value": "echo-request"
+                      },
+                      {
+                        "Key": "type",
+                        "Value": "echo-reply"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            },
+            {
               "Enabled": false,
               "Position": "0",
               "Description": "Exclude WireGuard VPN from being intercepted",

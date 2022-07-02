@@ -71,7 +71,7 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 		exprList = append(exprList, *exprIP...)
 
 	case exprs.NFT_PROTO_ICMP, exprs.NFT_PROTO_ICMPv6:
-		exprICMP := n.buildICMPRule(table, family, expression.Statement.Values)
+		exprICMP := n.buildICMPRule(table, family, expression.Statement.Name, expression.Statement.Values)
 		if exprICMP == nil {
 			log.Warning("%s icmp statement error", logTag)
 			return nil

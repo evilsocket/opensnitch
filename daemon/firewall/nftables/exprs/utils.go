@@ -78,6 +78,35 @@ func GetICMPType(icmpType string) uint8 {
 	return 0
 }
 
+// GetICMPv6Type returns an ICMPv6 type code
+func GetICMPv6Type(icmpType string) uint8 {
+	switch icmpType {
+	case ICMP_DEST_UNREACHABLE:
+		return layers.ICMPv6TypeDestinationUnreachable
+	case ICMP_PACKET_TOO_BIG:
+		return layers.ICMPv6TypePacketTooBig
+	case ICMP_TIME_EXCEEDED:
+		return layers.ICMPv6TypeTimeExceeded
+	case ICMP_PARAMETER_PROBLEM:
+		return layers.ICMPv6TypeParameterProblem
+	case ICMP_ECHO_REQUEST:
+		return layers.ICMPv6TypeEchoRequest
+	case ICMP_ECHO_REPLY:
+		return layers.ICMPv6TypeEchoReply
+	case ICMP_ROUTER_SOLICITATION:
+		return layers.ICMPv6TypeRouterSolicitation
+	case ICMP_ROUTER_ADVERTISEMENT:
+		return layers.ICMPv6TypeRouterAdvertisement
+	case ICMP_NEIGHBOUR_SOLICITATION:
+		return layers.ICMPv6TypeNeighborSolicitation
+	case ICMP_NEIGHBOUR_ADVERTISEMENT:
+		return layers.ICMPv6TypeNeighborAdvertisement
+	case ICMP_REDIRECT:
+		return layers.ICMPv6TypeRedirect
+	}
+	return 0
+}
+
 func getICMPv6RejectCode(reason string) uint8 {
 	switch reason {
 	case ICMP_HOST_UNREACHABLE, ICMP_NET_UNREACHABLE, ICMP_NO_ROUTE:
