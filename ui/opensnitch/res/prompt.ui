@@ -175,6 +175,9 @@
          <property name="wordWrap">
           <bool>true</bool>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
        <item>
@@ -369,8 +372,14 @@
        <property name="text">
         <string>TextLabel</string>
        </property>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
+       </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -397,8 +406,14 @@
        <property name="text">
         <string>TextLabel</string>
        </property>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
+       </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -467,8 +482,14 @@
        <property name="text">
         <string>TextLabel</string>
        </property>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
+       </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -495,8 +516,14 @@
        <property name="text">
         <string>TextLabel</string>
        </property>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
+       </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -619,8 +646,14 @@
        <property name="text">
         <string>TextLabel</string>
        </property>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
+       </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -640,7 +673,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,2,0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,2,1,0,0">
      <property name="sizeConstraint">
       <enum>QLayout::SetMinimumSize</enum>
      </property>
@@ -756,45 +789,41 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="denyButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QToolButton" name="actionButton">
        <property name="minimumSize">
         <size>
-         <width>80</width>
+         <width>97</width>
          <height>26</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16777215</width>
+         <width>204</width>
          <height>30</height>
         </size>
        </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <property name="text">
-        <string>Deny</string>
+        <string>action</string>
        </property>
        <property name="icon">
-        <iconset theme="emblem-important">
-         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+        <iconset theme="emblem-important"/>
+       </property>
+       <property name="popupMode">
+        <enum>QToolButton::MenuButtonPopup</enum>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="applyButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QPushButton" name="allowButton">
        <property name="minimumSize">
         <size>
-         <width>80</width>
+         <width>97</width>
          <height>26</height>
         </size>
        </property>
@@ -808,8 +837,7 @@
         <string>Allow</string>
        </property>
        <property name="icon">
-        <iconset theme="emblem-default">
-         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+        <iconset theme="emblem-default"/>
        </property>
       </widget>
      </item>
@@ -823,8 +851,8 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>24</width>
-         <height>24</height>
+         <width>26</width>
+         <height>26</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -848,6 +876,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>checkAdvanced</tabstop>
+  <tabstop>actionButton</tabstop>
+  <tabstop>durationCombo</tabstop>
+  <tabstop>whatCombo</tabstop>
+  <tabstop>whatIPCombo</tabstop>
+  <tabstop>checkUserID</tabstop>
+  <tabstop>checkDstIP</tabstop>
+  <tabstop>checkDstPort</tabstop>
+ </tabstops>
  <resources>
   <include location="resources.qrc"/>
   <include location="../../../../../../../../.designer/backup/resources.qrc"/>

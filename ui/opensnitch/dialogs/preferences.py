@@ -78,6 +78,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         helpIcon = Icons.new("help-browser")
         addIcon = Icons.new("list-add")
         delIcon = Icons.new("list-remove")
+        allowIcon = Icons.new("emblem-default")
+        denyIcon = Icons.new("emblem-important")
+        rejectIcon = Icons.new("window-close")
         self.applyButton.setIcon(applyIcon)
         self.cancelButton.setIcon(closeIcon)
         self.acceptButton.setIcon(saveIcon)
@@ -90,6 +93,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdDBMaxDaysDown.setIcon(delIcon)
         self.cmdDBPurgesUp.setIcon(addIcon)
         self.cmdDBPurgesDown.setIcon(delIcon)
+
+        self.comboUIAction.setItemIcon(Config.ACTION_DENY_IDX, denyIcon)
+        self.comboUIAction.setItemIcon(Config.ACTION_ALLOW_IDX, allowIcon)
+        self.comboUIAction.setItemIcon(Config.ACTION_REJECT_IDX, rejectIcon)
 
     def showEvent(self, event):
         super(PreferencesDialog, self).showEvent(event)
@@ -393,7 +400,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                               int(Config.NOTIFICATION_TYPE_SYSTEM if self.radioSysNotifs.isChecked() else Config.NOTIFICATION_TYPE_QT))
 
         self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText())
-        if self._themes.available() and self._saved_theme != self.comboUITheme.currentText():
+        if self._themes.available() and self._saved_theme != "" and self._saved_theme != self.comboUITheme.currentText():
             Message.ok(
                 QC.translate("preferences", "UI theme changed"),
                 QC.translate("preferences", "Restart the GUI in order to apply the new theme"),

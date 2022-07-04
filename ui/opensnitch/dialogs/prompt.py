@@ -27,9 +27,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     DEFAULT_TIMEOUT = 15
 
-    ACTION_IDX_DENY = 0
-    ACTION_IDX_ALLOW = 1
-
     FIELD_REGEX_HOST    = "regex_host"
     FIELD_REGEX_IP      = "regex_ip"
     FIELD_PROC_PATH     = "process_path"
@@ -86,13 +83,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._apps_parser = LinuxDesktopParser()
 
-        self.denyButton.clicked.connect(self._on_deny_clicked)
-        # also accept button
-        self.applyButton.clicked.connect(self._on_apply_clicked)
-        self._apply_text = QC.translate("popups", "Allow")
-        self._deny_text = QC.translate("popups", "Deny")
-        self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
-
         self.whatIPCombo.setVisible(False)
         self.checkDstIP.setVisible(False)
         self.checkDstPort.setVisible(False)
@@ -110,13 +100,41 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkDstPort.clicked.connect(self._button_clicked)
         self.checkUserID.clicked.connect(self._button_clicked)
 
-        if QtGui.QIcon.hasThemeIcon("emblem-default"):
-            return
-
-        applyIcon = Icons.new("emblem-default")
+        self.allowIcon = Icons.new("emblem-default")
         denyIcon = Icons.new("emblem-important")
-        self.applyButton.setIcon(applyIcon)
-        self.denyButton.setIcon(denyIcon)
+        rejectIcon = Icons.new("window-close")
+
+        self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
+
+        self.allowButton.clicked.connect(lambda: self._on_action_clicked(Config.ACTION_ALLOW_IDX))
+        self.allowButton.setIcon(self.allowIcon)
+        self._allow_text = QC.translate("popups", "Allow")
+        self._action_text = [
+            QC.translate("popups", "Deny"),
+            QC.translate("popups", "Allow"),
+            QC.translate("popups", "Reject")
+        ]
+        self._action_icon = [denyIcon, self.allowIcon, rejectIcon]
+
+        m = QtWidgets.QMenu()
+        m.addAction(denyIcon, self._action_text[Config.ACTION_DENY_IDX]).triggered.connect(
+            lambda: self._on_action_clicked(Config.ACTION_DENY_IDX)
+        )
+        m.addAction(self.allowIcon, self._action_text[Config.ACTION_ALLOW_IDX]).triggered.connect(
+            lambda: self._on_action_clicked(Config.ACTION_ALLOW_IDX)
+        )
+        m.addAction(rejectIcon, self._action_text[Config.ACTION_REJECT_IDX]).triggered.connect(
+            lambda: self._on_action_clicked(Config.ACTION_REJECT_IDX)
+        )
+        self.actionButton.setMenu(m)
+        self.actionButton.setText(self._action_text[Config.ACTION_DENY_IDX])
+        self.actionButton.setIcon(self._action_icon[Config.ACTION_DENY_IDX])
+        naction = Config.ACTION_DENY_IDX
+        if self._default_action != Config.ACTION_ALLOW_IDX:
+            self.actionButton.setText(self._action_text[self._default_action])
+            self.actionButton.setIcon(self._action_icon[self._default_action])
+            naction = self._default_action
+        self.actionButton.clicked.connect(lambda: self._on_action_clicked(naction))
 
     def showEvent(self, event):
         super(PromptDialog, self).showEvent(event)
@@ -126,9 +144,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._width = self.width()
             self._height = self.height()
 
+        self.adjust_size()
+        self.move_popup()
+
+    def adjust_size(self):
         self.setMinimumSize(self._width, self._height)
         self.setMaximumSize(self._width, self._height)
-        self.move_popup()
 
     def move_popup(self):
         popup_pos = self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION)
@@ -143,8 +164,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.move(point.bottomLeft())
 
     def _stop_countdown(self):
-        self.applyButton.setText("%s" % self._apply_text)
-        self.denyButton.setText("%s" % self._deny_text)
+        action_idx = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
+        if action_idx == Config.ACTION_ALLOW_IDX:
+            self.allowButton.setText(self._allow_text)
+            self.allowButton.setIcon(self.allowIcon)
+        else:
+            self.actionButton.setText(self._action_text[action_idx])
+            self.actionButton.setIcon(self._action_icon[action_idx])
         self._tick_thread.stop = True
 
     def _check_advanced_toggled(self, state):
@@ -154,6 +180,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkDstPort.setVisible(state)
         self.checkUserID.setVisible(state)
         self._ischeckAdvanceded = state
+        self.adjust_size()
 
     def _button_clicked(self):
         self._stop_countdown()
@@ -232,12 +259,15 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.durationCombo.setCurrentIndex(self._cfg.DEFAULT_DURATION_IDX)
 
     def _set_cmd_action_text(self):
-        if self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY) == self.ACTION_IDX_ALLOW:
-            self.applyButton.setText("%s (%d)" % (self._apply_text, self._tick))
-            self.denyButton.setText(self._deny_text)
+        action_idx = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
+        if action_idx == Config.ACTION_ALLOW_IDX:
+            self.allowButton.setText("{0} ({1})".format(self._allow_text, self._tick))
+            self.allowButton.setIcon(self.allowIcon)
+            self.actionButton.setText(self._action_text[Config.ACTION_DENY_IDX])
         else:
-            self.denyButton.setText("%s (%d)" % (self._deny_text, self._tick))
-            self.applyButton.setText(self._apply_text)
+            self.allowButton.setText(self._allow_text)
+            self.actionButton.setText("{0} ({1})".format(self._action_text[action_idx], self._tick))
+            self.actionButton.setIcon(self._action_icon[action_idx])
 
     def _set_app_description(self, description):
         if description != None and description != "":
@@ -517,12 +547,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             text = parts[len(parts)-1]
             return Config.RULE_TYPE_REGEXP, "dest.ip", "%s" % '\.'.join(text.split('.')).replace("*", ".*")
 
-    def _on_deny_clicked(self):
-        self._default_action = self.ACTION_IDX_DENY
-        self._send_rule()
-
-    def _on_apply_clicked(self):
-        self._default_action = self.ACTION_IDX_ALLOW
+    def _on_action_clicked(self, action):
+        self._default_action = action
         self._send_rule()
 
     def _is_list_rule(self):
@@ -543,8 +569,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
             self._rule = ui_pb2.Rule(name="user.choice")
             self._rule.enabled = True
-            self._rule.action = Config.ACTION_DENY if self._default_action == self.ACTION_IDX_DENY else Config.ACTION_ALLOW
             self._rule.duration = self._get_duration(self.durationCombo.currentIndex())
+
+            self._rule.action = Config.ACTION_ALLOW
+            if self._default_action == Config.ACTION_DENY_IDX:
+                self._rule.action = Config.ACTION_DENY
+            elif self._default_action == Config.ACTION_REJECT_IDX:
+                self._rule.action = Config.ACTION_REJECT
 
             what_idx = self.whatCombo.currentIndex()
             self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self.whatCombo, what_idx)

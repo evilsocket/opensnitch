@@ -22,6 +22,7 @@ class Config:
     DEFAULT_TARGET_PROCESS = 0
     ACTION_DENY_IDX = 0
     ACTION_ALLOW_IDX = 1
+    ACTION_REJECT_IDX = 2
 
     # don't translate
     ACTION_ALLOW = "allow"
