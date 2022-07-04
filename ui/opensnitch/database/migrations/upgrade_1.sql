@@ -1,2 +1,1 @@
---ALTER TABLE rules ADD COLUMN description;
-create table x(id int);
+ALTER TABLE rules ADD COLUMN description;

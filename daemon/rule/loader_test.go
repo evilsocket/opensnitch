@@ -25,8 +25,8 @@ func TestRuleLoader(t *testing.T) {
 	dur1s := Duration("1s")
 	dummyOper, _ := NewOperator(Simple, false, OpTrue, "", list)
 	dummyOper.Compile()
-	inMem1sRule := Create("000-xxx-name", "rule description xxx", true, false, Allow, dur1s, dummyOper)
-	inMemUntilRestartRule := Create("000-aaa-name", "rule description aaa", true, false, Allow, Restart, dummyOper)
+	inMem1sRule := Create("000-xxx-name", "rule description xxx", true, false, false, Allow, dur1s, dummyOper)
+	inMemUntilRestartRule := Create("000-aaa-name", "rule description aaa", true, false, false, Allow, Restart, dummyOper)
 
 	l, err := NewLoader(false)
 	if err != nil {
@@ -86,7 +86,7 @@ func TestRuleLoaderInvalidRegexp(t *testing.T) {
 	dur30m := Duration("30m")
 	opListData := `[{"type": "regexp", "operand": "process.path", "sensitive": false, "data": "^(/di(rmngr)$"}, {"type": "simple", "operand": "dest.port", "data": "53", "sensitive": false}]`
 	invalidRegexpOp, _ := NewOperator(List, false, OpList, opListData, list)
-	invalidRegexpRule := Create("invalid-regexp", "invalid rule description", true, false, Allow, dur30m, invalidRegexpOp)
+	invalidRegexpRule := Create("invalid-regexp", "invalid rule description", true, false, false, Allow, dur30m, invalidRegexpOp)
 
 	t.Run("replaceUserRule() test list", func(t *testing.T) {
 		if err := l.replaceUserRule(invalidRegexpRule); err == nil {

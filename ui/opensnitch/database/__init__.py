@@ -11,7 +11,8 @@ class Database:
     DB_TYPE_MEMORY = 0
     DB_TYPE_FILE   = 1
 
-    DB_VERSION = 1
+    # increase accordingly whenever the schema is updated
+    DB_VERSION = 2
 
     @staticmethod
     def instance():
@@ -150,6 +151,7 @@ class Database:
                 "operator_operand text, " \
                 "operator_data text, " \
                 "description text, " \
+                "nolog text, " \
                 "UNIQUE(node, name)"
                 ")", self.db)
         q.exec_()
@@ -486,10 +488,10 @@ class Database:
 
     def insert_rule(self, rule, node_addr):
         self.insert("rules",
-            "(time, node, name, description, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
+            "(time, node, name, description, enabled, precedence, nolog, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
                 (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     node_addr, rule.name, rule.description,
-                    str(rule.enabled), str(rule.precedence),
+                    str(rule.enabled), str(rule.precedence), str(rule.nolog),
                     rule.action, rule.duration, rule.operator.type,
                     str(rule.operator.sensitive), rule.operator.operand, rule.operator.data),
                 action_on_conflict="IGNORE")

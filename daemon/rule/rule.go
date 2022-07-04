@@ -39,17 +39,19 @@ type Rule struct {
 	Description string    `json:"description"`
 	Enabled     bool      `json:"enabled"`
 	Precedence  bool      `json:"precedence"`
+	Nolog       bool      `json:"nolog"`
 	Action      Action    `json:"action"`
 	Duration    Duration  `json:"duration"`
 	Operator    Operator  `json:"operator"`
 }
 
 // Create creates a new rule object with the specified parameters.
-func Create(name, description string, enabled bool, precedence bool, action Action, duration Duration, op *Operator) *Rule {
+func Create(name, description string, enabled, precedence, nolog bool, action Action, duration Duration, op *Operator) *Rule {
 	return &Rule{
 		Created:     time.Now(),
 		Enabled:     enabled,
 		Precedence:  precedence,
+		Nolog:       nolog,
 		Name:        name,
 		Description: description,
 		Action:      action,
@@ -91,6 +93,7 @@ func Deserialize(reply *protocol.Rule) (*Rule, error) {
 		reply.Description,
 		reply.Enabled,
 		reply.Precedence,
+		reply.Nolog,
 		Action(reply.Action),
 		Duration(reply.Duration),
 		operator,
@@ -107,6 +110,7 @@ func (r *Rule) Serialize() *protocol.Rule {
 		Description: string(r.Description),
 		Enabled:     bool(r.Enabled),
 		Precedence:  bool(r.Precedence),
+		Nolog:       bool(r.Nolog),
 		Action:      string(r.Action),
 		Duration:    string(r.Duration),
 		Operator: &protocol.Operator{

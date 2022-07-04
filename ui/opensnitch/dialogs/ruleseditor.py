@@ -276,6 +276,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         rule.operator.operand = records.value(9)
         rule.operator.data = "" if records.value(10) == None else str(records.value(10))
         rule.description = records.value(11)
+        rule.nolog = self._bool(records.value(12))
 
         return rule
 
@@ -338,6 +339,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.ruleDescEdit.setPlainText(rule.description)
         self.enableCheck.setChecked(rule.enabled)
         self.precedenceCheck.setChecked(rule.precedence)
+        self.nologCheck.setChecked(rule.nolog)
         if rule.action == Config.ACTION_DENY:
             self.actionDenyRadio.setChecked(True)
         elif rule.action == Config.ACTION_ALLOW:
@@ -457,11 +459,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return True
 
     def _insert_rule_to_db(self, node_addr):
+        # the order of the fields doesn't matter here, as long as we use the
+        # name of the field.
         self._db.insert("rules",
-            "(time, node, name, description, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
+            "(time, node, name, description, enabled, precedence, nolog, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
                 (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     node_addr, self.rule.name, self.rule.description,
-                    str(self.rule.enabled), str(self.rule.precedence),
+                    str(self.rule.enabled), str(self.rule.precedence), str(self.rule.nolog),
                     self.rule.action, self.rule.duration, self.rule.operator.type,
                     str(self.rule.operator.sensitive), self.rule.operator.operand, self.rule.operator.data),
                 action_on_conflict="REPLACE")
@@ -521,6 +525,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule.description = self.ruleDescEdit.toPlainText()
         self.rule.enabled = self.enableCheck.isChecked()
         self.rule.precedence = self.precedenceCheck.isChecked()
+        self.rule.nolog = self.nologCheck.isChecked()
         self.rule.operator.type = Config.RULE_TYPE_SIMPLE
         self.rule.action = Config.ACTION_DENY
         if self.actionAllowRadio.isChecked():

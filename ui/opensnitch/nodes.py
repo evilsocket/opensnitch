@@ -70,15 +70,15 @@ class Nodes(QObject):
     def add_fw_rules(self, addr, fwconfig):
         self._nodes[addr]['fwrules'] = fwconfig
 
-    def add_rule(self, time, node, name, description, enabled, precedence, action, duration, op_type, op_sensitive, op_operand, op_data):
+    def add_rule(self, time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data):
         # don't add rule if the user has selected to exclude temporary
         # rules
         if duration in Config.RULES_DURATION_FILTER:
             return
 
         self._db.insert("rules",
-                  "(time, node, name, description, enabled, precedence, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
-                  (time, node, name, description, enabled, precedence, action, duration, op_type, op_sensitive, op_operand, op_data),
+                  "(time, node, name, description, enabled, precedence, nolog, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
+                  (time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data),
                         action_on_conflict="REPLACE")
 
     def add_rules(self, addr, rules):
@@ -87,7 +87,7 @@ class Nodes(QObject):
                 self.add_rule(datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                               addr,
                               r.name, r.description, str(r.enabled),
-                              str(r.precedence), r.action, r.duration,
+                              str(r.precedence), str(r.nolog), r.action, r.duration,
                               r.operator.type,
                               str(r.operator.sensitive),
                               r.operator.operand, r.operator.data)

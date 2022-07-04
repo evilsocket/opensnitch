@@ -74,9 +74,10 @@ message Rule {
     string description = 2;
     bool enabled = 3;
     bool precedence = 4;
-    string action = 5;
-    string duration = 6;
-    Operator operator = 7;
+    bool nolog = 5;
+    string action = 6;
+    string duration = 7;
+    Operator operator = 8;
 }
 
 enum Action {
