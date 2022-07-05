@@ -129,12 +129,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.actionButton.setMenu(m)
         self.actionButton.setText(self._action_text[Config.ACTION_DENY_IDX])
         self.actionButton.setIcon(self._action_icon[Config.ACTION_DENY_IDX])
-        naction = Config.ACTION_DENY_IDX
         if self._default_action != Config.ACTION_ALLOW_IDX:
             self.actionButton.setText(self._action_text[self._default_action])
             self.actionButton.setIcon(self._action_icon[self._default_action])
-            naction = self._default_action
-        self.actionButton.clicked.connect(lambda: self._on_action_clicked(naction))
+        self.actionButton.clicked.connect(self._on_deny_btn_clicked)
 
     def showEvent(self, event):
         super(PromptDialog, self).showEvent(event)
@@ -549,6 +547,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _on_action_clicked(self, action):
         self._default_action = action
+        self._send_rule()
+
+    def _on_deny_btn_clicked(self, action):
+        self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
+        if self._default_action == Config.ACTION_ALLOW_IDX:
+            self._default_action = Config.ACTION_DENY_IDX
         self._send_rule()
 
     def _is_list_rule(self):
