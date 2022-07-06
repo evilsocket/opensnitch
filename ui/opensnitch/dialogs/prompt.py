@@ -142,12 +142,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._width = self.width()
             self._height = self.height()
 
-        self.adjust_size()
-        self.move_popup()
-
-    def adjust_size(self):
         self.setMinimumSize(self._width, self._height)
         self.setMaximumSize(self._width, self._height)
+        self.move_popup()
 
     def move_popup(self):
         popup_pos = self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION)
@@ -178,7 +175,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkDstPort.setVisible(state)
         self.checkUserID.setVisible(state)
         self._ischeckAdvanceded = state
-        self.adjust_size()
 
     def _button_clicked(self):
         self._stop_countdown()
