@@ -219,6 +219,9 @@ func onPacket(packet netfilter.Packet) {
 	// search a match in preloaded rules
 	r := acceptOrDeny(&packet, con)
 
+	if r != nil && r.Nolog {
+		return
+	}
 	stats.OnConnectionEvent(con, r, r == nil)
 }
 
