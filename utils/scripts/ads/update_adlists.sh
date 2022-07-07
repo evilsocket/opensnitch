@@ -18,7 +18,7 @@
 # Use any directory you want to save the lists.
 # If you use /etc/opensnitchd, give write permissions to blocklists/* for your user (chown -R /etc/opensnitchd/blocklists/).
 # or use a directory from your user's home.
-adsDir="/tmp/d/"
+adsDir="/etc/opensnitchd/blocklists/domains/"
 
 # If you add new urls, remember to add the corresponding filename where it'll be save on disk.
 adsList=(
