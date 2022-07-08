@@ -42,10 +42,11 @@ func NewEventsStore() *eventsStore {
 	}
 }
 
-func (e *eventsStore) add(key uint64, event execEvent) {
+func (e *eventsStore) add(key uint64, event execEvent, proc procmon.Process) {
 	e.Lock()
 	defer e.Unlock()
 	e.execEvents[key] = &execEventItem{
+		Proc:  proc,
 		Event: event,
 	}
 }

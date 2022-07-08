@@ -21,7 +21,6 @@ struct tcp_key_t {
 struct tcp_value_t {
 	pid_size_t pid;
 	uid_size_t uid;
-	u64 counter;
 	char comm[TASK_COMM_LEN];
 }__attribute__((packed));
 
@@ -41,7 +40,6 @@ struct tcpv6_key_t {
 struct tcpv6_value_t{
 	pid_size_t pid;
 	uid_size_t uid;
-	u64 counter; 
 	char comm[TASK_COMM_LEN];
 }__attribute__((packed));
 
@@ -55,7 +53,6 @@ struct udp_key_t {
 struct udp_value_t{
 	pid_size_t pid;
 	uid_size_t uid;
-	u64 counter; 
 	char comm[TASK_COMM_LEN];
 }__attribute__((packed));
 
@@ -69,7 +66,6 @@ struct udpv6_key_t {
 struct udpv6_value_t{
 	pid_size_t pid;
 	uid_size_t uid;
-	u64 counter;
 	char comm[TASK_COMM_LEN];
 }__attribute__((packed));
 
@@ -123,38 +119,6 @@ struct bpf_map_def SEC("maps/tcpv6sock") tcpv6sock = {
 	.key_size = sizeof(u64),
 	.value_size = sizeof(u64),
 	.max_entries = 100,
-};
-
-// //counts how many connections we've processed. Starts at 0.
-struct bpf_map_def SEC("maps/tcpcounter") tcpcounter = {
-	.type = BPF_MAP_TYPE_ARRAY,
-	.key_size = sizeof(u32),
-	.value_size = sizeof(u64),
-	.max_entries = 1,
-};
-struct bpf_map_def SEC("maps/tcpv6counter") tcpv6counter = {
-	.type = BPF_MAP_TYPE_ARRAY,
-	.key_size = sizeof(u32),
-	.value_size = sizeof(u64),
-	.max_entries = 1,
-};
-struct bpf_map_def SEC("maps/udpcounter") udpcounter = {
-	.type = BPF_MAP_TYPE_ARRAY,
-	.key_size = sizeof(u32),
-	.value_size = sizeof(u64),
-	.max_entries = 1,
-};
-struct bpf_map_def SEC("maps/udpv6counter") udpv6counter = {
-	.type = BPF_MAP_TYPE_ARRAY,
-	.key_size = sizeof(u32),
-	.value_size = sizeof(u64),
-	.max_entries = 1,
-};
-struct bpf_map_def SEC("maps/debugcounter") debugcounter = {
-	.type = BPF_MAP_TYPE_ARRAY,
-	.key_size = sizeof(u32),
-	.value_size = sizeof(u64),
-	.max_entries = 1,
 };
 
 // size 150 gave ebpf verifier errors for kernel 4.14, 100 is ok
@@ -219,20 +183,13 @@ int kretprobe__tcp_v4_connect(struct pt_regs *ctx)
 	bpf_probe_read(&tcp_key.daddr, sizeof(tcp_key.daddr), &sk->__sk_common.skc_daddr);
 	bpf_probe_read(&tcp_key.saddr, sizeof(tcp_key.saddr), &sk->__sk_common.skc_rcv_saddr);
 	
-	u32 zero_key = 0;
-	u64 *val = bpf_map_lookup_elem(&tcpcounter, &zero_key);
-	if (val == NULL){return 0;}
-	u64 newval = 0;//*val + 1;
-
 	struct tcp_value_t tcp_value={0};
 	__builtin_memset(&tcp_value, 0, sizeof(tcp_value));
 	tcp_value.pid = pid_tgid >> 32;
 	tcp_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
-	tcp_value.counter = 0;
 	bpf_get_current_comm(&tcp_value.comm, sizeof(tcp_value.comm));
 	bpf_map_update_elem(&tcpMap, &tcp_key, &tcp_value, BPF_ANY);
 
-	bpf_map_update_elem(&tcpcounter, &zero_key, &newval, BPF_ANY);
 	bpf_map_delete_elem(&tcpsock, &pid_tgid);
 	return 0;
 };
@@ -278,24 +235,16 @@ int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
 		bpf_probe_read(&tcpv6_key.saddr, sizeof(tcpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
 	#endif
 
-	u32 zero_key = 0;
-	u64 *val = bpf_map_lookup_elem(&tcpv6counter, &zero_key);
-	if (val == NULL){return 0;}
-
 	struct tcpv6_value_t tcpv6_value={0};
 	__builtin_memset(&tcpv6_value, 0, sizeof(tcpv6_value));
 	tcpv6_value.pid = pid_tgid >> 32;
 	tcpv6_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
-	tcpv6_value.counter = 0;
 	bpf_get_current_comm(&tcpv6_value.comm, sizeof(tcpv6_value.comm));
 	bpf_map_update_elem(&tcpv6Map, &tcpv6_key, &tcpv6_value, BPF_ANY);
 
-	u64 newval = 0;//*val + 1;
-	bpf_map_update_elem(&tcpv6counter, &zero_key, &newval, BPF_ANY);
 	bpf_map_delete_elem(&tcpv6sock, &pid_tgid);
 	return 0;
 };
-
 
 SEC("kprobe/udp_sendmsg")
 int kprobe__udp_sendmsg(struct pt_regs *ctx)
@@ -329,8 +278,6 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
 	
 	u32 zero_key = 0;
 	__builtin_memset(&zero_key, 0, sizeof(zero_key));
-	u64 *counterVal = bpf_map_lookup_elem(&udpcounter, &zero_key);
-	if (counterVal == NULL){return 0;}
 	struct udp_value_t *lookedupValue = bpf_map_lookup_elem(&udpMap, &udp_key);
 	u64 pid = bpf_get_current_pid_tgid() >> 32;
 	if ( lookedupValue == NULL || lookedupValue->pid != pid) {
@@ -338,12 +285,8 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
        		__builtin_memset(&udp_value, 0, sizeof(udp_value));
 		udp_value.pid = pid;
 		udp_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
-		udp_value.counter = 0;
 		bpf_get_current_comm(&udp_value.comm, sizeof(udp_value.comm));
 		bpf_map_update_elem(&udpMap, &udp_key, &udp_value, BPF_ANY);
-
-		u64 newval = 0;//*counterVal + 1;
-		bpf_map_update_elem(&udpcounter, &zero_key, &newval, BPF_ANY);
 	}
 	//else nothing to do
 	return 0;
@@ -390,8 +333,6 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 	#endif
 
 	u32 zero_key = 0;
-	u64 *counterVal = bpf_map_lookup_elem(&udpv6counter, &zero_key);
-	if (counterVal == NULL){return 0;}
 	struct udpv6_value_t *lookedupValue = bpf_map_lookup_elem(&udpv6Map, &udpv6_key);
 	u64 pid = bpf_get_current_pid_tgid() >> 32;
 	if ( lookedupValue == NULL || lookedupValue->pid != pid) {
@@ -400,10 +341,7 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 		bpf_get_current_comm(&udpv6_value.comm, sizeof(udpv6_value.comm));
 		udpv6_value.pid = pid;
 		udpv6_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
-		udpv6_value.counter = 0;
 		bpf_map_update_elem(&udpv6Map, &udpv6_key, &udpv6_value, BPF_ANY);
-		u64 newval = 0;//*counterVal + 1;
-		bpf_map_update_elem(&udpv6counter, &zero_key, &newval, BPF_ANY);	
 	}
 	//else nothing to do
 	return 0;
@@ -447,19 +385,13 @@ int kprobe__iptunnel_xmit(struct pt_regs *ctx)
 	bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &src);
 	bpf_probe_read(&udp_key.daddr, sizeof(udp_key.daddr), &dst);
 
-	u64 *counterVal = bpf_map_lookup_elem(&udpcounter, &zero_key);
-	if (counterVal == NULL){return 0;}
-
 	struct udp_value_t *lookedupValue = bpf_map_lookup_elem(&udpMap, &udp_key);
 	u64 pid = bpf_get_current_pid_tgid() >> 32;
 	if ( lookedupValue == NULL || lookedupValue->pid != pid) {
 		bpf_get_current_comm(&udp_value.comm, sizeof(udp_value.comm));
 		udp_value.pid = pid;
 		udp_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
-		udp_value.counter = 0;
 		bpf_map_update_elem(&udpMap, &udp_key, &udp_value, BPF_ANY);
-		u64 newval = 0;//*counterVal + 1;
-		bpf_map_update_elem(&udpcounter, &zero_key, &newval, BPF_ANY);
 	}
 
 	//else nothing to do

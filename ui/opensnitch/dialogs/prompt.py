@@ -285,6 +285,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             else:
                 self._set_elide_text(self.appPathLabel, "(%s)" % con.process_path)
             self.appPathLabel.setVisible(True)
+        elif con.process_path != "" and len(con.process_args) == 0:
+            self._set_elide_text(self.appPathLabel, "%s" % con.process_path)
+            self.appPathLabel.setVisible(True)
         else:
             self.appPathLabel.setVisible(False)
             self.appPathLabel.setText("")

@@ -17,8 +17,7 @@ import (
 
 //contains pointers to ebpf maps for a given protocol (tcp/udp/v6)
 type ebpfMapsForProto struct {
-	counterMap *elf.Map
-	bpfmap     *elf.Map
+	bpfmap *elf.Map
 }
 
 //Not in use, ~4usec faster lookup compared to m.LookupElement()
@@ -101,31 +100,16 @@ func Start() error {
 	}
 	lock.Unlock()
 
-	// init all connection counters to 0
-	zeroKey := make([]byte, 4)
-	zeroValue := make([]byte, 8)
-	for _, name := range []string{"tcpcounter", "tcpv6counter", "udpcounter", "udpv6counter"} {
-		err := m.UpdateElement(m.Map(name), unsafe.Pointer(&zeroKey[0]), unsafe.Pointer(&zeroValue[0]), 0)
-		if err != nil {
-			log.Error("eBPF could not init counters to zero: %v", err)
-			return err
-		}
-	}
 	ebpfCache = NewEbpfCache()
-
 	ebpfMaps = map[string]*ebpfMapsForProto{
 		"tcp": {
-			counterMap: m.Map("tcpcounter"),
-			bpfmap:     m.Map("tcpMap")},
+			bpfmap: m.Map("tcpMap")},
 		"tcp6": {
-			counterMap: m.Map("tcpv6counter"),
-			bpfmap:     m.Map("tcpv6Map")},
+			bpfmap: m.Map("tcpv6Map")},
 		"udp": {
-			counterMap: m.Map("udpcounter"),
-			bpfmap:     m.Map("udpMap")},
+			bpfmap: m.Map("udpMap")},
 		"udp6": {
-			counterMap: m.Map("udpv6counter"),
-			bpfmap:     m.Map("udpv6Map")},
+			bpfmap: m.Map("udpv6Map")},
 	}
 
 	saveEstablishedConnections(uint8(syscall.AF_INET))

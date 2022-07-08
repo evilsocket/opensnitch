@@ -13,18 +13,19 @@ struct bpf_map_def SEC("maps/proc-events") events = {
     .max_entries = 32768,
 };
 
-static __always_inline void new_event(struct pt_regs *ctx, struct data_t* data)
+static __always_inline void new_event(struct data_t* data)
 {
     // initializing variables with __builtin_memset() is required
     // for compatibility with bpf on kernel 4.4
 
-    struct task_struct *task={0};
-    struct task_struct *parent={0};
+    struct task_struct *task;
+    struct task_struct *parent;
     __builtin_memset(&task, 0, sizeof(task));
     __builtin_memset(&parent, 0, sizeof(parent));
     task = (struct task_struct *)bpf_get_current_task();
     bpf_probe_read(&parent, sizeof(parent), &task->real_parent);
     data->pid = bpf_get_current_pid_tgid() >> 32;
+
     // FIXME: always 0?
 #ifndef OPENSNITCH_x86_32
     // on i686 -> invalid read from stack
@@ -38,24 +39,6 @@ static __always_inline void new_event(struct pt_regs *ctx, struct data_t* data)
 // bprm_execve REGS_PARM3
 // https://elixir.bootlin.com/linux/latest/source/fs/exec.c#L1796
 
-SEC("kprobe/sys_execve")
-int kprobe__sys_execve(struct pt_regs *ctx)
-{
-    const char *filename = (const char *)PT_REGS_PARM2(ctx);
-    // TODO: extract args
-    //const char *argv = (const char *)PT_REGS_PARM3(ctx);
-
-    int zero = 0;
-    struct data_t *data = bpf_map_lookup_elem(&heapstore, &zero);
-    if (!data){ return 0; }
-
-    new_event(ctx, data);
-    data->type = EVENT_EXEC;
-    bpf_probe_read_user_str(&data->filename, sizeof(data->filename), filename);
-    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
-    return 0;
-};
-
 SEC("tracepoint/sched/sched_process_exit")
 int tracepoint__sched_sched_process_exit(struct pt_regs *ctx)
 {
@@ -63,11 +46,51 @@ int tracepoint__sched_sched_process_exit(struct pt_regs *ctx)
     struct data_t *data = bpf_map_lookup_elem(&heapstore, &zero);
     if (!data){ return 0; }
 
-    //__builtin_memset(data, 0, sizeof(struct data_t));
-    new_event(ctx, data);
+    new_event(data);
     data->type = EVENT_SCHED_EXIT;
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
+
     return 0;
+};
+
+struct trace_sys_enter_execve {
+    short common_type;
+    char common_flags;
+    char common_preempt_count;
+    int common_pid;
+    int __syscall_nr;
+    char *filename;
+    const char *const *argv;
+    const char *const *envp;
+};
+
+SEC("tracepoint/syscalls/sys_enter_execve")
+int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
+{
+	int zero = 0;
+	struct data_t *data = {0};
+    data = (struct data_t *)bpf_map_lookup_elem(&heapstore, &zero);
+	if (!data){ return 0; }
+
+	new_event(data);
+	data->type = EVENT_EXEC;
+	bpf_probe_read_user_str(&data->filename, sizeof(data->filename), (const char *)ctx->filename);
+
+	/* if we get the args, we'd have to be sure that we get the whole cmdline,
+	 * either by allocating the whole cmdline, or by sending each arg to userspace.
+    const char *argp={0};
+    data->args_count = 0;
+    #pragma unroll (full)
+	for (int i = 0; i < MAX_ARGS; i++) {
+	  bpf_probe_read_user(&argp, sizeof(argp), &ctx->argv[i]);
+	  if (!argp){ break; }
+
+	  bpf_probe_read_user_str(&data->args[i], MAX_ARG_SIZE, argp);
+      data->args_count++;
+	}*/
+
+	bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
+	return 0;
 };
 
 char _license[] SEC("license") = "GPL";

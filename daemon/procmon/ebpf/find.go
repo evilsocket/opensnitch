@@ -129,22 +129,23 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		// key not found in bpf maps
 		return nil
 	}
-
 	comm := byteArrayToString(value.Comm[:])
 	proc = procmon.NewProcess(int(value.Pid), comm)
-	// use socket's UID. A process may have dropped privileges
+	// Use socket's UID. A process may have dropped privileges.
+	// This is the UID that we've always used.
 	proc.UID = int(value.UID)
 
 	if ev, found := execEvents.isInStore(value.Pid); found {
-		proc.Path = byteArrayToString(ev.Event.Filename[:]) // ev.Proc.Path
-		proc.ReadCmdline()
-		proc.ReadCwd()
-		proc.ReadEnv()
+		// use socket's UID. See above ^
+		ev.Proc.UID = proc.UID
+		ev.Proc.ReadCmdline()
+		proc = &ev.Proc
 	} else {
+		// We'll end here if the events module has not been loaded, or if the process is not in cache.
 		proc.GetInfo()
-		if proc.Path != "" {
-			execEvents.add(value.Pid, *NewExecEvent(value.Pid, 0, value.UID, proc.Path, value.Comm))
-		}
+		execEvents.add(value.Pid,
+			*NewExecEvent(value.Pid, 0, value.UID, proc.Path, value.Comm),
+			*proc)
 	}
 
 	ebpfCache.addNewItem(k, key, *proc)

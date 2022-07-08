@@ -13,6 +13,11 @@
  #define MAX_PATH_LEN  4096
 #endif
 
+//https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/binfmts.h#L16
+#define MAX_CMDLINE_LEN 4096
+#define MAX_ARGS 20
+#define MAX_ARG_SIZE 512
+
 #define MAPSIZE 12000
 
 #ifndef TASK_COMM_LEN
@@ -41,7 +46,6 @@ enum bpf_pin_type {
 	PIN_GLOBAL_NS,
 	PIN_CUSTOM_NS,
 };
-
 //-----------------------------------
 
 // even though we only need 32 bits of pid, on x86_32 ebpf verifier complained when pid type was set to u32
@@ -52,10 +56,7 @@ enum events_type {
     EVENT_NONE = 0,
     EVENT_EXEC,
     EVENT_FORK,
-    EVENT_SCHED_EXEC,
     EVENT_SCHED_EXIT,
-    EVENT_BYTES_SENT,
-    EVENTS_BYTES_RECV
 };
 
 struct data_t {
@@ -63,9 +64,9 @@ struct data_t {
     u64 pid;  // PID as in the userspace term (i.e. task->tgid in kernel)
     u64 ppid; // Parent PID as in the userspace term (i.e task->real_parent->tgid in kernel)
     u64 uid;
-    //u64 bytes_sent;
-    //u64 bytes_recv;
+    //u64 args_count;
     char filename[MAX_PATH_LEN];
+    //char args[MAX_ARGS][MAX_ARG_SIZE];
     char comm[TASK_COMM_LEN];
 }__attribute__((packed));
 

@@ -119,6 +119,7 @@ func (p *Process) ReadPath() error {
 			// determine if this process might be of a kernel task.
 			if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/maps", p.ID)); err == nil && len(data) == 0 {
 				p.Path = "Kernel connection"
+				p.Args = append(p.Args, p.Comm)
 				return
 			}
 			p.Path = p.Comm
@@ -149,7 +150,7 @@ func (p *Process) ReadCmdline() {
 	}
 	if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/cmdline", p.ID)); err == nil {
 		if len(data) == 0 {
-			goto finish
+			return
 		}
 		for i, b := range data {
 			if b == 0x00 {
@@ -166,18 +167,6 @@ func (p *Process) ReadCmdline() {
 		}
 
 	}
-
-finish:
-
-	if len(p.Args) == 0 {
-		if p.Path != "" {
-			p.Args = append(p.Args, p.Path)
-		} else {
-			p.Args = append(p.Args, p.Comm)
-		}
-	}
-
-	p.CleanPath()
 }
 
 func (p *Process) readDescriptors() {
