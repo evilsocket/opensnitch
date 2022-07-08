@@ -149,7 +149,7 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, execEvents *e
 					// trust process path received from kernel
 					path := byteArrayToString(event.Filename[:])
 					if path != "" {
-						proc.Path = path
+						proc.SetPath(path)
 					} else {
 						if proc.ReadPath() != nil {
 							continue

@@ -136,9 +136,14 @@ func (p *Process) ReadPath() error {
 	if err != nil {
 		return err
 	}
-	p.Path = link
-	p.CleanPath()
+	p.SetPath(link)
 	return nil
+}
+
+// SetPath sets the path of the process, and fixes it if it's needed.
+func (p *Process) SetPath(path string) {
+	p.Path = path
+	p.CleanPath()
 }
 
 // ReadCmdline reads the cmdline of the process from ProcFS /proc/<pid>/cmdline
