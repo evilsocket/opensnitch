@@ -275,7 +275,7 @@ func (p *Process) CleanPath() {
 		}
 		// link read failed
 
-		if p.Args[0] != "" {
+		if len(p.Args) > 0 && p.Args[0] != "" {
 			p.Path = p.Args[0]
 			return
 		}
