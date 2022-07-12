@@ -170,7 +170,16 @@ func (p *Process) ReadCmdline() {
 				p.Args = append(p.Args, arg)
 			}
 		}
+	}
+	p.CleanArgs()
+}
 
+// CleanArgs applies fixes on the cmdline arguments.
+// - AppImages cmdline reports the execuable launched as /proc/self/exe,
+//   instead of the actual path to the binary.
+func (p *Process) CleanArgs() {
+	if len(p.Args) > 0 && p.Args[0] == "/proc/self/exe" {
+		p.Args[0] = p.Path
 	}
 }
 
@@ -259,9 +268,11 @@ func (p *Process) readStatus() {
 	}
 }
 
-// CleanPath removes extra characters from the link that it points to.
-// When a running process is deleted, the symlink has the bytes " (deleted")
-// appended to the link.
+// CleanPath applies fixes on the path to the binary:
+// - Remove extra characters from the link that it points to.
+//   When a running process is deleted, the symlink has the bytes " (deleted")
+//   appended to the link.
+// - If the path is /proc/self/exe, resolve the symlink that it points to.
 func (p *Process) CleanPath() {
 
 	// Sometimes the path to the binary reported is the symbolic link of the process itself.
@@ -273,7 +284,6 @@ func (p *Process) CleanPath() {
 			p.Path = link
 			return
 		}
-		// link read failed
 
 		if len(p.Args) > 0 && p.Args[0] != "" {
 			p.Path = p.Args[0]

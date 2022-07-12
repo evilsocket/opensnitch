@@ -2,12 +2,29 @@ package ebpf
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"unsafe"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 )
+
+func determineHostByteOrder() {
+	lock.Lock()
+	//determine host byte order
+	buf := [2]byte{}
+	*(*uint16)(unsafe.Pointer(&buf[0])) = uint16(0xABCD)
+	switch buf {
+	case [2]byte{0xCD, 0xAB}:
+		hostByteOrder = binary.LittleEndian
+	case [2]byte{0xAB, 0xCD}:
+		hostByteOrder = binary.BigEndian
+	default:
+		log.Error("Could not determine host byte order.")
+	}
+	lock.Unlock()
+}
 
 func mountDebugFS() error {
 	debugfsPath := "/sys/kernel/debug/"

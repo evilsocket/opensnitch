@@ -47,9 +47,7 @@ var (
 		TCP:   make(map[*daemonNetlink.Socket]int),
 		TCPv6: make(map[*daemonNetlink.Socket]int),
 	}
-
-	//stop == true is a signal for all goroutines to stop
-	stop = false
+	stopMonitors = make(chan bool)
 
 	// list of local addresses of this machine
 	localAddresses []net.IP
@@ -60,6 +58,7 @@ var (
 //Start installs ebpf kprobes
 func Start() error {
 	if err := mountDebugFS(); err != nil {
+		log.Error("ebpf.Start -> mount debugfs error. Report on github please: %s", err)
 		return err
 	}
 
@@ -85,20 +84,7 @@ func Start() error {
 			return err
 		}
 	}
-
-	lock.Lock()
-	//determine host byte order
-	buf := [2]byte{}
-	*(*uint16)(unsafe.Pointer(&buf[0])) = uint16(0xABCD)
-	switch buf {
-	case [2]byte{0xCD, 0xAB}:
-		hostByteOrder = binary.LittleEndian
-	case [2]byte{0xAB, 0xCD}:
-		hostByteOrder = binary.BigEndian
-	default:
-		log.Error("Could not determine host byte order.")
-	}
-	lock.Unlock()
+	determineHostByteOrder()
 
 	ebpfCache = NewEbpfCache()
 	ebpfMaps = map[string]*ebpfMapsForProto{
@@ -147,35 +133,30 @@ func saveEstablishedConnections(commDomain uint8) error {
 
 // Stop stops monitoring connections using kprobes
 func Stop() {
-	lock.Lock()
-	stop = true
-	lock.Unlock()
+	for i := 0; i < 4; i++ {
+		stopMonitors <- true
+	}
 	ebpfCache.clear()
 
 	for i := 0; i < eventWorkers; i++ {
 		stopStreamEvents <- true
 	}
+
+	if m != nil {
+		m.Close()
+	}
+
 	for pm := range perfMapList {
 		if pm != nil {
 			pm.PollStop()
 		}
 	}
-	for _, mod := range perfMapList {
+	for k, mod := range perfMapList {
 		if mod != nil {
 			mod.Close()
+			delete(perfMapList, k)
 		}
 	}
-
-	if m != nil {
-		m.Close()
-	}
-}
-
-func isStopped() bool {
-	lock.RLock()
-	defer lock.RUnlock()
-
-	return stop
 }
 
 //make bpf() syscall with bpf_lookup prepared by the caller

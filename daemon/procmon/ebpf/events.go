@@ -21,20 +21,21 @@ const MaxArgs = 20
 // MaxArgLen defines the maximum length of each argument.
 // NOTE: this value is 131072 (PAGE_SIZE * 32)
 // https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/binfmts.h#L16
-const MaxArgLen = 512
+const MaxArgLen = 256
 
 // TaskCommLen is the maximum num of characters of the comm field
 const TaskCommLen = 16
 
 type execEvent struct {
-	Type uint64
-	PID  uint64
-	PPID uint64
-	UID  uint64
-	//ArgsCount uint64
-	Filename [MaxPathLen]byte
-	//Args      [MaxArgs][MaxArgLen]byte
-	Comm [TaskCommLen]byte
+	Type        uint64
+	PID         uint64
+	PPID        uint64
+	UID         uint64
+	ArgsCount   uint64
+	ArgsPartial uint64
+	Filename    [MaxPathLen]byte
+	Args        [MaxArgs][MaxArgLen]byte
+	Comm        [TaskCommLen]byte
 }
 
 // Struct that holds the metadata of a connection.
@@ -106,6 +107,7 @@ func initEventsStreamer() {
 		<-sig
 	}(sig)
 
+	eventWorkers = 0
 	initPerfMap(mp)
 }
 
@@ -121,7 +123,7 @@ func initPerfMap(mod *elf.Module) {
 	perfMapList[perfMap] = mod
 
 	eventWorkers += 4
-	for i := 0; i < 4; i++ {
+	for i := 0; i < eventWorkers; i++ {
 		go streamEventsWorker(i, channel, lostEvents, execEvents)
 	}
 	perfMap.PollStart()
@@ -145,29 +147,10 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, execEvents *e
 					if _, found := execEvents.isInStore(event.PID); found {
 						continue
 					}
-					proc := procmon.NewProcess(int(event.PID), byteArrayToString(event.Comm[:]))
-					// trust process path received from kernel
-					path := byteArrayToString(event.Filename[:])
-					if path != "" {
-						proc.SetPath(path)
-					} else {
-						if proc.ReadPath() != nil {
-							continue
-						}
+					proc := event2process(&event)
+					if proc == nil {
+						continue
 					}
-					proc.ReadCmdline()
-					proc.ReadCwd()
-					proc.ReadEnv()
-					proc.UID = int(event.UID)
-
-					log.Debug("[eBPF exec event] ppid: %d, pid: %d, %s -> %s", event.PPID, event.PID, proc.Path, proc.Args)
-					/*args := make([]string, 0)
-					for i := 0; i < int(event.ArgsCount); i++ {
-						args = append(args, byteArrayToString(event.Args[i][:]))
-					}
-					proc.Args = args
-					log.Warning("[eBPF exec args] %s, %s", strings.Join(args, " "), proc.Args)
-					*/
 					execEvents.add(event.PID, event, *proc)
 
 				case EV_TYPE_SCHED_EXIT:
@@ -184,4 +167,33 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, execEvents *e
 
 Exit:
 	log.Debug("perfMap goroutine exited #%d", id)
+}
+
+func event2process(event *execEvent) (proc *procmon.Process) {
+
+	proc = procmon.NewProcess(int(event.PID), byteArrayToString(event.Comm[:]))
+	// trust process path received from kernel
+	path := byteArrayToString(event.Filename[:])
+	if path != "" {
+		proc.SetPath(path)
+	} else {
+		if proc.ReadPath() != nil {
+			return nil
+		}
+	}
+	proc.ReadCwd()
+	proc.ReadEnv()
+	proc.UID = int(event.UID)
+
+	if event.ArgsPartial == 0 {
+		for i := 0; i < int(event.ArgsCount); i++ {
+			proc.Args = append(proc.Args, byteArrayToString(event.Args[i][:]))
+		}
+		proc.CleanArgs()
+	} else {
+		proc.ReadCmdline()
+	}
+	log.Debug("[eBPF exec event] ppid: %d, pid: %d, %s -> %s", event.PPID, event.PID, proc.Path, proc.Args)
+
+	return
 }

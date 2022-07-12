@@ -74,21 +74,28 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
 
 	new_event(data);
 	data->type = EVENT_EXEC;
+	// bpf_probe_read_user* helpers were introduced in kernel 5.5
+	// Since the args can be overwritten anyway, maybe we could get them from
+	// mm_struct instead for a wider kernel version support range?
 	bpf_probe_read_user_str(&data->filename, sizeof(data->filename), (const char *)ctx->filename);
 
-	/* if we get the args, we'd have to be sure that we get the whole cmdline,
-	 * either by allocating the whole cmdline, or by sending each arg to userspace.
     const char *argp={0};
     data->args_count = 0;
-    #pragma unroll (full)
+    data->args_partial = INCOMPLETE_ARGS;
+    #pragma unroll
 	for (int i = 0; i < MAX_ARGS; i++) {
-	  bpf_probe_read_user(&argp, sizeof(argp), &ctx->argv[i]);
-	  if (!argp){ break; }
+		bpf_probe_read_user(&argp, sizeof(argp), &ctx->argv[i]);
+		if (!argp){ data->args_partial = COMPLETE_ARGS; break; }
 
-	  bpf_probe_read_user_str(&data->args[i], MAX_ARG_SIZE, argp);
-      data->args_count++;
-	}*/
+		if (bpf_probe_read_user_str(&data->args[i], MAX_ARG_SIZE, argp) >= MAX_ARG_SIZE){
+			break;
+		}
+		data->args_count++;
+	}
 
+	// With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
+    // BUG: after coming back from suspend state, this helper fails with error -95 (EOPNOTSUPP)
+    // Possible workaround: count -95 errors, and from userspace reinitialize the streamer if errors >= n-errors
 	bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
 	return 0;
 };
