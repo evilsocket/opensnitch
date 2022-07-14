@@ -1,3 +1,11 @@
+opensnitch (1.6.0-rc.2-1) unstable; urgency=medium
+
+  * New eBPF module to receive events (new execs, etc).
+  * Allow to exclude connections from the events.
+  * more on github
+
+ -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  Thu, 14 Jul 2022 00:15:19 +0200
+
 opensnitch (1.6.0-rc.1-1) unstable; urgency=medium
 
   * Allow to configure firewall from the GUI.
