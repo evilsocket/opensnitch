@@ -115,9 +115,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_proc_check_toggled(self, state):
         self.procLine.setEnabled(state)
+        self.checkProcRegexp.setEnabled(state)
 
     def _cb_cmdline_check_toggled(self, state):
         self.cmdlineLine.setEnabled(state)
+        self.checkCmdlineRegexp.setEnabled(state)
 
     def _cb_dstport_check_toggled(self, state):
         self.dstPortLine.setEnabled(state)
@@ -286,9 +288,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.protoCombo.setCurrentText("")
 
         self.procCheck.setChecked(False)
+        self.checkProcRegexp.setEnabled(False)
+        self.checkProcRegexp.setChecked(False)
         self.procLine.setText("")
 
         self.cmdlineCheck.setChecked(False)
+        self.checkCmdlineRegexp.setEnabled(False)
+        self.checkCmdlineRegexp.setChecked(False)
         self.cmdlineLine.setText("")
 
         self.uidCheck.setChecked(False)
@@ -363,11 +369,15 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.procCheck.setChecked(True)
             self.procLine.setEnabled(True)
             self.procLine.setText(operator.data)
+            self.checkProcRegexp.setEnabled(True)
+            self.checkProcRegexp.setChecked(operator.type == Config.RULE_TYPE_REGEXP)
 
         if operator.operand == "process.command":
             self.cmdlineCheck.setChecked(True)
             self.cmdlineLine.setEnabled(True)
             self.cmdlineLine.setText(operator.data)
+            self.checkCmdlineRegexp.setEnabled(True)
+            self.checkCmdlineRegexp.setChecked(operator.type == Config.RULE_TYPE_REGEXP)
 
         if operator.operand == "user.id":
             self.uidCheck.setChecked(True)
@@ -554,7 +564,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "data": self.procLine.text(),
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
-            if self._is_regex(self.procLine.text()):
+            if self.checkProcRegexp.isChecked():
                 rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
                 if self._is_valid_regex(self.procLine.text()) == False:
                     return False, QC.translate("rules", "Process path regexp error")
@@ -572,7 +582,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         'data': self.cmdlineLine.text(),
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
-            if self._is_regex(self.cmdlineLine.text()):
+            if self.checkCmdlineRegexp.isChecked():
                 rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
                 if self._is_valid_regex(self.cmdlineLine.text()) == False:
                     return False, QC.translate("rules", "Command line regexp error")
@@ -756,11 +766,18 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.rule.operator.type = Config.RULE_TYPE_LIST
             self.rule.operator.operand = Config.RULE_TYPE_LIST
             self.rule.operator.data = json.dumps(rule_data)
+
         elif len(rule_data) == 1:
             self.rule.operator.operand = rule_data[0]['operand']
             self.rule.operator.data = rule_data[0]['data']
-            if self._is_regex(self.rule.operator.data):
+            if self.checkProcRegexp.isChecked():
                 self.rule.operator.type = Config.RULE_TYPE_REGEXP
+            elif self.checkCmdlineRegexp.isChecked():
+                self.rule.operator.type = Config.RULE_TYPE_REGEXP
+            elif (self.procCheck.isChecked() == False and self.cmdlineCheck.isChecked() == False) \
+                        and self._is_regex(self.rule.operator.data):
+                    self.rule.operator.type = Config.RULE_TYPE_REGEXP
+
         else:
             return False, QC.translate("rules", "Select at least one field.")
 
