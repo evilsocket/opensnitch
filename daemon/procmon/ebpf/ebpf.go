@@ -60,6 +60,12 @@ var (
 
 //Start installs ebpf kprobes
 func Start() error {
+
+	if err := mountDebugFS(); err != nil {
+		log.Error("ebpf.Start -> mount debugfs error. Report on github please: %s", err)
+		return err
+	}
+
 	m = elf.NewModule("/etc/opensnitchd/opensnitch.o")
 	if err := m.Load(nil); err != nil {
 		log.Error("eBPF Failed to load /etc/opensnitchd/opensnitch.o: %v", err)

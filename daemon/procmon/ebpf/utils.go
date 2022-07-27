@@ -1,10 +1,25 @@
 package ebpf
 
 import (
+	"fmt"
 	"unsafe"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 )
+
+func mountDebugFS() error {
+	debugfsPath := "/sys/kernel/debug/"
+	kprobesPath := fmt.Sprint(debugfsPath, "tracing/kprobe_events")
+	if core.Exists(kprobesPath) == false {
+		if _, err := core.Exec("mount", []string{"-t", "debugfs", "none", debugfsPath}); err != nil {
+			log.Warning("eBPF debugfs error: %s", err)
+			return err
+		}
+	}
+
+	return nil
+}
 
 func deleteEbpfEntry(proto string, key unsafe.Pointer) bool {
 	if err := m.DeleteElement(ebpfMaps[proto].bpfmap, key); err != nil {
