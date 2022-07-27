@@ -1,3 +1,9 @@
+opensnitch (1.5.2-1) unstable; urgency=medium
+
+  * try to mount debugfs on boot up
+
+ -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  Wed, 27 Jul 2022 17:29:33 +0200
+
 opensnitch (1.5.1-1) unstable; urgency=medium
 
   * Better eBPF cache.
