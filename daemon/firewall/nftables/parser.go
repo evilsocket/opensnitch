@@ -63,7 +63,7 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 		exprList = append(exprList, *exprs.NewExprIface(iface, isOut, cmpOp)...)
 
 	case exprs.NFT_FAMILY_IP, exprs.NFT_FAMILY_IP6:
-		exprIP, err := exprs.NewExprIP(expression.Statement.Values, cmpOp)
+		exprIP, err := exprs.NewExprIP(family, expression.Statement.Values, cmpOp)
 		if err != nil {
 			log.Warning("%s addr statement error: %s", logTag, err)
 			return nil
