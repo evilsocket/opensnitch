@@ -32,10 +32,75 @@ class ExprCt(Enums):
     NEW = "new"
     ESTABLISHED = "established"
     RELATED = "related"
+    INVALID = "invalid"
+    SET = "set"
+    MARK = "mark"
+
+class ExprMeta(Enums):
+    MARK = "mark"
+    SET = "set"
 
 class ExprIface(Enums):
     IIFNAME = "iifname"
     OIFNAME = "oifname"
 
+class ExprICMP(Enums):
+    ECHO_REQUEST = "echo-request"
+    ECHO_REPLY = "echo-reply"
+    SOURCE_QUENCH = "source-quench"
+    DEST_UNREACHABLE = "destination-unreachable"
+    ROUTER_ADVERTISEMENT = "router-advertisement"
+    ROUTER_SOLICITATION = "router-solicitation"
+    REDIRECT = "redirect"
+    TIME_EXCEEDED = "time-exceeded"
+    INFO_REQUEST = "info-request"
+    INFO_REPLY = "info-reply"
+    PARAMETER_PROBLEM = "parameter-problem"
+    TIMESTAMP_REQUEST = "timestamp-request"
+    TIMESTAMP_REPLY = "timestamp-reply"
+    ADDRESS_MASK_REQUEST = "address-mask-request"
+    ADDRESS_MASK_REPLY = "address-mask-reply"
+
+    # IPv6
+    PACKET_TOO_BIG = "packet-too-big"
+    NEIGHBOUR_SOLICITATION = "neighbour-solicitation"
+    NEIGHBOUR_ADVERTISEMENT = "neighbour-advertisement"
+
+class ExprICMPRejectCodes(Enums):
+    NO_ROUTE = "no-route"
+    PROT_UNREACHABLE = "prot-unreachable"
+    PORT_UNREACHABLE = "port-unreachable"
+    NET_UNREACHABLE = "net-unreachable"
+    ADDR_UNREACHABLE = "addr-unreachable"
+    HOST_UNREACHABLE = "host-unreachable"
+    NET_PROHIBITED = "net-prohibited"
+    HOST_PROHIBITED = "host-prohibited"
+    ADMIN_PROHIBITED = "admin-prohibited"
+    REJECT_ROUTE = "reject-route"
+    REJECT_POLICY_FAIL = "policy-fail"
+
+
+
 class ExprLog(Enums):
     LOG = "log"
+
+class ExprCounter(Enums):
+    COUNTER = "counter"
+    PACKETS = "packets"
+    BYTES = "bytes"
+    NAME = "name"
+
+class ExprLimit(Enums):
+    LIMIT = "limit"
+    UNITS = "units"
+    RATE_UNITS = "rate-units"
+    TIME_UNITS = "time-units"
+
+class ExprQuota(Enums):
+    QUOTA = "quota"
+    OVER = "over"
+    USED = "used"
+    UNIT_BYTES = "bytes"
+    UNIT_KBYTES = "kbytes"
+    UNIT_MBYTES = "mbytes"
+    UNIT_GBYTES = "gbytes"

@@ -25,6 +25,17 @@ class Hooks(Enums):
     PREROUTING = "prerouting"
     POSTROUTING = "postrouting"
 
+class PortProtocols(Enums):
+    TCP = "tcp"
+    UDP = "udp"
+    UDPLITE = "udplite"
+    SCTP = "sctp"
+    DCCP = "dccp"
+
+class Protocols(Enums):
+    ICMP = "icmp"
+    ICMPv6 = "icmpv6"
+
 class Family(Enums):
     INET = "inet"
     IPv4 = "ip"
@@ -56,9 +67,20 @@ class Statements(Enums):
     SCTP = "sctp"
     DCCP = "dccp"
     ICMP = "icmp"
+    ICMPv6 = "icmpv6"
+
     SPORT = "sport"
     DPORT = "dport"
+    DADDR = "daddr"
+    SADDR = "saddr"
 
     IP = "ip"
+    IP6 = "ip6"
     IIFNAME = "iifname"
     OIFNAME = "oifname"
+    CT = "ct"
+    META = "meta"
+    COUNTER = "counter"
+    NAME = "name"
+    LOG = "log"
+    PREFIX = "prefix"

@@ -334,7 +334,25 @@ class Enums(enum.Enum):
 
     @classmethod
     def values(cls):
-        return [v.value for v in cls]
+        return [str(v.value) for v in cls]
+
+class NetworkInterfaces():
+    # https://gist.github.com/pklaus/289646
+    @staticmethod
+    def list():
+        namestr, outbytes = Utils.get_interfaces()
+        _interfaces = {}
+        for i in range(0, outbytes, 40):
+            try:
+                name = namestr[i:i+16].split(b'\0', 1)[0]
+                addr = namestr[i+20:i+24]
+                _interfaces[name.decode()] = "%d.%d.%d.%d" % (int(addr[0]), int(addr[1]), int(addr[2]), int(addr[3]))
+            except Exception as e:
+                print("utils.NetworkInterfaces() exception:", e)
+
+        return _interfaces
+
+
 
 class NetworkServices():
     """Get a list of known ports. /etc/services
