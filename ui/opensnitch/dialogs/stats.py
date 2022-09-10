@@ -580,8 +580,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_PORTS]['cmdCleanStats'] = self.cmdCleanSql
         self.TABLES[self.TAB_USERS]['cmdCleanStats'] = self.cmdCleanSql
         # the rules clean button is only for a particular rule, not all.
-        self.TABLES[self.TAB_RULES]['cmdCleanStats'].setVisible(False)
-        self.TABLES[self.TAB_NODES]['cmdCleanStats'].setVisible(False)
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(self.TAB_MAIN))
 
         self.TABLES[self.TAB_MAIN]['filterLine'] = self.filterLine
