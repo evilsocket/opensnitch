@@ -400,7 +400,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         st_idx = self.toolBoxSimple.currentIndex()
         self._set_statement_title(st_idx)
 
-    def _cb_statem_prot_changed(self, idx):
+    def _cb_statem_opts_changed(self, idx):
         st_idx = self.toolBoxSimple.currentIndex()
         self._set_statement_title(st_idx)
 
@@ -515,9 +515,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         stWidget.addItems(self.STATM_LIST)
 
         prots = ["TCP", "UDP", "ICMP"]
-        stProtWidget = QtWidgets.QComboBox(w)
-        stProtWidget.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
-        stProtWidget.addItems(prots)
+        stOptsWidget = QtWidgets.QComboBox(w)
+        stOptsWidget.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+        stOptsWidget.addItems(prots)
 
         # row 2: | protocol | value |
         ops = [
@@ -538,7 +538,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         stValueWidget.setCurrentText("")
 
         boxH1.addWidget(stWidget)
-        boxH1.addWidget(stProtWidget)
+        boxH1.addWidget(stOptsWidget)
         boxH2.addWidget(stOpWidget)
         boxH2.addWidget(stValueWidget)
         w.setLayout(l)
@@ -556,14 +556,14 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.statements[curIdx+1] = {
             'what': stWidget,
-            'opts': stProtWidget,
+            'opts': stOptsWidget,
             'op': stOpWidget,
             'value': stValueWidget
         }
 
         stWidget.currentIndexChanged.connect(self._cb_statem_combo_changed)
         stOpWidget.currentIndexChanged.connect(self._cb_statem_op_changed)
-        stProtWidget.currentIndexChanged.connect(self._cb_statem_prot_changed)
+        stOptsWidget.currentIndexChanged.connect(self._cb_statem_opts_changed)
         stValueWidget.currentIndexChanged.connect(self._cb_statem_value_index_changed)
         stValueWidget.currentTextChanged.connect(self._cb_statem_value_changed)
 
@@ -627,22 +627,11 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         isNotSupported = False
         idx = 0
         for exp in rule.Rules[0].Expressions:
+            #print(idx, "|", exp)
+
             # set current page, so the title and opts of each statement is
             # configured properly.
             self.toolBoxSimple.setCurrentIndex(idx)
-
-            #print(idx, "|", exp)
-            if exp.Statement.Name == Fw.Statements.TCP.value:
-                self.statements[idx]['opts'].setCurrentIndex(0)
-            elif exp.Statement.Name == Fw.Statements.UDP.value:
-                self.statements[idx]['opts'].setCurrentIndex(1)
-
-            # a statement may not have an operator. It's assumed that it's the
-            # equal operator.
-            op = Fw.Operator.EQUAL.value if exp.Statement.Op == "" else exp.Statement.Op
-            self.statements[idx]['op'].setCurrentIndex(
-                Fw.Operator.values().index(op)
-            )
 
             if Fw.Utils.isExprPort(exp.Statement.Name):
                 if exp.Statement.Values[0].Key == Fw.Statements.DPORT.value:
@@ -657,6 +646,11 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 except:
                     self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
 
+                st_name = exp.Statement.Name
+                self.statements[idx]['opts'].setCurrentIndex(
+                    Fw.PortProtocols.values().index(st_name.lower())
+                )
+
             elif exp.Statement.Name == Fw.Statements.IP.value or exp.Statement.Name == Fw.Statements.IP6.value:
                 if exp.Statement.Values[0].Key == Fw.Statements.DADDR.value:
                     self.statements[idx]['what'].setCurrentIndex(self.STATM_DEST_IP+1)
@@ -664,6 +658,11 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self.statements[idx]['what'].setCurrentIndex(self.STATM_SOURCE_IP+1)
 
                 self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+
+                st_name = exp.Statement.Name
+                self.statements[idx]['opts'].setCurrentIndex(
+                    Fw.Family.values().index(st_name.lower())-1 # first item does not apply
+                )
 
             elif exp.Statement.Name == Fw.Statements.IIFNAME.value:
                 self.statements[idx]['what'].setCurrentIndex(self.STATM_IIFNAME+1)
@@ -726,6 +725,13 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             else:
                 isNotSupported = True
                 break
+
+            # a statement may not have an operator. It's assumed that it's the
+            # equal operator.
+            op = Fw.Operator.EQUAL.value if exp.Statement.Op == "" else exp.Statement.Op
+            self.statements[idx]['op'].setCurrentIndex(
+                Fw.Operator.values().index(op)
+            )
 
             idx+=1
 
@@ -846,8 +852,8 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                                 raise ValueError("port entered is multiport or a port range")
                             statem_value = self.net_srv.port_by_index(val_idx)
                         except:
-                            if st_idx == self.STATM_DPORT or \
-                                    st_idx == self.STATM_SPORT:
+                            if (st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT) and \
+                                    ("," not in statem_value and "-" not in statem_value):
                                 try:
                                     t = int(statem_value)
                                 except:
