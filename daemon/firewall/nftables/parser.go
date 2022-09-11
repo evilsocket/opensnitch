@@ -79,12 +79,8 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 		exprList = append(exprList, *exprICMP...)
 
 	case exprs.NFT_LOG:
-		defaultLog := "opensnitch"
-		if len(expression.Statement.Values) > 0 {
-			defaultLog = expression.Statement.Values[0].Value
-		}
-		exprLog := exprs.NewExprLog(exprs.NFT_LOG_PREFIX, defaultLog)
-		if exprLog == nil {
+		exprLog, err := exprs.NewExprLog(expression.Statement)
+		if err != nil {
 			log.Warning("%s log statement error", logTag)
 			return nil
 		}
