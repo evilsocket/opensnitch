@@ -25,6 +25,7 @@ opensnitch-ui &
 ```
 
 ***Note for Fedora users***
+
 There is no "lrelease" binary on Fedora, which is needed to build the UI properly. There is a "lrelease-qt5" binary, which is part of the package "qt5-linguist".
 To fix the UI not building properly on Fedora, symlink /usr/lib64/qt5/bin/lrelease-qt5 to /usr/local/bin/lrelease:
 ```
