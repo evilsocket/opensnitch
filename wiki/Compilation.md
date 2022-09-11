@@ -24,6 +24,16 @@ sudo systemctl enable --now opensnitchd
 opensnitch-ui &
 ```
 
+***Note for Fedora users***
+
+There is no "lrelease" binary on Fedora, which is needed to build the UI properly. There is a "lrelease-qt5" binary, which is part of the package "qt5-linguist".
+To fix the UI not building properly on Fedora, symlink /usr/lib64/qt5/bin/lrelease-qt5 to /usr/local/bin/lrelease:
+```
+sudo ln -s /usr/lib64/qt5/bin/lrelease-qt5 /usr/local/bin/lrelease
+```
+Then it should build properly.
+
+
 **Daemon**
 
 The `daemon` is implemented in Go and needs to run as root in order to interact with the Netfilter packet queue, edit 
