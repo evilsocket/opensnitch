@@ -84,3 +84,4 @@ class Statements(Enums):
     NAME = "name"
     LOG = "log"
     PREFIX = "prefix"
+    QUOTA = "quota"

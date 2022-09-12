@@ -43,8 +43,8 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     STATM_ICMP = 11
     STATM_ICMPv6 = 12
     STATM_LOG = 13
-    STATM_COUNTER = 14
-    #STATM_QUOTA = 14
+    STATM_QUOTA = 14
+    STATM_COUNTER = 15
     #STATM_LIMIT = 15
 
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
@@ -78,9 +78,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "ICMP",
             "ICMPv6",
             "LOG",
+            "QUOTA",
             "COUNTER",
             #"LIMIT",
-            #"QUOTA",
         ]
 
         self.STATM_CONF = {
@@ -173,7 +173,19 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.STATM_LOG: {
                 'name': Fw.Statements.LOG.value,
                 'keys':  [
-                    {'key': Fw.Statements.PREFIX.value, 'values': []}
+                    {'key': Fw.ExprLog.PREFIX.value, 'values': []}
+                ]
+            },
+            self.STATM_QUOTA: {
+                'name': Fw.ExprQuota.QUOTA.value,
+                'keys':  [
+                    {'key': Fw.ExprQuota.OVER.value, 'values': []},
+                    {'key': Fw.ExprQuota.UNIT.value, 'values': [
+                        "1/{0}".format(Fw.ExprQuota.UNIT_BYTES.value),
+                        "1/{0}".format(Fw.ExprQuota.UNIT_KBYTES.value),
+                        "1/{0}".format(Fw.ExprQuota.UNIT_MBYTES.value),
+                        "1/{0}".format(Fw.ExprQuota.UNIT_GBYTES.value),
+                    ]}
                 ]
             },
             self.STATM_COUNTER: {
@@ -190,12 +202,6 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             #    'keys':  [
             #        {'key': Fw.ExprLimit.UNITS.value, 'values': []},
             #        {'key': Fw.ExprLimit.RATE_UNITS.value, 'values': ['kbytes', 'mbytes']}
-            #    ]
-            #},
-            #self.STATM_QUOTA: {
-            #    'name': Fw.ExprQuota.QUOTA.value,
-            #    'keys':  [
-            #        {'key': Fw.ExprQuota.UNIT_BYTES.value, 'values': ['kbytes', 'mbytes']}
             #    ]
             #},
             #self.STATM_TCP: {
@@ -312,9 +318,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._close()
 
     def _cb_delete_clicked(self):
-        node_addr, node, chain = self.form_to_protobuf()
-        if node_addr == None:
-            self._set_status_error(QC.translate("firewall", "Invalid rule, review parameters"))
+        node_addr, node, chain, err = self.form_to_protobuf()
+        if err != None:
+            self._set_status_error(QC.translate("firewall", "Invalid rule: {0}".format(err)))
             return
 
         self._set_status_message(QC.translate("firewall", "Deleting rule, wait"))
@@ -326,9 +332,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.send_notification(node_addr, node['firewall'], self.OP_DELETE)
 
     def _cb_save_clicked(self):
-        node_addr, node, chain = self.form_to_protobuf()
-        if node_addr == None:
-            self._set_status_error(QC.translate("firewall", "Invalid rule, review parameters"))
+        node_addr, node, chain, err = self.form_to_protobuf()
+        if err != None:
+            self._set_status_error(QC.translate("firewall", "Invalid rule: {0}".format(err)))
             return
 
         self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
@@ -345,9 +351,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.add_new_statement(QC.translate("firewall", "<select a statement>"), self.toolBoxSimple)
 
     def _cb_add_clicked(self):
-        node_addr, node, chain = self.form_to_protobuf()
-        if node_addr == None:
-            self._set_status_error(QC.translate("firewall", "Invalid rule, review parameters"))
+        node_addr, node, chain, err = self.form_to_protobuf()
+        if err != None:
+            self._set_status_error(QC.translate("firewall", "Invalid rule: {0}".format(err)))
             return
 
         ok, err = self._fw.insert_rule(node_addr, chain)
@@ -431,6 +437,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _set_statement_title(self, st_idx):
         """Transform the widgets to nftables rule text format
         """
+        self._reset_status_message()
         self.toolBoxSimple.setItemText(st_idx, "")
         w = self.statements[st_idx]
         idx = w['what'].currentIndex()-1 # first item is blank
@@ -489,6 +496,17 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             idx == self.STATM_CT_MARK:
             w['op'].setVisible(True)
             w['opts'].setVisible(False)
+        elif idx == self.STATM_LOG:
+            w['op'].setVisible(False)
+            w['opts'].setVisible(True)
+            w['opts'].addItems(Fw.ExprLogLevels.values())
+            w['opts'].setCurrentIndex(
+                Fw.ExprLogLevels.values().index(Fw.ExprLogLevels.WARN.value)
+            )
+        elif idx == self.STATM_QUOTA:
+            w['op'].setVisible(False)
+            w['opts'].setVisible(True)
+            w['opts'].addItems([Fw.ExprQuota.OVER.value, Fw.ExprQuota.UNTIL.value])
         else:
             w['op'].setVisible(False)
             w['opts'].setVisible(False)
@@ -715,7 +733,27 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             elif exp.Statement.Name == Fw.Statements.LOG.value:
                 self.statements[idx]['what'].setCurrentIndex(self.STATM_LOG+1)
-                self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+
+                for v in exp.Statement.Values:
+                    if v.Key == Fw.ExprLog.PREFIX.value:
+                        self.statements[idx]['value'].setCurrentText(v.Value)
+                    elif v.Key == Fw.ExprLog.LEVEL.value:
+                        try:
+                            lvl = Fw.ExprLogLevels.values().index(v.Value)
+                        except:
+                            lvl = Fw.ExprLogLevels.values().index(Fw.ExprLogLevels.WARN.value)
+                        self.statements[idx]['opts'].setCurrentIndex(lvl)
+
+            elif exp.Statement.Name == Fw.Statements.QUOTA.value:
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_QUOTA+1)
+                self.statements[idx]['opts'].setCurrentIndex(1)
+                for v in exp.Statement.Values:
+                    if v.Key == Fw.ExprQuota.OVER.value:
+                        self.statements[idx]['opts'].setCurrentIndex(0)
+                    else:
+                        self.statements[idx]['value'].setCurrentText(
+                            "{0}/{1}".format(v.Value, v.Key)
+                        )
 
             elif exp.Statement.Name == Fw.Statements.COUNTER.value:
                 self.statements[idx]['what'].setCurrentIndex(self.STATM_COUNTER+1)
@@ -738,7 +776,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if isNotSupported:
             self._set_status_error(QC.translate("firewall", "This rule is not supported yet."))
             self._disable_controls()
-            return None, None, None
+            return
 
         if rule.Hook.lower() == Fw.Hooks.INPUT.value:
             self.comboDirection.setCurrentIndex(0)
@@ -820,12 +858,12 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         for k in self.statements:
             st_idx = self.statements[k]['what'].currentIndex()-1
             if st_idx == -1:
-                return None, None, None
+                return None, None, None, QC.translate("firewall", "select a statement.")
 
             statement = self.STATM_CONF[st_idx]['name']
             statem_keys = self.STATM_CONF[st_idx]['keys']
             statem_op = Fw.Operator.values()[self.statements[k]['op'].currentIndex()]
-            statem_prot = self.statements[k]['opts'].currentText().lower()
+            statem_opts = self.statements[k]['opts'].currentText().lower()
 
             key_values = []
             for sk in statem_keys:
@@ -836,17 +874,34 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     val_idx = self.statements[k]['value'].currentIndex()
 
                     if statem_value == "" or statem_value == "0":
-                        return None, None, None
-                    if st_idx == self.STATM_IIFNAME or st_idx == self.STATM_OIFNAME:
+                        return None, None, None, QC.translate("firewall", "value cannot be 0 or empty.")
+
+                    if st_idx == self.STATM_QUOTA:
+                        if sk['key'] == Fw.ExprQuota.OVER.value:
+                            if self.statements[k]['opts'].currentIndex() == 0:
+                                key_values.append((sk['key'], ""))
+                            continue
+                        elif sk['key'] == Fw.ExprQuota.UNIT.value:
+                            units = statem_value.split("/")
+                            if len(units) != 2: # we expect the format key/value
+                                return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, gbytes)")
+                            sk['key'] = units[1]
+                            statem_value = units[0]
+
+                    elif st_idx == self.STATM_LOG:
+                        key_values.append((Fw.ExprLog.LEVEL.value, statem_opts))
+
+                    elif st_idx == self.STATM_IIFNAME or st_idx == self.STATM_OIFNAME:
                         # for these statements, the values is set in the Key
                         # field instead of Value. Value must be empty
                         sk['key'] = statem_value
                         statem_value = ""
+
                     elif st_idx == self.STATM_DEST_IP or \
                             st_idx == self.STATM_SOURCE_IP or \
                             st_idx == self.STATM_DPORT or \
                             st_idx == self.STATM_SPORT:
-                        statement = statem_prot
+                        statement = statem_opts
                         try:
                             if "," in statem_value or "-" in statem_value or val_idx < 1:
                                 raise ValueError("port entered is multiport or a port range")
@@ -857,7 +912,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                                 try:
                                     t = int(statem_value)
                                 except:
-                                    return None, None, None
+                                    return None, None, None, QC.translate("firewall", "port not valid.")
 
                     key_values.append((sk['key'], statem_value.replace(" ", "")))
 
@@ -871,7 +926,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         node_addr = self.comboNodes.currentText()
         node = self._nodes.get_node(node_addr)
-        return node_addr, node, chain
+        return node_addr, node, chain, None
 
     def send_notification(self, node_addr, fw_config, op):
         nid, notif = self._nodes.reload_fw(node_addr, fw_config, self._notification_callback)

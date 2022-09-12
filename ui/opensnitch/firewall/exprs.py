@@ -79,10 +79,20 @@ class ExprICMPRejectCodes(Enums):
     REJECT_ROUTE = "reject-route"
     REJECT_POLICY_FAIL = "policy-fail"
 
-
-
 class ExprLog(Enums):
     LOG = "log"
+    LEVEL = "level"
+
+class ExprLogLevels(Enums):
+    EMERG = "emerg"
+    ALERT = "alert"
+    CRIT = "crit"
+    ERR = "err"
+    WARN = "warn"
+    NOTICE = "notice"
+    INFO = "info"
+    DEBUG = "debug"
+    AUDIT = "audit"
 
 class ExprCounter(Enums):
     COUNTER = "counter"
@@ -99,7 +109,9 @@ class ExprLimit(Enums):
 class ExprQuota(Enums):
     QUOTA = "quota"
     OVER = "over"
+    UNTIL = "until"
     USED = "used"
+    UNIT = "unit"
     UNIT_BYTES = "bytes"
     UNIT_KBYTES = "kbytes"
     UNIT_MBYTES = "mbytes"
