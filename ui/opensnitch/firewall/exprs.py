@@ -82,6 +82,7 @@ class ExprICMPRejectCodes(Enums):
 class ExprLog(Enums):
     LOG = "log"
     LEVEL = "level"
+    PREFIX = "prefix"
 
 class ExprLogLevels(Enums):
     EMERG = "emerg"
