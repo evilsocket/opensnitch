@@ -46,11 +46,20 @@ func NewExprIP(family string, ipOptions []*config.ExprValues, cmpOp expr.CmpOp) 
 
 			payload := getExprIPPayload(ipOpt.Key)
 			exprIP = append(exprIP, payload)
-			exprIPtemp, err := getExprIP(ipOpt.Value, cmpOp)
-			if err != nil {
-				return nil, err
+			if strings.Index(ipOpt.Value, "-") == -1 {
+				exprIPtemp, err := getExprIP(ipOpt.Value, cmpOp)
+				if err != nil {
+					return nil, err
+				}
+				exprIP = append(exprIP, *exprIPtemp...)
+			} else {
+				exprIPtemp, err := getExprRangeIP(ipOpt.Value, cmpOp)
+				if err != nil {
+					return nil, err
+				}
+				exprIP = append(exprIP, *exprIPtemp...)
 			}
-			exprIP = append(exprIP, *exprIPtemp...)
+
 		case NFT_PROTOCOL:
 			payload := getExprIPPayload(ipOpt.Key)
 			exprIP = append(exprIP, payload)
@@ -104,23 +113,6 @@ func getExprIPPayload(what string) *expr.Payload {
 // Supported IP types: a.b.c.d, a.b.c.d-w.x.y.z
 // TODO: support IPs separated by commas: a.b.c.d, e.f.g.h,...
 func getExprIP(value string, cmpOp expr.CmpOp) (*[]expr.Any, error) {
-	if strings.Index(value, "-") != -1 {
-		ips := strings.Split(value, "-")
-		ipSrc := net.ParseIP(ips[0])
-		ipDst := net.ParseIP(ips[1])
-		if ipSrc == nil || ipDst == nil {
-			return nil, fmt.Errorf("Invalid IPs range: %v", ips)
-		}
-
-		return &[]expr.Any{
-			&expr.Range{
-				Op:       cmpOp,
-				Register: 1,
-				FromData: ipSrc.To4(),
-				ToData:   ipDst.To4(),
-			},
-		}, nil
-	}
 	ip := net.ParseIP(value)
 	if ip == nil {
 		return nil, fmt.Errorf("Invalid IP: %s", value)
@@ -131,6 +123,26 @@ func getExprIP(value string, cmpOp expr.CmpOp) (*[]expr.Any, error) {
 			Op:       cmpOp,
 			Register: 1,
 			Data:     ip.To4(),
+		},
+	}, nil
+}
+
+// Supported IP types: a.b.c.d, a.b.c.d-w.x.y.z
+// TODO: support IPs separated by commas: a.b.c.d, e.f.g.h,...
+func getExprRangeIP(value string, cmpOp expr.CmpOp) (*[]expr.Any, error) {
+	ips := strings.Split(value, "-")
+	ipSrc := net.ParseIP(ips[0])
+	ipDst := net.ParseIP(ips[1])
+	if ipSrc == nil || ipDst == nil {
+		return nil, fmt.Errorf("Invalid IPs range: %v", ips)
+	}
+
+	return &[]expr.Any{
+		&expr.Range{
+			Op:       cmpOp,
+			Register: 1,
+			FromData: ipSrc.To4(),
+			ToData:   ipDst.To4(),
 		},
 	}, nil
 }
