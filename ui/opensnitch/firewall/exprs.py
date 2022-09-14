@@ -102,6 +102,7 @@ class ExprCounter(Enums):
     NAME = "name"
 
 class ExprLimit(Enums):
+    OVER = "over"
     LIMIT = "limit"
     UNITS = "units"
     RATE_UNITS = "rate-units"
@@ -113,7 +114,3 @@ class ExprQuota(Enums):
     UNTIL = "until"
     USED = "used"
     UNIT = "unit"
-    UNIT_BYTES = "bytes"
-    UNIT_KBYTES = "kbytes"
-    UNIT_MBYTES = "mbytes"
-    UNIT_GBYTES = "gbytes"

@@ -45,7 +45,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     STATM_LOG = 13
     STATM_QUOTA = 14
     STATM_COUNTER = 15
-    #STATM_LIMIT = 15
+    STATM_LIMIT = 16
 
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
@@ -80,7 +80,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "LOG",
             "QUOTA",
             "COUNTER",
-            #"LIMIT",
+            "LIMIT",
         ]
 
         self.STATM_CONF = {
@@ -181,10 +181,10 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 'keys':  [
                     {'key': Fw.ExprQuota.OVER.value, 'values': []},
                     {'key': Fw.ExprQuota.UNIT.value, 'values': [
-                        "1/{0}".format(Fw.ExprQuota.UNIT_BYTES.value),
-                        "1/{0}".format(Fw.ExprQuota.UNIT_KBYTES.value),
-                        "1/{0}".format(Fw.ExprQuota.UNIT_MBYTES.value),
-                        "1/{0}".format(Fw.ExprQuota.UNIT_GBYTES.value),
+                        "1/{0}".format(Fw.RateUnits.BYTES.value),
+                        "1/{0}".format(Fw.RateUnits.KBYTES.value),
+                        "1/{0}".format(Fw.RateUnits.MBYTES.value),
+                        "1/{0}".format(Fw.RateUnits.GBYTES.value),
                     ]}
                 ]
             },
@@ -197,13 +197,18 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 ]
             },
             # TODO: https://github.com/evilsocket/opensnitch/wiki/System-rules#rules-expressions
-            #self.STATM_LIMIT: {
-            #    'name': Fw.ExprLimit.LIMIT.value,
-            #    'keys':  [
-            #        {'key': Fw.ExprLimit.UNITS.value, 'values': []},
-            #        {'key': Fw.ExprLimit.RATE_UNITS.value, 'values': ['kbytes', 'mbytes']}
-            #    ]
-            #},
+            self.STATM_LIMIT: {
+                'name': Fw.ExprLimit.LIMIT.value,
+                'keys':  [
+                    {'key': Fw.ExprLimit.OVER.value, 'values': []},
+                    {'key': Fw.ExprLimit.UNITS.value, 'values': [
+                        "1/{0}/{1}".format(Fw.RateUnits.BYTES.value, Fw.TimeUnits.SECOND.value),
+                        "1/{0}/{1}".format(Fw.RateUnits.KBYTES.value, Fw.TimeUnits.MINUTE.value),
+                        "1/{0}/{1}".format(Fw.RateUnits.MBYTES.value, Fw.TimeUnits.HOUR.value),
+                        "1/{0}/{1}".format(Fw.RateUnits.GBYTES.value, Fw.TimeUnits.DAY.value),
+                    ]}
+                ]
+            },
             #self.STATM_TCP: {
             #    'name': Fw.Statements.TCP.value, # ['dport', 'sport' ... ]
             #    'key':  Fw.Statements.DADDR.value,
@@ -484,18 +489,21 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             w['op'].setVisible(True)
             w['opts'].setVisible(True)
             w['opts'].addItems(Fw.PortProtocols.values())
+
         elif idx == self.STATM_DEST_IP or \
             idx == self.STATM_SOURCE_IP:
             w['op'].setVisible(True)
             w['opts'].setVisible(True)
             w['opts'].addItems(Fw.Family.values())
             w['opts'].removeItem(0) # remove 'inet' item
+
         elif idx == self.STATM_ICMP or idx == self.STATM_ICMPv6 or \
             idx == self.STATM_IIFNAME or idx == self.STATM_OIFNAME or \
             idx == self.STATM_META_MARK or idx == self.STATM_CT_STATE or \
             idx == self.STATM_CT_MARK:
             w['op'].setVisible(True)
             w['opts'].setVisible(False)
+
         elif idx == self.STATM_LOG:
             w['op'].setVisible(False)
             w['opts'].setVisible(True)
@@ -503,7 +511,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             w['opts'].setCurrentIndex(
                 Fw.ExprLogLevels.values().index(Fw.ExprLogLevels.WARN.value)
             )
-        elif idx == self.STATM_QUOTA:
+        elif idx == self.STATM_QUOTA or idx == self.STATM_LIMIT:
             w['op'].setVisible(False)
             w['opts'].setVisible(True)
             w['opts'].addItems([Fw.ExprQuota.OVER.value, Fw.ExprQuota.UNTIL.value])
@@ -755,6 +763,23 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                             "{0}/{1}".format(v.Value, v.Key)
                         )
 
+            elif exp.Statement.Name == Fw.Statements.LIMIT.value:
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_LIMIT+1)
+                self.statements[idx]['opts'].setCurrentIndex(1)
+                lval = ""
+                for v in exp.Statement.Values:
+                    if v.Key == Fw.ExprLimit.OVER.value:
+                        self.statements[idx]['opts'].setCurrentIndex(0)
+                    elif v.Key == Fw.ExprLimit.UNITS.value:
+                        lval = v.Value
+                    elif v.Key == Fw.ExprLimit.RATE_UNITS.value:
+                        lval = "%s/%s" % (lval, v.Value)
+                    elif v.Key == Fw.ExprLimit.TIME_UNITS.value:
+                        lval = "%s/%s" % (lval, v.Value)
+
+                self.statements[idx]['value'].setCurrentText(lval)
+
+
             elif exp.Statement.Name == Fw.Statements.COUNTER.value:
                 self.statements[idx]['what'].setCurrentIndex(self.STATM_COUNTER+1)
                 if exp.Statement.Values[0].Key == Fw.ExprCounter.NAME.value:
@@ -887,6 +912,25 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                                 return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, gbytes)")
                             sk['key'] = units[1]
                             statem_value = units[0]
+
+                    elif st_idx == self.STATM_LIMIT:
+                        if sk['key'] == Fw.ExprLimit.OVER.value:
+                            if self.statements[k]['opts'].currentIndex() == 0:
+                                key_values.append((sk['key'], ""))
+                        elif sk['key'] == Fw.ExprLimit.UNITS.value:
+                            units = statem_value.split("/")
+                            if len(units) != 3: # we expect the format key/value
+                                return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes/second (or bytes, gbytes)")
+
+                            if units[1] not in Fw.RateUnits.values():
+                                return None, None, None, QC.translate("firewall", "rate-limit not valid, use: bytes, kbytes, mbytes or gbytes.")
+                            if units[2] not in Fw.TimeUnits.values():
+                                return None, None, None, QC.translate("firewall", "time-limit not valid, use: second, minute, hour or day")
+                            key_values.append((Fw.ExprLimit.UNITS.value, units[0]))
+                            key_values.append((Fw.ExprLimit.RATE_UNITS.value, units[1]))
+                            key_values.append((Fw.ExprLimit.TIME_UNITS.value, units[2]))
+
+                        continue
 
                     elif st_idx == self.STATM_LOG:
                         key_values.append((Fw.ExprLog.LEVEL.value, statem_opts))

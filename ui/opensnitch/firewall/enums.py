@@ -56,6 +56,18 @@ class Operator(Enums):
     LT_THAN = "<="
     LT = "<"
 
+class TimeUnits(Enums):
+    SECOND = "second"
+    MINUTE = "minute"
+    HOUR = "hour"
+    DAY = "day"
+
+class RateUnits(Enums):
+    BYTES = "bytes"
+    KBYTES = "kbytes"
+    MBYTES = "mbytes"
+    GBYTES = "gbytes"
+
 class Statements(Enums):
     """Enum of known (allowed) statements:
         [tcp,udp,ip] ...
@@ -83,5 +95,5 @@ class Statements(Enums):
     COUNTER = "counter"
     NAME = "name"
     LOG = "log"
-    PREFIX = "prefix"
     QUOTA = "quota"
+    LIMIT = "limit"
