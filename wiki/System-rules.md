@@ -158,7 +158,7 @@ Example:
  |log| Key: prefix . TODO: flags, log level|Logs connections to the system with the given prefix|Name: log, Key: prefix, Value: "ssh out"|
  |iifname, oifname|Key: eth0, wlp3s0, etc.. (network interface name), Value field is ignored in this case.|Matches the input network interface (iifname) or the output one (oifname)|Name: iifname, Key: lo|
  |ip,ip6|Key: daddr, saddr|Matches dest or source address. You can specify an IP, a range of IPs or IPs separated by commas|Name: ip, Key: daddr, Value: 127.0.0.1|
- |limit||||
+ |limit| Key: units, rate-units, time-units | rate-limit connections. For example: limit HTTPS downloads to 1MB/s| tcp sport 443 limit rate over 1 mbytes/second drop |
  |udp,tcp,sctp,dccp|Key: sport,dport| Matches against dest or source port on the given network protocol. You can specify ports separated by commas and port ranges.| Name: tcp, Key: dport, Value: 22|
  |quota|Key: quota|Applies the given verdict on connections matching certain criteria: like when going over a given mbytes, gbytes, etc|Name: quota, Key: over, Key: "mbytes", Value: "100"|
  |counter| Key: name||Name: counter, Key: name, Value: "dport 22 counter"|
@@ -290,7 +290,55 @@ tcp + dport, multiple ports separated by commas
 
 ---
 
-Apply a quota on a connection when the given connection exceeds 1GB. When it exceeds the defined limit, the verdict you specify will be applied (deny, accept, etc)
+Rate-limit HTTPS downloads to 1MB/s (table filter, chain input)
+
+https://wiki.nftables.org/wiki-nftables/index.php/Rate_limiting_matchings 
+
+https://wiki.nftables.org/wiki-nftables/index.php/Quick_reference-nftables_in_10_minutes#Limit
+
+```json
+                {
+                  "Statement": {
+                    "Op": "==",
+                    "Name": "tcp",
+                    "Values": [
+                      {
+
+                        "Key": "sport",
+                        "Value": "443"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Statement": {
+                    "Op": "==",
+                    "Name": "limit",
+                    "Values": [
+                      {
+                        "Key": "over",
+                        "Value": ""
+                      },
+                      {
+                        "Key": "units",
+                        "Value": "1"
+                      },
+                      {
+                        "Key": "rate-units",
+                        "Value": "mbytes"
+                      },
+                      {
+                        "Key": "time-units",
+                        "Value": "second"
+                      }
+                    ]
+                  }
+                },
+```
+
+---
+
+Apply a quota on a connection when the given connection exceeds 1GB. When it exceeds the defined limit, the verdict you specify will be applied (deny, accept, etc) https://wiki.nftables.org/wiki-nftables/index.php/Quotas
 ```json
                   "Statement": {
                     "Op": "",
@@ -358,6 +406,20 @@ matching multiple conntrack states:
                         "Key": "state",
                         "Value": "established"
                       }
+                    ]
+                  }
+```
+
+matching multiple conntrack states II:
+```json
+                  "Statement": {
+                    "Op": "",
+                    "Name": "ct",
+                    "Values": [
+                      {
+                        "Key": "state",
+                        "Value": "related,established"
+                      },
                     ]
                   }
 ```
