@@ -34,15 +34,15 @@ import (
 func NewExprIP(family string, ipOptions []*config.ExprValues, cmpOp expr.CmpOp) (*[]expr.Any, error) {
 	var exprIP []expr.Any
 
+	if family == NFT_FAMILY_INET {
+		exprIP = append(exprIP, &expr.Meta{Key: expr.MetaKeyNFPROTO, Register: 1})
+		exprIP = append(exprIP, &expr.Cmp{Op: expr.CmpOpEq, Register: 1, Data: []byte{unix.NFPROTO_IPV4}})
+	}
 	for _, ipOpt := range ipOptions {
 		// TODO: ipv6
 		switch ipOpt.Key {
 		case NFT_SADDR, NFT_DADDR:
 			// if the table family is inet, we need to specify the protocol of the IP being added.
-			if family == NFT_FAMILY_INET {
-				exprIP = append(exprIP, &expr.Meta{Key: expr.MetaKeyNFPROTO, Register: 1})
-				exprIP = append(exprIP, &expr.Cmp{Op: expr.CmpOpEq, Register: 1, Data: []byte{unix.NFPROTO_IPV4}})
-			}
 
 			payload := getExprIPPayload(ipOpt.Key)
 			exprIP = append(exprIP, payload)
