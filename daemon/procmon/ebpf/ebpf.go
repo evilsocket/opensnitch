@@ -48,6 +48,7 @@ var (
 		TCPv6: make(map[*daemonNetlink.Socket]int),
 	}
 	stopMonitors = make(chan bool)
+	running      = false
 
 	// list of local addresses of this machine
 	localAddresses []net.IP
@@ -57,6 +58,7 @@ var (
 
 //Start installs ebpf kprobes
 func Start() error {
+	setRunning(false)
 	if err := mountDebugFS(); err != nil {
 		log.Error("ebpf.Start -> mount debugfs error. Report on github please: %s", err)
 		return err
@@ -98,17 +100,19 @@ func Start() error {
 			bpfmap: m.Map("udpv6Map")},
 	}
 
+	initEventsStreamer()
+
 	saveEstablishedConnections(uint8(syscall.AF_INET))
 	if core.IPv6Enabled {
 		saveEstablishedConnections(uint8(syscall.AF_INET6))
 	}
 
-	initEventsStreamer()
-
 	go monitorCache()
 	go monitorMaps()
 	go monitorLocalAddresses()
 	go monitorAlreadyEstablished()
+
+	setRunning(true)
 	return nil
 }
 
@@ -131,8 +135,20 @@ func saveEstablishedConnections(commDomain uint8) error {
 	return nil
 }
 
+func setRunning(status bool) {
+	lock.Lock()
+	defer lock.Unlock()
+
+	running = status
+}
+
 // Stop stops monitoring connections using kprobes
 func Stop() {
+	lock.RLock()
+	defer lock.RUnlock()
+	if running == false {
+		return
+	}
 	for i := 0; i < 4; i++ {
 		stopMonitors <- true
 	}
