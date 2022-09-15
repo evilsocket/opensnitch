@@ -209,7 +209,7 @@
                 {
                   "Statement": {
                     "Op": "",
-                    "Name": "tcp",
+                    "Name": "udp",
                     "Values": [
                       {
                         "Key": "dport",
