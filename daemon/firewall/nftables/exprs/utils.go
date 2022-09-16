@@ -1,6 +1,8 @@
 package exprs
 
 import (
+	"strconv"
+
 	"github.com/google/gopacket/layers"
 	"golang.org/x/sys/unix"
 )
@@ -122,4 +124,55 @@ func getICMPv6RejectCode(reason string) uint8 {
 	}
 
 	return layers.ICMPv6CodeNoRouteToDst
+}
+
+// getProtocolCode will try to return the code of the given protocol.
+// If the protocol is not in our list, we'll use the value as decimal.
+// So for example IPPROTO_ENCAP (0x62) must be specified as 98.
+// https://pkg.go.dev/golang.org/x/sys/unix#pkg-constants
+func getProtocolCode(value string) (uint32, error) {
+	switch value {
+	case NFT_PROTO_TCP:
+		return unix.IPPROTO_TCP, nil
+	case NFT_PROTO_UDP:
+		return unix.IPPROTO_UDP, nil
+	case NFT_PROTO_UDPLITE:
+		return unix.IPPROTO_UDPLITE, nil
+	case NFT_PROTO_SCTP:
+		return unix.IPPROTO_SCTP, nil
+	case NFT_PROTO_DCCP:
+		return unix.IPPROTO_DCCP, nil
+	case NFT_PROTO_ICMP:
+		return unix.IPPROTO_ICMP, nil
+	case NFT_PROTO_ICMPv6:
+		return unix.IPPROTO_ICMPV6, nil
+	case NFT_PROTO_AH:
+		return unix.IPPROTO_AH, nil
+	case NFT_PROTO_ETHERNET:
+		return unix.IPPROTO_ETHERNET, nil
+	case NFT_PROTO_GRE:
+		return unix.IPPROTO_GRE, nil
+	case NFT_PROTO_IP:
+		return unix.IPPROTO_IP, nil
+	case NFT_PROTO_IPIP:
+		return unix.IPPROTO_IPIP, nil
+	case NFT_PROTO_L2TP:
+		return unix.IPPROTO_L2TP, nil
+	case NFT_PROTO_COMP:
+		return unix.IPPROTO_COMP, nil
+	case NFT_PROTO_IGMP:
+		return unix.IPPROTO_IGMP, nil
+	case NFT_PROTO_ESP:
+		return unix.IPPROTO_ESP, nil
+	case NFT_PROTO_RAW:
+		return unix.IPPROTO_RAW, nil
+	case NFT_PROTO_ENCAP:
+		return unix.IPPROTO_ENCAP, nil
+	}
+
+	prot, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, err
+	}
+	return uint32(prot), nil
 }

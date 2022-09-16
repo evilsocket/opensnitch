@@ -131,6 +131,10 @@ const (
 	NFT_META_PRIORITY = "priority"
 	NFT_META_NFTRACE  = "nftrace"
 	NFT_META_SET      = "set"
+	NFT_META_SKUID    = "skuid"
+	NFT_META_SKGID    = "skgid"
+	NFT_META_L4PROTO  = "l4proto"
+	NFT_META_PROTOCOL = "protocol"
 
 	NFT_PROTO_UDP      = "udp"
 	NFT_PROTO_UDPLITE  = "udplite"

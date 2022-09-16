@@ -71,7 +71,7 @@ func NewExprIP(family string, ipOptions []*config.ExprValues, cmpOp expr.CmpOp) 
 				&expr.Cmp{
 					Op:       cmpOp,
 					Register: 1,
-					Data:     []byte{protoCode},
+					Data:     []byte{byte(protoCode)},
 				},
 			}...)
 		}
@@ -145,47 +145,4 @@ func getExprRangeIP(value string, cmpOp expr.CmpOp) (*[]expr.Any, error) {
 			ToData:   ipDst.To4(),
 		},
 	}, nil
-}
-
-func getProtocolCode(value string) (byte, error) {
-	switch value {
-	case NFT_PROTO_TCP:
-		return unix.IPPROTO_TCP, nil
-	case NFT_PROTO_UDP:
-		return unix.IPPROTO_UDP, nil
-	case NFT_PROTO_UDPLITE:
-		return unix.IPPROTO_UDPLITE, nil
-	case NFT_PROTO_SCTP:
-		return unix.IPPROTO_SCTP, nil
-	case NFT_PROTO_DCCP:
-		return unix.IPPROTO_DCCP, nil
-	case NFT_PROTO_ICMP:
-		return unix.IPPROTO_ICMP, nil
-	case NFT_PROTO_ICMPv6:
-		return unix.IPPROTO_ICMPV6, nil
-	case NFT_PROTO_AH:
-		return unix.IPPROTO_AH, nil
-	case NFT_PROTO_ETHERNET:
-		return unix.IPPROTO_ETHERNET, nil
-	case NFT_PROTO_GRE:
-		return unix.IPPROTO_GRE, nil
-	case NFT_PROTO_IP:
-		return unix.IPPROTO_IP, nil
-	case NFT_PROTO_IPIP:
-		return unix.IPPROTO_IPIP, nil
-	case NFT_PROTO_L2TP:
-		return unix.IPPROTO_L2TP, nil
-	case NFT_PROTO_COMP:
-		return unix.IPPROTO_COMP, nil
-	case NFT_PROTO_IGMP:
-		return unix.IPPROTO_IGMP, nil
-	case NFT_PROTO_ESP:
-		return unix.IPPROTO_ESP, nil
-	case NFT_PROTO_RAW:
-		return unix.IPPROTO_RAW, nil
-	case NFT_PROTO_ENCAP:
-		return unix.IPPROTO_ENCAP, nil
-	}
-
-	return 0, fmt.Errorf("Invalid protocol code, or not supported yet: %s", value)
 }
