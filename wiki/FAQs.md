@@ -80,6 +80,14 @@ So if you want to prioritize some rules over others:
 2. [x] Priority field checked (Action: allow)
 3. OR Action: deny (not need to check the Priority field in these rules)
 
+**If I allow program A, and it launches another program B, will it be also allowed?**
+
+No. You only allow program A to access the net. Any other program launched by program A will be stopped until you allow or deny it.
+
+See some examples: 
+ - Spotify launching wget: https://github.com/evilsocket/opensnitch/discussions/401
+ - Vivaldi browser deb package trying to install from the internet additional packages: https://github.com/evilsocket/opensnitch/discussions/742
+
 **Appimages confuse the firewall**
 
 Appimages create a random directory under `/tmp/` from where they're executed, so if you allow or deny an appimage by path or command line when the pop-up appears, the next time the app is executed, the path to the binary will be different and OpenSnitch will prompt you again to deny or allow it.
