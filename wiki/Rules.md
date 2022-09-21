@@ -168,3 +168,11 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
     Instead of allowing `from this executable: wget`, use allow `from this executable` + `from this command line`
 
     You can narrow it further, by allowing `from this command line` + `from this User ID` + `to this IP` + `to this port`
+
+- Disable unprivileged namespaces to prevent rules bypass
+
+  If /proc/sys/kernel/unprivileged_userns_clone is set to 1, change it to 0. Until we obtain the checksum of a binary, it's better to set it to 0.
+  
+  
+  
+  
