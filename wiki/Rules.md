@@ -157,3 +157,14 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
   }
 }
 ```
+
+### Best practices
+
+- Limit what an application can do as much as possible:
+  * Filter by executable + command line: You don't want to allow curl or wget system wide. Instead allow only a particular command line, for example:
+  
+    command launched: `$ wget https://mirror.karneval.cz/pub/linux/fedora/linux/releases/34/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-34-1.2.iso`
+    
+    Instead of allowing `from this executable: wget`, use allow `from this executable` + `from this command line`
+
+    You can narrow it further, by allowing `from this command line` + `from this User ID` + `to this IP` + `to this port`
