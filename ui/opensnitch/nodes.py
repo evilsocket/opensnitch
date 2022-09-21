@@ -154,6 +154,19 @@ class Nodes(QObject):
             peer[1] = "/local"
         return peer[0], peer[1]
 
+    def is_local(self, addr):
+        if addr.startswith("unix"):
+            return True
+
+        if addr.startsWith("ipv4") or addr.startsWith("ipv6"):
+            for name, ip in self._interfaces.items():
+                if ip in addr:
+                    return True
+
+        return False
+
+
+
     def get_notifications(self):
         notlist = []
         try:
@@ -218,6 +231,7 @@ class Nodes(QObject):
                     'callback': callback_signal,
                     'type': notification.type
                     }
+
             self._nodes[addr]['notifications'].put(notification)
         except Exception as e:
             print(self.LOG_TAG + " exception sending notification: ", e, addr, notification)

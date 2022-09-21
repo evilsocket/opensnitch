@@ -37,8 +37,13 @@ class ExprCt(Enums):
     MARK = "mark"
 
 class ExprMeta(Enums):
-    MARK = "mark"
     SET = "set"
+    MARK = "mark"
+    L4PROTO = "l4proto"
+    SKUID = "skuid"
+    SKGID = "skgid"
+    PROTOCOL = "protocol"
+    PRIORITY = "priority"
 
 class ExprIface(Enums):
     IIFNAME = "iifname"

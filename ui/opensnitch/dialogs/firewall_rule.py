@@ -39,7 +39,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     STATM_CT_MARK = 7
     STATM_CT_STATE = 8
     STATM_META_SET_MARK = 9
-    STATM_META_MARK = 10
+    STATM_META = 10
     STATM_ICMP = 11
     STATM_ICMPv6 = 12
     STATM_LOG = 13
@@ -72,15 +72,15 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             QC.translate("firewall", "Match conntrack mark"),
             QC.translate("firewall", "Match conntrack state(s)"),
             QC.translate("firewall", "Set mark on packet"),
-            QC.translate("firewall", "Match packet mark"),
+            QC.translate("firewall", "Match packet information"),
             #"TCP",
             #"UDP",
             "ICMP",
             "ICMPv6",
             "LOG",
-            "QUOTA",
+            QC.translate("firewall", "Bandwidth quotas"),
             "COUNTER",
-            "LIMIT",
+            QC.translate("firewall", "Rate limit connections"),
         ]
 
         self.STATM_CONF = {
@@ -111,13 +111,13 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.STATM_IIFNAME: {
                 'name': Fw.Statements.IIFNAME.value,
                 'keys': [
-                    {'key': "", 'values': NetworkInterfaces.list().keys()}
+                    {'key': "", 'values': []}
                 ]
             },
             self.STATM_OIFNAME: {
                 'name': Fw.Statements.OIFNAME.value,
                 'keys': [
-                    {'key': "", 'values': NetworkInterfaces.list().keys()}
+                    {'key': "", 'values': []}
                 ]
             },
             self.STATM_CT_SET: {
@@ -144,10 +144,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     }
                 ]
             },
-            self.STATM_META_MARK: {
+            self.STATM_META: {
                 'name': Fw.Statements.META.value,
                 'keys': [
-                    #{'key': Fw.ExprMeta.SET.value, 'values': None},
                     {'key': Fw.ExprMeta.MARK.value, 'values': []}
                 ]
             },
@@ -379,7 +378,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if idx in self.statements:
             del self.statements[idx]
-        #self.toolBoxSimple.removeItem(idx)
+
         w = self.toolBoxSimple.widget(idx)
         if w != None:
             w.setParent(None)
@@ -388,8 +387,8 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_statem_combo_changed(self, idx):
         st_idx = self.toolBoxSimple.currentIndex()
-        self._set_statement_title(st_idx)
         self._configure_statem_value_opts(st_idx)
+        self._set_statement_title(st_idx, "")
 
     def _cb_statem_value_changed(self, val):
         st_idx = self.toolBoxSimple.currentIndex()
@@ -439,7 +438,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.tabWidget.widget(0).layout().addWidget(self.toolBoxSimple)
         #self.toolBoxSimple.currentChanged.connect(self._cb_toolbox_page_changed)
 
-    def _set_statement_title(self, st_idx):
+    def _set_statement_title(self, st_idx, value=None):
         """Transform the widgets to nftables rule text format
         """
         self._reset_status_message()
@@ -450,21 +449,25 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         st = self.STATM_CONF[idx]['name']
-        st_prot = w['opts'].currentText()
+        st_opts = w['opts'].currentText()
         if idx == self.STATM_DEST_IP or idx == self.STATM_SOURCE_IP:
-            st = st_prot
+            st = st_opts
         if idx == self.STATM_DPORT or idx == self.STATM_SPORT:
-            st = st_prot
+            st = st_opts
 
         title = st
         for keys in self.STATM_CONF[idx]['keys']:
             title += " " + keys['key']
         st_op = Fw.Operator.values()[w['op'].currentIndex()]
         st_val = w['value'].currentText()
+        if value != None:
+            st_val = value
+
+        if idx == self.STATM_META:
+            title = st + " " + st_opts
 
         title = "{0} {1} {2}".format(title, st_op, st_val)
-        #if w['opts'].isVisible():
-        #    title = "{0} ({1})".format(title, st_prot)
+
         self.toolBoxSimple.setItemText(st_idx, title)
 
     def _configure_statem_value_opts(self, st_idx):
@@ -474,6 +477,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         w['value'].blockSignals(True);
+        w['opts'].blockSignals(True);
 
         oldValue = w['value'].currentText()
         w['value'].clear()
@@ -497,10 +501,21 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             w['opts'].addItems(Fw.Family.values())
             w['opts'].removeItem(0) # remove 'inet' item
 
+        elif idx == self.STATM_IIFNAME or idx == self.STATM_OIFNAME:
+            w['op'].setVisible(True)
+            w['opts'].setVisible(False)
+            if self._nodes.is_local(self.comboNodes.currentText()):
+                w['value'].addItems(NetworkInterfaces.list().keys())
+                w['value'].setCurrentText("")
+
+        elif idx == self.STATM_META:
+            w['op'].setVisible(True)
+            w['opts'].setVisible(True)
+            # exclude first item of the list
+            w['opts'].addItems(Fw.ExprMeta.values()[1:])
+
         elif idx == self.STATM_ICMP or idx == self.STATM_ICMPv6 or \
-            idx == self.STATM_IIFNAME or idx == self.STATM_OIFNAME or \
-            idx == self.STATM_META_MARK or idx == self.STATM_CT_STATE or \
-            idx == self.STATM_CT_MARK:
+            idx == self.STATM_CT_STATE or idx == self.STATM_CT_MARK:
             w['op'].setVisible(True)
             w['opts'].setVisible(False)
 
@@ -509,6 +524,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             w['opts'].setVisible(True)
             w['opts'].addItems(Fw.ExprLogLevels.values())
             w['opts'].setCurrentIndex(
+                # nftables default log level is warn
                 Fw.ExprLogLevels.values().index(Fw.ExprLogLevels.WARN.value)
             )
         elif idx == self.STATM_QUOTA or idx == self.STATM_LIMIT:
@@ -519,6 +535,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             w['op'].setVisible(False)
             w['opts'].setVisible(False)
 
+        w['opts'].blockSignals(False);
         w['value'].blockSignals(False);
 
     def add_new_statement(self, title="", topWidget=None):
@@ -718,9 +735,12 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_MARK+1)
 
             elif exp.Statement.Name == Fw.Statements.META.value:
-                if exp.Statement.Values[0].Key == Fw.ExprMeta.MARK.value:
-                    self.statements[idx]['what'].setCurrentIndex(self.STATM_META_MARK+1)
-                    self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_META+1)
+                self.statements[idx]['opts'].setCurrentIndex(
+                    # first item of the list is "set", not present in the combobox
+                    Fw.ExprMeta.values().index(exp.Statement.Values[0].Key)-1
+                )
+                self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
 
             elif exp.Statement.Name == Fw.Statements.ICMP.value or exp.Statement.Name == Fw.Statements.ICMPv6.value:
                 if exp.Statement.Name == Fw.Statements.ICMP.value:
@@ -934,6 +954,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
                     elif st_idx == self.STATM_LOG:
                         key_values.append((Fw.ExprLog.LEVEL.value, statem_opts))
+
+                    elif st_idx == self.STATM_META:
+                        sk['key'] = self.statements[k]['opts'].currentText()
 
                     elif st_idx == self.STATM_IIFNAME or st_idx == self.STATM_OIFNAME:
                         # for these statements, the values is set in the Key

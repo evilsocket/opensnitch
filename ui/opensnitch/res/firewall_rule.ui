@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>434</width>
+    <width>484</width>
     <height>600</height>
    </rect>
   </property>
@@ -70,6 +70,9 @@
    alignment: center;
 }</string>
      </property>
+     <property name="tabPosition">
+      <enum>QTabWidget::South</enum>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -77,6 +80,9 @@
       <enum>Qt::ElideRight</enum>
      </property>
      <property name="documentMode">
+      <bool>true</bool>
+     </property>
+     <property name="tabBarAutoHide">
       <bool>true</bool>
      </property>
      <widget class="QWidget" name="tabSimple">
@@ -97,8 +103,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>398</width>
-            <height>173</height>
+            <width>448</width>
+            <height>200</height>
            </rect>
           </property>
           <attribute name="label">
@@ -151,7 +157,8 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset theme="list-add"/>
+         <iconset theme="list-add">
+          <normaloff>.</normaloff>.</iconset>
         </property>
         <property name="flat">
          <bool>true</bool>
@@ -173,7 +180,8 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset theme="list-remove"/>
+         <iconset theme="list-remove">
+          <normaloff>.</normaloff>.</iconset>
         </property>
         <property name="flat">
          <bool>true</bool>
@@ -361,7 +369,8 @@
         <string>Clear</string>
        </property>
        <property name="icon">
-        <iconset theme="reload"/>
+        <iconset theme="reload">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
