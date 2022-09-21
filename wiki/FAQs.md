@@ -88,6 +88,8 @@ See some examples:
  - Spotify launching wget: https://github.com/evilsocket/opensnitch/discussions/401
  - Vivaldi browser deb package trying to install from the internet additional packages: https://github.com/evilsocket/opensnitch/discussions/742
 
+Read more about best practices: https://github.com/evilsocket/opensnitch/wiki/Rules#best-practices
+
 **Appimages confuse the firewall**
 
 Appimages create a random directory under `/tmp/` from where they're executed, so if you allow or deny an appimage by path or command line when the pop-up appears, the next time the app is executed, the path to the binary will be different and OpenSnitch will prompt you again to deny or allow it.
