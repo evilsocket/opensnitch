@@ -161,7 +161,7 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
 ### Best practices
 
 - Limit what an application can do as much as possible:
-  * Filter by executable + command line: You don't want to allow curl or wget system wide. Instead allow only a particular command line, for example:
+  * Filter by executable + command line: You don't want to allow `curl` or `wget` system wide. Instead, allow only a particular command line, for example:
   
     command launched: `$ wget https://mirror.karneval.cz/pub/linux/fedora/linux/releases/34/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-34-1.2.iso`
     
@@ -169,10 +169,19 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
 
     You can narrow it further, by allowing `from this command line` + `from this User ID` + `to this IP` + `to this port`
 
+- Again: https://github.com/evilsocket/opensnitch/wiki/Rules-examples#filtering-python-scripts-applicable-to-java-and-others-interpreters
+
 - Disable unprivileged namespaces to prevent rules bypass
 
   If /proc/sys/kernel/unprivileged_userns_clone is set to 1, change it to 0. Until we obtain the checksum of a binary, it's better to set it to 0.
   
+- Don't allow connections opened by binaries located under certain directories: /dev/shm, /tmp, /var/tmp
   
+  Why? When someone gets access to your system, usually these directories are the only ones where they can write files, thus it's usually used to drop malicious files.
   
+  There're ton of examples (more common on servers than on the desktop): https://github.com/timb-machine/linux-malware
   
+  ```
+  (*) Deny
+  [x] From this executable: ^(/tmp/|/var/tmp/|dev/shm/).*
+  ```
