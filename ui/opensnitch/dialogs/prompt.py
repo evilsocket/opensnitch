@@ -27,6 +27,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     DEFAULT_TIMEOUT = 15
 
+    # don't translate
     FIELD_REGEX_HOST    = "regex_host"
     FIELD_REGEX_IP      = "regex_ip"
     FIELD_PROC_PATH     = "process_path"
@@ -38,7 +39,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     FIELD_DST_NETWORK   = "dst_network"
     FIELD_DST_HOST      = "simple_host"
 
-    # don't translate
     DURATION_30s    = "30s"
     DURATION_5m     = "5m"
     DURATION_15m    = "15m"
@@ -501,35 +501,35 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _get_combo_operator(self, combo, what_idx):
         if combo.itemData(what_idx) == self.FIELD_PROC_PATH:
-            return Config.RULE_TYPE_SIMPLE, "process.path", self._con.process_path
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, self._con.process_path
 
         elif combo.itemData(what_idx) == self.FIELD_PROC_ARGS:
             # this should not happen
             if len(self._con.process_args) == 0 or self._con.process_args[0] == "":
-                return Config.RULE_TYPE_SIMPLE, "process.path", self._con.process_path
-            return Config.RULE_TYPE_SIMPLE, "process.command", ' '.join(self._con.process_args)
+                return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, self._con.process_path
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_COMMAND, ' '.join(self._con.process_args)
 
         elif combo.itemData(what_idx) == self.FIELD_PROC_ID:
-            return Config.RULE_TYPE_SIMPLE, "process.id", "{0}".format(self._con.process_id)
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_ID, "{0}".format(self._con.process_id)
 
         elif combo.itemData(what_idx) == self.FIELD_USER_ID:
-            return Config.RULE_TYPE_SIMPLE, "user.id", "%s" % self._con.user_id
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_USER_ID, "%s" % self._con.user_id
 
         elif combo.itemData(what_idx) == self.FIELD_DST_PORT:
-            return Config.RULE_TYPE_SIMPLE, "dest.port", "%s" % self._con.dst_port
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_PORT, "%s" % self._con.dst_port
 
         elif combo.itemData(what_idx) == self.FIELD_DST_IP:
-            return Config.RULE_TYPE_SIMPLE, "dest.ip", self._con.dst_ip
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_IP, self._con.dst_ip
 
         elif combo.itemData(what_idx) == self.FIELD_DST_HOST:
-            return Config.RULE_TYPE_SIMPLE, "dest.host", combo.currentText()
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_HOST, combo.currentText()
 
         elif combo.itemData(what_idx) == self.FIELD_DST_NETWORK:
             # strip "to ": "to x.x.x/20" -> "x.x.x/20"
             # we assume that to is one word in all languages
             parts = combo.currentText().split(' ')
             text = parts[len(parts)-1]
-            return Config.RULE_TYPE_NETWORK, "dest.network", text
+            return Config.RULE_TYPE_NETWORK, Config.OPERAND_DEST_NETWORK, text
 
         elif combo.itemData(what_idx) == self.FIELD_REGEX_HOST:
             parts = combo.currentText().split(' ')
@@ -537,12 +537,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # ^(|.*\.)yahoo\.com
             dsthost = '\.'.join(text.split('.')).replace("*", "")
             dsthost = "^(|.*\.)%s" % dsthost[2:]
-            return Config.RULE_TYPE_REGEXP, "dest.host", dsthost
+            return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_HOST, dsthost
 
         elif combo.itemData(what_idx) == self.FIELD_REGEX_IP:
             parts = combo.currentText().split(' ')
             text = parts[len(parts)-1]
-            return Config.RULE_TYPE_REGEXP, "dest.ip", "%s" % '\.'.join(text.split('.')).replace("*", ".*")
+            return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_IP, "%s" % '\.'.join(text.split('.')).replace("*", ".*")
 
     def _on_action_clicked(self, action):
         self._default_action = action
@@ -598,14 +598,26 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 rule_temp_name = slugify("%s %s" % (rule_temp_name, _data))
 
             if self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_PORT:
-                data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": "dest.port", "data": str(self._con.dst_port)})
+                data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_DEST_PORT, "data": str(self._con.dst_port)})
                 rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.dst_port)))
 
             if self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_USER_ID:
-                data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": "user.id", "data": str(self._con.user_id)})
+                data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_USER_ID, "data": str(self._con.user_id)})
                 rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.user_id)))
 
-            if self._is_list_rule():
+            is_list_rule = self._is_list_rule()
+
+            # If the user has selected to filter by cmdline, but the launched
+            # command path is not absolute, we can't trust it. In this case,
+            # also filter by the absolute path to the binary.
+            if self._rule.operator.operand == Config.OPERAND_PROCESS_COMMAND:
+                proc_args = " ".join(self._con.process_args)
+                proc_args = proc_args.split(" ")
+                if os.path.isabs(proc_args[0]) == False:
+                    is_list_rule = True
+                    data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_PROCESS_PATH, "data": str(self._con.process_path)})
+
+            if is_list_rule:
                 data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
                 self._rule.operator.data = json.dumps(data)
                 self._rule.operator.type = Config.RULE_TYPE_LIST
