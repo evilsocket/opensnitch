@@ -15,7 +15,7 @@ from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
 from opensnitch.version import version
-from opensnitch.utils import Message, FileDialog, Icons
+from opensnitch.utils import Message, FileDialog, Icons, NetworkInterfaces
 
 DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -58,6 +58,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.protoCheck.toggled.connect(self._cb_proto_check_toggled)
         self.procCheck.toggled.connect(self._cb_proc_check_toggled)
         self.cmdlineCheck.toggled.connect(self._cb_cmdline_check_toggled)
+        self.ifaceCheck.toggled.connect(self._cb_iface_check_toggled)
         self.dstPortCheck.toggled.connect(self._cb_dstport_check_toggled)
         self.uidCheck.toggled.connect(self._cb_uid_check_toggled)
         self.pidCheck.toggled.connect(self._cb_pid_check_toggled)
@@ -80,6 +81,15 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if _rule != None:
             self._load_rule(rule=_rule)
+
+    def showEvent(self, event):
+        super(RulesEditorDialog, self).showEvent(event)
+
+        oldText = self.ifaceCombo.currentText()
+        self.ifaceCombo.clear()
+        if self._nodes.is_local(self.nodesCombo.currentText()):
+            self.ifaceCombo.addItems(NetworkInterfaces.list().keys())
+        self.ifaceCombo.setCurrentText(oldText)
 
     def _bool(self, s):
         return s == 'True'
@@ -126,6 +136,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_cmdline_check_toggled(self, state):
         self.cmdlineLine.setEnabled(state)
         self.checkCmdlineRegexp.setEnabled(state)
+
+    def _cb_iface_check_toggled(self, state):
+        self.ifaceCombo.setEnabled(state)
 
     def _cb_dstport_check_toggled(self, state):
         self.dstPortLine.setEnabled(state)
@@ -312,6 +325,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.pidCheck.setChecked(False)
         self.pidLine.setText("")
 
+        self.ifaceCheck.setChecked(False)
+        self.ifaceCombo.setCurrentText("")
+
         self.dstPortCheck.setChecked(False)
         self.dstPortLine.setText("")
 
@@ -371,41 +387,46 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _load_rule_operator(self, operator):
         self.sensitiveCheck.setChecked(operator.sensitive)
-        if operator.operand == "protocol":
+        if operator.operand == Config.OPERAND_PROTOCOL:
             self.protoCheck.setChecked(True)
             self.protoCombo.setEnabled(True)
             self.protoCombo.setCurrentText(operator.data.upper())
 
-        if operator.operand == "process.path":
+        if operator.operand == Config.OPERAND_PROCESS_PATH:
             self.procCheck.setChecked(True)
             self.procLine.setEnabled(True)
             self.procLine.setText(operator.data)
             self.checkProcRegexp.setEnabled(True)
             self.checkProcRegexp.setChecked(operator.type == Config.RULE_TYPE_REGEXP)
 
-        if operator.operand == "process.command":
+        if operator.operand == Config.OPERAND_PROCESS_COMMAND:
             self.cmdlineCheck.setChecked(True)
             self.cmdlineLine.setEnabled(True)
             self.cmdlineLine.setText(operator.data)
             self.checkCmdlineRegexp.setEnabled(True)
             self.checkCmdlineRegexp.setChecked(operator.type == Config.RULE_TYPE_REGEXP)
 
-        if operator.operand == "user.id":
+        if operator.operand == Config.OPERAND_USER_ID:
             self.uidCheck.setChecked(True)
             self.uidLine.setEnabled(True)
             self.uidLine.setText(operator.data)
 
-        if operator.operand == "process.id":
+        if operator.operand == Config.OPERAND_PROCESS_ID:
             self.pidCheck.setChecked(True)
             self.pidLine.setEnabled(True)
             self.pidLine.setText(operator.data)
 
-        if operator.operand == "dest.port":
+        if operator.operand == Config.OPERAND_IFACE_OUT:
+            self.ifaceCheck.setChecked(True)
+            self.ifaceCombo.setEnabled(True)
+            self.ifaceCombo.setCurrentText(operator.data)
+
+        if operator.operand == Config.OPERAND_DEST_PORT:
             self.dstPortCheck.setChecked(True)
             self.dstPortLine.setEnabled(True)
             self.dstPortLine.setText(operator.data)
 
-        if operator.operand == "dest.ip" or operator.operand == "dest.network":
+        if operator.operand == Config.OPERAND_DEST_IP or operator.operand == Config.OPERAND_DEST_NETWORK:
             self.dstIPCheck.setChecked(True)
             self.dstIPCombo.setEnabled(True)
             if operator.data == self.LAN_RANGES:
@@ -413,30 +434,30 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             else:
                 self.dstIPCombo.setCurrentText(operator.data)
 
-        if operator.operand == "dest.host":
+        if operator.operand == Config.OPERAND_DEST_HOST:
             self.dstHostCheck.setChecked(True)
             self.dstHostLine.setEnabled(True)
             self.dstHostLine.setText(operator.data)
 
-        if operator.operand == "lists.domains":
+        if operator.operand == Config.OPERAND_LIST_DOMAINS:
             self.dstListsCheck.setChecked(True)
             self.dstListsCheck.setEnabled(True)
             self.dstListsLine.setText(operator.data)
             self.selectListButton.setEnabled(True)
 
-        if operator.operand == "lists.domains_regexp":
+        if operator.operand == Config.OPERAND_LIST_DOMAINS_REGEXP:
             self.dstListRegexpCheck.setChecked(True)
             self.dstListRegexpCheck.setEnabled(True)
             self.dstRegexpListsLine.setText(operator.data)
             self.selectListRegexpButton.setEnabled(True)
 
-        if operator.operand == "lists.ips":
+        if operator.operand == Config.OPERAND_LIST_IPS:
             self.dstListIPsCheck.setChecked(True)
             self.dstListIPsCheck.setEnabled(True)
             self.dstListIPsLine.setText(operator.data)
             self.selectIPsListButton.setEnabled(True)
 
-        if operator.operand == "lists.nets":
+        if operator.operand == Config.OPERAND_LIST_NETS:
             self.dstListNetsCheck.setChecked(True)
             self.dstListNetsCheck.setEnabled(True)
             self.dstListNetsLine.setText(operator.data)
@@ -552,12 +573,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.protoCombo.currentText() == "":
                 return False, QC.translate("rules", "protocol can not be empty, or uncheck it")
 
-            self.rule.operator.operand = "protocol"
+            self.rule.operator.operand = Config.OPERAND_PROTOCOL
             self.rule.operator.data = self.protoCombo.currentText()
             rule_data.append(
                     {
                         "type": Config.RULE_TYPE_SIMPLE,
-                        "operand": "protocol",
+                        "operand": Config.OPERAND_PROTOCOL,
                         "data": self.protoCombo.currentText().lower(),
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
@@ -570,12 +591,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.procLine.text() == "":
                 return False, QC.translate("rules", "process path can not be empty")
 
-            self.rule.operator.operand = "process.path"
+            self.rule.operator.operand = Config.OPERAND_PROCESS_PATH
             self.rule.operator.data = self.procLine.text()
             rule_data.append(
                     {
                         "type": Config.RULE_TYPE_SIMPLE,
-                        "operand": "process.path",
+                        "operand": Config.OPERAND_PROCESS_PATH,
                         "data": self.procLine.text(),
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
@@ -588,12 +609,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.cmdlineLine.text() == "":
                 return False, QC.translate("rules", "command line can not be empty")
 
-            self.rule.operator.operand = "process.command"
+            self.rule.operator.operand = Config.OPERAND_PROCESS_COMMAND
             self.rule.operator.data = self.cmdlineLine.text()
             rule_data.append(
                     {
                         'type': Config.RULE_TYPE_SIMPLE,
-                        'operand': 'process.command',
+                        'operand': Config.OPERAND_PROCESS_COMMAND,
                         'data': self.cmdlineLine.text(),
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
@@ -602,16 +623,34 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if self._is_valid_regex(self.cmdlineLine.text()) == False:
                     return False, QC.translate("rules", "Command line regexp error")
 
+        if self.ifaceCheck.isChecked():
+            if self.ifaceCombo.currentText() == "":
+                return False, QC.translate("rules", "Network interface can not be empty")
+
+            self.rule.operator.operand = Config.OPERAND_IFACE_OUT
+            self.rule.operator.data = self.ifaceCombo.currentText()
+            rule_data.append(
+                    {
+                        'type': Config.RULE_TYPE_SIMPLE,
+                        'operand': Config.OPERAND_IFACE_OUT,
+                        'data': self.ifaceCombo.currentText(),
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
+            if self._is_regex(self.ifaceCombo.currentText()):
+                rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
+                if self._is_valid_regex(self.ifaceCombo.currentText()) == False:
+                    return False, QC.translate("rules", "Network interface regexp error")
+
         if self.dstPortCheck.isChecked():
             if self.dstPortLine.text() == "":
                 return False, QC.translate("rules", "Dest port can not be empty")
 
-            self.rule.operator.operand = "dest.port"
+            self.rule.operator.operand = Config.OPERAND_DEST_PORT
             self.rule.operator.data = self.dstPortLine.text()
             rule_data.append(
                     {
                         'type': Config.RULE_TYPE_SIMPLE,
-                        'operand': 'dest.port',
+                        'operand': Config.OPERAND_DEST_PORT,
                         'data': self.dstPortLine.text(),
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
@@ -624,12 +663,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.dstHostLine.text() == "":
                 return False, QC.translate("rules", "Dest host can not be empty")
 
-            self.rule.operator.operand = "dest.host"
+            self.rule.operator.operand = Config.OPERAND_DEST_HOST
             self.rule.operator.data = self.dstHostLine.text()
             rule_data.append(
                     {
                         'type': Config.RULE_TYPE_SIMPLE,
-                        'operand': 'dest.host',
+                        'operand': Config.OPERAND_DEST_HOST,
                         'data': self.dstHostLine.text(),
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
@@ -645,21 +684,21 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             dstIPtext = self.dstIPCombo.currentText()
 
             if dstIPtext == self.LAN_LABEL:
-                self.rule.operator.operand = "dest.ip"
+                self.rule.operator.operand = Config.OPERAND_DEST_IP
                 self.rule.operator.type = Config.RULE_TYPE_REGEXP
                 dstIPtext = self.LAN_RANGES
             else:
                 try:
                     if type(ipaddress.ip_address(self.dstIPCombo.currentText())) == ipaddress.IPv4Address \
                     or type(ipaddress.ip_address(self.dstIPCombo.currentText())) == ipaddress.IPv6Address:
-                        self.rule.operator.operand = "dest.ip"
+                        self.rule.operator.operand = Config.OPERAND_DEST_IP
                         self.rule.operator.type = Config.RULE_TYPE_SIMPLE
                 except Exception:
-                    self.rule.operator.operand = "dest.network"
+                    self.rule.operator.operand = Config.OPERAND_DEST_NETWORK
                     self.rule.operator.type = Config.RULE_TYPE_NETWORK
 
                 if self._is_regex(dstIPtext):
-                    self.rule.operator.operand = "dest.ip"
+                    self.rule.operator.operand = Config.OPERAND_DEST_IP
                     self.rule.operator.type = Config.RULE_TYPE_REGEXP
                     if self._is_valid_regex(self.dstIPCombo.currentText()) == False:
                         return False, QC.translate("rules", "Dst IP regexp error")
@@ -676,12 +715,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.uidLine.text() == "":
                 return False, QC.translate("rules", "User ID can not be empty")
 
-            self.rule.operator.operand = "user.id"
+            self.rule.operator.operand = Config.OPERAND_USER_ID
             self.rule.operator.data = self.uidLine.text()
             rule_data.append(
                     {
                         'type': Config.RULE_TYPE_SIMPLE,
-                        'operand': 'user.id',
+                        'operand': Config.OPERAND_USER_ID,
                         'data': self.uidLine.text(),
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
@@ -694,12 +733,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.pidLine.text() == "":
                 return False, QC.translate("rules", "PID field can not be empty")
 
-            self.rule.operator.operand = "process.id"
+            self.rule.operator.operand = Config.OPERAND_PROCESS_ID
             self.rule.operator.data = self.pidLine.text()
             rule_data.append(
                     {
                         'type': Config.RULE_TYPE_SIMPLE,
-                        'operand': 'process.id',
+                        'operand': Config.OPERAND_PROCESS_ID,
                         'data': self.pidLine.text(),
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
@@ -715,11 +754,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return False, QC.translate("rules", "Lists field must be a directory")
 
             self.rule.operator.type = Config.RULE_TYPE_LISTS
-            self.rule.operator.operand = "lists.domains"
+            self.rule.operator.operand = Config.OPERAND_LIST_DOMAINS
             rule_data.append(
                     {
                         'type': Config.RULE_TYPE_LISTS,
-                        'operand': 'lists.domains',
+                        'operand': Config.OPERAND_LIST_DOMAINS,
                         'data': self.dstListsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
@@ -732,11 +771,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return False, QC.translate("rules", "Lists field must be a directory")
 
             self.rule.operator.type = Config.RULE_TYPE_LISTS
-            self.rule.operator.operand = "lists.domains_regexp"
+            self.rule.operator.operand = Config.OPERAND_LIST_DOMAINS_REGEXP
             rule_data.append(
                     {
                         'type': Config.RULE_TYPE_LISTS,
-                        'operand': 'lists.domains_regexp',
+                        'operand': Config.OPERAND_LIST_DOMAINS_REGEXP,
                         'data': self.dstRegexpListsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
@@ -749,11 +788,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return False, QC.translate("rules", "Lists field must be a directory")
 
             self.rule.operator.type = Config.RULE_TYPE_LISTS
-            self.rule.operator.operand = "lists.nets"
+            self.rule.operator.operand = Config.OPERAND_LIST_NETS
             rule_data.append(
                     {
                         'type': Config.RULE_TYPE_LISTS,
-                        'operand': 'lists.nets',
+                        'operand': Config.OPERAND_LIST_NETS,
                         'data': self.dstListNetsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
@@ -767,11 +806,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return False, QC.translate("rules", "Lists field must be a directory")
 
             self.rule.operator.type = Config.RULE_TYPE_LISTS
-            self.rule.operator.operand = "lists.ips"
+            self.rule.operator.operand = Config.OPERAND_LIST_IPS
             rule_data.append(
                     {
                         'type': Config.RULE_TYPE_LISTS,
-                        'operand': 'lists.ips',
+                        'operand': Config.OPERAND_LIST_IPS,
                         'data': self.dstListIPsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })

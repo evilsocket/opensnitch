@@ -47,6 +47,8 @@ const (
 	OpDstPort             = Operand("dest.port")
 	OpDstNetwork          = Operand("dest.network")
 	OpProto               = Operand("protocol")
+	OpIfaceIn             = Operand("iface.in")
+	OpIfaceOut            = Operand("iface.out")
 	OpList                = Operand("list")
 	OpDomainsLists        = Operand("lists.domains")
 	OpDomainsRegexpLists  = Operand("lists.domains_regexp")
@@ -287,6 +289,14 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpProto {
 		return o.cb(con.Protocol)
+	} else if o.Operand == OpIfaceIn {
+		if ifname, err := net.InterfaceByIndex(con.Pkt.IfaceInIdx); err == nil {
+			return o.cb(ifname.Name)
+		}
+	} else if o.Operand == OpIfaceOut {
+		if ifname, err := net.InterfaceByIndex(con.Pkt.IfaceOutIdx); err == nil {
+			return o.cb(ifname.Name)
+		}
 	} else if strings.HasPrefix(string(o.Operand), string(OpProcessEnvPrefix)) {
 		envVarName := core.Trim(string(o.Operand[OpProcessEnvPrefixLen:]))
 		envVarValue, _ := con.Process.Env[envVarName]

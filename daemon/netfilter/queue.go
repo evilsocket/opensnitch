@@ -184,7 +184,7 @@ func (q *Queue) Packets() <-chan Packet {
 // FYI: the export keyword is mandatory to specify that go_callback is defined elsewhere
 
 //export go_callback
-func go_callback(queueID C.int, data *C.uchar, length C.int, mark C.uint, idx uint32, vc *VerdictContainerC, uid uint32) {
+func go_callback(queueID C.int, data *C.uchar, length C.int, mark C.uint, idx uint32, vc *VerdictContainerC, uid, devIn, devOut uint32) {
 	(*vc).verdict = C.uint(NF_ACCEPT)
 	(*vc).data = nil
 	(*vc).mark_set = 0
@@ -205,6 +205,8 @@ func go_callback(queueID C.int, data *C.uchar, length C.int, mark C.uint, idx ui
 		Mark:            uint32(mark),
 		UID:             uid,
 		NetworkProtocol: xdata[0] >> 4, // first 4 bits is the version
+		IfaceInIdx:      int(devIn),
+		IfaceOutIdx:     int(devOut),
 	}
 
 	var packet gopacket.Packet

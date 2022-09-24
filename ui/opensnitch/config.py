@@ -14,6 +14,8 @@ class Config:
     OPERAND_PROCESS_COMMAND = "process.command"
     OPERAND_PROCESS_ENV = "process.env."
     OPERAND_USER_ID = "user.id"
+    OPERAND_IFACE_OUT = "iface.out"
+    OPERAND_IFACE_IN = "iface.in"
     OPERAND_DEST_IP = "dest.ip"
     OPERAND_DEST_HOST = "dest.host"
     OPERAND_DEST_PORT = "dest.port"

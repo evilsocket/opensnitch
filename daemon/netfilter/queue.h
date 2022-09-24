@@ -24,7 +24,7 @@ typedef struct {
 
 static void *get_uid = NULL;
 
-extern void go_callback(int id, unsigned char* data, int len, unsigned int mark, uint32_t idx, verdictContainer *vc, uint32_t uid);
+extern void go_callback(int id, unsigned char* data, int len, unsigned int mark, uint32_t idx, verdictContainer *vc, uint32_t uid, uint32_t in_dev, uint32_t out_dev);
 
 static uint8_t stop = 0;
 
@@ -60,6 +60,10 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
     int size = 0;
     verdictContainer vc = {0};
     uint32_t uid = 0xffffffff;
+    uint32_t in_dev=0, out_dev=0;
+
+    in_dev = nfq_get_indev(nfa);
+    out_dev = nfq_get_outdev(nfa);
 
     mark = nfq_get_nfmark(nfa);
     ph   = nfq_get_msg_packet_hdr(nfa);
@@ -72,7 +76,7 @@ static int nf_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct n
         nfq_get_uid(nfa, &uid);
 #endif
 
-    go_callback(id, buffer, size, mark, idx, &vc, uid);
+    go_callback(id, buffer, size, mark, idx, &vc, uid, in_dev, out_dev);
 
     if( vc.mark_set == 1 ) {
       return nfq_set_verdict2(qh, id, vc.verdict, vc.mark, vc.length, vc.data);

@@ -31,7 +31,7 @@ type Connection struct {
 	Entry    *netstat.Entry
 	Process  *procmon.Process
 
-	pkt *netfilter.Packet
+	Pkt *netfilter.Packet
 }
 
 var showUnknownCons = false
@@ -192,7 +192,7 @@ func NewConnection(nfp *netfilter.Packet) (c *Connection, err error) {
 		SrcIP:   ip.SrcIP,
 		DstIP:   ip.DstIP,
 		DstHost: dns.HostOr(ip.DstIP, ""),
-		pkt:     nfp,
+		Pkt:     nfp,
 	}
 	return newConnectionImpl(nfp, c, "")
 }
@@ -211,14 +211,14 @@ func NewConnection6(nfp *netfilter.Packet) (c *Connection, err error) {
 		SrcIP:   ip.SrcIP,
 		DstIP:   ip.DstIP,
 		DstHost: dns.HostOr(ip.DstIP, ""),
-		pkt:     nfp,
+		Pkt:     nfp,
 	}
 	return newConnectionImpl(nfp, c, "6")
 }
 
 func (c *Connection) parseDirection(protoType string) bool {
 	ret := false
-	if tcpLayer := c.pkt.Packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
+	if tcpLayer := c.Pkt.Packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
 		if tcp, ok := tcpLayer.(*layers.TCP); ok == true && tcp != nil {
 			c.Protocol = "tcp" + protoType
 			c.DstPort = uint(tcp.DstPort)
@@ -226,10 +226,10 @@ func (c *Connection) parseDirection(protoType string) bool {
 			ret = true
 
 			if tcp.DstPort == 53 {
-				c.getDomains(c.pkt, c)
+				c.getDomains(c.Pkt, c)
 			}
 		}
-	} else if udpLayer := c.pkt.Packet.Layer(layers.LayerTypeUDP); udpLayer != nil {
+	} else if udpLayer := c.Pkt.Packet.Layer(layers.LayerTypeUDP); udpLayer != nil {
 		if udp, ok := udpLayer.(*layers.UDP); ok == true && udp != nil {
 			c.Protocol = "udp" + protoType
 			c.DstPort = uint(udp.DstPort)
@@ -237,10 +237,10 @@ func (c *Connection) parseDirection(protoType string) bool {
 			ret = true
 
 			if udp.DstPort == 53 {
-				c.getDomains(c.pkt, c)
+				c.getDomains(c.Pkt, c)
 			}
 		}
-	} else if udpliteLayer := c.pkt.Packet.Layer(layers.LayerTypeUDPLite); udpliteLayer != nil {
+	} else if udpliteLayer := c.Pkt.Packet.Layer(layers.LayerTypeUDPLite); udpliteLayer != nil {
 		if udplite, ok := udpliteLayer.(*layers.UDPLite); ok == true && udplite != nil {
 			c.Protocol = "udplite" + protoType
 			c.DstPort = uint(udplite.DstPort)
