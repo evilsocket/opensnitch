@@ -77,7 +77,7 @@ func TestParseTCPDirection(t *testing.T) {
 	c := NewDummyConnection(srcIP, dstIP)
 	// 47676:192.168.1.100 -> 1.1.1.1:23
 	pkt := NewPacket(NewTCPPacket())
-	c.pkt = pkt
+	c.Pkt = pkt
 
 	// parseDirection extracts the src and dst port from a network packet.
 	if c.parseDirection("") == false {
@@ -105,7 +105,7 @@ func TestParseUDPDirection(t *testing.T) {
 	c := NewDummyConnection(srcIP, dstIP)
 	// 29517:192.168.1.109 -> 1.0.0.1:53
 	pkt := NewPacket(NewUDPPacket())
-	c.pkt = pkt
+	c.Pkt = pkt
 
 	// parseDirection extracts the src and dst port from a network packet.
 	if c.parseDirection("") == false {
