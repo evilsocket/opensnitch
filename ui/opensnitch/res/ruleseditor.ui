@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>520</height>
+    <height>557</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -218,34 +218,20 @@
        <string>Network</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0" colspan="2">
-        <widget class="QCheckBox" name="dstPortCheck">
-         <property name="text">
-          <string>To this port</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QCheckBox" name="dstHostCheck">
-         <property name="text">
-          <string>To this host</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2" colspan="3">
-        <spacer name="horizontalSpacer_3">
+       <item row="4" column="1">
+        <spacer name="horizontalSpacer_9">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>133</width>
+           <width>40</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item row="1" column="5">
+       <item row="2" column="5">
         <widget class="QComboBox" name="protoCombo">
          <property name="enabled">
           <bool>false</bool>
@@ -291,78 +277,34 @@
          </item>
         </widget>
        </item>
-       <item row="0" column="5">
-        <widget class="QLineEdit" name="dstPortLine">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="4">
-        <widget class="QCheckBox" name="protoCheck">
-         <property name="text">
-          <string>Protocol</string>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="0">
-        <widget class="QCheckBox" name="dstIPCheck">
+        <widget class="QCheckBox" name="dstHostCheck">
          <property name="text">
-          <string>To this IP / Network</string>
+          <string>To this host</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <spacer name="horizontalSpacer_9">
+       <item row="1" column="2" colspan="3">
+        <spacer name="horizontalSpacer_3">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>40</width>
+           <width>133</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item row="2" column="1">
-        <spacer name="horizontalSpacer_10">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="2" colspan="4">
-        <widget class="QLineEdit" name="dstHostLine">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Commas or spaces are not allowed to specify multiple domains. 
-
-Use regular expressions instead: 
-.*(opensnitch|duckduckgo).com
-.*\.google.com
-
-or a single domain:
-www.gnu.org - it'll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
-gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</string>
-         </property>
-         <property name="placeholderText">
-          <string>www.domain.org, .*\.domain.org</string>
+       <item row="1" column="0" colspan="2">
+        <widget class="QCheckBox" name="dstPortCheck">
+         <property name="text">
+          <string>To this port</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="2" colspan="4">
+       <item row="4" column="2" colspan="4">
         <widget class="QComboBox" name="dstIPCombo">
          <property name="enabled">
           <bool>false</bool>
@@ -455,6 +397,81 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
            <string>fd00::/8</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item row="3" column="2" colspan="4">
+        <widget class="QLineEdit" name="dstHostLine">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>Commas or spaces are not allowed to specify multiple domains. 
+
+Use regular expressions instead: 
+.*(opensnitch|duckduckgo).com
+.*\.google.com
+
+or a single domain:
+www.gnu.org - it'll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
+gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</string>
+         </property>
+         <property name="placeholderText">
+          <string>www.domain.org, .*\.domain.org</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <spacer name="horizontalSpacer_10">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="dstIPCheck">
+         <property name="text">
+          <string>To this IP / Network</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QLineEdit" name="dstPortLine">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="4">
+        <widget class="QCheckBox" name="protoCheck">
+         <property name="text">
+          <string>Protocol</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QCheckBox" name="ifaceCheck">
+         <property name="text">
+          <string>Network interface</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="4" colspan="2">
+        <widget class="QComboBox" name="ifaceCombo">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
