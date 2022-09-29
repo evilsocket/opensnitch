@@ -47,8 +47,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_DSTIP  = 3
     COL_PROTO  = 4
     COL_PROCS  = 5
-    COL_RULES  = 6
-    GENERAL_COL_NUM = 7
+    COL_CMDLINE   = 6
+    COL_RULES  = 7
+    GENERAL_COL_NUM = 8
 
     # stats
     COL_WHAT   = 0
@@ -154,6 +155,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "END Destination, " \
                         "protocol as Protocol, " \
                         "process as Process, " \
+                        "process_args as Cmdline, " \
                         "rule as Rule",
                 "group_by": LAST_GROUP_BY,
                 "last_order_by": "1",
@@ -349,7 +351,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.COL_STR_HITS = QC.translate("stats", "Hits", "This is a word, without spaces and symbols.")
         self.COL_STR_PROTOCOL = QC.translate("stats", "Protocol", "This is a word, without spaces and symbols.")
         self.COL_STR_PROCESS = QC.translate("stats", "Process", "This is a word, without spaces and symbols.")
-        self.COL_STR_PROC_ARGS = QC.translate("stats", "Args", "This is a word, without spaces and symbols.")
+        self.COL_STR_PROC_CMDLINE = QC.translate("stats", "Cmdline", "This is a word, without spaces and symbols.")
         self.COL_STR_DESTINATION = QC.translate("stats", "Destination", "This is a word, without spaces and symbols.")
         self.COL_STR_DST_IP = QC.translate("stats", "DstIP", "This is a word, without spaces and symbols.")
         self.COL_STR_DST_HOST = QC.translate("stats", "DstHost", "This is a word, without spaces and symbols.")
@@ -467,6 +469,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_HOSTS]['header_labels'] = stats_headers
         self.TABLES[self.TAB_PROCS]['header_labels'] = stats_headers
         self.TABLES[self.TAB_ADDRS]['header_labels'] = stats_headers
+        self.TABLES[self.TAB_PORTS]['header_labels'] = stats_headers
         self.TABLES[self.TAB_USERS]['header_labels'] = stats_headers
 
         self.TABLES[self.TAB_MAIN]['view'] = self._setup_table(QtWidgets.QTableView, self.eventsTable, "connections",
@@ -1257,13 +1260,23 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             p, addr = self._nodes.get_addr(data)
             self._set_nodes_query(addr)
 
-        elif idx == StatsDialog.COL_PROCS:
+        elif idx == StatsDialog.COL_DSTIP:
+            cur_idx = self.TAB_HOSTS
+            self.IN_DETAIL_VIEW[cur_idx] = True
+            rowdata = row.model().index(row.row(), self.COL_DSTIP).data()
+            hostip = rowdata.split(" ")[0]
+            self.LAST_SELECTED_ITEM = hostip
+            self.tabWidget.setCurrentIndex(cur_idx)
+            self._set_active_widgets(True, hostip)
+            self._set_hosts_query(hostip)
+
+        elif idx == StatsDialog.COL_PROCS or idx == StatsDialog.COL_CMDLINE:
             cur_idx = self.TAB_PROCS
             self.IN_DETAIL_VIEW[cur_idx] = True
             self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_PROCS).data()
             self.tabWidget.setCurrentIndex(cur_idx)
-            self._set_active_widgets(True, str(data))
-            self._set_process_query(data)
+            self._set_active_widgets(True, self.LAST_SELECTED_ITEM)
+            self._set_process_query(self.LAST_SELECTED_ITEM)
 
         elif idx == StatsDialog.COL_RULES:
             cur_idx = self.TAB_RULES
@@ -1762,12 +1775,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if action != "":
                 action += " AND "
             qstr += " WHERE " + action + " ("\
-                    " Process LIKE '%" + filter_text + "%'" \
-                    " OR Destination LIKE '%" + filter_text + "%'" \
-                    " OR Rule LIKE '%" + filter_text + "%'" \
-                    " OR Node LIKE '%" + filter_text + "%'" \
-                    " OR Time LIKE '%" + filter_text + "%'" \
-                    " OR Protocol LIKE '%" + filter_text + "%')" \
+                    " " + self.COL_STR_PROCESS + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_PROC_CMDLINE + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_DESTINATION + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_RULE + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_NODE + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_TIME + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_PROTOCOL + " LIKE '%" + filter_text + "%')" \
 
         qstr += self._get_order() + self._get_limit()
         self.setQuery(model, qstr)
@@ -1800,7 +1814,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.COL_STR_DST_HOST,
                 self.COL_STR_DST_PORT,
                 self.COL_STR_PROCESS,
-                self.COL_STR_PROC_ARGS,
+                self.COL_STR_PROC_CMDLINE,
                 self.COL_STR_RULE,
                 data, s,
                 self.COL_STR_PROCESS,
@@ -1929,7 +1943,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.COL_STR_DST_PORT,
                 self.COL_STR_DESTINATION,
                 self.COL_STR_PROCESS,
-                self.COL_STR_PROC_ARGS,
+                self.COL_STR_PROC_CMDLINE,
                 condition,
                 self.COL_STR_DESTINATION,
                 self._get_order() + self._get_limit()))
@@ -1960,7 +1974,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_DST_PORT,
                           self.COL_STR_DST_IP,
                           self.COL_STR_PROCESS,
-                          self.COL_STR_PROC_ARGS,
+                          self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
                           data,
                           self.COL_STR_PROCESS,
@@ -1991,7 +2005,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_ACTION,
                           self.COL_STR_UID,
                           self.COL_STR_DESTINATION,
-                          self.COL_STR_PROC_ARGS,
+                          self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
                           data,
                           self._get_order("1") + self._get_limit()))
@@ -2028,7 +2042,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_DESTINATION,
                           self.COL_STR_DST_PORT,
                           self.COL_STR_PROCESS,
-                          self.COL_STR_PROC_ARGS,
+                          self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
                           data,
                           self.COL_STR_PROCESS,
@@ -2064,7 +2078,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_DST_IP,
                           self.COL_STR_DESTINATION,
                           self.COL_STR_PROCESS,
-                          self.COL_STR_PROC_ARGS,
+                          self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
                           data,
                           self.COL_STR_PROCESS,
@@ -2103,7 +2117,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                           self.COL_STR_DESTINATION,
                           self.COL_STR_DST_PORT,
                           self.COL_STR_PROCESS,
-                          self.COL_STR_PROC_ARGS,
+                          self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
                           uid,
                           self.COL_STR_PROCESS,

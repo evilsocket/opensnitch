@@ -281,8 +281,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if cols == None:
             return
 
-        for c in range(7):
+        for c in range(8):
             checked = str(c) in cols
+
             if c == 0:
                 self.checkHideTime.setChecked(checked)
             elif c == 1:
@@ -297,6 +298,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.checkHideProc.setChecked(checked)
             elif c == 6:
                 self.checkHideRule.setChecked(checked)
+            elif c == 7:
+                self.checkHideCmdline.setChecked(checked)
 
     def _reset_node_settings(self):
         self.comboNodeAction.setCurrentIndex(0)
@@ -425,8 +428,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             cols.append("4")
         if self.checkHideProc.isChecked():
             cols.append("5")
-        if self.checkHideRule.isChecked():
+        if self.checkHideCmdline.isChecked():
             cols.append("6")
+        if self.checkHideRule.isChecked():
+            cols.append("7")
 
         self._cfg.setSettings(Config.STATS_SHOW_COLUMNS, cols)
 

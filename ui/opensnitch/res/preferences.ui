@@ -147,7 +147,8 @@
               <string>reject</string>
              </property>
              <property name="icon">
-              <iconset theme="window-close"/>
+              <iconset theme="window-close">
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </item>
            </widget>
@@ -636,7 +637,7 @@
              <string>Node</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -698,6 +699,16 @@
             </property>
             <property name="text">
              <string>Process</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QCheckBox" name="checkHideCmdline">
+            <property name="text">
+             <string>Command line</string>
             </property>
             <property name="checked">
              <bool>true</bool>
