@@ -4,9 +4,12 @@ Since version [1.5.0rc1](https://github.com/evilsocket/opensnitch/releases/tag/v
 
 It can be used to block ads, trackers, malware domains or limit to what domains an application connects to.
 
-[How to add a global rule to block malware](#how-to-add-a-global-rule-to-block-ads-or-trackers)
+Use cases:
 
-[Limiting to what domains an application can connect to](#limiting-to-what-domains-an-application-can-connect-to)
+0. [How to add a global rule to block malware or ads](#how-to-add-a-global-rule-to-block-ads-or-trackers)
+
+1. [Limiting to what domains an application can connect to](#limiting-to-what-domains-an-application-can-connect-to)
+
 
 [Notes](#notes)
 
@@ -79,7 +82,7 @@ Lists of domains (only in version >= **v1.4.x**):
 ```
 
 
-Lists of domains with regular expressions (only in version >= **v1.5.x**):
+Lists of domains with regular expressions (or not) (only in version >= **v1.5.x**):
 - one regular expression per line:
 ```
 # https://raw.githubusercontent.com/mmotti/pihole-regex/master/whitelist.list
@@ -144,7 +147,15 @@ See this issue #646 for more information.
 
 ### Resources
 
+Video tutorials:
+
+https://user-images.githubusercontent.com/2742953/192171195-ba14e4cc-420a-4b85-a6c7-7f023a6a63e3.webm
+
+https://user-images.githubusercontent.com/2742953/192171230-330adbd0-4ef8-48f8-a304-96812fd31c41.webm
+
 Lists of ads, trackers, malware domains, etc that you can use:
+
+https://github.com/badmojr/1Hosts
 
 https://oisd.nl/?p=dl
 
