@@ -111,7 +111,7 @@ func (p *Process) ReadEnv() {
 // - /proc/<pid>/exe can't be read
 func (p *Process) ReadPath() error {
 	// avoid rereading the path
-	if p.Path != "" {
+	if p.Path != "" && core.IsAbsPath(p.Path) {
 		return nil
 	}
 	defer func() {
@@ -296,4 +296,13 @@ func (p *Process) CleanPath() {
 	if pathLen >= 10 && p.Path[pathLen-10:] == " (deleted)" {
 		p.Path = p.Path[:len(p.Path)-10]
 	}
+
+	// We may receive relative paths from kernel, but the path of a process must be absolute
+	if core.IsAbsPath(p.Path) == false {
+		if err := p.ReadPath(); err != nil {
+			log.Debug("ClenPath() error reading process path%s", err)
+			return
+		}
+	}
+
 }
