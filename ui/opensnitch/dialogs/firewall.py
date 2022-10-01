@@ -55,7 +55,8 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._nodes.nodesUpdated.connect(self._cb_nodes_updated)
         self.cmdNewRule.clicked.connect(self._cb_new_rule_clicked)
-        self.cmdExcludeService.clicked.connect(self._cb_exclude_service_clicked)
+        self.cmdAllowOUTService.clicked.connect(self._cb_allow_out_service_clicked)
+        self.cmdAllowINService.clicked.connect(self._cb_allow_in_service_clicked)
         self.comboInput.currentIndexChanged.connect(lambda: self._cb_combo_policy_changed(self.COMBO_IN))
         self.comboOutput.currentIndexChanged.connect(lambda: self._cb_combo_policy_changed(self.COMBO_OUT))
         self.comboProfile.currentIndexChanged.connect(self._cb_combo_profile_changed)
@@ -67,10 +68,12 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         closeIcon = Icons.new("window-close")
-        excludeIcon = Icons.new("go-jump")
+        excludeIcon = Icons.new("go-up")
+        allowInIcon = Icons.new("go-down")
         newIcon = Icons.new("document-new")
         self.cmdClose.setIcon(closeIcon)
-        self.cmdExcludeService.setIcon(excludeIcon)
+        self.cmdAllowOUTService.setIcon(excludeIcon)
+        self.cmdAllowINService.setIcon(allowInIcon)
         self.cmdNewRule.setIcon(newIcon)
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
@@ -127,8 +130,11 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_new_rule_clicked(self):
         self.new_rule()
 
-    def _cb_exclude_service_clicked(self):
-        self.exclude_service()
+    def _cb_allow_out_service_clicked(self):
+        self.allow_out_service()
+
+    def _cb_allow_in_service_clicked(self):
+        self.allow_in_service()
 
     def _cb_enable_fw_changed(self, enable):
         self._disable_widgets(not enable)
@@ -257,8 +263,11 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def new_rule(self):
         self._fwrule_dialog.new()
 
-    def exclude_service(self):
-        self._fwrule_dialog.exclude_service()
+    def allow_out_service(self):
+        self._fwrule_dialog.exclude_service(self.COMBO_OUT)
+
+    def allow_in_service(self):
+        self._fwrule_dialog.exclude_service(self.COMBO_IN)
 
     def _set_status_error(self, msg):
         self.statusLabel.show()
@@ -286,4 +295,4 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboInput.setEnabled(not disable)
         self.comboOutput.setEnabled(not disable)
         self.cmdNewRule.setEnabled(not disable)
-        self.cmdExcludeService.setEnabled(not disable)
+        self.cmdAllowOUTService.setEnabled(not disable)

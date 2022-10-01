@@ -256,32 +256,24 @@ QSlider::sub-page:horizontal {
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item row="2" column="1">
-           <widget class="QComboBox" name="comboOutput">
+          <item row="4" column="0" colspan="2">
+           <widget class="Line" name="line_2">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <item>
-             <property name="text">
-              <string>Allow</string>
-             </property>
-             <property name="icon">
-              <iconset theme="emblem-default">
-               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Deny</string>
-             </property>
-             <property name="icon">
-              <iconset theme="process-stop">
-               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
-             </property>
-            </item>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="lblProfile">
+            <property name="text">
+             <string>Profile</string>
+            </property>
            </widget>
           </item>
           <item row="1" column="1">
@@ -319,18 +311,107 @@ QSlider::sub-page:horizontal {
             </property>
            </widget>
           </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Inbound</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="comboOutput">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>Allow</string>
+             </property>
+             <property name="icon">
+              <iconset theme="emblem-default">
+               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Deny</string>
+             </property>
+             <property name="icon">
+              <iconset theme="process-stop">
+               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboProfile"/>
+          </item>
           <item row="5" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <layout class="QGridLayout" name="gridLayout_2">
             <property name="topMargin">
              <number>5</number>
             </property>
             <property name="bottomMargin">
              <number>5</number>
             </property>
-            <item>
-             <widget class="QPushButton" name="cmdNewRule">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="cmdAllowINService">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Allow inbound connections to a port</string>
+              </property>
+              <property name="text">
+               <string>Allow service (IN)</string>
+              </property>
+              <property name="icon">
+               <iconset theme="go-down"/>
+              </property>
+              <property name="flat">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="cmdAllowOUTService">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Exclude outbound connections to a port from being intercepted</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+              <property name="text">
+               <string>Allow service (OUT)</string>
+              </property>
+              <property name="icon">
+               <iconset theme="go-up">
+                <normaloff>.</normaloff>.</iconset>
+              </property>
+              <property name="flat">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QPushButton" name="cmdNewRule">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -347,60 +428,7 @@ QSlider::sub-page:horizontal {
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QPushButton" name="cmdExcludeService">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>Exclude a service from being intercepted</string>
-              </property>
-              <property name="text">
-               <string>Exclude service</string>
-              </property>
-              <property name="icon">
-               <iconset theme="go-jump">
-                <normaloff>.</normaloff>.</iconset>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
            </layout>
-          </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="Line" name="line_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Inbound</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="lblProfile">
-            <property name="text">
-             <string>Profile</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="comboProfile"/>
           </item>
          </layout>
         </widget>
@@ -460,8 +488,6 @@ QSlider::sub-page:horizontal {
   <tabstop>sliderFwEnable</tabstop>
   <tabstop>comboInput</tabstop>
   <tabstop>comboOutput</tabstop>
-  <tabstop>cmdNewRule</tabstop>
-  <tabstop>cmdExcludeService</tabstop>
   <tabstop>cmdClose</tabstop>
   <tabstop>tabWidget</tabstop>
  </tabstops>

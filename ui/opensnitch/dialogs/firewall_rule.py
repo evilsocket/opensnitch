@@ -27,6 +27,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     FORM_TYPE_SIMPLE = 0
     FORM_TYPE_EXCLUDE_SERVICE = 1
+    FORM_TYPE_ALLOW_IN_SERVICE = 2
     FORM_TYPE = FORM_TYPE_SIMPLE
 
     STATM_DPORT = 0
@@ -824,9 +825,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         if rule.Hook.lower() == Fw.Hooks.INPUT.value:
-            self.comboDirection.setCurrentIndex(0)
+            self.comboDirection.setCurrentIndex(self.IN)
         else:
-            self.comboDirection.setCurrentIndex(1)
+            self.comboDirection.setCurrentIndex(self.OUT)
         # TODO: changing the direction of an existed rule needs work, it causes
         # some nasty effects. Disabled for now.
         self.comboDirection.setEnabled(False)
@@ -860,29 +861,36 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.tabWidget.setCurrentIndex(0)
         self.add_new_statement("", self.toolBoxSimple)
 
-    def exclude_service(self):
+    def exclude_service(self, direction):
         self.show()
 
         self._reset_widgets("", self.toolBoxSimple)
-        self.FORM_TYPE = self.FORM_TYPE_EXCLUDE_SERVICE
         self.setWindowTitle(QC.translate("firewall", "Exclude service"))
         self.cmdDelete.setVisible(False)
         self.cmdSave.setVisible(False)
+        self.cmdReset.setVisible(False)
         self.cmdAdd.setVisible(True)
         self.checkEnable.setVisible(False)
         self.checkEnable.setEnabled(True)
         self.tabWidget.setTabText(0, "")
         self.hboxAdvanced.setVisible(False)
 
+        dirPort = self.STATM_SPORT+1
+        self.FORM_TYPE = self.FORM_TYPE_ALLOW_IN_SERVICE
+        self.lblExcludeTip.setText(QC.translate("firewall", "Allow inbound connections to the selected port."))
+        if direction == self.OUT:
+            self.lblExcludeTip.setText(QC.translate("firewall", "Allow outbound connections to the selected port."))
+            self.FORM_TYPE = self.FORM_TYPE_EXCLUDE_SERVICE
+            dirPort = self.STATM_DPORT+1
+
         self.add_new_statement("", self.toolBoxSimple)
-        self.statements[0]['what'].setCurrentIndex(self.STATM_DPORT+1)
+        self.statements[0]['what'].setCurrentIndex(dirPort)
         self.statements[0]['what'].setVisible(False)
         self.statements[0]['op'].setVisible(False)
         self.statements[0]['value'].setCurrentText("")
 
         self.frameDirection.setVisible(False)
         self.lblExcludeTip.setVisible(True)
-        self.lblExcludeTip.setText(QC.translate("firewall", "Exclude a service from being intercepted."))
 
         self.checkEnable.setChecked(True)
 
@@ -892,6 +900,8 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         chain = Fw.ChainFilter.input()
         if self.comboDirection.currentIndex() == self.OUT or self.FORM_TYPE == self.FORM_TYPE_EXCLUDE_SERVICE:
             chain = Fw.ChainMangle.output()
+        elif self.comboDirection.currentIndex() == self.IN or self.FORM_TYPE == self.FORM_TYPE_ALLOW_IN_SERVICE:
+            chain = Fw.ChainFilter.input()
 
         rule = Fw.Rules.new(
             enabled=self.checkEnable.isChecked(),
@@ -1037,7 +1047,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._enable_buttons()
         self.tabWidget.setDisabled(False)
         self.lineDescription.setText("")
-        self.comboDirection.setCurrentIndex(0)
+        self.comboDirection.setCurrentIndex(self.IN)
         self.comboDirection.setEnabled(True)
         self.comboVerdict.setCurrentIndex(0)
         self.uuid = ""
