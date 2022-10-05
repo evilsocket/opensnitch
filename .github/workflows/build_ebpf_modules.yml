@@ -1,0 +1,59 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI - build eBPF modules
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  push:
+    paths:
+      - 'ebpf_prog/*'
+      - '.github/workflows/build_ebpf_modules.yml'
+  pull_request:
+    paths:
+      - 'ebpf_prog/*'
+      - '.github/workflows/build_ebpf_modules.yml'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  # This workflow contains a single job called "build"
+  # The matrix configuration will execute the steps, once per dimension defined:
+  # kernel 5.8 + tag 1.5.0
+  # kernel 5.8 + tag master
+  # kernel 5.19 + tag 1.5.0, etc
+  build:  
+    strategy:
+        matrix:
+          kernel: ["5.8", "5.19"]
+          tag: ["1.5.0", "master"]
+          
+    runs-on: ubuntu-20.04
+
+    steps:
+        - name: Check out code into the Go module directory
+          uses: actions/checkout@v2
+          with:
+            # ref: can be a branch name, tag, commit, etc
+            ref: ${{ matrix.tag }}
+      
+        - name: Get dependencies
+          run: |
+            sudo apt-get install git dpkg-dev rpm flex bison ca-certificates wget python3 rsync bc libssl-dev clang llvm libelf-dev libzip-dev git libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip dh-golang golang-any golang-golang-x-net-dev golang-google-grpc-dev golang-goprotobuf-dev libmnl-dev golang-github-vishvananda-netlink-dev golang-github-evilsocket-ftrace-dev golang-github-google-gopacket-dev golang-github-fsnotify-fsnotify-dev
+        - name: Download kernel sources and compile eBPF modules
+          run: |
+            kernel_version="${{ matrix.kernel }}"
+            if [ ! -d utils/packaging/ ]; then
+              mkdir -p utils/packaging/
+            fi
+            wget https://raw.githubusercontent.com/evilsocket/opensnitch/master/utils/packaging/build_modules.sh -O utils/packaging/build_modules.sh
+            bash utils/packaging/build_modules.sh $kernel_version
+            sha1sum ebpf_prog/modules/opensnitch*o > ebpf_prog/modules/checksums.txt
+
+        - uses: actions/upload-artifact@v3
+          with:
+            name: opensnitch-ebpf-modules-${{ matrix.kernel }}-${{ matrix.tag }}
+            path: ebpf_prog/modules/*
