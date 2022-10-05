@@ -1,7 +1,5 @@
 #define KBUILD_MODNAME "dummy"
 
-#include <bpf/bpf_helpers.h>
-#include <bpf/bpf_tracing.h>
 #include <linux/in.h>
 #include <linux/in6.h>
 #include <linux/ptrace.h>
@@ -10,6 +8,8 @@
 #include <net/sock.h>
 #include <uapi/linux/bpf.h>
 #include <uapi/linux/tcp.h>
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
 
 #define MAPSIZE 12000
 
