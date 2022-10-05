@@ -1,5 +1,11 @@
 name: Build status
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - 'daemon/*'
+  pull_request:
+    paths:
+      - 'daemon/*'
 jobs:
 
   build:
