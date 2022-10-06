@@ -278,6 +278,21 @@ class Utils():
         ))[0]
         return names.tobytes(), outbytes
 
+    @staticmethod
+    def create_socket_dirs():
+        """https://www.linuxbase.org/betaspecs/fhs/fhs.html#runRuntimeVariableData
+        """
+        run_path = "/run/user/{0}".format(os.getuid())
+        var_run_path = "/var{0}".format(run_path)
+
+        try:
+            if os.path.exists(run_path):
+                os.makedirs(run_path + "/opensnitch/")
+            if os.path.exists(var_run_path):
+                os.makedirs(var_run_path + "/opensnitch/")
+        except:
+            pass
+
 class Message():
 
     @staticmethod

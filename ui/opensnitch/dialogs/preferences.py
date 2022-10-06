@@ -107,6 +107,15 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._hide_status_label()
             self.comboNodes.clear()
 
+            self.comboNodeAddress.clear()
+            run_path = "/run/user/{0}/opensnitch/".format(os.getuid())
+            var_run_path = "/var{0}".format(run_path)
+            self.comboNodeAddress.addItem("unix:///tmp/osui.sock")
+            if os.path.exists(run_path):
+                self.comboNodeAddress.addItem("unix://%s/osui.sock" % run_path)
+            if os.path.exists(var_run_path):
+                self.comboNodeAddress.addItem("unix://%s/osui.sock" % var_run_path)
+
             self._node_list = self._nodes.get()
             for addr in self._node_list:
                 self.comboNodes.addItem(addr)
@@ -265,8 +274,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             if node_config.get('Server') != None:
                 # skip setting Server Address if we're applying the config to all nodes
-                if self.checkApplyToNodes.isChecked():
-                    node_config['Server']['Address'] = self.comboNodeAddress.currentText()
+                node_config['Server']['Address'] = self.comboNodeAddress.currentText()
                 node_config['Server']['LogFile'] = self.comboNodeLogFile.currentText()
             else:
                 print(addr, " doesn't have Server item")
@@ -442,13 +450,18 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if error != None:
                 return error
 
-            if addr.startswith("unix://"):
-                self._cfg.setSettings(self._cfg.DEFAULT_DEFAULT_SERVER_ADDR, self.comboNodeAddress.currentText())
-            else:
-                self._nodes.save_node_config(addr, notifObject.data)
-                nid = self._nodes.send_notification(addr, notifObject, self._notification_callback)
+            if addr.startswith("unix:/"):
+                if self._cfg.getSettings(Config.DEFAULT_SERVER_ADDR) != self.comboNodeAddress.currentText():
+                    Message.ok(
+                        QC.translate("preferences", "Ok"),
+                        QC.translate("preferences", "Restart the GUI in order changes to take effect"),
+                        QtWidgets.QMessageBox.Information)
 
-                self._notifications_sent[nid] = notifObject
+                self._cfg.setSettings(Config.DEFAULT_SERVER_ADDR, self.comboNodeAddress.currentText())
+
+            self._nodes.save_node_config(addr, notifObject.data)
+            nid = self._nodes.send_notification(addr, notifObject, self._notification_callback)
+            self._notifications_sent[nid] = notifObject
         except Exception as e:
             print(self.LOG_TAG + "exception saving node config on %s: " % addr, e)
             self._set_status_error(QC.translate("Exception saving node config {0}: {1}").format((addr, str(e))))

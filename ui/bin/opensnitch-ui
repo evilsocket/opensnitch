@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 from PyQt5 import QtWidgets, QtGui, QtCore
+from opensnitch.config import Config
+from opensnitch.utils import Utils
 
 import sys
 import os
@@ -65,6 +67,18 @@ if __name__ == '__main__':
     app.installTranslator(translator)
     thm = Themes.instance()
     thm.load_theme(app)
+
+    Utils.create_socket_dirs()
+    if args.socket == "unix:///tmp/osui.sock":
+        cfg = Config.get()
+        addr = cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
+        if addr != None and addr != "" and addr.startswith("unix://"):
+            if not os.path.exists(os.path.dirname(addr[7:])):
+                print("WARNING: unix socket path does not exist, using unix:///tmp/osui.sock, ", addr)
+            else:
+                args.socket = addr
+
+    print("Using server address:", args.socket)
 
     service = UIService(app, on_exit)
     # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
