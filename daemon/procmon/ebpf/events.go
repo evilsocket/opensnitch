@@ -52,6 +52,7 @@ type networkEventT struct {
 const (
 	EV_TYPE_NONE = iota
 	EV_TYPE_EXEC
+	EV_TYPE_EXECVEAT
 	EV_TYPE_FORK
 	EV_TYPE_SCHED_EXIT
 )
@@ -62,13 +63,21 @@ var (
 	perfMapList      = make(map[*elf.PerfMap]*elf.Module)
 	// total workers spawned by the different events PerfMaps
 	eventWorkers = 0
+	perfMapName  = "proc-events"
+
+	// default value is 8.
+	// Not enough to handle high loads such http downloads, torent traffic, etc.
+	// (regular desktop usage)
+	ringBuffSize = 64 // * PAGE_SIZE (4k usually)
 )
 
 func initEventsStreamer() {
+	elfOpts := make(map[string]elf.SectionParams)
+	elfOpts["maps/"+perfMapName] = elf.SectionParams{PerfRingBufferPageCount: ringBuffSize}
 	mp := elf.NewModule("/etc/opensnitchd/opensnitch-procs.o")
 	mp.EnableOptionCompatProbe()
 
-	if err := mp.Load(nil); err != nil {
+	if err := mp.Load(elfOpts); err != nil {
 		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Failed loading /etc/opensnitchd/opensnitch-procs.o: %v", err))
 		return
 	}
@@ -76,6 +85,7 @@ func initEventsStreamer() {
 	tracepoints := []string{
 		"tracepoint/sched/sched_process_exit",
 		"tracepoint/syscalls/sys_enter_execve",
+		"tracepoint/syscalls/sys_enter_execveat",
 		//"tracepoint/sched/sched_process_exec",
 		//"tracepoint/sched/sched_process_fork",
 	}
@@ -93,7 +103,7 @@ func initEventsStreamer() {
 		// if previous shutdown was unclean, then we must remove the dangling kprobe
 		// and install it again (close the module and load it again)
 		mp.Close()
-		if err = mp.Load(nil); err != nil {
+		if err = mp.Load(elfOpts); err != nil {
 			dispatchErrorEvent(fmt.Sprintf("[eBPF events] failed to load /etc/opensnitchd/opensnitch-procs.o (2): %v", err))
 			return
 		}
@@ -116,7 +126,7 @@ func initPerfMap(mod *elf.Module) {
 	perfChan := make(chan []byte)
 	lostEvents := make(chan uint64, 1)
 	var err error
-	perfMap, err := elf.InitPerfMap(mod, "proc-events", perfChan, lostEvents)
+	perfMap, err := elf.InitPerfMap(mod, perfMapName, perfChan, lostEvents)
 	if err != nil {
 		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Error initializing eBPF events perfMap: %s", err))
 		return
@@ -144,7 +154,7 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents 
 				log.Error("[eBPF events #%d] error: %s", id, err)
 			} else {
 				switch event.Type {
-				case EV_TYPE_EXEC:
+				case EV_TYPE_EXEC, EV_TYPE_EXECVEAT:
 					if _, found := execEvents.isInStore(event.PID); found {
 						log.Debug("[eBPF event inCache] -> %d", event.PID)
 						continue
@@ -161,7 +171,6 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents 
 						log.Debug("[eBPF exit event inCache] -> %d", event.PID)
 						execEvents.delete(event.PID)
 					}
-					continue
 				}
 				// TODO: delete old events (by timeout)
 			}

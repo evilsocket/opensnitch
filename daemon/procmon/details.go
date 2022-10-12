@@ -24,7 +24,7 @@ func (p *Process) GetInfo() error {
 	}
 	// if the PID dir doesn't exist, the process may have exited or be a kernel connection
 	// XXX: can a kernel connection exist without an entry in ProcFS?
-	if p.Path == "" && core.Exists(fmt.Sprint("/proc/", p.ID)) == false {
+	if p.Path == "" && p.IsAlive() == false {
 		log.Debug("PID can't be read /proc/ %d %s", p.ID, p.Comm)
 
 		// The Comm field shouldn't be empty if the proc monitor method is ebpf or audit.
@@ -305,4 +305,9 @@ func (p *Process) CleanPath() {
 		}
 	}
 
+}
+
+// IsAlive checks if the process is still running
+func (p *Process) IsAlive() bool {
+	return core.Exists(fmt.Sprint("/proc/", p.ID))
 }

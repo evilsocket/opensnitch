@@ -10,7 +10,7 @@ struct bpf_map_def SEC("maps/proc-events") events = {
     .type = BPF_MAP_TYPE_PERF_EVENT_ARRAY,
     .key_size = sizeof(u32),
     .value_size = sizeof(u32),
-    .max_entries = 32768,
+    .max_entries = 256, // max cpus
 };
 
 static __always_inline void new_event(struct data_t* data)
@@ -63,42 +63,90 @@ struct trace_sys_enter_execve {
     const char *const *argv;
     const char *const *envp;
 };
-
 SEC("tracepoint/syscalls/sys_enter_execve")
 int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
 {
-	int zero = 0;
-	struct data_t *data = {0};
+    int zero = 0;
+    struct data_t *data = {0};
     data = (struct data_t *)bpf_map_lookup_elem(&heapstore, &zero);
-	if (!data){ return 0; }
+    if (!data){ return 0; }
 
-	new_event(data);
-	data->type = EVENT_EXEC;
-	// bpf_probe_read_user* helpers were introduced in kernel 5.5
-	// Since the args can be overwritten anyway, maybe we could get them from
-	// mm_struct instead for a wider kernel version support range?
-	bpf_probe_read_user_str(&data->filename, sizeof(data->filename), (const char *)ctx->filename);
+    new_event(data);
+    data->type = EVENT_EXEC;
+    // bpf_probe_read_user* helpers were introduced in kernel 5.5
+    // Since the args can be overwritten anyway, maybe we could get them from
+    // mm_struct instead for a wider kernel version support range?
+    bpf_probe_read_user_str(&data->filename, sizeof(data->filename), (const char *)ctx->filename);
 
     const char *argp={0};
     data->args_count = 0;
     data->args_partial = INCOMPLETE_ARGS;
     #pragma unroll
-	for (int i = 0; i < MAX_ARGS; i++) {
-		bpf_probe_read_user(&argp, sizeof(argp), &ctx->argv[i]);
-		if (!argp){ data->args_partial = COMPLETE_ARGS; break; }
+    for (int i = 0; i < MAX_ARGS; i++) {
+        bpf_probe_read_user(&argp, sizeof(argp), &ctx->argv[i]);
+        if (!argp){ data->args_partial = COMPLETE_ARGS; break; }
 
-		if (bpf_probe_read_user_str(&data->args[i], MAX_ARG_SIZE, argp) >= MAX_ARG_SIZE){
-			break;
-		}
-		data->args_count++;
-	}
+        if (bpf_probe_read_user_str(&data->args[i], MAX_ARG_SIZE, argp) >= MAX_ARG_SIZE){
+            break;
+        }
+        data->args_count++;
+    }
 
-	// With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
+    // With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
     // BUG: after coming back from suspend state, this helper fails with error -95 (EOPNOTSUPP)
     // Possible workaround: count -95 errors, and from userspace reinitialize the streamer if errors >= n-errors
-	bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
-	return 0;
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
+    return 0;
 };
+
+struct trace_sys_enter_execveat {
+    short common_type;
+    char common_flags;
+    char common_preempt_count;
+    int common_pid;
+    int __syscall_nr;
+    char *filename;
+    const char *const *argv;
+    const char *const *envp;
+    int flags;
+};
+SEC("tracepoint/syscalls/sys_enter_execveat")
+int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx)
+{
+    int zero = 0;
+    struct data_t *data = {0};
+    data = (struct data_t *)bpf_map_lookup_elem(&heapstore, &zero);
+    if (!data){ return 0; }
+
+    new_event((void *)data);
+    data->type = EVENT_EXECVEAT;
+    // bpf_probe_read_user* helpers were introduced in kernel 5.5
+    // Since the args can be overwritten anyway, maybe we could get them from
+    // mm_struct instead for a wider kernel version support range?
+    bpf_probe_read_user_str(&data->filename, sizeof(data->filename), (const char *)ctx->filename);
+
+    const char *argp={0};
+    data->args_count = 0;
+    data->args_partial = INCOMPLETE_ARGS;
+    #pragma unroll
+    for (int i = 0; i < MAX_ARGS; i++) {
+        bpf_probe_read_user(&argp, sizeof(argp), &ctx->argv[i]);
+        if (!argp){ data->args_partial = COMPLETE_ARGS; break; }
+
+        if (bpf_probe_read_user_str(&data->args[i], MAX_ARG_SIZE, argp) >= MAX_ARG_SIZE){
+            break;
+        }
+        data->args_count++;
+    }
+
+    // With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
+    // BUG: after coming back from suspend state, this helper fails with error -95 (EOPNOTSUPP)
+    // Possible workaround: count -95 errors, and from userspace reinitialize the streamer if errors >= n-errors
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
+    return 0;
+};
+
+
 
 char _license[] SEC("license") = "GPL";
 // this number will be interpreted by the elf loader

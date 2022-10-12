@@ -62,6 +62,7 @@ typedef u64 uid_size_t;
 enum events_type {
     EVENT_NONE = 0,
     EVENT_EXEC,
+    EVENT_EXECVEAT,
     EVENT_FORK,
     EVENT_SCHED_EXIT,
 };
