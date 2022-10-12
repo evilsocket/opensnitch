@@ -2,6 +2,8 @@ package procmon
 
 import (
 	"time"
+
+	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
 var (
@@ -26,6 +28,11 @@ type procIOstats struct {
 	WriteBytes   int64
 }
 
+type procNetStats struct {
+	ReadBytes  uint64
+	WriteBytes uint64
+}
+
 type procDescriptors struct {
 	Name    string
 	SymLink string
@@ -46,6 +53,7 @@ type procStatm struct {
 // Process holds the details of a process.
 type Process struct {
 	ID   int
+	PPID int
 	UID  int
 	Comm string
 	// Path is the absolute path to the binary
@@ -63,6 +71,7 @@ type Process struct {
 	CWD         string
 	Descriptors []*procDescriptors
 	IOStats     *procIOstats
+	NetStats    *procNetStats
 	Status      string
 	Stat        string
 	Statm       *procStatm
@@ -73,10 +82,39 @@ type Process struct {
 // NewProcess returns a new Process structure.
 func NewProcess(pid int, comm string) *Process {
 	return &Process{
-		ID:   pid,
-		Comm: comm,
-		Args: make([]string, 0),
-		Env:  make(map[string]string),
+		ID:       pid,
+		Comm:     comm,
+		Args:     make([]string, 0),
+		Env:      make(map[string]string),
+		IOStats:  &procIOstats{},
+		NetStats: &procNetStats{},
+		Statm:    &procStatm{},
+	}
+}
+
+//Serialize transforms a Process object to gRPC protocol object
+func (p *Process) Serialize() *protocol.Process {
+	ioStats := p.IOStats
+	netStats := p.NetStats
+	if ioStats == nil {
+		ioStats = &procIOstats{}
+	}
+	if netStats == nil {
+		netStats = &procNetStats{}
+	}
+	return &protocol.Process{
+		Pid:       uint64(p.ID),
+		Ppid:      uint64(p.PPID),
+		Uid:       uint64(p.UID),
+		Comm:      p.Comm,
+		Path:      p.Path,
+		Args:      p.Args,
+		Env:       p.Env,
+		Cwd:       p.CWD,
+		IoReads:   uint64(ioStats.RChar),
+		IoWrites:  uint64(ioStats.WChar),
+		NetReads:  netStats.ReadBytes,
+		NetWrites: netStats.WriteBytes,
 	}
 }
 

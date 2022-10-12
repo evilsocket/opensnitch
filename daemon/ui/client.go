@@ -29,6 +29,8 @@ var (
 	clientConnectedRule = rule.Create("ui.client.connected", "", true, false, false, rule.Deny, rule.Once, dummyOperator)
 	clientErrorRule     = rule.Create("ui.client.error", "", true, false, false, rule.Allow, rule.Once, dummyOperator)
 	config              Config
+
+	maxQueuedAlerts = 1024
 )
 
 type serverConfig struct {
@@ -56,14 +58,18 @@ type Client struct {
 	clientCtx    context.Context
 	clientCancel context.CancelFunc
 
-	stats               *statistics.Statistics
-	rules               *rule.Loader
-	socketPath          string
-	isUnixSocket        bool
-	con                 *grpc.ClientConn
-	client              protocol.UIClient
-	configWatcher       *fsnotify.Watcher
+	stats         *statistics.Statistics
+	rules         *rule.Loader
+	socketPath    string
+	isUnixSocket  bool
+	con           *grpc.ClientConn
+	client        protocol.UIClient
+	configWatcher *fsnotify.Watcher
+
+	isConnected         chan bool
+	alertsChan          chan protocol.Alert
 	streamNotifications protocol.UI_NotificationsClient
+
 	//isAsking is set to true if the client is awaiting a decision from the GUI
 	isAsking bool
 }
@@ -75,7 +81,12 @@ func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Load
 		rules:        rules,
 		isUnixSocket: false,
 		isAsking:     false,
+		isConnected:  make(chan bool),
+		alertsChan:   make(chan protocol.Alert, maxQueuedAlerts),
 	}
+	//for i := 0; i < 4; i++ {
+	go c.alertsDispatcher()
+
 	c.clientCtx, c.clientCancel = context.WithCancel(context.Background())
 
 	if watcher, err := fsnotify.NewWatcher(); err == nil {
@@ -208,6 +219,11 @@ func (c *Client) onStatusChange(connected bool) {
 	if connected {
 		log.Info("Connected to the UI service on %s", c.socketPath)
 		go c.Subscribe()
+
+		select {
+		case c.isConnected <- true:
+		default:
+		}
 	} else {
 		log.Error("Connection to the UI service lost.")
 		c.disconnect()
@@ -268,12 +284,16 @@ func (c *Client) disconnect() {
 	c.Lock()
 	defer c.Unlock()
 
-	c.client = nil
+	select {
+	case c.isConnected <- false:
+	default:
+	}
 	if c.con != nil {
 		c.con.Close()
 		c.con = nil
 		log.Debug("client.disconnect()")
 	}
+	c.client = nil
 }
 
 func (c *Client) ping(ts time.Time) (err error) {
@@ -327,6 +347,22 @@ func (c *Client) Ask(con *conman.Connection) *rule.Rule {
 		return nil
 	}
 	return r
+}
+
+// PostAlert queues a new message to be delivered to the server
+func (c *Client) PostAlert(atype protocol.Alert_Type, awhat protocol.Alert_What, action protocol.Alert_Action, prio protocol.Alert_Priority, data interface{}) {
+	if c.client == nil {
+		return
+	}
+	if len(c.alertsChan) > maxQueuedAlerts-1 {
+		// pop oldest alert if channel is full
+		log.Debug("PostAlert() queue full, popping alert (%d)", len(c.alertsChan))
+		<-c.alertsChan
+	}
+	if c.Connected() == false {
+		log.Debug("UI not connected, queueing alert: %d", len(c.alertsChan))
+	}
+	c.alertsChan <- *NewAlert(atype, awhat, action, prio, data)
 }
 
 func (c *Client) monitorConfigWorker() {

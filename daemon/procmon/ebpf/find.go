@@ -6,6 +6,7 @@ import (
 	"net"
 	"unsafe"
 
+	"github.com/evilsocket/opensnitch/daemon/log"
 	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
 )
@@ -15,10 +16,6 @@ import (
 // GetPid looks up process pid in a bpf map. If not found there, then it searches
 // already-established TCP connections.
 func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (*procmon.Process, error) {
-	if hostByteOrder == nil {
-		return nil, fmt.Errorf("eBPF monitoring method not initialized yet")
-	}
-
 	if proc := getPidFromEbpf(proto, srcPort, srcIP, dstIP, dstPort); proc != nil {
 		return proc, nil
 	}
@@ -95,6 +92,7 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		//proc.GetInfo()
 		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))
 		proc = &cacheItem.Proc
+		log.Debug("[ebpf conn] in cache: %s, %d -> %s", k, proc.ID, proc.Path)
 		return
 	}
 
@@ -129,6 +127,7 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		// key not found in bpf maps
 		return nil
 	}
+
 	comm := byteArrayToString(value.Comm[:])
 	proc = procmon.NewProcess(int(value.Pid), comm)
 	// Use socket's UID. A process may have dropped privileges.
@@ -140,7 +139,9 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		ev.Proc.UID = proc.UID
 		ev.Proc.ReadCmdline()
 		proc = &ev.Proc
+		log.Debug("[ebpf conn] not in cache, but in execEvents: %s, %d -> %s", k, proc.ID, proc.Path)
 	} else {
+		log.Debug("[ebpf conn] not in cache, NOR in execEvents: %s, %d -> %s", k, proc.ID, proc.Path)
 		// We'll end here if the events module has not been loaded, or if the process is not in cache.
 		proc.GetInfo()
 		execEvents.add(value.Pid,
@@ -148,6 +149,7 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 			*proc)
 	}
 
+	log.Debug("[ebpf conn] adding item to cache: %s", k)
 	ebpfCache.addNewItem(k, key, *proc)
 	if delItemIfFound {
 		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))

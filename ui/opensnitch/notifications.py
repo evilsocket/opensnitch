@@ -31,6 +31,10 @@ class DesktopNotifications():
     EXPIRES_DEFAULT = 0
     NEVER_EXPIRES = -1
 
+    URGENCY_LOW = 0
+    URGENCY_NORMAL = 1
+    URGENCY_CRITICAL = 2
+
     def __init__(self):
         self.ACTION_ALLOW = QC.translate("popups", "Allow")
         self.ACTION_DENY = QC.translate("popups", "Deny")
@@ -81,7 +85,7 @@ class DesktopNotifications():
         """
         return self.DOES_SUPPORT_ACTIONS
 
-    def show(self, title, body, icon="dialog-information"):
+    def show(self, title, body, icon="dialog-information", urgency=URGENCY_NORMAL):
         try:
             ntf = self.ntf2.Notification(title, body, icon)
 
@@ -93,12 +97,14 @@ class DesktopNotifications():
             ntf.set_timeout(timeout * 1000)
             ntf.timeout = timeout * 1000
 
+            ntf.set_urgency(urgency)
             ntf.set_category(self.CATEGORY_NETWORK)
             # used to display our app icon an name.
             ntf.set_hint(self.HINT_DESKTOP_ENTRY, "opensnitch_ui")
             ntf.show()
         except Exception as e:
             print("[notifications] show() exception:", e)
+            raise Exception("[notifications] show() exception:", e)
 
     # TODO:
     #  - construct a rule with the default configured parameters.

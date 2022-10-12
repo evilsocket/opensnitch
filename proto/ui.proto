@@ -9,6 +9,64 @@ service UI {
     rpc AskRule (Connection) returns (Rule) {}
     rpc Subscribe (ClientConfig) returns (ClientConfig) {}
     rpc Notifications (stream NotificationReply) returns (stream Notification) {}
+    rpc PostAlert(Alert) returns (MsgResponse) {}
+}
+
+/**
+  - Send error messages (kernel not compatible, etc)
+  - Send warnings (eBPF modules failed loading, etc)
+  - Send kernel events: new execs, bytes recv/sent, ...
+  - Alert of events defined by the user: alert when a rule matches
+*/
+message Alert {
+    enum Priority {
+        LOW = 0;
+        MEDIUM = 1;
+        HIGH = 2;
+    }
+    enum Type {
+        ERROR = 0;
+        WARNING = 1;
+        INFO = 2;
+    }
+    enum Action {
+        NONE = 0;
+        SHOW_ALERT = 1;
+        SAVE_TO_DB = 2;
+    }
+    // What caused the alert
+    enum What {
+        GENERIC = 0;
+        PROC_MONITOR = 1;
+        FIREWALL = 2;
+        CONNECTION = 3;
+        RULE = 4;
+        NETLINK = 5;
+        // bind, exec, etc
+        KERNEL_EVENT = 6;
+    }
+
+    uint64 id = 1;
+    Type type = 2;
+    // TODO: group of actions: SHOW_ALERT | SAVE_TO_DB
+    Action action = 3;
+    Priority priority = 4;
+    What what = 5;
+    // https://developers.google.com/protocol-buffers/docs/reference/go-generated#oneof
+    oneof data {
+        // errors, messages, etc
+        string text = 6;
+        // proc events: send/recv bytes, etc
+        Process proc = 8;
+        // conn events: bind, listen, etc
+        Connection conn = 9;
+        Rule rule = 10;
+        FwRule fwrule = 11;
+    }
+}
+
+message MsgResponse {
+    uint64 id = 1;
 }
 
 message Event {
@@ -45,6 +103,21 @@ message PingRequest {
 
 message PingReply {
     uint64 id = 1;
+}
+
+message Process {
+    uint64 pid = 1;
+    uint64 ppid = 2;
+    uint64 uid = 3;
+    string comm = 4;
+    string path = 5;
+    repeated string args = 6;
+    map<string, string> env = 7;
+    string cwd = 8;
+    uint64 io_reads = 9;
+    uint64 io_writes = 10;
+    uint64 net_reads = 11;
+    uint64 net_writes = 12;
 }
 
 message Connection {

@@ -22,10 +22,12 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log/loggers"
 	"github.com/evilsocket/opensnitch/daemon/netfilter"
 	"github.com/evilsocket/opensnitch/daemon/netlink"
+	"github.com/evilsocket/opensnitch/daemon/procmon/ebpf"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 	"github.com/evilsocket/opensnitch/daemon/ui"
+	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
 var (
@@ -167,6 +169,24 @@ func setupWorkers() {
 	wrkChan = make(chan netfilter.Packet)
 	for i := 0; i < workers; i++ {
 		go worker(i)
+	}
+}
+
+// Listen to events sent from other modules
+func listenToEvents() {
+	for i := 0; i < 5; i++ {
+		go func(uiClient *ui.Client) {
+			for evt := range ebpf.Events() {
+				// for loop vars are per-loop, not per-item
+				evt := evt
+				uiClient.PostAlert(
+					protocol.Alert_WARNING,
+					protocol.Alert_KERNEL_EVENT,
+					protocol.Alert_SHOW_ALERT,
+					protocol.Alert_MEDIUM,
+					evt)
+			}
+		}(uiClient)
 	}
 }
 
@@ -365,7 +385,7 @@ func main() {
 
 	rulesPath, err := core.ExpandPath(rulesPath)
 	if err != nil {
-		log.Fatal("%s", err)
+		log.Fatal("Error accessing rules path (does it exist?): %s", err)
 	}
 
 	setupSignals()
@@ -379,21 +399,26 @@ func main() {
 	stats = statistics.New(rules)
 	loggerMgr = loggers.NewLoggerManager()
 	uiClient = ui.NewClient(uiSocket, stats, rules, loggerMgr)
+	listenToEvents()
 
 	// prepare the queue
 	setupWorkers()
 	queue, err := netfilter.NewQueue(uint16(queueNum))
 	if err != nil {
+		msg := fmt.Sprintf("Error creating queue #%d: %s", queueNum, err)
+		uiClient.SendWarningAlert(msg)
 		log.Warning("Is opensnitchd already running?")
-		log.Fatal("Error while creating queue #%d: %s", queueNum, err)
+		log.Fatal(msg)
 	}
 	pktChan = queue.Packets()
 
 	repeatQueueNum = queueNum + 1
 	repeatQueue, rqerr := netfilter.NewQueue(uint16(repeatQueueNum))
 	if rqerr != nil {
+		msg := fmt.Sprintf("Error creating repeat queue #%d: %s", repeatQueueNum, rqerr)
+		uiClient.SendErrorAlert(msg)
 		log.Warning("Is opensnitchd already running?")
-		log.Fatal("Error while creating queue #%d: %s", repeatQueueNum, rqerr)
+		log.Warning(msg)
 	}
 	repeatPktChan = repeatQueue.Packets()
 
@@ -407,16 +432,26 @@ func main() {
 	// the option via command line.
 	if procmonMethod != "" {
 		if err := monitor.ReconfigureMonitorMethod(procmonMethod); err != nil {
-			log.Warning("Unable to set process monitor method via parameter: %v", err)
+			msg := fmt.Sprintf("Unable to set process monitor method via parameter: %v", err)
+			uiClient.SendWarningAlert(msg)
+			log.Warning(msg)
 		}
 	}
 
-	go func() {
-		err := dns.ListenerEbpf()
-		if err != nil {
-			log.Warning("EBPF-DNS: Unable to attach ebpf listener.")
+	go func(uiClient *ui.Client) {
+		if err := dns.ListenerEbpf(); err != nil {
+			msg := fmt.Sprintf("EBPF-DNS: Unable to attach ebpf listener: %s", err)
+			log.Warning(msg)
+			// don't display an alert, since this module is not critical
+			uiClient.PostAlert(
+				protocol.Alert_ERROR,
+				protocol.Alert_GENERIC,
+				protocol.Alert_SAVE_TO_DB,
+				protocol.Alert_MEDIUM,
+				msg)
+
 		}
-	}()
+	}(uiClient)
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for {

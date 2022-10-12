@@ -3,6 +3,7 @@ package ebpf
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"os"
 	"os/signal"
 
@@ -68,7 +69,7 @@ func initEventsStreamer() {
 	mp.EnableOptionCompatProbe()
 
 	if err := mp.Load(nil); err != nil {
-		log.Error("[eBPF events] Failed loading /etc/opensnitchd/opensnitch-procs.o: %v", err)
+		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Failed loading /etc/opensnitchd/opensnitch-procs.o: %v", err))
 		return
 	}
 
@@ -84,7 +85,7 @@ func initEventsStreamer() {
 	for _, tp := range tracepoints {
 		err = mp.EnableTracepoint(tp)
 		if err != nil {
-			log.Error("[eBPF events] error enabling tracepoint %s: %s", tp, err)
+			dispatchErrorEvent(fmt.Sprintf("[eBPF events] error enabling tracepoint %s: %s", tp, err))
 		}
 	}
 
@@ -93,11 +94,11 @@ func initEventsStreamer() {
 		// and install it again (close the module and load it again)
 		mp.Close()
 		if err = mp.Load(nil); err != nil {
-			log.Error("[eBPF events] failed to load /etc/opensnitchd/opensnitch-procs.o (2): %v", err)
+			dispatchErrorEvent(fmt.Sprintf("[eBPF events] failed to load /etc/opensnitchd/opensnitch-procs.o (2): %v", err))
 			return
 		}
 		if err = mp.EnableKprobes(0); err != nil {
-			log.Error("[eBPF events] error enabling kprobes: %v", err)
+			dispatchErrorEvent(fmt.Sprintf("[eBPF events] error enabling kprobes: %v", err))
 		}
 	}
 
@@ -112,25 +113,25 @@ func initEventsStreamer() {
 }
 
 func initPerfMap(mod *elf.Module) {
-	channel := make(chan []byte)
+	perfChan := make(chan []byte)
 	lostEvents := make(chan uint64, 1)
 	var err error
-	perfMap, err := elf.InitPerfMap(mod, "proc-events", channel, lostEvents)
+	perfMap, err := elf.InitPerfMap(mod, "proc-events", perfChan, lostEvents)
 	if err != nil {
-		log.Error("initializing eBPF events perfMap: %s", err)
+		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Error initializing eBPF events perfMap: %s", err))
 		return
 	}
 	perfMapList[perfMap] = mod
 
 	eventWorkers += 4
 	for i := 0; i < eventWorkers; i++ {
-		go streamEventsWorker(i, channel, lostEvents, execEvents)
+		go streamEventsWorker(i, perfChan, lostEvents, kernelEvents, execEvents)
 	}
 	perfMap.PollStart()
 }
 
 // FIXME: under heavy load these events may arrive AFTER network events
-func streamEventsWorker(id int, chn chan []byte, lost chan uint64, execEvents *eventsStore) {
+func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents chan interface{}, execEvents *eventsStore) {
 	var event execEvent
 	for {
 		select {
@@ -145,6 +146,7 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, execEvents *e
 				switch event.Type {
 				case EV_TYPE_EXEC:
 					if _, found := execEvents.isInStore(event.PID); found {
+						log.Debug("[eBPF event inCache] -> %d", event.PID)
 						continue
 					}
 					proc := event2process(&event)
@@ -154,8 +156,9 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, execEvents *e
 					execEvents.add(event.PID, event, *proc)
 
 				case EV_TYPE_SCHED_EXIT:
-					//log.Warning("[eBPF exit event] -> %d", event.PID)
+					log.Debug("[eBPF exit event] -> %d", event.PID)
 					if _, found := execEvents.isInStore(event.PID); found {
+						log.Debug("[eBPF exit event inCache] -> %d", event.PID)
 						execEvents.delete(event.PID)
 					}
 					continue

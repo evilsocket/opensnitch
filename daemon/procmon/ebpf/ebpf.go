@@ -50,6 +50,9 @@ var (
 	stopMonitors = make(chan bool)
 	running      = false
 
+	maxKernelEvents = 32768
+	kernelEvents    = make(chan interface{}, maxKernelEvents)
+
 	// list of local addresses of this machine
 	localAddresses []net.IP
 
@@ -184,4 +187,24 @@ func makeBpfSyscall(bpf_lookup *bpf_lookup_elem_t) uintptr {
 	r1, _, _ := syscall.Syscall(uintptr(syscall_BPF), uintptr(BPF_MAP_LOOKUP_ELEM),
 		uintptr(unsafe.Pointer(bpf_lookup)), uintptr(sizeOfStruct))
 	return r1
+}
+
+func dispatchErrorEvent(what string) {
+	log.Error(what)
+	dispatchEvent(what)
+}
+
+func dispatchEvent(data interface{}) {
+	if len(kernelEvents) > maxKernelEvents-1 {
+		fmt.Printf("kernelEvents queue full (%d)", len(kernelEvents))
+		<-kernelEvents
+	}
+	select {
+	case kernelEvents <- data:
+	default:
+	}
+}
+
+func Events() <-chan interface{} {
+	return kernelEvents
 }

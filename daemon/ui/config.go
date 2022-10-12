@@ -46,7 +46,7 @@ func (c *Client) parseConf(rawConfig string) (conf Config, err error) {
 func (c *Client) loadDiskConfiguration(reload bool) {
 	raw, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		fmt.Errorf("Error loading disk configuration %s: %s", configFile, err)
+		log.Error("Error loading disk configuration %s: %s", configFile, err)
 	}
 
 	if ok := c.loadConfiguration(raw); ok {
@@ -68,7 +68,9 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	defer config.Unlock()
 
 	if err := json.Unmarshal(rawConfig, &config); err != nil {
-		log.Error("Error parsing configuration %s: %s", configFile, err)
+		msg := fmt.Sprintf("Error parsing configuration %s: %s", configFile, err)
+		log.Error(msg)
+		c.SendWarningAlert(msg)
 		return false
 	}
 	// firstly load config level, to detect further errors if any
@@ -98,7 +100,9 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	}
 	if config.ProcMonitorMethod != "" {
 		if err := monitor.ReconfigureMonitorMethod(config.ProcMonitorMethod); err != nil {
-			log.Warning("Unable to set new process monitor method from disk: %v", err)
+			msg := fmt.Sprintf("Unable to set new process monitor method from disk: %v", err)
+			log.Warning(msg)
+			c.SendWarningAlert(msg)
 		}
 	}
 

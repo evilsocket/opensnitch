@@ -32,7 +32,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal(bool)
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
-    _show_message_trigger = QtCore.pyqtSignal(str, str, int)
+    _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
 
     # .desktop filename located under /usr/share/applications/
     DESKTOP_FILENAME = "opensnitch_ui.desktop"
@@ -269,13 +269,20 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _on_remote_stats_menu(self, address):
         self._remote_stats[address]['dialog'].show()
 
-    @QtCore.pyqtSlot(str, str, int)
-    def _show_systray_message(self, title, body, icon):
+    @QtCore.pyqtSlot(str, str, int, int)
+    def _show_systray_message(self, title, body, icon, urgency):
         if self._desktop_notifications.are_enabled():
             timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
 
             if self._desktop_notifications.is_available() and self._cfg.getInt(Config.NOTIFICATIONS_TYPE, 1) == Config.NOTIFICATION_TYPE_SYSTEM:
-                self._desktop_notifications.show(title, body, os.path.join(self._path, "res/icon-white.svg"))
+                try:
+                    self._desktop_notifications.show(
+                        title,
+                        body,
+                        os.path.join(self._path, "res/icon-white.svg")
+                    )
+                except:
+                    self._tray.showMessage(title, body, icon, timeout * 1000)
             else:
                 self._tray.showMessage(title, body, icon, timeout * 1000)
 
@@ -560,6 +567,46 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         elif kwargs['action'] == self.NODE_DELETE:
             self._delete_node(kwargs['peer'])
 
+    def PostAlert(self, alert, context):
+        try:
+            proto, addr = self._get_peer(context.peer())
+            is_local = self._is_local_request(proto, addr), context.peer()
+
+            icon = QtWidgets.QSystemTrayIcon.Information
+            _title = QtCore.QCoreApplication.translate("messages", "Info")
+            if alert.type == ui_pb2.Alert.ERROR:
+                _title = QtCore.QCoreApplication.translate("messages", "Error")
+                icon = QtWidgets.QSystemTrayIcon.Critical
+            if alert.type == ui_pb2.Alert.WARNING:
+                _title = QtCore.QCoreApplication.translate("messages", "Warning")
+                icon = QtWidgets.QSystemTrayIcon.Warning
+
+
+            body = ""
+            if alert.what == ui_pb2.Alert.GENERIC:
+                body = alert.text
+            elif alert.what == ui_pb2.Alert.KERNEL_EVENT:
+                body = "%s\n%s" % (alert.text, alert.proc.path)
+            if is_local is False:
+                body = "node: {0}\n\n{1}\n{2}".format(context.peer(), alert.text, alert.proc.path)
+
+            if alert.action == ui_pb2.Alert.SHOW_ALERT:
+
+                urgency = DesktopNotifications.URGENCY_NORMAL
+                if alert.priority == ui_pb2.Alert.LOW:
+                    urgency = DesktopNotifications.URGENCY_LOW
+                elif alert.priority == ui_pb2.Alert.HIGH:
+                    urgency = DesktopNotifications.URGENCY_CRITICAL
+
+                self._show_message_trigger.emit(_title, body, icon, urgency)
+            else:
+                print("PostAlert() unknown alert action:", alert)
+        except Exception as e:
+            print("PostAlert() exception:", e)
+            return ui_pb2.MsgResponse(id=1)
+
+        return ui_pb2.MsgResponse(id=0)
+
     def Ping(self, request, context):
         try:
             self._last_ping = datetime.now()
@@ -610,7 +657,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             self._show_message_trigger.emit(_title,
                                             "{0} action applied {1}\nCommand line: {2}"
                                             .format(rule.action, node_text, " ".join(request.process_args)),
-                                            QtWidgets.QSystemTrayIcon.NoIcon)
+                                            QtWidgets.QSystemTrayIcon.NoIcon,
+                                            DesktopNotifications.URGENCY_NORMAL)
 
 
         if rule.duration in Config.RULES_DURATION_FILTER:
@@ -642,6 +690,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         # if the exit mark is set, don't accept new connections.
         # db vacuum operation may take a lot of time to complete.
         if self._exit:
+            context.cancel()
             return
         try:
             self._node_actions_trigger.emit({
@@ -658,7 +707,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 self._show_message_trigger.emit(
                     QtCore.QCoreApplication.translate("stats", "New node connected"),
                     "({0})".format(context.peer()),
-                    QtWidgets.QSystemTrayIcon.Information)
+                    QtWidgets.QSystemTrayIcon.Information,
+                    DesktopNotifications.URGENCY_LOW
+                )
         except Exception as e:
             print("[Notifications] exception adding new node:", e)
             context.cancel()
@@ -697,8 +748,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
             if self._is_local_request(proto, addr) == False:
                 self._show_message_trigger.emit("node exited",
-                                    "({0})".format(context.peer()),
-                                    QtWidgets.QSystemTrayIcon.Information)
+                                                "({0})".format(context.peer()),
+                                                QtWidgets.QSystemTrayIcon.Information,
+                                                DesktopNotifications.URGENCY_LOW)
 
         context.add_callback(_on_client_closed)
 
