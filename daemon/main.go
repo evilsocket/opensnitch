@@ -423,7 +423,10 @@ func main() {
 	repeatPktChan = repeatQueue.Packets()
 
 	// queue is ready, run firewall rules
-	firewall.Init(uiClient.GetFirewallType(), &queueNum)
+	if err = firewall.Init(uiClient.GetFirewallType(), &queueNum); err != nil {
+		log.Warning("%s", err)
+		uiClient.SendWarningAlert(err)
+	}
 
 	if overwriteLogging() {
 		setupLogging()

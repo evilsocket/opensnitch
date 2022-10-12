@@ -41,9 +41,7 @@ var (
 // We'll try to use the firewall configured in the configuration (iptables/nftables).
 // If iptables is not installed, we can add nftables rules directly to the kernel,
 // without relying on any binaries.
-func Init(fwType string, qNum *int) {
-	var err error
-
+func Init(fwType string, qNum *int) (err error) {
 	if fwType == iptables.Name {
 		fw, err = iptables.Fw()
 		if err != nil {
@@ -64,14 +62,15 @@ func Init(fwType string, qNum *int) {
 	}
 
 	if fw == nil {
-		log.Error("firewall not initialized.")
-		return
+		return fmt.Errorf("Firewall not initialized")
 	}
 	fw.Stop()
 	fw.Init(qNum)
 	queueNum = *qNum
 
 	log.Info("Using %s firewall", fw.Name())
+
+	return
 }
 
 // IsRunning returns if the firewall is running or not.
