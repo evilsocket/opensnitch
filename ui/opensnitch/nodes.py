@@ -158,14 +158,12 @@ class Nodes(QObject):
         if addr.startswith("unix"):
             return True
 
-        if addr.startsWith("ipv4") or addr.startsWith("ipv6"):
+        if addr.startswith("ipv4") or addr.startswith("ipv6"):
             for name, ip in self._interfaces.items():
                 if ip in addr:
                     return True
 
         return False
-
-
 
     def get_notifications(self):
         notlist = []

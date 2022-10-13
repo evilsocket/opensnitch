@@ -296,3 +296,4 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboOutput.setEnabled(not disable)
         self.cmdNewRule.setEnabled(not disable)
         self.cmdAllowOUTService.setEnabled(not disable)
+        self.cmdAllowINService.setEnabled(not disable)

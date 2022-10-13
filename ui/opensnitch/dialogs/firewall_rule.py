@@ -895,7 +895,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkEnable.setChecked(True)
 
     def form_to_protobuf(self):
-        """Transform form widgets to protouf struct
+        """Transform form widgets to protobuf struct
         """
         chain = Fw.ChainFilter.input()
         if self.comboDirection.currentIndex() == self.OUT or self.FORM_TYPE == self.FORM_TYPE_EXCLUDE_SERVICE:
@@ -939,7 +939,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         elif sk['key'] == Fw.ExprQuota.UNIT.value:
                             units = statem_value.split("/")
                             if len(units) != 2: # we expect the format key/value
-                                return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, gbytes)")
+                                return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, mbytes, gbytes)")
+                            if units[1] not in Fw.RateUnits.values():
+                                return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, mbytes, gbytes)")
                             sk['key'] = units[1]
                             statem_value = units[0]
 
@@ -950,7 +952,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         elif sk['key'] == Fw.ExprLimit.UNITS.value:
                             units = statem_value.split("/")
                             if len(units) != 3: # we expect the format key/value
-                                return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes/second (or bytes, gbytes)")
+                                return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)")
 
                             if units[1] not in Fw.RateUnits.values():
                                 return None, None, None, QC.translate("firewall", "rate-limit not valid, use: bytes, kbytes, mbytes or gbytes.")
