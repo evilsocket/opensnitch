@@ -334,6 +334,11 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
          </item>
          <item>
           <property name="text">
+           <string>MULTICAST</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>127.0.0.0/8</string>
           </property>
          </item>

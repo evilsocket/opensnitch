@@ -25,8 +25,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     classB_net = "172\.1[6-9]\.\d+\.\d+|172\.2[0-9]\.\d+\.\d+|172\.3[0-1]+\.\d{1,3}\.\d{1,3}"
     classC_net = "192\.168\.\d{1,3}\.\d{1,3}"
     others_net = "127\.\d{1,3}\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3}"
+    multinets = "2[32][23459]\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+    MULTICAST_RANGE = "^(" + multinets + ")$"
     LAN_RANGES = "^(" + others_net + "|" + classC_net + "|" + classB_net + "|" + classA_net + "|::1|f[cde].*::.*)$"
     LAN_LABEL = "LAN"
+    MULTICAST_LABEL = "MULTICAST"
 
     ADD_RULE = 0
     EDIT_RULE = 1
@@ -431,6 +434,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dstIPCombo.setEnabled(True)
             if operator.data == self.LAN_RANGES:
                 self.dstIPCombo.setCurrentText(self.LAN_LABEL)
+            elif operator.data == self.MULTICAST_RANGE:
+                self.dstIPCombo.setCurrentText(self.MULTICAST_LABEL)
             else:
                 self.dstIPCombo.setCurrentText(operator.data)
 
@@ -687,6 +692,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.rule.operator.operand = Config.OPERAND_DEST_IP
                 self.rule.operator.type = Config.RULE_TYPE_REGEXP
                 dstIPtext = self.LAN_RANGES
+            elif dstIPtext == self.MULTICAST_LABEL:
+                self.rule.operator.operand = Config.OPERAND_DEST_IP
+                self.rule.operator.type = Config.RULE_TYPE_REGEXP
+                dstIPtext = self.MULTICAST_RANGE
             else:
                 try:
                     if type(ipaddress.ip_address(self.dstIPCombo.currentText())) == ipaddress.IPv4Address \
