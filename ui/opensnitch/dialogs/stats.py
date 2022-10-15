@@ -1640,9 +1640,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if text == "":
             return ""
 
-
         if idx == StatsDialog.TAB_RULES:
-            return " WHERE rules.name LIKE '%{0}%' ".format(text)
+            return " WHERE rules.name LIKE '%{0}%' OR rules.operator_data LIKE '%{1}%' ".format(text, text)
         elif idx == StatsDialog.TAB_HOSTS or idx == StatsDialog.TAB_PROCS or \
              idx == StatsDialog.TAB_ADDRS or idx == StatsDialog.TAB_PORTS:
             return " WHERE what LIKE '%{0}%' ".format(text)
