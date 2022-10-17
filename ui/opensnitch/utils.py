@@ -287,9 +287,9 @@ class Utils():
 
         try:
             if os.path.exists(run_path):
-                os.makedirs(run_path + "/opensnitch/")
+                os.makedirs(run_path + "/opensnitch/", 0o700)
             if os.path.exists(var_run_path):
-                os.makedirs(var_run_path + "/opensnitch/")
+                os.makedirs(var_run_path + "/opensnitch/", 0o700)
         except:
             pass
 
