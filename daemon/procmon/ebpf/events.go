@@ -74,11 +74,15 @@ var (
 func initEventsStreamer() {
 	elfOpts := make(map[string]elf.SectionParams)
 	elfOpts["maps/"+perfMapName] = elf.SectionParams{PerfRingBufferPageCount: ringBuffSize}
-	mp := elf.NewModule("/etc/opensnitchd/opensnitch-procs.o")
+	mp := loadModule("opensnitch-procs.o")
+	if mp == nil {
+		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Failed loading %s/opensnitch-procs.o", modulesPath))
+		return
+	}
 	mp.EnableOptionCompatProbe()
 
 	if err := mp.Load(elfOpts); err != nil {
-		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Failed loading /etc/opensnitchd/opensnitch-procs.o: %v", err))
+		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Failed loading %s/opensnitch-procs.o: %v", modulesPath, err))
 		return
 	}
 

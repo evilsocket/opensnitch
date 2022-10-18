@@ -56,6 +56,14 @@ var (
 	// list of local addresses of this machine
 	localAddresses []net.IP
 
+	// ex.: /usr/lib/opensnitchd/ebpf/
+	modulesDir = "/opensnitchd/ebpf"
+	paths      = []string{
+		fmt.Sprint("/usr/local/lib", modulesDir),
+		fmt.Sprint("/usr/lib", modulesDir),
+		fmt.Sprint("/etc/opensnitchd"), // deprecated
+	}
+	modulesPath   = ""
 	hostByteOrder binary.ByteOrder
 )
 
@@ -66,14 +74,13 @@ func Start() error {
 		log.Error("ebpf.Start -> mount debugfs error. Report on github please: %s", err)
 		return err
 	}
-
-	m = elf.NewModule("/etc/opensnitchd/opensnitch.o")
-	m.EnableOptionCompatProbe()
-
-	if err := m.Load(nil); err != nil {
-		log.Error("eBPF Failed to load /etc/opensnitchd/opensnitch.o: %v", err)
-		return err
+	if m = loadModule("opensnitch.o"); m == nil {
+		msg := fmt.Errorf("eBPF Failed to load %s/%s", modulesPath, "opensnitch.o")
+		log.Error("%s", msg)
+		dispatchErrorEvent(msg.Error())
+		return msg
 	}
+	m.EnableOptionCompatProbe()
 
 	// if previous shutdown was unclean, then we must remove the dangling kprobe
 	// and install it again (close the module and load it again)
@@ -136,6 +143,21 @@ func saveEstablishedConnections(commDomain uint8) error {
 		alreadyEstablished.Unlock()
 	}
 	return nil
+}
+
+func loadModule(module string) *elf.Module {
+	for _, p := range paths {
+		modulesPath = p
+		m = elf.NewModule(fmt.Sprint(modulesPath, "/", module))
+
+		if err := m.Load(nil); err == nil {
+			log.Info("[eBPF] module loaded: %s/%s", modulesPath, module)
+			break
+		}
+		m = nil
+	}
+
+	return m
 }
 
 func setRunning(status bool) {
