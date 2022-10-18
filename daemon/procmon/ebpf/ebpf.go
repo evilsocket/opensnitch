@@ -74,8 +74,10 @@ func Start() error {
 		log.Error("ebpf.Start -> mount debugfs error. Report on github please: %s", err)
 		return err
 	}
-	if m = loadModule("opensnitch.o"); m == nil {
-		msg := fmt.Errorf("eBPF Failed to load %s/%s", modulesPath, "opensnitch.o")
+	var err error
+	m, err = loadModule("opensnitch.o")
+	if err != nil {
+		msg := fmt.Errorf("eBPF Failed loading %s/%s: %s", modulesPath, "opensnitch.o", err)
 		log.Error("%s", msg)
 		dispatchErrorEvent(msg.Error())
 		return msg
@@ -145,19 +147,19 @@ func saveEstablishedConnections(commDomain uint8) error {
 	return nil
 }
 
-func loadModule(module string) *elf.Module {
+func loadModule(module string) (md *elf.Module, err error) {
 	for _, p := range paths {
 		modulesPath = p
-		m = elf.NewModule(fmt.Sprint(modulesPath, "/", module))
+		md = elf.NewModule(fmt.Sprint(modulesPath, "/", module))
 
-		if err := m.Load(nil); err == nil {
+		if err = md.Load(nil); err == nil {
 			log.Info("[eBPF] module loaded: %s/%s", modulesPath, module)
 			break
 		}
-		m = nil
+		err = nil
 	}
 
-	return m
+	return md, err
 }
 
 func setRunning(status bool) {

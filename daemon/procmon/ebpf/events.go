@@ -74,14 +74,14 @@ var (
 func initEventsStreamer() {
 	elfOpts := make(map[string]elf.SectionParams)
 	elfOpts["maps/"+perfMapName] = elf.SectionParams{PerfRingBufferPageCount: ringBuffSize}
-	mp := loadModule("opensnitch-procs.o")
-	if mp == nil {
-		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Failed loading %s/opensnitch-procs.o", modulesPath))
+	mp, err := loadModule("opensnitch-procs.o")
+	if err != nil {
+		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Failed loading %s/opensnitch-procs.o: %s", modulesPath, err))
 		return
 	}
 	mp.EnableOptionCompatProbe()
 
-	if err := mp.Load(elfOpts); err != nil {
+	if err = mp.Load(elfOpts); err != nil {
 		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Failed loading %s/opensnitch-procs.o: %v", modulesPath, err))
 		return
 	}
@@ -95,7 +95,6 @@ func initEventsStreamer() {
 	}
 
 	// Enable tracepoints first, that way if kprobes fail loading we'll still have some
-	var err error
 	for _, tp := range tracepoints {
 		err = mp.EnableTracepoint(tp)
 		if err != nil {
