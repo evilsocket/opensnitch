@@ -1,0 +1,20 @@
+opensnitch (1.6.0-rc.3-1) unstable; urgency=medium
+
+    From now on the eBPF modules will be installed under
+    /usr/lib/opensnitchd/ebpf/.
+
+    The daemon will look for the eBPF modules in these directories and order:
+    - /usr/local/lib/opensnitchd/ebpf/
+    - /usr/lib/opensnitchd/ebpf/
+
+    Modules under /etc/opensnitchd/ will still ne loaded if found, but it's 
+    deprecated and will be removed in the future.
+
+    There's a new module to intercept processes execution. It may cause some
+    rules not to match: for example if you allowed /bin/telnet, now it may be
+    reported as /usr/bin/inteutils-telnet
+    
+    These cases are mostly expected. We'll keep improving it, sorry for
+    the inconveniences.
+
+ -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  Wed, 19 Oct 2022 00:15:19 +0200

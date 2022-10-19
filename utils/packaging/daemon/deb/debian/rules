@@ -12,5 +12,8 @@ execute_before_dh_auto_install:
 	mkdir -p $(DESTDIR)/usr/bin
 	mv _build/bin/daemon $(DESTDIR)/usr/bin/opensnitchd
 
+override_dh_auto_install:
+	dh_auto_install -- --no-source
+
 %:
 	dh $@ --builddirectory=_build --buildsystem=golang --with=golang
