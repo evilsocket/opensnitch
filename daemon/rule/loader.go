@@ -362,7 +362,7 @@ func (l *Loader) Save(rule *Rule, path string) error {
 		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
 	}
 
-	if err = ioutil.WriteFile(path, raw, 0644); err != nil {
+	if err = ioutil.WriteFile(path, raw, 0600); err != nil {
 		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
 	}
 
