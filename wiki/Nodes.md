@@ -1,6 +1,6 @@
 A node is a daemon running on a machine. You can install the daemon on multiple machines, and manage them from the server (i.e.:GUI).
 
-![image](https://user-images.githubusercontent.com/2742953/196779014-ff8099bc-9532-4786-9a92-3e30de549cd4.png)
+![image](https://user-images.githubusercontent.com/2742953/197076010-2502855a-cdae-4f03-90bc-7a715efbbf64.png)
 
 You can view the list of known nodes from the tab Nodes:
 
