@@ -247,32 +247,32 @@
          </property>
          <item>
           <property name="text">
-           <string>TCP</string>
+           <string notr="true">TCP</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>UDP</string>
+           <string notr="true">UDP</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>UDPLITE</string>
+           <string notr="true">UDPLITE</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>TCP6</string>
+           <string notr="true">TCP6</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>UDP6</string>
+           <string notr="true">UDP6</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>UDPLITE6</string>
+           <string notr="true">UDPLITE6</string>
           </property>
          </item>
         </widget>
@@ -324,82 +324,85 @@ You can also specify a subnet:
 
 Note: Commas or spaces are not allowed to separate IPs or networks.</string>
          </property>
+         <property name="statusTip">
+          <string/>
+         </property>
          <property name="editable">
           <bool>true</bool>
          </property>
          <item>
           <property name="text">
-           <string>LAN</string>
+           <string notr="true">LAN</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>MULTICAST</string>
+           <string notr="true">MULTICAST</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>127.0.0.0/8</string>
+           <string notr="true">127.0.0.0/8</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>192.168.0.0/24</string>
+           <string notr="true">192.168.0.0/24</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>192.168.1.0/24</string>
+           <string notr="true">192.168.1.0/24</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>192.168.2.0/24</string>
+           <string notr="true">192.168.2.0/24</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>192.168.0.0/16</string>
+           <string notr="true">192.168.0.0/16</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>169.254.0.0/16</string>
+           <string notr="true">169.254.0.0/16</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>172.16.0.0/12</string>
+           <string notr="true">172.16.0.0/12</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>10.0.0.0/8</string>
+           <string notr="true">10.0.0.0/8</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>::1/128</string>
+           <string notr="true">::1/128</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>fc00::/7</string>
+           <string notr="true">fc00::/7</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>ff00::/8</string>
+           <string notr="true">ff00::/8</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>fe80::/10</string>
+           <string notr="true">fe80::/10</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>fd00::/8</string>
+           <string notr="true">fd00::/8</string>
           </property>
          </item>
         </widget>
@@ -866,27 +869,27 @@ gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ..
         </item>
         <item>
          <property name="text">
-          <string>30s</string>
+          <string notr="true">30s</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>5m</string>
+          <string notr="true">5m</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>15m</string>
+          <string notr="true">15m</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>30m</string>
+          <string notr="true">30m</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>1h</string>
+          <string notr="true">1h</string>
          </property>
         </item>
         <item>
