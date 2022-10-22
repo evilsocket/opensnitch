@@ -31,8 +31,9 @@ How to add a global rule to block ads or trackers:
 
 3. Download list of domains of ads to block (choose any directory you wish):
 ```
-$ mkdir /media/ads-list/
-$ wget https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt -O /media/ads-list/ads-and-tracking-extended.txt
+~ $ sudo mkdir /media/ads-list/
+~ $ sudo chown USER:USER /media/ads-list/ # replace USER with your user
+~ $ wget https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt -O /media/ads-list/ads-and-tracking-extended.txt
 ```
 
 **Note:** be sure that the files have an extension (.dat, .txt, .list, etc...). Don't drop files without extension into the directory
