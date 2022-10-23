@@ -52,6 +52,14 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 		}
 		return metaExpr
 
+	case exprs.NFT_ETHER:
+		etherExpr, err := exprs.NewExprEther(expression.Statement.Values)
+		if err != nil {
+			log.Warning("%s ether statement error: %s", logTag, err)
+			return nil
+		}
+		return etherExpr
+
 	// TODO: support iif, oif
 	case exprs.NFT_IIFNAME, exprs.NFT_OIFNAME:
 		isOut := expression.Statement.Name == exprs.NFT_OIFNAME

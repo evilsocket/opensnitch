@@ -69,6 +69,8 @@ const (
 	NFT_ICMP_CODE = "code"
 	NFT_ICMP_TYPE = "type"
 
+	NFT_ETHER = "ether"
+
 	NFT_IIFNAME = "iifname"
 	NFT_OIFNAME = "oifname"
 
