@@ -2,11 +2,11 @@ name: Build status
 on:
   push:
     paths:
-      - 'daemon/*'
+      - 'daemon/**'
       - '.github/workflows/go.yml'
   pull_request:
     paths:
-      - 'daemon/*'
+      - 'daemon/**'
       - '.github/workflows/go.yml'
 
   # Allows you to run this workflow manually from the Actions tab
