@@ -11,6 +11,7 @@ ExecStartPre=/bin/mkdir -p /etc/opensnitchd/rules
 ExecStart=/usr/bin/opensnitchd -rules-path /etc/opensnitchd/rules
 Restart=always
 RestartSec=30
+TimeoutStopSec=10
 
 [Install]
 WantedBy=multi-user.target
