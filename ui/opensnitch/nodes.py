@@ -7,6 +7,7 @@ import json
 from opensnitch import ui_pb2
 from opensnitch.database import Database
 from opensnitch.config import Config
+from opensnitch.utils import NetworkInterfaces
 
 class Nodes(QObject):
     __instance = None
@@ -28,6 +29,7 @@ class Nodes(QObject):
         self._db = Database.instance()
         self._nodes = {}
         self._notifications_sent = {}
+        self._interfaces = NetworkInterfaces()
 
     def count(self):
         return len(self._nodes)
@@ -159,8 +161,9 @@ class Nodes(QObject):
             return True
 
         if addr.startswith("ipv4") or addr.startswith("ipv6"):
-            for name, ip in self._interfaces.items():
-                if ip in addr:
+            ifaces = self._interfaces.list()
+            for name in ifaces:
+                if ifaces[name] in addr:
                     return True
 
         return False
