@@ -36,7 +36,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="712"/>
         <source>this destination port</source>
-        <translation>ezt a célkikötőt</translation>
+        <translation>ezt a cél portot</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="717"/>
@@ -136,12 +136,12 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="622"/>
         <source>Dst Port</source>
-        <translation>Célkikötő</translation>
+        <translation>Cél port</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="271"/>
         <source>Chromium Web Browser wants to connect to www.evilsocket.net on tcp port 443. And maybe to www.goodsocket.net on port 344</source>
-        <translation type="obsolete">A Chromium webböngésző csatlakozni akar a www.evilsocket.net webhelyhez a 443-as TCP-kikötőn. És talán a www.goodsocket.net webhelyhez a 344-es TCP-kikötőn</translation>
+        <translation type="obsolete">A Chromium webböngésző csatlakozni akar a www.evilsocket.net webhelyhez a 443-as TCP porton. És talán a www.goodsocket.net webhelyhez a 344-es TCP porton</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="727"/>
@@ -264,7 +264,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="293"/>
         <source>by destination port</source>
-        <translation>rendeltetési kikötő szerint</translation>
+        <translation>rendeltetési port szerint</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="298"/>
@@ -314,7 +314,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="263"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alapértelmezés szerint, amikor egy új előugró ablak jelenik meg, a legegyszerűbb formájában képes lesz a kapcsolatok vagy alkalmazások szűrésére a kapcsolat egy tulajdonságával (futtatható fájl, kikötő, IP stb.).&lt;/p&gt;&lt;p&gt;Ezekkel az opciókkal több mezőt is választhat, amelyekhez a kapcsolatokat szűrni kívánja.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alapértelmezés szerint, amikor egy új előugró ablak jelenik meg, a legegyszerűbb formájában képes lesz a kapcsolatok vagy alkalmazások szűrésére a kapcsolat egy tulajdonságával (futtatható fájl, port, IP stb.).&lt;/p&gt;&lt;p&gt;Ezekkel az opciókkal több mezőt is választhat, amelyekhez a kapcsolatokat szűrni kívánja.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="266"/>
@@ -329,7 +329,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="97"/>
         <source>Destination port</source>
-        <translation>Célkikötő</translation>
+        <translation>Cél port</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="113"/>
@@ -434,7 +434,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="923"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it&apos;s a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A csomópont címe.&lt;/p&gt;&lt;p&gt;Alapértelmezett: unix:///tmp/osui.sock (Az „unix://” kötelező, ha Unix szoftvercsatorna)&lt;/p&gt;&lt;p&gt;Lehet IP-cím is a kikötővel: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A csomópont címe.&lt;/p&gt;&lt;p&gt;Alapértelmezett: unix:///tmp/osui.sock (Az „unix://” kötelező, ha Unix szoftvercsatorna)&lt;/p&gt;&lt;p&gt;Lehet IP-cím is a porttal: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="926"/>
@@ -820,7 +820,7 @@
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="303"/>
         <source>To this port</source>
-        <translation>Erre a kikötőre</translation>
+        <translation>Erre a portra</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="541"/>
@@ -929,7 +929,7 @@ Megjegyzés: Vesszőkkel vagy szóközökkel nem szabad elválasztani az IP-cím
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="457"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Több kikötők megadhatók reguláris kifejezések használatával:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 vagy 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 vagy 5551, 5552, 5553, stb:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Több port megadható reguláris kifejezések használatával:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 vagy 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 vagy 5551, 5552, 5553, stb:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="867"/>
@@ -1442,12 +1442,12 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1258"/>
         <source>Ports</source>
-        <translation>Kikötők</translation>
+        <translation>Portok</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1261"/>
         <source>Delete all intercepted ports</source>
-        <translation type="obsolete">Az összes elfogott kikötő törlése</translation>
+        <translation type="obsolete">Az összes elfogott port törlése</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1342"/>
@@ -1609,7 +1609,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="359"/>
         <source>to port {0}</source>
-        <translation>kikötőig: {0}</translation>
+        <translation>portig: {0}</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="422"/>
@@ -1644,12 +1644,12 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="470"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
-        <translation>csatlakozik &lt;b&gt;%s&lt;/b&gt;-hoz a %s-kikötőn %d</translation>
+        <translation>csatlakozik &lt;b&gt;%s&lt;/b&gt;-hoz a %s-porton %d</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="476"/>
         <source>is attempting to resolve &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</source>
-        <translation>megpróbálja megoldani a(z) &lt;b&gt;%s&lt;/b&gt; problémát a(z) %s segítségével, %s-kikötő %d</translation>
+        <translation>megpróbálja megoldani a(z) &lt;b&gt;%s&lt;/b&gt; problémát a(z) %s segítségével, %s-port %d</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="366"/>
@@ -1832,22 +1832,22 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="650"/>
         <source>Dest port can not be empty</source>
-        <translation>Célkikötő nem lehet üres</translation>
+        <translation>Cél port nem lehet üres</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="664"/>
         <source>Dst port regexp error</source>
-        <translation>Célkikötő reguláris kifejezéshibája</translation>
+        <translation>Cél port reguláris kifejezéshibája</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="668"/>
         <source>Dest host can not be empty</source>
-        <translation>Célkikötő nem lehet üres</translation>
+        <translation>Cél port nem lehet üres</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="682"/>
         <source>Dst host regexp error</source>
-        <translation>Célkikötő reguláris kifejezéshibája</translation>
+        <translation>Cél port reguláris kifejezéshibája</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="686"/>
@@ -2313,7 +2313,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <location filename="../../../opensnitch/dialogs/stats.py" line="358"/>
         <source>DstPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Célkikötő</translation>
+        <translation>Cél port</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="174"/>
