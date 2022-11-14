@@ -29,6 +29,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _new_remote_trigger = QtCore.pyqtSignal(str, ui_pb2.PingRequest)
     _node_actions_trigger = QtCore.pyqtSignal(dict)
     _update_stats_trigger = QtCore.pyqtSignal(str, str, ui_pb2.PingRequest)
+    _add_alert_trigger = QtCore.pyqtSignal(str, str, ui_pb2.Alert)
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal(bool)
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
@@ -126,6 +127,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._new_remote_trigger.connect(self._on_new_remote)
         self._node_actions_trigger.connect(self._on_node_actions)
         self._update_stats_trigger.connect(self._on_update_stats)
+        self._add_alert_trigger.connect(self._on_new_alert)
         self._status_change_trigger.connect(self._on_status_changed)
         self._stats_dialog._shown_trigger.connect(self._on_stats_dialog_shown)
         self._stats_dialog._status_changed_trigger.connect(self._on_stats_status_changed)
@@ -237,6 +239,51 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         main_need_refresh, details_need_refresh = self._populate_stats(self._db, proto, addr, request.stats)
         is_local_request = self._is_local_request(proto, addr)
         self._stats_dialog.update(is_local_request, request.stats, main_need_refresh or details_need_refresh)
+
+    @QtCore.pyqtSlot(str, str, ui_pb2.Alert)
+    def _on_new_alert(self, proto, addr, alert):
+        try:
+            is_local = self._is_local_request(proto, addr)
+
+            icon = QtWidgets.QSystemTrayIcon.Information
+            _title = QtCore.QCoreApplication.translate("messages", "Info")
+            atype = "INFO"
+            if alert.type == ui_pb2.Alert.ERROR:
+                atype = "ERROR"
+                _title = QtCore.QCoreApplication.translate("messages", "Error")
+                icon = QtWidgets.QSystemTrayIcon.Critical
+            if alert.type == ui_pb2.Alert.WARNING:
+                atype = "WARNING"
+                _title = QtCore.QCoreApplication.translate("messages", "Warning")
+                icon = QtWidgets.QSystemTrayIcon.Warning
+
+            body = ""
+            what = "GENERIC"
+            if alert.what == ui_pb2.Alert.GENERIC:
+                body = alert.text
+            elif alert.what == ui_pb2.Alert.KERNEL_EVENT:
+                body = "%s\n%s" % (alert.text, alert.proc.path)
+                what = "KERNEL EVENT"
+            if is_local is False:
+                body = "node: {0}:{1}\n\n{2}\n{3}".format(proto, addr, alert.text, alert.proc.path)
+
+            if alert.action == ui_pb2.Alert.SHOW_ALERT:
+
+                urgency = DesktopNotifications.URGENCY_NORMAL
+                if alert.priority == ui_pb2.Alert.LOW:
+                    urgency = DesktopNotifications.URGENCY_LOW
+                elif alert.priority == ui_pb2.Alert.HIGH:
+                    urgency = DesktopNotifications.URGENCY_CRITICAL
+
+                self._show_message_trigger.emit(_title, body, icon, urgency)
+
+            else:
+                print("PostAlert() unknown alert action:", alert.action)
+
+
+        except Exception as e:
+            print("PostAlert() exception:", e)
+            return ui_pb2.MsgResponse(id=1)
 
     @QtCore.pyqtSlot(str, ui_pb2.PingRequest)
     def _on_new_remote(self, addr, request):
@@ -567,44 +614,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         elif kwargs['action'] == self.NODE_DELETE:
             self._delete_node(kwargs['peer'])
 
+
     def PostAlert(self, alert, context):
-        try:
-            proto, addr = self._get_peer(context.peer())
-            is_local = self._is_local_request(proto, addr), context.peer()
-
-            icon = QtWidgets.QSystemTrayIcon.Information
-            _title = QtCore.QCoreApplication.translate("messages", "Info")
-            if alert.type == ui_pb2.Alert.ERROR:
-                _title = QtCore.QCoreApplication.translate("messages", "Error")
-                icon = QtWidgets.QSystemTrayIcon.Critical
-            if alert.type == ui_pb2.Alert.WARNING:
-                _title = QtCore.QCoreApplication.translate("messages", "Warning")
-                icon = QtWidgets.QSystemTrayIcon.Warning
-
-
-            body = ""
-            if alert.what == ui_pb2.Alert.GENERIC:
-                body = alert.text
-            elif alert.what == ui_pb2.Alert.KERNEL_EVENT:
-                body = "%s\n%s" % (alert.text, alert.proc.path)
-            if is_local is False:
-                body = "node: {0}\n\n{1}\n{2}".format(context.peer(), alert.text, alert.proc.path)
-
-            if alert.action == ui_pb2.Alert.SHOW_ALERT:
-
-                urgency = DesktopNotifications.URGENCY_NORMAL
-                if alert.priority == ui_pb2.Alert.LOW:
-                    urgency = DesktopNotifications.URGENCY_LOW
-                elif alert.priority == ui_pb2.Alert.HIGH:
-                    urgency = DesktopNotifications.URGENCY_CRITICAL
-
-                self._show_message_trigger.emit(_title, body, icon, urgency)
-            else:
-                print("PostAlert() unknown alert action:", alert)
-        except Exception as e:
-            print("PostAlert() exception:", e)
-            return ui_pb2.MsgResponse(id=1)
-
+        proto, addr = self._get_peer(context.peer())
+        self._add_alert_trigger.emit(proto, addr, alert)
         return ui_pb2.MsgResponse(id=0)
 
     def Ping(self, request, context):
