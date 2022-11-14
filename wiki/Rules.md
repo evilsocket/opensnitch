@@ -1,4 +1,10 @@
-### Rules format
+- [Format](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules.md#format)
+- [Performance](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules.md#some-considerations)
+- [Best practices](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules.md#best-practices)
+
+---
+
+### Format
 
 Rules are stored as JSON files inside the `-rule-path` folder, in the simplest case a rule looks like this:
 
@@ -173,15 +179,18 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
 
 - Disable unprivileged namespaces to prevent rules bypass
 
-  If /proc/sys/kernel/unprivileged_userns_clone is set to 1, change it to 0. Until we obtain the checksum of a binary, it's better to set it to 0.
+  If `/proc/sys/kernel/unprivileged_userns_clone` is set to 1, change it to 0. Until we obtain the checksum of a binary, it's better to set it to 0.
   
-- Don't allow connections opened by binaries located under certain directories: /dev/shm, /tmp, /var/tmp
+- Don't allow connections opened by binaries located under certain directories: `/dev/shm`, `/tmp`, `/var/tmp`
   
-  Why? When someone gets access to your system, usually these directories are the only ones where they can write files, thus it's usually used to drop malicious files.
+  Why? When someone gets access to your system, usually these directories are the only ones where they can write files, thus it's usually used to drop malicious files, that download remote binaries to escalate privileges, etc.
   
-  There're ton of examples (more common on servers than on the desktop): https://github.com/timb-machine/linux-malware
+  There're ton of examples [0] (more common on servers than on the desktop): https://github.com/timb-machine/linux-malware
   
   ```
   (*) Deny
   [x] From this executable: ^(/tmp/|/var/tmp/|dev/shm/).*
   ```
+
+[0] https://www.akamai.com/blog/security-research/kmdsbot-the-attack-and-mine-malware
+    - https://www.akamai.com/site/en/images/blog/2022/kmsdbot1.jpg
