@@ -1,5 +1,5 @@
 Name:           opensnitch
-Version:        1.6.0rc2
+Version:        1.6.0rc3
 Release:        1%{?dist}
 Summary:        OpenSnitch is a GNU/Linux application firewall
 
@@ -59,9 +59,9 @@ if [ -f /etc/opensnitchd/system-fw.json ]; then
 fi
 install -m 644 -b $B daemon/system-fw.json %{buildroot}/etc/opensnitchd/system-fw.json
 
-install -m 644 ebpf_prog/opensnitch.o %{buildroot}/etc/opensnitchd/opensnitch.o
-install -m 644 ebpf_prog/opensnitch-dns.o %{buildroot}/etc/opensnitchd/opensnitch-dns.o
-install -m 644 ebpf_prog/opensnitch-procs.o %{buildroot}/etc/opensnitchd/opensnitch-procs.o
+install -m 644 ebpf_prog/opensnitch.o %{buildroot}/usr/lib/opensnitchd/opensnitch.o
+install -m 644 ebpf_prog/opensnitch-dns.o %{buildroot}/usr/lib/opensnitchd/opensnitch-dns.o
+install -m 644 ebpf_prog/opensnitch-procs.o %{buildroot}/usr/lib/opensnitchd/opensnitch-procs.o
 
 # upgrade, uninstall
 %preun

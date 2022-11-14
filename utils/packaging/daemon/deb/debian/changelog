@@ -1,3 +1,9 @@
+opensnitch (1.6.0-rc.3-1) unstable; urgency=medium
+
+  * eBPF modules are now installed under /usr/lib/opensnitchd/.
+
+ -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  ga <ga@ono-sendai>  Tue, 15 Nov 2022 00:13:09 +0100
+
 opensnitch (1.6.0-rc.2-1) unstable; urgency=medium
 
   * New eBPF module to receive events (new execs, etc).

@@ -7,7 +7,7 @@ opensnitch (1.6.0-rc.3-1) unstable; urgency=medium
     - /usr/local/lib/opensnitchd/ebpf/
     - /usr/lib/opensnitchd/ebpf/
 
-    Modules under /etc/opensnitchd/ will still ne loaded if found, but it's 
+    Modules under /etc/opensnitchd/ will still be loaded if found, but it's
     deprecated and will be removed in the future.
 
     There's a new module to intercept processes execution. It may cause some

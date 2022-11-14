@@ -1,6 +1,6 @@
 %define name opensnitch-ui
-%define version 1.6.0rc2
-%define unmangled_version 1.6.0rc2
+%define version 1.6.0rc3
+%define unmangled_version 1.6.0rc3
 %define release 1
 %define __python python3
 %define desktop_file opensnitch_ui.desktop
