@@ -39,6 +39,7 @@ func monitorCache() {
 			goto Exit
 		case <-ebpfCacheTicker.C:
 			ebpfCache.DeleteOldItems()
+			execEvents.DeleteOldItems()
 		}
 	}
 Exit:

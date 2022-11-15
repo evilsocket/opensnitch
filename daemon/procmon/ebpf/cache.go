@@ -64,6 +64,17 @@ func (e *eventsStore) delete(key uint64) {
 	delete(e.execEvents, key)
 }
 
+func (e *eventsStore) DeleteOldItems() {
+	e.Lock()
+	defer e.Unlock()
+
+	for k, item := range e.execEvents {
+		if item.Proc.IsAlive() == false {
+			delete(e.execEvents, k)
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 
 type ebpfCacheItem struct {
