@@ -41,11 +41,11 @@ go mod vendor
 go build -o opensnitchd .
 
 %install
-mkdir -p %{buildroot}/usr/bin/ %{buildroot}/usr/lib/systemd/system/ %{buildroot}/etc/opensnitchd/rules %{buildroot}/etc/logrotate.d
+mkdir -p %{buildroot}/usr/bin/ %{buildroot}/usr/lib/opensnitchd/ebpf/ %{buildroot}/usr/lib/systemd/system/ %{buildroot}/etc/opensnitchd/rules %{buildroot}/etc/logrotate.d
 sed -i 's/\/usr\/local/\/usr/' daemon/opensnitchd.service
 install -m 755 daemon/opensnitchd %{buildroot}/usr/bin/opensnitchd
 install -m 644 daemon/opensnitchd.service %{buildroot}/usr/lib/systemd/system/opensnitch.service
-install -m 644 debian/opensnitch.logrotate %{buildroot}/etc/logrotate.d/opensnitch
+install -m 644 utils/packaging/daemon/deb/debian/opensnitch.logrotate %{buildroot}/etc/logrotate.d/opensnitch
 
 B=""
 if [ -f /etc/opensnitchd/default-config.json ]; then
@@ -59,9 +59,9 @@ if [ -f /etc/opensnitchd/system-fw.json ]; then
 fi
 install -m 644 -b $B daemon/system-fw.json %{buildroot}/etc/opensnitchd/system-fw.json
 
-install -m 644 ebpf_prog/opensnitch.o %{buildroot}/usr/lib/opensnitchd/opensnitch.o
-install -m 644 ebpf_prog/opensnitch-dns.o %{buildroot}/usr/lib/opensnitchd/opensnitch-dns.o
-install -m 644 ebpf_prog/opensnitch-procs.o %{buildroot}/usr/lib/opensnitchd/opensnitch-procs.o
+install -m 644 ebpf_prog/opensnitch.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch.o
+install -m 644 ebpf_prog/opensnitch-dns.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch-dns.o
+install -m 644 ebpf_prog/opensnitch-procs.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch-procs.o
 
 # upgrade, uninstall
 %preun
@@ -92,10 +92,10 @@ rm -rf %{buildroot}
 
 %files
 %{_bindir}/opensnitchd
-/usr/lib/systemd/system/opensnitch.service
+%{_prefix}/lib/systemd/system/opensnitch.service
 %{_sysconfdir}/opensnitchd/default-config.json
 %{_sysconfdir}/opensnitchd/system-fw.json
-%{_sysconfdir}/opensnitchd/opensnitch.o
-%{_sysconfdir}/opensnitchd/opensnitch-dns.o
-%{_sysconfdir}/opensnitchd/opensnitch-procs.o
+%{_prefix}/lib/opensnitchd/ebpf/opensnitch.o
+%{_prefix}/lib/opensnitchd/ebpf/opensnitch-dns.o
+%{_prefix}/lib/opensnitchd/ebpf/opensnitch-procs.o
 %{_sysconfdir}/logrotate.d/opensnitch
