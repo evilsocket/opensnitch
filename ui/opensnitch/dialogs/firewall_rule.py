@@ -250,15 +250,18 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # -----------------------------------------------------------
 
         saveIcon = Icons.new("document-save")
-        delIcon = Icons.new("edit-delete")
         closeIcon = Icons.new("window-close")
+        delIcon = Icons.new("edit-delete")
         addIcon = Icons.new("list-add")
+        remIcon = Icons.new("list-remove")
         helpIcon = Icons.new("help-browser")
         self.cmdSave.setIcon(saveIcon)
         self.cmdDelete.setIcon(delIcon)
         self.cmdClose.setIcon(closeIcon)
         self.cmdAdd.setIcon(addIcon)
         self.helpButton.setIcon(helpIcon)
+        self.cmdAddStatement.setIcon(addIcon)
+        self.cmdDelStatement.setIcon(remIcon)
 
     def showEvent(self, event):
         super(FwRuleDialog, self).showEvent(event)
@@ -951,6 +954,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                                 key_values.append((sk['key'], ""))
                         elif sk['key'] == Fw.ExprLimit.UNITS.value:
                             units = statem_value.split("/")
+                            print("statm:", units)
                             if len(units) != 3: # we expect the format key/value
                                 return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)")
 
