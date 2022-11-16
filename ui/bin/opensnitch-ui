@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 from PyQt5 import QtWidgets, QtGui, QtCore
-from opensnitch.config import Config
-from opensnitch.utils import Utils
 
 import sys
 import os
@@ -25,6 +23,7 @@ if dist_path not in sys.path:
 from opensnitch.service import UIService
 from opensnitch.config import Config
 from opensnitch.utils import Themes
+from opensnitch.utils import Utils
 import opensnitch.version
 import opensnitch.ui_pb2
 from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
