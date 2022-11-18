@@ -56,14 +56,6 @@ var (
 	// list of local addresses of this machine
 	localAddresses []net.IP
 
-	// ex.: /usr/lib/opensnitchd/ebpf/
-	modulesDir = "/opensnitchd/ebpf"
-	paths      = []string{
-		fmt.Sprint("/usr/local/lib", modulesDir),
-		fmt.Sprint("/usr/lib", modulesDir),
-		fmt.Sprint("/etc/opensnitchd"), // deprecated
-	}
-	modulesPath   = ""
 	hostByteOrder binary.ByteOrder
 )
 
@@ -75,12 +67,11 @@ func Start() error {
 		return err
 	}
 	var err error
-	m, err = loadModule("opensnitch.o")
+	m, err = core.LoadEbpfModule("opensnitch.o")
 	if err != nil {
-		msg := fmt.Errorf("eBPF Failed loading %s/%s: %s", modulesPath, "opensnitch.o", err)
-		log.Error("%s", msg)
-		dispatchErrorEvent(msg.Error())
-		return msg
+		log.Error("%s", err)
+		dispatchErrorEvent(fmt.Sprint("[eBPF]: ", err.Error()))
+		return err
 	}
 	m.EnableOptionCompatProbe()
 
@@ -145,21 +136,6 @@ func saveEstablishedConnections(commDomain uint8) error {
 		alreadyEstablished.Unlock()
 	}
 	return nil
-}
-
-func loadModule(module string) (md *elf.Module, err error) {
-	for _, p := range paths {
-		modulesPath = p
-		md = elf.NewModule(fmt.Sprint(modulesPath, "/", module))
-
-		if err = md.Load(nil); err == nil {
-			log.Info("[eBPF] module loaded: %s/%s", modulesPath, module)
-			break
-		}
-		err = nil
-	}
-
-	return md, err
 }
 
 func setRunning(status bool) {

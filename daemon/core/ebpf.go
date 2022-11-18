@@ -1,0 +1,33 @@
+package core
+
+import (
+	"fmt"
+
+	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/iovisor/gobpf/elf"
+)
+
+// LoadEbpfModule loads the given eBPF module
+// It'll try to load from several paths.
+func LoadEbpfModule(module string) (m *elf.Module, err error) {
+	var (
+		modulesDir = "/opensnitchd/ebpf"
+		paths      = []string{
+			fmt.Sprint("/usr/local/lib", modulesDir),
+			fmt.Sprint("/usr/lib", modulesDir),
+			fmt.Sprint("/etc/opensnitchd"), // deprecated
+		}
+	)
+	modulesPath := ""
+	for _, p := range paths {
+		modulesPath = p
+		m = elf.NewModule(fmt.Sprint(modulesPath, "/", module))
+
+		if err = m.Load(nil); err == nil {
+			log.Info("[eBPF] module loaded: %s/%s", modulesPath, module)
+			return m, nil
+		}
+	}
+
+	return m, fmt.Errorf("error loading %s/%s", modulesPath, module)
+}

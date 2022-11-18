@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
 	elf "github.com/iovisor/gobpf/elf"
@@ -74,15 +75,15 @@ var (
 func initEventsStreamer() {
 	elfOpts := make(map[string]elf.SectionParams)
 	elfOpts["maps/"+perfMapName] = elf.SectionParams{PerfRingBufferPageCount: ringBuffSize}
-	mp, err := loadModule("opensnitch-procs.o")
+	mp, err := core.LoadEbpfModule("opensnitch-procs.o")
 	if err != nil {
-		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Failed loading %s/opensnitch-procs.o: %s", modulesPath, err))
+		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
 		return
 	}
 	mp.EnableOptionCompatProbe()
 
 	if err = mp.Load(elfOpts); err != nil {
-		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Failed loading %s/opensnitch-procs.o: %v", modulesPath, err))
+		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
 		return
 	}
 

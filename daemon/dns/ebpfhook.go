@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	bpf "github.com/iovisor/gobpf/elf"
 )
@@ -93,10 +94,9 @@ func lookupSymbol(elffile *elf.File, symbolName string) (uint64, error) {
 
 // ListenerEbpf starts listening for DNS events.
 func ListenerEbpf() error {
-
-	m := bpf.NewModule("/etc/opensnitchd/opensnitch-dns.o")
-	if err := m.Load(nil); err != nil {
-		log.Error("EBPF-DNS: Failed to load /etc/opensnitchd/opensnitch-dns.o: %v", err)
+	m, err := core.LoadEbpfModule("opensnitch-dns.o")
+	if err != nil {
+		log.Error("[eBPF DNS]: %s", err)
 		return err
 	}
 	defer m.Close()
