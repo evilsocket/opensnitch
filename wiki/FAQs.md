@@ -45,6 +45,8 @@ If the output is empty or it fails, then you can try mounting it: `# mount -t de
 
 If it still doesn't work, you can enable `[x] Debug invalid connections` under Preferences->Nodes.
 
+[More info](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog)
+
 **Which connections does OpenSnitch intercept?**
 
 We currently (>= v1.0.0-rc4) only intercept new connections (iptables/conntrack state NEW) of TCP, UDP and UDPLITE protocols, to/from any port.
