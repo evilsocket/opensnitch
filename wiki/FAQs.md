@@ -51,6 +51,44 @@ If it still doesn't work, you can enable `[x] Debug invalid connections` under P
 
 We currently (>= v1.0.0-rc4) only intercept new connections (iptables/conntrack state NEW) of TCP, UDP and UDPLITE protocols, to/from any port.
 
+Kernels support
+---
+
+Your kernel needs some features to be enabled in order eBPF to work: debugfs (or tracefs), kprobes, perf events, ftrace and syscalls (bpf and ftrace).
+
+You can check if they're available for your kernel with the following commands:
+
+```bash
+ $ grep -E "(BPF|FTRACE|KPROBE)" /boot/config-$(uname -r)
+  CONFIG_CGROUP_BPF=y
+  CONFIG_BPF=y
+  CONFIG_BPF_SYSCALL=y
+  CONFIG_BPF_EVENTS=y
+  CONFIG_KPROBES=y
+  CONFIG_KPROBE_EVENTS=y
+  CONFIG_FTRACE=y
+  CONFIG_FTRACE_SYSCALLS=y
+```
+If any of the above options appears as "is not set", your kernel lacks support for it.
+
+```bash
+$ sudo ls /sys/kernel/debug/tracing/kprobe_events
+$ sudo ls /sys/kernel/debug/tracing/events/syscalls/
+```
+
+If some of the above commands outputs "no such file or directory", your kernel lacks support for it.
+
+[More info](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog)
+
+**xanmod and liquorix kernels**
+
+Unfortunately, these kernels are compiled without the mentioned features, so eBPF process monitor method won't be available on these kernels.
+liquorix does have support for kprobes, but no syscalls tracing. But xanmod doesn't have support for any of the needed features.
+
+**hardened kernels**
+
+We support most of the kernel hardening options. However some of them causes eBPF not to work. We don't know yet (18/11/2022) which is exactly the option that prevent us to work as expected.
+
 Configuration
 ---
 
