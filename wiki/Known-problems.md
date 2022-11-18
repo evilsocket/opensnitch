@@ -6,6 +6,8 @@
 
 [error while loading "kprobe/(...)": invalid argument](#error-while-loading-kprobes-invalid-argument)
 
+[error enabling tracepoint (...)](#error-enabling-tracepoints)
+
 **General**
 
 [Blank window after boot up](#blank-window-after-boot-up)
@@ -106,6 +108,20 @@ CONFIG_FTRACE=y
 If the output is `# CONFIG_FTRACE is not set`, your kernel is not compiled with ftrace support.
 
 Read more: [#475](https://github.com/evilsocket/opensnitch/issues/475)
+
+### error enabling tracepoints
+
+> [eBPF events] error enabling tracepoint tracepoint/syscalls/sys_enter_execve: cannot read tracepoint id (...)
+
+Your kernel lacks support for syscalls tracing. The kernel must have the following option configured:
+
+```bash
+$ grep FTRACE_SYSCALLS /boot/config-$(uname -r)
+CONFIG_FTRACE_SYSCALLS=y
+```
+
+If the output is `# CONFIG_FTRACE_SYSCALLS is not set`, you need to reconfigure it or install one that has the option enabled.
+
 
 ### Blank window after boot up
 
