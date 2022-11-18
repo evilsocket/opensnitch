@@ -1,37 +1,51 @@
-opensnitch.c is an eBPF program. Compilation requires getting kernel source.
+Compilation requires getting kernel sources.
 
-sudo apt install clang llvm libelf-dev libzip-dev flex bison libssl-dev bc rsync python3
-cd opensnitch
-wget https://github.com/torvalds/linux/archive/v5.8.tar.gz
-tar -xf v5.8.tar.gz
-patch linux-5.8/tools/lib/bpf/bpf_helpers.h < ebpf_prog/file.patch
-cp ebpf_prog/opensnitch*.c ebpf_prog/common.h ebpf_prog/Makefile linux-5.8/samples/bpf
-cd linux-5.8 && yes "" | make oldconfig && make prepare && make headers_install # (1 min)
-cd samples/bpf && make
-objdump -h opensnitch.o #you should see many section, number 1 should be called kprobe/tcp_v4_connect
-llvm-strip -g opensnitch.o #remove debug info
-sudo cp opensnitch*.o /etc/opensnitchd/ 
-cd ../../../daemon
+There's a helper script to automate this process:
+ https://github.com/evilsocket/opensnitch/blob/master/utils/packaging/build_modules.sh
 
---opensnitchd expects to find opensnitch.o in /etc/opensnitchd/
---start opensnitchd with:
+The basic steps to compile the modules are:
 
-opensnitchd -rules-path /etc/opensnitchd/rules -process-monitor-method ebpf
+  sudo apt install clang llvm libelf-dev libzip-dev flex bison libssl-dev bc rsync python3
+  cd opensnitch
+  wget https://github.com/torvalds/linux/archive/v5.8.tar.gz
+  tar -xf v5.8.tar.gz
+  patch linux-5.8/tools/lib/bpf/bpf_helpers.h < ebpf_prog/file.patch
+  cp ebpf_prog/opensnitch*.c ebpf_prog/common.h ebpf_prog/Makefile linux-5.8/samples/bpf
+  cd linux-5.8 && yes "" | make oldconfig && make prepare && make headers_install # (1 min)
+  cd samples/bpf && make
+  objdump -h opensnitch.o #you should see many section, number 1 should be called kprobe/tcp_v4_connect
+  llvm-strip -g opensnitch.o #remove debug info
+  sudo cp opensnitch*.o /etc/opensnitchd/
+  cd ../../../daemon
+
+opensnitchd expects to find opensnitch.o in:
+ /usr/local/lib/opensnitchd/ebpf/
+ /usr/lib/opensnitchd/ebpf/
+ /etc/opensnitchd/ # deprecated
+
+start opensnitchd with:
+
+  opensnitchd -rules-path /etc/opensnitchd/rules -process-monitor-method ebpf
 
 The kernel where you intend to run it must have some options activated:
 
-$ grep BPF /boot/config-$(uname -r)
-CONFIG_CGROUP_BPF=y
-CONFIG_BPF=y
-CONFIG_BPF_SYSCALL=y
-CONFIG_BPF_EVENTS=y
-CONFIG_KPROBES=y
-CONFIG_KPROBE_EVENTS=y
+ $ grep BPF /boot/config-$(uname -r)
+  CONFIG_CGROUP_BPF=y
+  CONFIG_BPF=y
+  CONFIG_BPF_SYSCALL=y
+  CONFIG_BPF_EVENTS=y
+  CONFIG_KPROBES=y
+  CONFIG_KPROBE_EVENTS=y
+
+For the opensnitch-procs.o module to work, this option must be enabled:
+
+ $ grep FTRACE_SYSCALLS /boot/config-$(uname -r)
+  CONFIG_FTRACE_SYSCALLS=y
 
 Also, in some distributions debugfs is not mounted automatically, so you need
 to do it manually:
 
-$ sudo mount -t debugfs none /sys/kernel/debug
+ $ sudo mount -t debugfs none /sys/kernel/debug
 
 In order to make it permanent add it to /etc/fstab:
 
