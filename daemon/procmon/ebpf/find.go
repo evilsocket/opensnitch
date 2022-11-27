@@ -128,20 +128,47 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		return nil
 	}
 
+	proc = findConnProcess(&value, k)
+
+	log.Debug("[ebpf conn] adding item to cache: %s", k)
+	ebpfCache.addNewItem(k, key, *proc)
+	if delItemIfFound {
+		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))
+	}
+	return
+}
+
+// findConnProcess finds the process' details of a connection.
+// By default we only receive the PID of the process, so we need to get
+// the rest of the details.
+// TODO: get the details from kernel, with mm_struct (exe_file, fd_path, etc).
+func findConnProcess(value *networkEventT, connKey string) (proc *procmon.Process) {
 	comm := byteArrayToString(value.Comm[:])
 	proc = procmon.NewProcess(int(value.Pid), comm)
 	// Use socket's UID. A process may have dropped privileges.
 	// This is the UID that we've always used.
 	proc.UID = int(value.UID)
 
+	err := proc.ReadPath()
 	if ev, found := execEvents.isInStore(value.Pid); found {
-		// use socket's UID. See above ^
+		// use socket's UID. See above why ^
 		ev.Proc.UID = proc.UID
 		ev.Proc.ReadCmdline()
+		// if proc's ReadPath() has been successfull, and the path received via the execve tracepoint differs,
+		// use proc's path.
+		// Sometimes we received from the tracepoint a wrong/non-existent path.
+		// Othertimes we receive a "helper" that executes the real binary which opens the connection.
+		// Downsides: for execveat() executions we won't display the original binary.
+		if err == nil && ev.Proc.Path != proc.Path {
+			proc.ReadCmdline()
+			ev.Proc.Path = proc.Path
+			ev.Proc.Args = proc.Args
+		}
 		proc = &ev.Proc
-		log.Debug("[ebpf conn] not in cache, but in execEvents: %s, %d -> %s", k, proc.ID, proc.Path)
+
+		log.Debug("[ebpf conn] not in cache, but in execEvents: %s, %d -> %s", connKey, proc.ID, proc.Path)
 	} else {
-		log.Debug("[ebpf conn] not in cache, NOR in execEvents: %s, %d -> %s", k, proc.ID, proc.Path)
+		log.Debug("[ebpf conn] not in cache, NOR in execEvents: %s, %d -> %s", connKey, proc.ID, proc.Path)
 		// We'll end here if the events module has not been loaded, or if the process is not in cache.
 		proc.GetInfo()
 		execEvents.add(value.Pid,
@@ -149,11 +176,6 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 			*proc)
 	}
 
-	log.Debug("[ebpf conn] adding item to cache: %s", k)
-	ebpfCache.addNewItem(k, key, *proc)
-	if delItemIfFound {
-		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))
-	}
 	return
 }
 
