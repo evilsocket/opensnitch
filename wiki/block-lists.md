@@ -15,6 +15,8 @@ Use cases:
 
 [Troubleshooting](#troubleshooting)
 
+[Video tutorial](#resources)
+
 [Resources](#resources)
 
 **Important note:** This feature may not work if your system uses `systemd-resolved` to resolve domains. Compiling `opensnitch-dns.c` [eBPF module](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog) may help to workaround this problem. If blocklists don't work, change your nameserver in `/etc/resolv.conf` to 1.1.1.1, 9.9.9.9, etc... and see if it works.
