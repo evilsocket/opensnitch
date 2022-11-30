@@ -33,36 +33,26 @@ sudo ln -s /usr/lib64/qt5/bin/lrelease-qt5 /usr/local/bin/lrelease
 ```
 Then it should build properly.
 
-### Compiling the eBPF modules
+***Note for Ubuntu 22.xx users***
 
-```bash
-# dependencies:
-# sudo apt install -y wget flex bison ca-certificates wget python3 rsync bc libssl-dev clang llvm libelf-dev libzip-dev git libpcap-dev
+You may need to install `qttols5-dev` package and set and environment variable:
 
-cd opensnitch/
+```
+#set env var for QT version
+export QT_SELECT=qt5
 
-kernel_version=$(uname -r | cut -d. -f1,2)
-
-rm -f v${kernel_version}.tar.gz
-wget https://github.com/torvalds/linux/archive/v${kernel_version}.tar.gz
-
-rm -rf linux-${kernel_version}/
-tar -xf v${kernel_version}.tar.gz
-
-patch linux-${kernel_version}/tools/lib/bpf/bpf_helpers.h < ebpf_prog/file.patch
-cp ebpf_prog/opensnitch*.c ebpf_prog/common.h ebpf_prog/Makefile linux-${kernel_version}/samples/bpf
-cd linux-${kernel_version} && yes "" | make oldconfig && make prepare && make headers_install # (1 min)
-cd samples/bpf && make
-# objdump -h opensnitch.o #you should see many section, number 1 should be called kprobe/tcp_v4_connect
-
-mkdir ../../../ebpf_prog/modules/
-cp opensnitch*o ../../../ebpf_prog/modules/
-cd ../../../
-llvm-strip -g ebpf_prog/modules/opensnitch.o #remove debug info
+#install qt tools which includes lrelease
+sudo apt install qttools5-dev
 ```
 
-Then you can copy the `*.o` files to `/etc/opensnitchd/`:
-`$ sudo cp opensnitch*.o /etc/opensnitchd/`
+More info: #773
+
+### Compiling the eBPF modules
+
+Follow the instructions described here: https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog
+
+Additionally, you can use this script to easyly build the modules: 
+https://github.com/evilsocket/opensnitch/blob/master/utils/packaging/build_modules.sh
 
 **Daemon**
 
