@@ -45,7 +45,7 @@ export QT_SELECT=qt5
 sudo apt install qttools5-dev
 ```
 
-More info: #773
+More info: [#773](https://github.com/evilsocket/opensnitch/issues/773)
 
 ### Compiling the eBPF modules
 
