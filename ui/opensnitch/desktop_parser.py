@@ -84,7 +84,7 @@ class LinuxDesktopParser(threading.Thread):
         # normally qt will find icons if the system if configured properly.
         # if it's not, qt won't be able to find the icon by using QIcon().fromTheme(""),
         # so we fallback to try to determine if the icon exist in some well known system paths.
-        icon_dirs = ("/usr/share/icons/gnome/48x48/apps/", "/usr/share/pixmaps/", "/usr/share/icons/hicolor/48x48/apps/")
+        icon_dirs = ("/usr/share/icons/gnome/48x48/apps/", "/usr/share/pixmaps/", "/usr/share/icons/hicolor/48x48/apps/", "/usr/share/icons/HighContrast/48x48/apps/")
         icon_exts = (".png", ".xpm", ".svg")
         for idir in icon_dirs:
             for iext in icon_exts:
