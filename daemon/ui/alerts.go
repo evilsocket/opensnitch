@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
@@ -74,10 +73,10 @@ func (c *Client) SendErrorAlert(data interface{}) {
 // alertsDispatcher waits to be connected to the GUI.
 // Once connected, dispatches all the queued alerts.
 func (c *Client) alertsDispatcher() {
-	queuedAlerts := make(chan protocol.Alert, 3)
+	queuedAlerts := make(chan protocol.Alert, 32)
 	connected := false
 
-	isQueueFull := func(qdAlerts chan protocol.Alert) bool { return len(qdAlerts) > 2 }
+	isQueueFull := func(qdAlerts chan protocol.Alert) bool { return len(qdAlerts) > 31 }
 	isQueueEmpty := func(qdAlerts chan protocol.Alert) bool { return len(qdAlerts) == 0 }
 	queueAlert := func(qdAlerts chan protocol.Alert, pbAlert protocol.Alert) {
 		if isQueueFull(qdAlerts) {
@@ -112,7 +111,6 @@ func (c *Client) alertsDispatcher() {
 					c.dispatchAlert(<-queuedAlerts)
 				}
 			}
-			fmt.Println()
 		}
 	}
 }

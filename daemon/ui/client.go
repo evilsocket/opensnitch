@@ -351,9 +351,6 @@ func (c *Client) Ask(con *conman.Connection) *rule.Rule {
 
 // PostAlert queues a new message to be delivered to the server
 func (c *Client) PostAlert(atype protocol.Alert_Type, awhat protocol.Alert_What, action protocol.Alert_Action, prio protocol.Alert_Priority, data interface{}) {
-	if c.client == nil {
-		return
-	}
 	if len(c.alertsChan) > maxQueuedAlerts-1 {
 		// pop oldest alert if channel is full
 		log.Debug("PostAlert() queue full, popping alert (%d)", len(c.alertsChan))
