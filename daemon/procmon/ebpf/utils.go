@@ -32,7 +32,10 @@ func mountDebugFS() error {
 	if core.Exists(kprobesPath) == false {
 		if _, err := core.Exec("mount", []string{"-t", "debugfs", "none", debugfsPath}); err != nil {
 			log.Warning("eBPF debugfs error: %s", err)
-			return err
+			return fmt.Errorf(`%s
+			Unable to access debugfs filesystem, needed for eBPF to work, likely caused by a hardened or customized kernel.
+			Change process monitor method to 'proc' to stop receiving this alert
+			`, err)
 		}
 	}
 

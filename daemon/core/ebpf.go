@@ -27,7 +27,8 @@ func LoadEbpfModule(module string) (m *elf.Module, err error) {
 			log.Info("[eBPF] module loaded: %s/%s", modulesPath, module)
 			return m, nil
 		}
+		log.Warning("ebpf module not found: %s, %s/%s", err, modulesPath, module)
 	}
 
-	return m, fmt.Errorf("error loading %s/%s", modulesPath, module)
+	return m, fmt.Errorf("unable to load eBPF modules")
 }

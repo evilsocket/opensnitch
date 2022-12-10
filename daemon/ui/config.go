@@ -100,7 +100,7 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	}
 	if config.ProcMonitorMethod != "" {
 		if err := monitor.ReconfigureMonitorMethod(config.ProcMonitorMethod); err != nil {
-			msg := fmt.Sprintf("Unable to set new process monitor method from disk: %v", err)
+			msg := fmt.Sprintf("Unable to set new process monitor (%s) method from disk: %v", config.ProcMonitorMethod, err)
 			log.Warning(msg)
 			c.SendWarningAlert(msg)
 		}
