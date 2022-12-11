@@ -189,7 +189,7 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
   
   ```
   (*) Deny
-  [x] From this executable: ^(/tmp/|/var/tmp/|dev/shm/).*
+  [x] From this executable: ^(/tmp/|/var/tmp/|/dev/shm/).*
   ```
 
 [0] https://www.akamai.com/blog/security-research/kmdsbot-the-attack-and-mine-malware
