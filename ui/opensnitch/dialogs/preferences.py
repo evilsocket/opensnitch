@@ -451,7 +451,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return error
 
             if addr.startswith("unix:/"):
-                if self._cfg.getSettings(Config.DEFAULT_SERVER_ADDR) != self.comboNodeAddress.currentText():
+                savedAddr = self._cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
+                if savedAddr != None and savedAddr != self.comboNodeAddress.currentText():
                     Message.ok(
                         QC.translate("preferences", "Ok"),
                         QC.translate("preferences", "Restart the GUI in order changes to take effect"),
