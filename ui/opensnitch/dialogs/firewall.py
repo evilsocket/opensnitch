@@ -58,11 +58,13 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdAllowOUTService.clicked.connect(self._cb_allow_out_service_clicked)
         self.cmdAllowINService.clicked.connect(self._cb_allow_in_service_clicked)
         self.comboInput.currentIndexChanged.connect(lambda: self._cb_combo_policy_changed(self.COMBO_IN))
-        self.comboOutput.currentIndexChanged.connect(lambda: self._cb_combo_policy_changed(self.COMBO_OUT))
         self.comboProfile.currentIndexChanged.connect(self._cb_combo_profile_changed)
         self.sliderFwEnable.valueChanged.connect(self._cb_enable_fw_changed)
         self.cmdClose.clicked.connect(self._cb_close_clicked)
 
+        # TODO: when output policy is set to Drop, all outbound traffic is
+        # blocked.
+        #self.comboOutput.currentIndexChanged.connect(lambda: self._cb_combo_policy_changed(self.COMBO_OUT))
 
         if QtGui.QIcon.hasThemeIcon("document-new"):
             return
@@ -145,7 +147,6 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         # if previous input policy was DROP, when disabling the firewall it
         # must be ACCEPT to allow output traffic.
-        # TODO: just update the fw configuration, instead of triggering a reload
         if not enable and self.comboInput.currentIndex() == self.POLICY_DROP:
             self.comboInput.setCurrentIndex(self.POLICY_ACCEPT)
 
@@ -255,8 +256,6 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboOutput.blockSignals(False)
         self.comboProfile.blockSignals(False)
 
-
-
     def load_rule(self, addr, uuid):
         self._fwrule_dialog.load(addr, uuid)
 
@@ -293,7 +292,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _disable_widgets(self, disable=True):
         self.comboInput.setEnabled(not disable)
-        self.comboOutput.setEnabled(not disable)
+        #self.comboOutput.setEnabled(not disable)
         self.cmdNewRule.setEnabled(not disable)
         self.cmdAllowOUTService.setEnabled(not disable)
         self.cmdAllowINService.setEnabled(not disable)

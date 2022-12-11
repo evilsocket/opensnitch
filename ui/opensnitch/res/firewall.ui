@@ -306,6 +306,9 @@ QSlider::sub-page:horizontal {
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="label_4">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Outbound</string>
             </property>
