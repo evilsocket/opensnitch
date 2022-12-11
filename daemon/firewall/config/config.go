@@ -68,7 +68,7 @@ type FwRule struct {
 	Target           string
 	TargetParameters string
 
-	Position uint64
+	Position uint64 `json:",string"`
 	Enabled  bool
 
 	*sync.RWMutex
