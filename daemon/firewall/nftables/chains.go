@@ -115,7 +115,7 @@ func (n *Nft) delChain(chain *nftables.Chain) error {
 	n.conn.DelChain(chain)
 	delete(sysChains, getChainKey(chain.Name, chain.Table))
 	if !n.Commit() {
-		return fmt.Errorf("delChain, error deleting %s", chain.Name)
+		return fmt.Errorf("[nftables] error deleting chain %s, %s", chain.Name, chain.Table.Name)
 	}
 
 	return nil

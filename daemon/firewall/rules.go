@@ -57,8 +57,7 @@ func Init(fwType string, qNum *int) (err error) {
 	}
 
 	if err != nil {
-		log.Error("firewall error: %s, not iptables nor nftables are available or are usable. Please, report it on github.", err)
-		return
+		return fmt.Errorf("firewall error: %s, not iptables nor nftables are available or are usable. Please, report it on github", err)
 	}
 
 	if fw == nil {

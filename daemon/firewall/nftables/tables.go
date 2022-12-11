@@ -78,7 +78,7 @@ func (n *Nft) delSystemTables() {
 		}
 		n.conn.DelTable(tbl)
 		if !n.Commit() {
-			log.Warning("error deleting system tables")
+			log.Warning("error deleting system table: %s", k)
 			continue
 		}
 		delete(sysTables, k)
