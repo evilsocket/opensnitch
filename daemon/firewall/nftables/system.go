@@ -13,15 +13,17 @@ import (
 )
 
 var (
-	logTag    = "nftables:"
-	sysTables map[string]*nftables.Table
-	sysChains map[string]*nftables.Chain
-	sysSets   []*nftables.Set
+	logTag        = "nftables:"
+	sysTables     map[string]*nftables.Table
+	sysChains     map[string]*nftables.Chain
+	origSysChains map[string]*nftables.Chain
+	sysSets       []*nftables.Set
 )
 
 func initMapsStore() {
 	sysTables = make(map[string]*nftables.Table)
 	sysChains = make(map[string]*nftables.Chain)
+	origSysChains = make(map[string]*nftables.Chain)
 }
 
 // CreateSystemRule create the custom firewall chains and adds them to system.
@@ -71,6 +73,7 @@ func (n *Nft) AddSystemRules(reload bool) {
 		log.Important("[nftables] AddSystemRules() fw disabled")
 		return
 	}
+	n.backupExistingChains()
 
 	for _, fwCfg := range n.SysConfig.SystemRules {
 		for _, chain := range fwCfg.Chains {
@@ -101,6 +104,7 @@ func (n *Nft) DeleteSystemRules(force, logErrors bool) {
 	if err := n.delRulesByKey(systemRuleKey); err != nil {
 		log.Warning("error deleting interception rules: %s", err)
 	}
+	n.restoreBackupChains()
 
 	if force {
 		n.delSystemTables()

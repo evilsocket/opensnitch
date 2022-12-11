@@ -120,3 +120,26 @@ func (n *Nft) delChain(chain *nftables.Chain) error {
 
 	return nil
 }
+
+// backupExistingChains saves chains with Accept policy.
+// If the user configures the chain policy to Drop, we need to set it back to Accept,
+// in order not to block incoming connections.
+func (n *Nft) backupExistingChains() {
+	if chains, err := n.conn.ListChains(); err == nil {
+		for _, c := range chains {
+			if c.Policy != nil && *c.Policy == nftables.ChainPolicyAccept {
+				log.Debug("%s backing up existing chain with policy ACCEPT: %s, %s", logTag, c.Name, c.Table.Name)
+				origSysChains[getChainKey(c.Name, c.Table)] = c
+			}
+		}
+	}
+}
+
+func (n *Nft) restoreBackupChains() {
+	for _, c := range origSysChains {
+		log.Debug("%s Restoring chain policy to accept: %s, %s", logTag, c.Name, c.Table.Name)
+		*c.Policy = nftables.ChainPolicyAccept
+		n.conn.AddChain(c)
+	}
+	n.Commit()
+}
