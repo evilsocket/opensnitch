@@ -1,8 +1,5 @@
 #define KBUILD_MODNAME "dummy"
 
-//uncomment if building on x86_32
-//#define OPENSNITCH_x86_32
-
 #include "common.h"
 #include <linux/version.h>
 #include <uapi/linux/tcp.h>
@@ -151,13 +148,13 @@ struct bpf_map_def SEC("maps/debug") debug = {
 SEC("kprobe/tcp_v4_connect")
 int kprobe__tcp_v4_connect(struct pt_regs *ctx)
 {
-	#ifdef OPENSNITCH_x86_32
+#if defined(__i386__)
 	// On x86_32 platforms I couldn't get function arguments using PT_REGS_PARM1
 	// that's why we are accessing registers directly
 		struct sock *sk = (struct sock *)((ctx)->ax);
-	#else 
+#else
 		struct sock *sk = (struct sock *)PT_REGS_PARM1(ctx);
-	#endif
+#endif
 
 	u64 skp = (u64)sk;
 	u64 pid_tgid = bpf_get_current_pid_tgid();
@@ -197,11 +194,11 @@ int kretprobe__tcp_v4_connect(struct pt_regs *ctx)
 SEC("kprobe/tcp_v6_connect")
 int kprobe__tcp_v6_connect(struct pt_regs *ctx)
 {
-	#ifdef OPENSNITCH_x86_32
+#if defined(__i386__)
 		struct sock *sk = (struct sock *)((ctx)->ax);
-	#else
+#else
 		struct sock *sk = (struct sock *)PT_REGS_PARM1(ctx);
-	#endif
+#endif
 
 	u64 skp = (u64)sk;
 	u64 pid_tgid = bpf_get_current_pid_tgid();
@@ -224,16 +221,16 @@ int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
 	__builtin_memset(&tcpv6_key, 0, sizeof(tcpv6_key));
 	bpf_probe_read(&tcpv6_key.dport, sizeof(tcpv6_key.dport), &sk->__sk_common.skc_dport);
 	bpf_probe_read(&tcpv6_key.sport, sizeof(tcpv6_key.sport), &sk->__sk_common.skc_num);
-	#ifdef OPENSNITCH_x86_32
+#if defined(__i386__)
 		struct sock_on_x86_32_t sock;
 		__builtin_memset(&sock, 0, sizeof(sock));
 		bpf_probe_read(&sock, sizeof(sock), *(&sk));
 		tcpv6_key.daddr = sock.daddr;
 		tcpv6_key.saddr = sock.saddr;
-	#else
+#else
 		bpf_probe_read(&tcpv6_key.daddr, sizeof(tcpv6_key.daddr), &sk->__sk_common.skc_v6_daddr.in6_u.u6_addr32);
 		bpf_probe_read(&tcpv6_key.saddr, sizeof(tcpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
-	#endif
+#endif
 
 	struct tcpv6_value_t tcpv6_value={0};
 	__builtin_memset(&tcpv6_value, 0, sizeof(tcpv6_value));
@@ -249,13 +246,13 @@ int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
 SEC("kprobe/udp_sendmsg")
 int kprobe__udp_sendmsg(struct pt_regs *ctx)
 {
-	#ifdef OPENSNITCH_x86_32
+#if defined(__i386__)
 		struct sock *sk = (struct sock *)((ctx)->ax);
 		struct msghdr *msg = (struct msghdr *)((ctx)->dx);
-	#else
+#else
 		struct sock *sk = (struct sock *)PT_REGS_PARM1(ctx);
 		struct msghdr *msg = (struct msghdr *)PT_REGS_PARM2(ctx);
-	#endif
+#endif
 
 	u64 msg_name; //pointer
 	__builtin_memset(&msg_name, 0, sizeof(msg_name));
@@ -296,13 +293,13 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
 SEC("kprobe/udpv6_sendmsg")
 int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 {	
-	#ifdef OPENSNITCH_x86_32
+#if defined(__i386__)
 		struct sock *sk = (struct sock *)((ctx)->ax);
 		struct msghdr *msg = (struct msghdr *)((ctx)->dx);
-	#else
+#else
 		struct sock *sk = (struct sock *)PT_REGS_PARM1(ctx);
 		struct msghdr *msg = (struct msghdr *)PT_REGS_PARM2(ctx);
-	#endif
+#endif
 
 	u64 msg_name; //a pointer
 	__builtin_memset(&msg_name, 0, sizeof(msg_name));
@@ -324,13 +321,13 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 	bpf_probe_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
 
 
-	#ifdef OPENSNITCH_x86_32
+#if defined(__i386__)
 	struct sock_on_x86_32_t sock;
-    	__builtin_memset(&sock, 0, sizeof(sock));
-    	bpf_probe_read(&sock, sizeof(sock), *(&sk));
+   	__builtin_memset(&sock, 0, sizeof(sock));
+   	bpf_probe_read(&sock, sizeof(sock), *(&sk));
 	udpv6_key.daddr = sock.daddr;
 	udpv6_key.saddr = sock.saddr;
-	#endif
+#endif
 
 	u32 zero_key = 0;
 	struct udpv6_value_t *lookedupValue = bpf_map_lookup_elem(&udpv6Map, &udpv6_key);
@@ -348,14 +345,12 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 	
 };
 
+// TODO: for 32bits
+#if !defined(__arm__) && !defined(__i386__)
+
 SEC("kprobe/iptunnel_xmit")
 int kprobe__iptunnel_xmit(struct pt_regs *ctx)
 {
-#ifdef OPENSNITCH_x86_32
-	// TODO
-	return 0;
-#else
-
 	struct sk_buff *skb = (struct sk_buff *)PT_REGS_PARM3(ctx);
 	u32 src = (u32)PT_REGS_PARM4(ctx);
 	u32 dst = (u32)PT_REGS_PARM5(ctx);
@@ -396,9 +391,8 @@ int kprobe__iptunnel_xmit(struct pt_regs *ctx)
 
 	//else nothing to do
 	return 0;
-
-#endif
 };
+#endif
 
 // debug only: increment key's value by 1 in map "bytes"
 void increment(u32 key){

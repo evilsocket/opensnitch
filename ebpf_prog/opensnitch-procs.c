@@ -1,8 +1,5 @@
 #define KBUILD_MODNAME "opensnitch-procs"
 
-//uncomment if building on x86_32
-//#define OPENSNITCH_x86_32
-
 #include "common.h"
 
 struct bpf_map_def SEC("maps/proc-events") events = {
@@ -27,7 +24,7 @@ static __always_inline void new_event(struct data_t* data)
     data->pid = bpf_get_current_pid_tgid() >> 32;
 
     // FIXME: always 0?
-#ifndef OPENSNITCH_x86_32
+#if !defined(__arm__) && !defined(__i386__)
     // on i686 -> invalid read from stack
     bpf_probe_read(&data->ppid, sizeof(data->ppid), &parent->tgid);
 #endif
@@ -81,6 +78,9 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
     const char *argp={0};
     data->args_count = 0;
     data->args_partial = INCOMPLETE_ARGS;
+
+// FIXME: on i386 arch, the following code fails with permission denied.
+#if !defined(__arm__) && !defined(__i386__)
     #pragma unroll
     for (int i = 0; i < MAX_ARGS; i++) {
         bpf_probe_read_user(&argp, sizeof(argp), &ctx->argv[i]);
@@ -91,6 +91,7 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
         }
         data->args_count++;
     }
+#endif
 
     // With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
     // BUG: after coming back from suspend state, this helper fails with error -95 (EOPNOTSUPP)
