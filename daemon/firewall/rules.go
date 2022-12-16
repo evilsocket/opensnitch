@@ -85,6 +85,13 @@ func CleanRules(logErrors bool) {
 	fw.CleanRules(logErrors)
 }
 
+// ChangeFw stops current firewall and initializes a new one.
+func ChangeFw(fwtype string) (err error) {
+	Stop()
+	err = Init(fwtype, &queueNum)
+	return
+}
+
 // Reload deletes existing firewall rules and readds them.
 func Reload() {
 	fw.Stop()

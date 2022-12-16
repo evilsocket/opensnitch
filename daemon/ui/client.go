@@ -100,8 +100,12 @@ func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Load
 	stats.SetLimits(config.Stats)
 	stats.SetLoggers(loggers)
 
-	go c.poller()
 	return c
+}
+
+// Connect starts the connection poller
+func (c *Client) Connect() {
+	go c.poller()
 }
 
 // Close cancels the running tasks: pinging the server and (re)connection poller.

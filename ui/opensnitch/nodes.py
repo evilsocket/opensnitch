@@ -198,6 +198,16 @@ class Nodes(QObject):
         except Exception as e:
             print(self.LOG_TAG + " exception saving nodes config: ", e, config)
 
+    def change_node_config(self, addr, config, _callback):
+        _cfg = json.dumps(config, indent="    ")
+        notif = ui_pb2.Notification(
+            id=int(str(time.time()).replace(".", "")),
+            type=ui_pb2.CHANGE_CONFIG,
+            data=_cfg,
+            rules=[])
+        self.save_node_config(addr, _cfg)
+        return self.send_notification(addr, notif, _callback), notif
+
     def start_interception(self, _addr=None, _callback=None):
         return self.firewall(not_type=ui_pb2.ENABLE_INTERCEPTION, addr=_addr, callback=_callback)
 

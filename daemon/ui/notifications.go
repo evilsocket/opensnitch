@@ -98,6 +98,10 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 		return
 	}
 
+	if c.GetFirewallType() != newConf.Firewall {
+		firewall.ChangeFw(newConf.Firewall)
+	}
+
 	if err := monitor.ReconfigureMonitorMethod(newConf.ProcMonitorMethod); err != nil {
 		c.sendNotificationReply(stream, notification.Id, "", err)
 		return

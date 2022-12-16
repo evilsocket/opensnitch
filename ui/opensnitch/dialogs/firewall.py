@@ -7,7 +7,7 @@ import json
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
 
-from opensnitch.utils import Icons
+from opensnitch.utils import Icons, Message
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.dialogs.firewall_rule import FwRuleDialog
@@ -110,6 +110,8 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._set_status_error(QC.translate("firewall", "error adding profile extra rules:", err))
 
     def _cb_combo_policy_changed(self, combo):
+        self._reset_status_message()
+
         wantedProfile = FwProfiles.ProfileAcceptInput.value
         if combo == self.COMBO_OUT:
             wantedProfile = FwProfiles.ProfileAcceptOutput.value
@@ -139,26 +141,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.allow_in_service()
 
     def _cb_enable_fw_changed(self, enable):
-        self._disable_widgets(not enable)
-        if enable:
-            self._set_status_message(QC.translate("firewall", "Enabling firewall..."))
-        else:
-            self._set_status_message(QC.translate("firewall", "Disabling firewall..."))
-
-        # if previous input policy was DROP, when disabling the firewall it
-        # must be ACCEPT to allow output traffic.
-        if not enable and self.comboInput.currentIndex() == self.POLICY_DROP:
-            self.comboInput.setCurrentIndex(self.POLICY_ACCEPT)
-
-        for addr in self._nodes.get():
-            fwcfg = self._nodes.get_node(addr)['firewall']
-            fwcfg.Enabled = True if enable else False
-            self.send_notification(addr, fwcfg)
-
-        self.lblStatusIcon.setEnabled(enable)
-        self.policiesBox.setEnabled(enable)
-
-        time.sleep(0.5)
+        self.enable_fw(enable)
 
     def _cb_close_clicked(self):
         self._close()
@@ -168,6 +151,10 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _close(self):
         self.hide()
+
+    def _change_fw_backend(self, addr, node_cfg):
+        nid, notif = self._nodes.change_node_config(addr, node_cfg, self._notification_callback)
+        self._notifications_sent[nid] = notif
 
     def showEvent(self, event):
         super(FirewallDialog, self).showEvent(event)
@@ -192,69 +179,128 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboProfile.blockSignals(True)
 
         self._disable_widgets()
-        if self._nodes.count() == 0:
-            return
 
-        # TODO: handle nodes' firewall properly
-        enableFw = False
+        try:
+            enableFw = False
+            if self._nodes.count() == 0:
+                return
+
+            # TODO: handle nodes' firewall properly
+            for addr in self._nodes.get():
+                node = self._nodes.get_node(addr)
+                self._fwConfig = node['firewall']
+                enableFw |= self._fwConfig.Enabled
+
+                if self.fw_is_incompatible(addr, node):
+                    enableFw = False
+                    return
+
+                # XXX: Here we loop twice over the chains. We could have 1 loop.
+                pol_in = self._fw.chains.get_policy(addr, Fw.Hooks.INPUT.value)
+                pol_out = self._fw.chains.get_policy(addr, Fw.Hooks.OUTPUT.value)
+
+                if pol_in != None:
+                    self.comboInput.setCurrentIndex(
+                        Fw.Policy.values().index(pol_in)
+                    )
+                else:
+                    self._set_status_error(QC.translate("firewall", "Error getting INPUT chain policy"))
+                    self._disable_widgets()
+                if pol_out != None:
+                    self.comboOutput.setCurrentIndex(
+                        Fw.Policy.values().index(pol_out)
+                    )
+                else:
+                    self._set_status_error(QC.translate("firewall", "Error getting OUTPUT chain policy"))
+                    self._disable_widgets()
+
+        finally:
+            # some nodes may have the firewall disabled whilst other enabled
+            #if not enableFw:
+            #    self.lblFwStatus(QC.translate("firewall", "Some nodes have the firewall disabled"))
+
+            self._disable_widgets(not enableFw)
+            self.lblStatusIcon.setEnabled(enableFw)
+            self.sliderFwEnable.setValue(enableFw)
+            self.sliderFwEnable.blockSignals(False)
+            self.comboInput.blockSignals(False)
+            self.comboOutput.blockSignals(False)
+            self.comboProfile.blockSignals(False)
+
+    def fw_is_incompatible(self, addr, node):
+        """Check if the fw is compatible with this GUI.
+        If it's incompatible, disable the option to enable it.
+        """
+        incompatible = False
+        # firewall iptables is not supported from the GUI.
+        # display a warning
+        node_cfg = json.loads(node['data'].config)
+        if node_cfg['Firewall'] == "iptables":
+            self._disable_widgets()
+            self.sliderFwEnable.setEnabled(False)
+            if self.isHidden() == False and self.change_fw(addr, node_cfg):
+                    node_cfg['Firewall'] = "nftables"
+                    self.sliderFwEnable.setEnabled(True)
+                    self.enable_fw(True)
+                    self._change_fw_backend(addr, node_cfg)
+                    return False
+            incompatible = True
+
+        if node['data'].systemFirewall.Version == 0:
+            self._disable_widgets()
+            self.sliderFwEnable.setEnabled(False)
+            self.lblFwStatus.setText(
+                QC.translate("firewall", "<html>The firewall configuration is outdated,\n"
+                            "you need to update it to the new format: <a href=\"{0}\">learn more</a>"
+                            "</html>".format(Config.HELP_SYS_RULES_URL)
+            ))
+            incompatible = True
+
+        return incompatible
+
+    def change_fw(self, addr, node_cfg):
+        """Ask the user to change fw iptables to nftables
+        """
+        ret = Message.yes_no(
+            QC.translate("firewall",
+                        "In order to configure firewall rules from the GUI, we need to use 'nftables' instead of 'iptables'"
+                        ),
+            QC.translate("firewall", "Change default firewall to 'nftables' on node {0}?".format(addr)),
+            QtWidgets.QMessageBox.Warning)
+        if ret != QtWidgets.QMessageBox.Cancel:
+            return True
+
+        return False
+
+    def enable_fw(self, enable):
+        self._disable_widgets(not enable)
+        if enable:
+            self._set_status_message(QC.translate("firewall", "Enabling firewall..."))
+        else:
+            self._set_status_message(QC.translate("firewall", "Disabling firewall..."))
+
+        # if previous input policy was DROP, when disabling the firewall it
+        # must be ACCEPT to allow output traffic.
+        if not enable and self.comboInput.currentIndex() == self.POLICY_DROP:
+            self.comboInput.blockSignals(True)
+            self.comboInput.setCurrentIndex(self.POLICY_ACCEPT)
+            self.comboInput.blockSignals(False)
+            for addr in self._nodes.get():
+                #fwcfg = self._nodes.get_node(addr)['firewall']
+                json_profile = json.dumps(FwProfiles.ProfileAcceptInput.value)
+                ok, err = self._fw.apply_profile(addr, json_profile)
+                if not ok:
+                    print("[firewall] Error applying INPUT ACCEPT profile: {0}".format(err))
+
         for addr in self._nodes.get():
-            self._fwConfig = self._nodes.get_node(addr)['firewall']
-            enableFw |= self._fwConfig.Enabled
+            fwcfg = self._nodes.get_node(addr)['firewall']
+            fwcfg.Enabled = True if enable else False
+            self.send_notification(addr, fwcfg)
 
-            n = self._nodes.get_node(addr)
-            j = json.loads(n['data'].config)
+        self.lblStatusIcon.setEnabled(enable)
+        self.policiesBox.setEnabled(enable)
 
-            if j['Firewall'] == "iptables":
-                self._disable_widgets()
-                self.sliderFwEnable.setEnabled(False)
-                self.lblFwStatus.setText(
-                    QC.translate("firewall",
-                                 "OpenSnitch is using 'iptables' as firewall, but it's not configurable from the GUI.\n"
-                                "Set 'Firewall' option to 'nftables' in /etc/opensnitchd/default-config.json \n"
-                                "if you want to configure firewall rules from the GUI."
-                                 ))
-                return
-            if n['data'].systemFirewall.Version == 0:
-                self._disable_widgets()
-                self.sliderFwEnable.setEnabled(False)
-                self.lblFwStatus.setText(
-                    QC.translate("firewall", "<html>The firewall configuration is outdated,\n"
-                                 "you need to update it to the new format: <a href=\"{0}\">learn more</a>"
-                                 "</html>".format(Config.HELP_SYS_RULES_URL)
-                ))
-                return
-
-            # XXX: Here we loop twice over the chains. We could have 1 loop.
-            pol_in = self._fw.chains.get_policy(addr, Fw.Hooks.INPUT.value)
-            pol_out = self._fw.chains.get_policy(addr, Fw.Hooks.OUTPUT.value)
-
-            if pol_in != None:
-                self.comboInput.setCurrentIndex(
-                    Fw.Policy.values().index(pol_in)
-                )
-            else:
-                self._set_status_error(QC.translate("firewall", "Error getting INPUT chain policy"))
-                self._disable_widgets()
-            if pol_out != None:
-                self.comboOutput.setCurrentIndex(
-                    Fw.Policy.values().index(pol_out)
-                )
-            else:
-                self._set_status_error(QC.translate("firewall", "Error getting OUTPUT chain policy"))
-                self._disable_widgets()
-
-
-        # some nodes may have the firewall disabled whilst other enabled
-        #if not enableFw:
-        #    self.lblFwStatus(QC.translate("firewall", "Some nodes have the firewall disabled"))
-
-        self._disable_widgets(not enableFw)
-        self.lblStatusIcon.setEnabled(enableFw)
-        self.sliderFwEnable.setValue(enableFw)
-        self.sliderFwEnable.blockSignals(False)
-        self.comboInput.blockSignals(False)
-        self.comboOutput.blockSignals(False)
-        self.comboProfile.blockSignals(False)
+        time.sleep(0.5)
 
     def load_rule(self, addr, uuid):
         self._fwrule_dialog.load(addr, uuid)

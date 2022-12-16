@@ -399,7 +399,6 @@ func main() {
 	stats = statistics.New(rules)
 	loggerMgr = loggers.NewLoggerManager()
 	uiClient = ui.NewClient(uiSocket, stats, rules, loggerMgr)
-	listenToEvents()
 
 	// prepare the queue
 	setupWorkers()
@@ -422,11 +421,14 @@ func main() {
 	}
 	repeatPktChan = repeatQueue.Packets()
 
-	// queue is ready, run firewall rules
+	// queue is ready, run firewall rules and start intercepting connections
 	if err = firewall.Init(uiClient.GetFirewallType(), &queueNum); err != nil {
 		log.Warning("%s", err)
 		uiClient.SendWarningAlert(err)
 	}
+
+	uiClient.Connect()
+	listenToEvents()
 
 	if overwriteLogging() {
 		setupLogging()
