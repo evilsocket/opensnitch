@@ -177,7 +177,7 @@
             },
             {
               "Enabled": true,
-              "Position": 0,
+              "Position": "0",
               "Description": "Allow ICMPv6",
               "Expressions": [
                 {

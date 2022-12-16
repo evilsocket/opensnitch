@@ -30,5 +30,7 @@ func LoadEbpfModule(module string) (m *elf.Module, err error) {
 		log.Debug("ebpf module not found: %s, %s/%s", err, modulesPath, module)
 	}
 
-	return m, fmt.Errorf("unable to load eBPF module (%s). Your kernel version (%s) might not compatible", module, GetKernelVersion())
+	return m, fmt.Errorf(`
+unable to load eBPF module (%s). Your kernel version (%s) might not be compatible.
+If this error persists, change process monitor method to 'proc'`, module, GetKernelVersion())
 }
