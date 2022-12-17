@@ -68,6 +68,11 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	// the connection the next times.
 	delItemIfFound := true
 
+	_, ok := ebpfMaps[proto]
+	if !ok {
+		return
+	}
+
 	var value networkEventT
 	var key []byte
 	var isIP4 bool = (proto == "tcp") || (proto == "udp") || (proto == "udplite")

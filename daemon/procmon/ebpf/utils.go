@@ -80,7 +80,11 @@ func getItems(proto string, isIPv6 bool) (items uint) {
 	firstrun := true
 
 	for {
-		ok, err := m.LookupNextElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&lookupKey[0]),
+		mp, ok := ebpfMaps[proto]
+		if !ok {
+			return
+		}
+		ok, err := m.LookupNextElement(mp.bpfmap, unsafe.Pointer(&lookupKey[0]),
 			unsafe.Pointer(&nextKey[0]), unsafe.Pointer(&value))
 		if !ok || err != nil { //reached end of map
 			log.Debug("[ebpf] %s map: %d active items", proto, items)

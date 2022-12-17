@@ -39,6 +39,12 @@ func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPo
 			ipproto = syscall.IPPROTO_UDPLITE
 		}
 	}
+	if protoLen >= 4 && proto[:4] == "sctp" {
+		ipproto = syscall.IPPROTO_SCTP
+	}
+	if protoLen >= 4 && proto[:4] == "icmp" {
+		ipproto = syscall.IPPROTO_RAW
+	}
 	if sockList, err := SocketGet(family, ipproto, uint16(srcPort), uint16(dstPort), srcIP, dstIP); err == nil {
 		for n, sock := range sockList {
 			if sock.UID != 0xffffffff {

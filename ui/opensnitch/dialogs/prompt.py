@@ -137,14 +137,16 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def showEvent(self, event):
         super(PromptDialog, self).showEvent(event)
         self.activateWindow()
+        self.adjust_size()
+        self.move_popup()
 
+    def adjust_size(self):
         if self._width is None or self._height is None:
             self._width = self.width()
             self._height = self.height()
 
         self.setMinimumSize(self._width, self._height)
         self.setMaximumSize(self._width, self._height)
-        self.move_popup()
 
     def move_popup(self):
         popup_pos = self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION)
@@ -172,9 +174,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkDstIP.setVisible(state)
         self.whatIPCombo.setVisible(state)
         self.destIPLabel.setVisible(not state)
-        self.checkDstPort.setVisible(state)
+        self.checkDstPort.setVisible(state == True and (self._con != None and self._con.dst_port != 0))
         self.checkUserID.setVisible(state)
+
         self._ischeckAdvanceded = state
+        self.adjust_size()
+        self.move_popup()
 
     def _button_clicked(self):
         self._stop_countdown()
@@ -244,6 +249,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def on_timeout_triggered(self):
         self._timeout_triggered = True
         self._send_rule()
+
+    def _hide_widget(self, widget, hide):
+        widget.setVisible(not hide)
 
     def _configure_default_duration(self):
         if self._cfg.hasKey(self._cfg.DEFAULT_DURATION_KEY):
@@ -332,7 +340,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.sourceIPLabel.setText(con.src_ip)
         self.destIPLabel.setText(con.dst_ip)
-        self.destPortLabel.setText(str(con.dst_port))
+        if con.dst_port == 0:
+            self.destPortLabel.setText("")
+        else:
+            self.destPortLabel.setText(str(con.dst_port))
+        self._hide_widget(self.destPortLabel, con.dst_port == 0)
+        self._hide_widget(self.destPortLabel_1, con.dst_port == 0)
+        self._hide_widget(self.checkDstPort, con.dst_port == 0 or not self._ischeckAdvanceded)
 
         if self._local:
             try:
@@ -471,6 +485,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             con.dst_host or con.dst_ip,
             con.protocol.upper(),
             con.dst_port )
+
+        # icmp port is 0 (i.e.: no port)
+        if con.dst_port == 0:
+            msg_action = QC.translate("popups", "is connecting to <b>%s</b>, %s") % ( \
+                con.dst_host or con.dst_ip,
+                con.protocol.upper() )
 
         if con.dst_port == 53 and con.dst_ip != con.dst_host and con.dst_host != "":
             msg_action = QC.translate("popups", "is attempting to resolve <b>%s</b> via %s, %s port %d") % ( \

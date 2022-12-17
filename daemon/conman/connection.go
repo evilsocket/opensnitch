@@ -247,6 +247,27 @@ func (c *Connection) parseDirection(protoType string) bool {
 			c.SrcPort = uint(udplite.SrcPort)
 			ret = true
 		}
+	} else if sctpLayer := c.Pkt.Packet.Layer(layers.LayerTypeSCTP); sctpLayer != nil {
+		if sctp, ok := sctpLayer.(*layers.SCTP); ok == true && sctp != nil {
+			c.Protocol = "sctp" + protoType
+			c.DstPort = uint(sctp.DstPort)
+			c.SrcPort = uint(sctp.SrcPort)
+			ret = true
+		}
+	} else if icmpLayer := c.Pkt.Packet.Layer(layers.LayerTypeICMPv4); icmpLayer != nil {
+		if icmp, ok := icmpLayer.(*layers.ICMPv4); ok == true && icmp != nil {
+			c.Protocol = "icmp"
+			c.DstPort = 0
+			c.SrcPort = 0
+			ret = true
+		}
+	} else if icmp6Layer := c.Pkt.Packet.Layer(layers.LayerTypeICMPv6); icmp6Layer != nil {
+		if icmp6, ok := icmp6Layer.(*layers.ICMPv6); ok == true && icmp6 != nil {
+			c.Protocol = "icmp" + protoType
+			c.DstPort = 0
+			c.SrcPort = 0
+			ret = true
+		}
 	}
 
 	return ret

@@ -275,6 +275,26 @@
            <string notr="true">UDPLITE6</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>ICMP</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ICMP6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SCTP</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SCTP6</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item row="3" column="0">
