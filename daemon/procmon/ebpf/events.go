@@ -59,9 +59,8 @@ const (
 )
 
 var (
-	execEvents       = NewEventsStore()
-	stopStreamEvents = make(chan bool)
-	perfMapList      = make(map[*elf.PerfMap]*elf.Module)
+	execEvents  = NewEventsStore()
+	perfMapList = make(map[*elf.PerfMap]*elf.Module)
 	// total workers spawned by the different events PerfMaps
 	eventWorkers = 0
 	perfMapName  = "proc-events"
@@ -144,12 +143,11 @@ func initPerfMap(mod *elf.Module) {
 	perfMap.PollStart()
 }
 
-// FIXME: under heavy load these events may arrive AFTER network events
 func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents chan interface{}, execEvents *eventsStore) {
 	var event execEvent
 	for {
 		select {
-		case <-stopStreamEvents:
+		case <-ctxTasks.Done():
 			goto Exit
 		case l := <-lost:
 			log.Debug("Lost ebpf events: %d", l)
@@ -176,7 +174,6 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents 
 						execEvents.delete(event.PID)
 					}
 				}
-				// TODO: delete old events (by timeout)
 			}
 		}
 	}

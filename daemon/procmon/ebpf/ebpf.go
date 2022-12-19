@@ -1,6 +1,7 @@
 package ebpf
 
 import (
+	"context"
 	"encoding/binary"
 	"fmt"
 	"net"
@@ -47,8 +48,8 @@ var (
 		TCP:   make(map[*daemonNetlink.Socket]int),
 		TCPv6: make(map[*daemonNetlink.Socket]int),
 	}
-	stopMonitors = make(chan bool)
-	running      = false
+	ctxTasks, cancelTasks = context.WithCancel(context.Background())
+	running               = false
 
 	maxKernelEvents = 32768
 	kernelEvents    = make(chan interface{}, maxKernelEvents)
@@ -152,14 +153,8 @@ func Stop() {
 	if running == false {
 		return
 	}
-	for i := 0; i < 4; i++ {
-		stopMonitors <- true
-	}
+	cancelTasks()
 	ebpfCache.clear()
-
-	for i := 0; i < eventWorkers; i++ {
-		stopStreamEvents <- true
-	}
 
 	if m != nil {
 		m.Close()

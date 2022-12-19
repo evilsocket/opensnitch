@@ -15,7 +15,7 @@ import (
 func monitorMaps() {
 	for {
 		select {
-		case <-stopMonitors:
+		case <-ctxTasks.Done():
 			goto Exit
 		default:
 			time.Sleep(time.Second * 5)
@@ -35,7 +35,7 @@ Exit:
 func monitorCache() {
 	for {
 		select {
-		case <-stopMonitors:
+		case <-ctxTasks.Done():
 			goto Exit
 		case <-ebpfCacheTicker.C:
 			ebpfCache.DeleteOldItems()
@@ -50,7 +50,7 @@ Exit:
 func monitorLocalAddresses() {
 	for {
 		select {
-		case <-stopMonitors:
+		case <-ctxTasks.Done():
 			goto Exit
 		default:
 			addr, err := netlink.AddrList(nil, netlink.FAMILY_ALL)
@@ -76,7 +76,7 @@ Exit:
 func monitorAlreadyEstablished() {
 	for {
 		select {
-		case <-stopMonitors:
+		case <-ctxTasks.Done():
 			goto Exit
 		default:
 			time.Sleep(time.Second * 1)
