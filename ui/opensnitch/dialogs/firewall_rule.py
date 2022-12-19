@@ -954,7 +954,6 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                                 key_values.append((sk['key'], ""))
                         elif sk['key'] == Fw.ExprLimit.UNITS.value:
                             units = statem_value.split("/")
-                            print("statm:", units)
                             if len(units) != 3: # we expect the format key/value
                                 return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)")
 

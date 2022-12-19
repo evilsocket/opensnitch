@@ -56,18 +56,20 @@ func NewExprCtState(ctFlags []*config.ExprValues) (*[]expr.Any, error) {
 	mask := uint32(0)
 
 	for _, flag := range ctFlags {
-		switch strings.ToLower(flag.Value) {
-		case CT_STATE_NEW:
-			mask |= expr.CtStateBitNEW
-		case CT_STATE_ESTABLISHED:
-			mask |= expr.CtStateBitESTABLISHED
-		case CT_STATE_RELATED:
-			mask |= expr.CtStateBitRELATED
-		case CT_STATE_INVALID:
-			mask |= expr.CtStateBitINVALID
-		default:
-			return nil, fmt.Errorf("Invalid conntrack flag: %s", flag)
+		found, msk, err := parseInlineCtStates(flag.Value)
+		if err != nil {
+			return nil, err
 		}
+		if found {
+			mask |= msk
+			continue
+		}
+
+		msk, err = getCtState(flag.Value)
+		if err != nil {
+			return nil, err
+		}
+		mask |= msk
 	}
 
 	return &[]expr.Any{
@@ -82,4 +84,38 @@ func NewExprCtState(ctFlags []*config.ExprValues) (*[]expr.Any, error) {
 			Xor:            binaryutil.NativeEndian.PutUint32(0),
 		},
 	}, nil
+}
+
+func parseInlineCtStates(flags string) (found bool, mask uint32, err error) {
+	// a "state" flag may be compounded of multiple values, separated by commas:
+	// related,established
+	fgs := strings.Split(flags, ",")
+	if len(fgs) > 0 {
+		for _, fg := range fgs {
+			msk, err := getCtState(fg)
+			if err != nil {
+				return false, 0, err
+			}
+			mask |= msk
+			found = true
+		}
+	}
+	return
+}
+
+func getCtState(flag string) (mask uint32, err error) {
+	switch strings.ToLower(flag) {
+	case CT_STATE_NEW:
+		mask |= expr.CtStateBitNEW
+	case CT_STATE_ESTABLISHED:
+		mask |= expr.CtStateBitESTABLISHED
+	case CT_STATE_RELATED:
+		mask |= expr.CtStateBitRELATED
+	case CT_STATE_INVALID:
+		mask |= expr.CtStateBitINVALID
+	default:
+		return 0, fmt.Errorf("Invalid conntrack flag: %s", flag)
+	}
+
+	return
 }

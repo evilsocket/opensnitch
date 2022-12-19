@@ -112,7 +112,6 @@ class Rules(QObject):
                             self._nodes.add_fw_rules(addr, node['fwrules'])
                         else:
                             # raise Error("rules doesn't have UUID field")
-                            print("[firewall] delete() error:", uuid)
                             return False, None
 
                         self.rulesUpdated.emit()
@@ -174,6 +173,8 @@ class Rules(QObject):
         temp_c = ui_pb2.FwChain()
         temp_c.CopyFrom(orig_rule)
         # the UUID will be different, so zero it out.
+        # but keep a copy of the original one.
+        orig_uuid = temp_c.Rules[0].UUID
         temp_c.Rules[0].UUID = ""
         node = self._nodes.get_node(addr)
         if node == None:
@@ -190,7 +191,7 @@ class Rules(QObject):
                     for rdx, r in enumerate(c.Rules):
                         uuid = c.Rules[rdx].UUID
                         c.Rules[rdx].UUID = ""
-                        is_equal = c.Rules[rdx].SerializeToString() == temp_c.Rules[0].SerializeToString()
+                        is_equal = (c.Rules[rdx].SerializeToString() == temp_c.Rules[0].SerializeToString() or orig_uuid == uuid)
                         c.Rules[rdx].UUID = uuid
 
                         if is_equal:

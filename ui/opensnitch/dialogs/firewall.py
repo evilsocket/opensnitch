@@ -49,6 +49,10 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._fw = Fw.Firewall.instance()
         self._nodes = Nodes.instance()
         self._fw_profiles = {}
+        self._last_profile = {
+            self.COMBO_IN: FwProfiles.ProfileAcceptInput.value,
+            self.COMBO_OUT: FwProfiles.ProfileAcceptInput.value
+        }
 
         self._notification_callback.connect(self._cb_notification_callback)
         self._notifications_sent = {}
@@ -121,15 +125,27 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.comboInput.currentIndex() == self.POLICY_DROP:
                 wantedProfile = FwProfiles.ProfileDropInput.value
 
+
+        if combo == self.COMBO_IN and \
+                self.comboInput.currentIndex() == self.POLICY_ACCEPT:
+            json_profile = json.dumps(FwProfiles.ProfileDropInput.value)
+            for addr in self._nodes.get():
+                fwcfg = self._nodes.get_node(addr)['firewall']
+                ok, err = self._fw.delete_profile(addr, json_profile)
+                if not ok:
+                    print(err)
+
+
+        json_profile = json.dumps(wantedProfile)
         for addr in self._nodes.get():
             fwcfg = self._nodes.get_node(addr)['firewall']
-
-            json_profile = json.dumps(wantedProfile)
             ok, err = self._fw.apply_profile(addr, json_profile)
             if ok:
                 self.send_notification(addr, fwcfg)
             else:
                 self._set_status_error(QC.translate("firewall", "Policy not applied: {0}".format(err)))
+
+        self._last_profile[combo] = wantedProfile
 
     def _cb_new_rule_clicked(self):
         self.new_rule()
@@ -286,7 +302,6 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.comboInput.setCurrentIndex(self.POLICY_ACCEPT)
             self.comboInput.blockSignals(False)
             for addr in self._nodes.get():
-                #fwcfg = self._nodes.get_node(addr)['firewall']
                 json_profile = json.dumps(FwProfiles.ProfileAcceptInput.value)
                 ok, err = self._fw.apply_profile(addr, json_profile)
                 if not ok:

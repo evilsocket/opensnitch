@@ -104,12 +104,11 @@ class Firewall(QObject):
 
                             if self.rules.is_duplicated(node_addr, temp_c):
                                 continue
-                            fwcfg.SystemRules[sdx].Chains[cdx].Rules.extend([r])
+                            self.add_rule(node_addr, temp_c)
 
                         self.rules.rulesUpdated.emit()
                         return True, ""
         except Exception as e:
-            print("firewall: error applying profile:", e)
             return False, "{0}".format(e)
 
         return False, QC.translate("firewall", "profile not applied")
@@ -130,14 +129,22 @@ class Firewall(QObject):
                         if profile.Policy == ProfileDropInput.value:
                             profile.Policy = ProfileAcceptInput.value
 
+                        del_candidates = []
                         for rdx, r in enumerate(c.Rules):
                             for pr in profile.Rules:
                                 if r.UUID == pr.UUID:
-                                    print("delete_profile, rule:", r.UUID, r.Description)
-                                    del fwcfg.SystemRules[sdx].Chains[cdx].Rules[rdx]
+                                    # we cannot delete the rule here, otherwise
+                                    # we'd modify the items of the loop.
+                                    del_candidates.append(rdx)
+                        if len(del_candidates) > 0:
+                            for rdx in del_candidates:
+                                if rdx == len(c.Rules): # last rule
+                                    rdx = rdx - 1
+                                self.delete_rule(node_addr, c.Rules[rdx].UUID)
 
         except Exception as e:
-            print("firewall: error deleting profile:", e)
+            return False, "{0}".format(e)
+        return False, QC.translate("firewall", "profile not deleted")
 
     def swap_rules(self, view, addr, uuid, old_pos, new_pos):
         return self.rules.swap(view, addr, uuid, old_pos, new_pos)
