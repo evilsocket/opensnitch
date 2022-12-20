@@ -64,13 +64,26 @@ class Firewall(QObject):
             for n in node['firewall'].SystemRules:
                 for c in n.Chains:
                     for r in c.Rules:
+                        add_rule = False
                         if nail in c.Family or \
                                 nail in c.Hook or \
                                 nail in r.Description or \
                                 nail in r.Target or \
                                 nail in r.TargetParameters:
-                                # TODO: filter expressions
-                                #nail in r.Expressions:
+                            add_rule = True
+                        else:
+                            for e in r.Expressions:
+                                if add_rule:
+                                    break
+                                expr_vals = "".join("{0} {1}".format(h.Key, h.Value) for h in e.Statement.Values)
+                                print(nail in expr_vals, r.Description)
+                                if nail in e.Statement.Op or \
+                                        nail in e.Statement.Name or \
+                                        nail in e.Statement.Values or \
+                                        nail in expr_vals:
+                                    add_rule = True
+
+                        if add_rule:
                             chains.append(Rules.to_array(addr, c, r))
 
         return chains
