@@ -13,11 +13,29 @@ import (
 
 // we need to manually remove old connections from a bpf map
 
-// GetPid looks up process pid in a bpf map. If not found there, then it searches
-// already-established TCP connections.
-func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (*procmon.Process, error) {
+// GetPid looks up process pid in a bpf map.
+// If it's not found, it searches already-established TCP connections.
+// Returns the process if found.
+// Additionally, if the process has been found by swapping fields, it'll return
+// a flag indicating it.
+func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint) (*procmon.Process, bool, error) {
 	if proc := getPidFromEbpf(proto, srcPort, srcIP, dstIP, dstPort); proc != nil {
-		return proc, nil
+		return proc, false, nil
+	}
+	if findAddressInLocalAddresses(dstIP) {
+		// FIXME: systemd-resolved sometimes makes a TCP Fast Open connection to a DNS server (8.8.8.8 on my machine)
+		// and we get a packet here with **source** (not detination!!!) IP 8.8.8.8
+		// Maybe it's an in-kernel response with spoofed IP because resolved's TCP Fast Open packet, nor the response.
+		// Another scenario when systemd-resolved or dnscrypt-proxy is used, is that every outbound connection has
+		// the fields swapped:
+		// 443:public-ip -> local-ip:local-port , like if it was a response (but it's not).
+		// Swapping connection fields helps to identify the connection + pid + process, and continue working as usual
+		// when systemd-resolved is being used. But we should understand why is this happenning.
+
+		if proc := getPidFromEbpf(proto, dstPort, dstIP, srcIP, srcPort); proc != nil {
+			return proc, true, fmt.Errorf("[ebpf conn] FIXME: found swapping fields, systemd-resolved is that you? set DNS=x.x.x.x to your DNS server in /etc/systemd/resolved.conf to workaround this problem")
+		}
+		return nil, false, fmt.Errorf("[ebpf conn] unknown source IP: %s", srcIP)
 	}
 	//check if it comes from already established TCP
 	if proto == "tcp" || proto == "tcp6" {
@@ -25,23 +43,15 @@ func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint
 			proc := procmon.NewProcess(pid, "")
 			proc.GetInfo()
 			proc.UID = uid
-			return proc, nil
+			return proc, false, nil
 		}
 	}
+
 	//using netlink.GetSocketInfo to check if UID is 0 (in-kernel connection)
-	if !findAddressInLocalAddresses(srcIP) {
-		// systemd-resolved sometimes makes a TCP Fast Open connection to a DNS server (8.8.8.8 on my machine)
-		// and we get a packet here with **source** (not detination!!!) IP 8.8.8.8
-		// Maybe it's an in-kernel response with spoofed IP because wireshark does not show neither
-		// resolved's TCP Fast Open packet, nor the response
-		// Until this is better understood, we simply do not allow this machine to make connections with
-		// arbitrary source IPs
-		return nil, fmt.Errorf("eBPF packet with unknown source IP: %s", srcIP)
-	}
 	if uid, _ := daemonNetlink.GetSocketInfo(proto, srcIP, srcPort, dstIP, dstPort); uid == 0 {
-		return nil, nil
+		return nil, false, nil
 	}
-	return nil, nil
+	return nil, false, nil
 }
 
 // getPidFromEbpf looks up a connection in bpf map and returns PID if found

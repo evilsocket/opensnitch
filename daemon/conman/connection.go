@@ -86,13 +86,18 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 	pid := -1
 	uid := -1
 	if procmon.MethodIsEbpf() {
-		c.Process, err = ebpf.GetPid(c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort)
+		swap := false
+		c.Process, swap, err = ebpf.GetPid(c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort)
+		if swap {
+			c.swapFields()
+		}
+
 		if c.Process != nil {
 			c.Entry.UserId = c.Process.UID
 			return c, nil
 		}
 		if err != nil {
-			log.Warning("ebpf warning: %v", err)
+			log.Debug("ebpf warning: %v", err)
 			return nil, nil
 		}
 	} else if procmon.MethodIsAudit() {
@@ -271,6 +276,26 @@ func (c *Connection) parseDirection(protoType string) bool {
 	}
 
 	return ret
+}
+
+// swapFields swaps connection's fields.
+// Used to workaround an issue where outbound connections
+// have the fields swapped (procmon/ebpf/find.go).
+func (c *Connection) swapFields() {
+	oEntry := c.Entry
+	c.Entry = &netstat.Entry{
+		Proto:   c.Protocol,
+		SrcIP:   oEntry.DstIP,
+		DstIP:   oEntry.SrcIP,
+		SrcPort: oEntry.DstPort,
+		DstPort: oEntry.SrcPort,
+		UserId:  oEntry.UserId,
+		INode:   oEntry.INode,
+	}
+	c.SrcIP = oEntry.DstIP
+	c.DstIP = oEntry.SrcIP
+	c.DstPort = oEntry.SrcPort
+	c.SrcPort = oEntry.DstPort
 }
 
 func (c *Connection) getDomains(nfp *netfilter.Packet, con *Connection) {
