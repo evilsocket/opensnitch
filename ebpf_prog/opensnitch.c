@@ -1,12 +1,11 @@
 #define KBUILD_MODNAME "dummy"
 
-#include "common.h"
+#include "common_defs.h"
 #include <linux/version.h>
 #include <uapi/linux/tcp.h>
 #include <net/sock.h>
 #include <net/udp_tunnel.h>
 #include <net/inet_sock.h>
-
 
 struct tcp_key_t {
 	u16 sport;

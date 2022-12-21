@@ -1,12 +1,7 @@
 #ifndef OPENSNITCH_COMMON_H
 #define OPENSNITCH_COMMON_H
 
-#include <linux/sched.h>
-#include <linux/ptrace.h>
-#include <uapi/linux/bpf.h>
-#include <bpf/bpf_helpers.h>
-#include <bpf/bpf_tracing.h> 
-#include <bpf/bpf_core_read.h> 
+#include "common_defs.h"
 
 //https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/limits.h#L13
 #ifndef MAX_PATH_LEN
@@ -25,40 +20,12 @@
 #define COMPLETE_ARGS 0
 #define INCOMPLETE_ARGS 1
 
-#define MAPSIZE 12000
-
 #ifndef TASK_COMM_LEN
  #define TASK_COMM_LEN 16
 #endif
 
 #define BUF_SIZE_MAP_NS 256
 #define GLOBAL_MAP_NS "256"
-
-//-------------------------------map definitions 
-// which github.com/iovisor/gobpf/elf expects
-
-typedef struct bpf_map_def {
-	unsigned int type;
-	unsigned int key_size;
-	unsigned int value_size;
-	unsigned int max_entries;
-	unsigned int map_flags;
-	unsigned int pinning;
-	char namespace[BUF_SIZE_MAP_NS];
-} bpf_map_def;
-
-enum bpf_pin_type {
-	PIN_NONE = 0,
-	PIN_OBJECT_NS,
-	PIN_GLOBAL_NS,
-	PIN_CUSTOM_NS,
-};
-//-----------------------------------
-
-// even though we only need 32 bits of pid, on x86_32 ebpf verifier complained when pid type was set to u32
-typedef u64 pid_size_t;
-typedef u64 uid_size_t; 
-
 enum events_type {
     EVENT_NONE = 0,
     EVENT_EXEC,
@@ -66,6 +33,7 @@ enum events_type {
     EVENT_FORK,
     EVENT_SCHED_EXIT,
 };
+
 
 struct data_t {
     u64 type;
