@@ -9,36 +9,6 @@ import (
 	"github.com/google/nftables"
 )
 
-// AddChain adds a new chain to nftables.
-// https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
-func (n *Nft) AddChain(name, table, family string, priority nftables.ChainPriority, ctype nftables.ChainType, hook nftables.ChainHook, policy nftables.ChainPolicy) *nftables.Chain {
-	if family == "" {
-		family = exprs.NFT_FAMILY_INET
-	}
-	tbl := getTable(table, family)
-	if tbl == nil {
-		log.Error("%s addChain, Error getting table: %s, %s", logTag, table, family)
-		return nil
-	}
-
-	// nft list chains
-	chain := n.conn.AddChain(&nftables.Chain{
-		Name:     strings.ToLower(name),
-		Table:    tbl,
-		Type:     ctype,
-		Hooknum:  hook,
-		Priority: priority,
-		Policy:   &policy,
-	})
-	if chain == nil {
-		return nil
-	}
-
-	key := getChainKey(name, tbl)
-	sysChains[key] = chain
-	return chain
-}
-
 // getChainKey returns the identifier that will be used to link chains and rules.
 // When adding a new chain the key is stored, then later when adding a rule we get
 // the chain that the rule belongs to by this key.
@@ -53,6 +23,60 @@ func getChainKey(name string, table *nftables.Table) string {
 func getChain(name string, table *nftables.Table) *nftables.Chain {
 	key := getChainKey(name, table)
 	return sysChains[key]
+}
+
+// AddChain adds a new chain to nftables.
+// https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
+func (n *Nft) AddChain(name, table, family string, priority nftables.ChainPriority, ctype nftables.ChainType, hook nftables.ChainHook, policy nftables.ChainPolicy) *nftables.Chain {
+	if family == "" {
+		family = exprs.NFT_FAMILY_INET
+	}
+	tbl := getTable(table, family)
+	if tbl == nil {
+		log.Error("%s addChain, Error getting table: %s, %s", logTag, table, family)
+		return nil
+	}
+
+	var chain *nftables.Chain
+	// Verify if the chain already exists, and reuse it if it does.
+	// In some systems it fails adding a chain when it already exists, whilst in others
+	// it doesn't.
+	key := getChainKey(name, tbl)
+	chain = n.getChain(name, tbl, family)
+	if chain != nil {
+		if _, exists := sysChains[key]; exists {
+			delete(sysChains, key)
+		}
+	} else {
+		// nft list chains
+		chain = n.conn.AddChain(&nftables.Chain{
+			Name:     strings.ToLower(name),
+			Table:    tbl,
+			Type:     ctype,
+			Hooknum:  hook,
+			Priority: priority,
+			Policy:   &policy,
+		})
+		if chain == nil {
+			log.Debug("%s AddChain() chain == nil", logTag)
+			return nil
+		}
+	}
+
+	sysChains[key] = chain
+	return chain
+}
+
+// getChain checks if a chain in the given table exists.
+func (n *Nft) getChain(name string, table *nftables.Table, family string) *nftables.Chain {
+	if chains, err := n.conn.ListChains(); err == nil {
+		for _, c := range chains {
+			if name == c.Name && table.Name == c.Table.Name && getFamilyCode(family) == c.Table.Family {
+				return c
+			}
+		}
+	}
+	return nil
 }
 
 // regular chains are user-defined chains, to better organize fw rules.
