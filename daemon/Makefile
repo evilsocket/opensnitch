@@ -6,10 +6,14 @@ all: opensnitchd
 
 install:
 	@mkdir -p $(DESTDIR)/etc/opensnitchd/rules
-	@cp opensnitchd $(DESTDIR)$(PREFIX)/bin/
-	@cp opensnitchd.service $(DESTDIR)/etc/systemd/system/
-	@cp default-config.json $(DESTDIR)/etc/opensnitchd/
-	@cp system-fw.json $(DESTDIR)/etc/opensnitchd/
+	@install -Dm755 opensnitchd \
+		-t $(DESTDIR)$(PREFIX)/bin/
+	@install -Dm644 opensnitchd.service \
+		-t $(DESTDIR)/etc/systemd/system/
+	@install -Dm644 default-config.json \
+		-t $(DESTDIR)/etc/opensnitchd/
+	@install -Dm644 system-fw.json \
+		-t $(DESTDIR)/etc/opensnitchd/
 	@systemctl daemon-reload
 
 opensnitchd: $(SRC)
