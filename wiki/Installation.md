@@ -8,7 +8,14 @@
 > $ sudo apt install ./opensnitch*.deb ./python3-opensnitch-ui*.deb
 
 #### RPM
+
+yum:
+
 > $ sudo yum localinstall opensnitch-1*.rpm; sudo yum localinstall opensnitch-ui*.rpm 
+
+dnf:
+
+> $ sudo dnf install ./opensnitch-1*.rpm ./opensnitch-ui-1*.rpm 
 
 (You can also double-click on the downloaded files)
 
@@ -114,7 +121,9 @@ Remove the packages + rules + configuration:
 
 **rpm packages**
 
-- `yum remove opensnitch opensnitch-ui` or `zypper remove opensnitch opensnitch-ui`
+- Yum: `sudo yum remove opensnitch opensnitch-ui`
+- Dnf: `sudo dnf remove opensnitch opensnitch-ui`
+- Zypper: `sudo zypper remove opensnitch opensnitch-ui`
 
 If you installed pip packages:
 - `pip3 uninstall grpcio-tools unicode_slugify pyinotify`
