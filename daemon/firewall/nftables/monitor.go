@@ -48,8 +48,8 @@ func (n *Nft) AreRulesLoaded() bool {
 // reloadConfCallback gets called after the configuration changes.
 func (n *Nft) reloadConfCallback() {
 	log.Important("reloadConfCallback changed, reloading")
-	n.DeleteSystemRules(false, log.GetLogLevel() == log.DEBUG)
-	n.AddSystemRules(true)
+	n.DeleteSystemRules(false, false, log.GetLogLevel() == log.DEBUG)
+	n.AddSystemRules(true, false)
 }
 
 // reloadRulesCallback gets called when the interception rules are not present.
@@ -63,5 +63,5 @@ func (n *Nft) reloadRulesCallback() {
 // preloadConfCallback gets called before the fw configuration is loaded
 func (n *Nft) preloadConfCallback() {
 	log.Info("nftables config changed, reloading")
-	n.DeleteSystemRules(false, log.GetLogLevel() == log.DEBUG)
+	n.DeleteSystemRules(false, true, log.GetLogLevel() == log.DEBUG)
 }

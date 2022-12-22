@@ -89,7 +89,7 @@ func (n *Nft) Init(qNum *int) {
 	// The daemon may have exited unexpectedly, leaving residual fw rules, so we
 	// need to clean them up to avoid duplicated rules.
 	n.delInterceptionRules()
-	n.AddSystemRules(false)
+	n.AddSystemRules(false, true)
 	n.EnableInterception()
 
 	n.Running = true
@@ -137,7 +137,7 @@ func (n *Nft) DisableInterception(logErrors bool) {
 // CleanRules deletes the rules we added.
 func (n *Nft) CleanRules(logErrors bool) {
 	n.DisableInterception(logErrors)
-	n.DeleteSystemRules(true, logErrors)
+	n.DeleteSystemRules(true, true, logErrors)
 }
 
 // Commit applies the queued changes, creating new objects (tables, chains, etc).

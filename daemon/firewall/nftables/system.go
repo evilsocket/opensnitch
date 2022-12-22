@@ -65,7 +65,7 @@ func (n *Nft) CreateSystemRule(chain *config.FwChain, logErrors bool) bool {
 }
 
 // AddSystemRules creates the system firewall from configuration.
-func (n *Nft) AddSystemRules(reload bool) {
+func (n *Nft) AddSystemRules(reload, backupExistingChains  bool) {
 	n.SysConfig.RLock()
 	defer n.SysConfig.RUnlock()
 
@@ -73,7 +73,9 @@ func (n *Nft) AddSystemRules(reload bool) {
 		log.Important("[nftables] AddSystemRules() fw disabled")
 		return
 	}
-	n.backupExistingChains()
+	if backupExistingChains {
+		n.backupExistingChains()
+	}
 
 	for _, fwCfg := range n.SysConfig.SystemRules {
 		for _, chain := range fwCfg.Chains {
@@ -97,15 +99,17 @@ func (n *Nft) AddSystemRules(reload bool) {
 // DeleteSystemRules deletes the system rules.
 // If force is false and the rule has not been previously added,
 // it won't try to delete the tables and chains. Otherwise it'll try to delete them.
-func (n *Nft) DeleteSystemRules(force, logErrors bool) {
+func (n *Nft) DeleteSystemRules(force, restoreExistingChains, logErrors bool) {
 	n.Lock()
 	defer n.Unlock()
 
 	if err := n.delRulesByKey(systemRuleKey); err != nil {
 		log.Warning("error deleting interception rules: %s", err)
 	}
-	n.restoreBackupChains()
 
+	if restoreExistingChains {
+		n.restoreBackupChains()
+	}
 	if force {
 		n.delSystemTables()
 	}

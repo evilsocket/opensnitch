@@ -25,8 +25,8 @@ type Firewall interface {
 	QueueConnections(bool, bool) (error, error)
 	CleanRules(bool)
 
-	AddSystemRules(bool)
-	DeleteSystemRules(bool, bool)
+	AddSystemRules(bool, bool)
+	DeleteSystemRules(bool, bool, bool)
 
 	Serialize() (*protocol.SysFirewall, error)
 	Deserialize(sysfw *protocol.SysFirewall) ([]byte, error)
@@ -100,8 +100,8 @@ func Reload() {
 
 // ReloadSystemRules deletes existing rules, and add them again
 func ReloadSystemRules() {
-	fw.DeleteSystemRules(false, true)
-	fw.AddSystemRules(true)
+	fw.DeleteSystemRules(false, true, true)
+	fw.AddSystemRules(true, true)
 }
 
 // EnableInterception removes the rules to intercept outbound connections.

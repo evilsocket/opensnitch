@@ -39,7 +39,7 @@ func (ipt *Iptables) CreateSystemRule(rule *config.FwRule, table, chain, hook st
 }
 
 // AddSystemRules creates the system firewall from configuration.
-func (ipt *Iptables) AddSystemRules(reload bool) {
+func (ipt *Iptables) AddSystemRules(reload, backupExistingChains bool) {
 	// Version 0 has no Enabled field, so it'd be always false
 	if ipt.SysConfig.Enabled == false && ipt.SysConfig.Version > 0 {
 		return
@@ -65,7 +65,7 @@ func (ipt *Iptables) AddSystemRules(reload bool) {
 // DeleteSystemRules deletes the system rules.
 // If force is false and the rule has not been previously added,
 // it won't try to delete the rules. Otherwise it'll try to delete them.
-func (ipt *Iptables) DeleteSystemRules(force, logErrors bool) {
+func (ipt *Iptables) DeleteSystemRules(force, backupExistingChains, logErrors bool) {
 	ipt.chains.Lock()
 	defer ipt.chains.Unlock()
 

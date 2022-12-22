@@ -111,7 +111,7 @@ func (ipt *Iptables) Init(qNum *int) {
 	// start from a clean state
 	ipt.CleanRules(false)
 	ipt.EnableInterception()
-	ipt.AddSystemRules(false)
+	ipt.AddSystemRules(false, true)
 
 	ipt.Running = true
 }
@@ -159,7 +159,7 @@ func (ipt *Iptables) DisableInterception(logErrors bool) {
 // CleanRules deletes the rules we added.
 func (ipt *Iptables) CleanRules(logErrors bool) {
 	ipt.DisableInterception(logErrors)
-	ipt.DeleteSystemRules(true, logErrors)
+	ipt.DeleteSystemRules(true, true, logErrors)
 }
 
 // Serialize converts the configuration from json to protobuf

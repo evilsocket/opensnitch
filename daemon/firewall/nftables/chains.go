@@ -47,6 +47,8 @@ func (n *Nft) AddChain(name, table, family string, priority nftables.ChainPriori
 		if _, exists := sysChains[key]; exists {
 			delete(sysChains, key)
 		}
+		chain.Policy = &policy
+		n.conn.AddChain(chain)
 	} else {
 		// nft list chains
 		chain = n.conn.AddChain(&nftables.Chain{
