@@ -1,3 +1,9 @@
+opensnitch (1.6.0-rc.4-1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+
+ -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  Thu, 22 Dec 2022 10:07:14 +0100
+
 opensnitch (1.6.0-rc.3-1) unstable; urgency=medium
 
   * eBPF modules are now installed under /usr/lib/opensnitchd/.
