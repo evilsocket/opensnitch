@@ -103,6 +103,11 @@ func Start() error {
 		"udp6": {
 			bpfmap: m.Map("udpv6Map")},
 	}
+	for prot, mfp := range ebpfMaps {
+		if mfp.bpfmap == nil {
+			return fmt.Errorf("eBPF module opensnitch.o malformed, bpfmap[%s] nil", prot)
+		}
+	}
 
 	initEventsStreamer()
 
