@@ -726,11 +726,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.restoreGeometry(dialog_geometry)
         if dialog_last_tab != None:
             self.tabWidget.setCurrentIndex(int(dialog_last_tab))
-        if dialog_general_filter_text != None:
-            # prevent from firing textChanged signal
-            self.filterLine.blockSignals(True);
-            self.filterLine.setText(dialog_general_filter_text)
-            self.filterLine.blockSignals(False);
         if dialog_general_filter_action != None:
             self.comboAction.setCurrentIndex(int(dialog_general_filter_action))
         if dialog_general_limit_results != None:
@@ -769,6 +764,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if rules_tree_apps != None:
                 rules_tree_apps.setExpanded(rulesTreeApps_expanded)
 
+        if dialog_general_filter_text != None:
+            self.filterLine.setText(dialog_general_filter_text)
 
     def _save_settings(self):
         self._cfg.setSettings(Config.STATS_GEOMETRY, self.saveGeometry())
