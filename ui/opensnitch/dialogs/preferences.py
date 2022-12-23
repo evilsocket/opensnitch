@@ -576,11 +576,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
     def _cb_test_notifs_clicked(self):
-        if self._desktop_notifications.is_available() == False:
-            self._set_status_error(QC.translate("notifications", "System notifications are not available, you need to install python3-notify2."))
-            return
+        try:
+            self.cmdTestNotifs.setEnabled(False)
+            if self._desktop_notifications.is_available() == False:
+                self._set_status_error(QC.translate("notifications", "System notifications are not available, you need to install python3-notify2."))
+                return
 
-        if self.radioSysNotifs.isChecked():
-            self._desktop_notifications.show("title", "body")
-        else:
-            pass
+            if self.radioSysNotifs.isChecked():
+                self._desktop_notifications.show("title", "body")
+            else:
+                pass
+            self.cmdTestNotifs.setEnabled(True)
+        except Exception as e:
+            print(self.LOG_TAG + "exception testing notifications:", e)

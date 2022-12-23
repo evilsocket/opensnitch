@@ -399,6 +399,9 @@ QSlider::sub-page:horizontal {
               <property name="layoutDirection">
                <enum>Qt::RightToLeft</enum>
               </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton { text-align: right; }</string>
+              </property>
               <property name="text">
                <string>Allow service (OUT)</string>
               </property>

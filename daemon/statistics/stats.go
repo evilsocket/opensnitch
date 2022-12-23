@@ -95,7 +95,7 @@ func (s *Statistics) SetLimits(config StatsConfig) {
 	}
 	wrks := config.Workers
 	if wrks == 0 {
-		wrks = 4
+		wrks = 6
 	}
 	log.Info("Stats, max events: %d, max stats: %d, max workers: %d", s.maxStats, s.maxEvents, wrks)
 	for i := 0; i < wrks; i++ {

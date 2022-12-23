@@ -139,12 +139,12 @@ func (q *Queue) run() {
 // After exit, listening queue is destroyed and closed.
 // If for some reason any of the steps stucks while closing it, we'll exit by timeout.
 func (q *Queue) Close() {
-	close(q.packets)
 	C.stop_reading_packets()
 	q.destroy()
 	queueIndexLock.Lock()
 	delete(queueIndex, q.idx)
 	queueIndexLock.Unlock()
+	close(q.packets)
 }
 
 func (q *Queue) destroy() {

@@ -92,7 +92,6 @@ func Start() error {
 	}
 	determineHostByteOrder()
 
-	ebpfCache = NewEbpfCache()
 	ebpfMaps = map[string]*ebpfMapsForProto{
 		"tcp": {
 			bpfmap: m.Map("tcpMap")},
@@ -109,6 +108,7 @@ func Start() error {
 		}
 	}
 
+	ebpfCache = NewEbpfCache()
 	initEventsStreamer()
 
 	saveEstablishedConnections(uint8(syscall.AF_INET))
