@@ -110,11 +110,15 @@ class Nodes(QObject):
         self.nodesUpdated.emit(self.count())
 
     def delete(self, peer):
-        proto, addr = self.get_addr(peer)
-        addr = "%s:%s" % (proto, addr)
-        # Force the node to get one new item from queue,
-        # in order to loop and exit.
-        self._nodes[addr]['notifications'].put(None)
+        try:
+            proto, addr = self.get_addr(peer)
+            addr = "%s:%s" % (proto, addr)
+            # Force the node to get one new item from queue,
+            # in order to loop and exit.
+            self._nodes[addr]['notifications'].put(None)
+        except:
+            addr = peer
+
         if addr in self._nodes:
             del self._nodes[addr]
             self.nodesUpdated.emit(self.count())
@@ -150,11 +154,15 @@ class Nodes(QObject):
         return client_config
 
     def get_addr(self, peer):
-        peer = peer.split(":")
-        # WA for backward compatibility
-        if peer[0] == "unix" and peer[1] == "":
-            peer[1] = "/local"
-        return peer[0], peer[1]
+        try:
+            peer = peer.split(":")
+            # WA for backward compatibility
+            if peer[0] == "unix" and peer[1] == "":
+                peer[1] = "/local"
+            return peer[0], peer[1]
+        except:
+            print(self.LOG_TAG, "get_addr() error getting addr:", peer)
+            return peer
 
     def is_local(self, addr):
         if addr.startswith("unix"):

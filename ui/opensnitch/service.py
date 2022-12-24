@@ -483,7 +483,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             db.insert("nodes",
                     "(addr, status, hostname, daemon_version, daemon_uptime, " \
                             "daemon_rules, cons, cons_dropped, version, last_connection)",
-                            (addr, Nodes.ONLINE, hostname, stats.daemon_version, str(timedelta(seconds=stats.uptime)),
+                            ("{0}:{1}".format(proto, addr), Nodes.ONLINE, hostname, stats.daemon_version, str(timedelta(seconds=stats.uptime)),
                             stats.rules, stats.connections, stats.dropped,
                             version, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 

@@ -412,7 +412,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rulesTreePanel.itemExpanded.connect(self._cb_rules_tree_item_expanded)
 
         self.startButton.clicked.connect(self._cb_start_clicked)
+        self.nodeStartButton.clicked.connect(self._cb_node_start_clicked)
+        self.nodeStartButton.setVisible(False)
+        self.nodePrefsButton.setVisible(False)
+        self.nodeDeleteButton.setVisible(False)
+        self.nodeDeleteButton.clicked.connect(self._cb_node_delete_clicked)
         self.prefsButton.clicked.connect(self._cb_prefs_clicked)
+        self.nodePrefsButton.clicked.connect(self._cb_node_prefs_clicked)
         self.fwButton.clicked.connect(lambda: self._fw_dialog.show())
         self.saveButton.clicked.connect(self._on_save_clicked)
         self.comboAction.currentIndexChanged.connect(self._cb_combo_action_changed)
@@ -710,6 +716,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.startButton.setIcon(self.iconStart)
         self.fwButton.setIcon(fwIcon)
         self.cmdProcDetails.setIcon(searchIcon)
+        self.nodeStartButton.setIcon(self.iconStart)
+        self.nodePrefsButton.setIcon(prefsIcon)
+        self.nodeDeleteButton.setIcon(clearIcon)
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'].setIcon(clearIcon)
         for idx in range(1,8):
             self.TABLES[idx]['cmd'].setIcon(leftArrowIcon)
@@ -1194,8 +1203,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             field = "dst_host"
             if cur_idx == self.TAB_NODES:
                 field = "node"
-                if label[0] == '/':
-                    label = "unix:{0}".format(label)
             elif cur_idx == self.TAB_PROCS:
                 field = "process"
             elif cur_idx == self.TAB_ADDRS:
@@ -1452,6 +1459,47 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._notifications_sent[nid] = noti
 
+    def _cb_node_start_clicked(self):
+        addr = self.TABLES[self.TAB_NODES]['label'].text()
+        if addr == "":
+            return
+        if self.nodeStartButton.isChecked():
+            self._update_nodes_interception_status()
+            nid, noti = self._nodes.start_interception(_addr=addr, _callback=self._notification_callback)
+        else:
+            self._update_nodes_interception_status(disable=True)
+            nid, noti = self._nodes.stop_interception(_addr=addr, _callback=self._notification_callback)
+
+        self._notifications_sent[nid] = noti
+
+    def _cb_node_prefs_clicked(self):
+        addr = self.TABLES[self.TAB_NODES]['label'].text()
+        if addr == "":
+            return
+        self._prefs_dialog.show_node_prefs(addr)
+
+    def _cb_node_delete_clicked(self):
+        ret = Message.yes_no(
+            QC.translate("stats", "    You are about to delete this node.    "),
+            QC.translate("stats", "    Are you sure?"),
+            QtWidgets.QMessageBox.Warning)
+        if ret == QtWidgets.QMessageBox.Cancel:
+            return
+
+        addr = self.TABLES[self.TAB_NODES]['label'].text()
+        if self._db.remove("DELETE FROM nodes WHERE addr = '{0}'".format(addr)) == False:
+            Message.ok(
+                QC.translate("stats",
+                                "<b>Error deleting node</b><br><br>",
+                                "{0}").format(addr),
+                QtWidgets.QMessageBox.Warning)
+            return
+
+        self._nodes.delete(addr)
+        self.TABLES[self.TAB_NODES]['cmd'].click()
+        self.TABLES[self.TAB_NODES]['label'].setText("")
+        self._refresh_active_table()
+
     def _cb_new_rule_clicked(self):
         self._rules_dialog.new_rule()
 
@@ -1681,6 +1729,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if cur_idx == StatsDialog.TAB_RULES or cur_idx == StatsDialog.TAB_NODES:
                 self.TABLES[cur_idx]['cmdCleanStats'].setVisible(state)
 
+        if cur_idx == StatsDialog.TAB_NODES:
+            self._update_nodes_interception_status(state)
+            self.nodeDeleteButton.setVisible(state)
+
         header = self.TABLES[cur_idx]['view'].horizontalHeader()
         if state == True:
             # going to normal state
@@ -1800,7 +1852,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as {10} " \
             "FROM connections as c " \
-            "WHERE c.node LIKE '%{11}%' {12} GROUP BY {13}, c.process_args, c.uid, c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.protocol {14}".format(
+            "WHERE c.node = '{11}' {12} GROUP BY {13}, c.process_args, c.uid, c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.protocol {14}".format(
                 self.COL_STR_TIME,
                 self.COL_STR_ACTION,
                 self.COL_STR_HITS,
@@ -1839,6 +1891,25 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             qstr += " GROUP BY" + base_query[1]
 
         return qstr
+
+    def _update_nodes_interception_status(self, show=True, disable=False):
+        addr = self.TABLES[self.TAB_NODES]['label'].text()
+        node_cfg = self._nodes.get_node(addr)
+        if node_cfg == None:
+            self.nodeStartButton.setVisible(False)
+            self.nodePrefsButton.setVisible(False)
+            self.nodeDeleteButton.setVisible(False)
+            return
+        self.nodeStartButton.setVisible(show)
+        self.nodePrefsButton.setVisible(show)
+        if not node_cfg['data'].isFirewallRunning or disable:
+            self.nodeStartButton.setChecked(False)
+            self.nodeStartButton.setDown(False)
+            self.nodeStartButton.setIcon(self.iconStart)
+        else:
+            self.nodeStartButton.setIcon(self.iconPause)
+            self.nodeStartButton.setChecked(True)
+            self.nodeStartButton.setDown(True)
 
     def _set_rules_filter(self, parent_row=-1, item_row=0, what="", what1="", what2=""):
         section = self.FILTER_TREE_APPS

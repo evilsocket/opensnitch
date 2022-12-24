@@ -144,6 +144,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # True when any node option changes
         self._node_needs_update = False
 
+    def show_node_prefs(self, addr):
+        self.comboNodeAddress.setCurrentText(addr)
+        self.tabWidget.setCurrentIndex(self.TAB_NODES)
+        self.show()
+
     def _load_themes(self):
         theme_idx, self._saved_theme = self._themes.get_saved_theme()
 

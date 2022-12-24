@@ -608,6 +608,70 @@
            </property>
           </widget>
          </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="nodeDeleteButton">
+           <property name="toolTip">
+            <string>Delete this node</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="edit-delete"/>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="nodePrefsButton">
+           <property name="toolTip">
+            <string>Show the preferences of this node</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="preferences-system"/>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="nodeStartButton">
+           <property name="toolTip">
+            <string>Start or stop interception of this node</string>
+           </property>
+           <property name="text">
+            <string notr="true"/>
+           </property>
+           <property name="icon">
+            <iconset theme="media-playback-start"/>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -746,6 +810,14 @@
               <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../gustavo-iniguez-goya/opensnitch/ui/opensnitch/res</iconset>
             </property>
            </item>
+          </item>
+          <item>
+           <property name="text">
+            <string>Alerts</string>
+           </property>
+           <property name="icon">
+            <iconset theme="dialog-warning"/>
+           </property>
           </item>
           <item>
            <property name="text">
@@ -920,34 +992,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="editRuleButton">
-           <property name="toolTip">
-            <string>Edit rule</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="accessories-text-editor">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="delRuleButton">
-           <property name="toolTip">
-            <string>Delete rule</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="edit-delete">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QLabel" name="nodeRuleLabel">
            <property name="text">
             <string/>
@@ -964,6 +1008,40 @@
            </property>
            <property name="text">
             <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="editRuleButton">
+           <property name="toolTip">
+            <string>Edit rule</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="accessories-text-editor">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="delRuleButton">
+           <property name="toolTip">
+            <string>Delete rule</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="edit-delete">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -1093,17 +1171,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="cmdProcDetails">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="system-search">
-             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QLabel" name="procsLabel">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1116,6 +1183,20 @@
            </property>
            <property name="text">
             <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cmdProcDetails">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="system-search">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
