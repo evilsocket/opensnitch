@@ -813,14 +813,6 @@
           </item>
           <item>
            <property name="text">
-            <string>Alerts</string>
-           </property>
-           <property name="icon">
-            <iconset theme="dialog-warning"/>
-           </property>
-          </item>
-          <item>
-           <property name="text">
             <string>Nodes</string>
            </property>
            <property name="font">
