@@ -1282,6 +1282,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             p, addr = self._nodes.get_addr(data)
             self._set_nodes_query(addr)
 
+        elif idx == StatsDialog.COL_RULES:
+            cur_idx = self.TAB_RULES
+            self.IN_DETAIL_VIEW[cur_idx] = True
+            self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_RULES).data()
+            r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_RULES, self.COL_NODE)
+            self._set_active_widgets(True, str(data))
+            self._set_rules_query(r_name, node)
+
         elif idx == StatsDialog.COL_DSTIP:
             cur_idx = self.TAB_HOSTS
             self.IN_DETAIL_VIEW[cur_idx] = True
@@ -1292,24 +1300,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_active_widgets(True, hostip)
             self._set_hosts_query(hostip)
 
-        elif idx == StatsDialog.COL_PROCS or idx == StatsDialog.COL_CMDLINE:
+        else:
             cur_idx = self.TAB_PROCS
             self.IN_DETAIL_VIEW[cur_idx] = True
             self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_PROCS).data()
             self.tabWidget.setCurrentIndex(cur_idx)
             self._set_active_widgets(True, self.LAST_SELECTED_ITEM)
             self._set_process_query(self.LAST_SELECTED_ITEM)
-
-        elif idx == StatsDialog.COL_RULES:
-            cur_idx = self.TAB_RULES
-            self.IN_DETAIL_VIEW[cur_idx] = True
-            self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_RULES).data()
-            r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_RULES, self.COL_NODE)
-            self._set_active_widgets(True, str(data))
-            self._set_rules_query(r_name, node)
-
-        else:
-            return
 
         self._restore_details_view_columns(
             self.TABLES[cur_idx]['view'].horizontalHeader(),
