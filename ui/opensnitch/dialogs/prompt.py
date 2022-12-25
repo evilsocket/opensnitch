@@ -8,7 +8,7 @@ import json
 import ipaddress
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt5.QtCore import QCoreApplication as QC, QEvent
 
 from slugify import slugify
 
@@ -57,6 +57,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg = Config.get()
         self.setupUi(self)
         self.setWindowIcon(appicon)
+        self.installEventFilter(self)
 
         self._width = None
         self._height = None
@@ -133,6 +134,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.actionButton.setText(self._action_text[self._default_action])
             self.actionButton.setIcon(self._action_icon[self._default_action])
         self.actionButton.clicked.connect(self._on_deny_btn_clicked)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.MouseButtonPress:
+            self._stop_countdown()
+            return True
+        return False
 
     def showEvent(self, event):
         super(PromptDialog, self).showEvent(event)
