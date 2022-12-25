@@ -684,7 +684,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 selection = table.selectionModel().selectedRows()
                 if selection:
                     model = table.model()
-                    self._table_menu_delete(2, model, selection)
+                    self._table_menu_delete(self.tabWidget.currentIndex(), model, selection)
                     # we need to manually refresh the model
                     table.selectionModel().clear()
                     self._refresh_active_table()
@@ -798,6 +798,29 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if rules_tree_nodes != None:
             self._cfg.setSettings(Config.STATS_RULES_TREE_EXPANDED_1, rules_tree_nodes.isExpanded())
 
+    def _del_by_field(self, cur_idx, table, value):
+        model = self._get_active_table().model()
+        # get left side of the query: * GROUP BY ...
+        qstr = model.query().lastQuery().split("GROUP BY")[0]
+        # get right side of the query: ... WHERE *
+        q = qstr.split("WHERE")
+
+        field = "dst_host"
+        if cur_idx == self.TAB_NODES:
+            field = "node"
+        elif cur_idx == self.TAB_PROCS:
+            field = "process"
+        elif cur_idx == self.TAB_ADDRS:
+            field = "dst_ip"
+        elif cur_idx == self.TAB_PORTS:
+            field = "dst_port"
+        elif cur_idx == self.TAB_USERS:
+            field = "uid"
+
+        ret1 = self._db.remove("DELETE FROM {0} WHERE what = '{1}'".format(table, value))
+        ret2 = self._db.remove("DELETE FROM connections WHERE {0} = '{1}'".format(field, value))
+
+        return ret1 and ret2
 
     def _del_rule(self, rule_name, node_addr):
         nid, noti = self._nodes.delete_rule(rule_name, node_addr, self._notification_callback)
@@ -1000,14 +1023,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._notifications_sent[nid] = noti
 
     def _table_menu_delete(self, cur_idx, model, selection):
-        ret = Message.yes_no(
-            QC.translate("stats", "    Your are about to delete this rule.    "),
+        if cur_idx == self.TAB_MAIN or cur_idx == self.TAB_NODES or self.IN_DETAIL_VIEW[cur_idx]:
+            return
+
+        msg = QC.translate("stats", "    Your are about to delete this rule.    ")
+        if cur_idx != self.TAB_RULES:
+            msg = QC.translate("stats", "    Your are about to delete this entry.    ")
+
+        ret = Message.yes_no(msg,
             QC.translate("stats", "    Are you sure?"),
             QtWidgets.QMessageBox.Warning)
         if ret == QtWidgets.QMessageBox.Cancel:
             return False
 
-        if self.tabWidget.currentIndex() == self.TAB_RULES and self.fwTable.isVisible():
+        if cur_idx == self.TAB_RULES and self.fwTable.isVisible():
             do_refresh = False
             for idx in selection:
                 uuid = model.index(idx.row(), 1).data()
@@ -1018,11 +1047,22 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if do_refresh:
                 nid, noti = self._nodes.reload_fw(node, fw_config, self._notification_callback)
                 self._notifications_sent[nid] = noti
-        else:
+        elif cur_idx == self.TAB_RULES and not self.fwTable.isVisible():
             for idx in selection:
                 name = model.index(idx.row(), self.COL_R_NAME).data()
                 node = model.index(idx.row(), self.COL_R_NODE).data()
                 self._del_rule(name, node)
+        elif cur_idx == self.TAB_HOSTS or cur_idx == self.TAB_PROCS or cur_idx == self.TAB_ADDRS or \
+            cur_idx == self.TAB_USERS or cur_idx == self.TAB_PORTS:
+            do_refresh = False
+            for idx in selection:
+                field = model.index(idx.row(), self.COL_WHAT).data()
+                if field == "":
+                    continue
+                ok = self._del_by_field(cur_idx, self.TABLES[cur_idx]['name'], field)
+                do_refresh |= ok
+            if do_refresh:
+                self._refresh_active_table()
 
     def _table_menu_edit(self, cur_idx, model, selection):
 
@@ -1191,29 +1231,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.tabWidget.currentIndex() == StatsDialog.TAB_RULES:
             self._db.empty_rule(self.TABLES[cur_idx]['label'].text())
         elif self.IN_DETAIL_VIEW[cur_idx]:
-            model = self._get_active_table().model()
-            # get left side of the query: * GROUP BY ...
-            qstr = model.query().lastQuery().split("GROUP BY")[0]
-            # get right side of the query: ... WHERE *
-            q = qstr.split("WHERE")
-
-            table = self.TABLES[cur_idx]['name']
-            label = self.TABLES[cur_idx]['label'].text()
-
-            field = "dst_host"
-            if cur_idx == self.TAB_NODES:
-                field = "node"
-            elif cur_idx == self.TAB_PROCS:
-                field = "process"
-            elif cur_idx == self.TAB_ADDRS:
-                field = "dst_ip"
-            elif cur_idx == self.TAB_PORTS:
-                field = "dst_port"
-            elif cur_idx == self.TAB_USERS:
-                field = "uid"
-
-            self._db.remove("DELETE FROM {0} WHERE what = '{1}'".format(table, label))
-            self._db.remove("DELETE FROM connections WHERE {0} = '{1}'".format(field, label))
+            self._del_by_field(cur_idx, self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['label'].text())
         else:
             self._db.clean(self.TABLES[cur_idx]['name'])
         self._refresh_active_table()
