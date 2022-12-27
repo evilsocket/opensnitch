@@ -159,8 +159,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "rule as Rule",
                 "group_by": LAST_GROUP_BY,
                 "last_order_by": "1",
-                "last_order_to": 1,
-                "rows_selected": False
+                "last_order_to": 1
                 },
             TAB_NODES: {
                 "name": "nodes",
@@ -190,8 +189,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "version as Version",
                 "header_labels": [],
                 "last_order_by": "1",
-                "last_order_to": 1,
-                "rows_selected": False
+                "last_order_to": 1
                 },
             TAB_RULES: {
                 "name": "rules",
@@ -211,8 +209,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "description as Description",
                 "header_labels": [],
                 "last_order_by": "2",
-                "last_order_to": 0,
-                "rows_selected": False
+                "last_order_to": 0
                 },
             TAB_FIREWALL: {
                 "name": "firewall",
@@ -243,8 +240,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "display_fields": "*",
                 "header_labels": [],
                 "last_order_by": "2",
-                "last_order_to": 0,
-                "rows_selected": False
+                "last_order_to": 0
                 },
             TAB_HOSTS: {
                 "name": "hosts",
@@ -258,8 +254,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "display_fields": "*",
                 "header_labels": [],
                 "last_order_by": "2",
-                "last_order_to": 1,
-                "rows_selected": False
+                "last_order_to": 1
                 },
             TAB_PROCS: {
                 "name": "procs",
@@ -273,8 +268,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "display_fields": "*",
                 "header_labels": [],
                 "last_order_by": "2",
-                "last_order_to": 1,
-                "rows_selected": False
+                "last_order_to": 1
                 },
             TAB_ADDRS: {
                 "name": "addrs",
@@ -288,8 +282,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "display_fields": "*",
                 "header_labels": [],
                 "last_order_by": "2",
-                "last_order_to": 1,
-                "rows_selected": False
+                "last_order_to": 1
                 },
             TAB_PORTS: {
                 "name": "ports",
@@ -303,8 +296,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "display_fields": "*",
                 "header_labels": [],
                 "last_order_by": "2",
-                "last_order_to": 1,
-                "rows_selected": False
+                "last_order_to": 1
                 },
             TAB_USERS: {
                 "name": "users",
@@ -318,8 +310,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "display_fields": "*",
                 "header_labels": [],
                 "last_order_by": "2",
-                "last_order_to": 1,
-                "rows_selected": False
+                "last_order_to": 1
                 }
             }
 
@@ -609,7 +600,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.TABLES[idx]['label'].setStyleSheet('color: blue; font-size:9pt; font-weight:600;')
                 self.TABLES[idx]['label'].setVisible(False)
             self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
-            self.TABLES[idx]['view'].selectionModel().selectionChanged.connect(self._cb_table_selection_changed)
             self.TABLES[idx]['view'].installEventFilter(self)
 
         self.TABLES[self.TAB_FIREWALL]['view'].rowsReordered.connect(self._cb_fw_table_rows_reordered)
@@ -831,21 +821,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         cur_idx = self.tabWidget.currentIndex()
         if self.tabWidget.currentIndex() == self.TAB_RULES and self.fwTable.isVisible():
             cur_idx = self.TAB_FIREWALL
-        selection = self.TABLES[cur_idx]['view'].selectedIndexes()
+        selection = self.TABLES[cur_idx]['view'].copySelection()
         if selection:
-            rows = sorted(index.row() for index in selection)
-            columns = sorted(index.column() for index in selection)
-            rowcount = rows[-1] - rows[0] + 1
-            colcount = columns[-1] - columns[0] + 1
-            table = [[''] * colcount for _ in range(rowcount)]
-            for index in selection:
-                row = index.row() - rows[0]
-                column = index.column() - columns[0]
-                table[row][column] = index.data()
             stream = io.StringIO()
-            csv.writer(stream, delimiter=',').writerows(table)
+            csv.writer(stream, delimiter=',').writerows(selection)
             QtWidgets.qApp.clipboard().setText(stream.getvalue())
-
 
     def _configure_rules_contextual_menu(self, pos):
         try:
@@ -1239,7 +1219,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_cmd_back_clicked(self, idx):
         try:
             cur_idx = self.tabWidget.currentIndex()
-            self._clear_rows_selection()
             self.IN_DETAIL_VIEW[cur_idx] = False
 
             self._set_active_widgets(False)
@@ -1376,19 +1355,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
         )
 
-    # selection changes occur before tableview's clicked event
-    # if there're no rows selected, accept the selection. Otherwise clean it.
-    def _cb_table_selection_changed(self, selected, deselected):
-        cur_idx = self.tabWidget.currentIndex()
-
-        # only update the flag (that updates data), if there's more than 1
-        # row selected. When using the keyboard to move around, 1 row will
-        # be selected to indicate where you are.
-
-        # NOTE: in some qt versions you can select a row and setQuery() won't
-        # reset the selection, but in others it gets resetted.
-        self.TABLES[cur_idx]['rows_selected'] = len(self.TABLES[cur_idx]['view'].selectionModel().selectedRows(0)) > 1
-
     def _cb_prefs_clicked(self):
         self._prefs_dialog.show()
 
@@ -1420,6 +1386,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         parent_row = -1
         node_addr = ""
         fw_table = ""
+
+        self._clear_rows_selection()
 
         # FIXME: find a clever way of handling these options
 
@@ -1676,12 +1644,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _clear_rows_selection(self):
         cur_idx = self.tabWidget.currentIndex()
-        self.TABLES[cur_idx]['view'].selectionModel().reset()
-        self.TABLES[cur_idx]['rows_selected'] = False
+        self.TABLES[cur_idx]['view'].clearSelection()
 
     def _are_rows_selected(self):
         cur_idx = self.tabWidget.currentIndex()
-        return self.TABLES[cur_idx]['rows_selected']
+        view = self.TABLES[cur_idx]['view']
+        ret = False
+        if view != None:
+            ret = len(view.selectionModel().selectedRows(0)) > 0
+        return ret
 
     def _get_rule(self, rule_name, node_name):
         """
@@ -1764,7 +1735,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif cur_idx == self.TAB_NODES:
             col = self.TAB_RULES
 
-        self.TABLES[cur_idx]['view'].selectItem(self.LAST_SELECTED_ITEM, col)
+        # FIXME: this line causes the gui to segfault. Review GenericTableView
+        #self.TABLES[cur_idx]['view'].selectItem(self.LAST_SELECTED_ITEM, col)
         self.LAST_SELECTED_ITEM = ""
 
     def _restore_scroll_value(self):
@@ -2356,7 +2328,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.consLabel.setText("")
                 self.droppedLabel.setText("")
 
-            if need_query_update:
+            if need_query_update and not self._are_rows_selected():
                 self._refresh_active_table()
 
     # prevent a click on the window's x
@@ -2375,7 +2347,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             super(StatsDialog, self).keyPressEvent(event)
 
     def setQuery(self, model, q):
-        if self._context_menu_active == True or self.scrollbar_active == True or self._are_rows_selected():
+        if self._context_menu_active == True or self.scrollbar_active == True:
             return
         with self._lock:
             try:
