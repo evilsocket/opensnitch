@@ -122,6 +122,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             if len(self._node_list) == 0:
                 self._reset_node_settings()
+                self._set_status_message(QC.translate("preferences", "There're no nodes connected"))
         except Exception as e:
             print(self.LOG_TAG + "exception loading nodes", e)
 
@@ -310,9 +311,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             elif c == 5:
                 self.checkHideProc.setChecked(checked)
             elif c == 6:
-                self.checkHideRule.setChecked(checked)
-            elif c == 7:
                 self.checkHideCmdline.setChecked(checked)
+            elif c == 7:
+                self.checkHideRule.setChecked(checked)
 
     def _reset_node_settings(self):
         self.comboNodeAction.setCurrentIndex(0)
@@ -352,6 +353,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 except Exception as e:
                     print(self.LOG_TAG + "exception saving config: ", e)
                     self._set_status_error(QC.translate("preferences", "Exception saving config: {0}").format(str(e)))
+            elif addr == "":
+                self._set_status_message(QC.translate("preferences", "There're no nodes connected"))
 
             self._node_needs_update = False
 

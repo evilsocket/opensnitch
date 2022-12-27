@@ -2218,6 +2218,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def _on_settings_saved(self):
+        self._show_columns()
         self.settings_saved.emit()
 
     def _on_save_clicked(self):
