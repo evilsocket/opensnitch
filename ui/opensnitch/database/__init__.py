@@ -468,12 +468,15 @@ class Database:
             if not q.exec_():
                 print("db, delete_rule() ERROR: ", qstr)
                 print(q.lastError().driverText())
+                return False
+
+        return True
 
     def get_rule(self, rule_name, node_addr=None):
         """
         get rule records, given the name of the rule and the node
         """
-        qstr = "SELECT * from rules WHERE name=?"
+        qstr = "SELECT * FROM rules WHERE name=?"
         if node_addr != None:
             qstr = qstr + " AND node=?"
 

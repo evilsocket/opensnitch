@@ -8,6 +8,7 @@ from opensnitch import ui_pb2
 from opensnitch.database import Database
 from opensnitch.config import Config
 from opensnitch.utils import NetworkInterfaces
+from opensnitch.rules import Rules
 
 class Nodes(QObject):
     __instance = None
@@ -27,6 +28,7 @@ class Nodes(QObject):
     def __init__(self):
         QObject.__init__(self)
         self._db = Database.instance()
+        self._rules = Rules()
         self._nodes = {}
         self._notifications_sent = {}
         self._interfaces = NetworkInterfaces()
@@ -64,7 +66,7 @@ class Nodes(QObject):
         if client_config != None:
             self._nodes[addr]['data'] = self.get_client_config(client_config)
             self.add_fw_config(addr, client_config.systemFirewall)
-            self.add_rules(addr, client_config.rules)
+            self._rules.add_rules(addr, client_config.rules)
 
     def add_fw_config(self, addr, fwconfig):
         self._nodes[addr]['firewall'] = fwconfig
@@ -78,31 +80,30 @@ class Nodes(QObject):
         if duration in Config.RULES_DURATION_FILTER:
             return
 
-        self._db.insert("rules",
-                  "(time, node, name, description, enabled, precedence, nolog, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
-                  (time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data),
-                        action_on_conflict="REPLACE")
+        self._rules.add(time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data)
 
     def add_rules(self, addr, rules):
         try:
-            for _,r in enumerate(rules):
-                self.add_rule(datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                              addr,
-                              r.name, r.description, str(r.enabled),
-                              str(r.precedence), str(r.nolog), r.action, r.duration,
-                              r.operator.type,
-                              str(r.operator.sensitive),
-                              r.operator.operand, r.operator.data)
+            self._rules.add_rules(addr, rules)
         except Exception as e:
             print(self.LOG_TAG + " exception adding node to db: ", e)
 
+    def delete_rule(self, rule_name, addr, callback):
+        deleted_rule = self._rules.delete(rule_name, addr, callback)
+        if deleted_rule == None:
+            print(self.LOG_TAG, "error deleting rule", rule_name)
+            return
+
+        noti = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[deleted_rule])
+        if addr != None:
+            nid = self.send_notification(addr, noti, None)
+        else:
+            nid = self.send_notifications(noti, None)
+
+        return nid, noti
+
     def update_rule_time(self, time, rule_name, addr):
-        self._db.update("rules",
-                        "time=?",
-                        (time, rule_name, addr),
-                        "name=? AND node=?",
-                        action_on_conflict="OR REPLACE"
-                        )
+        self._rules.update_time(time, rule_name, addr)
 
     def delete_all(self):
         self.send_notifications(None)
@@ -339,24 +340,6 @@ class Nodes(QObject):
                         )
         except Exception as e:
             print(self.LOG_TAG + " exception updating nodes: ", e)
-
-    def delete_rule(self, rule_name, addr, callback):
-        rule = ui_pb2.Rule(name=rule_name)
-        rule.enabled = False
-        rule.action = ""
-        rule.duration = ""
-        rule.operator.type = ""
-        rule.operator.operand = ""
-        rule.operator.data = ""
-
-        noti = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[rule])
-        if addr != None:
-            nid = self.send_notification(addr, noti, None)
-        else:
-            nid = self.send_notifications(noti, None)
-        self._db.delete_rule(rule.name, addr)
-
-        return nid, noti
 
     def reload_fw(self, addr, fw_config, callback):
         notif = ui_pb2.Notification(
