@@ -1,8 +1,7 @@
-from PyQt5 import Qt, QtCore
 from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem, QMouseEvent
 from PyQt5.QtSql import QSqlQueryModel, QSqlQuery, QSql
 from PyQt5.QtWidgets import QTableView, QAbstractSlider
-from PyQt5.QtCore import QItemSelectionModel, pyqtSignal, QEvent
+from PyQt5.QtCore import QItemSelectionModel, pyqtSignal, QEvent, Qt
 import time
 import math
 
@@ -54,10 +53,10 @@ class GenericTableModel(QStandardItemModel):
     def clear(self):
         pass
 
-    def data(self, index, role=QtCore.Qt.DisplayRole):
+    def data(self, index, role=Qt.DisplayRole):
         """Paint rows with the data stored in self.items
         """
-        if role == QtCore.Qt.DisplayRole:
+        if role == Qt.DisplayRole:
             items_count = len(self.items)
             if index.isValid() and items_count > 0 and index.row() < items_count:
                 return self.items[index.row()][index.column()]
@@ -205,10 +204,10 @@ class GenericTableView(QTableView):
         #eventFilter to catch key up/down events and wheel events
         self.installEventFilter(self)
         self.verticalHeader().setVisible(True)
-        self.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalHeader().setDefaultAlignment(Qt.AlignCenter)
         self.horizontalHeader().setStretchLastSection(True)
         #the built-in vertical scrollBar of this view is always off
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def setVerticalScrollBar(self, vScrollBar):
         self.vScrollBar = vScrollBar
@@ -226,8 +225,10 @@ class GenericTableView(QTableView):
         self.setSortingEnabled(False)
 
     # save the selected index, to preserve selection when moving around.
-    def mousePressEvent(self, event: QMouseEvent) -> None:
+    def mousePressEvent(self, event):
         super().mousePressEvent(event)
+        if event.button() != Qt.LeftButton:
+            return
 
         item = self.indexAt(event.pos())
         if item == None and self.curSelection == None:
@@ -405,19 +406,19 @@ class GenericTableView(QTableView):
         if event.type() == QEvent.KeyPress:
             # FIXME: setValue() does not update the scrollbars correctly in
             # some pyqt versions.
-            if event.key() == QtCore.Qt.Key_Up:
+            if event.key() == Qt.Key_Up:
                 self.onKeyUp()
-            elif event.key() == QtCore.Qt.Key_Down:
+            elif event.key() == Qt.Key_Down:
                 self.onKeyDown()
-            elif event.key() == QtCore.Qt.Key_Home:
+            elif event.key() == Qt.Key_Home:
                 self.onKeyHome()
-            elif event.key() == QtCore.Qt.Key_End:
+            elif event.key() == Qt.Key_End:
                 self.onKeyEnd()
-            elif event.key() == QtCore.Qt.Key_PageUp:
+            elif event.key() == Qt.Key_PageUp:
                 self.onKeyPageUp()
-            elif event.key() == QtCore.Qt.Key_PageDown:
+            elif event.key() == Qt.Key_PageDown:
                 self.onKeyPageDown()
-            elif event.key() == QtCore.Qt.Key_Escape:
+            elif event.key() == Qt.Key_Escape:
                 self.selectionModel().clear()
                 self.curSelection = None
         elif event.type() == QEvent.Wheel:
