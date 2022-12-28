@@ -1,11 +1,5 @@
 
-from PyQt5 import Qt, QtCore
-from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
-from PyQt5.QtSql import QSqlQueryModel, QSqlQuery, QSql
-from PyQt5.QtWidgets import QTableView, QAbstractSlider
-from PyQt5.QtCore import QItemSelectionModel, pyqtSignal, QEvent
-import time
-import math
+from PyQt5.QtSql import QSqlQuery
 
 from opensnitch.utils import AsnDB
 from opensnitch.customwidgets.generictableview import GenericTableModel
@@ -53,8 +47,8 @@ class AddressTableModel(GenericTableModel):
         self.prevQueryStr = self.origQueryStr
         self.rowCountChanged.emit()
 
-    def fillRows(self, q, upperBound, force=False):
-        super().fillRows(q, upperBound, force)
+    def fillVisibleRows(self, q, upperBound, force=False):
+        super().fillVisibleRows(q, upperBound, force)
 
         if self.asndb.is_available() == True and self.columnCount() <= 3:
             for n, col in enumerate(self.items):
@@ -62,7 +56,7 @@ class AddressTableModel(GenericTableModel):
                     if len(col) < 2:
                         continue
                     col[2] = self.asndb.get_asn(col[0])
-                except Exception as e:
+                except:
                     col[2] = ""
                 finally:
                     self.items[n] = col

@@ -71,23 +71,23 @@ class FirewallTableModel(QStandardItemModel):
 
     def filterByNode(self, addr):
         self.activeFilter = self.FILTER_BY_NODE
-        self.fillRows(0, True, addr)
+        self.fillVisibleRows(0, True, addr)
 
     def filterAll(self):
         self.activeFilter = self.FILTER_ALL
-        self.fillRows(0, True)
+        self.fillVisibleRows(0, True)
 
     def filterByTable(self, addr, name, family):
         self.activeFilter = self.FILTER_BY_TABLE
-        self.fillRows(0, True, addr, name, family)
+        self.fillVisibleRows(0, True, addr, name, family)
 
     def filterByChain(self, addr, table, family, chain, hook):
         self.activeFilter = self.FILTER_BY_CHAIN
-        self.fillRows(0, True, addr, table, family, chain, hook)
+        self.fillVisibleRows(0, True, addr, table, family, chain, hook)
 
     def filterByQuery(self, query):
         self.activeFilter = self.FILTER_BY_QUERY
-        self.fillRows(0, True, query)
+        self.fillVisibleRows(0, True, query)
 
     def reorderRows(self, action, row):
         if (row.row()+action == self.rowCount() and action == self.DOWN_BTN) or \
@@ -119,7 +119,7 @@ class FirewallTableModel(QStandardItemModel):
             row.row()+action)
 
     def refresh(self, force=False):
-        self.fillRows(0, force, *self.lastQueryArgs)
+        self.fillVisibleRows(0, force, *self.lastQueryArgs)
 
     #Some QSqlQueryModel methods must be mimiced so that this class can serve as a drop-in replacement
     #mimic QSqlQueryModel.query()
@@ -158,7 +158,7 @@ class FirewallTableModel(QStandardItemModel):
     def prevRecord(self, offset):
         self.position -= 1
 
-    def fillRows(self, upperBound, force, *data):
+    def fillVisibleRows(self, upperBound, force, *data):
         if self.activeFilter == self.FILTER_BY_NODE and len(data) == 0:
                 return
 
