@@ -109,7 +109,7 @@ class Rules(QObject):
                         action_on_conflict="OR REPLACE"
                         )
 
-    def rule_to_json(self, rule_name, node):
+    def rule_to_json(self, node, rule_name):
         try:
             records = self._db.get_rule(rule_name, node)
             if records == None or records == -1:
@@ -128,6 +128,7 @@ class Rules(QObject):
         try:
             records = self._db.get_rule(rule_name, node)
             if records.next() == False:
+                print("export_rule() get_error 2:", records)
                 return False
 
             rule = Rule.new_from_records(records)

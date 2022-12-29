@@ -947,7 +947,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             rule_name = model.index(idx.row(), self.COL_R_NAME).data()
             node_addr = model.index(idx.row(), self.COL_R_NODE).data()
 
-            json_rule = self._nodes.export_rule(rule_name, node_addr, outdir)
+            json_rule = self._nodes.rule_to_json(node_addr, rule_name)
             if json_rule != None:
                 rules_list.append(json_rule)
             else:
@@ -955,11 +955,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         cliptext=""
         for r in rules_list:
-            if to == 0:
-                cliptext = "{0}\n{1}".format(cliptext, r)
+            cliptext = "{0}\n{1}".format(cliptext, r)
 
-        if to == 0:
-            QtWidgets.qApp.clipboard().setText(cliptext)
+        QtWidgets.qApp.clipboard().setText(cliptext)
 
     def _table_menu_export_disk(self, cur_idx, model, selection):
         outdir = QtWidgets.QFileDialog.getExistingDirectory(self,
