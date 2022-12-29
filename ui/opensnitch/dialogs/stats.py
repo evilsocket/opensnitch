@@ -848,6 +848,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             durMenu = QtWidgets.QMenu(self.COL_STR_DURATION)
             actionMenu = QtWidgets.QMenu(self.COL_STR_ACTION)
             nodesMenu = QtWidgets.QMenu(QC.translate("stats", "Apply to"))
+            exportMenu = QtWidgets.QMenu(QC.translate("stats", "Export"))
 
             nodes_menu = []
             if self._nodes.count() > 0:
@@ -877,6 +878,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             _menu_duplicate = menu.addAction(QC.translate("stats", "Duplicate"))
             _menu_edit = menu.addAction(QC.translate("stats", "Edit"))
             _menu_delete = menu.addAction(QC.translate("stats", "Delete"))
+
+            menu.addSeparator()
+            _toClipboard = exportMenu.addAction(QC.translate("stats", "To clipboard"))
+            _toDisk = exportMenu.addAction(QC.translate("stats", "To disk"))
+            menu.addMenu(exportMenu)
 
             # move away menu a few pixels to the right, to avoid clicking on it by mistake
             point = QtCore.QPoint(pos.x()+10, pos.y()+5)
@@ -924,12 +930,68 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_DENY)
             elif action == _actReject:
                 self._table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_REJECT)
+            elif action == _toClipboard:
+                self._table_menu_export_clipboard(cur_idx, model, selection)
+            elif action == _toDisk:
+                self._table_menu_export_disk(cur_idx, model, selection)
 
         except Exception as e:
             print(e)
         finally:
             self._clear_rows_selection()
             return True
+
+    def _table_menu_export_clipboard(self, cur_idx, model, selection):
+        rules_list = []
+        for idx in selection:
+            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+
+            json_rule = self._nodes.export_rule(rule_name, node_addr, outdir)
+            if json_rule != None:
+                rules_list.append(json_rule)
+            else:
+                print("export to clipboard: ERROR converting \"{0}\" to json".format(rule_name))
+
+        cliptext=""
+        for r in rules_list:
+            if to == 0:
+                cliptext = "{0}\n{1}".format(cliptext, r)
+
+        if to == 0:
+            QtWidgets.qApp.clipboard().setText(cliptext)
+
+    def _table_menu_export_disk(self, cur_idx, model, selection):
+        outdir = QtWidgets.QFileDialog.getExistingDirectory(self,
+                                                            os.path.expanduser("~"),
+                                                            QC.translate("stats", 'Select a directory to export rules'),
+                                                            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+        if outdir == "":
+            return
+
+        error_list = []
+        for idx in selection:
+            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+
+            ok = self._nodes.export_rule(node_addr, rule_name, outdir)
+            if not ok:
+                error_list.append(rule_name)
+
+        if len(error_list) == 0:
+            Message.ok("Rules export",
+                       QC.translate("stats", "Rules exported to {0}".format(outdir)),
+                       QtWidgets.QMessageBox.Information)
+        else:
+            error_text = ""
+            for e in error_list:
+                error_text = "{0}<br>{1}".format(error_text, e)
+
+            Message.ok("Rules export error",
+                        QC.translate("stats",
+                                     "Error exporting the following rules:<br><br>".format(error_text)
+                                    ),
+                        QtWidgets.QMessageBox.Warning)
 
     def _table_menu_duplicate(self, cur_idx, model, selection):
 

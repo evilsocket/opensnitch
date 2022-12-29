@@ -109,6 +109,46 @@ class Rules(QObject):
                         action_on_conflict="OR REPLACE"
                         )
 
+    def rule_to_json(self, rule_name, node):
+        try:
+            records = self._db.get_rule(rule_name, node)
+            if records == None or records == -1:
+                return None
+            if not records.next():
+                return None
+            rule = Rule.new_from_records(records)
+            return MessageToJson(rule)
+        except:
+            return None
+
+    def export_rule(self, node, rule_name, outdir):
+        """Gets the the rule from the DB and writes it out to a directory.
+        A new directory per node will be created.
+        """
+        try:
+            records = self._db.get_rule(rule_name, node)
+            if records.next() == False:
+                return False
+
+            rule = Rule.new_from_records(records)
+            rulesdir = outdir + "/" + node
+            try:
+                os.makedirs(rulesdir, 0o700)
+            except Exception as e:
+                print("exception creating dirs:", e)
+            rulename = rule.name
+            if ".json" not in rulename:
+                rulename = rulename + ".json"
+            with open(rulesdir  + "/" + rulename, 'w') as jsfile:
+                actual_json_text = MessageToJson(rule)
+                jsfile.write( actual_json_text )
+
+            return True
+        except Exception as e:
+            print(self.LOG_TAG, "export_rules(", node, outdir, ") exception:", e)
+
+        return False
+
     def export_rules(self, node, outdir):
         """Gets the the rules from the DB and writes them out to a directory.
         A new directory per node will be created.

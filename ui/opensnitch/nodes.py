@@ -102,6 +102,12 @@ class Nodes(QObject):
 
         return nid, noti
 
+    def rule_to_json(self, rule_name, addr):
+        return self._rules.rule_to_json(rule_name, addr)
+
+    def export_rule(self, addr, rule_name, outdir):
+        return self._rules.export_rule(addr, rule_name, outdir)
+
     # TODO: export notifications by node.
     def export_rules(self, addr, outdir):
         return self._rules.export_rules(addr, outdir)
