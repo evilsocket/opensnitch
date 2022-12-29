@@ -233,6 +233,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     Config.ACTION_SNAT: GREEN,
                     Config.ACTION_DNAT: GREEN,
                     Config.ACTION_TPROXY: GREEN,
+                    Config.ACTION_QUEUE: GREEN,
                     "True": GREEN,
                     "False": RED,
                     'alignment': QtCore.Qt.AlignCenter | QtCore.Qt.AlignHCenter
@@ -411,7 +412,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.prefsButton.clicked.connect(self._cb_prefs_clicked)
         self.nodePrefsButton.clicked.connect(self._cb_node_prefs_clicked)
         self.fwButton.clicked.connect(lambda: self._fw_dialog.show())
-        self.saveButton.clicked.connect(self._on_save_clicked)
         self.comboAction.currentIndexChanged.connect(self._cb_combo_action_changed)
         self.limitCombo.currentIndexChanged.connect(self._cb_limit_combo_changed)
         self.tabWidget.currentChanged.connect(self._cb_tab_changed)
@@ -433,6 +433,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.editRuleButton.setVisible(False)
         self.nodeRuleLabel.setVisible(False)
         self.comboRulesFilter.setVisible(False)
+
+
+        menu = QtWidgets.QMenu()
+        menu.addAction(Icons.new("go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_export_clicked)
+        menu.addAction(Icons.new("go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_import_clicked)
+        menu.addAction(Icons.new("document-save"), QC.translate("stats", "Export events to CSV")).triggered.connect(self._on_menu_export_csv_clicked)
+        self.actionsButton.setMenu(menu)
 
         # translations must be done here, otherwise they don't take effect
         self.TABLES[self.TAB_NODES]['header_labels'] = [
@@ -2221,7 +2228,63 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._show_columns()
         self.settings_saved.emit()
 
-    def _on_save_clicked(self):
+    def _on_menu_export_clicked(self, triggered):
+        outdir = QtWidgets.QFileDialog.getExistingDirectory(self,
+                                                            os.path.expanduser("~"),
+                                                            QC.translate("stats", 'Select a directory to export rules'),
+                                                            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+        if outdir == "":
+            return
+
+        errors = []
+        for node in self._nodes.get_nodes():
+            if self._nodes.export_rules(node, outdir) == False:
+                errors.append(node)
+           # apply_to_node()...
+
+        if len(errors) > 0:
+            errorlist = ""
+            for e in errors:
+                errorlist = errorlist + e + "<br>"
+            Message.ok("Rules export error",
+                       QC.translate("stats",
+                                    "Error exporting rules of the following nodes:<br><br>{0}"
+                                    .format(errorlist)
+                                    ),
+                       QtWidgets.QMessageBox.Warning)
+        else:
+            Message.ok("Rules export",
+                       QC.translate("stats", "Rules exported to {0}".format(outdir)),
+                       QtWidgets.QMessageBox.Information)
+
+    def _on_menu_import_clicked(self, triggered):
+       rulesdir = QtWidgets.QFileDialog.getExistingDirectory(self,
+                                                            os.path.expanduser("~"),
+                                                            QC.translate("stats", 'Select a directory with rules to import (JSON files)'),
+                                                            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+       if rulesdir == '':
+            return
+
+       nid, notif, rules = self._nodes.import_rules(rulesdir, self._notification_callback)
+       if nid != None:
+            self._notifications_sent[nid] = notif
+            # TODO: add rules per node and after receiving the notification
+            for node in self._nodes.get_nodes():
+                self._nodes.add_rules(node, rules)
+
+            Message.ok("Rules import",
+                       QC.translate("stats", "Rules imported fine"),
+                       QtWidgets.QMessageBox.Information)
+            if self.tabWidget.currentIndex() == self.TAB_RULES:
+                self._refresh_active_table()
+       else:
+            Message.ok("Rules import error",
+                       QC.translate("stats",
+                                    "Error importing rules from {0}".format(rulesdir)
+                                    ),
+                       QtWidgets.QMessageBox.Warning)
+
+    def _on_menu_export_csv_clicked(self, triggered):
         tab_idx = self.tabWidget.currentIndex()
 
         filename = QtWidgets.QFileDialog.getSaveFileName(self,

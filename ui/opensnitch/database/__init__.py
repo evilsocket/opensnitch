@@ -489,6 +489,19 @@ class Database:
 
         return q
 
+    def get_rules(self, node_addr):
+        """
+        get rule records, given the name of the rule and the node
+        """
+        qstr = "SELECT * FROM rules WHERE node=?"
+        q = QSqlQuery(qstr, self.db)
+        q.prepare(qstr)
+        q.addBindValue(node_addr)
+        if not q.exec_():
+            return None
+
+        return q
+
     def insert_rule(self, rule, node_addr):
         self.insert("rules",
             "(time, node, name, description, enabled, precedence, nolog, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",

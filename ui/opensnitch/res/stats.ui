@@ -285,19 +285,13 @@
       <item row="0" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_10">
         <item>
-         <widget class="QPushButton" name="saveButton">
-          <property name="toolTip">
-           <string>Save to CSV.</string>
-          </property>
+         <widget class="QPushButton" name="actionsButton">
           <property name="text">
            <string/>
           </property>
           <property name="icon">
-           <iconset theme="document-save">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-          </property>
-          <property name="shortcut">
-           <string>Ctrl+S</string>
+           <iconset theme="format-justify-fill">
+            <normaloff>.</normaloff>.</iconset>
           </property>
           <property name="flat">
            <bool>true</bool>
