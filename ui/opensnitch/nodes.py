@@ -108,12 +108,10 @@ class Nodes(QObject):
     def export_rule(self, addr, rule_name, outdir):
         return self._rules.export_rule(addr, rule_name, outdir)
 
-    # TODO: export notifications by node.
     def export_rules(self, addr, outdir):
         return self._rules.export_rules(addr, outdir)
 
-    # TODO: import notifications by node.
-    def import_rules(self, rulesdir, callback):
+    def import_rules(self, addr=None, rulesdir="", callback=None):
         rules_list = self._rules.import_rules(rulesdir)
         if rules_list == None:
             return None, None, None
@@ -123,7 +121,11 @@ class Nodes(QObject):
                 type=ui_pb2.CHANGE_RULE,
                 data="",
                 rules=rules_list)
-        nid = self.send_notifications(notif, callback)
+
+        if addr != None:
+            nid = self.send_notification(addr, notif, callback)
+        else:
+            nid = self.send_notifications(notif, callback)
 
         return nid, notif, rules_list
 

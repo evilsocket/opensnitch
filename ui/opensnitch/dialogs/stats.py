@@ -407,6 +407,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeStartButton.clicked.connect(self._cb_node_start_clicked)
         self.nodeStartButton.setVisible(False)
         self.nodePrefsButton.setVisible(False)
+        self.nodeActionsButton.setVisible(False)
         self.nodeDeleteButton.setVisible(False)
         self.nodeDeleteButton.clicked.connect(self._cb_node_delete_clicked)
         self.prefsButton.clicked.connect(self._cb_prefs_clicked)
@@ -434,6 +435,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeRuleLabel.setVisible(False)
         self.comboRulesFilter.setVisible(False)
 
+        menu = QtWidgets.QMenu()
+        menu.addAction(Icons.new("go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_node_export_clicked)
+        menu.addAction(Icons.new("go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_node_import_clicked)
+        self.nodeActionsButton.setMenu(menu)
 
         menu = QtWidgets.QMenu()
         menu.addAction(Icons.new("go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_export_clicked)
@@ -701,6 +706,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         clearIcon = Icons.new("edit-clear-all")
         leftArrowIcon = Icons.new("go-previous")
         fwIcon = Icons.new("security-high")
+        optsIcon = Icons.new("format-justify-fill")
 
         if QtGui.QIcon().hasThemeIcon("preferences-desktop") == False:
             self.fwTreeEdit.setText("+")
@@ -716,6 +722,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeStartButton.setIcon(self.iconStart)
         self.nodePrefsButton.setIcon(prefsIcon)
         self.nodeDeleteButton.setIcon(clearIcon)
+        self.nodeActionsButton.setIcon(optsIcon)
+        self.actionsButton.setIcon(optsIcon)
         self.TABLES[self.TAB_MAIN]['cmdCleanStats'].setIcon(clearIcon)
         for idx in range(1,8):
             self.TABLES[idx]['cmd'].setIcon(leftArrowIcon)
@@ -1785,6 +1793,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if cur_idx == StatsDialog.TAB_NODES:
             self._update_nodes_interception_status(state)
             self.nodeDeleteButton.setVisible(state)
+            self.nodeActionsButton.setVisible(state)
 
         header = self.TABLES[cur_idx]['view'].horizontalHeader()
         if state == True:
@@ -1953,9 +1962,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.nodeStartButton.setVisible(False)
             self.nodePrefsButton.setVisible(False)
             self.nodeDeleteButton.setVisible(False)
+            self.nodeActionsButton.setVisible(False)
             return
         self.nodeStartButton.setVisible(show)
         self.nodePrefsButton.setVisible(show)
+        self.nodeActionsButton.setVisible(show)
         if not node_cfg['data'].isFirewallRunning or disable:
             self.nodeStartButton.setChecked(False)
             self.nodeStartButton.setDown(False)
@@ -2288,6 +2299,57 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._show_columns()
         self.settings_saved.emit()
 
+    def _on_menu_node_export_clicked(self, triggered):
+        outdir = QtWidgets.QFileDialog.getExistingDirectory(self,
+                                                            os.path.expanduser("~"),
+                                                            QC.translate("stats", 'Select a directory to export rules'),
+                                                            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+        if outdir == "":
+            return
+
+        node = self.nodesLabel.text()
+        if self._nodes.export_rules(node, outdir) == False:
+            Message.ok("Rules export error",
+                       QC.translate("stats",
+                                    "Error exporting rules"
+                                    ),
+                       QtWidgets.QMessageBox.Warning)
+        else:
+            Message.ok("Rules export",
+                       QC.translate("stats", "Rules exported to {0}".format(outdir)),
+                       QtWidgets.QMessageBox.Information)
+
+
+    def _on_menu_node_import_clicked(self, triggered):
+        rulesdir = QtWidgets.QFileDialog.getExistingDirectory(self,
+                                                                os.path.expanduser("~"),
+                                                                QC.translate("stats", 'Select a directory with rules to import (JSON files)'),
+                                                                QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+        if rulesdir == '':
+                return
+
+        node = self.nodesLabel.text()
+        nid, notif, rules = self._nodes.import_rules(addr=node, rulesdir=rulesdir, callback=self._notification_callback)
+        if nid != None:
+                self._notifications_sent[nid] = notif
+                # TODO: add rules per node and after receiving the notification
+                for node in self._nodes.get_nodes():
+                    self._nodes.add_rules(node, rules)
+
+                Message.ok("Rules import",
+                        QC.translate("stats", "Rules imported fine"),
+                        QtWidgets.QMessageBox.Information)
+                if self.tabWidget.currentIndex() == self.TAB_RULES:
+                    self._refresh_active_table()
+        else:
+                Message.ok("Rules import error",
+                        QC.translate("stats",
+                                        "Error importing rules from {0}".format(rulesdir)
+                                        ),
+                        QtWidgets.QMessageBox.Warning)
+
+
+
     def _on_menu_export_clicked(self, triggered):
         outdir = QtWidgets.QFileDialog.getExistingDirectory(self,
                                                             os.path.expanduser("~"),
@@ -2325,7 +2387,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
        if rulesdir == '':
             return
 
-       nid, notif, rules = self._nodes.import_rules(rulesdir, self._notification_callback)
+       nid, notif, rules = self._nodes.import_rules(rulesdir=rulesdir, callback=self._notification_callback)
        if nid != None:
             self._notifications_sent[nid] = notif
             # TODO: add rules per node and after receiving the notification
