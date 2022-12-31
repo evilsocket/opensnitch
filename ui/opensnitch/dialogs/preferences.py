@@ -556,7 +556,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_popups_check_toggled(self, checked):
         self.spinUITimeout.setEnabled(not checked)
         if not checked:
-            self.spinUITimeout.setValue(15)
+            self.spinUITimeout.setValue(20)
 
     def _cb_node_combo_changed(self, index):
         self._load_node_settings()
@@ -575,6 +575,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             spinWidget.setValue(spinWidget.value() + 1)
         else:
             spinWidget.setValue(spinWidget.value() - 1)
+
+        enablePopups = spinWidget.value() > 0
+        self.popupsCheck.setChecked(not enablePopups)
+        self.spinUITimeout.setEnabled(enablePopups)
 
     def _cb_radio_system_notifications(self):
         if self._desktop_notifications.is_available() == False:
