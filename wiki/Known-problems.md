@@ -325,7 +325,9 @@ For all these options,
 * `iptables: Protocol wrong type for socket` (modules nf_defrag_ipv4, nf_conntrack_ipv4 not loaded)
 * `Error opening Queue handle: protocol not supported` (nfnetlink module not loaded)
 * `Could not open socket to kernel: Address family not supported by protocol (IPv6)`
-* `Error while creating queue #0: Error unbinding existing q handler from AF_INET protocol` see [#323](https://github.com/evilsocket/opensnitch/issues/323) and [#204](https://github.com/evilsocket/opensnitch/issues/204#issuecomment-802932344). (probably ip_queue loaded. Unload it and try again)
+* `Error while creating queue #0: Error unbinding existing q handler from AF_INET protocol` see [#323](https://github.com/evilsocket/opensnitch/issues/323) and [#204](https://github.com/evilsocket/opensnitch/issues/204#issuecomment-802932344). 
+   * Usually caused because the nfnetlink_queue module is not loaded. Verify if it's loaded: `lsomd | grep nfnetlink_queue`
+   * Another reason could be because ip_queue module is loaded. If it's loaded, unload it.
 
 be sure that you have NFQUEUE support in the kernel (=y or =m):
 ```
