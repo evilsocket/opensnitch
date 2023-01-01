@@ -835,11 +835,15 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # some nasty effects. Disabled for now.
         self.comboDirection.setEnabled(False)
 
-        self.comboVerdict.setCurrentIndex(
-            Fw.Verdicts.values().index(
-                rule.Rules[0].Target.lower()
-            )-1
-        )
+        try:
+            self.comboVerdict.setCurrentIndex(
+                Fw.Verdicts.values().index(
+                    rule.Rules[0].Target.lower()
+                )-1
+            )
+        except:
+            self._set_status_error(QC.translate("firewall", "Rule type ({0}) not supported yet".format(rule.Rules[0].Target.lower())))
+            self._disable_controls()
 
     def new(self):
         self.show()
