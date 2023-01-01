@@ -18,7 +18,7 @@ class Rules(QObject):
         """Add a new rule to the corresponding table on the given node
         """
         node = self._nodes.get_node(addr)
-        if not 'firewall' in node:
+        if node == None or not 'firewall' in node:
             return False, QC.translate("firewall", "rule not found by its ID.")
         if self.is_duplicated(addr, rule):
             return False, QC.translate("firewall", "duplicated.")
@@ -44,7 +44,7 @@ class Rules(QObject):
         """Insert a new rule to the corresponding table on the given node
         """
         node = self._nodes.get_node(addr)
-        if not 'firewall' in node:
+        if node == None or not 'firewall' in node:
             return False, QC.translate("firewall", "this node doesn't have a firewall configuration, review it.")
         if self.is_duplicated(addr, rule):
             return False, QC.translate("firewall", "duplicated")
@@ -72,7 +72,7 @@ class Rules(QObject):
 
     def update(self, addr, uuid, rule):
         node = self._nodes.get_node(addr)
-        if not 'firewall' in node:
+        if node == None or not 'firewall' in node:
             return False, QC.translate("firewall", "this node doesn't have a firewall configuration, review it.")
         for sdx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
@@ -99,7 +99,7 @@ class Rules(QObject):
 
     def delete(self, addr, uuid):
         node = self._nodes.get_node(addr)
-        if not 'firewall' in node:
+        if node == None or not 'firewall' in node:
             return False
         for sdx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):

@@ -263,8 +263,8 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdAddStatement.setIcon(addIcon)
         self.cmdDelStatement.setIcon(remIcon)
 
-    def showEvent(self, event):
-        super(FwRuleDialog, self).showEvent(event)
+    def show(self):
+        super(FwRuleDialog, self).show()
         self._reset_fields()
 
         if FwUtils.isProtobufSupported() == False:
@@ -273,12 +273,14 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_status_error(
                 QC.translate(
                     "firewall",
-                    "Your protobuf version is incompatible, you need to install protobuf 3.8.0 or superior\n(pip3 install --ignore-installed protobuf==3.8.0"
+                    "Your protobuf version is incompatible, you need to install protobuf 3.8.0 or superior\n(pip3 install --ignore-installed protobuf==3.8.0)"
                 )
             )
-            return
+            return False
 
         self._load_nodes()
+        return True
+
 
     def _close(self):
         self.hide()
@@ -626,7 +628,8 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.tabWidget.setDisabled(True)
 
     def load(self, addr, uuid):
-        self.show()
+        if not self.show():
+            return
 
         self.FORM_TYPE = self.FORM_TYPE_SIMPLE
         self.setWindowTitle(QC.translate("firewall", "Firewall rule"))
@@ -638,10 +641,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkEnable.setChecked(True)
         self.frameDirection.setVisible(True)
 
-        self.cmdSave.setVisible(True)
-        self.cmdAdd.setVisible(False)
-        self.cmdDelete.setVisible(True)
-        self.show()
+        self._enable_buttons()
 
         self.uuid = uuid
 
@@ -649,7 +649,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if rule == None or \
                 (rule.Hook.lower() != Fw.Hooks.INPUT.value and rule.Hook.lower() != Fw.Hooks.OUTPUT.value):
             hook = "invalid" if rule == None else rule.Hook
-            self._set_status_error(QC.translate("firewall", "Rule type ({0}) not supported yet".format(hook)))
+            self._set_status_error(QC.translate("firewall", "Rule hook ({0}) not supported yet".format(hook)))
             self._disable_controls()
             return
 
@@ -842,11 +842,12 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 )-1
             )
         except:
-            self._set_status_error(QC.translate("firewall", "Rule type ({0}) not supported yet".format(rule.Rules[0].Target.lower())))
+            self._set_status_error(QC.translate("firewall", "Rule target ({0}) not supported yet".format(rule.Rules[0].Target.lower())))
             self._disable_controls()
 
     def new(self):
-        self.show()
+        if not self.show():
+            return
 
         self._reset_widgets("", self.toolBoxSimple)
         self.FORM_TYPE = self.FORM_TYPE_SIMPLE
@@ -869,7 +870,8 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.add_new_statement("", self.toolBoxSimple)
 
     def exclude_service(self, direction):
-        self.show()
+        if not self.show():
+            return
 
         self._reset_widgets("", self.toolBoxSimple)
         self.setWindowTitle(QC.translate("firewall", "Exclude service"))
