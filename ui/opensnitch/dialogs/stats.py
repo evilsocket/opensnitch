@@ -2120,23 +2120,26 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "count(c.dst_ip) as {2}, " \
                 "c.action as {3}, " \
                 "c.uid as {4}, " \
-                "CASE c.dst_host WHEN ''" \
-                "   THEN c.dst_ip || '  ->  ' || c.dst_port " \
-                "   ELSE c.dst_host || '  ->  ' || c.dst_port " \
-                "END {5}, " \
+                "c.protocol as {5}, " \
+                "c.dst_ip as {6}, " \
+                "c.dst_host as {7}, " \
+                "c.dst_port as {8}, " \
                 "c.pid as PID, " \
-                "c.process_args as {6}, " \
+                "c.process_args as {9}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as {7} " \
+                "c.rule as {10} " \
             "FROM connections as c " \
-            "WHERE c.process = '{8}' " \
-                      "GROUP BY c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.uid, c.action, c.node, c.pid, c.process_args {9}".format(
+            "WHERE c.process = '{11}' " \
+                      "GROUP BY c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.uid, c.action, c.node, c.pid, c.process_args {12}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
                           self.COL_STR_ACTION,
                           self.COL_STR_UID,
+                          self.COL_STR_PROTOCOL,
+                          self.COL_STR_DST_IP,
                           self.COL_STR_DESTINATION,
+                          self.COL_STR_DST_PORT,
                           self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
                           data,
@@ -2274,6 +2277,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             qstr += "AND (c.time LIKE '%{0}%' OR " \
                 "c.action LIKE '%{0}%' OR " \
                 "c.pid LIKE '%{0}%' OR " \
+                "c.protocol LIKE '%{0}%' OR " \
                 "c.src_port LIKE '%{0}%' OR " \
                 "c.src_ip LIKE '%{0}%' OR ".format(text)
 
