@@ -36,26 +36,26 @@ class Nodes(QObject):
     def count(self):
         return len(self._nodes)
 
-    def add(self, peer, client_config=None):
+    def add(self, _peer, client_config=None):
         try:
-            proto, _addr = self.get_addr(peer)
-            addr = "%s:%s" % (proto, _addr)
-            if addr not in self._nodes:
-                self._nodes[addr] = {
+            proto, addr = self.get_addr(_peer)
+            peer = proto+":"+addr
+            if peer not in self._nodes:
+                self._nodes[peer] = {
                         'notifications': Queue(),
                         'online':        True,
                         'last_seen':     datetime.now()
                         }
             else:
-                self._nodes[addr]['last_seen'] = datetime.now()
+                self._nodes[peer]['last_seen'] = datetime.now()
 
-            self._nodes[addr]['online'] = True
-            self.add_data(addr, client_config)
-            self.update(proto, _addr)
+            self._nodes[peer]['online'] = True
+            self.add_data(peer, client_config)
+            self.update(peer)
 
             self.nodesUpdated.emit(self.count())
 
-            return self._nodes[addr], addr
+            return self._nodes[peer], peer
 
         except Exception as e:
             print(self.LOG_TAG, "exception adding/updating node: ", e, "addr:", addr, "config:", client_config)
@@ -336,8 +336,9 @@ class Nodes(QObject):
         exit_noti = ui_pb2.Notification(clientName="", serverName="", type=0, data="", rules=[])
         self.send_notifications(exit_noti)
 
-    def update(self, proto, addr, status=ONLINE):
+    def update(self, peer, status=ONLINE):
         try:
+            proto, addr = self.get_addr(peer)
             self._db.update("nodes",
                     "hostname=?,version=?,last_connection=?,status=?",
                     (
@@ -345,28 +346,33 @@ class Nodes(QObject):
                         self._nodes[proto+":"+addr]['data'].version,
                         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         status,
-                        addr),
+                        "{0}:{1}".format(proto, addr)),
                         "addr=?"
                     )
         except Exception as e:
-            print(self.LOG_TAG + " exception updating DB: ", e, addr)
+            print(self.LOG_TAG + " exception updating DB: ", e, peer)
 
     def update_all(self, status=OFFLINE):
         try:
             for peer in self._nodes:
-                proto, addr = self.get_addr(peer)
                 self._db.update("nodes",
                         "hostname=?,version=?,last_connection=?,status=?",
                         (
-                            self._nodes[proto+":"+addr]['data'].name,
-                            self._nodes[proto+":"+addr]['data'].version,
+                            self._nodes[peer]['data'].name,
+                            self._nodes[peer]['data'].version,
                             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             status,
-                            addr),
+                            peer),
                             "addr=?"
                         )
         except Exception as e:
             print(self.LOG_TAG + " exception updating nodes: ", e)
+
+    def reset_status(self):
+        try:
+            self._db.update("nodes", "status=?", (self.OFFLINE,))
+        except Exception as e:
+            print(self.LOG_TAG + " exception resetting nodes status: ", e)
 
     def reload_fw(self, addr, fw_config, callback):
         notif = ui_pb2.Notification(

@@ -95,6 +95,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._setup_slots()
 
         self._nodes = Nodes.instance()
+        self._nodes.reset_status()
 
         self._last_stats = {}
         self._last_items = {
@@ -459,7 +460,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 if addr in self._last_items[table]:
                     del self._last_items[table][addr]
 
-            self._nodes.update(proto, addr, Nodes.OFFLINE)
+            self._nodes.update(peer, Nodes.OFFLINE)
             self._nodes.delete(peer)
             self._stats_dialog.update(True, None, True)
         except Exception as e:

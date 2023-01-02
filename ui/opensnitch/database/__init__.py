@@ -373,8 +373,10 @@ class Database:
 
         return self._insert(qstr, columns)
 
-    def update(self, table, fields, values, condition, action_on_conflict="OR IGNORE"):
-        qstr = "UPDATE " + action_on_conflict + " " + table + " SET " + fields + " WHERE " + condition
+    def update(self, table, fields, values, condition=None, action_on_conflict="OR IGNORE"):
+        qstr = "UPDATE " + action_on_conflict + " " + table + " SET " + fields
+        if condition != None:
+            qstr += " WHERE " + condition
         try:
             with self._lock:
                 q = QSqlQuery(qstr, self.db)
@@ -382,7 +384,7 @@ class Database:
                 for idx, v in enumerate(values):
                     q.bindValue(idx, v)
                 if not q.exec_():
-                    print("update ERROR", qstr)
+                    print("update ERROR:", qstr, "values:", values)
                     print(q.lastError().driverText())
 
         except Exception as e:

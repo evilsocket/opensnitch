@@ -146,9 +146,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._node_needs_update = False
 
     def show_node_prefs(self, addr):
-        self.comboNodeAddress.setCurrentText(addr)
-        self.tabWidget.setCurrentIndex(self.TAB_NODES)
         self.show()
+        self.comboNodes.setCurrentText(addr)
+        self.tabWidget.setCurrentIndex(self.TAB_NODES)
 
     def _load_themes(self):
         theme_idx, self._saved_theme = self._themes.get_saved_theme()
@@ -455,22 +455,21 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if error != None:
                 return error
 
-            if addr.startswith("unix:/"):
-                savedAddr = self._cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
-                if savedAddr != None and savedAddr != self.comboNodeAddress.currentText():
-                    Message.ok(
-                        QC.translate("preferences", "Ok"),
-                        QC.translate("preferences", "Restart the GUI in order changes to take effect"),
-                        QtWidgets.QMessageBox.Information)
+            savedAddr = self._cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
+            if savedAddr != None and savedAddr != self.comboNodeAddress.currentText():
+                Message.ok(
+                    QC.translate("preferences", "Ok"),
+                    QC.translate("preferences", "Restart the GUI in order changes to take effect"),
+                    QtWidgets.QMessageBox.Information)
 
-                self._cfg.setSettings(Config.DEFAULT_SERVER_ADDR, self.comboNodeAddress.currentText())
+            self._cfg.setSettings(Config.DEFAULT_SERVER_ADDR, self.comboNodeAddress.currentText())
 
             self._nodes.save_node_config(addr, notifObject.data)
             nid = self._nodes.send_notification(addr, notifObject, self._notification_callback)
             self._notifications_sent[nid] = notifObject
         except Exception as e:
             print(self.LOG_TAG + "exception saving node config on %s: " % addr, e)
-            self._set_status_error(QC.translate("Exception saving node config {0}: {1}").format((addr, str(e))))
+            self._set_status_error(QC.translate("preferences", "Exception saving node config {0}: {1}").format((addr, str(e))))
             return addr + ": " + str(e)
 
         return None
