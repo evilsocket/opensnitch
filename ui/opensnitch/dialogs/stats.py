@@ -1899,7 +1899,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _set_nodes_query(self, data):
 
-        s = "AND c.src_ip='%s'" % data if '/' not in data else ''
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "MAX(c.time) as {0}, " \
@@ -1915,7 +1914,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.process_cwd as CWD, " \
                 "c.rule as {10} " \
             "FROM connections as c " \
-            "WHERE c.node = '{11}' {12} GROUP BY {13}, c.process_args, c.uid, c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.protocol {14}".format(
+            "WHERE c.node = '{11}' GROUP BY {12}, c.process_args, c.uid, c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.protocol {13}".format(
                 self.COL_STR_TIME,
                 self.COL_STR_ACTION,
                 self.COL_STR_HITS,
@@ -1927,7 +1926,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.COL_STR_PROCESS,
                 self.COL_STR_PROC_CMDLINE,
                 self.COL_STR_RULE,
-                data, s,
+                data,
                 self.COL_STR_PROCESS,
                 self._get_order() + self._get_limit()))
 
