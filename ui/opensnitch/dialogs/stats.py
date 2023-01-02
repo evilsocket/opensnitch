@@ -1657,12 +1657,27 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             for n in self._nodes.get_nodes():
                 nodesItem.addChild(QtWidgets.QTreeWidgetItem([n]))
 
+    def _find_tree_fw_items(self, item_data):
+        """find fw items by data stored in UserRole role.
+        """
+        fwItem = self.rulesTreePanel.topLevelItem(self.RULES_TREE_FIREWALL)
+        it = QtWidgets.QTreeWidgetItemIterator(fwItem)
+        items = []
+        while it.value():
+            x = it.value()
+            if x.data(0, QtCore.Qt.UserRole) == item_data:
+                items.append(x)
+            it+=1
+
+        return items
+
     def _add_rulesTree_fw_chains(self):
         expanded = list()
         selected = None
         scrollValue = self.rulesTreePanel.verticalScrollBar().value()
         fwItem = self.rulesTreePanel.topLevelItem(self.RULES_TREE_FIREWALL)
         it = QtWidgets.QTreeWidgetItemIterator(fwItem)
+        # save tree selected rows
         try:
             while it.value():
                 x = it.value()
@@ -1681,6 +1696,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         for addr in chains:
             # add nodes
             nodeRoot = QtWidgets.QTreeWidgetItem(["{0}".format(addr)])
+            nodeRoot.setData(0, QtCore.Qt.UserRole, addr)
             fwItem.addChild(nodeRoot)
             for nodeChains in chains[addr]:
                 # exclude legacy system rules
@@ -1690,11 +1706,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     # add tables
                     tableName = "{0}-{1}".format(cc.Table, cc.Family)
                     nodeTable = QtWidgets.QTreeWidgetItem([tableName])
+                    nodeTable.setData(0, QtCore.Qt.UserRole, "{0}-{1}".format(addr, tableName))
 
                     chainName = "{0}-{1}".format(cc.Name, cc.Hook)
                     nodeChain = QtWidgets.QTreeWidgetItem([chainName, cc.Policy])
+                    nodeChain.setData(0, QtCore.Qt.UserRole, "{0}-{1}".format(addr, chainName))
 
-                    items = self.rulesTreePanel.findItems(tableName, QtCore.Qt.MatchRecursive, 0)
+                    items = self._find_tree_fw_items("{0}-{1}".format(addr, tableName))
                     if len(items) == 0:
                         # add table
                         nodeTable.addChild(nodeChain)
@@ -1704,12 +1722,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         node = items[0]
                         node.addChild(nodeChain)
 
-        for item in expanded:
-            items = self.rulesTreePanel.findItems(item.text(0), QtCore.Qt.MatchRecursive)
-            for it in items:
-                it.setExpanded(True)
-                if selected != None and selected.text(0) == it.text(0):
-                    it.setSelected(True)
+        # restore previous selected rows
+        try:
+            for item in expanded:
+                items = self.rulesTreePanel.findItems(item.text(0), QtCore.Qt.MatchRecursive)
+                for it in items:
+                        it.setExpanded(True)
+                        if selected != None and selected.text(0) == it.text(0):
+                            it.setSelected(True)
+        except:
+            pass
 
         self.rulesTreePanel.verticalScrollBar().setValue(scrollValue)
         self.rulesTreePanel.setAnimated(True)
@@ -2007,6 +2029,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.TABLES[self.TAB_FIREWALL]['view'].filterByNode(what)
             elif item_row == self.FILTER_TREE_FW_TABLE:
                 parm = what.split("-")
+                if len(parm) < 2:
+                    return
                 self.TABLES[self.TAB_FIREWALL]['view'].filterByTable(what1, parm[0], parm[1])
             elif item_row == self.FILTER_TREE_FW_CHAIN: # + table
                 parm = what.split("-")

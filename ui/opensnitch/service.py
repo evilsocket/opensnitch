@@ -474,7 +474,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 print("populate_stats() db None")
                 return main_need_refresh, details_need_refresh
 
-            _node = self._nodes.get_node(proto+":"+addr)
+            peer = proto+":"+addr
+            _node = self._nodes.get_node(peer)
             if _node == None:
                 return main_need_refresh, details_need_refresh
 
@@ -484,7 +485,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             db.insert("nodes",
                     "(addr, status, hostname, daemon_version, daemon_uptime, " \
                             "daemon_rules, cons, cons_dropped, version, last_connection)",
-                            ("{0}:{1}".format(proto, addr), Nodes.ONLINE, hostname, stats.daemon_version, str(timedelta(seconds=stats.uptime)),
+                            (peer, Nodes.ONLINE, hostname, stats.daemon_version, str(timedelta(seconds=stats.uptime)),
                             stats.rules, stats.connections, stats.dropped,
                             version, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
@@ -498,7 +499,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 main_need_refresh=True
                 db.insert("connections",
                         "(time, node, action, protocol, src_ip, src_port, dst_ip, dst_host, dst_port, uid, pid, process, process_args, process_cwd, rule)",
-                        (str(datetime.fromtimestamp(event.unixnano/1000000000)), "%s:%s" % (proto, addr), event.rule.action,
+                        (str(datetime.fromtimestamp(event.unixnano/1000000000)), peer, event.rule.action,
                             event.connection.protocol, event.connection.src_ip, str(event.connection.src_port),
                             event.connection.dst_ip, event.connection.dst_host, str(event.connection.dst_port),
                             str(event.connection.user_id), str(event.connection.process_id),
@@ -509,7 +510,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 self._nodes.update_rule_time(
                     str(datetime.fromtimestamp(event.unixnano/1000000000)),
                     event.rule.name,
-                    "%s:%s" % (proto, addr)
+                    peer
                 )
             db.commit()
 
