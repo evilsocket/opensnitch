@@ -47,11 +47,24 @@ def load_translations():
     return translator
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='OpenSnitch UI service.')
-    parser.add_argument("--socket", dest="socket", default="unix:///tmp/osui.sock", help="Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).", metavar="FILE")
+    parser = argparse.ArgumentParser(description='OpenSnitch UI service.', formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("--socket", dest="socket", help='''
+Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).
+Default: unix:///tmp/osui.sock
+
+Examples:
+    - Listening on Unix socket: opensnitch-ui --socket unix:///tmp/osui.sock
+        * Use unix:///run/1000/YOUR_USER/opensnitch/osui.sock for better privacy.
+    - Listening on port 50051, all interfaces: opensnitch-ui --socket "[::]:50051"
+                        ''', metavar="FILE")
     parser.add_argument("--max-clients", dest="serverWorkers", default=10, help="Max number of allowed clients (incoming connections).")
+    parser.add_argument("--debug", dest="debug", default=False, help="Enable debug segfaults")
 
     args = parser.parse_args()
+
+    if args.debug:
+        import faulthandler
+        faulthandler.enable()
 
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     if supported_qt_version(5,6,0):
@@ -68,16 +81,20 @@ if __name__ == '__main__':
     thm.load_theme(app)
 
     Utils.create_socket_dirs()
-    cfg = Config.get()
-    addr = cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
-    if addr != None and addr != "":
-        if addr.startswith("unix://"):
-            if not os.path.exists(os.path.dirname(addr[7:])):
-                print("WARNING: unix socket path does not exist, using unix:///tmp/osui.sock, ", addr)
+    if args.socket == None:
+        # default
+        args.socket = "unix:///tmp/osui.sock"
+
+        cfg = Config.get()
+        addr = cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
+        if addr != None and addr != "":
+            if addr.startswith("unix://"):
+                if not os.path.exists(os.path.dirname(addr[7:])):
+                    print("WARNING: unix socket path does not exist, using unix:///tmp/osui.sock, ", addr)
+                else:
+                    args.socket = addr
             else:
                 args.socket = addr
-        else:
-            args.socket = addr
 
     print("Using server address:", args.socket)
 
