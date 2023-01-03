@@ -1333,8 +1333,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_NODE).data()
             self.tabWidget.setCurrentIndex(cur_idx)
             self._set_active_widgets(True, str(data))
-            p, addr = self._nodes.get_addr(data)
-            self._set_nodes_query(addr)
+            self._set_nodes_query(data)
 
         elif idx == StatsDialog.COL_RULES:
             cur_idx = self.TAB_RULES

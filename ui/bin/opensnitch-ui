@@ -77,6 +77,8 @@ Examples:
     translator = load_translations()
     app = QtWidgets.QApplication(sys.argv)
     app.installTranslator(translator)
+    if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+        app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
     thm = Themes.instance()
     thm.load_theme(app)
 
