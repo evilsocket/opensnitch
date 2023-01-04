@@ -714,7 +714,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.newRuleButton.setIcon(newRuleIcon)
         self.delRuleButton.setIcon(delRuleIcon)
         self.editRuleButton.setIcon(editRuleIcon)
-        self.saveButton.setIcon(saveIcon)
         self.prefsButton.setIcon(prefsIcon)
         self.startButton.setIcon(self.iconStart)
         self.fwButton.setIcon(fwIcon)
