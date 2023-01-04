@@ -126,12 +126,24 @@ func (n *Nft) addInterceptionChains() error {
 	// nft list tables
 	n.AddChain(exprs.NFT_HOOK_INPUT, exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET,
 		nftables.ChainPriorityFilter, nftables.ChainTypeFilter, nftables.ChainHookInput, filterPolicy)
+	if !n.Commit() {
+		return fmt.Errorf("Error adding DNS interception chain input-filter-inet")
+	}
 	n.AddChain(exprs.NFT_HOOK_OUTPUT, exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET,
 		nftables.ChainPriorityMangle, nftables.ChainTypeRoute, nftables.ChainHookOutput, manglePolicy)
-
-	// apply changes
 	if !n.Commit() {
-		return fmt.Errorf("Error adding interception chains")
+		log.Error("(1) Error adding interception chain mangle-output-inet, trying with type Filter instead of Route")
+
+		// Workaround for kernels 4.x and maybe others.
+		// @see firewall/nftables/utils.go:getChainPriority()
+		chainPrio, chainType := getChainPriority(exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_OUTPUT)
+		n.AddChain(exprs.NFT_HOOK_OUTPUT, exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET,
+			*chainPrio, chainType, nftables.ChainHookOutput, manglePolicy)
+		if !n.Commit() {
+			return fmt.Errorf("(2) Error adding interception chain mangle-output-inet with type Filter. Report it on github please, specifying the distro and the kernel")
+		}
+
+		return fmt.Errorf("Error adding interception chain")
 	}
 
 	return nil
