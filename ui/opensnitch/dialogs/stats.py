@@ -64,7 +64,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_R_OP_OPERAND = 7
 
     # procs
-    COL_PID = 6
+    COL_PID = 9
 
     TAB_MAIN  = 0
     TAB_NODES = 1
