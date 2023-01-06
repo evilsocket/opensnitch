@@ -22,9 +22,7 @@ if dist_path not in sys.path:
 
 from opensnitch.service import UIService
 from opensnitch.config import Config
-from opensnitch.utils import Themes
-from opensnitch.utils import Utils
-import opensnitch.version
+from opensnitch.utils import Themes, Utils, Versions
 import opensnitch.ui_pb2
 from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
 
@@ -47,6 +45,11 @@ def load_translations():
     return translator
 
 if __name__ == '__main__':
+    gui_version, grpcversion, protoversion = Versions.get()
+    print("\t ~ OpenSnitch GUI -", gui_version, "~")
+    print("\tprotobuf:", protoversion, "-", "grpc:", grpcversion)
+    print("-" * 50, "\n")
+
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--socket", dest="socket", help='''
 Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).

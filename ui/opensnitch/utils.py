@@ -1,6 +1,6 @@
 
 from PyQt5 import QtCore, QtWidgets, QtGui
-from opensnitch.version import version
+from opensnitch.version import version as gui_version
 from opensnitch.database import Database
 from opensnitch.config import Config
 from threading import Thread, Event
@@ -250,7 +250,7 @@ class QuickHelp():
 class Utils():
     @staticmethod
     def check_versions(daemon_version):
-        lMayor, lMinor, lPatch = version.split(".")
+        lMayor, lMinor, lPatch = gui_version.split(".")
         rMayor, rMinor, rPatch = daemon_version.split(".")
         return lMayor != rMayor or (lMayor == rMayor and lMinor != rMinor)
 
@@ -455,3 +455,15 @@ class Icons():
                 pass
 
         return icon
+
+class Versions():
+    @staticmethod
+    def get():
+        try:
+            from google.protobuf import __version__ as proto_version
+            from grpc import __version__ as grpc_version
+
+            return gui_version, grpc_version, proto_version
+
+        except:
+            return "none", "none", "none"
