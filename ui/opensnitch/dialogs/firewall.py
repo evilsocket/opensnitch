@@ -230,6 +230,9 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self._set_status_error(QC.translate("firewall", "Error getting OUTPUT chain policy"))
                     self._disable_widgets()
 
+        except Exception as e:
+            self._set_status_error("Firewall status error (report on github please): {0}".format(e))
+
         finally:
             # some nodes may have the firewall disabled whilst other enabled
             #if not enableFw:
