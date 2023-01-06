@@ -16,11 +16,20 @@
 
 **GUI**
 
+Note: the GUI needs grpcio and protobuf packages. grpcio >= 1.49 needs at least protobuf 4.26.
+So in general, try using your distro packages.
+
 [GUI crash/exception or does not show up](#gui-crash-exception-or-does-not-show-up):
+
+As a general rule of thumb, if the GUI crashes, open a terminal and type:
+`$ opensnitch-ui`
+
+Then see if the error matches one of the following ones:
 
 * NameError: name 'unicode' is not defined
 * ModuleNotFoundError: No module named 'grpc'
 * TypeError: __new__() got an unexpected keyword argument ...
+* setQuery() error:  No query Unable to fetch row (#790)
 * Others...
 
 [GUI crash/exception/does not show up on old distros (Ubuntu 16.04, etc)](#gui-crash-exception-does-not-show-up-on-old-distros):
