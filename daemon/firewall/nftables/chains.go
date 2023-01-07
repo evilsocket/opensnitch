@@ -142,8 +142,6 @@ func (n *Nft) addInterceptionChains() error {
 		if !n.Commit() {
 			return fmt.Errorf("(2) Error adding interception chain mangle-output-inet with type Filter. Report it on github please, specifying the distro and the kernel")
 		}
-
-		return fmt.Errorf("Error adding interception chain")
 	}
 
 	return nil
