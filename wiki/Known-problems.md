@@ -26,6 +26,7 @@ As a general rule of thumb, if the GUI crashes, open a terminal and type:
 
 Then see if the error matches one of the following ones:
 
+* The Wayland connection experienced a fatal error: Protocol error
 * NameError: name 'unicode' is not defined
 * ModuleNotFoundError: No module named 'grpc'
 * TypeError: __new__() got an unexpected keyword argument ...
@@ -204,6 +205,15 @@ pip3 install grpcio protobuf
 ```
 
 If grpcio fails to compile, you can try specifying a version: `pip3 install grpcio==1.16.1`
+
+***
+
+**The Wayland connection experienced a fatal error: Protocol error**
+
+Try launching the GUI as follow:
+```bash
+$ QT_QPA_PLATFORM=xcb opensnitch-ui
+```
 
 ***
 
