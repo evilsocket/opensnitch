@@ -419,6 +419,9 @@ class NetworkServices():
         return self.ports_list.index(str(port))
 
 class Icons():
+    """
+    https://www.pythonguis.com/faq/built-in-qicons-pyqt/icons-builtin.png
+    """
 
     defaults = {
         'document-new': "SP_FileIcon",
@@ -442,7 +445,8 @@ class Icons():
         'edit-delete': "SP_DialogCancelButton",
         'list-add': "SP_ArrowUp",
         'list-remove': "SP_ArrowDown",
-        'system-search': "SP_FileDialogContentsView"
+        'system-search': "SP_FileDialogContentsView",
+        'application-exit': "SP_TitleBarCloseButton"
     }
 
     @staticmethod
@@ -461,9 +465,9 @@ class Versions():
     def get():
         try:
             from google.protobuf import __version__ as proto_version
-            from grpc import __version__ as grpc_version
+            from grpc import _grpcio_metadata as grpcmeta
 
-            return gui_version, grpc_version, proto_version
+            return gui_version, grpcmeta.__version__, proto_version
 
         except:
             return "none", "none", "none"
