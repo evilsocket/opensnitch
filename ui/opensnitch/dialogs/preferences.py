@@ -57,6 +57,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.popupsCheck.clicked.connect(self._cb_popups_check_toggled)
         self.dbFileButton.clicked.connect(self._cb_file_db_clicked)
         self.checkUIRules.toggled.connect(self._cb_check_ui_rules_toggled)
+        self.comboUITheme.currentIndexChanged.connect(self._cb_combo_themes_changed)
         self.cmdTimeoutUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUITimeout, self.SUM))
         self.cmdTimeoutDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUITimeout, self.REST))
         self.cmdDBMaxDaysUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBMaxDays, self.SUM))
@@ -151,6 +152,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.tabWidget.setCurrentIndex(self.TAB_NODES)
 
     def _load_themes(self):
+        self.comboUITheme.blockSignals(True)
         theme_idx, self._saved_theme = self._themes.get_saved_theme()
 
         self.labelThemeError.setVisible(False)
@@ -167,6 +169,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.labelThemeError.setText(QC.translate("preferences", "Themes not available. Install qt-material: pip3 install qt-material"))
 
         self.comboUITheme.setCurrentIndex(theme_idx)
+        self.comboUITheme.blockSignals(False)
 
     def _load_settings(self):
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
@@ -416,7 +419,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                               int(Config.NOTIFICATION_TYPE_SYSTEM if self.radioSysNotifs.isChecked() else Config.NOTIFICATION_TYPE_QT))
 
         self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText())
-        if self._themes.available() and self._saved_theme != "" and self._saved_theme != self.comboUITheme.currentText():
+        if self._themes.available() and self._saved_theme != "" and self.comboUITheme.currentText() == QC.translate("preferences", "System"):
             Message.ok(
                 QC.translate("preferences", "UI theme changed"),
                 QC.translate("preferences", "Restart the GUI in order to apply the new theme"),
@@ -566,6 +569,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_check_ui_rules_toggled(self, state):
         self.comboUIRules.setEnabled(state)
+
+    def _cb_combo_themes_changed(self, index):
+        self._themes.change_theme(self, self.comboUITheme.currentText())
 
     def _cb_db_max_days_toggled(self, state):
         self._enable_db_cleaner_options(state, 1)

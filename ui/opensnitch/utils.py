@@ -158,6 +158,13 @@ class Themes():
         except Exception as e:
             print("Themes.load_theme() exception:", e)
 
+    def change_theme(self, window, theme_name):
+        try:
+            invert = "light" in theme_name
+            Themes.qtmaterial_apply_stylesheet(window, theme=theme_name,  invert_secondary=invert)
+        except Exception as e:
+            print("Themes.change_theme() exception:", e, " - ", window, theme_name)
+
     def list_local_themes(self):
         themes = []
         if not Themes.AVAILABLE:
