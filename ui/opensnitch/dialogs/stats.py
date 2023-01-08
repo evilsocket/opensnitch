@@ -31,6 +31,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     _trigger = QtCore.pyqtSignal(bool, bool)
     settings_saved = QtCore.pyqtSignal()
+    close_trigger = QtCore.pyqtSignal()
     _status_changed_trigger = QtCore.pyqtSignal(bool)
     _shown_trigger = QtCore.pyqtSignal()
     _notification_trigger = QtCore.pyqtSignal(ui_pb2.Notification)
@@ -440,11 +441,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         menu.addAction(Icons.new("go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_node_import_clicked)
         self.nodeActionsButton.setMenu(menu)
 
-        menu = QtWidgets.QMenu()
-        menu.addAction(Icons.new("go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_export_clicked)
-        menu.addAction(Icons.new("go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_import_clicked)
-        menu.addAction(Icons.new("document-save"), QC.translate("stats", "Export events to CSV")).triggered.connect(self._on_menu_export_csv_clicked)
-        self.actionsButton.setMenu(menu)
+        menuActions = QtWidgets.QMenu()
+        menuActions.addAction(Icons.new("go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_export_clicked)
+        menuActions.addAction(Icons.new("go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_import_clicked)
+        menuActions.addAction(Icons.new("document-save"), QC.translate("stats", "Export events to CSV")).triggered.connect(self._on_menu_export_csv_clicked)
+        menuActions.addAction(Icons.new("application-exit"), QC.translate("stats", "Quit")).triggered.connect(self._on_menu_exit_clicked)
 
         # translations must be done here, otherwise they don't take effect
         self.TABLES[self.TAB_NODES]['header_labels'] = [
@@ -707,6 +708,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         leftArrowIcon = Icons.new("go-previous")
         fwIcon = Icons.new("security-high")
         optsIcon = Icons.new("format-justify-fill")
+        helpIcon = Icons.new("help-browser")
 
         if QtGui.QIcon().hasThemeIcon("preferences-desktop") == False:
             self.fwTreeEdit.setText("+")
@@ -715,6 +717,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.delRuleButton.setIcon(delRuleIcon)
         self.editRuleButton.setIcon(editRuleIcon)
         self.prefsButton.setIcon(prefsIcon)
+        self.helpButton.setIcon(helpIcon)
         self.startButton.setIcon(self.iconStart)
         self.fwButton.setIcon(fwIcon)
         self.cmdProcDetails.setIcon(searchIcon)
@@ -2374,6 +2377,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         QtWidgets.QMessageBox.Warning)
 
 
+
+    def _on_menu_exit_clicked(self, triggered):
+        self.close_trigger.emit()
 
     def _on_menu_export_clicked(self, triggered):
         outdir = QtWidgets.QFileDialog.getExistingDirectory(self,

@@ -134,6 +134,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._stats_dialog._shown_trigger.connect(self._on_stats_dialog_shown)
         self._stats_dialog._status_changed_trigger.connect(self._on_stats_status_changed)
         self._stats_dialog.settings_saved.connect(self._on_settings_saved)
+        self._stats_dialog.close_trigger.connect(self._on_close)
         self._show_message_trigger.connect(self._show_systray_message)
 
     def _setup_icons(self):
