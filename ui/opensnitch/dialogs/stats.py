@@ -446,6 +446,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         menuActions.addAction(Icons.new("go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_import_clicked)
         menuActions.addAction(Icons.new("document-save"), QC.translate("stats", "Export events to CSV")).triggered.connect(self._on_menu_export_csv_clicked)
         menuActions.addAction(Icons.new("application-exit"), QC.translate("stats", "Quit")).triggered.connect(self._on_menu_exit_clicked)
+        self.actionsButton.setMenu(menuActions)
 
         # translations must be done here, otherwise they don't take effect
         self.TABLES[self.TAB_NODES]['header_labels'] = [
