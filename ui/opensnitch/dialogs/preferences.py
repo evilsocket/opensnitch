@@ -604,6 +604,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._desktop_notifications.show("title", "body")
             else:
                 pass
-            self.cmdTestNotifs.setEnabled(True)
         except Exception as e:
             print(self.LOG_TAG + "exception testing notifications:", e)
+        finally:
+            self.cmdTestNotifs.setEnabled(True)
