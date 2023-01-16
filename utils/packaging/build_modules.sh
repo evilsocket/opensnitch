@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# opensnitch - 2022
+# opensnitch - 2022-2023
 #
 echo """
 
@@ -32,7 +32,12 @@ echo -n "[+] Uncompressing kernel sources: "
 tar -xf v${kernel_version}.tar.gz && echo "OK" || echo "ERROR"
 
 echo "[+] Patching kernel sources"
-patch linux-${kernel_version}/tools/lib/bpf/bpf_helpers.h < ebpf_prog/file.patch
+if [ "${ARCH}" == "arm" -o "${ARCH}" == "arm64" ]; then
+	patch linux-${kernel_version}/arch/arm/include/asm/unified.h < ebpf_prog/arm-clang-asm-fix.patch
+else
+	patch linux-${kernel_version}/tools/lib/bpf/bpf_helpers.h < ebpf_prog/file.patch
+fi
+
 cp ebpf_prog/opensnitch*.c ebpf_prog/common.h ebpf_prog/common_defs.h ebpf_prog/Makefile linux-${kernel_version}/samples/bpf
 
 echo -n "[+] Preparing kernel sources... (1-2 minutes): "
