@@ -10,8 +10,6 @@ import argparse
 import logging
 from threading import Timer
 
-logging.getLogger().disabled = True
-
 from concurrent import futures
 
 import grpc
@@ -61,13 +59,20 @@ Examples:
     - Listening on port 50051, all interfaces: opensnitch-ui --socket "[::]:50051"
                         ''', metavar="FILE")
     parser.add_argument("--max-clients", dest="serverWorkers", default=10, help="Max number of allowed clients (incoming connections).")
-    parser.add_argument("--debug", dest="debug", default=False, help="Enable debug segfaults")
+    parser.add_argument("--debug", dest="debug", action="store_true", help="Enable debug logs")
+    parser.add_argument("--debug-grpc", dest="debug_grpc", action="store_true", help="Enable gRPC debug logs")
 
     args = parser.parse_args()
 
     if args.debug:
         import faulthandler
         faulthandler.enable()
+
+    logging.getLogger().disabled = not args.debug
+
+    if args.debug and args.debug_grpc:
+        os.environ["GRPC_TRACE"] = "all"
+        os.environ["GRPC_VERBOSITY"] = "debug"
 
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     if supported_qt_version(5,6,0):
