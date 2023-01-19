@@ -50,6 +50,7 @@ Have you seen a connection you didn't expect? [submit it!](https://github.com/ev
 ## In the press
 
 - 2017 [PenTest Magazine](https://twitter.com/pentestmag/status/857321886807605248)
+- 11/2019 [It's Foss](https://itsfoss.com/opensnitch-firewall-linux/)
 - 03/2020 [Linux Format #232](https://www.linux-magazine.com/Issues/2020/232/Firewalld-and-OpenSnitch)
 - 08/2020 [Linux Magazine Polska #194](https://linux-magazine.pl/archiwum/wydanie/387)
 - 08/2021 [Linux Format #280](https://github.com/evilsocket/opensnitch/discussions/631)
