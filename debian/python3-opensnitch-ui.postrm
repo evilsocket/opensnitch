@@ -32,3 +32,5 @@ case "$1" in
         db_purge
         ;;
 esac
+
+#DEBHELPER#

@@ -1,16 +1,41 @@
 #!/usr/bin/make -f
 export DH_VERBOSE = 1
-export DESTDIR = debian/opensnitch
+export DESTDIR := $(shell pwd)/debian/opensnitch
+export UIDESTDIR := $(shell pwd)/debian/python3-opensnitch-ui
 
 override_dh_installsystemd:
 	dh_installsystemd --restart-after-upgrade
 
-execute_before_dh_auto_build:
-	cd proto; make ../daemon/ui/protocol/ui.pb.go
+override_dh_auto_build:
+	$(MAKE) protocol
+# Workaround for Go build problem when building in _build
+	mkdir -p _build/src/github.com/evilsocket/opensnitch/daemon/ui/protocol/
+	cp daemon/ui/protocol/* _build/src/github.com/evilsocket/opensnitch/daemon/ui/protocol/
+	dh_auto_build
+	cd ui && python3 setup.py build --force
 
-execute_before_dh_auto_install:
+override_dh_auto_install:
+# daemon
 	mkdir -p $(DESTDIR)/usr/bin
-	mv _build/bin/daemon $(DESTDIR)/usr/bin/opensnitchd
+	cp _build/bin/daemon $(DESTDIR)/usr/bin/opensnitchd
+# GUI
+	make -C ui/i18n
+	cp -r ui/i18n/locales/ ui/opensnitch/i18n/
+	pyrcc5 -o ui/opensnitch/resources_rc.py ui/opensnitch/res/resources.qrc
+	sed -i 's/^import ui_pb2/from . import ui_pb2/' ui/opensnitch/ui_pb2*
+	cd ui && python3 setup.py install --force --root=$(UIDESTDIR) --no-compile -O0 --install-layout=deb
+
+# daemon
+	dh_auto_install
 
 %:
-	dh $@ --builddirectory=_build --buildsystem=golang --with=golang
+	dh $@ --builddirectory=_build --buildsystem=golang --with=golang,python3
+
+override_dh_auto_clean:
+	dh_auto_clean
+	$(MAKE) clean
+	$(RM) ui/opensnitch/resources_rc.py
+	$(RM) -r ui/opensnitch/i18n/
+	$(RM) ui/i18n/locales/*/*.qm
+	cd ui && python3 setup.py clean -a
+	find ui -name \*.pyc -exec rm {} \;
