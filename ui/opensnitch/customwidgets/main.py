@@ -1,4 +1,4 @@
-from PyQt5 import Qt, QtCore
+from PyQt5 import QtCore
 from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
 from PyQt5.QtSql import QSqlQueryModel, QSqlQuery, QSql
 from PyQt5.QtWidgets import QTableView
@@ -7,37 +7,6 @@ import time
 import math
 
 from PyQt5.QtCore import QCoreApplication as QC
-
-class ColorizedDelegate(Qt.QItemDelegate):
-    def __init__(self, parent=None, *args, config=None):
-        Qt.QItemDelegate.__init__(self, parent, *args)
-        self._config = config
-        self._alignment = QtCore.Qt.AlignLeft | QtCore.Qt.AlignHCenter
-
-    def paint(self, painter, option, index):
-        if not index.isValid():
-            return super().paint(painter, option, index)
-
-        nocolor=True
-
-        value = index.data(QtCore.Qt.DisplayRole)
-        for _, what in enumerate(self._config):
-            if what == value:
-                nocolor=False
-                painter.save()
-                painter.setPen(self._config[what])
-                if 'alignment' in self._config:
-                    self._alignment = self._config['alignment']
-
-                if option.state & Qt.QStyle.State_Selected:
-                    painter.setBrush(painter.brush())
-                    painter.setPen(painter.pen())
-                painter.drawText(option.rect, self._alignment, value)
-                painter.restore()
-
-        if nocolor == True:
-            super().paint(painter, option, index)
-
 class ColorizedQSqlQueryModel(QSqlQueryModel):
     """
         model=CustomQSqlQueryModel(

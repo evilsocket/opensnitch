@@ -17,17 +17,15 @@ from opensnitch.dialogs.firewall import FirewallDialog
 from opensnitch.dialogs.preferences import PreferencesDialog
 from opensnitch.dialogs.ruleseditor import RulesEditorDialog
 from opensnitch.dialogs.processdetails import ProcessDetailsDialog
-from opensnitch.customwidgets.main import ColorizedDelegate, ConnectionsTableModel
+from opensnitch.customwidgets.colorizeddelegate import ColorizedDelegate
 from opensnitch.customwidgets.firewalltableview import FirewallTableModel
 from opensnitch.customwidgets.generictableview import GenericTableModel
 from opensnitch.customwidgets.addresstablemodel import AddressTableModel
 from opensnitch.utils import Message, QuickHelp, AsnDB, Icons
+from opensnitch.actions import Actions
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
-    RED = QtGui.QColor(0xff, 0x63, 0x47)
-    GREEN = QtGui.QColor(0x2e, 0x90, 0x59)
-    PURPLE = QtGui.QColor(0x7f, 0x00, 0xff)
 
     _trigger = QtCore.pyqtSignal(bool, bool)
     settings_saved = QtCore.pyqtSignal()
@@ -120,205 +118,162 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     # try to restore last selection
     LAST_SELECTED_ITEM = ""
 
-    commonDelegateConf = {
-            Config.ACTION_DENY:     RED,
-            Config.ACTION_REJECT:   PURPLE,
-            Config.ACTION_ALLOW:    GREEN,
-            'alignment': QtCore.Qt.AlignCenter | QtCore.Qt.AlignHCenter
-            }
-
-    commonTableConf = {
-            "name": "",
+    TABLES = {
+        TAB_MAIN: {
+            "name": "connections",
             "label": None,
             "cmd": None,
+            "cmdCleanStats": None,
             "view": None,
+            "filterLine": None,
             "model": None,
-            "delegate": commonDelegateConf,
-            "display_fields": "*"
-            }
-
-    TABLES = {
-            TAB_MAIN: {
-                "name": "connections",
-                "label": None,
-                "cmd": None,
-                "cmdCleanStats": None,
-                "view": None,
-                "filterLine": None,
-                "model": None,
-                "delegate": commonDelegateConf,
-                "display_fields": "time as Time, " \
-                        "node as Node, " \
-                        "action as Action, " \
-                        "CASE dst_host WHEN ''" \
-                        "   THEN dst_ip || '  ->  ' || dst_port " \
-                        "   ELSE dst_host || '  ->  ' || dst_port " \
-                        "END Destination, " \
-                        "protocol as Protocol, " \
-                        "process as Process, " \
-                        "process_args as Cmdline, " \
-                        "rule as Rule",
-                "group_by": LAST_GROUP_BY,
-                "last_order_by": "1",
-                "last_order_to": 1
-                },
-            TAB_NODES: {
-                "name": "nodes",
-                "label": None,
-                "cmd": None,
-                "cmdCleanStats": None,
-                "view": None,
-                "filterLine": None,
-                "model": None,
-                "delegate": {
-                    Config.ACTION_DENY:     RED,
-                    Config.ACTION_REJECT:   PURPLE,
-                    Config.ACTION_ALLOW:    GREEN,
-                    Nodes.OFFLINE: RED,
-                    Nodes.ONLINE:  GREEN,
-                    'alignment': QtCore.Qt.AlignCenter | QtCore.Qt.AlignHCenter
-                    },
-                "display_fields": "last_connection as LastConnection, "\
-                        "addr as Addr, " \
-                        "status as Status, " \
-                        "hostname as Hostname, " \
-                        "daemon_version as Version, " \
-                        "daemon_uptime as Uptime, " \
-                        "daemon_rules as Rules," \
-                        "cons as Connections," \
-                        "cons_dropped as Dropped," \
-                        "version as Version",
-                "header_labels": [],
-                "last_order_by": "1",
-                "last_order_to": 1
-                },
-            TAB_RULES: {
-                "name": "rules",
-                "label": None,
-                "cmd": None,
-                "cmdCleanStats": None,
-                "view": None,
-                "filterLine": None,
-                "model": None,
-                "delegate": commonDelegateConf,
-                "display_fields": "time as Time," \
-                        "node as Node," \
-                        "name as Name," \
-                        "enabled as Enabled," \
-                        "action as Action," \
-                        "duration as Duration," \
-                        "description as Description",
-                "header_labels": [],
-                "last_order_by": "2",
-                "last_order_to": 0
-                },
-            TAB_FIREWALL: {
-                "name": "firewall",
-                "label": None,
-                "cmd": None,
-                "cmdCleanStats": None,
-                "view": None,
-                "filterLine": None,
-                "model": None,
-                "delegate": {
-                    Config.ACTION_DENY:     RED,
-                    Config.ACTION_DROP:     RED,
-                    Config.ACTION_STOP:     RED,
-                    "DROP":     RED,
-                    "ACCEPT":     GREEN,
-                    Config.ACTION_REJECT:   PURPLE,
-                    Config.ACTION_RETURN:   PURPLE,
-                    Config.ACTION_ACCEPT:   GREEN,
-                    Config.ACTION_JUMP:     GREEN,
-                    Config.ACTION_MASQUERADE: GREEN,
-                    Config.ACTION_SNAT: GREEN,
-                    Config.ACTION_DNAT: GREEN,
-                    Config.ACTION_TPROXY: GREEN,
-                    Config.ACTION_QUEUE: GREEN,
-                    "True": GREEN,
-                    "False": RED,
-                    'alignment': QtCore.Qt.AlignCenter | QtCore.Qt.AlignHCenter
-                    },
-                "display_fields": "*",
-                "header_labels": [],
-                "last_order_by": "2",
-                "last_order_to": 0
-                },
-            TAB_HOSTS: {
-                "name": "hosts",
-                "label": None,
-                "cmd": None,
-                "cmdCleanStats": None,
-                "view": None,
-                "filterLine": None,
-                "model": None,
-                "delegate": commonDelegateConf,
-                "display_fields": "*",
-                "header_labels": [],
-                "last_order_by": "2",
-                "last_order_to": 1
-                },
-            TAB_PROCS: {
-                "name": "procs",
-                "label": None,
-                "cmd": None,
-                "cmdCleanStats": None,
-                "view": None,
-                "filterLine": None,
-                "model": None,
-                "delegate": commonDelegateConf,
-                "display_fields": "*",
-                "header_labels": [],
-                "last_order_by": "2",
-                "last_order_to": 1
-                },
-            TAB_ADDRS: {
-                "name": "addrs",
-                "label": None,
-                "cmd": None,
-                "cmdCleanStats": None,
-                "view": None,
-                "filterLine": None,
-                "model": None,
-                "delegate": commonDelegateConf,
-                "display_fields": "*",
-                "header_labels": [],
-                "last_order_by": "2",
-                "last_order_to": 1
-                },
-            TAB_PORTS: {
-                "name": "ports",
-                "label": None,
-                "cmd": None,
-                "cmdCleanStats": None,
-                "view": None,
-                "filterLine": None,
-                "model": None,
-                "delegate": commonDelegateConf,
-                "display_fields": "*",
-                "header_labels": [],
-                "last_order_by": "2",
-                "last_order_to": 1
-                },
-            TAB_USERS: {
-                "name": "users",
-                "label": None,
-                "cmd": None,
-                "cmdCleanStats": None,
-                "view": None,
-                "filterLine": None,
-                "model": None,
-                "delegate": commonDelegateConf,
-                "display_fields": "*",
-                "header_labels": [],
-                "last_order_by": "2",
-                "last_order_to": 1
-                }
-            }
+            "delegate": "commonDelegateConfig",
+            "display_fields": "time as Time, " \
+                    "node as Node, " \
+                    "action as Action, " \
+                    "CASE dst_host WHEN ''" \
+                    "   THEN dst_ip || '  ->  ' || dst_port " \
+                    "   ELSE dst_host || '  ->  ' || dst_port " \
+                    "END Destination, " \
+                    "protocol as Protocol, " \
+                    "process as Process, " \
+                    "process_args as Cmdline, " \
+                    "rule as Rule",
+            "group_by": LAST_GROUP_BY,
+            "last_order_by": "1",
+            "last_order_to": 1
+        },
+        TAB_NODES: {
+            "name": "nodes",
+            "label": None,
+            "cmd": None,
+            "cmdCleanStats": None,
+            "view": None,
+            "filterLine": None,
+            "model": None,
+            "delegate": "commonDelegateConfig",
+            "display_fields": "last_connection as LastConnection, "\
+                    "addr as Addr, " \
+                    "status as Status, " \
+                    "hostname as Hostname, " \
+                    "daemon_version as Version, " \
+                    "daemon_uptime as Uptime, " \
+                    "daemon_rules as Rules," \
+                    "cons as Connections," \
+                    "cons_dropped as Dropped," \
+                    "version as Version",
+            "header_labels": [],
+            "last_order_by": "1",
+            "last_order_to": 1
+        },
+        TAB_RULES: {
+            "name": "rules",
+            "label": None,
+            "cmd": None,
+            "cmdCleanStats": None,
+            "view": None,
+            "filterLine": None,
+            "model": None,
+            "delegate": "defaultRulesDelegateConfig",
+            "display_fields": "time as Time," \
+                    "node as Node," \
+                    "name as Name," \
+                    "enabled as Enabled," \
+                    "action as Action," \
+                    "duration as Duration," \
+                    "description as Description",
+            "header_labels": [],
+            "last_order_by": "2",
+            "last_order_to": 0
+        },
+        TAB_FIREWALL: {
+            "name": "firewall",
+            "label": None,
+            "cmd": None,
+            "cmdCleanStats": None,
+            "view": None,
+            "filterLine": None,
+            "model": None,
+            "delegate": "defaultFWDelegateConfig",
+            "display_fields": "*",
+            "header_labels": [],
+            "last_order_by": "2",
+            "last_order_to": 0
+        },
+        TAB_HOSTS: {
+            "name": "hosts",
+            "label": None,
+            "cmd": None,
+            "cmdCleanStats": None,
+            "view": None,
+            "filterLine": None,
+            "model": None,
+            "delegate": "commonDelegateConfig",
+            "display_fields": "*",
+            "header_labels": [],
+            "last_order_by": "2",
+            "last_order_to": 1
+        },
+        TAB_PROCS: {
+            "name": "procs",
+            "label": None,
+            "cmd": None,
+            "cmdCleanStats": None,
+            "view": None,
+            "filterLine": None,
+            "model": None,
+            "delegate": "commonDelegateConfig",
+            "display_fields": "*",
+            "header_labels": [],
+            "last_order_by": "2",
+            "last_order_to": 1
+        },
+        TAB_ADDRS: {
+            "name": "addrs",
+            "label": None,
+            "cmd": None,
+            "cmdCleanStats": None,
+            "view": None,
+            "filterLine": None,
+            "model": None,
+            "delegate": "commonDelegateConfig",
+            "display_fields": "*",
+            "header_labels": [],
+            "last_order_by": "2",
+            "last_order_to": 1
+        },
+        TAB_PORTS: {
+            "name": "ports",
+            "label": None,
+            "cmd": None,
+            "cmdCleanStats": None,
+            "view": None,
+            "filterLine": None,
+            "model": None,
+            "delegate": "commonDelegateConfig",
+            "display_fields": "*",
+            "header_labels": [],
+            "last_order_by": "2",
+            "last_order_to": 1
+        },
+        TAB_USERS: {
+            "name": "users",
+            "label": None,
+            "cmd": None,
+            "cmdCleanStats": None,
+            "view": None,
+            "filterLine": None,
+            "model": None,
+            "delegate": "commonDelegateConfig",
+            "display_fields": "*",
+            "header_labels": [],
+            "last_order_by": "2",
+            "last_order_to": 1
+        }
+    }
 
     def __init__(self, parent=None, address=None, db=None, dbname="db", appicon=None):
         super(StatsDialog, self).__init__(parent)
-        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
         self._current_desktop = os.environ['XDG_CURRENT_DESKTOP'] if os.environ.get("XDG_CURRENT_DESKTOP") != None else None
 
@@ -367,6 +322,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._nodes = Nodes.instance()
         self._fw = Firewall().instance()
         self._fw.rules.rulesUpdated.connect(self._cb_fw_rules_updated)
+        self._actions = Actions().instance()
+        self._actions.loadAll()
 
         # TODO: allow to display multiples dialogs
         self._proc_details_dialog = ProcessDetailsDialog(appicon=appicon)
@@ -2474,9 +2431,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         tableWidget.setSortingEnabled(True)
         if model == None:
             model = self._db.get_new_qsql_model()
-        if delegate != None:
-            tableWidget.setItemDelegate(ColorizedDelegate(self, config=delegate))
-
         if verticalScrollBar != None:
             tableWidget.setVerticalScrollBar(verticalScrollBar)
         tableWidget.verticalScrollBar().sliderPressed.connect(self._cb_scrollbar_pressed)
@@ -2484,6 +2438,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " " + sort_direction + limit)
         tableWidget.setModel(model)
+
+        if delegate != None:
+            action = self._actions.get(delegate)
+            if action != None:
+                tableWidget.setItemDelegate(ColorizedDelegate(tableWidget, actions=action))
 
         header = tableWidget.horizontalHeader()
         if header != None:
