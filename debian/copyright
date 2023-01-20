@@ -1,5 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: https://github.com/evilsocket/opensnitch
+Upstream-Contact: Gustavo Iñiguez Goia <gooffy1@gmail.com>
 Upstream-Name: opensnitch
 Files-Excluded:
  Godeps/_workspace
@@ -9,7 +10,7 @@ Copyright:
  2017-2018 evilsocket
  2019-2020 Gustavo Iñiguez Goia
 Comment: Debian packaging is licensed under the same terms as upstream
-License: GPL-3.0
+License: GPL-3.0+
  This program is free software; you can redistribute it
  and/or modify it under the terms of the GNU General Public
  License as published by the Free Software Foundation; either

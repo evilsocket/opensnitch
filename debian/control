@@ -7,7 +7,6 @@ Testsuite: autopkgtest-pkg-go
 Priority: optional
 Build-Depends:
  debhelper-compat (= 11),
- debhelper (>= 9),
  dh-golang,
  golang-any,
  golang-github-vishvananda-netlink-dev,
@@ -17,13 +16,17 @@ Build-Depends:
  golang-golang-x-net-dev,
  golang-google-grpc-dev,
  golang-goprotobuf-dev,
+ golang-github-google-nftables-dev,
+ golang-github-iovisor-gobpf-dev,
+ protoc-gen-go-grpc,
+ python3-grpc-tools,
  pkg-config,
  libnetfilter-queue-dev,
  libmnl-dev
-Standards-Version: 4.4.0
-Vcs-Browser: https://salsa.debian.org/go-team/packages/opensnitch
-Vcs-Git: https://salsa.debian.org/go-team/packages/opensnitch.git
-Homepage: https://github.com/evilsocket/opensnitch
+Standards-Version: 4.5.1
+Vcs-Browser: https://github.com/evilsocket/opensnitch
+Vcs-Git: https://github.com/evilsocket/opensnitch.git
+Homepage: https://opensnitch.io/
 Rules-Requires-Root: no
 XS-Go-Import-Path: github.com/evilsocket/opensnitch
 
@@ -31,7 +34,8 @@ Package: opensnitch
 Section: net
 Architecture: any
 Depends:
- libnetfilter-queue1, libc6, libnfnetlink0
+ ${misc:Depends},
+ ${shlibs:Depends},
 Built-Using: ${misc:Built-Using}
 Description: GNU/Linux firewall application
  OpenSnitch is a GNU/Linux firewall application.
