@@ -8,7 +8,7 @@ opensnitch/resources_rc.py: translations deps
 	sed -i 's/^import ui_pb2/from . import ui_pb2/' opensnitch/ui_pb2*
 
 translations:
-	@cd i18n ; make
+	@$(MAKE) -C i18n
 	
 deps:
 	@pip3 install -r requirements.txt
