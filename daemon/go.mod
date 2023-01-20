@@ -3,7 +3,6 @@ module github.com/evilsocket/opensnitch/daemon
 go 1.14
 
 require (
-	github.com/evilsocket/ftrace v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/golang/protobuf v1.5.0
 	github.com/google/gopacket v1.1.14

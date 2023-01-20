@@ -1,19 +1,21 @@
 package procmon
 
 import (
+	"sync"
 	"time"
 )
 
 var (
 	cacheMonitorsRunning = false
+	lock                 = sync.RWMutex{}
+	monitorMethod        = MethodProc
 )
 
 // monitor method supported types
 const (
-	MethodFtrace = "ftrace"
-	MethodProc   = "proc"
-	MethodAudit  = "audit"
-	MethodEbpf   = "ebpf"
+	MethodProc  = "proc"
+	MethodAudit = "audit"
+	MethodEbpf  = "ebpf"
 )
 
 // man 5 proc; man procfs
@@ -92,14 +94,6 @@ func MethodIsEbpf() bool {
 	defer lock.RUnlock()
 
 	return monitorMethod == MethodEbpf
-}
-
-// MethodIsFtrace returns if the process monitor method is eBPF.
-func MethodIsFtrace() bool {
-	lock.RLock()
-	defer lock.RUnlock()
-
-	return monitorMethod == MethodFtrace
 }
 
 // MethodIsAudit returns if the process monitor method is eBPF.
