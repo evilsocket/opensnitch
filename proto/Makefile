@@ -8,5 +8,7 @@ all: ../daemon/ui/protocol/ui.pb.go ../ui/opensnitch/ui_pb2.py
 
 clean:
 	@rm -rf ../daemon/ui/protocol/ui.pb.go
+	@rm -rf ../daemon/ui/protocol/ui_grpc.pb.go
 	@rm -rf ../ui/opensnitch/ui_pb2.py
 	@rm -rf ../ui/opensnitch/ui_pb2_grpc.py
+
