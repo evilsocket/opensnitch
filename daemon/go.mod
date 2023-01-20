@@ -6,7 +6,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/golang/protobuf v1.5.0
 	github.com/google/gopacket v1.1.14
-	github.com/google/nftables v0.0.0-20210514154851-a285acebcad3
+	github.com/google/nftables v0.1.0
 	github.com/iovisor/gobpf v0.2.0
 	github.com/vishvananda/netlink v0.0.0-20210811191823-e1a867c6b452
 	golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271

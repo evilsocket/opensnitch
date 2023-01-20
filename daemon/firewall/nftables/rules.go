@@ -27,7 +27,7 @@ func (n *Nft) addGlobalTables() error {
 }
 
 // TODO: add more parameters, make it more generic
-func (n *Nft) addChain(name string, table *nftables.Table, prio nftables.ChainPriority, ctype nftables.ChainType, hook nftables.ChainHook) *nftables.Chain {
+func (n *Nft) addChain(name string, table *nftables.Table, prio *nftables.ChainPriority, ctype nftables.ChainType, hook *nftables.ChainHook) *nftables.Chain {
 	// nft list chains
 	return n.conn.AddChain(&nftables.Chain{
 		Name:     name,
