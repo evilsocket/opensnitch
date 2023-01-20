@@ -1,22 +1,22 @@
 all: protocol opensnitch_daemon gui
 
 install:
-	@cd daemon && make install	
-	@cd ui && make install
+	@$(MAKE) -C daemon install
+	@$(MAKE) -C ui install
 
 protocol:
-	@cd proto && make
+	@$(MAKE) -C proto
 
 opensnitch_daemon:
-	@cd daemon && make
+	@$(MAKE) -C daemon
 
 gui:
-	@cd ui && make
+	@$(MAKE) -C ui
 
 clean:
-	@cd daemon && make clean
-	@cd proto && make clean
-	@cd ui && make clean
+	@$(MAKE) -C daemon clean
+	@$(MAKE) -C proto clean
+	@$(MAKE) -C ui clean
 
 run:
 	cd ui && pip3 install --upgrade . && cd ..
@@ -25,18 +25,18 @@ run:
 
 test: 
 	clear 
-	make clean
+	$(MAKE) clean
 	clear
 	mkdir -p rules
-	make 
+	$(MAKE)
 	clear
-	make run
+	$(MAKE) run
 
 adblocker:
 	clear 
-	make clean
+	$(MAKE) clean
 	clear
-	make 
+	$(MAKE)
 	clear
 	python make_ads_rules.py
 	clear
