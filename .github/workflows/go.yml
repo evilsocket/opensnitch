@@ -3,12 +3,12 @@ on:
   # Trigger this workflow only when daemon code changes.
   push:
     paths:
-      - 'ebpf_prog/*'
-      - '.github/workflows/ebpf.yml'
+      - 'daemon/*'
+      - '.github/workflows/go.yml'
   pull_request:
     paths:
-      - 'ebpf_prog/*'
-      - '.github/workflows/ebpf.yml'
+      - 'daemon/*'
+      - '.github/workflows/go.yml'
 
   # Allow to run this workflow manually from the Actions tab
   workflow_dispatch:

@@ -1,18 +1,5 @@
 name: Build status
-on:
-  # Trigger this workflow only when something related to debian/ changes.
-  push:
-    paths:
-      - 'debian/*'
-      - '.github/workflows/debian-package.yml'
-  pull_request:
-    paths:
-      - 'debian/*'
-      - '.github/workflows/debian-package.yml'
-
-  # Allow to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
+on: [push, pull_request]
 jobs:
 
   Builddeb:
