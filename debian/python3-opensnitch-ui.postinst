@@ -1,45 +1,14 @@
 #!/bin/sh
+
 set -e
 
-. /usr/share/debconf/confmodule
-
-install_pip_pkgs()
+autostart_by_default()
 {
-    db_get python3-opensnitch-ui/question1
-    if [ -z "$RET" -o "$RET" = "true" -o "$RET" = "yes" ]; then
-        echo "Installing grpcio-tools..."
-        pip3 -q install grpcio-tools || echo "Unable to install grpcio, try it manually."
-        echo
-        echo "Installing unicode_slugify..."
-        pip3 -q install unicode_slugify || echo "Unable to install unicode_slugify, try it manually."
-        echo "Done."
-    else
-        echo "Not installing extra packages by user choice (debconf)"
-    fi
-    exit 0
+    ln -s /usr/share/applications/opensnitch_ui.desktop /etc/xdg/autostart
 }
 
-for i in $(ls /home)
-do
-    if grep -q /home/$i /etc/passwd ; then
-        path=/home/$i/.config/autostart/
-        if [ ! -d $path ]; then
-            mkdir -p $path
-        fi
-        if [ -f /usr/share/applications/opensnitch_ui.desktop ];then
-            ln -s /usr/share/applications/opensnitch_ui.desktop $path 2>/dev/null || true
-        fi
-    fi
-done
+autostart_by_default
 
-gtk-update-icon-cache /usr/share/icons/hicolor/ || true
-
-set +e
-
-case "$1" in
-    configure)
-        install_pip_pkgs
-        ;;
-esac
+gtk-update-icon-cache /usr/share/icons/hicolor/
 
 #DEBHELPER#

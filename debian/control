@@ -65,14 +65,15 @@ Depends:
  ${shlibs:Depends},
  debconf,
  libqt5sql5-sqlite,
- python3:any,
- python3-setuptools,
- python3-six,
+ python3-grpcio,
+ python3-notify2,
+ python3-pyinotify,
  python3-pyqt5,
  python3-pyqt5.qtsql,
- python3-pyinotify,
- python3-notify2,
- python3-pip,
+ python3-setuptools,
+ python3-six,
+ python3-slugify,
+ python3:any,
  whiptail | dialog
 Suggests: python3-pyasn
 Description: opensnitch application firewall GUI
