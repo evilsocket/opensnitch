@@ -75,6 +75,8 @@ Depends:
  python3-slugify,
  python3:any,
  whiptail | dialog
+Recommends:
+ python3-pyasn
 Suggests: python3-pyasn
 Description: opensnitch application firewall GUI
  opensnitch-ui is a GUI for opensnitch written in Python.
