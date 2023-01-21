@@ -40,12 +40,6 @@ func End() {
 		audit.Stop()
 	} else if procmon.MethodIsEbpf() {
 		ebpf.Stop()
-	} else if procmon.MethodIsFtrace() {
-		go func() {
-			if err := procmon.Stop(); err != nil {
-				log.Warning("procmon.End() stop ftrace error: %v", err)
-			}
-		}()
 	}
 }
 
@@ -67,14 +61,6 @@ func Init() (err error) {
 		// It helps with the error "cannot write...kprobe_events: file exists".
 		ebpf.Stop()
 		log.Warning("error starting ebpf monitor method: %v", err)
-	} else if procmon.MethodIsFtrace() {
-		err = procmon.Start()
-		if err == nil {
-			log.Info("Process monitor method ftrace")
-			return nil
-		}
-		log.Warning("error starting ftrace monitor method: %v", err)
-
 	} else if procmon.MethodIsAudit() {
 		var auditConn net.Conn
 		auditConn, err = audit.Start()

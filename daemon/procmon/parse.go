@@ -32,7 +32,6 @@ func getPIDFromAuditEvents(inode int, inodeKey string, expect string) (int, int)
 // 1. Get the PID from the cache of Inodes.
 // 2. Get the PID from the cache of PIDs.
 // 3. Look for the PID using one of these methods:
-//    - ftrace: listening processes execs/exits from /sys/kernel/debug/tracing/
 //    - audit:  listening for socket creation from auditd.
 //    - proc:   search /proc
 //
@@ -63,15 +62,6 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 			log.Debug("PID found via audit events: %v, position: %d", time.Since(start), pos)
 			return aPid
 		}
-	} else if MethodIsFtrace() && IsWatcherAvailable() {
-		forEachProcess(func(pid int, path string, args []string) bool {
-			if inodeFound("/proc/", expect, inodeKey, inode, pid) {
-				found = pid
-				return true
-			}
-			// keep looping
-			return false
-		})
 	}
 	if found == -1 || methodIsProc() {
 		found = lookupPidInProc("/proc/", expect, inodeKey, inode)
