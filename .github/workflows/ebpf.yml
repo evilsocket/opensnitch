@@ -1,0 +1,34 @@
+name: Build eBPF
+on: [push, pull_request]
+jobs:
+
+  build:
+    name: Build eBPF object
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Check out git code
+      uses: actions/checkout@v2
+
+    - name: Get and prepare dependencies
+      run: |
+        set -e
+        set -x
+        sudo apt install eatmydata
+        sudo eatmydata apt install wget tar patch clang llvm libelf-dev libzip-dev flex bison libssl-dev bc rsync python3 binutils
+        eatmydata wget --no-verbose https://github.com/torvalds/linux/archive/v5.8.tar.gz
+        eatmydata tar -xf v5.8.tar.gz
+
+    - name: Build eBPF module
+      run: |
+        set -e
+        set -x
+        eatmydata patch linux-5.8/tools/lib/bpf/bpf_helpers.h < ebpf_prog/file.patch
+        eatmydata cp ebpf_prog/opensnitch.c ebpf_prog/Makefile linux-5.8/samples/bpf
+        cd linux-5.8 && yes "" | eatmydata make oldconfig
+        eatmydata make prepare
+        eatmydata make headers_install
+        cd samples/bpf
+        eatmydata make
+        eatmydata objdump -h opensnitch.o
+        eatmydata llvm-strip -g opensnitch.o
