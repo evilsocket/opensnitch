@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    purge)
+	rm -f /etc/xdg/autostart/opensnitch_ui.desktop
+        ;;
+    remove)
+	pkill -15 opensnitch-ui || true
+        ;;
+esac
+
+#DEBHELPER#

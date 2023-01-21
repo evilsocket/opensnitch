@@ -1,3 +1,9 @@
+opensnitch (1.5.2~0-1) UNRELEASED; urgency=medium
+
+  * Initial release. (Closes: #909567)
+
+ -- Gustavo-Iniguez-Goya <gustavo.iniguez.goya@gmail.com>  Fri, 20 Jan 2023 22:26:40 +0000
+
 opensnitch (1.5.2-1) unstable; urgency=medium
 
   * try to mount debugfs on boot up

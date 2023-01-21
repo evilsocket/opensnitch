@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+autostart_by_default()
+{
+    ln -s /usr/share/applications/opensnitch_ui.desktop /etc/xdg/autostart
+}
+
+autostart_by_default
+
+gtk-update-icon-cache /usr/share/icons/hicolor/
+
+#DEBHELPER#

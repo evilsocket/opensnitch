@@ -8,21 +8,26 @@ Priority: optional
 Build-Depends:
  debhelper-compat (= 11),
  dh-golang,
+ dh-python,
  golang-any,
- golang-github-vishvananda-netlink-dev,
  golang-github-evilsocket-ftrace-dev,
- golang-github-google-gopacket-dev,
  golang-github-fsnotify-fsnotify-dev,
+ golang-github-google-gopacket-dev,
+ golang-github-google-nftables-dev,
+ golang-github-iovisor-gobpf-dev,
+ golang-github-vishvananda-netlink-dev,
  golang-golang-x-net-dev,
  golang-google-grpc-dev,
  golang-goprotobuf-dev,
- golang-github-google-nftables-dev,
- golang-github-iovisor-gobpf-dev,
- protoc-gen-go-grpc,
- python3-grpc-tools,
- pkg-config,
+ libmnl-dev,
  libnetfilter-queue-dev,
- libmnl-dev
+ pkg-config,
+ protoc-gen-go-grpc,
+ pyqt5-dev-tools,
+ qttools5-dev-tools,
+ python3-all,
+ python3-grpc-tools,
+ python3-setuptools
 Standards-Version: 4.5.1
 Vcs-Browser: https://github.com/evilsocket/opensnitch
 Vcs-Git: https://github.com/evilsocket/opensnitch.git
@@ -50,3 +55,34 @@ Description: GNU/Linux firewall application
  .
  The GUI allows the user to view live outgoing connections, as well as search
  by process, user, host or port.
+
+
+Package: python3-opensnitch-ui
+Architecture: all
+Section: net
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+ debconf,
+ libqt5sql5-sqlite,
+ python3-grpcio,
+ python3-notify2,
+ python3-pyinotify,
+ python3-pyqt5,
+ python3-pyqt5.qtsql,
+ python3-setuptools,
+ python3-six,
+ python3-slugify,
+ python3:any,
+ whiptail | dialog
+Suggests: python3-pyasn
+Description: opensnitch application firewall GUI
+ opensnitch-ui is a GUI for opensnitch written in Python.
+ It allows the user to view live outgoing connections, as well as search
+ for details of the intercepted connections.
+ .
+ The user can decide if block outgoing connections based on properties of
+ the connection: by port, by uid, by dst ip, by program or a combination
+ of them.
+ .
+ These rules can last forever, until restart the daemon or just one time.

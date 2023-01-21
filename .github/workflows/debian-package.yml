@@ -1,0 +1,57 @@
+name: Build status
+on: [push, pull_request]
+jobs:
+
+  Builddeb:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ["debian:bookworm", "debian:sid"]
+    container:
+      image: ${{ matrix.image }}
+      options: --cpus=2
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+
+    - name: Check out git code
+      uses: actions/checkout@v2
+
+    - name: Install pre-dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        apt --quiet update
+        # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
+        apt --yes --quiet install --no-install-suggests eatmydata
+        eatmydata apt --yes --quiet install --no-install-suggests git devscripts
+
+    - name: Install build dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        eatmydata apt --yes --quiet build-dep --indep-only .
+
+    - name: Build source client
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        # Workaround for missing source tarball
+        echo 1.0 > debian/source/format
+        yes y | eatmydata debuild
+
+    - name: Test install debian packages
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        eatmydata apt-get --yes --quiet install ../*.deb
