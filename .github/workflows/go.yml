@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
 
   build:
-    name: Build
+    name: Build Go code
     runs-on: ubuntu-latest
     steps:
 
