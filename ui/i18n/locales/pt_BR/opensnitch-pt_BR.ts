@@ -6,7 +6,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="34"/>
         <source>opensnitch-qt</source>
-        <translation type="unfinished"></translation>
+        <translation>opensnitch-qt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="299"/>
@@ -21,7 +21,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="630"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>TextLabel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="426"/>
@@ -86,27 +86,27 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="728"/>
         <source>30s</source>
-        <translation type="unfinished"></translation>
+        <translation>30s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="733"/>
         <source>5m</source>
-        <translation type="unfinished"></translation>
+        <translation>5m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="738"/>
         <source>15m</source>
-        <translation type="unfinished"></translation>
+        <translation>15m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="743"/>
         <source>30m</source>
-        <translation type="unfinished"></translation>
+        <translation>30m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="748"/>
         <source>1h</source>
-        <translation type="unfinished"></translation>
+        <translation>1h</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="706"/>
@@ -131,7 +131,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="842"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="753"/>
@@ -149,7 +149,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="417"/>
         <source>UI</source>
-        <translation type="unfinished"></translation>
+        <translation>UI</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="54"/>
@@ -249,27 +249,27 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="226"/>
         <source>30s</source>
-        <translation type="unfinished"></translation>
+        <translation>30s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="231"/>
         <source>5m</source>
-        <translation type="unfinished"></translation>
+        <translation>5m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="236"/>
         <source>15m</source>
-        <translation type="unfinished"></translation>
+        <translation>15m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="241"/>
         <source>30m</source>
-        <translation type="unfinished"></translation>
+        <translation>30m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="246"/>
         <source>1h</source>
-        <translation type="unfinished"></translation>
+        <translation>1h</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="240"/>
@@ -299,7 +299,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="540"/>
         <source>Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Nós</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="546"/>
@@ -379,12 +379,12 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="638"/>
         <source>HostName</source>
-        <translation type="unfinished"></translation>
+        <translation>HostName</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="815"/>
         <source>unix:///tmp/osui.sock</source>
-        <translation type="unfinished"></translation>
+        <translation>unix:///tmp/osui.sock</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="700"/>
@@ -399,12 +399,12 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="827"/>
         <source>/var/log/opensnitchd.log</source>
-        <translation type="unfinished"></translation>
+        <translation>/var/log/opensnitchd.log</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="832"/>
         <source>/dev/stdout</source>
-        <translation type="unfinished"></translation>
+        <translation>/dev/stdout</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="596"/>
@@ -569,7 +569,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="39"/>
         <source>Pop-ups</source>
-        <translation type="unfinished"></translation>
+        <translation>Pop-ups</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="80"/>
@@ -624,7 +624,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="516"/>
         <source>Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Nó</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="723"/>
@@ -715,7 +715,7 @@
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="22"/>
         <source>Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Nó</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="45"/>
@@ -755,27 +755,27 @@
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="323"/>
         <source>30s</source>
-        <translation type="unfinished"></translation>
+        <translation>30s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="328"/>
         <source>5m</source>
-        <translation type="unfinished"></translation>
+        <translation>5m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="333"/>
         <source>15m</source>
-        <translation type="unfinished"></translation>
+        <translation>15m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="338"/>
         <source>30m</source>
-        <translation type="unfinished"></translation>
+        <translation>30m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="343"/>
         <source>1h</source>
-        <translation type="unfinished"></translation>
+        <translation>1h</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="230"/>
@@ -821,7 +821,7 @@ gnu.org         - só vai filtrar gnu.org, não filtrará www.gnu.org, nem ftp.g
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="375"/>
         <source>www.domain.org, .*\.domain.org</source>
-        <translation type="unfinished"></translation>
+        <translation>www.domain.org, .*\.domain.org</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="406"/>
@@ -831,32 +831,32 @@ gnu.org         - só vai filtrar gnu.org, não filtrará www.gnu.org, nem ftp.g
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="416"/>
         <source>TCP</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="421"/>
         <source>UDP</source>
-        <translation type="unfinished"></translation>
+        <translation>UDP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="426"/>
         <source>UDPLITE</source>
-        <translation type="unfinished"></translation>
+        <translation>UDPLITE</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="431"/>
         <source>TCP6</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="436"/>
         <source>UDP6</source>
-        <translation type="unfinished"></translation>
+        <translation>UDP6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="441"/>
         <source>UDPLITE6</source>
-        <translation type="unfinished"></translation>
+        <translation>UDPLITE6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="195"/>
@@ -890,72 +890,72 @@ Nota: Vírgulas ou espaços não são permitidos para separar IPs ou redes.</tra
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="214"/>
         <source>LAN</source>
-        <translation type="unfinished"></translation>
+        <translation>LAN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="219"/>
         <source>127.0.0.0/8</source>
-        <translation type="unfinished"></translation>
+        <translation>127.0.0.0/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="224"/>
         <source>192.168.0.0/24</source>
-        <translation type="unfinished"></translation>
+        <translation>192.168.0.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="229"/>
         <source>192.168.1.0/24</source>
-        <translation type="unfinished"></translation>
+        <translation>192.168.1.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="234"/>
         <source>192.168.2.0/24</source>
-        <translation type="unfinished"></translation>
+        <translation>192.168.2.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="239"/>
         <source>192.168.0.0/16</source>
-        <translation type="unfinished"></translation>
+        <translation>192.168.0.0/16</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="244"/>
         <source>169.254.0.0/16</source>
-        <translation type="unfinished"></translation>
+        <translation>169.254.0.0/16</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="249"/>
         <source>172.16.0.0/12</source>
-        <translation type="unfinished"></translation>
+        <translation>172.16.0.0/12</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="254"/>
         <source>10.0.0.0/8</source>
-        <translation type="unfinished"></translation>
+        <translation>10.0.0.0/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="259"/>
         <source>::1/128</source>
-        <translation type="unfinished"></translation>
+        <translation>::1/128</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="264"/>
         <source>fc00::/7</source>
-        <translation type="unfinished"></translation>
+        <translation>fc00::/7</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="269"/>
         <source>ff00::/8</source>
-        <translation type="unfinished"></translation>
+        <translation>ff00::/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="274"/>
         <source>fe80::/10</source>
-        <translation type="unfinished"></translation>
+        <translation>fe80::/10</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="279"/>
         <source>fd00::/8</source>
-        <translation type="unfinished"></translation>
+        <translation>fd00::/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="396"/>
@@ -1076,7 +1076,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="115"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="166"/>
@@ -1086,7 +1086,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="196"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;hostname - 192.168.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;hostname - 192.168.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="235"/>
@@ -1096,7 +1096,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1697"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="279"/>
@@ -1126,32 +1126,32 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="384"/>
         <source>Ex.: firefox</source>
-        <translation type="unfinished"></translation>
+        <translation>Ex.: firefox</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="411"/>
         <source>50</source>
-        <translation type="unfinished"></translation>
+        <translation>50</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="416"/>
         <source>100</source>
-        <translation type="unfinished"></translation>
+        <translation>100</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="421"/>
         <source>200</source>
-        <translation type="unfinished"></translation>
+        <translation>200</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="426"/>
         <source>300</source>
-        <translation type="unfinished"></translation>
+        <translation>300</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="825"/>
         <source>Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Nós</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="554"/>
@@ -1196,7 +1196,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="876"/>
         <source>Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Hosts</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1364"/>
@@ -1881,7 +1881,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
         <location filename="../../../opensnitch/dialogs/stats.py" line="264"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nome do host</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="265"/>
@@ -1917,7 +1917,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
         <location filename="../../../opensnitch/dialogs/stats.py" line="270"/>
         <source>Node</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nó</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="271"/>
@@ -1959,37 +1959,37 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
         <location filename="../../../opensnitch/dialogs/stats.py" line="281"/>
         <source>UserID</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>ID do usuário</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="282"/>
         <source>LastConnection</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Última Conexão</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="275"/>
         <source>Args</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Args</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="277"/>
         <source>DstIP</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>DstIP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="278"/>
         <source>DstHost</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>DstHost</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="279"/>
         <source>DstPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>DstPort</translation>
     </message>
 </context>
 </TS>

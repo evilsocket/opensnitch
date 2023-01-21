@@ -6,7 +6,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="34"/>
         <source>opensnitch-qt</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="299"/>
@@ -21,7 +21,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="630"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="426"/>
@@ -121,7 +121,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="842"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -569,7 +569,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="450"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="453"/>
@@ -614,7 +614,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="720"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don&apos;t have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -710,7 +710,7 @@
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="138"/>
         <source>/path/to/executable, .*/bin/executable[0-9\.]+$, ...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="158"/>
@@ -742,7 +742,7 @@ You can also specify a subnet:
 - 192.168.1.0/24
 
 Note: Commas or spaces are not allowed to separate IPs or networks.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="214"/>
@@ -752,72 +752,72 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="219"/>
         <source>127.0.0.0/8</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="224"/>
         <source>192.168.0.0/24</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="229"/>
         <source>192.168.1.0/24</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="234"/>
         <source>192.168.2.0/24</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="239"/>
         <source>192.168.0.0/16</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="244"/>
         <source>169.254.0.0/16</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="249"/>
         <source>172.16.0.0/12</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="254"/>
         <source>10.0.0.0/8</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="259"/>
         <source>::1/128</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="264"/>
         <source>fc00::/7</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="269"/>
         <source>ff00::/8</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="274"/>
         <source>fe80::/10</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="279"/>
         <source>fd00::/8</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="310"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="318"/>
@@ -870,12 +870,12 @@ Use regular expressions instead:
 or a single domain:
 www.gnu.org - it&apos;ll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
 gnu.org         - it&apos;ll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="375"/>
         <source>www.domain.org, .*\.domain.org</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="382"/>
@@ -890,7 +890,7 @@ gnu.org         - it&apos;ll only match gnu.org, nor www.gnu.org, nor ftp.gnu.or
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="406"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="416"/>
@@ -955,7 +955,7 @@ gnu.org         - it&apos;ll only match gnu.org, nor www.gnu.org, nor ftp.gnu.or
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="539"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="557"/>
@@ -974,7 +974,7 @@ gnu.org         - it&apos;ll only match gnu.org, nor www.gnu.org, nor ftp.gnu.or
 000-allow-localhost
 001-deny-broadcast
 ...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="611"/>
@@ -989,7 +989,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
 
 [x] Priority - 000-priority-rule
 [  ] Priority - 001-less-priority-rule</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="628"/>
@@ -999,7 +999,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="648"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the field of the rules are case-insensitive, i.e., if a process tries to access gOOgle.CoM and you have a rule to Deny .*google.com, the connection will be blocked.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you check this box, you have to specify the exact string (domain, executable, command line) that you want to filter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="651"/>
@@ -1318,32 +1318,32 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="305"/>
         <source>to port {0}</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="364"/>
         <source>to {0}</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="308"/>
         <source>from user {0}</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="321"/>
         <source>to {0}.*</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="374"/>
         <source>to *.{0}</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="378"/>
         <source>to *{0}</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="411"/>
@@ -1366,7 +1366,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="260"/>
         <source>Exception saving config: {0}</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="279"/>
@@ -1391,7 +1391,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="340"/>
         <source>Applying configuration on {0} ...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="169"/>
@@ -1401,7 +1401,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="199"/>
         <source>Error loading {0} configuration</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="385"/>
@@ -1411,12 +1411,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="387"/>
         <source>Error applying configuration: {0}</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="416"/>
         <source>Hover the mouse over the texts to display the help&lt;br&gt;&lt;br&gt;Don&apos;t forget to visit the wiki: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1639,7 +1639,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="491"/>
         <source>OpenSnitch Network Statistics for {0}</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="669"/>
