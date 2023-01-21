@@ -1,5 +1,18 @@
 name: Build status
-on: [push, pull_request]
+on:
+  # Trigger this workflow only when daemon code changes.
+  push:
+    paths:
+      - 'ebpf_prog/*'
+      - '.github/workflows/ebpf.yml'
+  pull_request:
+    paths:
+      - 'ebpf_prog/*'
+      - '.github/workflows/ebpf.yml'
+
+  # Allow to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 jobs:
 
   build:
