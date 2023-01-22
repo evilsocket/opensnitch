@@ -4,7 +4,9 @@ set -e
 
 autostart_by_default()
 {
-    ln -s /usr/share/applications/opensnitch_ui.desktop /etc/xdg/autostart
+    if [ ! -f /etc/xdg/autostart/opensnitch_ui.desktop ]; then
+        ln -s /usr/share/applications/opensnitch_ui.desktop /etc/xdg/autostart
+    fi
 }
 
 autostart_by_default
