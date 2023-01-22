@@ -1,0 +1,9 @@
+---
+Name: opensnitch
+Bug-Database: https://github.com/evilsocket/opensnitch/issues
+Bug-Submit: https://github.com/evilsocket/opensnitch/issues/new
+Contact: Gustavo Iñiguez Goia <gooffy1@gmail.com>
+Documentation: https://github.com/evilsocket/opensnitch/wiki
+CPE: cpe:/a:evilsocket:opensnitch
+Repository: https://github.com/evilsocket/opensnitch.git
+Repository-Browse: https://github.com/evilsocket/opensnitch
