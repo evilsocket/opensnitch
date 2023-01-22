@@ -54,4 +54,4 @@ jobs:
       run: |
         set -e
         set -x
-        eatmydata apt-get --yes --quiet install ../*.deb
+        eatmydata apt --yes --quiet install ../*.deb
