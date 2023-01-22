@@ -38,4 +38,5 @@ override_dh_auto_clean:
 	$(RM) -r ui/opensnitch/i18n/
 	$(RM) ui/i18n/locales/*/*.qm
 	cd ui && python3 setup.py clean -a
+	$(RM) -r ui/opensnitch_ui.egg-info/
 	find ui -name \*.pyc -exec rm {} \;

@@ -46,7 +46,7 @@ jobs:
         set -x
         # Workaround for missing source tarball
         echo 1.0 > debian/source/format
-        yes y | eatmydata debuild
+        yes y | eatmydata debuild -us -uc
 
     - name: Test install debian packages
       env:
