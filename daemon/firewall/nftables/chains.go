@@ -27,7 +27,7 @@ func getChain(name string, table *nftables.Table) *nftables.Chain {
 
 // AddChain adds a new chain to nftables.
 // https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
-func (n *Nft) AddChain(name, table, family string, priority nftables.ChainPriority, ctype nftables.ChainType, hook nftables.ChainHook, policy nftables.ChainPolicy) *nftables.Chain {
+func (n *Nft) AddChain(name, table, family string, priority *nftables.ChainPriority, ctype nftables.ChainType, hook *nftables.ChainHook, policy nftables.ChainPolicy) *nftables.Chain {
 	if family == "" {
 		family = exprs.NFT_FAMILY_INET
 	}
@@ -138,7 +138,7 @@ func (n *Nft) addInterceptionChains() error {
 		// @see firewall/nftables/utils.go:getChainPriority()
 		chainPrio, chainType := getChainPriority(exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_OUTPUT)
 		n.AddChain(exprs.NFT_HOOK_OUTPUT, exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET,
-			*chainPrio, chainType, nftables.ChainHookOutput, manglePolicy)
+			chainPrio, chainType, nftables.ChainHookOutput, manglePolicy)
 		if !n.Commit() {
 			return fmt.Errorf("(2) Error adding interception chain mangle-output-inet with type Filter. Report it on github please, specifying the distro and the kernel")
 		}

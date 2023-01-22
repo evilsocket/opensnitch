@@ -55,8 +55,8 @@ func (n *Nft) CreateSystemRule(chain *config.FwChain, logErrors bool) bool {
 		return false
 	}
 
-	if ret := n.AddChain(chain.Name, chain.Table, chain.Family, *chainPrio,
-		chainType, *chainHook, chainPolicy); ret == nil {
+	if ret := n.AddChain(chain.Name, chain.Table, chain.Family, chainPrio,
+		chainType, chainHook, chainPolicy); ret == nil {
 		log.Warning("%s error adding chain: %s, table: %s", logTag, chain.Name, chain.Table)
 		return false
 	}

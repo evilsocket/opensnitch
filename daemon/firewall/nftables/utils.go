@@ -49,7 +49,7 @@ func getHook(chain string) *nftables.ChainHook {
 		hook = nftables.ChainHookIngress
 	}
 
-	return &hook
+	return hook
 }
 
 // getChainPriority gets the corresponding priority for the given chain, based
@@ -148,11 +148,11 @@ func getChainPriority(family, cType, hook string) (*nftables.ChainPriority, nfta
 		}
 	}
 
-	return &chainPrio, chainType
+	return chainPrio, chainType
 }
 
 // https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
-func getConntrackPriority(hook string) (nftables.ChainPriority, nftables.ChainType) {
+func getConntrackPriority(hook string) (*nftables.ChainPriority, nftables.ChainType) {
 	chainType := nftables.ChainTypeFilter
 	chainPrio := nftables.ChainPriorityConntrack
 	switch hook {
