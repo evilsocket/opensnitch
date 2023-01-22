@@ -1,8 +1,16 @@
-opensnitch (1.5.2.2-1) unstable; urgency=medium
+opensnitch (1.5.3-1) unstable; urgency=medium
+
+  * Added debian/upstream/metadata.
+  * Updated Homepage url.
+  * Updated Copyright years.
+
+ -- Gustavo-Iniguez-Goya <gustavo.iniguez.goya@gmail.com>  Sun, 22 Jan 2023 21:30:45 +0100
+
+opensnitch (1.5.2.1-1) unstable; urgency=medium
 
   * Initial release. (Closes: #909567)
 
- -- Gustavo-Iniguez-Goya <gustavo.iniguez.goya@gmail.com>  Fri, 22 Jan 2023 16:26:40 +0000
+ -- Gustavo-Iniguez-Goya <gustavo.iniguez.goya@gmail.com>  Fri, 20 Jan 2023 22:26:40 +0000
 
 opensnitch (1.5.2-1) unstable; urgency=medium
 
