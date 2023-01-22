@@ -32,7 +32,7 @@ jobs:
     - name: Get dependencies
       run: |
         sudo apt --yes --quiet install --no-install-suggests eatmydata
-        sudo eatmydata apt-get install git libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
+        sudo eatmydata apt install git libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
         export GOPATH=~/go
         export PATH=$PATH:$GOPATH/bin
         eatmydata go get github.com/golang/protobuf/protoc-gen-go
