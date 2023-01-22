@@ -29,7 +29,7 @@ Build-Depends:
 Standards-Version: 4.6.1
 Vcs-Browser: https://github.com/evilsocket/opensnitch
 Vcs-Git: https://github.com/evilsocket/opensnitch.git
-Homepage: https://opensnitch.io/
+Homepage: https://github.com/evilsocket/opensnitch
 Rules-Requires-Root: no
 XS-Go-Import-Path: github.com/evilsocket/opensnitch
 
