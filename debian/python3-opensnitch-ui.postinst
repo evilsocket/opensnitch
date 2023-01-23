@@ -11,6 +11,6 @@ autostart_by_default()
 
 autostart_by_default
 
-gtk-update-icon-cache /usr/share/icons/hicolor/
+gtk-update-icon-cache /usr/share/icons/hicolor/ || true
 
 #DEBHELPER#
