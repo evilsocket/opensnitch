@@ -475,6 +475,9 @@ class Database:
         return True
 
     def delete_rules_by_field(self, field, values):
+        if len(values) == 0:
+            return True
+
         qstr = "DELETE FROM rules WHERE "
         for v in values:
             qstr += field + "=? OR "
