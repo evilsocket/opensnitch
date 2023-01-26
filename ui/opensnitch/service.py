@@ -112,6 +112,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._cleaner = None
         if self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST):
             self._start_db_cleaner()
+        self._cfg.setRulesDurationFilter(
+            self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES),
+            self._cfg.getInt(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES)
+        )
+        self._nodes.delete_rule_by_field(Config.DURATION_FIELD, Config.RULES_DURATION_FILTER)
 
     # https://gist.github.com/pklaus/289646
     def _setup_interfaces(self):

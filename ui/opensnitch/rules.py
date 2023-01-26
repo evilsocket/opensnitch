@@ -98,6 +98,9 @@ class Rules(QObject):
 
         return rule
 
+    def delete_by_field(self, field, values):
+        return self._db.delete_rules_by_field(field, values)
+
     def update_time(self, time, name, addr):
         """Updates the time of a rule, whenever a new connection matched a
         rule.

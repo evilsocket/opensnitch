@@ -421,6 +421,9 @@
            <property name="buttonSymbols">
             <enum>QAbstractSpinBox::NoButtons</enum>
            </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
            <property name="value">
             <number>15</number>
            </property>
@@ -481,17 +484,7 @@
        <string>UI</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="2" column="0">
-        <widget class="QCheckBox" name="checkUIRules">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected, the rules of the selected duration won't be added to the list of temporary rules in the GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Don't save rules of duration</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
+       <item row="2" column="0" colspan="2">
         <widget class="QGroupBox" name="groupNotifs">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -581,7 +574,7 @@
          </item>
         </widget>
        </item>
-       <item row="4" column="0" colspan="2">
+       <item row="3" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -718,6 +711,19 @@
          </layout>
         </widget>
        </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QLabel" name="labelThemeError">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label_21">
          <property name="text">
@@ -725,26 +731,80 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="comboUIRules">
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="title">
+       <string>Rules</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_11">
+       <item row="0" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
-          <property name="text">
-           <string>any temporary rules</string>
-          </property>
+          <widget class="QCheckBox" name="checkUIRules">
+           <property name="toolTip">
+            <string>When this option is selected, the rules of the selected duration won't be added to the list of temporary rules in the GUI.
+
+Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.</string>
+           </property>
+           <property name="text">
+            <string>Don't save/Delete rules of duration</string>
+           </property>
+          </widget>
          </item>
          <item>
-          <property name="text">
-           <string>once</string>
-          </property>
+          <widget class="QComboBox" name="comboUIRules">
+           <item>
+            <property name="text">
+             <string>any temporary rules</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>once</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>30s or less</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>5m or less</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>15m or less</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>30m or less</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>1h or less</string>
+            </property>
+           </item>
+          </widget>
          </item>
-        </widget>
+        </layout>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QLabel" name="labelThemeError">
-         <property name="text">
-          <string/>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-        </widget>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

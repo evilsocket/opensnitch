@@ -474,6 +474,27 @@ class Database:
 
         return True
 
+    def delete_rules_by_field(self, field, values):
+        qstr = "DELETE FROM rules WHERE "
+        for v in values:
+            qstr += field + "=? OR "
+
+        qstr = qstr[:-4]
+
+        with self._lock:
+            q = QSqlQuery(qstr, self.db)
+            q.prepare(qstr)
+
+            for v in values:
+                q.addBindValue(v)
+
+            if not q.exec_():
+                print("db, delete_rule_by_field() ERROR: ", qstr)
+                print(q.lastError().driverText())
+                return False
+
+        return True
+
     def get_rule(self, rule_name, node_addr=None):
         """
         get rule records, given the name of the rule and the node

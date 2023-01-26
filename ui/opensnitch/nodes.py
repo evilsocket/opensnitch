@@ -102,6 +102,9 @@ class Nodes(QObject):
 
         return nid, noti
 
+    def delete_rule_by_field(self, field, values):
+        return self._rules.delete_by_field(field, values)
+
     def rule_to_json(self, addr, rule_name):
         return self._rules.rule_to_json(addr, rule_name)
 

@@ -33,9 +33,6 @@ class Config:
     RULE_TYPE_NETWORK = "network"
     RulesTypes = (RULE_TYPE_LIST, RULE_TYPE_LISTS, RULE_TYPE_SIMPLE, RULE_TYPE_REGEXP, RULE_TYPE_NETWORK)
 
-    RULES_DURATION_FILTER = ()
-
-    DEFAULT_DURATION_IDX = 6 # until restart
     DEFAULT_TARGET_PROCESS = 0
     ACTION_DENY_IDX = 0
     ACTION_ALLOW_IDX = 1
@@ -58,6 +55,7 @@ class Config:
     ACTION_LOG = "log"
     ACTION_STOP = "stop"
 
+    DURATION_FIELD = "duration"
     DURATION_UNTIL_RESTART = "until restart"
     DURATION_ALWAYS = "always"
     DURATION_ONCE = "once"
@@ -66,6 +64,17 @@ class Config:
     DURATION_15m = "15m"
     DURATION_5m = "5m"
     DURATION_30s = "30s"
+
+    # Rules of this list are ignored/deleted
+    RULES_DURATION_FILTER = ()
+    # Rules of this list are active
+    RULES_ACTIVE_TEMPORARY_RULES = ()
+    RULES_TEMPORARY_LIST = [
+        DURATION_ONCE, DURATION_30s, DURATION_5m,
+        DURATION_15m, DURATION_30m, DURATION_1h,
+        DURATION_UNTIL_RESTART]
+
+    DEFAULT_DURATION_IDX = 6 # until restart
 
     POPUP_CENTER = 0
     POPUP_TOP_RIGHT = 1
@@ -178,13 +187,25 @@ class Config:
             return self.ACTION_DENY
 
     def setRulesDurationFilter(self, ignore_temporary_rules=False, temp_rules=1):
-        if ignore_temporary_rules:
-            if temp_rules  == 1:
-                Config.RULES_DURATION_FILTER = (Config.DURATION_ONCE)
-            elif temp_rules == 0:
-                Config.RULES_DURATION_FILTER = (
+        try:
+            if ignore_temporary_rules:
+                Config.RULES_DURATION_FILTER = [
                     Config.DURATION_ONCE, Config.DURATION_30s, Config.DURATION_5m,
                     Config.DURATION_15m, Config.DURATION_30m, Config.DURATION_1h,
-                    Config.DURATION_UNTIL_RESTART)
-        else:
-            Config.RULES_DURATION_FILTER = ()
+                    Config.DURATION_UNTIL_RESTART]
+
+                Config.RULES_DURATION_FILTER = [
+                    rule for rule in Config.RULES_TEMPORARY_LIST
+                    if Config.RULES_TEMPORARY_LIST.index(rule) < temp_rules
+                ]
+                Config.RULES_ACTIVE_TEMPORARY_RULES = [
+                    rule for rule in Config.RULES_TEMPORARY_LIST
+                    if Config.RULES_TEMPORARY_LIST.index(rule) >= temp_rules
+                ]
+                #print("Temp rules preserved (RULES_DURATION_FILTER):", Config.RULES_DURATION_FILTER)
+                #print("Temp rules to delete (ACTIVE_TEMPORARY_RULES):", Config.RULES_ACTIVE_TEMPORARY_RULES)
+
+            else:
+                Config.RULES_DURATION_FILTER = []
+        except Exception as e:
+            print("setRulesDurationFilter() exception:", e)

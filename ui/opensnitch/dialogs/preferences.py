@@ -23,8 +23,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     TAB_POPUPS = 0
     TAB_UI = 1
-    TAB_NODES = 2
-    TAB_DB = 3
+    TAB_RULES = 2
+    TAB_NODES = 3
+    TAB_DB = 4
 
     SUM = 1
     REST = 0
@@ -67,6 +68,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdTestNotifs.clicked.connect(self._cb_test_notifs_clicked)
         self.radioSysNotifs.clicked.connect(self._cb_radio_system_notifications)
         self.helpButton.setToolTipDuration(30 * 1000)
+
+        self.comboUIRules.currentIndexChanged.connect(self._cb_combo_uirules_changed)
 
         if QtGui.QIcon.hasThemeIcon("emblem-default"):
             return
@@ -185,6 +188,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboUIDuration.setCurrentIndex(self._default_duration)
         self.comboUIDialogPos.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION))
 
+        self.comboUIRules.blockSignals(True)
         self.comboUIRules.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES))
         self.checkUIRules.setChecked(self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES))
         self.comboUIRules.setEnabled(self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES))
@@ -194,6 +198,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES),
             self._cfg.getInt(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES)
         )
+        self.comboUIRules.blockSignals(False)
 
         self.comboUIAction.setCurrentIndex(self._default_action)
         self.comboUITarget.setCurrentIndex(self._default_target)
@@ -401,6 +406,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             bool(self.checkUIRules.isChecked()),
             int(self.comboUIRules.currentIndex())
         )
+        self._nodes.delete_rule_by_field(Config.DURATION_FIELD, Config.RULES_DURATION_FILTER)
 
         self._cfg.setSettings(self._cfg.DEFAULT_ACTION_KEY, self.comboUIAction.currentIndex())
         self._cfg.setSettings(self._cfg.DEFAULT_DURATION_KEY, int(self.comboUIDuration.currentIndex()))
@@ -419,6 +425,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                               int(Config.NOTIFICATION_TYPE_SYSTEM if self.radioSysNotifs.isChecked() else Config.NOTIFICATION_TYPE_QT))
 
         self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText())
+
         if self._themes.available() and self._saved_theme != "" and self.comboUITheme.currentText() == QC.translate("preferences", "System"):
             Message.ok(
                 QC.translate("preferences", "UI theme changed"),
@@ -529,6 +536,14 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "", "","All Files (*)", options=options)
         if fileName:
             self.dbLabel.setText(fileName)
+
+    def _cb_combo_uirules_changed(self, idx):
+        self._cfg.setRulesDurationFilter(
+            self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES),
+            idx
+            #self._cfg.getInt(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES)
+        )
+
 
     def _cb_db_type_changed(self):
         if self.comboDBType.currentIndex() == Database.DB_TYPE_MEMORY:
