@@ -8,9 +8,15 @@ import math
 
 from PyQt5.QtCore import QCoreApplication as QC
 
-class ColorizedDelegate(Qt.QItemDelegate):
+# PyQt5 >= v5.15.8 (#821)
+if hasattr(Qt, "QItemDelegate"):
+    from PyQt5.Qt import QItemDelegate, QStyle
+else:
+    from PyQt5.QtWidgets import QItemDelegate, QStyle
+
+class ColorizedDelegate(QItemDelegate):
     def __init__(self, parent=None, *args, config=None):
-        Qt.QItemDelegate.__init__(self, parent, *args)
+        QItemDelegate.__init__(self, parent, *args)
         self._config = config
         self._alignment = QtCore.Qt.AlignLeft | QtCore.Qt.AlignHCenter
 
@@ -29,7 +35,7 @@ class ColorizedDelegate(Qt.QItemDelegate):
                 if 'alignment' in self._config:
                     self._alignment = self._config['alignment']
 
-                if option.state & Qt.QStyle.State_Selected:
+                if option.state & QStyle.State_Selected:
                     painter.setBrush(painter.brush())
                     painter.setPen(painter.pen())
                 painter.drawText(option.rect, self._alignment, value)
