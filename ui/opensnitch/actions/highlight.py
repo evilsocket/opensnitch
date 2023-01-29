@@ -1,6 +1,12 @@
 from PyQt5 import Qt, QtCore
 from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
 
+# PyQt5 >= v5.15.8 (#821)
+if hasattr(Qt, 'QStyle'):
+    from PyQt5.Qt import QStyle
+else:
+    from PyQt5.QtWidgets import QStyle
+
 class Highlight():
     """Customizes QTablewView cells via QItemDelegates.
     Format:
@@ -192,7 +198,7 @@ class Highlight():
         return (modified,)
 
     def paintCell(self, style, painter, option, index, defaultPen, defaultBrush, cellAlignment, cellRect, cellColor, cellBgColor, cellValue):
-        cellSelected = option.state & Qt.QStyle.State_Selected
+        cellSelected = option.state & QStyle.State_Selected
 
         painter.save()
         # don't customize selected state

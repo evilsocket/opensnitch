@@ -1,11 +1,11 @@
 from PyQt5 import Qt, QtCore
 from PyQt5.QtWidgets import QApplication
 
-# PyQt5 >= v5.15.8 (#821)
+# PyQt5 >= v5.15.8 (28/01/2023) (#821)
 if hasattr(Qt, 'QItemDelegate'):
-    from PyQt5.Qt import QItemDelegate
+    from PyQt5.Qt import QItemDelegate, QStyleOptionViewItem
 else:
-    from PyQt5.QtWidgets import QItemDelegate
+    from PyQt5.QtWidgets import QItemDelegate, QStyleOptionViewItem
 
 class ColorizedDelegate(QItemDelegate):
     HMARGIN = 0
@@ -34,14 +34,14 @@ class ColorizedDelegate(QItemDelegate):
 
         # initialize new QStyleOptionViewItem with the default options of this
         # cell.
-        option = Qt.QStyleOptionViewItem(option)
+        option = QStyleOptionViewItem(option)
 
         # by default use item's default attributes.
         # if we modify any of them, set it to False
         nocolor=True
 
         # don't call these functions in for-loops
-        cellRect = Qt.QRect(option.rect)
+        cellRect = QtCore.QRect(option.rect)
         curColumn = index.column()
         curRow = index.row()
         cellAlignment = option.displayAlignment
