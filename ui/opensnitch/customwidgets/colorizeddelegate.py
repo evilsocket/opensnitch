@@ -1,12 +1,18 @@
 from PyQt5 import Qt, QtCore
 from PyQt5.QtWidgets import QApplication
 
-class ColorizedDelegate(Qt.QItemDelegate):
+# PyQt5 >= v5.15.8 (#821)
+if hasattr(Qt, 'QItemDelegate'):
+    from PyQt5.Qt import QItemDelegate
+else:
+    from PyQt5.QtWidgets import QItemDelegate
+
+class ColorizedDelegate(QItemDelegate):
     HMARGIN = 0
     VMARGIN = 1
 
     def __init__(self, parent=None, *args, actions={}):
-        Qt.QItemDelegate.__init__(self, parent, *args)
+        QItemDelegate.__init__(self, parent, *args)
         self._actions = actions
         self.modelColumns = parent.model().columnCount()
         self._style = QApplication.style()
