@@ -106,12 +106,12 @@ func (ipt *Iptables) Init(qNum *int) {
 	// we need to load the fw configuration first to know what rules
 	// were configured.
 	ipt.NewSystemFwConfig(ipt.preloadConfCallback, ipt.reloadRulesCallback)
-	ipt.LoadDiskConfiguration(false)
+	ipt.LoadDiskConfiguration(!common.ReloadConf)
 
 	// start from a clean state
 	ipt.CleanRules(false)
 	ipt.EnableInterception()
-	ipt.AddSystemRules(false, true)
+	ipt.AddSystemRules(!common.ReloadRules, common.BackupChains)
 
 	ipt.Running = true
 }
@@ -140,9 +140,9 @@ func IsAvailable() error {
 
 // EnableInterception adds fw rules to intercept connections.
 func (ipt *Iptables) EnableInterception() {
-	if err4, err6 := ipt.QueueConnections(true, true); err4 != nil || err6 != nil {
+	if err4, err6 := ipt.QueueConnections(common.EnableRule, true); err4 != nil || err6 != nil {
 		log.Fatal("Error while running conntrack firewall rule: %s %s", err4, err6)
-	} else if err4, err6 = ipt.QueueDNSResponses(true, true); err4 != nil || err6 != nil {
+	} else if err4, err6 = ipt.QueueDNSResponses(common.EnableRule, true); err4 != nil || err6 != nil {
 		log.Error("Error while running DNS firewall rule: %s %s", err4, err6)
 	}
 	// start monitoring firewall rules to intercept network traffic
@@ -152,14 +152,14 @@ func (ipt *Iptables) EnableInterception() {
 // DisableInterception removes firewall rules to intercept outbound connections.
 func (ipt *Iptables) DisableInterception(logErrors bool) {
 	ipt.StopCheckingRules()
-	ipt.QueueDNSResponses(false, logErrors)
-	ipt.QueueConnections(false, logErrors)
+	ipt.QueueDNSResponses(!common.EnableRule, logErrors)
+	ipt.QueueConnections(!common.EnableRule, logErrors)
 }
 
 // CleanRules deletes the rules we added.
 func (ipt *Iptables) CleanRules(logErrors bool) {
 	ipt.DisableInterception(logErrors)
-	ipt.DeleteSystemRules(true, true, logErrors)
+	ipt.DeleteSystemRules(common.ForcedDelRules, common.BackupChains, logErrors)
 }
 
 // Serialize converts the configuration from json to protobuf

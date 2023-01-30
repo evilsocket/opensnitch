@@ -3,6 +3,7 @@ package nftables
 import (
 	"time"
 
+	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/log"
 )
@@ -48,14 +49,14 @@ func (n *Nft) AreRulesLoaded() bool {
 // reloadConfCallback gets called after the configuration changes.
 func (n *Nft) reloadConfCallback() {
 	log.Important("reloadConfCallback changed, reloading")
-	n.DeleteSystemRules(false, false, log.GetLogLevel() == log.DEBUG)
-	n.AddSystemRules(true, false)
+	n.DeleteSystemRules(!common.ForcedDelRules, !common.RestoreChains, log.GetLogLevel() == log.DEBUG)
+	n.AddSystemRules(common.ReloadRules, !common.BackupChains)
 }
 
 // reloadRulesCallback gets called when the interception rules are not present.
 func (n *Nft) reloadRulesCallback() {
 	log.Important("nftables firewall rules changed, reloading")
-	n.DisableInterception(true)
+	n.DisableInterception(log.GetLogLevel() == log.DEBUG)
 	time.Sleep(time.Millisecond * 500)
 	n.EnableInterception()
 }
@@ -63,5 +64,5 @@ func (n *Nft) reloadRulesCallback() {
 // preloadConfCallback gets called before the fw configuration is loaded
 func (n *Nft) preloadConfCallback() {
 	log.Info("nftables config changed, reloading")
-	n.DeleteSystemRules(false, true, log.GetLogLevel() == log.DEBUG)
+	n.DeleteSystemRules(!common.ForcedDelRules, common.RestoreChains, log.GetLogLevel() == log.DEBUG)
 }

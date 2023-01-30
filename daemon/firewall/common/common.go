@@ -7,6 +7,17 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
+// default arguments for various functions
+var (
+	EnableRule     = true
+	DoLogErrors    = true
+	ForcedDelRules = true
+	ReloadRules    = true
+	RestoreChains  = true
+	BackupChains   = true
+	ReloadConf     = true
+)
+
 type (
 	callback     func()
 	callbackBool func() bool

@@ -3,6 +3,7 @@ package firewall
 import (
 	"fmt"
 
+	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables"
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -100,8 +101,8 @@ func Reload() {
 
 // ReloadSystemRules deletes existing rules, and add them again
 func ReloadSystemRules() {
-	fw.DeleteSystemRules(false, true, true)
-	fw.AddSystemRules(true, true)
+	fw.DeleteSystemRules(!common.ForcedDelRules, common.RestoreChains, true)
+	fw.AddSystemRules(common.ReloadRules, common.BackupChains)
 }
 
 // EnableInterception removes the rules to intercept outbound connections.

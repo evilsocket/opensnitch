@@ -83,13 +83,13 @@ func (n *Nft) Init(qNum *int) {
 	// we need to load the fw configuration first to know what rules
 	// were configured.
 	n.NewSystemFwConfig(n.preloadConfCallback, n.reloadConfCallback)
-	n.LoadDiskConfiguration(false)
+	n.LoadDiskConfiguration(!common.ReloadConf)
 
 	// start from a clean state
 	// The daemon may have exited unexpectedly, leaving residual fw rules, so we
 	// need to clean them up to avoid duplicated rules.
 	n.delInterceptionRules()
-	n.AddSystemRules(false, true)
+	n.AddSystemRules(!common.ReloadRules, common.BackupChains)
 	n.EnableInterception()
 
 	n.Running = true
@@ -137,7 +137,7 @@ func (n *Nft) DisableInterception(logErrors bool) {
 // CleanRules deletes the rules we added.
 func (n *Nft) CleanRules(logErrors bool) {
 	n.DisableInterception(logErrors)
-	n.DeleteSystemRules(true, true, logErrors)
+	n.DeleteSystemRules(common.ForcedDelRules, common.RestoreChains, logErrors)
 }
 
 // Commit applies the queued changes, creating new objects (tables, chains, etc).

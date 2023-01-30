@@ -2,6 +2,7 @@ package iptables
 
 import (
 	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
@@ -57,12 +58,12 @@ func (ipt *Iptables) AreRulesLoaded() bool {
 func (ipt *Iptables) reloadRulesCallback() {
 	log.Important("firewall rules changed, reloading")
 	ipt.CleanRules(false)
-	ipt.AddSystemRules(true, true)
+	ipt.AddSystemRules(common.ReloadRules, common.BackupChains)
 	ipt.EnableInterception()
 }
 
 // preloadConfCallback gets called before the fw configuration is reloaded
 func (ipt *Iptables) preloadConfCallback() {
 	log.Info("iptables config changed, reloading")
-	ipt.DeleteSystemRules(true, true, log.GetLogLevel() == log.DEBUG)
+	ipt.DeleteSystemRules(common.ForcedDelRules, common.BackupChains, log.GetLogLevel() == log.DEBUG)
 }
