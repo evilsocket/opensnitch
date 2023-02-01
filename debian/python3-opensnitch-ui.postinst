@@ -4,13 +4,15 @@ set -e
 
 autostart_by_default()
 {
-    if [ ! -f /etc/xdg/autostart/opensnitch_ui.desktop ]; then
-        ln -s /usr/share/applications/opensnitch_ui.desktop /etc/xdg/autostart
+    if [ -f /etc/xdg/autostart -a ! -f /etc/xdg/autostart/opensnitch_ui.desktop ]; then
+        ln -s /usr/share/applications/opensnitch_ui.desktop /etc/xdg/autostart/
     fi
 }
 
 autostart_by_default
 
-gtk-update-icon-cache /usr/share/icons/hicolor/ || true
+if command -v gtk-update-icon-cache >/dev/null; then
+    gtk-update-icon-cache /usr/share/icons/hicolor/
+fi
 
 #DEBHELPER#

@@ -3,7 +3,9 @@ set -e
 
 case "$1" in
     purge)
-	rm -f /etc/xdg/autostart/opensnitch_ui.desktop
+        if [ -f /etc/xdg/autostart/opensnitch_ui.desktop ];then
+	        rm -f /etc/xdg/autostart/opensnitch_ui.desktop
+        fi
         ;;
     remove)
 	pkill -15 opensnitch-ui || true

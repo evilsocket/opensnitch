@@ -28,7 +28,7 @@ Build-Depends:
  python3-setuptools
 Standards-Version: 4.6.1
 Vcs-Browser: https://github.com/evilsocket/opensnitch
-Vcs-Git: https://github.com/evilsocket/opensnitch.git
+Vcs-Git: https://github.com/evilsocket/opensnitch.git -b 1.5.0
 Homepage: https://github.com/evilsocket/opensnitch
 Rules-Requires-Root: no
 XS-Go-Import-Path: github.com/evilsocket/opensnitch
@@ -53,6 +53,9 @@ Description: GNU/Linux firewall application
  .
  The GUI allows the user to view live outgoing connections, as well as search
  by process, user, host or port.
+ .
+ OpenSnitch can also work as a system-wide domains blocker, by using lists
+ of domains, list of IPs or list of regular expressions.
 
 
 Package: python3-opensnitch-ui
@@ -61,7 +64,6 @@ Section: net
 Depends:
  ${misc:Depends},
  ${shlibs:Depends},
- debconf,
  libqt5sql5-sqlite,
  python3-grpcio,
  python3-notify2,
@@ -72,7 +74,6 @@ Depends:
  python3-six,
  python3-slugify,
  python3:any,
- whiptail | dialog
 Recommends:
  python3-pyasn
 Description: opensnitch application firewall GUI
@@ -85,3 +86,6 @@ Description: opensnitch application firewall GUI
  of them.
  .
  These rules can last forever, until restart the daemon or just one time.
+ .
+ OpenSnitch can also work as a system-wide domains blocker, by using lists
+ of domains, list of IPs or list of regular expressions.
