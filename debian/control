@@ -1,5 +1,5 @@
 Source: opensnitch
-Maintainer: Gustavo Iniguez Goya <gustavo.iniguez.goya@gmail.com>
+Maintainer: Gustavo Iñiguez Goya <gustavo.iniguez.goya@gmail.com>
 Section: devel
 Testsuite: autopkgtest-pkg-go
 Priority: optional
@@ -74,6 +74,8 @@ Depends:
  python3-six,
  python3-slugify,
  python3:any,
+ xdg-user-dirs,
+ gtk-update-icon-cache
 Recommends:
  python3-pyasn
 Description: opensnitch application firewall GUI

@@ -1,17 +1,21 @@
-opensnitch (1.5.4-1) unstable; urgency=medium
+opensnitch (1.5.4-1) unstable; urgency=high
 
   * New upstream release. (Closes: #1030115)
   * debian/control:
     - Updated packages description.
     - Removed debconf and whiptail|dialog dependencies.
+    - Added xdg-user-dirs, gtk-update-icon-cache dependencies.
     - Point Vcs-Git field to the 1.5.0 branch.
   * debian/postinst:
     - Fixed opensnitch_ui.desktop installation.
     - Fixed updating icons cache.
   * debian/postrm:
     - Fixed removing opensnitch_ui.desktop
+  * debian/tests/:
+    - Added autopkgtests.
+  * Upload sponsored by Petter Reinholdtsen.
 
- -- Gustavo-Iniguez-Goya <gustavo.iniguez.goya@gmail.com>  Tue, 31 Jan 2023 23:48:58 +0100
+ -- Gustavo Iñiguez Goya <gustavo.iniguez.goya@gmail.com>  Tue, 31 Jan 2023 23:48:58 +0100
 
 opensnitch (1.5.3-1) unstable; urgency=medium
 

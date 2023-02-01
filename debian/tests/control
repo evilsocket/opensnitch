@@ -1,0 +1,2 @@
+Tests: test-resources.sh
+Depends: opensnitch

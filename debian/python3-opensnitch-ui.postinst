@@ -11,8 +11,8 @@ autostart_by_default()
 
 autostart_by_default
 
-if command -v gtk-update-icon-cache >/dev/null; then
-    gtk-update-icon-cache /usr/share/icons/hicolor/
+if command -v gtk-update-icon-cache >/dev/null && test -f /usr/share/icons/hicolor/index.theme ; then
+    gtk-update-icon-cache --quiet /usr/share/icons/hicolor/
 fi
 
 #DEBHELPER#
