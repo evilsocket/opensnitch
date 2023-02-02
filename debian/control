@@ -26,7 +26,7 @@ Build-Depends:
  python3-all,
  python3-grpc-tools,
  python3-setuptools
-Standards-Version: 4.6.1
+Standards-Version: 4.6.2
 Vcs-Browser: https://github.com/evilsocket/opensnitch
 Vcs-Git: https://github.com/evilsocket/opensnitch.git -b 1.5.0
 Homepage: https://github.com/evilsocket/opensnitch
