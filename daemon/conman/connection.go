@@ -112,7 +112,6 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		}
 		if len(inodeList) == 0 {
 			log.Debug("<== no inodes found, applying default action.")
-			return nil, nil
 		}
 
 		for n, inode := range inodeList {
