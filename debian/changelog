@@ -1,6 +1,6 @@
 opensnitch (1.5.5-1) unstable; urgency=medium
 
-  * Disable netlink socket tests by default.
+  * New upstream release.
   * Bump Standards-Version to 4.6.2.
   * Upload sponsored by Petter Reinholdtsen.
 
