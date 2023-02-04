@@ -40,7 +40,7 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends},
 Built-Using: ${misc:Built-Using}
-Description: GNU/Linux firewall application
+Description: GNU/Linux interactive application firewall
  OpenSnitch is a GNU/Linux firewall application.
  Whenever a program makes a connection, it'll prompt the user to allow or deny
  it.
@@ -78,7 +78,7 @@ Depends:
  gtk-update-icon-cache
 Recommends:
  python3-pyasn
-Description: opensnitch application firewall GUI
+Description: GNU/Linux interactive application firewall GUI
  opensnitch-ui is a GUI for opensnitch written in Python.
  It allows the user to view live outgoing connections, as well as search
  for details of the intercepted connections.
