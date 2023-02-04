@@ -2,9 +2,11 @@ package procmon
 
 import (
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon/audit"
 )
 
@@ -26,6 +28,22 @@ func getPIDFromAuditEvents(inode int, inodeKey string, expect string) (int, int)
 		}
 	}
 	return -1, -1
+}
+
+// GetInodeFromNetstat tries to obtain the inode of a connection from /proc/net/*
+func GetInodeFromNetstat(netEntry *netstat.Entry, inodeList *[]int, protocol string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPort uint) bool {
+	if netEntry = netstat.FindEntry(protocol, srcIP, srcPort, dstIP, dstPort); netEntry == nil {
+		log.Debug("Could not find netstat entry for: (%s) %d:%s -> %s:%d", protocol, srcPort, srcIP, dstIP, dstPort)
+		return false
+	}
+	if netEntry.INode > 0 {
+		log.Debug("connection found in netstat: %#v", netEntry)
+		*inodeList = append([]int{netEntry.INode}, *inodeList...)
+		return true
+	}
+	log.Debug("<== no inodes found for this connection: %#v", netEntry)
+
+	return false
 }
 
 // GetPIDFromINode tries to get the PID from a socket inode following these steps:

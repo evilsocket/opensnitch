@@ -71,7 +71,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 	if c.parseDirection(protoType) == false {
 		return nil, nil
 	}
-	log.Debug("new connection %s => %d:%v -> %v:%d uid: %d", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstPort, nfp.UID)
+	log.Debug("new connection %s => %d:%v -> %v (%s):%d uid: %d", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstHost, c.DstPort, nfp.UID)
 
 	c.Entry = &netstat.Entry{
 		Proto:   c.Protocol,
@@ -135,17 +135,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		var inodeList []int
 		uid, inodeList = netlink.GetSocketInfo(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)
 		if len(inodeList) == 0 {
-			if c.Entry = netstat.FindEntry(c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort); c.Entry == nil {
-				return nil, fmt.Errorf("Could not find netstat entry for: %s", c)
-			}
-			if c.Entry.INode > 0 {
-				log.Debug("connection found in netstat: %v", c.Entry)
-				inodeList = append([]int{c.Entry.INode}, inodeList...)
-			}
-		}
-		if len(inodeList) == 0 {
-			log.Debug("<== no inodes found, applying default action.")
-			return nil, nil
+			procmon.GetInodeFromNetstat(c.Entry, &inodeList, c.Protocol, c.SrcIP, c.SrcPort, c.DstIP, c.DstPort)
 		}
 
 		for n, inode := range inodeList {
@@ -156,10 +146,6 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 				break
 			}
 		}
-	}
-	// we should have discovered the pid by this point.
-	if pid < 0 {
-		return nil, fmt.Errorf("(1) Could not find process by its pid %d for: %s", pid, c)
 	}
 
 	if pid == os.Getpid() {
@@ -300,10 +286,11 @@ func (c *Connection) swapFields() {
 
 func (c *Connection) getDomains(nfp *netfilter.Packet, con *Connection) {
 	domains := dns.GetQuestions(nfp)
-	if len(domains) > 0 {
-		for _, dns := range domains {
-			con.DstHost = dns
-		}
+	if len(domains) < 1 {
+		return
+	}
+	for _, dns := range domains {
+		con.DstHost = dns
 	}
 }
 
