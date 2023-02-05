@@ -141,9 +141,7 @@ class Highlight():
                     style,
                     painter,
                     option,
-                    index,
                     defaultPen,
-                    defaultBrush,
                     cellAlignment,
                     cellRect,
                     cellColor,
@@ -197,7 +195,7 @@ class Highlight():
 
         return (modified,)
 
-    def paintCell(self, style, painter, option, index, defaultPen, defaultBrush, cellAlignment, cellRect, cellColor, cellBgColor, cellValue):
+    def paintCell(self, style, painter, option, defaultPen, cellAlignment, cellRect, cellColor, cellBgColor, cellValue):
         cellSelected = option.state & QStyle.State_Selected
 
         painter.save()
