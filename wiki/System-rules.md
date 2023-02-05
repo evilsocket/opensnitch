@@ -11,24 +11,26 @@ What's new
 
 You can apply a restrictive firewall policy for inbound connections by setting the inbound policy to Deny. This policy will add two extra rules to allow outbound connections (allow established connections + allow connections to localhost, needed for many services like DNS resolvers).
 
-![image](https://user-images.githubusercontent.com/2742953/166963755-58eb268a-0d24-44f4-89a8-a25a252d1207.png)
+![image](https://user-images.githubusercontent.com/2742953/216814227-fbd1a817-44fa-4101-a0f1-979ef5e62474.png)
+
 
 
 - Add basic firewall rules (>= v1.6.0rc1)
 
 Besides restricting what applications can access the internet, now you can configure general firewall rules.
 
-![image](https://user-images.githubusercontent.com/2742953/166965334-939247ba-2002-4d7b-9232-ea2b225f02a8.png)
+![image](https://user-images.githubusercontent.com/2742953/216814342-9955a41f-b5d7-45ed-ba4a-b370dfb8c4c6.png)
 
-For now you can only configure basic inbound or outbound connections (TCP and UDP). For example you can allow inbound SSH and outbound WireGuard
 
-![image](https://user-images.githubusercontent.com/2742953/166966001-2ee27591-5271-48a2-a474-91bf8758c4fb.png)
+You can also add inbound/outbound exclusions to some ports (for example if OpenSnitch is blocking them). For example you can allow inbound SSH and outbound WireGuard
+
+![image](https://user-images.githubusercontent.com/2742953/216814516-04ba0cc3-b5b3-402f-a793-b06a4e8a1b0b.png)
 
 
 Firewall configuration format
 ---
 
-The firewall configuration offers much more options to configure the system firewall.
+The firewall configuration file offers some more options to configure the system firewall. As of v1.6.0rc4, from the GUI you can only create ACCEPT or DROP rules.
 
 
 Chains
@@ -107,7 +109,7 @@ Example:
  |-------|------------|
  |UUID|Unique identifier for this rule. If it's empty, a new temporal UUID will be generated|
  |Enabled| true or false |
- |Position| no used yet |
+ |Position| not used yet |
  |Description| Description of the rule|
  |Expressions| List of options to match against connections: tcp dport 22 (see below)|
  |Target| Action applied on the connection: accept, deny, reject, return, jump, goto, stop, tproxy, redirect, dnat, snat|
@@ -358,7 +360,7 @@ Apply a quota on a connection when the given connection exceeds 1GB. When it exc
 
 ---
 
-count packets of a given connection:
+count packets of a given connection (the counter value can only be viewed with `nft`):
 ```json
                   "Statement": {
                     "Op": "",
