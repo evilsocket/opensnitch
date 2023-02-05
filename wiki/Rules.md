@@ -174,7 +174,8 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
 
 - Allow systemd-resolved only to your DNS nameservers:
   * Allow systemd-resolved connect only to your DNS nameservers + port 53 + UID
-    
+
+
 - Limit what an application can do as much as possible:
   * Filter by executable + command line: You don't want to allow `curl` or `wget` system wide. Instead, allow only a particular command line, for example:
   
@@ -184,7 +185,11 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
 
     You can narrow it further, by allowing `from this command line` + `from this User ID` + `to this IP` + `to this port`
 
-- Again: https://github.com/evilsocket/opensnitch/wiki/Rules-examples#filtering-python-scripts-applicable-to-java-and-others-interpreters
+- Don't allow python3 binary system-wide:
+  * As explained above, filter by executable + command line + (... more parameters ...)
+    If you allow python3, you'll allow ANY python3 script, so be careful.
+
+    https://github.com/evilsocket/opensnitch/wiki/Rules-examples#filtering-python-scripts-applicable-to-java-and-others-interpreters
 
 - Disable unprivileged namespaces to prevent rules bypass
 
