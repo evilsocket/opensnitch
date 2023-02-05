@@ -33,9 +33,9 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 | name             | The name of the rule. |
 | enabled          | Use to temporarily disable and enable rules without moving their files. |
 | precedence       | true or false. Sets if a rule take precedence (>= v1.2.0)|
-| action           | Can be `deny` or `allow`. |
+| action           | Can be `deny`, `reject` or `allow`. |
 | duration         | For rules persisting on disk, this value is default to `always`. |
-| operator.type    | Can be `simple`, in which case a simple `==` comparison will be performed, or `regexp` if the `data` field is a regular expression to match. |
+| operator.type    | Can be `simple`, in which case a simple `==` comparison will be performed, `regexp` if the `data` field is a regular expression to match, `network` which will match a network range (127.0.0.1/8), `lists` which will look for matches on lists of something (domains, IPs, etc), or `list`, which is a combination of all of the types.|
 | operator.operand | What element of the connection to compare, can be one of: |
 | |* `true` (will always match) |
 | |* `process.path` (the path of the executable) |
@@ -60,11 +60,17 @@ By default Deny rules take precedence over the rest of the rules. If a connectio
 
 Since v1.2.0, rules are sorted and checked in alphabetical order. You can name them this way to prioritize Deny rules, for example: 
 ```
-000-allow-very-important-rule
+000-allow-chrome-to-specific-domains
 001-allow-not-so-important-rule
-001-deny-xxx
+001-deny-chrome
 ```
-Also since v1.2.0, you can configure a rule as _Important_ ([x] Priority) to take precedence over the rest of the rules. If you set this flag and name the rule as mentoned above, you can also prioritize Allow rules.
+Also since v1.2.0, you can configure a rule as _Important_ ([x] Priority) to take precedence over the rest of the rules. If you set this flag and name the rule as mentioned above, you can also prioritize Allow rules:
+
+```
+000-allow-chrome-to-specific-domains [x] Priority <-- if the connection matches this rule, it'll allow this rule and won't continue evaluating the rest of rules.
+001-allow-not-so-important-rule
+001-deny-chrome
+```
 
 This way you can not only prioritize critical connections (like VPNs), but also gain performance.
 
@@ -166,6 +172,9 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
 
 ### Best practices
 
+- Allow systemd-resolved only to your DNS nameservers:
+  * Allow systemd-resolved connect only to your DNS nameservers + port 53 + UID
+    
 - Limit what an application can do as much as possible:
   * Filter by executable + command line: You don't want to allow `curl` or `wget` system wide. Instead, allow only a particular command line, for example:
   
