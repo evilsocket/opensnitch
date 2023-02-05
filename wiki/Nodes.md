@@ -6,6 +6,9 @@ You can view the list of known nodes from the tab Nodes:
 
 ![image](https://user-images.githubusercontent.com/2742953/82752021-9d328380-9dbb-11ea-913e-80f7b551a6c7.png)
 
+<img width="579" src="https://user-images.githubusercontent.com/2742953/216815229-6e95b68d-7e99-44f2-823e-fbac46d4e79b.png">
+
+
 And by double clicking on a node, you can see the network activity for that node.
 
 #### Configuration
