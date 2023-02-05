@@ -21,12 +21,16 @@ Use cases:
 
 **Important note:** This feature may not work if your system uses `systemd-resolved` to resolve domains. Compiling `opensnitch-dns.c` [eBPF module](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog) may help to workaround this problem. If blocklists don't work, change your nameserver in `/etc/resolv.conf` to 1.1.1.1, 9.9.9.9, etc... and see if it works.
 
+  - If you use systemd-resolved, remember to allow it connect only to your DNS nameservers (1.1.1.1, 9.9.9.9, etc), port 53.
+
 ---
 
 How to add a global rule to block ads or trackers:
 ---
 
 1. Create a new rule: `000-block-domains`
+   - Take into account that rules are checked in alphabetical order.
+
 2. Check `[x] Enable`, `[x] Priority`, `Duration: always`, `[x] To this list of domains`
 ![image](https://user-images.githubusercontent.com/2742953/115916860-addcf500-a475-11eb-86f4-af2c645aa2ba.png)
 
@@ -94,6 +98,8 @@ adtrack(er|ing)?[0-9]*[_.-]
 ^pixel?[-.]
 ^stat(s|istics)?[0-9]*[_.-]
 ```
+
+**Note**: if you add a domain without regex to this type of list, it'll match everything for that domain: _google.com_ will match _clients6.google.com_, _docs.google.com_, etc.
 
 Lists of IPs (only in version >= **v1.5.x**):
 - One per line:
