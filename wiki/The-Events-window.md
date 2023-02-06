@@ -8,7 +8,7 @@ The Events tab
 This is the main log of all the connections that the daemon has intercepted. You can filter connections by action applied, word or limit the number of entries displayed.
 You can also sort connections by columns.
 
-![image](https://user-images.githubusercontent.com/2742953/122284408-d4576380-ceed-11eb-8262-d691f9a9c720.png)
+![image](https://user-images.githubusercontent.com/2742953/217034369-90a12ea5-03f8-473c-a2db-6f1badd31b3f.png)
 
 
 **Note:**
