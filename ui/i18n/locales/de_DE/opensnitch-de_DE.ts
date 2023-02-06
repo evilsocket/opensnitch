@@ -91,27 +91,27 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="756"/>
         <source>30s</source>
-        <translation type="unfinished">30s</translation>
+        <translation>30s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="761"/>
         <source>5m</source>
-        <translation type="unfinished">5m</translation>
+        <translation>5m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="766"/>
         <source>15m</source>
-        <translation type="unfinished">15m</translation>
+        <translation>15m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="771"/>
         <source>30m</source>
-        <translation type="unfinished">30m</translation>
+        <translation>30m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="776"/>
         <source>1h</source>
-        <translation type="unfinished">1h</translation>
+        <translation>1h</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="706"/>
@@ -136,7 +136,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="865"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="781"/>
@@ -264,27 +264,27 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="219"/>
         <source>30s</source>
-        <translation type="unfinished">30s</translation>
+        <translation>30s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="224"/>
         <source>5m</source>
-        <translation type="unfinished">5m</translation>
+        <translation>5m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="229"/>
         <source>15m</source>
-        <translation type="unfinished">15m</translation>
+        <translation>15m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="234"/>
         <source>30m</source>
-        <translation type="unfinished">30m</translation>
+        <translation>30m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="239"/>
         <source>1h</source>
-        <translation type="unfinished">1h</translation>
+        <translation>1h</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="240"/>
@@ -409,8 +409,7 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="809"/>
         <source>Apply configuration to all nodes</source>
-        <translation>Wenden Sie Einstellungen auf alle
-Knoten an</translation>
+        <translation>Konfiguration auf alle Knoten anwenden</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1081"/>
@@ -625,17 +624,17 @@ Knoten an</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="503"/>
         <source>Desktop notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Desktop-Benachrichtigungen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="521"/>
         <source>Use system notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Systembenachrichtigungen verwenden</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="537"/>
         <source>Use Qt notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Benachrichtigungen verwenden</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="566"/>
@@ -650,7 +649,7 @@ Knoten an</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1220"/>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>Minuten</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1246"/>
@@ -660,7 +659,7 @@ Knoten an</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1269"/>
         <source>days</source>
-        <translation type="unfinished"></translation>
+        <translation>Tage</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1279"/>
@@ -670,7 +669,7 @@ Knoten an</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="147"/>
         <source>reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Ablehnen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="579"/>
@@ -685,7 +684,7 @@ Knoten an</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="724"/>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Design</translation>
     </message>
 </context>
 <context>
@@ -1115,7 +1114,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="79"/>
         <source>Applications</source>
-        <translation type="unfinished">Anwendungen</translation>
+        <translation>Anwendungen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="122"/>
@@ -1130,7 +1129,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="218"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerk</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="493"/>

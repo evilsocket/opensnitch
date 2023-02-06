@@ -6,7 +6,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="34"/>
         <source>opensnitch-qt</source>
-        <translation></translation>
+        <translation>opensnitch-qt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="299"/>
@@ -121,7 +121,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="847"/>
         <source>+</source>
-        <translation></translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="758"/>
@@ -364,7 +364,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1001"/>
         <source>unix:///tmp/osui.sock</source>
-        <translation></translation>
+        <translation>unix:///tmp/osui.sock</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="886"/>
@@ -379,12 +379,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1013"/>
         <source>/var/log/opensnitchd.log</source>
-        <translation></translation>
+        <translation>/var/log/opensnitchd.log</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1018"/>
         <source>/dev/stdout</source>
-        <translation></translation>
+        <translation>/dev/stdout</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="790"/>
@@ -866,32 +866,32 @@ gnu.org - это будет соответствовать только gnu.org,
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="406"/>
         <source>TCP</source>
-        <translation></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="411"/>
         <source>UDP</source>
-        <translation></translation>
+        <translation>UDP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="416"/>
         <source>UDPLITE</source>
-        <translation></translation>
+        <translation>UDPLITE</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="421"/>
         <source>TCP6</source>
-        <translation></translation>
+        <translation>TCP6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="426"/>
         <source>UDP6</source>
-        <translation></translation>
+        <translation>UDP6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="431"/>
         <source>UDPLITE6</source>
-        <translation></translation>
+        <translation>UDPLITE6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="513"/>
@@ -925,72 +925,72 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="532"/>
         <source>LAN</source>
-        <translation></translation>
+        <translation>LAN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="537"/>
         <source>127.0.0.0/8</source>
-        <translation></translation>
+        <translation>127.0.0.0/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="542"/>
         <source>192.168.0.0/24</source>
-        <translation></translation>
+        <translation>192.168.0.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="547"/>
         <source>192.168.1.0/24</source>
-        <translation></translation>
+        <translation>192.168.1.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="552"/>
         <source>192.168.2.0/24</source>
-        <translation></translation>
+        <translation>192.168.2.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="557"/>
         <source>192.168.0.0/16</source>
-        <translation></translation>
+        <translation>192.168.0.0/16</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="562"/>
         <source>169.254.0.0/16</source>
-        <translation></translation>
+        <translation>169.254.0.0/16</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="567"/>
         <source>172.16.0.0/12</source>
-        <translation></translation>
+        <translation>172.16.0.0/12</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="572"/>
         <source>10.0.0.0/8</source>
-        <translation></translation>
+        <translation>10.0.0.0/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="577"/>
         <source>::1/128</source>
-        <translation></translation>
+        <translation>::1/128</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="582"/>
         <source>fc00::/7</source>
-        <translation></translation>
+        <translation>fc00::/7</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="587"/>
         <source>ff00::/8</source>
-        <translation></translation>
+        <translation>ff00::/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="592"/>
         <source>fe80::/10</source>
-        <translation></translation>
+        <translation>fe80::/10</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="597"/>
         <source>fd00::/8</source>
-        <translation></translation>
+        <translation>fd00::/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="89"/>
@@ -1212,7 +1212,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="294"/>
         <source>Ctrl+S</source>
-        <translation></translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="330"/>
@@ -1222,7 +1222,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="360"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;hostname - 192.168.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;hostname - 192.168.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="399"/>
@@ -1232,7 +1232,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1627"/>
         <source>-</source>
-        <translation></translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="437"/>
@@ -1267,22 +1267,22 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="199"/>
         <source>50</source>
-        <translation></translation>
+        <translation>50</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="204"/>
         <source>100</source>
-        <translation></translation>
+        <translation>100</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="209"/>
         <source>200</source>
-        <translation></translation>
+        <translation>200</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="214"/>
         <source>300</source>
-        <translation></translation>
+        <translation>300</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="724"/>

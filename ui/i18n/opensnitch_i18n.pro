@@ -12,13 +12,17 @@ SOURCES +=  ../opensnitch/service.py \
 	    ../opensnitch/dialogs/preferences.py \
 	    ../opensnitch/dialogs/ruleseditor.py \
 	    ../opensnitch/dialogs/processdetails.py \
-	    ../opensnitch/dialogs/stats.py
+	    ../opensnitch/dialogs/stats.py \
+	    ../opensnitch/dialogs/firewall.py \
+	    ../opensnitch/dialogs/firewall_rule.py
 
 FORMS += ../opensnitch/res/prompt.ui \
 	    ../opensnitch/res/ruleseditor.ui \
 	    ../opensnitch/res/preferences.ui \
 	    ../opensnitch/res/process_details.ui \
-	    ../opensnitch/res/stats.ui
+	    ../opensnitch/res/stats.ui \
+	    ../opensnitch/res/firewall.ui \
+	    ../opensnitch/res/firewall_rule.ui
 TRANSLATIONS += locales/de_DE/opensnitch-de_DE.ts \
                 locales/es_ES/opensnitch-es_ES.ts \
                 locales/eu_ES/opensnitch-eu_ES.ts \
