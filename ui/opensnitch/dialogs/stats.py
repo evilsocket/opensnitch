@@ -282,31 +282,31 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setWindowIcon(appicon)
 
         # columns names. Must be added here in order to names be translated.
-        self.COL_STR_NAME = QC.translate("stats", "Name", "This is a word, without spaces and symbols.")
-        self.COL_STR_ADDR = QC.translate("stats", "Address", "This is a word, without spaces and symbols.")
-        self.COL_STR_STATUS = QC.translate("stats", "Status", "This is a word, without spaces and symbols.")
-        self.COL_STR_HOSTNAME = QC.translate("stats", "Hostname", "This is a word, without spaces and symbols.")
-        self.COL_STR_UPTIME = QC.translate("stats", "Uptime", "This is a word, without spaces and symbols.")
-        self.COL_STR_VERSION = QC.translate("stats", "Version", "This is a word, without spaces and symbols.")
-        self.COL_STR_RULES_NUM = QC.translate("stats", "Rules", "This is a word, without spaces and symbols.")
-        self.COL_STR_TIME = QC.translate("stats", "Time", "This is a word, without spaces and symbols.")
-        self.COL_STR_ACTION = QC.translate("stats", "Action", "This is a word, without spaces and symbols.")
-        self.COL_STR_DURATION = QC.translate("stats", "Duration", "This is a word, without spaces and symbols.")
-        self.COL_STR_DESCRIPTION = QC.translate("stats", "Description", "This is a word, without spaces and symbols.")
-        self.COL_STR_NODE = QC.translate("stats", "Node", "This is a word, without spaces and symbols.")
-        self.COL_STR_ENABLED = QC.translate("stats", "Enabled", "This is a word, without spaces and symbols.")
-        self.COL_STR_PRECEDENCE = QC.translate("stats", "Precedence", "This is a word, without spaces and symbols.")
-        self.COL_STR_HITS = QC.translate("stats", "Hits", "This is a word, without spaces and symbols.")
-        self.COL_STR_PROTOCOL = QC.translate("stats", "Protocol", "This is a word, without spaces and symbols.")
-        self.COL_STR_PROCESS = QC.translate("stats", "Process", "This is a word, without spaces and symbols.")
-        self.COL_STR_PROC_CMDLINE = QC.translate("stats", "Cmdline", "This is a word, without spaces and symbols.")
-        self.COL_STR_DESTINATION = QC.translate("stats", "Destination", "This is a word, without spaces and symbols.")
-        self.COL_STR_DST_IP = QC.translate("stats", "DstIP", "This is a word, without spaces and symbols.")
-        self.COL_STR_DST_HOST = QC.translate("stats", "DstHost", "This is a word, without spaces and symbols.")
-        self.COL_STR_DST_PORT = QC.translate("stats", "DstPort", "This is a word, without spaces and symbols.")
-        self.COL_STR_RULE = QC.translate("stats", "Rule", "This is a word, without spaces and symbols.")
-        self.COL_STR_UID = QC.translate("stats", "UserID", "This is a word, without spaces and symbols.")
-        self.COL_STR_LAST_CONNECTION = QC.translate("stats", "LastConnection", "This is a word, without spaces and symbols.")
+        self.COL_STR_NAME = QC.translate("stats", "Name", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_ADDR = QC.translate("stats", "Address", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_STATUS = QC.translate("stats", "Status", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_HOSTNAME = QC.translate("stats", "Hostname", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_UPTIME = QC.translate("stats", "Uptime", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_VERSION = QC.translate("stats", "Version", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_RULES_NUM = QC.translate("stats", "Rules", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_TIME = QC.translate("stats", "Time", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_ACTION = QC.translate("stats", "Action", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_DURATION = QC.translate("stats", "Duration", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_DESCRIPTION = QC.translate("stats", "Description", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_NODE = QC.translate("stats", "Node", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_ENABLED = QC.translate("stats", "Enabled", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_PRECEDENCE = QC.translate("stats", "Precedence", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_HITS = QC.translate("stats", "Hits", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_PROTOCOL = QC.translate("stats", "Protocol", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_PROCESS = QC.translate("stats", "Process", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_PROC_CMDLINE = QC.translate("stats", "Cmdline", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_DESTINATION = QC.translate("stats", "Destination", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_DST_IP = QC.translate("stats", "DstIP", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_DST_HOST = QC.translate("stats", "DstHost", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_DST_PORT = QC.translate("stats", "DstPort", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_RULE = QC.translate("stats", "Rule", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_UID = QC.translate("stats", "UserID", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_LAST_CONNECTION = QC.translate("stats", "LastConnection", "This is a word, without spaces and symbols.").replace(" ", "")
 
         self.FIREWALL_STOPPED  = QC.translate("stats", "Not running")
         self.FIREWALL_DISABLED = QC.translate("stats", "Disabled")
@@ -413,10 +413,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.COL_STR_HOSTNAME,
             self.COL_STR_VERSION,
             self.COL_STR_UPTIME,
-            QC.translate("stats", "Rules", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Connections", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Dropped", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Version", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Rules", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Connections", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Dropped", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Version", "This is a word, without spaces and symbols.").replace(" ", ""),
         ]
 
         self.TABLES[self.TAB_RULES]['header_labels'] = [
@@ -430,8 +430,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         ]
 
         stats_headers = [
-            QC.translate("stats", "What", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Hits", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "What", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Hits", "This is a word, without spaces and symbols.").replace(" ", ""),
         ]
 
         self.TABLES[self.TAB_HOSTS]['header_labels'] = stats_headers
