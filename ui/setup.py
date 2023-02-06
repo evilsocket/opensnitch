@@ -7,7 +7,7 @@ path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(path)
 
 from opensnitch.version import version
-        
+
 setup(name='opensnitch-ui',
       version=version,
       description='Prompt service and UI for the opensnitch application firewall.',
@@ -31,6 +31,7 @@ These rules can last forever, until the app restart or just one time.',
       data_files=[('/usr/share/applications', ['resources/opensnitch_ui.desktop']),
                ('/usr/share/kservices5', ['resources/kcm_opensnitch.desktop']),
                ('/usr/share/icons/hicolor/scalable/apps', ['resources/opensnitch-ui.svg']),
-               ('/usr/share/icons/hicolor/48x48/apps', ['resources/opensnitch-ui.png'])],
+               ('/usr/share/icons/hicolor/48x48/apps', ['resources/opensnitch-ui.png']),
+               ('/usr/share/metainfo', ['resources/io.github.evilsocket.opensnitch.appdata.xml'])],
       scripts = [ 'bin/opensnitch-ui' ],
       zip_safe=False)
