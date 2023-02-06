@@ -49,7 +49,7 @@ If it still doesn't work, you can enable `[x] Debug invalid connections` under P
 
 **Which connections does OpenSnitch intercept?**
 
-We currently (>= v1.0.0-rc4) only intercept new connections (iptables/conntrack state NEW) of TCP, UDP and UDPLITE protocols, to/from any port.
+We currently (>= v1.6.0-rc.4) intercept new connections (iptables/conntrack state NEW) of TCP, UDP and UDPLITE, SCTP and ICMP protocols, to/from any port.
 
 Kernels support
 ---
@@ -100,13 +100,15 @@ Sometimes we fail to discover the PID of the process, or the path of the PID, th
 
 **What's the behaviour of daemon's default action "deny"**
 
-The daemon option "default_action" "deny" will block ALL traffic (as of version 1.0.0rc10) that is intercepted by _iptables_ and is not answered or configured by the user. If an outgoing connection timeouts while waiting for user action, then it'll apply the default action.
+The daemon option "default_action" "deny" will block ALL traffic (as of version 1.6.0-rc.4) that is intercepted by _iptables_ or _nftables_ and is not answered or configured by the user. If an outgoing connection timeouts while waiting for user action, then it'll apply the default action.
 
-But not only that, because as we don't intercept ICMP, IGMP or SCTP (among others), they'll also be blocked. We'll add an option to configure this behaviour in the near future.
+If you suspect that opensnitch is blocking an application and asking you to allow/deny it (for example VPN traffic), enable the option `[x] Debug invalid connections` from Preferences -> Nodes
 
 If you need to allow this kind of traffic, you can add a rule directly to iptables/nftables:
 
 `iptables -t mangle -I OUTPUT -p icmp -j ACCEPT`
+
+Read more 👉 https://github.com/evilsocket/opensnitch/wiki/System-rules-legacy
 
 Rules
 ---
