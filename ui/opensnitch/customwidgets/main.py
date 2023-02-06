@@ -118,13 +118,13 @@ class ConnectionsTableModel(QStandardItemModel):
 
     def __init__(self):
         self.headerLabels = [
-            QC.translate("stats", "Time", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Node", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Action", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Destination", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Protocol", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Process", "This is a word, without spaces and symbols."),
-            QC.translate("stats", "Rule", "This is a word, without spaces and symbols."),
+            QC.translate("stats", "Time", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Node", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Action", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Destination", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Protocol", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Process", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Rule", "This is a word, without spaces and symbols.").replace(" ", ""),
         ]
         QStandardItemModel.__init__(self, 0, len(self.headerLabels))
         self.setHorizontalHeaderLabels(self.headerLabels)
