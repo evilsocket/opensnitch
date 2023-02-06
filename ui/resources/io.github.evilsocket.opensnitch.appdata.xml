@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.evilsocket.opensnitch</id>
+  
+  <name>OpenSnitch</name>
+  <summary>OpenSnitch interactive firewall</summary>
+  
+  <metadata_license>FTL</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </supports>
+  
+  <description>
+    <p>
+      OpenSnitch is a GNU/Linux interactive firewall application.
+    </p>
+    <p>
+      Whenever a program tries to establish a new connection, it&apos;ll prompt the user to allow or deny it.
+    </p>
+    <p>
+      The user can decide if block the outgoing connection based on properties of the connection: by port, by uid, by dst ip, by program or a combination of them. These rules can last forever, until the app restart or just one time.
+    </p>
+    <p>
+      The GUI allows the user to view live outgoing connections, as well as search by process, user, host or port.
+    </p>
+    <p>
+      OpenSnitch can also work as a system-wide domains blocker, by using lists of domains, list of IPs or list of regular expressions.
+    </p>
+  </description>
+  
+  <icon type="stock">opensnitch_ui</icon>
+  <url type="homepage">https://github.com/evilsocket/opensnitch</url>
+  <url type="bugtracker">https://github.com/evilsocket/opensnitch/issues</url>
+  <url type="help">https://github.com/evilsocket/opensnitch/wiki</url>
+  <launchable type="desktop-id">opensnitch_ui.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://user-images.githubusercontent.com/2742953/85205382-6ba9cb00-b31b-11ea-8e9a-bd4b8b05a236.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://user-images.githubusercontent.com/2742953/217039798-3477c6c2-d64f-4eea-89af-cd94ee77cff4.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://user-images.githubusercontent.com/2742953/99863173-3987e800-2b9d-11eb-93f2-fe3121b18c51.png</image>
+    </screenshot>
+  </screenshots>
+</component>
