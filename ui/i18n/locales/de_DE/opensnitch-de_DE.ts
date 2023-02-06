@@ -4,42 +4,42 @@
 <context>
     <name>Dialog</name>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="34"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="28"/>
         <source>opensnitch-qt</source>
         <translation>OpenSnitch Firewall</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="300"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="620"/>
         <source>User ID</source>
         <translation>User ID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="334"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="565"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Executed from&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ausgeführt von&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="647"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="590"/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="437"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="484"/>
         <source>Source IP</source>
         <translation>Quell-IP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="458"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="319"/>
         <source>Process ID</source>
         <translation>Prozess ID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="601"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="395"/>
         <source>Destination IP</source>
         <translation>Ziel-IP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="622"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="374"/>
         <source>Dst Port</source>
         <translation>Zielport</translation>
     </message>
@@ -59,57 +59,57 @@
         <translation type="obsolete">Der Chromium-Webbrowser möchte eine Verbindung zu www.evilsocket.net über TCP-Port 443 herstellen. Und möglicherweise zu www.goodsocket.net über Port 344</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="702"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="709"/>
         <source>from this executable</source>
         <translation>von dieser ausführbaren Datei</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="707"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="714"/>
         <source>from this command line</source>
         <translation>von dieser Kommandozeile</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="712"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="719"/>
         <source>this destination port</source>
         <translation>dieser Zielport</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="717"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="724"/>
         <source>this user</source>
         <translation>dieser Benutzer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="722"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="729"/>
         <source>this destination ip</source>
         <translation>diese Ziel-IP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="751"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="758"/>
         <source>once</source>
         <translation>einmal</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="756"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="763"/>
         <source>30s</source>
         <translation>30s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="761"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="768"/>
         <source>5m</source>
         <translation>5m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="766"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="773"/>
         <source>15m</source>
         <translation>15m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="771"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="778"/>
         <source>30m</source>
         <translation>30m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="776"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="783"/>
         <source>1h</source>
         <translation>1h</translation>
     </message>
@@ -119,38 +119,198 @@
         <translation type="obsolete">für diese Sitzung</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="786"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="793"/>
         <source>forever</source>
         <translation>für immer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="789"/>
+        <location filename="../../../opensnitch/res/firewall.ui" line="340"/>
         <source>Deny</source>
-        <translation type="obsolete">Verweigern</translation>
+        <translation type="unfinished">Verweigern</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="837"/>
+        <location filename="../../../opensnitch/res/firewall.ui" line="331"/>
         <source>Allow</source>
         <translation>Erlauben</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="865"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="874"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="781"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="788"/>
         <source>until reboot</source>
         <translation>bis zum Neustart</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="727"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="734"/>
         <source>from this PID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="809"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="816"/>
         <source>action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="14"/>
+        <source>Firewall</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="59"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Firewall&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="266"/>
+        <source>Inbound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="307"/>
+        <source>Outbound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="314"/>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="366"/>
+        <source>Allow inbound connections to a port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="369"/>
+        <source>Allow service (IN)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="389"/>
+        <source>Exclude outbound connections to a port from being intercepted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="398"/>
+        <source>Allow service (OUT)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="418"/>
+        <source>New rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall.ui" line="453"/>
+        <source>xxx</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="364"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="14"/>
+        <source>Firewall rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="26"/>
+        <source>Node</source>
+        <translation type="unfinished">Knoten</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="34"/>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="44"/>
+        <source>Enable</source>
+        <translation type="unfinished">Aktivieren</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="56"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="96"/>
+        <source>Simple</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="160"/>
+        <source>Add new condition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="183"/>
+        <source>Remove selected condition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="227"/>
+        <source>Direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="238"/>
+        <source>IN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="247"/>
+        <source>OUT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="259"/>
+        <source>Action</source>
+        <translation type="unfinished">Aktion</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="270"/>
+        <source>ACCEPT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="279"/>
+        <source>DROP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="288"/>
+        <source>REJECT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="297"/>
+        <source>RETURN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="375"/>
+        <source>Clear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="386"/>
+        <source>Delete</source>
+        <translation type="unfinished">Löschen</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="397"/>
+        <source>Save</source>
+        <translation type="unfinished">Speichern</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="408"/>
+        <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -162,7 +322,7 @@
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="481"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="484"/>
         <source>UI</source>
         <translation>Popup-Fenster</translation>
     </message>
@@ -172,7 +332,7 @@
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dieses Zeitlimit ist der Countdown, der angezeigt wird, wenn ein Popup-Fenster angezeigt wird.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="463"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="466"/>
         <source>Default timeout</source>
         <translation>Standardzeitlimit</translation>
     </message>
@@ -182,7 +342,7 @@
         <translation>Popup-Standarddauer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="796"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="856"/>
         <source>Default duration</source>
         <translation>Standarddauer</translation>
     </message>
@@ -257,7 +417,7 @@
         <translation>nach UID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="905"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="960"/>
         <source>once</source>
         <translation>einmal</translation>
     </message>
@@ -297,12 +457,12 @@
         <translation>für immer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="947"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1002"/>
         <source>deny</source>
         <translation>verweigern</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="956"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1011"/>
         <source>allow</source>
         <translation>erlauben</translation>
     </message>
@@ -312,52 +472,52 @@
         <translation type="obsolete">Popups deaktivieren, nur eine Warnung anzeigen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="753"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="813"/>
         <source>Nodes</source>
         <translation>Knoten</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="759"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="819"/>
         <source>Process monitor method</source>
         <translation>Prozessüberwachungsmethode</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="793"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="853"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Die Standarddauer gilt, wenn keine Benutzeroberfläche verbunden ist.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="923"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="978"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it&apos;s a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Knotenadresse.&lt;/p&gt;&lt;p&gt;Standardmäßig: unix: ///tmp/osui.sock (unix: // ist erforderlich, wenn ein Unix-Socket vorhanden ist)&lt;/p&gt;&lt;p&gt;Es kann sich auch um eine IP mit diesem Format handeln: 127.0.0.1:50051, 192.168.1.122:12345 usw.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="926"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="981"/>
         <source>Address</source>
         <translation>Adresse</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1066"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1121"/>
         <source>Default log level</source>
         <translation>Standardprotokollstufe</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="974"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1029"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="832"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="892"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Die Standardaktion wird angewendet, wenn keine Benutzeroberfläche verbunden ist.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="776"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="836"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log file to write logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Protokolldatei, in welche die Protokolle geschrieben werden sollen.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout schreibt die Protokolle in die Standardausgabe des Dienstes..&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="779"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="839"/>
         <source>Log file</source>
         <translation>Logdatei</translation>
     </message>
@@ -377,42 +537,42 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation type="obsolete">Unbekannte Verbindungen abfangen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="851"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="911"/>
         <source>HostName</source>
         <translation>HostName</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1025"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1080"/>
         <source>unix:///tmp/osui.sock</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="910"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="965"/>
         <source>until restart</source>
         <translation>bis zum Neustart</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="915"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="970"/>
         <source>always</source>
         <translation>immer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1037"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1092"/>
         <source>/var/log/opensnitchd.log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1042"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1097"/>
         <source>/dev/stdout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="809"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="869"/>
         <source>Apply configuration to all nodes</source>
         <translation>Konfiguration auf alle Knoten anwenden</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1081"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1136"/>
         <source>Database</source>
         <translation>Datenbank</translation>
     </message>
@@ -422,12 +582,12 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation type="obsolete">Datenbankname</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1116"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1171"/>
         <source>In memory</source>
         <translation>Im Speicher</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1121"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1176"/>
         <source>File</source>
         <translation>Datei</translation>
     </message>
@@ -437,17 +597,17 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation type="obsolete">/Pfad/zu/der/Datei.db</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1387"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1442"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1398"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1453"/>
         <source>Apply</source>
         <translation>Anwenden</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1409"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1464"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
@@ -467,7 +627,7 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation>Standardmäßig erweiterte Ansicht anzeigen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="669"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="662"/>
         <source>Action</source>
         <translation>Aktion</translation>
     </message>
@@ -512,17 +672,17 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation>Ziel-IP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="460"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="463"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;p&gt;If the pop-up is not answered, the default options will be applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dieses Timeout ist der Countdown, den Sie sehen, wenn ein Popup-Dialogfeld angezeigt wird.&lt;/p&gt;&lt;p&gt;Wenn das Popup nicht beantwortet wird, werden die Standardoptionen angewendet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1135"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1190"/>
         <source>Database type</source>
         <translation>Datenbanktyp</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1142"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1197"/>
         <source>Select</source>
         <translation>Auswählen</translation>
     </message>
@@ -532,12 +692,12 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Popup-Standardaktion.&lt;/p&gt;&lt;p&gt;Wenn eine neue ausgehende Verbindung hergestellt werden soll, wird diese Aktion standardmäßig ausgewählt. Wenn das Timeout auftritt, wird diese Option angewendet.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Während ein Pop-up den Benutzer auffordert, eine Verbindung zuzulassen oder abzulehnen:&lt;/p&gt;&lt;p&gt;1. neue ausgehende Verbindungen werden verweigert.&lt;/p&gt;&lt;p&gt;2. bekannte Verbindungen werden nach den vom Benutzer definierten Regeln zugelassen oder verweigert.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="835"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="895"/>
         <source>Default action when the GUI is disconnected</source>
         <translation>Standardaktion, wenn die GUI getrennt ist</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="936"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="991"/>
         <source>Debug invalid connections</source>
         <translation>Debugge ungültige Verbindungen</translation>
     </message>
@@ -557,47 +717,47 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation>Standardposition auf dem Bildschirm</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="732"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="759"/>
         <source>any temporary rules</source>
         <translation>jede temporäre Regel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="487"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wenn diese Option ausgewählt ist, werden die Regeln der ausgewählten Dauer nicht zur Liste der temporären Regeln in der GUI hinzugefügt.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporäre Regeln sind weiterhin gültig und Sie können sie verwenden, wenn Sie dazu aufgefordert werden, eine neue Verbindung zuzulassen/zu verweigern.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wenn diese Option ausgewählt ist, werden die Regeln der ausgewählten Dauer nicht zur Liste der temporären Regeln in der GUI hinzugefügt.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporäre Regeln sind weiterhin gültig und Sie können sie verwenden, wenn Sie dazu aufgefordert werden, eine neue Verbindung zuzulassen/zu verweigern.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="490"/>
         <source>Don&apos;t save rules of duration</source>
-        <translation>Speichern Sie keine Regeln der Dauer</translation>
+        <translation type="obsolete">Speichern Sie keine Regeln der Dauer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="605"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="598"/>
         <source>Time</source>
         <translation>Zeit</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="685"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="678"/>
         <source>Destination</source>
         <translation>Ziel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="653"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="646"/>
         <source>Protocol</source>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="701"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="694"/>
         <source>Process</source>
         <translation>Prozess</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="621"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="614"/>
         <source>Rule</source>
         <translation>Regel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="637"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="630"/>
         <source>Node</source>
         <translation>Knoten</translation>
     </message>
@@ -607,7 +767,7 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wenn diese Option aktiviert ist, fordert Opensnitch Sie aus verschiedenen Gründen auf, Verbindungen zuzulassen oder zu verweigern, die keine zugeordnete PID haben, hauptsächlich aufgrund von Verbindungen mit schlechtem Status.&lt;/p&gt;&lt;p&gt;Der Popup-Dialog enthält nur Informationen über die Netzwerkverbindung.&lt;/p&gt;&lt;p&gt;Es gibt jedoch einige Szenarien, in denen dies gültige Verbindungen sind, z. B. beim Einrichten eines VPN mit Wireguard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="593"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="586"/>
         <source>Events tab columns</source>
         <translation type="unfinished"></translation>
     </message>
@@ -617,52 +777,52 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="470"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="473"/>
         <source>Disable pop-ups, only display a notification</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="503"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="496"/>
         <source>Desktop notifications</source>
         <translation>Desktop-Benachrichtigungen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="521"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="514"/>
         <source>Use system notifications</source>
         <translation>Systembenachrichtigungen verwenden</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="537"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="530"/>
         <source>Use Qt notifications</source>
         <translation>Qt-Benachrichtigungen verwenden</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="566"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="559"/>
         <source>Test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="933"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="988"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don&apos;t have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1220"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1275"/>
         <source>minutes</source>
         <translation>Minuten</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1246"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1301"/>
         <source>Minutes between events purges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1269"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1324"/>
         <source>days</source>
         <translation>Tage</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1279"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1334"/>
         <source>Maximum days of events to keep</source>
         <translation type="unfinished"></translation>
     </message>
@@ -672,19 +832,61 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation>Ablehnen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="579"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="572"/>
         <source>System</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="711"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="704"/>
         <source>Command line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="724"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="730"/>
         <source>Theme</source>
         <translation>Design</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="738"/>
+        <source>Rules</source>
+        <translation type="unfinished">Regeln</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="746"/>
+        <source>When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.
+
+Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="751"/>
+        <source>Don&apos;t save/Delete rules of duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="769"/>
+        <source>30s or less</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="774"/>
+        <source>5m or less</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="779"/>
+        <source>15m or less</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="784"/>
+        <source>30m or less</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="789"/>
+        <source>1h or less</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -763,27 +965,27 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation>Regel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="725"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="980"/>
         <source>Node</source>
         <translation>Knoten</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="748"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1003"/>
         <source>Apply rule to all nodes</source>
         <translation>Regel auf alle Knoten anwenden</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="112"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="321"/>
         <source>From this command line</source>
         <translation>Von dieser Kommandozeile</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="199"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="408"/>
         <source>From this executable</source>
         <translation>Von dieser ausführbaren Datei</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="826"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="123"/>
         <source>Action</source>
         <translation>Aktion</translation>
     </message>
@@ -793,12 +995,12 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation type="obsolete">/Pfad/zur/ausführbaren/Datei, .*/bin/executable[0-9\.]+$, ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="447"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="676"/>
         <source>To this IP / Network</source>
         <translation>Zu dieser IP / Netzwerk</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="867"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="164"/>
         <source>once</source>
         <translation>einmal</translation>
     </message>
@@ -833,22 +1035,22 @@ ist, dass wir die PID nicht entdeckt haben (zum Beispiel Verbindungen, die nicht
         <translation type="obsolete">bis zum Neustart</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="902"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="199"/>
         <source>always</source>
         <translation>immer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="303"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="532"/>
         <source>To this port</source>
         <translation>Zu diesem Port</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="105"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="314"/>
         <source>From this user ID</source>
         <translation>Von dieser Benutzer-ID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="416"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="645"/>
         <source>Commas or spaces are not allowed to specify multiple domains. 
 
 Use regular expressions instead: 
@@ -869,17 +1071,17 @@ www.gnu.org - es wird nur mit www.gnu.org, noch ftp.gnu.org oder www2.gnu.org ü
 gnu.org - es wird nur mit gnu.org, www.gnu.org oder ftp.gnu.org übereinstimmen, ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="427"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="656"/>
         <source>www.domain.org, .*\.domain.org</source>
         <translation>www.domain.org, .*\.domain.org</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="240"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="449"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Es sind nur TCP-, UDP- oder UDPLITE-Optionen zulässig.&lt;/p&gt;&lt;p&gt;Sie können reguläre Ausdrücke verwenden zu diesen Optionen, zum Beispiel TCP oder UDP: ^ (TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="246"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="455"/>
         <source>TCP</source>
         <translation>TCP</translation>
     </message>
@@ -909,7 +1111,7 @@ gnu.org - es wird nur mit gnu.org, www.gnu.org oder ftp.gnu.org übereinstimmen,
         <translation type="obsolete">UDPLITE6</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="313"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="542"/>
         <source>You can specify a single IP:
 - 192.168.1.1
 
@@ -1008,42 +1210,42 @@ Hinweis: Kommas und Leerzeichen dürfen keine IPs oder Netzwerke angeben.</trans
         <translation type="obsolete">fd00::/8</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="859"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="156"/>
         <source>Duration</source>
         <translation>Dauer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="464"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="693"/>
         <source>Protocol</source>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="283"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="512"/>
         <source>To this host</source>
         <translation>Zu diesem Host</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="921"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="218"/>
         <source>Deny</source>
         <translation>Verweigern</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="961"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="258"/>
         <source>Allow</source>
         <translation>Erlauben</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="32"/>
         <source>Name</source>
-        <translation>Name</translation>
+        <translation type="obsolete">Name</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="977"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="924"/>
         <source>Enable</source>
         <translation>Aktivieren</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="766"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="76"/>
         <source>The rules are checked in alphabetical order, so you can name them accordingly to prioritize them.
 
 000-allow-localhost
@@ -1058,10 +1260,10 @@ Hinweis: Kommas und Leerzeichen dürfen keine IPs oder Netzwerke angeben.</trans
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="773"/>
         <source>leave blank to autocreate</source>
-        <translation>Lassen Sie das Feld leer, um den Namen automatisch zuzuweisen</translation>
+        <translation type="obsolete">Lassen Sie das Feld leer, um den Namen automatisch zuzuweisen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="984"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1012"/>
         <source>If checked, this rule will take precedence over the rest of the rules. No others rules will be checked after this one.
 
 You must name the rule in such manner that it&apos;ll be checked first, because they&apos;re checked in alphabetical order. For example:
@@ -1076,33 +1278,33 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
 [] Priorität - 001-Regel mit weniger Priorität</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="992"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1020"/>
         <source>Priority rule</source>
         <translation>Prioritätsregel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="653"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="882"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the field of the rules are case-insensitive, i.e., if a process tries to access gOOgle.CoM and you have a rule to Deny .*google.com, the connection will be blocked.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you check this box, you have to specify the exact string (domain, executable, command line) that you want to filter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standardmäßig wird bei den Feldern einer Regel NICHT zwischen Groß- und Kleinschreibung unterschieden, d. H.; Wenn ein Prozess versucht, auf gOOgle.CoM zuzugreifen, und Sie eine Regel zum Verweigern haben. * Google.com, wird die Verbindung blockiert.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Wenn Sie diese Option aktivieren und gOOgle.CoM GENAU blockieren möchten, müssen Sie dies im Regelfeld angeben, also die genaue Domain, die Sie filtern möchten (in diesem Fall: gOOgle.CoM).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="656"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="885"/>
         <source>Case-sensitive</source>
         <translation>Groß- und Kleinschreibung beachten</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="457"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="686"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sie können mehrere Ports mit regulären Ausdrücken angeben:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 oder 443:
 &lt;/p&gt;&lt;p&gt;^ (53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 oder 5551, 5552, 5553 usw.:&lt;/p&gt;&lt;p&gt;^ (53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="897"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="194"/>
         <source>until reboot</source>
         <translation>Bis zum Neustart</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="541"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="770"/>
         <source>To this list of domains</source>
         <translation>Zu dieser Domainliste</translation>
     </message>
@@ -1112,124 +1314,154 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wählen Sie ein Verzeichnis mit Domänenlisten aus, die blockiert oder zugelassen werden sollen.&lt;/p&gt;&lt;p&gt;Legen Sie in diesem Verzeichnis Dateien mit einer beliebigen Erweiterung ab, die Listen von Domänen enthalten.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;Das Format jedes Eintrags einer Liste ist wie folgt (Hosts-Format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="79"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="288"/>
         <source>Applications</source>
         <translation>Anwendungen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="122"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="331"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will contain and match the command line that was executed by the user.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the command, only the command will appear:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the absolute or relative path to the command, that is what will appear:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="132"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="341"/>
         <source>From this PID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="218"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="427"/>
         <source>Network</source>
         <translation>Netzwerk</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="493"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="722"/>
         <source>List of domains/IPs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="499"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="728"/>
         <source>To this list of network ranges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="506"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="735"/>
         <source>To this list of IPs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="532"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="761"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of IPs to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;/p&gt;&lt;p&gt;One IP per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="567"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="796"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of network ranges to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;One Network Range per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="595"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="824"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="610"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="839"/>
         <source>To this list of domains 
 (regular expressions)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="637"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="866"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing regular expressions of domains to block or allow:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;You can also use a domain as is: &amp;quot;example.com&amp;quot; , and it&apos;ll match whatever.example.com, whatever.example.com.localdomain, etc.&lt;/p&gt;&lt;p&gt;One domain per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="938"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="235"/>
         <source>Reject</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="51"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="958"/>
         <source>Description...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="88"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="297"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The value of this field is always the absolute path to the executable: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;- Simple: /path/to/binary&lt;/p&gt;&lt;p&gt;- Multiple paths: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Multiple binaries: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Deny/Allow executions from /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For more examples visit the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki page&lt;/a&gt; or ask on the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Discussion forums&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="98"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="307"/>
         <source>Is regular expression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="206"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="415"/>
         <source>is regular expression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="471"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="700"/>
         <source>Network interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="647"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="876"/>
         <source>More</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="663"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="892"/>
         <source>Don&apos;t log connections that match this rule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="666"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="895"/>
         <source>Don&apos;t log connections</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="918"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="215"/>
         <source>Deny will just discard the connection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="935"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="232"/>
         <source>Reject will drop the connection, and kill the socket that initiated it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="955"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="252"/>
         <source>Allow will allow the connection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="83"/>
+        <source>Name (leave blank to autocreate)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="489"/>
+        <source>ICMP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="494"/>
+        <source>ICMP6</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="499"/>
+        <source>SCTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="504"/>
+        <source>SCTP6</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="937"/>
+        <source>Color</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1243,12 +1475,12 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="287"/>
         <source>Save to CSV.</source>
-        <translation>Als CSV exportieren.</translation>
+        <translation type="obsolete">Als CSV exportieren.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="297"/>
         <source>Ctrl+S</source>
-        <translation>Strg+S</translation>
+        <translation type="obsolete">Strg+S</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="333"/>
@@ -1266,7 +1498,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1695"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1793"/>
         <source>-</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1301,27 +1533,27 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation>Beispiel: firefox</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="202"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="205"/>
         <source>50</source>
         <translation>50</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="207"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="210"/>
         <source>100</source>
         <translation>100</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="212"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="215"/>
         <source>200</source>
         <translation>200</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="217"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="220"/>
         <source>300</source>
         <translation>300</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="749"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="826"/>
         <source>Nodes</source>
         <translation>Knoten</translation>
     </message>
@@ -1331,12 +1563,12 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(Doppelklicken Sie auf die Addressenspalte, um Details eines Knotens anzuzeigen)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1602"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1700"/>
         <source>Rules</source>
         <translation>Regeln</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="915"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="995"/>
         <source>enable</source>
         <translation>aktivieren</translation>
     </message>
@@ -1351,22 +1583,22 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Suchregelname</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="705"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="782"/>
         <source>Application rules</source>
         <translation>Anwendungsregeln</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="856"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="936"/>
         <source>Permanent</source>
         <translation>Dauerhaft</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="865"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="945"/>
         <source>Temporary</source>
         <translation>Temporär</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="977"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1063"/>
         <source>Hosts</source>
         <translation>Hosts</translation>
     </message>
@@ -1376,57 +1608,57 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(Doppelklicken Sie auf eine Element, um Details anzuzeigen.)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1064"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1153"/>
         <source>Applications</source>
         <translation>Anwendungen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1171"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1266"/>
         <source>Addresses</source>
         <translation>Adressen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1258"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1356"/>
         <source>Ports</source>
         <translation>Ports</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1342"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1440"/>
         <source>Users</source>
         <translation>Benutzer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1446"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1544"/>
         <source>Connections</source>
         <translation>Verbindungen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1498"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1596"/>
         <source>Dropped</source>
         <translation>Abgelehnt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1550"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1648"/>
         <source>Uptime</source>
         <translation>Betriebszeit</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1669"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1767"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="230"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="233"/>
         <source>Delete all intercepted events</source>
         <translation>Löschen Sie alle abgefangenen Ereignisse</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="922"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1022"/>
         <source>Edit rule</source>
         <translation>Regel bearbeiten</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="936"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1039"/>
         <source>Delete rule</source>
         <translation>Regel löschen</translation>
     </message>
@@ -1466,7 +1698,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Verbindungen löschen, die dieser Regel entsprechen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="847"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="927"/>
         <source>All applications</source>
         <translation>Alle Anwendungen</translation>
     </message>
@@ -1476,47 +1708,311 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="177"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="180"/>
         <source>0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="700"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="777"/>
         <source>2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="874"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="954"/>
         <source>System rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="637"/>
+        <source>Delete this node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="653"/>
+        <source>Show the preferences of this node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="669"/>
+        <source>Start or stop interception of this node</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>contextual_menu</name>
     <message>
-        <location filename="../../../opensnitch/service.py" line="46"/>
+        <location filename="../../../opensnitch/service.py" line="45"/>
         <source>Statistics</source>
         <translation>Statistiken</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="49"/>
+        <location filename="../../../opensnitch/service.py" line="48"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="50"/>
+        <location filename="../../../opensnitch/service.py" line="49"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="47"/>
+        <location filename="../../../opensnitch/service.py" line="46"/>
         <source>Enable</source>
         <translation>Aktivieren</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="48"/>
+        <location filename="../../../opensnitch/service.py" line="47"/>
         <source>Disable</source>
         <translation>Deaktivieren</translation>
+    </message>
+</context>
+<context>
+    <name>firewall</name>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="90"/>
+        <source>Configuration applied.</source>
+        <translation type="unfinished">Konfiguration angewendet.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="304"/>
+        <source>Error: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="186"/>
+        <source>Applying changes...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="223"/>
+        <source>Error getting INPUT chain policy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="230"/>
+        <source>Error getting OUTPUT chain policy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="283"/>
+        <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="297"/>
+        <source>Enabling firewall...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="299"/>
+        <source>Disabling firewall...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="66"/>
+        <source>Dest Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="67"/>
+        <source>Source Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="68"/>
+        <source>Dest IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="69"/>
+        <source>Source IP</source>
+        <translation type="unfinished">Quell-IP</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="70"/>
+        <source>Input interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="71"/>
+        <source>Output interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="72"/>
+        <source>Set conntrack mark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="73"/>
+        <source>Match conntrack mark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="74"/>
+        <source>Match conntrack state(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="75"/>
+        <source>Set mark on packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="76"/>
+        <source>Match packet information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="82"/>
+        <source>Bandwidth quotas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="84"/>
+        <source>Rate limit connections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="273"/>
+        <source>Your protobuf version is incompatible, you need to install protobuf 3.8.0 or superior
+(pip3 install --ignore-installed protobuf==3.8.0)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="297"/>
+        <source>Rule deleted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="301"/>
+        <source>Rule added</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="316"/>
+        <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="336"/>
+        <source>Deleting rule, wait</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="339"/>
+        <source>Error updating rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="373"/>
+        <source>Adding rule, wait</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="378"/>
+        <source>&lt;select a statement&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="573"/>
+        <source>Equal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="574"/>
+        <source>Not equal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="575"/>
+        <source>Greater or equal than</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="576"/>
+        <source>Greater than</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="577"/>
+        <source>Less or equal than</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="578"/>
+        <source>Less than</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1044"/>
+        <source>Firewall rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="665"/>
+        <source>Simple</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="670"/>
+        <source>Advanced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="826"/>
+        <source>This rule is not supported yet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="877"/>
+        <source>Exclude service</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="889"/>
+        <source>Allow inbound connections to the selected port.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="891"/>
+        <source>Allow outbound connections to the selected port.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="925"/>
+        <source>select a statement.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="941"/>
+        <source>value cannot be 0 or empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="953"/>
+        <source>the value format is 1024/kbytes (or bytes, mbytes, gbytes)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="964"/>
+        <source>the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="967"/>
+        <source>rate-limit not valid, use: bytes, kbytes, mbytes or gbytes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="969"/>
+        <source>time-limit not valid, use: second, minute, hour or day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1003"/>
+        <source>port not valid.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1546,17 +2042,17 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
 <context>
     <name>messages</name>
     <message>
-        <location filename="../../../opensnitch/service.py" line="250"/>
+        <location filename="../../../opensnitch/service.py" line="258"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="254"/>
+        <location filename="../../../opensnitch/service.py" line="262"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="258"/>
+        <location filename="../../../opensnitch/service.py" line="266"/>
         <source>Warning</source>
         <translation type="unfinished">Warnung</translation>
     </message>
@@ -1564,7 +2060,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
 <context>
     <name>notifications</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="582"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="616"/>
         <source>System notifications are not available, you need to install python3-notify2.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1572,12 +2068,12 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
 <context>
     <name>popups</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="114"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="115"/>
         <source>Allow</source>
         <translation>Erlauben</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="113"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="114"/>
         <source>Deny</source>
         <translation>Verweigern</translation>
     </message>
@@ -1587,22 +2083,22 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation>für immer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="317"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="331"/>
         <source>Outgoing connection</source>
         <translation>Ausgehende Verbindung</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="322"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="336"/>
         <source>Process launched from:</source>
         <translation>Prozess ausgeführt von:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="357"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="377"/>
         <source>from this command line</source>
         <translation>von dieser Kommandozeile</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="353"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="373"/>
         <source>from this executable</source>
         <translation>von dieser ausführbaren Datei</translation>
     </message>
@@ -1617,7 +2113,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation>Bis zum Neustart</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="359"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="379"/>
         <source>to port {0}</source>
         <translation>zum Port {0}</translation>
     </message>
@@ -1632,22 +2128,22 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">&lt;b&gt;Remote-Prozess &lt;b&gt;%s&lt;/b&gt;, der auf &lt;b&gt;%s&lt;/b&gt; ausgeführt wird, stellt eine Verbindung zu &lt;b&gt;%s&lt;/b&gt; auf %s Port %d her</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="422"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="442"/>
         <source>to {0}</source>
         <translation>zu {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="362"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="382"/>
         <source>from user {0}</source>
         <translation>UID {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="379"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="399"/>
         <source>to {0}.*</source>
         <translation>zu {0}.*</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="432"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="452"/>
         <source>to *.{0}</source>
         <translation>zu *.{0}</translation>
     </message>
@@ -1657,22 +2153,22 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">zu *{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="466"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="486"/>
         <source>&lt;b&gt;Remote&lt;/b&gt; process %s running on &lt;b&gt;%s&lt;/b&gt;</source>
         <translation>&lt;b&gt;Remote-Prozess &lt;/b&gt; %s wird ausgeführt auf &lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="470"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="490"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
         <translation>stellt eine Verbindung zu &lt;b&gt;%s&lt;/b&gt; auf %s Port %d her</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="476"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="502"/>
         <source>is attempting to resolve &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</source>
         <translation>versucht &lt;b&gt;%s&lt;/b&gt; über%s,%s Port%d aufzulösen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="366"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="386"/>
         <source>from this PID</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1682,8 +2178,13 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="115"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="116"/>
         <source>Reject</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="497"/>
+        <source>is connecting to &lt;b&gt;%s&lt;/b&gt;, %s</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1708,7 +2209,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Konfiguration in %s anwenden ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="256"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="270"/>
         <source>Server address can not be empty</source>
         <translation>Die Serveradresse darf nicht leer sein</translation>
     </message>
@@ -1718,7 +2219,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Fehler beim Laden der Konfiguration %s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="512"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="529"/>
         <source>Configuration applied.</source>
         <translation>Konfiguration angewendet.</translation>
     </message>
@@ -1728,78 +2229,88 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Fehler beim Anwenden der Konfiguration: %s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="349"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="363"/>
         <source>Exception saving config: {0}</source>
         <translation>Fehler beim Speichern der Konfiguration: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="448"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="464"/>
         <source>Applying configuration on {0} ...</source>
         <translation>Konfiguration in {0} anwenden ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="285"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="299"/>
         <source>Error loading {0} configuration</source>
         <translation>Fehler beim Laden der Konfiguration {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="514"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="531"/>
         <source>Error applying configuration: {0}</source>
         <translation>Fehler beim Anwenden der Konfiguration: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="373"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="391"/>
         <source>Warning</source>
         <translation>Warnung</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="373"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="391"/>
         <source>You must select a file for the database&lt;br&gt;or choose &quot;In memory&quot; type.</source>
         <translation>Sie müssen eine Datei für die Datenbank auswählen&lt;br&gt;oder wählen Sie den Typ &quot;Im Speicher&quot;.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="379"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="382"/>
         <source>DB type changed</source>
         <translation>DB-Typ geändert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="379"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="382"/>
         <source>Restart the GUI in order effects to take effect</source>
         <translation>Starten Sie die GUI neu, damit die Effekte wirksam werden</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="544"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="569"/>
         <source>Hover the mouse over the texts to display the help&lt;br&gt;&lt;br&gt;Don&apos;t forget to visit the wiki: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</source>
         <translation>Fahren Sie mit der Maus über die Texte, um die Hilfe anzuzeigen&lt;br&gt;&lt;br&gt;Vergessen Sie nicht, das Wiki zu besuchen: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="153"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="430"/>
         <source>System</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="161"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="172"/>
         <source>Themes not available. Install qt-material: pip3 install qt-material</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="415"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="431"/>
         <source>UI theme changed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="415"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="431"/>
         <source>Restart the GUI in order to apply the new theme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="455"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="472"/>
         <source>Ok</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="455"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="472"/>
         <source>Restart the GUI in order changes to take effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="365"/>
+        <source>There&apos;re no nodes connected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="484"/>
+        <source>Exception saving node config {0}: {1}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1971,17 +2482,17 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
 <context>
     <name>stats</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="363"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="311"/>
         <source>Not running</source>
         <translation>Gestoppt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="364"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="312"/>
         <source>Disabled</source>
         <translation>Deaktiviert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="365"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="313"/>
         <source>Running</source>
         <translation>Eingeschaltet</translation>
     </message>
@@ -1996,22 +2507,22 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Eventos de OpenSnitch de</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="997"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1044"/>
         <source>    Your are about to delete this rule.    </source>
         <translation>    Sie sind im Begriff, diese Regel zu löschen.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1470"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1532"/>
         <source>    Are you sure?</source>
         <translation>    Bist du sicher?</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="661"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="628"/>
         <source>OpenSnitch Network Statistics {0}</source>
         <translation>OpenSnitch-Netzwerkstatistiken {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="663"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="630"/>
         <source>OpenSnitch Network Statistics for {0}</source>
         <translation>OpenSnitch-Netzwerkstatistiken für {0}</translation>
     </message>
@@ -2066,7 +2577,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Knoten</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="24"/>
+        <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="18"/>
         <source>Hits</source>
         <translation type="unfinished">Treffer</translation>
     </message>
@@ -2076,7 +2587,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2171"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2401"/>
         <source>Save as CSV</source>
         <translation>Als CSV speichern</translation>
     </message>
@@ -2086,7 +2597,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Aktiviert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="863"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="848"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
@@ -2101,63 +2612,63 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1070"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1131"/>
         <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
         <translation>&lt;b&gt;Fehler:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1077"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1138"/>
         <source>Warning:</source>
         <translation>Warnung:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="842"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="827"/>
         <source>Allow</source>
         <translation>Erlauben</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="843"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="828"/>
         <source>Deny</source>
         <translation>Verweigern</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="847"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="832"/>
         <source>Always</source>
         <translation>Immer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="848"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="833"/>
         <source>Until reboot</source>
         <translation>Bis zum Neustart</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="856"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="841"/>
         <source>Disable</source>
         <translation>Deaktivieren</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="858"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="843"/>
         <source>Enable</source>
         <translation>Aktivieren</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="861"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="846"/>
         <source>Duplicate</source>
         <translation>Duplizieren</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="862"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="847"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1028"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1089"/>
         <source>Rule not found by that name and node</source>
         <translation>Regel von diesem Namen und Knoten nicht gefunden</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1470"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1532"/>
         <source>    You are about to delete this rule.    </source>
         <translation>    Sie sind dabei, diese Regel zu löschen.    </translation>
     </message>
@@ -2257,127 +2768,127 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Regel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="337"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="285"/>
         <source>Name</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="338"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="286"/>
         <source>Address</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Adresse</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="339"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="287"/>
         <source>Status</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="340"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="288"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Hostname</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="451"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="419"/>
         <source>Version</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="448"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="416"/>
         <source>Rules</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Regeln</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="344"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="292"/>
         <source>Time</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Zeit</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="345"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="293"/>
         <source>Action</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Aktion</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="346"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="294"/>
         <source>Duration</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Dauer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="348"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="296"/>
         <source>Node</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Knoten</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="349"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="297"/>
         <source>Enabled</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Aktiviert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="466"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="434"/>
         <source>Hits</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Treffer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="352"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="300"/>
         <source>Protocol</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="353"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
         <source>Process</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Prozess</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="355"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="303"/>
         <source>Destination</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Ziel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="359"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="307"/>
         <source>Rule</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Regel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="360"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="308"/>
         <source>UserID</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>BenutzerID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="361"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="309"/>
         <source>LastConnection</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>LetzteVerbindung</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="356"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="304"/>
         <source>DstIP</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>ZielIP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="357"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
         <source>DstHost</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>ZielHost</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="358"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="306"/>
         <source>DstPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>ZielPort</translation>
@@ -2403,70 +2914,141 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
         <translation type="obsolete">Abgelehnt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="23"/>
+        <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="17"/>
         <source>What</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="834"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="818"/>
         <source>Apply to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="844"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="829"/>
         <source>Reject</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="25"/>
+        <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="19"/>
         <source>Network name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="341"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="289"/>
         <source>Uptime</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation type="unfinished">Betriebszeit</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="449"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="417"/>
         <source>Connections</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation type="unfinished">Verbindungen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="450"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="418"/>
         <source>Dropped</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation type="unfinished">Abgelehnt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="465"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="433"/>
         <source>What</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="350"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="298"/>
         <source>Precedence</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="721"/>
+        <location filename="../../../opensnitch/service.py" line="734"/>
         <source>New node connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="347"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="295"/>
         <source>Description</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="354"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="302"/>
         <source>Cmdline</source>
         <comment>This is a word, without spaces and symbols.</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="402"/>
+        <source>Export rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="403"/>
+        <source>Import rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="404"/>
+        <source>Export events to CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="405"/>
+        <source>Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="819"/>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="851"/>
+        <source>To clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="852"/>
+        <source>To disk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2343"/>
+        <source>Select a directory to export rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1046"/>
+        <source>    Your are about to delete this entry.    </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1499"/>
+        <source>    You are about to delete this node.    </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1508"/>
+        <source>&lt;b&gt;Error deleting node&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
+        <comment>{0}</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2298"/>
+        <source>Error exporting rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2372"/>
+        <source>Select a directory with rules to import (JSON files)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2386"/>
+        <source>Rules imported fine</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
