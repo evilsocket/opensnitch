@@ -474,7 +474,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="254"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="257"/>
@@ -524,12 +524,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="816"/>
         <source>Default action when the GUI is disconnected</source>
-        <translation></translation>
+        <translation>Default action when the GUI is disconnected</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="912"/>
         <source>Debug invalid connections</source>
-        <translation></translation>
+        <translation>Debug invalid connections</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="39"/>
@@ -554,12 +554,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="478"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="481"/>
         <source>Don&apos;t save rules of duration</source>
-        <translation></translation>
+        <translation>Don&apos;t save rules of duration</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="463"/>
@@ -599,7 +599,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="584"/>
         <source>Events tab columns</source>
-        <translation></translation>
+        <translation>Events tab columns</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="299"/>
@@ -682,12 +682,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="81"/>
         <source>CWD: loading...</source>
-        <translation></translation>
+        <translation>CWD: loading...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="93"/>
         <source>mem stats: loading...</source>
-        <translation></translation>
+        <translation>mem stats: loading...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="121"/>
@@ -702,17 +702,17 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="149"/>
         <source>I/O Statistics</source>
-        <translation></translation>
+        <translation>I/O Statistics</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="163"/>
         <source>Memory mapped files</source>
-        <translation></translation>
+        <translation>Memory mapped files</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="177"/>
         <source>Stack</source>
-        <translation></translation>
+        <translation>Stack</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="191"/>
@@ -722,7 +722,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="210"/>
         <source>Application pids</source>
-        <translation></translation>
+        <translation>Application pids</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="240"/>
@@ -995,7 +995,7 @@ Pastaba: kableliais ar tarpais atskirti IP ar tinklų negalima.</translation>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="373"/>
         <source>To this host</source>
-        <translation></translation>
+        <translation>To this host</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="151"/>
@@ -1063,12 +1063,12 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="773"/>
         <source>Case-sensitive</source>
-        <translation></translation>
+        <translation>Case-sensitive</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="442"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="127"/>
@@ -1297,7 +1297,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="680"/>
         <source>Application rules</source>
-        <translation></translation>
+        <translation>Application rules</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="782"/>
@@ -1312,7 +1312,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="895"/>
         <source>Hosts</source>
-        <translation></translation>
+        <translation>Hosts</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1364"/>
@@ -1342,12 +1342,12 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1366"/>
         <source>Connections</source>
-        <translation></translation>
+        <translation>Connections</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1421"/>
         <source>Dropped</source>
-        <translation></translation>
+        <translation>Dropped</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1476"/>
@@ -1475,7 +1475,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="285"/>
         <source>Outgoing connection</source>
-        <translation></translation>
+        <translation>Outgoing connection</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="290"/>
@@ -1646,7 +1646,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="351"/>
         <source>Restart the GUI in order effects to take effect</source>
-        <translation></translation>
+        <translation>Restart the GUI in order effects to take effect</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="509"/>
@@ -1731,7 +1731,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="569"/>
         <source>Process path regexp error</source>
-        <translation></translation>
+        <translation>Process path regexp error</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="573"/>
@@ -1741,7 +1741,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="587"/>
         <source>Command line regexp error</source>
-        <translation></translation>
+        <translation>Command line regexp error</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="591"/>
@@ -1751,27 +1751,27 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="605"/>
         <source>Dst port regexp error</source>
-        <translation></translation>
+        <translation>Dst port regexp error</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="609"/>
         <source>Dest host can not be empty</source>
-        <translation></translation>
+        <translation>Dest host can not be empty</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="623"/>
         <source>Dst host regexp error</source>
-        <translation></translation>
+        <translation>Dst host regexp error</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="627"/>
         <source>Dest IP/Network can not be empty</source>
-        <translation></translation>
+        <translation>Dest IP/Network can not be empty</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="649"/>
         <source>Dst IP regexp error</source>
-        <translation></translation>
+        <translation>Dst IP regexp error</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="661"/>
@@ -1781,7 +1781,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="675"/>
         <source>User ID regexp error</source>
-        <translation></translation>
+        <translation>User ID regexp error</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="207"/>
@@ -1796,7 +1796,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="751"/>
         <source>Lists field must be a directory</source>
-        <translation></translation>
+        <translation>Lists field must be a directory</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="794"/>
@@ -1974,7 +1974,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="763"/>
         <source>Duplicate</source>
-        <translation></translation>
+        <translation>Duplicate</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="764"/>
@@ -2183,7 +2183,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
         <location filename="../../../opensnitch/dialogs/stats.py" line="288"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation></translation>
+        <translation>Hostname</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="386"/>
@@ -2231,7 +2231,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
         <location filename="../../../opensnitch/dialogs/stats.py" line="405"/>
         <source>Hits</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation></translation>
+        <translation>Hits</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="299"/>
@@ -2273,7 +2273,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
         <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
         <source>Args</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation></translation>
+        <translation>Args</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="303"/>
@@ -2285,7 +2285,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
         <location filename="../../../opensnitch/dialogs/stats.py" line="304"/>
         <source>DstHost</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation></translation>
+        <translation>DstHost</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>

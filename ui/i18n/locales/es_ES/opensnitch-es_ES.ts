@@ -6,7 +6,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="34"/>
         <source>opensnitch-qt</source>
-        <translation type="unfinished"></translation>
+        <translation>opensnitch-qt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="299"/>
@@ -21,7 +21,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="630"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiqueta de texto</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="426"/>
@@ -76,27 +76,27 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="733"/>
         <source>30s</source>
-        <translation type="unfinished"></translation>
+        <translation>30 segundos</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="738"/>
         <source>5m</source>
-        <translation type="unfinished"></translation>
+        <translation>5 minutos</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="743"/>
         <source>15m</source>
-        <translation type="unfinished"></translation>
+        <translation>15 minutos</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="748"/>
         <source>30m</source>
-        <translation type="unfinished"></translation>
+        <translation>30 minutos</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="753"/>
         <source>1h</source>
-        <translation type="unfinished"></translation>
+        <translation>1 hora</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="706"/>
@@ -121,7 +121,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="847"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="758"/>
@@ -131,7 +131,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="704"/>
         <source>from this PID</source>
-        <translation type="unfinished">de este PID</translation>
+        <translation>a partir de este PID</translation>
     </message>
 </context>
 <context>
@@ -159,7 +159,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="331"/>
         <source>Pop-up default duration</source>
-        <translation>Duración por defecto (de la acción)</translation>
+        <translation>Duración por defecto (de la acción/regla)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="754"/>
@@ -244,27 +244,27 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="210"/>
         <source>30s</source>
-        <translation type="unfinished"></translation>
+        <translation>30 segundos</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="215"/>
         <source>5m</source>
-        <translation type="unfinished"></translation>
+        <translation>5 minutos</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="220"/>
         <source>15m</source>
-        <translation type="unfinished"></translation>
+        <translation>15 minutos</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="225"/>
         <source>30m</source>
-        <translation type="unfinished"></translation>
+        <translation>30 minutos</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="230"/>
         <source>1h</source>
-        <translation type="unfinished"></translation>
+        <translation>1 hora</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="240"/>
@@ -360,12 +360,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="809"/>
         <source>HostName</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre del host</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="983"/>
         <source>unix:///tmp/osui.sock</source>
-        <translation type="unfinished"></translation>
+        <translation>unix:///tmp/osui.sock</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="868"/>
@@ -380,12 +380,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="995"/>
         <source>/var/log/opensnitchd.log</source>
-        <translation type="unfinished"></translation>
+        <translation>/var/log/opensnitchd.log</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1000"/>
         <source>/dev/stdout</source>
-        <translation type="unfinished"></translation>
+        <translation>/dev/stdout</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="767"/>
@@ -787,27 +787,27 @@ Si no respondes a la ventana emergente, se aplicarán las opciones por defecto</
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="797"/>
         <source>30s</source>
-        <translation></translation>
+        <translation>30s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="802"/>
         <source>5m</source>
-        <translation></translation>
+        <translation>5m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="807"/>
         <source>15m</source>
-        <translation></translation>
+        <translation>15m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="812"/>
         <source>30m</source>
-        <translation></translation>
+        <translation>30m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="817"/>
         <source>1h</source>
-        <translation></translation>
+        <translation>1h</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="230"/>
@@ -865,32 +865,32 @@ sobre estas opciones, por ejemplo TCP o UDP: ^(TCP|UDP)$</translation>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="333"/>
         <source>TCP</source>
-        <translation></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="338"/>
         <source>UDP</source>
-        <translation></translation>
+        <translation>UDP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="343"/>
         <source>UDPLITE</source>
-        <translation></translation>
+        <translation>UDPLITE</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="348"/>
         <source>TCP6</source>
-        <translation></translation>
+        <translation>TCP6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="353"/>
         <source>UDP6</source>
-        <translation></translation>
+        <translation>UDP6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="358"/>
         <source>UDPLITE6</source>
-        <translation></translation>
+        <translation>UDPLITE6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="440"/>
@@ -924,72 +924,72 @@ Nota: No se permiten ni comas ni espacios para especificar IPs o redes.</transla
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="459"/>
         <source>LAN</source>
-        <translation></translation>
+        <translation>LAN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="464"/>
         <source>127.0.0.0/8</source>
-        <translation></translation>
+        <translation>127.0.0.0/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="469"/>
         <source>192.168.0.0/24</source>
-        <translation></translation>
+        <translation>192.168.0.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="474"/>
         <source>192.168.1.0/24</source>
-        <translation></translation>
+        <translation>192.168.1.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="479"/>
         <source>192.168.2.0/24</source>
-        <translation></translation>
+        <translation>192.168.2.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="484"/>
         <source>192.168.0.0/16</source>
-        <translation></translation>
+        <translation>192.168.0.0/16</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="489"/>
         <source>169.254.0.0/16</source>
-        <translation></translation>
+        <translation>169.254.0.0/16</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="494"/>
         <source>172.16.0.0/12</source>
-        <translation></translation>
+        <translation>172.16.0.0/12</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="499"/>
         <source>10.0.0.0/8</source>
-        <translation></translation>
+        <translation>10.0.0.0/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="504"/>
         <source>::1/128</source>
-        <translation></translation>
+        <translation>::1/128</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="509"/>
         <source>fc00::/7</source>
-        <translation></translation>
+        <translation>fc00::/7</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="514"/>
         <source>ff00::/8</source>
-        <translation></translation>
+        <translation>ff00::/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="519"/>
         <source>fe80::/10</source>
-        <translation></translation>
+        <translation>fe80::/10</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="524"/>
         <source>fd00::/8</source>
-        <translation></translation>
+        <translation>fd00::/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="784"/>
@@ -1188,7 +1188,7 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="300"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="351"/>
@@ -1198,7 +1198,7 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="381"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;hostname - 192.168.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;Nombre del host - 192.168.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="420"/>
@@ -1208,7 +1208,7 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1665"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="464"/>
@@ -1243,22 +1243,22 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="199"/>
         <source>50</source>
-        <translation type="unfinished"></translation>
+        <translation>50</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="204"/>
         <source>100</source>
-        <translation type="unfinished"></translation>
+        <translation>100</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="209"/>
         <source>200</source>
-        <translation type="unfinished"></translation>
+        <translation>200</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="214"/>
         <source>300</source>
-        <translation type="unfinished"></translation>
+        <translation>300</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="748"/>
@@ -1348,7 +1348,7 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1514"/>
         <source>Uptime</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiempo de ejecución</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1639"/>
@@ -1418,7 +1418,7 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="177"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
 </context>
 <context>
@@ -1996,7 +1996,7 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
         <location filename="../../../opensnitch/dialogs/stats.py" line="921"/>
         <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="928"/>
@@ -2317,7 +2317,7 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="252"/>
         <source>What</source>
-        <translation type="unfinished"></translation>
+        <translation>Qué</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="709"/>
@@ -2344,7 +2344,7 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
         <location filename="../../../opensnitch/dialogs/stats.py" line="382"/>
         <source>Uptime</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Tiempo de ejecución</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="384"/>
@@ -2362,7 +2362,7 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
         <location filename="../../../opensnitch/dialogs/stats.py" line="404"/>
         <source>What</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Qué</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="394"/>

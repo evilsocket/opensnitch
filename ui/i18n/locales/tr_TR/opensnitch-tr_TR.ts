@@ -131,7 +131,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="704"/>
         <source>from this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>bu işlem kimliğinden</translation>
     </message>
 </context>
 <context>
@@ -229,7 +229,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="289"/>
         <source>by destination ip</source>
-        <translation>hedef IP'ye göre</translation>
+        <translation>hedef IP&apos;ye göre</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="294"/>
@@ -609,67 +609,67 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="299"/>
         <source>by PID</source>
-        <translation type="unfinished"></translation>
+        <translation>işlem kimliğine göre</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="461"/>
         <source>Disable pop-ups, only display an notification</source>
-        <translation type="unfinished"></translation>
+        <translation>Açılır pencereleri devre dışı bırak, yalnızca bir bildirim görüntüle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="494"/>
         <source>Desktop notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Masaüstü bildirimleri</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="512"/>
         <source>Use system notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Sistem bildirimlerini kullan</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="528"/>
         <source>Use Qt notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt bildirimlerini kullan</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="557"/>
         <source>Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Test</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="570"/>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translation>Sistem</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="705"/>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="909"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don&apos;t have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;İşaretlenirse OpenSnitch, çoğunlukla kötü durumdaki bağlantılar olmak üzere çeşitli nedenlerden dolayı ilişkili bir işlem kimliğine sahip olmayan bağlantılara izin vermenizi veya reddetmenizi isteyecektir.&lt;/p&gt;&lt;p&gt;Açılır iletişim kutusu yalnızca ağ bağlantısı hakkında bilgi içerecektir.&lt;/p&gt;&lt;p&gt;WireGuard kullanarak bir VPN kurarken olduğu gibi, bunların geçerli bağlantılar olduğu bazı senaryolar vardır.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1196"/>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>dakika</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1222"/>
         <source>Minutes between events purges</source>
-        <translation type="unfinished"></translation>
+        <translation>Olay temizlemeleri arasındaki dakikalar</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1245"/>
         <source>days</source>
-        <translation type="unfinished"></translation>
+        <translation>gün</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1255"/>
         <source>Maximum days of events to keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Saklanacak azami etkinlik günü sayısı</translation>
     </message>
 </context>
 <context>
@@ -780,7 +780,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="456"/>
         <source>To this IP / Network</source>
-        <translation>Bu IP'ye / Ağa</translation>
+        <translation>Bu IP&apos;ye / Ağa</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="97"/>
@@ -1098,103 +1098,104 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="148"/>
         <source>Deny will just discard the connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Reddet seçeneği yalnızca bağlantıyı iptal edecektir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="165"/>
         <source>Reject will drop the connection, and kill the socket that initiated it</source>
-        <translation type="unfinished"></translation>
+        <translation>Geri çevir seçeneği bağlantıyı kesecek ve onu başlatan soketi sonlandıracaktır</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="168"/>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Geri çevir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="185"/>
         <source>Allow will allow the connection</source>
-        <translation type="unfinished"></translation>
+        <translation>İzin ver seçeneği bağlantıya izin verecektir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="221"/>
         <source>Applications</source>
-        <translation type="unfinished">Uygulamalar</translation>
+        <translation>Uygulamalar</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="230"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The value of this field is always the absolute path to the executable: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;- Simple: /path/to/binary&lt;/p&gt;&lt;p&gt;- Multiple paths: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Multiple binaries: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Deny/Allow executions from /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For more examples visit the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki page&lt;/a&gt; or ask on the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Discussion forums&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bu alanın değeri her zaman program dosyasının mutlak yoludur: /programın/yolu&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Örnekler:&lt;/p&gt;&lt;p&gt;- Basit: /programın/yolu&lt;/p&gt;&lt;p&gt;- Birden çok yol: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Birden fazla program: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- /tmp&apos;den çalıştırmaları reddet/izin ver:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Daha fazla örnek için &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki sayfasını&lt;/a&gt; ziyaret edin veya &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Tartışma forumlarında&lt;/a&gt; sorun.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="240"/>
         <source>Is regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Düzenli ifadedir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="264"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will contain and match the command line that was executed by the user.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the command, only the command will appear:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the absolute or relative path to the command, that is what will appear:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bu alan kullanıcı tarafından çalıştırılan komut satırını içerecek ve eşleşecektir.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Kullanıcı komutu yazdıysa, yalnızca komut görünecektir:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Kullanıcı komutun mutlak veya göreceli yolunu yazdıysa, görünecek olan budur:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="274"/>
         <source>From this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu işlem kimliğinden</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="348"/>
         <source>is regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>düzenli ifadedir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="360"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Ağ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="610"/>
         <source>List of domains/IPs</source>
-        <translation type="unfinished"></translation>
+        <translation>Etki alanlarının/IP&apos;lerin listesi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="616"/>
         <source>To this list of network ranges</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ağ aralıkları listesine</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="623"/>
         <source>To this list of IPs</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu IP listesine</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="649"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of IPs to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;/p&gt;&lt;p&gt;One IP per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Engellenecek veya izin verilecek IP&apos;lerin listesini içeren dosyaların bulunduğu bir dizin seçin:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;vb.&lt;/p&gt;&lt;p&gt;Satır başına bir IP. Boş veya # ile başlayan satırlar dikkate alınmaz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="684"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of network ranges to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;One Network Range per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Engellenecek veya izin verilecek ağ aralıklarının listesini içeren dosyaların bulunduğu bir dizin seçin:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;vb.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Satır başına bir ağ aralığı. Boş veya # ile başlayan satırlar dikkate alınmaz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="712"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Engellenecek veya izin verilecek etki alanlarının listelerini içeren bir dizin seçin.&lt;/p&gt;&lt;p&gt;Etki alanı listelerini içeren herhangi bir uzantıya sahip dosyaları bu dizinin içine yerleştirin.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;Bir listenin her girdisinin biçimi şu şekildedir (hosts dosyası biçimi):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.etkialani.com&lt;/p&gt;&lt;p&gt;veya &lt;/p&gt;&lt;p&gt;0.0.0.0 www.etkialani.com&lt;/p&gt;&lt;p&gt;Boş veya # ile başlayan satırlar dikkate alınmaz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="727"/>
         <source>To this list of domains 
 (regular expressions)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu etki alanları listesine
+(düzenli ifadeler)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="754"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing regular expressions of domains to block or allow:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;You can also use a domain as is: &amp;quot;example.com&amp;quot; , and it&apos;ll match whatever.example.com, whatever.example.com.localdomain, etc.&lt;/p&gt;&lt;p&gt;One domain per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Engellenecek veya izin verilecek etki alanlarının düzenli ifadelerini içeren dosyaları içeren bir dizin seçin:&lt;/p&gt;&lt;p&gt;.*\.ornek\.com&lt;/p&gt;&lt;p&gt;Bir etki alanını olduğu gibi de kullanabilirsiniz: &amp;quot;ornek.com&amp;quot;, bu herhangibirsey.ornek.com, herhangibirsey.ornek.com.localdomain, vb. ile eşleşecektir.&lt;/p&gt;&lt;p&gt;Satır başına bir etki alanı. Boş veya # ile başlayan satırlar dikkate alınmaz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="764"/>
         <source>More</source>
-        <translation type="unfinished"></translation>
+        <translation>Daha fazla</translation>
     </message>
 </context>
 <context>
@@ -1437,12 +1438,12 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="125"/>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Geri çevir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="177"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
 </context>
 <context>
@@ -1502,7 +1503,7 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="547"/>
         <source>System notifications are not available, you need to install python3-notify2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sistem bildirimleri kullanılamıyor, python3-notify2 kurmanız gerekiyor.</translation>
     </message>
 </context>
 <context>
@@ -1610,12 +1611,12 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/notifications.py" line="108"/>
         <source>New outgoing connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni giden bağlantı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="334"/>
         <source>from this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>bu işlem kimliğinden</translation>
     </message>
 </context>
 <context>
@@ -1706,22 +1707,22 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="127"/>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translation>Sistem</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="135"/>
         <source>Themes not available. Install qt-material: pip3 install qt-material</source>
-        <translation type="unfinished"></translation>
+        <translation>Temalar kullanılamıyor. qt-material kurun: pip3 install qt-material</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="387"/>
         <source>UI theme changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı arayüzü teması değiştirildi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="387"/>
         <source>Restart the GUI in order to apply the new theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni temayı uygulamak için grafiksel arayüzü yeniden başlatın</translation>
     </message>
 </context>
 <context>
@@ -1861,22 +1862,22 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="181"/>
         <source>There&apos;s already a rule with this name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ada sahip bir kural zaten var.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="679"/>
         <source>PID field can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>İşlem kimliği alanı boş olamaz</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="693"/>
         <source>PID field regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>İşlem kimliği alanı düzenli ifade hatası</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="781"/>
         <source>Select at least one field.</source>
-        <translation type="unfinished"></translation>
+        <translation>En az bir alan seçin.</translation>
     </message>
 </context>
 <context>
@@ -1979,7 +1980,7 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="24"/>
         <source>Hits</source>
-        <translation type="unfinished">Total</translation>
+        <translation>Kullanıldı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
@@ -2346,57 +2347,57 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/service.py" line="652"/>
         <source>New node connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni düğüm bağlandı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="23"/>
         <source>What</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="25"/>
         <source>Network name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ağ adı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="289"/>
         <source>Uptime</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Çalışma süresi</translation>
+        <translation>Çalışma süresi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="297"/>
         <source>Precedence</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Öncelik</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="384"/>
         <source>Connections</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Bağlantılar</translation>
+        <translation>Bağlantılar</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="385"/>
         <source>Dropped</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Bırakıldı</translation>
+        <translation>Bırakıldı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="404"/>
         <source>What</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ne</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="736"/>
         <source>Apply to</source>
-        <translation type="unfinished"></translation>
+        <translation>Uygula</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="746"/>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Geri çevir</translation>
     </message>
 </context>
 <context>
