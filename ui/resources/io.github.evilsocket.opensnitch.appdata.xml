@@ -31,7 +31,14 @@
       OpenSnitch can also work as a system-wide domains blocker, by using lists of domains, list of IPs or list of regular expressions.
     </p>
   </description>
-  
+
+  <categories>
+    <category>System</category>
+    <category>Security</category>
+    <category>Monitor</category>
+    <category>Network</category>
+  </categories>
+
   <icon type="stock">opensnitch_ui</icon>
   <url type="homepage">https://github.com/evilsocket/opensnitch</url>
   <url type="bugtracker">https://github.com/evilsocket/opensnitch/issues</url>
