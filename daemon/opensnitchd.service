@@ -1,6 +1,6 @@
 [Unit]
 Description=Application firewall OpenSnitch
-Documentation=https://github.com/gustavo-iniguez-goya/opensnitch/wiki
+Documentation=https://github.com/evilsocket/opensnitch/wiki
 
 [Service]
 Type=simple
