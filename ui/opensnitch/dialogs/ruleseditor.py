@@ -293,7 +293,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstPortLine.setText(records.value(ConnFields.DstPort))
         self.uidLine.setText(records.value(ConnFields.UID))
         self.pidLine.setText(records.value(ConnFields.PID))
-        self.procLine.setText(records.value(Database.connFields.Process))
+        self.procLine.setText(records.value(ConnFields.Process))
         self.cmdlineLine.setText(records.value(ConnFields.Cmdline))
 
     def _reset_state(self):
