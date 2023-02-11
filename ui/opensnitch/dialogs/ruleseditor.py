@@ -14,8 +14,10 @@ import ipaddress
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
+from opensnitch.database.enums import RuleFields, ConnFields
 from opensnitch.version import version
 from opensnitch.utils import Message, FileDialog, Icons, NetworkInterfaces
+from opensnitch.rules import Rule
 
 DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -283,31 +285,16 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.statusLabel.setText(str(e))
             return False
 
-    def get_rule_from_records(self, records):
-        rule = ui_pb2.Rule(name=records.value(2))
-        rule.enabled = self._bool(records.value(3))
-        rule.precedence = self._bool(records.value(4))
-        rule.action = records.value(5)
-        rule.duration = records.value(6)
-        rule.operator.type = records.value(7)
-        rule.operator.sensitive = self._bool(records.value(8))
-        rule.operator.operand = records.value(9)
-        rule.operator.data = "" if records.value(10) == None else str(records.value(10))
-        rule.description = records.value(11)
-        rule.nolog = self._bool(records.value(12))
-
-        return rule
-
     def set_fields_from_connection(self, records):
-        self.nodesCombo.setCurrentText(records.value(1))
-        self.protoCombo.setCurrentText(records.value(3).upper())
-        self.dstIPCombo.setCurrentText(records.value(6))
-        self.dstHostLine.setText(records.value(7))
-        self.dstPortLine.setText(records.value(8))
-        self.uidLine.setText(records.value(9))
-        self.pidLine.setText(records.value(10))
-        self.procLine.setText(records.value(11))
-        self.cmdlineLine.setText(records.value(12))
+        self.nodesCombo.setCurrentText(records.value(ConnFields.Node))
+        self.protoCombo.setCurrentText(records.value(ConnFields.Protocol).upper())
+        self.dstIPCombo.setCurrentText(records.value(ConnFields.DstIP))
+        self.dstHostLine.setText(records.value(ConnFields.DstHost))
+        self.dstPortLine.setText(records.value(ConnFields.DstPort))
+        self.uidLine.setText(records.value(ConnFields.UID))
+        self.pidLine.setText(records.value(ConnFields.PID))
+        self.procLine.setText(records.value(Database.connFields.Process))
+        self.cmdlineLine.setText(records.value(ConnFields.Cmdline))
 
     def _reset_state(self):
         self._old_rule_name = None
@@ -864,7 +851,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.WORK_MODE = self.EDIT_RULE
         self._reset_state()
 
-        self.rule = self.get_rule_from_records(records)
+        self.rule = Rule.new_from_records(records)
         if self.rule.operator.type not in Config.RulesTypes:
             Message.ok(QC.translate("rules", "<b>Rule not supported</b>"),
                        QC.translate("rules", "This type of rule ({0}) is not supported by version {1}".format(self.rule.operator.type, version)),
@@ -872,7 +859,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.hide()
             return
 
-        self._old_rule_name = records.value(2)
+        self._old_rule_name = records.value(RuleFields.Name)
 
         if self._load_rule(addr=_addr, rule=self.rule):
             self.show()

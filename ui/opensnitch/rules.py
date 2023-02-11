@@ -2,6 +2,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 from opensnitch import ui_pb2
 from opensnitch.database import Database
+from opensnitch.database.enums import RuleFields
 from opensnitch.config import Config
 
 import os
@@ -26,20 +27,19 @@ class Rule():
         """Creates a new protobuf Rule from DB records.
         Fields of the record are in the order defined on the DB.
         """
-        rule = ui_pb2.Rule(name=records.value(2))
-        rule.enabled = Rule.to_bool(records.value(3))
-        rule.precedence = Rule.to_bool(records.value(4))
-        rule.action = records.value(5)
-        rule.duration = records.value(6)
-        rule.operator.type = records.value(7)
-        rule.operator.sensitive = Rule.to_bool(records.value(8))
-        rule.operator.operand = records.value(9)
-        rule.operator.data = "" if records.value(10) == None else str(records.value(10))
-        rule.description = records.value(11)
-        rule.nolog = Rule.to_bool(records.value(12))
+        rule = ui_pb2.Rule(name=records.value(RuleFields.Name))
+        rule.enabled = Rule.to_bool(records.value(RuleFields.Enabled))
+        rule.precedence = Rule.to_bool(records.value(RuleFields.Precedence))
+        rule.action = records.value(RuleFields.Action)
+        rule.duration = records.value(RuleFields.Duration)
+        rule.operator.type = records.value(RuleFields.OpType)
+        rule.operator.sensitive = Rule.to_bool(records.value(RuleFields.OpSensitive))
+        rule.operator.operand = records.value(RuleFields.OpOperand)
+        rule.operator.data = "" if records.value(RuleFields.OpData) == None else str(records.value(RuleFields.OpData))
+        rule.description = records.value(RuleFields.Description)
+        rule.nolog = Rule.to_bool(records.value(RuleFields.NoLog))
 
         return rule
-
 
 class Rules(QObject):
     __instance = None

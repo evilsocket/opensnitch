@@ -23,6 +23,7 @@ from opensnitch.customwidgets.generictableview import GenericTableModel
 from opensnitch.customwidgets.addresstablemodel import AddressTableModel
 from opensnitch.utils import Message, QuickHelp, AsnDB, Icons
 from opensnitch.actions import Actions
+from opensnitch.rules import Rule
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -1001,7 +1002,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             for idx in range(0,100):
                 records = self._get_rule(rule_name, node_addr)
                 if records == None or records.size() == -1:
-                    rule = self._rules_dialog.get_rule_from_records(records)
+                    rule = Rule.new_from_records(records)
                     rule.name = "cloned-{0}-{1}".format(idx, rule.name)
                     self._db.insert_rule(rule, node_addr)
                     break
@@ -1017,7 +1018,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         for idx in selection:
             rule_name = model.index(idx.row(), self.COL_R_NAME).data()
             records = self._get_rule(rule_name, None)
-            rule = self._rules_dialog.get_rule_from_records(records)
+            rule = Rule.new_from_records(records)
 
             noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
             nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
@@ -1031,7 +1032,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             node_addr = model.index(idx.row(), self.COL_R_NODE).data()
 
             records = self._get_rule(rule_name, node_addr)
-            rule = self._rules_dialog.get_rule_from_records(records)
+            rule = Rule.new_from_records(records)
 
             self._db.update(table="rules", fields="{0}=?".format(field),
                             values=[value], condition="name='{0}' AND node='{1}'".format(rule_name, node_addr),
@@ -1057,7 +1058,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             node_addr = model.index(idx.row(), self.COL_R_NODE).data()
 
             records = self._get_rule(rule_name, node_addr)
-            rule = self._rules_dialog.get_rule_from_records(records)
+            rule = Rule.new_from_records(records)
             rule_type = ui_pb2.DISABLE_RULE if is_rule_enabled == "True" else ui_pb2.ENABLE_RULE
 
             self._db.update(table="rules", fields="enabled=?",
@@ -1127,7 +1128,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             node = model.index(idx.row(), self.COL_R_NODE).data()
             records = self._get_rule(name, node)
             if records == None or records == -1:
-                Message.ok("Rule error",
+                Message.ok(QC.transslate("stats", "New rule error"),
                            QC.translate("stats", "Rule not found by that name and node"),
                            QtWidgets.QMessageBox.Warning)
                 return
@@ -1765,7 +1766,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         records = self._db.get_rule(rule_name, node_name)
         if records.next() == False:
             print("[stats dialog] edit rule, no records: ", rule_name, node_name)
-            self.TABLES[cur_idx]['cmd'].click()
+            if self.TABLES[cur_idx]['cmd'] != None:
+                self.TABLES[cur_idx]['cmd'].click()
             return None
 
         return records
