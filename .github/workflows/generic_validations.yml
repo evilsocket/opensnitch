@@ -1,0 +1,37 @@
+name: Test resources validation
+on:
+
+  # Trigger this workflow only when ebpf modules changes.
+  push:
+    paths:
+      - 'ui/resources/*'
+      - '.github/workflows/generic.yml'
+  pull_request:
+    paths:
+      - 'ui/resources/*'
+      - '.github/workflows/generic.yml'
+
+  # Allow to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    name: Install tools
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Check out git code
+      uses: actions/checkout@v2
+
+    - name: Get and prepare dependencies
+      run: |
+        set -e
+        set -x
+        sudo apt install desktop-file-utils appstream
+    - name: Validate resources
+      run: |
+        set -e
+        set -x
+        desktop-file-validate ui/resources/opensnitch_ui.desktop
+        appstreamcli validate ui/resources/io.github.evilsocket.opensnitch.appdata.xml
