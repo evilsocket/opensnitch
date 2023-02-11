@@ -298,6 +298,17 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         return rule
 
+    def set_fields_from_connection(self, records):
+        self.nodesCombo.setCurrentText(records.value(1))
+        self.protoCombo.setCurrentText(records.value(3).upper())
+        self.dstIPCombo.setCurrentText(records.value(6))
+        self.dstHostLine.setText(records.value(7))
+        self.dstPortLine.setText(records.value(8))
+        self.uidLine.setText(records.value(9))
+        self.pidLine.setText(records.value(10))
+        self.procLine.setText(records.value(11))
+        self.cmdlineLine.setText(records.value(12))
+
     def _reset_state(self):
         self._old_rule_name = None
         self.rule = None
@@ -871,3 +882,22 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._reset_state()
         self._load_nodes()
         self.show()
+
+    def new_rule_from_connection(self, coltime):
+        self.WORK_MODE = self.ADD_RULE
+        self._reset_state()
+        self._load_nodes()
+
+        try:
+            records = self._db.get_connection_by_field("time", coltime)
+            if records.next() == False:
+                print(self.LOG_TAG, "error loading connection fields by time: {0}".format(coltime))
+                return False
+
+            self.set_fields_from_connection(records)
+            self.show()
+        except Exception as e:
+            print(self.LOG_TAG, "exception creating new rule from connection:", e)
+            return False
+
+        return True

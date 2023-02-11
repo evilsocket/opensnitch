@@ -558,6 +558,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_MAIN]['view'].installEventFilter(self)
         self.TABLES[self.TAB_MAIN]['filterLine'].textChanged.connect(self._cb_events_filter_line_changed)
 
+        self.TABLES[self.TAB_MAIN]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.TABLES[self.TAB_MAIN]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
         self.TABLES[self.TAB_RULES]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.TABLES[self.TAB_RULES]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
         for idx in range(1,9):
@@ -801,6 +803,36 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             stream = io.StringIO()
             csv.writer(stream, delimiter=',').writerows(selection)
             QtWidgets.qApp.clipboard().setText(stream.getvalue())
+
+    def _configure_events_contextual_menu(self, pos):
+        try:
+            cur_idx = self.tabWidget.currentIndex()
+            table = self._get_active_table()
+            model = table.model()
+
+            selection = table.selectionModel().selectedRows()
+            if not selection:
+                return
+
+            menu = QtWidgets.QMenu()
+            rulesMenu = QtWidgets.QMenu(QC.translate("stats", "Rules"))
+            _menu_new_rule = rulesMenu.addAction(QC.translate("stats", "New"))
+            menu.addMenu(rulesMenu)
+
+            # move away menu a few pixels to the right, to avoid clicking on it by mistake
+            point = QtCore.QPoint(pos.x()+10, pos.y()+5)
+            action = menu.exec_(table.mapToGlobal(point))
+
+            model = table.model()
+
+            if action == _menu_new_rule:
+                self._table_menu_new_rule_from_row(cur_idx, model, selection)
+
+        except Exception as e:
+            print(e)
+        finally:
+            self._clear_rows_selection()
+            return True
 
     def _configure_rules_contextual_menu(self, pos):
         try:
@@ -1079,8 +1111,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if do_refresh:
                 self._refresh_active_table()
 
-    def _table_menu_edit(self, cur_idx, model, selection):
+    def _table_menu_new_rule_from_row(self, cur_idx, model, selection):
+        coltime = model.index(selection[0].row(), self.COL_TIME).data()
+        if self._rules_dialog.new_rule_from_connection(coltime) == False:
 
+            Message.ok(QC.transslate("stats", "New rule error"),
+                        QC.translate("stats",
+                                    "Error creating new rule from event ({0})".format(coltime)
+                                    ),
+                        QtWidgets.QMessageBox.Warning)
+
+    def _table_menu_edit(self, cur_idx, model, selection):
         for idx in selection:
             name = model.index(idx.row(), self.COL_R_NAME).data()
             node = model.index(idx.row(), self.COL_R_NODE).data()
@@ -1163,12 +1204,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_table_context_menu(self, pos):
         cur_idx = self.tabWidget.currentIndex()
-        if cur_idx != self.TAB_RULES or self.IN_DETAIL_VIEW[self.TAB_RULES] == True:
-            # the only table with context menu for now is the main rules table
+        if cur_idx != self.TAB_RULES and cur_idx != self.TAB_MAIN:
+            # the only tables with context menu for now are events and rules table
+            return
+        if self.IN_DETAIL_VIEW[self.TAB_RULES] == True:
             return
 
         self._context_menu_active = True
-        refresh_table = self._configure_rules_contextual_menu(pos)
+        if cur_idx == self.TAB_MAIN:
+            refresh_table = self._configure_events_contextual_menu(pos)
+        else:
+            refresh_table = self._configure_rules_contextual_menu(pos)
+
         self._context_menu_active = False
         if refresh_table:
             self._refresh_active_table()

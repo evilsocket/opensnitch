@@ -498,6 +498,18 @@ class Database:
 
         return True
 
+    def get_connection_by_field(self, field, date):
+        """
+        """
+        qstr = "SELECT * FROM connections WHERE {0}=?".format(field)
+
+        q = QSqlQuery(qstr, self.db)
+        q.prepare(qstr)
+        q.addBindValue(date)
+        q.exec_()
+
+        return q
+
     def get_rule(self, rule_name, node_addr=None):
         """
         get rule records, given the name of the rule and the node
