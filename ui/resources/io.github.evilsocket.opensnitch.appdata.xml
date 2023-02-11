@@ -16,7 +16,7 @@
   
   <description>
     <p>
-      OpenSnitch is a GNU/Linux interactive firewall application.
+      OpenSnitch is a GNU/Linux interactive application firewall.
     </p>
     <p>
       Whenever a program tries to establish a new connection, it&apos;ll prompt the user to allow or deny it.
@@ -31,7 +31,14 @@
       OpenSnitch can also work as a system-wide domains blocker, by using lists of domains, list of IPs or list of regular expressions.
     </p>
   </description>
-  
+
+  <categories>
+    <category>System</category>
+    <category>Security</category>
+    <category>Monitor</category>
+    <category>Network</category>
+  </categories>
+
   <icon type="stock">opensnitch_ui</icon>
   <url type="homepage">https://github.com/evilsocket/opensnitch</url>
   <url type="bugtracker">https://github.com/evilsocket/opensnitch/issues</url>
