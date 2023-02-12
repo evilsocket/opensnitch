@@ -136,167 +136,167 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="816"/>
         <source>action</source>
-        <translation type="unfinished"></translation>
+        <translation>eylem</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="14"/>
         <source>Firewall</source>
-        <translation type="unfinished"></translation>
+        <translation>Güvenlik duvarı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="59"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Firewall&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Güvenlik duvarı&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="266"/>
         <source>Inbound</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="307"/>
         <source>Outbound</source>
-        <translation type="unfinished"></translation>
+        <translation>Giden</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="314"/>
         <source>Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="366"/>
         <source>Allow inbound connections to a port</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir bağlantı noktasına gelen bağlantılara izin ver</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="369"/>
         <source>Allow service (IN)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hizmete izin ver (GELEN)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="389"/>
         <source>Exclude outbound connections to a port from being intercepted</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir bağlantı noktasına giden bağlantıları araya girmekten hariç tut</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="398"/>
         <source>Allow service (OUT)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hizmete izin ver (GİDEN)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="418"/>
         <source>New rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni kural</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="453"/>
         <source>xxx</source>
-        <translation type="unfinished"></translation>
+        <translation>xxx</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="364"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="14"/>
         <source>Firewall rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Güvenlik duvarı kuralı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="26"/>
         <source>Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Düğüm</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="34"/>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>Tümü</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="44"/>
         <source>Enable</source>
-        <translation type="unfinished">Etkinleştir</translation>
+        <translation>Etkinleştir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="56"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Açıklama</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="96"/>
         <source>Simple</source>
-        <translation type="unfinished"></translation>
+        <translation>Basit</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="160"/>
         <source>Add new condition</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni koşul ekle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="183"/>
         <source>Remove selected condition</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen koşulu kaldır</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="227"/>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Yön</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="238"/>
         <source>IN</source>
-        <translation type="unfinished"></translation>
+        <translation>GELEN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="247"/>
         <source>OUT</source>
-        <translation type="unfinished"></translation>
+        <translation>GİDEN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="259"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Eylem</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="270"/>
         <source>ACCEPT</source>
-        <translation type="unfinished"></translation>
+        <translation>KABUL ET</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="279"/>
         <source>DROP</source>
-        <translation type="unfinished"></translation>
+        <translation>BIRAK</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="288"/>
         <source>REJECT</source>
-        <translation type="unfinished"></translation>
+        <translation>GERİ ÇEVİR</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="297"/>
         <source>RETURN</source>
-        <translation type="unfinished"></translation>
+        <translation>GERİ DÖN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="375"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Temizle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="386"/>
         <source>Delete</source>
-        <translation type="unfinished">Sil</translation>
+        <translation>Sil</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="397"/>
         <source>Save</source>
-        <translation type="unfinished">Kaydet</translation>
+        <translation>Kaydet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="408"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekle</translation>
     </message>
 </context>
 <context>
@@ -394,7 +394,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="298"/>
         <source>by destination ip</source>
-        <translation>hedef IP'ye göre</translation>
+        <translation>hedef IP&apos;ye göre</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="303"/>
@@ -839,59 +839,61 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="147"/>
         <source>reject</source>
-        <translation type="unfinished"></translation>
+        <translation>geri çevir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="473"/>
         <source>Disable pop-ups, only display a notification</source>
-        <translation type="unfinished"></translation>
+        <translation>Açılır pencereleri devre dışı bırak, yalnızca bir bildirim görüntüle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="704"/>
         <source>Command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Komut satırı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="738"/>
         <source>Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurallar</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="746"/>
         <source>When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.
 
 Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu seçenek seçildiğinde, seçilen sürenin kuralları grafiksel arayüzdeki geçici kurallar listesine eklenmeyecektir.
+
+Geçici kurallar geçerli olmaya devam edecektir ve yeni bir bağlantıya izin vermeniz/vermemeniz istendiğinde bunları kullanabilirsiniz.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="751"/>
         <source>Don&apos;t save/Delete rules of duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Süre kurallarını kaydetme/silme</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="769"/>
         <source>30s or less</source>
-        <translation type="unfinished"></translation>
+        <translation>30sn veya daha az</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="774"/>
         <source>5m or less</source>
-        <translation type="unfinished"></translation>
+        <translation>5dak veya daha az</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="779"/>
         <source>15m or less</source>
-        <translation type="unfinished"></translation>
+        <translation>15dak veya daha az</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="784"/>
         <source>30m or less</source>
-        <translation type="unfinished"></translation>
+        <translation>30dak veya daha az</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="789"/>
         <source>1h or less</source>
-        <translation type="unfinished"></translation>
+        <translation>1sa veya daha az</translation>
     </message>
 </context>
 <context>
@@ -1002,7 +1004,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="676"/>
         <source>To this IP / Network</source>
-        <translation>Bu IP'ye / Ağa</translation>
+        <translation>Bu IP&apos;ye / Ağa</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="164"/>
@@ -1345,7 +1347,7 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="297"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The value of this field is always the absolute path to the executable: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;- Simple: /path/to/binary&lt;/p&gt;&lt;p&gt;- Multiple paths: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Multiple binaries: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Deny/Allow executions from /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For more examples visit the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki page&lt;/a&gt; or ask on the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Discussion forums&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bu alanın değeri her zaman program dosyasının mutlak yoludur: /programın/yolu&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Örnekler:&lt;/p&gt;&lt;p&gt;- Basit: /programın/yolu&lt;/p&gt;&lt;p&gt;- Birden çok yol: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Birden fazla program: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- /tmp'den çalıştırmaları reddet/izin ver:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Daha fazla örnek için &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki sayfasını&lt;/a&gt; ziyaret edin veya &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Tartışma forumlarında&lt;/a&gt; sorun.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bu alanın değeri her zaman program dosyasının mutlak yoludur: /programın/yolu&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Örnekler:&lt;/p&gt;&lt;p&gt;- Basit: /programın/yolu&lt;/p&gt;&lt;p&gt;- Birden çok yol: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Birden fazla program: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- /tmp&apos;den çalıştırmaları reddet/izin ver:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Daha fazla örnek için &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki sayfasını&lt;/a&gt; ziyaret edin veya &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Tartışma forumlarında&lt;/a&gt; sorun.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="307"/>
@@ -1375,7 +1377,7 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="722"/>
         <source>List of domains/IPs</source>
-        <translation>Etki alanlarının/IP'lerin listesi</translation>
+        <translation>Etki alanlarının/IP&apos;lerin listesi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="728"/>
@@ -1390,7 +1392,7 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="761"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of IPs to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;/p&gt;&lt;p&gt;One IP per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Engellenecek veya izin verilecek IP'lerin listesini içeren dosyaların bulunduğu bir dizin seçin:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;vb.&lt;/p&gt;&lt;p&gt;Satır başına bir IP. Boş veya # ile başlayan satırlar dikkate alınmaz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Engellenecek veya izin verilecek IP&apos;lerin listesini içeren dosyaların bulunduğu bir dizin seçin:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;vb.&lt;/p&gt;&lt;p&gt;Satır başına bir IP. Boş veya # ile başlayan satırlar dikkate alınmaz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="796"/>
@@ -1422,52 +1424,52 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="83"/>
         <source>Name (leave blank to autocreate)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ad (otomatik oluşturmak için boş bırakın)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="489"/>
         <source>ICMP</source>
-        <translation type="unfinished"></translation>
+        <translation>ICMP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="494"/>
         <source>ICMP6</source>
-        <translation type="unfinished"></translation>
+        <translation>ICMP6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="499"/>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="504"/>
         <source>SCTP6</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="700"/>
         <source>Network interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Ağ arayüzü</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="892"/>
         <source>Don&apos;t log connections that match this rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu kuralla eşleşen bağlantıları günlüğe kaydetme</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="895"/>
         <source>Don&apos;t log connections</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlantıları günlüğe kaydetme</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="937"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Renk</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="958"/>
         <source>Description...</source>
-        <translation type="unfinished"></translation>
+        <translation>Açıklama...</translation>
     </message>
 </context>
 <context>
@@ -1720,27 +1722,27 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="637"/>
         <source>Delete this node</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu düğümü sil</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="653"/>
         <source>Show the preferences of this node</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu düğümün tercihlerini göster</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="669"/>
         <source>Start or stop interception of this node</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu düğümün araya girmesini başlat veya durdur</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="777"/>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="954"/>
         <source>System rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Sistem kuralları</translation>
     </message>
 </context>
 <context>
@@ -1776,248 +1778,249 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="90"/>
         <source>Configuration applied.</source>
-        <translation type="unfinished">Yapılandırma uygulandı.</translation>
+        <translation>Yapılandırma uygulandı.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="304"/>
         <source>Error: {0}</source>
-        <translation type="unfinished"></translation>
+        <translation>Hata: {0}</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="186"/>
         <source>Applying changes...</source>
-        <translation type="unfinished"></translation>
+        <translation>Değişiklikler uygulanıyor...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="223"/>
         <source>Error getting INPUT chain policy</source>
-        <translation type="unfinished"></translation>
+        <translation>INPUT zinciri politikası alınırken hata oluştu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="230"/>
         <source>Error getting OUTPUT chain policy</source>
-        <translation type="unfinished"></translation>
+        <translation>OUTPUT zinciri politikası alınırken hata oluştu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="283"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafiksel arayüzden güvenlik duvarı kurallarını yapılandırmak için &apos;iptables&apos; yerine &apos;nftables&apos; kullanmamız gerekir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="297"/>
         <source>Enabling firewall...</source>
-        <translation type="unfinished"></translation>
+        <translation>Güvenlik duvarı etkinleştiriliyor...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="299"/>
         <source>Disabling firewall...</source>
-        <translation type="unfinished"></translation>
+        <translation>Güvenlik duvarı devre dışı bırakılıyor...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="66"/>
         <source>Dest Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef Bağlantı Noktası</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="67"/>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak Bağlantı Noktası</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="68"/>
         <source>Dest IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="69"/>
         <source>Source IP</source>
-        <translation type="unfinished">Kaynak IP</translation>
+        <translation>Kaynak IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="70"/>
         <source>Input interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Giriş arayüzü</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="71"/>
         <source>Output interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Çıkış arayüzü</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="72"/>
         <source>Set conntrack mark</source>
-        <translation type="unfinished"></translation>
+        <translation>conntrack işaretini ayarla</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="73"/>
         <source>Match conntrack mark</source>
-        <translation type="unfinished"></translation>
+        <translation>conntrack işaretini eşleştir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="74"/>
         <source>Match conntrack state(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>conntrack durum(lar)ını eşleştir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="75"/>
         <source>Set mark on packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket üzerinde işareti ayarla</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="76"/>
         <source>Match packet information</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket bilgilerini eşleştir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="82"/>
         <source>Bandwidth quotas</source>
-        <translation type="unfinished"></translation>
+        <translation>Bant genişliği kotaları</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="84"/>
         <source>Rate limit connections</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlantı hızlarını sınırla</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="273"/>
         <source>Your protobuf version is incompatible, you need to install protobuf 3.8.0 or superior
 (pip3 install --ignore-installed protobuf==3.8.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>protobuf sürümünüz uyumsuz, protobuf 3.8.0 veya üstünü kurmanız gerekiyor
+(pip3 install --ignore-installed protobuf==3.8.0)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="297"/>
         <source>Rule deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Kural silindi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="301"/>
         <source>Rule added</source>
-        <translation type="unfinished"></translation>
+        <translation>Kural eklendi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="316"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
-        <translation type="unfinished"></translation>
+        <translation>Birden fazla bağlantı noktası/IP veya aralık/değer belirtmek için &apos;,&apos; veya &apos;-&apos; kullanabilirsiniz:&lt;br&gt;&lt;br&gt;bağlantı noktaları: 22 veya 22,443 veya 50000-60000&lt;br&gt;IP adresleri: 192.168.1.1 veya 192.168.1.30-192.168 .1.130&lt;br&gt;Değerler: echo-reply,echo-request&lt;br&gt;Değerler: new,established,related</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="336"/>
         <source>Deleting rule, wait</source>
-        <translation type="unfinished"></translation>
+        <translation>Kural siliniyor, bekleyin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="339"/>
         <source>Error updating rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Kural güncellenirken hata oluştu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="373"/>
         <source>Adding rule, wait</source>
-        <translation type="unfinished"></translation>
+        <translation>Kural ekleniyor, bekleyin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="378"/>
         <source>&lt;select a statement&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;bir ifade seçin&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="573"/>
         <source>Equal</source>
-        <translation type="unfinished"></translation>
+        <translation>Eşit</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="574"/>
         <source>Not equal</source>
-        <translation type="unfinished"></translation>
+        <translation>Eşit değil</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="575"/>
         <source>Greater or equal than</source>
-        <translation type="unfinished"></translation>
+        <translation>Büyük veya eşit</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="576"/>
         <source>Greater than</source>
-        <translation type="unfinished"></translation>
+        <translation>Büyük</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="577"/>
         <source>Less or equal than</source>
-        <translation type="unfinished"></translation>
+        <translation>Küçük veya eşit</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="578"/>
         <source>Less than</source>
-        <translation type="unfinished"></translation>
+        <translation>Küçük</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1044"/>
         <source>Firewall rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Güvenlik duvarı kuralı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="665"/>
         <source>Simple</source>
-        <translation type="unfinished"></translation>
+        <translation>Basit</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="670"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelişmiş</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="826"/>
         <source>This rule is not supported yet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu kural henüz desteklenmiyor.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="877"/>
         <source>Exclude service</source>
-        <translation type="unfinished"></translation>
+        <translation>Hizmeti hariç tut</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="889"/>
         <source>Allow inbound connections to the selected port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen bağlantı noktasına gelen bağlantılara izin ver.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="891"/>
         <source>Allow outbound connections to the selected port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen bağlantı noktasına giden bağlantılara izin ver.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="925"/>
         <source>select a statement.</source>
-        <translation type="unfinished"></translation>
+        <translation>bir ifade seçin.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="941"/>
         <source>value cannot be 0 or empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>değer 0 veya boş olamaz.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="953"/>
         <source>the value format is 1024/kbytes (or bytes, mbytes, gbytes)</source>
-        <translation type="unfinished"></translation>
+        <translation>değer biçimi 1024/kbayttır (veya bayt, mbayt, gbayt)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="964"/>
         <source>the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)</source>
-        <translation type="unfinished"></translation>
+        <translation>değer biçimi 1024/kbayt/saniyedir (veya bayt, mbayt, gbayt)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="967"/>
         <source>rate-limit not valid, use: bytes, kbytes, mbytes or gbytes.</source>
-        <translation type="unfinished"></translation>
+        <translation>hız sınırı geçerli değil, şunları kullanın: bayt, kbayt, mbayt veya gbayt.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="969"/>
         <source>time-limit not valid, use: second, minute, hour or day</source>
-        <translation type="unfinished"></translation>
+        <translation>zaman sınırı geçerli değil, şunları kullanın: saniye, dakika, saat veya gün</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1003"/>
         <source>port not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>bağlantı noktası geçerli değil.</translation>
     </message>
 </context>
 <context>
@@ -2049,17 +2052,17 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/service.py" line="258"/>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilgi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/service.py" line="262"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Hata</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/service.py" line="266"/>
         <source>Warning</source>
-        <translation type="unfinished">Uyarı</translation>
+        <translation>Uyarı</translation>
     </message>
 </context>
 <context>
@@ -2185,12 +2188,12 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="116"/>
         <source>Reject</source>
-        <translation type="unfinished">Geri çevir</translation>
+        <translation>Geri çevir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="497"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt;, %s</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%s&lt;/b&gt; hedefine bağlanıyor, %s</translation>
     </message>
 </context>
 <context>
@@ -2301,22 +2304,22 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="365"/>
         <source>There&apos;re no nodes connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlı düğüm yok</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="472"/>
         <source>Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamam</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="472"/>
         <source>Restart the GUI in order changes to take effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Değişikliklerin etkili olması için grafiksel arayüzü yeniden başlatın</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="484"/>
         <source>Exception saving node config {0}: {1}</source>
-        <translation type="unfinished"></translation>
+        <translation>{0} düğüm yapılandırması kaydedilirken hata oluştu: {1}</translation>
     </message>
 </context>
 <context>
@@ -2476,12 +2479,12 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="632"/>
         <source>Network interface can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Ağ arayüzü boş olamaz</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="646"/>
         <source>Network interface regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ağ arayüzü düzenli ifade hatası</translation>
     </message>
 </context>
 <context>
@@ -3007,84 +3010,84 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
         <location filename="../../../opensnitch/dialogs/stats.py" line="295"/>
         <source>Description</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Açıklama</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="302"/>
         <source>Cmdline</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Komut satırı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="402"/>
         <source>Export rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuralları dışa aktar</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="403"/>
         <source>Import rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuralları içe aktar</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="404"/>
         <source>Export events to CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Olayları CSV dosyasına aktar</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="405"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Çıkış</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="819"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Dışa aktar</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="851"/>
         <source>To clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Panoya</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="852"/>
         <source>To disk</source>
-        <translation type="unfinished"></translation>
+        <translation>Diske</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2343"/>
         <source>Select a directory to export rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuralları dışa aktarmak için bir dizin seçin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1046"/>
         <source>    Your are about to delete this entry.    </source>
-        <translation type="unfinished"></translation>
+        <translation>    Bu girdiyi silmek üzeresiniz.    </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1499"/>
         <source>    You are about to delete this node.    </source>
-        <translation type="unfinished"></translation>
+        <translation>    Bu düğümü silmek üzeresiniz.    </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1508"/>
         <source>&lt;b&gt;Error deleting node&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Düğüm silinirken hata oluştu&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2298"/>
         <source>Error exporting rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuralları dışa aktarırken hata oluştu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2372"/>
         <source>Select a directory with rules to import (JSON files)</source>
-        <translation type="unfinished"></translation>
+        <translation>İçe aktarılacak kuralları (JSON dosyaları) içeren bir dizin seçin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2386"/>
         <source>Rules imported fine</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurallar başarıyla içe aktarıldı</translation>
     </message>
 </context>
 <context>
