@@ -5,6 +5,7 @@ import os
 import glob
 import sys
 
+from opensnitch.utils.xdg import xdg_config_home
 from opensnitch.actions import highlight
 from opensnitch.actions.default_configs import commonDelegateConfig, rulesDelegateConfig, fwDelegateConfig
 
@@ -67,7 +68,7 @@ class Actions(QObject):
     # default paths to look for actions
     _paths = [
         os.path.dirname(sys.modules[__name__].__file__) + "/data/",
-        os.path.expanduser("~/.config/opensnitch/actions/")
+        "{0}/{1}".format(xdg_config_home, "/opensnitch/actions/")
     ]
 
     @staticmethod
@@ -80,7 +81,8 @@ class Actions(QObject):
         QObject.__init__(self)
         self._actions_list = {}
         try:
-            os.makedirs(os.path.expanduser("~/.config/opensnitch/actions/"), 0o700)
+            base_dir = "{0}/{1}".format(xdg_config_home, "/opensnitch/actions/")
+            os.makedirs(base_dir, 0o700)
         except:
             pass
 
