@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 class Database:
     db = None
     __instance = None
-    DB_IN_MEMORY   = ":memory:"
+    DB_IN_MEMORY   = "file::memory:?cache=shared"
     DB_TYPE_MEMORY = 0
     DB_TYPE_FILE   = 1
 
