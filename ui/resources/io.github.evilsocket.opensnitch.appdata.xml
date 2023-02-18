@@ -39,7 +39,7 @@
     <category>Network</category>
   </categories>
 
-  <icon type="stock">opensnitch_ui</icon>
+  <icon type="stock">opensnitch-ui</icon>
   <url type="homepage">https://github.com/evilsocket/opensnitch</url>
   <url type="bugtracker">https://github.com/evilsocket/opensnitch/issues</url>
   <url type="help">https://github.com/evilsocket/opensnitch/wiki</url>
