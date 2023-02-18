@@ -1,7 +1,7 @@
 Name:           opensnitch
-Version:        1.6.0rc4
+Version:        1.6.0rc5
 Release:        1%{?dist}
-Summary:        OpenSnitch is a GNU/Linux application firewall
+Summary:        OpenSnitch is a GNU/Linux interactive application firewall
 
 License:        GPLv3+
 URL:            https://github.com/evilsocket/%{name}

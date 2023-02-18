@@ -1,7 +1,6 @@
 Source: opensnitch
 Maintainer: Debian Go Packaging Team <team+pkg-go@tracker.debian.org>
-Uploaders:
- Gustavo Iniguez Goya <gooffy@gmail.com>,
+Uploaders: Gustavo Iniguez Goya <gooffy@gmail.com>
 Section: devel
 Testsuite: autopkgtest-pkg-go
 Priority: optional
@@ -11,7 +10,6 @@ Build-Depends:
  dh-golang,
  golang-any,
  golang-github-vishvananda-netlink-dev,
- golang-github-evilsocket-ftrace-dev,
  golang-github-google-gopacket-dev,
  golang-github-fsnotify-fsnotify-dev,
  golang-golang-x-net-dev,
@@ -33,7 +31,7 @@ Architecture: any
 Depends:
  libnetfilter-queue1, libc6, libnfnetlink0
 Built-Using: ${misc:Built-Using}
-Description: GNU/Linux firewall application
+Description: GNU/Linux interactive application firewall
  OpenSnitch is a GNU/Linux firewall application.
  Whenever a program makes a connection, it'll prompt the user to allow or deny
  it.
@@ -46,3 +44,6 @@ Description: GNU/Linux firewall application
  .
  The GUI allows the user to view live outgoing connections, as well as search
  by process, user, host or port.
+ .
+ OpenSnitch can also work as a system-wide domains blocker, by using lists
+ of domains, list of IPs or list of regular expressions.

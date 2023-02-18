@@ -1,19 +1,19 @@
 #!/bin/sh
+
 set -e
 
-for i in $(ls /home)
-do
-    if grep -q /home/$i /etc/passwd ; then
-        path=/home/$i/.config/autostart/
-        if [ ! -d $path ]; then
-            mkdir -p $path
-        fi
-        if [ -f /usr/share/applications/opensnitch_ui.desktop ];then
-            ln -s /usr/share/applications/opensnitch_ui.desktop $path 2>/dev/null || true
-        fi
+autostart_by_default()
+{
+    deskfile=/etc/xdg/autostart/opensnitch_ui.desktop
+    if [ -d /etc/xdg/autostart -a ! -h  $deskfile -a ! -f $deskfile ]; then
+        ln -s /usr/share/applications/opensnitch_ui.desktop /etc/xdg/autostart/
     fi
-done
+}
 
-gtk-update-icon-cache /usr/share/icons/hicolor/ || true
+autostart_by_default
 
-set +e
+if command -v gtk-update-icon-cache >/dev/null && test -f /usr/share/icons/hicolor/index.theme ; then
+    gtk-update-icon-cache --quiet /usr/share/icons/hicolor/
+fi
+
+#DEBHELPER#

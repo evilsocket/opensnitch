@@ -1,11 +1,11 @@
 %define name opensnitch-ui
-%define version 1.6.0rc4
-%define unmangled_version 1.6.0rc4
+%define version 1.6.0rc5
+%define unmangled_version 1.6.0rc5
 %define release 1
 %define __python python3
 %define desktop_file opensnitch_ui.desktop
 
-Summary: Prompt service and UI for the opensnitch application firewall.
+Summary: Prompt service and UI for the OpenSnitch interactive application firewall.
 Name: %{name}
 Version: %{version}
 Release: %{release}
@@ -15,7 +15,8 @@ Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: noarch
-Vendor: Simone "evilsocket" Margaritelli <evilsocket@protonmail.com>
+Vendor: OpenSnitch project
+Packager: Gustavo Iñiguez Goya <gooffy1@gmail.com>
 Url: https://github.com/evilsocket/opensnitch
 Requires: python3, python3-pip, (netcfg or setup), (python3-pyinotify or python3-inotify), python3-qt5, python3-notify2
 Recommends: (python3-slugify or python3-python-slugify), python3-protobuf >= 3.0, python3-grpcio >= 1.10.0

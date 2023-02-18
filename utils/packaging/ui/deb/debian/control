@@ -1,10 +1,16 @@
 Source: opensnitch-ui
 Maintainer: Gustavo Iñiguez Goia <gooffy1@gmail.com>
-Uploaders:
- Gustavo Iniguez Goya <gooffy@gmail.com>,
+Uploaders: Gustavo Iniguez Goya <gooffy@gmail.com>,
 Priority: optional
 Homepage: https://github.com/evilsocket/opensnitch
-Build-Depends: python3-setuptools, pyqt5-dev-tools, python3-all, debhelper (>= 7.4.3), dh-python
+Build-Depends:
+ qttools5-dev-tools,
+ python3-setuptools,
+ pyqt5-dev-tools,
+ python3-grpc-tools,
+ python3-all,
+ debhelper (>= 7.4.3),
+ dh-python
 Standards-Version: 3.9.1
 
 
@@ -22,9 +28,11 @@ Depends:
  python3-grpcio,
  python3-protobuf,
  python3-slugify,
- python3-notify2
+ python3-notify2,
+ xdg-user-dirs,
+ gtk-update-icon-cache
 Recommends: python3-pyasn
-Description: opensnitch application firewall GUI
+Description: GNU/Linux interactive application firewall
  opensnitch-ui is a GUI for opensnitch written in Python.
  It allows the user to view live outgoing connections, as well as search
  for details of the intercepted connections.
@@ -34,3 +42,6 @@ Description: opensnitch application firewall GUI
  of them.
  .
  These rules can last forever, until restart the daemon or just one time.
+ .
+ OpenSnitch can also work as a system-wide domains blocker, by using lists
+ of domains, list of IPs or list of regular expressions.
