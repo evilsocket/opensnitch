@@ -3,7 +3,7 @@
   <id>io.github.evilsocket.opensnitch</id>
   
   <name>OpenSnitch</name>
-  <summary>OpenSnitch interactive firewall</summary>
+  <summary>GNU/Linux interactive application firewall</summary>
   
   <metadata_license>FTL</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
