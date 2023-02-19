@@ -16,9 +16,6 @@
   
   <description>
     <p>
-      OpenSnitch is a GNU/Linux interactive application firewall.
-    </p>
-    <p>
       Whenever a program tries to establish a new connection, it&apos;ll prompt the user to allow or deny it.
     </p>
     <p>
