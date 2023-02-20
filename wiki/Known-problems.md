@@ -1,3 +1,10 @@
+**Compilation**
+
+`cgo: cannot load DWARF output from $WORK/b085//_cgo_.o: zlib: invalid header`
+
+See this comment: https://github.com/evilsocket/opensnitch/issues/851#issuecomment-1434624041 https://github.com/evilsocket/opensnitch/issues/851#issuecomment-1434611009
+and issues: #820 #768
+
 **eBPF**
 
 [cannot open kprobe_events](#cannot-open-kprobe_events): open /sys/kernel/debug/tracing/kprobe_events: permission denied
