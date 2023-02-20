@@ -67,6 +67,12 @@ func setupConnection(proto string, connChan chan *Connection) {
 // We also need it if for any reason auditd or ebpf doesn't return the PID of the application.
 // TODO: test all the cases described in the GetSocketInfo() description.
 func TestNetlinkTCPQueries(t *testing.T) {
+	// netlink tests disabled by default, they cause random failures on restricted
+	// environments.
+	if os.Getenv("NETLINK_TESTS") == "" {
+		t.Skip("Skipping netlink tests. Use NETLINK_TESTS=1 to launch these tests.")
+	}
+
 	connChan := make(chan *Connection)
 	go setupConnection("tcp", connChan)
 	conn := <-connChan
