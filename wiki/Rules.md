@@ -1,6 +1,6 @@
-- [Format](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules.md#format)
-- [Performance](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules.md#some-considerations)
-- [Best practices](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules.md#best-practices)
+- [Format](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules#format)
+- [Performance](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules#some-considerations)
+- [Best practices](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules#best-practices)
 
 ---
 
@@ -185,9 +185,9 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
 
     You can narrow it further, by allowing `from this command line` + `from this User ID` + `to this IP` + `to this port`
 
-- Don't allow python3 binary system-wide:
+- Don't allow `python3`, `perl` or `ruby` binaries system-wide:
   * As explained above, filter by executable + command line + (... more parameters ...)
-    If you allow python3, you'll allow ANY python3 script, so be careful.
+    If you allow `python3`for example, you'll allow ANY `python3` script, so be careful.
 
     https://github.com/evilsocket/opensnitch/wiki/Rules-examples#filtering-python-scripts-applicable-to-java-and-others-interpreters
 
@@ -199,12 +199,15 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
   
   Why? When someone gets access to your system, usually these directories are the only ones where they can write files, thus it's usually used to drop malicious files, that download remote binaries to escalate privileges, etc.
   
-  There're ton of examples [0] (more common on servers than on the desktop): https://github.com/timb-machine/linux-malware
+  There're ton of examples [0] [1] (more common on servers than on the desktop): https://github.com/timb-machine/linux-malware
+  
+  [0]. https://www.akamai.com/blog/security-research/kmdsbot-the-attack-and-mine-malware
+    - https://www.akamai.com/site/en/images/blog/2022/kmsdbot1.jpg
+  [1]. https://www.elastic.co/guide/en/security/master/binary-executed-from-shared-memory-directory.html
   
   ```
   (*) Deny
-  [x] From this executable: ^(/tmp/|/var/tmp/|/dev/shm/).*
+  [x] From this executable: ^(/tmp/|/var/tmp/|/dev/shm/|/var/run|/var/lock).*
   ```
 
-[0] https://www.akamai.com/blog/security-research/kmdsbot-the-attack-and-mine-malware
-    - https://www.akamai.com/site/en/images/blog/2022/kmsdbot1.jpg
+  **Note** that the default policy should be deny everything unless explicitely allowed. But by creating a rule to deny specifically these directories, you can have a place where to monitor these executions.
