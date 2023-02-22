@@ -103,7 +103,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 
 	proc := NewProcess(pid, "")
 	if err := proc.GetInfo(); err != nil {
-		log.Error("[%d] FindProcess() error: %s", pid, err)
+		log.Debug("[%d] FindProcess() error: %s", pid, err)
 		return nil
 	}
 
