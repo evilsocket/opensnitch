@@ -3,7 +3,7 @@
   <id>io.github.evilsocket.opensnitch</id>
   
   <name>OpenSnitch</name>
-  <summary>OpenSnitch interactive firewall</summary>
+  <summary>GNU/Linux interactive application firewall</summary>
   
   <metadata_license>FTL</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
@@ -15,9 +15,6 @@
   </supports>
   
   <description>
-    <p>
-      OpenSnitch is a GNU/Linux interactive application firewall.
-    </p>
     <p>
       Whenever a program tries to establish a new connection, it&apos;ll prompt the user to allow or deny it.
     </p>
