@@ -2,14 +2,14 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="48"
-   height="48"
-   viewBox="0 0 12.7 12.7"
+   width="64"
+   height="64"
+   viewBox="0 0 12.698413 12.698413"
    version="1.1"
    id="svg8"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    sodipodi:docname="opensnitch-ui.svg"
-   inkscape:export-filename="/home/ga/Proiektuak/opensnitch/gui/opensnitch/ui/resources/opensnitch-ui.png"
+   inkscape:export-filename="64x64/opensnitch-ui.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -28,19 +28,36 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="20"
-     inkscape:cy="25.089286"
+     inkscape:zoom="9.75"
+     inkscape:cx="21.74359"
+     inkscape:cy="31.794872"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     showgrid="false"
+     inkscape:current-layer="g4133"
+     showgrid="true"
      inkscape:window-width="1600"
-     inkscape:window-height="847"
+     inkscape:window-height="839"
      inkscape:window-x="0"
-     inkscape:window-y="204"
+     inkscape:window-y="24"
      inkscape:window-maximized="1"
      units="px"
-     inkscape:pagecheckerboard="0" />
+     inkscape:pagecheckerboard="0"
+     inkscape:showpageshadow="2"
+     inkscape:deskcolor="#d1d1d1"
+     showguides="true">
+    <sodipodi:guide
+       position="13.436869,10.958536"
+       orientation="0,-1"
+       id="guide291"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="13.233163,1.6160318"
+       orientation="0,-1"
+       id="guide293"
+       inkscape:locked="false" />
+    <inkscape:grid
+       type="xygrid"
+       id="grid295" />
+  </sodipodi:namedview>
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -59,7 +76,7 @@
      transform="translate(0,-284.30001)">
     <g
        id="g4133"
-       transform="matrix(0.9182611,0,0,0.9182611,-19.582232,24.244869)">
+       transform="matrix(0.9182611,0,0,0.9182611,-19.582232,24.4642)">
       <path
          style="fill:#232629;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.287462px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="m 23.93778,289.55608 0.922529,-2.47895 2.563056,-0.57549 2.395943,-1.27803 2.491924,1.17578 0.401143,2.50266 1.620734,1.26491 0.381256,1.78538 -0.666013,1.62872 -1.326357,0.85434 -9.105041,0.0948 -1.530218,-1.13976 -0.31061,-1.71767 0.780558,-1.56852 z"
