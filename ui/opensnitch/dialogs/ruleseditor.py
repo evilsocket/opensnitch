@@ -80,9 +80,14 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         applyIcon = Icons.new("emblem-default")
         denyIcon = Icons.new("emblem-important")
         rejectIcon = Icons.new("window-close")
+        openIcon = Icons.new("document-open")
         self.actionAllowRadio.setIcon(applyIcon)
         self.actionDenyRadio.setIcon(denyIcon)
         self.actionRejectRadio.setIcon(rejectIcon)
+        self.selectListButton.setIcon(openIcon)
+        self.selectListRegexpButton.setIcon(openIcon)
+        self.selectNetsListButton.setIcon(openIcon)
+        self.selectIPsListButton.setIcon(openIcon)
 
         if _rule != None:
             self._load_rule(rule=_rule)
