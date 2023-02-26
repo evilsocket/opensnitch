@@ -48,6 +48,7 @@ class ColorizedDelegate(QItemDelegate):
         defaultPen = painter.pen()
         defaultBrush = painter.brush()
 
+        self._style = QApplication.style()
         # get default margins in order to respect them.
         # option.widget is the QTableView
         hmargin = self._style.pixelMetric(
