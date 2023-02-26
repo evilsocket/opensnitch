@@ -513,9 +513,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _enable_db_cleaner_options(self, enable, db_max_days):
         self.checkDBMaxDays.setChecked(enable)
+        self.checkDBMaxDays.setEnabled(enable)
         self.spinDBMaxDays.setEnabled(enable)
         self.spinDBPurgeInterval.setEnabled(enable)
         self.labelDBPurgeInterval.setEnabled(enable)
+        self.labelDBPurgeDays.setEnabled(enable)
+        self.labelDBPurgeMinutes.setEnabled(enable)
         self.cmdDBMaxDaysUp.setEnabled(enable)
         self.cmdDBMaxDaysDown.setEnabled(enable)
         self.cmdDBPurgesUp.setEnabled(enable)

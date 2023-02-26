@@ -1235,6 +1235,9 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </property>
          <item row="0" column="3">
           <widget class="QSpinBox" name="spinDBMaxDays">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
@@ -1251,6 +1254,9 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </item>
          <item row="0" column="2">
           <widget class="QPushButton" name="cmdDBMaxDaysUp">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -1270,7 +1276,10 @@ Temporary rules will still be valid, and you can use them when prompted to allow
           </widget>
          </item>
          <item row="1" column="5">
-          <widget class="QLabel" name="label_20">
+          <widget class="QLabel" name="labelDBPurgeMinutes">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>minutes</string>
            </property>
@@ -1281,6 +1290,9 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </item>
          <item row="1" column="3">
           <widget class="QSpinBox" name="spinDBPurgeInterval">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
@@ -1297,6 +1309,9 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="labelDBPurgeInterval">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Minutes between events purges</string>
            </property>
@@ -1319,7 +1334,10 @@ Temporary rules will still be valid, and you can use them when prompted to allow
           </spacer>
          </item>
          <item row="0" column="5">
-          <widget class="QLabel" name="label_19">
+          <widget class="QLabel" name="labelDBPurgeDays">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>days</string>
            </property>
@@ -1330,6 +1348,9 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </item>
          <item row="0" column="0">
           <widget class="QCheckBox" name="checkDBMaxDays">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Maximum days of events to keep</string>
            </property>
@@ -1337,6 +1358,9 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </item>
          <item row="0" column="4">
           <widget class="QPushButton" name="cmdDBMaxDaysDown">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -1357,6 +1381,9 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </item>
          <item row="1" column="2">
           <widget class="QPushButton" name="cmdDBPurgesUp">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -1377,6 +1404,9 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </item>
          <item row="1" column="4">
           <widget class="QPushButton" name="cmdDBPurgesDown">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
