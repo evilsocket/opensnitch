@@ -670,10 +670,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         fwIcon = Icons.new("security-high")
         optsIcon = Icons.new("format-justify-fill")
         helpIcon = Icons.new("help-browser")
+        eventsIcon = Icons.new("view-sort-ascending")
+        rulesIcon = Icons.new("address-book-new")
+        procsIcon = Icons.new("system-run")
 
         if QtGui.QIcon().hasThemeIcon("preferences-desktop") == False:
             self.fwTreeEdit.setText("+")
 
+        self.tabWidget.setTabIcon(self.TAB_MAIN, eventsIcon)
+        self.tabWidget.setTabIcon(self.TAB_RULES, rulesIcon)
+        self.tabWidget.setTabIcon(self.TAB_PROCS, procsIcon)
         self.newRuleButton.setIcon(newRuleIcon)
         self.delRuleButton.setIcon(delRuleIcon)
         self.editRuleButton.setIcon(editRuleIcon)

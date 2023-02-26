@@ -453,7 +453,9 @@ class Icons():
         'list-add': "SP_ArrowUp",
         'list-remove': "SP_ArrowDown",
         'system-search': "SP_FileDialogContentsView",
-        'application-exit': "SP_TitleBarCloseButton"
+        'application-exit': "SP_TitleBarCloseButton",
+        'view-sort-ascending': "SP_ToolBarVerticalExtensionButton",
+        'address-book-new': ""
     }
 
     @staticmethod

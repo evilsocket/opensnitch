@@ -1259,7 +1259,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="icon">
-       <iconset theme="emblem-web">
+       <iconset theme="network-server">
         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
