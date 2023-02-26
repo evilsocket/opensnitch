@@ -547,12 +547,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
 
     def _cb_db_type_changed(self):
-        if self.comboDBType.currentIndex() == Database.DB_TYPE_MEMORY:
-            self.dbFileButton.setVisible(False)
-            self.dbLabel.setVisible(False)
-        else:
-            self.dbFileButton.setVisible(True)
-            self.dbLabel.setVisible(True)
+        isDBMem = self.comboDBType.currentIndex() == Database.DB_TYPE_MEMORY
+        self.dbFileButton.setVisible(not isDBMem)
+        self.dbLabel.setVisible(not isDBMem)
+        self.checkDBMaxDays.setEnabled(not isDBMem)
+        self.checkDBMaxDays.setChecked(not isDBMem)
 
     def _cb_accept_button_clicked(self):
         self.accept()
