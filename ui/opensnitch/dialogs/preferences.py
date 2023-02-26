@@ -334,7 +334,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _save_settings(self):
         self._save_ui_config()
-        self._save_db_config()
+        if not self._save_db_config():
+            return
 
         if self.tabWidget.currentIndex() == self.TAB_NODES:
             self._show_status_label()
@@ -372,10 +373,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _save_db_config(self):
         dbtype = self.comboDBType.currentIndex()
         db_name = self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
-        self._cfg.setSettings(Config.DEFAULT_DB_TYPE_KEY, dbtype)
-        self._cfg.setSettings(Config.DEFAULT_DB_PURGE_OLDEST, bool(self.checkDBMaxDays.isChecked()))
-        self._cfg.setSettings(Config.DEFAULT_DB_MAX_DAYS, int(self.spinDBMaxDays.value()))
-        self._cfg.setSettings(Config.DEFAULT_DB_PURGE_INTERVAL, int(self.spinDBPurgeInterval.value()))
 
         if self.dbLabel.text() != "" and \
                 (self.comboDBType.currentIndex() != self.dbType or db_name != self.dbLabel.text()):
@@ -392,9 +389,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     QC.translate("preferences", "Warning"),
                     QC.translate("preferences", "You must select a file for the database<br>or choose \"In memory\" type."),
                     QtWidgets.QMessageBox.Warning)
-                return
+                self.dbLabel.setText("")
+                return False
 
+        self._cfg.setSettings(Config.DEFAULT_DB_TYPE_KEY, dbtype)
+        self._cfg.setSettings(Config.DEFAULT_DB_PURGE_OLDEST, bool(self.checkDBMaxDays.isChecked()))
+        self._cfg.setSettings(Config.DEFAULT_DB_MAX_DAYS, int(self.spinDBMaxDays.value()))
+        self._cfg.setSettings(Config.DEFAULT_DB_PURGE_INTERVAL, int(self.spinDBPurgeInterval.value()))
         self.dbType = self.comboDBType.currentIndex()
+
+        return True
 
     def _save_ui_config(self):
         self._save_ui_columns_config()
