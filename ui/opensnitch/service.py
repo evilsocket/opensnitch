@@ -23,7 +23,7 @@ from opensnitch.config import Config
 from opensnitch.version import version
 from opensnitch.database import Database
 from opensnitch.utils import Utils, CleanerTask, Themes
-from opensnitch.utils import Message
+from opensnitch.utils import Message, languages
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _new_remote_trigger = QtCore.pyqtSignal(str, ui_pb2.PingRequest)
@@ -86,6 +86,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._remote_lock = Lock()
         self._remote_stats = {}
 
+        self.translator = None
+        self._init_translation()
         self._themes = Themes()
         self._desktop_notifications = DesktopNotifications()
         self._setup_interfaces()
@@ -360,6 +362,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         theme_idx, theme_name = self._themes.get_saved_theme()
         if theme_idx > 0:
             self._themes.load_theme(self._app)
+
+    def _init_translation(self):
+        if self.translator:
+            self._app.removeTranslator(self.translator)
+        saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
+        self.translator = languages.init(saved_lang)
+        self._app.installTranslator(self.translator)
 
     def _stop_db_cleaner(self):
         if self._cleaner != None:

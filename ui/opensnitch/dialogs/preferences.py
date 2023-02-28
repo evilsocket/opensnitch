@@ -9,7 +9,7 @@ from PyQt5.QtCore import QCoreApplication as QC
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
-from opensnitch.utils import Message, QuickHelp, Themes, Icons
+from opensnitch.utils import Message, QuickHelp, Themes, Icons, languages
 from opensnitch.notifications import DesktopNotifications
 
 from opensnitch import ui_pb2
@@ -111,6 +111,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._hide_status_label()
             self.comboNodes.clear()
 
+            self._load_langs()
+
             self.comboNodeAddress.clear()
             run_path = "/run/user/{0}/opensnitch/".format(os.getuid())
             var_run_path = "/var{0}".format(run_path)
@@ -154,6 +156,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodes.setCurrentText(addr)
         self.tabWidget.setCurrentIndex(self.TAB_NODES)
 
+    def _load_langs(self):
+        self.comboUILang.clear()
+        self.comboUILang.blockSignals(True)
+        self.comboUILang.addItem(QC.translate("preferences", "System default"), "")
+        langs, langNames = languages.get_all()
+        for idx, lang in enumerate(langs):
+            self.comboUILang.addItem(langNames[idx], langs[idx])
+        self.comboUILang.blockSignals(False)
+
+
     def _load_themes(self):
         self.comboUITheme.blockSignals(True)
         theme_idx, self._saved_theme = self._themes.get_saved_theme()
@@ -187,6 +199,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.comboUIDuration.setCurrentIndex(self._default_duration)
         self.comboUIDialogPos.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION))
+
+        saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
+        if saved_lang:
+            saved_langname = self._cfg.getSettings(Config.DEFAULT_LANGNAME)
+            self.comboUILang.blockSignals(True)
+            self.comboUILang.setCurrentText(saved_langname)
+            self.comboUILang.blockSignals(False)
 
         self.comboUIRules.blockSignals(True)
         self.comboUIRules.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES))
@@ -402,6 +421,15 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _save_ui_config(self):
         self._save_ui_columns_config()
+
+        selected_lang = self.comboUILang.itemData(self.comboUILang.currentIndex())
+        saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
+        if saved_lang != selected_lang:
+            languages.save(self._cfg, selected_lang)
+            Message.ok(
+                QC.translate("preferences", "Language changed"),
+                QC.translate("preferences", "Restart the GUI in order effects to take effect"),
+                QtWidgets.QMessageBox.Warning)
 
         self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES, int(self.comboUIRules.currentIndex()))
         self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_RULES, bool(self.checkUIRules.isChecked()))

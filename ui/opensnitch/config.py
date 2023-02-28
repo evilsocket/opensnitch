@@ -83,6 +83,8 @@ class Config:
     POPUP_BOTTOM_LEFT = 4
 
     DEFAULT_THEME = "global/theme"
+    DEFAULT_LANGUAGE = "global/language"
+    DEFAULT_LANGNAME = "global/langname"
     DEFAULT_DISABLE_POPUPS = "global/disable_popups"
     DEFAULT_TIMEOUT_KEY  = "global/default_timeout"
     DEFAULT_ACTION_KEY   = "global/default_action"
