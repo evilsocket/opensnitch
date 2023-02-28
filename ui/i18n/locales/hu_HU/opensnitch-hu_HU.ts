@@ -1499,7 +1499,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="287"/>
-        <source>Save to CSV.</source>
+        <source>Save to CSV</source>
         <translation type="obsolete">Mentés CSV formátumban…</translation>
     </message>
     <message>

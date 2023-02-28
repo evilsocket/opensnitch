@@ -1374,7 +1374,7 @@ Debes nombrar la regla de tal manera que se compruebe de las primeras, ya que se
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="287"/>
-        <source>Save to CSV.</source>
+        <source>Save to CSV</source>
         <translation type="obsolete">Exportar a CSV.</translation>
     </message>
     <message>

@@ -1472,7 +1472,7 @@ Vous devez nommer la règle de façon qu'elle soit testée en premier, par ordre
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="287"/>
-        <source>Save to CSV.</source>
+        <source>Save to CSV</source>
         <translation type="obsolete">Enregistrer au format CSV.</translation>
     </message>
     <message>

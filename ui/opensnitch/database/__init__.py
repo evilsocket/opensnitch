@@ -209,7 +209,7 @@ class Database:
                 print("applying schema upgrade:", schema_version)
                 self._apply_db_upgrade("{0}/upgrade_{1}.sql".format(migrations_path, schema_version))
             except Exception:
-                print("Not applyging upgrade_{0}.sql".format(schema_version))
+                print("Not applying upgrade_{0}.sql".format(schema_version))
         self.set_schema_version(schema_version)
 
     def _apply_db_upgrade(self, file):
