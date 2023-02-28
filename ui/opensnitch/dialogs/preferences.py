@@ -35,6 +35,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._themes = Themes.instance()
         self._saved_theme = ""
+        self._restart_msg = QC.translate("preferences", "Restart the GUI in order effects to take effect")
 
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
@@ -162,9 +163,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboUILang.addItem(QC.translate("preferences", "System default"), "")
         langs, langNames = languages.get_all()
         for idx, lang in enumerate(langs):
-            self.comboUILang.addItem(langNames[idx], langs[idx])
+            self.comboUILang.addItem(langNames[idx].capitalize(), langs[idx])
         self.comboUILang.blockSignals(False)
-
 
     def _load_themes(self):
         self.comboUITheme.blockSignals(True)
@@ -397,7 +397,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 (self.comboDBType.currentIndex() != self.dbType or db_name != self.dbLabel.text()):
             Message.ok(
                 QC.translate("preferences", "DB type changed"),
-                QC.translate("preferences", "Restart the GUI in order effects to take effect"),
+                self._restart_msg,
                 QtWidgets.QMessageBox.Warning)
 
         if self.comboDBType.currentIndex() != Database.DB_TYPE_MEMORY:
@@ -424,11 +424,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         selected_lang = self.comboUILang.itemData(self.comboUILang.currentIndex())
         saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
+        saved_lang = "" if saved_lang is None else saved_lang
         if saved_lang != selected_lang:
             languages.save(self._cfg, selected_lang)
             Message.ok(
                 QC.translate("preferences", "Language changed"),
-                QC.translate("preferences", "Restart the GUI in order effects to take effect"),
+                self._restart_msg,
                 QtWidgets.QMessageBox.Warning)
 
         self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES, int(self.comboUIRules.currentIndex()))
@@ -503,7 +504,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.comboNodes.count() == 1 and savedAddr != None and savedAddr != self.comboNodeAddress.currentText():
                 Message.ok(
                     QC.translate("preferences", "Ok"),
-                    QC.translate("preferences", "Restart the GUI in order changes to take effect"),
+                    self._restart_msg,
                     QtWidgets.QMessageBox.Information)
 
             self._cfg.setSettings(Config.DEFAULT_SERVER_ADDR, self.comboNodeAddress.currentText())

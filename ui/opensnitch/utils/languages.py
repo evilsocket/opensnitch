@@ -21,7 +21,7 @@ def init(saved_lang):
 def save(cfg, lang):
     q = QtCore.QLocale(lang)
     cfg.setSettings(Config.DEFAULT_LANGUAGE, lang)
-    cfg.setSettings(Config.DEFAULT_LANGNAME, q.nativeLanguageName())
+    cfg.setSettings(Config.DEFAULT_LANGNAME, q.nativeLanguageName().capitalize())
 
 def get_all():
     langs = []
