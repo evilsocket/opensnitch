@@ -1463,7 +1463,7 @@ Taisyklę turite pavadinti taip, kad ji būtų tikrinama pirma, nes taisyklės t
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="284"/>
-        <source>Save to CSV.</source>
+        <source>Save to CSV</source>
         <translation type="obsolete">Įrašyti į CSV.</translation>
     </message>
     <message>

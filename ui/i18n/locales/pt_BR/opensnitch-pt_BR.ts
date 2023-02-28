@@ -1514,7 +1514,7 @@ Você deve nomear a regra de forma que ela seja verificada primeiro, porque eles
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="287"/>
-        <source>Save to CSV.</source>
+        <source>Save to CSV</source>
         <translation type="obsolete">Salvar em CSV.</translation>
     </message>
     <message>

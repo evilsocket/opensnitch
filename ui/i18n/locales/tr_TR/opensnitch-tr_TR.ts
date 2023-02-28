@@ -1481,7 +1481,7 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="284"/>
-        <source>Save to CSV.</source>
+        <source>Save to CSV</source>
         <translation type="obsolete">CSV olarak kaydet.</translation>
     </message>
     <message>

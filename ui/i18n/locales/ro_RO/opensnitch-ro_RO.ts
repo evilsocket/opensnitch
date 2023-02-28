@@ -1398,7 +1398,7 @@ You must name the rule in such manner that it'll be checked first, because they'
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="105"/>
-        <source>Save to CSV.</source>
+        <source>Save to CSV</source>
         <translation type="obsolete">Salvează într-un fișier CSV.</translation>
     </message>
     <message>

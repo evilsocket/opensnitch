@@ -1474,7 +1474,7 @@ Sie müssen die Regel so benennen, dass sie zuerst überprüft wird, da sie in a
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="287"/>
-        <source>Save to CSV.</source>
+        <source>Save to CSV</source>
         <translation type="obsolete">Als CSV exportieren.</translation>
     </message>
     <message>
