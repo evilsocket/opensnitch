@@ -635,7 +635,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="system-search">
+            <iconset theme="document-open">
              <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
@@ -670,7 +670,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="system-search">
+            <iconset theme="document-open">
              <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
@@ -698,7 +698,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="system-search">
+            <iconset theme="document-open">
              <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
@@ -740,7 +740,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="system-search">
+            <iconset theme="document-open">
              <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
