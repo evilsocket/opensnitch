@@ -108,7 +108,7 @@ adtrack(er|ing)?[0-9]*[_.-]
 
 **Note**: Sometimes regular expressions can be too generic, so they may block too much domains. You can go to Rules tab -> double click on the rule, and see what domains the rule has matched, and refine the list accordingly.
 
-**Warning**: This lists must be small (~500 items). Using it with huge lists will lead to important performance penalty (#866).
+**Warning**: This lists must be small (~500 items). Using it with huge lists will lead to important performance penalty ([#866](https://github.com/evilsocket/opensnitch/issues/866)).
 
 Here's a playground you can use to test regular expressions: https://go.dev/play/p/JzQCeNH4OH1
 
@@ -129,7 +129,7 @@ Nets:
 1.2.3.0/16
 ```
 
-
+#### Notes
 - Lines started with # are ignored. Write comments always on a new line, not after a domain.
 - The domains `local`, `localhost`, `localhost.localdomain` and `broadcasthost` are ignored.
 - Whenever you save the file to disk, OpenSnitch will reload the list.
@@ -155,15 +155,26 @@ When you define a blocklist/allowlist rule, the directory choosen is monitored f
 [2022-03-31 23:58:19]  INF  2 lists loaded, 2 domains, 0 duplicated
 ```
 
+In order to verify why a domain matched a list, set LogLevel to DEBUG under Preferences -> Nodes, and monitor the log file /var/log/opensnitchd.log:
+
+`tail -f /var/log/opensnitchd.log | grep "list match" -A 1`
+
+```
+[2023-03-02 00:28:26]  DBG  Regexp list match: pixel.abandonedaction.com, ^pixels?[-.]
+[2023-03-02 00:28:26]  DBG  ✘ /lib/systemd/systemd-resolved -> 56143:192.168.1.103 => pixel.abandonedaction.com (172.17.0.3):53 (000-a-pihole-regexp)
+```
+
+(for regexp lists, the last part of the log is the regexp that matched the domain -> ^pixels?[-.])
 
 This feature may not work if your system uses `systemd-resolved` to resolve domains. Compiling `opensnitch-dns.c` [eBPF module](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog) may help to workaround this problem. 
 
 If blocklists still don't work:
-- stop systemd-resolved: `systemctl stop systemd-resolved`
-- change your nameserver in `/etc/resolv.conf` to 1.1.1.1, 9.9.9.9, etc... and see if it works. A simple telnet to an entry of the list should be blocked and logged accordingly.
+- allow systemd-resolved to connect **only** to port 53 and 127.0.0.1 + your DNS nameservers.
+  - or stop systemd-resolved: `systemctl stop systemd-resolved`
+  - and change your nameserver in `/etc/resolv.conf` to 1.1.1.1, 9.9.9.9, etc... and see if it works. A simple telnet to an entry of the list should be blocked and logged accordingly.
 
 
-See this issue #646 for more information.
+See this issue [#646](https://github.com/evilsocket/opensnitch/issues/646) for more information.
 
 ### Resources
 
@@ -173,6 +184,7 @@ https://user-images.githubusercontent.com/2742953/192171195-ba14e4cc-420a-4b85-a
 
 https://user-images.githubusercontent.com/2742953/192171230-330adbd0-4ef8-48f8-a304-96812fd31c41.webm
 
+---
 Lists of ads, trackers, malware domains, etc that you can use:
 
 https://github.com/badmojr/1Hosts
