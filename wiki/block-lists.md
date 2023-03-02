@@ -11,7 +11,11 @@ Use cases:
 1. [Limiting to what domains an application can connect to](#limiting-to-what-domains-an-application-can-connect-to)
 
 
-[Notes](#notes)
+[Supported list stypes](#supported-list-types)
+ * [Lists of domains (hosts format)](#lists-of-domains)
+ * [Lists of regular expressions](#lists-of-domains-with-regular-expressions)
+ * [Lists of IPs](#lists-of-ips)
+ * [Lists of Nets](#lists-of-nets)
 
 [Troubleshooting](#troubleshooting)
 
@@ -78,8 +82,9 @@ Remember that you may need to add the domain without the subdomains (`domain.com
 
 ---
 
-### Notes
-Lists of domains (only in version >= **v1.4.x**):
+### Supported list types
+
+#### Lists of domains
 - It must be in hosts format:
 ```
 # this is a comment, it's ignored
@@ -89,7 +94,7 @@ Lists of domains (only in version >= **v1.4.x**):
 ```
 
 
-Lists of domains with regular expressions (or not) (only in version >= **v1.5.x**):
+#### Lists of domains with regular expressions
 - one regular expression per line:
 ```
 # https://raw.githubusercontent.com/mmotti/pihole-regex/master/whitelist.list
@@ -101,7 +106,13 @@ adtrack(er|ing)?[0-9]*[_.-]
 
 **Note**: if you add a domain without regex to this type of list, it'll match everything for that domain: _google.com_ will match _clients6.google.com_, _docs.google.com_, etc.
 
-Lists of IPs (only in version >= **v1.5.x**):
+**Note**: Sometimes regular expressions can be too generic, so they may block too much domains. You can go to Rules tab -> double click on the rule, and see what domains the rule has matched, and refine the list accordingly.
+
+**Warning**: This lists must be small (~500 items). Using it with huge lists will lead to important performance penalty (#866).
+
+Here's a playground you can use to test regular expressions: https://go.dev/play/p/JzQCeNH4OH1
+
+#### Lists of IPs
 - One per line:
 IPs
 ```
@@ -110,7 +121,7 @@ IPs
 9.8.7.6
 ```
 
-Lists of NETs (only in version >= **v1.5.x**):
+#### Lists of NETs
 Nets:
 ```
 # https://iplists.firehol.org/
