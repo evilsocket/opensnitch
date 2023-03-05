@@ -35,8 +35,9 @@ How to add a global rule to block ads or trackers:
 1. Create a new rule: `000-block-domains`
    - Take into account that rules are checked in alphabetical order.
 
-2. Check `[x] Enable`, `[x] Priority`, `Duration: always`, `[x] To this list of domains`
-![image](https://user-images.githubusercontent.com/2742953/115916860-addcf500-a475-11eb-86f4-af2c645aa2ba.png)
+2. Check `[x] Enable`, `[x] Priority`, `Duration: always`, `(\*) Reject`, `[x] To this list of domains`
+
+![image](https://user-images.githubusercontent.com/2742953/222983097-3e9e4a7a-dbaa-40da-8e2c-c05c5ba71591.png)
 
 
 3. Download list of domains of ads to block (choose any directory you wish):
@@ -48,9 +49,9 @@ How to add a global rule to block ads or trackers:
 
 **Note:** be sure that the files have an extension (.dat, .txt, .list, etc...). Don't drop files without extension into the directory
 
-4. Visit any website, and filter by the name of the rule `000-block-domains` . You can use `block-test.developerdan.com` which is included in the above list.
+4. Visit any website, and filter by the name of the rule `000-block-domains` or double click on the rule name from the Rules tab. You can visit `block-test.developerdan.com` which is included in the above list.
 
-![image](https://user-images.githubusercontent.com/2742953/115919049-981cff00-a478-11eb-9201-360463302399.png)
+![image](https://user-images.githubusercontent.com/2742953/222982955-9bb66595-e3b3-4b25-87d6-5dd0f2d89875.png)
 
 
 
