@@ -104,6 +104,8 @@ class Config:
     DEFAULT_DB_MAX_DAYS  = "database/max_days"
     DEFAULT_DB_PURGE_INTERVAL  = "database/purge_interval"
 
+    DEFAULT_TIMEOUT = 30
+
     NOTIFICATIONS_ENABLED = "notifications/enabled"
     NOTIFICATIONS_TYPE = "notifications/type"
     NOTIFICATION_TYPE_SYSTEM = 0
@@ -143,7 +145,7 @@ class Config:
         self.settings = QtCore.QSettings("opensnitch", "settings")
 
         if self.settings.value(self.DEFAULT_TIMEOUT_KEY) == None:
-            self.setSettings(self.DEFAULT_TIMEOUT_KEY, 15)
+            self.setSettings(self.DEFAULT_TIMEOUT_KEY, self.DEFAULT_TIMEOUT)
         if self.settings.value(self.DEFAULT_ACTION_KEY) == None:
             self.setSettings(self.DEFAULT_ACTION_KEY, self.ACTION_ALLOW)
         if self.settings.value(self.DEFAULT_DURATION_KEY) == None:
