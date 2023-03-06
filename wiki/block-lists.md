@@ -11,7 +11,7 @@ Use cases:
 1. [Limiting to what domains an application can connect to](#limiting-to-what-domains-an-application-can-connect-to)
 
 
-[Supported list stypes](#supported-list-types)
+Supported list stypes
  * [Lists of domains (hosts format)](#lists-of-domains)
  * [Lists of regular expressions](#lists-of-domains-with-regular-expressions)
  * [Lists of IPs](#lists-of-ips)
@@ -35,7 +35,7 @@ How to add a global rule to block ads or trackers:
 1. Create a new rule: `000-block-domains`
    - Take into account that rules are checked in alphabetical order.
 
-2. Check `[x] Enable`, `[x] Priority`, `Duration: always`, `(\*) Reject`, `[x] To this list of domains`
+2. Check `[x] Enable`, `[x] Priority`, `Duration: always`, `(*) Reject`, `[x] To this list of domains`
 
 ![image](https://user-images.githubusercontent.com/2742953/222983097-3e9e4a7a-dbaa-40da-8e2c-c05c5ba71591.png)
 
