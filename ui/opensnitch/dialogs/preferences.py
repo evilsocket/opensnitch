@@ -139,7 +139,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _load_settings(self):
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
         self._default_target = self._cfg.getInt(self._cfg.DEFAULT_TARGET_KEY, 0)
-        self._default_timeout = self._cfg.getInt(self._cfg.DEFAULT_TIMEOUT_KEY, 15)
+        self._default_timeout = self._cfg.getInt(self._cfg.DEFAULT_TIMEOUT_KEY, Config.DEFAULT_TIMEOUT)
         self._disable_popups = self._cfg.getBool(self._cfg.DEFAULT_DISABLE_POPUPS)
 
         if self._cfg.hasKey(self._cfg.DEFAULT_DURATION_KEY):

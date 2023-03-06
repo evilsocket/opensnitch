@@ -413,7 +413,7 @@
             <enum>QAbstractSpinBox::NoButtons</enum>
            </property>
            <property name="value">
-            <number>15</number>
+            <number>30</number>
            </property>
           </widget>
          </item>
