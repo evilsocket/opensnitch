@@ -17,6 +17,8 @@ Supported list stypes
  * [Lists of IPs](#lists-of-ips)
  * [Lists of Nets](#lists-of-nets)
 
+[Notes](#notes)
+
 [Troubleshooting](#troubleshooting)
 
 [Video tutorial](#resources)
@@ -134,6 +136,7 @@ Nets:
 - Lines started with # are ignored. Write comments always on a new line, not after a domain.
 - The domains `local`, `localhost`, `localhost.localdomain` and `broadcasthost` are ignored.
 - Whenever you save the file to disk, OpenSnitch will reload the list.
+- If you select more than one type of lists on the same rule, bear in mind that the connections you intend to filter must match __ALL__ lists [read more](https://github.com/evilsocket/opensnitch/discussions/877#discussioncomment-5244901).
 - OpenSnitch doesn't refresh periodically the list loaded, but you can do it with this script: [update_adlists.sh](https://raw.githubusercontent.com/evilsocket/opensnitch/master/utils/scripts/ads/update_adlists.sh)
   1. Give it execution permissions:
   
