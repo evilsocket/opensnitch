@@ -253,7 +253,7 @@ func initSystemdResolvedMonitor() {
 					log.Debug("%d systemd-resolved monitor response: %s -> %s", i, domain, ip)
 					if a.RR.Key.Type == systemd.DNSTypeCname {
 						log.Debug("systemd-resolved CNAME >> %s -> %s", a.RR.Name, domain)
-						dns.Track(domain, a.RR.Name)
+						dns.Track(a.RR.Name, domain)
 					} else {
 						dns.Track(ip.String(), domain)
 					}
@@ -318,6 +318,8 @@ func onPacket(packet netfilter.Packet) {
 	if r != nil && r.Nolog {
 		return
 	}
+	// XXX: if a connection is not intercepted due to InterceptUnknown == false,
+	// it's not sent to the server, which leads to miss information.
 	stats.OnConnectionEvent(con, r, r == nil)
 }
 
@@ -433,14 +435,14 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		if r.Operator.Operand == rule.OpTrue {
 			ruleName = log.Dim(r.Name)
 		}
-		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
+		log.Debug("%s %s -> %d:%s => %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), con.SrcPort, log.Bold(con.SrcIP.String()), log.Bold(con.To()), con.DstPort, ruleName)
 	} else {
 		if r.Action == rule.Reject {
 			netlink.KillSocket(con.Protocol, con.SrcIP, con.SrcPort, con.DstIP, con.DstPort)
 		}
 		packet.SetVerdict(netfilter.NF_DROP)
 
-		log.Debug("%s %s -> %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
+		log.Debug("%s %s -> %d:%s => %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), con.SrcPort, log.Bold(con.SrcIP.String()), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
 	}
 
 	return r
