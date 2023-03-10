@@ -299,7 +299,7 @@ func (c *Connection) To() string {
 	if c.DstHost == "" {
 		return c.DstIP.String()
 	}
-	return c.DstHost
+	return fmt.Sprintf("%s (%s)", c.DstHost, c.DstIP)
 }
 
 func (c *Connection) String() string {
