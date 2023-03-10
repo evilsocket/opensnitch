@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	golog "log"
+	"net"
 	"os"
 	"os/signal"
 	"runtime"
@@ -38,6 +39,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/dns"
+	"github.com/evilsocket/opensnitch/daemon/dns/systemd"
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/log/loggers"
@@ -83,6 +85,7 @@ var (
 	sigChan       = (chan os.Signal)(nil)
 	exitChan      = (chan bool)(nil)
 	loggerMgr     *loggers.LoggerManager
+	resolvMonitor *systemd.ResolvedMonitor
 )
 
 func init() {
@@ -211,6 +214,55 @@ func listenToEvents() {
 	}
 }
 
+func initSystemdResolvedMonitor() {
+	resolvMonitor, err := systemd.NewResolvedMonitor()
+	if err != nil {
+		log.Warning("Unable to use systemd-resolved monitor: %s", err)
+		return
+	}
+	_, err = resolvMonitor.Connect()
+	if err != nil {
+		log.Warning("Connecting to systemd-resolved: %s", err)
+		return
+	}
+	err = resolvMonitor.Subscribe()
+	if err != nil {
+		log.Warning("Subscribing to systemd-resolved DNS events: %s", err)
+		return
+	}
+	go func() {
+		for {
+			select {
+			case exit := <-resolvMonitor.Exit():
+				if exit == nil {
+					log.Info("systemd-resolved monitor stopped")
+					return
+				}
+				log.Debug("systemd-resolved monitor disconnected. Reconnecting...")
+			case response := <-resolvMonitor.GetDNSResponses():
+				if response.State != systemd.SuccessState {
+					log.Debug("systemd-resolved monitor response error: %v", response)
+					continue
+				}
+				/*for i, q := range response.Question {
+					log.Debug("%d SYSTEMD RESPONSE Q: %s", i, q.Name)
+				}*/
+				for i, a := range response.Answer {
+					domain := a.RR.Key.Name
+					ip := net.IP(a.RR.Address)
+					log.Debug("%d systemd-resolved monitor response: %s -> %s", i, domain, ip)
+					if a.RR.Key.Type == systemd.DNSTypeCname {
+						log.Debug("systemd-resolved CNAME >> %s -> %s", a.RR.Name, domain)
+						dns.Track(domain, a.RR.Name)
+					} else {
+						dns.Track(ip.String(), domain)
+					}
+				}
+			}
+		}
+	}()
+}
+
 func doCleanup(queue, repeatQueue *netfilter.Queue) {
 	log.Info("Cleaning up ...")
 	firewall.Stop()
@@ -218,6 +270,9 @@ func doCleanup(queue, repeatQueue *netfilter.Queue) {
 	uiClient.Close()
 	queue.Close()
 	repeatQueue.Close()
+	if resolvMonitor != nil {
+		resolvMonitor.Close()
+	}
 
 	if cpuProfile != "" {
 		pprof.StopCPUProfile()
@@ -319,7 +374,9 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 
 		// Update the hostname again.
 		// This is required due to a race between the ebpf dns hook and the actual first packet beeing sent
-		con.DstHost = dns.HostOr(con.DstIP, con.DstHost)
+		if con.DstHost == "" {
+			con.DstHost = dns.HostOr(con.DstIP, con.DstHost)
+		}
 
 		r = uiClient.Ask(con)
 		if r == nil {
@@ -478,6 +535,8 @@ func main() {
 
 		}
 	}(uiClient)
+
+	initSystemdResolvedMonitor()
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for {
