@@ -1,5 +1,5 @@
 - [Format](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules#format)
-- [Performance](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules#some-considerations)
+- [Performance / Important notes](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules#some-considerations)
 - [Best practices](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules#best-practices)
 
 ---
@@ -55,16 +55,30 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 | operator.data    | The data to compare the `operand` to, can be a regular expression if `type` is `regexp`, or a path to a directory with list of IPs/domains in the case of `lists`. |
 
 ### Some considerations
- 
-By default Deny rules take precedence over the rest of the rules. If a connection match a Deny rule, opensnitch won't continue evaluating rules.
 
-Since v1.2.0, rules are sorted and checked in alphabetical order. You can name them this way to prioritize Deny rules, for example: 
+-All the fields you select when defining a rule will be used to match connections, for example:
+ - Rule: allow -> port 443 -> Dst IP 1.1.1.1 -> Protocol TCP -> Host www.site.test
+   * This rule will match connections to port 443 __AND__ IP 1.1.1.1 __AND__ protocol TCP __AND__ host www.site.test
+   * connections to IP 2.2.2.2 won't match, connections to port 80 won't match, etc...
+ 
+ - Rule: allow -> port 53 ->  [x] domains list -> [x] network ranges list
+   * This rule will match connections to port 53 __AND__ domains in the list __AND__ IPs in the network ranges list
+ - Rule: allow -> port ^(53|80|443)$ -> UID 1000 -> Path /app/bin/test -> [x] domains list 
+   * This rule will match connections to ports (53 __OR__ 80 __OR__ 443) __AND__ UID 1000 __AND__ Path /app/bin/test __AND__ domains in the specified.
+
+-If you select multiple lists on the same rule, bear in mind that the connections you want to match must
+ [Read this disccussion to learn more](https://github.com/evilsocket/opensnitch/discussions/877#discussioncomment-5247997)
+
+-By default Deny rules take precedence over the rest of the rules. If a connection match a Deny rule, opensnitch won't continue evaluating rules.
+
+-Since v1.2.0, rules are sorted and checked in alphabetical order. You can name them this way to prioritize Deny rules, for example: 
 ```
 000-allow-chrome-to-specific-domains
 001-allow-not-so-important-rule
 001-deny-chrome
 ```
-Also since v1.2.0, you can configure a rule as _Important_ ([x] Priority) to take precedence over the rest of the rules. If you set this flag and name the rule as mentioned above, you can also prioritize Allow rules:
+
+- Also since v1.2.0, you can configure a rule as _Important_ ([x] Priority) to take precedence over the rest of the rules. If you set this flag and name the rule as mentioned above, you can also prioritize Allow rules:
 
 ```
 000-allow-chrome-to-specific-domains [x] Priority <-- if the connection matches this rule, it'll allow this rule and won't continue evaluating the rest of rules.
@@ -174,6 +188,7 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
 
 - Allow systemd-resolved only to your DNS nameservers:
   * Allow systemd-resolved connect only to your DNS nameservers + port 53 + UID
+  * The easiest way would we to delete your existing systemd-resolve rule, let it ask you again to allow/deny it, click on the `[+]` button and then select from the pop-up `from this command line` __AND__ to IP x.x.x.x __AND___ to port xxx
 
 
 - Limit what an application can do as much as possible:
