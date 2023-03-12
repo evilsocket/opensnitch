@@ -25,7 +25,8 @@ jobs:
         git clone https://$GH_REPO_DEST
         mv -f wiki/* $REPO_DEST/
         cd $REPO_DEST
-        git config user.name "wiki auto updater"
+        git config --global user.email "wiki.updater@opensnitch.github"
+        git config --global user.name "wiki auto updater"
         git add .
         git commit -m "updated after opensnitch repo commit $GITHUB_SHA"
         git remote add origin-wiki "https://$ORG:$GITHUB_TOKEN@$GH_REPO_DEST"
