@@ -186,9 +186,12 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
 
 ### Best practices
 
-- Allow systemd-resolved only to your DNS nameservers:
-  * Allow systemd-resolved connect only to your DNS nameservers + port 53 + UID
+- Allow DNS queries only to your configured DNS nameservers:
+  ℹ️ DNS protocol can be used to exfiltrate information from local networks.
+  * Allow `systemd-resolved`, `dnsmasq`, dnscrypt-proxy`, etc, connect only to your DNS nameservers + port 53  + UID.
+  * Besides allowing connections to remote DNS servers (9.9.9.9 for example), you may need to allow connections to localhost IPs (127.0.0.1, etc)
   * The easiest way would we to delete your existing systemd-resolve rule, let it ask you again to allow/deny it, click on the `[+]` button and then select from the pop-up `from this command line` __AND__ to IP x.x.x.x __AND___ to port xxx
+   Even more
 
 
 - Limit what an application can do as much as possible:
@@ -212,7 +215,7 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
   
 - Don't allow connections opened by binaries located under certain directories: `/dev/shm`, `/tmp`, `/var/tmp`
   
-  Why? When someone gets access to your system, usually these directories are the only ones where they can write files, thus it's usually used to drop malicious files, that download remote binaries to escalate privileges, etc.
+  Why? If someone gets access to your system, usually these directories are the only ones where they can write files, thus it's usually used to drop malicious files, that download remote binaries to escalate privileges, etc.
   
   There're ton of examples [0] [1] (more common on servers than on the desktop): https://github.com/timb-machine/linux-malware
   
