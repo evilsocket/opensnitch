@@ -248,10 +248,16 @@ func initSystemdResolvedMonitor() {
 					log.Debug("%d SYSTEMD RESPONSE Q: %s", i, q.Name)
 				}*/
 				for i, a := range response.Answer {
+					if a.RR.Key.Type != systemd.DNSTypeA &&
+						a.RR.Key.Type != systemd.DNSTypeAAAA &&
+						a.RR.Key.Type != systemd.DNSTypeCNAME {
+						log.Debug("systemd-resolved, excluding answer: %#v", a)
+						continue
+					}
 					domain := a.RR.Key.Name
 					ip := net.IP(a.RR.Address)
 					log.Debug("%d systemd-resolved monitor response: %s -> %s", i, domain, ip)
-					if a.RR.Key.Type == systemd.DNSTypeCname {
+					if a.RR.Key.Type == systemd.DNSTypeCNAME {
 						log.Debug("systemd-resolved CNAME >> %s -> %s", a.RR.Name, domain)
 						dns.Track(a.RR.Name, domain)
 					} else {

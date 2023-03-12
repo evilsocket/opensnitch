@@ -41,8 +41,8 @@ const (
 	DNSTypeA = 1
 	// DNSTypeAAAA AAAA
 	DNSTypeAAAA = 28
-	// DNSTypeCname cname
-	DNSTypeCname = 5
+	// DNSTypeCNAME cname
+	DNSTypeCNAME = 5
 )
 
 // QuestionMonitorResponse represents a DNS query
