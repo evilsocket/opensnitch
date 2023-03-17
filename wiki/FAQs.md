@@ -20,9 +20,9 @@ The UI service is able to use a TCP listener instead of a UNIX socket, that mean
 Connections
 ---
 
-**Status is Not Running**
+**Status is Not Running** message on the GUI
 
-Be sure that the daemon is running: `pgrep opensnitchd`
+Be sure that the daemon is running: `$ pgrep opensnitchd`
 
 If it's not running, you may need to enable and start it: 
 
@@ -85,6 +85,8 @@ If some of the above commands outputs "no such file or directory", your kernel l
 Unfortunately, these kernels are compiled without the mentioned features, so eBPF process monitor method won't be available on these kernels.
 liquorix does have support for kprobes, but no syscalls tracing. But xanmod doesn't have support for any of the needed features.
 
+For these kernels, the default method to intercept processes will be ProcFS (proc).
+
 **hardened kernels**
 
 We support most of the kernel hardening options. However some of them causes eBPF not to work. We don't know yet (18/11/2022) which is exactly the option that prevent us to work as expected.
@@ -131,6 +133,23 @@ See some examples:
  - Vivaldi browser deb package trying to install from the internet additional packages: https://github.com/evilsocket/opensnitch/discussions/742
 
 Read more about best practices: https://github.com/evilsocket/opensnitch/wiki/Rules#best-practices
+
+**Can a malicious program simply open another process or port and bypass an application based filter?**
+
+A process may open other subprocesses, but will it bypass defined application rules? No (see previous FAQ why ^). From the OpenSnitch perspective, it'll just be a new process opening an outbound connection without a rule defined for it, and as such, it'll ask you to allow or deny it.
+
+See examples of malware running on GNU/Linux and how OpenSnitch detects the outbound connections:
+
+https://github.com/evilsocket/opensnitch/discussions/791
+https://github.com/evilsocket/opensnitch/discussions/743
+https://github.com/evilsocket/opensnitch/discussions/742
+https://github.com/evilsocket/opensnitch/discussions/564
+
+If you create a rule to allow `wget` or `curl` system-wide, a malicious process may use of it to download remote files, so it all depends on what rules you define:
+
+https://github.com/evilsocket/opensnitch/wiki/Rules#best-practices
+
+Anyway, nothing is unbreakable. If you know a way to bypass application rules, we'd love to see a detailed example! That'll help us to improve the application.
 
 **Appimages confuse the firewall**
 
