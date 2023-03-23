@@ -131,7 +131,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._reset_node_settings()
                 self._set_status_message(QC.translate("preferences", "There're no nodes connected"))
         except Exception as e:
-            print(self.LOG_TAG + "exception loading nodes", e)
+            print(self.LOG_TAG + "exception loading nodes:", e)
 
         self._load_settings()
 
@@ -158,13 +158,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.tabWidget.setCurrentIndex(self.TAB_NODES)
 
     def _load_langs(self):
-        self.comboUILang.clear()
-        self.comboUILang.blockSignals(True)
-        self.comboUILang.addItem(QC.translate("preferences", "System default"), "")
-        langs, langNames = languages.get_all()
-        for idx, lang in enumerate(langs):
-            self.comboUILang.addItem(langNames[idx].capitalize(), langs[idx])
-        self.comboUILang.blockSignals(False)
+        try:
+            self.comboUILang.clear()
+            self.comboUILang.blockSignals(True)
+            self.comboUILang.addItem(QC.translate("preferences", "System default"), "")
+            langs, langNames = languages.get_all()
+            for idx, lang in enumerate(langs):
+                self.comboUILang.addItem(langNames[idx].capitalize(), langs[idx])
+            self.comboUILang.blockSignals(False)
+        except Exception as e:
+            print(self.LOG_TAG + "exception loading languages:", e)
 
     def _load_themes(self):
         self.comboUITheme.blockSignals(True)
