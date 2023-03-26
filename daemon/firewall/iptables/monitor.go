@@ -23,7 +23,7 @@ func (ipt *Iptables) AreRulesLoaded() bool {
 	}
 
 	systemRulesLoaded := true
-	ipt.chains.RLock()
+	ipt.chains.rwm.RLock()
 	if len(ipt.chains.Rules) > 0 {
 		for _, rule := range ipt.chains.Rules {
 			if chainOut4, err4 := core.Exec("iptables", []string{"-n", "-L", rule.Chain, "-t", rule.Table}); err4 == nil {
@@ -42,7 +42,7 @@ func (ipt *Iptables) AreRulesLoaded() bool {
 			}
 		}
 	}
-	ipt.chains.RUnlock()
+	ipt.chains.rwm.RUnlock()
 
 	result := ipt.regexRulesQuery.FindString(outMangle) != "" &&
 		systemRulesLoaded

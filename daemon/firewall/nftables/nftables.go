@@ -41,7 +41,7 @@ var (
 
 // Nft holds the fields of our nftables firewall
 type Nft struct {
-	sync.Mutex
+	mu sync.Mutex
 	config.Config
 	common.Common
 

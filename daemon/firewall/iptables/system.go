@@ -9,8 +9,8 @@ import (
 
 // CreateSystemRule creates the custom firewall chains and adds them to the system.
 func (ipt *Iptables) CreateSystemRule(rule *config.FwRule, table, chain, hook string, logErrors bool) bool {
-	ipt.chains.Lock()
-	defer ipt.chains.Unlock()
+	ipt.chains.mu.Lock()
+	defer ipt.chains.mu.Unlock()
 	if rule == nil {
 		return false
 	}
@@ -67,8 +67,8 @@ func (ipt *Iptables) AddSystemRules(reload, backupExistingChains bool) {
 // If force is false and the rule has not been previously added,
 // it won't try to delete the rules. Otherwise it'll try to delete them.
 func (ipt *Iptables) DeleteSystemRules(force, backupExistingChains, logErrors bool) {
-	ipt.chains.Lock()
-	defer ipt.chains.Unlock()
+	ipt.chains.mu.Lock()
+	defer ipt.chains.mu.Unlock()
 
 	for _, fwCfg := range ipt.SysConfig.SystemRules {
 		if fwCfg.Rule == nil {
@@ -124,8 +124,8 @@ func (ipt *Iptables) AddSystemRule(action Action, rule *config.FwRule, table, ch
 	if rule == nil {
 		return nil
 	}
-	ipt.RLock()
-	defer ipt.RUnlock()
+	ipt.rwm.RLock()
+	defer ipt.rwm.RUnlock()
 
 	chainName := SystemRulePrefix + "-" + chain
 	if table == "" {

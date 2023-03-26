@@ -49,7 +49,7 @@ type SystemRule struct {
 // SystemChains keeps track of the fw rules that have been added to the system.
 type SystemChains struct {
 	Rules map[string]*SystemRule
-	sync.RWMutex
+	rwm   sync.RWMutex
 }
 
 // Iptables struct holds the fields of the iptables fw
@@ -64,8 +64,7 @@ type Iptables struct {
 	regexSystemRulesQuery *regexp.Regexp
 
 	chains SystemChains
-
-	sync.Mutex
+	mu     sync.Mutex
 }
 
 // Fw initializes a new Iptables object
