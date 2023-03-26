@@ -126,6 +126,20 @@ type Config struct {
 	// preload will be called after daemon startup, whilst reload when a modification is performed.
 }
 
+// GetSystemRules and SetSystemRules are used to internally lock/unlock the SystemConfig's mutex
+func (sc *SystemConfig) GetSystemRules() []*chainsList {
+	sc.rwm.RLock()
+	defer sc.rwm.RUnlock()
+	return sc.SystemRules
+}
+
+// GetSystemRules and SetSystemRules are used to internally lock/unlock the SystemConfig's mutex
+func (sc *SystemConfig) SetSystemRules(rules []*chainsList) {
+	sc.rwm.Lock()
+	defer sc.rwm.Unlock()
+	sc.SystemRules = rules
+}
+
 // NewSystemFwConfig initializes config fields
 func (c *Config) NewSystemFwConfig(preLoadCb, reLoadCb func()) (*Config, error) {
 	var err error

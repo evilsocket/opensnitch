@@ -10,8 +10,8 @@ import (
 
 // AreRulesLoaded checks if the firewall rules for intercept traffic are loaded.
 func (n *Nft) AreRulesLoaded() bool {
-	n.Lock()
-	defer n.Unlock()
+	n.mu.Lock()
+	defer n.mu.Unlock()
 
 	nRules := 0
 	chains, err := n.conn.ListChains()

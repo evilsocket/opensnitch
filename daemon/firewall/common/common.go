@@ -37,7 +37,7 @@ type (
 		Running         bool
 		Intercepting    bool
 		FwEnabled       bool
-		sync.RWMutex
+		rwm             sync.RWMutex
 	}
 	// FirewallError is a type that holds both IPv4 and IPv6 errors.
 	FirewallError struct {
@@ -63,8 +63,8 @@ func (s *stopChecker) exit() <-chan bool {
 }
 
 func (s *stopChecker) stop() {
-	s.Lock()
-	defer s.Unlock()
+	s.rwm.Lock()
+	defer s.rwm.Unlock()
 
 	if s.ch != nil {
 		s.ch <- true
@@ -76,8 +76,8 @@ func (s *stopChecker) stop() {
 // SetQueueNum sets the queue number used by the firewall.
 // It's the queue where all intercepted connections will be sent.
 func (c *Common) SetQueueNum(qNum *int) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.rwm.Lock()
+	defer c.rwm.Unlock()
 
 	if qNum != nil {
 		c.QueueNum = uint16(*qNum)
@@ -113,8 +113,8 @@ func (c *Common) IsIntercepting() bool {
 // We expect to have 2 rules loaded: one to intercept DNS responses and another one
 // to intercept network traffic.
 func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callback) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.rwm.Lock()
+	defer c.rwm.Unlock()
 	if c.stopCheckerChan != nil {
 		c.stopCheckerChan.stop()
 		c.stopCheckerChan = nil
@@ -129,10 +129,11 @@ func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callba
 // StartCheckingRules monitors if our rules are loaded.
 // If the rules to intercept traffic are not loaded, we'll try to insert them again.
 func (c *Common) startCheckingRules(areRulesLoaded callbackBool, reloadRules callback) {
+outerLoop:
 	for {
 		select {
 		case <-c.stopCheckerChan.exit():
-			goto Exit
+			break outerLoop
 		case <-c.RulesChecker.C:
 			if areRulesLoaded() == false {
 				reloadRules()
@@ -140,7 +141,6 @@ func (c *Common) startCheckingRules(areRulesLoaded callbackBool, reloadRules cal
 		}
 	}
 
-Exit:
 	log.Info("exit checking firewall rules")
 }
 

@@ -67,8 +67,7 @@ func (n *Nft) CreateSystemRule(chain *config.FwChain, logErrors bool) bool {
 
 // AddSystemRules creates the system firewall from configuration.
 func (n *Nft) AddSystemRules(reload, backupExistingChains bool) {
-	n.SysConfig.rwm.RLock()
-	defer n.SysConfig.rwm.RUnlock()
+	n.SysConfig.GetSystemRules()
 
 	if n.SysConfig.Enabled == false {
 		log.Important("[nftables] AddSystemRules() fw disabled")
