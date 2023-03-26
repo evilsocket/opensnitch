@@ -1,18 +1,15 @@
 package iptables
 
 import (
-	"bytes"
 	"encoding/json"
 	"os/exec"
 	"regexp"
-	"strings"
-	"sync"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
-	"github.com/golang/protobuf/jsonpb"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // Action is the modifier we apply to a rule.
@@ -165,17 +162,15 @@ func (ipt *Iptables) CleanRules(logErrors bool) {
 // Serialize converts the configuration from json to protobuf
 func (ipt *Iptables) Serialize() (*protocol.SysFirewall, error) {
 	sysfw := &protocol.SysFirewall{}
-	jun := jsonpb.Unmarshaler{
-		AllowUnknownFields: true,
-	}
 	rawConfig, err := json.Marshal(&ipt.SysConfig)
 	if err != nil {
-		log.Error("nfables.Serialize() struct to string error: %s", err)
+		log.Error("Iptables.Serialize() struct to string error: %s", err)
 		return nil, err
 	}
+
 	// string to proto
-	if err := jun.Unmarshal(strings.NewReader(string(rawConfig)), sysfw); err != nil {
-		log.Error("nfables.Serialize() string to protobuf error: %s", err)
+	if err := protojson.Unmarshal(rawConfig, sysfw); err != nil {
+		log.Error("Iptables.Serialize() string to protobuf error: %s", err)
 		return nil, err
 	}
 
@@ -184,18 +179,16 @@ func (ipt *Iptables) Serialize() (*protocol.SysFirewall, error) {
 
 // Deserialize converts a protocolbuffer structure to json.
 func (ipt *Iptables) Deserialize(sysfw *protocol.SysFirewall) ([]byte, error) {
-	jun := jsonpb.Marshaler{
-		OrigName:     true,
-		EmitDefaults: false,
-		Indent:       "  ",
+	marshalOptions := protojson.MarshalOptions{
+		UseProtoNames:   true,
+		EmitUnpopulated: false,
+		Indent:          "  ",
 	}
 
-	var b bytes.Buffer
-	if err := jun.Marshal(&b, sysfw); err != nil {
-		log.Error("nfables.Deserialize() error 2: %s", err)
+	b, err := marshalOptions.Marshal(sysfw)
+	if err != nil {
+		log.Error("Iptables.Deserialize() error: %s", err)
 		return nil, err
 	}
-	return b.Bytes(), nil
-
-	//return nil, fmt.Errorf("iptables.Deserialize() not implemented")
+	return b, nil
 }

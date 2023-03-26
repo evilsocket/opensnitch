@@ -1,9 +1,7 @@
 package nftables
 
 import (
-	"bytes"
 	"encoding/json"
-	"strings"
 	"sync"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/common"
@@ -12,8 +10,8 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/google/nftables"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // Action is the modifier we apply to a rule.
@@ -154,16 +152,13 @@ func (n *Nft) Commit() bool {
 // Serialize converts the configuration from json to protobuf
 func (n *Nft) Serialize() (*protocol.SysFirewall, error) {
 	sysfw := &protocol.SysFirewall{}
-	jun := jsonpb.Unmarshaler{
-		AllowUnknownFields: true,
-	}
 	rawConfig, err := json.Marshal(&n.SysConfig)
 	if err != nil {
 		log.Error("nftables.Serialize() struct to string error: %s", err)
 		return nil, err
 	}
 	// string to proto
-	if err := jun.Unmarshal(strings.NewReader(string(rawConfig)), sysfw); err != nil {
+	if err := protojson.Unmarshal(rawConfig, sysfw); err != nil {
 		log.Error("nftables.Serialize() string to protobuf error: %s", err)
 		return nil, err
 	}
@@ -173,20 +168,19 @@ func (n *Nft) Serialize() (*protocol.SysFirewall, error) {
 
 // Deserialize converts a protocolbuffer structure to byte array.
 func (n *Nft) Deserialize(sysfw *protocol.SysFirewall) ([]byte, error) {
-	jun := jsonpb.Marshaler{
-		OrigName:     true,
-		EmitDefaults: true,
-		Indent:       "  ",
+	marshalOptions := protojson.MarshalOptions{
+		UseProtoNames:   true,
+		EmitUnpopulated: false,
+		Indent:          "  ",
 	}
 
 	// NOTE: '<' and '>' characters are encoded to unicode (\u003c).
 	// This has no effect on adding rules to nftables.
 	// Users can still write "<" if they want to, rules are added ok.
-
-	var b bytes.Buffer
-	if err := jun.Marshal(&b, sysfw); err != nil {
+	b, err := marshalOptions.Marshal(sysfw)
+	if err != nil {
 		log.Error("nfables.Deserialize() error 2: %s", err)
 		return nil, err
 	}
-	return b.Bytes(), nil
+	return b, nil
 }
