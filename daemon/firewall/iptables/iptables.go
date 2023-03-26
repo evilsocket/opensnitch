@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os/exec"
 	"regexp"
+	"sync"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
