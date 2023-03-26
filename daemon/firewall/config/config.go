@@ -5,7 +5,6 @@
 // The firewall rules defined by the user are reloaded in these cases:
 // - When the file system-fw.json changes.
 // - When the firewall rules are not present when listing them.
-//
 package config
 
 import (
@@ -20,30 +19,33 @@ import (
 // ExprValues holds the statements' options:
 // "Name": "ct",
 // "Values": [
-// {
-//   "Key":   "state",
-//   "Value": "established"
-// },
-// {
-//   "Key":   "state",
-//   "Value": "related"
-// }]
+//
+//	{
+//	  "Key":   "state",
+//	  "Value": "established"
+//	},
+//
+//	{
+//	  "Key":   "state",
+//	  "Value": "related"
+//	}]
 type ExprValues struct {
 	Key   string
 	Value string
 }
 
 // ExprStatement holds the definition of matches to use against connections.
-//{
-//	"Op": "!=",
-//	"Name": "tcp",
-//	"Values": [
-//		{
-//			"Key": "dport",
-// 			"Value": "443"
-//		}
-//	]
-//}
+//
+//	{
+//		"Op": "!=",
+//		"Name": "tcp",
+//		"Values": [
+//			{
+//				"Key": "dport",
+//				"Value": "443"
+//			}
+//		]
+//	}
 type ExprStatement struct {
 	Op     string        // ==, !=, ... Only one per expression set.
 	Name   string        // tcp, udp, ct, daddr, log, ...
@@ -163,7 +165,11 @@ func (c *Config) LoadDiskConfiguration(reload bool) {
 	c.loadConfiguration(raw)
 	// we need to monitor the configuration file for changes, regardless if it's
 	// malformed or not.
-	c.watcher.Remove(c.file)
+	err = c.watcher.Remove(c.file)
+	if err != nil {
+		log.Error("Failed to stop filesystem watcher: %v", err)
+		return
+	}
 	if err := c.watcher.Add(c.file); err != nil {
 		log.Error("Could not watch firewall configuration: %s", err)
 		return
@@ -223,6 +229,11 @@ func (c *Config) StopConfigWatcher() {
 
 	if c.watcher != nil {
 		c.watcher.Remove(c.file)
+		err := c.watcher.Remove(c.file)
+		if err != nil {
+			log.Error("Failed to stop filesystem watcher: %v", err)
+			return
+		}
 		c.watcher.Close()
 	}
 }

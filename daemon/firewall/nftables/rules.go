@@ -3,6 +3,7 @@ package nftables
 import (
 	"fmt"
 
+	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/google/nftables"
@@ -16,9 +17,9 @@ import (
 // of resolved domains.
 // This rule must be added in top of the system rules, otherwise it may get bypassed.
 // nft insert rule ip filter input udp sport 53 queue num 0 bypass
-func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
+func (n *Nft) QueueDNSResponses(enable, logError bool) *common.FirewallError {
 	if n.conn == nil {
-		return nil, nil
+		return nil
 	}
 	families := []string{exprs.NFT_FAMILY_INET}
 	for _, fam := range families {
@@ -67,10 +68,10 @@ func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
 	}
 	// apply changes
 	if !n.Commit() {
-		return fmt.Errorf("Error adding DNS interception rules"), nil
+		return &common.FirewallError{Err4: fmt.Errorf("Error adding DNS interception rules"), Err6: nil}
 	}
 
-	return nil, nil
+	return nil
 }
 
 // QueueConnections inserts the firewall rule which redirects connections to us.
@@ -78,17 +79,17 @@ func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
 // This rule must be added at the end of all the other rules, that way we can add
 // rules above this one to exclude a service/app from being intercepted.
 // nft insert rule ip mangle OUTPUT ct state new queue num 0 bypass
-func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
+func (n *Nft) QueueConnections(enable, logError bool) *common.FirewallError {
 	if n.conn == nil {
-		return nil, fmt.Errorf("nftables QueueConnections: netlink connection not active")
+		return &common.FirewallError{Err4: fmt.Errorf("nftables QueueConnections: netlink connection not active"), Err6: nil}
 	}
 	table := getTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
 	if table == nil {
-		return nil, fmt.Errorf("QueueConnections() Error getting table mangle-inet")
+		return &common.FirewallError{Err4: fmt.Errorf("QueueConnections() Error getting table mangle-inet"), Err6: nil}
 	}
 	chain := getChain(exprs.NFT_HOOK_OUTPUT, table)
 	if chain == nil {
-		return nil, fmt.Errorf("QueueConnections() Error getting outputChain: output-%s", table.Name)
+		return &common.FirewallError{Err4: fmt.Errorf("QueueConnections() Error getting outputChain: output-%s", table.Name), Err6: nil}
 	}
 
 	n.conn.AddRule(&nftables.Rule{
@@ -115,7 +116,7 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 	})
 	// apply changes
 	if !n.Commit() {
-		return fmt.Errorf("Error adding interception rule "), nil
+		return &common.FirewallError{Err4: fmt.Errorf("Error adding interception rule "), Err6: nil}
 	}
 
 	if enable {
@@ -126,7 +127,7 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 		}
 	}
 
-	return nil, nil
+	return nil
 }
 
 func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
