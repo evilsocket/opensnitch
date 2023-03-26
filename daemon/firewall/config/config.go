@@ -5,7 +5,6 @@
 // The firewall rules defined by the user are reloaded in these cases:
 // - When the file system-fw.json changes.
 // - When the firewall rules are not present when listing them.
-//
 package config
 
 import (
@@ -20,30 +19,33 @@ import (
 // ExprValues holds the statements' options:
 // "Name": "ct",
 // "Values": [
-// {
-//   "Key":   "state",
-//   "Value": "established"
-// },
-// {
-//   "Key":   "state",
-//   "Value": "related"
-// }]
+//
+//	{
+//	  "Key":   "state",
+//	  "Value": "established"
+//	},
+//
+//	{
+//	  "Key":   "state",
+//	  "Value": "related"
+//	}]
 type ExprValues struct {
 	Key   string
 	Value string
 }
 
 // ExprStatement holds the definition of matches to use against connections.
-//{
-//	"Op": "!=",
-//	"Name": "tcp",
-//	"Values": [
-//		{
-//			"Key": "dport",
-// 			"Value": "443"
-//		}
-//	]
-//}
+//
+//	{
+//		"Op": "!=",
+//		"Name": "tcp",
+//		"Values": [
+//			{
+//				"Key": "dport",
+//				"Value": "443"
+//			}
+//		]
+//	}
 type ExprStatement struct {
 	Op     string        // ==, !=, ... Only one per expression set.
 	Name   string        // tcp, udp, ct, daddr, log, ...
@@ -58,18 +60,18 @@ type Expressions struct {
 // FwRule holds the fields of a rule
 type FwRule struct {
 	// we need to keep old fields in the struct. Otherwise when receiving a conf from the GUI, the legacy rules would be deleted.
-	Chain      string // TODO: deprecated, remove
-	Table      string // TODO: deprecated, remove
-	Parameters string // TODO: deprecated: remove
+	Chain      string `json:"chain,omitempty"`      // TODO: deprecated, remove
+	Table      string `json:"table,omitempty"`      // TODO: deprecated, remove
+	Parameters string `json:"parameters,omitempty"` // TODO: deprecated: remove
 
-	UUID             string
-	Description      string
-	Expressions      []*Expressions
-	Target           string
-	TargetParameters string
+	UUID             string         `json:"uuid"`
+	Description      string         `json:"description"`
+	Expressions      []*Expressions `json:"expressions"`
+	Target           string         `json:"target"`
+	TargetParameters string         `json:"target_parameters"`
 
-	Position uint64 `json:",string"`
-	Enabled  bool
+	Position uint64 `json:"position,string"`
+	Enabled  bool   `json:"enabled"`
 
 	*sync.RWMutex
 }
@@ -95,10 +97,6 @@ func (fc *FwChain) IsInvalid() bool {
 	return fc.Name == "" || fc.Family == "" || fc.Table == ""
 }
 
-type rulesList struct {
-	Rule *FwRule
-}
-
 type chainsList struct {
 	Chains []*FwChain
 	Rule   *FwRule // TODO: deprecated, remove
@@ -107,9 +105,9 @@ type chainsList struct {
 // SystemConfig holds the list of rules to be added to the system
 type SystemConfig struct {
 	sync.RWMutex
-	SystemRules []*chainsList
-	Version     uint32
-	Enabled     bool
+	SystemRules []*chainsList `json:"chains_list"`
+	Version     uint32        `json:"versions"`
+	Enabled     bool          `json:"enabled"`
 }
 
 // Config holds the functionality to re/load the firewall configuration from disk.
