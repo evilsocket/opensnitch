@@ -61,8 +61,8 @@ type Expressions struct {
 type FwRule struct {
 	// we need to keep old fields in the struct. Otherwise when receiving a conf from the GUI, the legacy rules would be deleted.
 	Chain      string // TODO: deprecated, remove
-	Table      string
-	Parameters string
+	Table      string // TODO: deprecated, remove
+	Parameters string // TODO: deprecated, remove
 
 	UUID             string
 	Description      string
@@ -70,7 +70,7 @@ type FwRule struct {
 	Target           string
 	TargetParameters string
 
-	Position uint64
+	Position uint64 `json:",string"`
 	Enabled  bool
 }
 
