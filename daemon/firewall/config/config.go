@@ -174,11 +174,7 @@ func (c *Config) LoadDiskConfiguration(reload bool) {
 	c.loadConfiguration(raw)
 	// we need to monitor the configuration file for changes, regardless if it's
 	// malformed or not.
-	err = c.watcher.Remove(c.file)
-	if err != nil {
-		log.Error("Failed to stop filesystem watcher: %v", err)
-		return
-	}
+	c.watcher.Remove(c.file)
 	if err := c.watcher.Add(c.file); err != nil {
 		log.Error("Could not watch firewall configuration: %s", err)
 		return
@@ -237,12 +233,7 @@ func (c *Config) StopConfigWatcher() {
 	}
 
 	if c.watcher != nil {
-		err := c.watcher.Remove(c.file)
-		if err != nil {
-			log.Error("Failed to stop filesystem watcher: %v", err)
-			return
-		}
-
+		c.watcher.Remove(c.file)
 		c.watcher.Close()
 	}
 }

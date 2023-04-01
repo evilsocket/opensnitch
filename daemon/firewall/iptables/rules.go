@@ -4,13 +4,12 @@ import (
 	"fmt"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
-	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/vishvananda/netlink"
 )
 
 // RunRule inserts or deletes a firewall rule.
-func (ipt *Iptables) RunRule(action Action, enable bool, logError bool, rule []string) *common.FirewallError {
+func (ipt *Iptables) RunRule(action Action, enable bool, logError bool, rule []string) (err4, err6 error) {
 	if enable == false {
 		action = "-D"
 	}
@@ -38,13 +37,13 @@ func (ipt *Iptables) RunRule(action Action, enable bool, logError bool, rule []s
 		}
 	}
 
-	return &common.FirewallError{Err4: err4, Err6: err6}
+	return
 }
 
 // QueueDNSResponses redirects DNS responses to us, in order to keep a cache
 // of resolved domains.
 // INPUT --protocol udp --sport 53 -j NFQUEUE --queue-num 0 --queue-bypass
-func (ipt *Iptables) QueueDNSResponses(enable bool, logError bool) *common.FirewallError {
+func (ipt *Iptables) QueueDNSResponses(enable bool, logError bool) (err4, err6 error) {
 	return ipt.RunRule(INSERT, enable, logError, []string{
 		"INPUT",
 		"--protocol", "udp",
@@ -58,8 +57,8 @@ func (ipt *Iptables) QueueDNSResponses(enable bool, logError bool) *common.Firew
 // QueueConnections inserts the firewall rule which redirects connections to us.
 // Connections are queued until the user denies/accept them, or reaches a timeout.
 // OUTPUT -t mangle -m conntrack --ctstate NEW,RELATED -j NFQUEUE --queue-num 0 --queue-bypass
-func (ipt *Iptables) QueueConnections(enable bool, logError bool) *common.FirewallError {
-	err := ipt.RunRule(ADD, enable, logError, []string{
+func (ipt *Iptables) QueueConnections(enable bool, logError bool) (error, error) {
+	err4, err6 := ipt.RunRule(ADD, enable, logError, []string{
 		"OUTPUT",
 		"-t", "mangle",
 		"-m", "conntrack",
@@ -75,5 +74,5 @@ func (ipt *Iptables) QueueConnections(enable bool, logError bool) *common.Firewa
 			log.Error("error in ConntrackTableFlush %s", err)
 		}
 	}
-	return err
+	return err4, err6
 }

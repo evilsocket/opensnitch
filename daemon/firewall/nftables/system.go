@@ -3,7 +3,6 @@ package nftables
 import (
 	"strings"
 
-	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
 	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
@@ -134,5 +133,5 @@ func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) *common.
 		}
 	}
 
-	return nil
+	return nil, nil
 }

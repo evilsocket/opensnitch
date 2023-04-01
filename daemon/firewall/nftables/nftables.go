@@ -118,10 +118,10 @@ func (n *Nft) EnableInterception() {
 		return
 	}
 
-	if err := n.QueueDNSResponses(true, true); err != nil {
+	if err, _ := n.QueueDNSResponses(true, true); err != nil {
 		log.Error("Error while running DNS nftables rule: %s", err)
 	}
-	if err := n.QueueConnections(true, true); err != nil {
+	if err, _ := n.QueueConnections(true, true); err != nil {
 		log.Error("Error while running conntrack nftables rule: %s", err)
 	}
 	// start monitoring firewall rules to intercept network traffic.

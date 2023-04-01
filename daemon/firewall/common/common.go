@@ -1,7 +1,6 @@
 package common
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -39,22 +38,7 @@ type (
 		FwEnabled       bool
 		rwm             sync.RWMutex
 	}
-	// FirewallError is a type that holds both IPv4 and IPv6 errors.
-	FirewallError struct {
-		Err4 error
-		Err6 error
-	}
 )
-
-// Error formats the errors for both IPv4 and IPv6 errors.
-func (e *FirewallError) Error() string {
-	return fmt.Sprintf("IPv4 error: %v, IPv6 error: %v", e.Err4, e.Err6)
-}
-
-// HasError simplifies error handling of the FirewallError type.
-func (e *FirewallError) HasError() bool {
-	return e.Err4 != nil || e.Err6 != nil
-}
 
 func (s *stopChecker) exit() <-chan bool {
 	s.rwm.RLock()

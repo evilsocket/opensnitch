@@ -22,8 +22,8 @@ type Firewall interface {
 
 	EnableInterception()
 	DisableInterception(bool)
-	QueueDNSResponses(bool, bool) *common.FirewallError
-	QueueConnections(bool, bool) *common.FirewallError
+	QueueDNSResponses(bool, bool) (error, error)
+	QueueConnections(bool, bool) (error, error)
 	CleanRules(bool)
 
 	AddSystemRules(bool, bool)
