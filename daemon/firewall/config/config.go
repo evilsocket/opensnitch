@@ -60,18 +60,18 @@ type Expressions struct {
 // FwRule holds the fields of a rule
 type FwRule struct {
 	// we need to keep old fields in the struct. Otherwise when receiving a conf from the GUI, the legacy rules would be deleted.
-	Chain      string `json:"chain,omitempty"`      // TODO: deprecated, remove
-	Table      string `json:"table,omitempty"`      // TODO: deprecated, remove
-	Parameters string `json:"parameters,omitempty"` // TODO: deprecated: remove
+	Chain      string `json:"Chain,omitempty"`      // TODO: deprecated, remove
+	Table      string `json:"Table,omitempty"`      // TODO: deprecated, remove
+	Parameters string `json:"Parameters,omitempty"` // TODO: deprecated: remove
 
-	UUID             string         `json:"uuid"`
-	Description      string         `json:"description"`
-	Expressions      []*Expressions `json:"expressions"`
-	Target           string         `json:"target"`
-	TargetParameters string         `json:"target_parameters"`
+	UUID             string         `json:"UUID"`
+	Description      string         `json:"Description"`
+	Expressions      []*Expressions `json:"Expressions"`
+	Target           string         `json:"Target"`
+	TargetParameters string         `json:"Target_parameters"`
 
-	Position uint64 `json:"position,string"`
-	Enabled  bool   `json:"enabled"`
+	Position uint64 `json:"Position,string"`
+	Enabled  bool   `json:"Enabled"`
 
 	*sync.RWMutex
 }
@@ -105,9 +105,9 @@ type chainsList struct {
 // SystemConfig holds the list of rules to be added to the system
 type SystemConfig struct {
 	sync.RWMutex
-	SystemRules []*chainsList `json:"chains_list"`
-	Version     uint32        `json:"versions"`
-	Enabled     bool          `json:"enabled"`
+	SystemRules []*chainsList
+	Version     uint32 `json:"Version"`
+	Enabled     bool   `json:"Enabled"`
 }
 
 // Config holds the functionality to re/load the firewall configuration from disk.
