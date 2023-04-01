@@ -113,11 +113,10 @@ func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callba
 // StartCheckingRules monitors if our rules are loaded.
 // If the rules to intercept traffic are not loaded, we'll try to insert them again.
 func (c *Common) startCheckingRules(areRulesLoaded callbackBool, reloadRules callback) {
-outerLoop:
 	for {
 		select {
 		case <-c.stopCheckerChan.exit():
-			break outerLoop
+			goto Exit
 		case <-c.RulesChecker.C:
 			if areRulesLoaded() == false {
 				reloadRules()
@@ -125,6 +124,7 @@ outerLoop:
 		}
 	}
 
+Exit:
 	log.Info("exit checking firewall rules")
 }
 
