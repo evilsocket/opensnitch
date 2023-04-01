@@ -115,7 +115,7 @@ func (n *Nft) DeleteSystemRules(force, restoreExistingChains, logErrors bool) {
 }
 
 // AddSystemRule inserts a new rule.
-func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) *common.FirewallError {
+func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) (err4, err6 error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 	exprList := []expr.Any{}

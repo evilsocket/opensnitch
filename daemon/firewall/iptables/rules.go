@@ -16,7 +16,6 @@ func (ipt *Iptables) RunRule(action Action, enable bool, logError bool, rule []s
 
 	rule = append([]string{string(action)}, rule...)
 
-	var err4, err6 error
 	ipt.mu.Lock()
 	defer ipt.mu.Unlock()
 
