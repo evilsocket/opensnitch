@@ -56,7 +56,7 @@ class GenericTableModel(QStandardItemModel):
     def data(self, index, role=Qt.DisplayRole):
         """Paint rows with the data stored in self.items
         """
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole or role == Qt.EditRole:
             items_count = len(self.items)
             if index.isValid() and items_count > 0 and index.row() < items_count:
                 return self.items[index.row()][index.column()]
