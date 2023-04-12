@@ -37,7 +37,7 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 	switch expression.Statement.Name {
 
 	case exprs.NFT_CT:
-		exprCt := n.buildConntrackRule(expression.Statement.Values)
+		exprCt := n.buildConntrackRule(expression.Statement.Values, &cmpOp)
 		if exprCt == nil {
 			log.Warning("%s Ct statement error", logTag)
 			return nil
@@ -45,7 +45,7 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 		exprList = append(exprList, *exprCt...)
 
 	case exprs.NFT_META:
-		metaExpr, err := exprs.NewExprMeta(expression.Statement.Values)
+		metaExpr, err := exprs.NewExprMeta(expression.Statement.Values, &cmpOp)
 		if err != nil {
 			log.Warning("%s meta statement error: %s", logTag, err)
 			return nil

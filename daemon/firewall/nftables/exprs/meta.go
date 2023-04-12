@@ -11,7 +11,7 @@ import (
 
 // NewExprMeta creates a new meta selector to match or set packet metainformation.
 // https://wiki.nftables.org/wiki-nftables/index.php/Matching_packet_metainformation
-func NewExprMeta(values []*config.ExprValues) (*[]expr.Any, error) {
+func NewExprMeta(values []*config.ExprValues, cmpOp *expr.CmpOp) (*[]expr.Any, error) {
 	setMark := false
 	metaExpr := []expr.Any{}
 
@@ -44,7 +44,7 @@ func NewExprMeta(values []*config.ExprValues) (*[]expr.Any, error) {
 			metaExpr = append(metaExpr, []expr.Any{
 				&expr.Meta{Key: metaKey, Register: 1, SourceRegister: setMark},
 				&expr.Cmp{
-					Op:       expr.CmpOpEq,
+					Op:       *cmpOp,
 					Register: 1,
 					Data:     binaryutil.NativeEndian.PutUint32(metaVal),
 				}}...)
@@ -64,7 +64,7 @@ func NewExprMeta(values []*config.ExprValues) (*[]expr.Any, error) {
 			return &[]expr.Any{
 				&expr.Meta{Key: expr.MetaKeyNFTRACE, Register: 1},
 				&expr.Cmp{
-					Op:       expr.CmpOpEq,
+					Op:       *cmpOp,
 					Register: 1,
 					Data:     binaryutil.NativeEndian.PutUint32(uint32(mark)),
 				},

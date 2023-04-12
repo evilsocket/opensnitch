@@ -99,7 +99,7 @@ func (n *Nft) buildICMPRule(table, family string, icmpProtoVersion string, icmpO
 	return &ICMPrule
 }
 
-func (n *Nft) buildConntrackRule(ctOptions []*config.ExprValues) *[]expr.Any {
+func (n *Nft) buildConntrackRule(ctOptions []*config.ExprValues, cmpOp *expr.CmpOp) *[]expr.Any {
 	exprList := []expr.Any{}
 
 	setMark := false
@@ -122,7 +122,7 @@ func (n *Nft) buildConntrackRule(ctOptions []*config.ExprValues) *[]expr.Any {
 		case exprs.NFT_CT_SET_MARK:
 			setMark = true
 		case exprs.NFT_CT_MARK:
-			ctExprMark, err := exprs.NewExprCtMark(setMark, ctOption.Value)
+			ctExprMark, err := exprs.NewExprCtMark(setMark, ctOption.Value, cmpOp)
 			if err != nil {
 				log.Warning("%s ct mark error: %s", logTag, err)
 				return nil
