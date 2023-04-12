@@ -7,7 +7,16 @@ class Verdicts(Enums):
     DROP = Config.ACTION_DROP
     REJECT = Config.ACTION_REJECT
     RETURN = Config.ACTION_RETURN
+    QUEUE = Config.ACTION_QUEUE
+    DNAT = Config.ACTION_DNAT
+    SNAT = Config.ACTION_SNAT
+    REDIRECT = Config.ACTION_REDIRECT
+    TPROXY = Config.ACTION_TPROXY
+    #MASQUERADE = Config.ACTION_MASQUERADE
+    #LOG = Config.ACTION_LOG
     STOP = Config.ACTION_STOP
+
+
 
 class Policy(Enums):
     ACCEPT = "accept"
@@ -45,8 +54,8 @@ class ChainType(Enums):
     FILTER = "filter"
     MANGLE = "mangle"
     ROUTE = "route"
-    SNAT = "snat"
-    DNAT = "dnat"
+    SNAT = "natsource"
+    DNAT = "natdest"
 
 class Operator(Enums):
     EQUAL = "=="

@@ -182,7 +182,7 @@ class ChainMangle(Chains):
 
         chain.Family = family
         chain.Type = ChainType.MANGLE.value
-        chain.Hook = Hooks.PREROUTING.value
+        chain.Hook = Hooks.FORWARD.value
 
         return chain
 
@@ -207,6 +207,50 @@ class ChainMangle(Chains):
 
         chain.Family = family
         chain.Type = ChainType.MANGLE.value
+        chain.Hook = Hooks.POSTROUTING.value
+
+        return chain
+
+class ChainDstNAT(Chains):
+    """
+    ChainDstNAT returns a new chain of type dstnat.
+
+    The name of the chain is the one listed with: nft list table inet nat.
+    It corresponds with the hook name, but can be a random name.
+    """
+
+    @staticmethod
+    def prerouting(family=Family.INET.value):
+        chain = ui_pb2.FwChain()
+        chain.Name = Hooks.PREROUTING.value
+        chain.Table = Table.NAT.value
+
+        chain.Family = family
+        chain.Type = ChainType.DNAT.value
+        chain.Hook = Hooks.PREROUTING.value
+
+        return chain
+
+    @staticmethod
+    def output(family=Family.INET.value):
+        chain = ui_pb2.FwChain()
+        chain.Name = Hooks.OUTPUT.value
+        chain.Table = Table.NAT.value
+
+        chain.Family = family
+        chain.Type = ChainType.DNAT.value
+        chain.Hook = Hooks.OUTPUT.value
+
+        return chain
+
+    @staticmethod
+    def postrouting(family=Family.INET.value):
+        chain = ui_pb2.FwChain()
+        chain.Name = Hooks.POSTROUTING.value
+        chain.Table = Table.NAT.value
+
+        chain.Family = family
+        chain.Type = ChainType.SNAT.value
         chain.Hook = Hooks.POSTROUTING.value
 
         return chain

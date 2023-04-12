@@ -5,6 +5,7 @@ import os.path
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
 
+from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.utils import NetworkServices, NetworkInterfaces, QuickHelp, Icons, Utils
 from opensnitch import ui_pb2
@@ -20,6 +21,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     IN = 0
     OUT = 1
+    FORWARD = 2
+    PREROUTING = 3
+    POSTROUTING = 4
 
     OP_NEW = 0
     OP_SAVE = 1
@@ -234,6 +238,8 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdSave.clicked.connect(self._cb_save_clicked)
         self.cmdDelete.clicked.connect(self._cb_delete_clicked)
         self.helpButton.clicked.connect(self._cb_help_button_clicked)
+        self.comboVerdict.currentIndexChanged.connect(self._cb_verdict_changed)
+        self.comboDirection.currentIndexChanged.connect(self._cb_direction_changed)
 
         self.cmdAddStatement.clicked.connect(self._cb_add_new_statement)
         self.cmdDelStatement.clicked.connect(self._cb_del_statement)
@@ -339,7 +345,10 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_status_error(QC.translate("firewall", "Error updating rule"))
             return
 
-        self.send_notification(node_addr, node['firewall'], self.OP_DELETE)
+        if self.comboNodes.currentIndex() > 0:
+            self.send_notification(node_addr, node['firewall'], self.OP_DELETE)
+        else:
+            self.send_notifications(node['firewall'], self.OP_DELETE)
 
     def _cb_save_clicked(self):
         node_addr, node, chain, err = self.form_to_protobuf()
@@ -354,7 +363,10 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         self._enable_buttons(False)
-        self.send_notification(node_addr, node['firewall'], self.OP_SAVE)
+        if self.comboNodes.currentIndex() > 0:
+            self.send_notification(node_addr, node['firewall'], self.OP_SAVE)
+        else:
+            self.send_notifications(node['firewall'], self.OP_SAVE)
 
     def _cb_reset_clicked(self):
         self._reset_widgets("", self.toolBoxSimple)
@@ -372,7 +384,10 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
         self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
         self._enable_buttons(False)
-        self.send_notification(node_addr, node['firewall'], self.OP_NEW)
+        if self.comboNodes.currentIndex() > 0:
+            self.send_notification(node_addr, node['firewall'], self.OP_NEW)
+        else:
+            self.send_notifications(node['firewall'], self.OP_NEW)
 
     def _cb_add_new_statement(self):
         self.add_new_statement(QC.translate("firewall", "<select a statement>"), self.toolBoxSimple)
@@ -419,6 +434,82 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_statem_opts_changed(self, idx):
         st_idx = self.toolBoxSimple.currentIndex()
         self._set_statement_title(st_idx)
+
+    def _cb_direction_changed(self, idx):
+        self._is_valid_rule()
+
+    def _cb_verdict_changed(self, idx):
+        showVerdictParms = self._has_verdict_parms(idx)
+        self.lineVerdictParms.setVisible(showVerdictParms)
+        self.comboVerdictParms.setVisible(showVerdictParms)
+        self._configure_verdict_parms(idx)
+
+    def _is_valid_rule(self):
+        if (self.comboVerdict.currentText().lower() == Config.ACTION_REDIRECT or \
+            self.comboVerdict.currentText().lower() == Config.ACTION_TPROXY or \
+            self.comboVerdict.currentText().lower() == Config.ACTION_DNAT) and \
+             (self.comboDirection.currentIndex() == self.IN or self.comboDirection.currentIndex() == self.POSTROUTING):
+            self._set_status_message(
+                QC.translate(
+                    "firewall",
+                    "{0} cannot be used with IN or POSTROUTING directions.".format(self.comboVerdict.currentText().upper())
+                )
+            )
+            return False
+        elif self.comboVerdict.currentText().lower() == Config.ACTION_SNAT and \
+             self.comboDirection.currentIndex() != self.POSTROUTING:
+            self._set_status_message(
+                QC.translate(
+                    "firewall",
+                    "{0} can only be used with POSTROUTING.".format(self.comboVerdict.currentText().upper())
+                )
+            )
+            self.comboDirection.setCurrentIndex(self.POSTROUTING)
+            return False
+
+        self._set_status_message("")
+        return True
+
+    def _has_verdict_parms(self, idx):
+        # TODO:
+        # Fw.Verdicts.values()[idx+1] == Config.ACTION_REJECT or \
+        # Fw.Verdicts.values()[idx+1] == Config.ACTION_JUMP or \
+        return Fw.Verdicts.values()[idx+1] == Config.ACTION_QUEUE or \
+            Fw.Verdicts.values()[idx+1] == Config.ACTION_REDIRECT or \
+            Fw.Verdicts.values()[idx+1] == Config.ACTION_TPROXY or \
+            Fw.Verdicts.values()[idx+1] == Config.ACTION_DNAT or \
+            Fw.Verdicts.values()[idx+1] == Config.ACTION_SNAT or \
+            Fw.Verdicts.values()[idx+1] == Config.ACTION_MASQUERADE
+
+    def _configure_verdict_parms(self, idx):
+        self.comboVerdictParms.clear()
+
+        verdict = Fw.Verdicts.values()[idx+1]
+        if verdict == Config.ACTION_QUEUE:
+            self.comboVerdictParms.addItem(QC.translate("firewall", "num"), "num")
+
+        elif verdict == Config.ACTION_JUMP:
+            self.comboVerdictParms.setVisible(False)
+
+        elif verdict == Config.ACTION_REDIRECT or \
+            verdict == Config.ACTION_TPROXY or \
+            verdict == Config.ACTION_SNAT or \
+            verdict == Config.ACTION_DNAT:
+            self.comboVerdictParms.addItem(QC.translate("firewall", "to"), "to")
+
+        elif verdict == Config.ACTION_MASQUERADE:
+            # for persistent,fully-random,etc, options
+            self.comboVerdictParms.addItem("")
+            self.comboVerdictParms.addItem(QC.translate("firewall", "to"), "to")
+
+        # https://wiki.nftables.org/wiki-nftables/index.php/Performing_Network_Address_Translation_(NAT)#Redirect
+        if (verdict == Config.ACTION_REDIRECT or verdict == Config.ACTION_DNAT) and \
+                (self.comboDirection.currentIndex() != self.OUT and self.comboDirection.currentIndex() != self.PREROUTING):
+            self.comboDirection.setCurrentIndex(self.OUT)
+
+        elif self.comboVerdict.currentText().lower() == Config.ACTION_SNAT and \
+             self.comboDirection.currentIndex() != self.POSTROUTING:
+            self.comboDirection.setCurrentIndex(self.POSTROUTING)
 
     def _reorder_toolbox_pages(self):
         tmp = {}
@@ -621,6 +712,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _load_nodes(self):
         self.comboNodes.clear()
         self._node_list = self._nodes.get()
+        #self.comboNodes.addItem(QC.translate("firewall", "All"))
         for addr in self._node_list:
             self.comboNodes.addItem(addr)
 
@@ -640,6 +732,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkEnable.setEnabled(True)
         self.checkEnable.setChecked(True)
         self.frameDirection.setVisible(True)
+        self.comboNodes.setCurrentText(addr)
 
         self._enable_buttons()
 
@@ -647,7 +740,11 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         node, rule = self._fw.get_rule_by_uuid(uuid)
         if rule == None or \
-                (rule.Hook.lower() != Fw.Hooks.INPUT.value and rule.Hook.lower() != Fw.Hooks.OUTPUT.value):
+                (rule.Hook.lower() != Fw.Hooks.INPUT.value and \
+                 rule.Hook.lower() != Fw.Hooks.FORWARD.value and \
+                 rule.Hook.lower() != Fw.Hooks.PREROUTING.value and \
+                 rule.Hook.lower() != Fw.Hooks.POSTROUTING.value and \
+                 rule.Hook.lower() != Fw.Hooks.OUTPUT.value):
             hook = "invalid" if rule == None else rule.Hook
             self._set_status_error(QC.translate("firewall", "Rule hook ({0}) not supported yet".format(hook)))
             self._disable_controls()
@@ -829,8 +926,14 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if rule.Hook.lower() == Fw.Hooks.INPUT.value:
             self.comboDirection.setCurrentIndex(self.IN)
-        else:
+        elif rule.Hook.lower() == Fw.Hooks.OUTPUT.value:
             self.comboDirection.setCurrentIndex(self.OUT)
+        elif rule.Hook.lower() == Fw.Hooks.FORWARD.value:
+            self.comboDirection.setCurrentIndex(self.FORWARD)
+        elif rule.Hook.lower() == Fw.Hooks.PREROUTING.value:
+            self.comboDirection.setCurrentIndex(self.PREROUTING)
+        elif rule.Hook.lower() == Fw.Hooks.POSTROUTING.value:
+            self.comboDirection.setCurrentIndex(self.POSTROUTING)
         # TODO: changing the direction of an existed rule needs work, it causes
         # some nasty effects. Disabled for now.
         self.comboDirection.setEnabled(False)
@@ -841,6 +944,12 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     rule.Rules[0].Target.lower()
                 )-1
             )
+            if self._has_verdict_parms(self.comboVerdict.currentIndex()):
+                tparms = rule.Rules[0].TargetParameters.lower()
+                parts = tparms.split(" ")
+                self.lineVerdictParms.setText(parts[1])
+                if parts[1] == "":
+                    print("Firewall Rule: verdict parms error:", parts)
         except:
             self._set_status_error(QC.translate("firewall", "Rule target ({0}) not supported yet".format(rule.Rules[0].Target.lower())))
             self._disable_controls()
@@ -907,16 +1016,44 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         """Transform form widgets to protobuf struct
         """
         chain = Fw.ChainFilter.input()
-        if self.comboDirection.currentIndex() == self.OUT or self.FORM_TYPE == self.FORM_TYPE_EXCLUDE_SERVICE:
+        # XXX: tproxy does not work with destnat+output
+        if self.comboDirection.currentIndex() == self.OUT and \
+            (self.comboVerdict.currentIndex()+1 == Fw.Verdicts.values().index(Config.ACTION_TPROXY) or \
+                self.comboVerdict.currentIndex()+1 == Fw.Verdicts.values().index(Config.ACTION_DNAT) or \
+                self.comboVerdict.currentIndex()+1 == Fw.Verdicts.values().index(Config.ACTION_REDIRECT)
+            ):
+            chain = Fw.ChainDstNAT.output()
+        elif self.comboDirection.currentIndex() == self.FORWARD:
+            chain = Fw.ChainMangle.forward()
+        elif self.comboDirection.currentIndex() == self.PREROUTING:
+            chain = Fw.ChainDstNAT.prerouting()
+        elif self.comboDirection.currentIndex() == self.POSTROUTING:
+            chain = Fw.ChainDstNAT.postrouting()
+
+        elif self.comboDirection.currentIndex() == self.OUT or self.FORM_TYPE == self.FORM_TYPE_EXCLUDE_SERVICE:
             chain = Fw.ChainMangle.output()
         elif self.comboDirection.currentIndex() == self.IN or self.FORM_TYPE == self.FORM_TYPE_ALLOW_IN_SERVICE:
             chain = Fw.ChainFilter.input()
+
+        verdict_idx = self.comboVerdict.currentIndex()
+        verdict = Fw.Verdicts.values()[verdict_idx+1] # index 0 is ""
+        _target_parms = ""
+        if self._has_verdict_parms(verdict_idx):
+            if self.lineVerdictParms.text() == "":
+                return None, None, None, QC.translate("firewall", "Verdict ({0}) parameters cannot be empty.".format(verdict))
+
+            vidx = self.comboVerdictParms.currentIndex()
+            _target_parms = "{0} {1}".format(
+                self.comboVerdictParms.itemData(vidx),
+                self.lineVerdictParms.text().replace(" ", "")
+            )
 
         rule = Fw.Rules.new(
             enabled=self.checkEnable.isChecked(),
             _uuid=self.uuid,
             description=self.lineDescription.text(),
-            target=Fw.Verdicts.values()[self.comboVerdict.currentIndex()+1] # index 0 is ""
+            target=verdict,
+            target_parms=_target_parms
         )
 
         for k in self.statements:
@@ -1020,6 +1157,11 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         nid, notif = self._nodes.reload_fw(node_addr, fw_config, self._notification_callback)
         self._notifications_sent[nid] = {'addr': node_addr, 'operation': op, 'notif': notif}
 
+    def send_notifications(self, fw_config, op):
+        for addr in self._nodes.get_nodes():
+            nid, notif = self._nodes.reload_fw(addr, fw_config, self._notification_callback)
+            self._notifications_sent[nid] = {'addr': addr, 'operation': op, 'notif': notif}
+
     def _set_status_error(self, msg):
         self.statusLabel.show()
         self.statusLabel.setStyleSheet('color: red')
@@ -1060,7 +1202,14 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.lineDescription.setText("")
         self.comboDirection.setCurrentIndex(self.IN)
         self.comboDirection.setEnabled(True)
+
+        self.comboVerdict.blockSignals(True);
         self.comboVerdict.setCurrentIndex(0)
+        self.comboVerdict.blockSignals(False);
+        self.lineVerdictParms.setVisible(False)
+        self.comboVerdictParms.setVisible(False)
+        self.lineVerdictParms.setText("")
+
         self.uuid = ""
 
     def _enable_buttons(self, enable=True):
