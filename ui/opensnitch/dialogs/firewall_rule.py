@@ -1042,6 +1042,20 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.lineVerdictParms.text() == "":
                 return None, None, None, QC.translate("firewall", "Verdict ({0}) parameters cannot be empty.".format(verdict))
 
+            # these verdicts parameters need ":" to specify a port or ip:port
+            if (self.comboVerdict.currentText().lower() == Config.ACTION_REDIRECT or \
+                self.comboVerdict.currentText().lower() == Config.ACTION_TPROXY or \
+                self.comboVerdict.currentText().lower() == Config.ACTION_SNAT or \
+                self.comboVerdict.currentText().lower() == Config.ACTION_DNAT) and \
+                    ":" not in self.lineVerdictParms.text():
+                return None, None, None, QC.translate("firewall", "Verdict ({0}) parameters format is: <IP>:port.".format(verdict))
+
+            if self.comboVerdict.currentText().lower() == Config.ACTION_QUEUE:
+                try:
+                    t = int(self.lineVerdictParms.text())
+                except:
+                    return None, None, None, QC.translate("firewall", "Verdict ({0}) parameters format must be a number".format(verdict))
+
             vidx = self.comboVerdictParms.currentIndex()
             _target_parms = "{0} {1}".format(
                 self.comboVerdictParms.itemData(vidx),
@@ -1074,7 +1088,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     statem_value = self.statements[k]['value'].currentText()
                     val_idx = self.statements[k]['value'].currentIndex()
 
-                    if statem_value == "" or statem_value == "0":
+                    if statem_value == "" or (statem_value == "0" and st_idx != self.STATM_META):
                         return None, None, None, QC.translate("firewall", "value cannot be 0 or empty.")
 
                     if st_idx == self.STATM_QUOTA:
