@@ -23,19 +23,17 @@ func NewExprPort(port string, op *expr.CmpOp) *[]expr.Any {
 }
 
 // NewExprPortRange returns a new port range expression.
-func NewExprPortRange(sport string) *[]expr.Any {
+func NewExprPortRange(sport string, cmpOp *expr.CmpOp) *[]expr.Any {
 	ports := strings.Split(sport, "-")
 	iport, _ := strconv.Atoi(ports[0])
 	eport, _ := strconv.Atoi(ports[1])
 	return &[]expr.Any{
-		&expr.Cmp{
+		&expr.Range{
+			Op:       *cmpOp,
 			Register: 1,
-			Op:       expr.CmpOpGte,
-			Data:     binaryutil.BigEndian.PutUint16(uint16(iport))},
-		&expr.Cmp{
-			Register: 1,
-			Op:       expr.CmpOpLte,
-			Data:     binaryutil.BigEndian.PutUint16(uint16(eport))},
+			FromData: binaryutil.BigEndian.PutUint16(uint16(iport)),
+			ToData:   binaryutil.BigEndian.PutUint16(uint16(eport)),
+		},
 	}
 
 }

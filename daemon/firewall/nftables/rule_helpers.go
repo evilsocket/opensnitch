@@ -163,7 +163,7 @@ func (n *Nft) buildProtocolRule(table, family, ports string, cmpOp *expr.CmpOp) 
 		})
 		sysSets = append(sysSets, []*nftables.Set{set}...)
 	} else if strings.Index(ports, "-") != -1 {
-		exprList = append(exprList, *exprs.NewExprPortRange(ports)...)
+		exprList = append(exprList, *exprs.NewExprPortRange(ports, cmpOp)...)
 	} else {
 		exprList = append(exprList, *exprs.NewExprPort(ports, cmpOp)...)
 	}
