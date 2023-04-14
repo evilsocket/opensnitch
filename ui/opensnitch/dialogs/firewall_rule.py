@@ -1,6 +1,7 @@
 import sys
 import os
 import os.path
+import ipaddress
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
@@ -1136,10 +1137,20 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         sk['key'] = statem_value
                         statem_value = ""
 
-                    elif st_idx == self.STATM_DEST_IP or \
-                            st_idx == self.STATM_SOURCE_IP or \
-                            st_idx == self.STATM_DPORT or \
-                            st_idx == self.STATM_SPORT:
+                    elif st_idx == self.STATM_DEST_IP or st_idx == self.STATM_SOURCE_IP:
+                        statement = statem_opts
+                        # convert network u.x.y.z/nn to 1.2.3.4-1.255.255.255
+                        # format.
+                        # FIXME: This should be supported by the daemon,
+                        # instead of converting it here.
+                        if "/" in statem_value:
+                            try:
+                                net = ipaddress.ip_network(statem_value)
+                                hosts = list(net)
+                                statem_value = "{0}-{1}".format(str(hosts[0]), str(hosts[-1]))
+                            except Exception as e:
+                                return None, None, None, QC.translate("firewall", "IP network format error, {0}".format(e))
+                    elif st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT:
                         statement = statem_opts
                         try:
                             if "," in statem_value or "-" in statem_value or val_idx < 1:
