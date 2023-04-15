@@ -6,6 +6,7 @@ import grpc
 import os
 import sys
 import json
+import copy
 
 path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(path)
@@ -592,19 +593,24 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         return need_refresh
 
     def _overwrite_nodes_config(self, node_config):
+        """Overwrite daemon's DefaultAction value, with the one defined by the GUI.
+        It'll only be valid while the daemon is connected to the GUI (it's not saved to disk).
+        """
+        newconf = copy.deepcopy(node_config)
         _default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
-        temp_cfg = json.loads(node_config)
         try:
+            temp_cfg = json.loads(newconf.config)
             if _default_action == Config.ACTION_DENY_IDX:
                 temp_cfg['DefaultAction'] = Config.ACTION_DENY
             else:
                 temp_cfg['DefaultAction'] = Config.ACTION_ALLOW
 
-            node_config = json.dumps(temp_cfg)
+            newconf.config = json.dumps(temp_cfg)
         except Exception as e:
             print("error parsing node's configuration:", e)
+            return node_config
 
-        return node_config
+        return newconf
 
     @QtCore.pyqtSlot(dict)
     def _on_node_actions(self, kwargs):
@@ -750,9 +756,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             print("[Notifications] exception adding new node:", e)
             context.cancel()
 
-        node_config.config = self._overwrite_nodes_config(node_config.config)
+        newconf = self._overwrite_nodes_config(node_config)
 
-        return node_config
+        return newconf
 
     def Notifications(self, node_iter, context):
         """

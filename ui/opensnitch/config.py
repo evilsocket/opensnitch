@@ -147,7 +147,7 @@ class Config:
         if self.settings.value(self.DEFAULT_TIMEOUT_KEY) == None:
             self.setSettings(self.DEFAULT_TIMEOUT_KEY, self.DEFAULT_TIMEOUT)
         if self.settings.value(self.DEFAULT_ACTION_KEY) == None:
-            self.setSettings(self.DEFAULT_ACTION_KEY, self.ACTION_ALLOW)
+            self.setSettings(self.DEFAULT_ACTION_KEY, self.ACTION_DENY_IDX)
         if self.settings.value(self.DEFAULT_DURATION_KEY) == None:
             self.setSettings(self.DEFAULT_DURATION_KEY, self.DEFAULT_DURATION_IDX)
         if self.settings.value(self.DEFAULT_TARGET_KEY) == None:
