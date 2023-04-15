@@ -51,6 +51,7 @@ As the connections are originated from kernel-space, you need to enable this opt
 By default OpenSnitch UI listens on a local Unix socket in /tmp/osui.sock.
 
 In some distros, /tmp is cleared out every time in a while, so you're encouraged to change it to other location.
+Also, this Unix socket should only be readable by the GUI's user.
 
 On latest v.1.6.x version, you can change it to unix:///run/user/1000/opensnitch/osui.sock
 
@@ -78,4 +79,11 @@ It is saved under _$HOME/.config/opensnitch/settings.conf_, and it's handled by 
 ![image](https://user-images.githubusercontent.com/2742953/82752761-aa9e3c80-9dc0-11ea-90eb-992a99f0b878.png)
 
 ***
+
+**Clarification on how the DefaultAction option works**
+
+- When the daemon is not connected to the GUI, it'll use the DefaultAction configured in /etc/opensnitchd/default-config.json (Default Allow)
+- When the daemon is connected to the GUI, the GUI will reconfigure daemon's DefaultAction value with the one defined by the GUI (default Deny).
+  This change will only be valid while it's connected to the GUI. The value defined in default-config.json is not modified.
+
 
