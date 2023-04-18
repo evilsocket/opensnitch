@@ -56,10 +56,10 @@ $ sudo apt install python3-grpcio python3-protobuf python3-slugify
 ```
 
 * On Ubuntu you may need to add _universe_ repositories.
-* If you install them using a graphical installer and fails, launch a terminal and type the above commands. See the [common errors](https://github.com/gustavo-iniguez-goya/opensnitch/wiki/Known-problems) for more information.
+* If you install them using a graphical installer and fails, launch a terminal and type the above commands. See the [common errors](https://github.com/evilsocket/opensnitch/wiki/Known-problems) for more information.
 
 
-You can download them from the [release](https://github.com/gustavo-iniguez-goya/opensnitch/releases) section.
+You can download them from the [release](https://github.com/evilsocket/opensnitch/releases) section.
 
 **Note:**
 Select the right package for your architecture: `$(uname -m) == x86_64` -> opensnitch*...**amd64**.deb, `$(uname -m) == armhf` -> opensnitch*...**arhmf**.deb, etc.
