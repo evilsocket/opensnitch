@@ -330,6 +330,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     @QtCore.pyqtSlot(str, str, int, int)
     def _show_systray_message(self, title, body, icon, urgency):
+        def callback_open_clicked(notifObject, action):
+            if action == DesktopNotifications.ACTION_ID_OPEN:
+                self._stats_dialog.show()
+                #self._stats_dialog.raise()
+                self._stats_dialog.activateWindow()
+
         if self._desktop_notifications.are_enabled():
             timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
 
@@ -338,7 +344,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     self._desktop_notifications.show(
                         title,
                         body,
-                        os.path.join(self._path, "res/icon-white.svg")
+                        os.path.join(self._path, "res/icon-white.svg"),
+                        callback=callback_open_clicked
                     )
                 except:
                     self._tray.showMessage(title, body, icon, timeout * 1000)
