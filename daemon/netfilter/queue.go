@@ -13,12 +13,14 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"syscall"
 	"time"
 	"unsafe"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"golang.org/x/sys/unix"
 )
 
 const (
@@ -84,13 +86,17 @@ func (q *Queue) create(queueID uint16) (err error) {
 	if q.h, err = C.nfq_open(); err != nil {
 		return fmt.Errorf("Error opening Queue handle: %v", err)
 	} else if ret, err = C.nfq_unbind_pf(q.h, AF_INET); err != nil || ret < 0 {
-		return fmt.Errorf("Error unbinding existing q handler from AF_INET protocol family: %v", err)
+		errmsg := fmt.Errorf("Error %d unbinding existing q handler from AF_INET protocol family: %v", ret, err)
+		if syscall.Errno(ret) == unix.EINVAL {
+			errmsg = fmt.Errorf("%s\nRestarting your computer may help to solve this error (see issues: #323 and #912 for more information)", errmsg)
+		}
+		return errmsg
 	} else if ret, err = C.nfq_unbind_pf(q.h, AF_INET6); err != nil || ret < 0 {
-		return fmt.Errorf("Error unbinding existing q handler from AF_INET6 protocol family: %v", err)
+		return fmt.Errorf("Error (%d) unbinding existing q handler from AF_INET6 protocol family: %v", ret, err)
 	} else if ret, err := C.nfq_bind_pf(q.h, AF_INET); err != nil || ret < 0 {
-		return fmt.Errorf("Error binding to AF_INET protocol family: %v", err)
+		return fmt.Errorf("Error (%d) binding to AF_INET protocol family: %v", ret, err)
 	} else if ret, err := C.nfq_bind_pf(q.h, AF_INET6); err != nil || ret < 0 {
-		return fmt.Errorf("Error binding to AF_INET6 protocol family: %v", err)
+		return fmt.Errorf("Error (%d) binding to AF_INET6 protocol family: %v", ret, err)
 	} else if q.qh, err = C.CreateQueue(q.h, C.uint16_t(queueID), C.uint32_t(q.idx)); err != nil || q.qh == nil {
 		q.destroy()
 		return fmt.Errorf("Error binding to queue: %v", err)
@@ -150,7 +156,7 @@ func (q *Queue) Close() {
 func (q *Queue) destroy() {
 	// we'll try to exit cleanly, but sometimes nfqueue gets stuck
 	time.AfterFunc(5*time.Second, func() {
-		log.Warning("queue stuck, closing by timeout")
+		log.Warning("queue (%d) stuck, closing by timeout", q.idx)
 		if q != nil {
 			C.close(q.fd)
 			q.closeNfq()
@@ -161,7 +167,7 @@ func (q *Queue) destroy() {
 	C.nfq_unbind_pf(q.h, AF_INET6)
 	if q.qh != nil {
 		if ret := C.nfq_destroy_queue(q.qh); ret != 0 {
-			log.Warning("Queue.destroy(), nfq_destroy_queue() not closed: %d", ret)
+			log.Warning("Queue.destroy() idx=%d, nfq_destroy_queue() not closed: %d", q.idx, ret)
 		}
 	}
 
@@ -171,7 +177,7 @@ func (q *Queue) destroy() {
 func (q *Queue) closeNfq() {
 	if q.h != nil {
 		if ret := C.nfq_close(q.h); ret != 0 {
-			log.Warning("Queue.destroy(), nfq_close() not closed: %d", ret)
+			log.Warning("Queue.destroy() idx=%d, nfq_close() not closed: %d", q.idx, ret)
 		}
 	}
 }

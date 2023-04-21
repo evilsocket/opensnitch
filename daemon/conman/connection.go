@@ -71,7 +71,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 	if c.parseDirection(protoType) == false {
 		return nil, nil
 	}
-	log.Debug("new connection %s => %d:%v -> %v (%s):%d uid: %d", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstHost, c.DstPort, nfp.UID)
+	log.Debug("new connection %s => %d:%v -> %v (%s):%d uid: %d, mark: %x", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstHost, c.DstPort, nfp.UID, nfp.Mark)
 
 	c.Entry = &netstat.Entry{
 		Proto:   c.Protocol,

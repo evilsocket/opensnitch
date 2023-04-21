@@ -441,14 +441,14 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		if r.Operator.Operand == rule.OpTrue {
 			ruleName = log.Dim(r.Name)
 		}
-		log.Debug("%s %s -> %d:%s => %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), con.SrcPort, log.Bold(con.SrcIP.String()), log.Bold(con.To()), con.DstPort, ruleName)
+		log.Debug("%s %s -> %d:%s => %s:%d, mark: %x (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), con.SrcPort, log.Bold(con.SrcIP.String()), log.Bold(con.To()), con.DstPort, packet.Mark, ruleName)
 	} else {
 		if r.Action == rule.Reject {
 			netlink.KillSocket(con.Protocol, con.SrcIP, con.SrcPort, con.DstIP, con.DstPort)
 		}
 		packet.SetVerdict(netfilter.NF_DROP)
 
-		log.Debug("%s %s -> %d:%s => %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), con.SrcPort, log.Bold(con.SrcIP.String()), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
+		log.Debug("%s %s -> %d:%s => %s:%d, mark: %x (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), con.SrcPort, log.Bold(con.SrcIP.String()), log.Bold(con.To()), con.DstPort, packet.Mark, log.Red(r.Name))
 	}
 
 	return r
