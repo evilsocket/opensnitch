@@ -1,8 +1,11 @@
 ### Installation using the packages
 
-(get the packages from here: https://github.com/evilsocket/opensnitch/releases)
+ℹ️ Since version > v1.5.2, opensnitch is available on Debian Bookworm 12 and ubuntu 23.04.
+
 
 **tl;dr: use the command line**
+
+(get the packages from the Release section: https://github.com/evilsocket/opensnitch/releases)
 
 #### DEB
 > $ sudo apt install ./opensnitch*.deb ./python3-opensnitch-ui*.deb
@@ -11,17 +14,20 @@
 
 yum:
 
-> $ sudo yum localinstall opensnitch-1*.rpm; sudo yum localinstall opensnitch-ui*.rpm 
+> $ sudo yum localinstall opensnitch-\*.rpm; sudo yum localinstall opensnitch-ui\*.rpm 
 
 dnf:
 
-> $ sudo dnf install ./opensnitch-1*.rpm ./opensnitch-ui-1*.rpm 
+> $ sudo dnf install ./opensnitch-\*.rpm ./opensnitch-ui-\*.rpm 
 
 (You can also double-click on the downloaded files)
 
+
+➡️ Then lanch the GUI: `$ opensnitch-ui` or launch it from the Applications menu.
+
 **Remember:**
 
-If the daemon doesn't start after installing these packages (or others from other distributions), enable and start it manually:
+If the daemon doesn't start after installing these packages  (or others from other distributions) or after rebooting your computer, you need to enable and start it manually:
 ```
 sudo systemctl enable --now opensnitch
 sudo systemctl start opensnitch
@@ -78,6 +84,7 @@ Select the right package for your architecture: `$(uname -m) == x86_64` -> opens
    - Pop!_OS
    - MX Linux 19.x
    - PureOS (Librem5)
+ 
  * UI ([v1.4.0rc2](https://github.com/evilsocket/opensnitch/releases)):
    - Debian >= 9
    - Ubuntu >= 16.x
