@@ -37,6 +37,8 @@ Download deb/rpm packages for your system from https://github.com/evilsocket/ope
 #### rpm
 > $ sudo yum localinstall opensnitch-1*.rpm; sudo yum localinstall opensnitch-ui*.rpm 
 
+Then run: `$ opensnitch-ui` or launch the GUI from the Applications menu.
+
 Please, refer to [the documentation](https://github.com/evilsocket/opensnitch/wiki/Installation) for detailed information.
 
 ## OpenSnitch in action
