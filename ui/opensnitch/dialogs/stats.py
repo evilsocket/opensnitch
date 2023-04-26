@@ -563,6 +563,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_MAIN]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
         self.TABLES[self.TAB_RULES]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.TABLES[self.TAB_RULES]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
+        self.TABLES[self.TAB_FIREWALL]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.TABLES[self.TAB_FIREWALL]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
         for idx in range(1,9):
             if self.TABLES[idx]['cmd'] != None:
                 self.TABLES[idx]['cmd'].hide()
@@ -840,6 +842,37 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         finally:
             self._clear_rows_selection()
             return True
+
+    def _configure_fwrules_contextual_menu(self, pos):
+        try:
+            cur_idx = self.tabWidget.currentIndex()
+            table = self._get_active_table()
+            model = table.model()
+
+            selection = table.selectionModel().selectedRows()
+            if not selection:
+                return
+
+            menu = QtWidgets.QMenu()
+            actionsMenu = QtWidgets.QMenu(QC.translate("stats", "Action"))
+            _menu_delete = actionsMenu.addAction(QC.translate("stats", "Delete"))
+            menu.addMenu(actionsMenu)
+
+            # move away menu a few pixels to the right, to avoid clicking on it by mistake
+            point = QtCore.QPoint(pos.x()+10, pos.y()+5)
+            action = menu.exec_(table.mapToGlobal(point))
+
+            model = table.model()
+
+            if action == _menu_delete:
+                self._table_menu_delete(cur_idx, model, selection)
+
+        except Exception as e:
+            print("fwrules contextual menu error:", e)
+        finally:
+            self._clear_rows_selection()
+            return True
+
 
     def _configure_rules_contextual_menu(self, pos):
         try:
@@ -1220,8 +1253,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._context_menu_active = True
         if cur_idx == self.TAB_MAIN:
             refresh_table = self._configure_events_contextual_menu(pos)
-        else:
-            refresh_table = self._configure_rules_contextual_menu(pos)
+        elif cur_idx == self.TAB_RULES:
+            if self.fwTable.isVisible():
+                refresh_table = self._configure_fwrules_contextual_menu(pos)
+            else:
+                refresh_table = self._configure_rules_contextual_menu(pos)
 
         self._context_menu_active = False
         if refresh_table:
