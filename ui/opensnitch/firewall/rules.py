@@ -276,5 +276,6 @@ class Rules(QObject):
             )
         cols.append(exprs)
         cols.append(rule.Target)
+        cols.append(rule.TargetParameters)
 
         return cols

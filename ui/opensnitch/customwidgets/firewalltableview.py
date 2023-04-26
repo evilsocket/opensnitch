@@ -53,6 +53,7 @@ class FirewallTableModel(QStandardItemModel):
         QC.translate("firewall", "Description", ""),
         QC.translate("firewall", "Parameters", ""),
         QC.translate("firewall", "Action", ""),
+        QC.translate("firewall", "ActionParms", ""),
     ]
 
     items = []
