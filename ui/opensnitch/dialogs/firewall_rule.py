@@ -1150,6 +1150,11 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                                 statem_value = "{0}-{1}".format(str(hosts[0]), str(hosts[-1]))
                             except Exception as e:
                                 return None, None, None, QC.translate("firewall", "IP network format error, {0}".format(e))
+                        elif not "-" in statem_value:
+                            try:
+                                ipaddress.ip_address(statem_value)
+                            except Exception as e:
+                                return None, None, None, QC.translate("firewall", "{0}".format(e))
                     elif st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT:
                         statement = statem_opts
                         try:
