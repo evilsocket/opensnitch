@@ -1164,10 +1164,11 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         except:
                             if (st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT) and \
                                     ("," not in statem_value and "-" not in statem_value):
-                                try:
-                                    t = int(statem_value)
-                                except:
+                                if not self._is_valid_int_value(statem_value):
                                     return None, None, None, QC.translate("firewall", "port not valid.")
+                    elif st_idx == self.STATM_CT_SET or st_idx == self.STATM_CT_MARK or self.STATM_META_SET_MARK:
+                        if not self._is_valid_int_value(statem_value):
+                            return None, None, None, QC.translate("firewall", "Invalid value {0}, number expected.".format(statem_value))
 
                     key_values.append((sk['key'], statem_value.replace(" ", "")))
 
@@ -1182,6 +1183,14 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         node_addr = self.comboNodes.currentText()
         node = self._nodes.get_node(node_addr)
         return node_addr, node, chain, None
+
+    def _is_valid_int_value(self, value):
+        try:
+            int(value)
+        except:
+            return False
+
+        return True
 
     def send_notification(self, node_addr, fw_config, op):
         nid, notif = self._nodes.reload_fw(node_addr, fw_config, self._notification_callback)
