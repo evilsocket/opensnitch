@@ -42,10 +42,12 @@ const (
 	OpProcessEnvPrefix    = Operand("process.env.")
 	OpProcessEnvPrefixLen = 12
 	OpUserID              = Operand("user.id")
+	OpSrcIP               = Operand("source.ip")
 	OpDstIP               = Operand("dest.ip")
 	OpDstHost             = Operand("dest.host")
 	OpDstPort             = Operand("dest.port")
 	OpDstNetwork          = Operand("dest.network")
+	OpSrcNetwork          = Operand("source.network")
 	OpProto               = Operand("protocol")
 	OpIfaceIn             = Operand("iface.in")
 	OpIfaceOut            = Operand("iface.out")
@@ -271,6 +273,8 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpDstIP {
 		return o.cb(con.DstIP.String())
+	} else if o.Operand == OpSrcIP {
+		return o.cb(con.SrcIP.String())
 	} else if o.Operand == OpDstPort {
 		return o.cb(fmt.Sprintf("%d", con.DstPort))
 	} else if o.Operand == OpUserID {
@@ -283,6 +287,8 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(con.DstIP.String())
 	} else if o.Operand == OpDstNetwork {
 		return o.cb(con.DstIP)
+	} else if o.Operand == OpSrcNetwork {
+		return o.cb(con.SrcIP)
 	} else if o.Operand == OpNetLists {
 		return o.cb(con.DstIP)
 	} else if o.Operand == OpDomainsRegexpLists {

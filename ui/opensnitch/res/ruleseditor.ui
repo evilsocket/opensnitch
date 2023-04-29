@@ -485,7 +485,7 @@ You must name the rule in such manner that it'll be checked first, because they'
        <string>Network</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="4" column="1">
+       <item row="5" column="1">
         <spacer name="horizontalSpacer_9">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -497,6 +497,16 @@ You must name the rule in such manner that it'll be checked first, because they'
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="6" column="4" colspan="2">
+        <widget class="QComboBox" name="ifaceCombo">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="2" column="5">
         <widget class="QComboBox" name="protoCombo">
@@ -564,10 +574,31 @@ You must name the rule in such manner that it'll be checked first, because they'
          </item>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QCheckBox" name="dstHostCheck">
+       <item row="4" column="2" colspan="4">
+        <widget class="QLineEdit" name="dstHostLine">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>Commas or spaces are not allowed to specify multiple domains. 
+
+Use regular expressions instead: 
+.*(opensnitch|duckduckgo).com
+.*\.google.com
+
+or a single domain:
+www.gnu.org - it'll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
+gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</string>
+         </property>
+         <property name="placeholderText">
+          <string>www.domain.org, .*\.domain.org</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QCheckBox" name="dstIPCheck">
          <property name="text">
-          <string>To this host</string>
+          <string>To this IP / Network</string>
          </property>
         </widget>
        </item>
@@ -584,14 +615,44 @@ You must name the rule in such manner that it'll be checked first, because they'
          </property>
         </spacer>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QCheckBox" name="dstPortCheck">
-         <property name="text">
-          <string>To this port</string>
+       <item row="4" column="1">
+        <spacer name="horizontalSpacer_10">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="5">
+        <widget class="QLineEdit" name="dstPortLine">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="2" colspan="4">
+       <item row="2" column="0" colspan="4">
+        <widget class="QCheckBox" name="protoCheck">
+         <property name="text">
+          <string>Protocol</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="dstHostCheck">
+         <property name="text">
+          <string>To this host</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2" colspan="4">
         <widget class="QComboBox" name="dstIPCombo">
          <property name="enabled">
           <bool>false</bool>
@@ -616,6 +677,12 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
          </property>
          <property name="editable">
           <bool>true</bool>
+         </property>
+         <property name="currentText">
+          <string notr="true">LAN</string>
+         </property>
+         <property name="placeholderText">
+          <string notr="true"/>
          </property>
          <item>
           <property name="text">
@@ -694,79 +761,131 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
          </item>
         </widget>
        </item>
-       <item row="3" column="2" colspan="4">
-        <widget class="QLineEdit" name="dstHostLine">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Commas or spaces are not allowed to specify multiple domains. 
-
-Use regular expressions instead: 
-.*(opensnitch|duckduckgo).com
-.*\.google.com
-
-or a single domain:
-www.gnu.org - it'll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
-gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</string>
-         </property>
-         <property name="placeholderText">
-          <string>www.domain.org, .*\.domain.org</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <spacer name="horizontalSpacer_10">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="4" column="0">
-        <widget class="QCheckBox" name="dstIPCheck">
-         <property name="text">
-          <string>To this IP / Network</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="5">
-        <widget class="QLineEdit" name="dstPortLine">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="4">
-        <widget class="QCheckBox" name="protoCheck">
-         <property name="text">
-          <string>Protocol</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <widget class="QCheckBox" name="ifaceCheck">
          <property name="text">
           <string>Network interface</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="4" colspan="2">
-        <widget class="QComboBox" name="ifaceCombo">
+       <item row="1" column="0" colspan="2">
+        <widget class="QCheckBox" name="dstPortCheck">
+         <property name="text">
+          <string>To this port</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="srcIPCheck">
+         <property name="text">
+          <string>From this IP / Network</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2" colspan="4">
+        <widget class="QComboBox" name="srcIPCombo">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>You can specify a single IP:
+- 192.168.1.1
+
+or a regular expression:
+- 192\.168\.1\.[0-9]+
+
+multiple IPs:
+- ^(192\.168\.1\.1|172\.16\.0\.1)$
+
+You can also specify a subnet:
+- 192.168.1.0/24
+
+Note: Commas or spaces are not allowed to separate IPs or networks.</string>
          </property>
          <property name="editable">
           <bool>true</bool>
          </property>
+         <property name="currentText">
+          <string notr="true">LAN</string>
+         </property>
+         <property name="placeholderText">
+          <string notr="true"/>
+         </property>
+         <item>
+          <property name="text">
+           <string>LAN</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>MULTICAST</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>127.0.0.0/8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>192.168.0.0/24</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>192.168.1.0/24</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>192.168.2.0/24</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>192.168.0.0/16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>169.254.0.0/16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>172.16.0.0/12</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>10.0.0.0/8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>::1/128</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>fc00::/7</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ff00::/8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>fe80::/10</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>fd00::/8</string>
+          </property>
+         </item>
         </widget>
        </item>
       </layout>

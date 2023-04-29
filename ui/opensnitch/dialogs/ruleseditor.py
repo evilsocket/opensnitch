@@ -41,7 +41,6 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def __init__(self, parent=None, _rule=None, appicon=None):
         super(RulesEditorDialog, self).__init__(parent)
-        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
         self._notifications_sent = {}
         self._nodes = Nodes.instance()
@@ -67,6 +66,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstPortCheck.toggled.connect(self._cb_dstport_check_toggled)
         self.uidCheck.toggled.connect(self._cb_uid_check_toggled)
         self.pidCheck.toggled.connect(self._cb_pid_check_toggled)
+        self.srcIPCheck.toggled.connect(self._cb_srcip_check_toggled)
         self.dstIPCheck.toggled.connect(self._cb_dstip_check_toggled)
         self.dstHostCheck.toggled.connect(self._cb_dsthost_check_toggled)
         self.dstListsCheck.toggled.connect(self._cb_dstlists_check_toggled)
@@ -158,6 +158,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_pid_check_toggled(self, state):
         self.pidLine.setEnabled(state)
+
+    def _cb_srcip_check_toggled(self, state):
+        self.srcIPCombo.setEnabled(state)
 
     def _cb_dstip_check_toggled(self, state):
         self.dstIPCombo.setEnabled(state)
@@ -293,6 +296,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def set_fields_from_connection(self, records):
         self.nodesCombo.setCurrentText(records.value(ConnFields.Node))
         self.protoCombo.setCurrentText(records.value(ConnFields.Protocol).upper())
+        self.srcIPCombo.setCurrentText(records.value(ConnFields.SrcIP))
         self.dstIPCombo.setCurrentText(records.value(ConnFields.DstIP))
         self.dstHostLine.setText(records.value(ConnFields.DstHost))
         self.dstPortLine.setText(records.value(ConnFields.DstPort))
@@ -336,6 +340,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.dstPortCheck.setChecked(False)
         self.dstPortLine.setText("")
+
+        self.srcIPCheck.setChecked(False)
+        self.srcIPCombo.setCurrentText("")
 
         self.dstIPCheck.setChecked(False)
         self.dstIPCombo.setCurrentText("")
@@ -431,6 +438,16 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dstPortCheck.setChecked(True)
             self.dstPortLine.setEnabled(True)
             self.dstPortLine.setText(operator.data)
+
+        if operator.operand == Config.OPERAND_SOURCE_IP or operator.operand == Config.OPERAND_SOURCE_NETWORK:
+            self.srcIPCheck.setChecked(True)
+            self.srcIPCombo.setEnabled(True)
+            if operator.data == self.LAN_RANGES:
+                self.srcIPCombo.setCurrentText(self.LAN_LABEL)
+            elif operator.data == self.MULTICAST_RANGE:
+                self.srcIPCombo.setCurrentText(self.MULTICAST_LABEL)
+            else:
+                self.srcIPCombo.setCurrentText(operator.data)
 
         if operator.operand == Config.OPERAND_DEST_IP or operator.operand == Config.OPERAND_DEST_NETWORK:
             self.dstIPCheck.setChecked(True)
@@ -684,6 +701,44 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
                 if self._is_valid_regex(self.dstHostLine.text()) == False:
                     return False, QC.translate("rules", "Dst host regexp error")
+
+        if self.srcIPCheck.isChecked():
+            if self.srcIPCombo.currentText() == "":
+                return False, QC.translate("rules", "Source IP/Network can not be empty")
+
+            srcIPtext = self.srcIPCombo.currentText()
+
+            if srcIPtext == self.LAN_LABEL:
+                self.rule.operator.operand = Config.OPERAND_SOURCE_IP
+                self.rule.operator.type = Config.RULE_TYPE_REGEXP
+                srcIPtext = self.LAN_RANGES
+            elif srcIPtext == self.MULTICAST_LABEL:
+                self.rule.operator.operand = Config.OPERAND_SOURCE_IP
+                self.rule.operator.type = Config.RULE_TYPE_REGEXP
+                srcIPtext = self.MULTICAST_RANGE
+            else:
+                try:
+                    if type(ipaddress.ip_address(self.srcIPCombo.currentText())) == ipaddress.IPv4Address \
+                    or type(ipaddress.ip_address(self.srcIPCombo.currentText())) == ipaddress.IPv6Address:
+                        self.rule.operator.operand = Config.OPERAND_SOURCE_IP
+                        self.rule.operator.type = Config.RULE_TYPE_SIMPLE
+                except Exception:
+                    self.rule.operator.operand = Config.OPERAND_SOURCE_NETWORK
+                    self.rule.operator.type = Config.RULE_TYPE_NETWORK
+
+                if self._is_regex(srcIPtext):
+                    self.rule.operator.operand = Config.OPERAND_SOURCE_IP
+                    self.rule.operator.type = Config.RULE_TYPE_REGEXP
+                    if self._is_valid_regex(self.srcIPCombo.currentText()) == False:
+                        return False, QC.translate("rules", "Source IP regexp error")
+
+            rule_data.append(
+                    {
+                        'type': self.rule.operator.type,
+                        'operand': self.rule.operator.operand,
+                        'data': srcIPtext,
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
 
         if self.dstIPCheck.isChecked():
             if self.dstIPCombo.currentText() == "":
