@@ -43,6 +43,7 @@ const (
 	OpProcessEnvPrefixLen = 12
 	OpUserID              = Operand("user.id")
 	OpSrcIP               = Operand("source.ip")
+	OpSrcPort             = Operand("source.port")
 	OpDstIP               = Operand("dest.ip")
 	OpDstHost             = Operand("dest.host")
 	OpDstPort             = Operand("dest.port")
@@ -273,18 +274,14 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpDstIP {
 		return o.cb(con.DstIP.String())
-	} else if o.Operand == OpSrcIP {
-		return o.cb(con.SrcIP.String())
 	} else if o.Operand == OpDstPort {
 		return o.cb(fmt.Sprintf("%d", con.DstPort))
-	} else if o.Operand == OpUserID {
-		return o.cb(fmt.Sprintf("%d", con.Entry.UserId))
-	} else if o.Operand == OpProcessID {
-		return o.cb(fmt.Sprint(con.Process.ID))
 	} else if o.Operand == OpDomainsLists {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpIPLists {
 		return o.cb(con.DstIP.String())
+	} else if o.Operand == OpUserID {
+		return o.cb(fmt.Sprintf("%d", con.Entry.UserId))
 	} else if o.Operand == OpDstNetwork {
 		return o.cb(con.DstIP)
 	} else if o.Operand == OpSrcNetwork {
@@ -293,8 +290,6 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(con.DstIP)
 	} else if o.Operand == OpDomainsRegexpLists {
 		return o.cb(con.DstHost)
-	} else if o.Operand == OpProto {
-		return o.cb(con.Protocol)
 	} else if o.Operand == OpIfaceIn {
 		if ifname, err := net.InterfaceByIndex(con.Pkt.IfaceInIdx); err == nil {
 			return o.cb(ifname.Name)
@@ -303,6 +298,14 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		if ifname, err := net.InterfaceByIndex(con.Pkt.IfaceOutIdx); err == nil {
 			return o.cb(ifname.Name)
 		}
+	} else if o.Operand == OpProto {
+		return o.cb(con.Protocol)
+	} else if o.Operand == OpSrcIP {
+		return o.cb(con.SrcIP.String())
+	} else if o.Operand == OpSrcPort {
+		return o.cb(fmt.Sprintf("%d", con.SrcPort))
+	} else if o.Operand == OpProcessID {
+		return o.cb(fmt.Sprint(con.Process.ID))
 	} else if strings.HasPrefix(string(o.Operand), string(OpProcessEnvPrefix)) {
 		envVarName := core.Trim(string(o.Operand[OpProcessEnvPrefixLen:]))
 		envVarValue, _ := con.Process.Env[envVarName]

@@ -7,6 +7,7 @@ import re
 import json
 import sys
 import os
+import pwd
 from opensnitch import ui_pb2
 import time
 import ipaddress
@@ -64,6 +65,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdlineCheck.toggled.connect(self._cb_cmdline_check_toggled)
         self.ifaceCheck.toggled.connect(self._cb_iface_check_toggled)
         self.dstPortCheck.toggled.connect(self._cb_dstport_check_toggled)
+        self.srcPortCheck.toggled.connect(self._cb_srcport_check_toggled)
         self.uidCheck.toggled.connect(self._cb_uid_check_toggled)
         self.pidCheck.toggled.connect(self._cb_pid_check_toggled)
         self.srcIPCheck.toggled.connect(self._cb_srcip_check_toggled)
@@ -73,6 +75,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstListRegexpCheck.toggled.connect(self._cb_dstregexplists_check_toggled)
         self.dstListIPsCheck.toggled.connect(self._cb_dstiplists_check_toggled)
         self.dstListNetsCheck.toggled.connect(self._cb_dstnetlists_check_toggled)
+        self.uidCombo.currentIndexChanged.connect(self._cb_uid_combo_changed)
+
+        self._users_list = pwd.getpwall()
 
         if QtGui.QIcon.hasThemeIcon("emblem-default"):
             return
@@ -95,11 +100,31 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def showEvent(self, event):
         super(RulesEditorDialog, self).showEvent(event)
 
-        oldText = self.ifaceCombo.currentText()
+        # save old combo values so we don't overwrite them here.
+        oldIface = self.ifaceCombo.currentText()
+        oldUid = self.uidCombo.currentText()
         self.ifaceCombo.clear()
+        self.uidCombo.clear()
         if self._nodes.is_local(self.nodesCombo.currentText()):
             self.ifaceCombo.addItems(NetworkInterfaces.list().keys())
-        self.ifaceCombo.setCurrentText(oldText)
+            try:
+                for ip in NetworkInterfaces.list().values():
+                    if self.srcIPCombo.findText(ip) == -1:
+                        self.srcIPCombo.insertItem(0, ip)
+                    if self.dstIPCombo.findText(ip) == -1:
+                        self.dstIPCombo.insertItem(0, ip)
+
+                self._users_list = pwd.getpwall()
+                self.uidCombo.blockSignals(True);
+                for user in self._users_list:
+                    self.uidCombo.addItem("{0} ({1})".format(user[0], user[2]), user[2])
+                #self.uidCombo.setCurrentText("")
+            except Exception as e:
+                print("[ruleseditor] Error adding IPs:", e)
+            finally:
+                self.uidCombo.blockSignals(False);
+        self.ifaceCombo.setCurrentText(oldIface)
+        self.uidCombo.setCurrentText(oldUid)
 
     def _bool(self, s):
         return s == 'True'
@@ -153,8 +178,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_dstport_check_toggled(self, state):
         self.dstPortLine.setEnabled(state)
 
+    def _cb_srcport_check_toggled(self, state):
+        self.srcPortLine.setEnabled(state)
+
     def _cb_uid_check_toggled(self, state):
-        self.uidLine.setEnabled(state)
+        self.uidCombo.setEnabled(state)
 
     def _cb_pid_check_toggled(self, state):
         self.pidLine.setEnabled(state)
@@ -183,6 +211,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_dstnetlists_check_toggled(self, state):
         self.dstListNetsLine.setEnabled(state)
         self.selectNetsListButton.setEnabled(state)
+
+    def _cb_uid_combo_changed(self, index):
+        self.uidCombo.setCurrentText(str(self._users_list[index][2]))
 
     def _set_status_error(self, msg):
         self.statusLabel.setStyleSheet('color: red')
@@ -300,7 +331,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstIPCombo.setCurrentText(records.value(ConnFields.DstIP))
         self.dstHostLine.setText(records.value(ConnFields.DstHost))
         self.dstPortLine.setText(records.value(ConnFields.DstPort))
-        self.uidLine.setText(records.value(ConnFields.UID))
+        self.srcPortLine.setText(records.value(ConnFields.SrcPort))
+        self.uidCombo.setCurrentText(records.value(ConnFields.UID))
         self.pidLine.setText(records.value(ConnFields.PID))
         self.procLine.setText(records.value(ConnFields.Process))
         self.cmdlineLine.setText(records.value(ConnFields.Cmdline))
@@ -330,7 +362,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdlineLine.setText("")
 
         self.uidCheck.setChecked(False)
-        self.uidLine.setText("")
+        self.uidCombo.setCurrentText("")
 
         self.pidCheck.setChecked(False)
         self.pidLine.setText("")
@@ -340,6 +372,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.dstPortCheck.setChecked(False)
         self.dstPortLine.setText("")
+
+        self.srcPortCheck.setChecked(False)
+        self.srcPortLine.setText("")
 
         self.srcIPCheck.setChecked(False)
         self.srcIPCombo.setCurrentText("")
@@ -421,8 +456,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if operator.operand == Config.OPERAND_USER_ID:
             self.uidCheck.setChecked(True)
-            self.uidLine.setEnabled(True)
-            self.uidLine.setText(operator.data)
+            self.uidCombo.setEnabled(True)
+            self.uidCombo.setCurrentText(operator.data)
 
         if operator.operand == Config.OPERAND_PROCESS_ID:
             self.pidCheck.setChecked(True)
@@ -433,6 +468,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.ifaceCheck.setChecked(True)
             self.ifaceCombo.setEnabled(True)
             self.ifaceCombo.setCurrentText(operator.data)
+
+        if operator.operand == Config.OPERAND_SOURCE_PORT:
+            self.srcPortCheck.setChecked(True)
+            self.srcPortLine.setEnabled(True)
+            self.srcPortLine.setText(operator.data)
 
         if operator.operand == Config.OPERAND_DEST_PORT:
             self.dstPortCheck.setChecked(True)
@@ -666,6 +706,24 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if self._is_valid_regex(self.ifaceCombo.currentText()) == False:
                     return False, QC.translate("rules", "Network interface regexp error")
 
+        if self.srcPortCheck.isChecked():
+            if self.srcPortLine.text() == "":
+                return False, QC.translate("rules", "Source port can not be empty")
+
+            self.rule.operator.operand = Config.OPERAND_SOURCE_PORT
+            self.rule.operator.data = self.srcPortLine.text()
+            rule_data.append(
+                    {
+                        'type': Config.RULE_TYPE_SIMPLE,
+                        'operand': Config.OPERAND_SOURCE_PORT,
+                        'data': self.srcPortLine.text(),
+                        "sensitive": self.sensitiveCheck.isChecked()
+                        })
+            if self._is_regex(self.srcPortLine.text()):
+                rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
+                if self._is_valid_regex(self.srcPortLine.text()) == False:
+                    return False, QC.translate("rules", "Source port regexp error")
+
         if self.dstPortCheck.isChecked():
             if self.dstPortLine.text() == "":
                 return False, QC.translate("rules", "Dest port can not be empty")
@@ -779,21 +837,21 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         })
 
         if self.uidCheck.isChecked():
-            if self.uidLine.text() == "":
+            if self.uidCombo.currentText() == "":
                 return False, QC.translate("rules", "User ID can not be empty")
 
             self.rule.operator.operand = Config.OPERAND_USER_ID
-            self.rule.operator.data = self.uidLine.text()
+            self.rule.operator.data = self.uidCombo.currentText()
             rule_data.append(
                     {
                         'type': Config.RULE_TYPE_SIMPLE,
                         'operand': Config.OPERAND_USER_ID,
-                        'data': self.uidLine.text(),
+                        'data': self.uidCombo.currentText(),
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
-            if self._is_regex(self.uidLine.text()):
+            if self._is_regex(self.uidCombo.currentText()):
                 rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
-                if self._is_valid_regex(self.uidLine.text()) == False:
+                if self._is_valid_regex(self.uidCombo.currentText()) == False:
                     return False, QC.translate("rules", "User ID regexp error")
 
         if self.pidCheck.isChecked():

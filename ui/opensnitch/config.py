@@ -17,6 +17,7 @@ class Config:
     OPERAND_IFACE_OUT = "iface.out"
     OPERAND_IFACE_IN = "iface.in"
     OPERAND_SOURCE_IP = "source.ip"
+    OPERAND_SOURCE_PORT = "source.port"
     OPERAND_DEST_IP = "dest.ip"
     OPERAND_DEST_HOST = "dest.host"
     OPERAND_DEST_PORT = "dest.port"
