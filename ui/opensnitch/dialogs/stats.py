@@ -23,7 +23,7 @@ from opensnitch.customwidgets.generictableview import GenericTableModel
 from opensnitch.customwidgets.addresstablemodel import AddressTableModel
 from opensnitch.utils import Message, QuickHelp, AsnDB, Icons
 from opensnitch.actions import Actions
-from opensnitch.rules import Rule
+from opensnitch.rules import Rule, Rules
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -322,7 +322,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
         self._fw = Firewall().instance()
+        self._rules = Rules.instance()
         self._fw.rules.rulesUpdated.connect(self._cb_fw_rules_updated)
+        self._rules.updated.connect(self._cb_app_rules_updated)
         self._actions = Actions().instance()
         self._actions.loadAll()
 
@@ -1176,6 +1178,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_fw_rules_updated(self):
         self._add_rulesTree_fw_chains()
+
+    def _cb_app_rules_updated(self, what):
+        self._refresh_active_table()
 
     @QtCore.pyqtSlot(str)
     def _cb_fw_table_rows_reordered(self, node_addr):

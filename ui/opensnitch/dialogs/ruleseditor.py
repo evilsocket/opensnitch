@@ -18,7 +18,7 @@ from opensnitch.database import Database
 from opensnitch.database.enums import RuleFields, ConnFields
 from opensnitch.version import version
 from opensnitch.utils import Message, FileDialog, Icons, NetworkInterfaces
-from opensnitch.rules import Rule
+from opensnitch.rules import Rule, Rules
 
 DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -46,6 +46,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._notifications_sent = {}
         self._nodes = Nodes.instance()
         self._db = Database.instance()
+        self._rules = Rules.instance()
         self._notification_callback.connect(self._cb_notification_callback)
         self._old_rule_name = None
 
@@ -260,6 +261,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # changes without closing the dialog.
         if self.WORK_MODE == self.ADD_RULE:
             self.WORK_MODE = self.EDIT_RULE
+
+        self._rules.updated.emit(0)
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
