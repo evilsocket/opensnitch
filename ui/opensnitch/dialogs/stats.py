@@ -857,9 +857,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             selection = table.selectionModel().selectedRows()
             if not selection:
                 return
+            is_rule_enabled = model.index(selection[0].row(), FirewallTableModel.COL_ENABLED).data()
 
             menu = QtWidgets.QMenu()
             actionsMenu = QtWidgets.QMenu(QC.translate("stats", "Action"))
+            _label_enable = QC.translate("stats", "Disable")
+            if is_rule_enabled == "False":
+                _label_enable = QC.translate("stats", "Enable")
+            _menu_enable = actionsMenu.addAction(_label_enable)
             _menu_delete = actionsMenu.addAction(QC.translate("stats", "Delete"))
             menu.addMenu(actionsMenu)
 
@@ -871,13 +876,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             if action == _menu_delete:
                 self._table_menu_delete(cur_idx, model, selection)
+            elif action == _menu_enable:
+                self._table_menu_enable(cur_idx, model, selection, is_rule_enabled)
 
         except Exception as e:
             print("fwrules contextual menu error:", e)
         finally:
             self._clear_rows_selection()
             return True
-
 
     def _configure_rules_contextual_menu(self, pos):
         try:
@@ -1096,22 +1102,44 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _table_menu_enable(self, cur_idx, model, selection, is_rule_enabled):
         rule_status = "False" if is_rule_enabled == "True" else "True"
+        enable_rule = False if is_rule_enabled == "True" else True
 
-        for idx in selection:
-            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
-            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+        if cur_idx == self.TAB_RULES and not self.fwTable.isVisible():
+            for idx in selection:
+                rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+                node_addr = model.index(idx.row(), self.COL_R_NODE).data()
 
-            records = self._get_rule(rule_name, node_addr)
-            rule = Rule.new_from_records(records)
-            rule_type = ui_pb2.DISABLE_RULE if is_rule_enabled == "True" else ui_pb2.ENABLE_RULE
+                records = self._get_rule(rule_name, node_addr)
+                rule = Rule.new_from_records(records)
+                rule_type = ui_pb2.DISABLE_RULE if is_rule_enabled == "True" else ui_pb2.ENABLE_RULE
 
-            self._db.update(table="rules", fields="enabled=?",
-                            values=[rule_status], condition="name='{0}' AND node='{1}'".format(rule_name, node_addr),
-                            action_on_conflict="")
+                self._db.update(table="rules", fields="enabled=?",
+                                values=[rule_status], condition="name='{0}' AND node='{1}'".format(rule_name, node_addr),
+                                action_on_conflict="")
 
-            noti = ui_pb2.Notification(type=rule_type, rules=[rule])
-            nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
-            if nid != None:
+                noti = ui_pb2.Notification(type=rule_type, rules=[rule])
+                nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
+                if nid != None:
+                    self._notifications_sent[nid] = noti
+
+        elif cur_idx == self.TAB_RULES and self.fwTable.isVisible():
+            nodes_updated = []
+            for idx in selection:
+                uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
+                node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
+                addr, chain = self._fw.get_rule_by_uuid(uuid)
+                if chain is None:
+                    print("error, rule not found by uuid:", uuid, "node:", node, "row:", idx.row())
+                    continue
+
+                chain.Rules[0].Enabled = enable_rule
+                updated, err = self._fw.update_rule(addr, uuid, chain)
+                if updated:
+                    nodes_updated.append(addr)
+
+            for addr in nodes_updated:
+                node = self._nodes.get_node(addr)
+                nid, noti = self._nodes.reload_fw(addr, node['firewall'], self._notification_callback)
                 self._notifications_sent[nid] = noti
 
     def _table_menu_delete(self, cur_idx, model, selection):
@@ -1129,16 +1157,23 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return False
 
         if cur_idx == self.TAB_RULES and self.fwTable.isVisible():
-            do_refresh = False
+            nodes_updated = {}
             for idx in selection:
-                uuid = model.index(idx.row(), 1).data()
-                node = model.index(idx.row(), 2).data()
+                uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
+                node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
                 ok, fw_config = self._fw.delete_rule(node, uuid)
-                do_refresh |= ok
+                if ok:
+                    nodes_updated[node] = fw_config
+                else:
+                    print("del not ok:", uuid)
 
-            if do_refresh:
-                nid, noti = self._nodes.reload_fw(node, fw_config, self._notification_callback)
+                # FIXME: deleting multiple rules does not work as expected yet.
+                break
+
+            for addr in nodes_updated:
+                nid, noti = self._nodes.reload_fw(addr, nodes_updated[addr], self._notification_callback)
                 self._notifications_sent[nid] = noti
+
         elif cur_idx == self.TAB_RULES and not self.fwTable.isVisible():
             for idx in selection:
                 name = model.index(idx.row(), self.COL_R_NAME).data()

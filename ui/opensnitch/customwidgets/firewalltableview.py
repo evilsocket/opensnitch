@@ -1,11 +1,10 @@
 
-from PyQt5 import Qt, QtCore
+from PyQt5 import QtCore
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtSql import QSqlQuery, QSqlError
 from PyQt5.QtWidgets import QTableView, QAbstractSlider, QItemDelegate, QAbstractItemView, QPushButton, QWidget, QVBoxLayout
-from PyQt5.QtCore import QItemSelectionModel, pyqtSignal, pyqtSlot, QEvent
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QCoreApplication as QC
-import math
 
 from opensnitch.nodes import Nodes
 from opensnitch.firewall import Firewall
@@ -40,6 +39,7 @@ class FirewallTableModel(QStandardItemModel):
     COL_CHAIN_TABLE = 4
     COL_CHAIN_FAMILY = 5
     COL_CHAIN_HOOK = 6
+    COL_ENABLED = 7
 
     headersAll = [
         "", # buttons
@@ -294,4 +294,3 @@ class FirewallTableView(QTableView):
         self.model().columnCountChanged.connect(self._cb_column_count_changed)
         model.rowsUpdated.connect(self._cb_rows_updated)
         model.rowsReordered.connect(self._cb_rows_reordered)
-

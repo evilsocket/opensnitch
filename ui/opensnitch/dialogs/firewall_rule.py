@@ -1166,7 +1166,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                                     ("," not in statem_value and "-" not in statem_value):
                                 if not self._is_valid_int_value(statem_value):
                                     return None, None, None, QC.translate("firewall", "port not valid.")
-                    elif st_idx == self.STATM_CT_SET or st_idx == self.STATM_CT_MARK or self.STATM_META_SET_MARK:
+                    elif st_idx == self.STATM_CT_SET or st_idx == self.STATM_CT_MARK or st_idx == self.STATM_META_SET_MARK:
                         if not self._is_valid_int_value(statem_value):
                             return None, None, None, QC.translate("firewall", "Invalid value {0}, number expected.".format(statem_value))
 
