@@ -803,6 +803,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _del_rule(self, rule_name, node_addr):
         nid, noti = self._nodes.delete_rule(rule_name, node_addr, self._notification_callback)
         self._notifications_sent[nid] = noti
+        # FIXME: we shouldn't refresh the view here. We should wait for a
+        # notification reply on self._cb_notification_callback
+        self._refresh_active_table()
 
     # https://stackoverflow.com/questions/40225270/copy-paste-multiple-items-from-qtableview-in-pyqt4
     def _copy_selected_rows(self):
