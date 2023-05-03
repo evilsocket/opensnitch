@@ -874,10 +874,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             model = table.model()
 
+            # block fw rules signals, to prevent reloading them per operation,
+            # which can lead to race conditions.
+            self._fw.rules.blockSignals(True)
             if action == _menu_delete:
                 self._table_menu_delete(cur_idx, model, selection)
             elif action == _menu_enable:
                 self._table_menu_enable(cur_idx, model, selection, is_rule_enabled)
+            self._fw.rules.blockSignals(False)
 
         except Exception as e:
             print("fwrules contextual menu error:", e)
@@ -1127,15 +1131,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             for idx in selection:
                 uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
                 node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
-                addr, chain = self._fw.get_rule_by_uuid(uuid)
-                if chain is None:
-                    print("error, rule not found by uuid:", uuid, "node:", node, "row:", idx.row())
-                    continue
-
-                chain.Rules[0].Enabled = enable_rule
-                updated, err = self._fw.update_rule(addr, uuid, chain)
+                updated, err = self._fw.enable_rule(node, uuid, enable_rule)
                 if updated:
-                    nodes_updated.append(addr)
+                    nodes_updated.append(node)
 
             for addr in nodes_updated:
                 node = self._nodes.get_node(addr)
@@ -1165,10 +1163,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if ok:
                     nodes_updated[node] = fw_config
                 else:
-                    print("del not ok:", uuid)
-
-                # FIXME: deleting multiple rules does not work as expected yet.
-                break
+                    print("error deleting fw rule:", uuid, "row:", idx.row())
 
             for addr in nodes_updated:
                 nid, noti = self._nodes.reload_fw(addr, nodes_updated[addr], self._notification_callback)
