@@ -274,10 +274,9 @@ class Rules(QObject):
         cols.append(rule.Description)
         exprs = ""
         for e in rule.Expressions:
-            exprs += "{0} {1} {2}".format(
-                e.Statement.Op,
+            exprs += "{0} {1}".format(
                 e.Statement.Name,
-                "".join(["{0} {1} ".format(h.Key, h.Value) for h in e.Statement.Values ])
+                "".join(["{0} {1} {2} ".format(h.Key, e.Statement.Op, h.Value) for h in e.Statement.Values ])
             )
         cols.append(exprs)
         cols.append(rule.Target)
