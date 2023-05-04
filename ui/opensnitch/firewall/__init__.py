@@ -40,6 +40,17 @@ class Firewall(QObject):
     def delete_rule(self, addr, uuid):
         return self.rules.delete(addr, uuid)
 
+    def change_rule_field(self, addr, uuid, field, value):
+        addr, chain = self.get_rule_by_uuid(uuid)
+        if chain is None:
+            return None, None
+
+        if field == Rules.FIELD_ENABLED:
+            chain.Rules[0].Enabled = value
+        elif field == Rules.FIELD_TARGET:
+            chain.Rules[0].Target = value
+        return self.update_rule(addr, uuid, chain)
+
     def enable_rule(self, addr, uuid, enable):
         addr, chain = self.get_rule_by_uuid(uuid)
         if chain is None:

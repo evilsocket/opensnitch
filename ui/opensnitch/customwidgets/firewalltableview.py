@@ -40,6 +40,10 @@ class FirewallTableModel(QStandardItemModel):
     COL_CHAIN_FAMILY = 5
     COL_CHAIN_HOOK = 6
     COL_ENABLED = 7
+    COL_DESCRIPTION = 8
+    COL_PARMS = 9
+    COL_ACTION = 10
+    COL_ACTION_PARMS = 11
 
     headersAll = [
         "", # buttons
@@ -212,6 +216,10 @@ class FirewallTableModel(QStandardItemModel):
                 cols.append(item)
             self.appendRow(cols)
 
+    def dumpRows(self):
+        for rule in self.lastRules:
+            print(rule)
+
 class FirewallTableView(QTableView):
     # how many rows can potentially be displayed in viewport
     # the actual number of rows currently displayed may be less than this
@@ -286,6 +294,25 @@ class FirewallTableView(QTableView):
 
     def refresh(self):
         self.model().refresh(True)
+
+    def clearSelection(self):
+        pass
+
+    def copySelection(self):
+        selection = self.selectedIndexes()
+        if not selection:
+            return None
+        rows = []
+        row = []
+        lastRow = 0
+        for idx in selection:
+            if idx.row() == lastRow:
+                row.append(self.model().index(idx.row(), idx.column()).data())
+            else:
+                row = []
+                lastRow = idx.row()
+                rows.append(row)
+        return rows
 
     def setModel(self, model):
         super().setModel(model)

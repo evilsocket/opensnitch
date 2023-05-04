@@ -6,6 +6,11 @@ from opensnitch import ui_pb2
 class Rules(QObject):
     rulesUpdated = pyqtSignal()
 
+    # Fields defined in the protobuf, to be used as constants on other parts.
+    FIELD_UUID = "UUID"
+    FIELD_ENABLED = "Enabled"
+    FIELD_TARGET = "Target"
+
     def __init__(self, nodes):
         QObject.__init__(self)
         self._nodes = nodes
@@ -100,7 +105,7 @@ class Rules(QObject):
     def delete(self, addr, uuid):
         node = self._nodes.get_node(addr)
         if node == None or not 'firewall' in node:
-            return False
+            return False, None
         for sdx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
                 for idx, r in enumerate(c.Rules):
