@@ -6,7 +6,7 @@ Make sure you have a correctly configured **Go >= 1.15** environment, that the `
 
 ```bash
 # install dependencies
-sudo apt-get install git golang libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip pyqt5-dev-tools qttools5-dev-tools qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools python-pyqt5.qtsql python3-notify2
+sudo apt-get install git golang libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip pyqt5-dev-tools qttools5-dev-tools qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools python3-pyqt5.qtsql python3-notify2
 go install google.golang.org/protobuf@latest
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
