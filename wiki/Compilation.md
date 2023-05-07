@@ -7,15 +7,21 @@ Make sure you have a correctly configured **Go >= 1.15** environment, that the `
 ```bash
 # install dependencies
 sudo apt-get install git golang libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip pyqt5-dev-tools qttools5-dev-tools qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools python3-pyqt5.qtsql python3-notify2
+
 go install google.golang.org/protobuf@latest
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 export GOPATH=~/go #you may want to change this if your Go directory is different
 export PATH=$PATH:$GOPATH/bin
+
+# This step is optional if your distribution already packages these 2 libs.
+# You can try to install them with: sudo apt install python3-grpcio python3-protobuf
 python3 -m pip install --user grpcio-tools qt-material
+
 # clone the repository 
 git clone https://github.com/evilsocket/opensnitch
 cd opensnitch
+
 # compile && install
 make
 sudo make install
@@ -26,7 +32,7 @@ opensnitch-ui &
 
 ***Note for Fedora users***
 
-There is no "lrelease" binary on Fedora, which is needed to build the UI properly. There is a "lrelease-qt5" binary, which is part of the package "qt5-linguist".
+There is no `lrelease` binary on Fedora, which is needed to build the UI properly. There is a "`lrelease-qt5` binary, which is part of the package "qt5-linguist".
 To fix the UI not building properly on Fedora, symlink /usr/lib64/qt5/bin/lrelease-qt5 to /usr/local/bin/lrelease:
 ```
 sudo ln -s /usr/lib64/qt5/bin/lrelease-qt5 /usr/local/bin/lrelease
@@ -114,4 +120,4 @@ And run it with:
 
     sudo service opensnitchd start
 
-While the UI can be started just by executing the `opensnitch-ui` command.
+While the UI can be started just by executing the `opensnitch-ui` command as your regular user.
