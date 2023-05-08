@@ -17,6 +17,7 @@ from opensnitch.dialogs.firewall import FirewallDialog
 from opensnitch.dialogs.preferences import PreferencesDialog
 from opensnitch.dialogs.ruleseditor import RulesEditorDialog
 from opensnitch.dialogs.processdetails import ProcessDetailsDialog
+from opensnitch.dialogs.conndetails import ConnDetails
 from opensnitch.customwidgets.colorizeddelegate import ColorizedDelegate
 from opensnitch.customwidgets.firewalltableview import FirewallTableModel
 from opensnitch.customwidgets.generictableview import GenericTableModel
@@ -829,6 +830,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return
 
             menu = QtWidgets.QMenu()
+            _menu_details = menu.addAction(QC.translate("stats", "Details"))
             rulesMenu = QtWidgets.QMenu(QC.translate("stats", "Rules"))
             _menu_new_rule = rulesMenu.addAction(QC.translate("stats", "New"))
             menu.addMenu(rulesMenu)
@@ -841,6 +843,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             if action == _menu_new_rule:
                 self._table_menu_new_rule_from_row(cur_idx, model, selection)
+            elif action == _menu_details:
+                coltime = model.index(selection[0].row(), self.COL_TIME).data()
+                o = ConnDetails(self)
+                o.showByField("time", coltime)
 
         except Exception as e:
             print(e)
