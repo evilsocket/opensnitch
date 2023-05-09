@@ -74,14 +74,15 @@ var (
 func initEventsStreamer() {
 	elfOpts := make(map[string]elf.SectionParams)
 	elfOpts["maps/"+perfMapName] = elf.SectionParams{PerfRingBufferPageCount: ringBuffSize}
-	mp, err := core.LoadEbpfModule("opensnitch-procs.o")
+	var err error
+	perfMod, err = core.LoadEbpfModule("opensnitch-procs.o")
 	if err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
 		return
 	}
-	mp.EnableOptionCompatProbe()
+	perfMod.EnableOptionCompatProbe()
 
-	if err = mp.Load(elfOpts); err != nil {
+	if err = perfMod.Load(elfOpts); err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
 		return
 	}
@@ -96,21 +97,21 @@ func initEventsStreamer() {
 
 	// Enable tracepoints first, that way if kprobes fail loading we'll still have some
 	for _, tp := range tracepoints {
-		err = mp.EnableTracepoint(tp)
+		err = perfMod.EnableTracepoint(tp)
 		if err != nil {
 			dispatchErrorEvent(fmt.Sprintf("[eBPF events] error enabling tracepoint %s: %s", tp, err))
 		}
 	}
 
-	if err = mp.EnableKprobes(0); err != nil {
+	if err = perfMod.EnableKprobes(0); err != nil {
 		// if previous shutdown was unclean, then we must remove the dangling kprobe
 		// and install it again (close the module and load it again)
-		mp.Close()
-		if err = mp.Load(elfOpts); err != nil {
+		perfMod.Close()
+		if err = perfMod.Load(elfOpts); err != nil {
 			dispatchErrorEvent(fmt.Sprintf("[eBPF events] failed to load /etc/opensnitchd/opensnitch-procs.o (2): %v", err))
 			return
 		}
-		if err = mp.EnableKprobes(0); err != nil {
+		if err = perfMod.EnableKprobes(0); err != nil {
 			dispatchErrorEvent(fmt.Sprintf("[eBPF events] error enabling kprobes: %v", err))
 		}
 	}
@@ -122,7 +123,7 @@ func initEventsStreamer() {
 	}(sig)
 
 	eventWorkers = 0
-	initPerfMap(mp)
+	initPerfMap(perfMod)
 }
 
 func initPerfMap(mod *elf.Module) {

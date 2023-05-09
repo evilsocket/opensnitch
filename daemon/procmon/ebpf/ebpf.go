@@ -39,10 +39,10 @@ type alreadyEstablishedConns struct {
 }
 
 var (
-	m        *elf.Module
-	lock     = sync.RWMutex{}
-	mapSize  = uint(12000)
-	ebpfMaps map[string]*ebpfMapsForProto
+	m, perfMod *elf.Module
+	lock       = sync.RWMutex{}
+	mapSize    = uint(12000)
+	ebpfMaps   map[string]*ebpfMapsForProto
 	//connections which were established at the time when opensnitch started
 	alreadyEstablished = alreadyEstablishedConns{
 		TCP:   make(map[*daemonNetlink.Socket]int),
@@ -175,6 +175,9 @@ func Stop() {
 			mod.Close()
 			delete(perfMapList, k)
 		}
+	}
+	if perfMod != nil {
+		perfMod.Close()
 	}
 }
 
