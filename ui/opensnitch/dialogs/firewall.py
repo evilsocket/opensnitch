@@ -157,6 +157,11 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.allow_in_service()
 
     def _cb_enable_fw_changed(self, enable):
+        if self._nodes.count() == 0:
+            self.sliderFwEnable.blockSignals(True)
+            self.sliderFwEnable.setValue(False)
+            self.sliderFwEnable.blockSignals(False)
+            return
         self.enable_fw(enable)
 
     def _cb_close_clicked(self):
