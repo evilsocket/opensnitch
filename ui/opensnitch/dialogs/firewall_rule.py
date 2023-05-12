@@ -92,42 +92,73 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.STATM_CONF = {
             self.STATM_DPORT: {
                 'name': Fw.Statements.TCP.value, # tcp, udp, dccp, sctp
+                'tooltip': QC.translate("firewall", """
+Supported formats:
+
+ - Simple: 23
+ - Ranges: 80-1024
+ - Multiple ports: 80,443,8080
+"""),
                 'keys': [
                     {'key': Fw.Statements.DPORT.value, 'values': self.net_srv.to_array()}
                 ]
             },
             self.STATM_SPORT: {
                 'name': Fw.Statements.TCP.value,
+                'tooltip': QC.translate("firewall", """
+Supported formats:
+
+ - Simple: 23
+ - Ranges: 80-1024
+ - Multiple ports: 80,443,8080
+"""),
                 'keys': [
                     {'key': Fw.Statements.SPORT.value, 'values': self.net_srv.to_array()}
                 ]
             },
             self.STATM_DEST_IP: {
                 'name': Fw.Statements.IP.value, # ip or ip6
+                'tooltip': QC.translate("firewall", """
+Supported formats:
+
+ - Simple: 1.2.3.4
+ - IP ranges: 1.2.3.100-1.2.3.200
+ - Network ranges: 1.2.3.4/24
+"""),
                 'keys': [
                     {'key': Fw.Statements.DADDR.value, 'values': []}
                 ]
             },
             self.STATM_SOURCE_IP: {
                 'name': Fw.Statements.IP.value,
+                'tooltip': QC.translate("firewall", """
+Supported formats:
+
+ - Simple: 1.2.3.4
+ - IP ranges: 1.2.3.100-1.2.3.200
+ - Network ranges: 1.2.3.4/24
+"""),
                 'keys': [
                     {'key': Fw.Statements.SADDR.value, 'values': []}
                 ]
             },
             self.STATM_IIFNAME: {
                 'name': Fw.Statements.IIFNAME.value,
+                'tooltip': QC.translate("firewall", "Match input interface. Regular expressions not allowed."),
                 'keys': [
                     {'key': "", 'values': []}
                 ]
             },
             self.STATM_OIFNAME: {
                 'name': Fw.Statements.OIFNAME.value,
+                'tooltip': QC.translate("firewall", "Match output interface. Regular expressions not allowed."),
                 'keys': [
                     {'key': "", 'values': []}
                 ]
             },
             self.STATM_CT_SET: {
                 'name': Fw.Statements.CT.value,
+                'tooltip': QC.translate("firewall", "Set a conntrack mark on the connection, in decimal format."),
                 'keys': [
                     # we need 2 keys for this expr: key: set, value: <empty>, key: mark, value: xxx
                     {'key': Fw.ExprCt.SET.value, 'values': None}, # must be empty
@@ -137,12 +168,19 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # match mark
             self.STATM_CT_MARK: {
                 'name': Fw.Statements.CT.value,
+                'tooltip': QC.translate("firewall", "Match a conntrack mark of the connection, in decimal format."),
                 'keys': [
                     {'key': Fw.ExprCt.MARK.value, 'values': []}
                 ]
             },
             self.STATM_CT_STATE: {
                 'name': Fw.Statements.CT.value,
+                'tooltip': QC.translate("firewall", """Match conntrack states.
+
+Supported formats:
+ - Simple: new
+ - Multiple states separated by commas: related,new
+"""),
                 'keys': [
                     {
                         'key': Fw.ExprCt.STATE.value,
@@ -152,12 +190,27 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             },
             self.STATM_META: {
                 'name': Fw.Statements.META.value,
+                'tooltip': QC.translate("firewall", """
+Match packet's metainformation.
+
+Value must be in decimal format, except for the "l4proto" option.
+For l4proto it can be a lower case string, for example:
+ tcp
+ udp
+ icmp,
+ etc
+
+If the value is decimal for protocol or lproto, it'll use it as the code of
+that protocol.
+"""),
                 'keys': [
-                    {'key': Fw.ExprMeta.MARK.value, 'values': []}
+                    {'key': Fw.ExprMeta.MARK.value, 'values': []},
+                    {'key': Fw.ExprMeta.L4PROTO.value, 'values': Fw.Protocols.values()}
                 ]
             },
             self.STATM_META_SET_MARK: {
                 'name': Fw.Statements.META.value,
+                'tooltip': QC.translate("firewall", "Set a mark on the packet matching the specified conditions. The value is in decimal format."),
                 'keys': [
                     {'key': Fw.ExprMeta.SET.value, 'values': None},
                     {'key': Fw.ExprMeta.MARK.value, 'values': []}
@@ -165,24 +218,49 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             },
             self.STATM_ICMP: {
                 'name': Fw.Statements.ICMP.value,
+                'tooltip': QC.translate("firewall", """
+Match ICMP codes.
+
+Supported formats:
+ - Simple: echo-request
+ - Multiple separated by commas: echo-request,echo-reply
+"""),
                 'keys':  [
                     {'key': "type", 'values': Fw.ExprICMP.values()}
                 ]
             },
             self.STATM_ICMPv6: {
                 'name': Fw.Statements.ICMPv6.value,
+                'tooltip': QC.translate("firewall", """
+Match ICMPv6 codes.
+
+Supported formats:
+ - Simple: echo-request
+ - Multiple separated by commas: echo-request,echo-reply
+"""),
                 'keys':  [
                     {'key': "type", 'values': Fw.ExprICMP.values()}
                 ]
             },
             self.STATM_LOG: {
                 'name': Fw.Statements.LOG.value,
+                'tooltip': QC.translate("firewall", "Print a message when this rule matches a packet."),
                 'keys':  [
                     {'key': Fw.ExprLog.PREFIX.value, 'values': []}
                 ]
             },
             self.STATM_QUOTA: {
                 'name': Fw.ExprQuota.QUOTA.value,
+                'tooltip': QC.translate("firewall", """
+Apply quotas on connections.
+
+For example when:
+ - "quota over 10/mbytes" -> apply the Action defined (DROP)
+ - "quota until 10/mbytes" -> apply the Action defined (ACCEPT)
+
+The value must be in the format: VALUE/UNITS, for example:
+ - 10mbytes, 1/gbytes, etc
+"""),
                 'keys':  [
                     {'key': Fw.ExprQuota.OVER.value, 'values': []},
                     {'key': Fw.ExprQuota.UNIT.value, 'values': [
@@ -195,6 +273,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             },
             self.STATM_COUNTER: {
                 'name': Fw.ExprCounter.COUNTER.value,
+                'tooltip': QC.translate("firewall", ""),
                 # packets, bytes
                 'keys':  [
                     {'key': Fw.ExprCounter.PACKETS.value, 'values': None},
@@ -204,6 +283,19 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # TODO: https://github.com/evilsocket/opensnitch/wiki/System-rules#rules-expressions
             self.STATM_LIMIT: {
                 'name': Fw.ExprLimit.LIMIT.value,
+                'tooltip': QC.translate("firewall", """
+Apply limits on connections.
+
+For example when:
+ - "limit over 10/mbytes/minute" -> apply the Action defined (DROP, ACCEPT, etc)
+    (When there're more than 10MB per minute, apply an Action)
+
+ - "limit until 10/mbytes/hour" -> apply the Action defined (ACCEPT)
+
+The value must be in the format: VALUE/UNITS/TIME, for example:
+ - 10/mbytes/minute, 1/gbytes/hour, etc
+"""),
+
                 'keys':  [
                     {'key': Fw.ExprLimit.OVER.value, 'values': []},
                     {'key': Fw.ExprLimit.UNITS.value, 'values': [
@@ -410,6 +502,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_statem_combo_changed(self, idx):
         st_idx = self.toolBoxSimple.currentIndex()
         self._configure_statem_value_opts(st_idx)
+        w = self.statements[st_idx]
+        tidx = 0 if idx == 0 else idx-1
+        w['value'].setToolTip(self.STATM_CONF[tidx]['tooltip'])
         self._set_statement_title(st_idx, "")
 
     def _cb_statem_value_changed(self, val):
@@ -561,10 +656,15 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if value != None:
             st_val = value
 
+        # override previous setup for some statements
         if idx == self.STATM_META:
-            title = st + " " + st_opts
-
-        title = "{0} {1} {2}".format(title, st_op, st_val)
+            title = "{0} {1} {2} {3}".format(st, st_opts, st_op, st_val)
+        elif idx == self.STATM_QUOTA:
+            title = "{0} {1} {2}".format(st, st_opts, st_val)
+        elif idx == self.STATM_LIMIT:
+            title = "{0} {1} {2}".format(st, st_opts, st_val)
+        else:
+            title = "{0} {1} {2}".format(title, st_op, st_val)
 
         self.toolBoxSimple.setItemText(st_idx, title)
 
@@ -1143,6 +1243,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         # format.
                         # FIXME: This should be supported by the daemon,
                         # instead of converting it here.
+                        # TODO: validate IP ranges.
                         if "/" in statem_value:
                             try:
                                 net = ipaddress.ip_network(statem_value)

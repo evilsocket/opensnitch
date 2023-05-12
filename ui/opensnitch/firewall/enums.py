@@ -42,8 +42,24 @@ class PortProtocols(Enums):
     DCCP = "dccp"
 
 class Protocols(Enums):
+    TCP = "tcp"
+    UDP = "udp"
+    UDPLITE = "udplite"
+    SCTP = "sctp"
+    DCCP = "dccp"
     ICMP = "icmp"
     ICMPv6 = "icmpv6"
+    AH = "ah"
+    ETHERNET = "ethernet"
+    GREP = "gre"
+    IP = "ip"
+    IPIP = "ipip"
+    L2TP = "l2tp"
+    COMP = "comp"
+    IGMP = "igmp"
+    ESP = "esp"
+    RAW = "raw"
+    ENCAP = "encap"
 
 class Family(Enums):
     INET = "inet"
