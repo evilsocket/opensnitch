@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtCore import QCoreApplication as QC
 
 from datetime import datetime, timedelta
 from threading import Thread, Lock, Event
@@ -193,9 +194,28 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         gui = self._stats_dialog
         def __show_gui():
             if not tray.isSystemTrayAvailable():
+                self._show_systray_msg_error()
                 gui.show()
 
         QtCore.QTimer.singleShot(10000, __show_gui)
+
+    def _show_systray_msg_error(self):
+        print("")
+        print("WARNING: system tray not available. On GNOME you need the extension gnome-shell-extension-appindicator.")
+        print("\tRead more:", Config.HELP_SYSTRAY_WARN)
+        print("")
+
+        hide_msg = self._cfg.getBool(Config.DEFAULT_HIDE_SYSTRAY_WARN)
+        if hide_msg:
+            return
+        self._desktop_notifications.show(
+            QC.translate("stats", "WARNING"),
+            QC.translate("stats", """System tray not available. Read more:
+{0}
+""".format(Config.HELP_SYSTRAY_WARN)),
+            os.path.join(self._path, "res/icon-white.svg")
+        )
+        self._cfg.setSettings(Config.DEFAULT_HIDE_SYSTRAY_WARN, True)
 
     def _on_tray_icon_activated(self, reason):
         if reason == QtWidgets.QSystemTrayIcon.Trigger or reason == QtWidgets.QSystemTrayIcon.MiddleClick:

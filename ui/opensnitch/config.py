@@ -8,6 +8,7 @@ class Config:
     HELP_RULES_URL = "https://github.com/evilsocket/opensnitch/wiki/Rules"
     HELP_SYS_RULES_URL = "https://github.com/evilsocket/opensnitch/wiki/System-rules"
     HELP_CONFIG_URL = "https://github.com/evilsocket/opensnitch/wiki/Configurations"
+    HELP_SYSTRAY_WARN = "https://github.com/evilsocket/opensnitch/wiki/Known-problems#opensnitch-icon-does-not-show-up-on-gnome-shell"
 
     OPERAND_PROCESS_ID = "process.id"
     OPERAND_PROCESS_PATH = "process.path"
@@ -101,6 +102,7 @@ class Config:
     DEFAULT_POPUP_ADVANCED_DSTPORT = "global/default_popup_advanced_dstport"
     DEFAULT_POPUP_ADVANCED_UID = "global/default_popup_advanced_uid"
     DEFAULT_SERVER_ADDR  = "global/server_address"
+    DEFAULT_HIDE_SYSTRAY_WARN  = "global/hide_systray_warning"
     DEFAULT_DB_TYPE_KEY  = "database/type"
     DEFAULT_DB_FILE_KEY  = "database/file"
     DEFAULT_DB_PURGE_OLDEST  = "database/purge_oldest"
