@@ -654,9 +654,6 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
          <property name="currentText">
           <string notr="true">LAN</string>
          </property>
-         <property name="placeholderText">
-          <string notr="true"/>
-         </property>
          <item>
           <property name="text">
            <string>LAN</string>
@@ -776,9 +773,6 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
          </property>
          <property name="currentText">
           <string notr="true">LAN</string>
-         </property>
-         <property name="placeholderText">
-          <string notr="true"/>
          </property>
          <item>
           <property name="text">
