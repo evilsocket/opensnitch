@@ -40,6 +40,8 @@ Then see if the error matches one of the following ones:
 * setQuery() error:  No query Unable to fetch row (#790)
 * Others...
 
+[The GUI takes 10s to 20s to show up](#gui-takes-10-to-20s-to-show-up)
+
 [GUI crash/exception/does not show up on old distros (Ubuntu 16.04, etc)](#gui-crash-exception-does-not-show-up-on-old-distros):
 
 [GUI not working across reboots](#gui-not-working-across-reboots)
@@ -192,6 +194,14 @@ You can also allow all traffic to localhost (save it to `/etc/opensnitchd/rules/
 ```
 
 ***
+
+### GUI takes 10 to 20s to show up
+
+Usually it's because your Desktop Environment/Window Manager doesn't support system tray icons. On GNOME >= 3.16 for example you need to install and enable the extension gnome-shell-extension-appindicator
+
+https://github.com/ubuntu/gnome-shell-extension-appindicator
+
+It's available on some distributions, so you can use your package manager to install from your distro repositories. Otherwise you'll have to install it following the instructions from their web.
 
 ### GUI crash/exception or does not show up
 
