@@ -8,31 +8,10 @@
 #include <net/sock.h>
 #include <uapi/linux/bpf.h>
 #include <uapi/linux/tcp.h>
-#include <bpf/bpf_helpers.h>
-#include <bpf/bpf_tracing.h>
+#include "common_defs.h"
+#include "bpf_headers/bpf_helpers.h"
+#include "bpf_headers/bpf_tracing.h"
 
-#define MAPSIZE 12000
-
-//-------------------------------map definitions
-// which github.com/iovisor/gobpf/elf expects
-#define BUF_SIZE_MAP_NS 256
-
-typedef struct bpf_map_def {
-    unsigned int type;
-    unsigned int key_size;
-    unsigned int value_size;
-    unsigned int max_entries;
-    unsigned int map_flags;
-    unsigned int pinning;
-    char namespace[BUF_SIZE_MAP_NS];
-} bpf_map_def;
-
-enum bpf_pin_type {
-    PIN_NONE = 0,
-    PIN_OBJECT_NS,
-    PIN_GLOBAL_NS,
-    PIN_CUSTOM_NS,
-};
 //-----------------------------------
 
 #define MAX_ALIASES 5
