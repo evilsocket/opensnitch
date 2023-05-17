@@ -31,9 +31,9 @@ fi
 echo -n "[+] Uncompressing kernel sources: "
 tar -xf v${kernel_version}.tar.gz && echo "OK" || echo "ERROR"
 
-echo "[+] Patching kernel sources"
 if [ "${ARCH}" == "arm" -o "${ARCH}" == "arm64" ]; then
-	patch linux-${kernel_version}/arch/arm/include/asm/unified.h < ebpf_prog/arm-clang-asm-fix.patch
+    echo "[+] Patching kernel sources"
+    patch linux-${kernel_version}/arch/arm/include/asm/unified.h < ebpf_prog/arm-clang-asm-fix.patch
 fi
 
 echo -n "[+] Preparing kernel sources... (1-2 minutes): "
@@ -63,8 +63,14 @@ llvm-strip -g ebpf_prog/modules/opensnitch*.o #remove debug info
 
 if [ -f ebpf_prog/modules/opensnitch.o ]; then
     echo
-    ls ebpf_prog/modules/*.o
-    echo -e "\n * eBPF modules compiled. Now you can copy the *.o files to /etc/opensnitchd/ and restart the daemon\n"
+    if objdump -h ebpf_prog/modules/opensnitch.o | grep "kprobe/tcp_v4_connect"; then
+        ls ebpf_prog/modules/*.o
+        echo -e "\n * eBPF modules compiled. Now you can copy the *.o files to /etc/opensnitchd/ and restart the daemon\n"
+        exit 1
+    else
+        echo -e "\n [WARN] opensnitch.o module not valid\n"
+    fi
 else
     echo -e "\n [WARN] opensnitch.o module not compiled\n"
+    exit 1
 fi
