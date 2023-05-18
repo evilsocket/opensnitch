@@ -54,18 +54,19 @@ import (
 )
 
 var (
-	showVersion    = false
-	procmonMethod  = ""
-	logFile        = ""
-	rulesPath      = "rules"
-	noLiveReload   = false
-	queueNum       = 0
-	repeatQueueNum int //will be set later to queueNum + 1
-	workers        = 16
-	debug          = false
-	warning        = false
-	important      = false
-	errorlog       = false
+	showVersion       = false
+	checkRequirements = false
+	procmonMethod     = ""
+	logFile           = ""
+	rulesPath         = "rules"
+	noLiveReload      = false
+	queueNum          = 0
+	repeatQueueNum    int //will be set later to queueNum + 1
+	workers           = 16
+	debug             = false
+	warning           = false
+	important         = false
+	errorlog          = false
 
 	uiSocket = ""
 	uiClient = (*ui.Client)(nil)
@@ -90,6 +91,7 @@ var (
 
 func init() {
 	flag.BoolVar(&showVersion, "version", debug, "Show daemon version of this executable and exit.")
+	flag.BoolVar(&checkRequirements, "check-requirements", debug, "Check system requirements for incompatibilities.")
 
 	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "How to search for processes path. Options: ftrace, audit (experimental), ebpf (experimental), proc (default)")
 	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
@@ -461,6 +463,10 @@ func main() {
 
 	if showVersion {
 		fmt.Println(core.Version)
+		os.Exit(0)
+	}
+	if checkRequirements {
+		core.CheckSysRequirements()
 		os.Exit(0)
 	}
 
