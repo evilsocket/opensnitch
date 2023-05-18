@@ -105,6 +105,10 @@ func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callba
 	}
 
 	c.stopCheckerChan = &stopChecker{ch: make(chan bool, 1)}
+	if c.RulesChecker != nil {
+		c.stopCheckerChan.stop()
+		c.RulesChecker.Stop()
+	}
 	c.RulesChecker = time.NewTicker(time.Second * 15)
 
 	go c.startCheckingRules(areRulesLoaded, reloadRules)
