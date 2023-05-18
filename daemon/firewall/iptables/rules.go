@@ -16,8 +16,8 @@ func (ipt *Iptables) RunRule(action Action, enable bool, logError bool, rule []s
 
 	rule = append([]string{string(action)}, rule...)
 
-	ipt.Lock()
-	defer ipt.Unlock()
+	ipt.mu.Lock()
+	defer ipt.mu.Unlock()
 
 	if _, err4 = core.Exec(ipt.bin, rule); err4 != nil {
 		if logError {

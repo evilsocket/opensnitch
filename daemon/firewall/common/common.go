@@ -23,8 +23,8 @@ type (
 	callbackBool func() bool
 
 	stopChecker struct {
-		ch chan bool
-		sync.RWMutex
+		ch  chan bool
+		rwm sync.RWMutex
 	}
 
 	// Common holds common fields and functionality of both firewalls,
@@ -36,19 +36,19 @@ type (
 		Running         bool
 		Intercepting    bool
 		FwEnabled       bool
-		sync.RWMutex
+		rwm             sync.RWMutex
 	}
 )
 
 func (s *stopChecker) exit() <-chan bool {
-	s.RLock()
-	defer s.RUnlock()
+	s.rwm.RLock()
+	defer s.rwm.RUnlock()
 	return s.ch
 }
 
 func (s *stopChecker) stop() {
-	s.Lock()
-	defer s.Unlock()
+	s.rwm.Lock()
+	defer s.rwm.Unlock()
 
 	if s.ch != nil {
 		s.ch <- true
@@ -60,8 +60,8 @@ func (s *stopChecker) stop() {
 // SetQueueNum sets the queue number used by the firewall.
 // It's the queue where all intercepted connections will be sent.
 func (c *Common) SetQueueNum(qNum *int) {
-	c.Lock()
-	defer c.Unlock()
+	c.rwm.Lock()
+	defer c.rwm.Unlock()
 
 	if qNum != nil {
 		c.QueueNum = uint16(*qNum)
@@ -71,24 +71,24 @@ func (c *Common) SetQueueNum(qNum *int) {
 
 // IsRunning returns if the firewall is running or not.
 func (c *Common) IsRunning() bool {
-	c.RLock()
-	defer c.RUnlock()
+	c.rwm.RLock()
+	defer c.rwm.RUnlock()
 
 	return c != nil && c.Running
 }
 
 // IsFirewallEnabled returns if the firewall is running or not.
 func (c *Common) IsFirewallEnabled() bool {
-	c.RLock()
-	defer c.RUnlock()
+	c.rwm.RLock()
+	defer c.rwm.RUnlock()
 
 	return c != nil && c.FwEnabled
 }
 
 // IsIntercepting returns if the firewall is running or not.
 func (c *Common) IsIntercepting() bool {
-	c.RLock()
-	defer c.RUnlock()
+	c.rwm.RLock()
+	defer c.rwm.RUnlock()
 
 	return c != nil && c.Intercepting
 }
@@ -97,8 +97,8 @@ func (c *Common) IsIntercepting() bool {
 // We expect to have 2 rules loaded: one to intercept DNS responses and another one
 // to intercept network traffic.
 func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callback) {
-	c.Lock()
-	defer c.Unlock()
+	c.rwm.Lock()
+	defer c.rwm.Unlock()
 	if c.stopCheckerChan != nil {
 		c.stopCheckerChan.stop()
 		c.stopCheckerChan = nil
@@ -134,8 +134,8 @@ Exit:
 
 // StopCheckingRules stops checking if firewall rules are loaded.
 func (c *Common) StopCheckingRules() {
-	c.RLock()
-	defer c.RUnlock()
+	c.rwm.RLock()
+	defer c.rwm.RUnlock()
 
 	if c.RulesChecker != nil {
 		c.RulesChecker.Stop()
