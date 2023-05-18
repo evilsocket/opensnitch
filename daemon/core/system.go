@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"regexp"
 	"strings"
 
@@ -48,7 +47,7 @@ func CheckSysRequirements() {
 	var fileContent []byte
 	var err error
 	if Exists(confFile) {
-		fileContent, err = os.ReadFile(confFile)
+		fileContent, err = ioutil.ReadFile(confFile)
 	} else {
 		confFile = "/proc/config.gz"
 		fileContent, err = ReadGzipFile(confFile)
