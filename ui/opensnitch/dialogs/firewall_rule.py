@@ -333,6 +333,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.helpButton.clicked.connect(self._cb_help_button_clicked)
         self.comboVerdict.currentIndexChanged.connect(self._cb_verdict_changed)
         self.comboDirection.currentIndexChanged.connect(self._cb_direction_changed)
+        self.checkEnable.toggled.connect(self._cb_check_enable_toggled)
 
         self.cmdAddStatement.clicked.connect(self._cb_add_new_statement)
         self.cmdDelStatement.clicked.connect(self._cb_del_statement)
@@ -411,6 +412,10 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     def closeEvent(self, e):
         self._close()
 
+
+    def _cb_check_enable_toggled(self, status):
+        self._enable_save()
+
     def _cb_help_button_clicked(self):
         QuickHelp.show(
             QC.translate("firewall",
@@ -483,9 +488,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
             self.send_notifications(node['firewall'], self.OP_NEW)
 
     def _cb_add_new_statement(self):
+        self._enable_save()
         self.add_new_statement(QC.translate("firewall", "<select a statement>"), self.toolBoxSimple)
 
     def _cb_del_statement(self):
+        self._enable_save()
+
         idx = self.toolBoxSimple.currentIndex()
         if idx < 0:
             return
@@ -500,6 +508,8 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self._reorder_toolbox_pages()
 
     def _cb_statem_combo_changed(self, idx):
+        self._enable_save()
+
         st_idx = self.toolBoxSimple.currentIndex()
         self._configure_statem_value_opts(st_idx)
         w = self.statements[st_idx]
@@ -508,10 +518,14 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self._set_statement_title(st_idx, "")
 
     def _cb_statem_value_changed(self, val):
+        self._enable_save()
+
         st_idx = self.toolBoxSimple.currentIndex()
         self._set_statement_title(st_idx)
 
     def _cb_statem_value_index_changed(self, idx):
+        self._enable_save()
+
         st_idx = self.toolBoxSimple.currentIndex()
         w = self.statements[st_idx]
         idx = w['what'].currentIndex()-1 # first item is blank
@@ -524,17 +538,25 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self._set_statement_title(st_idx)
 
     def _cb_statem_op_changed(self, idx):
+        self._enable_save()
+
         st_idx = self.toolBoxSimple.currentIndex()
         self._set_statement_title(st_idx)
 
     def _cb_statem_opts_changed(self, idx):
+        self._enable_save()
+
         st_idx = self.toolBoxSimple.currentIndex()
         self._set_statement_title(st_idx)
 
     def _cb_direction_changed(self, idx):
+        self._enable_save()
+
         self._is_valid_rule()
 
     def _cb_verdict_changed(self, idx):
+        self._enable_save()
+
         showVerdictParms = self._has_verdict_parms(idx)
         self.lineVerdictParms.setVisible(showVerdictParms)
         self.comboVerdictParms.setVisible(showVerdictParms)
@@ -1055,6 +1077,8 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
             self._set_status_error(QC.translate("firewall", "Rule target ({0}) not supported yet".format(rule.Rules[0].Target.lower())))
             self._disable_controls()
 
+        self._enable_save(False)
+
     def new(self):
         if not self.show():
             return
@@ -1351,6 +1375,13 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.lineVerdictParms.setText("")
 
         self.uuid = ""
+
+    def _enable_save(self, enable=True):
+        """Enable Save buton whenever some detail of a route changes.
+        The button may or not be hidden. If we're editing a rule it'll be shown
+        but disabled/enabled.
+        """
+        self.cmdSave.setEnabled(enable)
 
     def _enable_buttons(self, enable=True):
         """Disable add/save buttons until a response is received from the daemon.

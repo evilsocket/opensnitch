@@ -84,6 +84,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
+        self.comboInput.setEnabled(True)
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.OK:
                 rep = self._notifications_sent[reply.id]
@@ -115,6 +116,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_combo_policy_changed(self, combo):
         self._reset_status_message()
+        self.comboInput.setEnabled(False)
 
         wantedProfile = FwProfiles.ProfileAcceptInput.value
         if combo == self.COMBO_OUT:
