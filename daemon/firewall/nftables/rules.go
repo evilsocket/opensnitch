@@ -136,12 +136,15 @@ func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]
 	}
 
 	chainKey := getChainKey(chain, tbl)
-	chn := sysChains[chainKey]
+	chn, chok := sysChains.Load(chainKey)
+	if !chok {
+		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
+	}
 
 	rule := &nftables.Rule{
 		Position: position,
 		Table:    tbl,
-		Chain:    chn,
+		Chain:    chn.(*nftables.Chain),
 		Exprs:    *exprs,
 		UserData: []byte(systemRuleKey),
 	}
@@ -160,12 +163,15 @@ func (n *Nft) addRule(chain, table, family string, position uint64, exprs *[]exp
 	}
 
 	chainKey := getChainKey(chain, tbl)
-	chn := sysChains[chainKey]
+	chn, chok := sysChains.Load(chainKey)
+	if !chok {
+		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
+	}
 
 	rule := &nftables.Rule{
 		Position: position,
 		Table:    tbl,
-		Chain:    chn,
+		Chain:    chn.(*nftables.Chain),
 		Exprs:    *exprs,
 		UserData: []byte(systemRuleKey),
 	}
@@ -210,7 +216,8 @@ func (n *Nft) delRulesByKey(key string) error {
 			}
 		}
 		if len(rules) == 0 || len(rules) == delRules {
-			if _, ok := sysChains[getChainKey(c.Name, c.Table)]; ok {
+			_, chfound := sysChains.Load(getChainKey(c.Name, c.Table))
+			if chfound {
 				n.delChain(c)
 			}
 		}

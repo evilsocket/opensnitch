@@ -22,7 +22,10 @@ func getChainKey(name string, table *nftables.Table) string {
 // get an existing chain
 func getChain(name string, table *nftables.Table) *nftables.Chain {
 	key := getChainKey(name, table)
-	return sysChains[key]
+	if ch, ok := sysChains.Load(key); ok {
+		return ch.(*nftables.Chain)
+	}
+	return nil
 }
 
 // AddChain adds a new chain to nftables.
@@ -44,8 +47,8 @@ func (n *Nft) AddChain(name, table, family string, priority *nftables.ChainPrior
 	key := getChainKey(name, tbl)
 	chain = n.getChain(name, tbl, family)
 	if chain != nil {
-		if _, exists := sysChains[key]; exists {
-			delete(sysChains, key)
+		if _, exists := sysChains.Load(key); exists {
+			sysChains.Delete(key)
 		}
 		chain.Policy = &policy
 		n.conn.AddChain(chain)
@@ -65,7 +68,7 @@ func (n *Nft) AddChain(name, table, family string, priority *nftables.ChainPrior
 		}
 	}
 
-	sysChains[key] = chain
+	sysChains.Store(key, chain)
 	return chain
 }
 
@@ -97,7 +100,7 @@ func (n *Nft) addRegularChain(name, table, family string) error {
 		return fmt.Errorf("%s error adding regular chain: %s", logTag, name)
 	}
 	key := getChainKey(name, tbl)
-	sysChains[key] = chain
+	sysChains.Store(key, chain)
 
 	return nil
 }
@@ -111,15 +114,17 @@ func (n *Nft) addInterceptionChains() error {
 	tbl := getTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET)
 	if tbl != nil {
 		key := getChainKey(exprs.NFT_HOOK_INPUT, tbl)
-		if key != "" && sysChains[key] != nil {
-			filterPolicy = *sysChains[key].Policy
+		ch, found := sysChains.Load(key)
+		if key != "" && found {
+			filterPolicy = *ch.(*nftables.Chain).Policy
 		}
 	}
 	tbl = getTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
 	if tbl != nil {
 		key := getChainKey(exprs.NFT_HOOK_OUTPUT, tbl)
-		if key != "" && sysChains[key] != nil {
-			manglePolicy = *sysChains[key].Policy
+		ch, found := sysChains.Load(key)
+		if key != "" && found {
+			manglePolicy = *ch.(*nftables.Chain).Policy
 		}
 	}
 
@@ -149,7 +154,7 @@ func (n *Nft) addInterceptionChains() error {
 
 func (n *Nft) delChain(chain *nftables.Chain) error {
 	n.conn.DelChain(chain)
-	delete(sysChains, getChainKey(chain.Name, chain.Table))
+	sysChains.Delete(getChainKey(chain.Name, chain.Table))
 	if !n.Commit() {
 		return fmt.Errorf("[nftables] error deleting chain %s, %s", chain.Name, chain.Table.Name)
 	}

@@ -2,6 +2,7 @@ package nftables
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
 	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
@@ -15,14 +16,14 @@ import (
 var (
 	logTag        = "nftables:"
 	sysTables     map[string]*nftables.Table
-	sysChains     map[string]*nftables.Chain
+	sysChains     *sync.Map
 	origSysChains map[string]*nftables.Chain
 	sysSets       []*nftables.Set
 )
 
 func initMapsStore() {
 	sysTables = make(map[string]*nftables.Table)
-	sysChains = make(map[string]*nftables.Chain)
+	sysChains = &sync.Map{}
 	origSysChains = make(map[string]*nftables.Chain)
 }
 
@@ -65,7 +66,7 @@ func (n *Nft) CreateSystemRule(chain *config.FwChain, logErrors bool) bool {
 }
 
 // AddSystemRules creates the system firewall from configuration.
-func (n *Nft) AddSystemRules(reload, backupExistingChains  bool) {
+func (n *Nft) AddSystemRules(reload, backupExistingChains bool) {
 	n.SysConfig.RLock()
 	defer n.SysConfig.RUnlock()
 
