@@ -62,3 +62,9 @@ Have you seen a connection you didn't expect? [submit it!](https://github.com/ev
 ## Contributors
 
 [See the list](https://github.com/evilsocket/opensnitch/graphs/contributors)
+
+## Translating
+
+<a href="https://hosted.weblate.org/engage/opensnitch/">
+<img src="https://hosted.weblate.org/widgets/opensnitch/-/glossary/multi-auto.svg" alt="Translation status" />
+</a>
