@@ -36,7 +36,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="689"/>
         <source>this destination port</source>
-        <translation>ezt a célkikötőt</translation>
+        <translation>ezt célkikötőt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="694"/>
@@ -76,7 +76,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="748"/>
         <source>30m</source>
-        <translation type="unfinished">30 perc</translation>
+        <translation>30 perc</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="753"/>
@@ -262,7 +262,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="284"/>
         <source>by destination port</source>
-        <translation>rendeltetési kikötő szerint</translation>
+        <translation>célkikötő szerint</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="289"/>
@@ -312,7 +312,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="254"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alapértelmezés szerint, amikor egy új előugró ablak jelenik meg, a legegyszerűbb formájában képes lesz a kapcsolatok vagy alkalmazások szűrésére a kapcsolat egy tulajdonságával (futtatható fájl, kikötő, IP stb.).&lt;/p&gt;&lt;p&gt;Ezekkel az opciókkal több mezőt is választhat, amelyekhez a kapcsolatokat szűrni kívánja.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alapértelmezés szerint, amikor egy új előugró ablak jelenik meg, a legegyszerűbb formájában képes lesz a kapcsolatok vagy alkalmazások szűrésére a kapcsolat egy tulajdonságával (futtatható fájl, kikötő, IP-cím stb.).&lt;/p&gt;&lt;p&gt;Ezekkel az opciókkal több mezőt is választhat, amelyekhez a kapcsolatokat szűrni kívánja.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="257"/>
@@ -755,7 +755,7 @@
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="240"/>
         <source>Start or stop monitoring this process</source>
-        <translation>Folyamatfigyelés elindítsa vagy leállítása</translation>
+        <translation>Folyamatfigyelés indítsa/leállítása</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="256"/>
@@ -907,7 +907,7 @@ Megjegyzés: Vesszőkkel vagy szóközökkel nem szabad elválasztani az IP-cím
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="369"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Több kikötők megadhatók reguláris kifejezések használatával:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 vagy 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 vagy 5551, 5552, 5553, stb:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Több kikötő megadható reguláris kifejezések használatával:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 vagy 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 vagy 5551, 5552, 5553, stb:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="792"/>
@@ -988,7 +988,7 @@ gnu.org         - csak a gnu.org-nak fog megfelelni, nem a www.gnu.org-nak, nem 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="323"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Csak TCP, UDP vagy UDPLITE engedélyezett&lt;/p&gt;&lt;p&gt;Használhatja a reguláris kifejezést, azaz: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Csak TCP, UDP vagy UDPLITE engedélyezett&lt;/p&gt;&lt;p&gt;Használhatja a szabályos kifejezést, azaz: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="333"/>
@@ -1226,7 +1226,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="464"/>
         <source>Start or Stop interception</source>
-        <translation>Adatelérés indítása vagy leállítása</translation>
+        <translation>Adatelérés indítása/leállítása</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="509"/>
@@ -1673,7 +1673,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="541"/>
         <source>Protocol regexp error</source>
-        <translation>Protokoll reguláris kifejezéshibája</translation>
+        <translation>Protokoll szabályos kifejezéshibája</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="545"/>
@@ -1683,7 +1683,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="559"/>
         <source>Process path regexp error</source>
-        <translation>Folyamat útvonala reguláris kifejezéshibája</translation>
+        <translation>Folyamat útvonala szabályos kifejezéshibája</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="563"/>
@@ -1693,7 +1693,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="577"/>
         <source>Command line regexp error</source>
-        <translation>Parancssor reguláris kifejezéshibája</translation>
+        <translation>Parancssor szabályos kifejezéshibája</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="581"/>
@@ -1708,12 +1708,12 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="599"/>
         <source>Dest host can not be empty</source>
-        <translation>Célkikötő nem lehet üres</translation>
+        <translation>Célállomás nem lehet üres</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="613"/>
         <source>Dst host regexp error</source>
-        <translation>Célkikötő reguláris kifejezéshibája</translation>
+        <translation>Célállomás szabályos kifejezéshibája</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="617"/>
@@ -1723,7 +1723,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="639"/>
         <source>Dst IP regexp error</source>
-        <translation>Cél IP-cím reguláris kifejezéshibája</translation>
+        <translation>Cél IP-cím szabályos kifejezéshibája</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="651"/>
@@ -1733,7 +1733,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="665"/>
         <source>User ID regexp error</source>
-        <translation>Felhasználói azonosító reguláris kifejezéshibája</translation>
+        <translation>Felhasználói azonosító szabályos kifejezéshibája</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="739"/>
@@ -1763,7 +1763,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="683"/>
         <source>PID field regexp error</source>
-        <translation>Folyamatazonosító mező szabványos kifejezési hiba</translation>
+        <translation>Folyamatazonosító mező szabványos kifejezéshibája</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="764"/>
@@ -1922,12 +1922,12 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="761"/>
         <source>    Your are about to delete this rule.    </source>
-        <translation>Törölni készül ezt a szabályt.</translation>
+        <translation>    A szabály törlésére készül.    </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1244"/>
         <source>    Are you sure?</source>
-        <translation>Biztos benne?</translation>
+        <translation>    Biztos benne?</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="891"/>
@@ -1937,12 +1937,12 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1244"/>
         <source>    You are about to delete this rule.    </source>
-        <translation>Törölni készül ezt a szabályt.</translation>
+        <translation>    A szabály törlésére készül.    </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1837"/>
         <source>Save as CSV</source>
-        <translation>Mentés CSV formátumban…</translation>
+        <translation>Mentés CSV-fájlként</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="308"/>

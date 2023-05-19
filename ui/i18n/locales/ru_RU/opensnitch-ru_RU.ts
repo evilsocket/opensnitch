@@ -131,7 +131,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="704"/>
         <source>from this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>из этого PIDа</translation>
     </message>
 </context>
 <context>
@@ -509,12 +509,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="347"/>
         <source>The advanced view allows you to easily select multiple fields to filter connections</source>
-        <translation>Расширенный вид позволяет легко выбирать несколько полей для фильтрации подключений.</translation>
+        <translation>Расширенный вид позволяет легко выбирать несколько полей для фильтрации подключений</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="110"/>
         <source>If checked, this field will be selected when a pop-up is displayed</source>
-        <translation>Если флажок установлен, это поле будет выбрано при отображении всплывающего окна.</translation>
+        <translation>Если флажок установлен, это поле будет выбрано при отображении всплывающего окна</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="150"/>
@@ -609,7 +609,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="299"/>
         <source>by PID</source>
-        <translation type="unfinished"></translation>
+        <translation>по PIDу</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="461"/>
@@ -619,32 +619,32 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="494"/>
         <source>Desktop notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Уведомления на рабочем столе</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="512"/>
         <source>Use system notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Использовать системные уведомления</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="528"/>
         <source>Use Qt notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Исользовать уведомления Qt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="557"/>
         <source>Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Тест</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="570"/>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translation>Система</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="705"/>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Тема</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="909"/>
@@ -654,22 +654,22 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1196"/>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>минут</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1222"/>
         <source>Minutes between events purges</source>
-        <translation type="unfinished"></translation>
+        <translation>Минут между очисткой событий</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1245"/>
         <source>days</source>
-        <translation type="unfinished"></translation>
+        <translation>дни</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1255"/>
         <source>Maximum days of events to keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Максимальное количество дней для сохранения событий</translation>
     </message>
 </context>
 <context>
@@ -1098,27 +1098,27 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="148"/>
         <source>Deny will just discard the connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Отказ мгновенно разорвёт соединение</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="165"/>
         <source>Reject will drop the connection, and kill the socket that initiated it</source>
-        <translation type="unfinished"></translation>
+        <translation>Отклонение приведет к разрыву соединения и уничтожению сокета, который его инициировал</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="168"/>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Отклонить</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="185"/>
         <source>Allow will allow the connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Разрешить разрешит соединения</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="221"/>
         <source>Applications</source>
-        <translation type="unfinished">Приложения</translation>
+        <translation>Приложения</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="230"/>
@@ -1128,7 +1128,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="240"/>
         <source>Is regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Регулярное выражение</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="264"/>
@@ -1138,32 +1138,32 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="274"/>
         <source>From this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>Из этого PIDа</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="348"/>
         <source>is regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>регулярное выражение</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="360"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Сеть</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="610"/>
         <source>List of domains/IPs</source>
-        <translation type="unfinished"></translation>
+        <translation>Список доменов/IP-адресов</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="616"/>
         <source>To this list of network ranges</source>
-        <translation type="unfinished"></translation>
+        <translation>К этому списку сетевых диапазонов</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="623"/>
         <source>To this list of IPs</source>
-        <translation type="unfinished"></translation>
+        <translation>К этому списку IP-адресов</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="649"/>
@@ -1184,7 +1184,8 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="727"/>
         <source>To this list of domains 
 (regular expressions)</source>
-        <translation type="unfinished"></translation>
+        <translation>К этому списку доменов 
+(регулярные выражения)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="754"/>
@@ -1194,7 +1195,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="764"/>
         <source>More</source>
-        <translation type="unfinished"></translation>
+        <translation>Ещё</translation>
     </message>
 </context>
 <context>
@@ -1437,12 +1438,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="125"/>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Отклонить</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="177"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
 </context>
 <context>
@@ -1502,7 +1503,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="547"/>
         <source>System notifications are not available, you need to install python3-notify2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Системные уведомления недоступны, нужно установить python3-notify2.</translation>
     </message>
 </context>
 <context>
@@ -1610,12 +1611,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/notifications.py" line="108"/>
         <source>New outgoing connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Новое исходящее соединение</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="334"/>
         <source>from this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>из этого PIDа</translation>
     </message>
 </context>
 <context>
@@ -1706,22 +1707,22 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="127"/>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translation>Система</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="135"/>
         <source>Themes not available. Install qt-material: pip3 install qt-material</source>
-        <translation type="unfinished"></translation>
+        <translation>Темы недоступны. Установите qt-material: pip3 install qt-material</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="387"/>
         <source>UI theme changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Тема оформления изменена</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="387"/>
         <source>Restart the GUI in order to apply the new theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Перезапустите графический интерфейс, чтобы изменить тему оформления</translation>
     </message>
 </context>
 <context>
@@ -1861,22 +1862,22 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="181"/>
         <source>There&apos;s already a rule with this name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Правило с таким названием уже существует.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="679"/>
         <source>PID field can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Поле PID не может быть пустым</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="693"/>
         <source>PID field regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка регулярного выражения поля PID</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="781"/>
         <source>Select at least one field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите хотя бы одно поле.</translation>
     </message>
 </context>
 <context>
@@ -1979,7 +1980,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="24"/>
         <source>Hits</source>
-        <translation type="unfinished">Total</translation>
+        <translation>Попадания</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
@@ -2346,57 +2347,57 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/service.py" line="652"/>
         <source>New node connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Подключен новый узел</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="23"/>
         <source>What</source>
-        <translation type="unfinished"></translation>
+        <translation>Что</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="25"/>
         <source>Network name</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя сети</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="289"/>
         <source>Uptime</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Время работы</translation>
+        <translation>Время работы</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="297"/>
         <source>Precedence</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Приоритет</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="384"/>
         <source>Connections</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Соединения</translation>
+        <translation>Соединения</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="385"/>
         <source>Dropped</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Сброшено</translation>
+        <translation>Сброшено</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="404"/>
         <source>What</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Что</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="736"/>
         <source>Apply to</source>
-        <translation type="unfinished"></translation>
+        <translation>Применить к</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="746"/>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Отклонить</translation>
     </message>
 </context>
 <context>
