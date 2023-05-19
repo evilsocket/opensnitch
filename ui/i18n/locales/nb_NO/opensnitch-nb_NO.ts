@@ -11,12 +11,12 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="620"/>
         <source>User ID</source>
-        <translation>Brukerid</translation>
+        <translation>Bruker-ID</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="565"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Executed from&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Utført fra&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Kjørt fra&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="590"/>
@@ -81,12 +81,12 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="793"/>
         <source>forever</source>
-        <translation>til evig tid</translation>
+        <translation>for alltid</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="340"/>
         <source>Deny</source>
-        <translation type="unfinished">Denegar</translation>
+        <translation>Nekt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="331"/>
@@ -141,27 +141,27 @@
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="14"/>
         <source>Firewall</source>
-        <translation type="unfinished"></translation>
+        <translation>Brannmur</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="59"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Firewall&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Brannmur&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="266"/>
         <source>Inbound</source>
-        <translation type="unfinished"></translation>
+        <translation>Inngående</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="307"/>
         <source>Outbound</source>
-        <translation type="unfinished"></translation>
+        <translation>Utgående</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="314"/>
         <source>Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="366"/>
@@ -186,7 +186,7 @@
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="418"/>
         <source>New rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny regel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="453"/>
@@ -196,17 +196,17 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="364"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Lukk</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="14"/>
         <source>Firewall rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Brannmurregel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="26"/>
         <source>Node</source>
-        <translation type="unfinished">Nodo</translation>
+        <translation>Node</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="34"/>
@@ -241,22 +241,22 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="227"/>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Retning</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="238"/>
         <source>IN</source>
-        <translation type="unfinished"></translation>
+        <translation>INN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="247"/>
         <source>OUT</source>
-        <translation type="unfinished"></translation>
+        <translation>UT</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="259"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Handling</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="270"/>
@@ -266,12 +266,12 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="279"/>
         <source>DROP</source>
-        <translation type="unfinished"></translation>
+        <translation>DROPP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="288"/>
         <source>REJECT</source>
-        <translation type="unfinished"></translation>
+        <translation>AVVIS</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="297"/>
@@ -286,7 +286,7 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="386"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Slett</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="397"/>
@@ -296,7 +296,7 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="408"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til</translation>
     </message>
 </context>
 <context>
@@ -379,27 +379,27 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="283"/>
         <source>by executable</source>
-        <translation>av kjørbar fil</translation>
+        <translation>etter kjørbar fil</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="288"/>
         <source>by command line</source>
-        <translation>av kommandolinje</translation>
+        <translation>etter kommandolinje</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="293"/>
         <source>by destination port</source>
-        <translation>av målport</translation>
+        <translation>etter målport</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="298"/>
         <source>by destination ip</source>
-        <translation>av mål-IP</translation>
+        <translation>etter mål-IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="303"/>
         <source>by user id</source>
-        <translation>av brukerid</translation>
+        <translation>etter bruker-id</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="960"/>
@@ -414,7 +414,7 @@
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="249"/>
         <source>forever</source>
-        <translation>til evig tid</translation>
+        <translation>for alltid</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1002"/>
@@ -440,7 +440,7 @@ sólo mostrar alerta</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="819"/>
         <source>Process monitor method</source>
-        <translation>Prosessmonitoreringsmetode</translation>
+        <translation>Prosessovervåkingsmetode</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="853"/>
@@ -620,7 +620,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="266"/>
         <source>Filter connections also by:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtrer forbindelser også etter:</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="362"/>
@@ -700,32 +700,32 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="598"/>
         <source>Time</source>
-        <translation type="unfinished">Hora</translation>
+        <translation>Tid</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="678"/>
         <source>Destination</source>
-        <translation type="unfinished">Destino</translation>
+        <translation>Mål</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="646"/>
         <source>Protocol</source>
-        <translation type="unfinished">Protocolo</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="694"/>
         <source>Process</source>
-        <translation type="unfinished">Aplicación</translation>
+        <translation>Prosess</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="614"/>
         <source>Rule</source>
-        <translation type="unfinished">Regla</translation>
+        <translation>Regel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="630"/>
         <source>Node</source>
-        <translation type="unfinished">Nodo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="723"/>
@@ -840,7 +840,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="738"/>
         <source>Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Regler</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="746"/>
@@ -877,7 +877,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="789"/>
         <source>1h or less</source>
-        <translation type="unfinished"></translation>
+        <translation>1t eller mindre</translation>
     </message>
 </context>
 <context>
@@ -953,12 +953,12 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="20"/>
         <source>Rule</source>
-        <translation type="unfinished">Regla</translation>
+        <translation>Regel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="980"/>
         <source>Node</source>
-        <translation type="unfinished">Nodo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1003"/>
@@ -968,12 +968,12 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="321"/>
         <source>From this command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Fra denne kommandolinjen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="408"/>
         <source>From this executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Fra denne kjørbare filen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="123"/>
@@ -1013,7 +1013,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="314"/>
         <source>From this user ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Fra denne bruker-ID</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="645"/>
@@ -1068,7 +1068,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="693"/>
         <source>Protocol</source>
-        <translation type="unfinished">Protocolo</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="512"/>
@@ -1078,12 +1078,12 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="218"/>
         <source>Deny</source>
-        <translation type="unfinished">Nekt</translation>
+        <translation>Nekt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="258"/>
         <source>Allow</source>
-        <translation type="unfinished">Tillat</translation>
+        <translation>Tillat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="924"/>
@@ -1112,7 +1112,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1020"/>
         <source>Priority rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Prioritetsregel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="882"/>
@@ -1299,7 +1299,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="937"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Farge</translation>
     </message>
 </context>
 <context>
@@ -1613,12 +1613,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="304"/>
         <source>Error: {0}</source>
-        <translation type="unfinished"></translation>
+        <translation>Feil: {0}</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="186"/>
         <source>Applying changes...</source>
-        <translation type="unfinished"></translation>
+        <translation>Tar i bruk endringer...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="223"/>
@@ -1638,27 +1638,27 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="297"/>
         <source>Enabling firewall...</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiverer brannmur...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="299"/>
         <source>Disabling firewall...</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiverer brannmur...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="66"/>
         <source>Dest Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Målport</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="67"/>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Kildeport</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="68"/>
         <source>Dest IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Mål-IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="69"/>
@@ -1784,7 +1784,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1044"/>
         <source>Firewall rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Brannmurregel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="665"/>
@@ -1997,7 +1997,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="490"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
-        <translation type="unfinished"></translation>
+        <translation>oppretter forbindelse til &lt;b&gt;%s&lt;/b&gt; på %s port %d</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="502"/>
@@ -2022,7 +2022,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="497"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt;, %s</source>
-        <translation type="unfinished"></translation>
+        <translation>oppretter forbindelse til &lt;b&gt;%s&lt;/b&gt;, %s</translation>
     </message>
 </context>
 <context>
@@ -2319,12 +2319,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="311"/>
         <source>Not running</source>
-        <translation type="unfinished">Parado</translation>
+        <translation>Kjører ikke</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="312"/>
         <source>Disabled</source>
-        <translation>Utkoblet</translation>
+        <translation>Deaktivert</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="313"/>
@@ -2344,7 +2344,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1044"/>
         <source>    Your are about to delete this rule.    </source>
-        <translation type="unfinished">    Estás a punto de borrar esta regla.    </translation>
+        <translation>    Du er i ferd med å slette denne regelen.    </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1532"/>
@@ -2414,7 +2414,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="18"/>
         <source>Hits</source>
-        <translation type="unfinished">Total</translation>
+        <translation>Treff</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
@@ -2424,7 +2424,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2401"/>
         <source>Save as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre som CSV</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="303"/>
@@ -2434,7 +2434,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="848"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Slett</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="948"/>
@@ -2449,12 +2449,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="841"/>
         <source>Disable</source>
-        <translation type="unfinished">Deaktiver</translation>
+        <translation>Deaktiver</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="843"/>
         <source>Enable</source>
-        <translation type="unfinished">Aktiver</translation>
+        <translation>Aktiver</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="846"/>
@@ -2464,7 +2464,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="847"/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Rediger</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1089"/>
@@ -2475,17 +2475,17 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
         <location filename="../../../opensnitch/dialogs/stats.py" line="1131"/>
         <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Feil:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1138"/>
         <source>Warning:</source>
-        <translation type="unfinished"></translation>
+        <translation>Advarsel:</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="827"/>
         <source>Allow</source>
-        <translation type="unfinished">Tillat</translation>
+        <translation>Tillat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="828"/>
@@ -2495,7 +2495,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="832"/>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Alltid</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="833"/>
@@ -2505,7 +2505,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1532"/>
         <source>    You are about to delete this rule.    </source>
-        <translation type="unfinished"></translation>
+        <translation>    Du er i ferd med å slette denne regelen.    </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="306"/>
@@ -2650,109 +2650,109 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
         <location filename="../../../opensnitch/dialogs/stats.py" line="285"/>
         <source>Name</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Nombre</translation>
+        <translation>Navn</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="286"/>
         <source>Address</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Adresse</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="287"/>
         <source>Status</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="288"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Hostname</translation>
+        <translation>Vertsnavn</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="419"/>
         <source>Version</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Versjon</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="416"/>
         <source>Rules</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Regler</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="292"/>
         <source>Time</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Hora</translation>
+        <translation>Tid</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="293"/>
         <source>Action</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Handling</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="294"/>
         <source>Duration</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Varighet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="296"/>
         <source>Node</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Nodo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="297"/>
         <source>Enabled</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Habilitado</translation>
+        <translation>Aktivert</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="434"/>
         <source>Hits</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Total</translation>
+        <translation>Treff</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="300"/>
         <source>Protocol</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Protocolo</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
         <source>Process</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Aplicación</translation>
+        <translation>Prosess</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="303"/>
         <source>Destination</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Destino</translation>
+        <translation>Mål</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="307"/>
         <source>Rule</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">Regla</translation>
+        <translation>Regel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="308"/>
         <source>UserID</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">UserID</translation>
+        <translation>BrukerID</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="309"/>
         <source>LastConnection</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished">ÚltimaConexión</translation>
+        <translation>SisteForbindelse</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
@@ -2764,19 +2764,19 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
         <location filename="../../../opensnitch/dialogs/stats.py" line="304"/>
         <source>DstIP</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>MålIP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
         <source>DstHost</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>MålVert</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="306"/>
         <source>DstPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>MålPort</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="175"/>
@@ -2796,22 +2796,22 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="17"/>
         <source>What</source>
-        <translation type="unfinished">Hva</translation>
+        <translation>Hva</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="818"/>
         <source>Apply to</source>
-        <translation type="unfinished"></translation>
+        <translation>Anvend på</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="829"/>
         <source>Reject</source>
-        <translation type="unfinished">Avvis</translation>
+        <translation>Avvis</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="19"/>
         <source>Network name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nettverknavn</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="378"/>
@@ -2847,7 +2847,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
         <location filename="../../../opensnitch/dialogs/stats.py" line="298"/>
         <source>Precedence</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Prosedyre</translation>
+        <translation>Prioritet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/service.py" line="734"/>
@@ -2869,37 +2869,37 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="402"/>
         <source>Export rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksporter regler</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="403"/>
         <source>Import rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Importer regler</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="404"/>
         <source>Export events to CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksporter hendelser til CSV</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="405"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Avslutt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="819"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksporter</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="851"/>
         <source>To clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Til utklippstavle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="852"/>
         <source>To disk</source>
-        <translation type="unfinished"></translation>
+        <translation>Til disk</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2343"/>
