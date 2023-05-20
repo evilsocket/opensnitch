@@ -355,10 +355,13 @@ See this comment/issue for more information: [#44](https://github.com/gustavo-in
 
 For all these options, 
 
+* Since v1.6.0 you can use: `opensnitchd -check-requirements` to know if your system is compatible.
+* The daemon needs NET_ADMIN capabilities. For example to run it in docker you need `--cap-add NET_ADMIN`, or you'll get some of the described errors.
 * `Error while creating queue #0: Error binding to queue: operation not permitted.` (#323)
    * Be sure that the daemon is not already running, check it out with: `pgrep -a opensnitchd`, output should be empty)
    * You should only have one `opensnitchd` binary at /usr/bin/opensnitchd . If you have others (for example in /usr/local/bin), investigate why it's there, and rename it to `opensnitchd.xx` for example (that will prevent from loading).
    * Having no opensnitchd process running (pgrep opensnitchd), launch it manually and see if it exits with error or not.
+   * If you're executing it in a container, be sure to give the daemon NET_ADMIN capabilities.
 
 * `Error while enabling probe descriptor for opensnitch_exec_probe: write /sys/kernel/debug/tracing/kprobe_events: no such file or directory` (the kernel does not have support for CONFIG_FTRACE, or it's not loaded)
 * `iptables: Protocol wrong type for socket` (modules nf_defrag_ipv4, nf_conntrack_ipv4 not loaded)
