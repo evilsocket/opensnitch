@@ -22,40 +22,18 @@ type (
 	callback     func()
 	callbackBool func() bool
 
-	stopChecker struct {
-		ch chan bool
-		sync.RWMutex
-	}
-
 	// Common holds common fields and functionality of both firewalls,
 	// iptables and nftables.
 	Common struct {
-		RulesChecker    *time.Ticker
-		stopCheckerChan *stopChecker
-		QueueNum        uint16
-		Running         bool
-		Intercepting    bool
-		FwEnabled       bool
+		RulesChecker *time.Ticker
+		stopChecker  chan bool
+		QueueNum     uint16
+		Running      bool
+		Intercepting bool
+		FwEnabled    bool
 		sync.RWMutex
 	}
 )
-
-func (s *stopChecker) exit() <-chan bool {
-	s.RLock()
-	defer s.RUnlock()
-	return s.ch
-}
-
-func (s *stopChecker) stop() {
-	s.Lock()
-	defer s.Unlock()
-
-	if s.ch != nil {
-		s.ch <- true
-		close(s.ch)
-		s.ch = nil
-	}
-}
 
 // SetQueueNum sets the queue number used by the firewall.
 // It's the queue where all intercepted connections will be sent.
@@ -99,29 +77,33 @@ func (c *Common) IsIntercepting() bool {
 func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callback) {
 	c.Lock()
 	defer c.Unlock()
-	if c.stopCheckerChan != nil {
-		c.stopCheckerChan.stop()
-		c.stopCheckerChan = nil
-	}
 
-	c.stopCheckerChan = &stopChecker{ch: make(chan bool, 1)}
 	if c.RulesChecker != nil {
-		c.stopCheckerChan.stop()
 		c.RulesChecker.Stop()
+		select {
+		case c.stopChecker <- true:
+		case <-time.After(5 * time.Millisecond):
+			log.Error("NewRulesChecker: timed out stopping monitor rules")
+		}
 	}
-	c.RulesChecker = time.NewTicker(time.Second * 15)
+	c.stopChecker = make(chan bool)
+	c.RulesChecker = time.NewTicker(time.Second * 2)
 
-	go c.startCheckingRules(areRulesLoaded, reloadRules)
+	go startCheckingRules(c.stopChecker, c.RulesChecker, areRulesLoaded, reloadRules)
 }
 
 // StartCheckingRules monitors if our rules are loaded.
 // If the rules to intercept traffic are not loaded, we'll try to insert them again.
-func (c *Common) startCheckingRules(areRulesLoaded callbackBool, reloadRules callback) {
+func startCheckingRules(exitChan <-chan bool, rulesChecker *time.Ticker, areRulesLoaded callbackBool, reloadRules callback) {
 	for {
 		select {
-		case <-c.stopCheckerChan.exit():
+		case <-exitChan:
 			goto Exit
-		case <-c.RulesChecker.C:
+		case _, active := <-rulesChecker.C:
+			if !active {
+				goto Exit
+			}
+
 			if areRulesLoaded() == false {
 				reloadRules()
 			}
@@ -134,14 +116,20 @@ Exit:
 
 // StopCheckingRules stops checking if firewall rules are loaded.
 func (c *Common) StopCheckingRules() {
-	c.RLock()
-	defer c.RUnlock()
+	c.Lock()
+	defer c.Unlock()
 
 	if c.RulesChecker != nil {
+		select {
+		case c.stopChecker <- true:
+			close(c.stopChecker)
+		case <-time.After(5 * time.Millisecond):
+			// We should not arrive here
+			log.Error("StopCheckingRules: timed out stopping monitor rules")
+		}
+
 		c.RulesChecker.Stop()
-	}
-	if c.stopCheckerChan != nil {
-		c.stopCheckerChan.stop()
+		c.RulesChecker = nil
 	}
 }
 
