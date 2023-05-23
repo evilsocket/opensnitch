@@ -925,37 +925,37 @@ Väliaikaiset säännöt ovat edelleen voimassa, ja voit käyttää niitä, kun 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="20"/>
         <source>Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Sääntö</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="56"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Toiminto</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="89"/>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesto</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="97"/>
         <source>once</source>
-        <translation type="unfinished"></translation>
+        <translation>kerran</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="127"/>
         <source>until reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>uudelleenkäynnistykseen asti</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="132"/>
         <source>always</source>
-        <translation type="unfinished"></translation>
+        <translation>aina</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="148"/>
         <source>Deny will just discard the connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Esto vain sivuuttaa yhteyden</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="151"/>
@@ -965,7 +965,7 @@ Väliaikaiset säännöt ovat edelleen voimassa, ja voit käyttää niitä, kun 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="165"/>
         <source>Reject will drop the connection, and kill the socket that initiated it</source>
-        <translation type="unfinished"></translation>
+        <translation>Hylkäys pudottaa yhteyden ja tappaa sen aloittaneen liitännän</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="168"/>
@@ -975,7 +975,7 @@ Väliaikaiset säännöt ovat edelleen voimassa, ja voit käyttää niitä, kun 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="185"/>
         <source>Allow will allow the connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Salli sallii yhteyden</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="191"/>
@@ -985,7 +985,7 @@ Väliaikaiset säännöt ovat edelleen voimassa, ja voit käyttää niitä, kun 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="207"/>
         <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <translation>Ota käyttöön</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="214"/>
@@ -995,12 +995,17 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
 
 [x] Priority - 000-priority-rule
 [  ] Priority - 001-less-priority-rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Jos valintaruutu on valittuna, tämä sääntö on etusijalla muihin sääntöihin nähden. Muita sääntöjä ei tarkisteta tämän säännön jälkeen.
+
+Sinun on nimettävä sääntö siten, että se tarkistetaan ensimmäisenä, koska säännöt tarkistetaan aakkosjärjestyksessä. Esimerkiksi:
+
+[x] Prioriteetti - 000-prioriteettisääntö
+[ ] Prioriteetti - 001-alhaisempi prioriteettisääntö</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="222"/>
         <source>Priority rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Prioriteettisääntö</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="238"/>
@@ -1009,102 +1014,106 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
 000-allow-localhost
 001-deny-broadcast
 ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Säännöt tarkistetaan aakkosjärjestyksessä, joten voit nimetä ne sen mukaan ja asettaa ne tärkeysjärjestykseen.
+
+000-allow-localhost
+001-deny-broadcast
+...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="245"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nimi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="300"/>
         <source>Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Solmu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="323"/>
         <source>Apply rule to all nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Sovella sääntöä kaikkiin solmuihin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="346"/>
         <source>Applications</source>
-        <translation type="unfinished"></translation>
+        <translation>Sovellukset</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="355"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The value of this field is always the absolute path to the executable: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;- Simple: /path/to/binary&lt;/p&gt;&lt;p&gt;- Multiple paths: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Multiple binaries: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Deny/Allow executions from /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For more examples visit the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki page&lt;/a&gt; or ask on the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Discussion forums&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tämän kentän arvo on aina suoritettavan tiedoston absoluuttinen polku: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt; Esimerkkejä:&lt;/p&gt;&lt;p&gt;- Simple: /&lt;/p&gt;&lt;p&gt;- Useita polkuja: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Useita binäärejä: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Kielletään/sallitaan suoritukset /tmp:stä:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt; Lisää esimerkkejä löydät &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki-sivulta&lt;/a&gt; tai kysy &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;keskustelufoorumeilla&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="365"/>
         <source>Is regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Onko säännöllinen lauseke</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="372"/>
         <source>From this user ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Tältä käyttäjä-ID:ltä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="379"/>
         <source>From this command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Tästä komentorivistä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="389"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will contain and match the command line that was executed by the user.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the command, only the command will appear:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the absolute or relative path to the command, that is what will appear:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tämä kenttä sisältää käyttäjän suorittaman komentorivin ja vastaa sitä.&lt;br/&gt;&lt;/p&gt;&lt;p&gt; Jos käyttäjä kirjoitti komennon, vain komento näkyy:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt; Jos käyttäjä kirjoitti komennon absoluuttisen tai suhteellisen polun, se näkyy:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../../usr/bin/telnet 1.2.3.4.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="399"/>
         <source>From this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>Tästä PID:istä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="466"/>
         <source>From this executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Tästä ohjelmatiedostosta</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="473"/>
         <source>is regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>on säännöllinen lauseke</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="485"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkko</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="520"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vain TCP, UDP tai UDPLITE ovat sallittuja&lt;/p&gt;&lt;p&gt;Voit käyttää regexp:iä, esim: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="526"/>
         <source>TCP</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="560"/>
         <source>ICMP</source>
-        <translation type="unfinished"></translation>
+        <translation>ICMP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="565"/>
         <source>ICMP6</source>
-        <translation type="unfinished"></translation>
+        <translation>ICMP6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="570"/>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="575"/>
         <source>SCTP6</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP6</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="586"/>
@@ -1117,22 +1126,30 @@ Use regular expressions instead:
 or a single domain:
 www.gnu.org - it&apos;ll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
 gnu.org         - it&apos;ll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilkut tai välilyönnit eivät ole sallittuja useiden toimialueiden määrittämisessä. 
+
+Käytä sen sijaan säännöllisiä lausekkeita: 
+.*(opensnitch|duckduckgo).com&quot;.
+.*\.google.com
+
+tai yksittäinen verkkotunnus:
+www.gnu.org - se vastaa vain www.gnu.org, eikä ftp.gnu.org, eikä www2.gnu.org, ...
+gnu.org - vain gnu.org, www.gnu.org, ftp.gnu.org, ...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="597"/>
         <source>www.domain.org, .*\.domain.org</source>
-        <translation type="unfinished"></translation>
+        <translation>www.domain.org, .*\.domain.org</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="604"/>
         <source>To this IP / Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Tähän IP-osoitteeseen / verkkoon</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="627"/>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokolla</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="754"/>
@@ -1149,188 +1166,201 @@ You can also specify a subnet:
 - 192.168.1.0/24
 
 Note: Commas or spaces are not allowed to separate IPs or networks.</source>
-        <translation type="unfinished"></translation>
+        <translation>Voit määrittää yhden IP-osoitteen:
+- 192.168.1.1
+
+tai säännöllisen lausekkeen:
+- 192\.168\.1\.[0-9]+
+
+useita IP-osoitteita:
+- ^(192\.168\.1\.1|172\.16\.0\.1)$
+
+Voit myös määrittää aliverkon:
+- 192.168.1.0/24
+
+Huomautus: Pilkut tai välilyönnit eivät saa erottaa IP-osoitteita tai verkkoja toisistaan.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="659"/>
         <source>LAN</source>
-        <translation type="unfinished"></translation>
+        <translation>LAN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="664"/>
         <source>MULTICAST</source>
-        <translation type="unfinished"></translation>
+        <translation>MULTICAST</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="669"/>
         <source>127.0.0.0/8</source>
-        <translation type="unfinished"></translation>
+        <translation>127.0.0.0/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="674"/>
         <source>192.168.0.0/24</source>
-        <translation type="unfinished"></translation>
+        <translation>192.168.0.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="679"/>
         <source>192.168.1.0/24</source>
-        <translation type="unfinished"></translation>
+        <translation>192.168.1.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="684"/>
         <source>192.168.2.0/24</source>
-        <translation type="unfinished"></translation>
+        <translation>192.168.2.0/24</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="689"/>
         <source>192.168.0.0/16</source>
-        <translation type="unfinished"></translation>
+        <translation>192.168.0.0/16</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="694"/>
         <source>169.254.0.0/16</source>
-        <translation type="unfinished"></translation>
+        <translation>169.254.0.0/16</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="699"/>
         <source>172.16.0.0/12</source>
-        <translation type="unfinished"></translation>
+        <translation>172.16.0.0/12</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="704"/>
         <source>10.0.0.0/8</source>
-        <translation type="unfinished"></translation>
+        <translation>10.0.0.0/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="709"/>
         <source>::1/128</source>
-        <translation type="unfinished"></translation>
+        <translation>::1/128</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="714"/>
         <source>fc00::/7</source>
-        <translation type="unfinished"></translation>
+        <translation>fc00::/7</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="719"/>
         <source>ff00::/8</source>
-        <translation type="unfinished"></translation>
+        <translation>ff00::/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="724"/>
         <source>fe80::/10</source>
-        <translation type="unfinished"></translation>
+        <translation>fe80::/10</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="729"/>
         <source>fd00::/8</source>
-        <translation type="unfinished"></translation>
+        <translation>fd00::/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="737"/>
         <source>From this IP / Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Tästä IP-osoitteesta / verkosta</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="744"/>
         <source>To this host</source>
-        <translation type="unfinished"></translation>
+        <translation>Tälle isännälle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="857"/>
         <source>Network interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkkoliitäntä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="866"/>
         <source>From this port</source>
-        <translation type="unfinished"></translation>
+        <translation>Tästä portista</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="912"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Voit määrittää useita portteja käyttämällä säännöllisiä lausekkeita:&lt;/p&gt;&lt;p&gt;- 53, 80 tai 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt; &lt;p&gt; - 53, 443 tai 5551, 5552, 5553, jne:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="896"/>
         <source>To this port</source>
-        <translation type="unfinished"></translation>
+        <translation>Tähän porttiin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="926"/>
         <source>List of domains/IPs</source>
-        <translation type="unfinished"></translation>
+        <translation>Luettelo verkkotunnuksista/IP-osoitteista</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="932"/>
         <source>To this list of network ranges</source>
-        <translation type="unfinished"></translation>
+        <translation>Tähän verkkoalueiden luetteloon</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="939"/>
         <source>To this list of IPs</source>
-        <translation type="unfinished"></translation>
+        <translation>Tähän IP-osoitteiden luetteloon</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="965"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of IPs to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;/p&gt;&lt;p&gt;One IP per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Valitse hakemisto, jossa on estettävien tai sallittujen IP-osoitteiden luettelon sisältäviä tiedostoja:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;jne.&lt;/p&gt;&lt;p&gt;Yksi IP-osoite per rivi. Tyhjät tai #-alkuiset rivit jätetään huomiotta.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="974"/>
         <source>To this list of domains</source>
-        <translation type="unfinished"></translation>
+        <translation>Tähän verkkotunnusten luetteloon</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1000"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of network ranges to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;One Network Range per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Valitse hakemisto, jossa on estettävien tai sallittujen verkkoalueiden luettelon sisältäviä tiedostoja:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;jne.&lt;br/&gt;&lt;/p&gt;&lt;p&gt; Yksi verkkoalue per rivi. Tyhjät tai #-alkuiset rivit jätetään huomiotta.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1028"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Valitse hakemisto, jossa on luetteloita estettävistä tai sallittavista verkkotunnuksista.&lt;/p&gt;&lt;p&gt;Laita kyseiseen hakemistoon minkä tahansa tiedostopäätteen omaavia tiedostoja, jotka sisältävät luetteloita verkkotunnuksista.&lt;/p&gt;&lt;p&gt;&lt;br/&gt; Luettelon jokaisen merkinnän muoto on seuraava (hosts-muodossa):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;tai &lt;/p&gt;&lt;p&gt;0.0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Tyhjiä rivejä tai rivejä, jotka alkavat merkinnällä #, ei huomioida.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1043"/>
         <source>To this list of domains 
 (regular expressions)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tähän verkkotunnusten luetteloon 
+(säännölliset lausekkeet)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1070"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing regular expressions of domains to block or allow:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;You can also use a domain as is: &amp;quot;example.com&amp;quot; , and it&apos;ll match whatever.example.com, whatever.example.com.localdomain, etc.&lt;/p&gt;&lt;p&gt;One domain per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Valitse hakemisto, jossa on tiedostoja, jotka sisältävät säännöllisiä lausekkeita estettävistä tai sallittavista verkkotunnuksista:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;Voit myös käyttää verkkotunnusta sellaisenaan: &amp;quot;example.com&amp;quot;, jolloin se vastaa whatever.example.com, whatever.example.com.localdomain jne.&lt;/p&gt;&lt;p&gt;Yksi verkkotunnus riviä kohti. Tyhjät tai #-alkuiset rivit jätetään huomiotta.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1080"/>
         <source>More</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisää</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1086"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the field of the rules are case-insensitive, i.e., if a process tries to access gOOgle.CoM and you have a rule to Deny .*google.com, the connection will be blocked.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you check this box, you have to specify the exact string (domain, executable, command line) that you want to filter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Oletusarvoisesti sääntöjen kentässä ei oteta huomioon isoja ja pieniä kirjaimia, eli jos prosessi yrittää käyttää gOOgle.CoM:ää ja sinulla on sääntö Deny .*google.com, yhteys estetään.&lt;br/&gt;&lt;/p&gt;&lt;p&gt; Jos ruksaat tämän ruudun, sinun on määritettävä tarkka merkkijono (verkkotunnus, suoritettava ohjelma, komentorivi), jonka haluat suodattaa.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1089"/>
         <source>Case-sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>Kirjainkoolla on merkitystä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1096"/>
         <source>Don&apos;t log connections that match this rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Älä logita yhteyksiä, jotka vastaavat tätä sääntöä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1099"/>
         <source>Don&apos;t log connections</source>
-        <translation type="unfinished"></translation>
+        <translation>Älä logita yhteyksiä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1145"/>
         <source>Description...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuvaus...</translation>
     </message>
 </context>
 <context>
@@ -1338,207 +1368,207 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="34"/>
         <source>OpenSnitch Network Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenSnitch -verkkotilastot</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="94"/>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Suodatin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1793"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="107"/>
         <source>Allow</source>
-        <translation type="unfinished"></translation>
+        <translation>Salli</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="116"/>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>Estä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="125"/>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Hylkää</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="143"/>
         <source>Ex.: firefox</source>
-        <translation type="unfinished"></translation>
+        <translation>Esim.: firefox</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="180"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="205"/>
         <source>50</source>
-        <translation type="unfinished"></translation>
+        <translation>50</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="210"/>
         <source>100</source>
-        <translation type="unfinished"></translation>
+        <translation>100</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="215"/>
         <source>200</source>
-        <translation type="unfinished"></translation>
+        <translation>200</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="220"/>
         <source>300</source>
-        <translation type="unfinished"></translation>
+        <translation>300</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="233"/>
         <source>Delete all intercepted events</source>
-        <translation type="unfinished"></translation>
+        <translation>Poista kaikki kaapatut tapahtumat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="333"/>
         <source>Create a new rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Luo uusi sääntö</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="376"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;hostname - 192.168.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;hostname - 192.168.1.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="413"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Tila</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="451"/>
         <source>Start or Stop interception</source>
-        <translation type="unfinished"></translation>
+        <translation>Aloita tai lopeta kaappaus</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="496"/>
         <source>Events</source>
-        <translation type="unfinished"></translation>
+        <translation>Tapahtumat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="826"/>
         <source>Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Solmut</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="637"/>
         <source>Delete this node</source>
-        <translation type="unfinished"></translation>
+        <translation>Poista tämä solmu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="653"/>
         <source>Show the preferences of this node</source>
-        <translation type="unfinished"></translation>
+        <translation>Näytä tämän solmun asetukset</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="669"/>
         <source>Start or stop interception of this node</source>
-        <translation type="unfinished"></translation>
+        <translation>Tämän solmun kuuntelun aloittaminen tai lopettaminen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1700"/>
         <source>Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Säännöt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="777"/>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="782"/>
         <source>Application rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Sovellussäännöt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="936"/>
         <source>Permanent</source>
-        <translation type="unfinished"></translation>
+        <translation>Pysyvä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="945"/>
         <source>Temporary</source>
-        <translation type="unfinished"></translation>
+        <translation>Väliaikainen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="954"/>
         <source>System rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Järjestelmän säännöt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="927"/>
         <source>All applications</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaikki sovellukset</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="995"/>
         <source>enable</source>
-        <translation type="unfinished"></translation>
+        <translation>ota käyttöön</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1022"/>
         <source>Edit rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Muokkaa sääntöä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1039"/>
         <source>Delete rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Poista sääntö</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1063"/>
         <source>Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Isännät</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1153"/>
         <source>Applications</source>
-        <translation type="unfinished"></translation>
+        <translation>Sovellukset</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1266"/>
         <source>Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Osoitteet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1356"/>
         <source>Ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Portit</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1440"/>
         <source>Users</source>
-        <translation type="unfinished"></translation>
+        <translation>Käyttäjät</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1544"/>
         <source>Connections</source>
-        <translation type="unfinished"></translation>
+        <translation>Yhteydet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1596"/>
         <source>Dropped</source>
-        <translation type="unfinished"></translation>
+        <translation>Pudotetut</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1648"/>
         <source>Uptime</source>
-        <translation type="unfinished"></translation>
+        <translation>Käynnissäoloaika</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1767"/>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versio</translation>
     </message>
 </context>
 <context>
@@ -1574,107 +1604,107 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="91"/>
         <source>Configuration applied.</source>
-        <translation type="unfinished"></translation>
+        <translation>Asetukset toteutettu.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="404"/>
         <source>Error: {0}</source>
-        <translation type="unfinished"></translation>
+        <translation>Virhe: {0}</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="193"/>
         <source>Applying changes...</source>
-        <translation type="unfinished"></translation>
+        <translation>Toteutetaan muutoksia...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="230"/>
         <source>Error getting INPUT chain policy</source>
-        <translation type="unfinished"></translation>
+        <translation>Virhe INPUT-ketjun käytännön saamisessa</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="237"/>
         <source>Error getting OUTPUT chain policy</source>
-        <translation type="unfinished"></translation>
+        <translation>Virhe OUTPUT-ketjun käytännön saamisessa</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="290"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Jotta voimme määrittää palomuurisääntöjä käyttöliittymästä, meidän on käytettävä &apos;nftables&apos;-ohjelmaa &apos;iptables&apos;-ohjelman sijasta</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="304"/>
         <source>Enabling firewall...</source>
-        <translation type="unfinished"></translation>
+        <translation>Otetaan käyttöön palomuuria...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="306"/>
         <source>Disabling firewall...</source>
-        <translation type="unfinished"></translation>
+        <translation>Otetaan palomuuria pois käytöstä...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="71"/>
         <source>Dest Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdeportti</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="72"/>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Lähdeportti</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="73"/>
         <source>Dest IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohde-IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="74"/>
         <source>Source IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Lähde-IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="75"/>
         <source>Input interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuloliitäntä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="76"/>
         <source>Output interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Lähtöliitäntä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="77"/>
         <source>Set conntrack mark</source>
-        <translation type="unfinished"></translation>
+        <translation>Aseta conntrack-merkki</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="78"/>
         <source>Match conntrack mark</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdista conntrack-merkki</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="79"/>
         <source>Match conntrack state(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdista conntrack-tila(t)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="80"/>
         <source>Set mark on packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Aseta merkki pakettiin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="81"/>
         <source>Match packet information</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdista pakettitiedot</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="87"/>
         <source>Bandwidth quotas</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaistanleveyskiintiöt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="89"/>
         <source>Rate limit connections</source>
-        <translation type="unfinished"></translation>
+        <translation>Nopeusrajoita yhteyksiä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="108"/>
@@ -1685,7 +1715,13 @@ Supported formats:
  - Ranges: 80-1024
  - Multiple ports: 80,443,8080
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Tuetut formaatit:
+
+ - 23
+ - Alueet: 80-1024
+ - Useita portteja: 80,443,8080
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="134"/>
@@ -1696,27 +1732,33 @@ Supported formats:
  - IP ranges: 1.2.3.100-1.2.3.200
  - Network ranges: 1.2.3.4/24
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Tuetut formaatit:
+
+ - 1.2.3.4
+ - IP-alueet: 1.2.3.100-1.2.3.200
+ - Verkkoalueet: 1.2.3.4/24
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="147"/>
         <source>Match input interface. Regular expressions not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdista tuloliitäntä. Säännölliset lausekkeet eivät ole sallittuja.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="154"/>
         <source>Match output interface. Regular expressions not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sovita lähtöliitäntä. Säännölliset lausekkeet eivät ole sallittuja.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="161"/>
         <source>Set a conntrack mark on the connection, in decimal format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Asettaa yhteyden conntrack-merkki desimaalimuodossa.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="171"/>
         <source>Match a conntrack mark of the connection, in decimal format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdista yhteyden conntrack-merkki, desimaalimuodossa.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="178"/>
@@ -1726,7 +1768,12 @@ Supported formats:
  - Simple: new
  - Multiple states separated by commas: related,new
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdista conntrack-tilat.
+
+Tuetut formaatit:
+ - Yksinkertainen: new
+ - Useita tiloja pilkulla erotettuna: related,new
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="193"/>
@@ -1743,12 +1790,24 @@ For l4proto it can be a lower case string, for example:
 If the value is decimal for protocol or lproto, it&apos;ll use it as the code of
 that protocol.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Match-paketin metatiedot.
+
+Arvon on oltava desimaalimuodossa, paitsi &quot;l4proto&quot;-vaihtoehdon tapauksessa.
+l4proto voi olla esimerkiksi pienellä alkukirjaimella kirjoitettu merkkijono:
+ tcp
+ udp
+ icmp,
+ jne
+
+Jos protokollan tai lproton arvo on desimaalinen, se käyttää sitä koodina, joka on
+protokollan koodina.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="213"/>
         <source>Set a mark on the packet matching the specified conditions. The value is in decimal format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Asettaa paketille merkki, joka vastaa määritettyjä ehtoja. Arvo on desimaalimuodossa.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="221"/>
@@ -1759,7 +1818,13 @@ Supported formats:
  - Simple: echo-request
  - Multiple separated by commas: echo-request,echo-reply
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Kohdista ICMP-koodit.
+
+Tuetut muodot:
+ - Yksinkertainen: echo-request
+ - Useita pilkulla erotettuna: echo-request,echo-reply.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="234"/>
@@ -1770,12 +1835,18 @@ Supported formats:
  - Simple: echo-request
  - Multiple separated by commas: echo-request,echo-reply
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Kohista ICMPv6-koodit.
+
+Tuetut muodot:
+ - Yksinkertainen: echo-request
+ - Useita pilkulla erotettuna: echo-request,echo-reply.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="247"/>
         <source>Print a message when this rule matches a packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tulostaa viestin, kun tämä sääntö vastaa pakettia.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="254"/>
@@ -1789,7 +1860,16 @@ For example when:
 The value must be in the format: VALUE/UNITS, for example:
  - 10mbytes, 1/gbytes, etc
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Sovelletaan kiintiöitä yhteyksiin.
+
+Esimerkiksi kun:
+ - Sovelletaan määriteltyä toimintoa (DROP), esimerkiksi: &quot;kiintiö yli 10 megatavua&quot;.
+ - &quot;kiintiö enintään 10 megatavua&quot; -&gt; sovelletaan määriteltyä toimintoa (ACCEPT).
+
+Arvon on oltava muotoa: VALUE/UNITS, esimerkiksi:
+ - 10mbytes, 1/gbytes, jne.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="286"/>
@@ -1805,158 +1885,170 @@ For example when:
 The value must be in the format: VALUE/UNITS/TIME, for example:
  - 10/mbytes/minute, 1/gbytes/hour, etc
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Rajoita yhteyksiä.
+
+Esimerkiksi kun:
+ - Sovelletaan määriteltyä toimintoa (DROP, ACCEPT jne.).
+    (Kun yhteyksiä on yli 10 Mt minuutissa, sovelletaan toimintoa).
+
+ - &quot;rajoitus enintään 10 megatavua/tunti&quot; -&gt; sovelletaan määriteltyä toimintoa (ACCEPT).
+
+Arvon on oltava muotoa: VALUE/UNITS/TIME, esimerkiksi:
+ - 10/mbytes/minute, 1/gbytes/hour, jne.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="373"/>
         <source>Your protobuf version is incompatible, you need to install protobuf 3.8.0 or superior
 (pip3 install --ignore-installed protobuf==3.8.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Protobuf-versiosi ei ole yhteensopiva, sinun on asennettava protobuf 3.8.0 tai uudempi versio.
+(pip3 install --ignore-installed protobuf==3.8.0)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="397"/>
         <source>Rule deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Sääntö poistettu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="401"/>
         <source>Rule added</source>
-        <translation type="unfinished"></translation>
+        <translation>Sääntö lisätty</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="420"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
-        <translation type="unfinished"></translation>
+        <translation>Voit käyttää &apos;,&apos; tai &apos;-&apos; -merkkejä määrittääksesi useita portteja/IP-osoitteita tai alueita/arvoja:&lt;br&gt;&lt;br&gt;ports: 22 tai 22,443 tai 50000-60000&lt;br&gt;IP:t: 192.168.1.1 tai 192.168.1.30-192.168.1.130&lt;br&gt;arvot: echo-reply,echo-request&lt;br&gt;arvot: new,established,related</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="440"/>
         <source>Deleting rule, wait</source>
-        <translation type="unfinished"></translation>
+        <translation>Poistetaan sääntöä, odota</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="443"/>
         <source>Error updating rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Virhe säännön päivittämisessä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="483"/>
         <source>Adding rule, wait</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisäätään sääntöä, odota</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="492"/>
         <source>&lt;select a statement&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;valitse lausuma&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="607"/>
         <source>num</source>
-        <translation type="unfinished"></translation>
+        <translation>num</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="621"/>
         <source>to</source>
-        <translation type="unfinished"></translation>
+        <translation>kohteeseen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="787"/>
         <source>Equal</source>
-        <translation type="unfinished"></translation>
+        <translation>Yhtä suuri</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="788"/>
         <source>Not equal</source>
-        <translation type="unfinished"></translation>
+        <translation>Ei yhtäläinen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="789"/>
         <source>Greater or equal than</source>
-        <translation type="unfinished"></translation>
+        <translation>Suurempi tai yhtä suuri kuin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="790"/>
         <source>Greater than</source>
-        <translation type="unfinished"></translation>
+        <translation>Suurempi kuin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="791"/>
         <source>Less or equal than</source>
-        <translation type="unfinished"></translation>
+        <translation>Pienempi tai yhtä suuri kuin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="792"/>
         <source>Less than</source>
-        <translation type="unfinished"></translation>
+        <translation>Vähemmän kuin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1350"/>
         <source>Firewall rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Palomuurisääntö</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="885"/>
         <source>Simple</source>
-        <translation type="unfinished"></translation>
+        <translation>Yksinkertainen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="890"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Edistynyt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1046"/>
         <source>This rule is not supported yet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tätä sääntöä ei vielä tueta.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1111"/>
         <source>Exclude service</source>
-        <translation type="unfinished"></translation>
+        <translation>Sulje palvelu pois</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1123"/>
         <source>Allow inbound connections to the selected port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salli saapuvat yhteydet valittuun porttiin.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1125"/>
         <source>Allow outbound connections to the selected port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salli lähtevät yhteydet valittuun porttiin.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1201"/>
         <source>select a statement.</source>
-        <translation type="unfinished"></translation>
+        <translation>valitse lausuma.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1217"/>
         <source>value cannot be 0 or empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>arvo ei voi olla 0 tai tyhjä.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1229"/>
         <source>the value format is 1024/kbytes (or bytes, mbytes, gbytes)</source>
-        <translation type="unfinished"></translation>
+        <translation>arvomuoto on 1024/kbytes (tai bytes, mbytes, gbytes)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1240"/>
         <source>the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)</source>
-        <translation type="unfinished"></translation>
+        <translation>arvomuoto on 1024 kbytes/sekunti (tai bytes, mbytes, gbytes)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1243"/>
         <source>rate-limit not valid, use: bytes, kbytes, mbytes or gbytes.</source>
-        <translation type="unfinished"></translation>
+        <translation>rajoitus ei kelpaa, käytä: bytes, kbytes, mbytes tai gbytes.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1245"/>
         <source>time-limit not valid, use: second, minute, hour or day</source>
-        <translation type="unfinished"></translation>
+        <translation>aikaraja ei ole voimassa, käytä: second, minute, hour tai day</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1293"/>
         <source>port not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>portti ei kelpaa.</translation>
     </message>
 </context>
 <context>
@@ -2381,402 +2473,402 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/service.py" line="211"/>
         <source>WARNING</source>
-        <translation type="unfinished"></translation>
+        <translation>VAROITUS</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/service.py" line="776"/>
         <source>New node connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Uusi solmu kytketty</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="17"/>
         <source>What</source>
-        <translation type="unfinished"></translation>
+        <translation>Mikä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="18"/>
         <source>Hits</source>
-        <translation type="unfinished"></translation>
+        <translation>Osumia</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="19"/>
         <source>Network name</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkon nimi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="294"/>
         <source>Time</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Aika</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="298"/>
         <source>Node</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Solmu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="295"/>
         <source>Action</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Toiminto</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
         <source>Destination</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kohde</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="302"/>
         <source>Protocol</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Protokolla</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="303"/>
         <source>Process</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Prosessi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="309"/>
         <source>Rule</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sääntö</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="287"/>
         <source>Name</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nimi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="288"/>
         <source>Address</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Osoite</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="289"/>
         <source>Status</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Tila</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="290"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Isäntänimi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="291"/>
         <source>Uptime</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Käynnissäoloaika</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="423"/>
         <source>Version</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Versio</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="420"/>
         <source>Rules</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Säännöt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="296"/>
         <source>Duration</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kesto</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="297"/>
         <source>Description</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kuvaus</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="299"/>
         <source>Enabled</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Käytössä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="300"/>
         <source>Precedence</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ensisijaisuus</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="438"/>
         <source>Hits</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Osumia</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="304"/>
         <source>Cmdline</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Komentorivi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="306"/>
         <source>DstIP</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kohde-IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="307"/>
         <source>DstHost</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kohdeisäntä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="308"/>
         <source>DstPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kohdeportti</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="310"/>
         <source>UserID</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Käyttäjä-ID</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="311"/>
         <source>LastConnection</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Viimeinen yhteys</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="313"/>
         <source>Not running</source>
-        <translation type="unfinished"></translation>
+        <translation>Ei käynnissä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="314"/>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Poissa käytöstä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="315"/>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Käynnissä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="406"/>
         <source>Export rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Vientisäännöt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="407"/>
         <source>Import rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuontisäännöt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="408"/>
         <source>Export events to CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Vie tapahtumat CSV-tiedostoon</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="409"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Lopeta</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="421"/>
         <source>Connections</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Yhteydet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="422"/>
         <source>Dropped</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Pudotetut</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="437"/>
         <source>What</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mikä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="636"/>
         <source>OpenSnitch Network Statistics {0}</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenSnitch-verkkotilastot {0}</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="638"/>
         <source>OpenSnitch Network Statistics for {0}</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenSnitch-verkkotilastot {0}:lle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="833"/>
         <source>Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Yksityiskohdat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="834"/>
         <source>Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Säännöt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="835"/>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>Uusi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="875"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Toiminto</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="954"/>
         <source>Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>Poista käytöstä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="956"/>
         <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <translation>Ota käyttöön</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="961"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Poista</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="960"/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Muokkaa</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="931"/>
         <source>Apply to</source>
-        <translation type="unfinished"></translation>
+        <translation>Hae kohteeseen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="932"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Vie</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="940"/>
         <source>Allow</source>
-        <translation type="unfinished"></translation>
+        <translation>Salli</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="941"/>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>Estä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="942"/>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Hylkää</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="945"/>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Aina</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="946"/>
         <source>Until reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>Uudelleenkäynnistykseen asti</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="959"/>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaksoiskappaleet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="964"/>
         <source>To clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Leikepöydälle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="965"/>
         <source>To disk</source>
-        <translation type="unfinished"></translation>
+        <translation>Levylle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1711"/>
         <source>    Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>    Oletko varma?</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2523"/>
         <source>Select a directory to export rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Valitse hakemisto, johon säännöt viedään</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1189"/>
         <source>    Your are about to delete this rule.    </source>
-        <translation type="unfinished"></translation>
+        <translation>    Olet poistamassa tätä sääntöä.    </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1191"/>
         <source>    Your are about to delete this entry.    </source>
-        <translation type="unfinished"></translation>
+        <translation>    Olet poistamassa tätä merkintää.    </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1248"/>
         <source>Rule not found by that name and node</source>
-        <translation type="unfinished"></translation>
+        <translation>Sääntöä ei löydy kyseisellä nimellä ja solmulla</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1301"/>
         <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Virhe:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1308"/>
         <source>Warning:</source>
-        <translation type="unfinished"></translation>
+        <translation>Varoitus:</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1678"/>
         <source>    You are about to delete this node.    </source>
-        <translation type="unfinished"></translation>
+        <translation>    Olet poistamassa tätä solmua.    </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1687"/>
         <source>&lt;b&gt;Error deleting node&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Virhe poistaessa solmua&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1711"/>
         <source>    You are about to delete this rule.    </source>
-        <translation type="unfinished"></translation>
+        <translation>    Olet poistamassa tätä sääntöä.    </translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2478"/>
         <source>Error exporting rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Virhe vietäessä sääntöjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2552"/>
         <source>Select a directory with rules to import (JSON files)</source>
-        <translation type="unfinished"></translation>
+        <translation>Valitse hakemisto, jossa on tuotavia sääntöjä (JSON-tiedostot)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2566"/>
         <source>Rules imported fine</source>
-        <translation type="unfinished"></translation>
+        <translation>Säännöt tuotu hyvin</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2581"/>
         <source>Save as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Tallenna CSV:nä</translation>
     </message>
 </context>
 </TS>
