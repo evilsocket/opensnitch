@@ -960,7 +960,7 @@ Väliaikaiset säännöt ovat edelleen voimassa, ja voit käyttää niitä, kun 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="151"/>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>Estä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="165"/>
@@ -970,7 +970,7 @@ Väliaikaiset säännöt ovat edelleen voimassa, ja voit käyttää niitä, kun 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="168"/>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Hylkää</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="185"/>
@@ -980,7 +980,7 @@ Väliaikaiset säännöt ovat edelleen voimassa, ja voit käyttää niitä, kun 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="191"/>
         <source>Allow</source>
-        <translation type="unfinished"></translation>
+        <translation>Salli</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="207"/>
@@ -2233,57 +2233,57 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="271"/>
         <source>Rule applied.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sovellettu sääntö.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="273"/>
         <source>Error applying rule: {0}</source>
-        <translation type="unfinished"></translation>
+        <translation>Virhe säännön soveltamisessa: {0}</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="539"/>
         <source>&lt;b&gt;Error loading rule&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Virhe säännön lataamisessa&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="641"/>
         <source>protocol can not be empty, or uncheck it</source>
-        <translation type="unfinished"></translation>
+        <translation>protokolla ei voi olla tyhjä, tai poista valintaruutu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="655"/>
         <source>Protocol regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokollan regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="659"/>
         <source>process path can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>prosessipolku ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="673"/>
         <source>Process path regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Prosessin polun regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="677"/>
         <source>command line can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>komentorivi ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="691"/>
         <source>Command line regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Komentorivin regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="695"/>
         <source>Network interface can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkkoliitäntä ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="709"/>
         <source>Network interface regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkkoliitännän regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="713"/>
