@@ -2288,92 +2288,92 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="713"/>
         <source>Source port can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Lähdeportti ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="727"/>
         <source>Source port regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Lähdeportin regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="731"/>
         <source>Dest port can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdeportti ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="745"/>
         <source>Dst port regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdeportin regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="749"/>
         <source>Dest host can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdeisäntä ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="763"/>
         <source>Dst host regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohdeisännän regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="767"/>
         <source>Source IP/Network can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Lähde-IP/-verkko ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="793"/>
         <source>Source IP regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Lähde-IP:n regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="805"/>
         <source>Dest IP/Network can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohde-IP/-verkko ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="831"/>
         <source>Dst IP regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohde-IP:n regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="843"/>
         <source>User ID can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Käyttäjä-ID ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="857"/>
         <source>User ID regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Käyttäjä-ID:n regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="861"/>
         <source>PID field can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>PID-kenttä ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="875"/>
         <source>PID field regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>PID-kentän regexp-virhe</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="931"/>
         <source>Lists field cannot be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Listat-kenttä ei voi olla tyhjä</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="933"/>
         <source>Lists field must be a directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Listat-kentän on oltava hakemisto</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="963"/>
         <source>Select at least one field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Valitse vähintään yksi kenttä.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="976"/>
         <source>&lt;b&gt;Rule not supported&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Sääntö ei tuettu&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
