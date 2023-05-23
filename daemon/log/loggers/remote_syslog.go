@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -37,6 +38,8 @@ type RemoteSyslog struct {
 	Timeout  time.Duration
 	errors   uint32
 	status   uint32
+
+	mu *sync.RWMutex
 }
 
 // NewRemoteSyslog returns a new object that manipulates and prints outbound connections
@@ -45,7 +48,9 @@ func NewRemoteSyslog(cfg *LoggerConfig) (*RemoteSyslog, error) {
 	var err error
 	log.Info("NewSyslog logger: %v", cfg)
 
-	sys := &RemoteSyslog{}
+	sys := &RemoteSyslog{
+		mu: &sync.RWMutex{},
+	}
 	sys.Name = LOGGER_REMOTE_SYSLOG
 	sys.cfg = cfg
 
@@ -89,6 +94,9 @@ func (s *RemoteSyslog) Open() (err error) {
 
 // Dial opens a new connection with a syslog server.
 func (s *RemoteSyslog) Dial(proto, addr string, connTimeout time.Duration) (netConn net.Conn, err error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	switch proto {
 	case "udp", "tcp":
 		netConn, err = net.DialTimeout(proto, addr, connTimeout)
@@ -104,6 +112,9 @@ func (s *RemoteSyslog) Dial(proto, addr string, connTimeout time.Duration) (netC
 
 // Close closes the writer object
 func (s *RemoteSyslog) Close() (err error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	if s.netConn != nil {
 		err = s.netConn.Close()
 		//s.netConn.conn = nil
@@ -138,6 +149,8 @@ func (s *RemoteSyslog) Transform(args ...interface{}) (out string) {
 
 func (s *RemoteSyslog) Write(msg string) {
 	deadline := time.Now().Add(s.Timeout)
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	// BUG: it's fairly common to have write timeouts via udp/tcp.
 	// Reopening the connection with the server helps to resume sending events to syslog,
