@@ -6,7 +6,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="34"/>
         <source>opensnitch-qt</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="300"/>
@@ -21,7 +21,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="647"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="437"/>
@@ -1823,7 +1823,7 @@ Kohdista ICMP-koodit.
 
 Tuetut muodot:
  - Yksinkertainen: echo-request
- - Useita pilkulla erotettuna: echo-request,echo-reply.
+ - Useita pilkulla erotettuna: echo-request,echo-reply
 </translation>
     </message>
     <message>
@@ -1840,7 +1840,7 @@ Kohista ICMPv6-koodit.
 
 Tuetut muodot:
  - Yksinkertainen: echo-request
- - Useita pilkulla erotettuna: echo-request,echo-reply.
+ - Useita pilkulla erotettuna: echo-request,echo-reply
 </translation>
     </message>
     <message>
@@ -1868,7 +1868,7 @@ Esimerkiksi kun:
  - &quot;kiintiö enintään 10 megatavua&quot; -&gt; sovelletaan määriteltyä toimintoa (ACCEPT).
 
 Arvon on oltava muotoa: VALUE/UNITS, esimerkiksi:
- - 10mbytes, 1/gbytes, jne.
+ - 10mbytes, 1/gbytes, jne
 </translation>
     </message>
     <message>
@@ -1895,7 +1895,7 @@ Esimerkiksi kun:
  - &quot;rajoitus enintään 10 megatavua/tunti&quot; -&gt; sovelletaan määriteltyä toimintoa (ACCEPT).
 
 Arvon on oltava muotoa: VALUE/UNITS/TIME, esimerkiksi:
- - 10/mbytes/minute, 1/gbytes/hour, jne.
+ - 10/mbytes/minute, 1/gbytes/hour, jne
 </translation>
     </message>
     <message>
