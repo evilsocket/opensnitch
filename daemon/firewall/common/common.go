@@ -86,8 +86,8 @@ func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callba
 			log.Error("NewRulesChecker: timed out stopping monitor rules")
 		}
 	}
-	c.stopChecker = make(chan bool)
-	c.RulesChecker = time.NewTicker(time.Second * 2)
+	c.stopChecker = make(chan bool, 1)
+	c.RulesChecker = time.NewTicker(time.Second * 10)
 
 	go startCheckingRules(c.stopChecker, c.RulesChecker, areRulesLoaded, reloadRules)
 }

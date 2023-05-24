@@ -28,6 +28,10 @@ func (n *Nft) AreRulesLoaded() bool {
 		}
 		for rdx, r := range rules {
 			if string(r.UserData) == interceptionRuleKey {
+				if c.Table.Name == exprs.NFT_CHAIN_FILTER && c.Name == exprs.NFT_HOOK_INPUT && rdx != 0 {
+					log.Warning("nftables DNS rule not in 1st position (%d)", rdx)
+					return false
+				}
 				nRules++
 				if c.Table.Name == exprs.NFT_CHAIN_MANGLE && rdx+1 != len(rules) {
 					log.Warning("nfables queue rule is not the latest of the list, reloading")
