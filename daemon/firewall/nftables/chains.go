@@ -34,7 +34,7 @@ func (n *Nft) AddChain(name, table, family string, priority *nftables.ChainPrior
 	if family == "" {
 		family = exprs.NFT_FAMILY_INET
 	}
-	tbl := getTable(table, family)
+	tbl := n.getTable(table, family)
 	if tbl == nil {
 		log.Error("%s addChain, Error getting table: %s, %s", logTag, table, family)
 		return nil
@@ -87,7 +87,7 @@ func (n *Nft) getChain(name string, table *nftables.Table, family string) *nftab
 // regular chains are user-defined chains, to better organize fw rules.
 // https://wiki.nftables.org/wiki-nftables/index.php/Configuring_chains#Adding_regular_chains
 func (n *Nft) addRegularChain(name, table, family string) error {
-	tbl := getTable(table, family)
+	tbl := n.getTable(table, family)
 	if tbl == nil {
 		return fmt.Errorf("%s addRegularChain, Error getting table: %s, %s", logTag, table, family)
 	}
@@ -111,7 +111,7 @@ func (n *Nft) addInterceptionChains() error {
 	filterPolicy = nftables.ChainPolicyAccept
 	manglePolicy = nftables.ChainPolicyAccept
 
-	tbl := getTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET)
+	tbl := n.getTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET)
 	if tbl != nil {
 		key := getChainKey(exprs.NFT_HOOK_INPUT, tbl)
 		ch, found := sysChains.Load(key)
@@ -119,7 +119,7 @@ func (n *Nft) addInterceptionChains() error {
 			filterPolicy = *ch.(*nftables.Chain).Policy
 		}
 	}
-	tbl = getTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
+	tbl = n.getTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
 	if tbl != nil {
 		key := getChainKey(exprs.NFT_HOOK_OUTPUT, tbl)
 		ch, found := sysChains.Load(key)

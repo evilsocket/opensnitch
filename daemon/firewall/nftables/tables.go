@@ -21,12 +21,12 @@ func (n *Nft) AddTable(name, family string) (*nftables.Table, error) {
 		return nil, fmt.Errorf("%s error adding system firewall table: %s, family: %s (%d)", logTag, name, family, famCode)
 	}
 	key := getTableKey(name, family)
-	sysTables[key] = tbl
+	sysTables.Add(key, tbl)
 	return tbl, nil
 }
 
-func getTable(name, family string) *nftables.Table {
-	return sysTables[getTableKey(name, family)]
+func (n *Nft) getTable(name, family string) *nftables.Table {
+	return sysTables.Get(getTableKey(name, family))
 }
 
 func getTableKey(name string, family interface{}) string {
@@ -73,7 +73,7 @@ func (n *Nft) nonSystemRules(tbl *nftables.Table) int {
 }
 
 func (n *Nft) delSystemTables() {
-	for k, tbl := range sysTables {
+	for k, tbl := range sysTables.List() {
 		if n.nonSystemRules(tbl) != 0 {
 			continue
 		}
@@ -82,6 +82,6 @@ func (n *Nft) delSystemTables() {
 			log.Warning("error deleting system table: %s", k)
 			continue
 		}
-		delete(sysTables, k)
+		sysTables.Del(k)
 	}
 }

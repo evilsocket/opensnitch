@@ -22,7 +22,7 @@ func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
 	}
 	families := []string{exprs.NFT_FAMILY_INET}
 	for _, fam := range families {
-		table := getTable(exprs.NFT_CHAIN_FILTER, fam)
+		table := n.getTable(exprs.NFT_CHAIN_FILTER, fam)
 		chain := getChain(exprs.NFT_HOOK_INPUT, table)
 		if table == nil {
 			log.Error("QueueDNSResponses() Error getting table: %s-filter", fam)
@@ -82,7 +82,7 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 	if n.conn == nil {
 		return nil, fmt.Errorf("nftables QueueConnections: netlink connection not active")
 	}
-	table := getTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
+	table := n.getTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
 	if table == nil {
 		return nil, fmt.Errorf("QueueConnections() Error getting table mangle-inet")
 	}
@@ -130,7 +130,7 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 }
 
 func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
-	tbl := getTable(table, family)
+	tbl := n.getTable(table, family)
 	if tbl == nil {
 		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
 	}
@@ -157,7 +157,7 @@ func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]
 }
 
 func (n *Nft) addRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
-	tbl := getTable(table, family)
+	tbl := n.getTable(table, family)
 	if tbl == nil {
 		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
 	}

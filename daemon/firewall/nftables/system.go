@@ -13,16 +13,48 @@ import (
 	"github.com/google/uuid"
 )
 
+// store of tables added to the system
+type sysTablesT struct {
+	tables map[string]*nftables.Table
+	sync.RWMutex
+}
+
+func (t *sysTablesT) Add(name string, tbl *nftables.Table) {
+	t.Lock()
+	defer t.Unlock()
+	t.tables[name] = tbl
+}
+
+func (t *sysTablesT) Get(name string) *nftables.Table {
+	t.RLock()
+	defer t.RUnlock()
+	return t.tables[name]
+}
+
+func (t *sysTablesT) List() map[string]*nftables.Table {
+	t.RLock()
+	defer t.RUnlock()
+	return t.tables
+}
+
+func (t *sysTablesT) Del(name string) {
+	t.Lock()
+	defer t.Unlock()
+	delete(t.tables, name)
+}
+
 var (
 	logTag        = "nftables:"
-	sysTables     map[string]*nftables.Table
+	sysTables     *sysTablesT
 	sysChains     *sync.Map
 	origSysChains map[string]*nftables.Chain
 	sysSets       []*nftables.Set
 )
 
 func initMapsStore() {
-	sysTables = make(map[string]*nftables.Table)
+	sysTables = &sysTablesT{
+		tables: make(map[string]*nftables.Table),
+	}
 	sysChains = &sync.Map{}
 	origSysChains = make(map[string]*nftables.Chain)
 }

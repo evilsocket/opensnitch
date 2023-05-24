@@ -13,7 +13,7 @@ import (
 // rules examples: https://github.com/google/nftables/blob/master/nftables_test.go
 
 func (n *Nft) buildICMPRule(table, family string, icmpProtoVersion string, icmpOptions []*config.ExprValues) *[]expr.Any {
-	tbl := getTable(table, family)
+	tbl := n.getTable(table, family)
 	if tbl == nil {
 		return nil
 	}
@@ -140,7 +140,7 @@ Exit:
 }
 
 func (n *Nft) buildProtocolRule(table, family, ports string, cmpOp *expr.CmpOp) *[]expr.Any {
-	tbl := getTable(table, family)
+	tbl := n.getTable(table, family)
 	if tbl == nil {
 		return nil
 	}

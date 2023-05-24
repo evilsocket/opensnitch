@@ -130,8 +130,8 @@ func (n *Nft) EnableInterception() {
 
 // DisableInterception removes firewall rules to intercept outbound connections.
 func (n *Nft) DisableInterception(logErrors bool) {
-	n.delInterceptionRules()
 	n.StopCheckingRules()
+	n.delInterceptionRules()
 }
 
 // CleanRules deletes the rules we added.
