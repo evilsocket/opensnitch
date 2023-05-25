@@ -1118,7 +1118,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.tabWidget.setTabText(0, "")
         self.hboxAdvanced.setVisible(False)
 
-        dirPort = self.STATM_SPORT+1
+        dirPort = self.STATM_DPORT+1
         self.FORM_TYPE = self.FORM_TYPE_ALLOW_IN_SERVICE
         self.lblExcludeTip.setText(QC.translate("firewall", "Allow inbound connections to the selected port."))
         if direction == self.OUT:
