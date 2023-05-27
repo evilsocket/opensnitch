@@ -959,12 +959,35 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                     self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_MARK+1)
 
             elif exp.Statement.Name == Fw.Statements.META.value:
-                self.statements[idx]['what'].setCurrentIndex(self.STATM_META+1)
-                self.statements[idx]['opts'].setCurrentIndex(
-                    # first item of the list is "set", not present in the combobox
-                    Fw.ExprMeta.values().index(exp.Statement.Values[0].Key)-1
-                )
-                self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+                isMultiProto = False
+                protoStatm = self.STATM_SPORT
+                optsValue = ""
+                protoValue = ""
+                for v in exp.Statement.Values:
+                    if v.Key ==  Fw.ExprMeta.L4PROTO.value:
+                        optsValue = v.Value
+                    if v.Key == Fw.Statements.SPORT.value:
+                        isMultiProto = True
+                        protoValue = v.Value
+                        break
+                    elif v.Key == Fw.Statements.DPORT.value:
+                        protoStatm = self.STATM_DPORT
+                        isMultiProto = True
+                        protoValue = v.Value
+                        break
+                if isMultiProto:
+                    self.statements[idx]['what'].setCurrentIndex(protoStatm+1)
+                    self.statements[idx]['opts'].setCurrentIndex(
+                        Fw.PortProtocols.values().index(optsValue)
+                    )
+                    self.statements[idx]['value'].setCurrentText(protoValue)
+                else:
+                    self.statements[idx]['what'].setCurrentIndex(self.STATM_META+1)
+                    self.statements[idx]['opts'].setCurrentIndex(
+                        # first item of the list is "set", not present in the combobox
+                        Fw.ExprMeta.values().index(exp.Statement.Values[0].Key)-1
+                    )
+                    self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
 
             elif exp.Statement.Name == Fw.Statements.ICMP.value or exp.Statement.Name == Fw.Statements.ICMPv6.value:
                 if exp.Statement.Name == Fw.Statements.ICMP.value:
@@ -1280,17 +1303,30 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                                 ipaddress.ip_address(statem_value)
                             except Exception as e:
                                 return None, None, None, QC.translate("firewall", "{0}".format(e))
+
                     elif st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT:
-                        statement = statem_opts
-                        try:
-                            if "," in statem_value or "-" in statem_value or val_idx < 1:
-                                raise ValueError("port entered is multiport or a port range")
-                            statem_value = self.net_srv.port_by_index(val_idx)
-                        except:
-                            if (st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT) and \
-                                    ("," not in statem_value and "-" not in statem_value):
-                                if not self._is_valid_int_value(statem_value):
-                                    return None, None, None, QC.translate("firewall", "port not valid.")
+                        # if it's a tcp+udp port, we need to add a meta+l4proto
+                        # statement, with the protos + ports as values.
+                        optsIdx = self.statements[k]['opts'].currentIndex()
+                        isMultiProto = optsIdx == 0
+                        if isMultiProto:
+                            meta = self.STATM_CONF[self.STATM_META]['keys'][1]
+                            statement = self.STATM_CONF[self.STATM_META]['name']
+                            # key: l4proto
+                            key_values.append((meta['key'], statem_opts))
+
+                        else:
+                            statement = statem_opts
+                            try:
+                                if "," in statem_value or "-" in statem_value or val_idx < 1:
+                                    raise ValueError("port entered is multiport or a port range")
+                                statem_value = self.net_srv.port_by_index(val_idx)
+                            except:
+                                if (st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT) and \
+                                        ("," not in statem_value and "-" not in statem_value):
+                                    if not self._is_valid_int_value(statem_value):
+                                        return None, None, None, QC.translate("firewall", "port not valid.")
+
                     elif st_idx == self.STATM_CT_SET or st_idx == self.STATM_CT_MARK or st_idx == self.STATM_META_SET_MARK:
                         if not self._is_valid_int_value(statem_value):
                             return None, None, None, QC.translate("firewall", "Invalid value {0}, number expected.".format(statem_value))

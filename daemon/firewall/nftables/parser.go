@@ -50,6 +50,31 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 			log.Warning("%s meta statement error: %s", logTag, err)
 			return nil
 		}
+
+		for _, exprValue := range expression.Statement.Values {
+			switch exprValue.Key {
+			case exprs.NFT_META_L4PROTO:
+				l4rule, err := n.buildL4ProtoRule(table, family, exprValue.Value, &cmpOp)
+				if err != nil {
+					log.Warning("%s meta.l4proto statement error: %s", logTag, err)
+					return nil
+				}
+				*metaExpr = append(*metaExpr, *l4rule...)
+			case exprs.NFT_DPORT, exprs.NFT_SPORT:
+				exprPDir, err := exprs.NewExprPortDirection(exprValue.Key)
+				if err != nil {
+					log.Warning("%s ports statement error: %s", logTag, err)
+					return nil
+				}
+				*metaExpr = append(*metaExpr, []expr.Any{exprPDir}...)
+				portsRule, err := n.buildPortsRule(table, family, exprValue.Value, &cmpOp)
+				if err != nil {
+					log.Warning("%s meta.l4proto.ports statement error: %s", logTag, err)
+					return nil
+				}
+				*metaExpr = append(*metaExpr, *portsRule...)
+			}
+		}
 		return metaExpr
 
 	case exprs.NFT_ETHER:
@@ -120,7 +145,12 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 					return nil
 				}
 				exprList = append(exprList, []expr.Any{exprPDir}...)
-				exprList = append(exprList, *n.buildProtocolRule(table, family, exprValue.Value, &cmpOp)...)
+				portsRule, err := n.buildPortsRule(table, family, exprValue.Value, &cmpOp)
+				if err != nil {
+					log.Warning("%s proto.ports statement error: %s", logTag, err)
+					return nil
+				}
+				exprList = append(exprList, *portsRule...)
 			}
 
 		}

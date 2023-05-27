@@ -130,7 +130,7 @@ func getICMPv6RejectCode(reason string) uint8 {
 // If the protocol is not in our list, we'll use the value as decimal.
 // So for example IPPROTO_ENCAP (0x62) must be specified as 98.
 // https://pkg.go.dev/golang.org/x/sys/unix#pkg-constants
-func getProtocolCode(value string) (uint32, error) {
+func getProtocolCode(value string) (byte, error) {
 	switch value {
 	case NFT_PROTO_TCP:
 		return unix.IPPROTO_TCP, nil
@@ -174,5 +174,5 @@ func getProtocolCode(value string) (uint32, error) {
 	if err != nil {
 		return 0, err
 	}
-	return uint32(prot), nil
+	return byte(prot), nil
 }

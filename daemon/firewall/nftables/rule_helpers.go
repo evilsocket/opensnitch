@@ -1,6 +1,7 @@
 package nftables
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
@@ -139,10 +140,52 @@ Exit:
 	return &exprList
 }
 
-func (n *Nft) buildProtocolRule(table, family, ports string, cmpOp *expr.CmpOp) *[]expr.Any {
+// buildL4ProtoRule helper builds a new protocol rule to match ports and protocols.
+//
+// nft --debug=netlink add rule filter input meta l4proto { tcp, udp }  th dport 53
+//	__set%d filter 3 size 2
+//	__set%d filter 0
+//		element 00000006  : 0 [end]	element 00000011  : 0 [end]
+//	ip filter input
+//	  [ meta load l4proto => reg 1 ]
+//	  [ lookup reg 1 set __set%d ]
+//	  [ payload load 2b @ transport header + 2 => reg 1 ]
+//	  [ cmp eq reg 1 0x00003500 ]
+func (n *Nft) buildL4ProtoRule(table, family, l4prots string, cmpOp *expr.CmpOp) (*[]expr.Any, error) {
 	tbl := n.getTable(table, family)
 	if tbl == nil {
-		return nil
+		return nil, fmt.Errorf("Invalid table (%s, %s)", table, family)
+	}
+	exprList := []expr.Any{}
+	if strings.Index(l4prots, ",") != -1 {
+		set := &nftables.Set{
+			Anonymous: true,
+			Constant:  true,
+			Table:     tbl,
+			KeyType:   nftables.TypeInetProto,
+		}
+		protoSet := exprs.NewExprProtoSet(l4prots)
+		if err := n.conn.AddSet(set, *protoSet); err != nil {
+			log.Warning("%s protoSet, AddSet() error: %s", logTag, err)
+			return nil, err
+		}
+		exprList = append(exprList, &expr.Lookup{
+			SourceRegister: 1,
+			SetName:        set.Name,
+			SetID:          set.ID,
+		})
+	} else {
+		exprProto := exprs.NewExprL4Proto(l4prots, cmpOp)
+		exprList = append(exprList, *exprProto...)
+	}
+
+	return &exprList, nil
+}
+
+func (n *Nft) buildPortsRule(table, family, ports string, cmpOp *expr.CmpOp) (*[]expr.Any, error) {
+	tbl := n.getTable(table, family)
+	if tbl == nil {
+		return nil, fmt.Errorf("Invalid table (%s, %s)", table, family)
 	}
 	exprList := []expr.Any{}
 	if strings.Index(ports, ",") != -1 {
@@ -154,7 +197,8 @@ func (n *Nft) buildProtocolRule(table, family, ports string, cmpOp *expr.CmpOp) 
 		}
 		setElements := exprs.NewExprPortSet(ports)
 		if err := n.conn.AddSet(set, *setElements); err != nil {
-			log.Warning("%s AddSet() error: %s", logTag, err)
+			log.Warning("%s portSet, AddSet() error: %s", logTag, err)
+			return nil, err
 		}
 		exprList = append(exprList, &expr.Lookup{
 			SourceRegister: 1,
@@ -168,5 +212,5 @@ func (n *Nft) buildProtocolRule(table, family, ports string, cmpOp *expr.CmpOp) 
 		exprList = append(exprList, *exprs.NewExprPort(ports, cmpOp)...)
 	}
 
-	return &exprList
+	return &exprList, nil
 }

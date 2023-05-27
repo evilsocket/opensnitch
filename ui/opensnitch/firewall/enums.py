@@ -35,6 +35,7 @@ class Hooks(Enums):
     POSTROUTING = "postrouting"
 
 class PortProtocols(Enums):
+    TCPUDP = "tcp,udp"
     TCP = "tcp"
     UDP = "udp"
     UDPLITE = "udplite"
@@ -97,7 +98,9 @@ class Statements(Enums):
     """Enum of known (allowed) statements:
         [tcp,udp,ip] ...
     """
-
+    # we may need in the future:
+    # ANY = tcp,udp,udplite,sctp,dccp
+    TCPUDP = "tcp,udp"
     TCP = "tcp"
     UDP = "udp"
     UDPLITE = "udplite"
