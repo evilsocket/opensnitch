@@ -4,7 +4,6 @@
 #include <linux/in6.h>
 #include <linux/ptrace.h>
 #include <linux/sched.h>
-#include <linux/version.h>
 #include <net/sock.h>
 #include <uapi/linux/bpf.h>
 #include <uapi/linux/tcp.h>

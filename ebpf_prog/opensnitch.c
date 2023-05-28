@@ -1,7 +1,6 @@
 #define KBUILD_MODNAME "dummy"
 
 #include "common_defs.h"
-#include <linux/version.h>
 #include <uapi/linux/tcp.h>
 #include <net/sock.h>
 #include <net/udp_tunnel.h>

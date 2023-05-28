@@ -29,7 +29,7 @@ endif
 
 BIN := opensnitch.o opensnitch-procs.o opensnitch-dns.o
 CLANG_FLAGS = -I. \
-	-I$(KERNEL_HEADERS)/arch/x86/include/generated/ \
+	-I$(KERNEL_HEADERS)/arch/$(ARCH)/include/generated/ \
 	-I$(KERNEL_HEADERS)/include \
 	-include $(KERNEL_DIR)/include/linux/kconfig.h \
 	-I$(KERNEL_DIR)/include \
@@ -52,6 +52,6 @@ all: $(BIN)
 
 %.o: %.c
 	$(CLANG) $(CLANG_FLAGS) -c $< -o - | \
-		$(LLC) -march=bpf -mcpu=$(CPU) -filetype=obj -o $@
+		$(LLC) -march=bpf -mcpu=generic -filetype=obj -o $@
 clean:
 	rm -f *.o
