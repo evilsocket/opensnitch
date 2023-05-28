@@ -2,6 +2,9 @@ package formats
 
 import (
 	"fmt"
+	"log/syslog"
+	"os"
+	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
@@ -22,8 +25,12 @@ func NewRfc5424() *Rfc5424 {
 
 // Transform takes input arguments and formats them to RFC5424 format.
 func (r *Rfc5424) Transform(args ...interface{}) (out string) {
-	p := args[0]
-	values := p.([]interface{})
+	arg1 := args[0]
+	arg2 := args[1]
+	arg3 := args[2]
+	hostname := arg2.(string)
+	tag := arg3.(string)
+	values := arg1.([]interface{})
 	for n, val := range values {
 		switch val.(type) {
 		case *protocol.Connection:
@@ -46,7 +53,13 @@ func (r *Rfc5424) Transform(args ...interface{}) (out string) {
 			out = fmt.Sprint(out, " ARG", n, "=\"", val, "\"")
 		}
 	}
-	out = fmt.Sprint("[", out[1:], "]")
+	out = fmt.Sprintf("<%d>1 %s %s %s %d TCPOUT - [%s]\n",
+		syslog.LOG_NOTICE|syslog.LOG_DAEMON,
+		time.Now().Format(time.RFC3339),
+		hostname,
+		tag,
+		os.Getpid(),
+		out[1:])
 
 	return
 }

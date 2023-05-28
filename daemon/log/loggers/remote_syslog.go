@@ -2,10 +2,8 @@ package loggers
 
 import (
 	"fmt"
-	"log/syslog"
 	"net"
 	"os"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -54,6 +52,7 @@ func NewRemoteSyslog(cfg *LoggerConfig) (*RemoteSyslog, error) {
 	sys.Name = LOGGER_REMOTE_SYSLOG
 	sys.cfg = cfg
 
+	// list of allowed formats for this logger
 	sys.logFormat = formats.NewRfc5424()
 	if cfg.Format == formats.CSV {
 		sys.logFormat = formats.NewCSV()
@@ -67,7 +66,10 @@ func NewRemoteSyslog(cfg *LoggerConfig) (*RemoteSyslog, error) {
 	if err != nil {
 		sys.Hostname = "localhost"
 	}
-	sys.Timeout, _ = time.ParseDuration(writeTimeout)
+	if cfg.WriteTimeout == "" {
+		cfg.WriteTimeout = writeTimeout
+	}
+	sys.Timeout, _ = time.ParseDuration(cfg.WriteTimeout)
 
 	if err = sys.Open(); err != nil {
 		log.Error("Error loading logger: %s", err)
@@ -94,12 +96,11 @@ func (s *RemoteSyslog) Open() (err error) {
 
 // Dial opens a new connection with a syslog server.
 func (s *RemoteSyslog) Dial(proto, addr string, connTimeout time.Duration) (netConn net.Conn, err error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	switch proto {
 	case "udp", "tcp":
+		s.mu.Lock()
 		netConn, err = net.DialTimeout(proto, addr, connTimeout)
+		s.mu.Unlock()
 		if err != nil {
 			return nil, err
 		}
@@ -142,6 +143,8 @@ func (s *RemoteSyslog) ReOpen() {
 // Transform transforms data for proper ingestion.
 func (s *RemoteSyslog) Transform(args ...interface{}) (out string) {
 	if s.logFormat != nil {
+		args = append(args, s.Hostname)
+		args = append(args, s.Tag)
 		out = s.logFormat.Transform(args...)
 	}
 	return
@@ -149,8 +152,6 @@ func (s *RemoteSyslog) Transform(args ...interface{}) (out string) {
 
 func (s *RemoteSyslog) Write(msg string) {
 	deadline := time.Now().Add(s.Timeout)
-	s.mu.RLock()
-	defer s.mu.RUnlock()
 
 	// BUG: it's fairly common to have write timeouts via udp/tcp.
 	// Reopening the connection with the server helps to resume sending events to syslog,
@@ -158,8 +159,12 @@ func (s *RemoteSyslog) Write(msg string) {
 	// I haven't figured out yet why these write errors ocurr.
 	switch s.netConn.(type) {
 	case *net.TCPConn, *net.UDPConn:
+		s.mu.RLock()
 		s.netConn.SetWriteDeadline(deadline)
-		if _, err := s.netConn.Write([]byte(s.formatLine(msg))); err != nil {
+		_, err := s.netConn.Write([]byte(s.formatLine(msg)))
+		s.mu.RUnlock()
+
+		if err != nil {
 			log.Debug("[%s] %s write error: %v", s.Name, s.cfg.Protocol, err.(net.Error))
 			atomic.AddUint32(&s.errors, 1)
 			if atomic.LoadUint32(&s.errors) > maxAllowedErrors {
@@ -172,17 +177,5 @@ func (s *RemoteSyslog) Write(msg string) {
 
 // https://cs.opensource.google/go/go/+/refs/tags/go1.18.2:src/log/syslog/syslog.go;l=286;drc=0a1a092c4b56a1d4033372fbd07924dad8cbb50b
 func (s *RemoteSyslog) formatLine(msg string) string {
-	timestamp := time.Now().Format(time.RFC3339)
-	nl := ""
-	if !strings.HasSuffix(msg, "\n") {
-		nl = "\n"
-	}
-	return fmt.Sprintf("<%d>%s %s %s[%d]: %s%s",
-		syslog.LOG_NOTICE|syslog.LOG_DAEMON,
-		timestamp,
-		s.Hostname,
-		s.Tag,
-		os.Getpid(),
-		msg,
-		nl)
+	return msg
 }

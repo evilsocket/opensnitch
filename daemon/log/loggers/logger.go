@@ -1,5 +1,7 @@
 package loggers
 
+import "fmt"
+
 const logTag = "opensnitch"
 
 // Logger is the common interface that every logger must met.
@@ -19,8 +21,12 @@ type LoggerConfig struct {
 	Protocol string
 	// Server: 127.0.0.1:514
 	Server string
+	// WriteTimeout:
+	WriteTimeout string
 	// Tag: opensnitchd, mytag, ...
 	Tag string
+	// Workers: number of workers
+	Workers int
 }
 
 // LoggerManager represents the LoggerManager.
@@ -44,14 +50,16 @@ func (l *LoggerManager) Load(configs []LoggerConfig, workers int) {
 	for _, cfg := range configs {
 		switch cfg.Name {
 		case LOGGER_REMOTE_SYSLOG:
-			l.count++
 			if lgr, err := NewRemoteSyslog(&cfg); err == nil {
-				l.loggers[lgr.Name] = lgr
+				l.count++
+				l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
+				workers += cfg.Workers
 			}
 		case LOGGER_SYSLOG:
-			l.count++
 			if lgr, err := NewSyslog(&cfg); err == nil {
+				l.count++
 				l.loggers[lgr.Name] = lgr
+				workers += cfg.Workers
 			}
 		}
 	}
