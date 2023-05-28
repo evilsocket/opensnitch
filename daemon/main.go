@@ -219,17 +219,17 @@ func listenToEvents() {
 func initSystemdResolvedMonitor() {
 	resolvMonitor, err := systemd.NewResolvedMonitor()
 	if err != nil {
-		log.Warning("Unable to use systemd-resolved monitor: %s", err)
+		log.Debug("[DNS] Unable to use systemd-resolved monitor: %s", err)
 		return
 	}
 	_, err = resolvMonitor.Connect()
 	if err != nil {
-		log.Warning("Connecting to systemd-resolved: %s", err)
+		log.Debug("[DNS] Connecting to systemd-resolved: %s", err)
 		return
 	}
 	err = resolvMonitor.Subscribe()
 	if err != nil {
-		log.Warning("Subscribing to systemd-resolved DNS events: %s", err)
+		log.Debug("[DNS] Subscribing to systemd-resolved DNS events: %s", err)
 		return
 	}
 	go func() {
@@ -237,13 +237,13 @@ func initSystemdResolvedMonitor() {
 			select {
 			case exit := <-resolvMonitor.Exit():
 				if exit == nil {
-					log.Info("systemd-resolved monitor stopped")
+					log.Info("[DNS] systemd-resolved monitor stopped")
 					return
 				}
-				log.Debug("systemd-resolved monitor disconnected. Reconnecting...")
+				log.Debug("[DNS] systemd-resolved monitor disconnected. Reconnecting...")
 			case response := <-resolvMonitor.GetDNSResponses():
 				if response.State != systemd.SuccessState {
-					log.Debug("systemd-resolved monitor response error: %v", response)
+					log.Debug("[DNS] systemd-resolved monitor response error: %v", response)
 					continue
 				}
 				/*for i, q := range response.Question {

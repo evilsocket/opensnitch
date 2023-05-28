@@ -59,6 +59,7 @@ func byteArrayToString(arr []byte) string {
 
 func deleteEbpfEntry(proto string, key unsafe.Pointer) bool {
 	if err := m.DeleteElement(ebpfMaps[proto].bpfmap, key); err != nil {
+		log.Debug("error deleting ebpf entry: %s", err)
 		return false
 	}
 	return true
