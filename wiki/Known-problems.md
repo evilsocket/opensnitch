@@ -7,6 +7,8 @@ and issues: #820 #768
 
 **eBPF**
 
+* Since v1.6.0 you can use `opensnitchd -check-requirements` to know if your system is compatible.
+
 [cannot open kprobe_events](#cannot-open-kprobe_events): open /sys/kernel/debug/tracing/kprobe_events: permission denied
 
 [cannot write ... kprobe_events: file exists](#kprobe_events-file-exists)
@@ -59,6 +61,7 @@ Then see if the error matches one of the following ones:
 [Kernel panic on >= 5.6.16 || kernel hardening incompatibilities](#kernel-panics)
 
 [opensnitchd/daemon does not start](#opensnitchd-does-not-start):
+  * Since v1.6.0 you can use `opensnitchd -check-requirements` to know if your system is compatible.
 
 
 ***
@@ -201,7 +204,7 @@ Usually it's because your Desktop Environment/Window Manager doesn't support sys
 
 https://github.com/ubuntu/gnome-shell-extension-appindicator
 
-It's available on some distributions, so you can use your package manager to install from your distro repositories. Otherwise you'll have to install it following the instructions from their web.
+It's available on some distributions, so you can use your package manager to install it from your distro repositories. Otherwise you'll have to install it following the instructions from their web.
 
 ### GUI crash/exception or does not show up
 
@@ -353,10 +356,11 @@ See this comment/issue for more information: [#44](https://github.com/gustavo-in
 
 ### opensnitchd does not start
 
-For all these options, 
+For all the following errors: 
 
-* Since v1.6.0 you can use: `opensnitchd -check-requirements` to know if your system is compatible.
 * The daemon needs NET_ADMIN capabilities. For example to run it in docker you need `--cap-add NET_ADMIN`, or you'll get some of the described errors.
+* Since v1.6.0 you can use `opensnitchd -check-requirements` to know if your system is compatible.
+
 * `Error while creating queue #0: Error binding to queue: operation not permitted.` (#323)
    * Be sure that the daemon is not already running, check it out with: `pgrep -a opensnitchd`, output should be empty)
    * You should only have one `opensnitchd` binary at /usr/bin/opensnitchd . If you have others (for example in /usr/local/bin), investigate why it's there, and rename it to `opensnitchd.xx` for example (that will prevent from loading).
@@ -370,6 +374,8 @@ For all these options,
 * `Error while creating queue #0: Error unbinding existing q handler from AF_INET protocol` see [#323](https://github.com/evilsocket/opensnitch/issues/323) and [#204](https://github.com/evilsocket/opensnitch/issues/204#issuecomment-802932344). 
    * Usually caused because the nfnetlink_queue module is not loaded. Verify if it's loaded: `lsomd | grep nfnetlink_queue`
    * Another reason could be because ip_queue module is loaded. If it's loaded, unload it.
+* `Subscribing to GUI rpc error: code = ResourceExhausted desc = Received message larger than max (4210785 vs. 4194304)`
+   * Usually caused by the amount of rules. If you have 10k to 20k rules, consider grouping the rules to reduce the amount of rules.
 
 be sure that you have NFQUEUE support in the kernel (=y or =m):
 ```
