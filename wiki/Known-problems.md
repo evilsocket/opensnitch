@@ -379,7 +379,7 @@ For all the following errors:
 
 be sure that you have NFQUEUE support in the kernel (=y or =m):
 ```
-$ grep -E "(NFT|NETLINK|NFQUEUE) /boot/config-$(uname -r)"
+$ grep -E "(NFT|NETLINK|NFQUEUE)" /boot/config-$(uname -r)
 CONFIG_NFT_QUEUE=y
 CONFIG_NETFILTER_NETLINK_QUEUE=y
 CONFIG_NETFILTER_XT_TARGET_NFQUEUE=y
