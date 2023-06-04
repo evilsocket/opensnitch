@@ -99,11 +99,11 @@ Examples:
     thm.load_theme(app)
 
     Utils.create_socket_dirs()
+    cfg = Config.get()
     if args.socket == None:
         # default
         args.socket = "unix:///tmp/osui.sock"
 
-        cfg = Config.get()
         addr = cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
         if addr != None and addr != "":
             if addr.startswith("unix://"):
@@ -115,6 +115,20 @@ Examples:
                 args.socket = addr
 
     print("Using server address:", args.socket)
+
+    maxmsglencfg = cfg.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
+    match maxmsglencfg:
+        case '4MiB':
+            maxmsglen = 4194304
+        case '8MiB':
+            maxmsglen = 8388608
+        case '16MiB':
+            maxmsglen = 16777216
+        case _:
+            maxmsglen = 4194304
+
+    print("gRPC Max Message Length:", maxmsglencfg)
+    print("                  Bytes:", maxmsglen)
 
     service = UIService(app, on_exit)
     # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
@@ -128,6 +142,8 @@ Examples:
                              # there's no response.
                              ('grpc.keepalive_timeout_ms', 20000),
                              ('grpc.keepalive_permit_without_calls', True),
+                             ('grpc.max_send_message_length', maxmsglen),
+                             ('grpc.max_receive_message_length', maxmsglen),
                          ))
 
     add_UIServicer_to_server(service, server)
