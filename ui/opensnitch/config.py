@@ -102,6 +102,7 @@ class Config:
     DEFAULT_POPUP_ADVANCED_DSTPORT = "global/default_popup_advanced_dstport"
     DEFAULT_POPUP_ADVANCED_UID = "global/default_popup_advanced_uid"
     DEFAULT_SERVER_ADDR  = "global/server_address"
+    DEFAULT_SERVER_MAX_MESSAGE_LENGTH  = "global/server_max_message_length"
     DEFAULT_HIDE_SYSTRAY_WARN  = "global/hide_systray_warning"
     DEFAULT_DB_TYPE_KEY  = "database/type"
     DEFAULT_DB_FILE_KEY  = "database/file"
