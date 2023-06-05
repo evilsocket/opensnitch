@@ -117,15 +117,14 @@ Examples:
     print("Using server address:", args.socket)
 
     maxmsglencfg = cfg.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
-    match maxmsglencfg:
-        case '4MiB':
-            maxmsglen = 4194304
-        case '8MiB':
-            maxmsglen = 8388608
-        case '16MiB':
-            maxmsglen = 16777216
-        case _:
-            maxmsglen = 4194304
+    if maxmsglencfg == '4MiB':
+        maxmsglen = 4194304
+    elif maxmsglencfg == '8MiB':
+        maxmsglen = 8388608
+    elif maxmsglencfg == '16MiB':
+        maxmsglen = 16777216
+    else:
+        maxmsglen = 4194304
 
     print("gRPC Max Message Length:", maxmsglencfg)
     print("                  Bytes:", maxmsglen)
