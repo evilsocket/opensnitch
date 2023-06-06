@@ -77,6 +77,8 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	if config.LogLevel != nil {
 		log.SetLogLevel(int(*config.LogLevel))
 	}
+	log.SetLogUTC(config.LogUTC)
+	log.SetLogMicro(config.LogMicro)
 	if config.Server.LogFile != "" {
 		log.Close()
 		log.OpenFile(config.Server.LogFile)

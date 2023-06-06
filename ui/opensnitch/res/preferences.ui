@@ -857,6 +857,20 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </property>
         </widget>
        </item>
+       <item row="11" column="2">
+        <widget class="QCheckBox" name="checkNodeLogUTC">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="2">
+        <widget class="QCheckBox" name="checkNodeLogMicro">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
        <item row="7" column="0">
         <widget class="QLabel" name="label_11">
          <property name="toolTip">
@@ -999,6 +1013,26 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </property>
          <property name="text">
           <string>Debug invalid connections</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="label_22">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will use the UTC timezone for timestamps.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Log UTC timestamps</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0">
+        <widget class="QLabel" name="label_23">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will log timestamp microseconds.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Log timestamp microseconds</string>
          </property>
         </widget>
        </item>

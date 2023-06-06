@@ -58,6 +58,8 @@ var (
 	checkRequirements = false
 	procmonMethod     = ""
 	logFile           = ""
+	logUTC            = true
+	logMicro          = false
 	rulesPath         = "rules"
 	noLiveReload      = false
 	queueNum          = 0
@@ -101,6 +103,8 @@ func init() {
 	flag.BoolVar(&noLiveReload, "no-live-reload", debug, "Disable rules live reloading.")
 
 	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
+	flag.BoolVar(&logUTC, "log-utc", logUTC, "Write logs output with UTC timezone (enabled by default).")
+	flag.BoolVar(&logMicro, "log-micro", logMicro, "Write logs output with microsecond timestamp (disabled by default).")
 	flag.BoolVar(&debug, "debug", debug, "Enable debug level logs.")
 	flag.BoolVar(&warning, "warning", warning, "Enable warning level logs.")
 	flag.BoolVar(&important, "important", important, "Enable important level logs.")
@@ -111,7 +115,7 @@ func init() {
 }
 
 func overwriteLogging() bool {
-	return debug || warning || important || errorlog || logFile != ""
+	return debug || warning || important || errorlog || logFile != "" || logUTC || logMicro
 }
 
 func setupLogging() {
@@ -127,6 +131,9 @@ func setupLogging() {
 	} else {
 		log.SetLogLevel(log.INFO)
 	}
+
+	log.SetLogUTC(logUTC)
+	log.SetLogMicro(logMicro)
 
 	var logFileToUse string
 	if logFile == "" {

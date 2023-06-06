@@ -143,6 +143,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodeMonitorMethod.currentIndexChanged.connect(self._cb_node_needs_update)
         self.comboNodeLogLevel.currentIndexChanged.connect(self._cb_node_needs_update)
         self.comboNodeLogFile.currentIndexChanged.connect(self._cb_node_needs_update)
+        self.checkNodeLogUTC.clicked.connect(self._cb_node_needs_update)
+        self.checkNodeLogMicro.clicked.connect(self._cb_node_needs_update)
         self.comboNodeAddress.currentTextChanged.connect(self._cb_node_needs_update)
         self.checkInterceptUnknown.clicked.connect(self._cb_node_needs_update)
         self.checkApplyToNodes.clicked.connect(self._cb_node_needs_update)
@@ -273,6 +275,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.comboNodeMonitorMethod.setCurrentText(node_config['ProcMonitorMethod'])
                 self.checkInterceptUnknown.setChecked(node_config['InterceptUnknown'])
                 self.comboNodeLogLevel.setCurrentIndex(int(node_config['LogLevel']))
+                self.checkNodeLogUTC.setChecked(node_config['LogUTC'])
+                self.checkNodeLogMicro.setChecked(node_config['LogMicro'])
 
                 if node_config.get('Server') != None:
                     self.comboNodeAddress.setEnabled(True)
@@ -306,6 +310,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             node_config['DefaultDuration'] = node_duration
             node_config['ProcMonitorMethod'] = self.comboNodeMonitorMethod.currentText()
             node_config['LogLevel'] = self.comboNodeLogLevel.currentIndex()
+            node_config['LogUTC'] = self.checkNodeLogUTC.isChecked()
+            node_config['LogMicro'] = self.checkNodeLogMicro.isChecked()
             node_config['InterceptUnknown'] = self.checkInterceptUnknown.isChecked()
 
             if node_config.get('Server') != None:
@@ -351,6 +357,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodeMonitorMethod.setCurrentIndex(0)
         self.checkInterceptUnknown.setChecked(False)
         self.comboNodeLogLevel.setCurrentIndex(0)
+        self.checkNodeLogUTC.setChecked(True)
+        self.checkNodeLogMicro.setChecked(False)
         self.labelNodeName.setText("")
         self.labelNodeVersion.setText("")
 
