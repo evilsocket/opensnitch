@@ -48,6 +48,8 @@ type Config struct {
 	InterceptUnknown  bool                   `json:"InterceptUnknown"`
 	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
 	LogLevel          *uint32                `json:"LogLevel"`
+	LogUTC            bool                   `json:"LogUTC"`
+	LogMicro          bool                   `json:"LogMicro"`
 	Firewall          string                 `json:"Firewall"`
 	Stats             statistics.StatsConfig `json:"Stats"`
 }

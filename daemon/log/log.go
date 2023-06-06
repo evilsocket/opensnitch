@@ -49,6 +49,8 @@ var (
 	StdoutFile = "/dev/stdout"
 	DateFormat = "2006-01-02 15:04:05"
 	MinLevel   = INFO
+	LogUTC     = true
+	LogMicro   = false
 
 	mutex  = &sync.RWMutex{}
 	labels = map[int]string{
@@ -129,6 +131,36 @@ func GetLogLevel() int {
 	return MinLevel
 }
 
+// SetLogUTC configures UTC timestamps
+func SetLogUTC(newLogUTC bool) {
+        mutex.Lock()
+        defer mutex.Unlock()
+        LogUTC = newLogUTC
+}
+
+// GetLogUTC returns the current config.
+func GetLogUTC() bool {
+        mutex.Lock()
+        defer mutex.Unlock()
+
+        return LogUTC
+}
+
+// SetLogMicro configures microsecond timestamps
+func SetLogMicro(newLogMicro bool) {
+        mutex.Lock()
+        defer mutex.Unlock()
+        LogMicro = newLogMicro
+}
+
+// GetLogMicro returns the current config.
+func GetLogMicro() bool {
+        mutex.Lock()
+        defer mutex.Unlock()
+
+        return LogMicro
+}
+
 // Log prints out a text with the given color and format
 func Log(level int, format string, args ...interface{}) {
 	mutex.Lock()
@@ -136,7 +168,16 @@ func Log(level int, format string, args ...interface{}) {
 	if level >= MinLevel {
 		label := labels[level]
 		color := colors[level]
-		when := time.Now().UTC().Format(DateFormat)
+
+		datefmt := DateFormat
+
+		if LogMicro == true {
+			datefmt = DateFormat + ".000000"
+		}
+		when := time.Now().UTC().Format(datefmt)
+		if LogUTC == false {
+			when = time.Now().Local().Format(datefmt)
+		}
 
 		what := fmt.Sprintf(format, args...)
 		if strings.HasSuffix(what, "\n") == false {

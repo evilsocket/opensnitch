@@ -72,6 +72,8 @@ class TestPreferences():
         self.prefs.comboNodeAction.setCurrentIndex(Config.ACTION_ALLOW_IDX)
         self.prefs.comboNodeMonitorMethod.setCurrentIndex(2)
         self.prefs.comboNodeLogLevel.setCurrentIndex(5)
+        self.prefs.checkNodeLogUTC.setChecked(False)
+        self.prefs.checkNodeLogMicro.setChecked(True)
         self.prefs.checkInterceptUnknown.setChecked(True)
         self.prefs.tabWidget.setCurrentIndex(self.prefs.TAB_NODES)
         self.prefs._node_needs_update = True
@@ -84,6 +86,8 @@ class TestPreferences():
             assert conf['InterceptUnknown'] == True
             assert conf['ProcMonitorMethod'] == "audit"
             assert conf['LogLevel'] == 5
+            assert conf['LogUTC'] == False
+            assert conf['LogMicro'] == True
             assert conf['DefaultAction'] == "allow"
 
 # TODO: click on the QMessageDialog
