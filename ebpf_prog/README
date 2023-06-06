@@ -1,29 +1,62 @@
-opensnitch.c is an eBPF program. Compilation requires getting kernel source.
+The basic steps to compile the modules are:
 
-sudo apt install clang llvm libelf-dev libzip-dev flex bison libssl-dev bc rsync python3
-cd opensnitch
-wget https://github.com/torvalds/linux/archive/v5.8.tar.gz
-tar -xf v5.8.tar.gz
-patch linux-5.8/tools/lib/bpf/bpf_helpers.h < ebpf_prog/file.patch
-cp ebpf_prog/opensnitch.c ebpf_prog/Makefile linux-5.8/samples/bpf
-cd linux-5.8 && yes "" | make oldconfig && make prepare && make headers_install # (1 min)
-cd samples/bpf && make
-objdump -h opensnitch.o #you should see many section, number 1 should be called kprobe/tcp_v4_connect
-llvm-strip -g opensnitch.o #remove debug info
-sudo cp opensnitch.o /etc/opensnitchd/ 
-cd ../../../daemon
+  sudo apt install clang llvm linux-headers-amd64 libelf-dev libzip-dev flex bison libssl-dev bc rsync python3
+  cd opensnitch/ebpf_prog/
+  make
+  objdump -h opensnitch.o # you should see many sections, number 1 should be called kprobe/tcp_v4_connect
+  llvm-strip -g opensnitch*.o # remove debug info
+  sudo cp opensnitch*.o /usr/lib/opensnitchd/ebpf/ # or /etc/opensnitchd for < v1.6.x
+  cd ../../../daemon
 
---opensnitchd expects to find opensnitch.o in /etc/opensnitchd/
---start opensnitchd with:
+Since v1.6.0, opensnitchd expects to find the opensnitch*.o modules under:
+ /usr/local/lib/opensnitchd/ebpf/
+ /usr/lib/opensnitchd/ebpf/
+ /etc/opensnitchd/ # deprecated, only on < v1.5.x
 
-opensnitchd -rules-path /etc/opensnitchd/rules -process-monitor-method ebpf
+start opensnitchd with:
+
+  opensnitchd -rules-path /etc/opensnitchd/rules -process-monitor-method ebpf
+
+---
+
+### Compiling for Fedora (and others rpm based systems)
+
+You need to install the kernel-devel, clang and llvm packages.
+
+Then: `cd ebpf_prog/ ; make KERNEL_DIR=/usr/src/kernels/$(uname -r)/`
+
+(or just pass the kernel version you want)
+
+### Notes
 
 The kernel where you intend to run it must have some options activated:
 
-$ grep BPF /boot/config-$(uname -r)
-CONFIG_CGROUP_BPF=y
-CONFIG_BPF=y
-CONFIG_BPF_SYSCALL=y
-CONFIG_BPF_EVENTS=y
-CONFIG_KPROBES=y
-CONFIG_KPROBE_EVENTS=y
+ $ grep BPF /boot/config-$(uname -r)
+  CONFIG_CGROUP_BPF=y
+  CONFIG_BPF=y
+  CONFIG_BPF_SYSCALL=y
+  CONFIG_BPF_EVENTS=y
+  CONFIG_KPROBES=y
+  CONFIG_KPROBE_EVENTS=y
+
+For the opensnitch-procs.o module to work, this option must be enabled:
+
+ $ grep FTRACE_SYSCALLS /boot/config-$(uname -r)
+  CONFIG_FTRACE_SYSCALLS=y
+
+(https://github.com/iovisor/bcc/blob/master/docs/kernel_config.md)
+
+Also, in some distributions debugfs is not mounted automatically.
+Since v1.6.0 we try to mount it automatically. If you're running
+a lower version so you'll need to mount it manually:
+
+ $ sudo mount -t debugfs none /sys/kernel/debug
+
+In order to make it permanent add it to /etc/fstab:
+
+debugfs    /sys/kernel/debug      debugfs  defaults  0 0
+
+
+opensnitch-procs.o and opensnitch-dns.o are only compatible with kernels >= 5.5,
+bpf_probe_read_user*() were added on that kernel on:
+https://github.com/iovisor/bcc/blob/master/docs/kernel-versions.md#helpers
