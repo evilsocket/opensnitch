@@ -1,7 +1,10 @@
-name: Build eBPF
-on:
+# This is a basic workflow to help you get started with Actions
 
-  # Trigger this workflow only when ebpf modules changes.
+name: CI - build v1.5.0 eBPF module
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
     paths:
       - 'ebpf_prog/*'
@@ -14,35 +17,43 @@ on:
   # Allow to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-  build:
-    name: Build eBPF object
-    runs-on: ubuntu-latest
+  # This workflow contains a single job called "build"
+  # The matrix configuration will execute the steps, once per dimension defined:
+  # kernel 5.8 + tag 1.5.0
+  # kernel 5.8 + tag master
+  # kernel 6.0 + tag 1.5.0, etc
+  build:  
+    strategy:
+        matrix:
+          kernel: ["6.0"]
+          tag: ["1.5.0"]
+          
+    runs-on: ubuntu-22.04
+
     steps:
+        - name: Check out code into the Go module directory
+          uses: actions/checkout@v3
+          with:
+            # ref: can be a branch name, tag, commit, etc
+            ref: ${{ matrix.tag }}
+      
+        - name: Get dependencies
+          run: |
+            set -e
+            set -x
+            sudo apt install eatmydata
+            sudo eatmydata apt-get install git dpkg-dev rpm flex bison ca-certificates wget python3 rsync bc libssl-dev clang llvm libelf-dev libzip-dev git libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip dh-golang golang-any golang-golang-x-net-dev golang-google-grpc-dev golang-goprotobuf-dev libmnl-dev golang-github-vishvananda-netlink-dev golang-github-evilsocket-ftrace-dev golang-github-google-gopacket-dev golang-github-fsnotify-fsnotify-dev linux-headers-$(uname -r)
 
-    - name: Check out git code
-      uses: actions/checkout@v2
-
-    - name: Get and prepare dependencies
-      run: |
-        set -e
-        set -x
-        sudo apt install eatmydata
-        sudo eatmydata apt install wget tar patch clang llvm libelf-dev libzip-dev flex bison libssl-dev bc rsync python3 binutils
-        eatmydata wget --no-verbose https://github.com/torvalds/linux/archive/v5.8.tar.gz
-        eatmydata tar -xf v5.8.tar.gz
-
-    - name: Build eBPF module
-      run: |
-        set -e
-        set -x
-        eatmydata patch linux-5.8/tools/lib/bpf/bpf_helpers.h < ebpf_prog/file.patch
-        eatmydata cp ebpf_prog/opensnitch.c ebpf_prog/Makefile linux-5.8/samples/bpf
-        cd linux-5.8 && yes "" | eatmydata make oldconfig
-        eatmydata make prepare
-        eatmydata make headers_install
-        cd samples/bpf
-        eatmydata make
-        eatmydata objdump -h opensnitch.o
-        eatmydata llvm-strip -g opensnitch.o
+        - name: Download kernel sources and compile eBPF modules
+          run: |
+            kernel_version="${{ matrix.kernel }}"
+            if [ ! -d utils/packaging/ ]; then
+              mkdir -p utils/packaging/
+            fi
+            wget https://raw.githubusercontent.com/evilsocket/opensnitch/master/utils/packaging/build_modules.sh -O utils/packaging/build_modules.sh
+            bash utils/packaging/build_modules.sh $kernel_version
+            sha1sum ebpf_prog/modules/opensnitch*o > ebpf_prog/modules/checksums.txt
+            cat ebpf_prog/modules/checksums.txt
