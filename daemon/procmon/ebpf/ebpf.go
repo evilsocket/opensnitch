@@ -60,16 +60,17 @@ var (
 
 //Start installs ebpf kprobes
 func Start() error {
+	genericError := "proc monitor eBPF failed: \"%s\". If this error persists, change it to 'proc'"
 
 	if err := mountDebugFS(); err != nil {
 		log.Error("ebpf.Start -> mount debugfs error. Report on github please: %s", err)
-		return err
+		return fmt.Errorf("[eBPF] mount debugfs error: %s", err)
 	}
 
 	m = elf.NewModule("/etc/opensnitchd/opensnitch.o")
 	if err := m.Load(nil); err != nil {
 		log.Error("eBPF Failed to load /etc/opensnitchd/opensnitch.o: %v", err)
-		return err
+		return fmt.Errorf(genericError, err)
 	}
 
 	// if previous shutdown was unclean, then we must remove the dangling kprobe
@@ -78,11 +79,11 @@ func Start() error {
 		m.Close()
 		if err := m.Load(nil); err != nil {
 			log.Error("eBPF failed to load /etc/opensnitchd/opensnitch.o (2): %v", err)
-			return err
+			return fmt.Errorf(genericError, err)
 		}
 		if err := m.EnableKprobes(0); err != nil {
 			log.Error("eBPF error when enabling kprobes: %v", err)
-			return err
+			return fmt.Errorf(genericError, err)
 		}
 	}
 
@@ -93,7 +94,7 @@ func Start() error {
 		err := m.UpdateElement(m.Map(name), unsafe.Pointer(&zeroKey[0]), unsafe.Pointer(&zeroValue[0]), 0)
 		if err != nil {
 			log.Error("eBPF could not init counters to zero: %v", err)
-			return err
+			return fmt.Errorf(genericError, err)
 		}
 	}
 	ebpfCache = NewEbpfCache()
