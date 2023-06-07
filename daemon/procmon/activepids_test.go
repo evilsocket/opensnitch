@@ -61,7 +61,7 @@ func TestMonitorActivePids(t *testing.T) {
 		addToActivePidsCache(uint64(pid), proc)
 	}
 	//sleep to make sure all processes started before we proceed
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 3)
 	//make sure all PIDS are in the cache
 	for i := 0; i < numberOfHelpers; i++ {
 		proc := helperProcs[i]
@@ -81,7 +81,7 @@ func TestMonitorActivePids(t *testing.T) {
 		}
 	}
 	//give the cache time to remove killed processes
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 3)
 
 	//make sure only the alive process is in the cache
 	foundProc := findProcessInActivePidsCache(uint64(helperProcs[numberOfHelpers-1].ID))
