@@ -67,10 +67,11 @@ func Start() error {
 		return fmt.Errorf("[eBPF] mount debugfs error: %s", err)
 	}
 
-	m = elf.NewModule("/etc/opensnitchd/opensnitch.o")
-	if err := m.Load(nil); err != nil {
+	var err error
+	m, err = core.LoadEbpfModule("opensnitch.o")
+	if err != nil {
 		log.Error("eBPF Failed to load /etc/opensnitchd/opensnitch.o: %v", err)
-		return fmt.Errorf(genericError, err)
+		return err
 	}
 
 	// if previous shutdown was unclean, then we must remove the dangling kprobe
