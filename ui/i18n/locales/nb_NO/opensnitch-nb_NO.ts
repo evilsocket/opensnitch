@@ -605,12 +605,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="589"/>
         <source>Events tab columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolonner for Hendelser-fane</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="299"/>
         <source>by PID</source>
-        <translation type="unfinished"></translation>
+        <translation>etter PID</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="461"/>
@@ -620,17 +620,17 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="508"/>
         <source>Desktop notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrivebordsvarsler</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="526"/>
         <source>Use system notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Bruk systemvarsler</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="542"/>
         <source>Use Qt notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Bruk Qt-varsler</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="571"/>
@@ -645,7 +645,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1178"/>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>minutter</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1204"/>
@@ -668,12 +668,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="14"/>
         <source>Process details</source>
-        <translation type="unfinished"></translation>
+        <translation>Prosessdetaljer</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="61"/>
         <source>loading...</source>
-        <translation type="unfinished"></translation>
+        <translation>laster...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="81"/>
@@ -693,7 +693,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="135"/>
         <source>Open files</source>
-        <translation type="unfinished"></translation>
+        <translation>Åpne filer</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="149"/>
@@ -723,12 +723,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="240"/>
         <source>Start or stop monitoring this process</source>
-        <translation type="unfinished"></translation>
+        <translation>Start eller stopp monitorering av denne prosessen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="256"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Lukk</translation>
     </message>
 </context>
 <context>
@@ -776,7 +776,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="792"/>
         <source>once</source>
-        <translation type="unfinished"></translation>
+        <translation>en gang</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="797"/>
@@ -966,7 +966,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="784"/>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Varighet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="376"/>
@@ -996,7 +996,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="22"/>
         <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiver</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="706"/>
@@ -1045,7 +1045,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="822"/>
         <source>until reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>til omstart</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="583"/>
@@ -1315,7 +1315,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="227"/>
         <source>Delete all intercepted events</source>
-        <translation type="unfinished"></translation>
+        <translation>Slett alle hendelser som er fanget opp</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="864"/>
@@ -1435,7 +1435,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="518"/>
         <source>System notifications are not available, you need to install python3-notify2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Systemvarslinger er ikke tilgjengelig, du må installere python3-notify2.</translation>
     </message>
 </context>
 <context>
@@ -1473,7 +1473,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="321"/>
         <source>from this executable</source>
-        <translation type="unfinished"></translation>
+        <translation>fra denne kjørbare fil</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="208"/>
@@ -1543,12 +1543,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="334"/>
         <source>from this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>fra denne PID</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/notifications.py" line="105"/>
         <source>New outgoing connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny utgående forbindelse</translation>
     </message>
 </context>
 <context>
@@ -1966,7 +1966,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="718"/>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>Nekt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="722"/>
@@ -1976,7 +1976,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="723"/>
         <source>Until reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>Til omstart</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1244"/>
