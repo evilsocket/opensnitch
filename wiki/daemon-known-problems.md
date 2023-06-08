@@ -1,12 +1,12 @@
 
-### Compilation
+## Compilation
 
 > cgo: cannot load DWARF output from $WORK/b085//_cgo_.o: zlib: invalid header
 
 See these comments: [#851](https://github.com/evilsocket/opensnitch/issues/851#issuecomment-1434624041) and [#851](https://github.com/evilsocket/opensnitch/issues/851#issuecomment-1434611009) , and issues: [#820](https://github.com/evilsocket/opensnitch/issues/820) [#768](https://github.com/evilsocket/opensnitch/issues/768)
 
 
-### opensnitchd does not start
+## opensnitchd does not start
 
 Note: Since v1.6.0 you can use `opensnitchd -check-requirements` to know if your system is compatible.
 
