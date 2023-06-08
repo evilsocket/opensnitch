@@ -26,7 +26,7 @@
    1. [Known problems](Known-problems)
       1. [GUI known problems](GUI-known-problems)
       2. [daemon known problems](daemon-known-problems)
-      3. [Genera](Known-problems)
+      3. [General](Known-problems)
    3. [FAQs](FAQs)
    4. [Why OpenSnitch does not intercept application XXX](Why-OpenSnitch-does-not-intercept-application-XXX)
 8. [Examples OpenSnitch in action](OpenSnitch-in-action)
