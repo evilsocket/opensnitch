@@ -27,7 +27,7 @@ On Gnome-Shell >= 3.16, systray icons have been removed. You have to install the
     Download latest version - https://github.com/ubuntu/gnome-shell-extension-appindicator/releases
     Install it with your regular user: gnome-extensions install gnome-shell-extension-appindicator-v33.zip
 
-See this comment/issue for more information: #44
+See this comment/issue for more information: [#44](https://github.com/evilsocket/opensnitch/issues/44).
 
 
 ### Random crashes or problems on Wayland
@@ -56,7 +56,7 @@ If it doesn't exist, create it:
 
 If you have installed the GUI from the repositories of a distribution, tell the maintainer of the package to create that symbolic link after installation.
 
-see issue #434 for more information.
+see issue [#434](https://github.com/evilsocket/opensnitch/issues/434#issuecomment-859968103) for more information.
 
 
 ### The GUI does not change to dark style theme
@@ -70,7 +70,7 @@ QT_QPA_PLATFORMTHEME=gtk2
 EOF
 ```
 
-More info: #303
+More info: [#303](https://github.com/evilsocket/opensnitch/issues/303)
 
 Since version v1.5.1, you can change GUI theme from the Preferences -> UI -> Theme . You'll need to install qt-material: `~ $ pip3 install qt-material`
 
@@ -94,6 +94,27 @@ $ pip3 install protobuf==3.6
 You may need to uninstall setuptools if it keeps failing: `~ $ pip3 uninstall setuptools`
 
 
+### GUI crash/exception or does not show up
+
+If you have installed it by double clicking on the pkgs, using a graphical installer, try to install it from command line:
+
+> $ sudo dpkg -i `*opensnitch*deb`; sudo apt -f install
+
+See [issue #25](https://github.com/gustavo-iniguez-goya/opensnitch/issues/25), [issue #16](https://github.com/gustavo-iniguez-goya/opensnitch/issues/16) and [issue #32](https://github.com/gustavo-iniguez-goya/opensnitch/issues/32) for additional information.
+
+
+***
+
+You have to install `unicode_slugify` and `grpcio-tools`, usually not available in old distros. You can install them using pip:
+
+```
+pip3 install unicode_slugify
+pip3 install grpcio protobuf
+```
+
+If grpcio fails to compile, you can try specifying a version: `pip3 install grpcio==1.16.1`
+
+
 ### TypeError: new() got an unexpected keyword argument ...
 
 This error means that your `python3-protobuf` is not compatible with OpenSnitch. Try uninstalling or upgrading it.
@@ -105,7 +126,7 @@ If you have a previous installation remove it, and install the GUI again (you ma
 
 If it doesn't work, report it describing the steps to reproduce it, and the exception or log. For example:
 
-```
+```bash
 Traceback (most recent call last):
   File "/usr/lib/python3.8/site-packages/opensnitch/dialogs/prompt.py", line 362, in _on_apply_clicked
     self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.operator.type, self._rule.operator.data))
@@ -122,7 +143,7 @@ For ArchLinux/Manjaro users this worked:
 
 ### GUI size problems on 4k monitors
 
-Some users have reported issues displaying the GUI on 4k monitors. See #43 for more information.
+Some users have reported issues displaying the GUI on 4k monitors. See [#43](https://github.com/evilsocket/opensnitch/issues/43) for more information.
 
 Setting these variables may help:
 ```ash
@@ -130,5 +151,5 @@ Setting these variables may help:
 ~ $ export QT_SCREEN_SCALE_FACTORS=1 (or 1.25, 1.5, 2, ...)
 ```
 
-In case of multiple displays: export "QT_SCREEN_SCALE_FACTORS=1;1"
+In case of multiple displays: `~ $ export "QT_SCREEN_SCALE_FACTORS=1;1"`
 
