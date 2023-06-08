@@ -24,6 +24,9 @@
    1. [Adding, updating and installing translations](Adding,-updating-and-installing-new-translations)
 7. FAQs and common errors
    1. [Known problems](Known-problems)
-   2. [FAQs](FAQs)
-   3. [Why OpenSnitch does not intercept application XXX](Why-OpenSnitch-does-not-intercept-application-XXX)
+      1. [GUI known problems](GUI-known-problems)
+      2. [daemon known problems](daemon-known-problems)
+      3. [Genera](Known-problems)
+   3. [FAQs](FAQs)
+   4. [Why OpenSnitch does not intercept application XXX](Why-OpenSnitch-does-not-intercept-application-XXX)
 8. [Examples OpenSnitch in action](OpenSnitch-in-action)
