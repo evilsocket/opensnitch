@@ -1,0 +1,134 @@
+As a general rule of thumb, if the GUI crashes or doesn't show up, open a terminal and type: `~ $ opensnitch-ui`
+
+It'll display more details.
+
+Be sure before launching it that no other `opensnitch-ui` process is running (`pgrep opensnitch-ui`).
+Also check how much CPU the process `opensnitch-ui` is consuming. If it consumes 90-100% of the CPU continuously it may be this Ubuntu bug: #647
+
+
+### GUI does not show up
+
+When the GUI starts, you should have a new icon in your systray -> ![image](https://github.com/evilsocket/opensnitch/assets/2742953/406fa487-be93-425d-abab-82770e2409dc)
+
+If there's no icon, your Window Manager or Desktop Environment does not support systray icons.
+If you're running GNOME you need to install this extension -> https://github.com/ubuntu/gnome-shell-extension-appindicator
+(check if it's available for your distribution)
+
+
+### GUI takes 10 to 20s to show up
+
+Same problem than above, sytray icons not supported. Install the `gnome-shell-extension-appindicator`.
+
+
+### OpenSnitch icon does not show up on Gnome-Shell
+
+On Gnome-Shell >= 3.16, systray icons have been removed. You have to install the extension gnome-shell-extension-appindicator to get them back.
+
+    Download latest version - https://github.com/ubuntu/gnome-shell-extension-appindicator/releases
+    Install it with your regular user: gnome-extensions install gnome-shell-extension-appindicator-v33.zip
+
+See this comment/issue for more information: #44
+
+
+### Random crashes or problems on Wayland
+
+PyQt5 doesn't seem to be fully soported on Wayland. For example the pop-ups are not correctly positioned, or the main window crashes randomly:
+
+> The Wayland connection experienced a fatal error: Protocol error
+
+In these cases, try launching the GUI as follow:
+
+`~ $ QT_QPA_PLATFORM=xcb opensnitch-ui`
+
+
+### Opensnicth GUI not working across reboots
+
+If after installing OpenSnitch and reboot, the GUI does not show up upon login to your Desktop Environment, be sure that the following path exists in your $HOME:
+
+`~ $ ls ~/.config/autostart/opensnitch_ui.desktop`
+
+If it doesn't exist, create it:
+
+```bash
+~ $ mkdir -p ~/.config/autostart/
+~ $ ln -s /usr/share/applications/opensnitch_ui.desktop ~/.config/autostart/
+```
+
+If you have installed the GUI from the repositories of a distribution, tell the maintainer of the package to create that symbolic link after installation.
+
+see issue #434 for more information.
+
+
+### The GUI does not change to dark style theme
+
+It's usually a problem of the Desktop Environment. You can try to configure the theme by using `qt5ct`, or executing the following commands:
+
+```bash
+~ $ sudo apt-get install -y qt5-style-plugins
+~ $ sudo cat << EOF | sudo tee  /etc/environment
+QT_QPA_PLATFORMTHEME=gtk2
+EOF
+```
+
+More info: #303
+
+Since version v1.5.1, you can change GUI theme from the Preferences -> UI -> Theme . You'll need to install qt-material: `~ $ pip3 install qt-material`
+
+
+### No icons on the GUI
+
+Be sure that you have properly set the icon theme of your Window Manager. [More information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/53#issuecomment-671419790)
+
+### GUI crash/exception/does not show up on old distros (ubuntu 16, 18, ...)
+
+    /usr/lib/python3.5/site-packages/google/protobuf/internal/containers.py, line 333 ... object does not support item assignment
+
+Install needed packages from pip:
+
+```bash
+$ pip3 install grpcio==1.16.1
+$ pip3 install unicode_slugify
+$ pip3 install protobuf==3.6
+```
+
+You may need to uninstall setuptools if it keeps failing: `~ $ pip3 uninstall setuptools`
+
+
+### TypeError: new() got an unexpected keyword argument ...
+
+This error means that your `python3-protobuf` is not compatible with OpenSnitch. Try uninstalling or upgrading it.
+If the GUI keeps failing with the same error, install protobuf using pip3: `~ $ pip3 install protobuf==3.6`
+
+Check that you don't have a previous installation of opensnitch GUI in /usr/lib/python3*/*/opensnitch/ or /usr/local/lib/python3*/*/opensnitch/
+
+If you have a previous installation remove it, and install the GUI again (you may have an installation of the original repo).
+
+If it doesn't work, report it describing the steps to reproduce it, and the exception or log. For example:
+
+```
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/site-packages/opensnitch/dialogs/prompt.py", line 362, in _on_apply_clicked
+    self._rule.name = slugify("%s %s %s" % (self._rule.action, self._rule.operator.type, self._rule.operator.data))
+  File "/usr/lib/python3.8/site-packages/slugify.py", line 24, in slugify
+    unicode(
+NameError: name 'unicode' is not defined
+```
+
+For ArchLinux/Manjaro users this worked:
+
+>    installed was from AUR python-unicode-slugify-git r43.b696c37-1
+>    removed it and installed python-unicode-slugify 0.1.3-1.
+
+
+### GUI size problems on 4k monitors
+
+Some users have reported issues displaying the GUI on 4k monitors. See #43 for more information.
+
+Setting these variables may help:
+```ash
+~ $ export QT_AUTO_SCREEN_SCALE_FACTOR=0
+~ $ export QT_SCREEN_SCALE_FACTORS=1 (or 1.25, 1.5, 2, ...)
+```
+
+In case of multiple displays: export "QT_SCREEN_SCALE_FACTORS=1;1"
+
