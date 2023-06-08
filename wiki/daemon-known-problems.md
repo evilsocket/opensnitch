@@ -104,7 +104,7 @@ This error may indicate that your kernel doesn't have [ftrace](https://www.kerne
 CONFIG_FTRACE should be **y** and the directory `/sys/kernel/debug/tracing/` must exist.
 
 ```bash
-$ grep CONFIG_FTRACE /boot/config-$(uname-r)
+~ $ grep CONFIG_FTRACE /boot/config-$(uname-r)
 CONFIG_FTRACE=y
 ```
 
@@ -119,15 +119,17 @@ Read more: [#475](https://github.com/evilsocket/opensnitch/issues/475)
 
 Your kernel lacks support for syscalls tracing. The kernel must have the following option configured:
 
-$ grep FTRACE_SYSCALLS /boot/config-$(uname -r)
+```bash
+~ $ grep FTRACE_SYSCALLS /boot/config-$(uname -r)
 CONFIG_FTRACE_SYSCALLS=y
+```
 
 If the output is # CONFIG_FTRACE_SYSCALLS is not set, you need to reconfigure it or install one that has the option enabled.
 
 
 ### Kernel panics
 
-Some users reported kernel panics with kernel 5.6.16 ([#297](https://github.com/evilsocket/opensnitch/issues/297)) and other kernels ([#41](https://github.com/evilsocket/opensnitch/issues/41)). deathtrip found that the culprit was a configuration of the Arch's linux-hardened kernel command line option.
+Some users reported kernel panics with kernel 5.6.16 ([#297](https://github.com/evilsocket/opensnitch/issues/297)) and other kernels ([#41](https://github.com/evilsocket/opensnitch/issues/41)). deathtrip found that the culprit was a configuration of the Arch's [linux-hardened kernel](https://www.archlinux.org/packages/extra/x86_64/linux-hardened/) command line option.
 
 Removing the following options from the kernel booting parameters solved the issue:
 
@@ -135,4 +137,4 @@ Removing the following options from the kernel booting parameters solved the iss
 
 On Debian with kernel 5.7.0, remove `slub_debug=FZP` if you have it configured and try again.
 
-Note: This was caused by a bug in the libnetfilter_queue library.
+Note: This was caused by [a bug in the libnetfilter_queue library](https://bugzilla.netfilter.org/show_bug.cgi?id=1440).
