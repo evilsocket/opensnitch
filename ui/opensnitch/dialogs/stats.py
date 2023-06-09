@@ -23,6 +23,7 @@ from opensnitch.customwidgets.firewalltableview import FirewallTableModel
 from opensnitch.customwidgets.generictableview import GenericTableModel
 from opensnitch.customwidgets.addresstablemodel import AddressTableModel
 from opensnitch.utils import Message, QuickHelp, AsnDB, Icons
+from opensnitch.utils.xdg import xdg_current_desktop
 from opensnitch.actions import Actions
 from opensnitch.rules import Rule, Rules
 
@@ -277,7 +278,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def __init__(self, parent=None, address=None, db=None, dbname="db", appicon=None):
         super(StatsDialog, self).__init__(parent)
 
-        self._current_desktop = os.environ['XDG_CURRENT_DESKTOP'] if os.environ.get("XDG_CURRENT_DESKTOP") != None else None
+        self._current_desktop = xdg_current_desktop
 
         self.setWindowFlags(QtCore.Qt.Window)
         self.setupUi(self)
