@@ -26,6 +26,7 @@ from opensnitch.version import version
 from opensnitch.database import Database
 from opensnitch.utils import Utils, CleanerTask, Themes
 from opensnitch.utils import Message, languages
+from opensnitch.utils.xdg import Autostart
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _new_remote_trigger = QtCore.pyqtSignal(str, ui_pb2.PingRequest)
@@ -87,6 +88,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._msg = QtWidgets.QMessageBox()
         self._remote_lock = Lock()
         self._remote_stats = {}
+        self._autostart = Autostart()
 
         self.translator = None
         self._init_translation()
@@ -181,10 +183,21 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._menu_enable_fw = self._menu.addAction(self.MENU_ENTRY_FW_DISABLE)
         self._menu_enable_fw.setEnabled(False)
         self._menu_enable_fw.triggered.connect(self._on_enable_interception_clicked)
+
+        self._menu.addSeparator()
+        self._menu_autostart = self._menu.addAction("Autostart")
+        self._menu_autostart.setCheckable(True)
+        self._menu_autostart.setChecked(self._autostart.isEnabled())
+        self._menu_autostart.triggered.connect(self._on_switch_autostart)
+        self._menu.addSeparator()
+
         self._menu.addAction(self.MENU_ENTRY_HELP).triggered.connect(
                 lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_CONFIG_URL))
                 )
         self._menu.addAction(self.MENU_ENTRY_CLOSE).triggered.connect(self._on_close)
+
+    def _on_switch_autostart(self):
+        self._autostart.enable(self._menu_autostart.isChecked())
 
     def _show_gui_if_tray_not_available(self):
         """If the system tray is not available or ready, show the GUI after
