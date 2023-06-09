@@ -53,9 +53,16 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setupUi(self)
         self.setWindowIcon(appicon)
 
+        self.buttonBox.setStandardButtons(
+            QtWidgets.QDialogButtonBox.Help |
+            QtWidgets.QDialogButtonBox.Reset |
+            QtWidgets.QDialogButtonBox.Close |
+            QtWidgets.QDialogButtonBox.Save
+        )
+
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Reset).clicked.connect(self._cb_reset_clicked)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Close).clicked.connect(self._cb_close_clicked)
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Apply).clicked.connect(self._cb_apply_clicked)
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Save).clicked.connect(self._cb_save_clicked)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Help).clicked.connect(self._cb_help_clicked)
         self.selectListButton.clicked.connect(self._cb_select_list_button_clicked)
         self.selectListRegexpButton.clicked.connect(self._cb_select_regexp_list_button_clicked)
@@ -224,7 +231,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.statusLabel.setStyleSheet('color: green')
         self.statusLabel.setText(msg)
 
-    def _cb_apply_clicked(self):
+    def _cb_save_clicked(self):
         if self.nodesCombo.count() == 0:
             self._set_status_error(QC.translate("rules", "There're no nodes connected."))
             return
