@@ -196,8 +196,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 )
         self._menu.addAction(self.MENU_ENTRY_CLOSE).triggered.connect(self._on_close)
 
+        self._menu.aboutToShow.connect(self._on_show_menu)
+
     def _on_switch_autostart(self):
         self._autostart.enable(self._menu_autostart.isChecked())
+
+    def _on_show_menu(self):
+        self._menu_autostart.setChecked(self._autostart.isEnabled())
 
     def _show_gui_if_tray_not_available(self):
         """If the system tray is not available or ready, show the GUI after
