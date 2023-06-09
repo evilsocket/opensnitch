@@ -115,7 +115,7 @@ func init() {
 }
 
 func overwriteLogging() bool {
-	return debug || warning || important || errorlog || logFile != "" || logUTC || logMicro
+	return debug || warning || important || errorlog || logFile != "" || logMicro
 }
 
 func setupLogging() {

@@ -111,8 +111,8 @@ func Yellow(s string) string {
 
 // Raw prints out a text without colors
 func Raw(format string, args ...interface{}) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	mutex.RLock()
+	defer mutex.RUnlock()
 	fmt.Fprintf(Output, format, args...)
 }
 
@@ -125,40 +125,40 @@ func SetLogLevel(newLevel int) {
 
 // GetLogLevel returns the current log level configured.
 func GetLogLevel() int {
-	mutex.Lock()
-	defer mutex.Unlock()
+	mutex.RLock()
+	defer mutex.RUnlock()
 
 	return MinLevel
 }
 
 // SetLogUTC configures UTC timestamps
 func SetLogUTC(newLogUTC bool) {
-        mutex.Lock()
-        defer mutex.Unlock()
-        LogUTC = newLogUTC
+	mutex.Lock()
+	defer mutex.Unlock()
+	LogUTC = newLogUTC
 }
 
 // GetLogUTC returns the current config.
 func GetLogUTC() bool {
-        mutex.Lock()
-        defer mutex.Unlock()
+	mutex.RLock()
+	defer mutex.RUnlock()
 
-        return LogUTC
+	return LogUTC
 }
 
 // SetLogMicro configures microsecond timestamps
 func SetLogMicro(newLogMicro bool) {
-        mutex.Lock()
-        defer mutex.Unlock()
-        LogMicro = newLogMicro
+	mutex.Lock()
+	defer mutex.Unlock()
+	LogMicro = newLogMicro
 }
 
 // GetLogMicro returns the current config.
 func GetLogMicro() bool {
-        mutex.Lock()
-        defer mutex.Unlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 
-        return LogMicro
+	return LogMicro
 }
 
 // Log prints out a text with the given color and format
