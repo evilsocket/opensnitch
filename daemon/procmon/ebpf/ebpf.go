@@ -92,6 +92,9 @@ func Start() error {
 	zeroKey := make([]byte, 4)
 	zeroValue := make([]byte, 8)
 	for _, name := range []string{"tcpcounter", "tcpv6counter", "udpcounter", "udpv6counter"} {
+		if m.Map(name) == nil {
+			return fmt.Errorf("eBPF module malformed, \"%s\" map missing. Verify that the module compiled fine and is correctly generated", name)
+		}
 		err := m.UpdateElement(m.Map(name), unsafe.Pointer(&zeroKey[0]), unsafe.Pointer(&zeroValue[0]), 0)
 		if err != nil {
 			log.Error("eBPF could not init counters to zero: %v", err)
