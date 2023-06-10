@@ -1,6 +1,8 @@
 A node is a daemon running on a machine. You can install the daemon on multiple machines, and manage them from the server (i.e.:GUI).
 
-Note: if you want to install **only** the daemon from the Debian repositories, you'll have to execute this command: `$ sudo apt install --no-install-recommends opensnitch` (otherwise it'll install both, the daemon and the GUI)
+> ℹ️ Note: if you want to install **only** the daemon from the Debian repositories, you'll have to execute this command: 
+> 
+> `$ sudo apt install --no-install-recommends opensnitch` (otherwise it'll install both, the daemon and the GUI)
 
 ![image](https://user-images.githubusercontent.com/2742953/197076010-2502855a-cdae-4f03-90bc-7a715efbbf64.png)
 
