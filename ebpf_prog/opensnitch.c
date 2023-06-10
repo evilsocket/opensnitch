@@ -1,10 +1,6 @@
 #define KBUILD_MODNAME "dummy"
 
 #include "common_defs.h"
-#include <uapi/linux/tcp.h>
-#include <net/sock.h>
-#include <net/udp_tunnel.h>
-#include <net/inet_sock.h>
 
 struct tcp_key_t {
 	u16 sport;
@@ -205,10 +201,10 @@ int kretprobe__tcp_v4_connect(struct pt_regs *ctx)
 
 	struct tcp_key_t tcp_key;
     __builtin_memset(&tcp_key, 0, sizeof(tcp_key));
-	bpf_probe_read(&tcp_key.dport, sizeof(tcp_key.dport), &sk->__sk_common.skc_dport);
-	bpf_probe_read(&tcp_key.sport, sizeof(tcp_key.sport), &sk->__sk_common.skc_num);
-	bpf_probe_read(&tcp_key.daddr, sizeof(tcp_key.daddr), &sk->__sk_common.skc_daddr);
-	bpf_probe_read(&tcp_key.saddr, sizeof(tcp_key.saddr), &sk->__sk_common.skc_rcv_saddr);
+	bpf_core_read(&tcp_key.dport, sizeof(tcp_key.dport), &sk->__sk_common.skc_dport);
+	bpf_core_read(&tcp_key.sport, sizeof(tcp_key.sport), &sk->__sk_common.skc_num);
+	bpf_core_read(&tcp_key.daddr, sizeof(tcp_key.daddr), &sk->__sk_common.skc_daddr);
+	bpf_core_read(&tcp_key.saddr, sizeof(tcp_key.saddr), &sk->__sk_common.skc_rcv_saddr);
 	
 	u32 zero_key = 0;
 	u64 *val = bpf_map_lookup_elem(&tcpcounter, &zero_key);
@@ -255,17 +251,17 @@ int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
 	
 	struct tcpv6_key_t tcpv6_key;
     __builtin_memset(&tcpv6_key, 0, sizeof(tcpv6_key));
-	bpf_probe_read(&tcpv6_key.dport, sizeof(tcpv6_key.dport), &sk->__sk_common.skc_dport);
-	bpf_probe_read(&tcpv6_key.sport, sizeof(tcpv6_key.sport), &sk->__sk_common.skc_num);
+	bpf_core_read(&tcpv6_key.dport, sizeof(tcpv6_key.dport), &sk->__sk_common.skc_dport);
+	bpf_core_read(&tcpv6_key.sport, sizeof(tcpv6_key.sport), &sk->__sk_common.skc_num);
 #if defined(__i386__)
 		struct sock_on_x86_32_t sock;
     __builtin_memset(&sock, 0, sizeof(sock));
-    bpf_probe_read(&sock, sizeof(sock), *(&sk));
+    bpf_core_read(&sock, sizeof(sock), *(&sk));
 		tcpv6_key.daddr = sock.daddr;
 		tcpv6_key.saddr = sock.saddr;
 #else
-		bpf_probe_read(&tcpv6_key.daddr, sizeof(tcpv6_key.daddr), &sk->__sk_common.skc_v6_daddr.in6_u.u6_addr32);
-		bpf_probe_read(&tcpv6_key.saddr, sizeof(tcpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
+		bpf_core_read(&tcpv6_key.daddr, sizeof(tcpv6_key.daddr), &sk->__sk_common.skc_v6_daddr.in6_u.u6_addr32);
+		bpf_core_read(&tcpv6_key.saddr, sizeof(tcpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
 #endif
 
 	u32 zero_key = 0;
@@ -298,22 +294,22 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
 
 	u64 msg_name; //pointer
     __builtin_memset(&msg_name, 0, sizeof(msg_name));
-	bpf_probe_read(&msg_name, sizeof(msg_name), &msg->msg_name);
+	bpf_core_read(&msg_name, sizeof(msg_name), &msg->msg_name);
 	struct sockaddr_in * usin = (struct sockaddr_in *)msg_name;
 
 	struct udp_key_t udp_key;
     __builtin_memset(&udp_key, 0, sizeof(udp_key));
-	bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &usin->sin_port);
+	bpf_core_read(&udp_key.dport, sizeof(udp_key.dport), &usin->sin_port);
 	if (udp_key.dport != 0){ //likely
-		bpf_probe_read(&udp_key.daddr, sizeof(udp_key.daddr), &usin->sin_addr.s_addr);
+		bpf_core_read(&udp_key.daddr, sizeof(udp_key.daddr), &usin->sin_addr.s_addr);
 	}
 	else {
 		//very rarely dport can be found in skc_dport 
-		bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &sk->__sk_common.skc_dport);
-		bpf_probe_read(&udp_key.daddr, sizeof(udp_key.daddr), &sk->__sk_common.skc_daddr);
+		bpf_core_read(&udp_key.dport, sizeof(udp_key.dport), &sk->__sk_common.skc_dport);
+		bpf_core_read(&udp_key.daddr, sizeof(udp_key.daddr), &sk->__sk_common.skc_daddr);
 	}
-	bpf_probe_read(&udp_key.sport, sizeof(udp_key.sport), &sk->__sk_common.skc_num);
-	bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &sk->__sk_common.skc_rcv_saddr);
+	bpf_core_read(&udp_key.sport, sizeof(udp_key.sport), &sk->__sk_common.skc_num);
+	bpf_core_read(&udp_key.saddr, sizeof(udp_key.saddr), &sk->__sk_common.skc_rcv_saddr);
 	
 	u32 zero_key = 0;
     __builtin_memset(&zero_key, 0, sizeof(zero_key));
@@ -350,28 +346,28 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 
 	u64 msg_name; //a pointer
     __builtin_memset(&msg_name, 0, sizeof(msg_name));
-	bpf_probe_read(&msg_name, sizeof(msg_name), &msg->msg_name);
+	bpf_core_read(&msg_name, sizeof(msg_name), &msg->msg_name);
 
 	struct udpv6_key_t udpv6_key;
     __builtin_memset(&udpv6_key, 0, sizeof(udpv6_key));
-	bpf_probe_read(&udpv6_key.dport, sizeof(udpv6_key.dport), &sk->__sk_common.skc_dport);
+	bpf_core_read(&udpv6_key.dport, sizeof(udpv6_key.dport), &sk->__sk_common.skc_dport);
 	if (udpv6_key.dport != 0){ //likely
-		bpf_probe_read(&udpv6_key.daddr, sizeof(udpv6_key.daddr), &sk->__sk_common.skc_v6_daddr.in6_u.u6_addr32);
+		bpf_core_read(&udpv6_key.daddr, sizeof(udpv6_key.daddr), &sk->__sk_common.skc_v6_daddr.in6_u.u6_addr32);
 	}
 	else {
 		struct sockaddr_in6 * sin6 = (struct sockaddr_in6 *)msg_name;
-		bpf_probe_read(&udpv6_key.dport, sizeof(udpv6_key.dport), &sin6->sin6_port);
-		bpf_probe_read(&udpv6_key.daddr, sizeof(udpv6_key.daddr), &sin6->sin6_addr.in6_u.u6_addr32);
+		bpf_core_read(&udpv6_key.dport, sizeof(udpv6_key.dport), &sin6->sin6_port);
+		bpf_core_read(&udpv6_key.daddr, sizeof(udpv6_key.daddr), &sin6->sin6_addr.in6_u.u6_addr32);
 	}
 
-	bpf_probe_read(&udpv6_key.sport, sizeof(udpv6_key.sport), &sk->__sk_common.skc_num);
-	bpf_probe_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
+	bpf_core_read(&udpv6_key.sport, sizeof(udpv6_key.sport), &sk->__sk_common.skc_num);
+	bpf_core_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
 
 
 #if defined(__i386__)
 	struct sock_on_x86_32_t sock;
    	__builtin_memset(&sock, 0, sizeof(sock));
-   	bpf_probe_read(&sock, sizeof(sock), *(&sk));
+    bpf_core_read(&sock, sizeof(sock), *(&sk));
 	udpv6_key.daddr = sock.daddr;
 	udpv6_key.saddr = sock.saddr;
 #endif
@@ -411,13 +407,13 @@ int kprobe__iptunnel_xmit(struct pt_regs *ctx)
 	u16 pkt_hdr;
 	__builtin_memset(&head, 0, sizeof(head));
 	__builtin_memset(&pkt_hdr, 0, sizeof(pkt_hdr));
-	bpf_probe_read(&head, sizeof(head), &skb->head);
-	bpf_probe_read(&pkt_hdr, sizeof(pkt_hdr), &skb->transport_header);
+	bpf_core_read(&head, sizeof(head), &skb->head);
+	bpf_core_read(&pkt_hdr, sizeof(pkt_hdr), &skb->transport_header);
 	struct udphdr *udph;
 	__builtin_memset(&udph, 0, sizeof(udph));
 
 	udph = (struct udphdr *)(head + pkt_hdr);
-	bpf_probe_read(&sport, sizeof(sport), &udph->source);
+	bpf_core_read(&sport, sizeof(sport), &udph->source);
 	sport = (sport >> 8) | ((sport << 8) & 0xff00);
 
 	struct udp_key_t udp_key;
@@ -426,10 +422,10 @@ int kprobe__iptunnel_xmit(struct pt_regs *ctx)
 	__builtin_memset(&udp_key, 0, sizeof(udp_key));
 	__builtin_memset(&udp_value, 0, sizeof(udp_value));
 
-	bpf_probe_read(&udp_key.sport, sizeof(udp_key.sport), &sport);
-	bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &udph->dest);
-	bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &src);
-	bpf_probe_read(&udp_key.daddr, sizeof(udp_key.daddr), &dst);
+	bpf_core_read(&udp_key.sport, sizeof(udp_key.sport), &sport);
+	bpf_core_read(&udp_key.dport, sizeof(udp_key.dport), &udph->dest);
+	bpf_core_read(&udp_key.saddr, sizeof(udp_key.saddr), &src);
+	bpf_core_read(&udp_key.daddr, sizeof(udp_key.daddr), &dst);
 
 	u64 *counterVal = bpf_map_lookup_elem(&udpcounter, &zero_key);
 	if (counterVal == NULL){return 0;}

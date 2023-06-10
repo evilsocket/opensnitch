@@ -1,12 +1,11 @@
 #ifndef OPENSNITCH_COMMON_DEFS_H
 #define OPENSNITCH_COMMON_DEFS_H
 
-#include <linux/sched.h>
-#include <linux/ptrace.h>
-#include <uapi/linux/bpf.h>
+#include "vmlinux-6.1.0-8.h"
+
 #include "bpf_headers/bpf_helpers.h"
 #include "bpf_headers/bpf_tracing.h"
-//#include <bpf/bpf_core_read.h> 
+#include "bpf_headers/bpf_core_read.h"
 
 #define BUF_SIZE_MAP_NS 256
 #define MAPSIZE 12000

@@ -29,24 +29,13 @@ endif
 
 BIN := opensnitch.o
 CLANG_FLAGS = -I. \
-	-I$(KERNEL_HEADERS)/arch/$(ARCH)/include/generated/ \
-	-I$(KERNEL_HEADERS)/include \
-	-include $(KERNEL_DIR)/include/linux/kconfig.h \
-	-I$(KERNEL_DIR)/include \
-	-I$(KERNEL_DIR)/include/uapi \
-	-I$(KERNEL_DIR)/include/generated/uapi \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include/generated \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include/uapi \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include/generated/uapi \
-	-I$(KERNEL_DIR)/tools/testing/selftests/bpf/ \
 	-D__KERNEL__ -D__BPF_TRACING__ -Wno-unused-value -Wno-pointer-sign \
 	-D__TARGET_ARCH_$(ARCH) -Wno-compare-distinct-pointer-types \
 	$(EXTRA_FLAGS) \
 	-Wno-gnu-variable-sized-type-not-at-end \
 	-Wno-address-of-packed-member -Wno-tautological-compare \
 	-Wno-unknown-warning-option  \
-	-g -O2 -emit-llvm
+	-target bpf -g -O2 -emit-llvm
 
 all: $(BIN)
 
