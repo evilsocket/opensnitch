@@ -48,21 +48,30 @@ class LinuxDesktopParser(threading.Thread):
             self.locale_country = ""
 
     def _parse_exec(self, cmd):
-        # remove stuff like %U
-        cmd = re.sub( r'%[a-zA-Z]+', '', cmd)
-        # remove 'env .... command'
-        cmd = re.sub( r'^env\s+[^\s]+\s', '', cmd)
-        # split && trim
-        cmd = cmd.split(' ')[0].strip()
-        # remove quotes
-        cmd = re.sub( r'["\']+', '', cmd)
-        # check if we need to resolve the path
-        if len(cmd) > 0 and cmd[0] != '/':
-            for path in os.environ["PATH"].split(os.pathsep):
-                filename = os.path.join(path, cmd)
-                if os.path.exists(filename):
-                    cmd = filename
-                    break
+        try:
+            is_flatpak = re.search("^/usr/[s]*bin/flatpak.*--command=([a-zA-Z0-9-_\/\.\+]+)", cmd)
+            if is_flatpak:
+                return is_flatpak.group(1)
+
+            # remove stuff like %U
+            cmd = re.sub( r'%[a-zA-Z]+', '', cmd)
+            # remove 'env .... command'
+            cmd = re.sub( r'^env\s+[^\s]+\s', '', cmd)
+            # split && trim
+            cmd = cmd.split(' ')[0].strip()
+            # remove quotes
+            cmd = re.sub( r'["\']+', '', cmd)
+
+            # check if we need to resolve the path
+            if len(cmd) > 0 and cmd[0] != '/':
+                for path in os.environ["PATH"].split(os.pathsep):
+                    filename = os.path.join(path, cmd)
+                    if os.path.exists(filename):
+                        cmd = filename
+                        break
+
+        except Exception as e:
+            print("desktop_parser._parse_exec() exception:", e)
 
         return cmd
 
