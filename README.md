@@ -59,6 +59,13 @@ Have you seen a connection you didn't expect? [submit it!](https://github.com/ev
 - 02/2022 [Linux User](https://www.linux-community.de/magazine/linuxuser/2022/03/)
 - 06/2022 [Linux Magazine #259](https://www.linux-magazine.com/Issues/2022/259/OpenSnitch)
 
+## Donations
+
+If you find OpenSnitch useful and want to donate to the dedicated developers, you can do it from the **Sponsor this project** section on the right side of this repository.
+
+You can see here who are the current maintainers of OpenSnitch:
+https://github.com/evilsocket/opensnitch/commits/master
+
 ## Contributors
 
 [See the list](https://github.com/evilsocket/opensnitch/graphs/contributors)
