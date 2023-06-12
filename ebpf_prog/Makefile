@@ -8,7 +8,7 @@ KERNEL_HEADERS ?= /usr/src/linux-headers-$(shell uname -r)/
 CLANG ?= clang
 LLC ?= llc
 LLVM_STRIP ?= llvm-strip -g
-ARCH ?= $(shell arch)
+ARCH ?= $(shell uname -m)
 
 # as in /usr/src/linux-headers-*/arch/
 # TODO: extract correctly the archs, and add more if needed.
