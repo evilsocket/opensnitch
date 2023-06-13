@@ -1345,7 +1345,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                         # 3. otherwise validate that the entered value is an
                         # int
                         try:
-                            if "," in statem_value or "-" in statem_value or val_idx < 1:
+                            if "," in statem_value or "-" in statem_value:
                                 raise ValueError("port entered is multiport or a port range")
                             service_idx = self.net_srv.service_by_name(statem_value)
                             statem_value = self.net_srv.port_by_index(service_idx)
