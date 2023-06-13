@@ -419,6 +419,12 @@ class NetworkServices():
     def to_array(self):
         return self.srv_array
 
+    def service_by_index(self, idx):
+        return self.srv_array[idx]
+
+    def service_by_name(self, name):
+        return self.srv_array.index(name)
+
     def port_by_index(self, idx):
         return self.ports_list[idx]
 

@@ -334,6 +334,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.comboVerdict.currentIndexChanged.connect(self._cb_verdict_changed)
         self.comboDirection.currentIndexChanged.connect(self._cb_direction_changed)
         self.checkEnable.toggled.connect(self._cb_check_enable_toggled)
+        self.lineDescription.textChanged.connect(self._cb_description_changed)
 
         self.cmdAddStatement.clicked.connect(self._cb_add_new_statement)
         self.cmdDelStatement.clicked.connect(self._cb_del_statement)
@@ -414,6 +415,9 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 
 
     def _cb_check_enable_toggled(self, status):
+        self._enable_save()
+
+    def _cb_description_changed(self, text):
         self._enable_save()
 
     def _cb_help_button_clicked(self):
@@ -531,10 +535,16 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         idx = w['what'].currentIndex()-1 # first item is blank
         val = w['value'].currentText().lower()
         if idx != -1 and (idx == self.STATM_SPORT or idx == self.STATM_DPORT):
+            # automagically choose the protocol for the selected port:
+            # echo/7 (tcp) -> tcp
             if Fw.PortProtocols.TCP.value in val:
-                w['opts'].setCurrentIndex(0)
+                w['opts'].setCurrentIndex(
+                    Fw.PortProtocols.values().index(Fw.PortProtocols.TCP.value)
+                )
             elif Fw.PortProtocols.UDP.value in val:
-                w['opts'].setCurrentIndex(1)
+                w['opts'].setCurrentIndex(
+                    Fw.PortProtocols.values().index(Fw.PortProtocols.UDP.value)
+                )
         self._set_statement_title(st_idx)
 
     def _cb_statem_op_changed(self, idx):
@@ -773,7 +783,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         l.addLayout(boxH1)
         l.addLayout(boxH2)
 
-        # row 1: | statement | operator |
+        # row 1: | statement | protocol |
         stWidget = QtWidgets.QComboBox(w)
         stWidget.addItems(self.STATM_LIST)
 
@@ -782,7 +792,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         stOptsWidget.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
         stOptsWidget.addItems(prots)
 
-        # row 2: | protocol | value |
+        # row 2: | operator | value |
         ops = [
             QC.translate("firewall", "Equal"),
             QC.translate("firewall", "Not equal"),
@@ -800,6 +810,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         stValueWidget.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         stValueWidget.setCurrentText("")
 
+        # add statement, proto/opts, operator and value
         boxH1.addWidget(stWidget)
         boxH1.addWidget(stOptsWidget)
         boxH2.addWidget(stOpWidget)
@@ -980,7 +991,16 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                     self.statements[idx]['opts'].setCurrentIndex(
                         Fw.PortProtocols.values().index(optsValue)
                     )
-                    self.statements[idx]['value'].setCurrentText(protoValue)
+                    try:
+                        self.statements[idx]['value'].blockSignals(True);
+                        self.statements[idx]['value'].setCurrentIndex(
+                            self.net_srv.index_by_port(protoValue)
+                        )
+                    except:
+                        self.statements[idx]['value'].setCurrentText(protoValue)
+                    finally:
+                        self.statements[idx]['value'].blockSignals(False);
+
                 else:
                     self.statements[idx]['what'].setCurrentIndex(self.STATM_META+1)
                     self.statements[idx]['opts'].setCurrentIndex(
@@ -1317,15 +1337,22 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 
                         else:
                             statement = statem_opts
-                            try:
-                                if "," in statem_value or "-" in statem_value or val_idx < 1:
-                                    raise ValueError("port entered is multiport or a port range")
-                                statem_value = self.net_srv.port_by_index(val_idx)
-                            except:
-                                if (st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT) and \
-                                        ("," not in statem_value and "-" not in statem_value):
-                                    if not self._is_valid_int_value(statem_value):
-                                        return None, None, None, QC.translate("firewall", "port not valid.")
+
+                        # 1. if the value is one of the /etc/services return
+                        # the port
+                        # 2. if the value contains , or - just use the written
+                        # value, to allow multiple ports and ranges.
+                        # 3. otherwise validate that the entered value is an
+                        # int
+                        try:
+                            if "," in statem_value or "-" in statem_value or val_idx < 1:
+                                raise ValueError("port entered is multiport or a port range")
+                            service_idx = self.net_srv.service_by_name(statem_value)
+                            statem_value = self.net_srv.port_by_index(service_idx)
+                        except:
+                            if "," not in statem_value and "-" not in statem_value:
+                                if not self._is_valid_int_value(statem_value):
+                                    return None, None, None, QC.translate("firewall", "port not valid.")
 
                     elif st_idx == self.STATM_CT_SET or st_idx == self.STATM_CT_MARK or st_idx == self.STATM_META_SET_MARK:
                         if not self._is_valid_int_value(statem_value):
