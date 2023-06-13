@@ -453,6 +453,9 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
             self.send_notifications(node['firewall'], self.OP_DELETE)
 
     def _cb_save_clicked(self):
+        if len(self.statements) == 0:
+            self._set_status_message(QC.translate("firewall", "Add at least one statement."))
+            return
         node_addr, node, chain, err = self.form_to_protobuf()
         if err != None:
             self._set_status_error(QC.translate("firewall", "Invalid rule: {0}".format(err)))
@@ -475,6 +478,9 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.add_new_statement(QC.translate("firewall", "<select a statement>"), self.toolBoxSimple)
 
     def _cb_add_clicked(self):
+        if len(self.statements) == 0:
+            self._set_status_message(QC.translate("firewall", "Add at least one statement."))
+            return
         node_addr, node, chain, err = self.form_to_protobuf()
         if err != None:
             self._set_status_error(QC.translate("firewall", "Invalid rule: {0}".format(err)))
