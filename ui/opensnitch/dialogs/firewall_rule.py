@@ -519,7 +519,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         w = self.statements[st_idx]
         tidx = 0 if idx == 0 else idx-1
         w['value'].setToolTip(self.STATM_CONF[tidx]['tooltip'])
-        self._set_statement_title(st_idx, "")
+        self._set_statement_title(st_idx, w['value'].currentText())
 
     def _cb_statem_value_changed(self, val):
         self._enable_save()
@@ -853,6 +853,132 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         if len(self._node_list) == 0:
             self.tabWidget.setDisabled(True)
 
+    def _load_meta_statement(self, exp, idx):
+        try:
+            isMultiProto = False
+            isSetMark = False
+            newStatm = self.STATM_SPORT
+            newValue = ""
+            optsValue = ""
+            for v in exp.Statement.Values:
+                if v.Key ==  Fw.ExprMeta.SET.value:
+                    isSetMark = True
+                    continue
+                if isSetMark and v.Key == Fw.ExprMeta.MARK.value:
+                    newStatm = self.STATM_META_SET_MARK
+                    if self._is_valid_int_value(v.Value):
+                        newValue = v.Value
+                    else:
+                        self._set_status_error(
+                            QC.translate(
+                                "firewall",
+                                "Invalid mark ({0})".format(v.Value)
+                            )
+                        )
+                    break
+
+                if v.Key ==  Fw.ExprMeta.L4PROTO.value:
+                    optsValue = v.Value
+                if v.Key == Fw.Statements.SPORT.value:
+                    isMultiProto = True
+                    newValue = v.Value
+                    break
+                elif v.Key == Fw.Statements.DPORT.value:
+                    newStatm = self.STATM_DPORT
+                    isMultiProto = True
+                    newValue = v.Value
+                    break
+
+            if isSetMark:
+                self.statements[idx]['what'].setCurrentIndex(newStatm+1)
+                self.statements[idx]['value'].setCurrentText(newValue)
+
+            elif isMultiProto:
+                self.statements[idx]['what'].setCurrentIndex(newStatm+1)
+                self.statements[idx]['opts'].setCurrentIndex(
+                    Fw.PortProtocols.values().index(optsValue)
+                )
+                try:
+                    self.statements[idx]['value'].setCurrentIndex(
+                        self.net_srv.index_by_port(newValue)
+                    )
+                except:
+                    self.statements[idx]['value'].setCurrentText(newValue)
+
+            else:
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_META+1)
+                self.statements[idx]['opts'].setCurrentIndex(
+                    # first item of the list is "set", not present in the combobox
+                    Fw.ExprMeta.values().index(exp.Statement.Values[0].Key)-1
+                )
+                self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+
+        except Exception as e:
+            print("_load_meta_statement() exception:", e)
+            self._set_status_message(e)
+
+    def _load_limit_statement(self, exp, idx):
+        try:
+            self.statements[idx]['what'].setCurrentIndex(self.STATM_LIMIT+1)
+            self.statements[idx]['opts'].setCurrentIndex(1)
+            lval = ""
+            for v in exp.Statement.Values:
+                if v.Key == Fw.ExprLimit.OVER.value:
+                    self.statements[idx]['opts'].setCurrentIndex(0)
+                elif v.Key == Fw.ExprLimit.UNITS.value:
+                    lval = v.Value
+                elif v.Key == Fw.ExprLimit.RATE_UNITS.value:
+                    lval = "%s/%s" % (lval, v.Value)
+                elif v.Key == Fw.ExprLimit.TIME_UNITS.value:
+                    lval = "%s/%s" % (lval, v.Value)
+
+            self.statements[idx]['value'].setCurrentText(lval)
+        except Exception as e:
+            print("_load_limit_statement() exception:", e)
+            self._set_status_message(e)
+
+    def _load_ct_statement(self, exp, idx):
+        """load CT statements, for example:
+            Name: ct, Key: set, Key: mark, Value: 123
+            Name: ct, Key: mark, Value: 123
+            Name: ct, Key: state, value: new,established
+        """
+        try:
+            if exp.Statement.Values[0].Key == Fw.ExprCt.STATE.value:
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_STATE+1)
+                self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+                for v in exp.Statement.Values:
+                    curText = self.statements[idx]['value'].currentText()
+                    if v.Value not in curText:
+                        self.statements[idx]['value'].setCurrentText(
+                            "{0},{1}".format(
+                                curText,
+                                v.Value
+                            )
+                        )
+
+            elif exp.Statement.Values[0].Key == Fw.ExprCt.SET.value:
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_SET+1)
+                markVal = ""
+                for v in exp.Statement.Values:
+                    if v.Key == Fw.ExprCt.MARK.value:
+                        markVal = v.Value
+                        break
+
+                self.statements[idx]['value'].setCurrentText(markVal)
+                if markVal == "":
+                    raise ValueError(
+                        QC.translate("firewall", "Warning: ct set mark value is empty, malformed rule?")
+                    )
+
+            elif exp.Statement.Values[0].Key == Fw.ExprCt.MARK.value:
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_MARK+1)
+                self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+
+        except Exception as e:
+            print("_load_ct_statement() exception:", e)
+            self._set_status_message(e)
+
     def load(self, addr, uuid):
         if not self.show():
             return
@@ -951,60 +1077,10 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                 self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Key)
 
             elif exp.Statement.Name == Fw.Statements.CT.value:
-                if exp.Statement.Values[0].Key == Fw.ExprCt.STATE.value:
-                    self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_STATE+1)
-                    self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
-                    for v in exp.Statement.Values:
-                        curText = self.statements[idx]['value'].currentText()
-                        if v.Value not in curText:
-                            self.statements[idx]['value'].setCurrentText(
-                                "{0},{1}".format(
-                                    curText,
-                                    v.Value
-                                )
-                            )
-
-                elif exp.Statement.Values[0].Key == Fw.ExprCt.SET.value:
-                    self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_SET+1)
-                elif exp.Statement.Values[0].Key == Fw.ExprCt.MARK.value:
-                    self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_MARK+1)
+                self._load_ct_statement(exp, idx)
 
             elif exp.Statement.Name == Fw.Statements.META.value:
-                isMultiProto = False
-                protoStatm = self.STATM_SPORT
-                optsValue = ""
-                protoValue = ""
-                for v in exp.Statement.Values:
-                    if v.Key ==  Fw.ExprMeta.L4PROTO.value:
-                        optsValue = v.Value
-                    if v.Key == Fw.Statements.SPORT.value:
-                        isMultiProto = True
-                        protoValue = v.Value
-                        break
-                    elif v.Key == Fw.Statements.DPORT.value:
-                        protoStatm = self.STATM_DPORT
-                        isMultiProto = True
-                        protoValue = v.Value
-                        break
-                if isMultiProto:
-                    self.statements[idx]['what'].setCurrentIndex(protoStatm+1)
-                    self.statements[idx]['opts'].setCurrentIndex(
-                        Fw.PortProtocols.values().index(optsValue)
-                    )
-                    try:
-                        self.statements[idx]['value'].setCurrentIndex(
-                            self.net_srv.index_by_port(protoValue)
-                        )
-                    except:
-                        self.statements[idx]['value'].setCurrentText(protoValue)
-
-                else:
-                    self.statements[idx]['what'].setCurrentIndex(self.STATM_META+1)
-                    self.statements[idx]['opts'].setCurrentIndex(
-                        # first item of the list is "set", not present in the combobox
-                        Fw.ExprMeta.values().index(exp.Statement.Values[0].Key)-1
-                    )
-                    self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+                self._load_meta_statement(exp, idx)
 
             elif exp.Statement.Name == Fw.Statements.ICMP.value or exp.Statement.Name == Fw.Statements.ICMPv6.value:
                 if exp.Statement.Name == Fw.Statements.ICMP.value:
@@ -1048,21 +1124,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                         )
 
             elif exp.Statement.Name == Fw.Statements.LIMIT.value:
-                self.statements[idx]['what'].setCurrentIndex(self.STATM_LIMIT+1)
-                self.statements[idx]['opts'].setCurrentIndex(1)
-                lval = ""
-                for v in exp.Statement.Values:
-                    if v.Key == Fw.ExprLimit.OVER.value:
-                        self.statements[idx]['opts'].setCurrentIndex(0)
-                    elif v.Key == Fw.ExprLimit.UNITS.value:
-                        lval = v.Value
-                    elif v.Key == Fw.ExprLimit.RATE_UNITS.value:
-                        lval = "%s/%s" % (lval, v.Value)
-                    elif v.Key == Fw.ExprLimit.TIME_UNITS.value:
-                        lval = "%s/%s" % (lval, v.Value)
-
-                self.statements[idx]['value'].setCurrentText(lval)
-
+                self._load_limit_statement(exp, idx)
 
             elif exp.Statement.Name == Fw.Statements.COUNTER.value:
                 self.statements[idx]['what'].setCurrentIndex(self.STATM_COUNTER+1)
@@ -1261,14 +1323,17 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                             if self.statements[k]['opts'].currentIndex() == 0:
                                 key_values.append((sk['key'], ""))
                             continue
-                        elif sk['key'] == Fw.ExprQuota.UNIT.value:
+                        elif sk['key'] == Fw.ExprQuota.UNIT.value or sk['key'] in Fw.RateUnits.values():
                             units = statem_value.split("/")
                             if len(units) != 2: # we expect the format key/value
                                 return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, mbytes, gbytes)")
                             if units[1] not in Fw.RateUnits.values():
                                 return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, mbytes, gbytes)")
+
                             sk['key'] = units[1]
                             statem_value = units[0]
+                            if not self._is_valid_int_value(statem_value):
+                                raise ValueError("quota value is invalid ({0}). It must be value/unit (1/kbytes)".format(statem_value))
 
                     elif st_idx == self.STATM_LIMIT:
                         if sk['key'] == Fw.ExprLimit.OVER.value:
