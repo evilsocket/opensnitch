@@ -992,14 +992,11 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                         Fw.PortProtocols.values().index(optsValue)
                     )
                     try:
-                        self.statements[idx]['value'].blockSignals(True);
                         self.statements[idx]['value'].setCurrentIndex(
                             self.net_srv.index_by_port(protoValue)
                         )
                     except:
                         self.statements[idx]['value'].setCurrentText(protoValue)
-                    finally:
-                        self.statements[idx]['value'].blockSignals(False);
 
                 else:
                     self.statements[idx]['what'].setCurrentIndex(self.STATM_META+1)
