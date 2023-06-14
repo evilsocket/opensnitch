@@ -2,7 +2,8 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtCore import QCoreApplication as QC
 import uuid
 from opensnitch import ui_pb2
-from .enums import *
+from .enums import Operator
+from .exprs import ExprLog
 
 class Rules(QObject):
     rulesUpdated = pyqtSignal()
@@ -282,7 +283,7 @@ class Rules(QObject):
                         "{0} {1}{2} ".format(
                             h.Key,
                             e.Statement.Op + " " if e.Statement.Op != Operator.EQUAL.value else "",
-                            h.Value
+                            "\"{0}\"".format(h.Value) if h.Key == ExprLog.PREFIX.value else h.Value
                         ) for h in e.Statement.Values
                     ]
                 )
