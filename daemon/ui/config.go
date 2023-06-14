@@ -46,8 +46,11 @@ func (c *Client) parseConf(rawConfig string) (conf Config, err error) {
 
 func (c *Client) loadDiskConfiguration(reload bool) {
 	raw, err := ioutil.ReadFile(configFile)
-	if err != nil {
-		log.Error("Error loading disk configuration %s: %s", configFile, err)
+	if err != nil || len(raw) == 0 {
+		// Sometimes we may receive 2 Write events on monitorConfigWorker,
+		// Which may lead to read 0 bytes.
+		log.Warning("Error loading configuration from disk %s: %s", configFile, err)
+		return
 	}
 
 	if ok := c.loadConfiguration(raw); ok {
@@ -113,7 +116,7 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 }
 
 func (c *Client) saveConfiguration(rawConfig string) (err error) {
-	if c.loadConfiguration([]byte(rawConfig)) != true {
+	if _, err = c.parseConf(rawConfig); err != nil {
 		return fmt.Errorf("Error parsing configuration %s: %s", rawConfig, err)
 	}
 
