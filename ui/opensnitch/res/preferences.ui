@@ -26,7 +26,7 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <property name="sizePolicy">
@@ -822,7 +822,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
       <attribute name="title">
        <string>Nodes</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
+      <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0,0">
        <item row="1" column="0">
         <widget class="QLabel" name="label_8">
          <property name="sizePolicy">
@@ -937,7 +937,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             <x>0</x>
             <y>0</y>
             <width>586</width>
-            <height>271</height>
+            <height>197</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1086,8 +1086,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>586</width>
-            <height>271</height>
+            <width>376</width>
+            <height>118</height>
            </rect>
           </property>
           <attribute name="label">
