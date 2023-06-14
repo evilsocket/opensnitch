@@ -275,7 +275,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.comboNodeMonitorMethod.setCurrentText(node_config['ProcMonitorMethod'])
                 self.checkInterceptUnknown.setChecked(node_config['InterceptUnknown'])
                 self.comboNodeLogLevel.setCurrentIndex(int(node_config['LogLevel']))
+
+                if node_config.get('LogUTC') == None:
+                    node_config['LogUTC'] = False
                 self.checkNodeLogUTC.setChecked(node_config['LogUTC'])
+                if node_config.get('LogMicro') == None:
+                    node_config['LogMicro'] = False
                 self.checkNodeLogMicro.setChecked(node_config['LogMicro'])
 
                 if node_config.get('Server') != None:
@@ -523,6 +528,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._nodes.save_node_config(addr, notifObject.data)
             nid = self._nodes.send_notification(addr, notifObject, self._notification_callback)
             self._notifications_sent[nid] = notifObject
+
         except Exception as e:
             print(self.LOG_TAG + "exception saving node config on %s: " % addr, e)
             self._set_status_error(QC.translate("preferences", "Exception saving node config {0}: {1}").format((addr, str(e))))
