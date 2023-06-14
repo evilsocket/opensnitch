@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -116,6 +117,9 @@ func (c *Client) saveConfiguration(rawConfig string) (err error) {
 		return fmt.Errorf("Error parsing configuration %s: %s", rawConfig, err)
 	}
 
+	if err = os.Chmod(configFile, 0600); err != nil {
+		log.Warning("unable to set permissions to default config: %s", err)
+	}
 	if err = ioutil.WriteFile(configFile, []byte(rawConfig), 0644); err != nil {
 		log.Error("writing configuration to disk: %s", err)
 		return err

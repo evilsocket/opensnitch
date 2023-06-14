@@ -11,8 +11,10 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"sync"
 
+	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/fsnotify/fsnotify"
 )
@@ -189,6 +191,7 @@ func (c *Config) loadConfiguration(rawConfig []byte) {
 	if err := json.Unmarshal(rawConfig, &c.SysConfig); err != nil {
 		// we only log the parser error, giving the user a chance to write a valid config
 		log.Error("Error parsing firewall configuration %s: %s", c.file, err)
+		return
 	}
 	log.Info("fw configuration loaded")
 }
@@ -204,7 +207,10 @@ func (c *Config) SaveConfiguration(rawConfig string) error {
 
 	c.loadConfiguration([]byte(rawConfig))
 
-	if err = ioutil.WriteFile(c.file, []byte(rawConfig), 0644); err != nil {
+	if err = os.Chmod(c.file, 0600); err != nil {
+		log.Warning("unable to set system-fw.json permissions: %s", err)
+	}
+	if err = ioutil.WriteFile(c.file, []byte(rawConfig), 0600); err != nil {
 		log.Error("writing firewall configuration to disk: %s", err)
 		return err
 	}
@@ -234,7 +240,7 @@ func (c *Config) monitorConfigWorker() {
 			goto Exit
 		case event := <-c.watcher.Events:
 			if (event.Op&fsnotify.Write == fsnotify.Write) || (event.Op&fsnotify.Remove == fsnotify.Remove) {
-				c.LoadDiskConfiguration(true)
+				c.LoadDiskConfiguration(common.ReloadConf)
 			}
 		}
 	}
