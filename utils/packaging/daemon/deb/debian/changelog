@@ -1,8 +1,8 @@
-opensnitch (1.6.0-1) unstable; urgency=medium
+opensnitch (1.6.0.1-1) unstable; urgency=medium
 
   * Non-maintainer upload.
 
- -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  Sat, 22 Apr 2023 12:30:15 +0200
+ -- gustavo-iniguez-goya <gustavo.iniguez.goya@gmail.com>  Thu, 15 Jun 2023 23:44:15 +0200
 
 opensnitch (1.6.0-rc.5-1) unstable; urgency=medium
 
