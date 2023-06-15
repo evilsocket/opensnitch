@@ -1997,19 +1997,34 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeRuleLabel.setText("")
         self.rulesTreePanel.setVisible(active)
 
-        if active:
-            self.rulesSplitter.refresh()
-            self.comboRulesFilter.setVisible(self.rulesTreePanel.width() == 0)
+        if not active:
+            return
 
-            items = self.rulesTreePanel.selectedItems()
-            if len(items) == 0:
-                self._set_rules_filter()
-                return
+        self.rulesSplitter.refresh()
+        self.comboRulesFilter.setVisible(self.rulesTreePanel.width() == 0)
 
-            item_m = self.rulesTreePanel.indexFromItem(items[0], 0)
-            parent = item_m.parent()
-            if parent != None:
-                self._set_rules_filter(parent.row(), item_m.row(), item_m.data())
+        items = self.rulesTreePanel.selectedItems()
+        if len(items) == 0:
+            self._set_rules_filter()
+            return
+
+        rindex = item_m = self.rulesTreePanel.indexFromItem(items[0], 0)
+        parent = item_m.parent()
+
+        # find current root item of the tree panel
+        while rindex.parent().isValid():
+            rindex = rindex.parent()
+        rnum = rindex.row()
+
+        if parent != None and rnum != self.RULES_TREE_FIREWALL:
+            self._set_rules_filter(parent.row(), item_m.row(), item_m.data())
+        else:
+            # when going back to the rules view, reset selection and select the
+            # Apps view.
+            index = self.rulesTreePanel.model().index(self.RULES_TREE_APPS, 0)
+            self.rulesTreePanel.setCurrentIndex(index)
+            self._set_rules_filter()
+
 
     def _set_rules_tab_active(self, row, cur_idx, name_idx, node_idx):
         self._restore_rules_tab_widgets(False)
@@ -2019,6 +2034,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         node = row.model().index(row.row(), node_idx).data()
         self.nodeRuleLabel.setText(node)
 
+        self.fwTable.setVisible(False)
+        self.rulesTable.setVisible(True)
         self.tabWidget.setCurrentIndex(cur_idx)
 
         return r_name, node
