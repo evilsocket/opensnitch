@@ -7,7 +7,7 @@ The supported firewall is nftables. If you're using iptables, you won't be able 
 What's new
 ---
 
-- Allow to configure chains' policies (>= v1.6.0rc1)
+- **Allow to configure chains' policies (>= v1.6.0)**
 
 You can apply a restrictive firewall policy for inbound connections by setting the inbound policy to Deny. This policy will add two extra rules to allow outbound connections (allow established connections + allow connections to localhost, needed for many services like DNS resolvers).
 
@@ -15,7 +15,7 @@ You can apply a restrictive firewall policy for inbound connections by setting t
 
 
 
-- Add basic firewall rules (>= v1.6.0rc1)
+- **Add basic firewall rules (>= v1.6.0)**
 
 Besides restricting what applications can access the internet, now you can configure general firewall rules.
 
@@ -30,8 +30,22 @@ You can also add inbound/outbound exclusions to some ports (for example if OpenS
 Firewall configuration format
 ---
 
-The firewall configuration file offers some more options to configure the system firewall. As of v1.6.0rc4, from the GUI you can only create ACCEPT or DROP rules.
+### Upgrading from previous versions
 
+v1.5.x firewall configuration is not compatible with v1.6.x. If you don't update `system-fw.json` file when your package manager tells you to do so, you'll see this message:
+
+![image](https://github.com/evilsocket/opensnitch/assets/2742953/d24f3132-4bdc-4705-9d7a-e10541231668)
+
+The solution is simple. On Debian based systems, there should be a file called `/etc/opensnitchd/system-fw.json.dpkg-dist`, so you have to replace it with the old one:
+```bash
+~ $ # backup previous fw configuration
+~ $ sudo cp /etc/opensnitchd/system-fw.json /etc/opensnitchd/system-fw.json.v1.5.x
+~ $ # replace it with the new one
+~ $ sudo cp /etc/opensnitchd/system-fw.json.dpkg-dist /etc/opensnitchd/system-fw.json
+~ $ # restart the daemon
+~ $ sudo service opensnitch stop
+~ $ sudo service opensnitch start
+```
 
 Chains
 ---
