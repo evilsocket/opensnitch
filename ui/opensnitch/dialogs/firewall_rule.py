@@ -1426,7 +1426,11 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                         if not self._is_valid_int_value(statem_value):
                             return None, None, None, QC.translate("firewall", "Invalid value {0}, number expected.".format(statem_value))
 
-                    key_values.append((sk['key'], statem_value.replace(" ", "")))
+                    keyVal = (sk['key'], statem_value.replace(" ", ""))
+                    if keyVal not in key_values:
+                        key_values.append(keyVal)
+                    else:
+                        print("[REVIEW] statement values duplicated (there shouldn't be):", keyVal)
 
             exprs = Fw.Expr.new(
                 statem_op,
