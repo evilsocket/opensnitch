@@ -8,7 +8,7 @@ class Config:
     HELP_RULES_URL = "https://github.com/evilsocket/opensnitch/wiki/Rules"
     HELP_SYS_RULES_URL = "https://github.com/evilsocket/opensnitch/wiki/System-rules#upgrading-from-previous-versions"
     HELP_CONFIG_URL = "https://github.com/evilsocket/opensnitch/wiki/Configurations"
-    HELP_SYSTRAY_WARN = "https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#opensnitch-icon-does-not-show-up-on-gnome-shell"
+    HELP_SYSTRAY_WARN = "https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#gui-does-not-show-up"
 
     OPERAND_PROCESS_ID = "process.id"
     OPERAND_PROCESS_PATH = "process.path"
