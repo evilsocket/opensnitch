@@ -14,11 +14,11 @@ If there's no icon, your Window Manager or Desktop Environment does not support 
 If you're running GNOME you need to install this extension -> https://github.com/ubuntu/gnome-shell-extension-appindicator
 (check if it's available for your distribution)
 
+See the instructions detailed below to see how enable it.
 
 ### GUI takes 10 to 20s to show up
 
-Same problem than above, sytray icons not supported. Install the `gnome-shell-extension-appindicator`.
-
+Same problem than above, sytray icons not supported. Install the `gnome-shell-extension-appindicator`, and follow the instructions detailed below.
 
 ### OpenSnitch icon does not show up on Gnome-Shell
 
@@ -27,12 +27,19 @@ On Gnome-Shell >= 3.16, systray icons have been removed. You have to install the
     Download latest version - https://github.com/ubuntu/gnome-shell-extension-appindicator/releases
     Install it with your regular user: gnome-extensions install gnome-shell-extension-appindicator-v33.zip
 
+```bash
+~ $ sudo yum install gnome-shell-extension-appindicator.noarch
+# RESTART GNOME: logout or press ALT+F2 and type 'r'
+~ $ gnome-extensions enable appindicatorsupport@rgcjonas.gmail.com
+~ $ killall opensnitch-ui
+```
+
 See this comment/issue for more information: [#44](https://github.com/evilsocket/opensnitch/issues/44).
 
 
 ### Random crashes or problems on Wayland
 
-PyQt5 doesn't seem to be fully soported on Wayland. For example the pop-ups are not correctly positioned, or the main window crashes randomly:
+PyQt5 doesn't seem to be fully supported on Wayland. For example the pop-ups are not correctly positioned on the screen, or the main window crashes randomly:
 
 > The Wayland connection experienced a fatal error: Protocol error
 
@@ -79,11 +86,10 @@ Since version v1.5.1, you can change GUI theme from the Preferences -> UI -> The
 
 Be sure that you have properly set the icon theme of your Window Manager. [More information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/53#issuecomment-671419790)
 
+
 ### GUI crash/exception/does not show up on old distros (ubuntu 16, 18, ...)
 
-    /usr/lib/python3.5/site-packages/google/protobuf/internal/containers.py, line 333 ... object does not support item assignment
-
-Install needed packages from pip:
+You have to install `unicode_slugify` and `grpcio-tools`, usually not available in old distros. You can install them using pip:
 
 ```bash
 $ pip3 install grpcio==1.16.1
@@ -104,16 +110,6 @@ See [issue #25](https://github.com/gustavo-iniguez-goya/opensnitch/issues/25), [
 
 
 ***
-
-You have to install `unicode_slugify` and `grpcio-tools`, usually not available in old distros. You can install them using pip:
-
-```
-pip3 install unicode_slugify
-pip3 install grpcio protobuf
-```
-
-If grpcio fails to compile, you can try specifying a version: `pip3 install grpcio==1.16.1`
-
 
 ### TypeError: new() got an unexpected keyword argument ...
 
@@ -146,7 +142,7 @@ For ArchLinux/Manjaro users this worked:
 Some users have reported issues displaying the GUI on 4k monitors. See [#43](https://github.com/evilsocket/opensnitch/issues/43) for more information.
 
 Setting these variables may help:
-```ash
+```bash
 ~ $ export QT_AUTO_SCREEN_SCALE_FACTOR=0
 ~ $ export QT_SCREEN_SCALE_FACTORS=1 (or 1.25, 1.5, 2, ...)
 ```
