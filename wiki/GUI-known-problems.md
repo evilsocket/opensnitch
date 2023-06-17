@@ -10,11 +10,14 @@ Also check how much CPU the process `opensnitch-ui` is consuming. If it consumes
 
 When the GUI starts, you should have a new icon in your systray -> ![image](https://github.com/evilsocket/opensnitch/assets/2742953/406fa487-be93-425d-abab-82770e2409dc)
 
-If there's no icon, your Window Manager or Desktop Environment does not support systray icons.
+👉 If there's no icon, most probably your Window Manager or Desktop Environment does not support systray icons.
 If you're running GNOME you need to install this extension -> https://github.com/ubuntu/gnome-shell-extension-appindicator
 (check if it's available for your distribution)
 
 See the instructions detailed below to see how enable it.
+
+👉 On the other hand, if you're running **LinuxMint <= 21.1** or **ubuntu <= 22.10**, see if the process `opensnitch-ui` is consuming 100% of the CPU.
+See this issue for more information: https://github.com/evilsocket/opensnitch/issues/647#issuecomment-1383956333
 
 ### GUI takes 10 to 20s to show up
 
