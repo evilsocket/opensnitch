@@ -36,7 +36,13 @@ v1.5.x firewall configuration is not compatible with v1.6.x. If you don't update
 
 ![image](https://github.com/evilsocket/opensnitch/assets/2742953/d24f3132-4bdc-4705-9d7a-e10541231668)
 
-The solution is simple. On Debian based systems, there should be a file called `/etc/opensnitchd/system-fw.json.dpkg-dist`, so you have to replace it with the old one:
+The solution is simple. If you didn't change the fw configuration, apt will update the file `system-fw.json` automatically, and you won't notice it.
+
+If you made any changes to it, apt will ask you to accept the new format (losing your changes, but keep reading), or keep the current file.
+
+If you accept the new format, the old one will be saved as `/etc/opensnitchd/system-fw.json.dpkg-old`, and if you keep the existing file, the new one will be saved as `/etc/opensnitchd/system-fw.json.dpkg-dist`
+
+If you didn't accept the new format, replace the file `/etc/opensnitchd/system-fw.json.dpkg-dist` by the old one, and recreate the rules from the GUI:
 ```bash
 ~ $ # backup previous fw configuration
 ~ $ sudo cp /etc/opensnitchd/system-fw.json /etc/opensnitchd/system-fw.json.v1.5.x
