@@ -65,6 +65,9 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboProfile.currentIndexChanged.connect(self._cb_combo_profile_changed)
         self.sliderFwEnable.valueChanged.connect(self._cb_enable_fw_changed)
         self.cmdClose.clicked.connect(self._cb_close_clicked)
+        self.cmdHelp.clicked.connect(
+            lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_SYSFW_URL))
+        )
 
         # TODO: when output policy is set to Drop, all outbound traffic is
         # blocked.
@@ -77,10 +80,12 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         excludeIcon = Icons.new("go-up")
         allowInIcon = Icons.new("go-down")
         newIcon = Icons.new("document-new")
+        helpIcon = Icons.new("help-browser")
         self.cmdClose.setIcon(closeIcon)
         self.cmdAllowOUTService.setIcon(excludeIcon)
         self.cmdAllowINService.setIcon(allowInIcon)
         self.cmdNewRule.setIcon(newIcon)
+        self.cmdHelp.setIcon(helpIcon)
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):

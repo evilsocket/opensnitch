@@ -7,6 +7,7 @@ class Config:
     HELP_URL = "https://github.com/evilsocket/opensnitch/wiki/"
     HELP_RULES_URL = "https://github.com/evilsocket/opensnitch/wiki/Rules"
     HELP_SYS_RULES_URL = "https://github.com/evilsocket/opensnitch/wiki/System-rules#upgrading-from-previous-versions"
+    HELP_SYSFW_URL = "https://github.com/evilsocket/opensnitch/wiki/System-rules"
     HELP_CONFIG_URL = "https://github.com/evilsocket/opensnitch/wiki/Configurations"
     HELP_SYSTRAY_WARN = "https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#gui-does-not-show-up"
 

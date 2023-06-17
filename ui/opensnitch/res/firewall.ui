@@ -378,7 +378,8 @@ QSlider::sub-page:horizontal {
                <string>Allow service (IN)</string>
               </property>
               <property name="icon">
-               <iconset theme="go-down"/>
+               <iconset theme="go-down">
+                <normaloff>.</normaloff>.</iconset>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -456,6 +457,16 @@ QSlider::sub-page:horizontal {
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="cmdHelp">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="help-browser"/>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
