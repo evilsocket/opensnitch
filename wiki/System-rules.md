@@ -15,7 +15,7 @@ You can apply a restrictive firewall policy for inbound connections by setting t
 
 
 
-- **Add basic firewall rules (>= v1.6.0)**
+- **Add firewall rules (>= v1.6.0)**
 
 Besides restricting what applications can access the internet, now you can configure general firewall rules.
 
@@ -218,7 +218,7 @@ Example:
 
 ---
 
-ip + daddr, IP ranges (network ranges not supported)
+ip + daddr, IP ranges (network ranges not supported yet)
 ```json
                   "Statement": {
                     "Op": "!=",
@@ -279,7 +279,7 @@ tcp + dport, single dport
 udp + dport + operator, dports range
 ```json
                   "Statement": {
-                    "Op": ">=",
+                    "Op": "==",
                     "Name": "udp",
                     "Values": [
                       {
