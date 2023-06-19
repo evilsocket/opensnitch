@@ -1426,6 +1426,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                         if not self._is_valid_int_value(statem_value):
                             return None, None, None, QC.translate("firewall", "Invalid value {0}, number expected.".format(statem_value))
 
+                    elif st_idx == self.STATM_ICMP or st_idx == self.STATM_ICMPv6:
+                        values = statem_value.split(",")
+                        for val in values:
+                            if val not in Fw.ExprICMP.values():
+                                return None, None, None, QC.translate("firewall", "Invalid ICMP type \"{0}\".".format(val))
+
                     keyVal = (sk['key'], statem_value.replace(" ", ""))
                     if keyVal not in key_values:
                         key_values.append(keyVal)

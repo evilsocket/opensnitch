@@ -40,25 +40,28 @@ func (n *Nft) buildICMPRule(table, family string, icmpProtoVersion string, icmpO
 	for _, icmp := range icmpOptions {
 		switch icmp.Key {
 		case exprs.NFT_ICMP_TYPE:
-			if exprs.NFT_PROTO_ICMPv6 == icmpProtoVersion {
-				icmpType = exprs.GetICMPv6Type(icmp.Value)
-			} else {
-				icmpType = exprs.GetICMPType(icmp.Value)
-			}
-			exprCmp := &expr.Cmp{
-				Op:       expr.CmpOpEq,
-				Register: 1,
-				Data:     []byte{icmpType},
-			}
-			ICMPtemp = append(ICMPtemp, []expr.Any{exprCmp}...)
+			icmpTypeList := strings.Split(icmp.Value, ",")
+			for _, icmpTypeStr := range icmpTypeList {
+				if exprs.NFT_PROTO_ICMPv6 == icmpProtoVersion {
+					icmpType = exprs.GetICMPv6Type(icmpTypeStr)
+				} else {
+					icmpType = exprs.GetICMPType(icmpTypeStr)
+				}
+				exprCmp := &expr.Cmp{
+					Op:       expr.CmpOpEq,
+					Register: 1,
+					Data:     []byte{icmpType},
+				}
+				ICMPtemp = append(ICMPtemp, []expr.Any{exprCmp}...)
 
-			// fill setElements. If there're more than 1 icmp type we'll use it later
-			setElements = append(setElements,
-				[]nftables.SetElement{
-					{
-						Key: []byte{icmpType},
-					},
-				}...)
+				// fill setElements. If there're more than 1 icmp type we'll use it later
+				setElements = append(setElements,
+					[]nftables.SetElement{
+						{
+							Key: []byte{icmpType},
+						},
+					}...)
+			}
 		case exprs.NFT_ICMP_CODE:
 			// TODO
 			offset = 1
