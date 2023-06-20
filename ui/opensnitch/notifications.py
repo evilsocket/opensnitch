@@ -93,14 +93,6 @@ class DesktopNotifications():
         try:
             ntf = self.ntf2.Notification(title, body, icon)
 
-            # timeouts seems to be ignored (on Cinnamon at least)
-            timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
-            # -1 and 0 are special values
-            if timeout > 0:
-                timeout = timeout * 1000
-            ntf.set_timeout(timeout * 1000)
-            ntf.timeout = timeout * 1000
-
             ntf.set_urgency(urgency)
             ntf.set_category(self.CATEGORY_NETWORK)
             # used to display our app icon and name.
