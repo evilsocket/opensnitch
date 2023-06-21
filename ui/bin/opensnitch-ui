@@ -19,7 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with OpenSnitch.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import QCoreApplication as QC
 
 import sys
 import os
@@ -37,7 +38,7 @@ if dist_path not in sys.path:
 
 from opensnitch.service import UIService
 from opensnitch.config import Config
-from opensnitch.utils import Themes, Utils, Versions
+from opensnitch.utils import Themes, Utils, Versions, Message
 from opensnitch.utils.xdg import xdg_runtime_dir
 import opensnitch.ui_pb2
 from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
@@ -155,14 +156,11 @@ Examples:
             app.exec_()
 
         else:
-            errortxt = "OpenSnitch UI is already running!"
-            print(errortxt, "\n")
-            errormsg = QtWidgets.QMessageBox()
-            errormsg.setIcon(QtWidgets.QMessageBox.Warning)
-            errormsg.setWindowTitle("Error")
-            errormsg.setText(errortxt)
-            errormsg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            errormsg.exec()
+            Message.ok(
+                QC.translate("stats", "Error"),
+                QC.translate("stats", "OpenSnitch UI is already running!"),
+                QtWidgets.QMessageBox.Warning
+            )
 
     except KeyboardInterrupt:
         on_exit()
