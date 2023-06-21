@@ -35,7 +35,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._themes = Themes.instance()
         self._saved_theme = ""
-        self._restart_msg = QC.translate("preferences", "Restart the GUI in order effects to take effect")
+        self._restart_msg = QC.translate("preferences", "Restart the GUI in order changes to take effect")
 
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
@@ -204,6 +204,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.comboUIDuration.setCurrentIndex(self._default_duration)
         self.comboUIDialogPos.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION))
+
+        maxmsgsize = self._cfg.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
+        if maxmsgsize:
+            self.comboGrpcMsgSize.setCurrentText(maxmsgsize)
+        else:
+            self.comboGrpcMsgSize.setCurrentIndex(0)
 
         saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
         if saved_lang:
@@ -437,6 +443,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _save_ui_config(self):
         self._save_ui_columns_config()
+
+        maxmsgsize = self.comboGrpcMsgSize.currentText()
+        if maxmsgsize is not "":
+            self._cfg.setSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH, maxmsgsize.replace(" ", ""))
 
         selected_lang = self.comboUILang.itemData(self.comboUILang.currentIndex())
         saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
