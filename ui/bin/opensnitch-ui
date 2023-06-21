@@ -23,11 +23,9 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 
 import sys
 import os
-import time
 import signal
 import argparse
 import logging
-from threading import Timer
 
 from concurrent import futures
 
@@ -122,18 +120,7 @@ Examples:
 
             print("Using server address:", args.socket)
 
-            maxmsglencfg = cfg.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
-            if maxmsglencfg == '4MiB':
-                maxmsglen = 4194304
-            elif maxmsglencfg == '8MiB':
-                maxmsglen = 8388608
-            elif maxmsglencfg == '16MiB':
-                maxmsglen = 16777216
-            else:
-                maxmsglen = 4194304
-
-            print("gRPC Max Message Length:", maxmsglencfg)
-            print("                  Bytes:", maxmsglen)
+            maxmsglen = cfg.getMaxMsgLength()
 
             service = UIService(app, on_exit)
             # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
@@ -179,6 +166,5 @@ Examples:
 
     except KeyboardInterrupt:
         on_exit()
-
     finally:
         lockfile.unlock()

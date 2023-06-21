@@ -223,3 +223,21 @@ class Config:
                 Config.RULES_DURATION_FILTER = []
         except Exception as e:
             print("setRulesDurationFilter() exception:", e)
+
+    def getMaxMsgLength(self):
+        """return maximum configured length for the gRPC channel.
+        Default size is 4MB, but in some scenarios it's not enough.
+        """
+        maxmsglen = 4194304
+        maxmsglencfg = self.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
+        if maxmsglencfg == '4MiB':
+            maxmsglen = 4194304
+        elif maxmsglencfg == '8MiB':
+            maxmsglen = 8388608
+        elif maxmsglencfg == '16MiB':
+            maxmsglen = 16777216
+
+        print("gRPC Max Message Length:", maxmsglencfg)
+        print("                  Bytes:", maxmsglen)
+
+        return maxmsglen
