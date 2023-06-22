@@ -10,6 +10,7 @@ from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
 from opensnitch.utils import Message, QuickHelp, Themes, Icons, languages
+from opensnitch.utils.xdg import Autostart
 from opensnitch.notifications import DesktopNotifications
 
 from opensnitch import ui_pb2
@@ -40,6 +41,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
         self._db = Database.instance()
+        self._autostart = Autostart()
 
         self._notification_callback.connect(self._cb_notification_callback)
         self._notifications_sent = {}
@@ -210,6 +212,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.comboGrpcMsgSize.setCurrentText(maxmsgsize)
         else:
             self.comboGrpcMsgSize.setCurrentIndex(0)
+
+        self.checkAutostart.setChecked(self._autostart.isEnabled())
 
         saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
         if saved_lang:
@@ -447,6 +451,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         maxmsgsize = self.comboGrpcMsgSize.currentText()
         if maxmsgsize is not "":
             self._cfg.setSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH, maxmsgsize.replace(" ", ""))
+
+        self._autostart.enable(self.checkAutostart.isChecked())
 
         selected_lang = self.comboUILang.itemData(self.comboUILang.currentIndex())
         saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
