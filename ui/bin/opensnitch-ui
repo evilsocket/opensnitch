@@ -2,6 +2,7 @@
 
 #   Copyright (C) 2018      Simone Margaritelli
 #                 2018      MiWCryptAnalytics
+#                 2023      munix9
 #                 2019-2023 Gustavo Iñiguez Goia
 #
 #   This file is part of OpenSnitch.
@@ -168,9 +169,14 @@ Examples:
             if auth_type == auth.Simple or auth_type == "":
                 server.add_insecure_port(args.socket)
             else:
-                auth_cert = cfg.getSettings(Config.AUTH_CERT)
-                auth_certkey = cfg.getSettings(Config.AUTH_CERTKEY)
-                tls_creds = auth.get_tls_credentials(args.tls_cert, args.tls_key)
+                auth_cert = args.tls_cert
+                auth_certkey = args.tls_key
+                if auth_cert == None:
+                    auth_cert = cfg.getSettings(Config.AUTH_CERT)
+                if auth_certkey == None:
+                    auth_certkey = cfg.getSettings(Config.AUTH_CERTKEY)
+
+                tls_creds = auth.get_tls_credentials(auth_cert, auth_certkey)
                 if tls_creds == None:
                     raise Exception("Invalid TLS credentials. Review the server key and cert files.")
                 server.add_secure_port(args.socket, tls_creds)
