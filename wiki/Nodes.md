@@ -37,3 +37,56 @@ Once a node is connected, you can also change it from the GUI, without connectin
 ![image](https://user-images.githubusercontent.com/2742953/196782343-bbc28fea-f9a1-4842-a285-e557c6ac5b27.png)
 
 (the field Address refers to the server address where the node will connect to)
+
+#### Authentication (added in v1.6.1)
+
+Since v1.6.1 you can encrypt communications with TLS/SSL certificates.
+
+There are 3 authentication types: simple, tls-simple and tls-mutual.
+
+ - 'simple' wont't cypher communications.
+ - 'tls-simple' uses a server key and a certificate for the server, and a
+   common CA certificate or the server certificate to authenticate all
+   nodes.
+ - 'tls-mutual' uses a server key and a certificate for the server, and a
+   client key and certificate per node.
+
+There are 2 options to verify how gRPC validates credentials:
+ - SkipVerify: https://pkg.go.dev/crypto/tls#Config
+ - ClientAuthType: https://pkg.go.dev/crypto/tls#ClientAuthType
+
+'tls-simple' configuration example sharing a CA certificate with the nodes:
+```json
+    "Server": {
+        "Address": "127.0.0.1:12345",
+        "Authentication": {
+            "Type": "tls-mutual",
+            "TLSOptions": {
+                "CACert": "/etc/opensnitchd/auth/ca-cert.pem",
+                "SkipVerify": false,
+                "ClientAuthType": "req-and-verify-cert"
+            }
+        }
+    }
+```
+
+You can also use the server public certificate to authenticate all nodes, by replacing "CACert" with "ServerCert":
+    `"ServerCert": "/etc/opensnitchd/auth/server-cert.pem",`
+ 
+'tls-mutual' configuration example:
+```json
+    "Server": {
+        "Address": "127.0.0.1:12345",
+        "Authentication": {
+            "Type": "tls-mutual",
+            "TLSOptions": {
+                "CACert": "/etc/opensnitchd/auth/ca-cert.pem",
+                "ServerCert": "/etc/opensnitchd/auth/server-cert.pem",
+                "ClientCert": "/etc/opensnitchd/auth/client-cert.pem",
+                "ClientKey": "/etc/opensnitchd/auth/client-key.pem",
+                "SkipVerify": false,
+                "ClientAuthType": "req-and-verify-cert"
+            }
+        }
+    }
+ ```
