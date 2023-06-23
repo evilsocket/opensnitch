@@ -42,6 +42,7 @@ from opensnitch.utils import Themes, Utils, Versions, Message
 from opensnitch.utils.xdg import xdg_runtime_dir
 import opensnitch.ui_pb2
 from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
+from opensnitch import auth
 
 def on_exit():
     server.stop(0)
@@ -69,6 +70,9 @@ Examples:
         * Use unix:///run/1000/YOUR_USER/opensnitch/osui.sock for better privacy.
     - Listening on port 50051, all interfaces: opensnitch-ui --socket "[::]:50051"
                         ''', metavar="FILE")
+    parser.add_argument("--socket-auth", dest="socket_auth", help="Auth type: simple, tls-simple, tls-mutual")
+    parser.add_argument("--tls-cert", dest="tls_cert", help="path to the server cert")
+    parser.add_argument("--tls-key", dest="tls_key", help="path to the server key")
     parser.add_argument("--max-clients", dest="serverWorkers", default=10, help="Max number of allowed clients (incoming connections).")
     parser.add_argument("--debug", dest="debug", action="store_true", help="Enable debug logs")
     parser.add_argument("--debug-grpc", dest="debug_grpc", action="store_true", help="Enable gRPC debug logs")
@@ -97,72 +101,90 @@ Examples:
         app = QtWidgets.QApplication(sys.argv)
         lockfile = QtCore.QLockFile(os.path.join(xdg_runtime_dir, 'osui.lock'))
 
-        if lockfile.tryLock(100):
-            if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
-                app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
-            thm = Themes.instance()
-            thm.load_theme(app)
-
-            Utils.create_socket_dirs()
-            cfg = Config.get()
-            if args.socket == None:
-                # default
-                args.socket = "unix:///tmp/osui.sock"
-
-                addr = cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
-                if addr != None and addr != "":
-                    if addr.startswith("unix://"):
-                        if not os.path.exists(os.path.dirname(addr[7:])):
-                            print("WARNING: unix socket path does not exist, using unix:///tmp/osui.sock, ", addr)
-                        else:
-                            args.socket = addr
-                    else:
-                        args.socket = addr
-
-            print("Using server address:", args.socket)
-
-            maxmsglen = cfg.getMaxMsgLength()
-
-            service = UIService(app, on_exit)
-            # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
-            server = grpc.server(futures.ThreadPoolExecutor(),
-                                 options=(
-                                     # https://github.com/grpc/grpc/blob/master/doc/keepalive.md
-                                     # https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
-                                     # send keepalive ping every 5 second, default is 2 hours)
-                                     ('grpc.keepalive_time_ms', 5000),
-                                     # after 5s of inactivity, wait 20s and close the connection if
-                                     # there's no response.
-                                     ('grpc.keepalive_timeout_ms', 20000),
-                                     ('grpc.keepalive_permit_without_calls', True),
-                                     ('grpc.max_send_message_length', maxmsglen),
-                                     ('grpc.max_receive_message_length', maxmsglen),
-                                 ))
-
-            add_UIServicer_to_server(service, server)
-
-            if args.socket.startswith("unix://"):
-                socket = args.socket[7:]
-                socket = os.path.abspath(socket)
-                server.add_insecure_port("unix:%s" % socket)
-            else:
-                server.add_insecure_port(args.socket)
-
-            # https://stackoverflow.com/questions/5160577/ctrl-c-doesnt-work-with-pyqt
-            signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-            # print "OpenSnitch UI service running on %s ..." % socket
-            server.start()
-            app.exec_()
-
-        else:
+        if not lockfile.tryLock(100):
             Message.ok(
                 QC.translate("stats", "Error"),
                 QC.translate("stats", "OpenSnitch UI is already running!"),
                 QtWidgets.QMessageBox.Warning
             )
+            raise Exception("GUI already running, exiting.")
+
+        if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+            app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+        thm = Themes.instance()
+        thm.load_theme(app)
+
+        Utils.create_socket_dirs()
+        cfg = Config.get()
+        if args.socket == None:
+            # default
+            args.socket = "unix:///tmp/osui.sock"
+
+            addr = cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
+            if addr != None and addr != "":
+                if addr.startswith("unix://"):
+                    if not os.path.exists(os.path.dirname(addr[7:])):
+                        print("WARNING: unix socket path does not exist, using unix:///tmp/osui.sock, ", addr)
+                    else:
+                        args.socket = addr
+                else:
+                    args.socket = addr
+
+        print("Using server address:", args.socket)
+
+        maxmsglen = cfg.getMaxMsgLength()
+
+        service = UIService(app, on_exit)
+        # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
+        server = grpc.server(futures.ThreadPoolExecutor(),
+                                options=(
+                                    # https://github.com/grpc/grpc/blob/master/doc/keepalive.md
+                                    # https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
+                                    # send keepalive ping every 5 second, default is 2 hours)
+                                    ('grpc.keepalive_time_ms', 5000),
+                                    # after 5s of inactivity, wait 20s and close the connection if
+                                    # there's no response.
+                                    ('grpc.keepalive_timeout_ms', 20000),
+                                    ('grpc.keepalive_permit_without_calls', True),
+                                    ('grpc.max_send_message_length', maxmsglen),
+                                    ('grpc.max_receive_message_length', maxmsglen),
+                                ))
+
+        add_UIServicer_to_server(service, server)
+
+        if args.socket.startswith("unix://"):
+            socket = args.socket[7:]
+            socket = os.path.abspath(socket)
+            server.add_insecure_port("unix:%s" % socket)
+            #server.add_secure_port("unix:%s" % socket, tls_creds)
+        else:
+            auth_type = auth.Simple
+            if args.socket_auth != None:
+                auth_type = args.socket_auth
+            elif cfg.getSettings(Config.AUTH_TYPE) != None:
+                auth_type = cfg.getSettings(Config.AUTH_TYPE)
+
+
+            if auth_type == auth.Simple or auth_type == "":
+                server.add_insecure_port(args.socket)
+            else:
+                auth_cert = cfg.getSettings(Config.AUTH_CERT)
+                auth_certkey = cfg.getSettings(Config.AUTH_CERTKEY)
+                tls_creds = auth.get_tls_credentials(args.tls_cert, args.tls_key)
+                if tls_creds == None:
+                    raise Exception("Invalid TLS credentials. Review the server key and cert files.")
+                server.add_secure_port(args.socket, tls_creds)
+
+        # https://stackoverflow.com/questions/5160577/ctrl-c-doesnt-work-with-pyqt
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+        # print "OpenSnitch UI service running on %s ..." % socket
+        server.start()
+        app.exec_()
 
     except KeyboardInterrupt:
         on_exit()
+    except Exception as e:
+        print(e)
     finally:
         lockfile.unlock()

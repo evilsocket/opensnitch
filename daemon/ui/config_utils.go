@@ -10,6 +10,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
+	"github.com/evilsocket/opensnitch/daemon/ui/config"
 )
 
 func (c *Client) getSocketPath(socketPath string) string {
@@ -33,13 +34,13 @@ func (c *Client) setSocketPath(socketPath string) {
 }
 
 func (c *Client) isProcMonitorEqual(newMonitorMethod string) bool {
-	config.RLock()
-	defer config.RUnlock()
+	clientConfig.RLock()
+	defer clientConfig.RUnlock()
 
-	return newMonitorMethod == config.ProcMonitorMethod
+	return newMonitorMethod == clientConfig.ProcMonitorMethod
 }
 
-func (c *Client) parseConf(rawConfig string) (conf Config, err error) {
+func (c *Client) parseConf(rawConfig string) (conf config.Config, err error) {
 	err = json.Unmarshal([]byte(rawConfig), &conf)
 	return conf, err
 }
@@ -68,45 +69,45 @@ func (c *Client) loadDiskConfiguration(reload bool) {
 }
 
 func (c *Client) loadConfiguration(rawConfig []byte) bool {
-	config.Lock()
-	defer config.Unlock()
+	clientConfig.Lock()
+	defer clientConfig.Unlock()
 
-	if err := json.Unmarshal(rawConfig, &config); err != nil {
+	if err := json.Unmarshal(rawConfig, &clientConfig); err != nil {
 		msg := fmt.Sprintf("Error parsing configuration %s: %s", configFile, err)
 		log.Error(msg)
 		c.SendWarningAlert(msg)
 		return false
 	}
 	// firstly load config level, to detect further errors if any
-	if config.LogLevel != nil {
-		log.SetLogLevel(int(*config.LogLevel))
+	if clientConfig.LogLevel != nil {
+		log.SetLogLevel(int(*clientConfig.LogLevel))
 	}
-	log.SetLogUTC(config.LogUTC)
-	log.SetLogMicro(config.LogMicro)
-	if config.Server.LogFile != "" {
+	log.SetLogUTC(clientConfig.LogUTC)
+	log.SetLogMicro(clientConfig.LogMicro)
+	if clientConfig.Server.LogFile != "" {
 		log.Close()
-		log.OpenFile(config.Server.LogFile)
+		log.OpenFile(clientConfig.Server.LogFile)
 	}
 
-	if config.Server.Address != "" {
-		tempSocketPath := c.getSocketPath(config.Server.Address)
+	if clientConfig.Server.Address != "" {
+		tempSocketPath := c.getSocketPath(clientConfig.Server.Address)
 		if tempSocketPath != c.socketPath {
 			// disconnect, and let the connection poller reconnect to the new address
 			c.disconnect()
 		}
 		c.setSocketPath(tempSocketPath)
 	}
-	if config.DefaultAction != "" {
-		clientDisconnectedRule.Action = rule.Action(config.DefaultAction)
-		clientErrorRule.Action = rule.Action(config.DefaultAction)
+	if clientConfig.DefaultAction != "" {
+		clientDisconnectedRule.Action = rule.Action(clientConfig.DefaultAction)
+		clientErrorRule.Action = rule.Action(clientConfig.DefaultAction)
 	}
-	if config.DefaultDuration != "" {
-		clientDisconnectedRule.Duration = rule.Duration(config.DefaultDuration)
-		clientErrorRule.Duration = rule.Duration(config.DefaultDuration)
+	if clientConfig.DefaultDuration != "" {
+		clientDisconnectedRule.Duration = rule.Duration(clientConfig.DefaultDuration)
+		clientErrorRule.Duration = rule.Duration(clientConfig.DefaultDuration)
 	}
-	if config.ProcMonitorMethod != "" {
-		if err := monitor.ReconfigureMonitorMethod(config.ProcMonitorMethod); err != nil {
-			msg := fmt.Sprintf("Unable to set new process monitor (%s) method from disk: %v", config.ProcMonitorMethod, err)
+	if clientConfig.ProcMonitorMethod != "" {
+		if err := monitor.ReconfigureMonitorMethod(clientConfig.ProcMonitorMethod); err != nil {
+			msg := fmt.Sprintf("Unable to set new process monitor (%s) method from disk: %v", clientConfig.ProcMonitorMethod, err)
 			log.Warning(msg)
 			c.SendWarningAlert(msg)
 		}
