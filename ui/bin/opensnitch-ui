@@ -79,6 +79,7 @@ Examples:
     parser.add_argument("--max-clients", dest="serverWorkers", default=10, help="Max number of allowed clients (incoming connections).")
     parser.add_argument("--debug", dest="debug", action="store_true", help="Enable debug logs")
     parser.add_argument("--debug-grpc", dest="debug_grpc", action="store_true", help="Enable gRPC debug logs")
+    parser.add_argument("--background", dest="background", action="store_true", help="Start UI in background even, when tray is not available")
 
     args = parser.parse_args()
 
@@ -138,7 +139,7 @@ Examples:
 
         maxmsglen = cfg.getMaxMsgLength()
 
-        service = UIService(app, on_exit)
+        service = UIService(app, on_exit, start_in_bg=args.background)
         localserver.newConnection.connect(service.OpenWindow)
         # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
         server = grpc.server(futures.ThreadPoolExecutor(),

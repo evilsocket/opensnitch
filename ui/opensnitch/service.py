@@ -41,7 +41,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     # .desktop filename located under /usr/share/applications/
     DESKTOP_FILENAME = "opensnitch_ui.desktop"
 
-    def __init__(self, app, on_exit):
+    def __init__(self, app, on_exit, start_in_bg=False):
         super(UIService, self).__init__()
 
 
@@ -113,7 +113,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 'users':{}
                 }
 
-        self._show_gui_if_tray_not_available()
+        if not start_in_bg:
+            self._show_gui_if_tray_not_available()
 
         self._cleaner = None
         if self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST):
@@ -221,6 +222,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         print("")
         print("WARNING: system tray not available. On GNOME you need the extension gnome-shell-extension-appindicator.")
         print("\tRead more:", Config.HELP_SYSTRAY_WARN)
+        print("\tIf you want to start OpenSnitch GUI in background even if tray not available, use --background argument.")
         print("")
 
         hide_msg = self._cfg.getBool(Config.DEFAULT_HIDE_SYSTRAY_WARN)
