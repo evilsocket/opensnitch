@@ -22,6 +22,7 @@
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QCoreApplication as QC
+from PyQt5.QtNetwork import QLocalServer, QLocalSocket
 
 import sys
 import os
@@ -37,6 +38,8 @@ dist_path = '/usr/lib/python3/dist-packages/'
 if dist_path not in sys.path:
     sys.path.append(dist_path)
 
+app_id = "io.github.evilsocket.opensnitch"
+
 from opensnitch.service import UIService
 from opensnitch.config import Config
 from opensnitch.utils import Themes, Utils, Versions, Message
@@ -47,7 +50,6 @@ from opensnitch import auth
 
 def on_exit():
     server.stop(0)
-    lockfile.unlock()
     app.quit()
     sys.exit(0)
 
@@ -77,6 +79,7 @@ Examples:
     parser.add_argument("--max-clients", dest="serverWorkers", default=10, help="Max number of allowed clients (incoming connections).")
     parser.add_argument("--debug", dest="debug", action="store_true", help="Enable debug logs")
     parser.add_argument("--debug-grpc", dest="debug_grpc", action="store_true", help="Enable gRPC debug logs")
+    parser.add_argument("--background", dest="background", action="store_true", help="Start UI in background even, when tray is not available")
 
     args = parser.parse_args()
 
@@ -100,15 +103,16 @@ Examples:
 
     try:
         app = QtWidgets.QApplication(sys.argv)
-        lockfile = QtCore.QLockFile(os.path.join(xdg_runtime_dir, 'osui.lock'))
 
-        if not lockfile.tryLock(100):
-            Message.ok(
-                QC.translate("stats", "Error"),
-                QC.translate("stats", "OpenSnitch UI is already running!"),
-                QtWidgets.QMessageBox.Warning
-            )
-            raise Exception("GUI already running, exiting.")
+        localsocket = QLocalSocket()
+        localsocket.connectToServer(app_id)
+
+        if localsocket.waitForConnected():
+            raise Exception("GUI already running, opening its window and exiting.")
+        else:
+            localserver = QLocalServer()
+            localserver.removeServer(app_id)
+            localserver.listen(app_id)
 
         if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
             app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
@@ -135,7 +139,8 @@ Examples:
 
         maxmsglen = cfg.getMaxMsgLength()
 
-        service = UIService(app, on_exit)
+        service = UIService(app, on_exit, start_in_bg=args.background)
+        localserver.newConnection.connect(service.OpenWindow)
         # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
         server = grpc.server(futures.ThreadPoolExecutor(),
                                 options=(
@@ -192,5 +197,3 @@ Examples:
         on_exit()
     except Exception as e:
         print(e)
-    finally:
-        lockfile.unlock()
