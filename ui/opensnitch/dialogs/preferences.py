@@ -2,6 +2,7 @@ import sys
 import time
 import os
 import json
+import stat
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
@@ -13,7 +14,7 @@ from opensnitch.utils import Message, QuickHelp, Themes, Icons, languages
 from opensnitch.utils.xdg import Autostart
 from opensnitch.notifications import DesktopNotifications
 
-from opensnitch import ui_pb2
+from opensnitch import ui_pb2, auth
 
 DIALOG_UI_PATH = "%s/../res/preferences.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -37,6 +38,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._themes = Themes.instance()
         self._saved_theme = ""
         self._restart_msg = QC.translate("preferences", "Restart the GUI in order changes to take effect")
+        self._changes_needs_restart = None
 
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
@@ -71,6 +73,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdTestNotifs.clicked.connect(self._cb_test_notifs_clicked)
         self.radioSysNotifs.clicked.connect(self._cb_radio_system_notifications)
         self.helpButton.setToolTipDuration(30 * 1000)
+
+        self.comboAuthType.currentIndexChanged.connect(self._cb_combo_auth_type_changed)
+        self.comboAuthType.setItemData(0, auth.Simple)
+        self.comboAuthType.setItemData(1, auth.TLSSimple)
+        self.comboAuthType.setItemData(2, auth.TLSMutual)
+        self.lineCertFile.textChanged.connect(self._cb_line_certs_changed)
+        self.lineCertKeyFile.textChanged.connect(self._cb_line_certs_changed)
 
         self.comboUIRules.currentIndexChanged.connect(self._cb_combo_uirules_changed)
 
@@ -109,6 +118,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         super(PreferencesDialog, self).showEvent(event)
 
         try:
+            self._changes_needs_restart = None
             self._settingsSaved = False
             self._reset_status_message()
             self._hide_status_label()
@@ -207,13 +217,22 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboUIDuration.setCurrentIndex(self._default_duration)
         self.comboUIDialogPos.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION))
 
+        self.checkAutostart.setChecked(self._autostart.isEnabled())
+
         maxmsgsize = self._cfg.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
         if maxmsgsize:
             self.comboGrpcMsgSize.setCurrentText(maxmsgsize)
         else:
             self.comboGrpcMsgSize.setCurrentIndex(0)
 
-        self.checkAutostart.setChecked(self._autostart.isEnabled())
+        self.lineCertFile.setText(self._cfg.getSettings(Config.AUTH_CERT))
+        self.lineCertKeyFile.setText(self._cfg.getSettings(Config.AUTH_CERTKEY))
+        authtype_idx = self.comboAuthType.findData(self._cfg.getSettings(Config.AUTH_TYPE))
+        if authtype_idx <= 0:
+            authtype_idx = 0
+            self.lineCertFile.setEnabled(False)
+            self.lineCertKeyFile.setEnabled(False)
+        self.comboAuthType.setCurrentIndex(authtype_idx)
 
         saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
         if saved_lang:
@@ -378,6 +397,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.labelNodeVersion.setText("")
 
     def _save_settings(self):
+        self._reset_status_message()
         self._save_ui_config()
         if not self._save_db_config():
             return
@@ -414,6 +434,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.saved.emit()
         self._settingsSaved = True
+        self._needs_restart()
 
     def _save_db_config(self):
         dbtype = self.comboDBType.currentIndex()
@@ -421,10 +442,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if self.dbLabel.text() != "" and \
                 (self.comboDBType.currentIndex() != self.dbType or db_name != self.dbLabel.text()):
-            Message.ok(
-                QC.translate("preferences", "DB type changed"),
-                self._restart_msg,
-                QtWidgets.QMessageBox.Warning)
+            self._changes_needs_restart = QC.translate("preferences", "DB type changed")
 
         if self.comboDBType.currentIndex() != Database.DB_TYPE_MEMORY:
             if self.dbLabel.text() != "":
@@ -452,6 +470,20 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if maxmsgsize is not "":
             self._cfg.setSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH, maxmsgsize.replace(" ", ""))
 
+        savedauthtype = self._cfg.getSettings(Config.AUTH_TYPE)
+        authtype = self.comboAuthType.itemData(self.comboAuthType.currentIndex())
+        cert = self._cfg.getSettings(Config.AUTH_CERT)
+        certkey = self._cfg.getSettings(Config.AUTH_CERTKEY)
+        if not self._validate_certs():
+            return
+
+        if savedauthtype != authtype or self.lineCertFile.text() != cert or self.lineCertKeyFile.text() != certkey:
+            self._changes_needs_restart = QC.translate("preferences", "Certificates changed")
+        self._cfg.setSettings(Config.AUTH_TYPE, authtype)
+        self._cfg.setSettings(Config.AUTH_CERT, self.lineCertFile.text())
+        self._cfg.setSettings(Config.AUTH_CERTKEY, self.lineCertKeyFile.text())
+
+
         self._autostart.enable(self.checkAutostart.isChecked())
 
         selected_lang = self.comboUILang.itemData(self.comboUILang.currentIndex())
@@ -459,10 +491,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         saved_lang = "" if saved_lang is None else saved_lang
         if saved_lang != selected_lang:
             languages.save(self._cfg, selected_lang)
-            Message.ok(
-                QC.translate("preferences", "Language changed"),
-                self._restart_msg,
-                QtWidgets.QMessageBox.Warning)
+            self._changes_needs_restart = QC.translate("preferences", "Language changed")
 
         self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES, int(self.comboUIRules.currentIndex()))
         self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_RULES, bool(self.checkUIRules.isChecked()))
@@ -493,10 +522,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText())
 
         if self._themes.available() and self._saved_theme != "" and self.comboUITheme.currentText() == QC.translate("preferences", "System"):
-            Message.ok(
-                QC.translate("preferences", "UI theme changed"),
-                QC.translate("preferences", "Restart the GUI in order to apply the new theme"),
-                QtWidgets.QMessageBox.Warning)
+            self._changes_needs_restart = QC.translate("preferences", "UI theme changed")
 
         # this is a workaround for not display pop-ups.
         # see #79 for more information.
@@ -534,10 +560,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             savedAddr = self._cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
             # exclude this message if there're more than one node connected
             if self.comboNodes.count() == 1 and savedAddr != None and savedAddr != self.comboNodeAddress.currentText():
-                Message.ok(
-                    QC.translate("preferences", "Ok"),
-                    self._restart_msg,
-                    QtWidgets.QMessageBox.Information)
+                self._changes_needs_restart = QC.translate("preferences", "Ok")
 
             self._cfg.setSettings(Config.DEFAULT_SERVER_ADDR, self.comboNodeAddress.currentText())
 
@@ -551,6 +574,36 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return addr + ": " + str(e)
 
         return None
+
+    def _validate_certs(self):
+        try:
+            if self.comboAuthType.currentIndex() == 0:
+                return True
+
+            if self.comboAuthType.currentIndex() > 0 and (self.lineCertFile.text() == "" or self.lineCertKeyFile.text() == ""):
+                raise ValueError(QC.translate("preferences", "Certs fields cannot be empty."))
+
+            if oct(stat.S_IMODE(os.lstat(self.lineCertFile.text()).st_mode)) != "0o600":
+                self._set_status_message(
+                    QC.translate("preferences", "cert file has excessive permissions, it should have 0600")
+                )
+            if oct(stat.S_IMODE(os.lstat(self.lineCertFile.text()).st_mode)) != "0o600":
+                self._set_status_message(
+                    QC.translate("preferences", "cert key file has excessive permissions, it should have 0600")
+                )
+
+            return True
+        except Exception as e:
+            self._changes_needs_restart = None
+            self._set_status_error(str(e))
+            return False
+
+    def _needs_restart(self):
+        if self._changes_needs_restart:
+            Message.ok(self._changes_needs_restart,
+                self._restart_msg,
+                QtWidgets.QMessageBox.Warning)
+            self._changes_needs_restart = None
 
     def _hide_status_label(self):
         self.statusLabel.hide()
@@ -601,6 +654,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             del self._notifications_sent[reply.id]
 
+    def _cb_line_certs_changed(self, text):
+        self._changes_needs_restart = QC.translate("preferences", "Certs changed")
+
     def _cb_file_db_clicked(self):
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "", "","All Files (*)", options=options)
@@ -628,6 +684,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._save_settings()
 
     def _cb_apply_button_clicked(self):
+        self._reset_status_message()
         self._save_settings()
 
     def _cb_cancel_button_clicked(self):
@@ -656,6 +713,14 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_combo_themes_changed(self, index):
         self._themes.change_theme(self, self.comboUITheme.currentText())
+
+    def _cb_combo_auth_type_changed(self, index):
+        curtype = self.comboAuthType.itemData(self.comboAuthType.currentIndex())
+        savedtype = self._cfg.getSettings(Config.AUTH_TYPE)
+        if curtype != savedtype:
+            self._changes_needs_restart = QC.translate("preferences", "Auth type changed")
+        self.lineCertFile.setEnabled(index > 0)
+        self.lineCertKeyFile.setEnabled(index > 0)
 
     def _cb_db_max_days_toggled(self, state):
         self._enable_db_cleaner_options(state, 1)

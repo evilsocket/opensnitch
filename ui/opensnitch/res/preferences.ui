@@ -523,7 +523,52 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="2" column="1">
+            <widget class="QComboBox" name="comboUILang"/>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboUITheme">
+             <item>
+              <property name="text">
+               <string>System</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_21">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Theme</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkAutostart">
+             <property name="toolTip">
+              <string>By default the GUI is started when login</string>
+             </property>
+             <property name="text">
+              <string>Autostart the GUI upon login</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_6">
+          <attribute name="label">
+           <string>Server</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_13">
+           <item row="0" column="1">
             <widget class="QComboBox" name="comboGrpcMsgSize">
              <property name="editable">
               <bool>true</bool>
@@ -553,51 +598,56 @@
              </item>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="comboUILang"/>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="comboUITheme">
+           <item row="1" column="1">
+            <widget class="QComboBox" name="comboAuthType">
              <item>
               <property name="text">
-               <string>System</string>
+               <string>Simple</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Simple TLS</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mutual TLS</string>
               </property>
              </item>
             </widget>
            </item>
            <item row="0" column="0">
-            <widget class="QLabel" name="label_21">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Theme</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
             <widget class="QLabel" name="label_20">
              <property name="toolTip">
-              <string>Maximum size for receiving messages from nodes. Default 4MB</string>
+              <string>Maximum size of each message from nodes. Default 4MB</string>
              </property>
              <property name="text">
               <string>Max gRPC channel size</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkAutostart">
+           <item row="3" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCertKeyFile">
+             <property name="placeholderText">
+              <string>Absolute path to the cert key file</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_24">
              <property name="toolTip">
-              <string>By default the GUI is started when login</string>
+              <string>&lt;p&gt;Simple: no authentication, TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
              </property>
              <property name="text">
-              <string>Autostart the GUI upon login</string>
+              <string>Authentication type</string>
              </property>
-             <property name="checked">
-              <bool>true</bool>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCertFile">
+             <property name="placeholderText">
+              <string>Absolute path to the cert file</string>
              </property>
             </widget>
            </item>
@@ -609,7 +659,7 @@
             <x>0</x>
             <y>0</y>
             <width>586</width>
-            <height>238</height>
+            <height>209</height>
            </rect>
           </property>
           <attribute name="label">
