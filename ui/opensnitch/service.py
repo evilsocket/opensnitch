@@ -881,3 +881,5 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         return node_iter
 
+    def OpenWindow(self):
+        self._stats_dialog.show()
