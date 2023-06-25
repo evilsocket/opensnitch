@@ -8,8 +8,15 @@ assignees: ''
 ---
 
 Please, check the FAQ and Known Problems pages before creating the bug report:
+
 https://github.com/evilsocket/opensnitch/wiki/FAQs
-https://github.com/evilsocket/opensnitch/wiki/Known-problems
+
+GUI related issues:
+https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems
+
+Daemon related issues:
+ - Run `opensnitchd -check-requirements` to see if your kernel is compatible.
+ - https://github.com/evilsocket/opensnitch/wiki/daemon-known-problems
 
 **Describe the bug**
 A clear and concise description of what the bug is.
@@ -35,7 +42,8 @@ If it's a crash of the GUI:
  - Launch it from a terminal and reproduce the issue.
  - Post the errors logged to the terminal.
 
-If the daemon doesn't start:
+If the daemon doesn't start or doesn't intercept connections:
+ - Run `opensnitchd -check-requirements` to see if your kernel is compatible.
  - Post last 15 lines of the log file `/var/log/opensnitchd.log`
  - Or launch it from a terminal as root (`# /usr/bin/opensnitchd -rules-path /etc/opensnitchd/rules`) and post the errors logged to the terminal.
 
@@ -46,7 +54,7 @@ If the deb or rpm packages fail to install:
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem. It may help to understand the issue much better.
+If applicable, add screenshots or videos to help explain your problem. It may help to understand the issue much better.
 
 **Additional context**
 Add any other context about the problem here.
