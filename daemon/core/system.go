@@ -110,9 +110,22 @@ func CheckSysRequirements() {
     "Item": "nfqueue",
     "Checks": {
         "Regexps": [
+			"CONFIG_NETFILTER_NETLINK_QUEUE=[my]",
+			"CONFIG_NFT_QUEUE=[my]",
             "CONFIG_NETFILTER_XT_TARGET_NFQUEUE=[my]"
             ],
-        "Reason": " * NFQUEUE netfilter extension not supported by this kernel."
+        "Reason": " * NFQUEUE netfilter extensions not supported by this kernel (CONFIG_NETFILTER_NETLINK_QUEUE, CONFIG_NFT_QUEUE, CONFIG_NETFILTER_XT_TARGET_NFQUEUE)."
+    }
+},
+{
+    "Item": "netlink",
+    "Checks": {
+        "Regexps": [
+			"CONFIG_NETFILTER_NETLINK=[my]",
+			"CONFIG_NETFILTER_NETLINK_QUEUE=[my]",
+			"CONFIG_NETFILTER_NETLINK_ACCT=[my]"
+            ],
+        "Reason": " * NETLINK extensions not supported by this kernel (CONFIG_NETFILTER_NETLINK, CONFIG_NETFILTER_NETLINK_QUEUE, CONFIG_NETFILTER_NETLINK_ACCT)."
     }
 }
 ]
