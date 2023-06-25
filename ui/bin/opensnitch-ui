@@ -3,6 +3,7 @@
 #   Copyright (C) 2018      Simone Margaritelli
 #                 2018      MiWCryptAnalytics
 #                 2023      munix9
+#                 2023      Wojtek Widomski
 #                 2019-2023 Gustavo Iñiguez Goia
 #
 #   This file is part of OpenSnitch.
@@ -51,6 +52,10 @@ app_id = os.path.join(xdg_opensnitch_dir, "io.github.evilsocket.opensnitch")
 def on_exit():
     server.stop(0)
     app.quit()
+    try:
+        os.remove(app_id)
+    except:
+        pass
     sys.exit(0)
 
 def supported_qt_version(major, medium, minor):

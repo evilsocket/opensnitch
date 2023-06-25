@@ -2,6 +2,7 @@
 import os
 import re
 import shutil
+import stat
 
 # https://github.com/takluyver/pyxdg/blob/1d23e483ae869ee9532aca43b133cc43f63626a3/xdg/BaseDirectory.py
 def get_runtime_dir(strict=True):
@@ -44,9 +45,9 @@ def get_runtime_dir(strict=True):
 def get_run_opensnitch_dir():
     rdir = get_runtime_dir(False)
     if 'opensnitch' not in rdir:
-        odir = os.path.join(rdir, 'opensnitch')
+        rdir = os.path.join(rdir, 'opensnitch')
         try:
-            os.makedirs(odir, 0o700)
+            os.makedirs(rdir, 0o700)
         except:
             pass
 
