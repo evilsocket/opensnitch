@@ -41,6 +41,17 @@ def get_runtime_dir(strict=True):
 
         return fallback
 
+def get_run_opensnitch_dir():
+    rdir = get_runtime_dir(False)
+    if 'opensnitch' not in rdir:
+        odir = os.path.join(rdir, 'opensnitch')
+        try:
+            os.makedirs(odir, 0o700)
+        except:
+            pass
+
+    return rdir
+
 
 class Autostart():
     def __init__(self):
@@ -99,3 +110,5 @@ _home = os.path.expanduser('~')
 xdg_config_home = os.environ.get('XDG_CONFIG_HOME') or os.path.join(_home, '.config')
 xdg_runtime_dir = get_runtime_dir(False)
 xdg_current_desktop = os.environ.get('XDG_CURRENT_DESKTOP')
+
+xdg_opensnitch_dir = get_run_opensnitch_dir()

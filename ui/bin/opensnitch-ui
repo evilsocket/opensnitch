@@ -38,15 +38,15 @@ dist_path = '/usr/lib/python3/dist-packages/'
 if dist_path not in sys.path:
     sys.path.append(dist_path)
 
-app_id = "io.github.evilsocket.opensnitch"
-
 from opensnitch.service import UIService
 from opensnitch.config import Config
 from opensnitch.utils import Themes, Utils, Versions, Message
-from opensnitch.utils.xdg import xdg_runtime_dir
+from opensnitch.utils.xdg import xdg_opensnitch_dir
 import opensnitch.ui_pb2
 from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
 from opensnitch import auth
+
+app_id = os.path.join(xdg_opensnitch_dir, "io.github.evilsocket.opensnitch")
 
 def on_exit():
     server.stop(0)
@@ -102,6 +102,7 @@ Examples:
             pass
 
     try:
+        Utils.create_socket_dirs()
         app = QtWidgets.QApplication(sys.argv)
 
         localsocket = QLocalSocket()
@@ -111,6 +112,7 @@ Examples:
             raise Exception("GUI already running, opening its window and exiting.")
         else:
             localserver = QLocalServer()
+            localserver.setSocketOptions(QLocalServer.UserAccessOption)
             localserver.removeServer(app_id)
             localserver.listen(app_id)
 
@@ -119,7 +121,6 @@ Examples:
         thm = Themes.instance()
         thm.load_theme(app)
 
-        Utils.create_socket_dirs()
         cfg = Config.get()
         if args.socket == None:
             # default
