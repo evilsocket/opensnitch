@@ -32,6 +32,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     SUM = 1
     REST = 0
 
+    AUTH_SIMPLE = 0
+    AUTH_TLS_SIMPLE = 1
+    AUTH_TLS_MUTUAL = 2
+
     def __init__(self, parent=None, appicon=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
 
@@ -75,9 +79,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.helpButton.setToolTipDuration(30 * 1000)
 
         self.comboAuthType.currentIndexChanged.connect(self._cb_combo_auth_type_changed)
-        self.comboAuthType.setItemData(0, auth.Simple)
-        self.comboAuthType.setItemData(1, auth.TLSSimple)
-        self.comboAuthType.setItemData(2, auth.TLSMutual)
+        self.comboAuthType.setItemData(PreferencesDialog.AUTH_SIMPLE, auth.Simple)
+        self.comboAuthType.setItemData(PreferencesDialog.AUTH_TLS_SIMPLE, auth.TLSSimple)
+        self.comboAuthType.setItemData(PreferencesDialog.AUTH_TLS_MUTUAL, auth.TLSMutual)
+        self.lineCACertFile.textChanged.connect(self._cb_line_certs_changed)
         self.lineCertFile.textChanged.connect(self._cb_line_certs_changed)
         self.lineCertKeyFile.textChanged.connect(self._cb_line_certs_changed)
 
@@ -225,11 +230,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self.comboGrpcMsgSize.setCurrentIndex(0)
 
+        self.lineCACertFile.setText(self._cfg.getSettings(Config.AUTH_CA_CERT))
         self.lineCertFile.setText(self._cfg.getSettings(Config.AUTH_CERT))
         self.lineCertKeyFile.setText(self._cfg.getSettings(Config.AUTH_CERTKEY))
         authtype_idx = self.comboAuthType.findData(self._cfg.getSettings(Config.AUTH_TYPE))
         if authtype_idx <= 0:
             authtype_idx = 0
+            self.lineCACertFile.setEnabled(False)
             self.lineCertFile.setEnabled(False)
             self.lineCertKeyFile.setEnabled(False)
         self.comboAuthType.setCurrentIndex(authtype_idx)
@@ -472,14 +479,17 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         savedauthtype = self._cfg.getSettings(Config.AUTH_TYPE)
         authtype = self.comboAuthType.itemData(self.comboAuthType.currentIndex())
+        cacert = self._cfg.getSettings(Config.AUTH_CA_CERT)
         cert = self._cfg.getSettings(Config.AUTH_CERT)
         certkey = self._cfg.getSettings(Config.AUTH_CERTKEY)
         if not self._validate_certs():
             return
 
-        if savedauthtype != authtype or self.lineCertFile.text() != cert or self.lineCertKeyFile.text() != certkey:
+        if savedauthtype != authtype or self.lineCertFile.text() != cert or \
+                self.lineCertKeyFile.text() != certkey or self.lineCACertFile.text() != cacert:
             self._changes_needs_restart = QC.translate("preferences", "Certificates changed")
         self._cfg.setSettings(Config.AUTH_TYPE, authtype)
+        self._cfg.setSettings(Config.AUTH_CA_CERT, self.lineCACertFile.text())
         self._cfg.setSettings(Config.AUTH_CERT, self.lineCertFile.text())
         self._cfg.setSettings(Config.AUTH_CERTKEY, self.lineCertKeyFile.text())
 
@@ -577,7 +587,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _validate_certs(self):
         try:
-            if self.comboAuthType.currentIndex() == 0:
+            if self.comboAuthType.currentIndex() == PreferencesDialog.AUTH_SIMPLE:
                 return True
 
             if self.comboAuthType.currentIndex() > 0 and (self.lineCertFile.text() == "" or self.lineCertKeyFile.text() == ""):
@@ -592,10 +602,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     QC.translate("preferences", "cert key file has excessive permissions, it should have 0600")
                 )
 
+            if self.comboAuthType.currentIndex() == PreferencesDialog.AUTH_TLS_MUTUAL:
+                if oct(stat.S_IMODE(os.lstat(self.lineCACertFile.text()).st_mode)) != "0o600":
+                    self._set_status_message(
+                        QC.translate("preferences", "CA cert file has excessive permissions, it should have 0600")
+                    )
+
             return True
         except Exception as e:
             self._changes_needs_restart = None
-            self._set_status_error(str(e))
+            self._set_status_error("certs error: {0}".format(e))
             return False
 
     def _needs_restart(self):
@@ -719,8 +735,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         savedtype = self._cfg.getSettings(Config.AUTH_TYPE)
         if curtype != savedtype:
             self._changes_needs_restart = QC.translate("preferences", "Auth type changed")
-        self.lineCertFile.setEnabled(index > 0)
-        self.lineCertKeyFile.setEnabled(index > 0)
+
+        self.lineCACertFile.setEnabled(index == PreferencesDialog.AUTH_TLS_MUTUAL)
+        self.lineCertFile.setEnabled(index >= PreferencesDialog.AUTH_TLS_SIMPLE)
+        self.lineCertKeyFile.setEnabled(index >= PreferencesDialog.AUTH_TLS_SIMPLE)
 
     def _cb_db_max_days_toggled(self, state):
         self._enable_db_cleaner_options(state, 1)

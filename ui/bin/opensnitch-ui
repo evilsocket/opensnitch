@@ -74,6 +74,7 @@ Examples:
     - Listening on port 50051, all interfaces: opensnitch-ui --socket "[::]:50051"
                         ''', metavar="FILE")
     parser.add_argument("--socket-auth", dest="socket_auth", help="Auth type: simple, tls-simple, tls-mutual")
+    parser.add_argument("--tls-ca-cert", dest="tls_ca_cert", help="path to the CA cert")
     parser.add_argument("--tls-cert", dest="tls_cert", help="path to the server cert")
     parser.add_argument("--tls-key", dest="tls_key", help="path to the server key")
     parser.add_argument("--max-clients", dest="serverWorkers", default=10, help="Max number of allowed clients (incoming connections).")
@@ -175,14 +176,17 @@ Examples:
             if auth_type == auth.Simple or auth_type == "":
                 server.add_insecure_port(args.socket)
             else:
+                auth_ca_cert = args.tls_ca_cert
                 auth_cert = args.tls_cert
                 auth_certkey = args.tls_key
                 if auth_cert == None:
                     auth_cert = cfg.getSettings(Config.AUTH_CERT)
                 if auth_certkey == None:
                     auth_certkey = cfg.getSettings(Config.AUTH_CERTKEY)
+                if auth_ca_cert == None:
+                    auth_ca_cert = cfg.getSettings(Config.AUTH_CA_CERT)
 
-                tls_creds = auth.get_tls_credentials(auth_cert, auth_certkey)
+                tls_creds = auth.get_tls_credentials(auth_ca_cert, auth_cert, auth_certkey)
                 if tls_creds == None:
                     raise Exception("Invalid TLS credentials. Review the server key and cert files.")
                 server.add_secure_port(args.socket, tls_creds)

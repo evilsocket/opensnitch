@@ -138,6 +138,10 @@ class Config:
 
     INFOWIN_GEOMETRY = "infoWindow/geometry"
 
+    AUTH_TYPE = "auth/type"
+    AUTH_CA_CERT = "auth/cacert"
+    AUTH_CERT = "auth/cert"
+    AUTH_CERTKEY = "auth/certkey"
     # don't translate
 
     @staticmethod
