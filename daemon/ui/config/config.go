@@ -1,6 +1,8 @@
 package config
 
 import (
+	"encoding/json"
+	"reflect"
 	"sync"
 
 	"github.com/evilsocket/opensnitch/daemon/log/loggers"
@@ -51,4 +53,14 @@ type Config struct {
 	LogMicro          bool                   `json:"LogMicro"`
 	Firewall          string                 `json:"Firewall"`
 	Stats             statistics.StatsConfig `json:"Stats"`
+}
+
+// Parse determines if the given configuration is ok.
+func Parse(rawConfig interface{}) (conf Config, err error) {
+	if vt := reflect.ValueOf(rawConfig).Kind(); vt == reflect.String {
+		err = json.Unmarshal([]byte((rawConfig.(string))), &conf)
+	} else {
+		err = json.Unmarshal(rawConfig.([]uint8), &conf)
+	}
+	return conf, err
 }

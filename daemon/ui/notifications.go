@@ -15,6 +15,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
+	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 	"golang.org/x/net/context"
 )
@@ -91,7 +92,7 @@ Exit:
 func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	log.Info("[notification] Reloading configuration")
 	// Parse received configuration first, to get the new proc monitor method.
-	newConf, err := c.parseConf(notification.Data)
+	newConf, err := config.Parse(notification.Data)
 	if err != nil {
 		log.Warning("[notification] error parsing received config: %v", notification.Data)
 		c.sendNotificationReply(stream, notification.Id, "", err)
@@ -284,7 +285,7 @@ func (c *Client) Subscribe() {
 		return
 	}
 
-	if tempConf, err := c.parseConf(clientCfg.Config); err == nil {
+	if tempConf, err := config.Parse(clientCfg.Config); err == nil {
 		c.Lock()
 		clientConnectedRule.Action = rule.Action(tempConf.DefaultAction)
 		c.Unlock()

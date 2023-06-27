@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -40,11 +39,6 @@ func (c *Client) isProcMonitorEqual(newMonitorMethod string) bool {
 	return newMonitorMethod == clientConfig.ProcMonitorMethod
 }
 
-func (c *Client) parseConf(rawConfig string) (conf config.Config, err error) {
-	err = json.Unmarshal([]byte(rawConfig), &conf)
-	return conf, err
-}
-
 func (c *Client) loadDiskConfiguration(reload bool) {
 	raw, err := ioutil.ReadFile(configFile)
 	if err != nil || len(raw) == 0 {
@@ -72,7 +66,8 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	clientConfig.Lock()
 	defer clientConfig.Unlock()
 
-	if err := json.Unmarshal(rawConfig, &clientConfig); err != nil {
+	clientConfig, err := config.Parse(rawConfig)
+	if err != nil {
 		msg := fmt.Sprintf("Error parsing configuration %s: %s", configFile, err)
 		log.Error(msg)
 		c.SendWarningAlert(msg)
@@ -100,6 +95,8 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 	if clientConfig.DefaultAction != "" {
 		clientDisconnectedRule.Action = rule.Action(clientConfig.DefaultAction)
 		clientErrorRule.Action = rule.Action(clientConfig.DefaultAction)
+		// TODO: reconfigure connected rule if changed, but not save it to disk.
+		//clientConnectedRule.Action = rule.Action(clientConfig.DefaultAction)
 	}
 	if clientConfig.DefaultDuration != "" {
 		clientDisconnectedRule.Duration = rule.Duration(clientConfig.DefaultDuration)
@@ -117,7 +114,7 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 }
 
 func (c *Client) saveConfiguration(rawConfig string) (err error) {
-	if _, err = c.parseConf(rawConfig); err != nil {
+	if _, err = config.Parse(rawConfig); err != nil {
 		return fmt.Errorf("Error parsing configuration %s: %s", rawConfig, err)
 	}
 
