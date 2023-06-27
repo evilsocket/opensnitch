@@ -109,7 +109,7 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 	}
 
 	// this save operation triggers a re-loadConfiguration()
-	err = c.saveConfiguration(notification.Data)
+	err = config.SaveConfiguration(configFile, notification.Data)
 	if err != nil {
 		log.Warning("[notification] CHANGE_CONFIG not applied %s", err)
 	}

@@ -2,9 +2,13 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"reflect"
 	"sync"
 
+	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/log/loggers"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 )
@@ -63,4 +67,20 @@ func Parse(rawConfig interface{}) (conf Config, err error) {
 		err = json.Unmarshal(rawConfig.([]uint8), &conf)
 	}
 	return conf, err
+}
+
+// SaveConfiguration saves daemon config to disk.
+func SaveConfiguration(configFile, rawConfig string) (err error) {
+	if _, err = Parse(rawConfig); err != nil {
+		return fmt.Errorf("Error parsing configuration %s: %s", rawConfig, err)
+	}
+
+	if err = os.Chmod(configFile, 0600); err != nil {
+		log.Warning("unable to set permissions to default config: %s", err)
+	}
+	if err = ioutil.WriteFile(configFile, []byte(rawConfig), 0644); err != nil {
+		log.Error("writing configuration to disk: %s", err)
+		return err
+	}
+	return nil
 }
