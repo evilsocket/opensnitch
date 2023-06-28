@@ -135,6 +135,19 @@ Removing the following options from the kernel booting parameters solved the iss
 
 `slab_nomerge, slub_debug=FZP and page_alloc.shuffle=1`
 
+### No interception
+
+There's no interception and there are these warnings in the logs:
+
+```
+   2   │ [2023-06-24 18:06:54]  WAR  nftables: error applying changes: conn.Receive: netlink receive: no such file or directory
+   3   │ [2023-06-24 18:06:54]  ERR  Error while running DNS nftables rule: Error adding DNS interception rules
+   4   │ [2023-06-24 18:06:54]  WAR  nftables: error applying changes: conn.Receive: netlink receive: no such file or directory
+   5   │ [2023-06-24 18:06:54]  ERR  Error while running conntrack nftables rule: Error adding interception rule
+```
+
+Your kernel doesn't have support for some needed options. Execute `opensnitchd -check-requirements` to know what is missing (more info: #976).
+
 On Debian with kernel 5.7.0, remove `slub_debug=FZP` if you have it configured and try again.
 
 Note: This was caused by [a bug in the libnetfilter_queue library](https://bugzilla.netfilter.org/show_bug.cgi?id=1440).
