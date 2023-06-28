@@ -127,6 +127,18 @@ func CheckSysRequirements() {
             ],
         "Reason": " * NETLINK extensions not supported by this kernel (CONFIG_NETFILTER_NETLINK, CONFIG_NETFILTER_NETLINK_QUEUE, CONFIG_NETFILTER_NETLINK_ACCT)."
     }
+},
+{
+    "Item": "net diagnostics",
+    "Checks": {
+        "Regexps": [
+			"CONFIG_INET_DIAG=[my]",
+			"CONFIG_INET_TCP_DIAG=[my]",
+			"CONFIG_INET_UDP_DIAG=[my]",
+			"CONFIG_INET_DIAG_DESTROY=[my]"
+            ],
+        "Reason": " * One or more socket monitoring interfaces are not enabled (CONFIG_INET_DIAG, CONFIG_INET_TCP_DIAG, CONFIG_INET_UDP_DIAG, CONFIG_DIAG_DESTROY (Reject feature))."
+    }
 }
 ]
 `

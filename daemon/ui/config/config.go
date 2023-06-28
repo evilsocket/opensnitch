@@ -69,8 +69,8 @@ func Parse(rawConfig interface{}) (conf Config, err error) {
 	return conf, err
 }
 
-// SaveConfiguration saves daemon config to disk.
-func SaveConfiguration(configFile, rawConfig string) (err error) {
+// Save writes daemon configuration to disk.
+func Save(configFile, rawConfig string) (err error) {
 	if _, err = Parse(rawConfig); err != nil {
 		return fmt.Errorf("Error parsing configuration %s: %s", rawConfig, err)
 	}
