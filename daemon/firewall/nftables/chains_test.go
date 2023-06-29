@@ -8,6 +8,8 @@ import (
 )
 
 func TestChains(t *testing.T) {
+	skipIfNotPrivileged(t)
+
 	conn, newNS = OpenSystemConn(t)
 	defer CleanupSystemConn(t, newNS)
 	nft.conn = conn
@@ -68,6 +70,8 @@ func TestChains(t *testing.T) {
 // TestAddInterceptionChains checks if the needed tables and chains have been created.
 // We use 2: output-mangle-inet for intercepting outbound connections, and input-filter-inet for DNS responses interception
 func TestAddInterceptionChains(t *testing.T) {
+	skipIfNotPrivileged(t)
+
 	if err := nft.addInterceptionTables(); err != nil {
 		t.Errorf("Error adding interception tables: %s", err)
 	}

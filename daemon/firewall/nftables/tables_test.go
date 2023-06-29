@@ -1,6 +1,7 @@
 package nftables
 
 import (
+	"os"
 	"runtime"
 	"testing"
 
@@ -18,6 +19,12 @@ var (
 
 func init() {
 	initMapsStore()
+}
+
+func skipIfNotPrivileged(t *testing.T) {
+	if os.Getenv("PRIVILEGED_TESTS") == "" {
+		t.Skip("Set PRIVILEGED_TESTS to 1 to launch these tests, and launch them as root, or as a user allowed to create new namespaces.")
+	}
 }
 
 // https://github.com/google/nftables/blob/8f2d395e1089dea4966c483fbeae7e336917c095/internal/nftest/system_conn.go#L15
@@ -66,6 +73,8 @@ func tableExists(t *testing.T, origtbl *nftables.Table, family string) bool {
 }
 
 func TestAddTable(t *testing.T) {
+	skipIfNotPrivileged(t)
+
 	conn, newNS = OpenSystemConn(t)
 	defer CleanupSystemConn(t, newNS)
 	nft.conn = conn
@@ -119,6 +128,8 @@ func TestAddTable(t *testing.T) {
 // TestAddInterceptionTables checks if the needed tables have been created.
 // We use 2: mangle-inet for intercepting outbound connections, and filter-inet for DNS responses interception
 func TestAddInterceptionTables(t *testing.T) {
+	skipIfNotPrivileged(t)
+
 	conn, newNS = OpenSystemConn(t)
 	defer CleanupSystemConn(t, newNS)
 	nft.conn = conn
