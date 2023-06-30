@@ -156,16 +156,16 @@ func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]
 	return nil
 }
 
-func (n *Nft) addRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
+func (n *Nft) addRule(chain, table, family string, position uint64, key string, exprs *[]expr.Any) (*nftables.Rule, error) {
 	tbl := n.getTable(table, family)
 	if tbl == nil {
-		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
+		return nil, fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
 	}
 
 	chainKey := getChainKey(chain, tbl)
 	chn, chok := sysChains.Load(chainKey)
 	if !chok {
-		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
+		return nil, fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
 	}
 
 	rule := &nftables.Rule{
@@ -173,14 +173,14 @@ func (n *Nft) addRule(chain, table, family string, position uint64, exprs *[]exp
 		Table:    tbl,
 		Chain:    chn.(*nftables.Chain),
 		Exprs:    *exprs,
-		UserData: []byte(systemRuleKey),
+		UserData: []byte(key),
 	}
 	n.conn.AddRule(rule)
 	if !n.Commit() {
-		return fmt.Errorf("%s Error adding rule", logTag)
+		return nil, fmt.Errorf("%s Error adding rule", logTag)
 	}
 
-	return nil
+	return rule, nil
 }
 
 func (n *Nft) delRulesByKey(key string) error {
