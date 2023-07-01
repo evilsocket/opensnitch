@@ -7,6 +7,25 @@ import (
 	"github.com/google/nftables"
 )
 
+func getRulesList(t *testing.T, conn *nftables.Conn, family, tblName, chnName string) ([]*nftables.Rule, int) {
+	chains, err := conn.ListChains()
+	if err != nil {
+		return nil, -1
+	}
+
+	for rdx, c := range chains {
+		if c.Table.Family == getFamilyCode(family) && c.Table.Name == tblName && c.Name == chnName {
+			rules, err := conn.GetRule(c.Table, c)
+			if err != nil {
+				return nil, -1
+			}
+			return rules, rdx
+		}
+	}
+
+	return nil, -1
+}
+
 func getRule(t *testing.T, conn *nftables.Conn, tblName, chnName, key string, ruleHandle uint64) (*nftables.Rule, int) {
 	chains, err := conn.ListChains()
 	if err != nil {

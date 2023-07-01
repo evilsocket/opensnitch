@@ -1,0 +1,159 @@
+{
+  "Enabled": true,
+  "Version": 1,
+  "SystemRules": [
+    {
+      "Chains": [
+        {
+          "Name": "input",
+          "Table": "filter",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "filter",
+          "Hook": "input",
+          "Policy": "accept",
+          "Rules": [
+            {
+              "Enabled": true,
+              "Position": "0",
+              "Description": "Allow SSH server connections when input policy is DROP",
+              "Parameters": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "tcp",
+                    "Values": [
+                      {
+                        "Key": "dport",
+                        "Value": "22"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            } 
+          ]
+        },
+        {
+          "Name": "output",
+          "Table": "mangle",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "mangle",
+          "Hook": "output",
+          "Policy": "accept",
+          "Rules": [
+            {
+              "Enabled": true,
+              "Position": "0",
+              "Description": "Allow ICMP",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "icmp",
+                    "Values": [
+                      {
+                        "Key": "type",
+                        "Value": "echo-request"
+                      },
+                      {
+                        "Key": "type",
+                        "Value": "echo-reply"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            },
+            {
+              "Enabled": true,
+              "Position": "0",
+              "Description": "Allow ICMPv6",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "icmpv6",
+                    "Values": [
+                      {
+                        "Key": "type",
+                        "Value": "echo-request"
+                      },
+                      {
+                        "Key": "type",
+                        "Value": "echo-reply"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            },
+            {
+              "Enabled": true,
+              "Position": "0",
+              "Description": "Exclude WireGuard VPN from being intercepted",
+              "Parameters": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "udp",
+                    "Values": [
+                      {
+                        "Key": "dport",
+                        "Value": "51820"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            }
+          ]
+        },
+        {
+          "Name": "forward",
+          "Table": "mangle",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "mangle",
+          "Hook": "forward",
+          "Policy": "accept",
+          "Rules": [
+            {
+              "UUID": "7d7394e1-100d-4b87-a90a-cd68c46edb0b",
+              "Enabled": true,
+              "Position": "0",
+              "Description": "Intercept forwarded connections (docker, etc)",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "ct",
+                    "Values": [
+                      {
+                        "Key": "state",
+                        "Value": "new"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "queue",
+              "TargetParameters": "num 0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
