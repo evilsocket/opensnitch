@@ -3,7 +3,6 @@ package ui
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strings"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -63,16 +62,18 @@ func (c *Client) loadDiskConfiguration(reload bool) {
 }
 
 func (c *Client) loadConfiguration(rawConfig []byte) bool {
-	clientConfig.Lock()
-	defer clientConfig.Unlock()
-
-	clientConfig, err := config.Parse(rawConfig)
+	var err error
+	clientConfig, err = config.Parse(rawConfig)
 	if err != nil {
 		msg := fmt.Sprintf("Error parsing configuration %s: %s", configFile, err)
 		log.Error(msg)
 		c.SendWarningAlert(msg)
 		return false
 	}
+
+	clientConfig.Lock()
+	defer clientConfig.Unlock()
+
 	// firstly load config level, to detect further errors if any
 	if clientConfig.LogLevel != nil {
 		log.SetLogLevel(int(*clientConfig.LogLevel))
@@ -110,20 +111,10 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 		}
 	}
 
+	// TODO:
+	//c.stats.SetLimits(clientConfig.Stats)
+	//loggers.Load(clientConfig.Server.Loggers, clientConfig.Stats.Workers)
+	//stats.SetLoggers(loggers)
+
 	return true
-}
-
-func (c *Client) saveConfiguration(rawConfig string) (err error) {
-	if _, err = config.Parse(rawConfig); err != nil {
-		return fmt.Errorf("Error parsing configuration %s: %s", rawConfig, err)
-	}
-
-	if err = os.Chmod(configFile, 0600); err != nil {
-		log.Warning("unable to set permissions to default config: %s", err)
-	}
-	if err = ioutil.WriteFile(configFile, []byte(rawConfig), 0644); err != nil {
-		log.Error("writing configuration to disk: %s", err)
-		return err
-	}
-	return nil
 }
