@@ -69,6 +69,16 @@ func Parse(rawConfig interface{}) (conf Config, err error) {
 	return conf, err
 }
 
+// Load loads the content of a file from disk.
+func Load(configFile string) ([]byte, error) {
+	raw, err := ioutil.ReadFile(configFile)
+	if err != nil || len(raw) == 0 {
+		return nil, err
+	}
+
+	return raw, nil
+}
+
 // Save writes daemon configuration to disk.
 func Save(configFile, rawConfig string) (err error) {
 	if _, err = Parse(rawConfig); err != nil {

@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strings"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -39,7 +38,7 @@ func (c *Client) isProcMonitorEqual(newMonitorMethod string) bool {
 }
 
 func (c *Client) loadDiskConfiguration(reload bool) {
-	raw, err := ioutil.ReadFile(configFile)
+	raw, err := config.Load(configFile)
 	if err != nil || len(raw) == 0 {
 		// Sometimes we may receive 2 Write events on monitorConfigWorker,
 		// Which may lead to read 0 bytes.
