@@ -212,7 +212,7 @@ Here's a rule to allow localhost connections:
 }
 ```
 
-If you want to restrict it further, under the `Addresses` tab you can review what binaries established localhost connections, and then add the absolute path to the rule.
+If you want to restrict it further, under the `Addresses` tab you can review what binaries established localhost connections, and then add the absolute path to the rule + destination port.
 
 ### Best practices
 
