@@ -1,6 +1,6 @@
-- [Format](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules#format)
-- [Performance / Important notes](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules#some-considerations)
-- [Best practices](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Rules#best-practices)
+- [Format](#format)
+- [Performance / Important notes](#some-considerations)
+- [Best practices](#best-practices)
 
 ---
 
@@ -56,7 +56,7 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 
 ### Some considerations
 
--All the fields you select when defining a rule will be used to match connections, for example:
+- All the fields you select when defining a rule will be used to match connections, for example:
  - Rule: allow -> port 443 -> Dst IP 1.1.1.1 -> Protocol TCP -> Host www.site.test
    * This rule will match connections to port 443 __AND__ IP 1.1.1.1 __AND__ protocol TCP __AND__ host www.site.test
    * connections to IP 2.2.2.2 won't match, connections to port 80 won't match, etc...
@@ -66,12 +66,12 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
  - Rule: allow -> port ^(53|80|443)$ -> UID 1000 -> Path /app/bin/test -> [x] domains list 
    * This rule will match connections to ports (53 __OR__ 80 __OR__ 443) __AND__ UID 1000 __AND__ Path /app/bin/test __AND__ domains in the specified.
 
--If you select multiple lists on the same rule, bear in mind that the connections you want to match must
+- If you select multiple lists on the same rule, bear in mind that the connections you want to match must
  [Read this disccussion to learn more](https://github.com/evilsocket/opensnitch/discussions/877#discussioncomment-5247997)
 
--By default Deny rules take precedence over the rest of the rules. If a connection match a Deny rule, opensnitch won't continue evaluating rules.
+- By default Deny rules take precedence over the rest of the rules. If a connection match a Deny rule, opensnitch won't continue evaluating rules.
 
--Since v1.2.0, rules are sorted and checked in alphabetical order. You can name them this way to prioritize Deny rules, for example: 
+- Since v1.2.0, rules are sorted and checked in alphabetical order. You can name them this way to prioritize Deny rules, for example: 
 ```
 000-allow-chrome-to-specific-domains
 001-allow-not-so-important-rule
