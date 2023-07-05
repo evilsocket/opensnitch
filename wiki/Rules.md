@@ -1,5 +1,6 @@
 - [Format](#format)
 - [Performance / Important notes](#some-considerations)
+  * [localhost connections](#localhost-connections)
 - [Best practices](#best-practices)
 
 ---
@@ -183,6 +184,35 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
   }
 }
 ```
+
+### localhost connections
+
+Some applications have components that communicate in localhost. For example KDE uses `kdeinit5` and `kwin`, Xfce and others use `xbrlapi` , and GnuPG `dirmngr`.
+If you change daemon's default action to `deny` this apps will stop working. For example you may notice a delay login to the Desktop Environment (See issues #982 and #965 for more information).
+
+The solution is to allow either localhost connections, or this binaries in particular.
+
+Here's a rule to allow localhost connections:
+```json
+{
+  "created": "2023-07-05T10:46:47.904024069+01:00",
+  "updated": "2023-07-05T10:46:47.921828104+01:00",
+  "name": "000-aallow-localhost",
+  "enabled": true,
+  "precedence": true,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "regexp",
+    "operand": "dest.ip",
+    "sensitive": false,
+    "data": "^(127\\.0\\.0\\.1|::1)$",
+    "list": []
+  }
+}
+```
+
+If you want to restrict it further, under the `Addresses` tab you can review what binaries established localhost connections, and then add the absolute path to the rule.
 
 ### Best practices
 
