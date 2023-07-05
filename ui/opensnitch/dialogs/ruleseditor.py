@@ -38,6 +38,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     EDIT_RULE = 1
     WORK_MODE = ADD_RULE
 
+    PW_USER = 0
+    PW_UID = 2
+
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
 
     def __init__(self, parent=None, _rule=None, appicon=None):
@@ -125,8 +128,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._users_list = pwd.getpwall()
                 self.uidCombo.blockSignals(True);
                 for user in self._users_list:
-                    self.uidCombo.addItem("{0} ({1})".format(user[0], user[2]), user[2])
-                #self.uidCombo.setCurrentText("")
+                    self.uidCombo.addItem("{0} ({1})".format(user[self.PW_USER], user[self.PW_UID]), user[self.PW_UID])
             except Exception as e:
                 print("[ruleseditor] Error adding IPs:", e)
             finally:
@@ -221,7 +223,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.selectNetsListButton.setEnabled(state)
 
     def _cb_uid_combo_changed(self, index):
-        self.uidCombo.setCurrentText(str(self._users_list[index][2]))
+        print(index, "uid:", str(self._users_list[index][self.PW_UID]))
+        self.uidCombo.setCurrentText(str(self._users_list[index][self.PW_UID]))
 
     def _set_status_error(self, msg):
         self.statusLabel.setStyleSheet('color: red')
@@ -849,6 +852,18 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.uidCheck.isChecked():
             if self.uidCombo.currentText() == "":
                 return False, QC.translate("rules", "User ID can not be empty")
+            try:
+                # sometimes when loading a rule, instead of the UID, the format
+                # "user (uid)" is set. So try to parse it, in order not to save
+                # a wrong uid.
+                uidtmp = self.uidCombo.currentText().split(" ")
+                if len(uidtmp) == 1:
+                    int(uidtmp[0])
+                    uid = self.uidCombo.currentText()
+                else:
+                    uid = str(pwd.getpwnam(uidtmp[0])[self.PW_UID])
+            except:
+                return False, QC.translate("rules", "Invalid UID, it must be a digit.")
 
             self.rule.operator.operand = Config.OPERAND_USER_ID
             self.rule.operator.data = self.uidCombo.currentText()
@@ -856,7 +871,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     {
                         'type': Config.RULE_TYPE_SIMPLE,
                         'operand': Config.OPERAND_USER_ID,
-                        'data': self.uidCombo.currentText(),
+                        'data': uid,
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
             if self._is_regex(self.uidCombo.currentText()):
