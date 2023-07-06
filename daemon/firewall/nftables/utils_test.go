@@ -1,8 +1,9 @@
-package nftables
+package nftables_test
 
 import (
 	"testing"
 
+	nftb "github.com/evilsocket/opensnitch/daemon/firewall/nftables"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/google/nftables"
 )
@@ -23,28 +24,28 @@ type chainPrioT struct {
 func TestGetConntrackPriority(t *testing.T) {
 
 	t.Run("hook-prerouting", func(t *testing.T) {
-		cprio, ctype := getConntrackPriority(exprs.NFT_HOOK_PREROUTING)
+		cprio, ctype := nftb.GetConntrackPriority(exprs.NFT_HOOK_PREROUTING)
 		if cprio != nftables.ChainPriorityConntrack && ctype != nftables.ChainTypeFilter {
 			t.Errorf("invalid conntrack priority or type for hook PREROUTING: %+v, %+v", cprio, ctype)
 		}
 	})
 
 	t.Run("hook-output", func(t *testing.T) {
-		cprio, ctype := getConntrackPriority(exprs.NFT_HOOK_OUTPUT)
+		cprio, ctype := nftb.GetConntrackPriority(exprs.NFT_HOOK_OUTPUT)
 		if cprio != nftables.ChainPriorityNATSource && ctype != nftables.ChainTypeFilter {
 			t.Errorf("invalid conntrack priority or type for hook OUTPUT: %+v, %+v", cprio, ctype)
 		}
 	})
 
 	t.Run("hook-postrouting", func(t *testing.T) {
-		cprio, ctype := getConntrackPriority(exprs.NFT_HOOK_POSTROUTING)
+		cprio, ctype := nftb.GetConntrackPriority(exprs.NFT_HOOK_POSTROUTING)
 		if cprio != nftables.ChainPriorityConntrackHelper && ctype != nftables.ChainTypeNAT {
 			t.Errorf("invalid conntrack priority or type for hook POSTROUTING: %+v, %+v", cprio, ctype)
 		}
 	})
 
 	t.Run("hook-input", func(t *testing.T) {
-		cprio, ctype := getConntrackPriority(exprs.NFT_HOOK_INPUT)
+		cprio, ctype := nftb.GetConntrackPriority(exprs.NFT_HOOK_INPUT)
 		if cprio != nftables.ChainPriorityConntrackConfirm && ctype != nftables.ChainTypeFilter {
 			t.Errorf("invalid conntrack priority or type for hook INPUT: %+v, %+v", cprio, ctype)
 		}
@@ -146,7 +147,7 @@ func TestGetChainPriority(t *testing.T) {
 
 	for _, testChainPrio := range matrixTests {
 		t.Run(testChainPrio.test, func(t *testing.T) {
-			chainPrio, chainType := getChainPriority(testChainPrio.family, testChainPrio.chain, testChainPrio.hook)
+			chainPrio, chainType := nftb.GetChainPriority(testChainPrio.family, testChainPrio.chain, testChainPrio.hook)
 
 			if testChainPrio.checkEqual {
 				if chainPrio != testChainPrio.chainPrio && chainType != testChainPrio.chainType {
@@ -204,7 +205,7 @@ func TestInvalidChainPriority(t *testing.T) {
 
 	for _, testChainPrio := range matrixTests {
 		t.Run(testChainPrio.test, func(t *testing.T) {
-			chainPrio, chainType := getChainPriority(testChainPrio.family, testChainPrio.chain, testChainPrio.hook)
+			chainPrio, chainType := nftb.GetChainPriority(testChainPrio.family, testChainPrio.chain, testChainPrio.hook)
 
 			if testChainPrio.checkEqual {
 				if chainPrio != testChainPrio.chainPrio && chainType != testChainPrio.chainType {

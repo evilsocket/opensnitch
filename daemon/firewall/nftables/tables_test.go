@@ -1,63 +1,17 @@
-package nftables
+package nftables_test
 
 import (
-	"os"
-	"runtime"
 	"testing"
 
+	nftb "github.com/evilsocket/opensnitch/daemon/firewall/nftables"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
+	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/nftest"
 	"github.com/google/nftables"
-	"github.com/vishvananda/netns"
 )
 
-var (
-	conn  *nftables.Conn
-	newNS netns.NsHandle
-
-	nft, _ = Fw()
-)
-
-func init() {
-	initMapsStore()
-}
-
-func skipIfNotPrivileged(t *testing.T) {
-	if os.Getenv("PRIVILEGED_TESTS") == "" {
-		t.Skip("Set PRIVILEGED_TESTS to 1 to launch these tests, and launch them as root, or as a user allowed to create new namespaces.")
-	}
-}
-
-// https://github.com/google/nftables/blob/8f2d395e1089dea4966c483fbeae7e336917c095/internal/nftest/system_conn.go#L15
-func OpenSystemConn(t *testing.T) (*nftables.Conn, netns.NsHandle) {
-	t.Helper()
-	// We lock the goroutine into the current thread, as namespace operations
-	// such as those invoked by `netns.New()` are thread-local. This is undone
-	// in nftest.CleanupSystemConn().
-	runtime.LockOSThread()
-
-	ns, err := netns.New()
-	if err != nil {
-		t.Fatalf("netns.New() failed: %v", err)
-	}
-	t.Log("OpenSystemConn() with NS:", ns)
-	c, err := nftables.New(nftables.WithNetNSFd(int(ns)))
-	if err != nil {
-		t.Fatalf("nftables.New() failed: %v", err)
-	}
-	return c, ns
-}
-
-func CleanupSystemConn(t *testing.T, newNS netns.NsHandle) {
-	defer runtime.UnlockOSThread()
-
-	if err := newNS.Close(); err != nil {
-		t.Fatalf("newNS.Close() failed: %v", err)
-	}
-}
-
-func tableExists(t *testing.T, origtbl *nftables.Table, family string) bool {
+func tableExists(t *testing.T, conn *nftables.Conn, origtbl *nftables.Table, family string) bool {
 	tables, err := conn.ListTablesOfFamily(
-		getFamilyCode(family),
+		nftb.GetFamilyCode(family),
 	)
 	if err != nil {
 		return false
@@ -73,54 +27,54 @@ func tableExists(t *testing.T, origtbl *nftables.Table, family string) bool {
 }
 
 func TestAddTable(t *testing.T) {
-	skipIfNotPrivileged(t)
+	nftest.SkipIfNotPrivileged(t)
 
-	conn, newNS = OpenSystemConn(t)
-	defer CleanupSystemConn(t, newNS)
-	nft.conn = conn
+	conn, newNS := nftest.OpenSystemConn(t)
+	defer nftest.CleanupSystemConn(t, newNS)
+	nftest.Fw.Conn = conn
 
 	t.Run("inet family", func(t *testing.T) {
-		tblxxx, err := nft.AddTable("xxx", exprs.NFT_FAMILY_INET)
+		tblxxx, err := nftest.Fw.AddTable("xxx", exprs.NFT_FAMILY_INET)
 		if err != nil {
 			t.Error("table xxx-inet not added:", err)
 		}
-		if tableExists(t, tblxxx, exprs.NFT_FAMILY_INET) == false {
+		if tableExists(t, nftest.Fw.Conn, tblxxx, exprs.NFT_FAMILY_INET) == false {
 			t.Error("table xxx-inet not in the list")
 		}
 
-		nft.delSystemTables()
-		if tableExists(t, tblxxx, exprs.NFT_FAMILY_INET) {
-			t.Errorf("table xxx-inet still exists: %+v", sysTables)
+		nftest.Fw.DelSystemTables()
+		if tableExists(t, nftest.Fw.Conn, tblxxx, exprs.NFT_FAMILY_INET) {
+			t.Error("table xxx-inet still exists")
 		}
 	})
 
 	t.Run("ip family", func(t *testing.T) {
-		tblxxx, err := nft.AddTable("xxx", exprs.NFT_FAMILY_IP)
+		tblxxx, err := nftest.Fw.AddTable("xxx", exprs.NFT_FAMILY_IP)
 		if err != nil {
 			t.Error("table xxx-ip not added:", err)
 		}
-		if tableExists(t, tblxxx, exprs.NFT_FAMILY_IP) == false {
+		if tableExists(t, nftest.Fw.Conn, tblxxx, exprs.NFT_FAMILY_IP) == false {
 			t.Error("table xxx-ip not in the list")
 		}
 
-		nft.delSystemTables()
-		if tableExists(t, tblxxx, exprs.NFT_FAMILY_IP) {
-			t.Errorf("table xxx-ip still exists: %+v", sysTables)
+		nftest.Fw.DelSystemTables()
+		if tableExists(t, nftest.Fw.Conn, tblxxx, exprs.NFT_FAMILY_IP) {
+			t.Errorf("table xxx-ip still exists:") // %+v", sysTables)
 		}
 	})
 
 	t.Run("ip6 family", func(t *testing.T) {
-		tblxxx, err := nft.AddTable("xxx", exprs.NFT_FAMILY_IP6)
+		tblxxx, err := nftest.Fw.AddTable("xxx", exprs.NFT_FAMILY_IP6)
 		if err != nil {
 			t.Error("table xxx-ip6 not added:", err)
 		}
-		if tableExists(t, tblxxx, exprs.NFT_FAMILY_IP6) == false {
+		if tableExists(t, nftest.Fw.Conn, tblxxx, exprs.NFT_FAMILY_IP6) == false {
 			t.Error("table xxx-ip6 not in the list")
 		}
 
-		nft.delSystemTables()
-		if tableExists(t, tblxxx, exprs.NFT_FAMILY_IP6) {
-			t.Errorf("table xxx-ip6 still exists: %+v", sysTables)
+		nftest.Fw.DelSystemTables()
+		if tableExists(t, nftest.Fw.Conn, tblxxx, exprs.NFT_FAMILY_IP6) {
+			t.Errorf("table xxx-ip6 still exists:") // %+v", sysTables)
 		}
 	})
 }
@@ -128,31 +82,31 @@ func TestAddTable(t *testing.T) {
 // TestAddInterceptionTables checks if the needed tables have been created.
 // We use 2: mangle-inet for intercepting outbound connections, and filter-inet for DNS responses interception
 func TestAddInterceptionTables(t *testing.T) {
-	skipIfNotPrivileged(t)
+	nftest.SkipIfNotPrivileged(t)
 
-	conn, newNS = OpenSystemConn(t)
-	defer CleanupSystemConn(t, newNS)
-	nft.conn = conn
+	conn, newNS := nftest.OpenSystemConn(t)
+	defer nftest.CleanupSystemConn(t, newNS)
+	nftest.Fw.Conn = conn
 
-	if err := nft.addInterceptionTables(); err != nil {
+	if err := nftest.Fw.AddInterceptionTables(); err != nil {
 		t.Errorf("addInterceptionTables() error: %s", err)
 	}
 
 	t.Run("mangle-inet", func(t *testing.T) {
-		tblmangle := nft.getTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
+		tblmangle := nftest.Fw.GetTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
 		if tblmangle == nil {
 			t.Error("interception table mangle-inet not in the list")
 		}
-		if tableExists(t, tblmangle, exprs.NFT_FAMILY_INET) == false {
+		if tableExists(t, nftest.Fw.Conn, tblmangle, exprs.NFT_FAMILY_INET) == false {
 			t.Error("table mangle-inet not in the list")
 		}
 	})
 	t.Run("filter-inet", func(t *testing.T) {
-		tblfilter := nft.getTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET)
+		tblfilter := nftest.Fw.GetTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET)
 		if tblfilter == nil {
 			t.Error("interception table filter-inet not in the list")
 		}
-		if tableExists(t, tblfilter, exprs.NFT_FAMILY_INET) == false {
+		if tableExists(t, nftest.Fw.Conn, tblfilter, exprs.NFT_FAMILY_INET) == false {
 			t.Error("table filter-inet not in the list")
 		}
 	})

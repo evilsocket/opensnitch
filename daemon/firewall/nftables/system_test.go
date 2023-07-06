@@ -1,9 +1,10 @@
-package nftables
+package nftables_test
 
 import (
 	"testing"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
+	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/nftest"
 )
 
 type sysChainsListT struct {
@@ -14,13 +15,13 @@ type sysChainsListT struct {
 }
 
 func TestAddSystemRules(t *testing.T) {
-	skipIfNotPrivileged(t)
+	nftest.SkipIfNotPrivileged(t)
 
-	conn, newNS = OpenSystemConn(t)
-	defer CleanupSystemConn(t, newNS)
-	nft.conn = conn
+	conn, newNS := nftest.OpenSystemConn(t)
+	defer nftest.CleanupSystemConn(t, newNS)
+	nftest.Fw.Conn = conn
 
-	cfg, err := nft.NewSystemFwConfig(nft.preloadConfCallback, nft.reloadConfCallback)
+	cfg, err := nftest.Fw.NewSystemFwConfig(nftest.Fw.PreloadConfCallback, nftest.Fw.ReloadConfCallback)
 	if err != nil {
 		t.Logf("Error creating fw config: %s", err)
 	}
@@ -30,7 +31,7 @@ func TestAddSystemRules(t *testing.T) {
 		t.Errorf("Error loading config from disk: %s", err)
 	}
 
-	nft.AddSystemRules(false, false)
+	nftest.Fw.AddSystemRules(false, false)
 
 	rules, _ := getRulesList(t, conn, exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_FILTER, exprs.NFT_HOOK_INPUT)
 	// 3 rules in total, 1 disabled.
@@ -62,13 +63,13 @@ func TestAddSystemRules(t *testing.T) {
 }
 
 func TestFwConfDisabled(t *testing.T) {
-	skipIfNotPrivileged(t)
+	nftest.SkipIfNotPrivileged(t)
 
-	conn, newNS = OpenSystemConn(t)
-	defer CleanupSystemConn(t, newNS)
-	nft.conn = conn
+	conn, newNS := nftest.OpenSystemConn(t)
+	defer nftest.CleanupSystemConn(t, newNS)
+	nftest.Fw.Conn = conn
 
-	cfg, err := nft.NewSystemFwConfig(nft.preloadConfCallback, nft.reloadConfCallback)
+	cfg, err := nftest.Fw.NewSystemFwConfig(nftest.Fw.PreloadConfCallback, nftest.Fw.ReloadConfCallback)
 	if err != nil {
 		t.Logf("Error creating fw config: %s", err)
 	}
@@ -78,7 +79,7 @@ func TestFwConfDisabled(t *testing.T) {
 		t.Errorf("Error loading config from disk: %s", err)
 	}
 
-	nft.AddSystemRules(false, false)
+	nftest.Fw.AddSystemRules(false, false)
 
 	tests := []sysChainsListT{
 		{
@@ -101,13 +102,13 @@ func TestFwConfDisabled(t *testing.T) {
 }
 
 func TestDeleteSystemRules(t *testing.T) {
-	skipIfNotPrivileged(t)
+	nftest.SkipIfNotPrivileged(t)
 
-	conn, newNS = OpenSystemConn(t)
-	defer CleanupSystemConn(t, newNS)
-	nft.conn = conn
+	conn, newNS := nftest.OpenSystemConn(t)
+	defer nftest.CleanupSystemConn(t, newNS)
+	nftest.Fw.Conn = conn
 
-	cfg, err := nft.NewSystemFwConfig(nft.preloadConfCallback, nft.reloadConfCallback)
+	cfg, err := nftest.Fw.NewSystemFwConfig(nftest.Fw.PreloadConfCallback, nftest.Fw.ReloadConfCallback)
 	if err != nil {
 		t.Logf("Error creating fw config: %s", err)
 	}
@@ -117,7 +118,7 @@ func TestDeleteSystemRules(t *testing.T) {
 		t.Errorf("Error loading config from disk: %s", err)
 	}
 
-	nft.AddSystemRules(false, false)
+	nftest.Fw.AddSystemRules(false, false)
 
 	tests := []sysChainsListT{
 		{
@@ -138,14 +139,14 @@ func TestDeleteSystemRules(t *testing.T) {
 	}
 
 	t.Run("test-delete-system-rules", func(t *testing.T) {
-		nft.DeleteSystemRules(false, false, true)
+		nftest.Fw.DeleteSystemRules(false, false, true)
 		for _, tt := range tests {
 			rules, _ := getRulesList(t, conn, tt.family, tt.table, tt.chain)
 			if len(rules) != 0 {
 				t.Errorf("%d rules found, there should be 0", len(rules))
 			}
 
-			tbl := nft.getTable(tt.table, tt.family)
+			tbl := nftest.Fw.GetTable(tt.table, tt.family)
 			if tbl == nil {
 				t.Errorf("table %s-%s should exist", tt.table, tt.family)
 			}
