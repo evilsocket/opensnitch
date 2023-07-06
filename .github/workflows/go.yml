@@ -45,8 +45,9 @@ jobs:
       - name: Build
         run: |
           cd daemon
+          go mod tidy
           go build -v .
       - name: Test
         run: |
           cd daemon
-          sudo PRIVILEGED_TESTS=1 go test ./...
+          sudo PRIVILEGED_TESTS=1 NETLINK_TESTS=1 go test ./...
