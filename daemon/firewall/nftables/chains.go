@@ -45,7 +45,7 @@ func (n *Nft) AddChain(name, table, family string, priority *nftables.ChainPrior
 	// In some systems it fails adding a chain when it already exists, whilst in others
 	// it doesn't.
 	key := getChainKey(name, tbl)
-	chain = n.getChain(name, tbl, family)
+	chain = n.GetChain(name, tbl, family)
 	if chain != nil {
 		if _, exists := sysChains.Load(key); exists {
 			sysChains.Delete(key)
@@ -72,8 +72,8 @@ func (n *Nft) AddChain(name, table, family string, priority *nftables.ChainPrior
 	return chain
 }
 
-// getChain checks if a chain in the given table exists.
-func (n *Nft) getChain(name string, table *nftables.Table, family string) *nftables.Chain {
+// GetChain checks if a chain in the given table exists.
+func (n *Nft) GetChain(name string, table *nftables.Table, family string) *nftables.Chain {
 	if chains, err := n.Conn.ListChains(); err == nil {
 		for _, c := range chains {
 			if name == c.Name && table.Name == c.Table.Name && GetFamilyCode(family) == c.Table.Family {
@@ -152,7 +152,8 @@ func (n *Nft) AddInterceptionChains() error {
 	return nil
 }
 
-func (n *Nft) delChain(chain *nftables.Chain) error {
+// DelChain deletes a chain from the system.
+func (n *Nft) DelChain(chain *nftables.Chain) error {
 	n.Conn.DelChain(chain)
 	sysChains.Delete(getChainKey(chain.Name, chain.Table))
 	if !n.Commit() {

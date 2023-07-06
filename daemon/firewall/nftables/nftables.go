@@ -22,8 +22,8 @@ type Action string
 // Actions we apply to the firewall.
 const (
 	fwKey               = "opensnitch-key"
-	interceptionRuleKey = fwKey + "-interception"
-	systemRuleKey       = fwKey + "-system"
+	InterceptionRuleKey = fwKey + "-interception"
+	SystemRuleKey       = fwKey + "-system"
 	Name                = "nftables"
 )
 
@@ -82,13 +82,13 @@ func (n *Nft) Init(qNum *int) {
 	// In order to clean up any existing firewall rule before start,
 	// we need to load the fw configuration first to know what rules
 	// were configured.
-	n.NewSystemFwConfig(n.preloadConfCallback, n.reloadConfCallback)
+	n.NewSystemFwConfig(n.PreloadConfCallback, n.ReloadConfCallback)
 	n.LoadDiskConfiguration(!common.ReloadConf)
 
 	// start from a clean state
 	// The daemon may have exited unexpectedly, leaving residual fw rules, so we
 	// need to clean them up to avoid duplicated rules.
-	n.delInterceptionRules()
+	n.DelInterceptionRules()
 	n.AddSystemRules(!common.ReloadRules, common.BackupChains)
 	n.EnableInterception()
 
@@ -125,13 +125,13 @@ func (n *Nft) EnableInterception() {
 		log.Error("Error while running conntrack nftables rule: %s", err)
 	}
 	// start monitoring firewall rules to intercept network traffic.
-	n.NewRulesChecker(n.AreRulesLoaded, n.reloadRulesCallback)
+	n.NewRulesChecker(n.AreRulesLoaded, n.ReloadRulesCallback)
 }
 
 // DisableInterception removes firewall rules to intercept outbound connections.
 func (n *Nft) DisableInterception(logErrors bool) {
 	n.StopCheckingRules()
-	n.delInterceptionRules()
+	n.DelInterceptionRules()
 }
 
 // CleanRules deletes the rules we added.

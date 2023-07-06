@@ -62,7 +62,7 @@ func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
 				},
 			},
 			// rule key, to allow get it later by key
-			UserData: []byte(interceptionRuleKey),
+			UserData: []byte(InterceptionRuleKey),
 		})
 	}
 	// apply changes
@@ -111,7 +111,7 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 			},
 		},
 		// rule key, to allow get it later by key
-		UserData: []byte(interceptionRuleKey),
+		UserData: []byte(InterceptionRuleKey),
 	})
 	// apply changes
 	if !n.Commit() {
@@ -129,7 +129,8 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 	return nil, nil
 }
 
-func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
+// InsertRule inserts a rule at the top of rules list.
+func (n *Nft) InsertRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
 	tbl := n.GetTable(table, family)
 	if tbl == nil {
 		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
@@ -146,7 +147,7 @@ func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]
 		Table:    tbl,
 		Chain:    chn.(*nftables.Chain),
 		Exprs:    *exprs,
-		UserData: []byte(systemRuleKey),
+		UserData: []byte(SystemRuleKey),
 	}
 	n.Conn.InsertRule(rule)
 	if !n.Commit() {
@@ -219,7 +220,7 @@ func (n *Nft) delRulesByKey(key string) error {
 		if len(rules) == 0 || len(rules) == delRules {
 			_, chfound := sysChains.Load(getChainKey(c.Name, c.Table))
 			if chfound {
-				n.delChain(c)
+				n.DelChain(c)
 			}
 		}
 	}
@@ -227,6 +228,7 @@ func (n *Nft) delRulesByKey(key string) error {
 	return nil
 }
 
-func (n *Nft) delInterceptionRules() {
-	n.delRulesByKey(interceptionRuleKey)
+// DelInterceptionRules deletes our interception rules, by key.
+func (n *Nft) DelInterceptionRules() {
+	n.delRulesByKey(InterceptionRuleKey)
 }

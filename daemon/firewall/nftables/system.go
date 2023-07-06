@@ -137,7 +137,7 @@ func (n *Nft) DeleteSystemRules(force, restoreExistingChains, logErrors bool) {
 	n.Lock()
 	defer n.Unlock()
 
-	if err := n.delRulesByKey(systemRuleKey); err != nil {
+	if err := n.delRulesByKey(SystemRuleKey); err != nil {
 		log.Warning("error deleting interception rules: %s", err)
 	}
 
@@ -163,7 +163,7 @@ func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) (err4, e
 	if len(exprList) > 0 {
 		exprVerdict := exprs.NewExprVerdict(chain.Family, rule.Target, rule.TargetParameters)
 		exprList = append(exprList, *exprVerdict...)
-		if err := n.insertRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList); err != nil {
+		if err := n.InsertRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList); err != nil {
 			log.Warning("error adding rule: %v", rule)
 		}
 	}

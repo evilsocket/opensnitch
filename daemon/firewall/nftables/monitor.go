@@ -27,7 +27,7 @@ func (n *Nft) AreRulesLoaded() bool {
 			continue
 		}
 		for rdx, r := range rules {
-			if string(r.UserData) == interceptionRuleKey {
+			if string(r.UserData) == InterceptionRuleKey {
 				if c.Table.Name == exprs.NFT_CHAIN_FILTER && c.Name == exprs.NFT_HOOK_INPUT && rdx != 0 {
 					log.Warning("nftables DNS rule not in 1st position (%d)", rdx)
 					return false
@@ -50,23 +50,23 @@ func (n *Nft) AreRulesLoaded() bool {
 	return true
 }
 
-// reloadConfCallback gets called after the configuration changes.
-func (n *Nft) reloadConfCallback() {
+// ReloadConfCallback gets called after the configuration changes.
+func (n *Nft) ReloadConfCallback() {
 	log.Important("reloadConfCallback changed, reloading")
 	n.DeleteSystemRules(!common.ForcedDelRules, !common.RestoreChains, log.GetLogLevel() == log.DEBUG)
 	n.AddSystemRules(common.ReloadRules, !common.BackupChains)
 }
 
-// reloadRulesCallback gets called when the interception rules are not present.
-func (n *Nft) reloadRulesCallback() {
+// ReloadRulesCallback gets called when the interception rules are not present.
+func (n *Nft) ReloadRulesCallback() {
 	log.Important("nftables firewall rules changed, reloading")
 	n.DisableInterception(log.GetLogLevel() == log.DEBUG)
 	time.Sleep(time.Millisecond * 500)
 	n.EnableInterception()
 }
 
-// preloadConfCallback gets called before the fw configuration is loaded
-func (n *Nft) preloadConfCallback() {
+// PreloadConfCallback gets called before the fw configuration is loaded
+func (n *Nft) PreloadConfCallback() {
 	log.Info("nftables config changed, reloading")
 	n.DeleteSystemRules(!common.ForcedDelRules, common.RestoreChains, log.GetLogLevel() == log.DEBUG)
 }
