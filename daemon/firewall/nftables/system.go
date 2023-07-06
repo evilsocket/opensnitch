@@ -51,7 +51,8 @@ var (
 	sysSets       []*nftables.Set
 )
 
-func initMapsStore() {
+// InitMapsStore initializes internal stores of chains and maps.
+func InitMapsStore() {
 	sysTables = &sysTablesT{
 		tables: make(map[string]*nftables.Table),
 	}
@@ -81,8 +82,8 @@ func (n *Nft) CreateSystemRule(chain *config.FwChain, logErrors bool) bool {
 		chainPolicy = nftables.ChainPolicyDrop
 	}
 
-	chainHook := getHook(chain.Hook)
-	chainPrio, chainType := getChainPriority(chain.Family, chain.Type, chain.Hook)
+	chainHook := GetHook(chain.Hook)
+	chainPrio, chainType := GetChainPriority(chain.Family, chain.Type, chain.Hook)
 	if chainPrio == nil {
 		log.Warning("%s Invalid system firewall combination: %s, %s", logTag, chain.Type, chain.Hook)
 		return false
@@ -144,7 +145,7 @@ func (n *Nft) DeleteSystemRules(force, restoreExistingChains, logErrors bool) {
 		n.restoreBackupChains()
 	}
 	if force {
-		n.delSystemTables()
+		n.DelSystemTables()
 	}
 }
 
@@ -160,7 +161,7 @@ func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) (err4, e
 		}
 	}
 	if len(exprList) > 0 {
-		exprVerdict := exprs.NewExprVerdict(rule.Target, rule.TargetParameters)
+		exprVerdict := exprs.NewExprVerdict(chain.Family, rule.Target, rule.TargetParameters)
 		exprList = append(exprList, *exprVerdict...)
 		if err := n.insertRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList); err != nil {
 			log.Warning("error adding rule: %v", rule)

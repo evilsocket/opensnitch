@@ -14,14 +14,14 @@ func (n *Nft) AreRulesLoaded() bool {
 	defer n.Unlock()
 
 	nRules := 0
-	chains, err := n.conn.ListChains()
+	chains, err := n.Conn.ListChains()
 	if err != nil {
 		log.Warning("[nftables] error listing nftables chains: %s", err)
 		return false
 	}
 
 	for _, c := range chains {
-		rules, err := n.conn.GetRule(c.Table, c)
+		rules, err := n.Conn.GetRule(c.Table, c)
 		if err != nil {
 			log.Warning("[nftables] Error listing rules: %s", err)
 			continue

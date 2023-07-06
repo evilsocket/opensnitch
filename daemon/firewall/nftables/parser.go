@@ -187,7 +187,7 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 				counterObj.Packets = 1
 			}
 		}
-		n.conn.AddObj(counterObj)
+		n.Conn.AddObj(counterObj)
 		exprList = append(exprList, *exprs.NewExprCounter(defaultCounterName)...)
 	}
 

@@ -17,13 +17,13 @@ import (
 // This rule must be added in top of the system rules, otherwise it may get bypassed.
 // nft insert rule ip filter input udp sport 53 queue num 0 bypass
 func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
-	if n.conn == nil {
+	if n.Conn == nil {
 		return nil, nil
 	}
 	families := []string{exprs.NFT_FAMILY_INET}
 	for _, fam := range families {
-		table := n.getTable(exprs.NFT_CHAIN_FILTER, fam)
-		chain := getChain(exprs.NFT_HOOK_INPUT, table)
+		table := n.GetTable(exprs.NFT_CHAIN_FILTER, fam)
+		chain := GetChain(exprs.NFT_HOOK_INPUT, table)
 		if table == nil {
 			log.Error("QueueDNSResponses() Error getting table: %s-filter", fam)
 			continue
@@ -34,7 +34,7 @@ func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
 		}
 
 		// nft list ruleset -a
-		n.conn.InsertRule(&nftables.Rule{
+		n.Conn.InsertRule(&nftables.Rule{
 			Position: 0,
 			Table:    table,
 			Chain:    chain,
@@ -79,19 +79,19 @@ func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
 // rules above this one to exclude a service/app from being intercepted.
 // nft insert rule ip mangle OUTPUT ct state new queue num 0 bypass
 func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
-	if n.conn == nil {
+	if n.Conn == nil {
 		return nil, fmt.Errorf("nftables QueueConnections: netlink connection not active")
 	}
-	table := n.getTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
+	table := n.GetTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
 	if table == nil {
 		return nil, fmt.Errorf("QueueConnections() Error getting table mangle-inet")
 	}
-	chain := getChain(exprs.NFT_HOOK_OUTPUT, table)
+	chain := GetChain(exprs.NFT_HOOK_OUTPUT, table)
 	if chain == nil {
 		return nil, fmt.Errorf("QueueConnections() Error getting outputChain: output-%s", table.Name)
 	}
 
-	n.conn.AddRule(&nftables.Rule{
+	n.Conn.AddRule(&nftables.Rule{
 		Position: 0,
 		Table:    table,
 		Chain:    chain,
@@ -130,7 +130,7 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 }
 
 func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
-	tbl := n.getTable(table, family)
+	tbl := n.GetTable(table, family)
 	if tbl == nil {
 		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
 	}
@@ -148,7 +148,7 @@ func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]
 		Exprs:    *exprs,
 		UserData: []byte(systemRuleKey),
 	}
-	n.conn.InsertRule(rule)
+	n.Conn.InsertRule(rule)
 	if !n.Commit() {
 		return fmt.Errorf("%s Error adding rule", logTag)
 	}
@@ -156,8 +156,9 @@ func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]
 	return nil
 }
 
-func (n *Nft) addRule(chain, table, family string, position uint64, key string, exprs *[]expr.Any) (*nftables.Rule, error) {
-	tbl := n.getTable(table, family)
+// AddRule adds a rule to the system.
+func (n *Nft) AddRule(chain, table, family string, position uint64, key string, exprs *[]expr.Any) (*nftables.Rule, error) {
+	tbl := n.GetTable(table, family)
 	if tbl == nil {
 		return nil, fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
 	}
@@ -175,7 +176,7 @@ func (n *Nft) addRule(chain, table, family string, position uint64, key string, 
 		Exprs:    *exprs,
 		UserData: []byte(key),
 	}
-	n.conn.AddRule(rule)
+	n.Conn.AddRule(rule)
 	if !n.Commit() {
 		return nil, fmt.Errorf("%s Error adding rule", logTag)
 	}
@@ -184,12 +185,12 @@ func (n *Nft) addRule(chain, table, family string, position uint64, key string, 
 }
 
 func (n *Nft) delRulesByKey(key string) error {
-	chains, err := n.conn.ListChains()
+	chains, err := n.Conn.ListChains()
 	if err != nil {
 		return fmt.Errorf("error listing nftables chains (%s): %s", key, err)
 	}
 	for _, c := range chains {
-		rules, err := n.conn.GetRule(c.Table, c)
+		rules, err := n.Conn.GetRule(c.Table, c)
 		if err != nil {
 			log.Warning("Error listing rules (%s): %s", key, err)
 			continue
@@ -200,7 +201,7 @@ func (n *Nft) delRulesByKey(key string) error {
 				continue
 			}
 			// just passing the r object doesn't work.
-			if err := n.conn.DelRule(&nftables.Rule{
+			if err := n.Conn.DelRule(&nftables.Rule{
 				Table:  c.Table,
 				Chain:  c,
 				Handle: r.Handle,

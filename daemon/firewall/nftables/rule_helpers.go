@@ -14,7 +14,7 @@ import (
 // rules examples: https://github.com/google/nftables/blob/master/nftables_test.go
 
 func (n *Nft) buildICMPRule(table, family string, icmpProtoVersion string, icmpOptions []*config.ExprValues) *[]expr.Any {
-	tbl := n.getTable(table, family)
+	tbl := n.GetTable(table, family)
 	if tbl == nil {
 		return nil
 	}
@@ -86,7 +86,7 @@ func (n *Nft) buildICMPRule(table, family string, icmpProtoVersion string, icmpO
 			Table:     tbl,
 			KeyType:   setType,
 		}
-		if err := n.conn.AddSet(set, setElements); err != nil {
+		if err := n.Conn.AddSet(set, setElements); err != nil {
 			log.Warning("%s AddSet() error: %s", logTag, err)
 			return nil
 		}
@@ -155,7 +155,7 @@ Exit:
 //	  [ payload load 2b @ transport header + 2 => reg 1 ]
 //	  [ cmp eq reg 1 0x00003500 ]
 func (n *Nft) buildL4ProtoRule(table, family, l4prots string, cmpOp *expr.CmpOp) (*[]expr.Any, error) {
-	tbl := n.getTable(table, family)
+	tbl := n.GetTable(table, family)
 	if tbl == nil {
 		return nil, fmt.Errorf("Invalid table (%s, %s)", table, family)
 	}
@@ -168,7 +168,7 @@ func (n *Nft) buildL4ProtoRule(table, family, l4prots string, cmpOp *expr.CmpOp)
 			KeyType:   nftables.TypeInetProto,
 		}
 		protoSet := exprs.NewExprProtoSet(l4prots)
-		if err := n.conn.AddSet(set, *protoSet); err != nil {
+		if err := n.Conn.AddSet(set, *protoSet); err != nil {
 			log.Warning("%s protoSet, AddSet() error: %s", logTag, err)
 			return nil, err
 		}
@@ -186,7 +186,7 @@ func (n *Nft) buildL4ProtoRule(table, family, l4prots string, cmpOp *expr.CmpOp)
 }
 
 func (n *Nft) buildPortsRule(table, family, ports string, cmpOp *expr.CmpOp) (*[]expr.Any, error) {
-	tbl := n.getTable(table, family)
+	tbl := n.GetTable(table, family)
 	if tbl == nil {
 		return nil, fmt.Errorf("Invalid table (%s, %s)", table, family)
 	}
@@ -199,7 +199,7 @@ func (n *Nft) buildPortsRule(table, family, ports string, cmpOp *expr.CmpOp) (*[
 			KeyType:   nftables.TypeInetService,
 		}
 		setElements := exprs.NewExprPortSet(ports)
-		if err := n.conn.AddSet(set, *setElements); err != nil {
+		if err := n.Conn.AddSet(set, *setElements); err != nil {
 			log.Warning("%s portSet, AddSet() error: %s", logTag, err)
 			return nil, err
 		}

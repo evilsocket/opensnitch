@@ -45,7 +45,7 @@ type Nft struct {
 	config.Config
 	common.Common
 
-	conn   *nftables.Conn
+	Conn   *nftables.Conn
 	chains iptables.SystemChains
 }
 
@@ -75,9 +75,9 @@ func (n *Nft) Init(qNum *int) {
 	if n.IsRunning() {
 		return
 	}
-	initMapsStore()
+	InitMapsStore()
 	n.SetQueueNum(qNum)
-	n.conn = NewNft()
+	n.Conn = NewNft()
 
 	// In order to clean up any existing firewall rule before start,
 	// we need to load the fw configuration first to know what rules
@@ -109,11 +109,11 @@ func (n *Nft) Stop() {
 
 // EnableInterception adds firewall rules to intercept connections
 func (n *Nft) EnableInterception() {
-	if err := n.addInterceptionTables(); err != nil {
+	if err := n.AddInterceptionTables(); err != nil {
 		log.Error("Error while adding interception tables: %s", err)
 		return
 	}
-	if err := n.addInterceptionChains(); err != nil {
+	if err := n.AddInterceptionChains(); err != nil {
 		log.Error("Error while adding interception chains: %s", err)
 		return
 	}
@@ -144,7 +144,7 @@ func (n *Nft) CleanRules(logErrors bool) {
 // You add rules, chains or tables, and after calling to Flush() they're added to the system.
 // NOTE: it's very important not to call Flush() without queued tasks.
 func (n *Nft) Commit() bool {
-	if err := n.conn.Flush(); err != nil {
+	if err := n.Conn.Flush(); err != nil {
 		log.Warning("%s error applying changes: %s", logTag, err)
 		return false
 	}

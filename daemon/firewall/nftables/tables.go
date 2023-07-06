@@ -10,12 +10,12 @@ import (
 
 // AddTable adds a new table to nftables.
 func (n *Nft) AddTable(name, family string) (*nftables.Table, error) {
-	famCode := getFamilyCode(family)
+	famCode := GetFamilyCode(family)
 	tbl := &nftables.Table{
 		Family: famCode,
 		Name:   name,
 	}
-	n.conn.AddTable(tbl)
+	n.Conn.AddTable(tbl)
 
 	if !n.Commit() {
 		return nil, fmt.Errorf("%s error adding system firewall table: %s, family: %s (%d)", logTag, name, family, famCode)
@@ -25,7 +25,7 @@ func (n *Nft) AddTable(name, family string) (*nftables.Table, error) {
 	return tbl, nil
 }
 
-func (n *Nft) getTable(name, family string) *nftables.Table {
+func (n *Nft) GetTable(name, family string) *nftables.Table {
 	return sysTables.Get(getTableKey(name, family))
 }
 
@@ -33,7 +33,7 @@ func getTableKey(name string, family interface{}) string {
 	return fmt.Sprint(name, "-", family)
 }
 
-func (n *Nft) addInterceptionTables() error {
+func (n *Nft) AddInterceptionTables() error {
 	if _, err := n.AddTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET); err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (n *Nft) addSystemTables() {
 
 // return the number of rules that we didn't add.
 func (n *Nft) nonSystemRules(tbl *nftables.Table) int {
-	chains, err := n.conn.ListChains()
+	chains, err := n.Conn.ListChains()
 	if err != nil {
 		return -1
 	}
@@ -62,7 +62,7 @@ func (n *Nft) nonSystemRules(tbl *nftables.Table) int {
 		if tbl.Name != c.Table.Name && tbl.Family != c.Table.Family {
 			continue
 		}
-		rules, err := n.conn.GetRule(c.Table, c)
+		rules, err := n.Conn.GetRule(c.Table, c)
 		if err != nil {
 			return -1
 		}
@@ -72,12 +72,13 @@ func (n *Nft) nonSystemRules(tbl *nftables.Table) int {
 	return t
 }
 
-func (n *Nft) delSystemTables() {
+// DelSystemTables deletes tables created from fw configuration.
+func (n *Nft) DelSystemTables() {
 	for k, tbl := range sysTables.List() {
 		if n.nonSystemRules(tbl) != 0 {
 			continue
 		}
-		n.conn.DelTable(tbl)
+		n.Conn.DelTable(tbl)
 		if !n.Commit() {
 			log.Warning("error deleting system table: %s", k)
 			continue
