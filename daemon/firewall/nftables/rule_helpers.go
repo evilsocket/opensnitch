@@ -210,9 +210,18 @@ func (n *Nft) buildPortsRule(table, family, ports string, cmpOp *expr.CmpOp) (*[
 		})
 		sysSets = append(sysSets, []*nftables.Set{set}...)
 	} else if strings.Index(ports, "-") != -1 {
-		exprList = append(exprList, *exprs.NewExprPortRange(ports, cmpOp)...)
+		portRange, err := exprs.NewExprPortRange(ports, cmpOp)
+		if err != nil {
+			log.Warning("%s invalid portRange: %s, %s", logTag, ports, err)
+			return nil, err
+		}
+		exprList = append(exprList, *portRange...)
 	} else {
-		exprList = append(exprList, *exprs.NewExprPort(ports, cmpOp)...)
+		exprPort, err := exprs.NewExprPort(ports, cmpOp)
+		if err != nil {
+			return nil, err
+		}
+		exprList = append(exprList, *exprPort...)
 	}
 
 	return &exprList, nil

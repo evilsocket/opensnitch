@@ -11,22 +11,31 @@ import (
 )
 
 // NewExprPort returns a new port expression with the given matching operator.
-func NewExprPort(port string, op *expr.CmpOp) *[]expr.Any {
-	eport, _ := strconv.Atoi(port)
+func NewExprPort(port string, op *expr.CmpOp) (*[]expr.Any, error) {
+	eport, err := strconv.Atoi(port)
+	fmt.Printf("%s, %d", err, eport)
+	if err != nil {
+		return nil, err
+	}
 	return &[]expr.Any{
 		&expr.Cmp{
 			Register: 1,
 			Op:       *op,
 			Data:     binaryutil.BigEndian.PutUint16(uint16(eport))},
-	}
-
+	}, nil
 }
 
 // NewExprPortRange returns a new port range expression.
-func NewExprPortRange(sport string, cmpOp *expr.CmpOp) *[]expr.Any {
+func NewExprPortRange(sport string, cmpOp *expr.CmpOp) (*[]expr.Any, error) {
 	ports := strings.Split(sport, "-")
-	iport, _ := strconv.Atoi(ports[0])
-	eport, _ := strconv.Atoi(ports[1])
+	iport, err := strconv.Atoi(ports[0])
+	if err != nil {
+		return nil, err
+	}
+	eport, err := strconv.Atoi(ports[1])
+	if err != nil {
+		return nil, err
+	}
 	return &[]expr.Any{
 		&expr.Range{
 			Op:       *cmpOp,
@@ -34,7 +43,7 @@ func NewExprPortRange(sport string, cmpOp *expr.CmpOp) *[]expr.Any {
 			FromData: binaryutil.BigEndian.PutUint16(uint16(iport)),
 			ToData:   binaryutil.BigEndian.PutUint16(uint16(eport)),
 		},
-	}
+	}, nil
 
 }
 
