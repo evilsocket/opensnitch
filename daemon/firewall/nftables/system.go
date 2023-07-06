@@ -161,7 +161,7 @@ func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) (err4, e
 		}
 	}
 	if len(exprList) > 0 {
-		exprVerdict := exprs.NewExprVerdict(chain.Family, rule.Target, rule.TargetParameters)
+		exprVerdict := exprs.NewExprVerdict(rule.Target, rule.TargetParameters)
 		exprList = append(exprList, *exprVerdict...)
 		if err := n.InsertRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList); err != nil {
 			log.Warning("error adding rule: %v", rule)
