@@ -105,6 +105,7 @@ func (n *Nft) addRegularChain(name, table, family string) error {
 	return nil
 }
 
+// AddInterceptionChains adds the needed chains to intercept traffic.
 func (n *Nft) AddInterceptionChains() error {
 	var filterPolicy nftables.ChainPolicy
 	var manglePolicy nftables.ChainPolicy

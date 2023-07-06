@@ -25,6 +25,7 @@ func (n *Nft) AddTable(name, family string) (*nftables.Table, error) {
 	return tbl, nil
 }
 
+// GetTable retrieves an already added table to the system.
 func (n *Nft) GetTable(name, family string) *nftables.Table {
 	return sysTables.Get(getTableKey(name, family))
 }
@@ -33,6 +34,7 @@ func getTableKey(name string, family interface{}) string {
 	return fmt.Sprint(name, "-", family)
 }
 
+// AddInterceptionTables adds the needed tables to intercept traffic.
 func (n *Nft) AddInterceptionTables() error {
 	if _, err := n.AddTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET); err != nil {
 		return err

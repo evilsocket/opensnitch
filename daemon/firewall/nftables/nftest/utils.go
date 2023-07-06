@@ -8,11 +8,12 @@ import (
 	"github.com/google/nftables/expr"
 )
 
+// AddTestRule adds a generic table, chain and rule with the given expression.
 func AddTestRule(t *testing.T, conn *nftables.Conn, exp *[]expr.Any) (*nftables.Rule, *nftables.Chain) {
 
 	_, err := Fw.AddTable("yyy", exprs.NFT_FAMILY_INET)
 	if err != nil {
-		t.Error("pre step add_table() yyy-inet failed")
+		t.Errorf("pre step add_table() yyy-inet failed: %s", err)
 		return nil, nil
 	}
 	chn := Fw.AddChain(
