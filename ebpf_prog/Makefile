@@ -8,7 +8,7 @@ KERNEL_HEADERS ?= /usr/src/linux-headers-$(shell uname -r)/
 CLANG ?= clang
 LLC ?= llc
 LLVM_STRIP ?= llvm-strip -g
-ARCH ?= $(shell arch)
+ARCH ?= $(shell uname -m)
 
 # as in /usr/src/linux-headers-*/arch/
 # TODO: extract correctly the archs, and add more if needed.
@@ -51,7 +51,9 @@ CLANG_FLAGS = -I. \
 all: $(BIN)
 
 %.o: %.c
-	$(CLANG) $(CLANG_FLAGS) -c $< -o - | \
-		$(LLC) -march=bpf -mcpu=generic -filetype=obj -o $@
+	$(CLANG) $(CLANG_FLAGS) -c $< -o $@.partial
+	$(LLC) -march=bpf -mcpu=generic -filetype=obj -o $@ $@.partial
+	rm -f $@.partial
+
 clean:
-	rm -f *.o
+	rm -f *.o *.partial
