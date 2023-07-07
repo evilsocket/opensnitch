@@ -158,16 +158,16 @@ func NewExprReject(parms string) *expr.Reject {
 		reject.Code = unix.NFT_REJECT_TCP_RST
 	case NFT_PROTO_ICMP:
 		reject.Type = unix.NFT_REJECT_ICMP_UNREACH
-		reject.Code = getICMPRejectCode(how)
+		reject.Code = GetICMPRejectCode(how)
 		return reject
 	case NFT_PROTO_ICMPX:
 		// icmp and icmpv6
 		reject.Type = unix.NFT_REJECT_ICMPX_UNREACH
-		reject.Code = getICMPxRejectCode(how)
+		reject.Code = GetICMPxRejectCode(how)
 		return reject
 	case NFT_PROTO_ICMPv6:
 		reject.Type = 1
-		reject.Code = getICMPv6RejectCode(how)
+		reject.Code = GetICMPv6RejectCode(how)
 
 	default:
 	}

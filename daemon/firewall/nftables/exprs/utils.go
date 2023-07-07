@@ -7,7 +7,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func getICMPRejectCode(reason string) uint8 {
+// GetICMPRejectCode returns the code by its name.
+func GetICMPRejectCode(reason string) uint8 {
 	switch reason {
 	case ICMP_HOST_UNREACHABLE, ICMP_ADDR_UNREACHABLE:
 		return layers.ICMPv4CodeHost
@@ -26,7 +27,8 @@ func getICMPRejectCode(reason string) uint8 {
 	return layers.ICMPv4CodeNet
 }
 
-func getICMPxRejectCode(reason string) uint8 {
+// GetICMPxRejectCode returns the code by its name.
+func GetICMPxRejectCode(reason string) uint8 {
 	// https://github.com/torvalds/linux/blob/master/net/netfilter/nft_reject.c#L96
 	// https://github.com/google/gopacket/blob/3aa782ce48d4a525acaebab344cedabfb561f870/layers/icmp4.go#L37
 	switch reason {
@@ -109,7 +111,8 @@ func GetICMPv6Type(icmpType string) uint8 {
 	return 0
 }
 
-func getICMPv6RejectCode(reason string) uint8 {
+// GetICMPv6RejectCode returns the code by its name.
+func GetICMPv6RejectCode(reason string) uint8 {
 	switch reason {
 	case ICMP_HOST_UNREACHABLE, ICMP_NET_UNREACHABLE, ICMP_NO_ROUTE:
 		return layers.ICMPv6CodeNoRouteToDst
