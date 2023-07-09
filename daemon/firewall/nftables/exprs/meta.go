@@ -20,6 +20,35 @@ func NewExprMeta(values []*config.ExprValues, cmpOp *expr.CmpOp) (*[]expr.Any, e
 		case NFT_META_SET_MARK:
 			setMark = true
 			continue
+		case NFT_META_MARK:
+			metaKey, err := getMetaKey(meta.Key)
+			if err != nil {
+				return nil, err
+			}
+			metaVal, err := getMetaValue(meta.Value)
+			if err != nil {
+				return nil, err
+			}
+			if setMark {
+				metaExpr = append(metaExpr, []expr.Any{
+					&expr.Immediate{
+						Register: 1,
+						Data:     binaryutil.NativeEndian.PutUint32(uint32(metaVal)),
+					}}...)
+				metaExpr = append(metaExpr, []expr.Any{
+					&expr.Meta{Key: metaKey, Register: 1, SourceRegister: setMark}}...)
+			} else {
+				metaExpr = append(metaExpr, []expr.Any{
+					&expr.Meta{Key: metaKey, Register: 1, SourceRegister: setMark},
+					&expr.Cmp{
+						Op:       *cmpOp,
+						Register: 1,
+						Data:     binaryutil.NativeEndian.PutUint32(uint32(metaVal)),
+					}}...)
+			}
+
+			setMark = false
+			return &metaExpr, nil
 
 		case NFT_META_L4PROTO:
 			mexpr, err := NewExprProtocol(meta.Key)
@@ -30,7 +59,7 @@ func NewExprMeta(values []*config.ExprValues, cmpOp *expr.CmpOp) (*[]expr.Any, e
 
 			return &metaExpr, nil
 
-		case NFT_META_MARK, NFT_META_PRIORITY,
+		case NFT_META_PRIORITY,
 			NFT_META_SKUID, NFT_META_SKGID,
 			NFT_META_PROTOCOL:
 
@@ -41,14 +70,6 @@ func NewExprMeta(values []*config.ExprValues, cmpOp *expr.CmpOp) (*[]expr.Any, e
 			metaVal, err := getProtocolCode(meta.Value)
 			if err != nil {
 				return nil, err
-			}
-			if setMark {
-				// XXX: broken? results in -> [invalid type]
-				metaExpr = append(metaExpr, []expr.Any{
-					&expr.Immediate{
-						Register: 1,
-						Data:     binaryutil.NativeEndian.PutUint32(uint32(metaVal)),
-					}}...)
 			}
 			metaExpr = append(metaExpr, []expr.Any{
 				&expr.Meta{Key: metaKey, Register: 1, SourceRegister: setMark},
