@@ -372,6 +372,17 @@ func TestExprIP(t *testing.T) {
 					}
 
 				case *expr.Range:
+					lExpr, ok := e.(*expr.Range)
+					lExpect, okExpected := test.expectedExprs[idx].(*expr.Range)
+					if !ok || !okExpected {
+						t.Errorf("invalid IP Range expr: %+v, %+v", lExpr, lExpect)
+						return
+					}
+					if !bytes.Equal(lExpr.FromData, lExpect.FromData) || !bytes.Equal(lExpr.ToData, lExpect.ToData) {
+						t.Errorf("invalid IP Range expr From: %+v, %+v, lExpr, LExpect", lExpr.FromData, lExpect.FromData)
+						t.Errorf("invalid IP Range expr To: %+v, %+v, lExpr, LExpect", lExpr.ToData, lExpect.ToData)
+					}
+
 				case *expr.Cmp:
 					lExpr, ok := e.(*expr.Cmp)
 					lExpect, okExpected := test.expectedExprs[idx].(*expr.Cmp)
