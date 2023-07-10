@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/google/nftables/expr"
 	"golang.org/x/sys/unix"
 )
@@ -44,16 +45,24 @@ func NewExprVerdict(verdict, parms string) *[]expr.Any {
 
 	case VERDICT_QUEUE:
 		queueNum := 0
+		var err error
 		p := strings.Split(parms, " ")
-		if len(p) > 0 {
-			if p[0] == NFT_QUEUE_NUM {
-				queueNum, _ = strconv.Atoi(p[len(p)-1])
+		if len(p) == 0 {
+			log.Warning("invalid Queue expr parameters")
+			return nil
+		}
+		// TODO: allow to configure this flag
+		if p[0] == NFT_QUEUE_NUM {
+			queueNum, err = strconv.Atoi(p[len(p)-1])
+			if err != nil {
+				log.Warning("invalid Queue num: %s", err)
+				return nil
 			}
 		}
+
 		return &[]expr.Any{
 			&expr.Queue{
-				Num: uint16(queueNum),
-				// TODO: allow to configure this flag
+				Num:  uint16(queueNum),
 				Flag: expr.QueueFlagBypass,
 			}}
 
@@ -62,15 +71,18 @@ func NewExprVerdict(verdict, parms string) *[]expr.Any {
 		snat.Random, snat.FullyRandom, snat.Persistent = NewExprNATFlags(parms)
 		snatExpr := &[]expr.Any{snat}
 
-		if regAddr, regProto, natParms, err := NewExprNAT(parms, VERDICT_SNAT); err == nil {
-			if regAddr {
-				snat.RegAddrMin = 1
-			}
-			if regProto {
-				snat.RegProtoMin = 2
-			}
-			*snatExpr = append(*natParms, *snatExpr...)
+		regAddr, regProto, natParms, err := NewExprNAT(parms, VERDICT_SNAT)
+		if err != nil {
+			log.Warning("error adding snat verdict: %s", err)
+			return nil
 		}
+		if regAddr {
+			snat.RegAddrMin = 1
+		}
+		if regProto {
+			snat.RegProtoMin = 2
+		}
+		*snatExpr = append(*natParms, *snatExpr...)
 		return snatExpr
 
 	case VERDICT_DNAT:
@@ -78,15 +90,20 @@ func NewExprVerdict(verdict, parms string) *[]expr.Any {
 		dnat.Random, dnat.FullyRandom, dnat.Persistent = NewExprNATFlags(parms)
 		dnatExpr := &[]expr.Any{dnat}
 
-		if regAddr, regProto, natParms, err := NewExprNAT(parms, VERDICT_DNAT); err == nil {
-			if regAddr {
-				dnat.RegAddrMin = 1
-			}
-			if regProto {
-				dnat.RegProtoMin = 2
-			}
-			*dnatExpr = append(*natParms, *dnatExpr...)
+		regAddr, regProto, natParms, err := NewExprNAT(parms, VERDICT_DNAT)
+		if err != nil {
+			log.Warning("error adding dnat verdict: %s", err)
+			return nil
 		}
+
+		if regAddr {
+			dnat.RegAddrMin = 1
+		}
+		if regProto {
+			dnat.RegProtoMin = 2
+		}
+		*dnatExpr = append(*natParms, *dnatExpr...)
+
 		return dnatExpr
 
 	case VERDICT_MASQUERADE:
@@ -100,28 +117,37 @@ func NewExprVerdict(verdict, parms string) *[]expr.Any {
 		// if any of the flag is set to true, toPorts must be false
 		toPorts := !(m.Random == true || m.FullyRandom == true || m.Persistent == true)
 		masqExpr = NewExprMasquerade(toPorts, m.Random, m.FullyRandom, m.Persistent)
-		if _, _, natParms, err := NewExprNAT(parms, VERDICT_MASQUERADE); err == nil {
-			*masqExpr = append(*natParms, *masqExpr...)
+		_, _, natParms, err := NewExprNAT(parms, VERDICT_MASQUERADE)
+		if err != nil {
+			log.Warning("error adding masquerade verdict: %s", err)
 		}
+		*masqExpr = append(*natParms, *masqExpr...)
 
 		return masqExpr
 
 	case VERDICT_REDIRECT:
-		if _, _, rewriteParms, err := NewExprNAT(parms, VERDICT_REDIRECT); err == nil {
-			redirExpr := NewExprRedirect()
-			*redirExpr = append(*rewriteParms, *redirExpr...)
-			return redirExpr
+		_, _, rewriteParms, err := NewExprNAT(parms, VERDICT_REDIRECT)
+		if err != nil {
+			log.Warning("error adding redirect verdict: %s", err)
+			return nil
 		}
+		redirExpr := NewExprRedirect()
+		*redirExpr = append(*rewriteParms, *redirExpr...)
+		return redirExpr
 
 	case VERDICT_TPROXY:
-		if _, _, rewriteParms, err := NewExprNAT(parms, VERDICT_TPROXY); err == nil {
-			tproxyExpr := &[]expr.Any{}
-			*tproxyExpr = append(*tproxyExpr, *rewriteParms...)
-			tVerdict := NewExprTproxy()
-			*tproxyExpr = append(*tproxyExpr, *tVerdict...)
-			*tproxyExpr = append(*tproxyExpr, *NewExprAccept()...)
-			return tproxyExpr
+		_, _, rewriteParms, err := NewExprNAT(parms, VERDICT_TPROXY)
+		if err != nil {
+			log.Warning("error adding tproxy verdict: %s", err)
+			return nil
 		}
+		tproxyExpr := &[]expr.Any{}
+		*tproxyExpr = append(*tproxyExpr, *rewriteParms...)
+		tVerdict := NewExprTproxy()
+		*tproxyExpr = append(*tproxyExpr, *tVerdict...)
+		*tproxyExpr = append(*tproxyExpr, *NewExprAccept()...)
+		return tproxyExpr
+
 	}
 
 	// target can be empty, "ct set mark" or "log" for example

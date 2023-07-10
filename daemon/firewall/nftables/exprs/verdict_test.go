@@ -287,3 +287,32 @@ func TestExprVerdictReject(t *testing.T) {
 		})
 	}
 }
+
+func TestExprVerdictQueue(t *testing.T) {
+	nftest.SkipIfNotPrivileged(t)
+
+	conn, newNS := nftest.OpenSystemConn(t)
+	defer nftest.CleanupSystemConn(t, newNS)
+	nftest.Fw.Conn = conn
+
+	verdExpr := exprs.NewExprVerdict(exprs.VERDICT_QUEUE, "num 1")
+	r, _ := nftest.AddTestRule(t, conn, verdExpr)
+	if r == nil {
+		t.Errorf("Error adding rule with Queue verdict")
+		return
+	}
+	e := r.Exprs[0]
+	if reflect.TypeOf(e).String() != "*expr.Queue" {
+		t.Errorf("first expression should be *expr.Queue, instead of: %s", reflect.TypeOf(e))
+		return
+	}
+	verd, ok := e.(*expr.Queue)
+	if !ok {
+		t.Errorf("invalid verdict: %T", e)
+		return
+	}
+	if verd.Num != 1 {
+		t.Errorf("invalid queue verdict Num: %d", verd.Num)
+	}
+
+}
