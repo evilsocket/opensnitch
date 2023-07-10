@@ -332,6 +332,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.cmdDelete.clicked.connect(self._cb_delete_clicked)
         self.helpButton.clicked.connect(self._cb_help_button_clicked)
         self.comboVerdict.currentIndexChanged.connect(self._cb_verdict_changed)
+        self.lineVerdictParms.textChanged.connect(self._cb_verdict_parms_changed)
         self.comboDirection.currentIndexChanged.connect(self._cb_direction_changed)
         self.checkEnable.toggled.connect(self._cb_check_enable_toggled)
         self.lineDescription.textChanged.connect(self._cb_description_changed)
@@ -577,6 +578,10 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.lineVerdictParms.setVisible(showVerdictParms)
         self.comboVerdictParms.setVisible(showVerdictParms)
         self._configure_verdict_parms(idx)
+
+
+    def _cb_verdict_parms_changed(self, idx):
+        self._enable_save()
 
     def _is_valid_rule(self):
         if (self.comboVerdict.currentText().lower() == Config.ACTION_REDIRECT or \
