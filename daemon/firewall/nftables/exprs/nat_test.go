@@ -1,12 +1,9 @@
 package exprs_test
 
 import (
-	"bytes"
 	"net"
-	"reflect"
 	"testing"
 
-	"github.com/evilsocket/opensnitch/daemon/firewall/config"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/nftest"
 	"github.com/google/nftables"
@@ -14,16 +11,6 @@ import (
 	"github.com/google/nftables/expr"
 	"golang.org/x/sys/unix"
 )
-
-type natTestsT struct {
-	name             string
-	family           string
-	parms            string
-	values           []*config.ExprValues
-	expectedExprsNum int
-	expectedExprs    []interface{}
-	expectedFail     bool
-}
 
 func TestExprVerdictSNAT(t *testing.T) {
 	nftest.SkipIfNotPrivileged(t)
@@ -33,7 +20,7 @@ func TestExprVerdictSNAT(t *testing.T) {
 	nftest.Fw.Conn = conn
 
 	// TODO: test random, permanent, persistent flags.
-	tests := []natTestsT{
+	tests := []nftest.NatTestsT{
 		{
 			"test-nat-snat-to-127001",
 			exprs.NFT_FAMILY_IP,
@@ -184,12 +171,12 @@ func TestExprVerdictSNAT(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.Name, func(t *testing.T) {
 
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_SNAT, test.parms)
-			if !test.expectedFail && verdExpr == nil {
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_SNAT, test.Parms)
+			if !test.ExpectedFail && verdExpr == nil {
 				t.Errorf("error creating snat verdict")
-			} else if test.expectedFail && verdExpr == nil {
+			} else if test.ExpectedFail && verdExpr == nil {
 				return
 			}
 			r, _ := nftest.AddTestSNATRule(t, conn, verdExpr)
@@ -197,119 +184,12 @@ func TestExprVerdictSNAT(t *testing.T) {
 				t.Errorf("Error adding rule")
 				return
 			}
-			if total := len(r.Exprs); total != test.expectedExprsNum {
-				t.Errorf("expected %d expressions, found %d", test.expectedExprsNum, total)
+
+			if !nftest.AreExprsValid(t, &test, r) {
 				return
 			}
 
-			for idx, e := range r.Exprs {
-				if reflect.TypeOf(e).String() != reflect.TypeOf(test.expectedExprs[idx]).String() {
-					t.Errorf("first expression should be %s, instead of: %s", reflect.TypeOf(test.expectedExprs[idx]), reflect.TypeOf(e))
-					return
-				}
-
-				switch e.(type) {
-				case *expr.Meta:
-					lExpr, ok := e.(*expr.Meta)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Meta)
-					if !ok || !okExpected {
-						t.Errorf("invalid Meta expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Key != lExpect.Key || lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Key,\nreturned: %+v\nexpected: %+v\n", lExpr.Key, lExpect.Key)
-					}
-					if lExpr.SourceRegister != lExpect.SourceRegister {
-						t.Errorf("invalid Meta.SourceRegister,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-					if lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Register,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-
-				case *expr.Immediate:
-					lExpr, ok := e.(*expr.Immediate)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Immediate)
-					if !ok || !okExpected {
-						t.Errorf("invalid Immediate expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Immediate.Data,\ngot: %+v,\nexpected: %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				case *expr.TProxy:
-					lExpr, ok := e.(*expr.TProxy)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.TProxy)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Family != lExpect.Family || lExpr.TableFamily != lExpect.TableFamily || lExpr.RegPort != lExpect.RegPort {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Redir:
-					lExpr, ok := e.(*expr.Redir)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Redir)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.RegisterProtoMin != lExpect.RegisterProtoMin {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Masq:
-					lExpr, ok := e.(*expr.Masq)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Masq)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.ToPorts != lExpect.ToPorts ||
-						lExpr.Random != lExpect.Random ||
-						lExpr.FullyRandom != lExpect.FullyRandom ||
-						lExpr.Persistent != lExpect.Persistent {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.NAT:
-					lExpr, ok := e.(*expr.NAT)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.NAT)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.RegProtoMin != lExpect.RegProtoMin ||
-						lExpr.RegAddrMin != lExpect.RegAddrMin ||
-						lExpr.Random != lExpect.Random ||
-						lExpr.FullyRandom != lExpect.FullyRandom ||
-						lExpr.Persistent != lExpect.Persistent {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Cmp:
-					lExpr, ok := e.(*expr.Cmp)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Cmp)
-					if !ok || !okExpected {
-						t.Errorf("invalid Cmp expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Cmp.Data: %+v, %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				}
-
-			}
-
-			if test.expectedFail {
+			if test.ExpectedFail {
 				t.Errorf("test should have failed")
 			}
 
@@ -324,7 +204,7 @@ func TestExprVerdictDNAT(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	tests := []natTestsT{
+	tests := []nftest.NatTestsT{
 		{
 			"test-nat-dnat-to-127001",
 			exprs.NFT_FAMILY_IP,
@@ -476,12 +356,12 @@ func TestExprVerdictDNAT(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.Name, func(t *testing.T) {
 
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_DNAT, test.parms)
-			if !test.expectedFail && verdExpr == nil {
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_DNAT, test.Parms)
+			if !test.ExpectedFail && verdExpr == nil {
 				t.Errorf("error creating verdict")
-			} else if test.expectedFail && verdExpr == nil {
+			} else if test.ExpectedFail && verdExpr == nil {
 				return
 			}
 			r, _ := nftest.AddTestDNATRule(t, conn, verdExpr)
@@ -489,119 +369,12 @@ func TestExprVerdictDNAT(t *testing.T) {
 				t.Errorf("Error adding rule")
 				return
 			}
-			if total := len(r.Exprs); total != test.expectedExprsNum {
-				t.Errorf("expected %d expressions, found %d", test.expectedExprsNum, total)
+
+			if !nftest.AreExprsValid(t, &test, r) {
 				return
 			}
 
-			for idx, e := range r.Exprs {
-				if reflect.TypeOf(e).String() != reflect.TypeOf(test.expectedExprs[idx]).String() {
-					t.Errorf("first expression should be %s, instead of: %s", reflect.TypeOf(test.expectedExprs[idx]), reflect.TypeOf(e))
-					return
-				}
-
-				switch e.(type) {
-				case *expr.Meta:
-					lExpr, ok := e.(*expr.Meta)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Meta)
-					if !ok || !okExpected {
-						t.Errorf("invalid Meta expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Key != lExpect.Key || lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Key,\nreturned: %+v\nexpected: %+v\n", lExpr.Key, lExpect.Key)
-					}
-					if lExpr.SourceRegister != lExpect.SourceRegister {
-						t.Errorf("invalid Meta.SourceRegister,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-					if lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Register,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-
-				case *expr.Immediate:
-					lExpr, ok := e.(*expr.Immediate)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Immediate)
-					if !ok || !okExpected {
-						t.Errorf("invalid Immediate expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Immediate.Data,\ngot: %+v,\nexpected: %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				case *expr.TProxy:
-					lExpr, ok := e.(*expr.TProxy)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.TProxy)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Family != lExpect.Family || lExpr.TableFamily != lExpect.TableFamily || lExpr.RegPort != lExpect.RegPort {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Redir:
-					lExpr, ok := e.(*expr.Redir)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Redir)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.RegisterProtoMin != lExpect.RegisterProtoMin {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Masq:
-					lExpr, ok := e.(*expr.Masq)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Masq)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.ToPorts != lExpect.ToPorts ||
-						lExpr.Random != lExpect.Random ||
-						lExpr.FullyRandom != lExpect.FullyRandom ||
-						lExpr.Persistent != lExpect.Persistent {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.NAT:
-					lExpr, ok := e.(*expr.NAT)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.NAT)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.RegProtoMin != lExpect.RegProtoMin ||
-						lExpr.RegAddrMin != lExpect.RegAddrMin ||
-						lExpr.Random != lExpect.Random ||
-						lExpr.FullyRandom != lExpect.FullyRandom ||
-						lExpr.Persistent != lExpect.Persistent {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Cmp:
-					lExpr, ok := e.(*expr.Cmp)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Cmp)
-					if !ok || !okExpected {
-						t.Errorf("invalid Cmp expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Cmp.Data: %+v, %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				}
-
-			}
-
-			if test.expectedFail {
+			if test.ExpectedFail {
 				t.Errorf("test should have failed")
 			}
 
@@ -616,7 +389,7 @@ func TestExprVerdictMasquerade(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	tests := []natTestsT{
+	tests := []nftest.NatTestsT{
 		{
 			"test-nat-masq-to-:12345",
 			exprs.NFT_FAMILY_IP,
@@ -667,12 +440,12 @@ func TestExprVerdictMasquerade(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.Name, func(t *testing.T) {
 
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_MASQUERADE, test.parms)
-			if !test.expectedFail && verdExpr == nil {
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_MASQUERADE, test.Parms)
+			if !test.ExpectedFail && verdExpr == nil {
 				t.Errorf("error creating verdict")
-			} else if test.expectedFail && verdExpr == nil {
+			} else if test.ExpectedFail && verdExpr == nil {
 				return
 			}
 			r, _ := nftest.AddTestSNATRule(t, conn, verdExpr)
@@ -680,119 +453,12 @@ func TestExprVerdictMasquerade(t *testing.T) {
 				t.Errorf("Error adding rule")
 				return
 			}
-			if total := len(r.Exprs); total != test.expectedExprsNum {
-				t.Errorf("expected %d expressions, found %d", test.expectedExprsNum, total)
+
+			if !nftest.AreExprsValid(t, &test, r) {
 				return
 			}
 
-			for idx, e := range r.Exprs {
-				if reflect.TypeOf(e).String() != reflect.TypeOf(test.expectedExprs[idx]).String() {
-					t.Errorf("first expression should be %s, instead of: %s", reflect.TypeOf(test.expectedExprs[idx]), reflect.TypeOf(e))
-					return
-				}
-
-				switch e.(type) {
-				case *expr.Meta:
-					lExpr, ok := e.(*expr.Meta)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Meta)
-					if !ok || !okExpected {
-						t.Errorf("invalid Meta expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Key != lExpect.Key || lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Key,\nreturned: %+v\nexpected: %+v\n", lExpr.Key, lExpect.Key)
-					}
-					if lExpr.SourceRegister != lExpect.SourceRegister {
-						t.Errorf("invalid Meta.SourceRegister,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-					if lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Register,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-
-				case *expr.Immediate:
-					lExpr, ok := e.(*expr.Immediate)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Immediate)
-					if !ok || !okExpected {
-						t.Errorf("invalid Immediate expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Immediate.Data,\ngot: %+v,\nexpected: %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				case *expr.TProxy:
-					lExpr, ok := e.(*expr.TProxy)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.TProxy)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Family != lExpect.Family || lExpr.TableFamily != lExpect.TableFamily || lExpr.RegPort != lExpect.RegPort {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Redir:
-					lExpr, ok := e.(*expr.Redir)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Redir)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.RegisterProtoMin != lExpect.RegisterProtoMin {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Masq:
-					lExpr, ok := e.(*expr.Masq)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Masq)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.ToPorts != lExpect.ToPorts ||
-						lExpr.Random != lExpect.Random ||
-						lExpr.FullyRandom != lExpect.FullyRandom ||
-						lExpr.Persistent != lExpect.Persistent {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.NAT:
-					lExpr, ok := e.(*expr.NAT)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.NAT)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.RegProtoMin != lExpect.RegProtoMin ||
-						lExpr.RegAddrMin != lExpect.RegAddrMin ||
-						lExpr.Random != lExpect.Random ||
-						lExpr.FullyRandom != lExpect.FullyRandom ||
-						lExpr.Persistent != lExpect.Persistent {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Cmp:
-					lExpr, ok := e.(*expr.Cmp)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Cmp)
-					if !ok || !okExpected {
-						t.Errorf("invalid Cmp expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Cmp.Data: %+v, %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				}
-
-			}
-
-			if test.expectedFail {
+			if test.ExpectedFail {
 				t.Errorf("test should have failed")
 			}
 
@@ -807,7 +473,7 @@ func TestExprVerdictRedirect(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	tests := []natTestsT{
+	tests := []nftest.NatTestsT{
 		{
 			"test-nat-redir-to-127001:12345",
 			exprs.NFT_FAMILY_IP,
@@ -849,12 +515,12 @@ func TestExprVerdictRedirect(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.Name, func(t *testing.T) {
 
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_REDIRECT, test.parms)
-			if !test.expectedFail && verdExpr == nil {
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_REDIRECT, test.Parms)
+			if !test.ExpectedFail && verdExpr == nil {
 				t.Errorf("error creating verdict")
-			} else if test.expectedFail && verdExpr == nil {
+			} else if test.ExpectedFail && verdExpr == nil {
 				return
 			}
 			r, _ := nftest.AddTestDNATRule(t, conn, verdExpr)
@@ -862,119 +528,12 @@ func TestExprVerdictRedirect(t *testing.T) {
 				t.Errorf("Error adding rule")
 				return
 			}
-			if total := len(r.Exprs); total != test.expectedExprsNum {
-				t.Errorf("expected %d expressions, found %d", test.expectedExprsNum, total)
+
+			if !nftest.AreExprsValid(t, &test, r) {
 				return
 			}
 
-			for idx, e := range r.Exprs {
-				if reflect.TypeOf(e).String() != reflect.TypeOf(test.expectedExprs[idx]).String() {
-					t.Errorf("first expression should be %s, instead of: %s", reflect.TypeOf(test.expectedExprs[idx]), reflect.TypeOf(e))
-					return
-				}
-
-				switch e.(type) {
-				case *expr.Meta:
-					lExpr, ok := e.(*expr.Meta)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Meta)
-					if !ok || !okExpected {
-						t.Errorf("invalid Meta expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Key != lExpect.Key || lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Key,\nreturned: %+v\nexpected: %+v\n", lExpr.Key, lExpect.Key)
-					}
-					if lExpr.SourceRegister != lExpect.SourceRegister {
-						t.Errorf("invalid Meta.SourceRegister,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-					if lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Register,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-
-				case *expr.Immediate:
-					lExpr, ok := e.(*expr.Immediate)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Immediate)
-					if !ok || !okExpected {
-						t.Errorf("invalid Immediate expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Immediate.Data,\ngot: %+v,\nexpected: %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				case *expr.TProxy:
-					lExpr, ok := e.(*expr.TProxy)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.TProxy)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Family != lExpect.Family || lExpr.TableFamily != lExpect.TableFamily || lExpr.RegPort != lExpect.RegPort {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Redir:
-					lExpr, ok := e.(*expr.Redir)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Redir)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.RegisterProtoMin != lExpect.RegisterProtoMin {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Masq:
-					lExpr, ok := e.(*expr.Masq)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Masq)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.ToPorts != lExpect.ToPorts ||
-						lExpr.Random != lExpect.Random ||
-						lExpr.FullyRandom != lExpect.FullyRandom ||
-						lExpr.Persistent != lExpect.Persistent {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.NAT:
-					lExpr, ok := e.(*expr.NAT)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.NAT)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.RegProtoMin != lExpect.RegProtoMin ||
-						lExpr.RegAddrMin != lExpect.RegAddrMin ||
-						lExpr.Random != lExpect.Random ||
-						lExpr.FullyRandom != lExpect.FullyRandom ||
-						lExpr.Persistent != lExpect.Persistent {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Cmp:
-					lExpr, ok := e.(*expr.Cmp)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Cmp)
-					if !ok || !okExpected {
-						t.Errorf("invalid Cmp expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Cmp.Data: %+v, %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				}
-
-			}
-
-			if test.expectedFail {
+			if test.ExpectedFail {
 				t.Errorf("test should have failed")
 			}
 
@@ -989,7 +548,7 @@ func TestExprVerdictTProxy(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	tests := []natTestsT{
+	tests := []nftest.NatTestsT{
 		{
 			"test-nat-tproxy-to-127001:12345",
 			exprs.NFT_FAMILY_IP,
@@ -1041,12 +600,12 @@ func TestExprVerdictTProxy(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.Name, func(t *testing.T) {
 
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_TPROXY, test.parms)
-			if !test.expectedFail && verdExpr == nil {
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_TPROXY, test.Parms)
+			if !test.ExpectedFail && verdExpr == nil {
 				t.Errorf("error creating verdict")
-			} else if test.expectedFail && verdExpr == nil {
+			} else if test.ExpectedFail && verdExpr == nil {
 				return
 			}
 			r, _ := nftest.AddTestDNATRule(t, conn, verdExpr)
@@ -1054,119 +613,12 @@ func TestExprVerdictTProxy(t *testing.T) {
 				t.Errorf("Error adding rule")
 				return
 			}
-			if total := len(r.Exprs); total != test.expectedExprsNum {
-				t.Errorf("expected %d expressions, found %d", test.expectedExprsNum, total)
+
+			if !nftest.AreExprsValid(t, &test, r) {
 				return
 			}
 
-			for idx, e := range r.Exprs {
-				if reflect.TypeOf(e).String() != reflect.TypeOf(test.expectedExprs[idx]).String() {
-					t.Errorf("first expression should be %s, instead of: %s", reflect.TypeOf(test.expectedExprs[idx]), reflect.TypeOf(e))
-					return
-				}
-
-				switch e.(type) {
-				case *expr.Meta:
-					lExpr, ok := e.(*expr.Meta)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Meta)
-					if !ok || !okExpected {
-						t.Errorf("invalid Meta expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Key != lExpect.Key || lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Key,\nreturned: %+v\nexpected: %+v\n", lExpr.Key, lExpect.Key)
-					}
-					if lExpr.SourceRegister != lExpect.SourceRegister {
-						t.Errorf("invalid Meta.SourceRegister,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-					if lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Register,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-
-				case *expr.Immediate:
-					lExpr, ok := e.(*expr.Immediate)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Immediate)
-					if !ok || !okExpected {
-						t.Errorf("invalid Immediate expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Immediate.Data,\ngot: %+v,\nexpected: %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				case *expr.TProxy:
-					lExpr, ok := e.(*expr.TProxy)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.TProxy)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Family != lExpect.Family || lExpr.TableFamily != lExpect.TableFamily || lExpr.RegPort != lExpect.RegPort {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Redir:
-					lExpr, ok := e.(*expr.Redir)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Redir)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.RegisterProtoMin != lExpect.RegisterProtoMin {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Masq:
-					lExpr, ok := e.(*expr.Masq)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Masq)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.ToPorts != lExpect.ToPorts ||
-						lExpr.Random != lExpect.Random ||
-						lExpr.FullyRandom != lExpect.FullyRandom ||
-						lExpr.Persistent != lExpect.Persistent {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.NAT:
-					lExpr, ok := e.(*expr.NAT)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.NAT)
-					if !ok || !okExpected {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.RegProtoMin != lExpect.RegProtoMin ||
-						lExpr.RegAddrMin != lExpect.RegAddrMin ||
-						lExpr.Random != lExpect.Random ||
-						lExpr.FullyRandom != lExpect.FullyRandom ||
-						lExpr.Persistent != lExpect.Persistent {
-						t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Cmp:
-					lExpr, ok := e.(*expr.Cmp)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Cmp)
-					if !ok || !okExpected {
-						t.Errorf("invalid Cmp expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Cmp.Data: %+v, %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				}
-
-			}
-
-			if test.expectedFail {
+			if test.ExpectedFail {
 				t.Errorf("test should have failed")
 			}
 
