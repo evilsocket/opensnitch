@@ -21,13 +21,13 @@ The file _/etc/opensnitchd/default-config.json_ holds the daemon configuration:
 }
 ```
 
-Option | Value
--------|------
+Option     | Value
+-----------|------
 Server.Address | Unix socket (unix:///tmp/osui.sock, the "unix:///" part is mandatory) or TCP socket (192.168.1.100:50051)
 Server.LogFile | file to write logs to (use /dev/stdout to write logs to standard output)
-DefaultAction | allow, deny
+DefaultAction [0] | allow, deny
 ~DefaultDuration~ | ~once, always, until restart, 30s, 5m, 15m, 30m, 1h~ DEPRECATED
-InterceptUnknown | true, false
+InterceptUnknown [1] | true, false
 ProcMonitorMethod | ebpf, proc, audit
 LogLevel | 0 to 4 (debug, info, important, warning, error)
 Firewall | "nftables" or "iptables"
@@ -36,7 +36,15 @@ Stats.MaxStats | Max stats per item (port, host, IP, process, etc) to keep in th
 
 If you change the configuration or the rules under _/etc/opensnitchd/rules/_, they'll be reloaded. No restart is needed.
 
-**NOTE about _intercept_unknown_ option**:
+**[0] NOTE about _DefaultAction_ option**:
+
+When the daemon connects to the GUI, the daemon will use the DefaultAction configured on the GUI.
+If the GUI is not connected it'll use the daemon's DefaultAction.
+
+If you set daemon's DefaultAction to `deny`, bear in mind that you'll need [a rule to allow network traffic on localhost](https://github.com/evilsocket/opensnitch/issues/982#issuecomment-1621452594) ([#982](https://github.com/evilsocket/opensnitch/issues/982))
+
+**[1] NOTE about _intercept_unknown_ option**:
+
  It refers to the connections that are not associated with a process due to several reasons, specially when using _proc_ as monitor method.
 
  This option was added when OpenSnitch used to miss a lot of connections (couldn't find pid/process in /proc). As of v1.4.0rc2 version, it's safe to set it  to false, and just let it drop those "unknown" connections. It's up to you. Most of the connections intercepted by this option are those in a bad state or similar.
