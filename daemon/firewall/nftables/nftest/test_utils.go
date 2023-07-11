@@ -135,6 +135,34 @@ func AreExprsValid(t *testing.T, test *TestsT, rule *nftables.Rule) bool {
 				return false
 			}
 
+		case *expr.Ct:
+			lExpr, ok := e.(*expr.Ct)
+			lExpect, okExpected := test.ExpectedExprs[idx].(*expr.Ct)
+			if !ok || !okExpected {
+				t.Errorf("invalid Ct expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				return false
+			}
+			if lExpr.Key != lExpect.Key || lExpr.Register != lExpect.Register || lExpr.SourceRegister != lExpect.SourceRegister {
+				t.Errorf("invalid Ct parms,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				return false
+			}
+
+		case *expr.Bitwise:
+			lExpr, ok := e.(*expr.Bitwise)
+			lExpect, okExpected := test.ExpectedExprs[idx].(*expr.Bitwise)
+			if !ok || !okExpected {
+				t.Errorf("invalid Bitwise expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				return false
+			}
+			if lExpr.Len != lExpect.Len ||
+				!bytes.Equal(lExpr.Mask, lExpect.Mask) ||
+				!bytes.Equal(lExpr.Xor, lExpect.Xor) ||
+				lExpr.DestRegister != lExpect.DestRegister ||
+				lExpr.SourceRegister != lExpect.SourceRegister {
+				t.Errorf("invalid Bitwise parms,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				return false
+			}
+
 		case *expr.Cmp:
 			lExpr, ok := e.(*expr.Cmp)
 			lExpect, okExpected := test.ExpectedExprs[idx].(*expr.Cmp)
