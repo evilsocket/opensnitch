@@ -10,8 +10,8 @@ import (
 	"github.com/google/nftables/expr"
 )
 
-// NatTestsT defines the fields of a test.
-type NatTestsT struct {
+// TestsT defines the fields of a test.
+type TestsT struct {
 	Name             string
 	Family           string
 	Parms            string
@@ -23,7 +23,7 @@ type NatTestsT struct {
 
 // AreExprsValid checks if the expressions defined in the given rule are valid
 // according to the expected expressions defined in the tests.
-func AreExprsValid(t *testing.T, test *NatTestsT, rule *nftables.Rule) bool {
+func AreExprsValid(t *testing.T, test *TestsT, rule *nftables.Rule) bool {
 
 	if total := len(rule.Exprs); total != test.ExpectedExprsNum {
 		t.Errorf("expected %d expressions, found %d", test.ExpectedExprsNum, total)
@@ -118,6 +118,20 @@ func AreExprsValid(t *testing.T, test *NatTestsT, rule *nftables.Rule) bool {
 				lExpr.FullyRandom != lExpect.FullyRandom ||
 				lExpr.Persistent != lExpect.Persistent {
 				t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				return false
+			}
+
+		case *expr.Quota:
+			lExpr, ok := e.(*expr.Quota)
+			lExpect, okExpected := test.ExpectedExprs[idx].(*expr.Quota)
+			if !ok || !okExpected {
+				t.Errorf("invalid Quota expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				return false
+			}
+			if lExpr.Bytes != lExpect.Bytes ||
+				lExpr.Over != lExpect.Over ||
+				lExpr.Consumed != lExpect.Consumed {
+				t.Errorf("invalid Quota.Data,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
 				return false
 			}
 

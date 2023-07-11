@@ -20,7 +20,7 @@ func TestExprVerdictSNAT(t *testing.T) {
 	nftest.Fw.Conn = conn
 
 	// TODO: test random, permanent, persistent flags.
-	tests := []nftest.NatTestsT{
+	tests := []nftest.TestsT{
 		{
 			"test-nat-snat-to-127001",
 			exprs.NFT_FAMILY_IP,
@@ -204,7 +204,7 @@ func TestExprVerdictDNAT(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	tests := []nftest.NatTestsT{
+	tests := []nftest.TestsT{
 		{
 			"test-nat-dnat-to-127001",
 			exprs.NFT_FAMILY_IP,
@@ -389,7 +389,7 @@ func TestExprVerdictMasquerade(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	tests := []nftest.NatTestsT{
+	tests := []nftest.TestsT{
 		{
 			"test-nat-masq-to-:12345",
 			exprs.NFT_FAMILY_IP,
@@ -473,7 +473,7 @@ func TestExprVerdictRedirect(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	tests := []nftest.NatTestsT{
+	tests := []nftest.TestsT{
 		{
 			"test-nat-redir-to-127001:12345",
 			exprs.NFT_FAMILY_IP,
@@ -548,7 +548,7 @@ func TestExprVerdictTProxy(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	tests := []nftest.NatTestsT{
+	tests := []nftest.TestsT{
 		{
 			"test-nat-tproxy-to-127001:12345",
 			exprs.NFT_FAMILY_IP,
