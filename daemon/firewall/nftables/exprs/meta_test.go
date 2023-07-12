@@ -1,8 +1,6 @@
 package exprs_test
 
 import (
-	"bytes"
-	"reflect"
 	"testing"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
@@ -19,19 +17,11 @@ func TestExprMeta(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	type metaTestsT struct {
-		name             string
-		family           string
-		values           []*config.ExprValues
-		expectedExprsNum int
-		expectedExprs    []interface{}
-		expectedFail     bool
-	}
-
-	tests := []metaTestsT{
+	tests := []nftest.TestsT{
 		{
 			"test-meta-mark",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   exprs.NFT_META_MARK,
@@ -54,6 +44,7 @@ func TestExprMeta(t *testing.T) {
 		{
 			"test-meta-set-mark",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   exprs.NFT_META_SET_MARK,
@@ -81,6 +72,7 @@ func TestExprMeta(t *testing.T) {
 		{
 			"test-meta-priority",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   exprs.NFT_META_PRIORITY,
@@ -103,6 +95,7 @@ func TestExprMeta(t *testing.T) {
 		{
 			"test-meta-skuid",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   exprs.NFT_META_SKUID,
@@ -125,6 +118,7 @@ func TestExprMeta(t *testing.T) {
 		{
 			"test-meta-skgid",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   exprs.NFT_META_SKGID,
@@ -147,6 +141,7 @@ func TestExprMeta(t *testing.T) {
 		{
 			"test-meta-protocol",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   exprs.NFT_META_PROTOCOL,
@@ -170,6 +165,7 @@ func TestExprMeta(t *testing.T) {
 		{
 			"test-meta-l4proto",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   exprs.NFT_META_L4PROTO,
@@ -189,78 +185,26 @@ func TestExprMeta(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.Name, func(t *testing.T) {
 			cmp := expr.CmpOpEq
-			metaExpr, err := exprs.NewExprMeta(test.values, &cmp)
-			if err != nil && !test.expectedFail {
+			metaExpr, err := exprs.NewExprMeta(test.Values, &cmp)
+			if err != nil && !test.ExpectedFail {
 				t.Errorf("Error creating expr Meta: %s", metaExpr)
 				return
-			} else if err != nil && test.expectedFail {
+			} else if err != nil && test.ExpectedFail {
 				return
 			}
 
 			r, _ := nftest.AddTestRule(t, conn, metaExpr)
-			if r == nil && !test.expectedFail {
+			if r == nil && !test.ExpectedFail {
 				t.Error("Error adding rule with Meta expression")
 			}
-			if total := len(r.Exprs); total != test.expectedExprsNum {
-				t.Errorf("expected %d expressions, found %d", test.expectedExprsNum, total)
+
+			if !nftest.AreExprsValid(t, &test, r) {
 				return
 			}
 
-			for idx, e := range r.Exprs {
-				if reflect.TypeOf(e).String() != reflect.TypeOf(test.expectedExprs[idx]).String() {
-					t.Errorf("first expression should be %s, instead of: %s", reflect.TypeOf(test.expectedExprs[idx]), reflect.TypeOf(e))
-					return
-				}
-
-				switch e.(type) {
-				case *expr.Meta:
-					lExpr, ok := e.(*expr.Meta)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Meta)
-					if !ok || !okExpected {
-						t.Errorf("invalid Meta expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Key != lExpect.Key || lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Key,\nreturned: %+v\nexpected: %+v\n", lExpr.Key, lExpect.Key)
-					}
-					if lExpr.SourceRegister != lExpect.SourceRegister {
-						t.Errorf("invalid Meta.SourceRegister,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-					if lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Register,\nreturned: %+v\nexpected: %+v\n", lExpr.SourceRegister, lExpect.SourceRegister)
-					}
-
-				case *expr.Immediate:
-					lExpr, ok := e.(*expr.Immediate)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Immediate)
-					if !ok || !okExpected {
-						t.Errorf("invalid Immediate expr, got: %+v, expected: %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Immediate.Data, got: %+v, expected: %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				case *expr.Cmp:
-					lExpr, ok := e.(*expr.Cmp)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Cmp)
-					if !ok || !okExpected {
-						t.Errorf("invalid Cmp expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Cmp.Data: %+v, %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				}
-
-			}
-
-			if test.expectedFail {
+			if test.ExpectedFail {
 				t.Errorf("test should have failed")
 			}
 		})

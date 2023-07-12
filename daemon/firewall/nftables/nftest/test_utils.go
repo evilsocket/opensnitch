@@ -25,7 +25,8 @@ type TestsT struct {
 // according to the expected expressions defined in the tests.
 func AreExprsValid(t *testing.T, test *TestsT, rule *nftables.Rule) bool {
 
-	if total := len(rule.Exprs); total != test.ExpectedExprsNum {
+	total := len(rule.Exprs)
+	if total != test.ExpectedExprsNum {
 		t.Errorf("expected %d expressions, found %d", test.ExpectedExprsNum, total)
 		return false
 	}
@@ -82,11 +83,11 @@ func AreExprsValid(t *testing.T, test *TestsT, rule *nftables.Rule) bool {
 			lExpr, ok := e.(*expr.Redir)
 			lExpect, okExpected := test.ExpectedExprs[idx].(*expr.Redir)
 			if !ok || !okExpected {
-				t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				t.Errorf("invalid Redir expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
 				return false
 			}
 			if lExpr.RegisterProtoMin != lExpect.RegisterProtoMin {
-				t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				t.Errorf("invalid Redir expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
 				return false
 			}
 
@@ -94,14 +95,14 @@ func AreExprsValid(t *testing.T, test *TestsT, rule *nftables.Rule) bool {
 			lExpr, ok := e.(*expr.Masq)
 			lExpect, okExpected := test.ExpectedExprs[idx].(*expr.Masq)
 			if !ok || !okExpected {
-				t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				t.Errorf("invalid Masq expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
 				return false
 			}
 			if lExpr.ToPorts != lExpect.ToPorts ||
 				lExpr.Random != lExpect.Random ||
 				lExpr.FullyRandom != lExpect.FullyRandom ||
 				lExpr.Persistent != lExpect.Persistent {
-				t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				t.Errorf("invalid Masq expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
 				return false
 			}
 
@@ -109,7 +110,7 @@ func AreExprsValid(t *testing.T, test *TestsT, rule *nftables.Rule) bool {
 			lExpr, ok := e.(*expr.NAT)
 			lExpect, okExpected := test.ExpectedExprs[idx].(*expr.NAT)
 			if !ok || !okExpected {
-				t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				t.Errorf("invalid NAT expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
 				return false
 			}
 			if lExpr.RegProtoMin != lExpect.RegProtoMin ||
@@ -117,7 +118,7 @@ func AreExprsValid(t *testing.T, test *TestsT, rule *nftables.Rule) bool {
 				lExpr.Random != lExpect.Random ||
 				lExpr.FullyRandom != lExpect.FullyRandom ||
 				lExpr.Persistent != lExpect.Persistent {
-				t.Errorf("invalid TProxy expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				t.Errorf("invalid NAT expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
 				return false
 			}
 
@@ -160,6 +161,26 @@ func AreExprsValid(t *testing.T, test *TestsT, rule *nftables.Rule) bool {
 				lExpr.DestRegister != lExpect.DestRegister ||
 				lExpr.SourceRegister != lExpect.SourceRegister {
 				t.Errorf("invalid Bitwise parms,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				return false
+			}
+
+		case *expr.Log:
+			lExpr, ok := e.(*expr.Log)
+			lExpect, okExpected := test.ExpectedExprs[idx].(*expr.Log)
+			if !ok || !okExpected {
+				t.Errorf("invalid Log expr,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
+				return false
+			}
+			if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.ExpectedFail {
+				t.Errorf("invalid Log.Data,\ngot: %+v,\nexpected: %+v", lExpr.Data, lExpect.Data)
+				return false
+			}
+			if lExpr.Key != lExpect.Key ||
+				lExpr.Level != lExpect.Level ||
+				lExpr.Group != lExpect.Group ||
+				lExpr.Snaplen != lExpect.Snaplen ||
+				lExpr.QThreshold != lExpect.QThreshold {
+				t.Errorf("invalid Log fields,\ngot: %+v,\nexpected: %+v", lExpr, lExpect)
 				return false
 			}
 

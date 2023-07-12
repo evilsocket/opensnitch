@@ -28,10 +28,10 @@ func NewExprLog(statement *config.ExprStatement) (*[]expr.Any, error) {
 			lvl, err := getLogLevel(values.Value)
 			if err != nil {
 				log.Warning("%s", err)
-			} else {
-				logExpr.Key |= 1 << unix.NFTA_LOG_LEVEL
-				logExpr.Level = lvl
+				return nil, err
 			}
+			logExpr.Key |= 1 << unix.NFTA_LOG_LEVEL
+			logExpr.Level = lvl
 			// TODO
 			// https://github.com/google/nftables/blob/main/nftables_test.go#L623
 			//case exprs.NFT_LOG_FLAGS:

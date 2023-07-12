@@ -1,9 +1,7 @@
 package exprs_test
 
 import (
-	"bytes"
 	"net"
-	"reflect"
 	"testing"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
@@ -20,19 +18,11 @@ func TestExprIP(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	type ipTestsT struct {
-		name             string
-		family           string
-		values           []*config.ExprValues
-		expectedExprsNum int
-		expectedExprs    []interface{}
-		expectedFail     bool
-	}
-
-	tests := []ipTestsT{
+	tests := []nftest.TestsT{
 		{
 			"test-ip-daddr",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "daddr",
@@ -57,6 +47,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-ip-saddr",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "saddr",
@@ -81,6 +72,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-inet-daddr",
 			exprs.NFT_FAMILY_INET,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "daddr",
@@ -111,6 +103,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-ip-daddr-invalid",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "daddr",
@@ -124,6 +117,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-ip-daddr-invalid",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "daddr",
@@ -137,6 +131,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-ip-daddr-invalid",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "daddr",
@@ -150,6 +145,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-ip-daddr-invalid",
 			exprs.NFT_FAMILY_IP,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "daddr",
@@ -163,6 +159,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-inet-saddr",
 			exprs.NFT_FAMILY_INET,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "saddr",
@@ -193,6 +190,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-inet-daddr-invalid",
 			exprs.NFT_FAMILY_INET,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "daddr",
@@ -206,6 +204,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-inet-saddr-invalid",
 			exprs.NFT_FAMILY_INET,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "saddr",
@@ -219,6 +218,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-inet-range-daddr",
 			exprs.NFT_FAMILY_INET,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "daddr",
@@ -251,6 +251,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-inet-range-saddr",
 			exprs.NFT_FAMILY_INET,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "saddr",
@@ -283,6 +284,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-inet-daddr-range-invalid",
 			exprs.NFT_FAMILY_INET,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "daddr",
@@ -296,6 +298,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-inet-daddr-range-invalid",
 			exprs.NFT_FAMILY_INET,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key:   "daddr",
@@ -309,6 +312,7 @@ func TestExprIP(t *testing.T) {
 		{
 			"test-inet-daddr-range-invalid",
 			exprs.NFT_FAMILY_INET,
+			"",
 			[]*config.ExprValues{
 				&config.ExprValues{
 					Key: "daddr",
@@ -323,83 +327,25 @@ func TestExprIP(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			ipExpr, err := exprs.NewExprIP(test.family, test.values, expr.CmpOpEq)
-			if err != nil && !test.expectedFail {
+		t.Run(test.Name, func(t *testing.T) {
+			ipExpr, err := exprs.NewExprIP(test.Family, test.Values, expr.CmpOpEq)
+			if err != nil && !test.ExpectedFail {
 				t.Errorf("Error creating expr IP: %s", ipExpr)
 				return
-			} else if err != nil && test.expectedFail {
+			} else if err != nil && test.ExpectedFail {
 				return
 			}
 
 			r, _ := nftest.AddTestRule(t, conn, ipExpr)
-			if r == nil && !test.expectedFail {
+			if r == nil && !test.ExpectedFail {
 				t.Error("Error adding rule with IP expression")
 			}
-			if total := len(r.Exprs); total != test.expectedExprsNum {
-				t.Errorf("expected %d expressions, found %d", test.expectedExprsNum, total)
+
+			if !nftest.AreExprsValid(t, &test, r) {
 				return
 			}
 
-			for idx, e := range r.Exprs {
-				if reflect.TypeOf(e).String() != reflect.TypeOf(test.expectedExprs[idx]).String() {
-					t.Errorf("first expression should be %s, instead of: %s", reflect.TypeOf(test.expectedExprs[idx]), reflect.TypeOf(e))
-					return
-				}
-
-				switch e.(type) {
-				case *expr.Meta:
-					lExpr, ok := e.(*expr.Meta)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Meta)
-					if !ok || !okExpected {
-						t.Errorf("invalid IP Meta expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.Key != lExpect.Key || lExpr.Register != lExpect.Register {
-						t.Errorf("invalid Meta.Key. Returned: %+v\nExpected: %+v\n", lExpr.Key, lExpect.Key)
-					}
-
-				case *expr.Payload:
-					lExpr, ok := e.(*expr.Payload)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Payload)
-					if !ok || !okExpected {
-						t.Errorf("invalid IP Payload expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if lExpr.SourceRegister != lExpect.SourceRegister || lExpr.DestRegister != lExpect.DestRegister || lExpr.Offset != lExpect.Offset || lExpr.Base != lExpect.Base || lExpr.Len != lExpect.Len {
-						t.Errorf("invalid IP Payload:\nReturned: %+v\nExpected: %+v", lExpr, lExpect)
-						return
-					}
-
-				case *expr.Range:
-					lExpr, ok := e.(*expr.Range)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Range)
-					if !ok || !okExpected {
-						t.Errorf("invalid IP Range expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.FromData, lExpect.FromData) || !bytes.Equal(lExpr.ToData, lExpect.ToData) {
-						t.Errorf("invalid IP Range expr From: %+v, %+v, lExpr, LExpect", lExpr.FromData, lExpect.FromData)
-						t.Errorf("invalid IP Range expr To: %+v, %+v, lExpr, LExpect", lExpr.ToData, lExpect.ToData)
-					}
-
-				case *expr.Cmp:
-					lExpr, ok := e.(*expr.Cmp)
-					lExpect, okExpected := test.expectedExprs[idx].(*expr.Cmp)
-					if !ok || !okExpected {
-						t.Errorf("invalid Cmp expr: %+v, %+v", lExpr, lExpect)
-						return
-					}
-					if !bytes.Equal(lExpr.Data, lExpect.Data) && !test.expectedFail {
-						t.Errorf("invalid Cmp.Data: %+v, %+v", lExpr.Data, lExpect.Data)
-						return
-					}
-
-				}
-
-			}
-
-			if test.expectedFail {
+			if test.ExpectedFail {
 				t.Errorf("test should have failed")
 			}
 		})
