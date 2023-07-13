@@ -391,21 +391,28 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     def _cb_notification_callback(self, reply):
         self._enable_buttons()
 
-        if reply.id in self._notifications_sent:
-            if reply.code == ui_pb2.OK:
-                rep = self._notifications_sent[reply.id]
-                if 'operation' in rep and rep['operation'] == self.OP_DELETE:
-                    self.tabWidget.setDisabled(True)
-                    self._set_status_successful(QC.translate("firewall", "Rule deleted"))
-                    self._disable_controls()
-                    return
+        if reply.id not in self._notifications_sent:
+            print(self.LOG_TAG, "notification not in the list:", reply.id, "list:", self._notifications_sent)
+            return
 
-                self._set_status_successful(QC.translate("firewall", "Rule added"))
+        rep = self._notifications_sent[reply.id]
+        if reply.code == ui_pb2.OK:
+            if 'operation' in rep and rep['operation'] == self.OP_DELETE:
+                self.tabWidget.setDisabled(True)
+                self._set_status_successful(QC.translate("firewall", "Rule deleted"))
+                self._disable_controls()
+                del self._notifications_sent[reply.id]
+                return
 
-            else:
-                self._set_status_error(QC.translate("firewall", "Error: {0}").format(reply.data))
+            self._set_status_successful(QC.translate("firewall", "Rule added"))
 
-            del self._notifications_sent[reply.id]
+        else:
+            errmsg = QC.translate("firewall", "Error adding rules:\n{0}".format(reply.data))
+            if 'operation' in rep and rep['operation'] == self.OP_SAVE:
+                errmsg = QC.translate("firewall", "Error saving rules:\n{0}".format(reply.data))
+            self._set_status_error(errmsg)
+
+        del self._notifications_sent[reply.id]
 
     @QtCore.pyqtSlot(int)
     def _cb_nodes_updated(self, total):

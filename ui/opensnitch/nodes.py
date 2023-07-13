@@ -96,9 +96,9 @@ class Nodes(QObject):
 
         noti = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[deleted_rule])
         if addr != None:
-            nid = self.send_notification(addr, noti, None)
+            nid = self.send_notification(addr, noti, callback)
         else:
-            nid = self.send_notifications(noti, None)
+            nid = self.send_notifications(noti, callback)
 
         return nid, noti
 
@@ -320,16 +320,22 @@ class Nodes(QObject):
                 print(self.LOG_TAG, " reply notification None")
                 return
 
-            if reply.id in self._notifications_sent:
-                if self._notifications_sent[reply.id] != None:
-                    if self._notifications_sent[reply.id]['callback'] != None:
-                        self._notifications_sent[reply.id]['callback'].emit(reply)
+            if reply.id not in self._notifications_sent:
+                print(self.LOG_TAG, " reply notification not in the list:", reply.id)
+                return
 
-                    # delete only one-time notifications
-                    # we need the ID of streaming notifications from the server
-                    # (monitor_process for example) to keep track of the data sent to us.
-                    if self._notifications_sent[reply.id]['type'] != ui_pb2.MONITOR_PROCESS:
-                        del self._notifications_sent[reply.id]
+            if self._notifications_sent[reply.id] == None:
+                print(self.LOG_TAG, " reply notification body empty:", reply.id)
+                return
+
+            if self._notifications_sent[reply.id]['callback'] != None:
+                self._notifications_sent[reply.id]['callback'].emit(reply)
+
+            # delete only one-time notifications
+            # we need the ID of streaming notifications from the server
+            # (monitor_process for example) to keep track of the data sent to us.
+            if self._notifications_sent[reply.id]['type'] != ui_pb2.MONITOR_PROCESS:
+                del self._notifications_sent[reply.id]
         except Exception as e:
             print(self.LOG_TAG, "notification exception:", e)
 

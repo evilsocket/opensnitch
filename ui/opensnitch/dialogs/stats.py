@@ -1298,9 +1298,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.ERROR:
                 Message.ok(
-                    QC.translate("stats",
-                                 "<b>Error:</b><br><br>",
-                                 "{0}").format(reply.data),
+                    QC.translate("stats", "Error:"),
+                    "{0}".format(reply.data),
                     QtWidgets.QMessageBox.Warning)
 
         else:
