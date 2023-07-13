@@ -1,6 +1,7 @@
 package nftables
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 
@@ -123,7 +124,9 @@ func (n *Nft) AddSystemRules(reload, backupExistingChains bool) {
 					chain.Rules[i].UUID = uuid.String()
 				}
 				if chain.Rules[i].Enabled {
-					n.AddSystemRule(chain.Rules[i], chain)
+					if err4, _ := n.AddSystemRule(chain.Rules[i], chain); err4 != nil {
+						log.Warning("rule not added: %s", err4)
+					}
 				}
 			}
 		}
@@ -156,15 +159,20 @@ func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) (err4, e
 	exprList := []expr.Any{}
 
 	for _, expression := range rule.Expressions {
-		if exprsOfRule := n.parseExpression(chain.Table, chain.Name, chain.Family, expression); exprsOfRule != nil {
-			exprList = append(exprList, *exprsOfRule...)
+		exprsOfRule := n.parseExpression(chain.Table, chain.Name, chain.Family, expression)
+		if exprsOfRule == nil {
+			return fmt.Errorf("%s invalid rule parameters: %v", rule.UUID, expression), nil
 		}
+		exprList = append(exprList, *exprsOfRule...)
 	}
 	if len(exprList) > 0 {
 		exprVerdict := exprs.NewExprVerdict(rule.Target, rule.TargetParameters)
+		if exprVerdict == nil {
+			return fmt.Errorf("%s invalid verdict %s %s", rule.UUID, rule.Target, rule.TargetParameters), nil
+		}
 		exprList = append(exprList, *exprVerdict...)
 		if err := n.InsertRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList); err != nil {
-			log.Warning("error adding rule: %v", rule)
+			return err, nil
 		}
 	}
 

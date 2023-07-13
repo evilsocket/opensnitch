@@ -133,13 +133,13 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 func (n *Nft) InsertRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
 	tbl := n.GetTable(table, family)
 	if tbl == nil {
-		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
+		return fmt.Errorf("%s getting table: %s, %s", logTag, table, family)
 	}
 
 	chainKey := getChainKey(chain, tbl)
 	chn, chok := sysChains.Load(chainKey)
 	if !chok {
-		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
+		return fmt.Errorf("%s getting table: %s, %s", logTag, table, family)
 	}
 
 	rule := &nftables.Rule{
@@ -151,7 +151,7 @@ func (n *Nft) InsertRule(chain, table, family string, position uint64, exprs *[]
 	}
 	n.Conn.InsertRule(rule)
 	if !n.Commit() {
-		return fmt.Errorf("%s Error adding rule", logTag)
+		return fmt.Errorf("%s rule not added", logTag)
 	}
 
 	return nil
