@@ -859,6 +859,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             table = self._get_active_table()
             model = table.model()
             menu = QtWidgets.QMenu()
+            exportMenu = QtWidgets.QMenu(QC.translate("stats", "Export"))
 
             selection = table.selectionModel().selectedRows()
             if not selection:
@@ -886,6 +887,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             _menu_delete = menu.addAction(QC.translate("stats", "Delete"))
             _menu_edit = menu.addAction(QC.translate("stats", "Edit"))
 
+            menu.addSeparator()
+            _toClipboard = exportMenu.addAction(QC.translate("stats", "To clipboard"))
+            #_toDisk = exportMenu.addAction(QC.translate("stats", "To disk"))
+            menu.addMenu(exportMenu)
+
             # move away menu a few pixels to the right, to avoid clicking on it by mistake
             point = QtCore.QPoint(pos.x()+10, pos.y()+5)
             action = menu.exec_(table.mapToGlobal(point))
@@ -906,6 +912,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 action == _action_reject or \
                 action == _action_return:
                 self._table_menu_change_rule_field(cur_idx, model, selection, FwRules.FIELD_TARGET, action.text())
+            elif action == _toClipboard:
+                self._table_menu_export_clipboard(cur_idx, model, selection)
+            #elif action == _toDisk:
+            #    self._table_menu_export_disk(cur_idx, model, selection)
+
             self._fw.rules.blockSignals(False)
 
         except Exception as e:
@@ -1023,15 +1034,23 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _table_menu_export_clipboard(self, cur_idx, model, selection):
         rules_list = []
-        for idx in selection:
-            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
-            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+        if cur_idx == self.TAB_RULES and not self.fwTable.isVisible():
+            for idx in selection:
+                rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+                node_addr = model.index(idx.row(), self.COL_R_NODE).data()
 
-            json_rule = self._nodes.rule_to_json(node_addr, rule_name)
-            if json_rule != None:
-                rules_list.append(json_rule)
-            else:
-                print("export to clipboard: ERROR converting \"{0}\" to json".format(rule_name))
+                json_rule = self._nodes.rule_to_json(node_addr, rule_name)
+                if json_rule != None:
+                    rules_list.append(json_rule)
+                else:
+                    print("export to clipboard: ERROR converting \"{0}\" to json".format(rule_name))
+        elif cur_idx == self.TAB_RULES and self.fwTable.isVisible():
+            for idx in selection:
+                uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
+                node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
+                r = self._fw.get_protorule_by_uuid(node, uuid)
+                if r:
+                    rules_list.append(self._fw.rule_to_json(r))
 
         cliptext=""
         for r in rules_list:
@@ -1301,6 +1320,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     QC.translate("stats", "Error:"),
                     "{0}".format(reply.data),
                     QtWidgets.QMessageBox.Warning)
+
+            del self._notifications_sent[reply.id]
 
         else:
             Message.ok(

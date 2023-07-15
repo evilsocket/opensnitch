@@ -1,6 +1,8 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtCore import QCoreApplication as QC
+from google.protobuf.json_format import MessageToJson
 import uuid
+
 from opensnitch import ui_pb2
 from .enums import Operator
 from .exprs import ExprLog
@@ -139,6 +141,19 @@ class Rules(QObject):
                     rules.append(Rules.to_array(addr, c, r))
         return rules
 
+    def get_by_uuid(self, addr, uuid):
+        rules = []
+        node = self._nodes.get_node(addr)
+        if node == None:
+            return rules
+        if not 'firewall' in node:
+            return rules
+        for u in node['firewall'].SystemRules:
+            for c in u.Chains:
+                for r in c.Rules:
+                    if r.UUID == uuid:
+                        return r
+        return None
 
     def swap(self, view, addr, uuid, old_pos, new_pos):
         """
@@ -262,6 +277,13 @@ class Rules(QObject):
                     rules[r.UUID] = Rules.new_flat(c, r)
 
         return rules
+
+    @staticmethod
+    def to_json(rule):
+        try:
+            return MessageToJson(rule)
+        except:
+            return None
 
     @staticmethod
     def to_array(addr, chain, rule):

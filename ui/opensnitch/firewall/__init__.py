@@ -59,19 +59,6 @@ class Firewall(QObject):
         chain.Rules[0].Enabled = enable
         return self.update_rule(addr, uuid, chain)
 
-    def get_rule_by_uuid(self, uuid):
-        if uuid == "":
-            return None, None
-        for addr in self._nodes.get_nodes():
-            node = self._nodes.get_node(addr)
-            if not 'fwrules' in node:
-                continue
-            r = node['fwrules'].get(uuid)
-            if r != None:
-                return addr, r
-
-        return None, None
-
     def filter_rules(self, nail):
         """
         """
@@ -109,6 +96,69 @@ class Firewall(QObject):
                             chains.append(Rules.to_array(addr, c, r))
 
         return chains
+
+    def filter_by_table(self, addr, table, family):
+        """get rules by table"""
+        chains = []
+        node = self._nodes.get_node(addr)
+        if not 'firewall' in node:
+            return chains
+        for n in node['firewall'].SystemRules:
+            for c in n.Chains:
+                for r in c.Rules:
+                    if c.Table == table and c.Family == family:
+                        chains.append(Rules.to_array(addr, c, r))
+
+        return chains
+
+    def filter_by_chain(self, addr, table, family, chain, hook):
+        """get rules by chain"""
+        chains = []
+        node = self._nodes.get_node(addr)
+        if not 'firewall' in node:
+            return chains
+        for n in node['firewall'].SystemRules:
+            for c in n.Chains:
+                for r in c.Rules:
+                    if c.Table == table and c.Family == family and c.Name == chain and c.Hook == hook:
+                        chains.append(Rules.to_array(addr, c, r))
+
+        return chains
+
+    def swap_rules(self, view, addr, uuid, old_pos, new_pos):
+        return self.rules.swap(view, addr, uuid, old_pos, new_pos)
+
+    def get_rule_by_uuid(self, uuid):
+        """get rule by uuid, in string format
+        """
+        if uuid == "":
+            return None, None
+        for addr in self._nodes.get_nodes():
+            node = self._nodes.get_node(addr)
+            if not 'fwrules' in node:
+                continue
+            r = node['fwrules'].get(uuid)
+            if r != None:
+                return addr, r
+
+        return None, None
+
+    def get_protorule_by_uuid(self, addr, uuid):
+        """get protobuffer rule by uuid.
+        """
+        return self.rules.get_by_uuid(addr, uuid)
+
+    def get_node_rules(self, addr):
+        return self.rules.get_by_node(addr)
+
+    def get_chains(self):
+        return self.chains.get()
+
+    def get_rules(self):
+        return self.rules.get()
+
+    def rule_to_json(self, rule):
+        return Rules.to_json(rule)
 
     def apply_profile(self, node_addr, json_profile):
         """
@@ -180,43 +230,3 @@ class Firewall(QObject):
         except Exception as e:
             return False, "{0}".format(e)
         return False, QC.translate("firewall", "profile not deleted")
-
-    def swap_rules(self, view, addr, uuid, old_pos, new_pos):
-        return self.rules.swap(view, addr, uuid, old_pos, new_pos)
-
-    def filter_by_table(self, addr, table, family):
-        """get rules by table"""
-        chains = []
-        node = self._nodes.get_node(addr)
-        if not 'firewall' in node:
-            return chains
-        for n in node['firewall'].SystemRules:
-            for c in n.Chains:
-                for r in c.Rules:
-                    if c.Table == table and c.Family == family:
-                        chains.append(Rules.to_array(addr, c, r))
-
-        return chains
-
-    def filter_by_chain(self, addr, table, family, chain, hook):
-        """get rules by chain"""
-        chains = []
-        node = self._nodes.get_node(addr)
-        if not 'firewall' in node:
-            return chains
-        for n in node['firewall'].SystemRules:
-            for c in n.Chains:
-                for r in c.Rules:
-                    if c.Table == table and c.Family == family and c.Name == chain and c.Hook == hook:
-                        chains.append(Rules.to_array(addr, c, r))
-
-        return chains
-
-    def get_node_rules(self, addr):
-        return self.rules.get_by_node(addr)
-
-    def get_chains(self):
-        return self.chains.get()
-
-    def get_rules(self):
-        return self.rules.get()

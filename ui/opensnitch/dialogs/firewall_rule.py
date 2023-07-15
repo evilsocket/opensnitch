@@ -391,28 +391,43 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     def _cb_notification_callback(self, reply):
         self._enable_buttons()
 
-        if reply.id not in self._notifications_sent:
-            print(self.LOG_TAG, "notification not in the list:", reply.id, "list:", self._notifications_sent)
-            return
-
-        rep = self._notifications_sent[reply.id]
-        if reply.code == ui_pb2.OK:
-            if 'operation' in rep and rep['operation'] == self.OP_DELETE:
-                self.tabWidget.setDisabled(True)
-                self._set_status_successful(QC.translate("firewall", "Rule deleted"))
-                self._disable_controls()
-                del self._notifications_sent[reply.id]
+        try:
+            if reply.id not in self._notifications_sent:
                 return
 
-            self._set_status_successful(QC.translate("firewall", "Rule added"))
+            rep = self._notifications_sent[reply.id]
+            if reply.code == ui_pb2.OK:
+                if 'operation' in rep and rep['operation'] == self.OP_DELETE:
+                    self.tabWidget.setDisabled(True)
+                    self._set_status_successful(QC.translate("firewall", "Rule deleted"))
+                    self._disable_controls()
+                    del self._notifications_sent[reply.id]
+                    return
 
-        else:
-            errmsg = QC.translate("firewall", "Error adding rules:\n{0}".format(reply.data))
-            if 'operation' in rep and rep['operation'] == self.OP_SAVE:
-                errmsg = QC.translate("firewall", "Error saving rules:\n{0}".format(reply.data))
-            self._set_status_error(errmsg)
+                if 'operation' in rep and rep['operation'] == self.OP_SAVE:
+                    self._set_status_successful(QC.translate("firewall", "Rule saved"))
+                else:
+                    self._set_status_successful(QC.translate("firewall", "Rule added"))
 
-        del self._notifications_sent[reply.id]
+            else:
+                # XXX: The errors returned by the nftables lib are not really descriptive.
+                # "invalid argument", "no such file or directory", without context
+                # 1st one: invalid combination of table/chain/priorities?
+                # 2nd one: does the table/chain exist?
+                errormsg = QC.translate("firewall", "Error adding rules:\n{0}".format(reply.data))
+                if 'operation' in rep and rep['operation'] == self.OP_SAVE:
+                    if 'uuid' in rep and rep['uuid'] in reply.data:
+                        errormsg = QC.translate("firewall", "Error saving rule")
+                    else:
+                        self._set_status_message(QC.translate("firewall", "Rule saved, but there're other rules with errors (REVIEW):\n{0}".format(reply.data)))
+                        return
+                self._set_status_error(errormsg)
+
+        except Exception as e:
+            print("[fw rule dialog exception] notif error:", e)
+        finally:
+            if reply.id in self._notifications_sent:
+                del self._notifications_sent[reply.id]
 
     @QtCore.pyqtSlot(int)
     def _cb_nodes_updated(self, total):
@@ -455,10 +470,10 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
             self._set_status_error(QC.translate("firewall", "Error updating rule"))
             return
 
-        if self.comboNodes.currentIndex() > 0:
-            self.send_notification(node_addr, node['firewall'], self.OP_DELETE)
-        else:
+        if self.comboNodes.currentIndex() == 0:
             self.send_notifications(node['firewall'], self.OP_DELETE)
+        else:
+            self.send_notification(node_addr, node['firewall'], self.OP_DELETE)
 
     def _cb_save_clicked(self):
         if len(self.statements) == 0:
@@ -472,12 +487,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
         ok, err = self._fw.update_rule(node_addr, self.uuid, chain)
         if not ok:
-            self._set_status_error(QC.translate("firewall", "Error updating rule: {0}".format(err)))
+            self._set_status_error(QC.translate("firewall", "Error updating rule ({0}): {1}".format(node_addr, err)))
             return
 
         self._enable_buttons(False)
-        if self.comboNodes.currentIndex() > 0:
-            self.send_notification(node_addr, node['firewall'], self.OP_SAVE)
+        if self.comboNodes.currentIndex() == 0:
+            self.send_notification(node_addr, node['firewall'], self.OP_SAVE, self.uuid)
         else:
             self.send_notifications(node['firewall'], self.OP_SAVE)
 
@@ -500,8 +515,9 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
             return
         self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
         self._enable_buttons(False)
-        if self.comboNodes.currentIndex() > 0:
-            self.send_notification(node_addr, node['firewall'], self.OP_NEW)
+
+        if self.comboNodes.currentIndex() == 0:
+            self.send_notification(node_addr, node['firewall'], self.OP_NEW, chain.Rules[0].UUID)
         else:
             self.send_notifications(node['firewall'], self.OP_NEW)
 
@@ -1146,8 +1162,9 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 
             elif exp.Statement.Name == Fw.Statements.COUNTER.value:
                 self.statements[idx]['what'].setCurrentIndex(self.STATM_COUNTER+1)
-                if exp.Statement.Values[0].Key == Fw.ExprCounter.NAME.value:
-                    self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+                for v in exp.Statement.Values:
+                    if v.Key == Fw.ExprCounter.NAME.value:
+                        self.statements[idx]['value'].setCurrentText(v.Value)
 
             else:
                 isNotSupported = True
@@ -1470,9 +1487,9 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 
         return True
 
-    def send_notification(self, node_addr, fw_config, op):
+    def send_notification(self, node_addr, fw_config, op, uuid):
         nid, notif = self._nodes.reload_fw(node_addr, fw_config, self._notification_callback)
-        self._notifications_sent[nid] = {'addr': node_addr, 'operation': op, 'notif': notif}
+        self._notifications_sent[nid] = {'addr': node_addr, 'operation': op, 'notif': notif, 'uuid': uuid}
 
     def send_notifications(self, fw_config, op):
         for addr in self._nodes.get_nodes():
