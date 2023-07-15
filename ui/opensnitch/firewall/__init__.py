@@ -84,6 +84,9 @@ class Firewall(QObject):
                 for c in n.Chains:
                     for r in c.Rules:
                         add_rule = False
+                        if nail == r.UUID:
+                            add_rule = True
+
                         if nail in c.Family or \
                                 nail in c.Hook or \
                                 nail in r.Description or \
@@ -95,7 +98,7 @@ class Firewall(QObject):
                                 if add_rule:
                                     break
                                 expr_vals = "".join("{0} {1}".format(h.Key, h.Value) for h in e.Statement.Values)
-                                print(nail in expr_vals, r.Description)
+                                #print(nail in expr_vals, r.Description)
                                 if nail in e.Statement.Op or \
                                         nail in e.Statement.Name or \
                                         nail in e.Statement.Values or \
