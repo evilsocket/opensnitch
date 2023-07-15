@@ -125,7 +125,7 @@ func (n *Nft) AddSystemRules(reload, backupExistingChains bool) {
 				}
 				if chain.Rules[i].Enabled {
 					if err4, _ := n.AddSystemRule(chain.Rules[i], chain); err4 != nil {
-						log.Warning("rule not added: %s", err4)
+						n.SendError(fmt.Sprintf("%s (%s)", err4, chain.Rules[i].UUID))
 					}
 				}
 			}

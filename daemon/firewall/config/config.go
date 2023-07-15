@@ -215,8 +215,6 @@ func (c *Config) SaveConfiguration(rawConfig string) error {
 		return err
 	}
 
-	c.loadConfiguration([]byte(rawConfig))
-
 	if err = os.Chmod(c.file, 0600); err != nil {
 		log.Warning("unable to set system-fw.json permissions: %s", err)
 	}

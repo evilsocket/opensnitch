@@ -31,6 +31,9 @@ type Firewall interface {
 
 	Serialize() (*protocol.SysFirewall, error)
 	Deserialize(sysfw *protocol.SysFirewall) ([]byte, error)
+
+	ErrorsChan() <-chan string
+	ErrChanEmpty() bool
 }
 
 var (
@@ -76,6 +79,16 @@ func Init(fwType string, qNum *int) (err error) {
 // IsRunning returns if the firewall is running or not.
 func IsRunning() bool {
 	return fw != nil && fw.IsRunning()
+}
+
+// ErrorsChan returns the channel where the errors are sent to.
+func ErrorsChan() <-chan string {
+	return fw.ErrorsChan()
+}
+
+// ErrChanEmpty checks if the errors channel is empty.
+func ErrChanEmpty() bool {
+	return fw.ErrChanEmpty()
 }
 
 // CleanRules deletes the rules we added.

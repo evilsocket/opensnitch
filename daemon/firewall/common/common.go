@@ -26,14 +26,46 @@ type (
 	// iptables and nftables.
 	Common struct {
 		RulesChecker *time.Ticker
-		stopChecker  chan bool
+		ErrChan      chan string
 		QueueNum     uint16
+		stopChecker  chan bool
 		Running      bool
 		Intercepting bool
 		FwEnabled    bool
 		sync.RWMutex
 	}
 )
+
+// ErrorsChan returns the channel where the errors are sent to.
+func (c *Common) ErrorsChan() <-chan string {
+	return c.ErrChan
+}
+
+// ErrChanEmpty checks if the errors channel is empty.
+func (c *Common) ErrChanEmpty() bool {
+	return len(c.ErrChan) == 0
+}
+
+// SendError sends an error to the channel of errors.
+func (c *Common) SendError(err string) {
+	log.Warning("%s", err)
+
+	if len(c.ErrChan) >= cap(c.ErrChan) {
+		log.Debug("fw errors channel full, emptying errChan")
+		for e := range c.ErrChan {
+			log.Warning("%s", e)
+			if c.ErrChanEmpty() {
+				break
+			}
+		}
+		return
+	}
+	select {
+	case c.ErrChan <- err:
+	case <-time.After(100 * time.Millisecond):
+		log.Warning("SendError() channel locked? REVIEW")
+	}
+}
 
 // SetQueueNum sets the queue number used by the firewall.
 // It's the queue where all intercepted connections will be sent.

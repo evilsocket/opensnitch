@@ -75,6 +75,7 @@ func (n *Nft) Init(qNum *int) {
 	if n.IsRunning() {
 		return
 	}
+	n.ErrChan = make(chan string, 100)
 	InitMapsStore()
 	n.SetQueueNum(qNum)
 	n.Conn = NewNft()

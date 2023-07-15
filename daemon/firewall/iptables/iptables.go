@@ -101,6 +101,7 @@ func (ipt *Iptables) Init(qNum *int) {
 		return
 	}
 	ipt.SetQueueNum(qNum)
+	ipt.ErrChan = make(chan string, 100)
 
 	// In order to clean up any existing firewall rule before start,
 	// we need to load the fw configuration first to know what rules

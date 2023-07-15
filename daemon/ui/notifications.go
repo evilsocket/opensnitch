@@ -194,6 +194,47 @@ func (c *Client) handleActionStopMonitorProcess(stream protocol.UI_Notifications
 	c.sendNotificationReply(stream, notification.Id, "", nil)
 }
 
+func (c *Client) handleActionReloadFw(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	log.Info("[notification] reloading firewall")
+
+	sysfw, err := firewall.Deserialize(notification.SysFirewall)
+	if err != nil {
+		log.Warning("firewall.Deserialize() error: %s", err)
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error reloading firewall, invalid rules"))
+		return
+	}
+	if err := firewall.SaveConfiguration(sysfw); err != nil {
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error saving system firewall rules: %s", err))
+		return
+	}
+	// TODO:
+	// - add new API endpoints to delete, add or change rules atomically.
+	// - a global goroutine where errors can be sent to the server (GUI).
+	go func(c *Client) {
+		var errors string
+		for {
+			select {
+			case fwerr := <-firewall.ErrorsChan():
+				errors = fmt.Sprint(errors, fwerr, ",")
+				if firewall.ErrChanEmpty() {
+					goto ExitWithError
+				}
+
+			// FIXME: can this operation last longer than 2s? if there're more than.. 100...10000 rules?
+			case <-time.After(2 * time.Second):
+				log.Debug("[notification] reload firewall. timeout fired, no errors?")
+				c.sendNotificationReply(stream, notification.Id, "", nil)
+				goto Exit
+
+			}
+		}
+	ExitWithError:
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("%s", errors))
+	Exit:
+	}(c)
+
+}
+
 func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	switch {
 	case notification.Type == protocol.Action_MONITOR_PROCESS:
@@ -224,19 +265,7 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 		c.sendNotificationReply(stream, notification.Id, "", nil)
 
 	case notification.Type == protocol.Action_RELOAD_FW_RULES:
-		log.Info("[notification] reloading firewall")
-
-		sysfw, err := firewall.Deserialize(notification.SysFirewall)
-		if err != nil {
-			log.Warning("firewall.Deserialize() error: %s", err)
-			c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error reloading firewall, invalid rules"))
-			return
-		}
-		if err := firewall.SaveConfiguration(sysfw); err != nil {
-			c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error saving system firewall rules: %s", err))
-			return
-		}
-		c.sendNotificationReply(stream, notification.Id, "", nil)
+		c.handleActionReloadFw(stream, notification)
 
 	// ENABLE_RULE just replaces the rule on disk
 	case notification.Type == protocol.Action_ENABLE_RULE:
