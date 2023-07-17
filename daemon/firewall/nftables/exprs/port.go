@@ -13,7 +13,6 @@ import (
 // NewExprPort returns a new port expression with the given matching operator.
 func NewExprPort(port string, op *expr.CmpOp) (*[]expr.Any, error) {
 	eport, err := strconv.Atoi(port)
-	fmt.Printf("%s, %d", err, eport)
 	if err != nil {
 		return nil, err
 	}

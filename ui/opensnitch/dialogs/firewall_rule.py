@@ -333,7 +333,6 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.helpButton.clicked.connect(self._cb_help_button_clicked)
         self.comboVerdict.currentIndexChanged.connect(self._cb_verdict_changed)
         self.lineVerdictParms.textChanged.connect(self._cb_verdict_parms_changed)
-        self.comboDirection.currentIndexChanged.connect(self._cb_direction_changed)
         self.checkEnable.toggled.connect(self._cb_check_enable_toggled)
         self.lineDescription.textChanged.connect(self._cb_description_changed)
 
@@ -381,10 +380,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
             return False
 
         self._load_nodes()
+        self.comboDirection.currentIndexChanged.connect(self._cb_direction_changed)
         return True
 
 
     def _close(self):
+        self.comboDirection.currentIndexChanged.disconnect(self._cb_direction_changed)
         self.hide()
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
