@@ -82,9 +82,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboAuthType.setItemData(PreferencesDialog.AUTH_SIMPLE, auth.Simple)
         self.comboAuthType.setItemData(PreferencesDialog.AUTH_TLS_SIMPLE, auth.TLSSimple)
         self.comboAuthType.setItemData(PreferencesDialog.AUTH_TLS_MUTUAL, auth.TLSMutual)
-        self.lineCACertFile.textChanged.connect(self._cb_line_certs_changed)
-        self.lineCertFile.textChanged.connect(self._cb_line_certs_changed)
-        self.lineCertKeyFile.textChanged.connect(self._cb_line_certs_changed)
 
         self.comboUIRules.currentIndexChanged.connect(self._cb_combo_uirules_changed)
 
@@ -167,6 +164,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkApplyToNodes.clicked.connect(self._cb_node_needs_update)
         self.comboDBType.currentIndexChanged.connect(self._cb_db_type_changed)
         self.checkDBMaxDays.toggled.connect(self._cb_db_max_days_toggled)
+        self.lineCACertFile.textChanged.connect(self._cb_line_certs_changed)
+        self.lineCertFile.textChanged.connect(self._cb_line_certs_changed)
+        self.lineCertKeyFile.textChanged.connect(self._cb_line_certs_changed)
 
         # True when any node option changes
         self._node_needs_update = False
