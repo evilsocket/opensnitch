@@ -14,9 +14,15 @@ func (c *Client) getSocketPath(socketPath string) string {
 	c.Lock()
 	defer c.Unlock()
 
-	if strings.HasPrefix(socketPath, "unix://") == true {
+	if strings.HasPrefix(socketPath, "unix:") == true {
 		c.isUnixSocket = true
-		return socketPath[7:]
+		c.unixSockPrefix = "unix"
+		return socketPath[5:]
+	}
+	if strings.HasPrefix(socketPath, "unix-abstract:") == true {
+		c.isUnixSocket = true
+		c.unixSockPrefix = "unix-abstract"
+		return socketPath[14:]
 	}
 
 	c.isUnixSocket = false

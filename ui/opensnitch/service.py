@@ -501,7 +501,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._stats_dialog._status_changed_trigger.emit(not enable)
 
     def _is_local_request(self, proto, addr):
-        if proto == "unix":
+        if proto == "unix" or proto == "unix-abstract":
             return True
 
         elif proto == "ipv4" or proto == "ipv6":

@@ -41,13 +41,14 @@ type Client struct {
 	clientCtx    context.Context
 	clientCancel context.CancelFunc
 
-	stats         *statistics.Statistics
-	rules         *rule.Loader
-	socketPath    string
-	isUnixSocket  bool
-	con           *grpc.ClientConn
-	client        protocol.UIClient
-	configWatcher *fsnotify.Watcher
+	stats          *statistics.Statistics
+	rules          *rule.Loader
+	socketPath     string
+	unixSockPrefix string
+	isUnixSocket   bool
+	con            *grpc.ClientConn
+	client         protocol.UIClient
+	configWatcher  *fsnotify.Watcher
 
 	isConnected         chan bool
 	alertsChan          chan protocol.Alert
@@ -231,6 +232,7 @@ func (c *Client) connect() (err error) {
 	}
 
 	if err := c.openSocket(); err != nil {
+		log.Debug("connect() %s", err)
 		c.disconnect()
 		return err
 	}
@@ -245,10 +247,14 @@ func (c *Client) openSocket() (err error) {
 	c.Lock()
 	defer c.Unlock()
 
+	dialOption, err := auth.New(&clientConfig)
+	if err != nil {
+		return fmt.Errorf("Invalid client auth options: %s", err)
+	}
 	if c.isUnixSocket {
-		c.con, err = grpc.Dial(c.socketPath, grpc.WithInsecure(),
+		c.con, err = grpc.Dial(c.socketPath, dialOption,
 			grpc.WithDialer(func(addr string, timeout time.Duration) (net.Conn, error) {
-				return net.DialTimeout("unix", addr, timeout)
+				return net.DialTimeout(c.unixSockPrefix, addr, timeout)
 			}))
 	} else {
 		// https://pkg.go.dev/google.golang.org/grpc/keepalive#ClientParameters
@@ -261,10 +267,6 @@ func (c *Client) openSocket() (err error) {
 			PermitWithoutStream: true,
 		}
 
-		dialOption, err := auth.New(&clientConfig)
-		if err != nil {
-			return fmt.Errorf("Invalid client auth options: %s", err)
-		}
 		c.con, err = grpc.Dial(c.socketPath, dialOption, grpc.WithKeepaliveParams(kacp))
 	}
 
