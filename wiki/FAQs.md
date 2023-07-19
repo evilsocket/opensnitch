@@ -31,6 +31,14 @@ $ sudo systemctl enable opensnitchd
 $ sudo systemctl start opensnitchd.service 
 ```
 
+**No rules shown in the UI**
+
+Check that the daemon is running: `$ pgrep opensnitchd` . Status should be "Running".
+
+Click on the Rules -> Nodes -> `<node address>` , and see if the rules are listed.
+
+Some more info: [#988](https://github.com/evilsocket/opensnitch/issues/988#issuecomment-1634152487)
+
 **Why is WireGuard/Mullvad/etc not working with OpenSnitch?**
 
 The common reason is because the eBPF module is not installed or not working.
