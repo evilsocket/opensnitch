@@ -42,6 +42,8 @@ Now you should see the events on your SIEM, for example:
 
 ![image](https://user-images.githubusercontent.com/2742953/167288109-4f791761-e826-4619-b042-e3a580782e79.png)
 
+
+
 Howto configure OpenSnitch with Grafana+Loki+promtail+syslog-ng
 ---
 
@@ -93,3 +95,56 @@ Howto configure OpenSnitch with Grafana+Loki+promtail+syslog-ng
 The zip file contains a `dashboard.json`. Hover the mouse over the `+` icon, click on Import and paste the content of the file.
 
 Then you can open the dashboard and monitorized the events.
+
+
+
+
+
+Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
+---
+
+
+1. Unzip this file [opensnitch-elasticstack-siem.zip](https://github.com/evilsocket/opensnitch/files/12095966/opensnitch-elasticstack-siem.zip)
+
+   The setup is based on the following example, so all the commands to set it up applies:
+   [https://github.com/grafana/loki/tree/main/examples/getting-started](https://github.com/yangjunsss/docker-elk-syslog)
+
+   Note: The example is modified to use versions 8.7.1 instead of 5.4. To review the changes execute from that directory `git diff .`
+
+   Docs:
+   https://www.elastic.co/guide/en/logstash/current/plugins-inputs-tcp.html
+   https://www.elastic.co/guide/en/logstash/current/plugins-inputs-udp.html
+
+1. Enter into the directory where the `docker-compose.yaml` is and execute:
+   ```bash
+   # docker-compose up -d
+   Recreating docker-elk-elasticsearch_logstash_1 ... 
+   Recreating docker-elk-elasticsearch_logstash_1 ... done
+   Recreating docker-elk-syslog_logstash_1 ... 
+   Recreating docker-elk-syslog_logstash_1 ... done
+   Recreating docker-elk-kibana_logstash_1 ... 
+   Recreating docker-elk-kibana_logstash_1 ... done
+   ```
+   
+2. Add logger configuration as explained above to send events to 127.0.0.1 on port 514:
+```json
+    "Server": {
+        (...)
+        "Loggers": [
+            {
+                "Name": "remote",
+                "Server": "127.0.0.1:3333",
+                "Protocol": "tcp",
+                "Format": "json",
+                "Tag": "opensnitchd"
+            }
+        ]
+    },
+```
+
+4. Restart opensnitch: `# service opensnitch restart`
+5. Execute `docker ps` and verify that nginx, grafana, promtail, syslog-ng and loki are running.
+6. Open a web browser and open `127.0.0.1:3000` . Login with admin:admin
+7. Go to Configuration -> Data Sources -> click on Test, and verify that the `Data source is connected and labels found`
+8. Go to Explore -> select Loki in the combo box and expand the "Log browser" dropdown box. There should be a label named "opensnitch"
+9. Click on it, and execute the query to list the events collected.
