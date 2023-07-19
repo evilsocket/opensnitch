@@ -72,6 +72,9 @@ You can also use the server public certificate to authenticate all nodes, by rep
 # If we don't add this, the authentication will fail with "SSLV3_ALERT_BAD_CERTIFICATE".
 # The DNS entry can be ommited, but IP.1: no.
 # If the GUI is listening on another IP, set IP.1: to the server IP.
+#
+# For unix sockets use the address of the socket without "unix:" or "unix-abstract:":
+# DNS:///run/user/1000/opensnitch/osui.sock or DNS:my-abstract-socket
 ~ $ echo "subjectAltName=DNS:localhost,IP.1:127.0.0.1" > server-ext.cnf
 
 # 4. Use CA's private key to sign web server's CSR and get back the signed certificate
