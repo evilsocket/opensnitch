@@ -20,7 +20,7 @@
       2. [Configuration examples](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Nodes-authentication.md#configuration-examples)
       3. [Generating TLS certificates](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/Nodes-authentication.md#generating-tls-certificates)
    10. [SIEM integration](SIEM-integration)
-       1. [Grafana + Loki](https://github.com/evilsocket/opensnitch/blob/wiki/wiki/SIEM-integration.md#howto-configure-opensnitch-with-grafanalokipromtailsyslog-ng)
+       1. [Grafana + Loki](https://github.com/evilsocket/opensnitch/wiki/SIEM-integration#howto-configure-opensnitch-with-grafanalokipromtailsyslog-ng)
 5. [Compilation](Compilation)
    1. [Cross-compilation for arm](Cross-compilation)
    2. [Building packages with pbuilder](Building-packages-with-pbuilder)
