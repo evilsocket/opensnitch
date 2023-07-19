@@ -169,6 +169,8 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
 ![image](https://github.com/evilsocket/opensnitch/assets/2742953/48fbc1ab-a30c-4adf-95ff-b918288dce8d)
 
 
+9. To create a dashboard to visualize the data, go to Analytics -> Dashboard -> Create dasboard
+
 ![image](https://github.com/evilsocket/opensnitch/assets/2742953/9c5a8bfc-98e5-406b-81fd-b6ac7b22e866)
 
 
