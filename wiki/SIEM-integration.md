@@ -115,7 +115,7 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
    https://www.elastic.co/guide/en/logstash/current/plugins-inputs-tcp.html
    https://www.elastic.co/guide/en/logstash/current/plugins-inputs-udp.html
 
-1. Enter into the directory where the `docker-compose.yaml` is and execute:
+1. Enter into the directory where the `docker-compose.yml` is and execute:
    ```bash
    # docker-compose up -d
    Recreating docker-elk-elasticsearch_logstash_1 ... 
@@ -126,7 +126,7 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
    Recreating docker-elk-kibana_logstash_1 ... done
    ```
    
-2. Add logger configuration as explained above to send events to 127.0.0.1 on port 514:
+2. Add the logger configuration as explained above to send events to 127.0.0.1 on port 3333:
 ```json
     "Server": {
         (...)
@@ -143,8 +143,50 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
 ```
 
 4. Restart opensnitch: `# service opensnitch restart`
-5. Execute `docker ps` and verify that nginx, grafana, promtail, syslog-ng and loki are running.
-6. Open a web browser and open `127.0.0.1:3000` . Login with admin:admin
-7. Go to Configuration -> Data Sources -> click on Test, and verify that the `Data source is connected and labels found`
-8. Go to Explore -> select Loki in the combo box and expand the "Log browser" dropdown box. There should be a label named "opensnitch"
-9. Click on it, and execute the query to list the events collected.
+5. Execute `docker ps` and verify that elasticsearch, logstash and kibana are running.
+
+    If everything went fine, LogStash should be receiving events like this one:
+       ```
+        {
+        "@timestamp" => 2023-07-19T13:49:54.546806822Z,
+          "document" => {
+              "Type" => 0,
+              "Rule" => "000-allow-domains",
+            "Action" => "allow",
+             "Event" => {
+                    "protocol" => "udp",
+                      "dst_ip" => "9.9.9.9",
+                "process_args" => [
+                    [0] "/usr/bin/firefox-esr"
+                ],
+        (...)
+        }
+       ```
+   
+7. Open a web browser and head to `127.0.0.1:5601`.
+8. Click on the left Menu -> Analytics -> Discover to view collected events:
+
+![image](https://github.com/evilsocket/opensnitch/assets/2742953/48fbc1ab-a30c-4adf-95ff-b918288dce8d)
+
+
+![image](https://github.com/evilsocket/opensnitch/assets/2742953/9c5a8bfc-98e5-406b-81fd-b6ac7b22e866)
+
+
+### Troubleshooting Elastic stack
+
+ - Verify that the TCP port 3333 is open:
+
+   ```bash
+   ~ $ ss -lptn | grep 3333
+    LISTEN 0      1024   [::ffff:127.0.0.1]:3333             *:*    users:(("java",pid=3625239,fd=107))
+   ```
+
+   You should be able to connect: `~ $ telnet 127.0.0.1 3333`
+
+ - If it's not open, analyze LogStash container logs: `~ $ docker logs -f -n 100 ec4e3b0t7d87`
+
+   There should be a log line like this one:
+   `[2023-07-19T13:40:11,945][INFO ][logstash.inputs.tcp      ][main][cbc1d83a3460288f8b2c2a0399fe2b85eab0199a0a58318f75a4f931f9175f9e] Starting tcp input listener {:address=>"127.0.0.1:3333", :ssl_enable=>false}`
+
+
+ - If you cannot connect, disable opensnitch's System firewall from the GUI, or set Enable to false in /etc/opensnitchd/system-fw.json and try again.
