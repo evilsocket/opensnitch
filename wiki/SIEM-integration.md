@@ -28,10 +28,10 @@ syslog logger possible fields and values:
 
 |Option|Description|
 |-------|-------|
-|Name|Name that identifies the logger: syslog|
+|Name|Name that identifies the logger: syslog, remote or remote_syslog|
 |Server|Server address. Leave it empty to log events to the local daemon|
 |Protocol|Only applicable if Server is not empty|
-|Format|possible values: rfc5424,csv . RFC5424 will log events witht the format KEY=VALUE|
+|Format|possible values: rfc3164, rfc5424, csv or json. RFC5424 will log events witht the format KEY=VALUE|
 |Tag|Optional tag to identify events in the syslog. If empty, syslog will use the name of the daemon|
 
 After modify the configuration, restart OpenSnitch.
@@ -145,8 +145,10 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
 4. Restart opensnitch: `# service opensnitch restart`
 5. Execute `docker ps` and verify that elasticsearch, logstash and kibana are running.
 
-    If everything went fine, LogStash should be receiving events like this one:
-       ```
+    If everything went fine, LogStash should be receiving events like this one (`docker logs -f -n 100 <container id>`)
+:
+   
+   ```
         {
         "@timestamp" => 2023-07-19T13:49:54.546806822Z,
           "document" => {
@@ -161,34 +163,48 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
                 ],
         (...)
         }
-       ```
+   ```
    
 7. Open a web browser and head to `127.0.0.1:5601`.
-8. Click on the left Menu -> Analytics -> Discover to view collected events:
+8. You'll need to create a Data View with a pattern to match a Data Stream, for example: `logs-*`
+
+![image](https://github.com/evilsocket/opensnitch/assets/2742953/ae83767d-1a7d-422e-acc4-c9d38526ddd8)
+
+
+9. Click on the left Menu -> Analytics -> Discover, to view collected events:
 
 ![image](https://github.com/evilsocket/opensnitch/assets/2742953/48fbc1ab-a30c-4adf-95ff-b918288dce8d)
 
 
-9. To create a dashboard to visualize the data, go to Analytics -> Dashboard -> Create dasboard
+10. To create a dashboard to visualize the data, go to Analytics -> Dashboard -> Create Dasboard
 
-![image](https://github.com/evilsocket/opensnitch/assets/2742953/9c5a8bfc-98e5-406b-81fd-b6ac7b22e866)
+![image](https://github.com/evilsocket/opensnitch/assets/2742953/c7926f9f-5732-49c9-8473-6e61da7af095)
 
+**Notes**
+
+ - Configure data retention policy to reduce the size of the DB:
+   
+   Management -> Data -> Index Lifecycle Policies -> Delete phase
+
+ - 
 
 ### Troubleshooting Elastic stack
 
- - Verify that the TCP port 3333 is open:
+ - Verify that the TCP ports 3333 and 9200 are open:
 
    ```bash
-   ~ $ ss -lptn | grep 3333
-    LISTEN 0      1024   [::ffff:127.0.0.1]:3333             *:*    users:(("java",pid=3625239,fd=107))
+   ~ $ ss -lptn | grep -E "(3333|9200)"
+     tcp   LISTEN 0      1024                            [::ffff:127.0.0.1]:3333                   *:*    users:(("java",pid=3712866,fd=107))                                  
+     tcp   LISTEN 0      4096                                             *:9200                   *:*    users:(("java",pid=3712294,fd=412))
    ```
 
    You should be able to connect: `~ $ telnet 127.0.0.1 3333`
 
- - If it's not open, analyze LogStash container logs: `~ $ docker logs -f -n 100 ec4e3b0t7d87`
+ - If it's not open, analyze LogStash and Elasticsearch container logs: `~ $ docker logs -f -n 100 ec4e3b0t7d87`
 
-   There should be a log line like this one:
+   There should be a log line like this one in Logstash:
    `[2023-07-19T13:40:11,945][INFO ][logstash.inputs.tcp      ][main][cbc1d83a3460288f8b2c2a0399fe2b85eab0199a0a58318f75a4f931f9175f9e] Starting tcp input listener {:address=>"127.0.0.1:3333", :ssl_enable=>false}`
 
+   Also review elasticsearch/data/ directory permissions, and be sure that the user that started the container can write there.
 
- - If you cannot connect, disable opensnitch's System firewall from the GUI, or set Enable to false in /etc/opensnitchd/system-fw.json and try again.
+ - If you cannot connect to ports 3333 / 9200, disable opensnitch's System firewall from the GUI, or set Enable to false in /etc/opensnitchd/system-fw.json and try again.
