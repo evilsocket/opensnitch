@@ -850,34 +850,41 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         })
 
         if self.uidCheck.isChecked():
-            if self.uidCombo.currentText() == "":
+            uidType = Config.RULE_TYPE_SIMPLE
+            uid = self.uidCombo.currentText()
+
+            if uid == "":
                 return False, QC.translate("rules", "User ID can not be empty")
+
             try:
                 # sometimes when loading a rule, instead of the UID, the format
                 # "user (uid)" is set. So try to parse it, in order not to save
                 # a wrong uid.
-                uidtmp = self.uidCombo.currentText().split(" ")
+                uidtmp = uid.split(" ")
                 if len(uidtmp) == 1:
                     int(uidtmp[0])
-                    uid = self.uidCombo.currentText()
                 else:
                     uid = str(pwd.getpwnam(uidtmp[0])[self.PW_UID])
             except:
-                return False, QC.translate("rules", "Invalid UID, it must be a digit.")
+                # if it's not a digit and nor a system user (user (id)), see if
+                # it's a regexp.
+                if self._is_regex(self.uidCombo.currentText()):
+                    uidType = Config.RULE_TYPE_REGEXP
+                    if self._is_valid_regex(self.uidCombo.currentText()) == False:
+                        return False, QC.translate("rules", "User ID regexp error")
+
+                else:
+                    return False, QC.translate("rules", "Invalid UID, it must be a digit.")
 
             self.rule.operator.operand = Config.OPERAND_USER_ID
             self.rule.operator.data = self.uidCombo.currentText()
             rule_data.append(
                     {
-                        'type': Config.RULE_TYPE_SIMPLE,
+                        'type': uidType,
                         'operand': Config.OPERAND_USER_ID,
                         'data': uid,
                         "sensitive": self.sensitiveCheck.isChecked()
                         })
-            if self._is_regex(self.uidCombo.currentText()):
-                rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
-                if self._is_valid_regex(self.uidCombo.currentText()) == False:
-                    return False, QC.translate("rules", "User ID regexp error")
 
         if self.pidCheck.isChecked():
             if self.pidLine.text() == "":
