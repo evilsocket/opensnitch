@@ -101,6 +101,19 @@ class Rules(QObject):
     def delete_by_field(self, field, values):
         return self._db.delete_rules_by_field(field, values)
 
+    def new_unique_name(self, rule_name, node_addr, prefix):
+        """generate a new name, if the supplied one already exists
+        """
+        if self._db.get_rule(rule_name, node_addr).next() == False:
+            return rule_name
+
+        for idx in range(0, 100):
+            new_rule_name = "{0}-{1}".format(rule_name, idx)
+            if self._db.get_rule(new_rule_name, node_addr).next() == False:
+                return new_rule_name
+
+        return rule_name
+
     def update_time(self, time, name, addr):
         """Updates the time of a rule, whenever a new connection matched a
         rule.

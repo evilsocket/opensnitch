@@ -16,6 +16,8 @@ from opensnitch.utils import Icons
 from opensnitch.desktop_parser import LinuxDesktopParser
 from opensnitch.config import Config
 from opensnitch.version import version
+from opensnitch.actions import Actions
+from opensnitch.rules import Rules
 
 from opensnitch import ui_pb2
 
@@ -55,6 +57,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
         # Other interesting flags: QtCore.Qt.Tool | QtCore.Qt.BypassWindowManagerHint
         self._cfg = Config.get()
+        self._rules = Rules.instance()
+
         self.setupUi(self)
         self.setWindowIcon(appicon)
         self.installEventFilter(self)
@@ -649,7 +653,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._rule.operator.type = Config.RULE_TYPE_LIST
                 self._rule.operator.operand = Config.RULE_TYPE_LIST
 
-            self._rule.name = rule_temp_name
+            self._rule.name = self._rules.new_unique_name(rule_temp_name, self._peer, "")
 
             self.hide()
             if self._ischeckAdvanceded:
