@@ -101,6 +101,9 @@ class Rules(QObject):
     def delete_by_field(self, field, values):
         return self._db.delete_rules_by_field(field, values)
 
+    def exists(self, rule, node_addr):
+        return self._db.rule_exists(rule, node_addr)
+
     def new_unique_name(self, rule_name, node_addr, prefix):
         """generate a new name, if the supplied one already exists
         """

@@ -653,7 +653,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._rule.operator.type = Config.RULE_TYPE_LIST
                 self._rule.operator.operand = Config.RULE_TYPE_LIST
 
-            self._rule.name = self._rules.new_unique_name(rule_temp_name, self._peer, "")
+            exists = self._rules.exists(self._rule, self._peer)
+            if not exists:
+                self._rule.name = self._rules.new_unique_name(rule_temp_name, self._peer, "")
 
             self.hide()
             if self._ischeckAdvanceded:

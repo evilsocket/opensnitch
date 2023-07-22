@@ -549,3 +549,27 @@ class Database:
                     rule.action, rule.duration, rule.operator.type,
                     str(rule.operator.sensitive), rule.operator.operand, rule.operator.data),
                 action_on_conflict="IGNORE")
+
+    def rule_exists(self, rule, node_addr):
+        qstr = "SELECT node, name, action, duration, operator_type, operator_operand, operator_data " \
+            " FROM rules WHERE " \
+            "name=? AND " \
+            "node=? AND " \
+            "action=? AND " \
+            "duration=? AND " \
+            "operator_type=? AND " \
+            "operator_operand=? AND " \
+            "operator_data=?"
+        q = QSqlQuery(qstr, self.db)
+        q.prepare(qstr)
+        q.addBindValue(rule.name)
+        q.addBindValue(node_addr)
+        q.addBindValue(rule.action)
+        q.addBindValue(rule.duration)
+        q.addBindValue(rule.operator.type)
+        q.addBindValue(rule.operator.operand)
+        q.addBindValue(rule.operator.data)
+        if not q.exec_() or q.next() == False:
+            return None
+
+        return q
