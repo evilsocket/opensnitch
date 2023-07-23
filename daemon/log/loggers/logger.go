@@ -49,6 +49,12 @@ func NewLoggerManager() *LoggerManager {
 func (l *LoggerManager) Load(configs []LoggerConfig, workers int) {
 	for _, cfg := range configs {
 		switch cfg.Name {
+		case LOGGER_REMOTE:
+			if lgr, err := NewRemote(&cfg); err == nil {
+				l.count++
+				l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
+				workers += cfg.Workers
+			}
 		case LOGGER_REMOTE_SYSLOG:
 			if lgr, err := NewRemoteSyslog(&cfg); err == nil {
 				l.count++
@@ -70,7 +76,7 @@ func (l *LoggerManager) Load(configs []LoggerConfig, workers int) {
 
 	l.msgs = make(chan []interface{}, workers)
 	for i := 0; i < workers; i++ {
-		go l.newWorker(i)
+		go newWorker(i, l)
 	}
 
 }
@@ -81,7 +87,7 @@ func (l *LoggerManager) write(args ...interface{}) {
 	}
 }
 
-func (l *LoggerManager) newWorker(id int) {
+func newWorker(id int, l *LoggerManager) {
 	for {
 		for msg := range l.msgs {
 			l.write(msg)

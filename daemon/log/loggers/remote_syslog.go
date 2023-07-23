@@ -54,7 +54,9 @@ func NewRemoteSyslog(cfg *LoggerConfig) (*RemoteSyslog, error) {
 
 	// list of allowed formats for this logger
 	sys.logFormat = formats.NewRfc5424()
-	if cfg.Format == formats.CSV {
+	if cfg.Format == formats.RFC3164 {
+		sys.logFormat = formats.NewRfc3164()
+	} else if cfg.Format == formats.CSV {
 		sys.logFormat = formats.NewCSV()
 	}
 
@@ -86,7 +88,9 @@ func (s *RemoteSyslog) Open() (err error) {
 	if s.cfg.Server == "" {
 		return fmt.Errorf("[%s] Server address must not be empty", s.Name)
 	}
+	s.mu.Lock()
 	s.netConn, err = s.Dial(s.cfg.Protocol, s.cfg.Server, s.Timeout*5)
+	s.mu.Unlock()
 
 	if err == nil {
 		atomic.StoreUint32(&s.status, CONNECTED)
@@ -98,9 +102,7 @@ func (s *RemoteSyslog) Open() (err error) {
 func (s *RemoteSyslog) Dial(proto, addr string, connTimeout time.Duration) (netConn net.Conn, err error) {
 	switch proto {
 	case "udp", "tcp":
-		s.mu.Lock()
 		netConn, err = net.DialTimeout(proto, addr, connTimeout)
-		s.mu.Unlock()
 		if err != nil {
 			return nil, err
 		}
@@ -157,20 +159,17 @@ func (s *RemoteSyslog) Write(msg string) {
 	// Reopening the connection with the server helps to resume sending events to syslog,
 	// and have a continuous stream of events. Otherwise it'd stop working.
 	// I haven't figured out yet why these write errors ocurr.
-	switch s.netConn.(type) {
-	case *net.TCPConn, *net.UDPConn:
-		s.mu.RLock()
-		s.netConn.SetWriteDeadline(deadline)
-		_, err := s.netConn.Write([]byte(s.formatLine(msg)))
-		s.mu.RUnlock()
+	s.mu.RLock()
+	s.netConn.SetWriteDeadline(deadline)
+	_, err := s.netConn.Write([]byte(msg))
+	s.mu.RUnlock()
 
-		if err != nil {
-			log.Debug("[%s] %s write error: %v", s.Name, s.cfg.Protocol, err.(net.Error))
-			atomic.AddUint32(&s.errors, 1)
-			if atomic.LoadUint32(&s.errors) > maxAllowedErrors {
-				s.ReOpen()
-				return
-			}
+	if err != nil {
+		log.Debug("[%s] %s write error: %v", s.Name, s.cfg.Protocol, err.(net.Error))
+		atomic.AddUint32(&s.errors, 1)
+		if atomic.LoadUint32(&s.errors) > maxAllowedErrors {
+			s.ReOpen()
+			return
 		}
 	}
 }

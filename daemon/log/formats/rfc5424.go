@@ -25,11 +25,15 @@ func NewRfc5424() *Rfc5424 {
 
 // Transform takes input arguments and formats them to RFC5424 format.
 func (r *Rfc5424) Transform(args ...interface{}) (out string) {
+	hostname := ""
+	tag := ""
 	arg1 := args[0]
-	arg2 := args[1]
-	arg3 := args[2]
-	hostname := arg2.(string)
-	tag := arg3.(string)
+	if len(args) > 1 {
+		arg2 := args[1]
+		arg3 := args[2]
+		hostname = arg2.(string)
+		tag = arg3.(string)
+	}
 	values := arg1.([]interface{})
 	for n, val := range values {
 		switch val.(type) {
