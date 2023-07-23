@@ -220,10 +220,6 @@ func findInAlreadyEstablishedTCP(proto string, srcPort uint, srcIP net.IP, dstIP
 func findAddressInLocalAddresses(addr net.IP) bool {
 	lock.Lock()
 	defer lock.Unlock()
-	for _, a := range localAddresses {
-		if addr.String() == a.String() {
-			return true
-		}
-	}
-	return false
+	_, found := localAddresses[addr.String()]
+	return found
 }

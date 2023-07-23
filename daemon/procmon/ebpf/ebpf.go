@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"net"
 	"sync"
 	"syscall"
 	"unsafe"
@@ -14,6 +13,7 @@ import (
 	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
 	elf "github.com/iovisor/gobpf/elf"
+	"github.com/vishvananda/netlink"
 )
 
 //contains pointers to ebpf maps for a given protocol (tcp/udp/v6)
@@ -48,14 +48,15 @@ var (
 		TCP:   make(map[*daemonNetlink.Socket]int),
 		TCPv6: make(map[*daemonNetlink.Socket]int),
 	}
-	ctxTasks, cancelTasks = context.WithCancel(context.Background())
-	running               = false
+	ctxTasks    context.Context
+	cancelTasks context.CancelFunc
+	running     = false
 
 	maxKernelEvents = 32768
 	kernelEvents    = make(chan interface{}, maxKernelEvents)
 
 	// list of local addresses of this machine
-	localAddresses []net.IP
+	localAddresses = make(map[string]netlink.Addr)
 
 	hostByteOrder binary.ByteOrder
 )
@@ -108,6 +109,7 @@ func Start() error {
 		}
 	}
 
+	ctxTasks, cancelTasks = context.WithCancel(context.Background())
 	ebpfCache = NewEbpfCache()
 	initEventsStreamer()
 
