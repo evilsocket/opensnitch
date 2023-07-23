@@ -15,22 +15,29 @@ func LoadEbpfModule(module string) (m *elf.Module, err error) {
 		paths      = []string{
 			fmt.Sprint("/usr/local/lib", modulesDir),
 			fmt.Sprint("/usr/lib", modulesDir),
-			fmt.Sprint("/etc/opensnitchd"), // deprecated
+			fmt.Sprint("/etc/opensnitchd"), // Deprecated: will be removed in future versions.
 		}
 	)
-	modulesPath := ""
-	for _, p := range paths {
-		modulesPath = p
-		m = elf.NewModule(fmt.Sprint(modulesPath, "/", module))
+	modulePath := ""
+	moduleError := fmt.Errorf(`Module not found (%s) in any of the paths.
+You may need to install the corresponding package`, module)
 
-		if err = m.Load(nil); err == nil {
-			log.Info("[eBPF] module loaded: %s/%s", modulesPath, module)
+	for _, p := range paths {
+		modulePath = fmt.Sprint(p, "/", module)
+		log.Debug("[eBPF] trying to load %s", modulePath)
+		if !Exists(modulePath) {
+			continue
+		}
+		m = elf.NewModule(modulePath)
+
+		if m.Load(nil) == nil {
+			log.Info("[eBPF] module loaded: %s", modulePath)
 			return m, nil
 		}
-		log.Debug("ebpf module not found: %s, %s/%s", err, modulesPath, module)
-	}
-
-	return m, fmt.Errorf(`
+		moduleError = fmt.Errorf(`
 unable to load eBPF module (%s). Your kernel version (%s) might not be compatible.
 If this error persists, change process monitor method to 'proc'`, module, GetKernelVersion())
+	}
+
+	return m, moduleError
 }
