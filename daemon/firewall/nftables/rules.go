@@ -96,6 +96,12 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 		Table:    table,
 		Chain:    chain,
 		Exprs: []expr.Any{
+			&expr.Meta{Key: expr.MetaKeyL4PROTO, Register: 1},
+			&expr.Cmp{
+				Op:       expr.CmpOpNeq,
+				Register: 1,
+				Data:     []byte{unix.IPPROTO_TCP},
+			},
 			&expr.Ct{Register: 1, SourceRegister: false, Key: expr.CtKeySTATE},
 			&expr.Bitwise{
 				SourceRegister: 1,
@@ -113,6 +119,58 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 		// rule key, to allow get it later by key
 		UserData: []byte(InterceptionRuleKey),
 	})
+
+	/* nft --debug=netlink add rule inet mangle output tcp flags '& (fin|syn|rst|ack) == syn' queue bypass num 0
+	[ meta load l4proto => reg 1 ]
+	[ cmp eq reg 1 0x00000006 ]
+	[ payload load 1b @ transport header + 13 => reg 1 ]
+	[ bitwise reg 1 = ( reg 1 & 0x00000002 ) ^ 0x00000000 ]
+	[ cmp neq reg 1 0x00000000 ]
+	[ queue num 0 bypass ]
+
+	Intercept packets *only* with the SYN flag set.
+	Using 'ct state NEW' causes to intercept packets with other flags set, which
+	sometimes means that we receive outbound connections not in the expected order:
+	  443:1.1.1.1 -> 192.168.123:12345 (bits ACK, ACK+PSH or SYN+ACK set)
+	*/
+	n.Conn.AddRule(&nftables.Rule{
+		Position: 0,
+		Table:    table,
+		Chain:    chain,
+		Exprs: []expr.Any{
+			&expr.Meta{Key: expr.MetaKeyL4PROTO, Register: 1},
+			&expr.Cmp{
+				Op:       expr.CmpOpEq,
+				Register: 1,
+				Data:     []byte{unix.IPPROTO_TCP},
+			},
+			&expr.Payload{
+				DestRegister: 1,
+				Base:         expr.PayloadBaseTransportHeader,
+				Offset:       13,
+				Len:          1,
+			},
+			&expr.Bitwise{
+				DestRegister:   1,
+				SourceRegister: 1,
+				Len:            1,
+				Mask:           []byte{0x17},
+				Xor:            []byte{0x00},
+			},
+			&expr.Cmp{
+				Op:       expr.CmpOpEq,
+				Register: 1,
+				Data:     []byte{0x02},
+			},
+			&expr.Queue{
+				Num:  n.QueueNum,
+				Flag: expr.QueueFlagBypass,
+			},
+		},
+		// rule key, to allow get it later by key
+		UserData: []byte(InterceptionRuleKey),
+	})
+
 	// apply changes
 	if !n.Commit() {
 		return fmt.Errorf("Error adding interception rule "), nil
