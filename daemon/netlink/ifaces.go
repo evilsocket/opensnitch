@@ -21,7 +21,7 @@ func GetLocalAddrs() map[string]netlink.Addr {
 	return localAddresses
 }
 
-// AddrUpdateToAddr translate AddrUpdate struct to Addr
+// AddrUpdateToAddr translates AddrUpdate struct to Addr.
 func AddrUpdateToAddr(addr *netlink.AddrUpdate) netlink.Addr {
 	return netlink.Addr{
 		IPNet:       &addr.LinkAddress,
