@@ -10,6 +10,18 @@ import (
 	"github.com/google/nftables/expr"
 )
 
+// https://github.com/evilsocket/opensnitch/blob/master/daemon/firewall/nftables/exprs/iface.go#L22
+func ifname(n string) []byte {
+	buf := make([]byte, 16)
+	length := len(n)
+	// allow wildcards
+	if n[length-1:] == "*" {
+		return []byte(n[:length-1])
+	}
+	copy(buf, []byte(n+"\x00"))
+	return buf
+}
+
 func TestExprIface(t *testing.T) {
 	nftest.SkipIfNotPrivileged(t)
 
@@ -25,6 +37,7 @@ func TestExprIface(t *testing.T) {
 	tests := []ifaceTestsT{
 		{"test-in-iface-xxx", "in-iface0", false},
 		{"test-out-iface-xxx", "out-iface0", true},
+		{"test-out-iface-xxx-wildcard", "out-iface*", true},
 	}
 
 	for _, test := range tests {
@@ -59,10 +72,8 @@ func TestExprIface(t *testing.T) {
 			if !ok {
 				t.Errorf("invalid iface cmp expr: %T", e)
 			}
-			ifaceBytes := make([]byte, 16)
-			copy(ifaceBytes, test.iface)
-			if !bytes.Equal(lCmp.Data, ifaceBytes) {
-				t.Errorf("iface Cmp does not match: %v, expected: %v", lCmp.Data, ifaceBytes)
+			if !bytes.Equal(lCmp.Data, ifname(test.iface)) {
+				t.Errorf("iface Cmp does not match: %v, expected: %v", lCmp.Data, ifname(test.iface))
 			}
 		})
 	}

@@ -144,14 +144,16 @@ Supported formats:
             },
             self.STATM_IIFNAME: {
                 'name': Fw.Statements.IIFNAME.value,
-                'tooltip': QC.translate("firewall", "Match input interface. Regular expressions not allowed."),
+                'tooltip': QC.translate("firewall", """Match input interface. Regular expressions not allowed.
+Use * to match multiple interfaces."""),
                 'keys': [
                     {'key': "", 'values': []}
                 ]
             },
             self.STATM_OIFNAME: {
                 'name': Fw.Statements.OIFNAME.value,
-                'tooltip': QC.translate("firewall", "Match output interface. Regular expressions not allowed."),
+                'tooltip': QC.translate("firewall", """Match output interface. Regular expressions not allowed.
+Use * to match multiple interfaces."""),
                 'keys': [
                     {'key': "", 'values': []}
                 ]
