@@ -40,7 +40,7 @@ func (n *Nft) AreRulesLoaded() bool {
 			}
 		}
 	}
-	// we expect to have exactly 3 rules (2 queue and dns). If there're less or more, then we
+	// we expect to have exactly 3 rules (2 queue and 1 dns). If there're less or more, then we
 	// need to reload them.
 	if nRules != 3 {
 		log.Warning("nfables filter rules not loaded: %d", nRules)
