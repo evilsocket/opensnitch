@@ -157,3 +157,14 @@ func KillSocket(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPort 
 		}
 	}
 }
+
+// SocketsAreEqual compares 2 different sockets to see if they match.
+func SocketsAreEqual(aSocket, bSocket *Socket) bool {
+	return ((*aSocket).INode == (*bSocket).INode &&
+		//inodes are unique enough, so the matches below will never have to be checked
+		(*aSocket).ID.SourcePort == (*bSocket).ID.SourcePort &&
+		(*aSocket).ID.Source.Equal((*bSocket).ID.Source) &&
+		(*aSocket).ID.Destination.Equal((*bSocket).ID.Destination) &&
+		(*aSocket).ID.DestinationPort == (*bSocket).ID.DestinationPort &&
+		(*aSocket).UID == (*bSocket).UID)
+}

@@ -107,7 +107,7 @@ func monitorAlreadyEstablished() {
 			for aesock := range alreadyEstablished.TCP {
 				found := false
 				for _, sock := range socketListTCP {
-					if socketsAreEqual(aesock, sock) {
+					if daemonNetlink.SocketsAreEqual(aesock, sock) {
 						found = true
 						break
 					}
@@ -128,7 +128,7 @@ func monitorAlreadyEstablished() {
 				for aesock := range alreadyEstablished.TCPv6 {
 					found := false
 					for _, sock := range socketListTCPv6 {
-						if socketsAreEqual(aesock, sock) {
+						if daemonNetlink.SocketsAreEqual(aesock, sock) {
 							found = true
 							break
 						}
@@ -143,14 +143,4 @@ func monitorAlreadyEstablished() {
 	}
 Exit:
 	log.Debug("monitorAlreadyEstablished exited")
-}
-
-func socketsAreEqual(aSocket, bSocket *daemonNetlink.Socket) bool {
-	return ((*aSocket).INode == (*bSocket).INode &&
-		//inodes are unique enough, so the matches below will never have to be checked
-		(*aSocket).ID.SourcePort == (*bSocket).ID.SourcePort &&
-		(*aSocket).ID.Source.Equal((*bSocket).ID.Source) &&
-		(*aSocket).ID.Destination.Equal((*bSocket).ID.Destination) &&
-		(*aSocket).ID.DestinationPort == (*bSocket).ID.DestinationPort &&
-		(*aSocket).UID == (*bSocket).UID)
 }
