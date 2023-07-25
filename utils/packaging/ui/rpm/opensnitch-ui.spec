@@ -86,7 +86,7 @@ sed -i 's/^import ui_pb2/from . import ui_pb2/' opensnitch/ui_pb2*
 python3 setup.py build
 
 %install
-python3 setup.py install --install-lib=/usr/lib/python3/dist-packages/ --single-version-externally-managed -O1 --root=$RPM_BUILD_ROOT --prefix=/usr --record=INSTALLED_FILES
+python3 setup.py install --install-lib=/usr/lib/python3/dist-packages/ --single-version-externally-managed -O1 --root=$RPM_BUILD_ROOT --prefix=/usr --record=INSTALLED_FILES --install-scripts=/usr/bin
 
 %clean
 rm -rf $RPM_BUILD_ROOT
