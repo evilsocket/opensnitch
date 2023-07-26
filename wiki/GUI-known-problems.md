@@ -97,7 +97,7 @@ Then launch the GUI as follow: `~ $ QT_QPA_PLATFORMTHEME=qt5ct`
 
 If either of these methods work, add the variable to your `~/.bashrc` or `/etc/environment`.
 
-[More information](https://github.com/evilsocket/opensnitch/discussions/998?converting=1#discussioncomment-6556549)
+[More information](https://github.com/evilsocket/opensnitch/discussions/998#discussioncomment-6556549)
 
 [old information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/53#issuecomment-671419790)
 
