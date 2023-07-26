@@ -88,16 +88,10 @@ class Autostart():
             if os.path.isfile(self.systemAutostart) and os.path.isfile(self.userAutostart):
                 os.remove(self.userAutostart)
             elif os.path.isfile(self.systemDesktop):
-                try:
-                    shutil.copyfile(self.systemDesktop, self.userAutostart)
-                except shutil.SameFileError:
-                    pass
+                shutil.copyfile(self.systemDesktop, self.userAutostart)
         else:
             if os.path.isfile(self.systemAutostart):
-                try:
-                    shutil.copyfile(self.systemAutostart, self.userAutostart)
-                except shutil.SameFileError:
-                    pass
+                shutil.copyfile(self.systemAutostart, self.userAutostart)
                 with open(self.userAutostart, 'a') as f:
                     f.write('Hidden=true\n')
             elif os.path.isfile(self.userAutostart):

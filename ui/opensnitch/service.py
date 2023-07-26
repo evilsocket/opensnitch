@@ -200,7 +200,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._menu.aboutToShow.connect(self._on_show_menu)
 
     def _on_switch_autostart(self):
-        self._autostart.enable(self._menu_autostart.isChecked())
+        try:
+            self._autostart.enable(self._menu_autostart.isChecked())
+        except Exception as e:
+            self._desktop_notifications.show(
+                QC.translate("stats", "Warning"),
+                QC.translate("stats", str(e))
+            )
 
     def _on_show_menu(self):
         self._menu_autostart.setChecked(self._autostart.isEnabled())
