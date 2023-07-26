@@ -331,7 +331,7 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="340"/>
         <source>REDIRECT</source>
-        <translation type="unfinished"></translation>
+        <translation>ПЕРЕНАПРАВЛЕНИЕ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="359"/>
@@ -939,7 +939,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="724"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Язык</translation>
     </message>
 </context>
 <context>
@@ -967,7 +967,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="121"/>
         <source>Status</source>
-        <translation>Статус</translation>
+        <translation>Состояние</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="135"/>
@@ -1520,12 +1520,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="743"/>
         <source>From this IP / Network</source>
-        <translation type="unfinished"></translation>
+        <translation>От этого IP или сети</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="872"/>
         <source>From this port</source>
-        <translation type="unfinished"></translation>
+        <translation>От этого порта</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="918"/>
@@ -1563,7 +1563,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="413"/>
         <source>Status</source>
-        <translation>Статус</translation>
+        <translation>Состояние</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1793"/>
@@ -1598,7 +1598,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="143"/>
         <source>Ex.: firefox</source>
-        <translation>Ex.: фаерфокс</translation>
+        <translation>Например: firefox</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="205"/>
@@ -1864,7 +1864,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="290"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
-        <translation>Чтобы настроить правила фаервола из графического интерфейса, нам нужно использовать 'nftables' вместо 'iptables'</translation>
+        <translation>Чтобы настроить правила фаервола из графического интерфейса, нам нужно использовать &apos;nftables&apos; вместо &apos;iptables&apos;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="304"/>
@@ -3072,7 +3072,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="289"/>
         <source>Status</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Статус</translation>
+        <translation>Состояние</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="290"/>
