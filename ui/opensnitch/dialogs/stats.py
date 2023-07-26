@@ -397,15 +397,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboRulesFilter.setVisible(False)
 
         menu = QtWidgets.QMenu()
-        menu.addAction(Icons.new("go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_node_export_clicked)
-        menu.addAction(Icons.new("go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_node_import_clicked)
+        menu.addAction(Icons.new(self, "go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_node_export_clicked)
+        menu.addAction(Icons.new(self, "go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_node_import_clicked)
         self.nodeActionsButton.setMenu(menu)
 
         menuActions = QtWidgets.QMenu()
-        menuActions.addAction(Icons.new("go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_export_clicked)
-        menuActions.addAction(Icons.new("go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_import_clicked)
-        menuActions.addAction(Icons.new("document-save"), QC.translate("stats", "Export events to CSV")).triggered.connect(self._on_menu_export_csv_clicked)
-        menuActions.addAction(Icons.new("application-exit"), QC.translate("stats", "Quit")).triggered.connect(self._on_menu_exit_clicked)
+        menuActions.addAction(Icons.new(self, "go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_export_clicked)
+        menuActions.addAction(Icons.new(self, "go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_import_clicked)
+        menuActions.addAction(Icons.new(self, "document-save"), QC.translate("stats", "Export events to CSV")).triggered.connect(self._on_menu_export_csv_clicked)
+        menuActions.addAction(Icons.new(self, "application-exit"), QC.translate("stats", "Quit")).triggered.connect(self._on_menu_exit_clicked)
         self.actionsButton.setMenu(menuActions)
 
         # translations must be done here, otherwise they don't take effect
@@ -605,8 +605,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             'users.csv'
         )
 
-        self.iconStart = Icons.new("media-playback-start")
-        self.iconPause = Icons.new("media-playback-pause")
+        self.iconStart = Icons.new(self, "media-playback-start")
+        self.iconPause = Icons.new(self, "media-playback-pause")
 
         self.fwTreeEdit = QtWidgets.QPushButton()
         self.fwTreeEdit.setIcon(QtGui.QIcon().fromTheme("preferences-desktop"))
@@ -663,20 +663,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if QtGui.QIcon.hasThemeIcon("document-new"):
             return
 
-        newRuleIcon = Icons.new("document-new")
-        delRuleIcon = Icons.new("edit-delete")
-        editRuleIcon = Icons.new("accessories-text-editor")
-        saveIcon = Icons.new("document-save")
-        prefsIcon = Icons.new("preferences-system")
-        searchIcon = Icons.new("system-search")
-        clearIcon = Icons.new("edit-clear-all")
-        leftArrowIcon = Icons.new("go-previous")
-        fwIcon = Icons.new("security-high")
-        optsIcon = Icons.new("format-justify-fill")
-        helpIcon = Icons.new("help-browser")
-        eventsIcon = Icons.new("view-sort-ascending")
-        rulesIcon = Icons.new("address-book-new")
-        procsIcon = Icons.new("system-run")
+        newRuleIcon = Icons.new(self, "document-new")
+        delRuleIcon = Icons.new(self, "edit-delete")
+        editRuleIcon = Icons.new(self, "accessories-text-editor")
+        saveIcon = Icons.new(self, "document-save")
+        prefsIcon = Icons.new(self, "preferences-system")
+        searchIcon = Icons.new(self, "system-search")
+        clearIcon = Icons.new(self, "edit-clear-all")
+        leftArrowIcon = Icons.new(self, "go-previous")
+        fwIcon = Icons.new(self, "security-high")
+        optsIcon = Icons.new(self, "format-justify-fill")
+        helpIcon = Icons.new(self, "help-browser")
+        eventsIcon = Icons.new(self, "view-sort-ascending")
+        rulesIcon = Icons.new(self, "address-book-new")
+        procsIcon = Icons.new(self, "system-run")
 
         if QtGui.QIcon().hasThemeIcon("preferences-desktop") == False:
             self.fwTreeEdit.setText("+")

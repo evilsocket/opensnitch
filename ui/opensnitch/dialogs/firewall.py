@@ -39,9 +39,9 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboProfile.setVisible(False)
         self.lblProfile.setVisible(False)
 
-        self.secHighIcon = Icons.new("security-high")
-        self.secMediumIcon = Icons.new("security-medium")
-        self.secLowIcon = Icons.new("security-low")
+        self.secHighIcon = Icons.new(self, "security-high")
+        self.secMediumIcon = Icons.new(self, "security-medium")
+        self.secLowIcon = Icons.new(self, "security-low")
         self.lblStatusIcon.setPixmap(self.secHighIcon.pixmap(96, 96))
 
         self._fwrule_dialog = FwRuleDialog(appicon=self.appicon)
@@ -76,11 +76,11 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if QtGui.QIcon.hasThemeIcon("document-new"):
             return
 
-        closeIcon = Icons.new("window-close")
-        excludeIcon = Icons.new("go-up")
-        allowInIcon = Icons.new("go-down")
-        newIcon = Icons.new("document-new")
-        helpIcon = Icons.new("help-browser")
+        closeIcon = Icons.new(self, "window-close")
+        excludeIcon = Icons.new(self, "go-up")
+        allowInIcon = Icons.new(self, "go-down")
+        newIcon = Icons.new(self, "document-new")
+        helpIcon = Icons.new(self, "help-browser")
         self.cmdClose.setIcon(closeIcon)
         self.cmdAllowOUTService.setIcon(excludeIcon)
         self.cmdAllowINService.setIcon(allowInIcon)

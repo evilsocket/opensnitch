@@ -105,9 +105,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkDstPort.clicked.connect(self._button_clicked)
         self.checkUserID.clicked.connect(self._button_clicked)
 
-        self.allowIcon = Icons.new("emblem-default")
-        denyIcon = Icons.new("emblem-important")
-        rejectIcon = Icons.new("window-close")
+        self.allowIcon = Icons.new(self, "emblem-default")
+        denyIcon = Icons.new(self, "emblem-important")
+        rejectIcon = Icons.new(self, "window-close")
 
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
 

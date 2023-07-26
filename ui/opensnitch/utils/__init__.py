@@ -441,9 +441,9 @@ class Icons():
         'document-save': "SP_DialogSaveButton",
         'document-open': "SP_DirOpenIcon",
         'format-justify-fill': "SP_FileDialogDetailedView",
-        'preferences-system': "SP_FileDialogDetailedView",
+        'preferences-system': "SP_FileDialogListView",
+        'preferences-desktop': "SP_FileDialogListView",
         'security-high': "SP_VistaShield",
-        'edit-clear-all': "SP_DialogResetButton",
         'go-previous': "SP_ArrowLeft",
         'go-jump': "SP_CommandLink",
         'go-down': "SP_TitleBarUnshadeButton",
@@ -461,17 +461,23 @@ class Icons():
         'system-search': "SP_FileDialogContentsView",
         'application-exit': "SP_TitleBarCloseButton",
         'view-sort-ascending': "SP_ToolBarVerticalExtensionButton",
-        'address-book-new': ""
+        'address-book-new': "",
+        'media-playback-start': "SP_MediaPlay",
+        'media-playback-pause': "SP_MediaPause",
+        'system-search': "SP_FileDialogContentsView",
+        'accessories-text-editor': "SP_DialogOpenButton",
+        'edit-clear-all': "SP_DialogResetButton",
+        'reload': "SP_DialogResetButton"
     }
 
     @staticmethod
-    def new(icon_name):
+    def new(widget, icon_name):
         icon = QtGui.QIcon.fromTheme(icon_name, QtGui.QIcon.fromTheme(icon_name + "-symbolic"))
         if icon.isNull():
             try:
-                return self.style().standardIcon(getattr(QtWidgets.QStyle, NewIcon.defaults[icon_name]))
-            except:
-                pass
+                return widget.style().standardIcon(getattr(QtWidgets.QStyle, Icons.defaults[icon_name]))
+            except Exception as e:
+                print("Qt standardIcon exception:", icon_name, ",", e)
 
         return icon
 

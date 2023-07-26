@@ -352,12 +352,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 
         # -----------------------------------------------------------
 
-        saveIcon = Icons.new("document-save")
-        closeIcon = Icons.new("window-close")
-        delIcon = Icons.new("edit-delete")
-        addIcon = Icons.new("list-add")
-        remIcon = Icons.new("list-remove")
-        helpIcon = Icons.new("help-browser")
+        saveIcon = Icons.new(self, "document-save")
+        closeIcon = Icons.new(self, "window-close")
+        delIcon = Icons.new(self, "edit-delete")
+        addIcon = Icons.new(self, "list-add")
+        remIcon = Icons.new(self, "list-remove")
+        helpIcon = Icons.new(self, "help-browser")
         self.cmdSave.setIcon(saveIcon)
         self.cmdDelete.setIcon(delIcon)
         self.cmdClose.setIcon(closeIcon)
@@ -384,7 +384,6 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self._load_nodes()
         self.comboDirection.currentIndexChanged.connect(self._cb_direction_changed)
         return True
-
 
     def _close(self):
         self.comboDirection.currentIndexChanged.disconnect(self._cb_direction_changed)

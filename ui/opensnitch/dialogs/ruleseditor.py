@@ -93,10 +93,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if QtGui.QIcon.hasThemeIcon("emblem-default"):
             return
 
-        applyIcon = Icons.new("emblem-default")
-        denyIcon = Icons.new("emblem-important")
-        rejectIcon = Icons.new("window-close")
-        openIcon = Icons.new("document-open")
+        applyIcon = Icons.new(self, "emblem-default")
+        denyIcon = Icons.new(self, "emblem-important")
+        rejectIcon = Icons.new(self, "window-close")
+        openIcon = Icons.new(self, "document-open")
         self.actionAllowRadio.setIcon(applyIcon)
         self.actionDenyRadio.setIcon(denyIcon)
         self.actionRejectRadio.setIcon(rejectIcon)

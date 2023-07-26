@@ -86,10 +86,10 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         if QtGui.QIcon.hasThemeIcon("window-close"):
             return
 
-        closeIcon = Icons.new("window-close")
+        closeIcon = Icons.new(self, "window-close")
         self.cmdClose.setIcon(closeIcon)
-        self.iconStart = Icons.new("media-playback-start")
-        self.iconPause = Icons.new("media-playback-pause")
+        self.iconStart = Icons.new(self, "media-playback-start")
+        self.iconPause = Icons.new(self, "media-playback-pause")
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
