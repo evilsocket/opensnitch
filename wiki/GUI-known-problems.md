@@ -87,7 +87,19 @@ Since version v1.5.1, you can change GUI theme from the Preferences -> UI -> The
 
 ### No icons on the GUI
 
-Be sure that you have properly set the icon theme of your Window Manager. [More information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/53#issuecomment-671419790)
+Be sure that you have properly set the icon theme of your Window Manager.
+
+Launch the GUI as follow and see if the icons show up: `~ $ XDG_CURRENT_DESKTOP=GNOME opensnitch-ui`
+
+Alternatively, install `qt5ct`, launch it an go to the "Icons Theme" tab. Select an icon theme an click on Apply.
+
+Then launch the GUI as follow: `~ $ QT_QPA_PLATFORMTHEME=qt5ct`
+
+If either of these methods work, add the variable to your `~/.bashrc` or `/etc/environment`.
+
+[More information](https://github.com/evilsocket/opensnitch/discussions/998?converting=1#discussioncomment-6556549)
+
+[old information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/53#issuecomment-671419790)
 
 
 ### GUI crash/exception/does not show up on old distros (ubuntu 16, 18, ...)
