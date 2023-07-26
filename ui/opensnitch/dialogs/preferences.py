@@ -475,7 +475,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._save_ui_columns_config()
 
             maxmsgsize = self.comboGrpcMsgSize.currentText()
-            if maxmsgsize is not "":
+            if maxmsgsize != "":
                 self._cfg.setSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH, maxmsgsize.replace(" ", ""))
 
             savedauthtype = self._cfg.getSettings(Config.AUTH_TYPE)
