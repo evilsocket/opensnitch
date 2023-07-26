@@ -471,73 +471,77 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return True
 
     def _save_ui_config(self):
-        self._save_ui_columns_config()
+        try:
+            self._save_ui_columns_config()
 
-        maxmsgsize = self.comboGrpcMsgSize.currentText()
-        if maxmsgsize is not "":
-            self._cfg.setSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH, maxmsgsize.replace(" ", ""))
+            maxmsgsize = self.comboGrpcMsgSize.currentText()
+            if maxmsgsize is not "":
+                self._cfg.setSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH, maxmsgsize.replace(" ", ""))
 
-        savedauthtype = self._cfg.getSettings(Config.AUTH_TYPE)
-        authtype = self.comboAuthType.itemData(self.comboAuthType.currentIndex())
-        cacert = self._cfg.getSettings(Config.AUTH_CA_CERT)
-        cert = self._cfg.getSettings(Config.AUTH_CERT)
-        certkey = self._cfg.getSettings(Config.AUTH_CERTKEY)
-        if not self._validate_certs():
-            return
+            savedauthtype = self._cfg.getSettings(Config.AUTH_TYPE)
+            authtype = self.comboAuthType.itemData(self.comboAuthType.currentIndex())
+            cacert = self._cfg.getSettings(Config.AUTH_CA_CERT)
+            cert = self._cfg.getSettings(Config.AUTH_CERT)
+            certkey = self._cfg.getSettings(Config.AUTH_CERTKEY)
+            if not self._validate_certs():
+                return
 
-        if savedauthtype != authtype or self.lineCertFile.text() != cert or \
-                self.lineCertKeyFile.text() != certkey or self.lineCACertFile.text() != cacert:
-            self._changes_needs_restart = QC.translate("preferences", "Certificates changed")
-        self._cfg.setSettings(Config.AUTH_TYPE, authtype)
-        self._cfg.setSettings(Config.AUTH_CA_CERT, self.lineCACertFile.text())
-        self._cfg.setSettings(Config.AUTH_CERT, self.lineCertFile.text())
-        self._cfg.setSettings(Config.AUTH_CERTKEY, self.lineCertKeyFile.text())
+            if savedauthtype != authtype or self.lineCertFile.text() != cert or \
+                    self.lineCertKeyFile.text() != certkey or self.lineCACertFile.text() != cacert:
+                self._changes_needs_restart = QC.translate("preferences", "Certificates changed")
+            self._cfg.setSettings(Config.AUTH_TYPE, authtype)
+            self._cfg.setSettings(Config.AUTH_CA_CERT, self.lineCACertFile.text())
+            self._cfg.setSettings(Config.AUTH_CERT, self.lineCertFile.text())
+            self._cfg.setSettings(Config.AUTH_CERTKEY, self.lineCertKeyFile.text())
+
+            selected_lang = self.comboUILang.itemData(self.comboUILang.currentIndex())
+            saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
+            saved_lang = "" if saved_lang is None else saved_lang
+            if saved_lang != selected_lang:
+                languages.save(self._cfg, selected_lang)
+                self._changes_needs_restart = QC.translate("preferences", "Language changed")
+
+            self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES, int(self.comboUIRules.currentIndex()))
+            self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_RULES, bool(self.checkUIRules.isChecked()))
+            #self._set_rules_duration_filter()
+            self._cfg.setRulesDurationFilter(
+                bool(self.checkUIRules.isChecked()),
+                int(self.comboUIRules.currentIndex())
+            )
+            if self.checkUIRules.isChecked():
+                self._nodes.delete_rule_by_field(Config.DURATION_FIELD, Config.RULES_DURATION_FILTER)
+
+            self._cfg.setSettings(self._cfg.DEFAULT_ACTION_KEY, self.comboUIAction.currentIndex())
+            self._cfg.setSettings(self._cfg.DEFAULT_DURATION_KEY, int(self.comboUIDuration.currentIndex()))
+            self._cfg.setSettings(self._cfg.DEFAULT_TARGET_KEY, self.comboUITarget.currentIndex())
+            self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, self.spinUITimeout.value())
+            self._cfg.setSettings(self._cfg.DEFAULT_DISABLE_POPUPS, bool(self.popupsCheck.isChecked()))
+            self._cfg.setSettings(self._cfg.DEFAULT_POPUP_POSITION, int(self.comboUIDialogPos.currentIndex()))
+
+            self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED, bool(self.showAdvancedCheck.isChecked()))
+            self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP, bool(self.dstIPCheck.isChecked()))
+            self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT, bool(self.dstPortCheck.isChecked()))
+            self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_UID, bool(self.uidCheck.isChecked()))
+
+            self._cfg.setSettings(self._cfg.NOTIFICATIONS_ENABLED, bool(self.groupNotifs.isChecked()))
+            self._cfg.setSettings(self._cfg.NOTIFICATIONS_TYPE,
+                                int(Config.NOTIFICATION_TYPE_SYSTEM if self.radioSysNotifs.isChecked() else Config.NOTIFICATION_TYPE_QT))
+
+            self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText())
+
+            if self._themes.available() and self._saved_theme != "" and self.comboUITheme.currentText() == QC.translate("preferences", "System"):
+                self._changes_needs_restart = QC.translate("preferences", "UI theme changed")
+
+            # this is a workaround for not display pop-ups.
+            # see #79 for more information.
+            if self.popupsCheck.isChecked():
+                self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, 0)
 
 
-        self._autostart.enable(self.checkAutostart.isChecked())
+            self._autostart.enable(self.checkAutostart.isChecked())
 
-        selected_lang = self.comboUILang.itemData(self.comboUILang.currentIndex())
-        saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
-        saved_lang = "" if saved_lang is None else saved_lang
-        if saved_lang != selected_lang:
-            languages.save(self._cfg, selected_lang)
-            self._changes_needs_restart = QC.translate("preferences", "Language changed")
-
-        self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES, int(self.comboUIRules.currentIndex()))
-        self._cfg.setSettings(self._cfg.DEFAULT_IGNORE_RULES, bool(self.checkUIRules.isChecked()))
-        #self._set_rules_duration_filter()
-        self._cfg.setRulesDurationFilter(
-            bool(self.checkUIRules.isChecked()),
-            int(self.comboUIRules.currentIndex())
-        )
-        if self.checkUIRules.isChecked():
-            self._nodes.delete_rule_by_field(Config.DURATION_FIELD, Config.RULES_DURATION_FILTER)
-
-        self._cfg.setSettings(self._cfg.DEFAULT_ACTION_KEY, self.comboUIAction.currentIndex())
-        self._cfg.setSettings(self._cfg.DEFAULT_DURATION_KEY, int(self.comboUIDuration.currentIndex()))
-        self._cfg.setSettings(self._cfg.DEFAULT_TARGET_KEY, self.comboUITarget.currentIndex())
-        self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, self.spinUITimeout.value())
-        self._cfg.setSettings(self._cfg.DEFAULT_DISABLE_POPUPS, bool(self.popupsCheck.isChecked()))
-        self._cfg.setSettings(self._cfg.DEFAULT_POPUP_POSITION, int(self.comboUIDialogPos.currentIndex()))
-
-        self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED, bool(self.showAdvancedCheck.isChecked()))
-        self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP, bool(self.dstIPCheck.isChecked()))
-        self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT, bool(self.dstPortCheck.isChecked()))
-        self._cfg.setSettings(self._cfg.DEFAULT_POPUP_ADVANCED_UID, bool(self.uidCheck.isChecked()))
-
-        self._cfg.setSettings(self._cfg.NOTIFICATIONS_ENABLED, bool(self.groupNotifs.isChecked()))
-        self._cfg.setSettings(self._cfg.NOTIFICATIONS_TYPE,
-                              int(Config.NOTIFICATION_TYPE_SYSTEM if self.radioSysNotifs.isChecked() else Config.NOTIFICATION_TYPE_QT))
-
-        self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText())
-
-        if self._themes.available() and self._saved_theme != "" and self.comboUITheme.currentText() == QC.translate("preferences", "System"):
-            self._changes_needs_restart = QC.translate("preferences", "UI theme changed")
-
-        # this is a workaround for not display pop-ups.
-        # see #79 for more information.
-        if self.popupsCheck.isChecked():
-            self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, 0)
+        except Exception as e:
+            self._set_status_error(str(e))
 
     def _save_ui_columns_config(self):
         cols=list()
