@@ -2256,27 +2256,26 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.uid as {3}, " \
                 "c.protocol as {4}, " \
                 "c.dst_port as {5}, " \
-                "CASE c.dst_host WHEN ''" \
-                "   THEN c.dst_ip " \
-                "   ELSE c.dst_host " \
-                "END {6}, " \
-                "c.process as {7}, " \
-                "c.process_args as {8}, " \
+                "c.dst_ip as {6}, " \
+                "c.dst_host as {7}, " \
+                "c.process as {8}, " \
+                "c.process_args as {9}, " \
                 "c.process_cwd as CWD " \
             "FROM connections as c " \
-            "WHERE {9} GROUP BY c.process, c.process_args, c.uid, {10}, c.dst_port {11}".format(
+            "WHERE {10} GROUP BY c.process, c.process_args, c.uid, c.dst_ip, c.dst_host, c.dst_port {11}".format(
                 self.COL_STR_TIME,
                 self.COL_STR_NODE,
                 self.COL_STR_HITS,
                 self.COL_STR_UID,
                 self.COL_STR_PROTOCOL,
                 self.COL_STR_DST_PORT,
-                self.COL_STR_DESTINATION,
+                self.COL_STR_DST_IP,
+                self.COL_STR_DST_HOST,
                 self.COL_STR_PROCESS,
                 self.COL_STR_PROC_CMDLINE,
                 condition,
-                self.COL_STR_DESTINATION,
-                self._get_order() + self._get_limit()))
+                self._get_order() + self._get_limit()
+            ))
 
     def _set_hosts_query(self, data):
         model = self._get_active_table().model()
