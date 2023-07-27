@@ -432,8 +432,10 @@ class NetworkServices():
         return self.ports_list.index(str(port))
 
 class Icons():
-    """
-    https://www.pythonguis.com/faq/built-in-qicons-pyqt/icons-builtin.png
+    """Util to display Qt's built-in icons when the system is not configured as
+    we expect. More information:
+        https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#no-icons-on-the-gui
+        https://www.pythonguis.com/faq/built-in-qicons-pyqt/icons-builtin.png
     """
 
     defaults = {

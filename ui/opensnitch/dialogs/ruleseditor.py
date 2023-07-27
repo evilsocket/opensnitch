@@ -223,7 +223,6 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.selectNetsListButton.setEnabled(state)
 
     def _cb_uid_combo_changed(self, index):
-        print(index, "uid:", str(self._users_list[index][self.PW_UID]))
         self.uidCombo.setCurrentText(str(self._users_list[index][self.PW_UID]))
 
     def _set_status_error(self, msg):
