@@ -101,6 +101,8 @@ If either of these methods work, add the variable to your `~/.bashrc` or `/etc/e
 
 [old information](https://github.com/gustavo-iniguez-goya/opensnitch/issues/53#issuecomment-671419790)
 
+https://codebrowser.dev/qt5/qtbase/src/gui/kernel/qguiapplication.cpp.html#1406
+
 
 ### GUI crash/exception/does not show up on old distros (ubuntu 16, 18, ...)
 
