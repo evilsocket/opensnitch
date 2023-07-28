@@ -93,7 +93,7 @@ Launch the GUI as follow and see if the icons show up: `~ $ XDG_CURRENT_DESKTOP=
 
 Alternatively, install `qt5ct`, launch it an go to the "Icons Theme" tab. Select an icon theme an click on Apply.
 
-Then launch the GUI as follow: `~ $ QT_QPA_PLATFORMTHEME=qt5ct`
+Then launch the GUI as follow: `~ $ QT_QPA_PLATFORMTHEME=qt5ct opensnitch-ui`
 
 If either of these methods work, add the variable to your `~/.bashrc` or `/etc/environment`.
 
