@@ -16,7 +16,7 @@ If you're running GNOME you need to install this extension -> https://github.com
 
 See the instructions detailed below to see how enable it.
 
-👉 On the other hand, if you're running **LinuxMint <= 21.1** or **ubuntu <= 22.10**, see if the process `opensnitch-ui` is consuming 100% of the CPU.
+👉 On the other hand, if you're running **LinuxMint <= 21.1** or **Ubuntu <= 22.10** or **Pop!_OS 22.04 LTS**, see if the process `opensnitch-ui` is consuming 100% of the CPU.
 See this issue for more information: https://github.com/evilsocket/opensnitch/issues/647#issuecomment-1383956333
 
 ### GUI takes 10 to 20s to show up
