@@ -12,7 +12,7 @@ class Database:
     DB_TYPE_FILE   = 1
 
     # increase accordingly whenever the schema is updated
-    DB_VERSION = 2
+    DB_VERSION = 3
 
     @staticmethod
     def instance():
@@ -138,6 +138,21 @@ class Database:
         q.exec_()
         q = QSqlQuery("CREATE INDEX details_query_index on connections (process, process_args, uid, pid, dst_ip, dst_host, dst_port, action, node, protocol)", self.db)
         q.exec_()
+
+        q = QSqlQuery("create table if not exists nodes (" \
+                "addr text primary key," \
+                "hostname text," \
+                "daemon_version text," \
+                "daemon_uptime text," \
+                "daemon_rules text," \
+                "cons text," \
+                "cons_dropped text," \
+                "version text," \
+                "status text, " \
+                "last_connection text)"
+                , self.db)
+        q.exec_()
+
         q = QSqlQuery("create table if not exists rules (" \
                 "time text, " \
                 "node text, " \
@@ -152,6 +167,7 @@ class Database:
                 "operator_data text, " \
                 "description text, " \
                 "nolog text, " \
+                "created text, " \
                 "UNIQUE(node, name)"
                 ")", self.db)
         q.exec_()
@@ -167,20 +183,6 @@ class Database:
         q = QSqlQuery("create table if not exists ports (what text primary key, hits integer)", self.db)
         q.exec_()
         q = QSqlQuery("create table if not exists users (what text primary key, hits integer)", self.db)
-        q.exec_()
-
-        q = QSqlQuery("create table if not exists nodes (" \
-                "addr text primary key," \
-                "hostname text," \
-                "daemon_version text," \
-                "daemon_uptime text," \
-                "daemon_rules text," \
-                "cons text," \
-                "cons_dropped text," \
-                "version text," \
-                "status text, " \
-                "last_connection text)"
-                , self.db)
         q.exec_()
 
     def get_schema_version(self):

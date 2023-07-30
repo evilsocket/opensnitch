@@ -64,6 +64,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_R_DURATION = 5
     COL_R_OP_TYPE = 6
     COL_R_OP_OPERAND = 7
+    COL_R_CREATED = 8
 
     # procs
     COL_PID = 9
@@ -184,7 +185,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "enabled as Enabled," \
                     "action as Action," \
                     "duration as Duration," \
-                    "description as Description",
+                    "description as Description, " \
+                    "created as Created",
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 0
@@ -291,6 +293,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.COL_STR_VERSION = QC.translate("stats", "Version", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_RULES_NUM = QC.translate("stats", "Rules", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_TIME = QC.translate("stats", "Time", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_CREATED = QC.translate("stats", "Created", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_ACTION = QC.translate("stats", "Action", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DURATION = QC.translate("stats", "Duration", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DESCRIPTION = QC.translate("stats", "Description", "This is a word, without spaces and symbols.").replace(" ", "")
@@ -430,6 +433,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.COL_STR_ACTION,
             self.COL_STR_DURATION,
             self.COL_STR_DESCRIPTION,
+            self.COL_STR_CREATED,
         ]
 
         stats_headers = [
@@ -1027,7 +1031,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._table_menu_export_disk(cur_idx, model, selection)
 
         except Exception as e:
-            print(e)
+            print("rules contextual menu exception:", e)
         finally:
             self._clear_rows_selection()
             return True

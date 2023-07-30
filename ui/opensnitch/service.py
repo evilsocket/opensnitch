@@ -689,7 +689,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                                  rule.name, rule.description, str(rule.enabled),
                                  str(rule.precedence), str(rule.nolog), rule.action, rule.duration,
                                  rule.operator.type, str(rule.operator.sensitive), rule.operator.operand,
-                                 rule.operator.data)
+                                 rule.operator.data,
+                                 str(datetime.fromtimestamp(rule.created).strftime("%Y-%m-%d %H:%M:%S"))
+                                 )
+
         elif kwargs['action'] == self.DELETE_RULE:
             self._db.delete_rule(kwargs['name'], kwargs['addr'])
 

@@ -143,14 +143,15 @@ message Operator {
 }
 
 message Rule {
-    string name = 1;
-    string description = 2;
-    bool enabled = 3;
-    bool precedence = 4;
-    bool nolog = 5;
-    string action = 6;
-    string duration = 7;
-    Operator operator = 8;
+    int64 created = 1;
+    string name = 2;
+    string description = 3;
+    bool enabled = 4;
+    bool precedence = 5;
+    bool nolog = 6;
+    string action = 7;
+    string duration = 8;
+    Operator operator = 9;
 }
 
 enum Action {

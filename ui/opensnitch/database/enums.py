@@ -17,6 +17,7 @@ class ConnFields():
     Rule = 14
 
 class RuleFields():
+    """These fields must be in the order defined in the DB"""
     Time = 0
     Node = 1
     Name = 2
@@ -30,3 +31,4 @@ class RuleFields():
     OpData = 10
     Description = 11
     NoLog = 12
+    Created = 13

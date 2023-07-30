@@ -106,6 +106,7 @@ func (r *Rule) Serialize() *protocol.Rule {
 		return nil
 	}
 	return &protocol.Rule{
+		Created:     r.Created.Unix(),
 		Name:        string(r.Name),
 		Description: string(r.Description),
 		Enabled:     bool(r.Enabled),

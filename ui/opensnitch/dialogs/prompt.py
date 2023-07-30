@@ -601,6 +601,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         try:
             self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
             self._rule = ui_pb2.Rule(name="user.choice")
+            self._rule.created = int(datetime.now().timestamp())
             self._rule.enabled = True
             self._rule.duration = self._get_duration(self.durationCombo.currentIndex())
 
