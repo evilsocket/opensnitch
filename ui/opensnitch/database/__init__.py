@@ -197,7 +197,8 @@ class Database:
     def set_schema_version(self, version):
         print("setting schema version to:", version)
         q = QSqlQuery("PRAGMA user_version = {0}".format(version), self.db)
-        q.exec_()
+        if q.exec_() == False:
+            print("Error updating updating schema version:", q.lastError().text())
 
     def _upgrade_db_schema(self):
         migrations_path = os.path.dirname(os.path.realpath(__file__)) + "/migrations"
@@ -210,8 +211,9 @@ class Database:
             try:
                 print("applying schema upgrade:", schema_version)
                 self._apply_db_upgrade("{0}/upgrade_{1}.sql".format(migrations_path, schema_version))
-            except Exception:
-                print("Not applying upgrade_{0}.sql".format(schema_version))
+            except Exception as e:
+                print("Not applying upgrade_{0}.sql:".format(schema_version), e)
+                return
         self.set_schema_version(schema_version)
 
     def _apply_db_upgrade(self, file):
@@ -292,8 +294,8 @@ class Database:
             if oldt == None or newt == None or oldt == 0 or newt == 0:
                 return -1
 
-            oldest = datetime.fromisoformat(oldt)
-            newest = datetime.fromisoformat(newt)
+            oldest = datetime.strptime(oldt, "%Y-%m-%d %H:%M:%S.%f")
+            newest = datetime.strptime(newt, "%Y-%m-%d %H:%M:%S.%f")
             diff = newest - oldest
             date_to_purge = datetime.now() - timedelta(days=max_days_to_keep)
 
@@ -403,8 +405,10 @@ class Database:
                 q.addBindValue(fields)
                 q.addBindValue(values)
                 if not q.execBatch():
-                    print("_insert_batch() error", query_str)
+                    print("_insert_batch() db error:", query_str)
                     print(q.lastError().driverText())
+                    print("\t", fields)
+                    print("\t", values)
 
                     result=False
             except Exception as e:
