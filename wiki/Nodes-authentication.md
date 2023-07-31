@@ -54,6 +54,8 @@ You can also use the server public certificate to authenticate all nodes, by rep
     }
  ```
 
+Note: The address can be a unix socket, but you have to add a correct `subjectAltName` as explained in the next section, for example: `DNS:///run/user/1000/opensnitch/osui.sock`
+
 ## Generating TLS certificates
 (the following instructions are taken from [this great post from Tech School](https://dev.to/techschoolguru/how-to-secure-grpc-connection-with-ssl-tls-in-go-4ph), slightly modified for simplicity)
 
