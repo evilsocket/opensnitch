@@ -5,6 +5,12 @@ Simple = "simple"
 TLSSimple = "tls-simple"
 TLSMutual = "tls-mutual"
 
+NO_CLIENT_CERT = "no-client-cert"
+REQ_CERT = "req-cert"
+REQ_ANY_CERT = "req-any-cert"
+VERIFY_CERT = "verify-cert"
+REQ_AND_VERIFY_CERT = "req-and-verify-cert"
+
 
 def load_file(file_path):
     try:

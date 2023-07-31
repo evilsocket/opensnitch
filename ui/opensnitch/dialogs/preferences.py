@@ -29,12 +29,29 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     TAB_NODES = 3
     TAB_DB = 4
 
+    NODE_PAGE_GENERAL = 0
+    NODE_PAGE_LOGGING = 1
+    NODE_PAGE_AUTH = 2
+
     SUM = 1
     REST = 0
 
     AUTH_SIMPLE = 0
     AUTH_TLS_SIMPLE = 1
     AUTH_TLS_MUTUAL = 2
+
+    NODE_AUTH = {
+        AUTH_SIMPLE: auth.Simple,
+        AUTH_TLS_SIMPLE: auth.TLSSimple,
+        AUTH_TLS_MUTUAL: auth.TLSMutual
+    }
+    NODE_AUTH_VERIFY = {
+        0: auth.NO_CLIENT_CERT,
+        1: auth.REQ_CERT,
+        2: auth.REQ_ANY_CERT,
+        3: auth.VERIFY_CERT,
+        4: auth.REQ_AND_VERIFY_CERT
+    }
 
     def __init__(self, parent=None, appicon=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
@@ -82,6 +99,14 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboAuthType.setItemData(PreferencesDialog.AUTH_SIMPLE, auth.Simple)
         self.comboAuthType.setItemData(PreferencesDialog.AUTH_TLS_SIMPLE, auth.TLSSimple)
         self.comboAuthType.setItemData(PreferencesDialog.AUTH_TLS_MUTUAL, auth.TLSMutual)
+        self.comboNodeAuthType.setItemData(PreferencesDialog.AUTH_SIMPLE, auth.Simple)
+        self.comboNodeAuthType.setItemData(PreferencesDialog.AUTH_TLS_SIMPLE, auth.TLSSimple)
+        self.comboNodeAuthType.setItemData(PreferencesDialog.AUTH_TLS_MUTUAL, auth.TLSMutual)
+        self.comboNodeAuthVerifyType.setItemData(0, auth.NO_CLIENT_CERT)
+        self.comboNodeAuthVerifyType.setItemData(1, auth.REQ_CERT)
+        self.comboNodeAuthVerifyType.setItemData(2, auth.REQ_ANY_CERT)
+        self.comboNodeAuthVerifyType.setItemData(3, auth.VERIFY_CERT)
+        self.comboNodeAuthVerifyType.setItemData(4, auth.REQ_AND_VERIFY_CERT)
 
         self.comboUIRules.currentIndexChanged.connect(self._cb_combo_uirules_changed)
 
@@ -162,11 +187,22 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodeAddress.currentTextChanged.connect(self._cb_node_needs_update)
         self.checkInterceptUnknown.clicked.connect(self._cb_node_needs_update)
         self.checkApplyToNodes.clicked.connect(self._cb_node_needs_update)
-        self.comboDBType.currentIndexChanged.connect(self._cb_db_type_changed)
-        self.checkDBMaxDays.toggled.connect(self._cb_db_max_days_toggled)
+        self.comboNodeAction.currentIndexChanged.connect(self._cb_node_needs_update)
+        self.checkNodeAuthSkipVerify.clicked.connect(self._cb_node_needs_update)
+        self.comboNodeAuthVerifyType.currentIndexChanged.connect(self._cb_node_needs_update)
+
+        self.comboAuthType.currentIndexChanged.connect(self._cb_combo_auth_type_changed)
+        self.comboNodeAuthType.currentIndexChanged.connect(self._cb_combo_node_auth_type_changed)
+
         self.lineCACertFile.textChanged.connect(self._cb_line_certs_changed)
         self.lineCertFile.textChanged.connect(self._cb_line_certs_changed)
         self.lineCertKeyFile.textChanged.connect(self._cb_line_certs_changed)
+        self.lineNodeCACertFile.textChanged.connect(self._cb_node_line_certs_changed)
+        self.lineNodeCertFile.textChanged.connect(self._cb_node_line_certs_changed)
+        self.lineNodeCertKeyFile.textChanged.connect(self._cb_node_line_certs_changed)
+
+        self.comboDBType.currentIndexChanged.connect(self._cb_db_type_changed)
+        self.checkDBMaxDays.toggled.connect(self._cb_db_max_days_toggled)
 
         # True when any node option changes
         self._node_needs_update = False
@@ -298,38 +334,42 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _load_node_settings(self):
         addr = self.comboNodes.currentText()
-        if addr != "":
-            try:
-                node_data = self._node_list[addr]['data']
-                self.labelNodeVersion.setText(node_data.version)
-                self.labelNodeName.setText(node_data.name)
-                self.comboNodeLogLevel.setCurrentIndex(node_data.logLevel)
+        if addr == "":
+            return
 
-                node_config = json.loads(node_data.config)
-                self.comboNodeAction.setCurrentText(node_config['DefaultAction'])
-                self.comboNodeDuration.setCurrentText(node_config['DefaultDuration'])
-                self.comboNodeMonitorMethod.setCurrentText(node_config['ProcMonitorMethod'])
-                self.checkInterceptUnknown.setChecked(node_config['InterceptUnknown'])
-                self.comboNodeLogLevel.setCurrentIndex(int(node_config['LogLevel']))
+        try:
+            node_data = self._node_list[addr]['data']
+            self.labelNodeVersion.setText(node_data.version)
+            self.labelNodeName.setText(node_data.name)
+            self.comboNodeLogLevel.setCurrentIndex(node_data.logLevel)
 
-                if node_config.get('LogUTC') == None:
-                    node_config['LogUTC'] = False
-                self.checkNodeLogUTC.setChecked(node_config['LogUTC'])
-                if node_config.get('LogMicro') == None:
-                    node_config['LogMicro'] = False
-                self.checkNodeLogMicro.setChecked(node_config['LogMicro'])
+            node_config = json.loads(node_data.config)
+            self.comboNodeAction.setCurrentText(node_config['DefaultAction'])
+            self.comboNodeDuration.setCurrentText(node_config['DefaultDuration'])
+            self.comboNodeMonitorMethod.setCurrentText(node_config['ProcMonitorMethod'])
+            self.checkInterceptUnknown.setChecked(node_config['InterceptUnknown'])
+            self.comboNodeLogLevel.setCurrentIndex(int(node_config['LogLevel']))
 
-                if node_config.get('Server') != None:
-                    self.comboNodeAddress.setEnabled(True)
-                    self.comboNodeLogFile.setEnabled(True)
+            if node_config.get('LogUTC') == None:
+                node_config['LogUTC'] = False
+            self.checkNodeLogUTC.setChecked(node_config['LogUTC'])
+            if node_config.get('LogMicro') == None:
+                node_config['LogMicro'] = False
+            self.checkNodeLogMicro.setChecked(node_config['LogMicro'])
 
-                    self.comboNodeAddress.setCurrentText(node_config['Server']['Address'])
-                    self.comboNodeLogFile.setCurrentText(node_config['Server']['LogFile'])
-                else:
-                    self.comboNodeAddress.setEnabled(False)
-                    self.comboNodeLogFile.setEnabled(False)
-            except Exception as e:
-                print(self.LOG_TAG + "exception loading config: ", e)
+            if node_config.get('Server') != None:
+                self.comboNodeAddress.setEnabled(True)
+                self.comboNodeLogFile.setEnabled(True)
+
+                self.comboNodeAddress.setCurrentText(node_config['Server']['Address'])
+                self.comboNodeLogFile.setCurrentText(node_config['Server']['LogFile'])
+
+                self._load_node_auth_settings(node_config['Server'])
+            else:
+                self.comboNodeAddress.setEnabled(False)
+                self.comboNodeLogFile.setEnabled(False)
+        except Exception as e:
+            print(self.LOG_TAG + "exception loading config: ", e)
 
     def _load_node_config(self, addr):
         try:
@@ -359,6 +399,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 # skip setting Server Address if we're applying the config to all nodes
                 node_config['Server']['Address'] = self.comboNodeAddress.currentText()
                 node_config['Server']['LogFile'] = self.comboNodeLogFile.currentText()
+
+                cfg = self._load_node_auth_config(node_config['Server'])
+                if cfg != None:
+                    node_config['Server'] = cfg
             else:
                 print(addr, " doesn't have Server item")
             return json.dumps(node_config, indent="    "), None
@@ -366,6 +410,52 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             print(self.LOG_TAG + "exception loading node config on %s: " % addr, e)
 
         return None, QC.translate("preferences", "Error loading {0} configuration").format(addr)
+
+    def _load_node_auth_settings(self, config):
+        try:
+            if config.get('Authentication') == None:
+                self.toolBox.setItemEnabled(self.NODE_PAGE_AUTH, False)
+                return
+            authtype_idx = self.comboNodeAuthType.findData(config['Authentication']['Type'])
+            self.lineNodeCACertFile.setEnabled(authtype_idx >= 0)
+            self.lineNodeServerCertFile.setEnabled(authtype_idx >= 0)
+            self.lineNodeCertFile.setEnabled(authtype_idx >= 0)
+            self.lineNodeCertKeyFile.setEnabled(authtype_idx >= 0)
+            if authtype_idx >= 0:
+                self.lineNodeCACertFile.setText(config['Authentication']['TLSOptions']['CACert'])
+                self.lineNodeServerCertFile.setText(config['Authentication']['TLSOptions']['ServerCert'])
+                self.lineNodeCertFile.setText(config['Authentication']['TLSOptions']['ClientCert'])
+                self.lineNodeCertKeyFile.setText(config['Authentication']['TLSOptions']['ClientKey'])
+                self.checkNodeAuthSkipVerify.setChecked(config['Authentication']['TLSOptions']['SkipVerify'])
+
+                clienttype_idx = self.comboNodeAuthVerifyType.findData(config['Authentication']['TLSOptions']['ClientAuthType'])
+                if clienttype_idx >= 0:
+                    self.comboNodeAuthVerifyType.setCurrentIndex(clienttype_idx)
+            else:
+                authtype_idx = 0
+            self.comboNodeAuthType.setCurrentIndex(authtype_idx)
+        except Exception as e:
+            print("[prefs] node auth options exception:", e)
+            self._set_status_error(str(e))
+
+    def _load_node_auth_config(self, config):
+        try:
+            if config.get('Authentication') == None:
+                self.toolBox.setItemEnabled(self.NODE_PAGE_AUTH, False)
+                return
+            config['Authentication']['Type'] = self.NODE_AUTH[self.comboNodeAuthType.currentIndex()]
+            config['Authentication']['TLSOptions']['CACert']= self.lineNodeCACertFile.text()
+            config['Authentication']['TLSOptions']['ServerCert'] = self.lineNodeServerCertFile.text()
+            config['Authentication']['TLSOptions']['ClientCert'] = self.lineNodeCertFile.text()
+            config['Authentication']['TLSOptions']['ClientKey'] = self.lineNodeCertKeyFile.text()
+            config['Authentication']['TLSOptions']['SkipVerify'] = self.checkNodeAuthSkipVerify.isChecked()
+            config['Authentication']['TLSOptions']['ClientAuthType'] = self.NODE_AUTH_VERIFY[self.comboNodeAuthVerifyType.currentIndex()]
+
+            return config
+        except Exception as e:
+            print("[prefs] node auth options exception:", e)
+            self._set_status_error(str(e))
+            return None
 
     def _load_ui_columns_config(self):
         cols = self._cfg.getSettings(Config.STATS_SHOW_COLUMNS)
@@ -405,39 +495,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _save_settings(self):
         self._reset_status_message()
+        self._show_status_label()
         self._save_ui_config()
         if not self._save_db_config():
             return
-
-        if self.tabWidget.currentIndex() == self.TAB_NODES:
-            self._show_status_label()
-
-            addr = self.comboNodes.currentText()
-            if (self._node_needs_update or self.checkApplyToNodes.isChecked()) and addr != "":
-                try:
-                    notif = ui_pb2.Notification(
-                            id=int(str(time.time()).replace(".", "")),
-                            type=ui_pb2.CHANGE_CONFIG,
-                            data="",
-                            rules=[])
-                    if self.checkApplyToNodes.isChecked():
-                        for addr in self._nodes.get_nodes():
-                            error = self._save_node_config(notif, addr)
-                            if error != None:
-                                self._set_status_error(error)
-                                return
-                    else:
-                        error = self._save_node_config(notif, addr)
-                        if error != None:
-                            self._set_status_error(error)
-                            return
-                except Exception as e:
-                    print(self.LOG_TAG + "exception saving config: ", e)
-                    self._set_status_error(QC.translate("preferences", "Exception saving config: {0}").format(str(e)))
-            elif addr == "":
-                self._set_status_message(QC.translate("preferences", "There're no nodes connected"))
-
-            self._node_needs_update = False
+        self._save_nodes_config()
 
         self.saved.emit()
         self._settingsSaved = True
@@ -564,6 +626,34 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._cfg.setSettings(Config.STATS_SHOW_COLUMNS, cols)
 
+    def _save_nodes_config(self):
+        addr = self.comboNodes.currentText()
+        if (self._node_needs_update or self.checkApplyToNodes.isChecked()) and addr != "":
+            try:
+                notif = ui_pb2.Notification(
+                        id=int(str(time.time()).replace(".", "")),
+                        type=ui_pb2.CHANGE_CONFIG,
+                        data="",
+                        rules=[])
+                if self.checkApplyToNodes.isChecked():
+                    for addr in self._nodes.get_nodes():
+                        error = self._save_node_config(notif, addr)
+                        if error != None:
+                            self._set_status_error(error)
+                            return
+                else:
+                    error = self._save_node_config(notif, addr)
+                    if error != None:
+                        self._set_status_error(error)
+                        return
+            except Exception as e:
+                print(self.LOG_TAG + "exception saving config: ", e)
+                self._set_status_error(QC.translate("preferences", "Exception saving config: {0}").format(str(e)))
+        elif addr == "":
+            self._set_status_message(QC.translate("preferences", "There're no nodes connected"))
+
+        self._node_needs_update = False
+
     def _save_node_config(self, notifObject, addr):
         try:
             self._set_status_message(QC.translate("preferences", "Applying configuration on {0} ...").format(addr))
@@ -588,6 +678,34 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return addr + ": " + str(e)
 
         return None
+
+    def _save_node_auth_config(self, config):
+        try:
+            if config.get('Authentication') == None:
+                self.toolBox.setItemEnabled(self.NODE_PAGE_AUTH, False)
+                return
+            authtype_idx = self.comboNodeAuthType.findData(config['Authentication']['Type'])
+            self.lineNodeCACertFile.setEnabled(authtype_idx >= 0)
+            self.lineNodeServerCertFile.setEnabled(authtype_idx >= 0)
+            self.lineNodeCertFile.setEnabled(authtype_idx >= 0)
+            self.lineNodeCertKeyFile.setEnabled(authtype_idx >= 0)
+            if authtype_idx >= 0:
+                self.lineNodeCACertFile.setText(config['Authentication']['TLSOptions']['CACert'])
+                self.lineNodeServerCertFile.setText(config['Authentication']['TLSOptions']['ServerCert'])
+                self.lineNodeCertFile.setText(config['Authentication']['TLSOptions']['ClientCert'])
+                self.lineNodeCertKeyFile.setText(config['Authentication']['TLSOptions']['ClientKey'])
+                self.checkNodeAuthSkipVerify.setChecked(config['Authentication']['TLSOptions']['SkipVerify'])
+
+                clienttype_idx = self.comboNodeAuthVerifyType.findData(config['Authentication']['TLSOptions']['ClientAuthType'])
+                if clienttype_idx >= 0:
+                    self.comboNodeAuthVerifyType.setCurrentIndex(clienttype_idx)
+            else:
+                authtype_idx = 0
+            self.comboNodeAuthType.setCurrentIndex(authtype_idx)
+        except Exception as e:
+            print("[prefs] node auth options exception:", e)
+            self._set_status_error(str(e))
+
 
     def _validate_certs(self):
         try:
@@ -677,6 +795,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_line_certs_changed(self, text):
         self._changes_needs_restart = QC.translate("preferences", "Certs changed")
 
+    def _cb_node_line_certs_changed(self, text):
+        self._changes_needs_restart = QC.translate("preferences", "Node certs changed")
+        self._node_needs_update = True
+
     def _cb_file_db_clicked(self):
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "", "","All Files (*)", options=options)
@@ -743,6 +865,21 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.lineCACertFile.setEnabled(index == PreferencesDialog.AUTH_TLS_MUTUAL)
         self.lineCertFile.setEnabled(index >= PreferencesDialog.AUTH_TLS_SIMPLE)
         self.lineCertKeyFile.setEnabled(index >= PreferencesDialog.AUTH_TLS_SIMPLE)
+
+    def _cb_combo_node_auth_type_changed(self, index):
+        curtype = self.comboNodeAuthType.itemData(self.comboNodeAuthType.currentIndex())
+        #savedtype = self._cfg.getSettings(Config.AUTH_TYPE)
+        #if curtype != savedtype:
+        #    self._changes_needs_restart = QC.translate("preferences", "Auth type changed")
+
+        self.lineNodeCACertFile.setEnabled(index == PreferencesDialog.AUTH_TLS_MUTUAL)
+        self.lineNodeServerCertFile.setEnabled(index >= PreferencesDialog.AUTH_TLS_SIMPLE)
+        self.lineNodeCertFile.setEnabled(index >= PreferencesDialog.AUTH_TLS_SIMPLE)
+        self.lineNodeCertKeyFile.setEnabled(index >= PreferencesDialog.AUTH_TLS_SIMPLE)
+        self.checkNodeAuthSkipVerify.setEnabled(index >= PreferencesDialog.AUTH_TLS_SIMPLE)
+        self.comboNodeAuthVerifyType.setEnabled(index >= PreferencesDialog.AUTH_TLS_SIMPLE)
+
+        self._node_needs_update = True
 
     def _cb_db_max_days_toggled(self, state):
         self._enable_db_cleaner_options(state, 1)
