@@ -235,7 +235,8 @@ class CleanerTask(Thread):
         self.db = Database("db-cleaner-connection")
         self.db_status, db_error = self.db.initialize(
             dbtype=self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY),
-            dbfile=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
+            dbfile=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY),
+            dbjrnl_wal=self._cfg.getBool(self._cfg.DEFAULT_DB_JRNL_WAL)
         )
 
     def run(self):

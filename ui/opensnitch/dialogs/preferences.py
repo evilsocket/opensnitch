@@ -203,6 +203,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.comboDBType.currentIndexChanged.connect(self._cb_db_type_changed)
         self.checkDBMaxDays.toggled.connect(self._cb_db_max_days_toggled)
+        self.checkDBJrnlWal.toggled.connect(self._cb_db_jrnl_wal_toggled)
 
         # True when any node option changes
         self._node_needs_update = False
@@ -323,8 +324,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dbLabel.setVisible(True)
             self.dbLabel.setText(self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY))
         dbMaxDays = self._cfg.getInt(self._cfg.DEFAULT_DB_MAX_DAYS, 1)
+        dbJrnlWal = self._cfg.getBool(self._cfg.DEFAULT_DB_JRNL_WAL)
         dbPurgeInterval = self._cfg.getInt(self._cfg.DEFAULT_DB_PURGE_INTERVAL, 5)
         self._enable_db_cleaner_options(self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST), dbMaxDays)
+        self._enable_db_jrnl_wal(self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST), dbJrnlWal)
         self.spinDBMaxDays.setValue(dbMaxDays)
         self.spinDBPurgeInterval.setValue(dbPurgeInterval)
 
@@ -528,6 +531,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings(Config.DEFAULT_DB_PURGE_OLDEST, bool(self.checkDBMaxDays.isChecked()))
         self._cfg.setSettings(Config.DEFAULT_DB_MAX_DAYS, int(self.spinDBMaxDays.value()))
         self._cfg.setSettings(Config.DEFAULT_DB_PURGE_INTERVAL, int(self.spinDBPurgeInterval.value()))
+        self._cfg.setSettings(Config.DEFAULT_DB_JRNL_WAL, bool(self.checkDBJrnlWal.isChecked()))
         self.dbType = self.comboDBType.currentIndex()
 
         return True
@@ -781,6 +785,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdDBPurgesUp.setEnabled(enable)
         self.cmdDBPurgesDown.setEnabled(enable)
 
+    def _enable_db_jrnl_wal(self, enable, db_jrnl_wal):
+        self.checkDBJrnlWal.setChecked(db_jrnl_wal)
+        self.checkDBJrnlWal.setEnabled(enable)
+
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
         #print(self.LOG_TAG, "Config notification received: ", reply.id, reply.code)
@@ -819,6 +827,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dbLabel.setVisible(not isDBMem)
         self.checkDBMaxDays.setEnabled(not isDBMem)
         self.checkDBMaxDays.setChecked(not isDBMem)
+        self.checkDBJrnlWal.setEnabled(not isDBMem)
+        self.checkDBJrnlWal.setChecked(False)
 
     def _cb_accept_button_clicked(self):
         self.accept()
@@ -883,6 +893,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_db_max_days_toggled(self, state):
         self._enable_db_cleaner_options(state, 1)
+
+    def _cb_db_jrnl_wal_toggled(self, state):
+        self._changes_needs_restart = QC.translate("preferences", "DB journal_mode changed")
 
     def _cb_cmd_spin_clicked(self, spinWidget, operation):
         if operation == self.SUM:
