@@ -1916,6 +1916,16 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            </property>
           </widget>
          </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="checkDBJrnlWal">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Enable DB Write-Ahead Logging (WAL)</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>

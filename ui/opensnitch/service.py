@@ -61,9 +61,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._cfg = Config.init()
         self._db = Database.instance()
         db_file=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
+        db_jrnl_wal=self._cfg.getBool(Config.DEFAULT_DB_JRNL_WAL)
         db_status, db_error = self._db.initialize(
             dbtype=self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY),
-            dbfile=db_file
+            dbfile=db_file,
+            dbjrnl_wal=db_jrnl_wal
         )
         if db_status is False:
             Message.ok(

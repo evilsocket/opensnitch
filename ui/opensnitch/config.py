@@ -105,11 +105,12 @@ class Config:
     DEFAULT_SERVER_ADDR  = "global/server_address"
     DEFAULT_SERVER_MAX_MESSAGE_LENGTH  = "global/server_max_message_length"
     DEFAULT_HIDE_SYSTRAY_WARN  = "global/hide_systray_warning"
-    DEFAULT_DB_TYPE_KEY  = "database/type"
-    DEFAULT_DB_FILE_KEY  = "database/file"
-    DEFAULT_DB_PURGE_OLDEST  = "database/purge_oldest"
-    DEFAULT_DB_MAX_DAYS  = "database/max_days"
-    DEFAULT_DB_PURGE_INTERVAL  = "database/purge_interval"
+    DEFAULT_DB_TYPE_KEY       = "database/type"
+    DEFAULT_DB_FILE_KEY       = "database/file"
+    DEFAULT_DB_PURGE_OLDEST   = "database/purge_oldest"
+    DEFAULT_DB_MAX_DAYS       = "database/max_days"
+    DEFAULT_DB_PURGE_INTERVAL = "database/purge_interval"
+    DEFAULT_DB_JRNL_WAL       = "database/jrnl_wal"
 
     DEFAULT_TIMEOUT = 30
 
@@ -169,6 +170,7 @@ class Config:
         if self.settings.value(self.DEFAULT_DB_TYPE_KEY) == None:
             self.setSettings(self.DEFAULT_DB_TYPE_KEY, Database.DB_TYPE_MEMORY)
             self.setSettings(self.DEFAULT_DB_FILE_KEY, Database.DB_IN_MEMORY)
+            self.setSettings(self.DEFAULT_DB_JRNL_WAL, Database.DB_JRNL_WAL)
 
         self.setRulesDurationFilter(
             self.getBool(self.DEFAULT_IGNORE_RULES),

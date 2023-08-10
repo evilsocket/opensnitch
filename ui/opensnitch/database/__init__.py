@@ -10,6 +10,17 @@ class Database:
     DB_IN_MEMORY   = ":memory:"
     DB_TYPE_MEMORY = 0
     DB_TYPE_FILE   = 1
+    DB_JRNL_WAL    = False
+
+    # Sqlite3 journal modes
+    DB_JOURNAL_MODE_LIST = {
+            0: "DELETE",
+            1: "TRUNCATE",
+            2: "PERSIST",
+            3: "MEMORY",
+            4: "WAL",
+            5: "OFF",
+            }
 
     # increase accordingly whenever the schema is updated
     DB_VERSION = 3
@@ -24,11 +35,16 @@ class Database:
         self._lock = threading.RLock()
         self.db = None
         self.db_file = Database.DB_IN_MEMORY
+        self.db_jrnl_wal = Database.DB_JRNL_WAL
         self.db_name = dbname
 
-    def initialize(self, dbtype=DB_TYPE_MEMORY, dbfile=DB_IN_MEMORY, db_name="db"):
+    def initialize(self, dbtype=DB_TYPE_MEMORY, dbfile=DB_IN_MEMORY, dbjrnl_wal=DB_JRNL_WAL, db_name="db"):
         if dbtype != Database.DB_TYPE_MEMORY:
             self.db_file = dbfile
+            self.db_jrnl_wal = dbjrnl_wal
+        else:
+            # Always disable under pure memory mode
+            self.db_jrnl_wal = False
 
         is_new_file = not os.path.isfile(self.db_file)
 
@@ -87,19 +103,16 @@ class Database:
         return self.db_name
 
     def _create_tables(self):
-        # https://www.sqlite.org/wal.html
         if self.db_file == Database.DB_IN_MEMORY:
             self.set_schema_version(self.DB_VERSION)
-            q = QSqlQuery("PRAGMA journal_mode = OFF", self.db)
-            q.exec_()
-            q = QSqlQuery("PRAGMA synchronous = OFF", self.db)
-            q.exec_()
-            q = QSqlQuery("PRAGMA cache_size=10000", self.db)
-            q.exec_()
+            # Disable journal (default)
+            self.set_journal_mode(5)
+        elif self.db_jrnl_wal is True:
+            # Set WAL mode (file+memory)
+            self.set_journal_mode(4)
         else:
-            q = QSqlQuery("PRAGMA synchronous = NORMAL", self.db)
-            q.exec_()
-
+            # Set DELETE mode (file)
+            self.set_journal_mode(0)
         q = QSqlQuery("create table if not exists connections (" \
                 "time text, " \
                 "node text, " \
@@ -199,6 +212,41 @@ class Database:
         q = QSqlQuery("PRAGMA user_version = {0}".format(version), self.db)
         if q.exec_() == False:
             print("Error updating updating schema version:", q.lastError().text())
+
+    def get_journal_mode(self):
+        q = QSqlQuery("PRAGMA journal_mode;", self.db)
+        q.exec_()
+        if q.next():
+            return str(q.value(0))
+
+        return str("unknown")
+
+    def set_journal_mode(self, mode):
+        # https://www.sqlite.org/wal.html
+        mode_str = Database.DB_JOURNAL_MODE_LIST[mode]
+        if self.get_journal_mode().lower() != mode_str.lower():
+            print("Setting journal_mode: ", mode_str)
+            q = QSqlQuery("PRAGMA journal_mode = {modestr};".format(modestr = mode_str), self.db)
+            if q.exec_() == False:
+                print("Error updating PRAGMA journal_mode:", q.lastError().text())
+                return False
+        if mode == 3 or mode == 5:
+            print("Setting DB memory optimizations")
+            q = QSqlQuery("PRAGMA synchronous = OFF;", self.db)
+            if q.exec_() == False:
+                print("Error updating PRAGMA synchronous:", q.lastError().text())
+                return False
+            q = QSqlQuery("PRAGMA cache_size=10000;", self.db)
+            if q.exec_() == False:
+                print("Error updating PRAGMA cache_size:", q.lastError().text())
+                return False
+        else:
+            print("Setting synchronous = NORMAL")
+            q = QSqlQuery("PRAGMA synchronous = NORMAL;", self.db)
+            if q.exec_() == False:
+                print("Error updating PRAGMA synchronous:", q.lastError().text())
+
+        return True
 
     def _upgrade_db_schema(self):
         migrations_path = os.path.dirname(os.path.realpath(__file__)) + "/migrations"
