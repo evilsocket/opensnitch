@@ -19,6 +19,16 @@ See the instructions detailed below to see how enable it.
 👉 On the other hand, if you're running **LinuxMint <= 21.1** or **Ubuntu <= 22.10** or **Pop!_OS 22.04 LTS**, see if the process `opensnitch-ui` is consuming 100% of the CPU.
 See this issue for more information: https://github.com/evilsocket/opensnitch/issues/647#issuecomment-1383956333
 
+🐛 As a consequence of previous problem, you may also encounter this error:
+```
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+```
+
+The solution to this problem is described here: https://github.com/evilsocket/opensnitch/discussions/1003#discussioncomment-6642001
+
 ### GUI takes 10 to 20s to show up
 
 Same problem than above, sytray icons not supported. Install the `gnome-shell-extension-appindicator`, and follow the instructions detailed below.
