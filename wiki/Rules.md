@@ -190,7 +190,7 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
 Some applications have components that communicate in localhost. For example KDE uses `kdeinit5` and `kwin`, Xfce and others use `xbrlapi` , and GnuPG `dirmngr`.
 If you change daemon's default action to `deny` these applications will stop working. For example you may notice a delay login to the Desktop Environment (See issues #982 and #965 for more information).
 
-The solution is to allow either localhost connections, or this binaries in particular.
+The solution is to allow either localhost connections, or these binaries in particular.
 
 Here's a rule to allow localhost connections:
 ```json
