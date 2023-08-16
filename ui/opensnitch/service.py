@@ -655,10 +655,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         _default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
         try:
             temp_cfg = json.loads(newconf.config)
-            if _default_action == Config.ACTION_DENY_IDX:
-                temp_cfg['DefaultAction'] = Config.ACTION_DENY
-            else:
+            if _default_action == Config.ACTION_ALLOW_IDX:
                 temp_cfg['DefaultAction'] = Config.ACTION_ALLOW
+            else:
+                temp_cfg['DefaultAction'] = Config.ACTION_DENY
+
+            print("Setting daemon DefaultAction to:", temp_cfg['DefaultAction'])
 
             newconf.config = json.dumps(temp_cfg)
         except Exception as e:
