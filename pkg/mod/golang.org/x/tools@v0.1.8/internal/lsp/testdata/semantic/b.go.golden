@@ -1,0 +1,36 @@
+-- semantic --
+/*⇒7,keyword,[]*/package /*⇒14,namespace,[]*/semantictokens /*⇒16,comment,[]*///@ semantic("")
+
+/*⇒4,keyword,[]*/func /*⇒1,function,[definition]*/f(/*⇒1,parameter,[definition]*/x /*⇒3,operator,[]*/.../*⇒9,keyword,[]*/interface{}) {
+}
+
+/*⇒4,keyword,[]*/func /*⇒6,function,[definition]*/weirⰀd() { /*⇒5,comment,[]*//*😀*/ /*⇒10,comment,[]*/// comment
+	/*⇒5,keyword,[]*/const (
+		/*⇒4,variable,[definition readonly]*/snil   = /*⇒3,variable,[readonly defaultLibrary]*/nil
+		/*⇒3,variable,[definition readonly]*/nil    = /*⇒4,variable,[readonly]*/true
+		/*⇒4,variable,[definition readonly]*/true   = /*⇒5,variable,[readonly]*/false
+		/*⇒5,variable,[definition readonly]*/false  = /*⇒4,variable,[readonly]*/snil
+		/*⇒3,variable,[definition readonly]*/cmd    = /*⇒6,string,[]*/`foof`
+		/*⇒6,variable,[definition readonly]*/double = /*⇒4,variable,[readonly]*/iota
+		/*⇒4,variable,[definition readonly]*/iota   = /*⇒4,function,[defaultLibrary]*/copy
+		/*⇒4,variable,[definition readonly]*/four   = (/*⇒3,function,[defaultLibrary]*/len(/*⇒3,variable,[readonly]*/cmd)/*⇒1,operator,[]*// /*⇒1,number,[]*/2 /*⇒1,operator,[]*/< /*⇒1,number,[]*/5)
+		/*⇒4,variable,[definition readonly]*/five   = /*⇒4,variable,[readonly]*/four
+	)
+	/*⇒1,function,[]*/f(/*⇒3,variable,[readonly]*/cmd, /*⇒3,variable,[readonly]*/nil, /*⇒6,variable,[readonly]*/double, /*⇒4,variable,[readonly]*/iota)
+}
+
+/*⇒2,comment,[]*//*
+/*⇒0,comment,[]*/
+/*⇒12,comment,[]*/multiline */ /*⇒2,comment,[]*//*
+/*⇒9,comment,[]*/multiline
+/*⇒2,comment,[]*/*/
+/*⇒4,keyword,[]*/type /*⇒2,type,[definition]*/AA /*⇒3,type,[defaultLibrary]*/int
+/*⇒4,keyword,[]*/type /*⇒2,type,[definition]*/BB /*⇒6,keyword,[]*/struct {
+	/*⇒2,type,[]*/AA
+}
+/*⇒4,keyword,[]*/type /*⇒2,type,[definition]*/CC /*⇒6,keyword,[]*/struct {
+	/*⇒2,variable,[definition]*/AA /*⇒3,type,[defaultLibrary]*/int
+}
+/*⇒4,keyword,[]*/type /*⇒1,type,[definition]*/D /*⇒4,keyword,[]*/func(/*⇒2,parameter,[definition]*/aa /*⇒2,type,[]*/AA) (/*⇒2,parameter,[definition]*/BB /*⇒5,type,[]*/error)
+/*⇒4,keyword,[]*/type /*⇒1,type,[definition]*/E /*⇒4,keyword,[]*/func(/*⇒2,type,[]*/AA) /*⇒2,type,[]*/BB
+

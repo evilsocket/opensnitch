@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -euo pipefail
+
+DUMMY_SRC=dummy.c
+DUMMY_OBJ=dummy.o
+
+clang -O2 -emit-llvm -c ${DUMMY_SRC} -o - | llc -march=bpf -filetype=obj -o ${DUMMY_OBJ}
+for kernel in 46 48 410 414; do
+  clang -DKERNEL_VERSION="${kernel}" -O2 -emit-llvm -c ${DUMMY_SRC} -o - | llc -march=bpf -filetype=obj -o "dummy-${kernel}.o"
+done

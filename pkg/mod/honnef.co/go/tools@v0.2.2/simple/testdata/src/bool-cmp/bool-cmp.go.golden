@@ -1,0 +1,55 @@
+package pkg
+
+func fn1() bool { return false }
+func fn2() bool { return false }
+
+func fn() {
+	type T bool
+	var x T
+	const t T = false
+	if x == t {
+	}
+	if fn1() { // want `simplified to fn1\(\)`
+	}
+	if !fn1() { // want `simplified to !fn1\(\)`
+	}
+	if !fn1() { // want `simplified to !fn1\(\)`
+	}
+	if fn1() { // want `simplified to fn1\(\)`
+	}
+	if fn1() && (fn1() || fn1()) || (fn1() && fn1()) { // want `simplified to \(fn1\(\) && fn1\(\)\)`
+	}
+
+	if !(fn1() && fn2()) { // want `simplified to !\(fn1\(\) && fn2\(\)\)`
+	}
+
+	var y bool
+	for !y { // want `simplified to !y`
+	}
+	if !y { // want `simplified to !y`
+	}
+	if y { // want `simplified to y`
+	}
+	if y { // want `simplified to y`
+	}
+	if !y { // want `simplified to !y`
+	}
+	if !y { // want `simplified to !y`
+	}
+	if y { // want `simplified to y`
+	}
+	if y { // want `simplified to y`
+	}
+	if !y { // want `simplified to !y`
+	}
+	if !y { // want `simplified to !y`
+	}
+	if y { // want `simplified to y`
+	}
+	if !y == !false { // not matched because we expect true/false on one side, not !false
+	}
+
+	var z interface{}
+	if z == true {
+	}
+}

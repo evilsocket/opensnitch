@@ -1,0 +1,6 @@
+-- dur-hoverdef --
+```go
+const dur time.Duration = 910350000000 // 15m10.35s
+```
+
+dur is a constant of type time\.Duration\.

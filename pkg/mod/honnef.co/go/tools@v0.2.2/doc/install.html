@@ -1,0 +1,57 @@
+<h2>Installing Staticcheck</h2>
+
+<h3>tl;dr</h3>
+
+<p>
+  Install <code>honnef.co/go/tools/cmd/staticcheck@latest</code>.
+</p>
+
+<h3>From source</h3>
+
+<p>
+  Beginning with Go 1.16, the simplest way of installing Staticcheck is by running <code>go install honnef.co/go/tools/cmd/staticcheck@latest</code>.
+  This will install the latest version of Staticcheck to <code>$GOPATH/bin</code>. To find out where <code>$GOPATH</code> is, run <code>go env GOPATH</code>.
+  Instead of <code>@latest</code>, you can also use a specific version, such as <code>@2020.2.1</code>.
+</p>
+
+<p>
+  If you'd like to be notified of new releases, you can use <a href="https://docs.github.com/en/github/managing-subscriptions-and-notifications-on-github/viewing-your-subscriptions#configuring-your-watch-settings-for-an-individual-repository">GitHub's Releases only watches</a>. 
+</p>
+
+<h3>Binary releases</h3>
+
+<p>
+  We publish binary releases for the most common operating systems and CPU architectures.
+  These can be downloaded from <a href="https://github.com/dominikh/go-tools/releases">GitHub</a>.
+</p>
+
+<h3>Distribution packages</h3>
+
+<p>
+  Many package managers include Staticcheck, allowing you to install it with your usual commands, such as <code>apt install</code>.
+  Note, however, that you might not always get the latest version in a timely manner.
+</p>
+
+<p>
+  What follows is a non-exhaustive list of the package names in various package repositories.
+</p>
+
+<dl>
+  <dt>Arch Linux</dt>
+  <dd><a href="https://archlinux.org/packages/community/x86_64/staticcheck/">staticcheck</a></dd>
+
+  <dt>Debian</dt>
+  <dd><a href="https://packages.debian.org/sid/golang-honnef-go-tools-dev">golang-honnef-go-tools-dev</a></dd>
+
+  <dt>Fedora</dt>
+  <dd><a href="https://fedora.pkgs.org/33/fedora-x86_64/golang-honnef-tools-2020.1.5-2.fc33.x86_64.rpm.html">golang-honnef-tools</a></dd>
+
+  <dt>Homebrew</dt>
+  <dd><a href="https://formulae.brew.sh/formula/staticcheck">staticcheck</a></dd>
+
+  <dt>MacPorts</dt>
+  <dd><a href="https://ports.macports.org/port/staticcheck/summary">staticcheck</a></dd>
+
+  <dt>NixOS</dt>
+  <dd>go-tools</dd>
+</dl>

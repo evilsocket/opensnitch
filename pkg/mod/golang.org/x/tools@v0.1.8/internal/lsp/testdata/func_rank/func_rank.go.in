@@ -1,0 +1,70 @@
+package func_rank
+
+import "net/http"
+
+var stringAVar = "var"    //@item(stringAVar, "stringAVar", "string", "var")
+func stringBFunc() string { return "str" } //@item(stringBFunc, "stringBFunc", "func() string", "func")
+type stringer struct{}    //@item(stringer, "stringer", "struct{...}", "struct")
+
+func _() stringer //@complete("tr", stringer)
+
+func _(val stringer) {} //@complete("tr", stringer)
+
+func (stringer) _() {} //@complete("tr", stringer)
+
+func _() {
+	var s struct {
+		AA int    //@item(rankAA, "AA", "int", "field")
+		AB string //@item(rankAB, "AB", "string", "field")
+		AC int    //@item(rankAC, "AC", "int", "field")
+	}
+	fnStr := func(string) {}
+	fnStr(s.A)      //@complete(")", rankAB, rankAA, rankAC)
+	fnStr("" + s.A) //@complete(")", rankAB, rankAA, rankAC)
+
+	fnInt := func(int) {}
+	fnInt(-s.A) //@complete(")", rankAA, rankAC, rankAB)
+
+	// no expected type
+	fnInt(func() int { s.A }) //@complete(" }", rankAA, rankAB, rankAC)
+	fnInt(s.A())              //@complete("()", rankAA, rankAC, rankAB)
+	fnInt([]int{}[s.A])       //@complete("])", rankAA, rankAC, rankAB)
+	fnInt([]int{}[:s.A])      //@complete("])", rankAA, rankAC, rankAB)
+
+	fnInt(s.A.(int)) //@complete(".(", rankAA, rankAC, rankAB)
+
+	fnPtr := func(*string) {}
+	fnPtr(&s.A) //@complete(")", rankAB, rankAA, rankAC)
+
+	var aaPtr *string //@item(rankAAPtr, "aaPtr", "*string", "var")
+	var abPtr *int    //@item(rankABPtr, "abPtr", "*int", "var")
+	fnInt(*a)         //@complete(")", rankABPtr, rankAAPtr)
+
+	_ = func() string {
+		return s.A //@complete(" //", rankAB, rankAA, rankAC)
+	}
+}
+
+type foo struct {
+	fooPrivateField int //@item(rankFooPrivField, "fooPrivateField", "int", "field")
+	FooPublicField  int //@item(rankFooPubField, "FooPublicField", "int", "field")
+}
+
+func (foo) fooPrivateMethod() int { //@item(rankFooPrivMeth, "fooPrivateMethod", "func() int", "method")
+	return 0
+}
+
+func (foo) FooPublicMethod() int { //@item(rankFooPubMeth, "FooPublicMethod", "func() int", "method")
+	return 0
+}
+
+func _() {
+	var _ int = foo{}. //@rank(" //", rankFooPrivField, rankFooPubField),rank(" //", rankFooPrivMeth, rankFooPubMeth),rank(" //", rankFooPrivField, rankFooPrivMeth)
+}
+
+func _() {
+	HandleFunc //@item(httpHandleFunc, "HandleFunc", "func(pattern string, handler func(ResponseWriter, *Request))", "func")
+	HandlerFunc //@item(httpHandlerFunc, "HandlerFunc", "func(http.ResponseWriter, *http.Request)", "type")
+
+	http.HandleFunc //@rank(" //", httpHandleFunc, httpHandlerFunc)
+}

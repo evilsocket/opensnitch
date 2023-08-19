@@ -1,0 +1,45 @@
+<h2>Running Staticcheck</h2>
+
+<h3>Checking packages</h3>
+
+<p>
+  The <code>staticcheck</code> command works much like <code>go build</code> or <code>go vet</code> do.
+  It supports all of the same package patterns.
+  For example, <code>staticcheck .</code> will check the current package, and <code>staticcheck ./...</code> will check all packages.
+  For more details on specifying packages to check, see <code>go help packages</code>
+</p>
+
+<h3>Explaining checks</h3>
+
+<p>
+  You can use <code>staticcheck -explain &lt;check&gt;</code> to get a helpful description of a check.
+</p>
+
+<p>
+  Every diagnostic that <code>staticcheck</code> reports is annotated with the identifier of the specific check that found the issue.
+  For example, in
+</p>
+
+<pre><code>foo.go:1248:4: unnecessary use of fmt.Sprintf (S1039)</code></pre>
+
+<p>
+  the check's identifier is <code>S1039</code>.
+  Running <code>staticcheck -explain S1039</code> will output the following:
+</p>
+
+<pre><code>Unnecessary use of fmt.Sprint
+
+Calling fmt.Sprint with a single string argument is unnecessary and identical to using the string directly.
+
+Available since
+    2020.1
+
+Online documentation
+    https://staticcheck.io/docs/checks#S1039</code></pre>
+
+<p>
+  The output includes a one-line summary,
+  one or more paragraphs of helpful text,
+  the first version of Staticcheck that the check appeared in,
+  and a link to online documentation, which contains the same information as the output of <code>staticcheck -explain</code>.
+</p>

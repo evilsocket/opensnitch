@@ -1,0 +1,16 @@
+package pkg
+
+import "net/http"
+
+func fn() {
+	const hdr = "foo"
+	var r http.Request
+	h := http.Header{}
+	var m map[string][]string
+	_ = h["Foo"]                        // want `keys in http\.Header are canonicalized`
+	_ = h[http.CanonicalHeaderKey(hdr)] //  want `keys in http\.Header are canonicalized`
+	h["foo"] = nil
+	_ = r.Header["Foo"] // want `keys in http\.Header are canonicalized`
+	r.Header["foo"] = nil
+	_ = m["foo"]
+}

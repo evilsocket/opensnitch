@@ -1,0 +1,43 @@
+package pkg
+
+func done() bool { return false }
+
+var a, b int
+var x bool
+
+func fn() {
+	for !done() {
+
+	}
+
+	for done() {
+
+	}
+
+	for a <= b && b <= a {
+
+	}
+
+	for !x || !(a == b) {
+
+	}
+
+	for !done() {
+
+		println()
+	}
+
+	for {
+		println()
+		if done() {
+			break
+		}
+	}
+
+	for {
+		if done() {
+			println()
+			break
+		}
+	}
+}

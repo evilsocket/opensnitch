@@ -1,0 +1,35 @@
+name: Push
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        # Run on the latest minor release of Go 1.19:
+        go-version: ^1.19
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Ensure all files were formatted as per gofmt
+      run: |
+        [ "$(gofmt -l $(find . -name '*.go') 2>&1)" = "" ]
+
+    - name: Run tests
+      run: |
+        go vet .
+        go test ./...
+        go test -c github.com/google/nftables
+        sudo ./nftables.test -test.v -run_system_tests

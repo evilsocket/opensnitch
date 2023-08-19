@@ -1,0 +1,31 @@
+-- symbols --
+x Variable 9:5-9:6
+y Constant 11:7-11:8
+Number Number 13:6-13:12
+Alias String 15:6-15:11
+NumberAlias Number 17:6-17:17
+Boolean Boolean 20:2-20:9
+BoolAlias Boolean 21:2-21:11
+Foo Struct 24:6-24:9
+	Bar Field 27:2-27:5
+	Quux Field 25:2-25:6
+	W Field 26:2-26:3
+	baz Field 28:2-28:5
+Quux Struct 31:6-31:10
+	X Field 32:2-32:3
+	Y Field 32:5-32:6
+(Foo).Baz Method 35:14-35:17
+(*Quux).Do Method 41:16-41:18
+main Function 43:6-43:10
+Stringer Interface 47:6-47:14
+	String Method 48:2-48:8
+ABer Interface 51:6-51:10
+	A Method 53:2-53:3
+	B Method 52:2-52:3
+WithEmbeddeds Interface 56:6-56:19
+	ABer Interface 58:2-58:6
+	Do Method 57:2-57:4
+	io.Writer Interface 59:2-59:11
+Dunk Function 62:6-62:10
+dunk Function 64:6-64:10
+

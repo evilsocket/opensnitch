@@ -348,397 +348,397 @@ REDIRECT、TPROXY、DNAT、SNAT、MASQUERADE：
         <translation>偏好設定</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="116"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="39"/>
         <source>Pop-ups</source>
         <translation>彈出視窗</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="229"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="64"/>
         <source>Default options</source>
         <translation>預設選項</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="275"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="110"/>
         <source>If checked, this field will be selected when a pop-up is displayed</source>
         <translation>如果選取，則在顯示彈出視窗時將選擇此欄位</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="246"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="81"/>
         <source>User ID</source>
         <translation>使用者 ID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="262"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="97"/>
         <source>Destination port</source>
         <translation>目標連接埠</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="278"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="113"/>
         <source>Destination IP</source>
         <translation>目標 IP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1257"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1173"/>
         <source>deny</source>
         <translation>拒絕</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1266"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1182"/>
         <source>allow</source>
         <translation>允許</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="312"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="147"/>
         <source>reject</source>
         <translation>拒絕</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="159"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. new outgoing connections are denied.&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;彈出視窗的預設動作。&lt;/p&gt;&lt;p&gt;當新的對外連線即將建立時，此動作將被預設選擇，所以如果逾時，這將是被套用的選項。&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;當彈出視窗正在詢問使用者是否允許或拒絕連線時：&lt;/p&gt;&lt;p&gt;1. 新的對外連線被拒絕。&lt;/p&gt;&lt;p&gt;2. 已知的連線依據使用者定義的規則被允許或拒絕。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;彈出視窗的預設動作。&lt;/p&gt;&lt;p&gt;當新的對外連線即將建立時，此動作將被預設選擇，所以如果逾時，這將是被套用的選項。&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;當彈出視窗正在詢問使用者是否允許或拒絕連線時：&lt;/p&gt;&lt;p&gt;1. 新的對外連線被拒絕。&lt;/p&gt;&lt;p&gt;2. 已知的連線依據使用者定義的規則被允許或拒絕。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="965"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="872"/>
         <source>Action</source>
         <translation>動作</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="344"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="179"/>
         <source>center</source>
         <translation>中央</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="349"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="184"/>
         <source>top right</source>
         <translation>右上</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="354"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="189"/>
         <source>bottom right</source>
         <translation>右下</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="359"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="194"/>
         <source>top left</source>
         <translation>左上</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="364"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="199"/>
         <source>bottom left</source>
         <translation>左下</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1235"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1205"/>
         <source>once</source>
         <translation>一次</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="384"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="219"/>
         <source>30s</source>
         <translation>30 秒</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="389"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="224"/>
         <source>5m</source>
         <translation>5 分鐘</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="394"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="229"/>
         <source>15m</source>
         <translation>15 分鐘</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="399"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="234"/>
         <source>30m</source>
         <translation>30 分鐘</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="404"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="239"/>
         <source>1h</source>
         <translation>1 小時</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="409"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="244"/>
         <source>until reboot</source>
         <translation>持續到重新啟動</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="414"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="249"/>
         <source>forever</source>
         <translation>永久</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="428"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="263"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;預設情況下，當出現新的彈出視窗時，以其最簡單的形式，您將能夠按連線的一個屬性（執行檔、連接埠、IP 等）篩選連線或應用程式。&lt;/p&gt;&lt;p&gt;使用這些選項，您可以選擇多個欄位來篩選連線。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="431"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="266"/>
         <source>Filter connections also by:</source>
         <translation>也按以下方式篩選連線：</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="448"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="283"/>
         <source>by executable</source>
         <translation>依執行檔</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="453"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="288"/>
         <source>by command line</source>
         <translation>依命令列</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="458"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="293"/>
         <source>by destination port</source>
         <translation>依目標連接埠</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="463"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="298"/>
         <source>by destination ip</source>
         <translation>依目標 IP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="468"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="303"/>
         <source>by user id</source>
         <translation>依使用者 ID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="473"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="308"/>
         <source>by PID</source>
         <translation>依 PID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="488"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="323"/>
         <source>Default target</source>
         <translation>預設目標</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="495"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="330"/>
         <source>Default position on screen</source>
         <translation>在螢幕上的預設位置</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="505"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="340"/>
         <source>Pop-up default duration</source>
         <translation>彈出視窗的預設持續時間</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="508"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="343"/>
         <source>Duration</source>
         <translation>持續時間</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="521"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="356"/>
         <source>The advanced view allows you to easily select multiple fields to filter connections</source>
         <translation>進階檢視讓您可以輕鬆選擇多個欄位來篩選連線</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="524"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="359"/>
         <source>Show advanced view by default</source>
         <translation>預設顯示進階檢視</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="540"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="375"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;如果選取，彈出視窗將會以進階檢視顯示。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="128"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="466"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;p&gt;If the pop-up is not answered, the default options will be applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;此逾時是顯示彈出對話框時看到的倒數計時。&lt;/p&gt;&lt;p&gt;如果未回答彈出視窗，將套用預設選項。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="131"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="469"/>
         <source>Default timeout</source>
         <translation>預設逾時</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="553"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="476"/>
         <source>Disable pop-ups, only display a notification</source>
         <translation>停用彈出視窗，只顯示通知</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="564"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="487"/>
         <source>UI</source>
         <translation>使用者介面</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1205"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1128"/>
         <source>General</source>
         <translation>一般</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="594"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="509"/>
         <source>Language</source>
         <translation>語言</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="618"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="533"/>
         <source>System</source>
         <translation>系統</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="632"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="547"/>
         <source>Theme</source>
         <translation>主題</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="639"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="554"/>
         <source>By default the GUI is started when login</source>
         <translation>預設登入時啟動圖形介面</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="642"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="557"/>
         <source>Autostart the GUI upon login</source>
         <translation>登入時自動啟動圖形介面</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="661"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="568"/>
         <source>Server</source>
         <translation>伺服器</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="674"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="581"/>
         <source>4MiB</source>
         <translation>4 MiB</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="679"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="586"/>
         <source>8MiB</source>
         <translation>8 MiB</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="684"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="591"/>
         <source>16MiB</source>
         <translation>16 MiB</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="689"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="596"/>
         <source>32MiB</source>
         <translation>32 MiB</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1515"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="605"/>
         <source>Simple</source>
         <translation>簡易</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1520"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="610"/>
         <source>Simple TLS</source>
         <translation>簡易 TLS</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1525"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="615"/>
         <source>Mutual TLS</source>
         <translation>雙向 TLS</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1489"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="623"/>
         <source>Absolute path to the cert file</source>
         <translation>憑證檔案的絕對路徑</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="723"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="630"/>
         <source>Maximum size of each message from nodes. Default 4MB</source>
         <translation>來自節點的每個訊息的最大大小。預設 4MB</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="726"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="633"/>
         <source>Max gRPC channel size</source>
         <translation>gRPC 頻道的最大大小</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1582"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="640"/>
         <source>Absolute path to the cert key file</source>
         <translation>憑證金鑰檔案的絕對路徑</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1498"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="647"/>
         <source>&lt;p&gt;Simple: no authentication, TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</source>
         <translation>&lt;p&gt;簡易：無驗證，TLS 簡易/雙向：使用 SSL 憑證來驗證節點。&lt;/p&gt;&lt;p&gt;造訪 wiki 以取得更多資訊。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1501"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="650"/>
         <source>Authentication type</source>
         <translation>驗證類型</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1535"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="657"/>
         <source>Absolute path to the CA cert file</source>
         <translation>CA 憑證檔案的絕對路徑</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="766"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="673"/>
         <source>Desktop notifications</source>
         <translation>桌面通知</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="778"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="685"/>
         <source>Enable</source>
         <translation>啟用</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="796"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="703"/>
         <source>Use system notifications</source>
         <translation>使用系統通知</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="812"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="719"/>
         <source>Use Qt notifications</source>
         <translation>使用 Qt 通知</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="841"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="748"/>
         <source>Test</source>
         <translation>測試</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="862"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="769"/>
         <source>Events tab columns</source>
         <translation>事件標籤欄位</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="901"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="808"/>
         <source>Time</source>
         <translation>時間</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="917"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="824"/>
         <source>Rule</source>
         <translation>規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="933"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="840"/>
         <source>Node</source>
         <translation>節點</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="949"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="856"/>
         <source>Protocol</source>
         <translation>通訊協定</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="981"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="888"/>
         <source>Destination</source>
         <translation>目標</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="997"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="904"/>
         <source>Process</source>
         <translation>處理程序</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1007"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="914"/>
         <source>Command line</source>
         <translation>命令列</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1025"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="932"/>
         <source>Rules</source>
         <translation>規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1033"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="940"/>
         <source>When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.
 
 Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.</source>
@@ -747,289 +747,229 @@ Temporary rules will still be valid, and you can use them when prompted to allow
 臨時規則仍然有效，並且您可以在提示允許/阻擋新連線時使用它們。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1038"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="945"/>
         <source>Don&apos;t save/Delete rules of duration</source>
         <translation>不儲存/刪除持續時間的規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1046"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="953"/>
         <source>any temporary rules</source>
         <translation>任何臨時規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1056"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="963"/>
         <source>30s or less</source>
         <translation>30 秒或更少</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1061"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="968"/>
         <source>5m or less</source>
         <translation>5 分鐘或更少</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1066"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="973"/>
         <source>15m or less</source>
         <translation>15 分鐘或更少</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1071"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="978"/>
         <source>30m or less</source>
         <translation>30 分鐘或更少</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1076"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="983"/>
         <source>1h or less</source>
         <translation>1 小時或更少</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1100"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1007"/>
         <source>Nodes</source>
         <translation>節點</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1616"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1019"/>
         <source>HostName</source>
         <translation>主機名稱</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1125"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1067"/>
         <source>Version</source>
         <translation>版本</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1112"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1109"/>
         <source>Apply configuration to all nodes</source>
         <translation>將設定套用到所有節點</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1317"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1134"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it&apos;s a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;節點的位址。&lt;/p&gt;&lt;p&gt;預設：unix:///tmp/osui.sock（如果是 Unix socket，unix:// 是必須的）&lt;/p&gt;&lt;p&gt;也可以是帶有連接埠的 IP 位址：127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1320"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1137"/>
         <source>Address</source>
         <translation>位址</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1338"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1148"/>
         <source>unix:///tmp/osui.sock</source>
         <translation>unix:///tmp/osui.sock</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1156"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;當沒有連接 UI 時，將進行預設動作。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;當沒有連接 UI 時，將進行預設動作。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1214"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1159"/>
         <source>Default action when the GUI is disconnected</source>
         <translation>GUI 斷開連接時的預設動作</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1224"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1194"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;當沒有連接 UI 時，將進行預設持續時間。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1227"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1197"/>
         <source>Default duration</source>
         <translation>預設的持續時間</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1240"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1210"/>
         <source>until restart</source>
         <translation>直到重新啟動</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1245"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1215"/>
         <source>always</source>
         <translation>永遠</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1300"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1223"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don&apos;t have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;如果選取，OpenSnitch 將提示您允許或拒絕沒有相關 PID 的連線，原因有很多，主要是因為連線狀態不佳。&lt;/p&gt;&lt;p&gt;彈出對話框只會包含有關網路連線的資訊。&lt;/p&gt;&lt;p&gt;儘管在某些情況下，這些是有效的連線，例如使用 WireGuard 建立 VPN。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1303"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1226"/>
         <source>Debug invalid connections</source>
         <translation>偵錯無效連線</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1310"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1240"/>
         <source>Process monitor method</source>
         <translation>處理程序監控方法</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1355"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1278"/>
         <source>Logging</source>
         <translation>記錄</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1368"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1291"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log file to write logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;寫入記錄的日誌檔案。&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout 將會將記錄列印到標準輸出。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1371"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1294"/>
         <source>Log file</source>
         <translation>日誌檔案</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1378"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1301"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will log timestamp microseconds.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;如果選取，OpenSnitch 將記錄時間戳微秒。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1381"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1304"/>
         <source>Log timestamp microseconds</source>
         <translation>記錄時間戳微秒</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1425"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1348"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will use the UTC timezone for timestamps.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;如果選取，OpenSnitch 將使用 UTC 時區的時間戳。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1428"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1351"/>
         <source>Log UTC timestamps</source>
         <translation>記錄 UTC 時間戳</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1435"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1358"/>
         <source>Default log level</source>
         <translation>預設記錄等級</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1446"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1369"/>
         <source>/var/log/opensnitchd.log</source>
         <translation>/var/log/opensnitchd.log</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1451"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1374"/>
         <source>/dev/stdout</source>
         <translation>/dev/stdout</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1627"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1410"/>
         <source>Database</source>
         <translation>資料庫</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1662"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1445"/>
         <source>In memory</source>
         <translation>在記憶體中</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1667"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1450"/>
         <source>File</source>
         <translation>檔案</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1681"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1464"/>
         <source>Database type</source>
         <translation>資料庫類型</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1688"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1471"/>
         <source>Select</source>
         <translation>選擇</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1775"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1558"/>
         <source>minutes</source>
         <translation>分鐘</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1807"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1590"/>
         <source>Minutes between events purges</source>
         <translation>事件清除之間的分鐘數</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1833"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1616"/>
         <source>days</source>
         <translation>天</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1846"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1629"/>
         <source>Maximum days of events to keep</source>
         <translation>保留事件的最大天數</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="62"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1753"/>
         <source>Close</source>
         <translation>關閉</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="73"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1764"/>
         <source>Apply</source>
         <translation>套用</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="84"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1775"/>
         <source>Save</source>
         <translation>儲存</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="324"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. the daemon&apos;s default action will be applied (see Nodes tab).&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1211"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will be applied to new outbound connections in two scenarios:&lt;/p&gt;&lt;p&gt;when the daemon is not connected to the UI, or when there&apos;s a pop-up running.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1483"/>
-        <source>Authentication</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1544"/>
-        <source>Don&apos;t verify certs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1552"/>
-        <source>no-client-cert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1557"/>
-        <source>req-cert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1562"/>
-        <source>req-any-cert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1567"/>
-        <source>verify-cert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1572"/>
-        <source>req-and-verify-cert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1589"/>
-        <source>Absolute path to the server cert file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1596"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;More information&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1925"/>
-        <source>Enable DB Write-Ahead Logging (WAL)</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1801,7 +1741,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="295"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
-        <translation>為了從 GUI 設定防火牆規則，我們需要使用 'nftables' 而不是 'iptables'</translation>
+        <translation>為了從 GUI 設定防火牆規則，我們需要使用 &apos;nftables&apos; 而不是 &apos;iptables&apos;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="309"/>
@@ -2081,167 +2021,167 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 (pip3 install --ignore-installed protobuf==3.8.0)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="404"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="405"/>
         <source>Rule deleted</source>
         <translation>規則已刪除</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="410"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="411"/>
         <source>Rule saved</source>
         <translation>規則已儲存</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="412"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="413"/>
         <source>Rule added</source>
         <translation>規則已新增</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="422"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="423"/>
         <source>Error saving rule</source>
         <translation>儲存規則時出錯</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="449"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="450"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
-        <translation>您可以使用 ',' 或 '-' 來指定多個連接埠/IP 或範圍/值：&lt;br&gt;&lt;br&gt;連接埠：22 或 22,443 或 50000-60000&lt;br&gt;IP：192.168.1.1 或 192.168.1.30-192.168.1.130&lt;br&gt;值：echo-reply,echo-request&lt;br&gt;值：new,established,related</translation>
+        <translation>您可以使用 &apos;,&apos; 或 &apos;-&apos; 來指定多個連接埠/IP 或範圍/值：&lt;br&gt;&lt;br&gt;連接埠：22 或 22,443 或 50000-60000&lt;br&gt;IP：192.168.1.1 或 192.168.1.30-192.168.1.130&lt;br&gt;值：echo-reply,echo-request&lt;br&gt;值：new,established,related</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="469"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="470"/>
         <source>Deleting rule, wait</source>
         <translation>正在刪除規則，請稍候</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="472"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="473"/>
         <source>Error updating rule</source>
         <translation>更新規則時出錯</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="507"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="508"/>
         <source>Add at least one statement.</source>
         <translation>至少新增一個語句。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="518"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="519"/>
         <source>Adding rule, wait</source>
         <translation>正在新增規則，請稍候</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="528"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="529"/>
         <source>&lt;select a statement&gt;</source>
         <translation>&lt;選擇一個語句&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="653"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="654"/>
         <source>num</source>
         <translation>數字</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="667"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="668"/>
         <source>to</source>
         <translation>到</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="833"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="834"/>
         <source>Equal</source>
         <translation>等於</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="834"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="835"/>
         <source>Not equal</source>
         <translation>不等於</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="835"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="836"/>
         <source>Greater or equal than</source>
         <translation>大於或等於</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="836"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="837"/>
         <source>Greater than</source>
         <translation>大於</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="837"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="838"/>
         <source>Less or equal than</source>
         <translation>小於或等於</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="838"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="839"/>
         <source>Less than</source>
         <translation>小於</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1006"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1007"/>
         <source>Warning: ct set mark value is empty, malformed rule?</source>
         <translation>警告：ct 設定標記值為空，規則格式錯誤？</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1522"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1523"/>
         <source>Firewall rule</source>
         <translation>防火牆規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1058"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1059"/>
         <source>Simple</source>
         <translation>簡易</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1063"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1064"/>
         <source>Advanced</source>
         <translation>進階</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1185"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1186"/>
         <source>This rule is not supported yet.</source>
         <translation>此規則目前尚未支援。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1250"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1251"/>
         <source>Exclude service</source>
         <translation>排除服務</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1262"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1263"/>
         <source>Allow inbound connections to the selected port.</source>
         <translation>允許到選定連接埠的對內連接。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1264"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1265"/>
         <source>Allow outbound connections to the selected port.</source>
         <translation>允許到選定連接埠的對外連接。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1340"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1341"/>
         <source>select a statement.</source>
         <translation>選擇一個語句。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1356"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1357"/>
         <source>value cannot be 0 or empty.</source>
         <translation>值不能為 0 或空。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1368"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1369"/>
         <source>the value format is 1024/kbytes (or bytes, mbytes, gbytes)</source>
         <translation>值的格式為 1024/kbytes (或 bytes, mbytes, gbytes)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1382"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1383"/>
         <source>the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)</source>
         <translation>值的格式為 1024/kbytes/second (或 bytes, mbytes, gbytes)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1385"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1386"/>
         <source>rate-limit not valid, use: bytes, kbytes, mbytes or gbytes.</source>
         <translation>速率限制無效，使用：bytes, kbytes, mbytes 或 gbytes。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1387"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1388"/>
         <source>time-limit not valid, use: second, minute, hour or day</source>
         <translation>時間限制無效，使用：second, minute, hour 或 day</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1454"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1455"/>
         <source>port not valid.</source>
         <translation>連接埠無效。</translation>
     </message>
@@ -2249,17 +2189,17 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 <context>
     <name>messages</name>
     <message>
-        <location filename="../../../opensnitch/service.py" line="309"/>
+        <location filename="../../../opensnitch/service.py" line="301"/>
         <source>Info</source>
         <translation>資訊</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="313"/>
+        <location filename="../../../opensnitch/service.py" line="305"/>
         <source>Error</source>
         <translation>錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="317"/>
+        <location filename="../../../opensnitch/service.py" line="309"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
@@ -2267,7 +2207,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 <context>
     <name>notifications</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="921"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="767"/>
         <source>System notifications are not available, you need to install python3-notify2.</source>
         <translation>系統通知無法使用，您需要安裝 python3-notify2 套件。</translation>
     </message>
@@ -2280,12 +2220,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation>開啟</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="120"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="119"/>
         <source>Allow</source>
         <translation>允許</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="119"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="118"/>
         <source>Deny</source>
         <translation>拒絕</translation>
     </message>
@@ -2295,87 +2235,87 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation>新的對外連線</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="495"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="494"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
         <translation>正在連線到 &lt;b&gt;%s&lt;/b&gt; 的 %s 連接埠 %d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="53"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="52"/>
         <source>until reboot</source>
         <translation>直到重新啟動</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="55"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="54"/>
         <source>forever</source>
         <translation>永久</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="121"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="120"/>
         <source>Reject</source>
         <translation>拒絕</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="336"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="335"/>
         <source>Outgoing connection</source>
         <translation>對外連線</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="341"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="340"/>
         <source>Process launched from:</source>
         <translation>處理程序起始來源：</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="378"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="377"/>
         <source>from this executable</source>
         <translation>來自此執行檔</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="382"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="381"/>
         <source>from this command line</source>
         <translation>來自此命令列</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="384"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="383"/>
         <source>to port {0}</source>
         <translation>到埠號 {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="447"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="446"/>
         <source>to {0}</source>
         <translation>到 {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="387"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="386"/>
         <source>from user {0}</source>
         <translation>來自使用者 {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="391"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="390"/>
         <source>from this PID</source>
         <translation>來自此 PID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="404"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="403"/>
         <source>to {0}.*</source>
         <translation>到 {0}.*</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="457"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="456"/>
         <source>to *.{0}</source>
         <translation>到 *.{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="491"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="490"/>
         <source>&lt;b&gt;Remote&lt;/b&gt; process %s running on &lt;b&gt;%s&lt;/b&gt;</source>
         <translation>&lt;b&gt;遠端&lt;/b&gt; 處理程序 %s 在 &lt;b&gt;%s&lt;/b&gt; 上執行</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="502"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="501"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt;, %s</source>
         <translation>正在連線到 &lt;b&gt;%s&lt;/b&gt;，%s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="507"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="506"/>
         <source>is attempting to resolve &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</source>
         <translation>正試圖透過 %s，%s 連接埠 %d 解析 &lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
@@ -2383,144 +2323,134 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 <context>
     <name>preferences</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="523"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="458"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="61"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="44"/>
         <source>Restart the GUI in order changes to take effect</source>
         <translation>重新啟動 GUI 以使變更生效</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="657"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="438"/>
         <source>There&apos;re no nodes connected</source>
         <translation>沒有任何節點已連線。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="220"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="183"/>
         <source>System default</source>
         <translation>系統預設</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="598"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="534"/>
         <source>System</source>
         <translation>系統</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="243"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="206"/>
         <source>Themes not available. Install qt-material: pip3 install qt-material</source>
         <translation>主題不可用。安裝 qt-material：pip3 install qt-material</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="380"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="337"/>
         <source>Server address can not be empty</source>
         <translation>伺服器位址不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="415"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="368"/>
         <source>Error loading {0} configuration</source>
         <translation>載入 {0} 設定時出錯</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="655"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="436"/>
         <source>Exception saving config: {0}</source>
         <translation>儲存設定時發生例外：{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="517"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="452"/>
         <source>DB type changed</source>
         <translation>DB 類型已變更</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="523"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="458"/>
         <source>You must select a file for the database&lt;br&gt;or choose &quot;In memory&quot; type.</source>
         <translation>您必須為資料庫選擇一個檔案&lt;br&gt;或是選擇「記憶體中」的類型。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="557"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="490"/>
         <source>Certificates changed</source>
         <translation>憑證已變更</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="568"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="504"/>
         <source>Language changed</source>
         <translation>語言已變更</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="599"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="535"/>
         <source>UI theme changed</source>
         <translation>UI 主題已變更</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="663"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="565"/>
         <source>Applying configuration on {0} ...</source>
         <translation>正在對 {0} 套用設定 ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="671"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="573"/>
         <source>Ok</source>
         <translation>確定</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="681"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="583"/>
         <source>Exception saving node config {0}: {1}</source>
         <translation>儲存節點設定 {0} 時發生例外：{1}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="720"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="594"/>
         <source>Certs fields cannot be empty.</source>
         <translation>憑證欄位不能為空。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="723"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="597"/>
         <source>cert file has excessive permissions, it should have 0600</source>
         <translation>憑證檔案權限過大，應設為 0600</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="727"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="601"/>
         <source>cert key file has excessive permissions, it should have 0600</source>
         <translation>憑證金鑰檔案權限過大，應設為 0600</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="733"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="607"/>
         <source>CA cert file has excessive permissions, it should have 0600</source>
         <translation>CA 憑證檔案權限過大，應設為 0600</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="797"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="667"/>
         <source>Configuration applied.</source>
         <translation>設定已套用。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="799"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="669"/>
         <source>Error applying configuration: {0}</source>
         <translation>套用設定時出錯：{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="804"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="674"/>
         <source>Certs changed</source>
         <translation>憑證已變更</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="846"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="710"/>
         <source>Hover the mouse over the texts to display the help&lt;br&gt;&lt;br&gt;Don&apos;t forget to visit the wiki: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</source>
         <translation>將滑鼠停在文字上以顯示幫助&lt;br&gt;&lt;br&gt;別忘了造訪 wiki：&lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="873"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="737"/>
         <source>Auth type changed</source>
         <translation>認證類型已變更</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="807"/>
-        <source>Node certs changed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="898"/>
-        <source>DB journal_mode changed</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2548,162 +2478,162 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 <context>
     <name>rules</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="237"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="238"/>
         <source>There&apos;re no nodes connected.</source>
         <translation>沒有已連線的節點。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="254"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="255"/>
         <source>There&apos;s already a rule with this name.</source>
         <translation>已經有一條相同名稱的規則。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="280"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="281"/>
         <source>Rule applied.</source>
         <translation>規則已套用。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="282"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="283"/>
         <source>Error applying rule: {0}</source>
         <translation>套用規則出錯：{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="548"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="549"/>
         <source>&lt;b&gt;Error loading rule&lt;/b&gt;</source>
         <translation>&lt;b&gt;載入規則出錯&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="654"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="651"/>
         <source>protocol can not be empty, or uncheck it</source>
         <translation>通訊協定不能為空或取消勾選</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="668"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="665"/>
         <source>Protocol regexp error</source>
         <translation>通訊協定正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="672"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="669"/>
         <source>process path can not be empty</source>
         <translation>處理程序路徑不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="686"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="683"/>
         <source>Process path regexp error</source>
         <translation>處理程序路徑正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="690"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="687"/>
         <source>command line can not be empty</source>
         <translation>命令列不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="704"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="701"/>
         <source>Command line regexp error</source>
         <translation>命令列正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="708"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="705"/>
         <source>Network interface can not be empty</source>
         <translation>網路介面不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="722"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="719"/>
         <source>Network interface regexp error</source>
         <translation>網路介面正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="726"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="723"/>
         <source>Source port can not be empty</source>
         <translation>來源連接埠不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="740"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="737"/>
         <source>Source port regexp error</source>
         <translation>來源連接埠正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="744"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="741"/>
         <source>Dest port can not be empty</source>
         <translation>目標連接埠不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="758"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="755"/>
         <source>Dst port regexp error</source>
         <translation>目標連接埠正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="762"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="759"/>
         <source>Dest host can not be empty</source>
         <translation>目標主機不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="776"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="773"/>
         <source>Dst host regexp error</source>
         <translation>目標主機正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="780"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="777"/>
         <source>Source IP/Network can not be empty</source>
         <translation>來源 IP/網路不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="806"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="803"/>
         <source>Source IP regexp error</source>
         <translation>來源 IP 正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="818"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="815"/>
         <source>Dest IP/Network can not be empty</source>
         <translation>目標 IP/網路不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="844"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="841"/>
         <source>Dst IP regexp error</source>
         <translation>目標 IP 正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="859"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="856"/>
         <source>User ID can not be empty</source>
         <translation>使用者 ID 不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="876"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="873"/>
         <source>User ID regexp error</source>
         <translation>使用者 ID 正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="879"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="876"/>
         <source>Invalid UID, it must be a digit.</source>
         <translation>無效的 UID，必須是數字。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="893"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="890"/>
         <source>PID field can not be empty</source>
         <translation>PID 欄位不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="907"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="904"/>
         <source>PID field regexp error</source>
         <translation>PID 欄位正規表達式錯誤</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="963"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="960"/>
         <source>Lists field cannot be empty</source>
         <translation>列表欄位不能為空</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="965"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="962"/>
         <source>Lists field must be a directory</source>
         <translation>列表欄位必須是目錄</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="995"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="992"/>
         <source>Select at least one field.</source>
         <translation>至少選擇一個欄位。</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1008"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1005"/>
         <source>&lt;b&gt;Rule not supported&lt;/b&gt;</source>
         <translation>&lt;b&gt;不支援的規則&lt;/b&gt;</translation>
     </message>
@@ -2711,12 +2641,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 <context>
     <name>stats</name>
     <message>
-        <location filename="../../../opensnitch/service.py" line="239"/>
+        <location filename="../../../opensnitch/service.py" line="231"/>
         <source>WARNING</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="809"/>
+        <location filename="../../../opensnitch/service.py" line="796"/>
         <source>New node connected</source>
         <translation>新節點已連接</translation>
     </message>
@@ -2736,389 +2666,378 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation>網路名稱</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="295"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="293"/>
         <source>Time</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>時間</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="300"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="297"/>
         <source>Node</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>節點</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="297"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="294"/>
         <source>Action</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>動作</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="307"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="304"/>
         <source>Destination</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>目的地</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="304"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
         <source>Protocol</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>協議</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="302"/>
         <source>Process</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>處理程序</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="311"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="308"/>
         <source>Rule</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="288"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="286"/>
         <source>Name</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>名稱</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="289"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="287"/>
         <source>Address</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>位址</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="290"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="288"/>
         <source>Status</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>狀態</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="291"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="289"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>主機名稱</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="292"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="290"/>
         <source>Uptime</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>運作時間</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="425"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="422"/>
         <source>Version</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>版本</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="422"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="419"/>
         <source>Rules</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="298"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="295"/>
         <source>Duration</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>持續時間</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="299"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="296"/>
         <source>Description</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>描述</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="298"/>
         <source>Enabled</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>已啟用</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="302"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="299"/>
         <source>Precedence</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>優先順序</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="441"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="437"/>
         <source>Hits</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>命中次數</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="306"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="303"/>
         <source>Cmdline</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>命令列</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="308"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
         <source>DstIP</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>目標 IP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="309"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="306"/>
         <source>DstHost</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>目標主機</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="310"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="307"/>
         <source>DstPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>目標連接埠</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="312"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="309"/>
         <source>UserID</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>使用者 ID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="313"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="310"/>
         <source>LastConnection</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>最後連線</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="315"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="312"/>
         <source>Not running</source>
         <translation>未運作</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="316"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="313"/>
         <source>Disabled</source>
         <translation>已停用</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="317"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="314"/>
         <source>Running</source>
         <translation>運作中</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="408"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="405"/>
         <source>Export rules</source>
         <translation>匯出規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="409"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="406"/>
         <source>Import rules</source>
         <translation>匯入規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="410"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="407"/>
         <source>Export events to CSV</source>
         <translation>將事件匯出至 CSV</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="411"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="408"/>
         <source>Quit</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="423"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="420"/>
         <source>Connections</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>連線</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="424"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="421"/>
         <source>Dropped</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>已丟棄</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="440"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="436"/>
         <source>What</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>內容</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="639"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="635"/>
         <source>OpenSnitch Network Statistics {0}</source>
         <translation>OpenSnitch 網路統計 {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="641"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="637"/>
         <source>OpenSnitch Network Statistics for {0}</source>
         <translation>OpenSnitch 為 {0} 的網路統計</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="836"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="832"/>
         <source>Details</source>
         <translation>詳細資訊</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="837"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="833"/>
         <source>Rules</source>
         <translation>規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="838"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="834"/>
         <source>New</source>
         <translation>新增</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="946"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="942"/>
         <source>Export</source>
         <translation>匯出</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="879"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="875"/>
         <source>Action</source>
         <translation>動作</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="968"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="964"/>
         <source>Disable</source>
         <translation>停用</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="970"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="966"/>
         <source>Enable</source>
         <translation>啟用</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="975"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="971"/>
         <source>Delete</source>
         <translation>刪除</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="974"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="970"/>
         <source>Edit</source>
         <translation>編輯</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="978"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="974"/>
         <source>To clipboard</source>
         <translation>複製到剪貼簿</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="945"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="941"/>
         <source>Apply to</source>
         <translation>套用於</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="954"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="950"/>
         <source>Allow</source>
         <translation>允許</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="955"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="951"/>
         <source>Deny</source>
         <translation>阻擋</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="956"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="952"/>
         <source>Reject</source>
         <translation>拒絕</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="959"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="955"/>
         <source>Always</source>
         <translation>總是</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="960"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="956"/>
         <source>Until reboot</source>
         <translation>持續到重新啟動</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="973"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="969"/>
         <source>Duplicate</source>
         <translation>複製</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="979"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="975"/>
         <source>To disk</source>
         <translation>儲存到磁碟</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1734"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1730"/>
         <source>    Are you sure?</source>
         <translation>    您確定嗎？</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2562"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2559"/>
         <source>Select a directory to export rules</source>
         <translation>選擇一個目錄以匯出規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1211"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1207"/>
         <source>    Your are about to delete this rule.    </source>
         <translation>    您即將刪除此規則。    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1213"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1209"/>
         <source>    Your are about to delete this entry.    </source>
         <translation>    您即將刪除此條目。    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1270"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1266"/>
         <source>Rule not found by that name and node</source>
         <translation>未找到該名稱和節點的規則</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1323"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1319"/>
         <source>Error:</source>
         <translation>錯誤：</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1331"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1327"/>
         <source>Warning:</source>
         <translation>警告：</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1701"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1697"/>
         <source>    You are about to delete this node.    </source>
         <translation>    您即將刪除此節點。    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1710"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1706"/>
         <source>&lt;b&gt;Error deleting node&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
         <translation>&lt;b&gt;刪除節點時出錯&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1734"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1730"/>
         <source>    You are about to delete this rule.    </source>
         <translation>    您即將刪除此規則。    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2517"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2514"/>
         <source>Error exporting rules</source>
         <translation>匯出規則時出錯</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2591"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2588"/>
         <source>Select a directory with rules to import (JSON files)</source>
         <translation>選擇一個含有要匯入的規則的目錄（JSON 檔案）</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2605"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2602"/>
         <source>Rules imported fine</source>
         <translation>規則匯入成功</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2620"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2617"/>
         <source>Save as CSV</source>
         <translation>另存為 CSV</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/service.py" line="208"/>
-        <source>Warning</source>
-        <translation type="unfinished">警告</translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="296"/>
-        <source>Created</source>
-        <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

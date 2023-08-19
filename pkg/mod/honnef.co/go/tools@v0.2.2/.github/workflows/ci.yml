@@ -1,0 +1,39 @@
+name: "CI"
+on: ["push", "pull_request"]
+
+jobs:
+  test:
+    name: "Run unit tests"
+    strategy:
+      matrix:
+        os: ["windows-latest", "ubuntu-latest", "macOS-latest"]
+        go: ["1.15.x", "1.16.x"]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - uses: WillAbides/setup-go-faster@v1.5.0
+      with:
+        go-version: ${{ matrix.go }}
+    - run: "go test ./..."
+
+  lint:
+    name: "Run static analysis"
+    runs-on: "ubuntu-latest"
+    steps:
+    - uses: WillAbides/setup-go-faster@v1.5.0
+      with:
+        go-version: "1.15.x"
+    - run: "GO111MODULE=on go get honnef.co/go/tools/cmd/staticcheck"
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/staticcheck
+        key: staticcheck-${{ github.sha }}
+        restore-keys: |
+          staticcheck-
+    - run: "go vet ./..."
+    - run: "$(go env GOPATH)/bin/staticcheck -go 1.15 ./..."

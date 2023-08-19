@@ -1,0 +1,33 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: ${{matrix.go-version}} ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        go-version: [1.13.x, stable]
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Generate
+      run: go generate cmd/varlink-go-certification/orgvarlinkcertification/generate.go
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      run: go test -v ./...

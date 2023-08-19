@@ -1,0 +1,621 @@
+<ul class="changes-toc">
+  <li><a href="#performance-improvements">Performance improvements</a></li>
+  <li><a href="#unused">Changes to the detection of unused code</a><ul>
+	  <li><a href="#unused-whole-program">Removal of whole-program mode and changes to the handling of exported identifiers</a></li>
+	  <li><a href="#unused-improvements">Improvements</a></li>
+  </ul></li>
+  <li><a href="#ui-improvements">UI improvements</a></li>
+  <li><a href="#versioning-improvements">Changes to versioning scheme</a></li>
+  <li><a href="#checks">Checks</a><ul>
+	  <li><a href="#checks-new">New checks</a></li>
+	  <li><a href="#checks-changed">Changed checks</a></li>
+  </ul></li>
+  <li><a href="#2020.2.1">Staticcheck 2020.2.1 release notes</a></li>
+  <li><a href="#2020.2.2">Staticcheck 2020.2.2 release notes</a></li>
+  <li><a href="#2020.2.3">Staticcheck 2020.2.3 release notes</a></li>
+  <li><a href="#2020.2.4">Staticcheck 2020.2.4 release notes</a></li>
+</ul>
+
+<h2 id="performance-improvements">Performance improvements</h2>
+
+<p>
+  The primary focus of this release is a major improvement in performance, significantly reducing memory usage while also reducing runtimes.
+</p>
+
+<details style="margin-bottom: 1em;">
+  <summary>Benchmarks comparing the previous and current releases of Staticcheck</summary>
+  
+  <table class="table">
+	<caption>Uncached, GOMAXPROCS=1</caption>
+	<thead>
+	  <tr>
+		<th>Package</th>
+		<th>2020.1.6</th>
+		<th>2020.2</th>
+		<th>Delta</th>
+		<th>Stats</th>
+	  </tr>
+	</thead>
+
+	<tbody>
+	  <tr>
+		<td>image/color </td>
+		<td>2.41s ±19% </td>
+		<td>2.00s ±14% </td>
+		<td>-17.08%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>k8s.io/kubernetes/pkg/... </td>
+		<td>276s ± 1% </td>
+		<td>219s ± 1% </td>
+		<td>-20.62%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>net/http </td>
+		<td>6.18s ± 1% </td>
+		<td>5.61s ± 5% </td>
+		<td>-9.21%</td>
+		<td>p=0.000, n=8+10</td>
+	  </tr>
+
+	  <tr>
+		<td>std </td>
+		<td>49.5s ± 1% </td>
+		<td>42.5s ± 1% </td>
+		<td>-14.04%</td>
+		<td>p=0.000, n=9+10</td>
+	  </tr>
+
+	  <tr>
+		<td>strconv </td>
+		<td>2.49s ± 9% </td>
+		<td>2.19s ±12% </td>
+		<td>-12.08%</td>
+		<td>p=0.001, n=10+10</td>
+	  </tr>
+	</tbody>
+
+	<tbody>
+	  <tr>
+		<td>image/color </td>
+		<td>167MB ±26% </td>
+		<td>146MB ±19% </td>
+		<td>-12.62%</td>
+		<td>p=0.043, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>k8s.io/kubernetes/pkg/... </td>
+		<td>2.14GB ± 1% </td>
+		<td>0.45GB ±13% </td>
+		<td>-79.09%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>net/http </td>
+		<td>216MB ± 6% </td>
+		<td>166MB ±18% </td>
+		<td>-23.11%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>std </td>
+		<td>972MB ± 3% </td>
+		<td>284MB ± 9% </td>
+		<td>-70.82%</td>
+		<td>p=0.000, n=8+10</td>
+	  </tr>
+
+	  <tr>
+		<td>strconv </td>
+		<td>155MB ±21% </td>
+		<td>139MB ±29% </td>
+		<td>~</td>
+		<td>p=0.063, n=10+10</td>
+	  </tr>
+	</tbody>
+  </table>
+
+  <table class="table">
+	<caption>Cached, GOMAXPROCS=1</caption>
+
+	<thead>
+	  <tr>
+		<th>Package</th>
+		<th>2020.1.6</th>
+		<th>2020.2</th>
+		<th>Delta</th>
+		<th>Stats</th>
+	  </tr>
+	</thead>
+
+	<tbody>
+	  <tr>
+		<td>image/color </td>
+		<td>160ms ± 0% </td>
+		<td>107ms ± 7% </td>
+		<td>-33.13%</td>
+		<td>p=0.000, n=8+10</td>
+	  </tr>
+
+	  <tr>
+		<td>k8s.io/kubernetes/pkg/... </td>
+		<td>12.7s ± 1% </td>
+		<td>6.9s ± 1% </td>
+		<td>-45.26%</td>
+		<td>p=0.000, n=9+10</td>
+	  </tr>
+
+	  <tr>
+		<td>net/http </td>
+		<td>370ms ± 0% </td>
+		<td>230ms ± 0% </td>
+		<td>-37.84%</td>
+		<td>p=0.000, n=8+8</td>
+	  </tr>
+
+	  <tr>
+		<td>std </td>
+		<td>2.52s ± 1% </td>
+		<td>1.31s ± 1% </td>
+		<td>-48.13%</td>
+		<td>p=0.000, n=10+9</td>
+	  </tr>
+
+	  <tr>
+		<td>strconv </td>
+		<td>164ms ± 4% </td>
+		<td>110ms ± 0% </td>
+		<td>-32.93%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+	</tbody>
+
+	<tbody>
+	  <tr>
+		<td>image/color </td>
+		<td>38.6MB ± 4% </td>
+		<td>20.8MB ± 1% </td>
+		<td>-45.96%</td>
+		<td>p=0.000, n=9+10</td>
+	  </tr>
+
+	  <tr>
+		<td>k8s.io/kubernetes/pkg/... </td>
+		<td>863MB ± 4% </td>
+		<td>283MB ± 2% </td>
+		<td>-67.28%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>net/http </td>
+		<td>70.5MB ± 5% </td>
+		<td>25.8MB ± 2% </td>
+		<td>-63.48%</td>
+		<td>p=0.000, n=10+9</td>
+	  </tr>
+
+	  <tr>
+		<td>std </td>
+		<td>243MB ±16% </td>
+		<td>73MB ± 8% </td>
+		<td>-70.00%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>strconv </td>
+		<td>37.2MB ± 2% </td>
+		<td>21.3MB ± 1% </td>
+		<td>-42.76%</td>
+		<td>p=0.000, n=9+10</td>
+	  </tr>
+	</tbody>
+  </table>
+
+  <table class="table">
+	<caption>Uncached, GOMAXPROCS=32</caption>
+
+	<thead>
+	  <tr>
+		<th>Package</th>
+		<th>2020.1.6</th>
+		<th>2020.2</th>
+		<th>Delta</th>
+		<th>Stats</th>
+	  </tr>
+	</thead>
+
+	<tbody>
+	  <tr>
+		<td>image/color </td>
+		<td>1.19s ±21% </td>
+		<td>1.06s ±12% </td>
+		<td>~</td>
+		<td>p=0.115, n=10+8</td>
+	  </tr>
+
+	  <tr>
+		<td>k8s.io/kubernetes/pkg/... </td>
+		<td>27.0s ± 2% </td>
+		<td>22.4s ± 2% </td>
+		<td>-16.96%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>net/http </td>
+		<td>2.24s ±11% </td>
+		<td>2.23s ±10% </td>
+		<td>~</td>
+		<td>p=0.870, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>std </td>
+		<td>7.14s ± 5% </td>
+		<td>5.10s ± 9% </td>
+		<td>-28.56%</td>
+		<td>p=0.000, n=10+9</td>
+	  </tr>
+
+	  <tr>
+		<td>strconv </td>
+		<td>1.24s ±26% </td>
+		<td>1.18s ±21% </td>
+		<td>~</td>
+		<td>p=0.753, n=10+10</td>
+	  </tr>
+	</tbody>
+
+	<tbody>
+	  <tr>
+		<td>image/color </td>
+		<td>143MB ± 7% </td>
+		<td>141MB ± 6% </td>
+		<td>~</td>
+		<td>p=0.515, n=8+10</td>
+	  </tr>
+
+	  <tr>
+		<td>k8s.io/kubernetes/pkg/... </td>
+		<td>5.77GB ± 6% </td>
+		<td>2.76GB ± 4% </td>
+		<td>-52.25%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>net/http </td>
+		<td>284MB ±10% </td>
+		<td>226MB ±14% </td>
+		<td>-20.38%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>std </td>
+		<td>1.74GB ±10% </td>
+		<td>1.15GB ±14% </td>
+		<td>-34.11%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>strconv </td>
+		<td>148MB ±18% </td>
+		<td>144MB ±16% </td>
+		<td>~</td>
+		<td>p=0.579, n=10+10</td>
+	  </tr>
+	</tbody>
+  </table>
+
+
+  <table class="table">
+	<caption>Cached, GOMAXPROCS=32</caption>
+
+	<thead>
+	  <tr>
+		<th>Package</th>
+		<th>2020.1.6</th>
+		<th>2020.2</th>
+		<th>Delta</th>
+		<th>Stats</th>
+	  </tr>
+	</thead>
+
+	<tbody>
+	  <tr>
+		<td>image/color </td>
+		<td>96.0ms ± 6% </td>
+		<td>80.0ms ± 0% </td>
+		<td>-16.67%</td>
+		<td>p=0.000, n=10+9</td>
+	  </tr>
+
+	  <tr>
+		<td>k8s.io/kubernetes/pkg/... </td>
+		<td>4.64s ± 1% </td>
+		<td>3.88s ± 0% </td>
+		<td>-16.22%</td>
+		<td>p=0.000, n=9+8</td>
+	  </tr>
+
+	  <tr>
+		<td>net/http </td>
+		<td>216ms ± 3% </td>
+		<td>167ms ± 4% </td>
+		<td>-22.69%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>std </td>
+		<td>1.09s ± 2% </td>
+		<td>0.96s ± 2% </td>
+		<td>-12.20%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>strconv </td>
+		<td>100ms ± 0% </td>
+		<td>87ms ± 8% </td>
+		<td>-13.00%</td>
+		<td>p=0.000, n=9+10</td>
+	  </tr>
+	</tbody>
+
+	<tbody>
+	  <tr>
+		<td>image/color </td>
+		<td>46.4MB ± 3% </td>
+		<td>24.1MB ± 5% </td>
+		<td>-48.08%</td>
+		<td>p=0.000, n=8+10</td>
+	  </tr>
+
+	  <tr>
+		<td>k8s.io/kubernetes/pkg/... </td>
+		<td>1.38GB ± 9% </td>
+		<td>0.27GB ± 1% </td>
+		<td>-80.29%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>net/http </td>
+		<td>80.7MB ±12% </td>
+		<td>31.4MB ± 2% </td>
+		<td>-61.16%</td>
+		<td>p=0.000, n=10+8</td>
+	  </tr>
+
+	  <tr>
+		<td>std </td>
+		<td>363MB ±12% </td>
+		<td>75MB ± 7% </td>
+		<td>-79.30%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+
+	  <tr>
+		<td>strconv </td>
+		<td>48.5MB ± 6% </td>
+		<td>24.4MB ± 3% </td>
+		<td>-49.72%</td>
+		<td>p=0.000, n=10+10</td>
+	  </tr>
+	</tbody>
+  </table>
+</details>
+
+<p>
+  See <a href="https://github.com/dominikh/go-tools/commit/5cfc85b70e7b778eb76fd7338e538d7c9af21e4e">commit 5cfc85b70e7b778eb76fd7338e538d7c9af21e4e</a>
+  for details on how these improvements have been achieved.
+</p>
+
+<p>
+  Furthermore, Staticcheck 2020.2 will skip very large packages (currently packages that are 50 MiB or larger),
+  under the assumption that these packages contain bundled assets and aren't worth analyzing.
+  This might further reduce Staticcheck's memory usage in your projects.
+</p>
+
+<h2 id="unused">Changes to the detection of unused code</h2>
+
+<h3 id="unused-whole-program">Removal of whole-program mode and changes to the handling of exported identifiers</h3>
+<p>
+  The <a href="#performance-improvements">aforementioned performance improvements</a> necessitate some changes to the <em>U1000</em> check (also known as <em>unused</em>).
+</p>
+
+<p>
+  The most visible change is the removal of the <em>whole program</em> mode.
+  This mode, which analyzed an entire program and reported unused code even if it is exported,
+  did not work well with the kind of caching that we use in Staticcheck.
+  Even in previous versions, it didn't always work correctly and may have caused flaky results,
+  depending on the state of the cache and the order of <code>staticcheck</code> invocations.
+</p>
+
+<p>
+  The whole-program mode may be revived in the future as a standalone tool,
+  with the understanding that this mode of operation is inherently more expensive than <code>staticcheck</code>.
+  In the meantime, if you depend on this functionality and can tolerate its bugs, you should continue using Staticcheck 2020.1.
+</p>
+
+<p>
+  As part of improving the correctness of U1000, changes were made to the normal mode as well.
+  In particular, <strong>all</strong> exported package-level identifiers will be considered used from now on,
+  even if these identifiers are declared in <code>package main</code> or tests, even if they are otherwise unused.
+  Exported identifiers in <code>package main</code> can be used in ways invisible to us, for example via the <code>plugin</code> build mode.
+  For tests, we would run into the same kind of issues as we did with the whole program mode.
+</p>
+
+<h3 id="unused-improvements">Improvements</h3>
+
+<p>
+  The <code>//lint:ignore</code> directive now works more intelligently with the U1000 check.
+  In previous versions, the directive would only suppress the output of a diagnostic. For example, for the following example
+</p>
+
+<pre><code>package pkg
+
+//lint:ignore U1000 This is fine.
+func fn1() { fn2() }
+
+func fn2() {}</code></pre>
+
+<p>
+  Staticcheck would emit the following output:
+</p>
+
+<pre><samp>foo.go:6:6: func fn2 is unused (U1000)</samp></pre>
+
+<p>
+  as it would only suppress the diagnostic for <code>fn1</code>.
+</p>
+
+<p>
+  Beginning with this release, the directive instead actively marks the identifier as used,
+  which means that any transitively used code will also be considered used, and no diagnostic will be reported for <code>fn2</code>.
+  Similarly, the <code>//lint:file-ignore</code> directive will consider everything in a file used, which may transitively mark code in other files used, too.
+</p>
+
+<h2 id="ui-improvements">UI improvements</h2>
+
+We've made some minor improvements to the output and behavior of the <code>staticcheck</code> command:
+
+<ul>
+  <li>the command now prints instructions on how to look up documentation for checks</li>
+  <li>output of the <code>-explain</code> flag includes a link to the online documentation</li>
+  <!-- <li>the <code>-f</code> flag gets validated <em>before</em> analyzing packages</li> -->
+  <li>a warning is emitted when a package pattern matches no packages</li>
+  <li>unmatched ignore directives cause <code>staticcheck</code> to exit with a non-zero status code</li>
+</ul>
+
+<h2 id="versioning-improvements">Changes to versioning scheme</h2>
+
+<p>
+  Staticcheck releases have two version numbers: one meant for human consumption and one meant for consumption by machines, via Go modules.
+  For example, the previous release was both <code>2020.1.6</code> (for humans) and <code>v0.0.1-2020.1.6</code> (for machines).
+</p>
+
+<p>
+  In previous releases, we've tried to include the human version in the machine version, by using the <code>v0.0.1-&lt;human version&gt;</code> scheme.
+  However, this scheme had various drawbacks.
+  For this and future releases we've switched to a more standard scheme for machine versions: <code>v0.&lt;minor&gt;.&lt;patch&gt;</code>.
+  Minor will increase by one for every feature release of Staticcheck,
+  and patch will increase by one for every bugfix release of Staticcheck,
+  resetting to zero on feature releases.
+</p>
+
+<p>
+  For example, this release is both <code>2020.2</code> and <code>v0.1.0</code>.
+  A hypothetical <code>2020.2.1</code> would be <code>v0.1.1</code>, and <code>2021.1</code> will be <code>v0.2.0</code>.
+  This new versioning scheme fixes various issues when trying to use Staticcheck as a Go module.
+  It will also allow us to make true pre-releases in the future.
+</p>
+
+<p>
+  Documentation on the website, as well as the output of <code>staticcheck -version</code>, will include both version numbers, to make it easier to associate the two.
+</p>
+
+<p>
+  For detailed information on how we arrived at this decision, see the discussion on <a href="https://github.com/dominikh/go-tools/issues/777">issue 777</a>.
+</p>
+
+<h2 id="checks">Checks</h2>
+<h3 id="checks-new">New checks</h3>
+
+<p>
+  The following new checks have been added:
+</p>
+
+<ul>
+  <li>{{ check "SA4023" }} flags impossible comparisons of interface values with untyped nils</li>
+  <li>{{ check "SA5012" }} flags function calls with slice arguments that aren't the right length</li>
+  <li>{{ check "SA9006" }} flags dubious bit shifts of fixed size integers</li>
+</ul>
+
+<h3 id="checks-changed">Changed checks</h3>
+
+<p>
+  Several checks have been improved:
+</p>
+
+<ul>
+  <li>{{ check "S1030" }} no longer recommends replacing <code>m[string(buf.Bytes())]</code> with <code>m[buf.String()]</code>, as the former gets optimized by the compiler</li>
+  <li>{{ check "S1008" }} no longer incorrectly suggests that the negation of <code>&gt;=</code> is <code>&lt;=</code></li>
+  <li>{{ check "S1029" }} and {{ check "SA6003" }} now also check custom types with underlying type <code>string</code></li>
+  <li>{{ check "SA1019" }} now recognizes deprecation notices that aren't in the last paragraph of a comment</li>
+  <li>{{ check "SA1019" }} now emits more precise diagnostics for deprecated code in the standard library</li>
+  <li>{{ check "SA4006" }} no longer flags assignments where the value is a typed nil</li>
+  <li>{{ check "SA5011" }} is now able to detect more functions that never return, thus reducing the number of false positives</li>
+  <li>{{ check "SA9004" }} no longer assumes that constants belong to the same group when they have different types</li>
+  <li>Automatic fixes for {{ check "SA9004" }} inside gopls no longer incorrectly duplicate comments</li>
+  <li>{{ check "ST1003" }} no longer complains about ALL_CAPS in variable names that don't contain any letters</li>
+  <li>Incorrect position information in various checks have been fixed</li>
+  <li>Crashes in various checks have been fixed</li>
+</ul>
+
+<h2 id="2020.2.1">Staticcheck 2020.2.1 release notes</h2>
+
+<p>
+  This release eliminates some false negatives as well as false positives, makes the <code>staticcheck</code> command less noisy and fixes a potential security issue.
+</p>
+
+<ul>
+  <li>{{ check "SA4020" }} no longer claims that <code>case nil</code> is an unreachable case in a type switch.</li>
+  <li>{{ check "S1025" }} no longer marks uses of Printf as unnecessary when the printed types implement the <code>fmt.Formatter</code> interface.</li>
+  <li>Various checks may now detect bugs in conditional code that were previously missed. This was a regression introduced in Staticcheck 2020.1.</li>
+  <li>The <code>staticcheck</code> command no longer reminds the user of the <code>-explain</code> flag every time problems are found. This was deemed too noisy.</li>
+  <li>
+	We've updated our dependency on <code>golang.org/x/tools</code> to guard against arbitrary code execution on Windows.
+	Note that to be fully safe, you will also have to update your installation of Go.
+	See the <a href="https://blog.golang.org/path-security">Command PATH security in Go</a> article by the Go authors for more information on this potential vulnerability.
+  </li>
+</ul>
+
+<h2 id="2020.2.2">Staticcheck 2020.2.2 release notes</h2>
+
+<p>
+  This release fixes a rare crash in Staticcheck, reduces the number of false positives, and adds support for Go 1.16's <code>io/fs.FileMode</code> type.
+</p>
+
+<ul>
+  <li>{{ check "SA9002" }} now supports the new <code>io/fs.FileMode</code> type in addition to <code>os.FileMode</code>.</li>
+  <li>Various checks no longer crash when analyzing nested function calls involving multiple return values.</li>
+  <li>{{ check "SA1006" }} no longer flags <code>Printf</code> calls of the form <code>Printf(fn())</code> when <code>fn</code> has multiple return values.</li>
+  <li>Staticcheck now understands the effects of <code>github.com/golang/glog</code> on a function's control flow. </li>
+</ul>
+
+<h2 id="2020.2.3">Staticcheck 2020.2.3 release notes</h2>
+
+<p>
+  This release fixes a false positive in U1000. See <a href="https://github.com/dominikh/go-tools/issues/942">issue 942</a> for an example.
+</p>
+
+<h2 id="2020.2.4">Staticcheck 2020.2.4 release notes</h2>
+
+<p>
+  This release fixes the following issues:
+</p>
+
+<ul>
+  <li>A false positive in {{ check "S1017" }} when the <code>len</code> function has been shadowed</li>
+  <li>
+	A bug in Staticcheck's intermediate representation
+	that would lead to nonsensical reports claiming that a value isn't being used
+	when it is definitely being used
+	(see issues <a href="https://github.com/dominikh/go-tools/issues/949">949</a> and
+	<a href="https://github.com/dominikh/go-tools/issues/981">981</a> for more information)
+  </li>
+  <li>A rare crash (see issue <a href="https://github.com/dominikh/go-tools/issues/972">972</a> for more information)</li>
+</ul>

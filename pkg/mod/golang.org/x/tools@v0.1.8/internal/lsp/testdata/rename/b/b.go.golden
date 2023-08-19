@@ -1,0 +1,78 @@
+-- Bob-rename --
+package b
+
+var c int //@rename("int", "uint")
+
+func _() {
+	a := 1 //@rename("a", "error")
+	a = 2
+	_ = a
+}
+
+var (
+	// Hello there.
+	// Bob does the thing.
+	Bob int //@rename("Foo", "Bob")
+)
+
+/*
+Hello description
+*/
+func Hello() {} //@rename("Hello", "Goodbye")
+
+-- Goodbye-rename --
+b.go:
+package b
+
+var c int //@rename("int", "uint")
+
+func _() {
+	a := 1 //@rename("a", "error")
+	a = 2
+	_ = a
+}
+
+var (
+	// Hello there.
+	// Foo does the thing.
+	Foo int //@rename("Foo", "Bob")
+)
+
+/*
+Goodbye description
+*/
+func Goodbye() {} //@rename("Hello", "Goodbye")
+
+c.go:
+package c
+
+import "golang.org/x/tools/internal/lsp/rename/b"
+
+func _() {
+	b.Goodbye() //@rename("Hello", "Goodbye")
+}
+
+-- error-rename --
+package b
+
+var c int //@rename("int", "uint")
+
+func _() {
+	error := 1 //@rename("a", "error")
+	error = 2
+	_ = error
+}
+
+var (
+	// Hello there.
+	// Foo does the thing.
+	Foo int //@rename("Foo", "Bob")
+)
+
+/*
+Hello description
+*/
+func Hello() {} //@rename("Hello", "Goodbye")
+
+-- uint-rename --
+"int": builtin object

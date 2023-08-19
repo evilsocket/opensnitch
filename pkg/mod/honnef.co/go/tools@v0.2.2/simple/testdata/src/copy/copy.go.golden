@@ -1,0 +1,24 @@
+package pkg
+
+func fn() {
+	var b1, b2 []byte
+	copy(b2, b1)
+
+	copy(b2, b1)
+
+	type T [][16]byte
+	var a T
+	b := make([]interface{}, len(a))
+	for i := range b {
+		b[i] = a[i]
+	}
+
+	var b3, b4 []*byte
+	copy(b4, b3)
+
+	var m map[int]byte
+	for i, v := range b1 {
+		m[i] = v
+	}
+
+}

@@ -1,0 +1,13 @@
+-- suggestedfix_fill_struct_spaces_8_15 --
+package fillstruct
+
+type StructD struct {
+	ExportedIntField int
+}
+
+func spaces() {
+	d := StructD{
+		ExportedIntField: 0,
+	} //@suggestedfix("}", "refactor.rewrite")
+}
+

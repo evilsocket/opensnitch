@@ -1,0 +1,50 @@
+package pkg
+
+func fn() {
+	var x, y int
+	var z []int
+	var a bool
+
+	switch x {
+	case 1, 2: // want `could use tagged switch on x`
+	case 3:
+	}
+
+	switch x {
+	case 1, 2: // want `could use tagged switch on x`
+	case 3:
+	default:
+	}
+
+	if x == 1 || x == 2 {
+	} else if y == 3 {
+	} else {
+	}
+
+	switch a {
+	case x == y: // want `could use tagged switch on a`
+	case x != y:
+	}
+
+	switch z[0] {
+	case 1, 2: // want `could use tagged switch on z\[0\]`
+	case 3:
+	}
+
+	for {
+		switch x {
+		case 1, 2: // want `could use tagged switch on x`
+		case 3:
+		}
+	}
+
+	for {
+		if x == 1 || x == 2 {
+		} else if x == 3 {
+			break
+		}
+	}
+
+	if x == 1 || x == 2 {
+	}
+}

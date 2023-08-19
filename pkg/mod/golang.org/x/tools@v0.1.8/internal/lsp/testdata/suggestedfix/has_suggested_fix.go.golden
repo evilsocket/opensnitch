@@ -1,0 +1,13 @@
+-- suggestedfix_has_suggested_fix_9_2 --
+package suggestedfix
+
+import (
+	"log"
+)
+
+func goodbye() {
+	s := "hiiiiiii"
+	 //@suggestedfix("s = s", "quickfix")
+	log.Print(s)
+}
+

@@ -1,0 +1,6 @@
+This package is a copy of github.com/dvyukov/gosmith.
+
+It is almost a verbatim copy of upstream,
+with the only modification being that global state has been converted into a struct.
+
+The last upstream commit we've looked at was: b51fcdcb8a253aacf4dddccf27d51a8f5c0a1952

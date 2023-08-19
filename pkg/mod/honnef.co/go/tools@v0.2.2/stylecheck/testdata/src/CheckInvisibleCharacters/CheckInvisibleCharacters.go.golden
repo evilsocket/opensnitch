@@ -1,0 +1,12 @@
+// Package pkg ...
+package pkg
+
+var (
+	a = "\a"     // want `Unicode control character U\+0007`
+	b = "\a\x1a" // want `Unicode control characters`
+	c = "Test	test"
+	d = `T
+est`
+	e = `Zero\u200bWidth` // want `Unicode format character U\+200B`
+	f = "\u200b"
+)

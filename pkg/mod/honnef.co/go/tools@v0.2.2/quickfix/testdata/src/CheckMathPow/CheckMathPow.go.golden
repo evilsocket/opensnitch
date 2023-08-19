@@ -1,0 +1,28 @@
+package pkg
+
+import "math"
+
+func fn() {
+	var x float64
+
+	_ = 1.0       // want `could expand call to math.Pow`
+	_ = x         // want `could expand call to math.Pow`
+	_ = x * x     // want `could expand call to math.Pow`
+	_ = x * x * x // want `could expand call to math.Pow`
+	_ = math.Pow(x, 6)
+
+	const a = 2
+	const b = 2.0
+	const c float64 = 2
+
+	_ = float64(a * a)    // want `could expand call to math.Pow`
+	_ = b * b             // want `could expand call to math.Pow`
+	_ = c * c             // want `could expand call to math.Pow`
+	_ = a * 1.0 * a * 1.0 // want `could expand call to math.Pow`
+
+	_ = x * 2 * x * 2     // want `could expand call to math.Pow`
+	_ = (x + 2) * (x + 2) // want `could expand call to math.Pow`
+
+	_ = math.Pow(x, x)
+	_ = math.Pow(x, -1)
+}

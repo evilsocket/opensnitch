@@ -1,0 +1,131 @@
+name: Testing
+
+# Trigger on pushes, PRs (excluding documentation changes), and nightly.
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: 0 0 * * * # daily at 00:00
+
+permissions:
+  contents: read
+
+# Always force the use of Go modules
+env:
+  GO111MODULE: on
+
+jobs:
+  # Check generated protos match their source repos (optional for PRs).
+  vet-proto:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VET_ONLY_PROTO: 1
+    steps:
+      # Setup the environment.
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.20'
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # Run the vet checks.
+      - name: vet
+        run: ./vet.sh -install && ./vet.sh
+
+  # Run the main gRPC-Go tests.
+  tests:
+    # Proto checks are run in the above job.
+    env:
+      VET_SKIP_PROTO: 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - type: vet
+            goversion: '1.20'
+
+          - type: tests
+            goversion: '1.20'
+
+          - type: tests
+            goversion: '1.20'
+            testflags: -race
+
+          - type: tests
+            goversion: '1.20'
+            goarch: 386
+
+          - type: tests
+            goversion: '1.20'
+            goarch: arm64
+
+          - type: tests
+            goversion: '1.19'
+
+          - type: tests
+            goversion: '1.18'
+
+          - type: extras
+            goversion: '1.20'
+
+    steps:
+      # Setup the environment.
+      - name: Setup GOARCH
+        if: matrix.goarch != ''
+        run: echo "GOARCH=${{ matrix.goarch }}" >> $GITHUB_ENV
+
+      - name: Setup qemu emulator
+        if: matrix.goarch == 'arm64'
+        # setup qemu-user-static emulator and register it with binfmt_misc so that aarch64 binaries
+        # are automatically executed using qemu.
+        run: docker run --rm --privileged multiarch/qemu-user-static:5.2.0-2 --reset --credential yes --persistent yes
+
+      - name: Setup GRPC environment
+        if: matrix.grpcenv != ''
+        run: echo "${{ matrix.grpcenv }}" >> $GITHUB_ENV
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.goversion }}
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # Only run vet for 'vet' runs.
+      - name: Run vet.sh
+        if: matrix.type == 'vet'
+        run: ./vet.sh -install && ./vet.sh
+
+      # Main tests run for everything except when testing "extras"
+      # (where we run a reduced set of tests).
+      - name: Run tests
+        if: matrix.type == 'tests'
+        run: |
+          go version
+          go test ${{ matrix.testflags }} -cpu 1,4 -timeout 7m google.golang.org/grpc/...
+          cd "${GITHUB_WORKSPACE}"
+          for MOD_FILE in $(find . -name 'go.mod' | grep -Ev '^\./go\.mod'); do
+            pushd "$(dirname ${MOD_FILE})"
+            go test ${{ matrix.testflags }} -cpu 1,4 -timeout 2m ./...
+            popd
+          done
+
+      # Non-core gRPC tests (examples, interop, etc)
+      - name: Run extras tests
+        if: matrix.type == 'extras'
+        run: |
+          export TERM=${TERM:-xterm}
+          go version
+          echo -e "\n-- Running Examples --"
+          examples/examples_test.sh
+          echo -e "\n-- Running AdvancedTLS Examples --"
+          security/advancedtls/examples/examples_test.sh
+          echo -e "\n-- Running Interop Test --"
+          interop/interop_test.sh
+          echo -e "\n-- Running xDS E2E Test --"
+          xds/internal/test/e2e/run.sh

@@ -1,0 +1,30 @@
+-- funccgoexample-definition --
+cgo/declarecgo.go:18:6-13: defined here as ```go
+func Example()
+```
+
+[`cgo.Example` on pkg.go.dev](https://pkg.go.dev/golang.org/x/tools/internal/lsp/cgo?utm_source=gopls#Example)
+-- funccgoexample-definition-json --
+{
+	"span": {
+		"uri": "file://cgo/declarecgo.go",
+		"start": {
+			"line": 18,
+			"column": 6,
+			"offset": 151
+		},
+		"end": {
+			"line": 18,
+			"column": 13,
+			"offset": 158
+		}
+	},
+	"description": "```go\nfunc Example()\n```\n\n[`cgo.Example` on pkg.go.dev](https://pkg.go.dev/golang.org/x/tools/internal/lsp/cgo?utm_source=gopls#Example)"
+}
+
+-- funccgoexample-hoverdef --
+```go
+func Example()
+```
+
+[`cgo.Example` on pkg.go.dev](https://pkg.go.dev/golang.org/x/tools/internal/lsp/cgo?utm_source=gopls#Example)

@@ -1,0 +1,121 @@
+<ul class="changes-toc">
+  <li><a href="#ui-improvements">UI improvements</a><ul>
+	  <li><a href="#targeted-go-version">Targeted Go Version</a></li>
+  </ul></li>
+  <li><a href="#checks">Checks</a><ul>
+	  <li><a href="#checks-new">New Checks</a></li>
+	  <li><a href="#checks-changed">Changed Checks</a></li>
+  </ul></li>
+  <li><a href="#documentation">Restructured documentation</a></li>
+  <li><a href="#gopls">Better integration with gopls</a></li>
+  <li><a href="#rdeps">Deletion of rdeps</a></li>
+  <li><a href="#2021.1.1">Staticcheck 2021.1.1 release notes</a></li>
+</ul>
+
+<h2 id="ui-improvements">UI improvements</h2>
+
+<p>
+  The new <code>-list-checks</code> flag lists all available checks, showing each check's identifier and one-line description.
+  You can use the existing <code>-explain</code> flag to find out more about each individual check.
+</p>
+
+<h3 id="targeted-go-version">Targeted Go version</h3>
+
+<p>
+  Some checks in Staticcheck adjust their behavior based on the targeted Go version. For example, the suggestion to use <code>for range</code> instead of <code>for _ = range</code> does not apply to Go 1.3 and earlier.
+</p>
+
+<p>
+  In the past, the default Go version that was targeted was the version that Staticcheck had been compiled with. For most users, this meant that it targeted the latest Go release.
+  Going forward, we will default to the Go version declared in <code>go.mod</code> via the <code>go</code> directive.
+  Even though this value does not exactly correspond to the module's minimum supported Go version, it is still a better apprximation than <quote>whatever Go version Staticcheck has been compiled with</quote>,
+  and should work fine for most users.
+</p>
+
+<p>
+  As before, the targeted Go version can be explicitly set by using the <code>-go</code> flag.
+</p>
+
+<h2 id="checks">Checks</h2>
+
+<h3 id="checks-new">New checks</h3>
+
+<p>
+  The following new checks have been added:
+</p>
+
+<ul>
+  <li>{{ check "S1040"  }} flags type assertions from an interface type to itself</li>
+  <li>{{ check "SA1030" }} flags invalid arguments to various functions in the <code>strconv</code> package</li>
+  <li>{{ check "SA4005" }} flags assignments to fields on value receivers that intended the receiver to be a pointer instead</li>
+  <li>{{ check "SA4024" }} flags pointless comparisons of the values of <code>len</code> and <code>cap</code> with zero</li>
+  <li>{{ check "SA4025" }} flags suspicious integer division that results in zero, such as <code>2 / 3</code></li>
+  <li>{{ check "SA4026" }} flags constant expressions that try to express <a href="https://en.wikipedia.org/wiki/Signed_zero">negative zero</a></li>
+  <li>{{ check "SA4027" }} flags no-op attempts at modifying a <code>(*net/url.URL)</code>'s query string</li>
+  <li>{{ check "ST1023" }} flags variable declarations of the form <code>var x T = v</code> where the type <code>T</code> is redundant; this check is disabled by default</li>
+</ul>
+
+
+<h3 id="checks-changed">Changed checks</h3>
+
+<p>
+  The following checks have been improved:
+</p>
+
+<ul>
+  <li>{{check "S1025" }} now recommends converting byte slices to strings instead of using <code>fmt.Sprintf</code></li>
+  <li>{{check "S1008" }} includes fewer unnecessary parentheses and double negations in its suggested fixes</li>
+  <li>{{check "S1017" }} is now able to flag calls that use string literals and integer literals</li>
+  <li>{{check "SA9005" }} now includes the value's type in its output</li>
+  <li>{{check "ST1000" }}, {{check "ST1020" }}, {{check "ST1021" }}, and {{check "ST1022" }} no longer flag effectively empty comments, including those that consist entirely of directives</li>
+</ul>
+
+<h2 id="documentation">Restructured documentation</h2>
+
+<p>
+  The documentation on <a href="https://staticcheck.io">the website</a> has been restructured and hopefully made more approachable.
+  Instead of being one long document, it is now split into multiple smaller articles.
+  In the future, more articles that look at specific aspects of Staticcheck will be added.
+</p>
+
+<h2 id="gopls">Better integration with gopls</h2>
+
+<p>
+  Several behind the scenes changes prepare this release for better integration with <a href="https://github.com/golang/tools/blob/master/gopls/README.md">gopls</a>.
+  This will include more accurate severities for diagnostics as well as numerous new refactorings.
+  These improvements will be part of a future gopls release.
+</p>
+
+<h2 id="rdeps">Deletion of rdeps</h2>
+
+<p>
+  The rdeps tool has been deleted.
+  This was a GOPATH-centric tool that allowed finding all reverse dependencies of a Go package.
+  Both the move to Go modules as well as the emergence of much better tooling for inspecting dependencies (such as <a href="https://github.com/loov/goda">goda</a>) has made rdeps redundant.
+</p>
+
+<h2 id="2021.1.1">Staticcheck 2021.1.1 release notes</h2>
+
+<p>
+  This release adds support for new language features in Go 1.17,
+  namely conversions from slices to array pointers,
+  the unsafe.Add function,
+  and the unsafe.Slice function.
+</p>
+
+<p>
+  Additionally, it fixes the following false positives:
+</p>
+
+<ul>
+  <li>{{ check "ST1000" }} no longer flags package docs that start with whitespace if they're otherwise well-formed.</li>
+  <li>{{ check "SA5002" }} no longer prints one too many percent signs in its message.</li>
+  <li>{{ check "SA4000" }} no longer flags comparisons between floats.</li>
+  <li>{{ check "SA4010" }} no longer flags appends to slices that might share their backing array with other slices.</li>
+  <li>{{ check "SA5011" }} no longer infers possible nil pointer dereferences from comparisons done outside of control flow constructs.
+	This avoids false positives when using <code>assert</code>-style functions.
+	See <a href="https://staticcheck.io/issues/1022">issue 1022</a> for a concrete example.</li>
+  <li>{{ check "S1020" }} no longer flags nested if statements when the inner statement has an else branch.</li>
+  <li>{{ check "SA5011" }} no longer claims that indexing a nil slice will cause a nil pointer dereference.</li>
+</ul>
+

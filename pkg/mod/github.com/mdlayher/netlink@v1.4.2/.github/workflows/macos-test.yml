@@ -1,0 +1,29 @@
+name: macOS Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        go-version: [1.17]
+    runs-on: macos-latest
+
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Run tests
+      run: go test -v -race ./...

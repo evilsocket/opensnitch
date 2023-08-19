@@ -1,0 +1,242 @@
+<nav>
+  <ul>
+	<li><a href="#configuring-staticcheck">Configuring Staticcheck<ul>
+		  <li><a href="#cli-flags">Command-line flags</a><ul>
+			  <li><a href="#targeting-go-versions">Targeting Go versions</a></li>
+			  <li><a href="#excluding-tests">Excluding tests</a></li>
+			  <li><a href="#build-tags">Specifying build tags</a></li>
+			  <li><a href="#output-format">Choosing the output format</a></li></ul></li>
+		  <li><a href="#configuration-files">Configuration files</a><ul>
+			  <li><a href="#configuration-format">Configuration format</a></li>
+			  <li><a href="#configuration-options">Configuration options</a></li>
+			  <li><a href="#example-configuration">Example configuration</a></li> </ul></li>
+		  <li><a href="#ignoring-problems">Ignoring problems with linter directives</a><ul>
+			  <li><a href="#line-based-linter-directives">Line-based linter directives</a></li>
+			  <li><a href="#maintenance-of-linter-directives">Maintenance of linter directives</a></li>
+			  <li><a href="#file-based-linter-directives">File-based linter directives</a></li></ul></li></ul></li>
+  </ul>
+</nav>
+
+<h2 id="configuring-staticcheck">Configuring Staticcheck</h2>
+
+<p>
+  Staticcheck tries to provide a good out-of-the-box experience, but it also offers a number of options to fine-tune it to your specific needs.
+</p>
+
+<h3 id="cli-flags">Command-line flags</h3>
+
+<p>
+  Staticcheck uses command-line flags for settings that are specific to single invocations and that may change depending on the context (local development, continuous integration etc).
+</p>
+
+<h4 id="targeting-go-versions">Targeting Go versions</h4>
+
+<p>
+  Some of Staticcheck's analyses adjust their behavior based on the targeted Go version.
+  For example, the suggestion that one use <code>for range xs</code> instead of <code>for _ = range xs</code> only applies to Go 1.4 and later, as it won't compile with versions of Go older than that.
+</p>
+
+<p>
+  By default, Staticcheck targets the Go version that it was compiled with.
+  If your project needs to support older versions of Go, you can use the <code>-go</code> flag to overwrite this, for example by saying <code>staticcheck -go 1.14</code>.
+</p>
+
+<h4 id="excluding-tests">Excluding tests</h4>
+
+<p>
+  By default, Staticcheck analyses packages as well as their tests.
+  By passing <code>-tests=false</code>, one can skip the analysis of tests.
+  This is primarily useful for the {{ check "U1000" }} check, as it allows finding code that is only used by tests and would otherwise be unused.
+</p>
+
+<h4 id="build-tags">Specifying build tags</h4>
+
+<p>
+  Much like <code>go</code>, <code>staticcheck</code> accepts the <code>-tags</code> flag to specify the active build tags.
+</p>
+
+<h4 id="output-format">Choosing the output format</h4>
+
+<p>
+  Staticcheck can format its output in a number of ways, by using the <code>-f</code> flag.
+  See <a href="/docs/formatters">this list of formatters</a> for a list of all formatters.
+</p>
+
+<h3 id="configuration-files">Configuration files</h3>
+
+<p>
+  Staticcheck uses configuration files for settings that apply to all users of Staticcheck on a given project.
+  Configuration files can choose which checks to run as well as tweak the behavior of individual checks.
+</p>
+
+<p>
+  Configuration files are named <code>staticcheck.conf</code> and apply to subtrees of packages. Consider the following tree of Go packages and configuration files:
+</p>
+
+<pre><code>.
+├── net
+│   ├── cgi
+│   ├── http
+│   │   ├── parser
+│   │   └── staticcheck.conf // config 3
+│   └── staticcheck.conf     // config 2
+├── staticcheck.conf         // config 1
+└── strconv</code></pre>
+
+<p>
+  Config 1 will apply to all packages, config 2 will apply to <code>./net/...</code> and config 3 will apply to <code>./net/http/...</code>.
+  When multiple configuration files apply to a package (for example, all three configs will apply to <code>./net/http</code>) they will be merged, with settings in files deeper in the package tree overriding rules higher up the tree.
+</p>
+
+<h4 id="configuration-format">Configuration format</h4>
+
+<p>
+  Staticcheck configuration files are named <code>staticcheck.conf</code> and contain <a href="https://github.com/toml-lang/toml">TOML</a>.
+</p>
+
+<p>
+  Any set option will override the same option from further up the package tree,
+  whereas unset options will inherit their values.
+  Additionally, the special value <code>"inherit"</code> can be used to inherit values.
+  This is especially useful for array values, as it allows adding and removing values to the inherited option.
+  For example, the option <code>checks = ["inherit", "ST1000"]</code> will inherit the enabled checks and additionally enable ST1000.
+</p>
+
+<p>
+  The special value <code>"all"</code> matches all possible values.
+  Currently, this is only used when enabling checks.
+</p>
+
+<p>
+  Values prefixed with a minus sign,  such as <code>"-S1000"</code>  will exclude values from a list.
+  This can be used in combination with <code>"all"</code> to express "all but",
+  or in combination with <code>"inherit"</code> to remove values from the inherited option.
+</p>
+
+<h4 id="configuration-options">Configuration options</h4>
+
+<p>
+  A list of all options and their explanations can be found on the <a href="/docs/options">Options</a> page.
+</p>
+
+<h4 id="example-configuration">Example configuration</h4>
+
+<p>
+  The following example configuration is the textual representation of Staticcheck's default configuration.
+</p>
+
+<pre><code>{{ option "checks" }} = ["all", "-{{ check "ST1000" }}", "-{{ check "ST1003" }}", "-{{ check "ST1016" }}", "-{{ check "ST1020" }}", "-{{ check "ST1021" }}", "-{{ check "ST1022" }}", "-{{ check "ST1023" }}"]
+{{ option "initialisms" }} = ["ACL", "API", "ASCII", "CPU", "CSS", "DNS",
+	"EOF", "GUID", "HTML", "HTTP", "HTTPS", "ID",
+	"IP", "JSON", "QPS", "RAM", "RPC", "SLA",
+	"SMTP", "SQL", "SSH", "TCP", "TLS", "TTL",
+	"UDP", "UI", "GID", "UID", "UUID", "URI",
+	"URL", "UTF8", "VM", "XML", "XMPP", "XSRF",
+	"XSS", "SIP", "RTP", "AMQP", "DB", "TS"]
+{{ option "dot_import_whitelist" }} = []
+{{ option "http_status_code_whitelist" }} = ["200", "400", "404", "500"]</code></pre>
+
+
+<h3 id="ignoring-problems">Ignoring problems with linter directives</h3>
+
+<p>
+  In general, you shouldn't have to ignore problems reported by Staticcheck.
+  Great care is taken to minimize the number of false positives and subjective suggestions.
+  Dubious code should be rewritten and genuine false positives should be reported so that they can be fixed.
+</p>
+
+<p>
+  The reality of things, however, is that not all corner cases can be taken into consideration.
+  Sometimes code just has to look weird enough to confuse tools,
+  and sometimes suggestions, though well-meant, just aren't applicable.
+  For those rare cases, there are several ways of ignoring unwanted problems.
+</p>
+
+<h4 id="line-based-linter-directives">Line-based linter directives</h4>
+
+<p>
+  The most fine-grained way of ignoring reported problems is to annotate the offending lines of code with linter directives.
+</p>
+
+<p>
+  The <code>//lint:ignore Check1[,Check2,...,CheckN] reason</code> directive
+  ignores one or more checks on the following line of code.
+  The <code>reason</code> is a required field
+  that must describe why the checks should be ignored for that line of code.
+  This field acts as documentation for other people (including future you) reading the code.
+</p>
+
+<p>
+  Let's consider the following example,
+  which intentionally checks that the results of two identical function calls are not equal:
+</p>
+
+  <pre><code>func TestNewEqual(t *testing.T) {
+  if errors.New("abc") == errors.New("abc") {
+    t.Errorf(`New("abc") == New("abc")`)
+  }
+}</code></pre>
+
+<p>
+  {{ check "SA4000" }} will flag this code,
+  pointing out that the left and right side of <code>==</code> are identical –
+  usually indicative of a typo and a bug.
+</p>
+
+<p>
+  To silence this problem, we can use a linter directive:
+</p>
+
+<pre><code>func TestNewEqual(t *testing.T) {
+  //lint:ignore SA4000 we want to make sure that no two results of errors.New are ever the same
+  if errors.New("abc") == errors.New("abc") {
+    t.Errorf(`New("abc") == New("abc")`)
+  }
+}</code></pre>
+
+<h4 id="maintenance-of-linter-directives">Maintenance of linter directives</h4>
+
+<p>
+  It is crucial to update or remove outdated linter directives when code has been changed.
+  Staticcheck helps you with this by making unnecessary directives a problem of its own.
+  For example, for this (admittedly contrived) snippet of code
+</p>
+
+  <pre><code>//lint:ignore SA1000 we love invalid regular expressions!
+regexp.Compile(".+")</code></pre>
+
+<p>
+  Staticcheck will report the following:
+</p>
+
+<pre><code>tmp.go:1:2: this linter directive didn't match anything; should it be removed?</code></pre>
+
+<p>
+  Checks that have been disabled via configuration files will not cause directives to be considered unnecessary.
+</p>
+
+<h4 id="file-based-linter-directives">File-based linter directives</h4>
+
+<p>
+  In some cases, you may want to disable checks for an entire file.
+  For example, code generation may leave behind a lot of unused code,
+  as it simplifies the generation process.
+  Instead of manually annotating every instance of unused code,
+  the code generator can inject a single, file-wide ignore directive to ignore the problem.
+</p>
+
+<p>
+  File-based linter directives look a lot like line-based ones:
+</p>
+
+<pre><code>//lint:file-ignore U1000 Ignore all unused code, it's generated</code></pre>
+
+<p>
+  The only difference is that these comments aren't associated with any specific line of code.
+  Conventionally, these comments should be placed near the top of the file.
+</p>
+
+<p>
+  Unlike line-based directives, file-based ones will not be flagged for being unnecessary.
+</p>
+

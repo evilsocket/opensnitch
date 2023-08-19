@@ -1,0 +1,250 @@
+<ul class="changes-toc">
+  <li><a href="#introduction">Introduction to Staticcheck 2020.1</a></li>
+  <li><a href="#ui-improvements">UI improvements</a></li>
+  <li><a href="#caching">Better caching</a></li>
+  <li><a href="#checks">Checks</a><ul>
+    <li><a href="#checks-new">New checks</a></li>
+    <li><a href="#checks-changed">Changed checks</a></li>
+  </ul></li>
+  <li><a href="#bugs">General bug fixes</a></li>
+  <li><a href="#2020.1.1">Staticcheck 2020.1.1 release notes</a></li>
+  <li><a href="#2020.1.2">Staticcheck 2020.1.2 release notes</a></li>
+  <li><a href="#2020.1.3">Staticcheck 2020.1.3 release notes</a></li>
+  <li><a href="#2020.1.4">Staticcheck 2020.1.4 release notes</a></li>
+  <li><a href="#2020.1.5">Staticcheck 2020.1.5 release notes</a></li>
+  <li><a href="#2020.1.6">Staticcheck 2020.1.6 release notes</a></li>
+</ul>
+
+<h2 id="introduction">Introduction to Staticcheck 2020.1</h2>
+
+<p>
+  Staticcheck 2020.1 introduces UI improvements, speed enhancements, and
+  a number of <a href="#checks-new">new</a> as well as <a href="#checks-changed">improved</a> checks. Additionally, it is the
+  first release to support the upcoming Go 1.14.
+</p>
+
+<h2 id="ui-improvements">UI improvements</h2>
+
+<p>
+  We've improved the output of the <code>staticcheck</code> command as well as
+  Staticcheck's integration with <a href="https://github.com/golang/tools/tree/master/gopls">gopls</a> to make it easier to understand
+  the problems that are being reported.
+</p>
+
+<p>
+  Related information describes the source of a problem, or why
+  Staticcheck believes that there is a problem. Take the following
+  piece of code for example:
+</p>
+
+
+<pre><code>func fn(x *int) {
+	if x == nil {
+		log.Println("x is nil, returning")
+	}
+	// lots of code here
+	log.Println(*x)
+}</code></pre>
+
+<p>
+  Staticcheck 2020.1 will produce the following output:
+</p>
+
+<pre><code>foo.go:6:14: possible nil pointer dereference (SA5011)
+	foo.go:2:5: this check suggests that the pointer can be nil</code></pre>
+
+<p>
+  The actual problem that is being reported is the "possible nil pointer
+  dereference". Staticcheck also explains why it believes that <code>x</code> might
+  be nil, namely the comparison on line 2.
+</p>
+
+<p>
+  When using the <a href="/docs/formatters#text"><code>text</code></a> or <a href="/docs/formatters#stylish"><code>stylish</code></a> formatters, related information will
+  appear as indented lines. The <a href="/docs/formatters#json"><code>json</code></a> formatter adds a new field
+  <code>related</code> to problems, containing position information as well as the
+  message. Editors that use gopls will also display the related
+  information.
+</p>
+
+<p>
+  Related information should make it easier to understand why Staticcheck
+  is flagging code, and how to fix problems.
+</p>
+
+<p>
+  Integration with gopls has seen some other improvements as well¹. We
+  now emit better position information that more accurately reflects the
+  true source of a problem. The most obvious example is that a missing
+  package comment will no longer underline the entire file. Similarly,
+  invalid function arguments will be highlighted individually, instead
+  of highlighting the call as a whole. Finally, some problems can now be
+  automatically fixed by using quick fixes.
+</p>
+
+<p>
+  ¹: due to the nature of Staticcheck's integration with gopls, gopls
+  will need to update their dependency on Staticcheck before benefiting
+  from these changes.
+</p>
+
+<h2 id="caching">Better caching</h2>
+
+<p>
+  The 2019.2 release introduced caching to Staticcheck, greatly speeding
+  up repeated runs. However, the caching only applied to dependencies;
+  the packages under analysis still had to be analyzed anew on every
+  invocation to compute the list of problems. Staticcheck 2020.1
+  introduces caching of problems found, so that repeat runs for
+  unchanged packages are virtually instantaneous.
+</p>
+
+<h2 id="checks">Checks</h2>
+<h3 id="checks-new">New checks</h3>
+
+<p>
+  Numerous new checks have been added in this release:
+</p>
+
+<ul>
+  <li>{{ check "S1035" }} flags redundant calls to <code>net/http.CanonicalHeaderKey</code>.</li>
+  <li>{{ check "S1036" }} flags unnecessary guards around map accesses.</li>
+  <li>{{ check "S1037" }} flags unnecessarily elaborate ways of sleeping.</li>
+  <li>{{ check "S1038" }} flags unnecessary uses of <code>fmt.Sprintf</code>, such as <code>fmt.Println(fmt.Sprintf(...))</code>.</li>
+  <li>{{ check "S1039" }} flags uses of <code>fmt.Sprint</code> with single string literals.</li>
+  <li>{{ check "SA1028" }} flags uses of <code>sort.Slice</code> on non-slices.</li>
+  <li>{{ check "SA1029" }} flags inappropriate keys in calls to context.WithValue.</li>
+  <li>{{ check "SA4022" }} flags comparisons of the kind <code>if &x == nil</code>.</li>
+  <li>{{ check "SA5010" }} flags impossible type assertions.</li>
+  <li>{{ check "SA5011" }} flags potential nil pointer dereferences.</li>
+  <li>{{ check "ST1019" }} flags duplicate imports.</li>
+  <li>{{ check "ST1020" }} checks the documentation of exported functions.</li>
+  <li>{{ check "ST1021" }} checks the documentation of exported types.</li>
+  <li>{{ check "ST1022" }} checks the documentation of exported variables and constants.</li>
+</ul>
+
+<p>
+  {{ check "ST1020" }}, {{ check "ST1021" }} and {{ check "ST1022" }} are not enabled by default.
+</p>
+
+<h3 id="checks-changed">Changed checks</h3>
+
+<p>
+  Several checks have been improved:
+</p>
+
+<ul>
+  <li>{{ check "S1036" }} detects more kinds of unnecessary guards around map accesses.</li>
+  <li>{{ check "S1008" }} reports more easily understood diagnostics.</li>
+  <li>{{ check "S1025" }} no longer suggests using <code>v.String()</code> instead of <code>fmt.Sprintf("%s", v)</code> when <code>v</code> is a <code>reflect.Value</code>. <code>fmt</code> gives special treatment to <code>reflect.Value</code> and the two results differ.</li>
+  <li>{{ check "SA1015" }} no longer flags uses of <code>time.Tick</code> in packages that implement <a href="https://github.com/spf13/cobra">Cobra</a> commands.</li>
+  <li>{{ check "SA1019" }} no longer misses references to deprecated packages when said packages have been vendored.</li>
+  <li>{{ check "SA4000" }} no longer flags comparisons of the kind <code>x == x</code> and <code>x != x</code> when `x` has a compound type involving floats.</li>
+  <li>{{ check "SA4003" }} no longer flags comparisons of the kind <code>x &lt;= 0</code> when <code>x</code> is an unsigned integer. While it is true that <code>x &lt;= 0</code> can be written more specifically as <code>x == 0</code>, this is not a helpful suggestion in reality. A lot of people use <code>x &lt;= 0</code> as a defensive measure, in case <code>x</code> ever becomes signed. Also, unlike all the other warnings made in the check, <code>x &lt;= 0</code> is neither a tautology nor a contradiction, it is merely less precise than it could be.</li>
+  <li>{{ check "SA4016" }} now detects silly bitwise ops of the form <code>x & k</code> where <code>k</code> is defined as <code>const k = iota</code>.</li>
+  <li>{{ check "SA4018" }} no longer flags self-assignments involving side effects; for example, it won't flag <code>x[fn()] = x[fn()]</code> if <code>fn</code> isn't pure.</li>
+  <li>{{ check "SA5008" }} now permits duplicate instances of various struct tags used by <code>github.com/jessevdk/go-flags</code>.</li>
+  <li>{{ check "SA5009" }} now correctly recognizes that <code>unsafe.Pointer</code> is a pointer type that can be used with verbs such as <code>%p</code>. Furthermore, it validates calls to <code>golang.org/x/xerrors.Errorf</code>.</li>
+  <li>{{ check "SA5009" }} now understands <code>fmt.Printf</code> verbs that were changed and added in Go 1.13. Specifically, it now recognizes the new <code>%O</code> verb, and allows the use of <code>%x</code> and <code>%X</code> on floats and complex numbers.</li>
+  <li>{{ check "ST1003" }} has learned about several new initialisms.</li>
+  <li>{{ check "ST1011" }} no longer misses variable declarations with inferred types.</li>
+  <li>{{ check "ST1016" }} now ignores the names of method receivers of methods declared in generated files.</li>
+  <li>{{ check "ST1020" }}, {{ check "ST1021" }}, and {{ check "ST1022" }} no longer enforce comment style in generated code.</li>
+</ul>
+
+<h2 id="bugs">General bug fixes</h2>
+
+<p>
+  The following bugs were fixed:
+</p>
+
+<ul>
+  <li>A race condition in the {{ check "U1000" }} check could occasionally lead to sporadic false positives.</li>
+  <li>Some files generated by <em>goyacc</em> weren't recognized as being generated.</li>
+  <li><code>staticcheck</code> no longer fails to check packages that consist exclusively of tests.</li>
+</ul>
+
+
+<h2 id="2020.1.1">Staticcheck 2020.1.1 release notes</h2>
+
+<p>
+  The 2020.1 release neglected to update the version string stored in
+  the binary, causing <code>staticcheck -version</code> to incorrectly emit <code>(no version)</code>.
+</p>
+
+<h2 id="2020.1.2">Staticcheck 2020.1.2 release notes</h2>
+
+<p>
+  The 2020.1.1 release incorrectly identified itself as version 2020.1.
+</p>
+
+<h2 id="2020.1.3">Staticcheck 2020.1.3 release notes</h2>
+
+<p>
+  This release fixes two bugs involving <code>//lint:ignore</code> directives:
+
+  <ul>
+    <li>
+      When ignoring U1000 and checking a package that contains tests,
+      Staticcheck would incorrectly complain that the linter directive
+      didn't match any problems, even when it did.
+    </li>
+
+    <li>
+      On repeated runs, the position information for a <q>this linter directive didn't match anything</q> report
+      would either be missing, or be wildly incorrect.
+    </li>
+  </ul>
+</p>
+
+<h2 id="2020.1.4">Staticcheck 2020.1.4 release notes</h2>
+
+<p>
+  This release adds special handling for imports of the
+  deprecated <code>github.com/golang/protobuf/proto</code> package.
+</p>
+
+<p>
+  <a href="https://github.com/golang/protobuf">github.com/golang/protobuf</a>
+  has deprecated the <code>proto</code> package, but
+  their <code>protoc-gen-go</code> still imports the package and uses
+  one of its constants, <q>to enforce a weak dependency on a
+  sufficiently new version of the legacy package</q>.
+</p>
+
+<p>
+  Staticcheck would flag the import of this deprecated package in all
+  code generated by protoc-gen-go. Instead of forcing the project to
+  change their project structure, we choose to ignore such imports in
+  code generated by protoc-gen-go. The import still gets flagged in code
+  not generated by protoc-gen-go.
+</p>
+
+<p>
+  You can find more information about this in the <a href="https://github.com/golang/protobuf/issues/1077">upstream issue</a>.
+</p>
+
+<h2 id="2020.1.5">Staticcheck 2020.1.5 release notes</h2>
+
+<p>
+  This release fixes a <a href="https://github.com/dominikh/go-tools/issues/806">crash in the pattern matching engine</a>
+  and a <a href="https://github.com/dominikh/go-tools/issues/733">false positive in SA4006</a>.
+</p>
+
+<h2 id="2020.1.6">Staticcheck 2020.1.6 release notes</h2>
+
+<p>
+  This release makes the following fixes and improvements:
+</p>
+
+<ul>
+  <li>Staticcheck no longer panics when encountering files that have the following comment: <code>// Code generated DO NOT EDIT.</code></li>
+  <li>{{ check "SA4016" }} no longer panics when checking bitwise operations that involve dot-imported identifiers.</li>
+  <li>Fixed the suggested fix offered by {{ check "S1004" }}.</li>
+  <li>Fixed a false positive involving byte arrays in {{ check "SA5009" }}.</li>
+  <li>Fixed a false positive involving named byte slice types in {{ check "SA5009" }}.</li>
+  <li>Added another heuristic to avoid flagging function names in error messages in {{ check "ST1005" }}.</li>
+  <li>{{ check "SA3000" }} will no longer flag missing calls to os.Exit in TestMain functions if targeting Go 1.15 or newer.</li>
+</ul>
+
+

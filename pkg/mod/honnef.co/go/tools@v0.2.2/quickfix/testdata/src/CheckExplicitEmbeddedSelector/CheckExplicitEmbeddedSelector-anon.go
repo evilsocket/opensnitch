@@ -1,0 +1,10 @@
+package pkg
+
+type AnonOuter struct{ AnonInner }
+type AnonInner struct{ F4 struct{ F5 int } }
+
+func fnAnon() {
+	var anon AnonOuter
+	_ = anon.AnonInner.F4.F5 // want `could remove embedded field "AnonInner" from selector`
+	_ = anon.F4.F5           // minimal form
+}

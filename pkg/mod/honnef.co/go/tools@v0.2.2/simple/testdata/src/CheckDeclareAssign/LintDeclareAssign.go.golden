@@ -1,0 +1,33 @@
+package pkg
+
+func fn() {
+	var x int = 1
+	_ = x
+
+	var y interface{} = 1
+	_ = y
+
+	if true {
+		var x string = ""
+		_ = x
+	}
+
+	var z []string
+	z = append(z, "")
+	_ = z
+
+	var f func()
+	f = func() { f() }
+	_ = f
+
+	var a int
+	a = 1
+	a = 2
+	_ = a
+
+	var b int
+	b = 1
+	// do stuff
+	b = 2
+	_ = b
+}

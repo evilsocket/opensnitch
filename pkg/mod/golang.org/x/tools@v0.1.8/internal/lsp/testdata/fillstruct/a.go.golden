@@ -1,0 +1,126 @@
+-- suggestedfix_a_11_21 --
+package fillstruct
+
+import (
+	"golang.org/x/tools/internal/lsp/fillstruct/data"
+)
+
+type basicStruct struct {
+	foo int
+}
+
+var _ = basicStruct{
+	foo: 0,
+} //@suggestedfix("}", "refactor.rewrite")
+
+type twoArgStruct struct {
+	foo int
+	bar string
+}
+
+var _ = twoArgStruct{} //@suggestedfix("}", "refactor.rewrite")
+
+type nestedStruct struct {
+	bar   string
+	basic basicStruct
+}
+
+var _ = nestedStruct{} //@suggestedfix("}", "refactor.rewrite")
+
+var _ = data.B{} //@suggestedfix("}", "refactor.rewrite")
+
+-- suggestedfix_a_18_22 --
+package fillstruct
+
+import (
+	"golang.org/x/tools/internal/lsp/fillstruct/data"
+)
+
+type basicStruct struct {
+	foo int
+}
+
+var _ = basicStruct{} //@suggestedfix("}", "refactor.rewrite")
+
+type twoArgStruct struct {
+	foo int
+	bar string
+}
+
+var _ = twoArgStruct{
+	foo: 0,
+	bar: "",
+} //@suggestedfix("}", "refactor.rewrite")
+
+type nestedStruct struct {
+	bar   string
+	basic basicStruct
+}
+
+var _ = nestedStruct{} //@suggestedfix("}", "refactor.rewrite")
+
+var _ = data.B{} //@suggestedfix("}", "refactor.rewrite")
+
+-- suggestedfix_a_25_22 --
+package fillstruct
+
+import (
+	"golang.org/x/tools/internal/lsp/fillstruct/data"
+)
+
+type basicStruct struct {
+	foo int
+}
+
+var _ = basicStruct{} //@suggestedfix("}", "refactor.rewrite")
+
+type twoArgStruct struct {
+	foo int
+	bar string
+}
+
+var _ = twoArgStruct{} //@suggestedfix("}", "refactor.rewrite")
+
+type nestedStruct struct {
+	bar   string
+	basic basicStruct
+}
+
+var _ = nestedStruct{
+	bar:   "",
+	basic: basicStruct{},
+} //@suggestedfix("}", "refactor.rewrite")
+
+var _ = data.B{} //@suggestedfix("}", "refactor.rewrite")
+
+-- suggestedfix_a_27_16 --
+package fillstruct
+
+import (
+	"golang.org/x/tools/internal/lsp/fillstruct/data"
+)
+
+type basicStruct struct {
+	foo int
+}
+
+var _ = basicStruct{} //@suggestedfix("}", "refactor.rewrite")
+
+type twoArgStruct struct {
+	foo int
+	bar string
+}
+
+var _ = twoArgStruct{} //@suggestedfix("}", "refactor.rewrite")
+
+type nestedStruct struct {
+	bar   string
+	basic basicStruct
+}
+
+var _ = nestedStruct{} //@suggestedfix("}", "refactor.rewrite")
+
+var _ = data.B{
+	ExportedInt: 0,
+} //@suggestedfix("}", "refactor.rewrite")
+

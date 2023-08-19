@@ -1,0 +1,39 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Go env
+        uses: actions/setup-go@v2
+      - name: Build bcc
+        run: |
+          set -x
+          sudo apt-get update
+          # Use release 9 of llvm etc. - later versions have an unfixed
+          # bug on Ubuntu:
+          # https://github.com/iovisor/bcc/issues/2915
+          sudo apt-get -y install bison build-essential cmake flex git libelf-dev libfl-dev libedit-dev libllvm9 llvm-9-dev libclang-9-dev python zlib1g-dev
+          pushd /tmp
+          git clone --depth 1 --branch v0.19.0 https://github.com/iovisor/bcc.git
+          mkdir -p bcc/build; cd bcc/build
+          # Symlink /usr/lib/llvm to avoid "Unable to find clang libraries"
+          # The directory appears only to be created when installing the
+          # virtual llvm-dev package.
+          # https://github.com/iovisor/bcc/issues/492
+          sudo ln -s /usr/lib/llvm-9 /usr/local/llvm
+          cmake ..
+          make
+          sudo make install
+          popd
+      - name: Print system info
+        run: |
+          cat /etc/os-release
+          uname -a
+      - name: Run integration tests
+        run: |
+          sudo go test -tags integration -v ./...

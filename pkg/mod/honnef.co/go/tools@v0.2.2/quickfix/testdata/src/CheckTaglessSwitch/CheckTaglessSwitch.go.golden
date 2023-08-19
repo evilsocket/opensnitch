@@ -1,0 +1,60 @@
+package pkg
+
+func foo() int { return 0 }
+
+func fn1() {
+	var x, y int
+	var z map[string][]int
+	var a bool
+
+	switch x { // want `could use tagged switch on x`
+	case 4: // comment
+	case 1, 2, 3:
+	}
+
+	switch x { // want `could use tagged switch on x`
+	case 1, 2, 3:
+	case 4:
+	default:
+	}
+
+	switch z[""][0] { // want `could use tagged switch on z\[""\]\[0\]`
+	case 1, 2:
+	}
+
+	switch a { // want `could use tagged switch on a`
+	case x == y, x != y:
+	}
+
+	switch {
+	case z[""][0] == 1 || z[""][1] == 2:
+	}
+
+	switch {
+	case x == 1 || x == 2, y == 3:
+	case x == 4:
+	default:
+	}
+
+	switch {
+	case x == 1 || x == 2, x == 3:
+	case y == 4:
+	}
+
+	switch {
+	case x == 1 || x == 2, x == foo():
+	case x == 4:
+	default:
+	}
+
+	switch {
+	}
+
+	switch {
+	default:
+	}
+
+	switch {
+	case x == 1 && x == 2:
+	}
+}

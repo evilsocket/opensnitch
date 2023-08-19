@@ -1,0 +1,16 @@
+// Package pkg ...
+package pkg
+
+func fn(x string, y int) {
+	if x == "" { // want `Yoda`
+	}
+	if y == 0 { // want `Yoda`
+	}
+	if 0 > y {
+	}
+	if "" == "" {
+	}
+
+	if "" == "" || y == 0 { // want `Yoda`
+	}
+}

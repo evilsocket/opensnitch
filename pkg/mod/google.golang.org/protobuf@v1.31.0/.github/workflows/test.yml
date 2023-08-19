@@ -1,0 +1,28 @@
+on: [push]
+name: Test
+jobs:
+  test:
+    strategy:
+      matrix:
+        # This is just a version to compile the integration_test.go; see
+        # golangVersions in that file for the list of actual Go versions used.
+        go-version: [1.x]
+        os: [ubuntu-latest] # TODO: Add [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: sudo apt-get -y install autoconf automake libtool curl make g++ unzip
+    - name: Install Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ matrix.go-version }}
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Cache dependencies
+      uses: actions/cache@v3.0.2
+      with:
+        path: .cache
+        key: ${{ runner.os }}-${{ hashFiles('integration_test.go') }}
+    - name: Test
+      run: go test -v -timeout=60m -count=1 -failfast integration_test.go
