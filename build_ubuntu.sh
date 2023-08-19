@@ -1,3 +1,11 @@
+##
+#
+# build using
+#
+# podman run --name go -v $PWD:/go --rm -it docker.io/library/golang:latest
+# 
+# switch to ansible to make universal might be harder
+# 
 apt update -y
 apt install -y \
  libqt5scripttools5 \
