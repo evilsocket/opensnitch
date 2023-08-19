@@ -189,17 +189,17 @@
         <translation>Szolgáltatás engedélyezése (BE)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall.ui" line="397"/>
+        <location filename="../../../opensnitch/res/firewall.ui" line="398"/>
         <source>Exclude outbound connections to a port from being intercepted</source>
         <translation>A kikötőhöz tartó kimenő kapcsolatok kizárása az elfogásból</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall.ui" line="406"/>
+        <location filename="../../../opensnitch/res/firewall.ui" line="407"/>
         <source>Allow service (OUT)</source>
         <translation>Szolgáltatás engedélyezése (KI)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall.ui" line="426"/>
+        <location filename="../../../opensnitch/res/firewall.ui" line="427"/>
         <source>New rule</source>
         <translation>Új szabály</translation>
     </message>
@@ -209,7 +209,7 @@
         <translation type="obsolete">xxx</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="431"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="421"/>
         <source>Close</source>
         <translation>Bezárás</translation>
     </message>
@@ -254,102 +254,102 @@
         <translation>Kiválasztott feltétel eltávolítása</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="233"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="221"/>
         <source>Direction</source>
         <translation>Irány</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="248"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="232"/>
         <source>IN</source>
         <translation>BE</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="257"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="241"/>
         <source>OUT</source>
         <translation>KI</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="223"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="268"/>
         <source>Action</source>
         <translation>Művelet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="285"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="279"/>
         <source>ACCEPT</source>
         <translation>ELFOGADÁS</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="294"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="288"/>
         <source>DROP</source>
         <translation>KIDOBÁS</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="303"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="297"/>
         <source>REJECT</source>
         <translation>ELUTASÍTÁS</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="312"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="306"/>
         <source>RETURN</source>
         <translation>VISSZATÉRÉS</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="442"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="432"/>
         <source>Clear</source>
         <translation>Kiürítés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="453"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="443"/>
         <source>Delete</source>
         <translation>Törlés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="464"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="454"/>
         <source>Save</source>
         <translation>Mentés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="475"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="465"/>
         <source>Add</source>
         <translation>Hozzáadás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="266"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="250"/>
         <source>FORWARD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="271"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="255"/>
         <source>PREROUTING</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="276"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="260"/>
         <source>POSTROUTING</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="321"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="315"/>
         <source>QUEUE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="330"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="323"/>
         <source>DNAT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="335"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="328"/>
         <source>SNAT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="340"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="333"/>
         <source>REDIRECT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="359"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="349"/>
         <source>depending on the Action (i.e.: target), the syntaxis of the parameters will vary.
 Some examples:
 
@@ -370,7 +370,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation>Beállítások</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="484"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="564"/>
         <source>UI</source>
         <translation>Felhasználói felület</translation>
     </message>
@@ -385,47 +385,47 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">Felugró ablakok alapértelmezett helye a képernyőn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="359"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="524"/>
         <source>Show advanced view by default</source>
         <translation>Alapértelmezés szerint a haladó nézet megjelenítése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="970"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1235"/>
         <source>once</source>
         <translation>egyszer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="219"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="384"/>
         <source>30s</source>
         <translation>30 másodperc</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="224"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="389"/>
         <source>5m</source>
         <translation>5 perc</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="229"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="394"/>
         <source>15m</source>
         <translation>15 perc</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="234"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="399"/>
         <source>30m</source>
         <translation>30 perc</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="239"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="404"/>
         <source>1h</source>
         <translation>1 óra</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="244"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="409"/>
         <source>until reboot</source>
         <translation>újraindításig</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="249"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="414"/>
         <source>forever</source>
         <translation>örökre</translation>
     </message>
@@ -435,112 +435,112 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">Felugró ablak alapértelmezett művelete</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="653"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="965"/>
         <source>Action</source>
         <translation>Művelet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="323"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="488"/>
         <source>Default target</source>
         <translation>Alapértelmezett cél</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="375"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="540"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ha be van jelölve, az előugró ablakok aktív haladó nézettel jelennek meg.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1012"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1257"/>
         <source>deny</source>
         <translation>megtagadás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1021"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1266"/>
         <source>allow</source>
         <translation>engedélyezés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="283"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="448"/>
         <source>by executable</source>
         <translation>futtatható fájl szerint</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="288"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="453"/>
         <source>by command line</source>
         <translation>parancssor szerint</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="293"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="458"/>
         <source>by destination port</source>
         <translation>célkikötő szerint</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="298"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="463"/>
         <source>by destination ip</source>
         <translation>rendeltetési hely IP címe szerint</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="303"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="468"/>
         <source>by user id</source>
         <translation>felhasználói azonosító szerint</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="179"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="344"/>
         <source>center</source>
         <translation>középre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="184"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="349"/>
         <source>top right</source>
         <translation>jobb felső</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="189"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="354"/>
         <source>bottom right</source>
         <translation>jobb alsó</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="194"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="359"/>
         <source>top left</source>
         <translation>bal felső</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="199"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="364"/>
         <source>bottom left</source>
         <translation>bal alsó</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="340"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="505"/>
         <source>Pop-up default duration</source>
         <translation>Előugró ablak alapértelmezett időtartama</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="343"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="508"/>
         <source>Duration</source>
         <translation>Időtartam</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="263"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="428"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alapértelmezés szerint, amikor egy új előugró ablak jelenik meg, a legegyszerűbb formájában képes lesz a kapcsolatok vagy alkalmazások szűrésére a kapcsolat egy tulajdonságával (futtatható fájl, kikötő, IP-cím stb.).&lt;/p&gt;&lt;p&gt;Ezekkel az opciókkal több mezőt is választhat, amelyekhez a kapcsolatokat szűrni kívánja.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="266"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="431"/>
         <source>Filter connections also by:</source>
         <translation>Szűrje a csatlakozásokat az alábbiak szerint is:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="81"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="246"/>
         <source>User ID</source>
         <translation>Felhasználói azonosító</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="97"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="262"/>
         <source>Destination port</source>
         <translation>Célkikötő</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="113"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="278"/>
         <source>Destination IP</source>
         <translation>Cél IP-címe</translation>
     </message>
@@ -550,54 +550,54 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">Tiltsa le a előugró elemet, csak riasztást jelenítsen meg</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="463"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="128"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;p&gt;If the pop-up is not answered, the default options will be applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ez az időkorlát az a visszaszámlálás, amelyet akkor láthat, amikor egy felbukkanó párbeszédpanel jelenik meg.&lt;/p&gt;&lt;p&gt;Ha nem válaszol a felbukkanó párbeszédpanelre, akkor az alapértelmezett beállítások kerülnek alkalmazásra.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="466"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="131"/>
         <source>Default timeout</source>
         <translation>Alapértelmezett időtúllépés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="823"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1100"/>
         <source>Nodes</source>
         <translation>Csomópontok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="829"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1310"/>
         <source>Process monitor method</source>
         <translation>Folyamatfigyelés módszer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="846"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1368"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log file to write logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Naplófájl a naplók írásához.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;A /dev/stdout naplókat nyomtat a normál kimenetre.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="849"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1371"/>
         <source>Log file</source>
         <translation>Naplófájl</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="863"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1224"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Az alapértelmezett időtartam akkor kerül végrehajtásra, ha nincs csatlakoztatva felhasználói felület.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="866"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1227"/>
         <source>Default duration</source>
         <translation>Alapértelmezett időtartam</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="879"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1112"/>
         <source>Apply configuration to all nodes</source>
         <translation>Beállítások alkalmazása az összes csomópontra</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="902"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Az alapértelmezett művelet akkor kerül végrehajtásra, ha nincs csatlakoztatva felhasználói felület.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Az alapértelmezett művelet akkor kerül végrehajtásra, ha nincs csatlakoztatva felhasználói felület.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="483"/>
@@ -605,7 +605,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">Alapértelmezett művelet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="921"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1616"/>
         <source>HostName</source>
         <translation>Állomásnév</translation>
     </message>
@@ -630,22 +630,22 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">ftrace</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="975"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1240"/>
         <source>until restart</source>
         <translation>újraindításáig</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="980"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1245"/>
         <source>always</source>
         <translation>mindig</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="988"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1317"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it&apos;s a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A csomópont címe.&lt;/p&gt;&lt;p&gt;Alapértelmezett: unix:///tmp/osui.sock (Az „unix://” kötelező, ha Unix szoftvercsatorna)&lt;/p&gt;&lt;p&gt;Lehet IP-cím is a kikötővel: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="991"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1320"/>
         <source>Address</source>
         <translation>Cím</translation>
     </message>
@@ -660,7 +660,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">Ismeretlen kapcsolatok elfogása</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1039"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1125"/>
         <source>Version</source>
         <translation>Változat</translation>
     </message>
@@ -695,107 +695,107 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">VÉGZETES</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1090"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1338"/>
         <source>unix:///tmp/osui.sock</source>
         <translation>unix:///tmp/osui.sock</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1102"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1446"/>
         <source>/var/log/opensnitchd.log</source>
         <translation>/var/log/opensnitchd.log</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1107"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1451"/>
         <source>/dev/stdout</source>
         <translation>/dev/stdout</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1131"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1435"/>
         <source>Default log level</source>
         <translation>Alapértelmezett naplószint</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1146"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1627"/>
         <source>Database</source>
         <translation>Adatbázis</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1200"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1681"/>
         <source>Database type</source>
         <translation>Adatbázistípus</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1207"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1688"/>
         <source>Select</source>
         <translation>Kijelölés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1181"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1662"/>
         <source>In memory</source>
         <translation>Memóriabeli</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1186"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1667"/>
         <source>File</source>
         <translation>Fájl</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1482"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="62"/>
         <source>Close</source>
         <translation>Bezárás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1493"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="73"/>
         <source>Apply</source>
         <translation>Alkalmazás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1504"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="84"/>
         <source>Save</source>
         <translation>Mentés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="356"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="521"/>
         <source>The advanced view allows you to easily select multiple fields to filter connections</source>
         <translation>A haladó nézet lehetővé teszi több mező egyszerű kiválasztását a kapcsolatok szűréséhez</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="110"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="275"/>
         <source>If checked, this field will be selected when a pop-up is displayed</source>
         <translation>Ha be van jelölve, akkor ez a mező lesz kiválasztva, amikor egy előugró jelenik meg</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="159"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. new outgoing connections are denied.&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Előugró ablak alapértelmezett művelete.&lt;/p&gt;&lt;p&gt;Amikor új kimenő kapcsolat jön létre, ez a művelet alapértelmezés szerint ki lesz választva, tehát ha az időtúllépés aktiválódik, akkor ez az opció lesz alkalmazva.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Miközben egy előugró ablak kéri a felhasználót, hogy engedélyezze vagy tagadja meg a kapcsolatot:&lt;/p&gt;&lt;p&gt;1. megtagadják az új kimenő kapcsolatokat.&lt;/p&gt;&lt;p&gt;2. az ismert kapcsolatok a felhasználó által meghatározott szabályok alapján engedélyezhetők vagy megtagadhatók.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Előugró ablak alapértelmezett művelete.&lt;/p&gt;&lt;p&gt;Amikor új kimenő kapcsolat jön létre, ez a művelet alapértelmezés szerint ki lesz választva, tehát ha az időtúllépés aktiválódik, akkor ez az opció lesz alkalmazva.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Miközben egy előugró ablak kéri a felhasználót, hogy engedélyezze vagy tagadja meg a kapcsolatot:&lt;/p&gt;&lt;p&gt;1. megtagadják az új kimenő kapcsolatokat.&lt;/p&gt;&lt;p&gt;2. az ismert kapcsolatok a felhasználó által meghatározott szabályok alapján engedélyezhetők vagy megtagadhatók.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="905"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1214"/>
         <source>Default action when the GUI is disconnected</source>
         <translation>Alapértelmezett művelet a grafikus felhasználói felület leválasztása esetén</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1001"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1303"/>
         <source>Debug invalid connections</source>
         <translation>Érvénytelen kapcsolatok hibakeresése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="39"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="116"/>
         <source>Pop-ups</source>
         <translation>Előugró ablakok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="64"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="229"/>
         <source>Default options</source>
         <translation>Alapértelmezett beállítások</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="330"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="495"/>
         <source>Default position on screen</source>
         <translation>Alapértelmezett hely a képernyőn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="769"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1046"/>
         <source>any temporary rules</source>
         <translation>bármilyen ideiglenes szabályt</translation>
     </message>
@@ -810,32 +810,32 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">Ne mentse az időtartam szabályait</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="589"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="901"/>
         <source>Time</source>
         <translation>Idő</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="669"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="981"/>
         <source>Destination</source>
         <translation>Cél</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="637"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="949"/>
         <source>Protocol</source>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="685"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="997"/>
         <source>Process</source>
         <translation>Folyamat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="605"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="917"/>
         <source>Rule</source>
         <translation>Szabály</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="621"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="933"/>
         <source>Node</source>
         <translation>Csomópont</translation>
     </message>
@@ -845,92 +845,92 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ha be van jelölve, az OpenSnitch felszólítja Önt, hogy engedélyezze vagy utasítsa el azokat a kapcsolatokat, amelyek nem rendelkeznek aszocizált folyamatazonosítóval, több okból, főleg a rossz állapotú kapcsolatok miatt.&lt;/p&gt;&lt;p&gt;Az előugró párbeszédablak csak a hálózati kapcsolatra vonatkozó adatokat tartalmazza.&lt;/p&gt;&lt;p&gt;Vannak azonban olyan esetek, amikor ezek érvényes kapcsolatok, például amikor virtuális magánhálózatot hoznak létre a WireGuard használatával.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="577"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="862"/>
         <source>Events tab columns</source>
         <translation>Események lap oszlopai</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="308"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="473"/>
         <source>by PID</source>
         <translation>folyamatazonosító által</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="473"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="553"/>
         <source>Disable pop-ups, only display a notification</source>
         <translation>Előugró ablakok letiltása, csak értesítés megjelenítése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="496"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="766"/>
         <source>Desktop notifications</source>
         <translation>Asztali értesítések</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="514"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="796"/>
         <source>Use system notifications</source>
         <translation>Rendszerértesítések használata</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="530"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="812"/>
         <source>Use Qt notifications</source>
         <translation>Qt-értesítések használata</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="559"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="841"/>
         <source>Test</source>
         <translation>Tesztelés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="998"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1300"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don&apos;t have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ha be van jelölve, az OpenSnitch felkéri, hogy engedélyezze vagy tiltsa le azokat a kapcsolatokat, amelyekhez nem tartozik folyamatazonosító, több okból is, főleg a rossz állapotú kapcsolatok miatt.&lt;/p&gt;&lt;p&gt;A felugró párbeszédpanel csak a hálózati kapcsolatra vonatkozó információkat tartalmaz.&lt;/p&gt;&lt;p&gt;Vannak olyan esetek, amikor ezek érvényes kapcsolatok, például virtuális magánhálózat WireGuard segítségével történő létesítésekor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1294"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1775"/>
         <source>minutes</source>
         <translation>perc</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1326"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1807"/>
         <source>Minutes between events purges</source>
         <translation>Eseménytisztítások közötti percek száma</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1352"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1833"/>
         <source>days</source>
         <translation>nap</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1365"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1846"/>
         <source>Maximum days of events to keep</source>
         <translation>Események megtartására nyitva álló napok száma</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="147"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="312"/>
         <source>reject</source>
         <translation>elutasítás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="716"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="618"/>
         <source>System</source>
         <translation>Rendszer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="695"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1007"/>
         <source>Command line</source>
         <translation>Parancssor</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="708"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="632"/>
         <source>Theme</source>
         <translation>Téma</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="748"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1025"/>
         <source>Rules</source>
         <translation>Szabályok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="756"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1033"/>
         <source>When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.
 
 Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.</source>
@@ -939,38 +939,218 @@ Temporary rules will still be valid, and you can use them when prompted to allow
 Az ideiglenes szabályok továbbra is érvényesek maradnak, és használhatja őket, amikor a rendszer kéri, hogy engedélyezze/megtagadja az új kapcsolatot.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="761"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1038"/>
         <source>Don&apos;t save/Delete rules of duration</source>
         <translation>Ne mentse/törölje az időtartamra vonatkozó szabályokat:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="779"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1056"/>
         <source>30s or less</source>
         <translation>30 másodperc vagy kevesebb</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="784"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1061"/>
         <source>5m or less</source>
         <translation>5 perc vagy kevesebb</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="789"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1066"/>
         <source>15m or less</source>
         <translation>15 perc vagy kevesebb</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="794"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1071"/>
         <source>30m or less</source>
         <translation>30 perc vagy kevesebb</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="799"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1076"/>
         <source>1h or less</source>
         <translation>1 óra vagy kevesebb</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="724"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="594"/>
         <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="324"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. the daemon&apos;s default action will be applied (see Nodes tab).&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1205"/>
+        <source>General</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="639"/>
+        <source>By default the GUI is started when login</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="642"/>
+        <source>Autostart the GUI upon login</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="661"/>
+        <source>Server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="674"/>
+        <source>4MiB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="679"/>
+        <source>8MiB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="684"/>
+        <source>16MiB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="689"/>
+        <source>32MiB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1515"/>
+        <source>Simple</source>
+        <translation type="unfinished">Egyszerű</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1520"/>
+        <source>Simple TLS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1525"/>
+        <source>Mutual TLS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1489"/>
+        <source>Absolute path to the cert file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="723"/>
+        <source>Maximum size of each message from nodes. Default 4MB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="726"/>
+        <source>Max gRPC channel size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1582"/>
+        <source>Absolute path to the cert key file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1498"/>
+        <source>&lt;p&gt;Simple: no authentication, TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1501"/>
+        <source>Authentication type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1535"/>
+        <source>Absolute path to the CA cert file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="778"/>
+        <source>Enable</source>
+        <translation type="unfinished">Engedélyezés</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1211"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will be applied to new outbound connections in two scenarios:&lt;/p&gt;&lt;p&gt;when the daemon is not connected to the UI, or when there&apos;s a pop-up running.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1355"/>
+        <source>Logging</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1378"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will log timestamp microseconds.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1381"/>
+        <source>Log timestamp microseconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1425"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will use the UTC timezone for timestamps.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1428"/>
+        <source>Log UTC timestamps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1483"/>
+        <source>Authentication</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1544"/>
+        <source>Don&apos;t verify certs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1552"/>
+        <source>no-client-cert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1557"/>
+        <source>req-cert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1562"/>
+        <source>req-any-cert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1567"/>
+        <source>verify-cert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1572"/>
+        <source>req-and-verify-cert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1589"/>
+        <source>Absolute path to the server cert file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1596"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;More information&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1925"/>
+        <source>Enable DB Write-Ahead Logging (WAL)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1060,7 +1240,7 @@ Az ideiglenes szabályok továbbra is érvényesek maradnak, és használhatja �
         <translation>Alkalmazzon szabályt minden csomópontra</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="610"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="604"/>
         <source>To this IP / Network</source>
         <translation>Erre az IP-címre vagy a hálózatra</translation>
     </message>
@@ -1075,17 +1255,17 @@ Az ideiglenes szabályok továbbra is érvényesek maradnak, és használhatja �
         <translation>Művelet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="902"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="896"/>
         <source>To this port</source>
         <translation>Erre a kikötőre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="980"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="974"/>
         <source>To this list of domains</source>
         <translation>Ehhez a tartománylistához</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="760"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="754"/>
         <source>You can specify a single IP:
 - 192.168.1.1
 
@@ -1114,74 +1294,74 @@ Megadhat alhálózatot is:
 Megjegyzés: Vesszőkkel vagy szóközökkel nem szabad elválasztani az IP-címeket vagy a hálózatokat.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="459"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="659"/>
         <source>LAN</source>
-        <translation type="obsolete">Helyi hálózat</translation>
+        <translation type="unfinished">Helyi hálózat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="464"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="669"/>
         <source>127.0.0.0/8</source>
-        <translation type="obsolete">127.0.0.0/8</translation>
+        <translation type="unfinished">127.0.0.0/8</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="469"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="674"/>
         <source>192.168.0.0/24</source>
-        <translation type="obsolete">192.168.0.0/24</translation>
+        <translation type="unfinished">192.168.0.0/24</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="474"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="679"/>
         <source>192.168.1.0/24</source>
-        <translation type="obsolete">192.168.1.0/24</translation>
+        <translation type="unfinished">192.168.1.0/24</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="479"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="684"/>
         <source>192.168.2.0/24</source>
-        <translation type="obsolete">192.168.2.0/24</translation>
+        <translation type="unfinished">192.168.2.0/24</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="484"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="689"/>
         <source>192.168.0.0/16</source>
-        <translation type="obsolete">192.168.0.0/16</translation>
+        <translation type="unfinished">192.168.0.0/16</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="489"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="694"/>
         <source>169.254.0.0/16</source>
-        <translation type="obsolete">169.254.0.0/16</translation>
+        <translation type="unfinished">169.254.0.0/16</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="494"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="699"/>
         <source>172.16.0.0/12</source>
-        <translation type="obsolete">172.16.0.0/12</translation>
+        <translation type="unfinished">172.16.0.0/12</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="499"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="704"/>
         <source>10.0.0.0/8</source>
-        <translation type="obsolete">10.0.0.0/8</translation>
+        <translation type="unfinished">10.0.0.0/8</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="504"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="709"/>
         <source>::1/128</source>
-        <translation type="obsolete">::1/128</translation>
+        <translation type="unfinished">::1/128</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="509"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="714"/>
         <source>fc00::/7</source>
-        <translation type="obsolete">fc00::/7</translation>
+        <translation type="unfinished">fc00::/7</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="514"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="719"/>
         <source>ff00::/8</source>
-        <translation type="obsolete">ff00::/8</translation>
+        <translation type="unfinished">ff00::/8</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="519"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="724"/>
         <source>fe80::/10</source>
-        <translation type="obsolete">fe80::/10</translation>
+        <translation type="unfinished">fe80::/10</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="524"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="729"/>
         <source>fd00::/8</source>
-        <translation type="obsolete">fd00::/8</translation>
+        <translation type="unfinished">fd00::/8</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="686"/>
@@ -1229,7 +1409,7 @@ Megjegyzés: Vesszőkkel vagy szóközökkel nem szabad elválasztani az IP-cím
         <translation>mindig</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="592"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="586"/>
         <source>Commas or spaces are not allowed to specify multiple domains. 
 
 Use regular expressions instead: 
@@ -1250,12 +1430,12 @@ www.gnu.org - csak a www.gnu.org, nem az ftp.gnu.org, a www2.gnu.org, …
 gnu.org         - csak a gnu.org-nak fog megfelelni, nem a www.gnu.org-nak, nem az ftp.gnu.org-nak, …</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="603"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="597"/>
         <source>www.domain.org, .*\.domain.org</source>
         <translation>www.tartomány.hu, .*\.tartomány.hu</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="750"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="744"/>
         <source>To this host</source>
         <translation>Erre az állomásra</translation>
     </message>
@@ -1265,12 +1445,12 @@ gnu.org         - csak a gnu.org-nak fog megfelelni, nem a www.gnu.org-nak, nem 
         <translation>Időtartam</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="526"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="520"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Csak TCP, UDP vagy UDPLITE engedélyezett&lt;/p&gt;&lt;p&gt;Használhatja a szabályos kifejezést, azaz: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="532"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="526"/>
         <source>TCP</source>
         <translation>TCP</translation>
     </message>
@@ -1300,12 +1480,12 @@ gnu.org         - csak a gnu.org-nak fog megfelelni, nem a www.gnu.org-nak, nem 
         <translation type="obsolete">UDPLITE6</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="633"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="627"/>
         <source>Protocol</source>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="472"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="466"/>
         <source>From this executable</source>
         <translation>Ebből a futtatható fájlból</translation>
     </message>
@@ -1383,12 +1563,12 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation>Elsőbbségi szabály</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1092"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1086"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the field of the rules are case-insensitive, i.e., if a process tries to access gOOgle.CoM and you have a rule to Deny .*google.com, the connection will be blocked.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you check this box, you have to specify the exact string (domain, executable, command line) that you want to filter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alapértelmezés szerint a szabályok mezője nem különbözteti meg a kis- és nagybetűket, azaz ha egy folyamat megpróbálja elérni a gOOgle.CoM tartományt, és van egy szabályod, amelyet meg kell tagadni a .*google.com tartomány, a kapcsolat letiltva lesz.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Ha bejelöli ezt a jelölőnégyzetet, meg kell adnia azt a pontos karakterláncot (tartomány, futtatható fájl, parancssor), amelyet szűrni szeretne.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1095"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1089"/>
         <source>Case-sensitive</source>
         <translation>Kis- és nagybetűk felismerése</translation>
     </message>
@@ -1408,49 +1588,49 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation>Ebből a folyamatazonosítóból</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="491"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="485"/>
         <source>Network</source>
         <translation>Hálózat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="932"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="926"/>
         <source>List of domains/IPs</source>
         <translation>Tartományok/IP-címek listája</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="938"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="932"/>
         <source>To this list of network ranges</source>
         <translation>Ehhez a hálózati tartományok listájához</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="945"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="939"/>
         <source>To this list of IPs</source>
         <translation>Ehhez az IP-címlistához</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="971"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="965"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of IPs to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;/p&gt;&lt;p&gt;One IP per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Válasszon ki egy könyvtárat a tiltandó vagy engedélyezendő IP-címek listáját tartalmazó fájlokkal:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4. 6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;stb.&lt;/p&gt;&lt;p&gt;Soronként egy IP-cím. Az üres sorokat vagy a # karakterrel kezdődő sorokat figyelmen kívül hagyja.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1006"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1000"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of network ranges to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;One Network Range per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Válasszon ki egy könyvtárat a tiltandó vagy engedélyezni kívánt hálózati tartományok listáját tartalmazó fájlokkal:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0 /20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;stb.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Egy hálózati tartomány soronként. Az üres sorokat vagy a # karakterrel kezdődő sorokat figyelmen kívül hagyja.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1034"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1028"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Válasszon ki egy könyvtárat a tiltandó vagy engedélyezni kívánt tartományok listájával.&lt;/p&gt;&lt;p&gt;A könyvtárba helyezzen be olyan fájlokat, amelyek a tartomány listáit tartalmazzák.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;A lista minden egyes bejegyzésének formátuma a következő (gazdaformátum):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.tartomány.com&lt;/p&gt;&lt;p&gt;vagy &lt;/p&gt;&lt;p&gt;0.0.0.0 www.tartomány.com&lt;/p&gt;&lt;p&gt;Az üres sorokat vagy a # karakterrel kezdődő sorokat figyelmen kívül hagyja.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1049"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1043"/>
         <source>To this list of domains 
 (regular expressions)</source>
         <translation>Ehhez a tartománylistához
 (szabályos kifejezések)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1076"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1070"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing regular expressions of domains to block or allow:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;You can also use a domain as is: &amp;quot;example.com&amp;quot; , and it&apos;ll match whatever.example.com, whatever.example.com.localdomain, etc.&lt;/p&gt;&lt;p&gt;One domain per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Válasszon ki egy könyvtárat a tiltandó vagy engedélyezendő tartományok szabványos kifejezéseit tartalmazó fájlokkal:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt; Használhat olyan tartományt is, amilyen: &amp;quot;example.com&amp;quot;, és egyezik a bármi.példa.com, bármi.példa.com.helyitartomány stb. oldallal.&lt;/p&gt;&lt;p&gt;Soronként egy tartomány. Az üres sorokat vagy a # karakterrel kezdődő sorokat figyelmen kívül hagyja.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1460,7 +1640,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation>Elutasítás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1151"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1145"/>
         <source>Description...</source>
         <translation>Leírás…</translation>
     </message>
@@ -1475,27 +1655,27 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation>Szabályos kifejezés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="479"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="473"/>
         <source>is regular expression</source>
         <translation>szabályos kifejezés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="863"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="857"/>
         <source>Network interface</source>
         <translation>Hálózati felület</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1086"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1080"/>
         <source>More</source>
         <translation>Több</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1102"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1096"/>
         <source>Don&apos;t log connections that match this rule</source>
         <translation>Ne naplózza azokat a kapcsolatokat, amelyek megfelelnek ennek a szabálynak</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1105"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1099"/>
         <source>Don&apos;t log connections</source>
         <translation>Ne naplózza a kapcsolatokat</translation>
     </message>
@@ -1520,22 +1700,22 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation type="obsolete">Név (üres hagyása az automatikus létrehozáshoz)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="566"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="560"/>
         <source>ICMP</source>
         <translation>ICMP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="571"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="565"/>
         <source>ICMP6</source>
         <translation>ICMP6</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="576"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="570"/>
         <source>SCTP</source>
         <translation>SCTP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="581"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="575"/>
         <source>SCTP6</source>
         <translation>SCTP6</translation>
     </message>
@@ -1545,18 +1725,23 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation type="obsolete">Szín</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="743"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="737"/>
         <source>From this IP / Network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="872"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="866"/>
         <source>From this port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="918"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="912"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="664"/>
+        <source>MULTICAST</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1593,7 +1778,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation>Állapot</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1793"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1814"/>
         <source>-</source>
         <translation>-</translation>
     </message>
@@ -1653,7 +1838,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation>Az összes elfogott esemény törlése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="826"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="829"/>
         <source>Nodes</source>
         <translation>Csomópontok</translation>
     </message>
@@ -1663,22 +1848,22 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(kattintson duplán a Cím oszlopra a csomópont részleteinek megtekintéséhez)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1700"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1721"/>
         <source>Rules</source>
         <translation>Szabályok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="995"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="998"/>
         <source>enable</source>
         <translation>engedélyezés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1022"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1028"/>
         <source>Edit rule</source>
         <translation>Szabály szerkesztése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1039"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1045"/>
         <source>Delete rule</source>
         <translation>Szabály törlése</translation>
     </message>
@@ -1693,22 +1878,22 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation type="obsolete">szabálynév keresése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="782"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="785"/>
         <source>Application rules</source>
         <translation>Alkalmazási szabályok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="936"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="939"/>
         <source>Permanent</source>
         <translation>Állandó</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="945"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="948"/>
         <source>Temporary</source>
         <translation>Ideiglenes</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1063"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1069"/>
         <source>Hosts</source>
         <translation>Gazdagépek</translation>
     </message>
@@ -1723,7 +1908,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation type="obsolete">Az összes elfogott gazdagép törlése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1153"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1162"/>
         <source>Applications</source>
         <translation>Alkalmazások</translation>
     </message>
@@ -1733,7 +1918,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation type="obsolete">Az összes elfogott alkalmazás törlése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1266"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1278"/>
         <source>Addresses</source>
         <translation>Címek</translation>
     </message>
@@ -1743,7 +1928,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation type="obsolete">Az összes elfogott cím törlése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1356"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1371"/>
         <source>Ports</source>
         <translation>Kikötők</translation>
     </message>
@@ -1753,7 +1938,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation type="obsolete">Az összes elfogott port törlése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1440"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1458"/>
         <source>Users</source>
         <translation>Felhasználók</translation>
     </message>
@@ -1763,22 +1948,22 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation type="obsolete">Az összes elfogott felhasználó törlése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1544"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1565"/>
         <source>Connections</source>
         <translation>Kapcsolatok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1596"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1617"/>
         <source>Dropped</source>
         <translation>Elvetve</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1648"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1669"/>
         <source>Uptime</source>
         <translation>Hasznos üzemidő</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1767"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1788"/>
         <source>Version</source>
         <translation>Változat</translation>
     </message>
@@ -1788,7 +1973,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation type="obsolete">Kapcsolat törlése amelyek megfelelnek ennek a szabálynak</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="927"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="930"/>
         <source>All applications</source>
         <translation>Minden alkalmazás</translation>
     </message>
@@ -1803,27 +1988,27 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation>0</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="777"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="780"/>
         <source>2</source>
         <translation>2</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="954"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="957"/>
         <source>System rules</source>
         <translation>Rendszer szabályai</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="637"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="640"/>
         <source>Delete this node</source>
         <translation>Csomópont törlése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="653"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="656"/>
         <source>Show the preferences of this node</source>
         <translation>Csomópont-beállítások megjelenítése</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="669"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="672"/>
         <source>Start or stop interception of this node</source>
         <translation>Csomópont adatelérés indítása/leállítása</translation>
     </message>
@@ -1831,27 +2016,27 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
 <context>
     <name>contextual_menu</name>
     <message>
-        <location filename="../../../opensnitch/service.py" line="47"/>
+        <location filename="../../../opensnitch/service.py" line="48"/>
         <source>Statistics</source>
         <translation>Statisztika</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="48"/>
+        <location filename="../../../opensnitch/service.py" line="49"/>
         <source>Enable</source>
         <translation>Engedélyezés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="49"/>
+        <location filename="../../../opensnitch/service.py" line="50"/>
         <source>Disable</source>
         <translation>Letiltás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="50"/>
+        <location filename="../../../opensnitch/service.py" line="51"/>
         <source>Help</source>
         <translation>Súgó</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="51"/>
+        <location filename="../../../opensnitch/service.py" line="52"/>
         <source>Close</source>
         <translation>Bezárás</translation>
     </message>
@@ -1859,42 +2044,42 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
 <context>
     <name>firewall</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="91"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="96"/>
         <source>Configuration applied.</source>
         <translation>Beállítás alkalmazva.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="404"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="99"/>
         <source>Error: {0}</source>
         <translation>Hiba: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="193"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="198"/>
         <source>Applying changes...</source>
         <translation>Módosítások alkalmazása…</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="230"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="235"/>
         <source>Error getting INPUT chain policy</source>
         <translation>Hiba történt a BEMENET láncszabályzat lekérésekor</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="237"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="242"/>
         <source>Error getting OUTPUT chain policy</source>
         <translation>Hiba történt a KIMENET láncszabályzat lekérésekor</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="290"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="295"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
         <translation>A tűzfalszabályok grafikus felhasználói felületről történő beállításához az „iptables” helyett az „nftables”-t kell használni</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="304"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="309"/>
         <source>Enabling firewall...</source>
         <translation>Tűzfal engedélyezése…</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="306"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="311"/>
         <source>Disabling firewall...</source>
         <translation>Tűzfal letiltása…</translation>
     </message>
@@ -1964,144 +2149,144 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
         <translation>Sebességkorlát csatlakozások</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="373"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="376"/>
         <source>Your protobuf version is incompatible, you need to install protobuf 3.8.0 or superior
 (pip3 install --ignore-installed protobuf==3.8.0)</source>
         <translation>A protobuf verziója nem kompatibilis, telepítenie kell a protobuf 3.8.0 vagy újabb verzióját
 (pip3 install --ignore-installed protobuf==3.8.0)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="397"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="404"/>
         <source>Rule deleted</source>
         <translation>Szabály törölve</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="401"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="412"/>
         <source>Rule added</source>
         <translation>Szabály hozzáadva</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="420"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="449"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
         <translation>A ',' vagy '-' karakterekkel több kikötők/IP-címet vagy tartományt/értéket adhat meg:&lt;br&gt;&lt;br&gt;kikötők: 22 vagy 22,443 vagy 50000-60000&lt;br&gt;IP-címek: 192.168.1.1 vagy 192.168 .1.30-192.168.1.130&lt;br&gt;Értékek: echo-reply,echo-request&lt;br&gt;Értékek: new,established,related</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="440"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="469"/>
         <source>Deleting rule, wait</source>
         <translation>Szabály törlése, kérjük, várjon</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="443"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="472"/>
         <source>Error updating rule</source>
         <translation>Hiba történt a szabály frissítésekor</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="483"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="518"/>
         <source>Adding rule, wait</source>
         <translation>Szabály hozzáadása, kérjük, várjon</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="492"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="528"/>
         <source>&lt;select a statement&gt;</source>
         <translation>&lt;válasszon kijelentést&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="787"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="833"/>
         <source>Equal</source>
         <translation>Egyenlő</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="788"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="834"/>
         <source>Not equal</source>
         <translation>Nem egyenlő</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="789"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="835"/>
         <source>Greater or equal than</source>
         <translation>Egyenlő vagy nagyobb, mint</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="790"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="836"/>
         <source>Greater than</source>
         <translation>Nagyobb, mint</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="791"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="837"/>
         <source>Less or equal than</source>
         <translation>Egyenlő vagy kisebb, mint</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="792"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="838"/>
         <source>Less than</source>
         <translation>Kisebb, mint</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1350"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1522"/>
         <source>Firewall rule</source>
         <translation>Tűzfalszabály</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="885"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1058"/>
         <source>Simple</source>
         <translation>Egyszerű</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="890"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1063"/>
         <source>Advanced</source>
         <translation>Haladó</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1046"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1185"/>
         <source>This rule is not supported yet.</source>
         <translation>Ez a szabály még nem támogatott.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1111"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1250"/>
         <source>Exclude service</source>
         <translation>Szolgáltatás kizárása</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1123"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1262"/>
         <source>Allow inbound connections to the selected port.</source>
         <translation>Bejövő kapcsolatok engedélyezése a kiválasztott kikötőhöz.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1125"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1264"/>
         <source>Allow outbound connections to the selected port.</source>
         <translation>Kimenő kapcsolatok engedélyezése a kiválasztott kikötőhöz.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1201"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1340"/>
         <source>select a statement.</source>
         <translation>válasszon kijelentést.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1217"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1356"/>
         <source>value cannot be 0 or empty.</source>
         <translation>az érték nem lehet 0 vagy üres.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1229"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1368"/>
         <source>the value format is 1024/kbytes (or bytes, mbytes, gbytes)</source>
         <translation>az érték formátuma 1024/kbájt (vagy bájt, mbájt, gbájt)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1240"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1382"/>
         <source>the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)</source>
         <translation>az érték formátuma 1024/kbájt/másodperc (vagy bájt, mbájt, gbájt)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1243"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1385"/>
         <source>rate-limit not valid, use: bytes, kbytes, mbytes or gbytes.</source>
         <translation>a sebességkorlát nem érvényes, használja: bájt, kbájt, mbájt vagy gbájt.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1245"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1387"/>
         <source>time-limit not valid, use: second, minute, hour or day</source>
         <translation>időkorlát nem érvényes, használja: másodperc, perc, óra vagy nap</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1293"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1454"/>
         <source>port not valid.</source>
         <translation>kikötő nem érvényes.</translation>
     </message>
@@ -2128,27 +2313,17 @@ Supported formats:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="147"/>
-        <source>Match input interface. Regular expressions not allowed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="154"/>
-        <source>Match output interface. Regular expressions not allowed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="161"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="163"/>
         <source>Set a conntrack mark on the connection, in decimal format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="171"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="173"/>
         <source>Match a conntrack mark of the connection, in decimal format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="178"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="180"/>
         <source>Match conntrack states.
 
 Supported formats:
@@ -2158,7 +2333,7 @@ Supported formats:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="193"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="195"/>
         <source>
 Match packet&apos;s metainformation.
 
@@ -2175,12 +2350,12 @@ that protocol.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="213"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="215"/>
         <source>Set a mark on the packet matching the specified conditions. The value is in decimal format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="221"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="223"/>
         <source>
 Match ICMP codes.
 
@@ -2191,7 +2366,7 @@ Supported formats:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="234"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="236"/>
         <source>
 Match ICMPv6 codes.
 
@@ -2202,12 +2377,12 @@ Supported formats:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="247"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="249"/>
         <source>Print a message when this rule matches a packet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="254"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="256"/>
         <source>
 Apply quotas on connections.
 
@@ -2221,7 +2396,7 @@ The value must be in the format: VALUE/UNITS, for example:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="286"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="288"/>
         <source>
 Apply limits on connections.
 
@@ -2237,30 +2412,62 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="607"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="653"/>
         <source>num</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="621"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="667"/>
         <source>to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="147"/>
+        <source>Match input interface. Regular expressions not allowed.
+Use * to match multiple interfaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="155"/>
+        <source>Match output interface. Regular expressions not allowed.
+Use * to match multiple interfaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="410"/>
+        <source>Rule saved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="422"/>
+        <source>Error saving rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="507"/>
+        <source>Add at least one statement.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1006"/>
+        <source>Warning: ct set mark value is empty, malformed rule?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>messages</name>
     <message>
-        <location filename="../../../opensnitch/service.py" line="281"/>
+        <location filename="../../../opensnitch/service.py" line="309"/>
         <source>Info</source>
         <translation>Adat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="285"/>
+        <location filename="../../../opensnitch/service.py" line="313"/>
         <source>Error</source>
         <translation>Hiba</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="289"/>
+        <location filename="../../../opensnitch/service.py" line="317"/>
         <source>Warning</source>
         <translation>Figyelmeztetés</translation>
     </message>
@@ -2268,7 +2475,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 <context>
     <name>notifications</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="654"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="921"/>
         <source>System notifications are not available, you need to install python3-notify2.</source>
         <translation>A rendszerértesítések nem érhetők el, telepítenie kell a python3-notify2-t.</translation>
     </message>
@@ -2276,67 +2483,67 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 <context>
     <name>popups</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="50"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="53"/>
         <source>until reboot</source>
         <translation>újraindításig</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="52"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="55"/>
         <source>forever</source>
         <translation>örökre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="115"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="120"/>
         <source>Allow</source>
         <translation>Engedélyezés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="114"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="119"/>
         <source>Deny</source>
         <translation>Megtagadás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="331"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="336"/>
         <source>Outgoing connection</source>
         <translation>Kimenő kapcsolat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="336"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="341"/>
         <source>Process launched from:</source>
         <translation>Folyamat innen indult:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="373"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="378"/>
         <source>from this executable</source>
         <translation>ettől a végrehajtható fájlból</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="377"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="382"/>
         <source>from this command line</source>
         <translation>erről a parancssorról</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="379"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="384"/>
         <source>to port {0}</source>
         <translation>kikötőig: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="442"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="447"/>
         <source>to {0}</source>
         <translation>eddig: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="382"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="387"/>
         <source>from user {0}</source>
         <translation>a(z) {0} felhasználótól</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="399"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="404"/>
         <source>to {0}.*</source>
         <translation>eddig: {0}.*</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="452"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="457"/>
         <source>to *.{0}</source>
         <translation>eddig: *.{0}</translation>
     </message>
@@ -2346,37 +2553,37 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation type="obsolete">eddig: *{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="486"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="491"/>
         <source>&lt;b&gt;Remote&lt;/b&gt; process %s running on &lt;b&gt;%s&lt;/b&gt;</source>
         <translation>A(z) %s &lt;b&gt;távoli&lt;/b&gt; folyamat fut a(z) &lt;b&gt;%s&lt;/b&gt;-n</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="490"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="495"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
         <translation>csatlakozik &lt;b&gt;%s&lt;/b&gt;-hoz a %s-kikötőn %d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="502"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="507"/>
         <source>is attempting to resolve &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</source>
         <translation>megpróbálja megoldani a(z) &lt;b&gt;%s&lt;/b&gt; problémát a(z) %s segítségével, %s-kikötő %d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="386"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="391"/>
         <source>from this PID</source>
         <translation>ebből a folyamatazonosítóból</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/notifications.py" line="122"/>
+        <location filename="../../../opensnitch/notifications.py" line="114"/>
         <source>New outgoing connection</source>
         <translation>Új kimenő kapcsolat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="116"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="121"/>
         <source>Reject</source>
         <translation>Elutasítás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="497"/>
+        <location filename="../../../opensnitch/dialogs/prompt.py" line="502"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt;, %s</source>
         <translation>csatlakozik a következőhöz: &lt;b&gt;%s&lt;/b&gt;, %s</translation>
     </message>
@@ -2389,108 +2596,153 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 <context>
     <name>preferences</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="386"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="655"/>
         <source>Exception saving config: {0}</source>
         <translation>Beállítás mentése kivétele: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="410"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="523"/>
         <source>Warning</source>
         <translation>Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="410"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="523"/>
         <source>You must select a file for the database&lt;br&gt;or choose &quot;In memory&quot; type.</source>
         <translation>Válasszon egy fájlt az adatbázishoz&lt;br&gt;vagy válassza a „Memóriabeli” típust.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="401"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="517"/>
         <source>DB type changed</source>
         <translation>DB típusa megváltozott</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="38"/>
         <source>Restart the GUI in order effects to take effect</source>
-        <translation>Indítsa újra a grafikus felhasználói felületet, hogy a hatások életbe léphessenek</translation>
+        <translation type="obsolete">Indítsa újra a grafikus felhasználói felületet, hogy a hatások életbe léphessenek</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="500"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="663"/>
         <source>Applying configuration on {0} ...</source>
         <translation>Beállítások alkalmazása: {0}…</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="292"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="380"/>
         <source>Server address can not be empty</source>
         <translation>Kiszolgáló címe nem lehet üres</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="321"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="415"/>
         <source>Error loading {0} configuration</source>
         <translation>Hiba történt a(z) {0}-beállítás betöltésekor</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="568"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="797"/>
         <source>Configuration applied.</source>
         <translation>Beállítás alkalmazva.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="570"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="799"/>
         <source>Error applying configuration: {0}</source>
         <translation>Hiba a beállítás alkalmazásakor: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="607"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="846"/>
         <source>Hover the mouse over the texts to display the help&lt;br&gt;&lt;br&gt;Don&apos;t forget to visit the wiki: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</source>
         <translation>A súgó megjelenítéséhez vigye az egeret a szövegek fölé&lt;br&gt;&lt;br&gt;Emlékezzen meglátogatni a wikit: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="466"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="598"/>
         <source>System</source>
         <translation>Rendszer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="187"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="243"/>
         <source>Themes not available. Install qt-material: pip3 install qt-material</source>
         <translation>A témák nem állnak rendelkezésre. Telepítse a qt-material-t: pip3 install qt-material</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="467"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="599"/>
         <source>UI theme changed</source>
         <translation>A felhasználói felület témája megváltozott</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="467"/>
         <source>Restart the GUI in order to apply the new theme</source>
-        <translation>Indítsa újra a grafikus felhasználói felületet az új téma alkalmazásához</translation>
+        <translation type="obsolete">Indítsa újra a grafikus felhasználói felületet az új téma alkalmazásához</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="508"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="671"/>
         <source>Ok</source>
         <translation>Rendben</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="472"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="61"/>
         <source>Restart the GUI in order changes to take effect</source>
-        <translation type="obsolete">Indítsa újra a grafikus felhasználói felületet, hogy a változtatások életbe lépjenek</translation>
+        <translation type="unfinished">Indítsa újra a grafikus felhasználói felületet, hogy a változtatások életbe lépjenek</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="388"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="657"/>
         <source>There&apos;re no nodes connected</source>
         <translation>Nincsenek csomópontok összekapcsolva</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="520"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="681"/>
         <source>Exception saving node config {0}: {1}</source>
         <translation>Kivétel menti a(z) {0} csomópont beállítását: {1}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="164"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="220"/>
         <source>System default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="433"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="568"/>
         <source>Language changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="557"/>
+        <source>Certificates changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="720"/>
+        <source>Certs fields cannot be empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="723"/>
+        <source>cert file has excessive permissions, it should have 0600</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="727"/>
+        <source>cert key file has excessive permissions, it should have 0600</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="733"/>
+        <source>CA cert file has excessive permissions, it should have 0600</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="804"/>
+        <source>Certs changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="807"/>
+        <source>Node certs changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="873"/>
+        <source>Auth type changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="898"/>
+        <source>DB journal_mode changed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2519,158 +2771,163 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 <context>
     <name>rules</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="228"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="237"/>
         <source>There&apos;re no nodes connected.</source>
         <translation>Nincsenek csomópontok csatlakoztatva.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="271"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="280"/>
         <source>Rule applied.</source>
         <translation>A szabály alkalmazva.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="273"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="282"/>
         <source>Error applying rule: {0}</source>
         <translation>Hiba a szabály alkalmazásakor: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="539"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="548"/>
         <source>&lt;b&gt;Error loading rule&lt;/b&gt;</source>
         <translation>&lt;b&gt;Hiba történt a szabály betöltésekor&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="641"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="654"/>
         <source>protocol can not be empty, or uncheck it</source>
         <translation>a protokoll nem lehet üres, és nem szüntetheti meg a kijelölést</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="655"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="668"/>
         <source>Protocol regexp error</source>
         <translation>Protokoll szabályos kifejezéshibája</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="659"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="672"/>
         <source>process path can not be empty</source>
         <translation>folyamat útvonal nem lehet üres</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="673"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="686"/>
         <source>Process path regexp error</source>
         <translation>Folyamat útvonala szabályos kifejezéshibája</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="677"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="690"/>
         <source>command line can not be empty</source>
         <translation>parancssor nem lehet üres</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="691"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="704"/>
         <source>Command line regexp error</source>
         <translation>Parancssor szabályos kifejezéshibája</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="731"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="744"/>
         <source>Dest port can not be empty</source>
         <translation>Célkikötő nem lehet üres</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="745"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="758"/>
         <source>Dst port regexp error</source>
         <translation>Célkikötő szabványos kifejezéshibája</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="749"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="762"/>
         <source>Dest host can not be empty</source>
         <translation>Célállomás nem lehet üres</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="763"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="776"/>
         <source>Dst host regexp error</source>
         <translation>Célállomás szabályos kifejezéshibája</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="805"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="818"/>
         <source>Dest IP/Network can not be empty</source>
         <translation>Cél IP-cím/hálózat nem lehet üres</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="831"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="844"/>
         <source>Dst IP regexp error</source>
         <translation>Cél IP-cím szabályos kifejezéshibája</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="843"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="859"/>
         <source>User ID can not be empty</source>
         <translation>Felhasználói azonosító nem lehet üres</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="857"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="876"/>
         <source>User ID regexp error</source>
         <translation>Felhasználói azonosító szabályos kifejezéshibája</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="931"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="963"/>
         <source>Lists field cannot be empty</source>
         <translation>Listamező nem lehet üres</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="933"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="965"/>
         <source>Lists field must be a directory</source>
         <translation>Listmezők könyvtárnak kell lennie</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="976"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1008"/>
         <source>&lt;b&gt;Rule not supported&lt;/b&gt;</source>
         <translation>&lt;b&gt;A szabály nem támogatott&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="245"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="254"/>
         <source>There&apos;s already a rule with this name.</source>
         <translation>Már van egy szabály ezzel a névvel.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="861"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="893"/>
         <source>PID field can not be empty</source>
         <translation>Folyamatazonosító mező nem lehet üres</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="875"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="907"/>
         <source>PID field regexp error</source>
         <translation>Folyamatazonosító mező szabványos kifejezéshibája</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="963"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="995"/>
         <source>Select at least one field.</source>
         <translation>Jelöljön ki legalább egy mezőt.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="695"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="708"/>
         <source>Network interface can not be empty</source>
         <translation>Hálózati felület nem lehet üres</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="709"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="722"/>
         <source>Network interface regexp error</source>
         <translation>Hálózati felület szabályos kifejezéshibája</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="713"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="726"/>
         <source>Source port can not be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="727"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="740"/>
         <source>Source port regexp error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="767"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="780"/>
         <source>Source IP/Network can not be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="793"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="806"/>
         <source>Source IP regexp error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="879"/>
+        <source>Invalid UID, it must be a digit.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2702,7 +2959,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation type="obsolete">Változat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="834"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="837"/>
         <source>Rules</source>
         <translation type="unfinished">Szabályok</translation>
     </message>
@@ -2712,7 +2969,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation type="obsolete">Idő</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="875"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="879"/>
         <source>Action</source>
         <translation type="unfinished">Művelet</translation>
     </message>
@@ -2742,27 +2999,27 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation type="obsolete">Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="313"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="315"/>
         <source>Not running</source>
         <translation>Nem fut</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="314"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="316"/>
         <source>Disabled</source>
         <translation>Letiltva</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="315"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="317"/>
         <source>Running</source>
         <translation>Futtatás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="636"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="639"/>
         <source>OpenSnitch Network Statistics {0}</source>
         <translation>{0} OpenSnitch hálózati statisztika</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="638"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="641"/>
         <source>OpenSnitch Network Statistics for {0}</source>
         <translation>OpenSnitch hálózati statisztikák a következőhöz: {0}</translation>
     </message>
@@ -2770,80 +3027,80 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="1301"/>
         <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
-        <translation>&lt;b&gt;Hiba:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Hiba:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1308"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1331"/>
         <source>Warning:</source>
         <translation>Figyelmeztetés:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="940"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="954"/>
         <source>Allow</source>
         <translation>Engedélyezés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="941"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="955"/>
         <source>Deny</source>
         <translation>Megtagadás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="945"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="959"/>
         <source>Always</source>
         <translation>Mindig</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="946"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="960"/>
         <source>Until reboot</source>
         <translation>Újraindításig</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="954"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="968"/>
         <source>Disable</source>
         <translation>Letiltás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="956"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="970"/>
         <source>Enable</source>
         <translation>Engedélyezés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="959"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="973"/>
         <source>Duplicate</source>
         <translation>Másolás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="960"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="974"/>
         <source>Edit</source>
         <translation>Szerkesztés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="961"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="975"/>
         <source>Delete</source>
         <translation>Törlés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1189"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1211"/>
         <source>    Your are about to delete this rule.    </source>
         <translation>    A szabály törlésére készül.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1711"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1734"/>
         <source>    Are you sure?</source>
         <translation>    Biztos benne?</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1248"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1270"/>
         <source>Rule not found by that name and node</source>
         <translation>A szabály nem található ezen a néven és csomóponton</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1711"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1734"/>
         <source>    You are about to delete this rule.    </source>
         <translation>    A szabály törlésére készül.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2581"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2620"/>
         <source>Save as CSV</source>
         <translation>Mentés CSV-fájlként</translation>
     </message>
@@ -2943,109 +3200,109 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation type="obsolete">Szabály</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="287"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="288"/>
         <source>Name</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Név</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="288"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="289"/>
         <source>Address</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Cím</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="289"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="290"/>
         <source>Status</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Állapot</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="290"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="291"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Állomásnév</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="423"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="425"/>
         <source>Version</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Változat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="420"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="422"/>
         <source>Rules</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Szabályok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="294"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="295"/>
         <source>Time</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Idő</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="295"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="297"/>
         <source>Action</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Művelet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="296"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="298"/>
         <source>Duration</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Időtartam</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="298"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="300"/>
         <source>Node</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Csomópont</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="299"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
         <source>Enabled</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Engedélyezve</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="438"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="441"/>
         <source>Hits</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Találatok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="302"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="304"/>
         <source>Protocol</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="303"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
         <source>Process</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Folyamat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="307"/>
         <source>Destination</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Cél</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="309"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="311"/>
         <source>Rule</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Szabály</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="310"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="312"/>
         <source>UserID</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Felhasználóazonosító</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="311"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="313"/>
         <source>LastConnection</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>LegutóbbiCsatlakozás</translation>
@@ -3057,19 +3314,19 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation type="obsolete">Argumentumok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="306"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="308"/>
         <source>DstIP</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>CélIPcíme</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="307"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="309"/>
         <source>DstHost</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Célállomásneve</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="308"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="310"/>
         <source>DstPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Célkikötő</translation>
@@ -3100,12 +3357,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation>Mi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="931"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="945"/>
         <source>Apply to</source>
         <translation>Alkalmazás a következőre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="942"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="956"/>
         <source>Reject</source>
         <translation>Elutasítás</translation>
     </message>
@@ -3115,136 +3372,152 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <translation>Hálózatnév</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="291"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="292"/>
         <source>Uptime</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Hasznos üzemidő</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="421"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="423"/>
         <source>Connections</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Kapcsolatok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="422"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="424"/>
         <source>Dropped</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Elvetve</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="437"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="440"/>
         <source>What</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Mi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="300"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="302"/>
         <source>Precedence</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Sorrend</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="776"/>
+        <location filename="../../../opensnitch/service.py" line="809"/>
         <source>New node connected</source>
         <translation>Új csomópont csatlakoztatva</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="297"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="299"/>
         <source>Description</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Leírás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="304"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="306"/>
         <source>Cmdline</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Parancssor</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="406"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="408"/>
         <source>Export rules</source>
         <translation>Exportszabályok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="407"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="409"/>
         <source>Import rules</source>
         <translation>Importszabályok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="408"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="410"/>
         <source>Export events to CSV</source>
         <translation>Események exportálása CSV-fájlként</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="409"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="411"/>
         <source>Quit</source>
         <translation>Kilépés</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="932"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="946"/>
         <source>Export</source>
         <translation>Exportálás</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="964"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="978"/>
         <source>To clipboard</source>
         <translation>A vágólapra</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="965"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="979"/>
         <source>To disk</source>
         <translation>Lemezre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2523"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2562"/>
         <source>Select a directory to export rules</source>
         <translation>Exportszabályok könyvtár kiválasztása</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1191"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1213"/>
         <source>    Your are about to delete this entry.    </source>
         <translation>    A bejegyzés törlésére készül.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1678"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1701"/>
         <source>    You are about to delete this node.    </source>
         <translation>    A csomópont törlésre készül.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1687"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1710"/>
         <source>&lt;b&gt;Error deleting node&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
         <translation>&lt;b&gt;Hiba történt a csomópont törlésekor&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2478"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2517"/>
         <source>Error exporting rules</source>
         <translation>Hiba történt a szabályok exportálásakor</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2552"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2591"/>
         <source>Select a directory with rules to import (JSON files)</source>
         <translation>Importszabályok (JSON-fájlok) könyvtár kiválasztása</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2566"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2605"/>
         <source>Rules imported fine</source>
         <translation>Szabályok sikeresen importálva</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="211"/>
+        <location filename="../../../opensnitch/service.py" line="239"/>
         <source>WARNING</source>
         <translation type="unfinished">FIGYELMEZTETÉS</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="833"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="836"/>
         <source>Details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="835"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="838"/>
         <source>New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/service.py" line="208"/>
+        <source>Warning</source>
+        <translation type="unfinished">Figyelmeztetés</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="296"/>
+        <source>Created</source>
+        <comment>This is a word, without spaces and symbols.</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1323"/>
+        <source>Error:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
