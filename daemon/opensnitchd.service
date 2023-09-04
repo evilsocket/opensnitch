@@ -18,11 +18,11 @@ Type=exec
 ConfigurationDirectory=%N/rules
 ConfigurationDirectoryMode=0700
 
-Environment='custom_cfg=%E/%N/rules'
-# Environment='opts=-debug'
+# Add extra options to the daemon below. fe.'opts=-debug' to add the '-debug' option.
+Environment='opts='
 
 ExecCondition=%N -check-requirements
-ExecStart=%N -rules-path $custom_cfg $opts
+ExecStart=%N -rules-path $CONFIGURATION_DIRECTORY $opts
 
 # Signal-info was taken from the init.d script, but it just exits and then systemd restarts the service...
 ExecReload=kill -HUP $MAINPID
