@@ -1208,7 +1208,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if cur_idx == self.TAB_MAIN or cur_idx == self.TAB_NODES or self.IN_DETAIL_VIEW[cur_idx]:
             return
 
-        msg = QC.translate("stats", "    Your are about to delete this rule.    ")
+        msg = QC.translate("stats", "    You are about to delete this rule.    ")
         if cur_idx != self.TAB_RULES:
             msg = QC.translate("stats", "    Your are about to delete this entry.    ")
 
