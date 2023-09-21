@@ -65,7 +65,7 @@ func (l *Loader) GetAll() map[string]*Rule {
 
 // EnableChecksums enables checksums field for rules globally.
 func (l *Loader) EnableChecksums(enable bool) {
-	log.Debug("[rules loader] EnableChecksums:", enable)
+	log.Debug("[rules loader] EnableChecksums: %v", enable)
 	l.checkSums = enable
 	procmon.EventsCache.SetComputeChecksums(enable)
 }
