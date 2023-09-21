@@ -114,10 +114,11 @@ message Process {
     repeated string args = 6;
     map<string, string> env = 7;
     string cwd = 8;
-    uint64 io_reads = 9;
-    uint64 io_writes = 10;
-    uint64 net_reads = 11;
-    uint64 net_writes = 12;
+    map<string, string> checksums = 9;
+    uint64 io_reads = 10;
+    uint64 io_writes = 11;
+    uint64 net_reads = 12;
+    uint64 net_writes = 13;
 }
 
 message Connection {
@@ -133,6 +134,7 @@ message Connection {
     string process_cwd = 10;
     repeated string process_args = 11;
     map<string, string> process_env = 12;
+    map<string, string> process_checksums = 13;
 }
 
 message Operator {

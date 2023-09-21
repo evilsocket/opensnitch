@@ -255,6 +255,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_status_error(QC.translate("rules", "There's already a rule with this name."))
             return
 
+        if self.md5Check.isChecked() and not self.procCheck.isChecked():
+            self._set_status_error(QC.translate("rules", "Process path must be checked in order to verify checksums."))
+            return
+
         result, error = self._save_rule()
         if result == False:
             self._set_status_error(error)
@@ -539,6 +543,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dstListNetsCheck.setEnabled(True)
             self.dstListNetsLine.setText(operator.data)
             self.selectNetsListButton.setEnabled(True)
+
+        if operator.operand == Config.OPERAND_PROCESS_HASH_MD5:
+            self.md5Check.setChecked(True)
+            self.md5Line.setEnabled(True)
+            self.md5Line.setText(operator.data)
+
+
 
     def _load_nodes(self, addr=None):
         try:
@@ -975,6 +986,26 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
             self.rule.operator.data = json.dumps(rule_data)
+
+        if self.md5Check.isChecked():
+            if self.md5Line.text() == "":
+                return False, QC.translate("rules", "md5 line cannot be empty")
+
+            self.rule.operator.operand = Config.OPERAND_PROCESS_HASH_MD5
+            self.rule.operator.data = self.md5Line.text().lower()
+            rule_data.append(
+                {
+                    'type': Config.RULE_TYPE_SIMPLE,
+                    'operand': Config.OPERAND_PROCESS_HASH_MD5,
+                    'data': self.md5Line.text().lower(),
+                    "sensitive": False
+                })
+            if self._is_regex(self.md5Line.text()):
+                rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
+                if self._is_valid_regex(self.pidLine.text()) == False:
+                    return False, QC.translate("rules", "md5 field regexp error")
+
+
 
         if len(rule_data) >= 2:
             self.rule.operator.type = Config.RULE_TYPE_LIST

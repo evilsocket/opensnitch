@@ -10,6 +10,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/log/loggers"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 	"github.com/evilsocket/opensnitch/daemon/ui/auth"
@@ -80,6 +81,8 @@ func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Load
 	if socketPath != "" {
 		c.setSocketPath(c.getSocketPath(socketPath))
 	}
+	procmon.EventsCache.SetComputeChecksums(clientConfig.Rules.EnableChecksums)
+	rules.EnableChecksums(clientConfig.Rules.EnableChecksums)
 	loggers.Load(clientConfig.Server.Loggers, clientConfig.Stats.Workers)
 	stats.SetLimits(clientConfig.Stats)
 	stats.SetLoggers(loggers)

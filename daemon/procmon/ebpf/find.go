@@ -164,31 +164,28 @@ func findConnProcess(value *networkEventT, connKey string) (proc *procmon.Proces
 	// This is the UID that we've always used.
 	proc.UID = int(value.UID)
 
-	err := proc.ReadPath()
-	if ev, found := execEvents.isInStore(value.Pid); found {
+	if ev, _, found := procmon.EventsCache.IsInStore(int(value.Pid), nil); found {
 		// use socket's UID. See above why ^
 		ev.Proc.UID = proc.UID
-		ev.Proc.ReadCmdline()
-		// if proc's ReadPath() has been successfull, and the path received via the execve tracepoint differs,
-		// use proc's path.
-		// Sometimes we received from the tracepoint a wrong/non-existent path.
-		// Othertimes we receive a "helper" that executes the real binary which opens the connection.
-		// Downsides: for execveat() executions we won't display the original binary.
-		if err == nil && ev.Proc.Path != proc.Path {
-			proc.ReadCmdline()
+		if proc.Path == "" {
+			proc.Path = ev.Proc.Path
+			proc.Args = ev.Proc.Args
+		}
+		if /*err == nil &&*/ ev.Proc.Path != proc.Path {
+			//proc.ReadCmdline()
 			ev.Proc.Path = proc.Path
 			ev.Proc.Args = proc.Args
 		}
 		proc = &ev.Proc
+		// XXX: update cache?
 
-		log.Debug("[ebpf conn] not in cache, but in execEvents: %s, %d -> %s", connKey, proc.ID, proc.Path)
+		log.Debug("[ebpf conn] not in cache, but in execEvents: %s, %d -> %s -> %s", connKey, proc.ID, proc.Path, proc.Args)
 	} else {
-		log.Debug("[ebpf conn] not in cache, NOR in execEvents: %s, %d -> %s", connKey, proc.ID, proc.Path)
+		log.Debug("[ebpf conn] not in cache, NOR in execEvents: %s, %d -> %s -> %s", connKey, proc.ID, proc.Path, proc.Args)
 		// We'll end here if the events module has not been loaded, or if the process is not in cache.
+		proc.GetParent()
 		proc.GetInfo()
-		execEvents.add(value.Pid,
-			*NewExecEvent(value.Pid, 0, value.UID, proc.Path, value.Comm),
-			*proc)
+		procmon.EventsCache.Add(*proc)
 	}
 
 	return

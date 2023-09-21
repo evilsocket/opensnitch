@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>559</height>
+    <height>580</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,248 +20,6 @@
    <string>Rule</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
-   <item row="6" column="0">
-    <widget class="QGroupBox" name="enableGroup">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,0,0">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
-      </property>
-      <property name="topMargin">
-       <number>4</number>
-      </property>
-      <property name="bottomMargin">
-       <number>4</number>
-      </property>
-      <property name="verticalSpacing">
-       <number>12</number>
-      </property>
-      <item row="3" column="1">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Action</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
-       <spacer name="horizontalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="3" column="4">
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Duration</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="6">
-       <widget class="QComboBox" name="durationCombo">
-        <item>
-         <property name="text">
-          <string>once</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">30s</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">5m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">15m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">30m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">1h</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>until reboot</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>always</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="3" column="6">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QRadioButton" name="actionDenyRadio">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="toolTip">
-           <string>Deny will just discard the connection</string>
-          </property>
-          <property name="text">
-           <string>Deny</string>
-          </property>
-          <property name="icon">
-           <iconset theme="emblem-important">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="actionRejectRadio">
-          <property name="toolTip">
-           <string>Reject will drop the connection, and kill the socket that initiated it</string>
-          </property>
-          <property name="text">
-           <string>Reject</string>
-          </property>
-          <property name="icon">
-           <iconset theme="window-close">
-            <normaloff>.</normaloff>.</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="actionAllowRadio">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="toolTip">
-           <string>Allow will allow the connection</string>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="text">
-           <string>Allow</string>
-          </property>
-          <property name="icon">
-           <iconset theme="emblem-default">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QCheckBox" name="enableCheck">
-     <property name="text">
-      <string>Enable</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QCheckBox" name="precedenceCheck">
-     <property name="toolTip">
-      <string>If checked, this rule will take precedence over the rest of the rules. No others rules will be checked after this one.
-
-You must name the rule in such manner that it'll be checked first, because they're checked in alphabetical order. For example:
-
-[x] Priority - 000-priority-rule
-[  ] Priority - 001-less-priority-rule</string>
-     </property>
-     <property name="text">
-      <string>Priority rule</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLineEdit" name="ruleNameEdit">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>The rules are checked in alphabetical order, so you can name them accordingly to prioritize them.
-
-000-allow-localhost
-001-deny-broadcast
-...</string>
-     </property>
-     <property name="placeholderText">
-      <string>Name</string>
-     </property>
-     <property name="clearButtonEnabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="statusLabel">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="10" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
@@ -292,39 +50,31 @@ You must name the rule in such manner that it'll be checked first, because they'
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Node</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="nodesCombo"/>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="nodeApplyAllCheck">
-       <property name="text">
-        <string>Apply rule to all nodes</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+   <item row="9" column="0">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPlainTextEdit" name="ruleDescEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>60</height>
+      </size>
+     </property>
+     <property name="placeholderText">
+      <string>Description...</string>
+     </property>
+    </widget>
    </item>
    <item row="7" column="0">
     <widget class="QTabWidget" name="tabWidget">
@@ -340,7 +90,7 @@ You must name the rule in such manner that it'll be checked first, because they'
      <widget class="QWidget" name="tabWidgetPage1">
       <attribute name="icon">
        <iconset theme="system-run">
-        <normaloff>.</normaloff>.</iconset>
+        <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>Applications</string>
@@ -440,6 +190,12 @@ You must name the rule in such manner that it'll be checked first, because they'
            <property name="sizeType">
             <enum>QSizePolicy::MinimumExpanding</enum>
            </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
           </spacer>
          </item>
          <item>
@@ -479,7 +235,7 @@ You must name the rule in such manner that it'll be checked first, because they'
      <widget class="QWidget" name="tabWidgetPage2">
       <attribute name="icon">
        <iconset theme="preferences-system-network">
-        <normaloff>.</normaloff>.</iconset>
+        <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>Network</string>
@@ -656,77 +412,77 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
          </property>
          <item>
           <property name="text">
-           <string>LAN</string>
+           <string notr="true">LAN</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>MULTICAST</string>
+           <string notr="true">MULTICAST</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>127.0.0.0/8</string>
+           <string notr="true">127.0.0.0/8</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>192.168.0.0/24</string>
+           <string notr="true">192.168.0.0/24</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>192.168.1.0/24</string>
+           <string notr="true">192.168.1.0/24</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>192.168.2.0/24</string>
+           <string notr="true">192.168.2.0/24</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>192.168.0.0/16</string>
+           <string notr="true">192.168.0.0/16</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>169.254.0.0/16</string>
+           <string notr="true">169.254.0.0/16</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>172.16.0.0/12</string>
+           <string notr="true">172.16.0.0/12</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>10.0.0.0/8</string>
+           <string notr="true">10.0.0.0/8</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>::1/128</string>
+           <string notr="true">::1/128</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>fc00::/7</string>
+           <string notr="true">fc00::/7</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>ff00::/8</string>
+           <string notr="true">ff00::/8</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>fe80::/10</string>
+           <string notr="true">fe80::/10</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>fd00::/8</string>
+           <string notr="true">fd00::/8</string>
           </property>
          </item>
         </widget>
@@ -920,7 +676,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
      <widget class="QWidget" name="tabWidgetPage3">
       <attribute name="icon">
        <iconset theme="document-properties">
-        <normaloff>.</normaloff>.</iconset>
+        <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
       </attribute>
       <attribute name="title">
        <string>List of domains/IPs</string>
@@ -952,7 +708,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
            </property>
            <property name="icon">
             <iconset theme="system-search">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -987,7 +743,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
            </property>
            <property name="icon">
             <iconset theme="system-search">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -1015,7 +771,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
            </property>
            <property name="icon">
             <iconset theme="system-search">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -1057,7 +813,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
            </property>
            <property name="icon">
             <iconset theme="system-search">
-             <normaloff>.</normaloff>.</iconset>
+             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -1080,6 +836,31 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
        <string>More</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
+       <item row="2" column="0">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QCheckBox" name="md5Check">
+           <property name="text">
+            <string notr="true">md5</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="md5Line">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item row="0" column="0">
         <widget class="QCheckBox" name="sensitiveCheck">
          <property name="toolTip">
@@ -1090,17 +871,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="nologCheck">
-         <property name="statusTip">
-          <string>Don't log connections that match this rule</string>
-         </property>
-         <property name="text">
-          <string>Don't log connections</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
+       <item row="6" column="0">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -1116,35 +887,342 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
          </property>
         </spacer>
        </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="nologCheck">
+         <property name="statusTip">
+          <string>Don't log connections that match this rule</string>
+         </property>
+         <property name="text">
+          <string>Don't log connections</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_12">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMaximumSize</enum>
+         </property>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>These options are experimental / in development, they may have bugs or not be completely finished.
+Feedback is welcome</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="dialog-warning">
+             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>In development</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
     </widget>
    </item>
-   <item row="9" column="0">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="precedenceCheck">
+     <property name="toolTip">
+      <string>If checked, this rule will take precedence over the rest of the rules. No others rules will be checked after this one.
+
+You must name the rule in such manner that it'll be checked first, because they're checked in alphabetical order. For example:
+
+[x] Priority - 000-priority-rule
+[  ] Priority - 001-less-priority-rule</string>
+     </property>
+     <property name="text">
+      <string>Priority rule</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QPlainTextEdit" name="ruleDescEdit">
+   <item row="0" column="0">
+    <widget class="QLineEdit" name="ruleNameEdit">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+      <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>60</height>
-      </size>
+     <property name="toolTip">
+      <string>The rules are checked in alphabetical order, so you can name them accordingly to prioritize them.
+
+000-allow-localhost
+001-deny-broadcast
+...</string>
      </property>
      <property name="placeholderText">
-      <string>Description...</string>
+      <string>Name</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
      </property>
     </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="statusLabel">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QGroupBox" name="enableGroup">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,0,0">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <property name="topMargin">
+       <number>4</number>
+      </property>
+      <property name="bottomMargin">
+       <number>4</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>12</number>
+      </property>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Action</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="4">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Duration</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="6">
+       <widget class="QComboBox" name="durationCombo">
+        <item>
+         <property name="text">
+          <string>once</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">30s</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">5m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">15m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">30m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">1h</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>until reboot</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>always</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="6">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QRadioButton" name="actionDenyRadio">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Deny will just discard the connection</string>
+          </property>
+          <property name="text">
+           <string>Deny</string>
+          </property>
+          <property name="icon">
+           <iconset theme="emblem-important">
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="actionRejectRadio">
+          <property name="toolTip">
+           <string>Reject will drop the connection, and kill the socket that initiated it</string>
+          </property>
+          <property name="text">
+           <string>Reject</string>
+          </property>
+          <property name="icon">
+           <iconset theme="window-close">
+            <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="actionAllowRadio">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Allow will allow the connection</string>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="text">
+           <string>Allow</string>
+          </property>
+          <property name="icon">
+           <iconset theme="emblem-default">
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="enableCheck">
+     <property name="text">
+      <string>Enable</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Node</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="nodesCombo"/>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="nodeApplyAllCheck">
+       <property name="text">
+        <string>Apply rule to all nodes</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

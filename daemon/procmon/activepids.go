@@ -1,14 +1,10 @@
 package procmon
 
 import (
-	"fmt"
-	"io/ioutil"
-	"strconv"
-	"strings"
 	"sync"
-	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/netlink/procmon"
 )
 
 type value struct {
@@ -23,68 +19,45 @@ var (
 	activePidsLock = sync.RWMutex{}
 )
 
-//MonitorActivePids checks that each process in activePids
-//is still running and if not running (or another process with the same pid is running),
-//removes the pid from activePids
-func MonitorActivePids() {
+// MonitorProcEvents listen for process events from kernel, via netlink.
+func MonitorProcEvents(stop <-chan struct{}) {
+	log.Debug("MonitorProcEvents start")
 	for {
-		time.Sleep(time.Second)
-		activePidsLock.Lock()
-		for k, v := range activePids {
-			data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/stat", k))
-			if err != nil {
-				//file does not exists, pid has quit
-				delete(activePids, k)
-				pidsCache.delete(int(k))
-				continue
-			}
-			startTime, err := strconv.ParseInt(strings.Split(string(data), " ")[21], 10, 64)
-			if err != nil {
-				log.Error("Could not find or convert Starttime. This should never happen. Please report this incident to the Opensnitch developers: %v", err)
-				delete(activePids, k)
-				pidsCache.delete(int(k))
-				continue
-			}
-			if uint64(startTime) != v.Starttime {
-				//extremely unlikely: the original process has quit and another process
-				//was started with the same PID - all this in less than 1 second
-				log.Error("Same PID but different Starttime. Please report this incident to the Opensnitch developers.")
-				delete(activePids, k)
-				pidsCache.delete(int(k))
-				continue
+		select {
+		case <-stop:
+			goto Exit
+		case ev := <-procmon.ProcEventsChannel:
+			if ev.IsExec() {
+				// we don't receive the path of the process, therefore we need to discover it,
+				// to check if the PID has replaced the PPID.
+				proc := NewProcess(int(ev.PID), "")
+				proc.GetInfo()
+				proc.Parent = NewProcess(int(ev.TGID), "")
+				proc.Parent.GetInfo()
+
+				log.Debug("[procmon exec event] %d, pid:%d tgid:%d %s, %s -> %s\n", ev.TimeStamp, ev.PID, ev.TGID, proc.Comm, proc.Path, proc.Parent.Path)
+				//log.Debug("[procmon exec event] %d, pid:%d tgid:%d\n", ev.TimeStamp, ev.PID, ev.TGID)
+				if _, needsHashUpdate, found := EventsCache.IsInStore(int(ev.PID), proc); found {
+					// check if this PID has replaced the PPID:
+					// systemd, pid:1234 -> curl, pid:1234 -> curl (i.e.: pid 1234) opens x.x.x.x:443
+					// Without this, we would display that systemd is connecting to x.x.x.x:443
+					// The previous pid+path will still exist as parent of the new child, in proc.Parent
+					if needsHashUpdate {
+						//log.Debug("[procmon inCache REPLACEMENT] rehashing, new: %d, %s -> inCache: %d -> %s", proc.ID, proc.Path, item.Proc.ID, item.Proc.Path)
+						EventsCache.ComputeChecksums(proc)
+					}
+					log.Debug("[procmon exec event inCache] %d, pid:%d tgid:%d\n", ev.TimeStamp, ev.PID, ev.TGID)
+					continue
+				}
+				EventsCache.Add(*proc)
+			} else if ev.IsExit() {
+				p, _, found := EventsCache.IsInStore(int(ev.PID), nil)
+				if found && p.Proc.IsAlive() == false {
+					EventsCache.Delete(p.Proc.ID)
+				}
 			}
 		}
-		activePidsLock.Unlock()
 	}
-}
-
-func findProcessInActivePidsCache(pid uint64) *Process {
-	activePidsLock.Lock()
-	defer activePidsLock.Unlock()
-	if value, ok := activePids[pid]; ok {
-		return value.Process
-	}
-	return nil
-}
-
-// AddToActivePidsCache adds the given pid to a list of known processes.
-func AddToActivePidsCache(pid uint64, proc *Process) {
-
-	data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/stat", pid))
-	if err != nil {
-		//most likely the process has quit by now
-		return
-	}
-	startTime, err2 := strconv.ParseInt(strings.Split(string(data), " ")[21], 10, 64)
-	if err2 != nil {
-		log.Error("Could not find or convert Starttime. This should never happen. Please report this incident to the Opensnitch developers: %v", err)
-		return
-	}
-
-	activePidsLock.Lock()
-	activePids[pid] = value{
-		Process:   proc,
-		Starttime: uint64(startTime),
-	}
-	activePidsLock.Unlock()
+Exit:
+	log.Debug("MonitorProcEvents stopped")
 }

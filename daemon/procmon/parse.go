@@ -97,8 +97,8 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		return NewProcess(0, "")
 	}
 
-	if proc := findProcessInActivePidsCache(uint64(pid)); proc != nil {
-		return proc
+	if ev, _, found := EventsCache.IsInStore(pid, nil); found {
+		return &ev.Proc
 	}
 
 	proc := NewProcess(pid, "")
@@ -107,6 +107,6 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 		return nil
 	}
 
-	AddToActivePidsCache(uint64(pid), proc)
+	EventsCache.Add(*proc)
 	return proc
 }

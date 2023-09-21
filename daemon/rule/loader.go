@@ -15,6 +15,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -23,12 +24,13 @@ import (
 // rules watcher.
 type Loader struct {
 	sync.RWMutex
-	path              string
 	rules             map[string]*Rule
-	rulesKeys         []string
+	path              string
 	watcher           *fsnotify.Watcher
+	rulesKeys         []string
 	liveReload        bool
 	liveReloadRunning bool
+	checkSums         bool
 }
 
 // NewLoader loads rules from disk, and watches for changes made to the rules files
@@ -59,6 +61,24 @@ func (l *Loader) GetAll() map[string]*Rule {
 	l.RLock()
 	defer l.RUnlock()
 	return l.rules
+}
+
+// EnableChecksums enables checksums field for rules globally.
+func (l *Loader) EnableChecksums(enable bool) {
+	log.Debug("[rules loader] EnableChecksums:", enable)
+	l.checkSums = enable
+	procmon.EventsCache.SetComputeChecksums(enable)
+}
+
+// HasChecksums checks if the rule will check for binary checksum matches
+func (l *Loader) HasChecksums(op Operand) {
+	if op == OpProcessHashMD5 {
+		log.Debug("[rules loader] Adding MD5")
+		procmon.EventsCache.AddChecksumHash(string(OpProcessHashMD5))
+	} else if op == OpProcessHashSHA1 {
+		log.Debug("[rules loader] Adding SHA1")
+		procmon.EventsCache.AddChecksumHash(string(OpProcessHashSHA1))
+	}
 }
 
 // Load loads rules files from disk.
@@ -119,11 +139,13 @@ func (l *Loader) loadRule(fileName string) error {
 
 	if r.Enabled {
 		if err := r.Operator.Compile(); err != nil {
+			l.HasChecksums(r.Operator.Operand)
 			log.Warning("Operator.Compile() error: %s: %s", err, r.Operator.Data)
 			return fmt.Errorf("(1) Error compiling rule: %s", err)
 		}
 		if r.Operator.Type == List {
 			for i := 0; i < len(r.Operator.List); i++ {
+				l.HasChecksums(r.Operator.List[i].Operand)
 				if err := r.Operator.List[i].Compile(); err != nil {
 					log.Warning("Operator.Compile() error: %s: ", err)
 					return fmt.Errorf("(1) Error compiling list rule: %s", err)
@@ -407,7 +429,7 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 		if rule.Enabled == false {
 			continue
 		}
-		if rule.Match(con) {
+		if rule.Match(con, l.checkSums) {
 			// We have a match.
 			// Save the rule in order to don't ask the user to take action,
 			// and keep iterating until a Deny or a Priority rule appears.

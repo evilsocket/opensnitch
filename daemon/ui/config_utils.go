@@ -109,13 +109,15 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 		clientErrorRule.Duration = rule.Duration(clientConfig.DefaultDuration)
 	}
 	if clientConfig.ProcMonitorMethod != "" {
-		if err := monitor.ReconfigureMonitorMethod(clientConfig.ProcMonitorMethod); err != nil {
-			msg := fmt.Sprintf("Unable to set new process monitor (%s) method from disk: %v", clientConfig.ProcMonitorMethod, err)
+		err := monitor.ReconfigureMonitorMethod(clientConfig.ProcMonitorMethod)
+		if err != nil {
+			msg := fmt.Sprintf("Unable to set new process monitor (%s) method from disk: %v", clientConfig.ProcMonitorMethod, err.Msg)
 			log.Warning(msg)
 			c.SendWarningAlert(msg)
 		}
 	}
 
+	c.rules.EnableChecksums(clientConfig.Rules.EnableChecksums)
 	// TODO:
 	//c.stats.SetLimits(clientConfig.Stats)
 	//loggers.Load(clientConfig.Server.Loggers, clientConfig.Stats.Workers)

@@ -66,8 +66,8 @@ func (r *Rule) String() string {
 
 // Match performs on a connection the checks a Rule has, to determine if it
 // must be allowed or denied.
-func (r *Rule) Match(con *conman.Connection) bool {
-	return r.Operator.Match(con)
+func (r *Rule) Match(con *conman.Connection, hasChecksums bool) bool {
+	return r.Operator.Match(con, hasChecksums)
 }
 
 // Deserialize translates back the rule received to a Rule object

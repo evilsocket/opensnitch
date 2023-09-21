@@ -38,6 +38,19 @@ type alreadyEstablishedConns struct {
 	sync.RWMutex
 }
 
+// list of returned errors
+const (
+	NoError = iota
+	NotAvailable
+	EventsNotAvailable
+)
+
+// Error returns the error type and a message with the explanation
+type Error struct {
+	What int // 1 global error, 2 events error, 3 ...
+	Msg  error
+}
+
 var (
 	m, perfMod *elf.Module
 	lock       = sync.RWMutex{}
@@ -62,18 +75,19 @@ var (
 )
 
 //Start installs ebpf kprobes
-func Start() error {
+func Start() *Error {
 	setRunning(false)
 	if err := mountDebugFS(); err != nil {
-		log.Error("ebpf.Start -> mount debugfs error. Report on github please: %s", err)
-		return err
+		return &Error{
+			NotAvailable,
+			fmt.Errorf("ebpf.Start: mount debugfs error. Report on github please: %s", err),
+		}
 	}
 	var err error
 	m, err = core.LoadEbpfModule("opensnitch.o")
 	if err != nil {
-		log.Error("%s", err)
 		dispatchErrorEvent(fmt.Sprint("[eBPF]: ", err.Error()))
-		return err
+		return &Error{NotAvailable, fmt.Errorf("[eBPF] Error loading opensnitch.o: %s", err.Error())}
 	}
 	m.EnableOptionCompatProbe()
 
@@ -83,12 +97,10 @@ func Start() error {
 	if err := m.EnableKprobes(0); err != nil {
 		m.Close()
 		if err := m.Load(nil); err != nil {
-			log.Error("eBPF failed to load /etc/opensnitchd/opensnitch.o (2): %v", err)
-			return err
+			return &Error{NotAvailable, fmt.Errorf("eBPF failed to load /etc/opensnitchd/opensnitch.o (2): %v", err)}
 		}
 		if err := m.EnableKprobes(0); err != nil {
-			log.Error("eBPF error when enabling kprobes: %v", err)
-			return err
+			return &Error{NotAvailable, fmt.Errorf("eBPF error when enabling kprobes: %v", err)}
 		}
 	}
 	determineHostByteOrder()
@@ -105,13 +117,13 @@ func Start() error {
 	}
 	for prot, mfp := range ebpfMaps {
 		if mfp.bpfmap == nil {
-			return fmt.Errorf("eBPF module opensnitch.o malformed, bpfmap[%s] nil", prot)
+			return &Error{NotAvailable, fmt.Errorf("eBPF module opensnitch.o malformed, bpfmap[%s] nil", prot)}
 		}
 	}
 
 	ctxTasks, cancelTasks = context.WithCancel(context.Background())
 	ebpfCache = NewEbpfCache()
-	initEventsStreamer()
+	errf := initEventsStreamer()
 
 	saveEstablishedConnections(uint8(syscall.AF_INET))
 	if core.IPv6Enabled {
@@ -124,7 +136,7 @@ func Start() error {
 	go monitorAlreadyEstablished()
 
 	setRunning(true)
-	return nil
+	return errf
 }
 
 func saveEstablishedConnections(commDomain uint8) error {
@@ -155,6 +167,7 @@ func setRunning(status bool) {
 
 // Stop stops monitoring connections using kprobes
 func Stop() {
+	log.Debug("ebpf.Stop()")
 	lock.RLock()
 	defer lock.RUnlock()
 	if running == false {

@@ -22,16 +22,17 @@ import (
 
 // Connection represents an outgoing connection.
 type Connection struct {
-	Protocol string
-	SrcIP    net.IP
-	SrcPort  uint
-	DstIP    net.IP
-	DstPort  uint
-	DstHost  string
-	Entry    *netstat.Entry
-	Process  *procmon.Process
+	Pkt     *netfilter.Packet
+	Entry   *netstat.Entry
+	Process *procmon.Process
 
-	Pkt *netfilter.Packet
+	Protocol string
+	DstHost  string
+	SrcIP    net.IP
+	DstIP    net.IP
+
+	SrcPort uint
+	DstPort uint
 }
 
 var showUnknownCons = false
@@ -69,6 +70,7 @@ func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
 func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (cr *Connection, err error) {
 	// no errors but not enough info neither
 	if c.parseDirection(protoType) == false {
+		log.Debug("discarding conn: %+v", c)
 		return nil, nil
 	}
 	log.Debug("new connection %s => %d:%v -> %v (%s):%d uid: %d, mark: %x", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstHost, c.DstPort, nfp.UID, nfp.Mark)
@@ -98,8 +100,8 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		}
 		if err != nil {
 			log.Debug("ebpf warning: %v", err)
-			return nil, nil
 		}
+		log.Debug("[ebpf conn] PID not found via eBPF, falling back to proc")
 	} else if procmon.MethodIsAudit() {
 		if aevent := audit.GetEventByPid(pid); aevent != nil {
 			audit.Lock.RLock()
@@ -115,9 +117,10 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 			c.Process.ReadEnv()
 			c.Process.CleanPath()
 
-			procmon.AddToActivePidsCache(uint64(pid), c.Process)
+			procmon.EventsCache.Add(*c.Process)
 			return c, nil
 		}
+		log.Debug("[auditd conn] PID not found via auditd, falling back to proc")
 	}
 
 	// Sometimes when using eBPF, the PID is not found by the connection's parameters,
@@ -185,6 +188,7 @@ func NewConnection(nfp *netfilter.Packet) (c *Connection, err error) {
 		DstHost: dns.HostOr(ip.DstIP, ""),
 		Pkt:     nfp,
 	}
+
 	return newConnectionImpl(nfp, c, "")
 }
 
@@ -317,17 +321,18 @@ func (c *Connection) String() string {
 // Serialize returns a connection serialized.
 func (c *Connection) Serialize() *protocol.Connection {
 	return &protocol.Connection{
-		Protocol:    c.Protocol,
-		SrcIp:       c.SrcIP.String(),
-		SrcPort:     uint32(c.SrcPort),
-		DstIp:       c.DstIP.String(),
-		DstHost:     c.DstHost,
-		DstPort:     uint32(c.DstPort),
-		UserId:      uint32(c.Entry.UserId),
-		ProcessId:   uint32(c.Process.ID),
-		ProcessPath: c.Process.Path,
-		ProcessArgs: c.Process.Args,
-		ProcessEnv:  c.Process.Env,
-		ProcessCwd:  c.Process.CWD,
+		Protocol:         c.Protocol,
+		SrcIp:            c.SrcIP.String(),
+		SrcPort:          uint32(c.SrcPort),
+		DstIp:            c.DstIP.String(),
+		DstHost:          c.DstHost,
+		DstPort:          uint32(c.DstPort),
+		UserId:           uint32(c.Entry.UserId),
+		ProcessId:        uint32(c.Process.ID),
+		ProcessPath:      c.Process.Path,
+		ProcessArgs:      c.Process.Args,
+		ProcessEnv:       c.Process.Env,
+		ProcessCwd:       c.Process.CWD,
+		ProcessChecksums: c.Process.Checksums,
 	}
 }

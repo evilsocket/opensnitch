@@ -187,6 +187,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.destIPLabel.setVisible(not state)
         self.checkDstPort.setVisible(state == True and (self._con != None and self._con.dst_port != 0))
         self.checkUserID.setVisible(state)
+        self.checkSum.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
+        self.checksumLabel_2.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
+        self.checksumLabel.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
 
         self._ischeckAdvanceded = state
         self.adjust_size()
@@ -329,6 +332,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._set_app_path(app_name, app_args, con)
         self._set_app_args(app_name, app_args)
 
+        self.checksumLabel.setText(con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5])
+        self.checkSum.setChecked(False)
+
         if app_name == "":
             self.appPathLabel.setVisible(False)
             self.argsLabel.setVisible(False)
@@ -356,6 +362,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self.destPortLabel.setText(str(con.dst_port))
         self._hide_widget(self.destPortLabel, con.dst_port == 0)
+        self._hide_widget(self.checkSum, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "" or not self._ischeckAdvanceded)
+        self._hide_widget(self.checksumLabel, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "" or not self._ischeckAdvanceded)
+        self._hide_widget(self.checksumLabel_2, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "" or not self._ischeckAdvanceded)
         self._hide_widget(self.destPortLabel_1, con.dst_port == 0)
         self._hide_widget(self.checkDstPort, con.dst_port == 0 or not self._ischeckAdvanceded)
 
@@ -586,7 +595,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._send_rule()
 
     def _is_list_rule(self):
-        return self.checkUserID.isChecked() or self.checkDstPort.isChecked() or self.checkDstIP.isChecked()
+        return self.checkUserID.isChecked() or \
+            self.checkDstPort.isChecked() or \
+            self.checkDstIP.isChecked() or \
+            self.checkSum.isChecked()
 
     def _get_rule_name(self, rule):
         rule_temp_name = slugify("%s %s" % (rule.action, rule.duration))
@@ -636,6 +648,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_USER_ID:
                 data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_USER_ID, "data": str(self._con.user_id)})
                 rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.user_id)))
+
+            if self.checkSum.isChecked() and self.checksumLabel.text() != "":
+                _type, _operand, _data = Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_HASH_MD5, self.checksumLabel.text()
+                data.append({"type": _type, "operand": _operand, "data": _data})
+                rule_temp_name = slugify("%s %s" % (rule_temp_name, _operand))
 
             is_list_rule = self._is_list_rule()
 
