@@ -61,8 +61,12 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 
 func (c *Client) monitorProcessDetails(pid int, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	p := procmon.NewProcess(pid, "")
-	p.GetParent()
-	p.GetInfo()
+	item, found := procmon.EventsCache.IsInStoreByPID(pid)
+	if found {
+		p = &item.Proc
+	}
+	item.Proc.GetParent()
+	item.Proc.GetInfo()
 	ticker := time.NewTicker(2 * time.Second)
 
 	for {

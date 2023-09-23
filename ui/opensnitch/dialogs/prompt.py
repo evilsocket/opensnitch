@@ -347,7 +347,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cwdLabel.setToolTip("%s %s" % (QC.translate("popups", "Process launched from:"), con.process_cwd))
         self._set_elide_text(self.cwdLabel, con.process_cwd, max_size=32)
 
-        pixmap = self._get_app_icon(app_icon)
+        pixmap = Icons.get_by_appname(app_icon)
         self.iconLabel.setPixmap(pixmap)
 
         message = self._get_popup_message(app_name, con)
@@ -464,30 +464,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         for i in range(0, nparts - 1):
             self.whatCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), self.FIELD_REGEX_HOST)
             self.whatIPCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), self.FIELD_REGEX_HOST)
-
-
-    def _get_app_icon(self, app_icon):
-        """we try to get the icon of an app from the system.
-        If it's not found, then we'll try to search for it in common directories
-        of the system.
-        """
-        try:
-            icon = QtGui.QIcon().fromTheme(app_icon)
-            pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
-            if QtGui.QIcon().hasThemeIcon(app_icon) == False or pixmap.height() == 0:
-                # sometimes the icon is an absolute path, sometimes it's not
-                if os.path.isabs(app_icon):
-                    icon = QtGui.QIcon(app_icon)
-                    pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
-                else:
-                    icon_path = self._apps_parser.discover_app_icon(app_icon)
-                    if icon_path != None:
-                        icon = QtGui.QIcon(icon_path)
-                        pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
-        except Exception as e:
-            print("Exception _get_app_icon():", e)
-
-        return pixmap
 
     def _get_popup_message(self, app_name, con):
         """

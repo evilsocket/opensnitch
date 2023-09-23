@@ -3,6 +3,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from opensnitch.version import version as gui_version
 from opensnitch.database import Database
 from opensnitch.config import Config
+from opensnitch.desktop_parser import LinuxDesktopParser
 from threading import Thread, Event
 import pwd
 import socket
@@ -483,6 +484,28 @@ class Icons():
                 print("Qt standardIcon exception:", icon_name, ",", e)
 
         return icon
+
+    @staticmethod
+    def get_by_appname(app_icon):
+        """return the pixmap of an application.
+        """
+        try:
+            icon = QtGui.QIcon().fromTheme(app_icon)
+            pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+            if QtGui.QIcon().hasThemeIcon(app_icon) == False or pixmap.height() == 0:
+                # sometimes the icon is an absolute path, sometimes it's not
+                if os.path.isabs(app_icon):
+                    icon = QtGui.QIcon(app_icon)
+                    pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+                else:
+                    icon_path = LinuxDesktopParser.discover_app_icon(app_icon)
+                    if icon_path != None:
+                        icon = QtGui.QIcon(icon_path)
+                        pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+        except Exception as e:
+            print("Icons.get_by_appname() exception:", e)
+
+        return pixmap
 
 class Versions():
     @staticmethod
