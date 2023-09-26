@@ -2,11 +2,13 @@ Starting from version [1.4.0rc1](https://github.com/evilsocket/opensnitch/releas
 
 Since version [1.5.0rc1](https://github.com/evilsocket/opensnitch/releases/tag/v1.5.0-rc.1) you can also use lists of IPs, network ranges and domains with regular expressions.
 
-It can be used to block ads, trackers, malware domains or limit to what domains an application connects to.
+Use this feature to block system-wide ads, trackers, or malware domains.
+You can also use it to limit the domains to which an application can connect to, or for blocking IPs by country.
+
 
 Use cases:
 
-0. [How to add a global rule to block malware or ads](#how-to-add-a-global-rule-to-block-ads-or-trackers)
+0. [How to add a global rule to block ads, trackers or malware domains system-wide on Linux](#how-to-add-a-global-rule-to-block-ads-trackers-or-malware-domains-system-wide-on-linux)
 
 1. [Limiting to what domains an application can connect to](#limiting-to-what-domains-an-application-can-connect-to)
 
@@ -31,7 +33,7 @@ Supported list stypes
 
 ---
 
-How to add a global rule to block ads or trackers:
+How to add a global rule to block ads, trackers or malware domains system-wide on Linux:
 ---
 
 1. Create a new rule: `000-block-domains`
@@ -125,6 +127,8 @@ IPs
 ```
 
 #### Lists of NETs
+You can use these lists for exmple for GeoIP blocking: https://www.ipdeny.com/ipblocks/
+
 Nets:
 ```
 # https://iplists.firehol.org/
