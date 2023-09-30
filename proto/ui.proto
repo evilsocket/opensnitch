@@ -105,6 +105,11 @@ message PingReply {
     uint64 id = 1;
 }
 
+message StringInt {
+    string key = 1;
+    uint32 value = 2;
+}
+
 message Process {
     uint64 pid = 1;
     uint64 ppid = 2;
@@ -119,6 +124,7 @@ message Process {
     uint64 io_writes = 11;
     uint64 net_reads = 12;
     uint64 net_writes = 13;
+    repeated StringInt process_tree = 14;
 }
 
 message Connection {
@@ -135,6 +141,7 @@ message Connection {
     repeated string process_args = 11;
     map<string, string> process_env = 12;
     map<string, string> process_checksums = 13;
+    repeated StringInt process_tree = 14;
 }
 
 message Operator {

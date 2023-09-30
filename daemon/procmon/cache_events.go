@@ -37,7 +37,8 @@ type ProcessEvent struct {
 
 // ExecEventItem represents an item of the cache
 type ExecEventItem struct {
-	Proc     Process
+	sync.RWMutex
+	Proc     *Process
 	LastSeen int64
 	TTL      int32
 }
@@ -56,7 +57,6 @@ type EventsStore struct {
 	eventByPath      map[string]*ExecEventItem
 	checksums        map[string]uint
 	mu               *sync.RWMutex
-	hashed           uint64
 	checksumsEnabled bool
 }
 
@@ -69,54 +69,50 @@ func NewEventsStore() *EventsStore {
 
 	return &EventsStore{
 		mu:          &sync.RWMutex{},
-		checksums:   make(map[string]uint),
-		eventByPID:  make(map[int]*ExecEventItem),
-		eventByPath: make(map[string]*ExecEventItem),
+		checksums:   make(map[string]uint, 5000),
+		eventByPID:  make(map[int]*ExecEventItem, 5000),
+		eventByPath: make(map[string]*ExecEventItem, 5000),
 	}
 }
 
 // Add adds a new process to cache.
 // If computing checksums is enabled, new checksums will be computed if needed,
 // or reused existing ones otherwise.
-func (e *EventsStore) Add(proc Process) {
+func (e *EventsStore) Add(proc *Process) {
 	log.Debug("[cache] EventsStore.Add() %d, %s", proc.ID, proc.Path)
+	// add the item to cache ASAP
+	// then calculate the checksums if needed.
+	e.UpdateItem(proc)
 	if e.GetComputeChecksums() {
-		e.ComputeChecksums(&proc)
+		e.ComputeChecksums(proc)
+		e.UpdateItem(proc)
 	}
-
-	e.updateItem(&proc)
 }
 
-func (e *EventsStore) updateItem(proc *Process) {
-	log.Debug("[cache] updateItem() adding to events store (total: %d, hashed:%d), pid: %d, paths: %s", e.Len(), e.hashed, proc.ID, proc.Path)
+// UpdateItem updates a cache item
+func (e *EventsStore) UpdateItem(proc *Process) {
+	log.Debug("[cache] updateItem() adding to events store (total: %d), pid: %d, paths: %s", e.Len(), proc.ID, proc.Path)
 	if proc.Path == "" {
 		return
 	}
-
-	e.mu.Lock()
-	defer e.mu.Unlock()
-
 	ev := &ExecEventItem{
-		Proc:     *proc,
+		Proc:     proc,
 		LastSeen: time.Now().UnixNano(),
 	}
+	e.mu.Lock()
 	e.eventByPID[proc.ID] = ev
 	e.eventByPath[proc.Path] = ev
+	e.mu.Unlock()
 }
 
 // IsInStore checks if a PID is in the store.
 // If the PID is in cache, we may need to update it if the PID
 // is reusing the PID of the parent.
-func (e *EventsStore) IsInStore(key int, proc *Process) (item *ExecEventItem, needsHashUpdate bool, found bool) {
-	//fmt.Printf("IsInStore()\n")
+func (e *EventsStore) IsInStore(key int, proc *Process) (item *ExecEventItem, needsUpdate bool, found bool) {
 	item, found = e.IsInStoreByPID(key)
 	if !found {
 		return
 	}
-	/*if e.checksumsEnabled && len(item.Proc.Checksums) == 0 {
-		log.Info("RECALCULATING STORED item: %s", item.Proc.Path)
-		item.Proc.ComputeChecksums(e.checksums)
-	}*/
 	log.Debug("[cache] Event found by PID: %d, %s", key, item.Proc.Path)
 
 	// check if this PID has replaced the PPID:
@@ -126,9 +122,8 @@ func (e *EventsStore) IsInStore(key int, proc *Process) (item *ExecEventItem, ne
 	// The previous pid+path will still exist as parent of the new child, in proc.Parent
 	if proc != nil && proc.Path != "" && item.Proc.Path != proc.Path {
 		log.Debug("[event inCache, replacement] new: %d, %s -> inCache: %d -> %s", proc.ID, proc.Path, item.Proc.ID, item.Proc.Path)
-		//e.ComputeChecksums(proc)
-		e.updateItem(proc)
-		needsHashUpdate = true
+		//e.UpdateItem(proc)
+		needsUpdate = true
 	}
 
 	return
@@ -137,19 +132,19 @@ func (e *EventsStore) IsInStore(key int, proc *Process) (item *ExecEventItem, ne
 // IsInStoreByPID checks if a pid exists in cache.
 func (e *EventsStore) IsInStoreByPID(key int) (item *ExecEventItem, found bool) {
 	e.mu.RLock()
-	defer e.mu.RUnlock()
 	item, found = e.eventByPID[key]
+	e.mu.RUnlock()
 	return
 }
 
 // IsInStoreByPath checks if a process exists in cache by path.
 func (e *EventsStore) IsInStoreByPath(path string) (item *ExecEventItem, found bool) {
-	e.mu.RLock()
-	defer e.mu.RUnlock()
 	if path == "" || path == KernelConnection {
 		return
 	}
+	e.mu.RLock()
 	item, found = e.eventByPath[path]
+	e.mu.RUnlock()
 	if found {
 		log.Debug("[cache] event found by path: %s", path)
 	}
@@ -159,14 +154,14 @@ func (e *EventsStore) IsInStoreByPath(path string) (item *ExecEventItem, found b
 // Delete an item from cache
 func (e *EventsStore) Delete(key int) {
 	e.mu.Lock()
-	defer e.mu.Unlock()
 	delete(e.eventByPID, key)
+	e.mu.Unlock()
 }
 
 // Len returns the number of items in cache.
 func (e *EventsStore) Len() int {
 	e.mu.RLock()
-	e.mu.RUnlock()
+	defer e.mu.RUnlock()
 	return len(e.eventByPID)
 }
 
@@ -190,6 +185,14 @@ func (e *EventsStore) DeleteOldItems() {
 	}
 }
 
+func (e *EventsStore) UpdateItemDetails(proc *Process) {
+	proc.GetParent()
+	proc.GetTree()
+	proc.ReadCwd()
+	proc.ReadEnv()
+	e.UpdateItem(proc)
+}
+
 // -------------------------------------------------------------------------
 // TODO: Move to its own package.
 // A hashing service than runs in background, and accepts paths to hash
@@ -210,13 +213,12 @@ func (e *EventsStore) ComputeChecksums(proc *Process) {
 	// and because of this sometimes we don't receive the event of the parent.
 	item, _, found := e.IsInStore(proc.ID, proc)
 	if !found {
-		//log.Debug("cache.reuseChecksums() %d not inCache, %s", proc.ID, proc.Path)
+		log.Debug("cache.reuseChecksums() %d not inCache, %s", proc.ID, proc.Path)
 
 		// if parent path and current path are equal, and the parent is alive, see if we have the hash of the parent path
 		if !proc.IsChild() {
-			log.Debug("[cache] reuseChecksums() pid not in cache, not child of parent: %d, %s - %d", proc.ID, proc.Path, proc.Starttime)
 			proc.ComputeChecksums(e.checksums)
-			e.hashed++
+			log.Debug("[cache] reuseChecksums() pid not in cache, not child of parent: %d, %s - %d - %v", proc.ID, proc.Path, proc.Starttime, proc.Checksums)
 			return
 		}
 
@@ -244,14 +246,16 @@ func (e *EventsStore) ComputeChecksums(proc *Process) {
 	// pid found in cache
 	// we should check other parameters to see if the pid is really the same process
 	// proc/<pid>/maps
-	if len(item.Proc.Checksums) > 0 && (item.Proc.IsAlive() && item.Proc.Path == proc.Path) {
-		log.Debug("[cache] reuseChecksums() cached PID alive, already hashed:%v, %s new: %s", item.Proc.Checksums, item.Proc.Path, proc.Path)
+	item.RLock()
+	checksumsNum := len(item.Proc.Checksums)
+	item.RUnlock()
+	if checksumsNum > 0 && (item.Proc.IsAlive() && item.Proc.Path == proc.Path) {
+		log.Debug("[cache] reuseChecksums() cached PID alive, already hashed: %v, %s new: %s", item.Proc.Checksums, item.Proc.Path, proc.Path)
 		proc.Checksums = item.Proc.Checksums
 		return
 	}
 	log.Debug("[cache] reuseChecksums() PID found inCache, computing hashes: %s new: %s - hashes: |%v<>%v|", item.Proc.Path, proc.Path, item.Proc.Checksums, proc.Checksums)
 	proc.ComputeChecksums(e.checksums)
-	e.hashed++
 }
 
 // AddChecksumHash adds a new hash algorithm to compute checksums
@@ -270,10 +274,10 @@ func (e *EventsStore) DelChecksumHash(hash string) {
 	e.mu.Unlock()
 }
 
-// SetComputeChecksums configures if we compute checksums of processes
-// They can be disabled for example if there's no rule that requires checksums.
+// SetComputeChecksums configures if we compute checksums of processes.
+// They will  be disabled if there's no rule that requires checksums.
 // When enabling this functionality, some already stored process may don't have
-// the checksums computed, so when enabling compute them.
+// the checksums computed yet, so when enabling compute them.
 func (e *EventsStore) SetComputeChecksums(compute bool) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -293,7 +297,7 @@ func (e *EventsStore) SetComputeChecksums(compute bool) {
 	}
 }
 
-// DisableChecksums disables computing checksums functionality
+// DisableChecksums disables computing checksums functionality.
 func (e *EventsStore) DisableChecksums() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -302,10 +306,10 @@ func (e *EventsStore) DisableChecksums() {
 }
 
 // GetComputeChecksums returns if computing checksums is enabled or not.
-// Disabled -> if there're no rules with checksum field
+// Disabled -> if there're no rules with checksum field.
 // Disabled -> if events monitors are not available.
-// TODO: Disabled -> if there were n rules with checksums, but the user delete them, or
-//       unchecked checksums.
+// Disabled -> if the user disables it globally.
+// TODO: Disabled -> if there were n rules with checksums, but the user delete them.
 func (e *EventsStore) GetComputeChecksums() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

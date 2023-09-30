@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>731</width>
-    <height>478</height>
+    <width>829</width>
+    <height>556</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -59,6 +59,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QLabel" name="labelProcPath">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="labelProcArgs">
            <property name="text">
             <string>loading...</string>
@@ -90,7 +97,20 @@
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
        </property>
        <property name="textInteractionFlags">
-        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelParent">
+       <property name="text">
+        <string notr="true"/>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -99,11 +119,14 @@
        <property name="text">
         <string>CWD: loading...</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
        <property name="wordWrap">
         <bool>true</bool>
        </property>
        <property name="textInteractionFlags">
-        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -114,8 +137,11 @@
          <property name="text">
           <string>mem stats: loading...</string>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
          <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+          <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -269,7 +295,7 @@
        </property>
        <property name="icon">
         <iconset theme="media-playback-start">
-         <normaloff>.</normaloff>.</iconset>
+         <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -283,7 +309,7 @@
        </property>
        <property name="icon">
         <iconset theme="window-close">
-         <normaloff>.</normaloff>.</iconset>
+         <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>

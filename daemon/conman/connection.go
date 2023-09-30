@@ -105,7 +105,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 	} else if procmon.MethodIsAudit() {
 		if aevent := audit.GetEventByPid(pid); aevent != nil {
 			audit.Lock.RLock()
-			c.Process = procmon.NewProcess(pid, aevent.ProcName)
+			c.Process = procmon.NewProcessEmpty(pid, aevent.ProcName)
 			c.Process.Path = aevent.ProcPath
 			c.Process.ReadCmdline()
 			c.Process.CWD = aevent.ProcDir
@@ -117,7 +117,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 			c.Process.ReadEnv()
 			c.Process.CleanPath()
 
-			procmon.EventsCache.Add(*c.Process)
+			procmon.EventsCache.Add(c.Process)
 			return c, nil
 		}
 		log.Debug("[auditd conn] PID not found via auditd, falling back to proc")
@@ -154,7 +154,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 	if pid == os.Getpid() {
 		// return a Process object with our PID, to be able to exclude our own connections
 		// (to the UI on a local socket for example)
-		c.Process = procmon.NewProcess(pid, "")
+		c.Process = procmon.NewProcessEmpty(pid, "")
 		return c, nil
 	}
 
@@ -334,5 +334,6 @@ func (c *Connection) Serialize() *protocol.Connection {
 		ProcessEnv:       c.Process.Env,
 		ProcessCwd:       c.Process.CWD,
 		ProcessChecksums: c.Process.Checksums,
+		ProcessTree:      c.Process.Tree,
 	}
 }

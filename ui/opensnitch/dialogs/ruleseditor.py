@@ -87,6 +87,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstListIPsCheck.toggled.connect(self._cb_dstiplists_check_toggled)
         self.dstListNetsCheck.toggled.connect(self._cb_dstnetlists_check_toggled)
         self.uidCombo.currentIndexChanged.connect(self._cb_uid_combo_changed)
+        self.md5Check.toggled.connect(self._cb_md5check_toggled)
 
         self._users_list = pwd.getpwall()
 
@@ -224,6 +225,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_uid_combo_changed(self, index):
         self.uidCombo.setCurrentText(str(self._users_list[index][self.PW_UID]))
+
+    def _cb_md5check_toggled(self, state):
+        self.md5Line.setEnabled(state)
 
     def _set_status_error(self, msg):
         self.statusLabel.setStyleSheet('color: red')

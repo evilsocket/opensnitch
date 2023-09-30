@@ -166,10 +166,12 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.comboPids.clear()
         self.labelProcName.setText(QtCore.QCoreApplication.translate("proc_details", "loading..."))
         self.labelProcArgs.setText(QtCore.QCoreApplication.translate("proc_details", "loading..."))
+        self.labelProcPath.setText(QtCore.QCoreApplication.translate("proc_details", "loading..."))
         self.labelProcIcon.clear()
         self.labelStatm.setText("")
         self.labelCwd.setText("")
         self.labelChecksums.setText("")
+        self.labelParent.setText("")
         for tidx in range(0, len(self.TABS)):
             self.TABS[tidx]['text'].setPlainText("")
 
@@ -246,8 +248,21 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
                 self.labelProcName.setText("<b>" + self._app_name + "</b>")
                 self.labelProcName.setToolTip("<b>" + self._app_name + "</b>")
 
+            if 'Tree' in proc:
+                proc['Tree'].reverse()
+                self.labelParent.setText(
+                    "<b>Parent(s): </b>" + " 🡆 ".join(
+                        path['key'] for path in proc['Tree']
+                    )
+                )
+            else:
+                self.labelParent.setText("<could not obtain hash>")
+
             if proc['Path'] not in proc['Args']:
-                proc['Args'].insert(0, "({0}) ".format(proc['Path']))
+                self.labelProcPath.setVisible(True)
+                self.labelProcPath.setText("({0})".format(proc['Path']))
+            else:
+                self.labelProcPath.setVisible(False)
 
             if 'Checksums' in proc:
                 checksums = proc['Checksums']

@@ -7,7 +7,7 @@ import (
 
 var (
 	myPid = os.Getpid()
-	proc  = NewProcess(myPid, "fakeComm")
+	proc  = NewProcessEmpty(myPid, "fakeComm")
 )
 
 func TestNewProcess(t *testing.T) {

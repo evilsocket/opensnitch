@@ -22,6 +22,7 @@ const (
 	MethodEbpf  = "ebpf"
 
 	KernelConnection = "Kernel connection"
+	ProcSelfExe      = "/proc/self/exe"
 
 	HashMD5  = "process.hash.md5"
 	HashSHA1 = "process.hash.sha1"
@@ -64,10 +65,13 @@ type Process struct {
 	Checksums   map[string]string
 	Env         map[string]string
 	Descriptors []*procDescriptors
+	Tree        []*protocol.StringInt
 	Parent      *Process
 	IOStats     *procIOstats
 	NetStats    *procNetStats
 	Statm       *procStatm
+
+	mu *sync.RWMutex
 
 	// Args is the command that the user typed. It MAY contain the absolute path
 	// of the binary:
@@ -113,22 +117,20 @@ type Process struct {
 	UID       int
 }
 
-// NewProcess returns a new Process structure.
-func NewProcess(pid int, comm string) *Process {
-
+// NewProcessEmpty returns a new Process struct with no details.
+func NewProcessEmpty(pid int, comm string) *Process {
 	p := &Process{
+		mu:        &sync.RWMutex{},
 		Starttime: time.Now().UnixNano(),
 		ID:        pid,
 		Comm:      comm,
 		Args:      make([]string, 0),
 		Env:       make(map[string]string),
+		Tree:      make([]*protocol.StringInt, 0),
 		IOStats:   &procIOstats{},
 		NetStats:  &procNetStats{},
 		Statm:     &procStatm{},
 		Checksums: make(map[string]string),
-	}
-	if pid <= 0 {
-		return p
 	}
 	p.pathProc = fmt.Sprint("/proc/", p.ID)
 	p.pathExe = fmt.Sprint(p.pathProc, "/exe")
@@ -148,6 +150,32 @@ func NewProcess(pid int, comm string) *Process {
 	return p
 }
 
+// NewProcess returns a new Process structure.
+func NewProcess(pid int, comm string) *Process {
+	p := NewProcessEmpty(pid, comm)
+	if pid <= 0 {
+		return p
+	}
+	p.GetDetails()
+	p.GetParent()
+	p.GetTree()
+
+	return p
+}
+
+// NewProcessWithParent returns a new Process structure.
+func NewProcessWithParent(pid, ppid int, comm string) *Process {
+	p := NewProcessEmpty(pid, comm)
+	if pid <= 0 {
+		return p
+	}
+	p.PPID = ppid
+	p.GetDetails()
+	p.Parent = NewProcess(ppid, comm)
+
+	return p
+}
+
 //Serialize transforms a Process object to gRPC protocol object
 func (p *Process) Serialize() *protocol.Process {
 	ioStats := p.IOStats
@@ -160,19 +188,20 @@ func (p *Process) Serialize() *protocol.Process {
 	}
 
 	return &protocol.Process{
-		Pid:       uint64(p.ID),
-		Ppid:      uint64(p.PPID),
-		Uid:       uint64(p.UID),
-		Comm:      p.Comm,
-		Path:      p.Path,
-		Args:      p.Args,
-		Env:       p.Env,
-		Cwd:       p.CWD,
-		Checksums: p.Checksums,
-		IoReads:   uint64(ioStats.RChar),
-		IoWrites:  uint64(ioStats.WChar),
-		NetReads:  netStats.ReadBytes,
-		NetWrites: netStats.WriteBytes,
+		Pid:         uint64(p.ID),
+		Ppid:        uint64(p.PPID),
+		Uid:         uint64(p.UID),
+		Comm:        p.Comm,
+		Path:        p.Path,
+		Args:        p.Args,
+		Env:         p.Env,
+		Cwd:         p.CWD,
+		Checksums:   p.Checksums,
+		IoReads:     uint64(ioStats.RChar),
+		IoWrites:    uint64(ioStats.WChar),
+		NetReads:    netStats.ReadBytes,
+		NetWrites:   netStats.WriteBytes,
+		ProcessTree: p.Tree,
 	}
 }
 

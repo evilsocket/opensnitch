@@ -142,7 +142,7 @@ func initPerfMap(mod *elf.Module) error {
 	}
 	perfMapList[perfMap] = mod
 
-	eventWorkers += 4
+	eventWorkers += 8
 	for i := 0; i < eventWorkers; i++ {
 		go streamEventsWorker(i, perfChan, lostEvents, kernelEvents)
 	}
@@ -170,14 +170,22 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents 
 						continue
 					}
 					// TODO: store multiple executions with the same pid but different paths: forks, execves...
-					if p, needsHashUpdate, found := procmon.EventsCache.IsInStore(int(event.PID), proc); found {
-						if needsHashUpdate {
+					if item, needsUpdate, found := procmon.EventsCache.IsInStore(int(event.PID), proc); found {
+						if needsUpdate {
+							// when a process is replaced in memory, it'll be found in cache by PID,
+							// but the new process' details will be empty
+							proc.Parent = item.Proc
 							procmon.EventsCache.ComputeChecksums(proc)
+							procmon.EventsCache.UpdateItemDetails(proc)
 						}
-						log.Debug("[eBPF event inCache] -> %d, %v", event.PID, p.Proc.Checksums)
+						log.Debug("[eBPF event inCache] -> %d, %v", event.PID, item.Proc.Checksums)
 						continue
 					}
-					procmon.EventsCache.Add(*proc)
+					// adding item to cache in 2 steps:
+					// 1. with basic information, to have it readily available
+					// 2. getting the rest of the process details that takes more time
+					procmon.EventsCache.Add(proc)
+					procmon.EventsCache.UpdateItemDetails(proc)
 
 				case EV_TYPE_SCHED_EXIT:
 					log.Debug("[eBPF exit event] total: %d, pid: %d, ppid: %d", 0 /*execEvents.Len()*/, event.PID, event.PPID)
@@ -201,7 +209,8 @@ Exit:
 }
 
 func event2process(event *execEvent) (proc *procmon.Process) {
-	proc = procmon.NewProcess(int(event.PID), byteArrayToString(event.Comm[:]))
+	proc = procmon.NewProcessEmpty(int(event.PID), byteArrayToString(event.Comm[:]))
+	proc.UID = int(event.UID)
 	// trust process path received from kernel
 	path := byteArrayToString(event.Filename[:])
 	if path != "" {
@@ -211,10 +220,6 @@ func event2process(event *execEvent) (proc *procmon.Process) {
 			return nil
 		}
 	}
-	proc.ReadCwd()
-	proc.ReadEnv()
-	proc.UID = int(event.UID)
-
 	if event.ArgsPartial == 0 {
 		for i := 0; i < int(event.ArgsCount); i++ {
 			proc.Args = append(proc.Args, byteArrayToString(event.Args[i][:]))
@@ -223,7 +228,6 @@ func event2process(event *execEvent) (proc *procmon.Process) {
 	} else {
 		proc.ReadCmdline()
 	}
-	proc.GetParent()
 	log.Debug("[eBPF exec event] ppid: %d, pid: %d, %s -> %s", event.PPID, event.PID, proc.Path, proc.Args)
 
 	return

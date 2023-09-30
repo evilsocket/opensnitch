@@ -60,13 +60,18 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 }
 
 func (c *Client) monitorProcessDetails(pid int, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	p := procmon.NewProcess(pid, "")
+	p := &procmon.Process{}
 	item, found := procmon.EventsCache.IsInStoreByPID(pid)
 	if found {
-		p = &item.Proc
+		newProc := *item.Proc
+		p = &newProc
+		if len(p.Tree) == 0 {
+			p.GetParent()
+			p.GetTree()
+		}
+	} else {
+		p = procmon.NewProcess(pid, "")
 	}
-	item.Proc.GetParent()
-	item.Proc.GetInfo()
 	ticker := time.NewTicker(2 * time.Second)
 
 	for {

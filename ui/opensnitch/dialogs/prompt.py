@@ -105,10 +105,17 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkDstIP.clicked.connect(self._button_clicked)
         self.checkDstPort.clicked.connect(self._button_clicked)
         self.checkUserID.clicked.connect(self._button_clicked)
+        self.cmdInfo.clicked.connect(self._cb_cmdinfo_clicked)
+        self.cmdBack.clicked.connect(self._cb_cmdback_clicked)
 
         self.allowIcon = Icons.new(self, "emblem-default")
         denyIcon = Icons.new(self, "emblem-important")
         rejectIcon = Icons.new(self, "window-close")
+        backIcon = Icons.new(self, "go-previous")
+        infoIcon = Icons.new(self, "info")
+
+        self.cmdInfo.setIcon(infoIcon)
+        self.cmdBack.setIcon(backIcon)
 
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
 
@@ -190,12 +197,21 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkSum.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
         self.checksumLabel_2.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
         self.checksumLabel.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
+        self.stackedWidget.setCurrentIndex(1)
 
         self._ischeckAdvanceded = state
         self.adjust_size()
         self.move_popup()
 
     def _button_clicked(self):
+        self._stop_countdown()
+
+    def _cb_cmdinfo_clicked(self):
+        self.stackedWidget.setCurrentIndex(0)
+        self._stop_countdown()
+
+    def _cb_cmdback_clicked(self):
+        self.stackedWidget.setCurrentIndex(1)
         self._stop_countdown()
 
     def _set_elide_text(self, widget, text, max_size=132):
@@ -251,9 +267,16 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def on_connection_prompt_triggered(self):
+        self.stackedWidget.setCurrentIndex(1)
+        # FIXME: scrolling to the top in _render_details doesn't seem to work,
+        # so do it here until wi figure out why.
+        xpos = self.connDetails.verticalScrollBar().minimum()
+        self.connDetails.verticalScrollBar().setValue(xpos)
         self._render_connection(self._con)
         if self._tick > 0:
             self.show()
+        # render details after displaying the details.
+        self._render_details(self._con)
 
     @QtCore.pyqtSlot()
     def on_tick_triggered(self):
@@ -434,6 +457,51 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkAdvanced.setFocus()
 
         self.setFixedSize(self.size())
+
+        self._post_popup_plugins(con)
+
+    def _render_details(self, con):
+        tree = ""
+        space = "&nbsp;"
+        spaces = "&nbsp;"
+        indicator = ""
+
+        con.process_tree.reverse()
+        for path in con.process_tree:
+            tree = "{0}<p>│{1}\t{2}{3}{4}</p>".format(tree, path.value, spaces, indicator, path.key)
+            spaces += "&nbsp;" * 4
+            indicator = "\_ "
+
+        # XXX: table element doesn't work?
+        details = """<b>{0}</b> {1}:{2} -> {3}:{4}
+<br><br>
+<b>Path:</b>{5}{6}<br>
+<b>Cmdline:</b>&nbsp;{7}<br>
+<b>CWD:</b>{8}{9}<br>
+<b>MD5:</b>{10}{11}<br>
+<b>UID:</b>{12}{13}<br>
+<b>PID:</b>{14}{15}<br>
+<br>
+<b>Process tree:</b><br>
+{16}
+<br>
+<p><b>Environment variables:<b></p>
+{17}
+""".format(
+    con.protocol.upper(),
+    con.src_port, con.src_ip, con.dst_ip, con.dst_port,
+    space * 6, con.process_path,
+    " ".join(con.process_args),
+    space * 6, con.process_cwd,
+    space * 7, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5],
+    space * 9, con.user_id,
+    space * 9, con.process_id,
+    tree,
+    "".join('<p>{}={}</p>'.format(key, value) for key, value in con.process_env.items())
+)
+
+        self.connDetails.document().clear()
+        self.connDetails.document().setHtml(details)
 
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):

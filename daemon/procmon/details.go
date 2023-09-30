@@ -2,6 +2,7 @@ package procmon
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
@@ -19,10 +20,10 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/dns"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/netlink"
+	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
 var socketsRegex, _ = regexp.Compile(`socket:\[([0-9]+)\]`)
-var ppidPattern = regexp.MustCompile(`PPid:\s*(\d+)`)
 
 // GetParent obtains the information of this process' parent.
 func (p *Process) GetParent() {
@@ -31,33 +32,58 @@ func (p *Process) GetParent() {
 		return
 	}
 
-	data, err := ioutil.ReadFile(p.pathStatus)
+	// ReadFile + parse = ~40us
+	data, err := ioutil.ReadFile(p.pathStat)
 	if err != nil {
 		return
 	}
-
-	ppidMatches := ppidPattern.FindStringSubmatch(string(data))
-	ppid := 0
-	if len(ppidMatches) < 2 {
+	var ppid int
+	var state string
+	// https://lore.kernel.org/lkml/tog7cb$105a$1@ciao.gmane.io/T/
+	parts := bytes.Split(data, []byte(")"))
+	data = parts[len(parts)-1]
+	_, err = fmt.Sscanf(string(data), "%s %d", &state, &ppid)
+	if err != nil || ppid == 0 {
 		return
 	}
 
-	ppid, err = strconv.Atoi(ppidMatches[1])
-	if err != nil {
-		return
+	if item, found := EventsCache.IsInStoreByPID(ppid); found {
+		p.mu.Lock()
+		p.Parent = item.Proc
+		p.mu.Unlock()
+
+		EventsCache.UpdateItem(p)
+	} else {
+		p.Parent = NewProcessEmpty(ppid, "")
+		p.Parent.ReadPath()
+		EventsCache.Add(p.Parent)
 	}
-	if ppid == 0 {
-		return
-	}
-	p.Parent = NewProcess(ppid, "")
-	p.Parent.GetInfo()
 
 	// get process tree
-	//p.Parent.GetParent()
+	p.Parent.GetParent()
+}
+
+// GetTree returns all the parents of this process.
+func (p *Process) GetTree() {
+	if len(p.Tree) > 0 {
+		fmt.Println("GetTree not empty:", p.Tree)
+	}
+	p.mu.Lock()
+	p.Tree = make([]*protocol.StringInt, 0)
+	for pp := p.Parent; pp != nil; pp = pp.Parent {
+		// add the parents in reverse order, so when we iterate over them with the rules
+		// the first item is the most direct parent of the process.
+		p.Tree = append(p.Tree,
+			&protocol.StringInt{
+				Key: pp.Path, Value: uint32(pp.ID),
+			},
+		)
+	}
+	p.mu.Unlock()
 }
 
 // GetInfo collects information of a process.
-func (p *Process) GetInfo() error {
+func (p *Process) GetDetails() error {
 	if os.Getpid() == p.ID {
 		return nil
 	}
@@ -73,14 +99,14 @@ func (p *Process) GetInfo() error {
 			return fmt.Errorf("Unable to get process information")
 		}
 	}
-	p.ReadCmdline()
-	p.ReadComm()
-	p.ReadCwd()
-
 	if err := p.ReadPath(); err != nil {
 		log.Debug("GetInfo() path can't be read: %s", p.Path)
 		return err
 	}
+	p.ReadCmdline()
+	p.ReadComm()
+	p.ReadCwd()
+
 	// we need to load the env variables now, in order to be used with the rules.
 	p.ReadEnv()
 
@@ -119,7 +145,9 @@ func (p *Process) ReadCwd() error {
 	if err != nil {
 		return err
 	}
+	p.mu.Lock()
 	p.CWD = link
+	p.mu.Unlock()
 	return nil
 }
 
@@ -158,7 +186,7 @@ func (p *Process) ReadPath() error {
 		if p.Path == "" {
 			// determine if this process might be of a kernel task.
 			if data, err := ioutil.ReadFile(p.pathMaps); err == nil && len(data) == 0 {
-				p.Path = "Kernel connection"
+				p.Path = KernelConnection
 				p.Args = append(p.Args, p.Comm)
 				return
 			}
@@ -197,22 +225,22 @@ func (p *Process) ReadCmdline() {
 	if len(p.Args) > 0 {
 		return
 	}
-	if data, err := ioutil.ReadFile(p.pathCmdline); err == nil {
-		if len(data) == 0 {
-			return
+	data, err := ioutil.ReadFile(p.pathCmdline)
+	if err != nil || len(data) == 0 {
+		return
+	}
+	// XXX: remove this loop, and split by "\x00"
+	for i, b := range data {
+		if b == 0x00 {
+			data[i] = byte(' ')
 		}
-		for i, b := range data {
-			if b == 0x00 {
-				data[i] = byte(' ')
-			}
-		}
+	}
 
-		args := strings.Split(string(data), " ")
-		for _, arg := range args {
-			arg = core.Trim(arg)
-			if arg != "" {
-				p.Args = append(p.Args, arg)
-			}
+	args := strings.Split(string(data), " ")
+	for _, arg := range args {
+		arg = core.Trim(arg)
+		if arg != "" {
+			p.Args = append(p.Args, arg)
 		}
 	}
 	p.CleanArgs()
@@ -222,7 +250,7 @@ func (p *Process) ReadCmdline() {
 // - AppImages cmdline reports the execuable launched as /proc/self/exe,
 //   instead of the actual path to the binary.
 func (p *Process) CleanArgs() {
-	if len(p.Args) > 0 && p.Args[0] == "/proc/self/exe" {
+	if len(p.Args) > 0 && p.Args[0] == ProcSelfExe {
 		p.Args[0] = p.Path
 	}
 }
@@ -326,7 +354,7 @@ func (p *Process) CleanPath() {
 	// This is not useful to the user, and besides it's a generic path that can represent
 	// to any process.
 	// Therefore we cannot use /proc/self/exe directly, because it resolves to our own process.
-	if p.Path == "/proc/self/exe" {
+	if p.Path == ProcSelfExe {
 		if link, err := os.Readlink(p.pathExe); err == nil {
 			p.Path = link
 			return
@@ -417,7 +445,7 @@ func (p *Process) ComputeChecksum(algo string) {
 			log.Debug("[hashing %s] Unable to open path: %s", algo, paths[i])
 
 			// one of the reasons to end here is when hashing AppImages
-			code, err := p.dumpImage()
+			code, err := p.DumpImage()
 			if err != nil {
 				log.Debug("[hashing] Unable to dump process memory: %s", err)
 				continue
@@ -433,7 +461,9 @@ func (p *Process) ComputeChecksum(algo string) {
 			log.Debug("[hashing %s] Error copying data: %s", algo, err)
 			continue
 		}
+		p.mu.Lock()
 		p.Checksums[algo] = hex.EncodeToString(h.Sum(nil))
+		p.mu.Unlock()
 		log.Debug("[hashing] elapsed: %v ,Hash: %s, %s\n", time.Since(start), p.Checksums[algo], paths[i])
 
 		break
@@ -448,7 +478,9 @@ type MemoryMapping struct {
 	EndAddr   uint64
 }
 
-func (p *Process) dumpImage() ([]byte, error) {
+// DumpImage reads the memory of the current process, and returns it
+// as byte array.
+func (p *Process) DumpImage() ([]byte, error) {
 	return p.dumpFileImage(p.Path)
 }
 

@@ -30,26 +30,22 @@ func MonitorProcEvents(stop <-chan struct{}) {
 			if ev.IsExec() {
 				// we don't receive the path of the process, therefore we need to discover it,
 				// to check if the PID has replaced the PPID.
-				proc := NewProcess(int(ev.PID), "")
-				proc.GetInfo()
-				proc.Parent = NewProcess(int(ev.TGID), "")
-				proc.Parent.GetInfo()
+				proc := NewProcessWithParent(int(ev.PID), int(ev.TGID), "")
 
 				log.Debug("[procmon exec event] %d, pid:%d tgid:%d %s, %s -> %s\n", ev.TimeStamp, ev.PID, ev.TGID, proc.Comm, proc.Path, proc.Parent.Path)
-				//log.Debug("[procmon exec event] %d, pid:%d tgid:%d\n", ev.TimeStamp, ev.PID, ev.TGID)
-				if _, needsHashUpdate, found := EventsCache.IsInStore(int(ev.PID), proc); found {
-					// check if this PID has replaced the PPID:
-					// systemd, pid:1234 -> curl, pid:1234 -> curl (i.e.: pid 1234) opens x.x.x.x:443
-					// Without this, we would display that systemd is connecting to x.x.x.x:443
-					// The previous pid+path will still exist as parent of the new child, in proc.Parent
-					if needsHashUpdate {
-						//log.Debug("[procmon inCache REPLACEMENT] rehashing, new: %d, %s -> inCache: %d -> %s", proc.ID, proc.Path, item.Proc.ID, item.Proc.Path)
+				if _, needsUpdate, found := EventsCache.IsInStore(int(ev.PID), proc); found {
+					if needsUpdate {
 						EventsCache.ComputeChecksums(proc)
+						EventsCache.UpdateItemDetails(proc)
 					}
 					log.Debug("[procmon exec event inCache] %d, pid:%d tgid:%d\n", ev.TimeStamp, ev.PID, ev.TGID)
 					continue
 				}
-				EventsCache.Add(*proc)
+				// adding item to cache in 2 steps:
+				// 1. with basic information, to have it readily available
+				// 2. getting the rest of the process details
+				EventsCache.Add(proc)
+				EventsCache.UpdateItemDetails(proc)
 			} else if ev.IsExit() {
 				p, _, found := EventsCache.IsInStore(int(ev.PID), nil)
 				if found && p.Proc.IsAlive() == false {
