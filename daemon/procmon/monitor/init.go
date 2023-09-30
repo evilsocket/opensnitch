@@ -56,6 +56,9 @@ func ReconfigureMonitorMethod(newMonitorMethod string) *Error {
 	}
 
 	oldMethod := procmon.GetMonitorMethod()
+	if oldMethod == "" {
+		oldMethod = procmon.MethodProc
+	}
 	End()
 	procmon.SetMonitorMethod(newMonitorMethod)
 	// if the new monitor method fails to start, rollback the change and exit
