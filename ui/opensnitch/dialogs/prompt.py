@@ -400,7 +400,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             uid = "%d" % con.user_id
 
         self.uidLabel.setText(uid)
-        self.pidLabel.setText("%s" % con.process_id)
 
         self.whatCombo.clear()
         self.whatIPCombo.clear()
