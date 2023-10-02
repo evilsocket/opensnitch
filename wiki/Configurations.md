@@ -70,9 +70,24 @@ On latest v.1.6.x version, you can change it to unix:///run/user/1000/opensnitch
 
 Use `--socket "[::]:50051"` to have the UI use TCP instead of a Unix socket and run the daemon on another computer with `-ui-socket "x.x.x.x:50051"` (where x.x.x.x is the IP of the computer running the UI service).
 
-`# /usr/bin/opensnitchd -rules-path /etc/opensnitchd/rules -ui-socket 172.17.0.1:50051`
+Remote Daemon-Only Hosts:
+ 
+`# /usr/bin/opensnitchd -rules-path /etc/opensnitchd/rules -ui-socket x.x.x.x:50051`
+
+Central GUI Host:
 
 `$ /usr/local/bin/opensnitch-ui --socket "[::]:50051"`
+
+Note: When using the commands above the changes will not persist across reboots. Make sure to change the configuration file accordingly.
+
+Persistent Setup:
+
+To keep clients connected after reboot, edit the daemon configuration file at `/etc/opensnitchd/default-config.json`. Change the `Address`
+value to the IP and port of the machine running the GUI. Example: `"Address": "10.10.15.20:50051"` where the GUI server is at 10.10.15.20.
+
+Apply the changes with `systemctl restart opensnitch` and enable the service so it starts on boot with  `systemctl enable --now opensnitch`.
+
+On the central GUI server, run the Opensnitch GUI to allow the clients to connect with `opensnitch-ui --socket [::]:50051`.
 
 ![image](https://user-images.githubusercontent.com/2742953/82752021-9d328380-9dbb-11ea-913e-80f7b551a6c7.png)
 
