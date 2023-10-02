@@ -27,8 +27,11 @@ var socketsRegex, _ = regexp.Compile(`socket:\[([0-9]+)\]`)
 
 // GetParent obtains the information of this process' parent.
 func (p *Process) GetParent() {
-	if p.Parent != nil {
-		log.Debug("%d already with parent: %v", p.ID, p.Parent)
+	p.mu.RLock()
+	hasParent := p.Parent != nil
+	p.mu.RUnlock()
+
+	if hasParent {
 		return
 	}
 
@@ -54,8 +57,10 @@ func (p *Process) GetParent() {
 
 		EventsCache.UpdateItem(p)
 	} else {
+		p.mu.Lock()
 		p.Parent = NewProcessEmpty(ppid, "")
 		p.Parent.ReadPath()
+		p.mu.Unlock()
 		EventsCache.Add(p.Parent)
 	}
 
@@ -68,21 +73,24 @@ func (p *Process) GetTree() {
 	if len(p.Tree) > 0 {
 		fmt.Println("GetTree not empty:", p.Tree)
 	}
-	p.mu.Lock()
-	p.Tree = make([]*protocol.StringInt, 0)
+	tree := make([]*protocol.StringInt, 0)
 	for pp := p.Parent; pp != nil; pp = pp.Parent {
 		// add the parents in reverse order, so when we iterate over them with the rules
 		// the first item is the most direct parent of the process.
-		p.Tree = append(p.Tree,
+		pp.mu.RLock()
+		tree = append(tree,
 			&protocol.StringInt{
 				Key: pp.Path, Value: uint32(pp.ID),
 			},
 		)
+		pp.mu.RUnlock()
 	}
+	p.mu.Lock()
+	p.Tree = tree
 	p.mu.Unlock()
 }
 
-// GetInfo collects information of a process.
+// GetDetails collects information of a process.
 func (p *Process) GetDetails() error {
 	if os.Getpid() == p.ID {
 		return nil
@@ -450,7 +458,9 @@ func (p *Process) ComputeChecksum(algo string) {
 				log.Debug("[hashing] Unable to dump process memory: %s", err)
 				continue
 			}
+			p.mu.Lock()
 			p.Checksums[algo] = hex.EncodeToString(h.Sum(code))
+			p.mu.Unlock()
 			log.Debug("[hashing] memory region hashed, elapsed: %v ,Hash: %s, %s\n", time.Since(start), p.Checksums[algo], paths[i])
 			code = nil
 			break

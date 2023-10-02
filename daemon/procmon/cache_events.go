@@ -69,9 +69,9 @@ func NewEventsStore() *EventsStore {
 
 	return &EventsStore{
 		mu:          &sync.RWMutex{},
-		checksums:   make(map[string]uint, 5000),
-		eventByPID:  make(map[int]*ExecEventItem, 5000),
-		eventByPath: make(map[string]*ExecEventItem, 5000),
+		checksums:   make(map[string]uint, 500),
+		eventByPID:  make(map[int]*ExecEventItem, 500),
+		eventByPath: make(map[string]*ExecEventItem, 500),
 	}
 }
 
@@ -185,6 +185,7 @@ func (e *EventsStore) DeleteOldItems() {
 	}
 }
 
+// UpdateItemDetails updates the details of a process
 func (e *EventsStore) UpdateItemDetails(proc *Process) {
 	proc.GetParent()
 	proc.GetTree()
@@ -246,15 +247,18 @@ func (e *EventsStore) ComputeChecksums(proc *Process) {
 	// pid found in cache
 	// we should check other parameters to see if the pid is really the same process
 	// proc/<pid>/maps
-	item.RLock()
+	item.Proc.mu.RLock()
 	checksumsNum := len(item.Proc.Checksums)
-	item.RUnlock()
+	item.Proc.mu.RUnlock()
 	if checksumsNum > 0 && (item.Proc.IsAlive() && item.Proc.Path == proc.Path) {
 		log.Debug("[cache] reuseChecksums() cached PID alive, already hashed: %v, %s new: %s", item.Proc.Checksums, item.Proc.Path, proc.Path)
 		proc.Checksums = item.Proc.Checksums
 		return
 	}
+	item.Proc.mu.RLock()
 	log.Debug("[cache] reuseChecksums() PID found inCache, computing hashes: %s new: %s - hashes: |%v<>%v|", item.Proc.Path, proc.Path, item.Proc.Checksums, proc.Checksums)
+	item.Proc.mu.RUnlock()
+
 	proc.ComputeChecksums(e.checksums)
 }
 
