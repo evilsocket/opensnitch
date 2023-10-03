@@ -95,11 +95,11 @@ func (e *EventsStore) UpdateItem(proc *Process) {
 	if proc.Path == "" {
 		return
 	}
+	e.mu.Lock()
 	ev := &ExecEventItem{
 		Proc:     proc,
 		LastSeen: time.Now().UnixNano(),
 	}
-	e.mu.Lock()
 	e.eventByPID[proc.ID] = ev
 	e.eventByPath[proc.Path] = ev
 	e.mu.Unlock()
@@ -185,15 +185,6 @@ func (e *EventsStore) DeleteOldItems() {
 	}
 }
 
-// UpdateItemDetails updates the details of a process
-func (e *EventsStore) UpdateItemDetails(proc *Process) {
-	proc.GetParent()
-	proc.GetTree()
-	proc.ReadCwd()
-	proc.ReadEnv()
-	e.UpdateItem(proc)
-}
-
 // -------------------------------------------------------------------------
 // TODO: Move to its own package.
 // A hashing service than runs in background, and accepts paths to hash
@@ -247,17 +238,15 @@ func (e *EventsStore) ComputeChecksums(proc *Process) {
 	// pid found in cache
 	// we should check other parameters to see if the pid is really the same process
 	// proc/<pid>/maps
-	item.Proc.mu.RLock()
+	item.Proc.RLock()
 	checksumsNum := len(item.Proc.Checksums)
-	item.Proc.mu.RUnlock()
+	item.Proc.RUnlock()
 	if checksumsNum > 0 && (item.Proc.IsAlive() && item.Proc.Path == proc.Path) {
 		log.Debug("[cache] reuseChecksums() cached PID alive, already hashed: %v, %s new: %s", item.Proc.Checksums, item.Proc.Path, proc.Path)
 		proc.Checksums = item.Proc.Checksums
 		return
 	}
-	item.Proc.mu.RLock()
 	log.Debug("[cache] reuseChecksums() PID found inCache, computing hashes: %s new: %s - hashes: |%v<>%v|", item.Proc.Path, proc.Path, item.Proc.Checksums, proc.Checksums)
-	item.Proc.mu.RUnlock()
 
 	proc.ComputeChecksums(e.checksums)
 }

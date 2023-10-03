@@ -320,6 +320,8 @@ func (c *Connection) String() string {
 
 // Serialize returns a connection serialized.
 func (c *Connection) Serialize() *protocol.Connection {
+	c.Process.RLock()
+	defer c.Process.RUnlock()
 	return &protocol.Connection{
 		Protocol:         c.Protocol,
 		SrcIp:            c.SrcIP.String(),

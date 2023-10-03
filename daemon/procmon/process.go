@@ -158,7 +158,7 @@ func NewProcess(pid int, comm string) *Process {
 	}
 	p.GetDetails()
 	p.GetParent()
-	p.GetTree()
+	p.BuildTree()
 
 	return p
 }
@@ -174,6 +174,26 @@ func NewProcessWithParent(pid, ppid int, comm string) *Process {
 	p.Parent = NewProcess(ppid, comm)
 
 	return p
+}
+
+// Lock locks this process for w+r
+func (p *Process) Lock() {
+	p.mu.Lock()
+}
+
+// Unlock unlocks reading from this process
+func (p *Process) Unlock() {
+	p.mu.Unlock()
+}
+
+// RLock locks this process for r
+func (p *Process) RLock() {
+	p.mu.RLock()
+}
+
+// RUnlock unlocks reading from this process
+func (p *Process) RUnlock() {
+	p.mu.RUnlock()
 }
 
 //Serialize transforms a Process object to gRPC protocol object

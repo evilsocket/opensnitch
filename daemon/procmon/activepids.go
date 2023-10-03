@@ -36,16 +36,12 @@ func MonitorProcEvents(stop <-chan struct{}) {
 				if _, needsUpdate, found := EventsCache.IsInStore(int(ev.PID), proc); found {
 					if needsUpdate {
 						EventsCache.ComputeChecksums(proc)
-						EventsCache.UpdateItemDetails(proc)
+						EventsCache.UpdateItem(proc)
 					}
 					log.Debug("[procmon exec event inCache] %d, pid:%d tgid:%d\n", ev.TimeStamp, ev.PID, ev.TGID)
 					continue
 				}
-				// adding item to cache in 2 steps:
-				// 1. with basic information, to have it readily available
-				// 2. getting the rest of the process details
 				EventsCache.Add(proc)
-				EventsCache.UpdateItemDetails(proc)
 			} else if ev.IsExit() {
 				p, _, found := EventsCache.IsInStore(int(ev.PID), nil)
 				if found && p.Proc.IsAlive() == false {

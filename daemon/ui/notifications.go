@@ -67,7 +67,7 @@ func (c *Client) monitorProcessDetails(pid int, stream protocol.UI_Notifications
 		p = &newProc
 		if len(p.Tree) == 0 {
 			p.GetParent()
-			p.GetTree()
+			p.BuildTree()
 		}
 	} else {
 		p = procmon.NewProcess(pid, "")

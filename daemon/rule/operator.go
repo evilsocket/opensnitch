@@ -319,9 +319,14 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 		if !hasChecksums {
 			return ret
 		}
+		con.Process.RLock()
 		for algo := range con.Process.Checksums {
-			return o.cb(con.Process.Checksums[algo])
+			ret = o.cb(con.Process.Checksums[algo])
+			if ret {
+				break
+			}
 		}
+		con.Process.RUnlock()
 		return ret
 	} else if o.Operand == OpProto {
 		return o.cb(con.Protocol)

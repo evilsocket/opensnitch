@@ -165,40 +165,10 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents 
 			} else {
 				switch event.Type {
 				case EV_TYPE_EXEC, EV_TYPE_EXECVEAT:
-					proc := event2process(&event)
-					if proc == nil {
-						continue
-					}
-					// TODO: store multiple executions with the same pid but different paths: forks, execves...
-					if item, needsUpdate, found := procmon.EventsCache.IsInStore(int(event.PID), proc); found {
-						if needsUpdate {
-							// when a process is replaced in memory, it'll be found in cache by PID,
-							// but the new process' details will be empty
-							proc.Parent = item.Proc
-							procmon.EventsCache.ComputeChecksums(proc)
-							procmon.EventsCache.UpdateItemDetails(proc)
-						}
-						log.Debug("[eBPF event inCache] -> %d, %v", event.PID, item.Proc.Checksums)
-						continue
-					}
-					// adding item to cache in 2 steps:
-					// 1. with basic information, to have it readily available
-					// 2. getting the rest of the process details that takes more time
-					procmon.EventsCache.Add(proc)
-					procmon.EventsCache.UpdateItemDetails(proc)
+					processExecEvent(&event)
 
 				case EV_TYPE_SCHED_EXIT:
-					log.Debug("[eBPF exit event] total: %d, pid: %d, ppid: %d", 0 /*execEvents.Len()*/, event.PID, event.PPID)
-					ev, _, found := procmon.EventsCache.IsInStore(int(event.PID), nil)
-					if !found {
-						continue
-					}
-					log.Debug("[eBPF exit event inCache] pid: %d, tgid: %d", event.PID, event.PPID)
-					if ev.Proc.IsAlive() == false {
-						procmon.EventsCache.Delete(int(event.PID))
-						log.Debug("[ebpf exit event] deleting DEAD pid: %d", event.PID)
-					}
-
+					processExitEvent(&event)
 				}
 			}
 		}
@@ -212,6 +182,9 @@ func event2process(event *execEvent) (proc *procmon.Process) {
 	proc = procmon.NewProcessEmpty(int(event.PID), byteArrayToString(event.Comm[:]))
 	proc.UID = int(event.UID)
 	// trust process path received from kernel
+	// NOTE: this is the absolute path executed, but no the real path to the binary.
+	// if it's executed from a chroot, the absolute path willa be /chroot/path/usr/bin/blabla
+	// if it's from a container, the absolute path will be /proc/<pid>/root/usr/bin/blabla
 	path := byteArrayToString(event.Filename[:])
 	if path != "" {
 		proc.SetPath(path)
@@ -228,7 +201,45 @@ func event2process(event *execEvent) (proc *procmon.Process) {
 	} else {
 		proc.ReadCmdline()
 	}
+	proc.GetParent()
+	proc.BuildTree()
+	proc.ReadCwd()
+	proc.ReadEnv()
 	log.Debug("[eBPF exec event] ppid: %d, pid: %d, %s -> %s", event.PPID, event.PID, proc.Path, proc.Args)
 
 	return
+}
+
+func processExecEvent(event *execEvent) {
+	proc := event2process(event)
+	if proc == nil {
+		return
+	}
+	// TODO: store multiple executions with the same pid but different paths:
+	// forks, execves... execs from chroots, containers, etc.
+	if item, needsUpdate, found := procmon.EventsCache.IsInStore(int(event.PID), proc); found {
+		if needsUpdate {
+			// when a process is replaced in memory, it'll be found in cache by PID,
+			// but the new process's details will be empty
+			proc.Parent = item.Proc
+			procmon.EventsCache.ComputeChecksums(proc)
+			procmon.EventsCache.UpdateItem(proc)
+		}
+		log.Debug("[eBPF event inCache] -> %d, %v", event.PID, item.Proc.Checksums)
+		return
+	}
+	procmon.EventsCache.Add(proc)
+}
+
+func processExitEvent(event *execEvent) {
+	log.Debug("[eBPF exit event] pid: %d, ppid: %d", event.PID, event.PPID)
+	ev, _, found := procmon.EventsCache.IsInStore(int(event.PID), nil)
+	if !found {
+		return
+	}
+	log.Debug("[eBPF exit event inCache] pid: %d, tgid: %d", event.PID, event.PPID)
+	if ev.Proc.IsAlive() == false {
+		procmon.EventsCache.Delete(int(event.PID))
+		log.Debug("[ebpf exit event] deleting DEAD pid: %d", event.PID)
+	}
 }

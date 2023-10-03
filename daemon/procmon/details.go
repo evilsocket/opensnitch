@@ -27,9 +27,7 @@ var socketsRegex, _ = regexp.Compile(`socket:\[([0-9]+)\]`)
 
 // GetParent obtains the information of this process' parent.
 func (p *Process) GetParent() {
-	p.mu.RLock()
 	hasParent := p.Parent != nil
-	p.mu.RUnlock()
 
 	if hasParent {
 		return
@@ -50,44 +48,29 @@ func (p *Process) GetParent() {
 		return
 	}
 
-	if item, found := EventsCache.IsInStoreByPID(ppid); found {
-		p.mu.Lock()
-		p.Parent = item.Proc
-		p.mu.Unlock()
-
-		EventsCache.UpdateItem(p)
-	} else {
-		p.mu.Lock()
-		p.Parent = NewProcessEmpty(ppid, "")
-		p.Parent.ReadPath()
-		p.mu.Unlock()
-		EventsCache.Add(p.Parent)
-	}
+	// TODO: see how we can reuse this object and the ppid, to save some iterations.
+	// right now it opens the can of leaks.
+	p.Parent = NewProcessEmpty(ppid, "")
+	p.Parent.ReadPath()
 
 	// get process tree
 	p.Parent.GetParent()
 }
 
-// GetTree returns all the parents of this process.
-func (p *Process) GetTree() {
+// BuildTree returns all the parents of this process.
+func (p *Process) BuildTree() {
 	if len(p.Tree) > 0 {
-		fmt.Println("GetTree not empty:", p.Tree)
+		return
 	}
-	tree := make([]*protocol.StringInt, 0)
 	for pp := p.Parent; pp != nil; pp = pp.Parent {
 		// add the parents in reverse order, so when we iterate over them with the rules
 		// the first item is the most direct parent of the process.
-		pp.mu.RLock()
-		tree = append(tree,
+		p.Tree = append(p.Tree,
 			&protocol.StringInt{
 				Key: pp.Path, Value: uint32(pp.ID),
 			},
 		)
-		pp.mu.RUnlock()
 	}
-	p.mu.Lock()
-	p.Tree = tree
-	p.mu.Unlock()
 }
 
 // GetDetails collects information of a process.
@@ -153,9 +136,7 @@ func (p *Process) ReadCwd() error {
 	if err != nil {
 		return err
 	}
-	p.mu.Lock()
 	p.CWD = link
-	p.mu.Unlock()
 	return nil
 }
 
@@ -458,9 +439,9 @@ func (p *Process) ComputeChecksum(algo string) {
 				log.Debug("[hashing] Unable to dump process memory: %s", err)
 				continue
 			}
-			p.mu.Lock()
+			p.Lock()
 			p.Checksums[algo] = hex.EncodeToString(h.Sum(code))
-			p.mu.Unlock()
+			p.Unlock()
 			log.Debug("[hashing] memory region hashed, elapsed: %v ,Hash: %s, %s\n", time.Since(start), p.Checksums[algo], paths[i])
 			code = nil
 			break
@@ -471,9 +452,9 @@ func (p *Process) ComputeChecksum(algo string) {
 			log.Debug("[hashing %s] Error copying data: %s", algo, err)
 			continue
 		}
-		p.mu.Lock()
+		p.Lock()
 		p.Checksums[algo] = hex.EncodeToString(h.Sum(nil))
-		p.mu.Unlock()
+		p.Unlock()
 		log.Debug("[hashing] elapsed: %v ,Hash: %s, %s\n", time.Since(start), p.Checksums[algo], paths[i])
 
 		break
