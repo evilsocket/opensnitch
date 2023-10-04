@@ -210,3 +210,7 @@ https://github.com/StevenBlack/hosts
 https://pgl.yoyo.org/adservers/
 
 https://iplists.firehol.org/
+
+Collections of Threat Intel feeds (by hash, IPs, domains, and more):
+
+https://github.com/Bert-JanP/Open-Source-Threat-Intel-Feeds
