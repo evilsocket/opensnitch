@@ -421,6 +421,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstListNetsCheck.setChecked(False)
         self.dstListNetsLine.setText("")
 
+        self.md5Check.setChecked(False)
+        self.md5Line.setText("")
+        self.md5Line.setEnabled(False)
+
     def _load_rule(self, addr=None, rule=None):
         if self._load_nodes(addr) == False:
             return False
