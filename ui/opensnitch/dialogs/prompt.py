@@ -112,7 +112,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         denyIcon = Icons.new(self, "emblem-important")
         rejectIcon = Icons.new(self, "window-close")
         backIcon = Icons.new(self, "go-previous")
-        infoIcon = Icons.new(self, "info")
+        infoIcon = Icons.new(self, "dialog-information")
 
         self.cmdInfo.setIcon(infoIcon)
         self.cmdBack.setIcon(backIcon)
@@ -269,13 +269,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def on_connection_prompt_triggered(self):
         self.stackedWidget.setCurrentIndex(1)
         # FIXME: scrolling to the top in _render_details doesn't seem to work,
-        # so do it here until wi figure out why.
+        # so do it here until we figure out why.
         xpos = self.connDetails.verticalScrollBar().minimum()
         self.connDetails.verticalScrollBar().setValue(xpos)
         self._render_connection(self._con)
         if self._tick > 0:
             self.show()
-        # render details after displaying the details.
+        # render details after displaying the pop-up.
         self._render_details(self._con)
 
     @QtCore.pyqtSlot()
@@ -456,8 +456,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkAdvanced.setFocus()
 
         self.setFixedSize(self.size())
-
-        self._post_popup_plugins(con)
 
     def _render_details(self, con):
         tree = ""
@@ -710,7 +708,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_PROCESS_PATH, "data": str(self._con.process_path)})
 
             if is_list_rule:
-                data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
+                data.append({
+                    "type": self._rule.operator.type,
+                    "operand": self._rule.operator.operand,
+                    "data": self._rule.operator.data
+                })
+                # We need to send back this operator list to the AskRule() call
+                # as json string, in order to add it to the DB.
                 self._rule.operator.data = json.dumps(data)
                 self._rule.operator.type = Config.RULE_TYPE_LIST
                 self._rule.operator.operand = Config.RULE_TYPE_LIST

@@ -15,6 +15,8 @@ class Config:
     OPERAND_PROCESS_PATH = "process.path"
     OPERAND_PROCESS_COMMAND = "process.command"
     OPERAND_PROCESS_ENV = "process.env."
+    OPERAND_PROCESS_HASH_MD5 = "process.hash.md5"
+    OPERAND_PROCESS_HASH_SHA1 = "process.hash.sha1"
     OPERAND_USER_ID = "user.id"
     OPERAND_IFACE_OUT = "iface.out"
     OPERAND_IFACE_IN = "iface.in"

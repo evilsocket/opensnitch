@@ -437,7 +437,7 @@ class Icons():
     """Util to display Qt's built-in icons when the system is not configured as
     we expect. More information:
         https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#no-icons-on-the-gui
-        https://www.pythonguis.com/faq/built-in-qicons-pyqt/icons-builtin.png
+        https://user-images.githubusercontent.com/5894606/82400818-99ef6e80-9a2e-11ea-878d-99e30e13dbdd.jpg
     """
 
     defaults = {
@@ -471,7 +471,8 @@ class Icons():
         'system-search': "SP_FileDialogContentsView",
         'accessories-text-editor': "SP_DialogOpenButton",
         'edit-clear-all': "SP_DialogResetButton",
-        'reload': "SP_DialogResetButton"
+        'reload': "SP_DialogResetButton",
+        'dialog-information': "SP_MessageBoxInformation"
     }
 
     @staticmethod
