@@ -4,7 +4,6 @@ from PyQt5.QtCore import QCoreApplication as QC
 from slugify import slugify
 from datetime import datetime
 import re
-import json
 import sys
 import os
 import pwd
@@ -446,13 +445,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.rule.operator.type != Config.RULE_TYPE_LIST:
             self._load_rule_operator(self.rule.operator)
         else:
-            rule_options = json.loads(self.rule.operator.data)
-            for r in rule_options:
-                _sensitive = False
-                if 'sensitive' in r:
-                    _sensitive = r['sensitive']
-
-                op = ui_pb2.Operator(type=r['type'], operand=r['operand'], data=r['data'], sensitive=_sensitive)
+            for op in self.rule.operator.list:
                 self._load_rule_operator(op)
 
         return True
@@ -941,7 +934,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         'data': self.dstListsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
-            self.rule.operator.data = json.dumps(rule_data)
+            self.rule.operator.data = ""
 
         if self.dstListRegexpCheck.isChecked():
             if self.dstRegexpListsLine.text() == "":
@@ -958,7 +951,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         'data': self.dstRegexpListsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
-            self.rule.operator.data = json.dumps(rule_data)
+            self.rule.operator.data = ""
 
         if self.dstListNetsCheck.isChecked():
             if self.dstListNetsLine.text() == "":
@@ -975,7 +968,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         'data': self.dstListNetsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
-            self.rule.operator.data = json.dumps(rule_data)
+            self.rule.operator.data = ""
 
 
         if self.dstListIPsCheck.isChecked():
@@ -993,7 +986,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         'data': self.dstListIPsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
-            self.rule.operator.data = json.dumps(rule_data)
+            self.rule.operator.data = ""
 
         if self.md5Check.isChecked():
             if self.md5Line.text() == "":
@@ -1018,7 +1011,17 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if len(rule_data) >= 2:
             self.rule.operator.type = Config.RULE_TYPE_LIST
             self.rule.operator.operand = Config.RULE_TYPE_LIST
-            self.rule.operator.data = json.dumps(rule_data)
+            self.rule.operator.data = ""
+            for rd in rule_data:
+                self.rule.operator.list.extend([
+                    ui_pb2.Operator(
+                        type=rd['type'],
+                        operand=rd['operand'],
+                        data=rd['data'],
+                        sensitive=rd['sensitive']
+                    )
+                ])
+                print(self.rule.operator.list)
 
         elif len(rule_data) == 1:
             self.rule.operator.operand = rule_data[0]['operand']

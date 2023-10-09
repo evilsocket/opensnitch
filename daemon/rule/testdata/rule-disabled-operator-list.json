@@ -1,0 +1,17 @@
+{
+  "created": "2023-10-03T18:06:52.209804547+01:00",
+  "updated": "2023-10-03T18:06:52.209857713+01:00",
+  "name": "rule-disabled-with-operators-list-as-json-string",
+  "enabled": false,
+  "precedence": true,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "list",
+    "operand": "list",
+    "sensitive": false,
+    "data": "[{\"type\": \"simple\", \"operand\": \"process.path\", \"sensitive\": false, \"data\": \"/usr/bin/telnet\"}, {\"type\": \"simple\", \"operand\": \"dest.port\", \"data\": \"53\", \"sensitive\": false}]",
+    "list": [
+    ]
+  }
+}

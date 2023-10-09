@@ -45,6 +45,25 @@ class Rule():
             ).timestamp())
         rule.created = created
 
+        try:
+            # Operator list is always saved as json string to the db,
+            # so we need to load the json string.
+            if rule.operator.type == Config.RULE_TYPE_LIST:
+                operators = json.loads(rule.operator.data)
+                for op in operators:
+                    rule.operator.list.extend([
+                        ui_pb2.Operator(
+                            type=op['type'],
+                            operand=op['operand'],
+                            sensitive=False if op.get('sensitive') == None else op['sensitive'],
+                            data="" if op.get('data') == None else op['data']
+                        )
+                    ])
+                rule.operator.data = ""
+        except Exception as e:
+            print("new_from_records exception parsing operartor list:", e)
+
+
         return rule
 
 class Rules(QObject):
@@ -77,6 +96,11 @@ class Rules(QObject):
     def add_rules(self, addr, rules):
         try:
             for _,r in enumerate(rules):
+                # Operator list is always saved as json string to the db.
+                rjson = json.loads(MessageToJson(r))
+                if r.operator.type == Config.RULE_TYPE_LIST and rjson.get('operator') != None and rjson.get('operator').get('list') != None:
+                    r.operator.data = json.dumps(rjson.get('operator').get('list'))
+
                 self.add(datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                          addr,
                          r.name, r.description, str(r.enabled),

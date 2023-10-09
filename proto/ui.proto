@@ -149,6 +149,7 @@ message Operator {
     string operand = 2;
     string data = 3;
     bool sensitive = 4;
+    repeated Operator list = 5;
 }
 
 message Rule {
