@@ -1210,7 +1210,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         msg = QC.translate("stats", "    You are about to delete this rule.    ")
         if cur_idx != self.TAB_RULES:
-            msg = QC.translate("stats", "    Your are about to delete this entry.    ")
+            msg = QC.translate("stats", "    You are about to delete this entry.    ")
 
         ret = Message.yes_no(msg,
             QC.translate("stats", "    Are you sure?"),
