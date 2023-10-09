@@ -40,22 +40,22 @@ func TestRuleLoader(t *testing.T) {
 	if err = l.Load("testdata/"); err != nil {
 		t.Error("Error loading test rules: ", err)
 	}
-
-	testNumRules(t, l, 2)
+	// we expect 6 valid rules (2 invalid), loaded from testdata/
+	testNumRules(t, l, 6)
 
 	if err = l.Add(inMem1sRule, false); err != nil {
 		t.Error("Error adding temporary rule")
 	}
-	testNumRules(t, l, 3)
+	testNumRules(t, l, 7)
 
 	// test auto deletion of temporary rule
 	time.Sleep(time.Second * 2)
-	testNumRules(t, l, 2)
+	testNumRules(t, l, 6)
 
 	if err = l.Add(inMemUntilRestartRule, false); err != nil {
 		t.Error("Error adding temporary rule (2)")
 	}
-	testNumRules(t, l, 3)
+	testNumRules(t, l, 7)
 	testRulesOrder(t, l)
 	testSortRules(t, l)
 	testFindMatch(t, l)
