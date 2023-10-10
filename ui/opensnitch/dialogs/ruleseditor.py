@@ -581,17 +581,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _insert_rule_to_db(self, node_addr):
         # the order of the fields doesn't matter here, as long as we use the
         # name of the field.
-        self._db.insert("rules",
-            "(time, node, name, description, enabled, precedence, nolog, action, "\
-                        "duration, operator_type, operator_sensitive, operator_operand, operator_data, created)",
-                        (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                         node_addr, self.rule.name, self.rule.description,
-                         str(self.rule.enabled), str(self.rule.precedence), str(self.rule.nolog),
-                         self.rule.action, self.rule.duration, self.rule.operator.type,
-                         str(self.rule.operator.sensitive), self.rule.operator.operand, self.rule.operator.data,
-                         str(datetime.fromtimestamp(self.rule.created).strftime("%Y-%m-%d %H:%M:%S"))),
-                         action_on_conflict="REPLACE"
-                        )
+        self._rules.add_rules(node_addr, [self.rule])
 
     def _add_rule(self):
         try:
