@@ -1267,7 +1267,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 node = model.index(idx.row(), self.COL_R_NODE).data()
                 records = self._get_rule(name, node)
                 if records == None or records == -1:
-                    Message.ok(qc.transslate("stats", "New rule error"),
+                    Message.ok(QC.transslate("stats", "New rule error"),
                             QC.translate("stats", "Rule not found by that name and node"),
                             QtWidgets.QmessageBox.Warning)
                     return
