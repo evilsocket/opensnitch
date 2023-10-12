@@ -92,7 +92,7 @@ class Nodes(QObject):
         deleted_rule = self._rules.delete(rule_name, addr, callback)
         if deleted_rule == None:
             print(self.LOG_TAG, "error deleting rule", rule_name)
-            return
+            return None, None
 
         noti = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[deleted_rule])
         if addr != None:
