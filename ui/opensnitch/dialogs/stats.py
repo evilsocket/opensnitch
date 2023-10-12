@@ -806,6 +806,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _del_rule(self, rule_name, node_addr):
         nid, noti = self._nodes.delete_rule(rule_name, node_addr, self._notification_callback)
+        if nid == None:
+            return
         self._notifications_sent[nid] = noti
         # FIXME: we shouldn't refresh the view here. We should wait for a
         # notification reply on self._cb_notification_callback
@@ -830,7 +832,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             selection = table.selectionModel().selectedRows()
             if not selection:
-                return
+                return False
 
             menu = QtWidgets.QMenu()
             _menu_details = menu.addAction(QC.translate("stats", "Details"))
@@ -867,7 +869,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             selection = table.selectionModel().selectedRows()
             if not selection:
-                return
+                return False
             is_rule_enabled = model.index(selection[0].row(), FirewallTableModel.COL_ENABLED).data()
             rule_action = model.index(selection[0].row(), FirewallTableModel.COL_ACTION).data()
             rule_action = rule_action.lower()
@@ -937,7 +939,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             selection = table.selectionModel().selectedRows()
             if not selection:
-                return
+                return False
 
             menu = QtWidgets.QMenu()
             durMenu = QtWidgets.QMenu(self.COL_STR_DURATION)
@@ -997,7 +999,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         if ret == QtWidgets.QMessageBox.Cancel:
                             return False
                         self._table_menu_apply_to_node(cur_idx, model, selection, node_addr)
-                        return
+                        return False
 
             if action == _menu_delete:
                 self._table_menu_delete(cur_idx, model, selection)
@@ -1254,7 +1256,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         coltime = model.index(selection[0].row(), self.COL_TIME).data()
         if self._rules_dialog.new_rule_from_connection(coltime) == False:
 
-            Message.ok(QC.transslate("stats", "New rule error"),
+            Message.ok(QC.translate("stats", "New rule error"),
                         QC.translate("stats",
                                     "Error creating new rule from event ({0})".format(coltime)
                                     ),
@@ -1267,9 +1269,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 node = model.index(idx.row(), self.COL_R_NODE).data()
                 records = self._get_rule(name, node)
                 if records == None or records == -1:
-                    Message.ok(QC.transslate("stats", "New rule error"),
+                    Message.ok(QC.translate("stats", "New rule error"),
                             QC.translate("stats", "Rule not found by that name and node"),
-                            QtWidgets.QmessageBox.Warning)
+                            QtWidgets.QMessageBox.Warning)
                     return
                 self._rules_dialog.edit_rule(records, node)
                 break
@@ -1949,11 +1951,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return " ORDER BY %s %s" % (order_field, self.SORT_ORDER[self.TABLES[cur_idx]['last_order_to']])
 
     def _refresh_active_table(self):
+        cur_idx = self.tabWidget.currentIndex()
         model = self._get_active_table().model()
         lastQuery = model.query().lastQuery()
         if "LIMIT" not in lastQuery:
             lastQuery += self._get_limit()
         self.setQuery(model, lastQuery)
+        self.TABLES[cur_idx]['view'].refresh()
 
     def _get_active_table(self):
         if self.tabWidget.currentIndex() == self.TAB_RULES and self.fwTable.isVisible():
