@@ -463,7 +463,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         spaces = "&nbsp;"
         indicator = ""
 
-        con.process_tree.reverse()
+        try:
+            # reverse() doesn't exist on old protobuf libs.
+            con.process_tree.reverse()
+        except:
+            pass
         for path in con.process_tree:
             tree = "{0}<p>│{1}\t{2}{3}{4}</p>".format(tree, path.value, spaces, indicator, path.key)
             spaces += "&nbsp;" * 4
