@@ -805,6 +805,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return ret1 and ret2
 
     def _del_rule(self, rule_name, node_addr):
+        if rule_name == None or node_addr == None:
+            print("_del_rule() invalid parameters")
+            return
         nid, noti = self._nodes.delete_rule(rule_name, node_addr, self._notification_callback)
         if nid == None:
             return
@@ -1236,9 +1239,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._notifications_sent[nid] = noti
 
         elif cur_idx == self.TAB_RULES and not self.fwTable.isVisible():
-            for idx in selection:
-                name = model.index(idx.row(), self.COL_R_NAME).data()
-                node = model.index(idx.row(), self.COL_R_NODE).data()
+            selection = self.TABLES[cur_idx]['view'].copySelection()
+            for row in selection:
+                name = row[self.COL_R_NAME]
+                node = row[self.COL_R_NODE]
                 self._del_rule(name, node)
         elif cur_idx == self.TAB_HOSTS or cur_idx == self.TAB_PROCS or cur_idx == self.TAB_ADDRS or \
             cur_idx == self.TAB_USERS or cur_idx == self.TAB_PORTS:
