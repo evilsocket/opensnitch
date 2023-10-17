@@ -145,7 +145,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "rule as Rule",
             "group_by": LAST_GROUP_BY,
             "last_order_by": "1",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_NODES: {
             "name": "nodes",
@@ -168,7 +169,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "version as Version",
             "header_labels": [],
             "last_order_by": "1",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_RULES: {
             "name": "rules",
@@ -189,7 +191,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "created as Created",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 0
+            "last_order_to": 0,
+            "tracking_column:": COL_R_NAME
         },
         TAB_FIREWALL: {
             "name": "firewall",
@@ -203,7 +206,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 0
+            "last_order_to": 0,
+            "tracking_column:": COL_TIME
         },
         TAB_HOSTS: {
             "name": "hosts",
@@ -217,7 +221,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_PROCS: {
             "name": "procs",
@@ -231,7 +236,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_ADDRS: {
             "name": "addrs",
@@ -245,7 +251,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_PORTS: {
             "name": "ports",
@@ -259,7 +266,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_USERS: {
             "name": "users",
@@ -273,7 +281,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         }
     }
 
@@ -479,7 +488,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 verticalScrollBar=self.rulesScrollBar,
                 delegate=self.TABLES[self.TAB_RULES]['delegate'],
                 order_by="2",
-                sort_direction=self.SORT_ORDER[0])
+                sort_direction=self.SORT_ORDER[0],
+                tracking_column=self.COL_R_NAME)
         self.TABLES[self.TAB_FIREWALL]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.fwTable, "firewall",
                 model=FirewallTableModel("firewall"),
@@ -2654,7 +2664,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                             values.append(table.model().index(row, col).data())
                         w.writerow(values)
 
-    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", sort_direction=SORT_ORDER[1], limit="", resize_cols=(), model=None, delegate=None, verticalScrollBar=None):
+    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", sort_direction=SORT_ORDER[1], limit="", resize_cols=(), model=None, delegate=None, verticalScrollBar=None, tracking_column=COL_TIME):
         tableWidget.setSortingEnabled(True)
         if model == None:
             model = self._db.get_new_qsql_model()
@@ -2662,6 +2672,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             tableWidget.setVerticalScrollBar(verticalScrollBar)
         tableWidget.verticalScrollBar().sliderPressed.connect(self._cb_scrollbar_pressed)
         tableWidget.verticalScrollBar().sliderReleased.connect(self._cb_scrollbar_released)
+        tableWidget.setTrackingColumn(tracking_column)
 
         self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " " + sort_direction + limit)
         tableWidget.setModel(model)
@@ -2761,7 +2772,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     print("setQuery() error: ", model.lastError().text())
 
                 if self.tabWidget.currentIndex() != self.TAB_MAIN:
-                    self.labelRowsCount.setText("{0}".format(model.rowCount()))
+                    self.labelRowsCount.setText("{0}".format(model.totalRowCount))
                 else:
                     self.labelRowsCount.setText("")
             except Exception as e:

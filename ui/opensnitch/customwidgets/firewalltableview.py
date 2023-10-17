@@ -321,3 +321,6 @@ class FirewallTableView(QTableView):
         self.model().columnCountChanged.connect(self._cb_column_count_changed)
         model.rowsUpdated.connect(self._cb_rows_updated)
         model.rowsReordered.connect(self._cb_rows_reordered)
+
+    def setTrackingColumn(self, col):
+        pass
