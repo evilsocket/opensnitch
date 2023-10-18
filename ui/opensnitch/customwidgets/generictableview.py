@@ -68,6 +68,10 @@ class GenericTableModel(QStandardItemModel):
 
     # set columns based on query's fields
     def setModelColumns(self, newColumns):
+        # Avoid firing signals while reconfiguring the view, it causes
+        # segfaults.
+        self.blockSignals(True);
+
         self.headerLabels = []
         self.removeColumns(0, self.lastColumnCount)
         self.setHorizontalHeaderLabels(self.headerLabels)
@@ -76,6 +80,8 @@ class GenericTableModel(QStandardItemModel):
         self.lastColumnCount = newColumns
         self.setHorizontalHeaderLabels(self.headerLabels)
         self.setColumnCount(len(self.headerLabels))
+
+        self.blockSignals(False);
 
     def setQuery(self, q, db):
         self.origQueryStr = q
