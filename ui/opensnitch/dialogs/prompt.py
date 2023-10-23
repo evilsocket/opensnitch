@@ -18,7 +18,7 @@ from opensnitch.desktop_parser import LinuxDesktopParser
 from opensnitch.config import Config
 from opensnitch.version import version
 from opensnitch.actions import Actions
-from opensnitch.rules import Rules
+from opensnitch.rules import Rules, Rule
 
 from opensnitch import ui_pb2
 
@@ -105,10 +105,17 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkDstIP.clicked.connect(self._button_clicked)
         self.checkDstPort.clicked.connect(self._button_clicked)
         self.checkUserID.clicked.connect(self._button_clicked)
+        self.cmdInfo.clicked.connect(self._cb_cmdinfo_clicked)
+        self.cmdBack.clicked.connect(self._cb_cmdback_clicked)
 
         self.allowIcon = Icons.new(self, "emblem-default")
         denyIcon = Icons.new(self, "emblem-important")
         rejectIcon = Icons.new(self, "window-close")
+        backIcon = Icons.new(self, "go-previous")
+        infoIcon = Icons.new(self, "dialog-information")
+
+        self.cmdInfo.setIcon(infoIcon)
+        self.cmdBack.setIcon(backIcon)
 
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
 
@@ -187,12 +194,24 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.destIPLabel.setVisible(not state)
         self.checkDstPort.setVisible(state == True and (self._con != None and self._con.dst_port != 0))
         self.checkUserID.setVisible(state)
+        self.checkSum.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
+        self.checksumLabel_2.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
+        self.checksumLabel.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
+        self.stackedWidget.setCurrentIndex(1)
 
         self._ischeckAdvanceded = state
         self.adjust_size()
         self.move_popup()
 
     def _button_clicked(self):
+        self._stop_countdown()
+
+    def _cb_cmdinfo_clicked(self):
+        self.stackedWidget.setCurrentIndex(0)
+        self._stop_countdown()
+
+    def _cb_cmdback_clicked(self):
+        self.stackedWidget.setCurrentIndex(1)
         self._stop_countdown()
 
     def _set_elide_text(self, widget, text, max_size=132):
@@ -248,9 +267,16 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def on_connection_prompt_triggered(self):
+        self.stackedWidget.setCurrentIndex(1)
+        # FIXME: scrolling to the top in _render_details doesn't seem to work,
+        # so do it here until we figure out why.
+        xpos = self.connDetails.verticalScrollBar().minimum()
+        self.connDetails.verticalScrollBar().setValue(xpos)
         self._render_connection(self._con)
         if self._tick > 0:
             self.show()
+        # render details after displaying the pop-up.
+        self._render_details(self._con)
 
     @QtCore.pyqtSlot()
     def on_tick_triggered(self):
@@ -329,6 +355,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._set_app_path(app_name, app_args, con)
         self._set_app_args(app_name, app_args)
 
+        self.checksumLabel.setText(con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5])
+        self.checkSum.setChecked(False)
+
         if app_name == "":
             self.appPathLabel.setVisible(False)
             self.argsLabel.setVisible(False)
@@ -341,7 +370,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cwdLabel.setToolTip("%s %s" % (QC.translate("popups", "Process launched from:"), con.process_cwd))
         self._set_elide_text(self.cwdLabel, con.process_cwd, max_size=32)
 
-        pixmap = self._get_app_icon(app_icon)
+        pixmap = Icons.get_by_appname(app_icon)
         self.iconLabel.setPixmap(pixmap)
 
         message = self._get_popup_message(app_name, con)
@@ -356,6 +385,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self.destPortLabel.setText(str(con.dst_port))
         self._hide_widget(self.destPortLabel, con.dst_port == 0)
+        self._hide_widget(self.checkSum, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "" or not self._ischeckAdvanceded)
+        self._hide_widget(self.checksumLabel, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "" or not self._ischeckAdvanceded)
+        self._hide_widget(self.checksumLabel_2, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "" or not self._ischeckAdvanceded)
         self._hide_widget(self.destPortLabel_1, con.dst_port == 0)
         self._hide_widget(self.checkDstPort, con.dst_port == 0 or not self._ischeckAdvanceded)
 
@@ -368,7 +400,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             uid = "%d" % con.user_id
 
         self.uidLabel.setText(uid)
-        self.pidLabel.setText("%s" % con.process_id)
 
         self.whatCombo.clear()
         self.whatIPCombo.clear()
@@ -426,6 +457,53 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.setFixedSize(self.size())
 
+    def _render_details(self, con):
+        tree = ""
+        space = "&nbsp;"
+        spaces = "&nbsp;"
+        indicator = ""
+
+        try:
+            # reverse() doesn't exist on old protobuf libs.
+            con.process_tree.reverse()
+        except:
+            pass
+        for path in con.process_tree:
+            tree = "{0}<p>│{1}\t{2}{3}{4}</p>".format(tree, path.value, spaces, indicator, path.key)
+            spaces += "&nbsp;" * 4
+            indicator = "\_ "
+
+        # XXX: table element doesn't work?
+        details = """<b>{0}</b> {1}:{2} -> {3}:{4}
+<br><br>
+<b>Path:</b>{5}{6}<br>
+<b>Cmdline:</b>&nbsp;{7}<br>
+<b>CWD:</b>{8}{9}<br>
+<b>MD5:</b>{10}{11}<br>
+<b>UID:</b>{12}{13}<br>
+<b>PID:</b>{14}{15}<br>
+<br>
+<b>Process tree:</b><br>
+{16}
+<br>
+<p><b>Environment variables:<b></p>
+{17}
+""".format(
+    con.protocol.upper(),
+    con.src_port, con.src_ip, con.dst_ip, con.dst_port,
+    space * 6, con.process_path,
+    " ".join(con.process_args),
+    space * 6, con.process_cwd,
+    space * 7, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5],
+    space * 9, con.user_id,
+    space * 9, con.process_id,
+    tree,
+    "".join('<p>{}={}</p>'.format(key, value) for key, value in con.process_env.items())
+)
+
+        self.connDetails.document().clear()
+        self.connDetails.document().setHtml(details)
+
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):
         if not event.key() == QtCore.Qt.Key_Escape:
@@ -455,30 +533,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         for i in range(0, nparts - 1):
             self.whatCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), self.FIELD_REGEX_HOST)
             self.whatIPCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), self.FIELD_REGEX_HOST)
-
-
-    def _get_app_icon(self, app_icon):
-        """we try to get the icon of an app from the system.
-        If it's not found, then we'll try to search for it in common directories
-        of the system.
-        """
-        try:
-            icon = QtGui.QIcon().fromTheme(app_icon)
-            pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
-            if QtGui.QIcon().hasThemeIcon(app_icon) == False or pixmap.height() == 0:
-                # sometimes the icon is an absolute path, sometimes it's not
-                if os.path.isabs(app_icon):
-                    icon = QtGui.QIcon(app_icon)
-                    pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
-                else:
-                    icon_path = self._apps_parser.discover_app_icon(app_icon)
-                    if icon_path != None:
-                        icon = QtGui.QIcon(icon_path)
-                        pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
-        except Exception as e:
-            print("Exception _get_app_icon():", e)
-
-        return pixmap
 
     def _get_popup_message(self, app_name, con):
         """
@@ -586,7 +640,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._send_rule()
 
     def _is_list_rule(self):
-        return self.checkUserID.isChecked() or self.checkDstPort.isChecked() or self.checkDstIP.isChecked()
+        return self.checkUserID.isChecked() or \
+            self.checkDstPort.isChecked() or \
+            self.checkDstIP.isChecked() or \
+            self.checkSum.isChecked()
 
     def _get_rule_name(self, rule):
         rule_temp_name = slugify("%s %s" % (rule.action, rule.duration))
@@ -637,6 +694,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_USER_ID, "data": str(self._con.user_id)})
                 rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.user_id)))
 
+            if self.checkSum.isChecked() and self.checksumLabel.text() != "":
+                _type, _operand, _data = Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_HASH_MD5, self.checksumLabel.text()
+                data.append({"type": _type, "operand": _operand, "data": _data})
+                rule_temp_name = slugify("%s %s" % (rule_temp_name, _operand))
+
             is_list_rule = self._is_list_rule()
 
             # If the user has selected to filter by cmdline, but the launched
@@ -650,10 +712,25 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_PROCESS_PATH, "data": str(self._con.process_path)})
 
             if is_list_rule:
-                data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
+                data.append({
+                    "type": self._rule.operator.type,
+                    "operand": self._rule.operator.operand,
+                    "data": self._rule.operator.data
+                })
+                # We need to send back the operator list to the AskRule() call
+                # as json string, in order to add it to the DB.
                 self._rule.operator.data = json.dumps(data)
                 self._rule.operator.type = Config.RULE_TYPE_LIST
                 self._rule.operator.operand = Config.RULE_TYPE_LIST
+                for op in data:
+                    self._rule.operator.list.extend([
+                        ui_pb2.Operator(
+                            type=op['type'],
+                            operand=op['operand'],
+                            sensitive=False if op.get('sensitive') == None else op['sensitive'],
+                            data="" if op.get('data') == None else op['data']
+                        )
+                    ])
 
             exists = self._rules.exists(self._rule, self._peer)
             if not exists:

@@ -190,6 +190,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodeAction.currentIndexChanged.connect(self._cb_node_needs_update)
         self.checkNodeAuthSkipVerify.clicked.connect(self._cb_node_needs_update)
         self.comboNodeAuthVerifyType.currentIndexChanged.connect(self._cb_node_needs_update)
+        self.enableChecksums.clicked.connect(self._cb_node_needs_update)
 
         self.comboAuthType.currentIndexChanged.connect(self._cb_combo_auth_type_changed)
         self.comboNodeAuthType.currentIndexChanged.connect(self._cb_combo_node_auth_type_changed)
@@ -371,6 +372,17 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             else:
                 self.comboNodeAddress.setEnabled(False)
                 self.comboNodeLogFile.setEnabled(False)
+
+
+            if node_config.get('Rules') != None:
+                self.enableChecksums.setChecked(node_config['Rules']['EnableChecksums'])
+            else:
+                node_config.update({"Rules":{"EnableChecksums":False}})
+                self.enableChecksums.setChecked(False)
+
+
+            self._node_list[addr]['data'].config = json.dumps(node_config, indent="    ")
+
         except Exception as e:
             print(self.LOG_TAG + "exception loading config: ", e)
 
@@ -408,6 +420,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     node_config['Server'] = cfg
             else:
                 print(addr, " doesn't have Server item")
+
+            if node_config.get('Rules') != None:
+                node_config['Rules']['EnableChecksums'] = self.enableChecksums.isChecked()
+            else:
+                print(addr, "Doesn't have Rules config option")
+                node_config.update({"Rules":{"EnableChecksums":False}})
+
             return json.dumps(node_config, indent="    "), None
         except Exception as e:
             print(self.LOG_TAG + "exception loading node config on %s: " % addr, e)

@@ -60,8 +60,18 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 }
 
 func (c *Client) monitorProcessDetails(pid int, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	p := procmon.NewProcess(pid, "")
-	p.GetInfo()
+	p := &procmon.Process{}
+	item, found := procmon.EventsCache.IsInStoreByPID(pid)
+	if found {
+		newProc := *item.Proc
+		p = &newProc
+		if len(p.Tree) == 0 {
+			p.GetParent()
+			p.BuildTree()
+		}
+	} else {
+		p = procmon.NewProcess(pid, "")
+	}
 	ticker := time.NewTicker(2 * time.Second)
 
 	for {
@@ -104,7 +114,7 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 	}
 
 	if err := monitor.ReconfigureMonitorMethod(newConf.ProcMonitorMethod); err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		c.sendNotificationReply(stream, notification.Id, "", err.Msg)
 		return
 	}
 

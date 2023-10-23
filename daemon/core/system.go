@@ -123,9 +123,10 @@ func CheckSysRequirements() {
         "Regexps": [
 			"CONFIG_NETFILTER_NETLINK=[my]",
 			"CONFIG_NETFILTER_NETLINK_QUEUE=[my]",
-			"CONFIG_NETFILTER_NETLINK_ACCT=[my]"
+			"CONFIG_NETFILTER_NETLINK_ACCT=[my]",
+			"CONFIG_PROC_EVENTS=[my]"
             ],
-        "Reason": " * NETLINK extensions not supported by this kernel (CONFIG_NETFILTER_NETLINK, CONFIG_NETFILTER_NETLINK_QUEUE, CONFIG_NETFILTER_NETLINK_ACCT)."
+        "Reason": " * NETLINK extensions not supported by this kernel (CONFIG_NETFILTER_NETLINK, CONFIG_NETFILTER_NETLINK_QUEUE, CONFIG_NETFILTER_NETLINK_ACCT or CONFIG_PROC_EVENTS)."
     }
 },
 {

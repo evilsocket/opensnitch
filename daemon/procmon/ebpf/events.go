@@ -47,6 +47,7 @@ type networkEventT struct {
 	Pid  uint64
 	UID  uint64
 	Comm [TaskCommLen]byte
+	//Ns   uint64
 }
 
 // List of supported events
@@ -59,7 +60,6 @@ const (
 )
 
 var (
-	execEvents  = NewEventsStore()
 	perfMapList = make(map[*elf.PerfMap]*elf.Module)
 	// total workers spawned by the different events PerfMaps
 	eventWorkers = 0
@@ -71,20 +71,20 @@ var (
 	ringBuffSize = 64 // * PAGE_SIZE (4k usually)
 )
 
-func initEventsStreamer() {
+func initEventsStreamer() *Error {
 	elfOpts := make(map[string]elf.SectionParams)
 	elfOpts["maps/"+perfMapName] = elf.SectionParams{PerfRingBufferPageCount: ringBuffSize}
 	var err error
 	perfMod, err = core.LoadEbpfModule("opensnitch-procs.o")
 	if err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
-		return
+		return &Error{EventsNotAvailable, err}
 	}
 	perfMod.EnableOptionCompatProbe()
 
 	if err = perfMod.Load(elfOpts); err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
-		return
+		return &Error{EventsNotAvailable, err}
 	}
 
 	tracepoints := []string{
@@ -99,7 +99,8 @@ func initEventsStreamer() {
 	for _, tp := range tracepoints {
 		err = perfMod.EnableTracepoint(tp)
 		if err != nil {
-			dispatchErrorEvent(fmt.Sprintf("[eBPF events] error enabling tracepoint %s: %s", tp, err))
+			dispatchErrorEvent(fmt.Sprintf(`[eBPF events] error enabling tracepoint %s: %s
+Verify that your kernel has support for tracepoints (opensnitchd -check-requirements).`, tp, err))
 		}
 	}
 
@@ -109,7 +110,7 @@ func initEventsStreamer() {
 		perfMod.Close()
 		if err = perfMod.Load(elfOpts); err != nil {
 			dispatchErrorEvent(fmt.Sprintf("[eBPF events] failed to load /etc/opensnitchd/opensnitch-procs.o (2): %v", err))
-			return
+			return &Error{EventsNotAvailable, err}
 		}
 		if err = perfMod.EnableKprobes(0); err != nil {
 			dispatchErrorEvent(fmt.Sprintf("[eBPF events] error enabling kprobes: %v", err))
@@ -123,28 +124,34 @@ func initEventsStreamer() {
 	}(sig)
 
 	eventWorkers = 0
-	initPerfMap(perfMod)
+	if err := initPerfMap(perfMod); err != nil {
+		return &Error{EventsNotAvailable, err}
+	}
+
+	return nil
 }
 
-func initPerfMap(mod *elf.Module) {
+func initPerfMap(mod *elf.Module) error {
 	perfChan := make(chan []byte)
 	lostEvents := make(chan uint64, 1)
 	var err error
 	perfMap, err := elf.InitPerfMap(mod, perfMapName, perfChan, lostEvents)
 	if err != nil {
 		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Error initializing eBPF events perfMap: %s", err))
-		return
+		return err
 	}
 	perfMapList[perfMap] = mod
 
-	eventWorkers += 4
+	eventWorkers += 8
 	for i := 0; i < eventWorkers; i++ {
-		go streamEventsWorker(i, perfChan, lostEvents, kernelEvents, execEvents)
+		go streamEventsWorker(i, perfChan, lostEvents, kernelEvents)
 	}
 	perfMap.PollStart()
+
+	return nil
 }
 
-func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents chan interface{}, execEvents *eventsStore) {
+func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents chan interface{}) {
 	var event execEvent
 	for {
 		select {
@@ -158,22 +165,10 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents 
 			} else {
 				switch event.Type {
 				case EV_TYPE_EXEC, EV_TYPE_EXECVEAT:
-					if _, found := execEvents.isInStore(event.PID); found {
-						log.Debug("[eBPF event inCache] -> %d", event.PID)
-						continue
-					}
-					proc := event2process(&event)
-					if proc == nil {
-						continue
-					}
-					execEvents.add(event.PID, event, *proc)
+					processExecEvent(&event)
 
 				case EV_TYPE_SCHED_EXIT:
-					log.Debug("[eBPF exit event] -> %d", event.PID)
-					if _, found := execEvents.isInStore(event.PID); found {
-						log.Debug("[eBPF exit event inCache] -> %d", event.PID)
-						execEvents.delete(event.PID)
-					}
+					processExitEvent(&event)
 				}
 			}
 		}
@@ -184,9 +179,12 @@ Exit:
 }
 
 func event2process(event *execEvent) (proc *procmon.Process) {
-
-	proc = procmon.NewProcess(int(event.PID), byteArrayToString(event.Comm[:]))
+	proc = procmon.NewProcessEmpty(int(event.PID), byteArrayToString(event.Comm[:]))
+	proc.UID = int(event.UID)
 	// trust process path received from kernel
+	// NOTE: this is the absolute path executed, but no the real path to the binary.
+	// if it's executed from a chroot, the absolute path willa be /chroot/path/usr/bin/blabla
+	// if it's from a container, the absolute path will be /proc/<pid>/root/usr/bin/blabla
 	path := byteArrayToString(event.Filename[:])
 	if path != "" {
 		proc.SetPath(path)
@@ -195,10 +193,6 @@ func event2process(event *execEvent) (proc *procmon.Process) {
 			return nil
 		}
 	}
-	proc.ReadCwd()
-	proc.ReadEnv()
-	proc.UID = int(event.UID)
-
 	if event.ArgsPartial == 0 {
 		for i := 0; i < int(event.ArgsCount); i++ {
 			proc.Args = append(proc.Args, byteArrayToString(event.Args[i][:]))
@@ -207,7 +201,45 @@ func event2process(event *execEvent) (proc *procmon.Process) {
 	} else {
 		proc.ReadCmdline()
 	}
+	proc.GetParent()
+	proc.BuildTree()
+	proc.ReadCwd()
+	proc.ReadEnv()
 	log.Debug("[eBPF exec event] ppid: %d, pid: %d, %s -> %s", event.PPID, event.PID, proc.Path, proc.Args)
 
 	return
+}
+
+func processExecEvent(event *execEvent) {
+	proc := event2process(event)
+	if proc == nil {
+		return
+	}
+	// TODO: store multiple executions with the same pid but different paths:
+	// forks, execves... execs from chroots, containers, etc.
+	if item, needsUpdate, found := procmon.EventsCache.IsInStore(int(event.PID), proc); found {
+		if needsUpdate {
+			// when a process is replaced in memory, it'll be found in cache by PID,
+			// but the new process's details will be empty
+			proc.Parent = item.Proc
+			procmon.EventsCache.ComputeChecksums(proc)
+			procmon.EventsCache.UpdateItem(proc)
+		}
+		log.Debug("[eBPF event inCache] -> %d, %v", event.PID, item.Proc.Checksums)
+		return
+	}
+	procmon.EventsCache.Add(proc)
+}
+
+func processExitEvent(event *execEvent) {
+	log.Debug("[eBPF exit event] pid: %d, ppid: %d", event.PID, event.PPID)
+	ev, _, found := procmon.EventsCache.IsInStore(int(event.PID), nil)
+	if !found {
+		return
+	}
+	log.Debug("[eBPF exit event inCache] pid: %d, tgid: %d", event.PID, event.PPID)
+	if ev.Proc.IsAlive() == false {
+		procmon.EventsCache.Delete(int(event.PID))
+		log.Debug("[ebpf exit event] deleting DEAD pid: %d", event.PID)
+	}
 }

@@ -3,6 +3,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from opensnitch.version import version as gui_version
 from opensnitch.database import Database
 from opensnitch.config import Config
+from opensnitch.desktop_parser import LinuxDesktopParser
 from threading import Thread, Event
 import pwd
 import socket
@@ -436,7 +437,7 @@ class Icons():
     """Util to display Qt's built-in icons when the system is not configured as
     we expect. More information:
         https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#no-icons-on-the-gui
-        https://www.pythonguis.com/faq/built-in-qicons-pyqt/icons-builtin.png
+        https://user-images.githubusercontent.com/5894606/82400818-99ef6e80-9a2e-11ea-878d-99e30e13dbdd.jpg
     """
 
     defaults = {
@@ -470,7 +471,8 @@ class Icons():
         'system-search': "SP_FileDialogContentsView",
         'accessories-text-editor': "SP_DialogOpenButton",
         'edit-clear-all': "SP_DialogResetButton",
-        'reload': "SP_DialogResetButton"
+        'reload': "SP_DialogResetButton",
+        'dialog-information': "SP_MessageBoxInformation"
     }
 
     @staticmethod
@@ -483,6 +485,28 @@ class Icons():
                 print("Qt standardIcon exception:", icon_name, ",", e)
 
         return icon
+
+    @staticmethod
+    def get_by_appname(app_icon):
+        """return the pixmap of an application.
+        """
+        try:
+            icon = QtGui.QIcon().fromTheme(app_icon)
+            pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+            if QtGui.QIcon().hasThemeIcon(app_icon) == False or pixmap.height() == 0:
+                # sometimes the icon is an absolute path, sometimes it's not
+                if os.path.isabs(app_icon):
+                    icon = QtGui.QIcon(app_icon)
+                    pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+                else:
+                    icon_path = LinuxDesktopParser.discover_app_icon(app_icon)
+                    if icon_path != None:
+                        icon = QtGui.QIcon(icon_path)
+                        pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+        except Exception as e:
+            print("Icons.get_by_appname() exception:", e)
+
+        return pixmap
 
 class Versions():
     @staticmethod

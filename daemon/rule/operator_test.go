@@ -79,7 +79,7 @@ func TestNewOperatorSimple(t *testing.T) {
 	if err = opSimple.Compile(); err != nil {
 		t.Fail()
 	}
-	if opSimple.Match(nil) == false {
+	if opSimple.Match(nil, false) == false {
 		t.Error("Test NewOperator() simple.case-insensitive doesn't match")
 		t.Fail()
 	}
@@ -95,7 +95,7 @@ func TestNewOperatorSimple(t *testing.T) {
 			t.Error("NewOperator simple.case-insensitive.proc.id Compile() err:", err)
 			t.Fail()
 		}
-		if opSimple.Match(conn) == false {
+		if opSimple.Match(conn, false) == false {
 			t.Error("Test NewOperator() simple proc.id doesn't match")
 			t.Fail()
 		}
@@ -112,7 +112,7 @@ func TestNewOperatorSimple(t *testing.T) {
 			t.Error("NewOperator simple.case-insensitive.proc.path Compile() err:", err)
 			t.Fail()
 		}
-		if opSimple.Match(conn) == false {
+		if opSimple.Match(conn, false) == false {
 			t.Error("Test NewOperator() simple proc.path doesn't match")
 			t.Fail()
 		}
@@ -122,7 +122,7 @@ func TestNewOperatorSimple(t *testing.T) {
 		// proc path sensitive
 		opSimple.Sensitive = true
 		conn.Process.Path = "/usr/bin/OpenSnitchd"
-		if opSimple.Match(conn) == true {
+		if opSimple.Match(conn, false) == true {
 			t.Error("Test NewOperator() simple proc.path sensitive match")
 			t.Fail()
 		}
@@ -139,7 +139,7 @@ func TestNewOperatorSimple(t *testing.T) {
 			t.Error("NewOperator simple.case-insensitive.dstHost Compile() err:", err)
 			t.Fail()
 		}
-		if opSimple.Match(conn) == false {
+		if opSimple.Match(conn, false) == false {
 			t.Error("Test NewOperator() simple.conn.dstHost.not-sensitive doesn't match")
 			t.Fail()
 		}
@@ -147,7 +147,7 @@ func TestNewOperatorSimple(t *testing.T) {
 
 	t.Run("Operator Simple con.dstHost case-insensitive different host", func(t *testing.T) {
 		conn.DstHost = "www.opensnitch.io"
-		if opSimple.Match(conn) == true {
+		if opSimple.Match(conn, false) == true {
 			t.Error("Test NewOperator() simple.conn.dstHost.not-sensitive doesn't MATCH")
 			t.Fail()
 		}
@@ -165,7 +165,7 @@ func TestNewOperatorSimple(t *testing.T) {
 			t.Fail()
 		}
 		conn.DstHost = "OpEnsNitCh.io"
-		if opSimple.Match(conn) == false {
+		if opSimple.Match(conn, false) == false {
 			t.Error("Test NewOperator() simple.dstHost.sensitive doesn't match")
 			t.Fail()
 		}
@@ -182,7 +182,7 @@ func TestNewOperatorSimple(t *testing.T) {
 			t.Error("NewOperator simple proc.args Compile() err: ", err)
 			t.Fail()
 		}
-		if opSimple.Match(conn) == false {
+		if opSimple.Match(conn, false) == false {
 			t.Error("Test NewOperator() simple proc.args doesn't match")
 			t.Fail()
 		}
@@ -199,7 +199,7 @@ func TestNewOperatorSimple(t *testing.T) {
 			t.Error("NewOperator simple con.dstIp Compile() err: ", err)
 			t.Fail()
 		}
-		if opSimple.Match(conn) == false {
+		if opSimple.Match(conn, false) == false {
 			t.Error("Test NewOperator() simple conn.dstip doesn't match")
 			t.Fail()
 		}
@@ -216,7 +216,7 @@ func TestNewOperatorSimple(t *testing.T) {
 			t.Error("NewOperator simple UserId Compile() err: ", err)
 			t.Fail()
 		}
-		if opSimple.Match(conn) == false {
+		if opSimple.Match(conn, false) == false {
 			t.Error("Test NewOperator() simple conn.userid doesn't match")
 			t.Fail()
 		}
@@ -237,7 +237,7 @@ func TestNewOperatorNetwork(t *testing.T) {
 	if err = opSimple.Compile(); err != nil {
 		t.Fail()
 	}
-	if opSimple.Match(conn) == false {
+	if opSimple.Match(conn, false) == false {
 		t.Error("Test NewOperator() network doesn't match")
 		t.Fail()
 	}
@@ -250,7 +250,7 @@ func TestNewOperatorNetwork(t *testing.T) {
 	if err = opSimple.Compile(); err != nil {
 		t.Fail()
 	}
-	if opSimple.Match(conn) == true {
+	if opSimple.Match(conn, false) == true {
 		t.Error("Test NewOperator() network doesn't match:", conn.DstIP)
 		t.Fail()
 	}
@@ -270,7 +270,7 @@ func TestNewOperatorRegexp(t *testing.T) {
 	if err = opRE.Compile(); err != nil {
 		t.Fail()
 	}
-	if opRE.Match(conn) == false {
+	if opRE.Match(conn, false) == false {
 		t.Error("Test NewOperator() regexp doesn't match")
 		t.Fail()
 	}
@@ -312,14 +312,14 @@ func TestNewOperatorRegexpSensitive(t *testing.T) {
 	if err = opRE.Compile(); err != nil {
 		t.Fail()
 	}
-	if opRE.Match(conn) == false {
+	if opRE.Match(conn, false) == false {
 		t.Error("Test NewOperator() RE sensitive doesn't match:", conn.Process.Path)
 		t.Fail()
 	}
 
 	t.Run("Operator regexp proc.path case-sensitive", func(t *testing.T) {
 		conn.Process.Path = "/tmp/curl"
-		if opRE.Match(conn) == true {
+		if opRE.Match(conn, false) == true {
 			t.Error("Test NewOperator() RE sensitive match:", conn.Process.Path)
 			t.Fail()
 		}
@@ -333,7 +333,7 @@ func TestNewOperatorRegexpSensitive(t *testing.T) {
 	if err = opRE.Compile(); err != nil {
 		t.Fail()
 	}
-	if opRE.Match(conn) == false {
+	if opRE.Match(conn, false) == false {
 		t.Error("Test NewOperator() RE not sensitive match:", conn.Process.Path)
 		t.Fail()
 	}
@@ -358,7 +358,7 @@ func TestNewOperatorList(t *testing.T) {
 		}
 		opList.List = *unmarshalListData(opList.Data, t)
 		compileListOperators(&opList.List, t)
-		if opList.Match(conn) == false {
+		if opList.Match(conn, false) == false {
 			t.Error("Test NewOperator() list simple doesn't match")
 			t.Fail()
 		}
@@ -372,7 +372,7 @@ func TestNewOperatorList(t *testing.T) {
 		if err = opList.Compile(); err != nil {
 			t.Fail()
 		}
-		if opList.Match(conn) == false {
+		if opList.Match(conn, false) == false {
 			t.Error("Test NewOperator() list regexp doesn't match")
 			t.Fail()
 		}
@@ -389,7 +389,7 @@ func TestNewOperatorList(t *testing.T) {
 		if err = opList.Compile(); err != nil {
 			t.Fail()
 		}
-		if opList.Match(conn) == false {
+		if opList.Match(conn, false) == false {
 			t.Error("Test NewOperator() list.regexp.sensitive doesn't match:", conn.Process.Path)
 			t.Fail()
 		}
@@ -402,7 +402,7 @@ func TestNewOperatorList(t *testing.T) {
 		if err = opList.Compile(); err != nil {
 			t.Fail()
 		}
-		if opList.Match(conn) == false {
+		if opList.Match(conn, false) == false {
 			t.Error("Test NewOperator() list.regexp.insensitive match:", conn.Process.Path)
 			t.Fail()
 		}
@@ -415,7 +415,7 @@ func TestNewOperatorList(t *testing.T) {
 		if err = opList.Compile(); err != nil {
 			t.Fail()
 		}
-		if opList.Match(conn) == false {
+		if opList.Match(conn, false) == false {
 			t.Error("Test NewOperator() list.regexp.insensitive match:", conn.Process.Path)
 			t.Fail()
 		}
@@ -443,7 +443,7 @@ func TestNewOperatorListsSimple(t *testing.T) {
 	if len(opLists.lists) != 2 {
 		t.Error("NewOperator Lists, number of domains error:", opLists.lists, len(opLists.lists))
 	}
-	if opLists.Match(conn) == false {
+	if opLists.Match(conn, false) == false {
 		t.Error("Test NewOperator() lists doesn't match")
 	}
 
@@ -484,7 +484,7 @@ func TestNewOperatorListsIPs(t *testing.T) {
 	}
 
 	time.Sleep(time.Second)
-	if opLists.Match(conn) == false {
+	if opLists.Match(conn, false) == false {
 		t.Error("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
 	}
 
@@ -496,7 +496,7 @@ func TestNewOperatorListsIPs(t *testing.T) {
 	}
 
 	//t.Log("checking lists.domains_regexp:", tries, conn.DstHost)
-	if opLists.Match(conn) == false {
+	if opLists.Match(conn, false) == false {
 		// we don't care about if it matches, we're testing race conditions
 		t.Log("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
 	}
@@ -538,7 +538,7 @@ func TestNewOperatorListsNETs(t *testing.T) {
 	}
 
 	time.Sleep(time.Second)
-	if opLists.Match(conn) == false {
+	if opLists.Match(conn, false) == false {
 		t.Error("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
 	}
 
@@ -550,7 +550,7 @@ func TestNewOperatorListsNETs(t *testing.T) {
 	}
 
 	//t.Log("checking lists.domains_regexp:", tries, conn.DstHost)
-	if opLists.Match(conn) == false {
+	if opLists.Match(conn, false) == false {
 		// we don't care about if it matches, we're testing race conditions
 		t.Log("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
 	}
@@ -595,7 +595,7 @@ func TestNewOperatorListsComplex(t *testing.T) {
 		t.Error("NewOperator Lists complex, number of domains error:", subOp.lists)
 	}
 	subOp.Unlock()
-	if opLists.Match(conn) == false {
+	if opLists.Match(conn, false) == false {
 		t.Error("Test NewOperator() Lists complex, doesn't match")
 	}
 
@@ -636,7 +636,7 @@ func TestNewOperatorListsDomainsRegexp(t *testing.T) {
 	}
 
 	time.Sleep(time.Second)
-	if opLists.Match(conn) == false {
+	if opLists.Match(conn, false) == false {
 		t.Error("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
 	}
 
@@ -648,7 +648,7 @@ func TestNewOperatorListsDomainsRegexp(t *testing.T) {
 	}
 
 	//t.Log("checking lists.domains_regexp:", tries, conn.DstHost)
-	if opLists.Match(conn) == false {
+	if opLists.Match(conn, false) == false {
 		// we don't care about if it matches, we're testing race conditions
 		t.Log("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
 	}
@@ -721,7 +721,7 @@ func TestRaceNewOperatorListsDomainsRegexp(t *testing.T) {
 			break
 		}
 		//t.Log("checking lists.domains_regexp:", tries, conn.DstHost)
-		if opLists.Match(conn) == false {
+		if opLists.Match(conn, false) == false {
 			// we don't care about if it matches, we're testing race conditions
 			t.Log("Test NewOperator() Lists domains_regexp, doesn't match:", conn.DstHost)
 		}

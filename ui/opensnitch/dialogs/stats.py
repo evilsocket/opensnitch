@@ -145,7 +145,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "rule as Rule",
             "group_by": LAST_GROUP_BY,
             "last_order_by": "1",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_NODES: {
             "name": "nodes",
@@ -168,7 +169,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "version as Version",
             "header_labels": [],
             "last_order_by": "1",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_RULES: {
             "name": "rules",
@@ -189,7 +191,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "created as Created",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 0
+            "last_order_to": 0,
+            "tracking_column:": COL_R_NAME
         },
         TAB_FIREWALL: {
             "name": "firewall",
@@ -203,7 +206,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 0
+            "last_order_to": 0,
+            "tracking_column:": COL_TIME
         },
         TAB_HOSTS: {
             "name": "hosts",
@@ -217,7 +221,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_PROCS: {
             "name": "procs",
@@ -231,7 +236,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_ADDRS: {
             "name": "addrs",
@@ -245,7 +251,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_PORTS: {
             "name": "ports",
@@ -259,7 +266,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_USERS: {
             "name": "users",
@@ -273,7 +281,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         }
     }
 
@@ -479,7 +488,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 verticalScrollBar=self.rulesScrollBar,
                 delegate=self.TABLES[self.TAB_RULES]['delegate'],
                 order_by="2",
-                sort_direction=self.SORT_ORDER[0])
+                sort_direction=self.SORT_ORDER[0],
+                tracking_column=self.COL_R_NAME)
         self.TABLES[self.TAB_FIREWALL]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.fwTable, "firewall",
                 model=FirewallTableModel("firewall"),
@@ -805,7 +815,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return ret1 and ret2
 
     def _del_rule(self, rule_name, node_addr):
+        if rule_name == None or node_addr == None:
+            print("_del_rule() invalid parameters")
+            return
         nid, noti = self._nodes.delete_rule(rule_name, node_addr, self._notification_callback)
+        if nid == None:
+            return
         self._notifications_sent[nid] = noti
         # FIXME: we shouldn't refresh the view here. We should wait for a
         # notification reply on self._cb_notification_callback
@@ -830,7 +845,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             selection = table.selectionModel().selectedRows()
             if not selection:
-                return
+                return False
 
             menu = QtWidgets.QMenu()
             _menu_details = menu.addAction(QC.translate("stats", "Details"))
@@ -867,7 +882,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             selection = table.selectionModel().selectedRows()
             if not selection:
-                return
+                return False
             is_rule_enabled = model.index(selection[0].row(), FirewallTableModel.COL_ENABLED).data()
             rule_action = model.index(selection[0].row(), FirewallTableModel.COL_ACTION).data()
             rule_action = rule_action.lower()
@@ -937,7 +952,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             selection = table.selectionModel().selectedRows()
             if not selection:
-                return
+                return False
 
             menu = QtWidgets.QMenu()
             durMenu = QtWidgets.QMenu(self.COL_STR_DURATION)
@@ -997,7 +1012,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         if ret == QtWidgets.QMessageBox.Cancel:
                             return False
                         self._table_menu_apply_to_node(cur_idx, model, selection, node_addr)
-                        return
+                        return False
 
             if action == _menu_delete:
                 self._table_menu_delete(cur_idx, model, selection)
@@ -1208,9 +1223,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if cur_idx == self.TAB_MAIN or cur_idx == self.TAB_NODES or self.IN_DETAIL_VIEW[cur_idx]:
             return
 
-        msg = QC.translate("stats", "    Your are about to delete this rule.    ")
+        msg = QC.translate("stats", "    You are about to delete this rule.    ")
         if cur_idx != self.TAB_RULES:
-            msg = QC.translate("stats", "    Your are about to delete this entry.    ")
+            msg = QC.translate("stats", "    You are about to delete this entry.    ")
 
         ret = Message.yes_no(msg,
             QC.translate("stats", "    Are you sure?"),
@@ -1234,9 +1249,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._notifications_sent[nid] = noti
 
         elif cur_idx == self.TAB_RULES and not self.fwTable.isVisible():
-            for idx in selection:
-                name = model.index(idx.row(), self.COL_R_NAME).data()
-                node = model.index(idx.row(), self.COL_R_NODE).data()
+            selection = self.TABLES[cur_idx]['view'].copySelection()
+            for row in selection:
+                name = row[self.COL_R_NAME]
+                node = row[self.COL_R_NODE]
                 self._del_rule(name, node)
         elif cur_idx == self.TAB_HOSTS or cur_idx == self.TAB_PROCS or cur_idx == self.TAB_ADDRS or \
             cur_idx == self.TAB_USERS or cur_idx == self.TAB_PORTS:
@@ -1254,7 +1270,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         coltime = model.index(selection[0].row(), self.COL_TIME).data()
         if self._rules_dialog.new_rule_from_connection(coltime) == False:
 
-            Message.ok(QC.transslate("stats", "New rule error"),
+            Message.ok(QC.translate("stats", "New rule error"),
                         QC.translate("stats",
                                     "Error creating new rule from event ({0})".format(coltime)
                                     ),
@@ -1267,9 +1283,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 node = model.index(idx.row(), self.COL_R_NODE).data()
                 records = self._get_rule(name, node)
                 if records == None or records == -1:
-                    Message.ok(qc.transslate("stats", "New rule error"),
+                    Message.ok(QC.translate("stats", "New rule error"),
                             QC.translate("stats", "Rule not found by that name and node"),
-                            QtWidgets.QmessageBox.Warning)
+                            QtWidgets.QMessageBox.Warning)
                     return
                 self._rules_dialog.edit_rule(records, node)
                 break
@@ -1949,11 +1965,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return " ORDER BY %s %s" % (order_field, self.SORT_ORDER[self.TABLES[cur_idx]['last_order_to']])
 
     def _refresh_active_table(self):
+        cur_idx = self.tabWidget.currentIndex()
         model = self._get_active_table().model()
         lastQuery = model.query().lastQuery()
         if "LIMIT" not in lastQuery:
             lastQuery += self._get_limit()
         self.setQuery(model, lastQuery)
+        self.TABLES[cur_idx]['view'].refresh()
 
     def _get_active_table(self):
         if self.tabWidget.currentIndex() == self.TAB_RULES and self.fwTable.isVisible():
@@ -2646,7 +2664,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                             values.append(table.model().index(row, col).data())
                         w.writerow(values)
 
-    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", sort_direction=SORT_ORDER[1], limit="", resize_cols=(), model=None, delegate=None, verticalScrollBar=None):
+    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", sort_direction=SORT_ORDER[1], limit="", resize_cols=(), model=None, delegate=None, verticalScrollBar=None, tracking_column=COL_TIME):
         tableWidget.setSortingEnabled(True)
         if model == None:
             model = self._db.get_new_qsql_model()
@@ -2654,6 +2672,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             tableWidget.setVerticalScrollBar(verticalScrollBar)
         tableWidget.verticalScrollBar().sliderPressed.connect(self._cb_scrollbar_pressed)
         tableWidget.verticalScrollBar().sliderReleased.connect(self._cb_scrollbar_released)
+        tableWidget.setTrackingColumn(tracking_column)
 
         self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " " + sort_direction + limit)
         tableWidget.setModel(model)
@@ -2753,7 +2772,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     print("setQuery() error: ", model.lastError().text())
 
                 if self.tabWidget.currentIndex() != self.TAB_MAIN:
-                    self.labelRowsCount.setText("{0}".format(model.rowCount()))
+                    self.labelRowsCount.setText("{0}".format(model.totalRowCount))
                 else:
                     self.labelRowsCount.setText("")
             except Exception as e:

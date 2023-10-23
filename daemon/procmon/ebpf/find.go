@@ -23,14 +23,13 @@ func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint
 		return proc, false, nil
 	}
 	if findAddressInLocalAddresses(dstIP) {
-		// FIXME: systemd-resolved sometimes makes a TCP Fast Open connection to a DNS server (8.8.8.8 on my machine)
-		// and we get a packet here with **source** (not detination!!!) IP 8.8.8.8
-		// Maybe it's an in-kernel response with spoofed IP because resolved's TCP Fast Open packet, nor the response.
-		// Another scenario when systemd-resolved or dnscrypt-proxy is used, is that every outbound connection has
-		// the fields swapped:
+		// NOTE:
+		// Sometimes every outbound connection has the fields swapped:
 		// 443:public-ip -> local-ip:local-port , like if it was a response (but it's not).
 		// Swapping connection fields helps to identify the connection + pid + process, and continue working as usual
-		// when systemd-resolved is being used. But we should understand why is this happenning.
+		// when systemd-resolved is being used.
+		// This seems to be the case when using conntrack to intercept outbound connections, specially for TCP.
+		// @see: e090833d29738274c1d171eba53e239c1c49ea7c
 
 		if proc := getPidFromEbpf(proto, dstPort, dstIP, srcIP, srcPort); proc != nil {
 			return proc, true, fmt.Errorf("[ebpf conn] FIXME: found swapping fields, systemd-resolved is that you? set DNS=x.x.x.x to your DNS server in /etc/systemd/resolved.conf to workaround this problem")
@@ -41,7 +40,6 @@ func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint
 	if proto == "tcp" || proto == "tcp6" {
 		if pid, uid, err := findInAlreadyEstablishedTCP(proto, srcPort, srcIP, dstIP, dstPort); err == nil {
 			proc := procmon.NewProcess(pid, "")
-			proc.GetInfo()
 			proc.UID = uid
 			return proc, false, nil
 		}
@@ -104,7 +102,7 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	if cacheItem, isInCache := ebpfCache.isInCache(k); isInCache {
 		// should we re-read the info?
 		// environ vars might have changed
-		//proc.GetInfo()
+		//proc.GetDetails()
 		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))
 		proc = &cacheItem.Proc
 		log.Debug("[ebpf conn] in cache: %s, %d -> %s", k, proc.ID, proc.Path)
@@ -158,38 +156,25 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 // the rest of the details.
 // TODO: get the details from kernel, with mm_struct (exe_file, fd_path, etc).
 func findConnProcess(value *networkEventT, connKey string) (proc *procmon.Process) {
-	comm := byteArrayToString(value.Comm[:])
-	proc = procmon.NewProcess(int(value.Pid), comm)
+
 	// Use socket's UID. A process may have dropped privileges.
 	// This is the UID that we've always used.
-	proc.UID = int(value.UID)
 
-	err := proc.ReadPath()
-	if ev, found := execEvents.isInStore(value.Pid); found {
-		// use socket's UID. See above why ^
-		ev.Proc.UID = proc.UID
-		ev.Proc.ReadCmdline()
-		// if proc's ReadPath() has been successfull, and the path received via the execve tracepoint differs,
-		// use proc's path.
-		// Sometimes we received from the tracepoint a wrong/non-existent path.
-		// Othertimes we receive a "helper" that executes the real binary which opens the connection.
-		// Downsides: for execveat() executions we won't display the original binary.
-		if err == nil && ev.Proc.Path != proc.Path {
-			proc.ReadCmdline()
-			ev.Proc.Path = proc.Path
-			ev.Proc.Args = proc.Args
-		}
-		proc = &ev.Proc
-
-		log.Debug("[ebpf conn] not in cache, but in execEvents: %s, %d -> %s", connKey, proc.ID, proc.Path)
-	} else {
-		log.Debug("[ebpf conn] not in cache, NOR in execEvents: %s, %d -> %s", connKey, proc.ID, proc.Path)
-		// We'll end here if the events module has not been loaded, or if the process is not in cache.
-		proc.GetInfo()
-		execEvents.add(value.Pid,
-			*NewExecEvent(value.Pid, 0, value.UID, proc.Path, value.Comm),
-			*proc)
+	if ev, _, found := procmon.EventsCache.IsInStore(int(value.Pid), nil); found {
+		ev.Lock()
+		ev.Proc.UID = int(value.UID)
+		ev.Unlock()
+		proc = ev.Proc
+		log.Debug("[ebpf conn] not in cache, but in execEvents: %s, %d -> %s -> %s", connKey, proc.ID, proc.Path, proc.Args)
+		return
 	}
+
+	// We'll end here if the events module has not been loaded, or if the process is not in cache.
+	comm := byteArrayToString(value.Comm[:])
+	proc = procmon.NewProcess(int(value.Pid), comm)
+	proc.UID = int(value.UID)
+	procmon.EventsCache.Add(proc)
+	log.Debug("[ebpf conn] not in cache, NOR in execEvents: %s, %d -> %s -> %s", connKey, proc.ID, proc.Path, proc.Args)
 
 	return
 }
@@ -218,8 +203,8 @@ func findInAlreadyEstablishedTCP(proto string, srcPort uint, srcIP net.IP, dstIP
 
 //returns true if addr is in the list of this machine's addresses
 func findAddressInLocalAddresses(addr net.IP) bool {
-	lock.Lock()
-	defer lock.Unlock()
+	lock.RLock()
 	_, found := localAddresses[addr.String()]
+	lock.RUnlock()
 	return found
 }

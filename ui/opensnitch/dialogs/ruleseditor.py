@@ -4,7 +4,6 @@ from PyQt5.QtCore import QCoreApplication as QC
 from slugify import slugify
 from datetime import datetime
 import re
-import json
 import sys
 import os
 import pwd
@@ -87,6 +86,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstListIPsCheck.toggled.connect(self._cb_dstiplists_check_toggled)
         self.dstListNetsCheck.toggled.connect(self._cb_dstnetlists_check_toggled)
         self.uidCombo.currentIndexChanged.connect(self._cb_uid_combo_changed)
+        self.md5Check.toggled.connect(self._cb_md5check_toggled)
 
         self._users_list = pwd.getpwall()
 
@@ -225,6 +225,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_uid_combo_changed(self, index):
         self.uidCombo.setCurrentText(str(self._users_list[index][self.PW_UID]))
 
+    def _cb_md5check_toggled(self, state):
+        self.md5Line.setEnabled(state)
+
     def _set_status_error(self, msg):
         self.statusLabel.setStyleSheet('color: red')
         self.statusLabel.setText(msg)
@@ -253,6 +256,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif self.WORK_MODE == self.EDIT_RULE and rule_name != self._old_rule_name and \
             self._db.get_rule(rule_name, node).next() == True:
             self._set_status_error(QC.translate("rules", "There's already a rule with this name."))
+            return
+
+        if self.md5Check.isChecked() and not self.procCheck.isChecked():
+            self._set_status_error(QC.translate("rules", "Process path must be checked in order to verify checksums."))
             return
 
         result, error = self._save_rule()
@@ -413,6 +420,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstListNetsCheck.setChecked(False)
         self.dstListNetsLine.setText("")
 
+        self.md5Check.setChecked(False)
+        self.md5Line.setText("")
+        self.md5Line.setEnabled(False)
+
     def _load_rule(self, addr=None, rule=None):
         if self._load_nodes(addr) == False:
             return False
@@ -434,13 +445,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.rule.operator.type != Config.RULE_TYPE_LIST:
             self._load_rule_operator(self.rule.operator)
         else:
-            rule_options = json.loads(self.rule.operator.data)
-            for r in rule_options:
-                _sensitive = False
-                if 'sensitive' in r:
-                    _sensitive = r['sensitive']
-
-                op = ui_pb2.Operator(type=r['type'], operand=r['operand'], data=r['data'], sensitive=_sensitive)
+            for op in self.rule.operator.list:
                 self._load_rule_operator(op)
 
         return True
@@ -540,6 +545,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.dstListNetsLine.setText(operator.data)
             self.selectNetsListButton.setEnabled(True)
 
+        if operator.operand == Config.OPERAND_PROCESS_HASH_MD5:
+            self.md5Check.setChecked(True)
+            self.md5Line.setEnabled(True)
+            self.md5Line.setText(operator.data)
+
+
+
     def _load_nodes(self, addr=None):
         try:
             self.nodesCombo.clear()
@@ -569,17 +581,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _insert_rule_to_db(self, node_addr):
         # the order of the fields doesn't matter here, as long as we use the
         # name of the field.
-        self._db.insert("rules",
-            "(time, node, name, description, enabled, precedence, nolog, action, "\
-                        "duration, operator_type, operator_sensitive, operator_operand, operator_data, created)",
-                        (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                         node_addr, self.rule.name, self.rule.description,
-                         str(self.rule.enabled), str(self.rule.precedence), str(self.rule.nolog),
-                         self.rule.action, self.rule.duration, self.rule.operator.type,
-                         str(self.rule.operator.sensitive), self.rule.operator.operand, self.rule.operator.data,
-                         str(datetime.fromtimestamp(self.rule.created).strftime("%Y-%m-%d %H:%M:%S"))),
-                         action_on_conflict="REPLACE"
-                        )
+        self._rules.add_rules(node_addr, [self.rule])
 
     def _add_rule(self):
         try:
@@ -922,7 +924,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         'data': self.dstListsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
-            self.rule.operator.data = json.dumps(rule_data)
+            self.rule.operator.data = ""
 
         if self.dstListRegexpCheck.isChecked():
             if self.dstRegexpListsLine.text() == "":
@@ -939,7 +941,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         'data': self.dstRegexpListsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
-            self.rule.operator.data = json.dumps(rule_data)
+            self.rule.operator.data = ""
 
         if self.dstListNetsCheck.isChecked():
             if self.dstListNetsLine.text() == "":
@@ -956,7 +958,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         'data': self.dstListNetsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
-            self.rule.operator.data = json.dumps(rule_data)
+            self.rule.operator.data = ""
 
 
         if self.dstListIPsCheck.isChecked():
@@ -974,12 +976,42 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         'data': self.dstListIPsLine.text(),
                         'sensitive': self.sensitiveCheck.isChecked()
                         })
-            self.rule.operator.data = json.dumps(rule_data)
+            self.rule.operator.data = ""
+
+        if self.md5Check.isChecked():
+            if self.md5Line.text() == "":
+                return False, QC.translate("rules", "md5 line cannot be empty")
+
+            self.rule.operator.operand = Config.OPERAND_PROCESS_HASH_MD5
+            self.rule.operator.data = self.md5Line.text().lower()
+            rule_data.append(
+                {
+                    'type': Config.RULE_TYPE_SIMPLE,
+                    'operand': Config.OPERAND_PROCESS_HASH_MD5,
+                    'data': self.md5Line.text().lower(),
+                    "sensitive": False
+                })
+            if self._is_regex(self.md5Line.text()):
+                rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
+                if self._is_valid_regex(self.pidLine.text()) == False:
+                    return False, QC.translate("rules", "md5 field regexp error")
+
+
 
         if len(rule_data) >= 2:
             self.rule.operator.type = Config.RULE_TYPE_LIST
             self.rule.operator.operand = Config.RULE_TYPE_LIST
-            self.rule.operator.data = json.dumps(rule_data)
+            self.rule.operator.data = ""
+            for rd in rule_data:
+                self.rule.operator.list.extend([
+                    ui_pb2.Operator(
+                        type=rd['type'],
+                        operand=rd['operand'],
+                        data=rd['data'],
+                        sensitive=rd['sensitive']
+                    )
+                ])
+                print(self.rule.operator.list)
 
         elif len(rule_data) == 1:
             self.rule.operator.operand = rule_data[0]['operand']
