@@ -1639,6 +1639,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         node_addr = ""
         fw_table = ""
 
+        rulesHeader = self.rulesTable.horizontalHeader()
+        self._cfg.setSettings(Config.STATS_RULES_COL_STATE, rulesHeader.saveState())
+
         self._clear_rows_selection()
 
         # FIXME: find a clever way of handling these options
@@ -2013,7 +2016,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif cur_idx == self.TAB_NODES:
             col = self.TAB_RULES
 
-        # FIXME: this line causes the gui to segfault. Review GenericTableView
         #self.TABLES[cur_idx]['view'].selectItem(self.LAST_SELECTED_ITEM, col)
         self.LAST_SELECTED_ITEM = ""
 
@@ -2257,10 +2259,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._get_order(),
             self._get_limit()
         ))
-        self._restore_details_view_columns(
-            self.TABLES[self.TAB_RULES]['view'].horizontalHeader(),
-            "{0}{1}".format(Config.STATS_VIEW_COL_STATE, self.TAB_RULES)
-        )
 
     def _set_rules_query(self, rule_name="", node=""):
         if node != "":
