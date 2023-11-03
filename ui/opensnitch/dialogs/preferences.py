@@ -792,8 +792,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._hide_status_label()
 
     def _enable_db_cleaner_options(self, enable, db_max_days):
-        self.checkDBMaxDays.setChecked(enable)
-        self.checkDBMaxDays.setEnabled(enable)
         self.spinDBMaxDays.setEnabled(enable)
         self.spinDBPurgeInterval.setEnabled(enable)
         self.labelDBPurgeInterval.setEnabled(enable)
