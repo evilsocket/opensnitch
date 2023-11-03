@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 class Database:
     db = None
     __instance = None
-    DB_IN_MEMORY   = ":memory:"
+    DB_IN_MEMORY   = "file::memory:"
     DB_TYPE_MEMORY = 0
     DB_TYPE_FILE   = 1
     DB_JRNL_WAL    = False
@@ -50,6 +50,8 @@ class Database:
 
         self.db = QSqlDatabase.addDatabase("QSQLITE", self.db_name)
         self.db.setDatabaseName(self.db_file)
+        if dbtype == Database.DB_TYPE_MEMORY:
+            self.db.setConnectOptions("QSQLITE_OPEN_URI;QSQLITE_ENABLE_SHARED_CACHE")
         if not self.db.open():
             print("\n ** Error opening DB: SQLite driver not loaded. DB name: %s\n" % self.db_file)
             print("\n    Available drivers: ", QSqlDatabase.drivers())
@@ -103,6 +105,7 @@ class Database:
         return self.db_name
 
     def _create_tables(self):
+        # https://www.sqlite.org/wal.html
         if self.db_file == Database.DB_IN_MEMORY:
             self.set_schema_version(self.DB_VERSION)
             # Disable journal (default)

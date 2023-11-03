@@ -73,6 +73,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setupUi(self)
         self.setWindowIcon(appicon)
 
+        self.checkDBMaxDays.setEnabled(True)
         self.dbFileButton.setVisible(False)
         self.dbLabel.setVisible(False)
         self.dbType = None
@@ -792,6 +793,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._hide_status_label()
 
     def _enable_db_cleaner_options(self, enable, db_max_days):
+        self.checkDBMaxDays.setChecked(enable)
         self.spinDBMaxDays.setEnabled(enable)
         self.spinDBPurgeInterval.setEnabled(enable)
         self.labelDBPurgeInterval.setEnabled(enable)
@@ -842,8 +844,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         isDBMem = self.comboDBType.currentIndex() == Database.DB_TYPE_MEMORY
         self.dbFileButton.setVisible(not isDBMem)
         self.dbLabel.setVisible(not isDBMem)
-        self.checkDBMaxDays.setEnabled(not isDBMem)
-        self.checkDBMaxDays.setChecked(not isDBMem)
+        self.checkDBMaxDays.setChecked(self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST))
         self.checkDBJrnlWal.setEnabled(not isDBMem)
         self.checkDBJrnlWal.setChecked(False)
 
