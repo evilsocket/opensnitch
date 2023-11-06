@@ -1,6 +1,6 @@
 %define name opensnitch-ui
-%define version 1.6.3
-%define unmangled_version 1.6.3
+%define version 1.6.4
+%define unmangled_version 1.6.4
 %define release 1
 %define __python python3
 %define desktop_file opensnitch_ui.desktop
@@ -19,7 +19,7 @@ Vendor: OpenSnitch project
 Packager: Gustavo Iñiguez Goya <gooffy1@gmail.com>
 Url: https://github.com/evilsocket/opensnitch
 Requires: python3, python3-pip, (netcfg or setup), (python3-pyinotify or python3-inotify), python3-qt5, python3-notify2
-Recommends: (python3-slugify or python3-python-slugify), python3-protobuf >= 3.0, python3-grpcio >= 1.10.0
+Recommends: (python3-slugify or python3-python-slugify), python3-protobuf >= 3.0, python3-grpcio >= 1.10.0, qgnomeplatform-qt5
 
 # avoid to depend on a particular python version
 %global __requires_exclude ^python\\(abi\\) = 3\\..$
