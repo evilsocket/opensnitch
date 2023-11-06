@@ -519,7 +519,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if self.comboDBType.currentIndex() != Database.DB_TYPE_MEMORY:
             if self.dbLabel.text() != "":
-                self._cfg.setSettings(Config.DEFAULT_DB_FILE_KEY, self.dbLabel.text())
+                db_name = self.dbLabel.text()
             else:
                 Message.ok(
                     QC.translate("preferences", "Warning"),
@@ -527,7 +527,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     QtWidgets.QMessageBox.Warning)
                 self.dbLabel.setText("")
                 return False
+        else:
+            db_name = Database.DB_IN_MEMORY
 
+        self._cfg.setSettings(Config.DEFAULT_DB_FILE_KEY, db_name)
         self._cfg.setSettings(Config.DEFAULT_DB_TYPE_KEY, dbtype)
         self._cfg.setSettings(Config.DEFAULT_DB_PURGE_OLDEST, bool(self.checkDBMaxDays.isChecked()))
         self._cfg.setSettings(Config.DEFAULT_DB_MAX_DAYS, int(self.spinDBMaxDays.value()))
