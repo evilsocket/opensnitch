@@ -58,6 +58,14 @@ def on_exit():
         pass
     sys.exit(0)
 
+def restrict_socket_perms(socket):
+    """Restrict socket reading to the current user"""
+    try:
+        if socket.startswith("unix://") and os.path.exists(socket[7:]):
+            os.chmod(socket[7:], 0o640)
+    except Exception as e:
+        print("Unable to change unix socket permissions:", socket, e)
+
 def supported_qt_version(major, medium, minor):
     q = QtCore.QT_VERSION_STR.split(".")
     return int(q[0]) >= major and int(q[1]) >= medium and int(q[2]) >= minor
@@ -176,7 +184,7 @@ Examples:
             parts = args.socket.split("@")
             args.socket = "unix-abstract:{0}".format(parts[1])
 
-        print("Using server address:", args.socket)
+        print("Using server address:", args.socket, "auth type:", auth_type)
 
         if auth_type == auth.Simple or auth_type == "":
             server.add_insecure_port(args.socket)
@@ -201,6 +209,9 @@ Examples:
 
         # print "OpenSnitch UI service running on %s ..." % socket
         server.start()
+
+        restrict_socket_perms(args.socket)
+
         app.exec_()
 
     except KeyboardInterrupt:
