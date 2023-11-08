@@ -566,14 +566,14 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             parts = combo.currentText().split(' ')
             text = parts[len(parts)-1]
             # ^(|.*\.)yahoo\.com
-            dsthost = '\.'.join(text.split('.')).replace("*", "")
-            dsthost = "^(|.*\.)%s" % dsthost[2:]
+            dsthost = r'\.'.join(text.split('.')).replace("*", "")
+            dsthost = r"^(|.*\.)%s" % dsthost[2:]
             return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_HOST, dsthost
 
         elif combo.itemData(what_idx) == self.FIELD_REGEX_IP:
             parts = combo.currentText().split(' ')
             text = parts[len(parts)-1]
-            return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_IP, "%s" % '\.'.join(text.split('.')).replace("*", ".*")
+            return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_IP, "%s" % r'\.'.join(text.split('.')).replace("*", ".*")
 
     def _on_action_clicked(self, action):
         self._default_action = action

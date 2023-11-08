@@ -49,7 +49,7 @@ class LinuxDesktopParser(threading.Thread):
 
     def _parse_exec(self, cmd):
         try:
-            is_flatpak = re.search("^/usr/[s]*bin/flatpak.*--command=([a-zA-Z0-9-_\/\.\+]+)", cmd)
+            is_flatpak = re.search(r"^/usr/[s]*bin/flatpak.*--command=([a-zA-Z0-9-_\/\.\+]+)", cmd)
             if is_flatpak:
                 return is_flatpak.group(1)
 
