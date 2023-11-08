@@ -23,11 +23,11 @@ DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     LOG_TAG = "[rules editor]"
-    classA_net = "10\.\d{1,3}\.\d{1,3}\.\d{1,3}"
-    classB_net = "172\.1[6-9]\.\d+\.\d+|172\.2[0-9]\.\d+\.\d+|172\.3[0-1]+\.\d{1,3}\.\d{1,3}"
-    classC_net = "192\.168\.\d{1,3}\.\d{1,3}"
-    others_net = "127\.\d{1,3}\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3}"
-    multinets = "2[32][23459]\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+    classA_net = r"10\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+    classB_net = r"172\.1[6-9]\.\d+\.\d+|172\.2[0-9]\.\d+\.\d+|172\.3[0-1]+\.\d{1,3}\.\d{1,3}"
+    classC_net = r"192\.168\.\d{1,3}\.\d{1,3}"
+    others_net = r"127\.\d{1,3}\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3}"
+    multinets = r"2[32][23459]\.\d{1,3}\.\d{1,3}\.\d{1,3}"
     MULTICAST_RANGE = "^(" + multinets + ")$"
     LAN_RANGES = "^(" + others_net + "|" + classC_net + "|" + classB_net + "|" + classA_net + "|::1|f[cde].*::.*)$"
     LAN_LABEL = "LAN"

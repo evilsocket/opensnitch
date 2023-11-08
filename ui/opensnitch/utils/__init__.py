@@ -402,7 +402,7 @@ class NetworkServices():
             for line in etcServices:
                 if line[0] == "#":
                     continue
-                g = re.search("([a-zA-Z0-9\-]+)( |\t)+([0-9]+)\/([a-zA-Z0-9\-]+)(.*)\n", line)
+                g = re.search(r"([a-zA-Z0-9\-]+)( |\t)+([0-9]+)\/([a-zA-Z0-9\-]+)(.*)\n", line)
                 if g:
                     self.srv_array.append("{0}/{1} {2}".format(
                         g.group(1),
