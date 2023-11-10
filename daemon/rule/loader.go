@@ -68,6 +68,7 @@ func (l *Loader) EnableChecksums(enable bool) {
 	log.Debug("[rules loader] EnableChecksums: %v", enable)
 	l.checkSums = enable
 	procmon.EventsCache.SetComputeChecksums(enable)
+	procmon.EventsCache.AddChecksumHash(string(OpProcessHashMD5))
 }
 
 // HasChecksums checks if the rule will check for binary checksum matches
@@ -209,13 +210,11 @@ func (l *Loader) loadRule(fileName string) error {
 		}
 	} else {
 		if err := r.Operator.Compile(); err != nil {
-			l.HasChecksums(r.Operator.Operand)
 			log.Warning("Operator.Compile() error: %s: %s", err, r.Operator.Data)
 			return fmt.Errorf("(1) Error compiling rule: %s", err)
 		}
 		if r.Operator.Type == List {
 			for i := 0; i < len(r.Operator.List); i++ {
-				l.HasChecksums(r.Operator.List[i].Operand)
 				if err := r.Operator.List[i].Compile(); err != nil {
 					log.Warning("Operator.Compile() error: %s: ", err)
 					return fmt.Errorf("(1) Error compiling list rule: %s", err)
