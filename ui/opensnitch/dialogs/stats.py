@@ -1121,7 +1121,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if records == None or records.size() == -1:
                     rule = Rule.new_from_records(records)
                     rule.name = "cloned-{0}-{1}".format(idx, rule.name)
-                    self._db.insert_rule(rule, node_addr)
+                    self._rules.add_rules(node_addr, [rule])
                     break
 
             if records != None and records.size() == -1:
@@ -1140,7 +1140,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
             nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
             if nid != None:
-                self._db.insert_rule(rule, node_addr)
+                self._rules.add_rules(node_addr, [rule])
                 self._notifications_sent[nid] = noti
 
     def _table_menu_change_rule_field(self, cur_idx, model, selection, field, value):
