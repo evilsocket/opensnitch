@@ -1,3 +1,4 @@
+# podman run --name go -v $PWD:/go --rm -it
 FROM docker.io/ubuntu:23.10
 RUN apt update -y && apt install -y \
  less \
