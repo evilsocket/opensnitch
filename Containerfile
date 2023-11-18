@@ -11,6 +11,6 @@ RUN apt update -y && apt install -y \
  libnetfilter-queue-dev \
  python3.11-venv \
  qttools5-dev-tools
-WORKDIR /go
 COPY ui/requirements.txt /tmp/requirements.txt
 RUN python3 -m pip install -r /tmp/requirements.txt --break-system-packages
+WORKDIR /go
