@@ -268,10 +268,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     @QtCore.pyqtSlot()
     def on_connection_prompt_triggered(self):
         self.stackedWidget.setCurrentIndex(1)
-        # FIXME: scrolling to the top in _render_details doesn't seem to work,
-        # so do it here until we figure out why.
-        xpos = self.connDetails.verticalScrollBar().minimum()
-        self.connDetails.verticalScrollBar().setValue(xpos)
         self._render_connection(self._con)
         if self._tick > 0:
             self.show()
@@ -504,6 +500,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.connDetails.document().clear()
         self.connDetails.document().setHtml(details)
+        self.connDetails.moveCursor(QtGui.QTextCursor.Start)
 
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):
