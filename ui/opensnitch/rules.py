@@ -132,6 +132,12 @@ class Rules(QObject):
     def delete_by_field(self, field, values):
         return self._db.delete_rules_by_field(field, values)
 
+    def get_by_name(self, node, name):
+        return self._db.get_rule(name, node)
+
+    def get_by_field(self, node, field, value):
+        return self._db.get_rule_by_field(node, field, value)
+
     def exists(self, rule, node_addr):
         return self._db.rule_exists(rule, node_addr)
 

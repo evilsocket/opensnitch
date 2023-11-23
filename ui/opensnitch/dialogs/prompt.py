@@ -19,6 +19,7 @@ from opensnitch.config import Config
 from opensnitch.version import version
 from opensnitch.actions import Actions
 from opensnitch.rules import Rules, Rule
+from opensnitch.nodes import Nodes
 
 from opensnitch import ui_pb2
 
@@ -27,6 +28,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     _prompt_trigger = QtCore.pyqtSignal()
     _tick_trigger = QtCore.pyqtSignal()
     _timeout_trigger = QtCore.pyqtSignal()
+
+    PAGE_MAIN = 2
+    PAGE_DETAILS = 0
+    PAGE_CHECKSUMS = 1
 
     DEFAULT_TIMEOUT = 15
 
@@ -59,6 +64,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # Other interesting flags: QtCore.Qt.Tool | QtCore.Qt.BypassWindowManagerHint
         self._cfg = Config.get()
         self._rules = Rules.instance()
+        self._nodes = Nodes.instance()
 
         self.setupUi(self)
         self.setWindowIcon(appicon)
@@ -108,6 +114,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdInfo.clicked.connect(self._cb_cmdinfo_clicked)
         self.cmdBack.clicked.connect(self._cb_cmdback_clicked)
 
+        self.cmdUpdateRule.clicked.connect(self._cb_update_rule_clicked)
+        self.cmdBackChecksums.clicked.connect(self._cb_cmdback_clicked)
+        self.messageLabel.linkActivated.connect(self._cb_warninglbl_clicked)
+
         self.allowIcon = Icons.new(self, "emblem-default")
         denyIcon = Icons.new(self, "emblem-important")
         rejectIcon = Icons.new(self, "window-close")
@@ -116,6 +126,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.cmdInfo.setIcon(infoIcon)
         self.cmdBack.setIcon(backIcon)
+        self.cmdBackChecksums.setIcon(backIcon)
 
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
 
@@ -197,7 +208,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkSum.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
         self.checksumLabel_2.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
         self.checksumLabel.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(self.PAGE_MAIN)
 
         self._ischeckAdvanceded = state
         self.adjust_size()
@@ -206,12 +217,57 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _button_clicked(self):
         self._stop_countdown()
 
+    def _cb_warninglbl_clicked(self):
+        self._stop_countdown()
+        self.stackedWidget.setCurrentIndex(self.PAGE_CHECKSUMS)
+
     def _cb_cmdinfo_clicked(self):
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(self.PAGE_DETAILS)
         self._stop_countdown()
 
+    def _cb_update_rule_clicked(self):
+        self.labelChecksumStatus.setStyleSheet('')
+        curRule = self.comboChecksumRule.currentText()
+        if curRule == "":
+            return
+
+        # get rule from the db
+        records = self._rules.get_by_name(self._peer, curRule)
+        if records == None or records.first() == False:
+            self.labelChecksumStatus.setStyleSheet('color: red')
+            self.labelChecksumStatus.setText("✘ " + QC.translate("popups", "Rule not updated, not found by name"))
+            return
+        # transform it to proto rule
+        rule_obj = Rule.new_from_records(records)
+        if rule_obj.operator.type != Config.RULE_TYPE_LIST:
+            if rule_obj.operator.operand == Config.OPERAND_PROCESS_HASH_MD5:
+                rule_obj.operator.data = self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5]
+        else:
+            for op in rule_obj.operator.list:
+                if op.operand == Config.OPERAND_PROCESS_HASH_MD5:
+                    op.data = self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5]
+                    break
+        # add it back again to the db
+        added = self._rules.add_rules(self._peer, [rule_obj])
+        if not added:
+            self.labelChecksumStatus.setStyleSheet('color: red')
+            self.labelChecksumStatus.setText("✘ " + QC.translate("popups", "Rule not updated."))
+            return
+
+        self._nodes.send_notification(
+            self._peer,
+            ui_pb2.Notification(
+                id=int(str(time.time()).replace(".", "")),
+                type=ui_pb2.CHANGE_RULE,
+                data="",
+                rules=[rule_obj]
+            )
+        )
+        self.labelChecksumStatus.setStyleSheet('color: green')
+        self.labelChecksumStatus.setText("✔" + QC.translate("popups", "Rule updated."))
+
     def _cb_cmdback_clicked(self):
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(self.PAGE_MAIN)
         self._stop_countdown()
 
     def _set_elide_text(self, widget, text, max_size=132):
@@ -235,6 +291,14 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._local = is_local
             self._peer = peer
             self._con = connection
+
+            # XXX: workaround for protobufs that don't report the address of
+            # the node. In this case the addr is "unix:/local"
+            proto, addr = self._nodes.get_addr(peer)
+            self._peer = proto
+            if addr != None:
+                self._peer = proto+":"+addr
+
             self._done.clear()
             # trigger and show dialog
             self._prompt_trigger.emit()
@@ -267,12 +331,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def on_connection_prompt_triggered(self):
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(self.PAGE_MAIN)
         self._render_connection(self._con)
         if self._tick > 0:
             self.show()
         # render details after displaying the pop-up.
-        self._render_details(self._con)
+        self._render_details(self._peer, self.connDetails, self._con)
 
     @QtCore.pyqtSlot()
     def on_tick_triggered(self):
@@ -344,6 +408,109 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.argsLabel.setVisible(False)
             self.argsLabel.setText("")
 
+    def _verify_checksums(self, con, rule):
+        """return true if the checksum of a rule matches the one of the process
+        opening a connection.
+        """
+        if rule.operator.type != Config.RULE_TYPE_LIST:
+            return True, ""
+
+        if con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "":
+            return True, ""
+
+        for ro in rule.operator.list:
+            if ro.type == Config.RULE_TYPE_SIMPLE and ro.operand == Config.OPERAND_PROCESS_HASH_MD5:
+                if ro.data != con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5]:
+                    return False, ro.data
+
+        return True, ""
+
+    def _display_checksums_warning(self, peer, con):
+        self.messageLabel.setStyleSheet('')
+        self.labelChecksumStatus.setText('')
+
+        records = self._rules.get_by_field(peer, "operator_data", con.process_path)
+
+        if records != None and records.first():
+            rule = Rule.new_from_records(records)
+            validates, expected = self._verify_checksums(con, rule)
+            if not validates:
+                self.messageLabel.setStyleSheet('color: red')
+                self.messageLabel.setText(
+                    QC.translate("popups", "WARNING, bad checksum (<a href='#'>More info</a>)"
+                                 )
+                )
+                self.labelChecksumNote.setText(
+                    QC.translate("popups", "<font color=\"red\">WARNING, checksums differ.</font><br><br>Current process ({0}):<br>{1}<br><br>Expected from the rule:<br>{2}"
+                                 .format(
+                                     con.process_id,
+                                     con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5],
+                                     expected
+                )))
+
+                self.comboChecksumRule.clear()
+                self.comboChecksumRule.addItem(rule.name)
+                while records.next():
+                    rule = Rule.new_from_records(records)
+                    self.comboChecksumRule.addItem(rule.name)
+
+                return "<b>WARNING</b><br>bad md5<br>This process:{0}<br>Expected from rule: {1}<br><br>".format(
+                    con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5],
+                    expected
+                )
+
+        return ""
+
+    def _render_details(self, peer, detailsWidget, con):
+        tree = ""
+        space = "&nbsp;"
+        spaces = "&nbsp;"
+        indicator = ""
+
+        self._display_checksums_warning(peer, con)
+
+        try:
+            # reverse() doesn't exist on old protobuf libs.
+            con.process_tree.reverse()
+        except:
+            pass
+        for path in con.process_tree:
+            tree = "{0}<p>│{1}\t{2}{3}{4}</p>".format(tree, path.value, spaces, indicator, path.key)
+            spaces += "&nbsp;" * 4
+            indicator = "\\_ "
+
+        # XXX: table element doesn't work?
+        details = """<b>{0}</b> {1}:{2} -> {3}:{4}
+<br><br>
+<b>Path:</b>{5}{6}<br>
+<b>Cmdline:</b>&nbsp;{7}<br>
+<b>CWD:</b>{8}{9}<br>
+<b>MD5:</b>{10}{11}<br>
+<b>UID:</b>{12}{13}<br>
+<b>PID:</b>{14}{15}<br>
+<br>
+<b>Process tree:</b><br>
+{16}
+<br>
+<p><b>Environment variables:<b></p>
+{17}
+""".format(
+    con.protocol.upper(),
+    con.src_port, con.src_ip, con.dst_ip, con.dst_port,
+    space * 6, con.process_path,
+    " ".join(con.process_args),
+    space * 6, con.process_cwd,
+    space * 7, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5],
+    space * 9, con.user_id,
+    space * 9, con.process_id,
+    tree,
+    "".join('<p>{}={}</p>'.format(key, value) for key, value in con.process_env.items())
+)
+
+        detailsWidget.document().clear()
+        detailsWidget.document().setHtml(details)
+        detailsWidget.moveCursor(QtGui.QTextCursor.Start)
+
     def _render_connection(self, con):
         app_name, app_icon, description, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
         app_args = " ".join(con.process_args)
@@ -357,6 +524,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if app_name == "":
             self.appPathLabel.setVisible(False)
             self.argsLabel.setVisible(False)
+            self.argsLabel.setText("")
             app_name = QC.translate("popups", "Unknown process %s" % con.process_path)
             self.appNameLabel.setText(QC.translate("popups", "Outgoing connection"))
         else:
@@ -454,53 +622,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.setFixedSize(self.size())
 
-    def _render_details(self, con):
-        tree = ""
-        space = "&nbsp;"
-        spaces = "&nbsp;"
-        indicator = ""
-
-        try:
-            # reverse() doesn't exist on old protobuf libs.
-            con.process_tree.reverse()
-        except:
-            pass
-        for path in con.process_tree:
-            tree = "{0}<p>│{1}\t{2}{3}{4}</p>".format(tree, path.value, spaces, indicator, path.key)
-            spaces += "&nbsp;" * 4
-            indicator = "\_ "
-
-        # XXX: table element doesn't work?
-        details = """<b>{0}</b> {1}:{2} -> {3}:{4}
-<br><br>
-<b>Path:</b>{5}{6}<br>
-<b>Cmdline:</b>&nbsp;{7}<br>
-<b>CWD:</b>{8}{9}<br>
-<b>MD5:</b>{10}{11}<br>
-<b>UID:</b>{12}{13}<br>
-<b>PID:</b>{14}{15}<br>
-<br>
-<b>Process tree:</b><br>
-{16}
-<br>
-<p><b>Environment variables:<b></p>
-{17}
-""".format(
-    con.protocol.upper(),
-    con.src_port, con.src_ip, con.dst_ip, con.dst_port,
-    space * 6, con.process_path,
-    " ".join(con.process_args),
-    space * 6, con.process_cwd,
-    space * 7, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5],
-    space * 9, con.user_id,
-    space * 9, con.process_id,
-    tree,
-    "".join('<p>{}={}</p>'.format(key, value) for key, value in con.process_env.items())
-)
-
-        self.connDetails.document().clear()
-        self.connDetails.document().setHtml(details)
-        self.connDetails.moveCursor(QtGui.QTextCursor.Start)
 
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):

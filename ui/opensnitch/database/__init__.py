@@ -584,6 +584,25 @@ class Database:
 
         return q
 
+    def get_rule_by_field(self, node_addr=None, field=None, value=None):
+        """
+        get rule records by field (process.path, etc)
+        """
+        qstr = "SELECT * FROM rules WHERE {0} LIKE ?".format(field)
+        q = QSqlQuery(qstr, self.db)
+        if node_addr != None:
+            qstr = qstr + " AND node=?".format(node_addr)
+
+        q.prepare(qstr)
+        q.addBindValue("%" + value + "%")
+        if node_addr != None:
+            q.addBindValue(node_addr)
+        if not q.exec_():
+            print("get_rule_by_field() error:", q.lastError().driverText())
+            return None
+
+        return q
+
     def get_rules(self, node_addr):
         """
         get rule records, given the name of the rule and the node
