@@ -570,24 +570,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.whatCombo.clear()
         self.whatIPCombo.clear()
 
-        # the order of these combobox entries must match those in the preferences dialog
-        # prefs -> UI -> Default target
-        self.whatCombo.addItem(QC.translate("popups", "from this executable"), self.FIELD_PROC_PATH)
-        if int(con.process_id) < 0:
-            self.whatCombo.model().item(0).setEnabled(False)
-
-        self.whatCombo.addItem(QC.translate("popups", "from this command line"), self.FIELD_PROC_ARGS)
-
-        self.whatCombo.addItem(QC.translate("popups", "to port {0}").format(con.dst_port), self.FIELD_DST_PORT)
-        self.whatCombo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), self.FIELD_DST_IP)
-
-        self.whatCombo.addItem(QC.translate("popups", "from user {0}").format(uid), self.FIELD_USER_ID)
-        if int(con.user_id) < 0:
-            self.whatCombo.model().item(4).setEnabled(False)
-
-        self.whatCombo.addItem(QC.translate("popups", "from this PID"), self.FIELD_PROC_ID)
-        #######################
-
+        self._add_fixed_options_to_combo(self.whatCombo, con, uid)
         if con.process_path.startswith(self.APPIMAGE_PREFIX):
             self._add_appimage_pattern_to_combo(self.whatCombo, con)
 
@@ -596,14 +579,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if con.dst_host != "" and con.dst_host != con.dst_ip:
             self._add_dsthost_to_combo(con.dst_host)
 
-        self.whatIPCombo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), self.FIELD_DST_IP)
-
-        parts = con.dst_ip.split('.')
-        nparts = len(parts)
-        for i in range(1, nparts):
-            self.whatCombo.addItem(QC.translate("popups", "to {0}.*").format('.'.join(parts[:i])), self.FIELD_REGEX_IP)
-            self.whatIPCombo.addItem(QC.translate("popups", "to {0}.*").format( '.'.join(parts[:i])), self.FIELD_REGEX_IP)
-
+        self._add_ip_regexp_to_combo(self.whatCombo, self.whatIPCombo, con)
         self._add_dst_networks_to_combo(self.whatIPCombo, con.dst_ip)
 
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
@@ -639,6 +615,33 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def closeEvent(self, e):
         self._send_rule()
         e.ignore()
+
+    def _add_fixed_options_to_combo(self, combo, con, uid):
+        # the order of these combobox entries must match those in the preferences dialog
+        # prefs -> UI -> Default target
+        combo.addItem(QC.translate("popups", "from this executable"), self.FIELD_PROC_PATH)
+        if int(con.process_id) < 0:
+            combo.model().item(0).setEnabled(False)
+
+        combo.addItem(QC.translate("popups", "from this command line"), self.FIELD_PROC_ARGS)
+
+        combo.addItem(QC.translate("popups", "to port {0}").format(con.dst_port), self.FIELD_DST_PORT)
+        combo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), self.FIELD_DST_IP)
+
+        combo.addItem(QC.translate("popups", "from user {0}").format(uid), self.FIELD_USER_ID)
+        if int(con.user_id) < 0:
+            combo.model().item(4).setEnabled(False)
+
+        combo.addItem(QC.translate("popups", "from this PID"), self.FIELD_PROC_ID)
+
+    def _add_ip_regexp_to_combo(self, combo, IPcombo, con):
+        IPcombo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), self.FIELD_DST_IP)
+
+        parts = con.dst_ip.split('.')
+        nparts = len(parts)
+        for i in range(1, nparts):
+            combo.addItem(QC.translate("popups", "to {0}.*").format('.'.join(parts[:i])), self.FIELD_REGEX_IP)
+            IPcombo.addItem(QC.translate("popups", "to {0}.*").format( '.'.join(parts[:i])), self.FIELD_REGEX_IP)
 
     def _add_appimage_pattern_to_combo(self, combo, con):
         """appimages' absolute path usually starts with /tmp/.mount_<
