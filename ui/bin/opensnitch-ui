@@ -22,7 +22,6 @@
 #   along with OpenSnitch.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QCoreApplication as QC
 from PyQt5.QtNetwork import QLocalServer, QLocalSocket
 
 import sys
@@ -42,7 +41,7 @@ if dist_path not in sys.path:
 from opensnitch.service import UIService
 from opensnitch.config import Config
 from opensnitch.utils import Themes, Utils, Versions, Message
-from opensnitch.utils.xdg import xdg_opensnitch_dir
+from opensnitch.utils.xdg import xdg_opensnitch_dir, xdg_current_session
 import opensnitch.ui_pb2
 from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
 from opensnitch import auth
@@ -65,6 +64,16 @@ def restrict_socket_perms(socket):
             os.chmod(socket[7:], 0o640)
     except Exception as e:
         print("Unable to change unix socket permissions:", socket, e)
+
+def check_environ():
+    if xdg_current_session == "":
+        print("""
+
+  Warning: XDG_SESSION_TYPE is not set.
+    If there're no icons on the GUI, please, read the following comment:
+    https://github.com/evilsocket/opensnitch/discussions/999#discussioncomment-6579273
+
+""")
 
 def supported_qt_version(major, medium, minor):
     q = QtCore.QT_VERSION_STR.split(".")
@@ -153,6 +162,7 @@ Examples:
         maxmsglen = cfg.getMaxMsgLength()
 
         service = UIService(app, on_exit, start_in_bg=args.background)
+        check_environ()
         localserver.newConnection.connect(service.OpenWindow)
         # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
         server = grpc.server(futures.ThreadPoolExecutor(),
