@@ -46,6 +46,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     FIELD_DST_PORT      = "dst_port"
     FIELD_DST_NETWORK   = "dst_network"
     FIELD_DST_HOST      = "simple_host"
+    FIELD_APPIMAGE      = "appimage_path"
 
     DURATION_30s    = "30s"
     DURATION_5m     = "5m"
@@ -53,6 +54,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     DURATION_30m    = "30m"
     DURATION_1h     = "1h"
     # don't translate
+
+    APPIMAGE_PREFIX = "/tmp/.mount_"
 
     # label displayed in the pop-up combo
     DURATION_session = QC.translate("popups", "until reboot")
@@ -289,7 +292,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._timeout_triggered = False
             self._rule = None
             self._local = is_local
-            self._peer = peer
             self._con = connection
 
             # XXX: workaround for protobufs that don't report the address of
@@ -584,6 +586,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.whatCombo.model().item(4).setEnabled(False)
 
         self.whatCombo.addItem(QC.translate("popups", "from this PID"), self.FIELD_PROC_ID)
+        #######################
+
+        if con.process_path.startswith(self.APPIMAGE_PREFIX):
+            self._add_appimage_pattern_to_combo(self.whatCombo, con)
 
         self._add_dst_networks_to_combo(self.whatCombo, con.dst_ip)
 
@@ -633,6 +639,16 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def closeEvent(self, e):
         self._send_rule()
         e.ignore()
+
+    def _add_appimage_pattern_to_combo(self, combo, con):
+        """appimages' absolute path usually starts with /tmp/.mount_<
+        """
+        appimage_bin = os.path.basename(con.process_path)
+        appimage_path = os.path.dirname(con.process_path)
+        combo.addItem(
+            QC.translate("popups", "from {0}*/{1}").format(appimage_path[:-6], appimage_bin),
+            self.FIELD_APPIMAGE
+        )
 
     def _add_dst_networks_to_combo(self, combo, dst_ip):
         if type(ipaddress.ip_address(dst_ip)) == ipaddress.IPv4Address:
@@ -703,27 +719,27 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             return Config.DURATION_ALWAYS
 
-    def _get_combo_operator(self, combo, what_idx):
+    def _get_combo_operator(self, combo, what_idx, con):
         if combo.itemData(what_idx) == self.FIELD_PROC_PATH:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, self._con.process_path
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
 
         elif combo.itemData(what_idx) == self.FIELD_PROC_ARGS:
             # this should not happen
-            if len(self._con.process_args) == 0 or self._con.process_args[0] == "":
-                return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, self._con.process_path
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_COMMAND, ' '.join(self._con.process_args)
+            if len(con.process_args) == 0 or con.process_args[0] == "":
+                return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_COMMAND, ' '.join(con.process_args)
 
         elif combo.itemData(what_idx) == self.FIELD_PROC_ID:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_ID, "{0}".format(self._con.process_id)
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_ID, "{0}".format(con.process_id)
 
         elif combo.itemData(what_idx) == self.FIELD_USER_ID:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_USER_ID, "%s" % self._con.user_id
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_USER_ID, "%s" % con.user_id
 
         elif combo.itemData(what_idx) == self.FIELD_DST_PORT:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_PORT, "%s" % self._con.dst_port
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_PORT, "%s" % con.dst_port
 
         elif combo.itemData(what_idx) == self.FIELD_DST_IP:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_IP, self._con.dst_ip
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_IP, con.dst_ip
 
         elif combo.itemData(what_idx) == self.FIELD_DST_HOST:
             return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_HOST, combo.currentText()
@@ -747,6 +763,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             parts = combo.currentText().split(' ')
             text = parts[len(parts)-1]
             return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_IP, "%s" % r'\.'.join(text.split('.')).replace("*", ".*")
+
+        elif combo.itemData(what_idx) == self.FIELD_APPIMAGE:
+            appimage_bin = os.path.basename(con.process_path)
+            appimage_path = os.path.dirname(con.process_path).replace(".", "\.")
+            return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]{{6}}/{1}$'.format(appimage_path[:-6], appimage_bin)
 
     def _on_action_clicked(self, action):
         self._default_action = action
@@ -789,7 +810,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._rule.action = Config.ACTION_REJECT
 
             what_idx = self.whatCombo.currentIndex()
-            self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self.whatCombo, what_idx)
+            self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self.whatCombo, what_idx, self._con)
             if self._rule.operator.data == "":
                 print("Invalid rule, discarding: ", self._rule)
                 self._rule = None
@@ -801,7 +822,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # TODO: move to a method
             data=[]
             if self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != self.FIELD_DST_IP:
-                _type, _operand, _data = self._get_combo_operator(self.whatIPCombo, self.whatIPCombo.currentIndex())
+                _type, _operand, _data = self._get_combo_operator(self.whatIPCombo, self.whatIPCombo.currentIndex(), self._con)
                 data.append({"type": _type, "operand": _operand, "data": _data})
                 rule_temp_name = slugify("%s %s" % (rule_temp_name, _data))
 
