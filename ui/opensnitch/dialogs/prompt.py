@@ -448,8 +448,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         """
         appimage_bin = os.path.basename(con.process_path)
         appimage_path = os.path.dirname(con.process_path)
+        appimage_path = appimage_path[0:len(self.APPIMAGE_PREFIX)+6]
         combo.addItem(
-            QC.translate("popups", "from {0}*/{1}").format(appimage_path[:-6], appimage_bin),
+            QC.translate("popups", "from {0}*/{1}").format(appimage_path, appimage_bin),
             self.FIELD_APPIMAGE
         )
 
@@ -594,7 +595,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif combo.itemData(what_idx) == self.FIELD_APPIMAGE:
             appimage_bin = os.path.basename(con.process_path)
             appimage_path = os.path.dirname(con.process_path).replace(".", "\.")
-            return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]{{6}}/{1}$'.format(appimage_path[:-6], appimage_bin)
+            appimage_path = appimage_path[0:len(self.APPIMAGE_PREFIX)+7]
+            return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]{{6}}\/.*{1}$'.format(appimage_path, appimage_bin)
 
     def _on_action_clicked(self, action):
         self._default_action = action
