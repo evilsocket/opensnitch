@@ -19,7 +19,7 @@ Vendor: OpenSnitch project
 Packager: Gustavo Iñiguez Goya <gooffy1@gmail.com>
 Url: https://github.com/evilsocket/opensnitch
 Requires: python3, python3-pip, (netcfg or setup), (python3-pyinotify or python3-inotify), python3-qt5, python3-notify2
-Recommends: (python3-slugify or python3-python-slugify), python3-protobuf >= 3.0, python3-grpcio >= 1.10.0
+Recommends: (python3-slugify or python3-python-slugify), python3-protobuf >= 3.0, python3-grpcio >= 1.10.0, (qgnomeplatform-qt5 or QGnomePlatform-qt5)
 
 # avoid to depend on a particular python version
 %global __requires_exclude ^python\\(abi\\) = 3\\..$
@@ -42,26 +42,17 @@ These rules can last forever, until the app restart or just one time.
 %post
 
 if [ $1 -ge 1 ]; then
-    for i in $(ls /home)
-    do
-        if grep /home/$i /etc/passwd &>/dev/null; then
-            path=/home/$i/.config/autostart/
-            if [ ! -d $path ]; then
-                mkdir -p $path
-            fi
-            if [ -f /usr/share/applications/%{desktop_file} ];then
-                ln -s /usr/share/applications/%{desktop_file} $path 2>/dev/null || true
-            else
-                echo "No desktop file: %{desktop_file}"
-            fi
-        fi
-    done
+    deskfile=/etc/xdg/autostart/opensnitch_ui.desktop
+    if [ -d /etc/xdg/autostart -a ! -h  $deskfile -a ! -f $deskfile ]; then
+        ln -s /usr/share/applications/opensnitch_ui.desktop /etc/xdg/autostart/
+    fi
 
     gtk-update-icon-cache /usr/share/icons/hicolor/ || true
 fi
 
 %postun
 if [ $1 -eq 0 ]; then
+    # deprecated: kept for uninstalling old (<= v1.6.4) autostart files
     for i in $(ls /home)
     do
         if grep /home/$i /etc/passwd &>/dev/null; then
@@ -73,6 +64,11 @@ if [ $1 -eq 0 ]; then
             fi
         fi
     done
+
+    deskfile=/etc/xdg/autostart/opensnitch_ui.desktop
+    if [ -h $deskfile -o -f $deskfile ]; then
+        rm -f $deskfile
+    fi
 
     pkill -15 opensnitch-ui 2>/dev/null || true
 fi
