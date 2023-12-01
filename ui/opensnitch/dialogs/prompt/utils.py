@@ -4,6 +4,7 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import QCoreApplication as QC
 
 from opensnitch.config import Config
+from opensnitch.dialogs.prompt import constants
 
 def set_elide_text(widget, text, max_size=132):
     if len(text) > max_size:
@@ -92,6 +93,31 @@ def set_app_description(appDescriptionLabel, description):
         appDescriptionLabel.setVisible(False)
         appDescriptionLabel.setFixedHeight(0)
         appDescriptionLabel.setText("")
+
+def get_duration(duration_idx):
+    if duration_idx == 0:
+        return Config.DURATION_ONCE
+    elif duration_idx == 1:
+        return constants.DURATION_30s
+    elif duration_idx == 2:
+        return constants.DURATION_5m
+    elif duration_idx == 3:
+        return constants.DURATION_15m
+    elif duration_idx == 4:
+        return constants.DURATION_30m
+    elif duration_idx == 5:
+        return constants.DURATION_1h
+    elif duration_idx == 6:
+        return Config.DURATION_UNTIL_RESTART
+    else:
+        return Config.DURATION_ALWAYS
+
+def set_default_duration(cfg, durationCombo):
+    if cfg.hasKey(Config.DEFAULT_DURATION_KEY):
+        cur_idx = cfg.getInt(Config.DEFAULT_DURATION_KEY)
+        durationCombo.setCurrentIndex(cur_idx)
+    else:
+        durationCombo.setCurrentIndex(Config.DEFAULT_DURATION_IDX)
 
 def render_details(node, detailsWidget, con):
     tree = ""
