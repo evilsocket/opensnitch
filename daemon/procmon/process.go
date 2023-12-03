@@ -22,7 +22,7 @@ const (
 	MethodEbpf  = "ebpf"
 
 	KernelConnection = "Kernel connection"
-	ProcSelfExe      = "/proc/self/exe"
+	ProcSelf         = "/proc/self/"
 
 	HashMD5  = "process.hash.md5"
 	HashSHA1 = "process.hash.sha1"
