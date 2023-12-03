@@ -18,6 +18,9 @@ const (
 	MethodProc  = "proc"
 	MethodAudit = "audit"
 	MethodEbpf  = "ebpf"
+
+	KernelConnection = "Kernel connection"
+	ProcSelf         = "/proc/self/"
 )
 
 // man 5 proc; man procfs

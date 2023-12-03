@@ -178,7 +178,7 @@ func (p *Process) ReadCmdline() {
 // - AppImages cmdline reports the execuable launched as /proc/self/exe,
 //   instead of the actual path to the binary.
 func (p *Process) CleanArgs() {
-	if len(p.Args) > 0 && p.Args[0] == "/proc/self/exe" {
+	if len(p.Args) > 0 && p.Args[0] == ProcSelf {
 		p.Args[0] = p.Path
 	}
 }
@@ -279,8 +279,8 @@ func (p *Process) CleanPath() {
 	// This is not useful to the user, and besides it's a generic path that can represent
 	// to any process.
 	// Therefore we cannot use /proc/self/exe directly, because it resolves to our own process.
-	if p.Path == "/proc/self/exe" {
-		if link, err := os.Readlink(fmt.Sprint("/proc/", p.ID, "/exe")); err == nil {
+	if strings.HasPrefix(p.Path, ProcSelf) {
+		if link, err := os.Readlink(p.pathExe); err == nil {
 			p.Path = link
 			return
 		}
