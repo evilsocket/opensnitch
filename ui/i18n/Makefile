@@ -1,5 +1,8 @@
 SOURCES +=  ../opensnitch/service.py \
-	    ../opensnitch/dialogs/prompt.py \
+	    ../opensnitch/dialogs/prompt/__init__.py \
+	    ../opensnitch/dialogs/prompt/utils.py \
+	    ../opensnitch/dialogs/prompt/details.py \
+	    ../opensnitch/dialogs/prompt/checksums.py \
 	    ../opensnitch/dialogs/preferences.py \
 	    ../opensnitch/dialogs/ruleseditor.py \
 	    ../opensnitch/dialogs/processdetails.py \
