@@ -21,7 +21,7 @@ from opensnitch.rules import Rules, Rule
 from opensnitch.nodes import Nodes
 
 from opensnitch import ui_pb2
-from opensnitch.dialogs.prompt import utils, constants, checksums, details
+from opensnitch.dialogs.prompt import _utils, _constants, _checksums, _details
 
 DIALOG_UI_PATH = "%s/../../res/prompt.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -57,7 +57,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._prompt_trigger.connect(self.on_connection_prompt_triggered)
         self._timeout_trigger.connect(self.on_timeout_triggered)
         self._tick_trigger.connect(self.on_tick_triggered)
-        self._tick = int(self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY)) if self._cfg.hasKey(self._cfg.DEFAULT_TIMEOUT_KEY) else constants.DEFAULT_TIMEOUT
+        self._tick = int(self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY)) if self._cfg.hasKey(self._cfg.DEFAULT_TIMEOUT_KEY) else _constants.DEFAULT_TIMEOUT
         self._tick_thread = None
         self._done = threading.Event()
         self._timeout_text = ""
@@ -178,7 +178,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkSum.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
         self.checksumLabel_2.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
         self.checksumLabel.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
-        self.stackedWidget.setCurrentIndex(constants.PAGE_MAIN)
+        self.stackedWidget.setCurrentIndex(_constants.PAGE_MAIN)
 
         self._ischeckAdvanceded = state
         self.adjust_size()
@@ -189,10 +189,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_warninglbl_clicked(self):
         self._stop_countdown()
-        self.stackedWidget.setCurrentIndex(constants.PAGE_CHECKSUMS)
+        self.stackedWidget.setCurrentIndex(_constants.PAGE_CHECKSUMS)
 
     def _cb_cmdinfo_clicked(self):
-        self.stackedWidget.setCurrentIndex(constants.PAGE_DETAILS)
+        self.stackedWidget.setCurrentIndex(_constants.PAGE_DETAILS)
         self._stop_countdown()
 
     def _cb_update_rule_clicked(self):
@@ -201,7 +201,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if curRule == "":
             return
 
-        rule, error = checksums.update_rule(self._peer, self._rules, curRule, self._con)
+        rule, error = _checksums.update_rule(self._peer, self._rules, curRule, self._con)
         if rule == None:
             self.labelChecksumStatus.setStyleSheet('color: red')
             self.labelChecksumStatus.setText("✘ " + error)
@@ -220,7 +220,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.labelChecksumStatus.setText("✔" + QC.translate("popups", "Rule updated."))
 
     def _cb_cmdback_clicked(self):
-        self.stackedWidget.setCurrentIndex(constants.PAGE_MAIN)
+        self.stackedWidget.setCurrentIndex(_constants.PAGE_MAIN)
         self._stop_countdown()
 
     def promptUser(self, connection, is_local, peer):
@@ -230,7 +230,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._tick_thread != None and self._tick_thread.is_alive():
                 self._tick_thread.join()
             self._cfg.reload()
-            self._tick = int(self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY)) if self._cfg.hasKey(self._cfg.DEFAULT_TIMEOUT_KEY) else constants.DEFAULT_TIMEOUT
+            self._tick = int(self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY)) if self._cfg.hasKey(self._cfg.DEFAULT_TIMEOUT_KEY) else _constants.DEFAULT_TIMEOUT
             self._tick_thread = threading.Thread(target=self._timeout_worker)
             self._tick_thread.stop = self._ischeckAdvanceded
             self._timeout_triggered = False
@@ -277,14 +277,14 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def on_connection_prompt_triggered(self):
-        self.stackedWidget.setCurrentIndex(constants.PAGE_MAIN)
+        self.stackedWidget.setCurrentIndex(_constants.PAGE_MAIN)
         self._render_connection(self._con)
         if self._tick > 0:
             self.show()
         # render details after displaying the pop-up.
 
         self._display_checksums_warning(self._peer, self._con)
-        details.render(self._peer, self.connDetails, self._con)
+        _details.render(self._peer, self.connDetails, self._con)
 
     @QtCore.pyqtSlot()
     def on_tick_triggered(self):
@@ -317,7 +317,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if records != None and records.first():
             rule = Rule.new_from_records(records)
-            validates, expected = checksums.verify(con, rule)
+            validates, expected = _checksums.verify(con, rule)
             if not validates:
                 self.messageLabel.setStyleSheet('color: red')
                 self.messageLabel.setText(
@@ -348,9 +348,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _render_connection(self, con):
         app_name, app_icon, description, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
         app_args = " ".join(con.process_args)
-        utils.set_app_description(self.appDescriptionLabel, description)
-        utils.set_app_path(self.appPathLabel, app_name, app_args, con)
-        utils.set_app_args(self.argsLabel, app_name, app_args)
+        _utils.set_app_description(self.appDescriptionLabel, description)
+        _utils.set_app_path(self.appPathLabel, app_name, app_args, con)
+        _utils.set_app_args(self.argsLabel, app_name, app_args)
 
         self.checksumLabel.setText(con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5])
         self.checkSum.setChecked(False)
@@ -363,18 +363,18 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             #with self._lock:
             self.appNameLabel.setText(QC.translate("popups", "Outgoing connection"))
         else:
-            utils.set_elide_text(self.appNameLabel, "%s" % app_name, max_size=42)
+            _utils.set_elide_text(self.appNameLabel, "%s" % app_name, max_size=42)
             self.appNameLabel.setToolTip(app_name)
 
         #if len(self._con.process_args) == 0 or self._con.process_args[0] == "":
 
         self.cwdLabel.setToolTip("%s %s" % (QC.translate("popups", "Process launched from:"), con.process_cwd))
-        utils.set_elide_text(self.cwdLabel, con.process_cwd, max_size=32)
+        _utils.set_elide_text(self.cwdLabel, con.process_cwd, max_size=32)
 
         pixmap = Icons.get_by_appname(app_icon)
         self.iconLabel.setPixmap(pixmap)
 
-        message = utils.get_popup_message(self._local, self._peer, app_name, con)
+        message = _utils.get_popup_message(self._local, self._peer, app_name, con)
 
         self.messageLabel.setText(message)
         self.messageLabel.setToolTip(message)
@@ -406,7 +406,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.whatIPCombo.clear()
 
         self._add_fixed_options_to_combo(self.whatCombo, con, uid)
-        if con.process_path.startswith(constants.APPIMAGE_PREFIX):
+        if con.process_path.startswith(_constants.APPIMAGE_PREFIX):
             self._add_appimage_pattern_to_combo(self.whatCombo, con)
         self._add_dst_networks_to_combo(self.whatCombo, con.dst_ip)
 
@@ -417,7 +417,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._add_dst_networks_to_combo(self.whatIPCombo, con.dst_ip)
 
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
-        utils.set_default_duration(self._cfg, self.durationCombo)
+        _utils.set_default_duration(self._cfg, self.durationCombo)
 
         if int(con.process_id) > 0:
             self.whatCombo.setCurrentIndex(int(self._cfg.getSettings(self._cfg.DEFAULT_TARGET_KEY)))
@@ -450,59 +450,59 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _add_fixed_options_to_combo(self, combo, con, uid):
         # the order of these combobox entries must match those in the preferences dialog
         # prefs -> UI -> Default target
-        combo.addItem(QC.translate("popups", "from this executable"), constants.FIELD_PROC_PATH)
+        combo.addItem(QC.translate("popups", "from this executable"), _constants.FIELD_PROC_PATH)
         if int(con.process_id) < 0:
             combo.model().item(0).setEnabled(False)
 
-        combo.addItem(QC.translate("popups", "from this command line"), constants.FIELD_PROC_ARGS)
+        combo.addItem(QC.translate("popups", "from this command line"), _constants.FIELD_PROC_ARGS)
 
-        combo.addItem(QC.translate("popups", "to port {0}").format(con.dst_port), constants.FIELD_DST_PORT)
-        combo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), constants.FIELD_DST_IP)
+        combo.addItem(QC.translate("popups", "to port {0}").format(con.dst_port), _constants.FIELD_DST_PORT)
+        combo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), _constants.FIELD_DST_IP)
 
-        combo.addItem(QC.translate("popups", "from user {0}").format(uid), constants.FIELD_USER_ID)
+        combo.addItem(QC.translate("popups", "from user {0}").format(uid), _constants.FIELD_USER_ID)
         if int(con.user_id) < 0:
             combo.model().item(4).setEnabled(False)
 
-        combo.addItem(QC.translate("popups", "from this PID"), constants.FIELD_PROC_ID)
+        combo.addItem(QC.translate("popups", "from this PID"), _constants.FIELD_PROC_ID)
 
     def _add_ip_regexp_to_combo(self, combo, IPcombo, con):
-        IPcombo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), constants.FIELD_DST_IP)
+        IPcombo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), _constants.FIELD_DST_IP)
 
         parts = con.dst_ip.split('.')
         nparts = len(parts)
         for i in range(1, nparts):
-            combo.addItem(QC.translate("popups", "to {0}.*").format('.'.join(parts[:i])), constants.FIELD_REGEX_IP)
-            IPcombo.addItem(QC.translate("popups", "to {0}.*").format( '.'.join(parts[:i])), constants.FIELD_REGEX_IP)
+            combo.addItem(QC.translate("popups", "to {0}.*").format('.'.join(parts[:i])), _constants.FIELD_REGEX_IP)
+            IPcombo.addItem(QC.translate("popups", "to {0}.*").format( '.'.join(parts[:i])), _constants.FIELD_REGEX_IP)
 
     def _add_appimage_pattern_to_combo(self, combo, con):
         """appimages' absolute path usually starts with /tmp/.mount_<
         """
         appimage_bin = os.path.basename(con.process_path)
         appimage_path = os.path.dirname(con.process_path)
-        appimage_path = appimage_path[0:len(constants.APPIMAGE_PREFIX)+6]
+        appimage_path = appimage_path[0:len(_constants.APPIMAGE_PREFIX)+6]
         combo.addItem(
             QC.translate("popups", "from {0}*/{1}").format(appimage_path, appimage_bin),
-            constants.FIELD_APPIMAGE
+            _constants.FIELD_APPIMAGE
         )
 
     def _add_dst_networks_to_combo(self, combo, dst_ip):
         if type(ipaddress.ip_address(dst_ip)) == ipaddress.IPv4Address:
-            combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/24", strict=False)),  constants.FIELD_DST_NETWORK)
-            combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/16", strict=False)),  constants.FIELD_DST_NETWORK)
-            combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/8", strict=False)),   constants.FIELD_DST_NETWORK)
+            combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/24", strict=False)),  _constants.FIELD_DST_NETWORK)
+            combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/16", strict=False)),  _constants.FIELD_DST_NETWORK)
+            combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/8", strict=False)),   _constants.FIELD_DST_NETWORK)
         else:
-            combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/64", strict=False)),  constants.FIELD_DST_NETWORK)
-            combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/128", strict=False)), constants.FIELD_DST_NETWORK)
+            combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/64", strict=False)),  _constants.FIELD_DST_NETWORK)
+            combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/128", strict=False)), _constants.FIELD_DST_NETWORK)
 
     def _add_dsthost_to_combo(self, dst_host):
-        self.whatCombo.addItem("%s" % dst_host, constants.FIELD_DST_HOST)
-        self.whatIPCombo.addItem("%s" % dst_host, constants.FIELD_DST_HOST)
+        self.whatCombo.addItem("%s" % dst_host, _constants.FIELD_DST_HOST)
+        self.whatIPCombo.addItem("%s" % dst_host, _constants.FIELD_DST_HOST)
 
         parts = dst_host.split('.')[1:]
         nparts = len(parts)
         for i in range(0, nparts - 1):
-            self.whatCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), constants.FIELD_REGEX_HOST)
-            self.whatIPCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), constants.FIELD_REGEX_HOST)
+            self.whatCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), _constants.FIELD_REGEX_HOST)
+            self.whatIPCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), _constants.FIELD_REGEX_HOST)
 
     def _on_action_clicked(self, action):
         self._default_action = action
@@ -526,7 +526,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule = ui_pb2.Rule(name="user.choice")
             self._rule.created = int(datetime.now().timestamp())
             self._rule.enabled = True
-            self._rule.duration = utils.get_duration(self.durationCombo.currentIndex())
+            self._rule.duration = _utils.get_duration(self.durationCombo.currentIndex())
 
             self._rule.action = Config.ACTION_ALLOW
             if self._default_action == Config.ACTION_DENY_IDX:
@@ -535,27 +535,33 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._rule.action = Config.ACTION_REJECT
 
             what_idx = self.whatCombo.currentIndex()
-            self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = utils.get_combo_operator(self.whatCombo.itemData(what_idx), self._con)
+            self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = _utils.get_combo_operator(
+                self.whatCombo.itemData(what_idx),
+                self.whatCombo.currentText(),
+                self._con)
             if self._rule.operator.data == "":
                 print("popups: Invalid rule, discarding: ", self._rule)
                 self._rule = None
                 return
 
-            rule_temp_name = utils.get_rule_name(self._rule, self._is_list_rule())
+            rule_temp_name = _utils.get_rule_name(self._rule, self._is_list_rule())
             self._rule.name = rule_temp_name
 
             # TODO: move to a method
             data=[]
-            if self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != constants.FIELD_DST_IP:
-                _type, _operand, _data = utils.get_combo_operator(self.whatIPCombo.itemData(self.whatIPCombo.currentIndex()), self._con)
+            if self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != _constants.FIELD_DST_IP:
+                _type, _operand, _data = _utils.get_combo_operator(
+                    self.whatIPCombo.itemData(self.whatIPCombo.currentIndex()),
+                    self.whatIPCombo.currentText(),
+                    self._con)
                 data.append({"type": _type, "operand": _operand, "data": _data})
                 rule_temp_name = slugify("%s %s" % (rule_temp_name, _data))
 
-            if self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != constants.FIELD_DST_PORT:
+            if self.checkDstPort.isChecked() and self.whatCombo.itemData(what_idx) != _constants.FIELD_DST_PORT:
                 data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_DEST_PORT, "data": str(self._con.dst_port)})
                 rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.dst_port)))
 
-            if self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != constants.FIELD_USER_ID:
+            if self.checkUserID.isChecked() and self.whatCombo.itemData(what_idx) != _constants.FIELD_USER_ID:
                 data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_USER_ID, "data": str(self._con.user_id)})
                 rule_temp_name = slugify("%s %s" % (rule_temp_name, str(self._con.user_id)))
 

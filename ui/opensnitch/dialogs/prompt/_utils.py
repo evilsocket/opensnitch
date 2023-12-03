@@ -1,10 +1,10 @@
 from slugify import slugify
+import os
 
-from PyQt5 import QtGui
 from PyQt5.QtCore import QCoreApplication as QC
 
 from opensnitch.config import Config
-from opensnitch.dialogs.prompt import constants
+from opensnitch.dialogs.prompt import _constants
 
 def set_elide_text(widget, text, max_size=132):
     if len(text) > max_size:
@@ -98,15 +98,15 @@ def get_duration(duration_idx):
     if duration_idx == 0:
         return Config.DURATION_ONCE
     elif duration_idx == 1:
-        return constants.DURATION_30s
+        return _constants.DURATION_30s
     elif duration_idx == 2:
-        return constants.DURATION_5m
+        return _constants.DURATION_5m
     elif duration_idx == 3:
-        return constants.DURATION_15m
+        return _constants.DURATION_15m
     elif duration_idx == 4:
-        return constants.DURATION_30m
+        return _constants.DURATION_30m
     elif duration_idx == 5:
-        return constants.DURATION_1h
+        return _constants.DURATION_1h
     elif duration_idx == 6:
         return Config.DURATION_UNTIL_RESTART
     else:
@@ -119,53 +119,53 @@ def set_default_duration(cfg, durationCombo):
     else:
         durationCombo.setCurrentIndex(Config.DEFAULT_DURATION_IDX)
 
-def get_combo_operator(data, con):
-    if data == constants.FIELD_PROC_PATH:
+def get_combo_operator(data, comboText, con):
+    if data == _constants.FIELD_PROC_PATH:
         return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
 
-    elif data == constants.FIELD_PROC_ARGS:
+    elif data == _constants.FIELD_PROC_ARGS:
         # this should not happen
         if len(con.process_args) == 0 or con.process_args[0] == "":
             return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
         return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_COMMAND, ' '.join(con.process_args)
 
-    elif data == constants.FIELD_PROC_ID:
+    elif data == _constants.FIELD_PROC_ID:
         return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_ID, "{0}".format(con.process_id)
 
-    elif data == constants.FIELD_USER_ID:
+    elif data == _constants.FIELD_USER_ID:
         return Config.RULE_TYPE_SIMPLE, Config.OPERAND_USER_ID, "%s" % con.user_id
 
-    elif data == constants.FIELD_DST_PORT:
+    elif data == _constants.FIELD_DST_PORT:
         return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_PORT, "%s" % con.dst_port
 
-    elif combo.itemData(what_idx) == constants.FIELD_DST_IP:
+    elif data == _constants.FIELD_DST_IP:
         return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_IP, con.dst_ip
 
-    elif data == constants.FIELD_DST_HOST:
-        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_HOST, combo.currentText()
+    elif data == _constants.FIELD_DST_HOST:
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_HOST, comboText
 
-    elif data == constants.FIELD_DST_NETWORK:
+    elif data == _constants.FIELD_DST_NETWORK:
         # strip "to ": "to x.x.x/20" -> "x.x.x/20"
         # we assume that to is one word in all languages
-        parts = combo.currentText().split(' ')
+        parts = comboText.split(' ')
         text = parts[len(parts)-1]
         return Config.RULE_TYPE_NETWORK, Config.OPERAND_DEST_NETWORK, text
 
-    elif data == constants.FIELD_REGEX_HOST:
-        parts = combo.currentText().split(' ')
+    elif data == _constants.FIELD_REGEX_HOST:
+        parts = comboText.split(' ')
         text = parts[len(parts)-1]
         # ^(|.*\.)yahoo\.com
         dsthost = r'\.'.join(text.split('.')).replace("*", "")
         dsthost = r'^(|.*\.)%s' % dsthost[2:]
         return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_HOST, dsthost
 
-    elif data == constants.FIELD_REGEX_IP:
-        parts = combo.currentText().split(' ')
+    elif data == _constants.FIELD_REGEX_IP:
+        parts = comboText.split(' ')
         text = parts[len(parts)-1]
         return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_IP, "%s" % r'\.'.join(text.split('.')).replace("*", ".*")
 
-    elif data == constants.FIELD_APPIMAGE:
+    elif data == _constants.FIELD_APPIMAGE:
         appimage_bin = os.path.basename(con.process_path)
         appimage_path = os.path.dirname(con.process_path).replace(".", "\.")
-        appimage_path = appimage_path[0:len(constants.APPIMAGE_PREFIX)+7]
+        appimage_path = appimage_path[0:len(_constants.APPIMAGE_PREFIX)+7]
         return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]{{6}}\/.*{1}$'.format(appimage_path, appimage_bin)
