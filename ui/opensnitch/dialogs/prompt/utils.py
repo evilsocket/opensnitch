@@ -119,50 +119,53 @@ def set_default_duration(cfg, durationCombo):
     else:
         durationCombo.setCurrentIndex(Config.DEFAULT_DURATION_IDX)
 
-def render_details(node, detailsWidget, con):
-    tree = ""
-    space = "&nbsp;"
-    spaces = "&nbsp;"
-    indicator = ""
+def get_combo_operator(data, con):
+    if data == constants.FIELD_PROC_PATH:
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
 
-    try:
-        # reverse() doesn't exist on old protobuf libs.
-        con.process_tree.reverse()
-    except:
-        pass
-    for path in con.process_tree:
-        tree = "{0}<p>│{1}\t{2}{3}{4}</p>".format(tree, path.value, spaces, indicator, path.key)
-        spaces += "&nbsp;" * 4
-        indicator = "\\_ "
+    elif data == constants.FIELD_PROC_ARGS:
+        # this should not happen
+        if len(con.process_args) == 0 or con.process_args[0] == "":
+            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_COMMAND, ' '.join(con.process_args)
 
-    # XXX: table element doesn't work?
-    details = """<b>{0}</b> {1}:{2} -> {3}:{4}
-<br><br>
-<b>Path:</b>{5}{6}<br>
-<b>Cmdline:</b>&nbsp;{7}<br>
-<b>CWD:</b>{8}{9}<br>
-<b>MD5:</b>{10}{11}<br>
-<b>UID:</b>{12}{13}<br>
-<b>PID:</b>{14}{15}<br>
-<br>
-<b>Process tree:</b><br>
-{16}
-<br>
-<p><b>Environment variables:<b></p>
-{17}
-""".format(
-con.protocol.upper(),
-con.src_port, con.src_ip, con.dst_ip, con.dst_port,
-space * 6, con.process_path,
-" ".join(con.process_args),
-space * 6, con.process_cwd,
-space * 7, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5],
-space * 9, con.user_id,
-space * 9, con.process_id,
-tree,
-"".join('<p>{}={}</p>'.format(key, value) for key, value in con.process_env.items())
-)
+    elif data == constants.FIELD_PROC_ID:
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_ID, "{0}".format(con.process_id)
 
-    detailsWidget.document().clear()
-    detailsWidget.document().setHtml(details)
-    detailsWidget.moveCursor(QtGui.QTextCursor.Start)
+    elif data == constants.FIELD_USER_ID:
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_USER_ID, "%s" % con.user_id
+
+    elif data == constants.FIELD_DST_PORT:
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_PORT, "%s" % con.dst_port
+
+    elif combo.itemData(what_idx) == constants.FIELD_DST_IP:
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_IP, con.dst_ip
+
+    elif data == constants.FIELD_DST_HOST:
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_HOST, combo.currentText()
+
+    elif data == constants.FIELD_DST_NETWORK:
+        # strip "to ": "to x.x.x/20" -> "x.x.x/20"
+        # we assume that to is one word in all languages
+        parts = combo.currentText().split(' ')
+        text = parts[len(parts)-1]
+        return Config.RULE_TYPE_NETWORK, Config.OPERAND_DEST_NETWORK, text
+
+    elif data == constants.FIELD_REGEX_HOST:
+        parts = combo.currentText().split(' ')
+        text = parts[len(parts)-1]
+        # ^(|.*\.)yahoo\.com
+        dsthost = r'\.'.join(text.split('.')).replace("*", "")
+        dsthost = r'^(|.*\.)%s' % dsthost[2:]
+        return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_HOST, dsthost
+
+    elif data == constants.FIELD_REGEX_IP:
+        parts = combo.currentText().split(' ')
+        text = parts[len(parts)-1]
+        return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_IP, "%s" % r'\.'.join(text.split('.')).replace("*", ".*")
+
+    elif data == constants.FIELD_APPIMAGE:
+        appimage_bin = os.path.basename(con.process_path)
+        appimage_path = os.path.dirname(con.process_path).replace(".", "\.")
+        appimage_path = appimage_path[0:len(constants.APPIMAGE_PREFIX)+7]
+        return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]{{6}}\/.*{1}$'.format(appimage_path, appimage_bin)

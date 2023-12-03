@@ -21,7 +21,7 @@ from opensnitch.rules import Rules, Rule
 from opensnitch.nodes import Nodes
 
 from opensnitch import ui_pb2
-from opensnitch.dialogs.prompt import utils, constants, checksums
+from opensnitch.dialogs.prompt import utils, constants, checksums, details
 
 DIALOG_UI_PATH = "%s/../../res/prompt.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -284,7 +284,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # render details after displaying the pop-up.
 
         self._display_checksums_warning(self._peer, self._con)
-        utils.render_details(self._peer, self.connDetails, self._con)
+        details.render(self._peer, self.connDetails, self._con)
 
     @QtCore.pyqtSlot()
     def on_tick_triggered(self):
@@ -504,57 +504,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.whatCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), constants.FIELD_REGEX_HOST)
             self.whatIPCombo.addItem(QC.translate("popups", "to *.{0}").format('.'.join(parts[i:])), constants.FIELD_REGEX_HOST)
 
-    def _get_combo_operator(self, combo, what_idx, con):
-        if combo.itemData(what_idx) == constants.FIELD_PROC_PATH:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
-
-        elif combo.itemData(what_idx) == constants.FIELD_PROC_ARGS:
-            # this should not happen
-            if len(con.process_args) == 0 or con.process_args[0] == "":
-                return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_COMMAND, ' '.join(con.process_args)
-
-        elif combo.itemData(what_idx) == constants.FIELD_PROC_ID:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_ID, "{0}".format(con.process_id)
-
-        elif combo.itemData(what_idx) == constants.FIELD_USER_ID:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_USER_ID, "%s" % con.user_id
-
-        elif combo.itemData(what_idx) == constants.FIELD_DST_PORT:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_PORT, "%s" % con.dst_port
-
-        elif combo.itemData(what_idx) == constants.FIELD_DST_IP:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_IP, con.dst_ip
-
-        elif combo.itemData(what_idx) == constants.FIELD_DST_HOST:
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_HOST, combo.currentText()
-
-        elif combo.itemData(what_idx) == constants.FIELD_DST_NETWORK:
-            # strip "to ": "to x.x.x/20" -> "x.x.x/20"
-            # we assume that to is one word in all languages
-            parts = combo.currentText().split(' ')
-            text = parts[len(parts)-1]
-            return Config.RULE_TYPE_NETWORK, Config.OPERAND_DEST_NETWORK, text
-
-        elif combo.itemData(what_idx) == constants.FIELD_REGEX_HOST:
-            parts = combo.currentText().split(' ')
-            text = parts[len(parts)-1]
-            # ^(|.*\.)yahoo\.com
-            dsthost = r'\.'.join(text.split('.')).replace("*", "")
-            dsthost = r'^(|.*\.)%s' % dsthost[2:]
-            return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_HOST, dsthost
-
-        elif combo.itemData(what_idx) == constants.FIELD_REGEX_IP:
-            parts = combo.currentText().split(' ')
-            text = parts[len(parts)-1]
-            return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_IP, "%s" % r'\.'.join(text.split('.')).replace("*", ".*")
-
-        elif combo.itemData(what_idx) == constants.FIELD_APPIMAGE:
-            appimage_bin = os.path.basename(con.process_path)
-            appimage_path = os.path.dirname(con.process_path).replace(".", "\.")
-            appimage_path = appimage_path[0:len(constants.APPIMAGE_PREFIX)+7]
-            return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]{{6}}\/.*{1}$'.format(appimage_path, appimage_bin)
-
     def _on_action_clicked(self, action):
         self._default_action = action
         self._send_rule()
@@ -586,7 +535,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._rule.action = Config.ACTION_REJECT
 
             what_idx = self.whatCombo.currentIndex()
-            self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = self._get_combo_operator(self.whatCombo, what_idx, self._con)
+            self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = utils.get_combo_operator(self.whatCombo.itemData(what_idx), self._con)
             if self._rule.operator.data == "":
                 print("popups: Invalid rule, discarding: ", self._rule)
                 self._rule = None
@@ -598,7 +547,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # TODO: move to a method
             data=[]
             if self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != constants.FIELD_DST_IP:
-                _type, _operand, _data = self._get_combo_operator(self.whatIPCombo, self.whatIPCombo.currentIndex(), self._con)
+                _type, _operand, _data = utils.get_combo_operator(self.whatIPCombo.itemData(self.whatIPCombo.currentIndex()), self._con)
                 data.append({"type": _type, "operand": _operand, "data": _data})
                 rule_temp_name = slugify("%s %s" % (rule_temp_name, _data))
 
