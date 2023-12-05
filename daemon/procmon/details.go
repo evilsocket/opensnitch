@@ -50,7 +50,9 @@ func (p *Process) GetParent() {
 
 	// TODO: see how we can reuse this object and the ppid, to save some iterations.
 	// right now it opens the can of leaks.
+	p.mu.Lock()
 	p.Parent = NewProcessEmpty(ppid, "")
+	p.mu.Unlock()
 	p.Parent.ReadPath()
 
 	// get process tree
