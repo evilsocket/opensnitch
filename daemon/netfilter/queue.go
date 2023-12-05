@@ -163,8 +163,6 @@ func (q *Queue) destroy() {
 		}
 		os.Exit(0)
 	})
-	C.nfq_unbind_pf(q.h, AF_INET)
-	C.nfq_unbind_pf(q.h, AF_INET6)
 	if q.qh != nil {
 		if ret := C.nfq_destroy_queue(q.qh); ret != 0 {
 			log.Warning("Queue.destroy() idx=%d, nfq_destroy_queue() not closed: %d", q.idx, ret)
