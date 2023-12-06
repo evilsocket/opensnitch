@@ -415,7 +415,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._configure_default_duration()
 
-        if int(con.process_id) > 0:
+        if int(con.process_id) > 0 and app_name != "" and app_args != "":
             self.whatCombo.setCurrentIndex(int(self._cfg.getSettings(self._cfg.DEFAULT_TARGET_KEY)))
         else:
             self.whatCombo.setCurrentIndex(2)
