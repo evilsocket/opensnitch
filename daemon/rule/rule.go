@@ -127,6 +127,9 @@ func (r *Rule) Serialize() *protocol.Rule {
 	if r == nil {
 		return nil
 	}
+	r.Operator.Lock()
+	defer r.Operator.Unlock()
+
 	protoRule := &protocol.Rule{
 		Created:     r.Created.Unix(),
 		Name:        string(r.Name),
