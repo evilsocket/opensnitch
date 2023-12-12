@@ -123,6 +123,7 @@ func NewProcessEmpty(pid int, comm string) *Process {
 		mu:        &sync.RWMutex{},
 		Starttime: time.Now().UnixNano(),
 		ID:        pid,
+		PPID:      0,
 		Comm:      comm,
 		Args:      make([]string, 0),
 		Env:       make(map[string]string),
@@ -235,8 +236,8 @@ func SetMonitorMethod(newMonitorMethod string) {
 
 // GetMonitorMethod configures a new method for parsing connections.
 func GetMonitorMethod() string {
-	lock.Lock()
-	defer lock.Unlock()
+	lock.RLock()
+	defer lock.RUnlock()
 
 	return monitorMethod
 }

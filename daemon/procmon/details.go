@@ -33,25 +33,15 @@ func (p *Process) GetParent() {
 		return
 	}
 
-	// ReadFile + parse = ~40us
-	data, err := ioutil.ReadFile(p.pathStat)
-	if err != nil {
-		return
-	}
-	var ppid int
-	var state string
-	// https://lore.kernel.org/lkml/tog7cb$105a$1@ciao.gmane.io/T/
-	parts := bytes.Split(data, []byte(")"))
-	data = parts[len(parts)-1]
-	_, err = fmt.Sscanf(string(data), "%s %d", &state, &ppid)
-	if err != nil || ppid == 0 {
+	p.ReadPPID()
+	if p.PPID == 0 {
 		return
 	}
 
 	// TODO: see how we can reuse this object and the ppid, to save some iterations.
 	// right now it opens the can of leaks.
 	p.mu.Lock()
-	p.Parent = NewProcessEmpty(ppid, "")
+	p.Parent = NewProcessEmpty(p.PPID, "")
 	p.mu.Unlock()
 	p.Parent.ReadPath()
 
@@ -64,6 +54,12 @@ func (p *Process) BuildTree() {
 	if len(p.Tree) > 0 {
 		return
 	}
+	// Adding this process to the tree, not to loose track of it.
+	p.Tree = append(p.Tree,
+		&protocol.StringInt{
+			Key: p.Path, Value: uint32(p.ID),
+		},
+	)
 	for pp := p.Parent; pp != nil; pp = pp.Parent {
 		// add the parents in reverse order, so when we iterate over them with the rules
 		// the first item is the most direct parent of the process.
@@ -114,6 +110,26 @@ func (p *Process) GetExtraInfo() error {
 	p.readStatus()
 
 	return nil
+}
+
+// ReadPPID obtains the pid of the parent process
+func (p *Process) ReadPPID() {
+	// ReadFile + parse = ~40us
+	data, err := ioutil.ReadFile(p.pathStat)
+	if err != nil {
+		p.PPID = 0
+		return
+	}
+
+	var state string
+	// https://lore.kernel.org/lkml/tog7cb$105a$1@ciao.gmane.io/T/
+	parts := bytes.Split(data, []byte(")"))
+	data = parts[len(parts)-1]
+	_, err = fmt.Sscanf(string(data), "%s %d", &state, &p.PPID)
+	if err != nil || p.PPID == 0 {
+		p.PPID = 0
+		return
+	}
 }
 
 // ReadComm reads the comm name from ProcFS /proc/<pid>/comm
@@ -380,12 +396,33 @@ func (p *Process) IsAlive() bool {
 
 // IsChild determines if this process is child of its parent
 func (p *Process) IsChild() bool {
-	return p.Parent != nil && p.Parent.Path == p.Path && p.Parent.IsAlive() //&& proc.Starttime != proc.Parent.Starttime
+	return (p.Parent != nil && p.Parent.Path == p.Path && p.Parent.IsAlive()) ||
+		core.Exists(fmt.Sprint("/proc/", p.PPID, "/task/", p.ID))
+
+}
+
+// ChecksumsCount returns the number of checksums of this process.
+func (p *Process) ChecksumsCount() int {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	return len(p.Checksums)
+}
+
+// ResetChecksums initializes checksums
+func (p *Process) ResetChecksums() {
+	p.mu.Lock()
+	p.Checksums = make(map[string]string)
+	p.mu.Unlock()
 }
 
 // ComputeChecksums calculates the checksums of a the process path to the binary.
 // Users may want to use different hashing alogrithms.
 func (p *Process) ComputeChecksums(hashes map[string]uint) {
+	if p.IsAlive() && len(p.Checksums) > 0 {
+		log.Debug("process.ComputeChecksums() already hashed: %d, path: %s, %v", p.ID, p.Path, p.Checksums)
+		return
+	}
+
 	for hash := range hashes {
 		p.ComputeChecksum(hash)
 	}
@@ -425,8 +462,8 @@ func (p *Process) ComputeChecksum(algo string) {
 	}
 
 	i := uint8(0)
-	for i = 0; i < 2; i++ {
-		log.Debug("[hashing %s], path %d: %s", algo, i, paths[i])
+	for i = 0; i < 3; i++ {
+		log.Debug("[hashing %s], path %d: %s -> %s", algo, i, paths[i], p.Path)
 
 		start := time.Now()
 		h.Reset()
@@ -441,9 +478,9 @@ func (p *Process) ComputeChecksum(algo string) {
 				log.Debug("[hashing] Unable to dump process memory: %s", err)
 				continue
 			}
-			p.Lock()
+			p.mu.Lock()
 			p.Checksums[algo] = hex.EncodeToString(h.Sum(code))
-			p.Unlock()
+			p.mu.Unlock()
 			log.Debug("[hashing] memory region hashed, elapsed: %v ,Hash: %s, %s\n", time.Since(start), p.Checksums[algo], paths[i])
 			code = nil
 			break
@@ -454,9 +491,9 @@ func (p *Process) ComputeChecksum(algo string) {
 			log.Debug("[hashing %s] Error copying data: %s", algo, err)
 			continue
 		}
-		p.Lock()
+		p.mu.Lock()
 		p.Checksums[algo] = hex.EncodeToString(h.Sum(nil))
-		p.Unlock()
+		p.mu.Unlock()
 		log.Debug("[hashing] elapsed: %v ,Hash: %s, %s\n", time.Since(start), p.Checksums[algo], paths[i])
 
 		break
@@ -535,10 +572,6 @@ func (p *Process) dumpFileImage(filePath string) ([]byte, error) {
 	elfCode, err := p.readMem(mappings)
 	mappings = nil
 	//fmt.Printf(">>> READ MEM, regions size: %d, elfCode: %d\n", size, len(elfCode))
-
-	//if fInfo, err := os.Stat(filePath); err == nil {
-	//	fmt.Printf("\t>>> on disk: %d\n", fInfo.Size())
-	//}
 
 	if err != nil {
 		return nil, err

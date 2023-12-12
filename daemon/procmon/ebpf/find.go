@@ -160,11 +160,9 @@ func findConnProcess(value *networkEventT, connKey string) (proc *procmon.Proces
 	// Use socket's UID. A process may have dropped privileges.
 	// This is the UID that we've always used.
 
-	if ev, _, found := procmon.EventsCache.IsInStore(int(value.Pid), nil); found {
-		ev.Lock()
+	if ev, found := procmon.EventsCache.IsInStoreByPID(int(value.Pid)); found {
 		ev.Proc.UID = int(value.UID)
-		ev.Unlock()
-		proc = ev.Proc
+		proc = &ev.Proc
 		log.Debug("[ebpf conn] not in cache, but in execEvents: %s, %d -> %s -> %s", connKey, proc.ID, proc.Path, proc.Args)
 		return
 	}

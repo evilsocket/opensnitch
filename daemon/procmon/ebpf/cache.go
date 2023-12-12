@@ -46,7 +46,7 @@ func (i *ebpfCacheItem) isValid() bool {
 func NewEbpfCache() *ebpfCacheType {
 	ebpfCacheTicker = time.NewTicker(1 * time.Minute)
 	return &ebpfCacheType{
-		Items: make(map[interface{}]*ebpfCacheItem, 0),
+		Items: make(map[interface{}]*ebpfCacheItem, 500),
 		mu:    &sync.RWMutex{},
 	}
 }
@@ -81,6 +81,17 @@ func (e *ebpfCacheType) isInCache(key interface{}) (item *ebpfCacheItem, found b
 func (e *ebpfCacheType) update(key interface{}, item *ebpfCacheItem) {
 	item.LastSeen = time.Now().UnixNano()
 	e.Items[key] = item
+}
+
+func (e *ebpfCacheType) updateByPid(proc *procmon.Process) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	for k, item := range e.Items {
+		if proc.ID == item.Proc.ID {
+			e.update(k, item)
+		}
+	}
+
 }
 
 func (e *ebpfCacheType) Len() int {

@@ -63,7 +63,7 @@ func (c *Client) monitorProcessDetails(pid int, stream protocol.UI_Notifications
 	p := &procmon.Process{}
 	item, found := procmon.EventsCache.IsInStoreByPID(pid)
 	if found {
-		newProc := *item.Proc
+		newProc := item.Proc
 		p = &newProc
 		if len(p.Tree) == 0 {
 			p.GetParent()

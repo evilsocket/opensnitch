@@ -98,7 +98,7 @@ func FindProcess(pid int, interceptUnknown bool) *Process {
 	}
 
 	if ev, _, found := EventsCache.IsInStore(pid, nil); found {
-		return ev.Proc
+		return &ev.Proc
 	}
 
 	proc := NewProcessEmpty(pid, "")

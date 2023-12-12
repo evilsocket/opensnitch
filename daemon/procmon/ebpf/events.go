@@ -161,16 +161,18 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents 
 			log.Debug("Lost ebpf events: %d", l)
 		case d := <-chn:
 			if err := binary.Read(bytes.NewBuffer(d), hostByteOrder, &event); err != nil {
-				log.Error("[eBPF events #%d] error: %s", id, err)
-			} else {
-				switch event.Type {
-				case EV_TYPE_EXEC, EV_TYPE_EXECVEAT:
-					processExecEvent(&event)
-
-				case EV_TYPE_SCHED_EXIT:
-					processExitEvent(&event)
-				}
+				log.Debug("[eBPF events #%d] error: %s", id, err)
+				continue
 			}
+
+			switch event.Type {
+			case EV_TYPE_EXEC, EV_TYPE_EXECVEAT:
+				processExecEvent(&event)
+
+			case EV_TYPE_SCHED_EXIT:
+				processExitEvent(&event)
+			}
+
 		}
 	}
 
@@ -178,13 +180,46 @@ Exit:
 	log.Debug("perfMap goroutine exited #%d", id)
 }
 
+// processExecEvent parses an execEevent to Process, saves or reuses it to
+// cache, and decides if it needs to be updated.
+func processExecEvent(event *execEvent) {
+	proc := event2process(event)
+	if proc == nil {
+		return
+	}
+	log.Debug("[eBPF exec event] type: %d, ppid: %d, pid: %d, %s -> %s", event.Type, event.PPID, event.PID, proc.Path, proc.Args)
+	itemParent, pfound := procmon.EventsCache.IsInStoreByPID(proc.PPID)
+	if pfound {
+		proc.Parent = &itemParent.Proc
+		proc.Tree = itemParent.Proc.Tree
+	}
+
+	item, needsUpdate, found := procmon.EventsCache.IsInStore(int(event.PID), proc)
+	if !found {
+		procmon.EventsCache.Add(proc)
+		getProcDetails(event, proc)
+		procmon.EventsCache.UpdateItem(proc)
+		ebpfCache.updateByPid(proc)
+		return
+	}
+
+	if found && needsUpdate {
+		procmon.EventsCache.Update(&item.Proc, proc)
+		ebpfCache.updateByPid(&item.Proc)
+	}
+
+	// from now on use cached Process
+	log.Debug("[eBPF event inCache] -> %d, %s", event.PID, item.Proc.Path)
+}
+
+// event2process creates a new Process from execEvent
 func event2process(event *execEvent) (proc *procmon.Process) {
 	proc = procmon.NewProcessEmpty(int(event.PID), byteArrayToString(event.Comm[:]))
 	proc.UID = int(event.UID)
-	// trust process path received from kernel
+
 	// NOTE: this is the absolute path executed, but no the real path to the binary.
-	// if it's executed from a chroot, the absolute path willa be /chroot/path/usr/bin/blabla
-	// if it's from a container, the absolute path will be /proc/<pid>/root/usr/bin/blabla
+	// if it's executed from a chroot, the absolute path will be /chroot/path/usr/bin/blabla
+	// if it's from a container, the real absolute path will be /proc/<pid>/root/usr/bin/blabla
 	path := byteArrayToString(event.Filename[:])
 	if path != "" {
 		proc.SetPath(path)
@@ -193,6 +228,8 @@ func event2process(event *execEvent) (proc *procmon.Process) {
 			return nil
 		}
 	}
+	proc.ReadPPID()
+
 	if event.ArgsPartial == 0 {
 		for i := 0; i < int(event.ArgsCount); i++ {
 			proc.Args = append(proc.Args, byteArrayToString(event.Args[i][:]))
@@ -201,45 +238,18 @@ func event2process(event *execEvent) (proc *procmon.Process) {
 	} else {
 		proc.ReadCmdline()
 	}
-	proc.GetParent()
-	proc.BuildTree()
-	proc.ReadCwd()
-	proc.ReadEnv()
-	log.Debug("[eBPF exec event] ppid: %d, pid: %d, %s -> %s", event.PPID, event.PID, proc.Path, proc.Args)
 
 	return
 }
 
-func processExecEvent(event *execEvent) {
-	proc := event2process(event)
-	if proc == nil {
-		return
-	}
-	// TODO: store multiple executions with the same pid but different paths:
-	// forks, execves... execs from chroots, containers, etc.
-	if item, needsUpdate, found := procmon.EventsCache.IsInStore(int(event.PID), proc); found {
-		if needsUpdate {
-			// when a process is replaced in memory, it'll be found in cache by PID,
-			// but the new process's details will be empty
-			proc.Parent = item.Proc
-			procmon.EventsCache.ComputeChecksums(proc)
-			procmon.EventsCache.UpdateItem(proc)
-		}
-		log.Debug("[eBPF event inCache] -> %d, %v", event.PID, item.Proc.Checksums)
-		return
-	}
-	procmon.EventsCache.Add(proc)
+func getProcDetails(event *execEvent, proc *procmon.Process) {
+	proc.GetParent()
+	proc.BuildTree()
+	proc.ReadCwd()
+	proc.ReadEnv()
 }
 
 func processExitEvent(event *execEvent) {
 	log.Debug("[eBPF exit event] pid: %d, ppid: %d", event.PID, event.PPID)
-	ev, _, found := procmon.EventsCache.IsInStore(int(event.PID), nil)
-	if !found {
-		return
-	}
-	log.Debug("[eBPF exit event inCache] pid: %d, tgid: %d", event.PID, event.PPID)
-	if ev.Proc.IsAlive() == false {
-		procmon.EventsCache.Delete(int(event.PID))
-		log.Debug("[ebpf exit event] deleting DEAD pid: %d", event.PID)
-	}
+	procmon.EventsCache.Delete(int(event.PID))
 }

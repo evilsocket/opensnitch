@@ -33,10 +33,9 @@ func MonitorProcEvents(stop <-chan struct{}) {
 				proc := NewProcessWithParent(int(ev.PID), int(ev.TGID), "")
 
 				log.Debug("[procmon exec event] %d, pid:%d tgid:%d %s, %s -> %s\n", ev.TimeStamp, ev.PID, ev.TGID, proc.Comm, proc.Path, proc.Parent.Path)
-				if _, needsUpdate, found := EventsCache.IsInStore(int(ev.PID), proc); found {
+				if item, needsUpdate, found := EventsCache.IsInStore(int(ev.PID), proc); found {
 					if needsUpdate {
-						EventsCache.ComputeChecksums(proc)
-						EventsCache.UpdateItem(proc)
+						EventsCache.Update(&item.Proc, proc)
 					}
 					log.Debug("[procmon exec event inCache] %d, pid:%d tgid:%d\n", ev.TimeStamp, ev.PID, ev.TGID)
 					continue
