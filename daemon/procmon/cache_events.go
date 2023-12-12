@@ -107,6 +107,7 @@ func (e *EventsStore) ReplaceItem(oldProc, newProc *Process) {
 	// Note: in rare occasions, the process being replaced is the older one.
 	// if oldProc.Starttime > newProc.Starttime {}
 	//
+
 	newProc.PPID = oldProc.ID
 	e.UpdateItem(newProc)
 
@@ -307,14 +308,20 @@ func (e *EventsStore) SetComputeChecksums(compute bool) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
+	if compute == e.checksumsEnabled {
+		log.Debug("SetComputeChecksums(), no changes (%v, %v)", e.checksumsEnabled, compute)
+		return
+	}
 	e.checksumsEnabled = compute
 	if !compute {
+		log.Debug("SetComputeChecksums() disabled, deleting saved checksums")
 		for _, item := range e.eventByPID {
 			// XXX: reset saved checksums? or keep them in cache?
 			item.Proc.ResetChecksums()
 		}
 		return
 	}
+	log.Debug("SetComputeChecksums() enabled, recomputing cached checksums")
 	for _, item := range e.eventByPID {
 		if item.Proc.ChecksumsCount() == 0 {
 			item.Proc.ComputeChecksums(e.checksums)
