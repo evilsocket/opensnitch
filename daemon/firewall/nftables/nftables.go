@@ -105,7 +105,9 @@ func (n *Nft) Stop() {
 	n.StopCheckingRules()
 	n.CleanRules(log.GetLogLevel() == log.DEBUG)
 
+	n.Lock()
 	n.Running = false
+	n.Unlock()
 }
 
 // EnableInterception adds firewall rules to intercept connections
