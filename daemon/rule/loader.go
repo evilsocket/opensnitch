@@ -85,11 +85,11 @@ func (l *Loader) HasChecksums(op Operand) {
 // Load loads rules files from disk.
 func (l *Loader) Load(path string) error {
 	if core.Exists(path) == false {
-		return fmt.Errorf("Path '%s' does not exist\nCreate it in if you want to save rules to disk", path)
+		return fmt.Errorf("Path '%s' does not exist\nCreate it if you want to save rules to disk", path)
 	}
 	path, err := core.ExpandPath(path)
 	if err != nil {
-		return fmt.Errorf("Error accessing rules path: %s.\nCreate it in if you want to save rules to disk", err)
+		return fmt.Errorf("Error accessing rules path: %s.\nCreate it if you want to save rules to disk", err)
 	}
 
 	expr := filepath.Join(path, "*.json")
