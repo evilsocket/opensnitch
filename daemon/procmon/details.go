@@ -169,7 +169,9 @@ func (p *Process) ReadEnv() {
 		if parts != nil && len(parts) == 2 {
 			key := core.Trim(parts[0])
 			val := core.Trim(parts[1])
+			p.mu.Lock()
 			p.Env[key] = val
+			p.mu.Unlock()
 		}
 	}
 }
