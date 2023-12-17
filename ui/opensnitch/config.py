@@ -122,6 +122,7 @@ class Config:
     NOTIFICATION_TYPE_SYSTEM = 0
     NOTIFICATION_TYPE_QT = 1
 
+    STATS_UPDATE_INTERVAL = "statsDialog/update_interval"
     STATS_GEOMETRY = "statsDialog/geometry"
     STATS_LAST_TAB = "statsDialog/last_tab"
     STATS_FILTER_TEXT = "statsDialog/general_filter_text"

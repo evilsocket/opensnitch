@@ -88,6 +88,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboUITheme.currentIndexChanged.connect(self._cb_combo_themes_changed)
         self.cmdTimeoutUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUITimeout, self.SUM))
         self.cmdTimeoutDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUITimeout, self.REST))
+        self.cmdRefreshUIUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIRefresh, self.SUM))
+        self.cmdRefreshUIDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIRefresh, self.REST))
         self.cmdDBMaxDaysUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBMaxDays, self.SUM))
         self.cmdDBMaxDaysDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBMaxDays, self.REST))
         self.cmdDBPurgesUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBPurgeInterval, self.SUM))
@@ -133,6 +135,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.cmdTimeoutUp.setIcon(addIcon)
         self.cmdTimeoutDown.setIcon(delIcon)
+        self.cmdRefreshUIUp.setIcon(addIcon)
+        self.cmdRefreshUIDown.setIcon(delIcon)
         self.cmdDBMaxDaysUp.setIcon(addIcon)
         self.cmdDBMaxDaysDown.setIcon(delIcon)
         self.cmdDBPurgesUp.setIcon(addIcon)
@@ -260,6 +264,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.comboUIDuration.setCurrentIndex(self._default_duration)
         self.comboUIDialogPos.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION))
+
+        self._ui_refresh_interval = self._cfg.getInt(self._cfg.STATS_REFRESH_INTERVAL, 0)
+        self.spinUIRefresh.setValue(self._ui_refresh_interval)
 
         self.checkAutostart.setChecked(self._autostart.isEnabled())
 
@@ -601,6 +608,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.checkUIRules.isChecked():
                 self._nodes.delete_rule_by_field(Config.DURATION_FIELD, Config.RULES_DURATION_FILTER)
 
+            self._cfg.setSettings(self._cfg.STATS_REFRESH_INTERVAL, int(self.spinUIRefresh.value()))
             self._cfg.setSettings(self._cfg.DEFAULT_ACTION_KEY, self.comboUIAction.currentIndex())
             self._cfg.setSettings(self._cfg.DEFAULT_DURATION_KEY, int(self.comboUIDuration.currentIndex()))
             self._cfg.setSettings(self._cfg.DEFAULT_TARGET_KEY, self.comboUITarget.currentIndex())
