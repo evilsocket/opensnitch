@@ -63,6 +63,7 @@ var (
 	logMicro          = false
 	rulesPath         = "/etc/opensnitchd/rules/"
 	configFile        = "/etc/opensnitchd/default-config.json"
+	fwConfigFile      = "/etc/opensnitchd/system-fw.json"
 	noLiveReload      = false
 	queueNum          = 0
 	repeatQueueNum    int //will be set later to queueNum + 1
@@ -105,6 +106,7 @@ func init() {
 	flag.BoolVar(&noLiveReload, "no-live-reload", debug, "Disable rules live reloading.")
 
 	flag.StringVar(&configFile, "config-file", configFile, "Path to the daemon configuration file.")
+	flag.StringVar(&fwConfigFile, "fw-config-file", fwConfigFile, "Path to the system fw configuration file.")
 	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
 	flag.BoolVar(&logUTC, "log-utc", logUTC, "Write logs output with UTC timezone (enabled by default).")
 	flag.BoolVar(&logMicro, "log-micro", logMicro, "Write logs output with microsecond timestamp (disabled by default).")
@@ -556,8 +558,17 @@ func main() {
 	}
 	repeatPktChan = repeatQueue.Packets()
 
+	fwConfigPath := fwConfigFile
+	if cfg.FwOptions.ConfigPath != "" {
+		fwConfigPath = cfg.FwOptions.ConfigPath
+	}
+	log.Info("Using system fw configuration %s ...", fwConfigPath)
 	// queue is ready, run firewall rules and start intercepting connections
-	if err = firewall.Init(uiClient.GetFirewallType(), &queueNum); err != nil {
+	if err = firewall.Init(
+		uiClient.GetFirewallType(),
+		fwConfigPath,
+		cfg.FwOptions.MonitorInterval,
+		&queueNum); err != nil {
 		log.Warning("%s", err)
 		uiClient.SendWarningAlert(err)
 	}

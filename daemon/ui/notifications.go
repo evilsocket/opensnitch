@@ -110,7 +110,11 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 	}
 
 	if c.GetFirewallType() != newConf.Firewall {
-		firewall.ChangeFw(newConf.Firewall)
+		firewall.Reload(
+			newConf.Firewall,
+			newConf.FwOptions.ConfigPath,
+			newConf.FwOptions.MonitorInterval,
+		)
 	}
 
 	if err := monitor.ReconfigureMonitorMethod(newConf.ProcMonitorMethod); err != nil {

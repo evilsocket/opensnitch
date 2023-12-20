@@ -96,17 +96,18 @@ func (ipt *Iptables) Name() string {
 
 // Init inserts the firewall rules and starts monitoring for firewall
 // changes.
-func (ipt *Iptables) Init(qNum *int) {
+func (ipt *Iptables) Init(qNum *int, configPath, monitorInterval string) {
 	if ipt.IsRunning() {
 		return
 	}
 	ipt.SetQueueNum(qNum)
+	ipt.SetRulesCheckerInterval(monitorInterval)
 	ipt.ErrChan = make(chan string, 100)
 
 	// In order to clean up any existing firewall rule before start,
 	// we need to load the fw configuration first to know what rules
 	// were configured.
-	ipt.NewSystemFwConfig(ipt.preloadConfCallback, ipt.reloadRulesCallback)
+	ipt.NewSystemFwConfig(configPath, ipt.preloadConfCallback, ipt.reloadRulesCallback)
 	ipt.LoadDiskConfiguration(!common.ReloadConf)
 
 	// start from a clean state
@@ -119,6 +120,7 @@ func (ipt *Iptables) Init(qNum *int) {
 
 // Stop deletes the firewall rules, allowing network traffic.
 func (ipt *Iptables) Stop() {
+	ipt.ErrChan = make(chan string, 100)
 	if ipt.Running == false {
 		return
 	}

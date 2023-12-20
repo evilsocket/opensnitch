@@ -49,16 +49,24 @@ type rulesOptions struct {
 	EnableChecksums bool   `json:"EnableChecksums"`
 }
 
+type fwOptions struct {
+	Firewall         string `json:"Firewall"`
+	ConfigPath       string `json:"ConfigPath"`
+	ActionOnOverflow string `json:"ActionOnOverflow"`
+	MonitorInterval  string `json:"MonitorInterval"`
+}
+
 // Config holds the values loaded from configFile
 type Config struct {
 	sync.RWMutex
 	Server            serverConfig           `json:"Server"`
 	Stats             statistics.StatsConfig `json:"Stats"`
-	Rules             rulesOptions           `json:"Rules"`
 	DefaultAction     string                 `json:"DefaultAction"`
 	DefaultDuration   string                 `json:"DefaultDuration"`
 	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
+	Rules             rulesOptions           `json:"Rules"`
 	Firewall          string                 `json:"Firewall"`
+	FwOptions         fwOptions              `json:"FwOptions"`
 	LogLevel          *int32                 `json:"LogLevel"`
 	InterceptUnknown  bool                   `json:"InterceptUnknown"`
 	LogUTC            bool                   `json:"LogUTC"`

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
@@ -60,6 +61,11 @@ func (c *Client) loadDiskConfiguration(reload bool) {
 	}
 
 	if reload {
+		firewall.Reload(
+			clientConfig.Firewall,
+			clientConfig.FwOptions.ConfigPath,
+			clientConfig.FwOptions.MonitorInterval,
+		)
 		return
 	}
 

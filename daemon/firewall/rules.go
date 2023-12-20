@@ -12,7 +12,7 @@ import (
 
 // Firewall is the interface that all firewalls (iptables, nftables) must implement.
 type Firewall interface {
-	Init(*int)
+	Init(*int, string, string)
 	Stop()
 	Name() string
 	IsRunning() bool
@@ -45,7 +45,7 @@ var (
 // We'll try to use the firewall configured in the configuration (iptables/nftables).
 // If iptables is not installed, we can add nftables rules directly to the kernel,
 // without relying on any binaries.
-func Init(fwType string, qNum *int) (err error) {
+func Init(fwType, configPath, monitorInterval string, qNum *int) (err error) {
 	if fwType == iptables.Name {
 		fw, err = iptables.Fw()
 		if err != nil {
@@ -68,7 +68,7 @@ func Init(fwType string, qNum *int) (err error) {
 		return fmt.Errorf("Firewall not initialized")
 	}
 	fw.Stop()
-	fw.Init(qNum)
+	fw.Init(qNum, configPath, monitorInterval)
 	queueNum = *qNum
 
 	log.Info("Using %s firewall", fw.Name())
@@ -99,17 +99,11 @@ func CleanRules(logErrors bool) {
 	fw.CleanRules(logErrors)
 }
 
-// ChangeFw stops current firewall and initializes a new one.
-func ChangeFw(fwtype string) (err error) {
+// Reload stops current firewall and initializes a new one.
+func Reload(fwtype, configPath, monitorInterval string) (err error) {
 	Stop()
-	err = Init(fwtype, &queueNum)
+	err = Init(fwtype, configPath, monitorInterval, &queueNum)
 	return
-}
-
-// Reload deletes existing firewall rules and readds them.
-func Reload() {
-	fw.Stop()
-	fw.Init(&queueNum)
 }
 
 // ReloadSystemRules deletes existing rules, and add them again

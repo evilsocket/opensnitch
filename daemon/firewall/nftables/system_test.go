@@ -14,6 +14,10 @@ type sysChainsListT struct {
 	expectedRules int
 }
 
+var (
+	configFile = "./testdata/test-sysfw-conf.json"
+)
+
 func TestAddSystemRules(t *testing.T) {
 	nftest.SkipIfNotPrivileged(t)
 
@@ -21,12 +25,12 @@ func TestAddSystemRules(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	cfg, err := nftest.Fw.NewSystemFwConfig(nftest.Fw.PreloadConfCallback, nftest.Fw.ReloadConfCallback)
+	cfg, err := nftest.Fw.NewSystemFwConfig(configFile, nftest.Fw.PreloadConfCallback, nftest.Fw.ReloadConfCallback)
 	if err != nil {
 		t.Logf("Error creating fw config: %s", err)
 	}
 
-	cfg.SetFile("./testdata/test-sysfw-conf.json")
+	cfg.SetConfigFile("./testdata/test-sysfw-conf.json")
 	if err := cfg.LoadDiskConfiguration(false); err != nil {
 		t.Errorf("Error loading config from disk: %s", err)
 	}
@@ -69,12 +73,12 @@ func TestFwConfDisabled(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	cfg, err := nftest.Fw.NewSystemFwConfig(nftest.Fw.PreloadConfCallback, nftest.Fw.ReloadConfCallback)
+	cfg, err := nftest.Fw.NewSystemFwConfig(configFile, nftest.Fw.PreloadConfCallback, nftest.Fw.ReloadConfCallback)
 	if err != nil {
 		t.Logf("Error creating fw config: %s", err)
 	}
 
-	cfg.SetFile("./testdata/test-sysfw-conf.json")
+	cfg.SetConfigFile("./testdata/test-sysfw-conf.json")
 	if err := cfg.LoadDiskConfiguration(false); err != nil {
 		t.Errorf("Error loading config from disk: %s", err)
 	}
@@ -108,12 +112,12 @@ func TestDeleteSystemRules(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	cfg, err := nftest.Fw.NewSystemFwConfig(nftest.Fw.PreloadConfCallback, nftest.Fw.ReloadConfCallback)
+	cfg, err := nftest.Fw.NewSystemFwConfig(configFile, nftest.Fw.PreloadConfCallback, nftest.Fw.ReloadConfCallback)
 	if err != nil {
 		t.Logf("Error creating fw config: %s", err)
 	}
 
-	cfg.SetFile("./testdata/test-sysfw-conf.json")
+	cfg.SetConfigFile("./testdata/test-sysfw-conf.json")
 	if err := cfg.LoadDiskConfiguration(false); err != nil {
 		t.Errorf("Error loading config from disk: %s", err)
 	}

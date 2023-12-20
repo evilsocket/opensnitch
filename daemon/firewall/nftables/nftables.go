@@ -71,19 +71,20 @@ func (n *Nft) Name() string {
 
 // Init inserts the firewall rules and starts monitoring for firewall
 // changes.
-func (n *Nft) Init(qNum *int) {
+func (n *Nft) Init(qNum *int, configPath, monitorInterval string) {
 	if n.IsRunning() {
 		return
 	}
+	n.Conn = NewNft()
 	n.ErrChan = make(chan string, 100)
 	InitMapsStore()
 	n.SetQueueNum(qNum)
-	n.Conn = NewNft()
+	n.SetRulesCheckerInterval(monitorInterval)
 
 	// In order to clean up any existing firewall rule before start,
 	// we need to load the fw configuration first to know what rules
 	// were configured.
-	n.NewSystemFwConfig(n.PreloadConfCallback, n.ReloadConfCallback)
+	n.NewSystemFwConfig(configPath, n.PreloadConfCallback, n.ReloadConfCallback)
 	n.LoadDiskConfiguration(!common.ReloadConf)
 
 	// start from a clean state
@@ -98,6 +99,7 @@ func (n *Nft) Init(qNum *int) {
 
 // Stop deletes the firewall rules, allowing network traffic.
 func (n *Nft) Stop() {
+	n.ErrChan = make(chan string, 100)
 	if n.IsRunning() == false {
 		return
 	}

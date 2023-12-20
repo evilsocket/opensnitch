@@ -16,6 +16,9 @@ var (
 	RestoreChains  = true
 	BackupChains   = true
 	ReloadConf     = true
+
+	DefaultCheckInterval = 10 * time.Second
+	RulesCheckerDisabled = "0s"
 )
 
 type (
@@ -25,13 +28,14 @@ type (
 	// Common holds common fields and functionality of both firewalls,
 	// iptables and nftables.
 	Common struct {
-		RulesChecker *time.Ticker
-		ErrChan      chan string
-		QueueNum     uint16
-		stopChecker  chan bool
-		Running      bool
-		Intercepting bool
-		FwEnabled    bool
+		RulesChecker       *time.Ticker
+		RulesCheckInterval time.Duration
+		ErrChan            chan string
+		stopChecker        chan bool
+		QueueNum           uint16
+		Running            bool
+		Intercepting       bool
+		FwEnabled          bool
 		sync.RWMutex
 	}
 )
@@ -65,6 +69,17 @@ func (c *Common) SendError(err string) {
 	case <-time.After(100 * time.Millisecond):
 		log.Warning("SendError() channel locked? REVIEW")
 	}
+}
+
+func (c *Common) SetRulesCheckerInterval(interval string) {
+	dur, err := time.ParseDuration(interval)
+	if err != nil {
+		log.Warning("Invalid rules checker interval (falling back to %s): %s", DefaultCheckInterval, err)
+		c.RulesCheckInterval = DefaultCheckInterval
+		return
+	}
+
+	c.RulesCheckInterval = dur
 }
 
 // SetQueueNum sets the queue number used by the firewall.
@@ -109,6 +124,10 @@ func (c *Common) IsIntercepting() bool {
 func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callback) {
 	c.Lock()
 	defer c.Unlock()
+	if c.RulesCheckInterval.String() == RulesCheckerDisabled {
+		log.Info("Fw rules checker disabled ...")
+		return
+	}
 
 	if c.RulesChecker != nil {
 		c.RulesChecker.Stop()
@@ -119,7 +138,8 @@ func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callba
 		}
 	}
 	c.stopChecker = make(chan bool, 1)
-	c.RulesChecker = time.NewTicker(time.Second * 10)
+	log.Info("Starting new fw checker every %s ...", DefaultCheckInterval)
+	c.RulesChecker = time.NewTicker(c.RulesCheckInterval)
 
 	go startCheckingRules(c.stopChecker, c.RulesChecker, areRulesLoaded, reloadRules)
 }

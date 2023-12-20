@@ -118,10 +118,10 @@ type SystemConfig struct {
 // This is the configuration to manage the system firewall (iptables, nftables).
 type Config struct {
 	sync.Mutex
-	file            string
 	watcher         *fsnotify.Watcher
-	monitorExitChan chan bool
 	SysConfig       SystemConfig
+	monitorExitChan chan bool
+	file            string
 
 	// preloadCallback is called before reloading the configuration,
 	// in order to delete old fw rules.
@@ -132,7 +132,7 @@ type Config struct {
 }
 
 // NewSystemFwConfig initializes config fields
-func (c *Config) NewSystemFwConfig(preLoadCb, reLoadCb func()) (*Config, error) {
+func (c *Config) NewSystemFwConfig(configPath string, preLoadCb, reLoadCb func()) (*Config, error) {
 	var err error
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -143,7 +143,7 @@ func (c *Config) NewSystemFwConfig(preLoadCb, reLoadCb func()) (*Config, error) 
 	c.Lock()
 	defer c.Unlock()
 
-	c.file = "/etc/opensnitchd/system-fw.json"
+	c.file = configPath
 	c.monitorExitChan = make(chan bool, 1)
 	c.preloadCallback = preLoadCb
 	c.reloadCallback = reLoadCb
@@ -151,7 +151,13 @@ func (c *Config) NewSystemFwConfig(preLoadCb, reLoadCb func()) (*Config, error) 
 	return c, nil
 }
 
-func (c *Config) SetFile(file string) {
+// SetConfigFile sets the absolute path to the configuration file to use.
+// If it's empty, it'll be ignored (when changing the fw type for example).
+func (c *Config) SetConfigFile(file string) {
+	if file == "" {
+		log.Debug("Firewall configuration file not provided, ignoring")
+		return
+	}
 	c.file = file
 }
 
