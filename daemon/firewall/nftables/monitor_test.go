@@ -85,6 +85,7 @@ func TestMonitorReload(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
+	nftest.Fw.SetRulesCheckerInterval("10s")
 	nftest.Fw.EnableInterception()
 
 	// test that rules are reloaded after being deleted, but also
