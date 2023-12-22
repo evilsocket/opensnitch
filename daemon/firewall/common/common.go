@@ -138,7 +138,7 @@ func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callba
 		}
 	}
 	c.stopChecker = make(chan bool, 1)
-	log.Info("Starting new fw checker every %s ...", DefaultCheckInterval)
+	log.Info("Starting new fw checker every %s ...", c.RulesCheckInterval)
 	c.RulesChecker = time.NewTicker(c.RulesCheckInterval)
 
 	go startCheckingRules(c.stopChecker, c.RulesChecker, areRulesLoaded, reloadRules)

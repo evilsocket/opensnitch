@@ -52,10 +52,12 @@ type Error struct {
 }
 
 var (
-	m, perfMod *elf.Module
-	lock       = sync.RWMutex{}
-	mapSize    = uint(12000)
-	ebpfMaps   map[string]*ebpfMapsForProto
+	m, perfMod  *elf.Module
+	lock        = sync.RWMutex{}
+	mapSize     = uint(12000)
+	ebpfMaps    map[string]*ebpfMapsForProto
+	modulesPath string
+
 	//connections which were established at the time when opensnitch started
 	alreadyEstablished = alreadyEstablishedConns{
 		TCP:   make(map[*daemonNetlink.Socket]int),
@@ -75,7 +77,9 @@ var (
 )
 
 //Start installs ebpf kprobes
-func Start() *Error {
+func Start(modPath string) *Error {
+	modulesPath = modPath
+
 	setRunning(false)
 	if err := mountDebugFS(); err != nil {
 		return &Error{
@@ -84,7 +88,7 @@ func Start() *Error {
 		}
 	}
 	var err error
-	m, err = core.LoadEbpfModule("opensnitch.o")
+	m, err = core.LoadEbpfModule("opensnitch.o", modulesPath)
 	if err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF]: ", err.Error()))
 		return &Error{NotAvailable, fmt.Errorf("[eBPF] Error loading opensnitch.o: %s", err.Error())}

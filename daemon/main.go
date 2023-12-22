@@ -64,6 +64,7 @@ var (
 	rulesPath         = "/etc/opensnitchd/rules/"
 	configFile        = "/etc/opensnitchd/default-config.json"
 	fwConfigFile      = "/etc/opensnitchd/system-fw.json"
+	ebpfModPath       = "" // /usr/lib/opensnitchd/ebpf
 	noLiveReload      = false
 	queueNum          = 0
 	repeatQueueNum    int //will be set later to queueNum + 1
@@ -100,13 +101,14 @@ func init() {
 
 	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "How to search for processes path. Options: ftrace, audit (experimental), ebpf (experimental), proc (default)")
 	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
-	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
 	flag.IntVar(&workers, "workers", workers, "Number of concurrent workers.")
 	flag.BoolVar(&noLiveReload, "no-live-reload", debug, "Disable rules live reloading.")
 
+	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.StringVar(&configFile, "config-file", configFile, "Path to the daemon configuration file.")
 	flag.StringVar(&fwConfigFile, "fw-config-file", fwConfigFile, "Path to the system fw configuration file.")
+	//flag.StringVar(&ebpfModPath, "ebpf-modules-path", ebpfModPath, "Path to the directory with the eBPF modules.")
 	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
 	flag.BoolVar(&logUTC, "log-utc", logUTC, "Write logs output with UTC timezone (enabled by default).")
 	flag.BoolVar(&logMicro, "log-micro", logMicro, "Write logs output with microsecond timestamp (disabled by default).")
@@ -582,15 +584,15 @@ func main() {
 	// overwrite monitor method from configuration if the user has passed
 	// the option via command line.
 	if procmonMethod != "" {
-		if err := monitor.ReconfigureMonitorMethod(procmonMethod); err != nil {
+		if err := monitor.ReconfigureMonitorMethod(procmonMethod, cfg.Ebpf.ModulesPath); err != nil {
 			msg := fmt.Sprintf("Unable to set process monitor method via parameter: %v", err)
 			uiClient.SendWarningAlert(msg)
 			log.Warning(msg)
 		}
 	}
 
-	go func(uiClient *ui.Client) {
-		if err := dns.ListenerEbpf(); err != nil {
+	go func(uiClient *ui.Client, ebpfPath string) {
+		if err := dns.ListenerEbpf(ebpfPath); err != nil {
 			msg := fmt.Sprintf("EBPF-DNS: Unable to attach ebpf listener: %s", err)
 			log.Warning(msg)
 			// don't display an alert, since this module is not critical
@@ -602,7 +604,7 @@ func main() {
 				msg)
 
 		}
-	}(uiClient)
+	}(uiClient, ebpfModPath)
 
 	initSystemdResolvedMonitor()
 

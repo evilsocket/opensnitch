@@ -117,7 +117,10 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 		)
 	}
 
-	if err := monitor.ReconfigureMonitorMethod(newConf.ProcMonitorMethod); err != nil {
+	if err := monitor.ReconfigureMonitorMethod(
+		newConf.ProcMonitorMethod,
+		clientConfig.Ebpf.ModulesPath,
+	); err != nil {
 		c.sendNotificationReply(stream, notification.Id, "", err.Msg)
 		return
 	}
