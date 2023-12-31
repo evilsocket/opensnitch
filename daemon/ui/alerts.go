@@ -116,7 +116,10 @@ func (c *Client) alertsDispatcher() {
 }
 
 func (c *Client) dispatchAlert(pbAlert protocol.Alert) {
-	if c.client == nil {
+	c.RLock()
+	isDisconnected := c.client == nil
+	c.RUnlock()
+	if isDisconnected {
 		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
