@@ -135,6 +135,7 @@ class Config:
     STATS_GENERAL_FILTER_ACTION = "statsDialog/"
     STATS_RULES_COL_STATE = "statsDialog/rules_columns_state"
     STATS_FW_COL_STATE = "statsDialog/firewall_columns_state"
+    STATS_ALERTS_COL_STATE = "statsDialog/alerts_columns_state"
     STATS_RULES_TREE_EXPANDED_0 = "statsDialog/rules_tree_0_expanded"
     STATS_RULES_TREE_EXPANDED_1 = "statsDialog/rules_tree_1_expanded"
     STATS_RULES_SPLITTER_POS = "statsDialog/rules_splitter_pos"

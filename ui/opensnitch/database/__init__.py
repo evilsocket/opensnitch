@@ -187,6 +187,19 @@ class Database:
                 "UNIQUE(node, name)"
                 ")", self.db)
         q.exec_()
+
+        q = QSqlQuery("create table if not exists alerts (" \
+                "time text, " \
+                "node text, " \
+                "type text, " \
+                "action text, " \
+                "priority text, " \
+                "what text, " \
+                "body text, " \
+                "status int " \
+                ")", self.db)
+        q.exec_()
+
         q = QSqlQuery("create index rules_index on rules (time)", self.db)
         q.exec_()
 
@@ -647,5 +660,41 @@ class Database:
         q.addBindValue(rule.operator.data)
         if not q.exec_() or q.next() == False:
             return None
+
+        return q
+
+
+    def delete_alert(self, time, node_addr=None):
+        qstr = "DELETE FROM alerts WHERE time=?"
+        if node_addr != None:
+            qstr = qstr + " AND node=?"
+
+        with self._lock:
+            q = QSqlQuery(qstr, self.db)
+            q.prepare(qstr)
+            q.addBindValue(time)
+            if node_addr != None:
+                q.addBindValue(node_addr)
+            if not q.exec_():
+                print("db, delete_alert() ERROR: ", qstr)
+                print(q.lastError().driverText())
+                return False
+
+        return True
+
+    def get_alert(self, alert_time, node_addr=None):
+        """
+        get alert, given the time of the alert and the node
+        """
+        qstr = "SELECT * FROM alerts WHERE time=?"
+        if node_addr != None:
+            qstr = qstr + " AND node=?"
+
+        q = QSqlQuery(qstr, self.db)
+        q.prepare(qstr)
+        q.addBindValue(alert_time)
+        if node_addr != None:
+            q.addBindValue(node_addr)
+        q.exec_()
 
         return q

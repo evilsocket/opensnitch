@@ -32,3 +32,13 @@ class RuleFields():
     Description = 11
     NoLog = 12
     Created = 13
+
+class AlertFields():
+    Time = 0
+    Node = 1
+    Type = 2
+    Action = 3
+    Priority = 4
+    What = 5
+    Body = 6
+    Status = 7

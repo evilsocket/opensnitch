@@ -302,32 +302,30 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     @QtCore.pyqtSlot(str, str, ui_pb2.Alert)
     def _on_new_alert(self, proto, addr, alert):
+        # TODO: move to its own module
         try:
             is_local = self._is_local_request(proto, addr)
 
-            icon = QtWidgets.QSystemTrayIcon.Information
-            _title = QtCore.QCoreApplication.translate("messages", "Info")
-            atype = "INFO"
-            if alert.type == ui_pb2.Alert.ERROR:
-                atype = "ERROR"
-                _title = QtCore.QCoreApplication.translate("messages", "Error")
-                icon = QtWidgets.QSystemTrayIcon.Critical
-            if alert.type == ui_pb2.Alert.WARNING:
-                atype = "WARNING"
-                _title = QtCore.QCoreApplication.translate("messages", "Warning")
-                icon = QtWidgets.QSystemTrayIcon.Warning
-
-            body = ""
             what = "GENERIC"
-            if alert.what == ui_pb2.Alert.GENERIC:
-                body = alert.text
-            elif alert.what == ui_pb2.Alert.KERNEL_EVENT:
+            body = alert.text
+            if alert.what == ui_pb2.Alert.KERNEL_EVENT:
                 body = "%s\n%s" % (alert.text, alert.proc.path)
                 what = "KERNEL EVENT"
             if is_local is False:
                 body = "node: {0}:{1}\n\n{2}\n{3}".format(proto, addr, alert.text, alert.proc.path)
 
             if alert.action == ui_pb2.Alert.SHOW_ALERT:
+                icon = QtWidgets.QSystemTrayIcon.Information
+                _title = QtCore.QCoreApplication.translate("messages", "Info")
+                atype = "INFO"
+                if alert.type == ui_pb2.Alert.ERROR:
+                    atype = "ERROR"
+                    _title = QtCore.QCoreApplication.translate("messages", "Error")
+                    icon = QtWidgets.QSystemTrayIcon.Critical
+                if alert.type == ui_pb2.Alert.WARNING:
+                    atype = "WARNING"
+                    _title = QtCore.QCoreApplication.translate("messages", "Warning")
+                    icon = QtWidgets.QSystemTrayIcon.Warning
 
                 urgency = DesktopNotifications.URGENCY_NORMAL
                 if alert.priority == ui_pb2.Alert.LOW:
@@ -337,6 +335,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
                 self._show_message_trigger.emit(_title, body, icon, urgency)
 
+                self._db.insert("alerts",
+                                "(time, node, type, action, priority, what, body, status)",
+                                (
+                                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                    proto+":"+addr, atype, "", "", what, body, 0
+                                ))
             else:
                 print("PostAlert() unknown alert action:", alert.action)
 
@@ -868,6 +872,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 try:
                     if stop_event.is_set():
                         break
+
                     in_message = next(node_iter)
                     if in_message == None:
                         continue
