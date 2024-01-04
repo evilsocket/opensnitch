@@ -1141,33 +1141,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if action == _menu_delete:
                 self._table_menu_delete(cur_idx, model, selection)
             elif action == _menu_view:
-                text = ""
                 for idx in selection:
                     atime = model.index(idx.row(), self.COL_TIME).data()
                     anode = model.index(idx.row(), self.COL_NODE).data()
-                    records = self._db.get_alert(atime, anode)
-                    if records != None and records.next() == False:
-                        return
-
-                    inf = InfoWindow(self)
-                    text += text + """
-                                <b>{0}</b><br>
-                                <b>Node:</b> {1}<br>
-                                <b>Type:</b> {2} &ndash; <b>Severity:</b> {3}<br><br>
-                                <b>{4}</b><br><br>
-                                {5}
-
-                                ---
-""".format(
-    records.value(AlertFields.Time),
-    records.value(AlertFields.Node),
-    records.value(AlertFields.Type),
-    records.value(AlertFields.Priority),
-    records.value(AlertFields.What),
-    records.value(AlertFields.Body)
-)
-
-                inf.showHtml(text)
+                    self._display_alert_info(atime, anode)
 
             elif action == _toClipboard:
                 self._table_menu_export_clipboard(cur_idx, model, selection)
@@ -1709,6 +1686,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._fw_dialog.load_rule(addr, uuid)
             return
 
+        elif cur_idx == self.TAB_RULES and self.alertsTable.isVisible():
+            atime = row.model().index(row.row(), self.COL_TIME).data()
+            anode = row.model().index(row.row(), self.COL_NODE).data()
+            self._display_alert_info(atime, anode)
+            return
 
         self.IN_DETAIL_VIEW[cur_idx] = True
         self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_TIME).data()
@@ -1963,6 +1945,32 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                          "<br>".format(Config.HELP_URL)
                          )
         )
+
+    def _display_alert_info(self, time, node):
+        text = ""
+        records = self._db.get_alert(time, node)
+        if records != None and records.next() == False:
+            return
+
+        inf = InfoWindow(self)
+        text += text + """
+                    <b>{0}</b><br>
+                    <b>Node:</b> {1}<br>
+                    <b>Type:</b> {2} &ndash; <b>Severity:</b> {3}<br><br>
+                    <b>{4}</b><br><br>
+                    {5}
+
+                    ---
+""".format(
+    records.value(AlertFields.Time),
+    records.value(AlertFields.Node),
+    records.value(AlertFields.Type),
+    records.value(AlertFields.Priority),
+    records.value(AlertFields.What),
+    records.value(AlertFields.Body)
+)
+
+        inf.showHtml(text)
 
     # must be called after setModel() or setQuery()
     def _show_columns(self):
