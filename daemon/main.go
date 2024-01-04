@@ -604,7 +604,7 @@ func main() {
 				msg)
 
 		}
-	}(uiClient, ebpfModPath)
+	}(uiClient, cfg.Ebpf.ModulesPath)
 
 	initSystemdResolvedMonitor()
 
