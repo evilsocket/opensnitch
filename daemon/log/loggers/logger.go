@@ -1,5 +1,7 @@
 package loggers
 
+import "fmt"
+
 const logTag = "opensnitch"
 
 // Logger is the common interface that every logger must met.
@@ -19,8 +21,12 @@ type LoggerConfig struct {
 	Protocol string
 	// Server: 127.0.0.1:514
 	Server string
+	// WriteTimeout:
+	WriteTimeout string
 	// Tag: opensnitchd, mytag, ...
 	Tag string
+	// Workers: number of workers
+	Workers int
 }
 
 // LoggerManager represents the LoggerManager.
@@ -43,15 +49,23 @@ func NewLoggerManager() *LoggerManager {
 func (l *LoggerManager) Load(configs []LoggerConfig, workers int) {
 	for _, cfg := range configs {
 		switch cfg.Name {
+		case LOGGER_REMOTE:
+			if lgr, err := NewRemote(&cfg); err == nil {
+				l.count++
+				l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
+				workers += cfg.Workers
+			}
 		case LOGGER_REMOTE_SYSLOG:
-			l.count++
 			if lgr, err := NewRemoteSyslog(&cfg); err == nil {
-				l.loggers[lgr.Name] = lgr
+				l.count++
+				l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
+				workers += cfg.Workers
 			}
 		case LOGGER_SYSLOG:
-			l.count++
 			if lgr, err := NewSyslog(&cfg); err == nil {
+				l.count++
 				l.loggers[lgr.Name] = lgr
+				workers += cfg.Workers
 			}
 		}
 	}
@@ -62,7 +76,7 @@ func (l *LoggerManager) Load(configs []LoggerConfig, workers int) {
 
 	l.msgs = make(chan []interface{}, workers)
 	for i := 0; i < workers; i++ {
-		go l.newWorker(i)
+		go newWorker(i, l)
 	}
 
 }
@@ -73,7 +87,7 @@ func (l *LoggerManager) write(args ...interface{}) {
 	}
 }
 
-func (l *LoggerManager) newWorker(id int) {
+func newWorker(id int, l *LoggerManager) {
 	for {
 		for msg := range l.msgs {
 			l.write(msg)

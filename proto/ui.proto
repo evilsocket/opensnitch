@@ -105,6 +105,11 @@ message PingReply {
     uint64 id = 1;
 }
 
+message StringInt {
+    string key = 1;
+    uint32 value = 2;
+}
+
 message Process {
     uint64 pid = 1;
     uint64 ppid = 2;
@@ -114,10 +119,12 @@ message Process {
     repeated string args = 6;
     map<string, string> env = 7;
     string cwd = 8;
-    uint64 io_reads = 9;
-    uint64 io_writes = 10;
-    uint64 net_reads = 11;
-    uint64 net_writes = 12;
+    map<string, string> checksums = 9;
+    uint64 io_reads = 10;
+    uint64 io_writes = 11;
+    uint64 net_reads = 12;
+    uint64 net_writes = 13;
+    repeated StringInt process_tree = 14;
 }
 
 message Connection {
@@ -133,6 +140,8 @@ message Connection {
     string process_cwd = 10;
     repeated string process_args = 11;
     map<string, string> process_env = 12;
+    map<string, string> process_checksums = 13;
+    repeated StringInt process_tree = 14;
 }
 
 message Operator {
@@ -140,17 +149,19 @@ message Operator {
     string operand = 2;
     string data = 3;
     bool sensitive = 4;
+    repeated Operator list = 5;
 }
 
 message Rule {
-    string name = 1;
-    string description = 2;
-    bool enabled = 3;
-    bool precedence = 4;
-    bool nolog = 5;
-    string action = 6;
-    string duration = 7;
-    Operator operator = 8;
+    int64 created = 1;
+    string name = 2;
+    string description = 3;
+    bool enabled = 4;
+    bool precedence = 5;
+    bool nolog = 6;
+    string action = 7;
+    string duration = 8;
+    Operator operator = 9;
 }
 
 enum Action {

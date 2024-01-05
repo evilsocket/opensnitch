@@ -7,12 +7,23 @@ from datetime import datetime, timedelta
 class Database:
     db = None
     __instance = None
-    DB_IN_MEMORY   = ":memory:"
+    DB_IN_MEMORY   = "file::memory:"
     DB_TYPE_MEMORY = 0
     DB_TYPE_FILE   = 1
+    DB_JRNL_WAL    = False
+
+    # Sqlite3 journal modes
+    DB_JOURNAL_MODE_LIST = {
+            0: "DELETE",
+            1: "TRUNCATE",
+            2: "PERSIST",
+            3: "MEMORY",
+            4: "WAL",
+            5: "OFF",
+            }
 
     # increase accordingly whenever the schema is updated
-    DB_VERSION = 2
+    DB_VERSION = 3
 
     @staticmethod
     def instance():
@@ -24,16 +35,23 @@ class Database:
         self._lock = threading.RLock()
         self.db = None
         self.db_file = Database.DB_IN_MEMORY
+        self.db_jrnl_wal = Database.DB_JRNL_WAL
         self.db_name = dbname
 
-    def initialize(self, dbtype=DB_TYPE_MEMORY, dbfile=DB_IN_MEMORY, db_name="db"):
+    def initialize(self, dbtype=DB_TYPE_MEMORY, dbfile=DB_IN_MEMORY, dbjrnl_wal=DB_JRNL_WAL, db_name="db"):
         if dbtype != Database.DB_TYPE_MEMORY:
             self.db_file = dbfile
+            self.db_jrnl_wal = dbjrnl_wal
+        else:
+            # Always disable under pure memory mode
+            self.db_jrnl_wal = False
 
         is_new_file = not os.path.isfile(self.db_file)
 
         self.db = QSqlDatabase.addDatabase("QSQLITE", self.db_name)
         self.db.setDatabaseName(self.db_file)
+        if dbtype == Database.DB_TYPE_MEMORY:
+            self.db.setConnectOptions("QSQLITE_OPEN_URI;QSQLITE_ENABLE_SHARED_CACHE")
         if not self.db.open():
             print("\n ** Error opening DB: SQLite driver not loaded. DB name: %s\n" % self.db_file)
             print("\n    Available drivers: ", QSqlDatabase.drivers())
@@ -90,16 +108,14 @@ class Database:
         # https://www.sqlite.org/wal.html
         if self.db_file == Database.DB_IN_MEMORY:
             self.set_schema_version(self.DB_VERSION)
-            q = QSqlQuery("PRAGMA journal_mode = OFF", self.db)
-            q.exec_()
-            q = QSqlQuery("PRAGMA synchronous = OFF", self.db)
-            q.exec_()
-            q = QSqlQuery("PRAGMA cache_size=10000", self.db)
-            q.exec_()
+            # Disable journal (default)
+            self.set_journal_mode(5)
+        elif self.db_jrnl_wal is True:
+            # Set WAL mode (file+memory)
+            self.set_journal_mode(4)
         else:
-            q = QSqlQuery("PRAGMA synchronous = NORMAL", self.db)
-            q.exec_()
-
+            # Set DELETE mode (file)
+            self.set_journal_mode(0)
         q = QSqlQuery("create table if not exists connections (" \
                 "time text, " \
                 "node text, " \
@@ -138,36 +154,6 @@ class Database:
         q.exec_()
         q = QSqlQuery("CREATE INDEX details_query_index on connections (process, process_args, uid, pid, dst_ip, dst_host, dst_port, action, node, protocol)", self.db)
         q.exec_()
-        q = QSqlQuery("create table if not exists rules (" \
-                "time text, " \
-                "node text, " \
-                "name text, " \
-                "enabled text, " \
-                "precedence text, " \
-                "action text, " \
-                "duration text, " \
-                "operator_type text, " \
-                "operator_sensitive text, " \
-                "operator_operand text, " \
-                "operator_data text, " \
-                "description text, " \
-                "nolog text, " \
-                "UNIQUE(node, name)"
-                ")", self.db)
-        q.exec_()
-        q = QSqlQuery("create index rules_index on rules (time)", self.db)
-        q.exec_()
-
-        q = QSqlQuery("create table if not exists hosts (what text primary key, hits integer)", self.db)
-        q.exec_()
-        q = QSqlQuery("create table if not exists procs (what text primary key, hits integer)", self.db)
-        q.exec_()
-        q = QSqlQuery("create table if not exists addrs (what text primary key, hits integer)", self.db)
-        q.exec_()
-        q = QSqlQuery("create table if not exists ports (what text primary key, hits integer)", self.db)
-        q.exec_()
-        q = QSqlQuery("create table if not exists users (what text primary key, hits integer)", self.db)
-        q.exec_()
 
         q = QSqlQuery("create table if not exists nodes (" \
                 "addr text primary key," \
@@ -183,6 +169,51 @@ class Database:
                 , self.db)
         q.exec_()
 
+        q = QSqlQuery("create table if not exists rules (" \
+                "time text, " \
+                "node text, " \
+                "name text, " \
+                "enabled text, " \
+                "precedence text, " \
+                "action text, " \
+                "duration text, " \
+                "operator_type text, " \
+                "operator_sensitive text, " \
+                "operator_operand text, " \
+                "operator_data text, " \
+                "description text, " \
+                "nolog text, " \
+                "created text, " \
+                "UNIQUE(node, name)"
+                ")", self.db)
+        q.exec_()
+
+        q = QSqlQuery("create table if not exists alerts (" \
+                "time text, " \
+                "node text, " \
+                "type text, " \
+                "action text, " \
+                "priority text, " \
+                "what text, " \
+                "body text, " \
+                "status int " \
+                ")", self.db)
+        q.exec_()
+
+        q = QSqlQuery("create index rules_index on rules (time)", self.db)
+        q.exec_()
+
+        q = QSqlQuery("create table if not exists hosts (what text primary key, hits integer)", self.db)
+        q.exec_()
+        q = QSqlQuery("create table if not exists procs (what text primary key, hits integer)", self.db)
+        q.exec_()
+        q = QSqlQuery("create table if not exists addrs (what text primary key, hits integer)", self.db)
+        q.exec_()
+        q = QSqlQuery("create table if not exists ports (what text primary key, hits integer)", self.db)
+        q.exec_()
+        q = QSqlQuery("create table if not exists users (what text primary key, hits integer)", self.db)
+        q.exec_()
+
     def get_schema_version(self):
         q = QSqlQuery("PRAGMA user_version;", self.db)
         q.exec_()
@@ -195,7 +226,43 @@ class Database:
     def set_schema_version(self, version):
         print("setting schema version to:", version)
         q = QSqlQuery("PRAGMA user_version = {0}".format(version), self.db)
+        if q.exec_() == False:
+            print("Error updating updating schema version:", q.lastError().text())
+
+    def get_journal_mode(self):
+        q = QSqlQuery("PRAGMA journal_mode;", self.db)
         q.exec_()
+        if q.next():
+            return str(q.value(0))
+
+        return str("unknown")
+
+    def set_journal_mode(self, mode):
+        # https://www.sqlite.org/wal.html
+        mode_str = Database.DB_JOURNAL_MODE_LIST[mode]
+        if self.get_journal_mode().lower() != mode_str.lower():
+            print("Setting journal_mode: ", mode_str)
+            q = QSqlQuery("PRAGMA journal_mode = {modestr};".format(modestr = mode_str), self.db)
+            if q.exec_() == False:
+                print("Error updating PRAGMA journal_mode:", q.lastError().text())
+                return False
+        if mode == 3 or mode == 5:
+            print("Setting DB memory optimizations")
+            q = QSqlQuery("PRAGMA synchronous = OFF;", self.db)
+            if q.exec_() == False:
+                print("Error updating PRAGMA synchronous:", q.lastError().text())
+                return False
+            q = QSqlQuery("PRAGMA cache_size=10000;", self.db)
+            if q.exec_() == False:
+                print("Error updating PRAGMA cache_size:", q.lastError().text())
+                return False
+        else:
+            print("Setting synchronous = NORMAL")
+            q = QSqlQuery("PRAGMA synchronous = NORMAL;", self.db)
+            if q.exec_() == False:
+                print("Error updating PRAGMA synchronous:", q.lastError().text())
+
+        return True
 
     def _upgrade_db_schema(self):
         migrations_path = os.path.dirname(os.path.realpath(__file__)) + "/migrations"
@@ -208,8 +275,9 @@ class Database:
             try:
                 print("applying schema upgrade:", schema_version)
                 self._apply_db_upgrade("{0}/upgrade_{1}.sql".format(migrations_path, schema_version))
-            except Exception:
-                print("Not applying upgrade_{0}.sql".format(schema_version))
+            except Exception as e:
+                print("Not applying upgrade_{0}.sql:".format(schema_version), e)
+                return
         self.set_schema_version(schema_version)
 
     def _apply_db_upgrade(self, file):
@@ -290,8 +358,8 @@ class Database:
             if oldt == None or newt == None or oldt == 0 or newt == 0:
                 return -1
 
-            oldest = datetime.fromisoformat(oldt)
-            newest = datetime.fromisoformat(newt)
+            oldest = datetime.strptime(oldt, "%Y-%m-%d %H:%M:%S.%f")
+            newest = datetime.strptime(newt, "%Y-%m-%d %H:%M:%S.%f")
             diff = newest - oldest
             date_to_purge = datetime.now() - timedelta(days=max_days_to_keep)
 
@@ -401,8 +469,10 @@ class Database:
                 q.addBindValue(fields)
                 q.addBindValue(values)
                 if not q.execBatch():
-                    print("_insert_batch() error", query_str)
+                    print("_insert_batch() db error:", query_str)
                     print(q.lastError().driverText())
+                    print("\t", fields)
+                    print("\t", values)
 
                     result=False
             except Exception as e:
@@ -527,6 +597,25 @@ class Database:
 
         return q
 
+    def get_rule_by_field(self, node_addr=None, field=None, value=None):
+        """
+        get rule records by field (process.path, etc)
+        """
+        qstr = "SELECT * FROM rules WHERE {0} LIKE ?".format(field)
+        q = QSqlQuery(qstr, self.db)
+        if node_addr != None:
+            qstr = qstr + " AND node=?".format(node_addr)
+
+        q.prepare(qstr)
+        q.addBindValue("%" + value + "%")
+        if node_addr != None:
+            q.addBindValue(node_addr)
+        if not q.exec_():
+            print("get_rule_by_field() error:", q.lastError().driverText())
+            return None
+
+        return q
+
     def get_rules(self, node_addr):
         """
         get rule records, given the name of the rule and the node
@@ -549,3 +638,63 @@ class Database:
                     rule.action, rule.duration, rule.operator.type,
                     str(rule.operator.sensitive), rule.operator.operand, rule.operator.data),
                 action_on_conflict="IGNORE")
+
+    def rule_exists(self, rule, node_addr):
+        qstr = "SELECT node, name, action, duration, operator_type, operator_operand, operator_data " \
+            " FROM rules WHERE " \
+            "name=? AND " \
+            "node=? AND " \
+            "action=? AND " \
+            "duration=? AND " \
+            "operator_type=? AND " \
+            "operator_operand=? AND " \
+            "operator_data=?"
+        q = QSqlQuery(qstr, self.db)
+        q.prepare(qstr)
+        q.addBindValue(rule.name)
+        q.addBindValue(node_addr)
+        q.addBindValue(rule.action)
+        q.addBindValue(rule.duration)
+        q.addBindValue(rule.operator.type)
+        q.addBindValue(rule.operator.operand)
+        q.addBindValue(rule.operator.data)
+        if not q.exec_() or q.next() == False:
+            return None
+
+        return q
+
+
+    def delete_alert(self, time, node_addr=None):
+        qstr = "DELETE FROM alerts WHERE time=?"
+        if node_addr != None:
+            qstr = qstr + " AND node=?"
+
+        with self._lock:
+            q = QSqlQuery(qstr, self.db)
+            q.prepare(qstr)
+            q.addBindValue(time)
+            if node_addr != None:
+                q.addBindValue(node_addr)
+            if not q.exec_():
+                print("db, delete_alert() ERROR: ", qstr)
+                print(q.lastError().driverText())
+                return False
+
+        return True
+
+    def get_alert(self, alert_time, node_addr=None):
+        """
+        get alert, given the time of the alert and the node
+        """
+        qstr = "SELECT * FROM alerts WHERE time=?"
+        if node_addr != None:
+            qstr = qstr + " AND node=?"
+
+        q = QSqlQuery(qstr, self.db)
+        q.prepare(qstr)
+        q.addBindValue(alert_time)
+        if node_addr != None:
+            q.addBindValue(node_addr)
+        q.exec_()
+
+        return q

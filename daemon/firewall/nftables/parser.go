@@ -37,7 +37,7 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 	switch expression.Statement.Name {
 
 	case exprs.NFT_CT:
-		exprCt := n.buildConntrackRule(expression.Statement.Values)
+		exprCt := n.buildConntrackRule(expression.Statement.Values, &cmpOp)
 		if exprCt == nil {
 			log.Warning("%s Ct statement error", logTag)
 			return nil
@@ -45,10 +45,35 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 		exprList = append(exprList, *exprCt...)
 
 	case exprs.NFT_META:
-		metaExpr, err := exprs.NewExprMeta(expression.Statement.Values)
+		metaExpr, err := exprs.NewExprMeta(expression.Statement.Values, &cmpOp)
 		if err != nil {
 			log.Warning("%s meta statement error: %s", logTag, err)
 			return nil
+		}
+
+		for _, exprValue := range expression.Statement.Values {
+			switch exprValue.Key {
+			case exprs.NFT_META_L4PROTO:
+				l4rule, err := n.buildL4ProtoRule(table, family, exprValue.Value, &cmpOp)
+				if err != nil {
+					log.Warning("%s meta.l4proto statement error: %s", logTag, err)
+					return nil
+				}
+				*metaExpr = append(*metaExpr, *l4rule...)
+			case exprs.NFT_DPORT, exprs.NFT_SPORT:
+				exprPDir, err := exprs.NewExprPortDirection(exprValue.Key)
+				if err != nil {
+					log.Warning("%s ports statement error: %s", logTag, err)
+					return nil
+				}
+				*metaExpr = append(*metaExpr, []expr.Any{exprPDir}...)
+				portsRule, err := n.buildPortsRule(table, family, exprValue.Value, &cmpOp)
+				if err != nil {
+					log.Warning("%s meta.l4proto.ports statement error: %s", logTag, err)
+					return nil
+				}
+				*metaExpr = append(*metaExpr, *portsRule...)
+			}
 		}
 		return metaExpr
 
@@ -120,7 +145,12 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 					return nil
 				}
 				exprList = append(exprList, []expr.Any{exprPDir}...)
-				exprList = append(exprList, *n.buildProtocolRule(table, family, exprValue.Value, &cmpOp)...)
+				portsRule, err := n.buildPortsRule(table, family, exprValue.Value, &cmpOp)
+				if err != nil {
+					log.Warning("%s proto.ports statement error: %s", logTag, err)
+					return nil
+				}
+				exprList = append(exprList, *portsRule...)
 			}
 
 		}
@@ -157,7 +187,7 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 				counterObj.Packets = 1
 			}
 		}
-		n.conn.AddObj(counterObj)
+		n.Conn.AddObj(counterObj)
 		exprList = append(exprList, *exprs.NewExprCounter(defaultCounterName)...)
 	}
 

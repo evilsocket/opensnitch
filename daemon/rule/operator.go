@@ -41,11 +41,16 @@ const (
 	OpProcessCmd          = Operand("process.command")
 	OpProcessEnvPrefix    = Operand("process.env.")
 	OpProcessEnvPrefixLen = 12
+	OpProcessHashMD5      = Operand("process.hash.md5")
+	OpProcessHashSHA1     = Operand("process.hash.sha1")
 	OpUserID              = Operand("user.id")
+	OpSrcIP               = Operand("source.ip")
+	OpSrcPort             = Operand("source.port")
 	OpDstIP               = Operand("dest.ip")
 	OpDstHost             = Operand("dest.host")
 	OpDstPort             = Operand("dest.port")
 	OpDstNetwork          = Operand("dest.network")
+	OpSrcNetwork          = Operand("source.network")
 	OpProto               = Operand("protocol")
 	OpIfaceIn             = Operand("iface.in")
 	OpIfaceOut            = Operand("iface.out")
@@ -54,6 +59,8 @@ const (
 	OpDomainsRegexpLists  = Operand("lists.domains_regexp")
 	OpIPLists             = Operand("lists.ips")
 	OpNetLists            = Operand("lists.nets")
+	// TODO
+	// OpHashMD5 = Operand("lists.hash.md5")
 )
 
 type opCallback func(value interface{}) bool
@@ -67,13 +74,13 @@ type Operator struct {
 	List      []Operator `json:"list"`
 
 	sync.RWMutex
-	cb                  opCallback
 	re                  *regexp.Regexp
 	netMask             *net.IPNet
-	isCompiled          bool
 	lists               map[string]interface{}
-	listsMonitorRunning bool
+	cb                  opCallback
 	exitMonitorChan     chan (bool)
+	isCompiled          bool
+	listsMonitorRunning bool
 }
 
 // NewOperator returns a new operator object
@@ -105,7 +112,18 @@ func (o *Operator) Compile() error {
 			return err
 		}
 		o.re = re
-	} else if o.Operand == OpDomainsLists {
+	} else if o.Type == List {
+		o.Operand = OpList
+	} else if o.Type == Network {
+		var err error
+		_, o.netMask, err = net.ParseCIDR(o.Data)
+		if err != nil {
+			return err
+		}
+		o.cb = o.cmpNetwork
+	}
+
+	if o.Operand == OpDomainsLists {
 		if o.Data == "" {
 			return fmt.Errorf("Operand lists is empty, nothing to load: %s", o)
 		}
@@ -129,15 +147,8 @@ func (o *Operator) Compile() error {
 		}
 		o.loadLists()
 		o.cb = o.ipNetCmp
-	} else if o.Type == List {
-		o.Operand = OpList
-	} else if o.Type == Network {
-		var err error
-		_, o.netMask, err = net.ParseCIDR(o.Data)
-		if err != nil {
-			return err
-		}
-		o.cb = o.cmpNetwork
+	} else if o.Operand == OpProcessHashMD5 || o.Operand == OpProcessHashSHA1 {
+		o.cb = o.hashCmp
 	}
 	log.Debug("Operator compiled: %s", o)
 	o.isCompiled = true
@@ -248,21 +259,29 @@ func (o *Operator) reListCmp(v interface{}) bool {
 	return false
 }
 
-func (o *Operator) listMatch(con interface{}) bool {
+func (o *Operator) hashCmp(v interface{}) bool {
+	hash := v.(string)
+	if hash == "" {
+		return true // fake a match to avoid displaying a pop-up
+	}
+	return hash == o.Data
+}
+
+func (o *Operator) listMatch(con interface{}, hasChecksums bool) bool {
 	res := true
 	for i := 0; i < len(o.List); i++ {
-		res = res && o.List[i].Match(con.(*conman.Connection))
+		res = res && o.List[i].Match(con.(*conman.Connection), hasChecksums)
 	}
 	return res
 }
 
 // Match tries to match parts of a connection with the given operator.
-func (o *Operator) Match(con *conman.Connection) bool {
+func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 
 	if o.Operand == OpTrue {
 		return true
 	} else if o.Operand == OpList {
-		return o.listMatch(con)
+		return o.listMatch(con, hasChecksums)
 	} else if o.Operand == OpProcessPath {
 		return o.cb(con.Process.Path)
 	} else if o.Operand == OpProcessCmd {
@@ -273,22 +292,20 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		return o.cb(con.DstIP.String())
 	} else if o.Operand == OpDstPort {
 		return o.cb(fmt.Sprintf("%d", con.DstPort))
-	} else if o.Operand == OpUserID {
-		return o.cb(fmt.Sprintf("%d", con.Entry.UserId))
-	} else if o.Operand == OpProcessID {
-		return o.cb(fmt.Sprint(con.Process.ID))
 	} else if o.Operand == OpDomainsLists {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpIPLists {
 		return o.cb(con.DstIP.String())
+	} else if o.Operand == OpUserID {
+		return o.cb(fmt.Sprintf("%d", con.Entry.UserId))
 	} else if o.Operand == OpDstNetwork {
 		return o.cb(con.DstIP)
+	} else if o.Operand == OpSrcNetwork {
+		return o.cb(con.SrcIP)
 	} else if o.Operand == OpNetLists {
 		return o.cb(con.DstIP)
 	} else if o.Operand == OpDomainsRegexpLists {
 		return o.cb(con.DstHost)
-	} else if o.Operand == OpProto {
-		return o.cb(con.Protocol)
 	} else if o.Operand == OpIfaceIn {
 		if ifname, err := net.InterfaceByIndex(con.Pkt.IfaceInIdx); err == nil {
 			return o.cb(ifname.Name)
@@ -297,6 +314,28 @@ func (o *Operator) Match(con *conman.Connection) bool {
 		if ifname, err := net.InterfaceByIndex(con.Pkt.IfaceOutIdx); err == nil {
 			return o.cb(ifname.Name)
 		}
+	} else if o.Operand == OpProcessHashMD5 || o.Operand == OpProcessHashSHA1 {
+		ret := true
+		if !hasChecksums {
+			return ret
+		}
+		con.Process.RLock()
+		for algo := range con.Process.Checksums {
+			ret = o.cb(con.Process.Checksums[algo])
+			if ret {
+				break
+			}
+		}
+		con.Process.RUnlock()
+		return ret
+	} else if o.Operand == OpProto {
+		return o.cb(con.Protocol)
+	} else if o.Operand == OpSrcIP {
+		return o.cb(con.SrcIP.String())
+	} else if o.Operand == OpSrcPort {
+		return o.cb(fmt.Sprintf("%d", con.SrcPort))
+	} else if o.Operand == OpProcessID {
+		return o.cb(fmt.Sprint(con.Process.ID))
 	} else if strings.HasPrefix(string(o.Operand), string(OpProcessEnvPrefix)) {
 		envVarName := core.Trim(string(o.Operand[OpProcessEnvPrefixLen:]))
 		envVarValue, _ := con.Process.Env[envVarName]

@@ -1,0 +1,36 @@
+#!/sbin/openrc-run
+# OpenSnitch firewall service
+
+depend() {
+    before net
+    after iptables ip6tables 
+    use logger
+    provide firewall
+}
+
+start_pre() {
+        /bin/mkdir -p /etc/opensnitchd/rules
+        /bin/chown -R root:root /etc/opensnitchd
+        /bin/chown root:root /var/log/opensnitchd.log
+        /bin/chmod -R 755 /etc/opensnitchd
+        /bin/chmod -R 0644 /etc/opensnitchd/rules
+        /bin/chmod 0600 /var/log/opensnitchd.log
+}
+
+start() {
+    ebegin "Starting application firewall"
+    # only if the verbose flag is not set (rc-service opensnitchd start -v)
+    if [ -z "$VERBOSE" ]; then
+        # redirect stdout and stderr to /dev/null
+        /usr/local/bin/opensnitchd -rules-path /etc/opensnitchd/rules -log-file /var/log/opensnitchd.log > /dev/null 2>&1 &
+    else
+        /usr/local/bin/opensnitchd -rules-path /etc/opensnitchd/rules -log-file /var/log/opensnitchd.log
+    fi
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping application firewall"
+    /usr/bin/pkill -SIGINT opensnitchd 
+    eend $?
+}

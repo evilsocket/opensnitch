@@ -46,6 +46,10 @@ func NewExprNAT(parms, verdict string) (bool, bool, *[]expr.Any, error) {
 	if NATParms[idx] == NFT_PARM_TO {
 		idx++
 	}
+	if idx == len(NATParms) {
+		return regAddr, regProto, &exprNAT, fmt.Errorf("Invalid parms: %s", parms)
+	}
+
 	dParms := strings.Split(NATParms[idx], ":")
 	// masquerade doesn't allow "to IP"
 	if dParms[0] != "" && verdict != VERDICT_MASQUERADE {
@@ -71,13 +75,21 @@ func NewExprNAT(parms, verdict string) (bool, bool, *[]expr.Any, error) {
 			return regAddr, regProto, &exprNAT, fmt.Errorf("Invalid Port: %s", dPort)
 		}
 		reg := uint32(2)
+		toPort := binaryutil.BigEndian.PutUint16(uint16(destPort))
+		// if reg=1 (RegAddrMin=1) is not set, this error appears listing the rules
+		// "netlink: Error: NAT statement has no proto expression"
 		if verdict == VERDICT_TPROXY || verdict == VERDICT_MASQUERADE || verdict == VERDICT_REDIRECT {
+			// according to https://github.com/google/nftables/blob/8a10f689006bf728a5cff35787713047f68e308a/nftables_test.go#L4871
+			// Masquerade ports should be specified like this:
+			// toPort = binaryutil.BigEndian.PutUint32(uint32(destPort) << 16)
+			// but then it's not added/listed correctly with nft.
+
 			reg = 1
 		}
 		exprNAT = append(exprNAT, []expr.Any{
 			&expr.Immediate{
 				Register: reg,
-				Data:     binaryutil.BigEndian.PutUint16(uint16(destPort)),
+				Data:     toPort,
 			}}...)
 		regProto = true
 	}

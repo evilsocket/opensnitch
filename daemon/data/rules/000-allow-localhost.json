@@ -1,0 +1,17 @@
+{
+  "created": "2023-07-05T10:46:47.904024069+01:00",
+  "updated": "2023-07-05T10:46:47.921828104+01:00",
+  "name": "000-allow-localhost",
+  "description": "Allow connections to localhost. See this link for more information:\nhttps://github.com/evilsocket/opensnitch/wiki/Rules#localhost-connections",
+  "enabled": true,
+  "precedence": true,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "regexp",
+    "operand": "dest.ip",
+    "sensitive": false,
+    "data": "^(127\\.0\\.0\\.1|::1)$",
+    "list": []
+  }
+}

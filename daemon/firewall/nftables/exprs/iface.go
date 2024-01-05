@@ -1,6 +1,8 @@
 package exprs
 
-import "github.com/google/nftables/expr"
+import (
+	"github.com/google/nftables/expr"
+)
 
 // NewExprIface returns a new network interface expression
 func NewExprIface(iface string, isOut bool, cmpOp expr.CmpOp) *[]expr.Any {
@@ -20,7 +22,12 @@ func NewExprIface(iface string, isOut bool, cmpOp expr.CmpOp) *[]expr.Any {
 
 // https://github.com/google/nftables/blob/master/nftables_test.go#L81
 func ifname(n string) []byte {
-	b := make([]byte, 16)
-	copy(b, []byte(n+"\x00"))
-	return b
+	buf := make([]byte, 16)
+	length := len(n)
+	// allow wildcards
+	if n[length-1:] == "*" {
+		return []byte(n[:length-1])
+	}
+	copy(buf, []byte(n+"\x00"))
+	return buf
 }

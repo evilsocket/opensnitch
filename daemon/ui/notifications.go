@@ -15,6 +15,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
+	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 	"golang.org/x/net/context"
 )
@@ -59,8 +60,18 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 }
 
 func (c *Client) monitorProcessDetails(pid int, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	p := procmon.NewProcess(pid, "")
-	p.GetInfo()
+	p := &procmon.Process{}
+	item, found := procmon.EventsCache.IsInStoreByPID(pid)
+	if found {
+		newProc := item.Proc
+		p = &newProc
+		if len(p.Tree) == 0 {
+			p.GetParent()
+			p.BuildTree()
+		}
+	} else {
+		p = procmon.NewProcess(pid, "")
+	}
 	ticker := time.NewTicker(2 * time.Second)
 
 	for {
@@ -91,7 +102,7 @@ Exit:
 func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	log.Info("[notification] Reloading configuration")
 	// Parse received configuration first, to get the new proc monitor method.
-	newConf, err := c.parseConf(notification.Data)
+	newConf, err := config.Parse(notification.Data)
 	if err != nil {
 		log.Warning("[notification] error parsing received config: %v", notification.Data)
 		c.sendNotificationReply(stream, notification.Id, "", err)
@@ -99,16 +110,23 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 	}
 
 	if c.GetFirewallType() != newConf.Firewall {
-		firewall.ChangeFw(newConf.Firewall)
+		firewall.Reload(
+			newConf.Firewall,
+			newConf.FwOptions.ConfigPath,
+			newConf.FwOptions.MonitorInterval,
+		)
 	}
 
-	if err := monitor.ReconfigureMonitorMethod(newConf.ProcMonitorMethod); err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
+	if err := monitor.ReconfigureMonitorMethod(
+		newConf.ProcMonitorMethod,
+		clientConfig.Ebpf.ModulesPath,
+	); err != nil {
+		c.sendNotificationReply(stream, notification.Id, "", err.Msg)
 		return
 	}
 
 	// this save operation triggers a re-loadConfiguration()
-	err = c.saveConfiguration(notification.Data)
+	err = config.Save(configFile, notification.Data)
 	if err != nil {
 		log.Warning("[notification] CHANGE_CONFIG not applied %s", err)
 	}
@@ -193,6 +211,47 @@ func (c *Client) handleActionStopMonitorProcess(stream protocol.UI_Notifications
 	c.sendNotificationReply(stream, notification.Id, "", nil)
 }
 
+func (c *Client) handleActionReloadFw(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	log.Info("[notification] reloading firewall")
+
+	sysfw, err := firewall.Deserialize(notification.SysFirewall)
+	if err != nil {
+		log.Warning("firewall.Deserialize() error: %s", err)
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error reloading firewall, invalid rules"))
+		return
+	}
+	if err := firewall.SaveConfiguration(sysfw); err != nil {
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error saving system firewall rules: %s", err))
+		return
+	}
+	// TODO:
+	// - add new API endpoints to delete, add or change rules atomically.
+	// - a global goroutine where errors can be sent to the server (GUI).
+	go func(c *Client) {
+		var errors string
+		for {
+			select {
+			case fwerr := <-firewall.ErrorsChan():
+				errors = fmt.Sprint(errors, fwerr, ",")
+				if firewall.ErrChanEmpty() {
+					goto ExitWithError
+				}
+
+			// FIXME: can this operation last longer than 2s? if there're more than.. 100...10000 rules?
+			case <-time.After(2 * time.Second):
+				log.Debug("[notification] reload firewall. timeout fired, no errors?")
+				c.sendNotificationReply(stream, notification.Id, "", nil)
+				goto Exit
+
+			}
+		}
+	ExitWithError:
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("%s", errors))
+	Exit:
+	}(c)
+
+}
+
 func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	switch {
 	case notification.Type == protocol.Action_MONITOR_PROCESS:
@@ -223,19 +282,7 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 		c.sendNotificationReply(stream, notification.Id, "", nil)
 
 	case notification.Type == protocol.Action_RELOAD_FW_RULES:
-		log.Info("[notification] reloading firewall")
-
-		sysfw, err := firewall.Deserialize(notification.SysFirewall)
-		if err != nil {
-			log.Warning("firewall.Deserialize() error: %s", err)
-			c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error reloading firewall, invalid rules"))
-			return
-		}
-		if err := firewall.SaveConfiguration(sysfw); err != nil {
-			c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error saving system firewall rules: %s", err))
-			return
-		}
-		c.sendNotificationReply(stream, notification.Id, "", nil)
+		c.handleActionReloadFw(stream, notification)
 
 	// ENABLE_RULE just replaces the rule on disk
 	case notification.Type == protocol.Action_ENABLE_RULE:
@@ -284,7 +331,7 @@ func (c *Client) Subscribe() {
 		return
 	}
 
-	if tempConf, err := c.parseConf(clientCfg.Config); err == nil {
+	if tempConf, err := config.Parse(clientCfg.Config); err == nil {
 		c.Lock()
 		clientConnectedRule.Action = rule.Action(tempConf.DefaultAction)
 		c.Unlock()

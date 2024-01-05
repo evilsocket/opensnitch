@@ -38,6 +38,31 @@ class Rule():
         rule.operator.data = "" if records.value(RuleFields.OpData) == None else str(records.value(RuleFields.OpData))
         rule.description = records.value(RuleFields.Description)
         rule.nolog = Rule.to_bool(records.value(RuleFields.NoLog))
+        created = int(datetime.now().timestamp())
+        if records.value(RuleFields.Created) != "":
+            created = int(datetime.strptime(
+                records.value(RuleFields.Created), "%Y-%m-%d %H:%M:%S"
+            ).timestamp())
+        rule.created = created
+
+        try:
+            # Operator list is always saved as json string to the db,
+            # so we need to load the json string.
+            if rule.operator.type == Config.RULE_TYPE_LIST:
+                operators = json.loads(rule.operator.data)
+                for op in operators:
+                    rule.operator.list.extend([
+                        ui_pb2.Operator(
+                            type=op['type'],
+                            operand=op['operand'],
+                            sensitive=False if op.get('sensitive') == None else op['sensitive'],
+                            data="" if op.get('data') == None else op['data']
+                        )
+                    ])
+                rule.operator.data = ""
+        except Exception as e:
+            print("new_from_records exception parsing operartor list:", e)
+
 
         return rule
 
@@ -57,27 +82,33 @@ class Rules(QObject):
         QObject.__init__(self)
         self._db = Database.instance()
 
-    def add(self, time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data):
+    def add(self, time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data, created):
         # don't add rule if the user has selected to exclude temporary
         # rules
         if duration in Config.RULES_DURATION_FILTER:
             return
 
         self._db.insert("rules",
-                  "(time, node, name, description, enabled, precedence, nolog, action, duration, operator_type, operator_sensitive, operator_operand, operator_data)",
-                  (time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data),
+                  "(time, node, name, description, enabled, precedence, nolog, action, duration, operator_type, operator_sensitive, operator_operand, operator_data, created)",
+                  (time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data, created),
                         action_on_conflict="REPLACE")
 
     def add_rules(self, addr, rules):
         try:
             for _,r in enumerate(rules):
+                # Operator list is always saved as json string to the db.
+                rjson = json.loads(MessageToJson(r))
+                if r.operator.type == Config.RULE_TYPE_LIST and rjson.get('operator') != None and rjson.get('operator').get('list') != None:
+                    r.operator.data = json.dumps(rjson.get('operator').get('list'))
+
                 self.add(datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                              addr,
-                              r.name, r.description, str(r.enabled),
-                              str(r.precedence), str(r.nolog), r.action, r.duration,
-                              r.operator.type,
-                              str(r.operator.sensitive),
-                              r.operator.operand, r.operator.data)
+                         addr,
+                         r.name, r.description, str(r.enabled),
+                         str(r.precedence), str(r.nolog), r.action, r.duration,
+                         r.operator.type,
+                         str(r.operator.sensitive),
+                         r.operator.operand, r.operator.data,
+                         str(datetime.fromtimestamp(r.created).strftime("%Y-%m-%d %H:%M:%S")))
 
             return True
         except Exception as e:
@@ -101,6 +132,28 @@ class Rules(QObject):
     def delete_by_field(self, field, values):
         return self._db.delete_rules_by_field(field, values)
 
+    def get_by_name(self, node, name):
+        return self._db.get_rule(name, node)
+
+    def get_by_field(self, node, field, value):
+        return self._db.get_rule_by_field(node, field, value)
+
+    def exists(self, rule, node_addr):
+        return self._db.rule_exists(rule, node_addr)
+
+    def new_unique_name(self, rule_name, node_addr, prefix):
+        """generate a new name, if the supplied one already exists
+        """
+        if self._db.get_rule(rule_name, node_addr).next() == False:
+            return rule_name
+
+        for idx in range(0, 100):
+            new_rule_name = "{0}-{1}".format(rule_name, idx)
+            if self._db.get_rule(new_rule_name, node_addr).next() == False:
+                return new_rule_name
+
+        return rule_name
+
     def update_time(self, time, name, addr):
         """Updates the time of a rule, whenever a new connection matched a
         rule.
@@ -120,8 +173,15 @@ class Rules(QObject):
             if not records.next():
                 return None
             rule = Rule.new_from_records(records)
-            return MessageToJson(rule)
-        except:
+            # exclude this field when exporting to json
+            tempRule = MessageToJson(rule)
+            jRule = json.loads(tempRule)
+            jRule['created'] = str(datetime.fromtimestamp(
+                rule.created).strftime("%Y-%m-%d %H:%M:%S")
+            )
+            return json.dumps(jRule, indent="    ")
+        except Exception as e:
+            print("rule_to_json() exception:", e)
             return None
 
     def export_rule(self, node, rule_name, outdir):

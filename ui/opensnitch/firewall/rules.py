@@ -1,10 +1,19 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtCore import QCoreApplication as QC
+from google.protobuf.json_format import MessageToJson
 import uuid
+
 from opensnitch import ui_pb2
+from .enums import Operator
+from .exprs import ExprLog
 
 class Rules(QObject):
     rulesUpdated = pyqtSignal()
+
+    # Fields defined in the protobuf, to be used as constants on other parts.
+    FIELD_UUID = "UUID"
+    FIELD_ENABLED = "Enabled"
+    FIELD_TARGET = "Target"
 
     def __init__(self, nodes):
         QObject.__init__(self)
@@ -100,7 +109,7 @@ class Rules(QObject):
     def delete(self, addr, uuid):
         node = self._nodes.get_node(addr)
         if node == None or not 'firewall' in node:
-            return False
+            return False, None
         for sdx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
                 for idx, r in enumerate(c.Rules):
@@ -132,6 +141,19 @@ class Rules(QObject):
                     rules.append(Rules.to_array(addr, c, r))
         return rules
 
+    def get_by_uuid(self, addr, uuid):
+        rules = []
+        node = self._nodes.get_node(addr)
+        if node == None:
+            return rules
+        if not 'firewall' in node:
+            return rules
+        for u in node['firewall'].SystemRules:
+            for c in u.Chains:
+                for r in c.Rules:
+                    if r.UUID == uuid:
+                        return r
+        return None
 
     def swap(self, view, addr, uuid, old_pos, new_pos):
         """
@@ -257,6 +279,13 @@ class Rules(QObject):
         return rules
 
     @staticmethod
+    def to_json(rule):
+        try:
+            return MessageToJson(rule)
+        except:
+            return None
+
+    @staticmethod
     def to_array(addr, chain, rule):
         cols = []
         cols.append(rule.UUID)
@@ -269,12 +298,20 @@ class Rules(QObject):
         cols.append(rule.Description)
         exprs = ""
         for e in rule.Expressions:
-            exprs += "{0} {1} {2}".format(
-                e.Statement.Op,
+            exprs += "{0} {1}".format(
                 e.Statement.Name,
-                "".join(["{0} {1} ".format(h.Key, h.Value) for h in e.Statement.Values ])
+                "".join(
+                    [
+                        "{0} {1}{2} ".format(
+                            h.Key,
+                            e.Statement.Op + " " if e.Statement.Op != Operator.EQUAL.value else "",
+                            "\"{0}\"".format(h.Value) if h.Key == ExprLog.PREFIX.value else h.Value
+                        ) for h in e.Statement.Values
+                    ]
+                )
             )
         cols.append(exprs)
         cols.append(rule.Target)
+        cols.append(rule.TargetParameters)
 
         return cols

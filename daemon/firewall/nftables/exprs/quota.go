@@ -49,6 +49,8 @@ func NewQuota(opts []*config.ExprValues) (*[]expr.Any, error) {
 				return nil, fmt.Errorf("invalid quota bytes: %s", opt.Value)
 			}
 			bytes = ((b * 1024) * 1024) * 1024
+		default:
+			return nil, fmt.Errorf("invalid quota key: %s", opt.Key)
 		}
 	}
 	if bytes == 0 {

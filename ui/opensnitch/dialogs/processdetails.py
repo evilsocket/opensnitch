@@ -8,6 +8,7 @@ from opensnitch import ui_pb2
 from opensnitch.nodes import Nodes
 from opensnitch.desktop_parser import LinuxDesktopParser
 from opensnitch.utils import Message, Icons
+from opensnitch.config import Config
 
 DIALOG_UI_PATH = "%s/../res/process_details.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -86,18 +87,24 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         if QtGui.QIcon.hasThemeIcon("window-close"):
             return
 
-        closeIcon = Icons.new("window-close")
+        closeIcon = Icons.new(self, "window-close")
         self.cmdClose.setIcon(closeIcon)
-        self.iconStart = Icons.new("media-playback-start")
-        self.iconPause = Icons.new("media-playback-pause")
+        self.iconStart = Icons.new(self, "media-playback-start")
+        self.iconPause = Icons.new(self, "media-playback-pause")
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
-        if reply.id in self._notifications_sent:
+        if reply.id not in self._notifications_sent:
+            print("[stats] unknown notification received: ", reply.id)
+        else:
             noti = self._notifications_sent[reply.id]
 
             if reply.code == ui_pb2.ERROR:
-                self._show_message(QtCore.QCoreApplication.translate("proc_details", "<b>Error loading process information:</b> <br><br>\n\n") + reply.data)
+                self._show_message(
+                    QtCore.QCoreApplication.translate(
+                        "proc_details",
+                        "<b>Error loading process information:</b> <br><br>\n\n") + reply.data
+                )
                 self._pid = ""
                 self._set_button_running(False)
 
@@ -116,12 +123,14 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
 
             elif noti.type == ui_pb2.STOP_MONITOR_PROCESS:
                 if reply.data != "":
-                    self._show_message(QtCore.QCoreApplication.translate("proc_details", "<b>Error stopping monitoring process:</b><br><br>") + reply.data)
+                    self._show_message(
+                        QtCore.QCoreApplication.translate(
+                            "proc_details",
+                            "<b>Error stopping monitoring process:</b><br><br>") + reply.data
+                    )
                     self._set_button_running(False)
 
                 self._delete_notification(reply.id)
-        else:
-            print("[stats] unknown notification received: ", reply.id)
 
     def closeEvent(self, e):
         self._close()
@@ -157,9 +166,12 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.comboPids.clear()
         self.labelProcName.setText(QtCore.QCoreApplication.translate("proc_details", "loading..."))
         self.labelProcArgs.setText(QtCore.QCoreApplication.translate("proc_details", "loading..."))
+        self.labelProcPath.setText(QtCore.QCoreApplication.translate("proc_details", "loading..."))
         self.labelProcIcon.clear()
         self.labelStatm.setText("")
         self.labelCwd.setText("")
+        self.labelChecksums.setText("")
+        self.labelParent.setText("")
         for tidx in range(0, len(self.TABS)):
             self.TABS[tidx]['text'].setPlainText("")
 
@@ -225,6 +237,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self._app_icon = None
 
     def _load_data(self, data):
+        """Load the process information received via notifications.
+        """
         tab_idx = self.tabWidget.currentIndex()
 
         try:
@@ -234,8 +248,32 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
                 self.labelProcName.setText("<b>" + self._app_name + "</b>")
                 self.labelProcName.setToolTip("<b>" + self._app_name + "</b>")
 
-            #if proc['Path'] not in proc['Args']:
-            #    proc['Args'].insert(0, proc['Path'])
+            if 'Tree' in proc:
+                proc['Tree'].reverse()
+                self.labelParent.setText(
+                    "<b>Parent(s): </b>" + " 🡆 ".join(
+                        path['key'] for path in proc['Tree']
+                    )
+                )
+            else:
+                self.labelParent.setText("<could not obtain hash>")
+
+            if proc['Path'] not in proc['Args']:
+                self.labelProcPath.setVisible(True)
+                self.labelProcPath.setText("({0})".format(proc['Path']))
+            else:
+                self.labelProcPath.setVisible(False)
+
+            if 'Checksums' in proc:
+                checksums = proc['Checksums']
+                hashes = ""
+                if Config.OPERAND_PROCESS_HASH_MD5 in checksums:
+                    hashes = "<b>md5:</b> {0}".format(checksums[Config.OPERAND_PROCESS_HASH_MD5])
+                if Config.OPERAND_PROCESS_HASH_SHA1 in checksums:
+                    hashes = "<b>sha1:</b> {0}".format(checksums[Config.OPERAND_PROCESS_HASH_SHA1])
+
+                self.labelChecksums.setText(hashes)
+
 
             self.labelProcArgs.setFixedHeight(30)
             self.labelProcArgs.setText(" ".join(proc['Args']))
@@ -272,9 +310,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             return
 
         self._app_name, self._app_icon, _, _ = self._apps_parser.get_info_by_path(proc_path, "terminal")
-
-        icon = QtGui.QIcon().fromTheme(self._app_icon)
-        pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+        pixmap = Icons.get_by_appname(self._app_icon)
         self.labelProcIcon.setPixmap(pixmap)
 
         if self._app_name == None:

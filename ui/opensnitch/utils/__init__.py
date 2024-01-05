@@ -3,6 +3,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from opensnitch.version import version as gui_version
 from opensnitch.database import Database
 from opensnitch.config import Config
+from opensnitch.desktop_parser import LinuxDesktopParser
 from threading import Thread, Event
 import pwd
 import socket
@@ -235,7 +236,8 @@ class CleanerTask(Thread):
         self.db = Database("db-cleaner-connection")
         self.db_status, db_error = self.db.initialize(
             dbtype=self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY),
-            dbfile=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
+            dbfile=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY),
+            dbjrnl_wal=self._cfg.getBool(self._cfg.DEFAULT_DB_JRNL_WAL)
         )
 
     def run(self):
@@ -400,7 +402,7 @@ class NetworkServices():
             for line in etcServices:
                 if line[0] == "#":
                     continue
-                g = re.search("([a-zA-Z0-9\-]+)( |\t)+([0-9]+)\/([a-zA-Z0-9\-]+)(.*)\n", line)
+                g = re.search(r'([a-zA-Z0-9\-]+)( |\t)+([0-9]+)\/([a-zA-Z0-9\-]+)(.*)\n', line)
                 if g:
                     self.srv_array.append("{0}/{1} {2}".format(
                         g.group(1),
@@ -419,6 +421,12 @@ class NetworkServices():
     def to_array(self):
         return self.srv_array
 
+    def service_by_index(self, idx):
+        return self.srv_array[idx]
+
+    def service_by_name(self, name):
+        return self.srv_array.index(name)
+
     def port_by_index(self, idx):
         return self.ports_list[idx]
 
@@ -426,8 +434,10 @@ class NetworkServices():
         return self.ports_list.index(str(port))
 
 class Icons():
-    """
-    https://www.pythonguis.com/faq/built-in-qicons-pyqt/icons-builtin.png
+    """Util to display Qt's built-in icons when the system is not configured as
+    we expect. More information:
+        https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#no-icons-on-the-gui
+        https://user-images.githubusercontent.com/5894606/82400818-99ef6e80-9a2e-11ea-878d-99e30e13dbdd.jpg
     """
 
     defaults = {
@@ -435,9 +445,9 @@ class Icons():
         'document-save': "SP_DialogSaveButton",
         'document-open': "SP_DirOpenIcon",
         'format-justify-fill': "SP_FileDialogDetailedView",
-        'preferences-system': "SP_FileDialogDetailedView",
+        'preferences-system': "SP_FileDialogListView",
+        'preferences-desktop': "SP_FileDialogListView",
         'security-high': "SP_VistaShield",
-        'edit-clear-all': "SP_DialogResetButton",
         'go-previous': "SP_ArrowLeft",
         'go-jump': "SP_CommandLink",
         'go-down': "SP_TitleBarUnshadeButton",
@@ -455,19 +465,48 @@ class Icons():
         'system-search': "SP_FileDialogContentsView",
         'application-exit': "SP_TitleBarCloseButton",
         'view-sort-ascending': "SP_ToolBarVerticalExtensionButton",
-        'address-book-new': ""
+        'address-book-new': "",
+        'media-playback-start': "SP_MediaPlay",
+        'media-playback-pause': "SP_MediaPause",
+        'system-search': "SP_FileDialogContentsView",
+        'accessories-text-editor': "SP_DialogOpenButton",
+        'edit-clear-all': "SP_DialogResetButton",
+        'reload': "SP_DialogResetButton",
+        'dialog-information': "SP_MessageBoxInformation"
     }
 
     @staticmethod
-    def new(icon_name):
+    def new(widget, icon_name):
         icon = QtGui.QIcon.fromTheme(icon_name, QtGui.QIcon.fromTheme(icon_name + "-symbolic"))
         if icon.isNull():
             try:
-                return self.style().standardIcon(getattr(QtWidgets.QStyle, NewIcon.defaults[icon_name]))
-            except:
-                pass
+                return widget.style().standardIcon(getattr(QtWidgets.QStyle, Icons.defaults[icon_name]))
+            except Exception as e:
+                print("Qt standardIcon exception:", icon_name, ",", e)
 
         return icon
+
+    @staticmethod
+    def get_by_appname(app_icon):
+        """return the pixmap of an application.
+        """
+        try:
+            icon = QtGui.QIcon().fromTheme(app_icon)
+            pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+            if QtGui.QIcon().hasThemeIcon(app_icon) == False or pixmap.height() == 0:
+                # sometimes the icon is an absolute path, sometimes it's not
+                if os.path.isabs(app_icon):
+                    icon = QtGui.QIcon(app_icon)
+                    pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+                else:
+                    icon_path = LinuxDesktopParser.discover_app_icon(app_icon)
+                    if icon_path != None:
+                        icon = QtGui.QIcon(icon_path)
+                        pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
+        except Exception as e:
+            print("Icons.get_by_appname() exception:", e)
+
+        return pixmap
 
 class Versions():
     @staticmethod

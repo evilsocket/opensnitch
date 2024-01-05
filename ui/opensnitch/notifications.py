@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 from PyQt5.QtCore import QCoreApplication as QC
 import os
 from opensnitch.utils import Utils
@@ -35,7 +33,13 @@ class DesktopNotifications():
     URGENCY_NORMAL = 1
     URGENCY_CRITICAL = 2
 
+    # must be a string
+    ACTION_ID_OPEN = "action-open"
+    ACTION_ID_ALLOW = "action-allow"
+    ACTION_ID_DENY = "action-deny"
+
     def __init__(self):
+        self.ACTION_OPEN = QC.translate("popups", "Open")
         self.ACTION_ALLOW = QC.translate("popups", "Allow")
         self.ACTION_DENY = QC.translate("popups", "Deny")
         self.IS_LIBNOTIFY_AVAILABLE = True
@@ -85,22 +89,18 @@ class DesktopNotifications():
         """
         return self.DOES_SUPPORT_ACTIONS
 
-    def show(self, title, body, icon="dialog-information", urgency=URGENCY_NORMAL):
+    def show(self, title, body, icon="dialog-information", urgency=URGENCY_NORMAL, callback=None):
         try:
             ntf = self.ntf2.Notification(title, body, icon)
 
-            # timeouts seems to be ignored (on Cinnamon at least)
-            timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
-            # -1 and 0 are special values
-            if timeout > 0:
-                timeout = timeout * 1000
-            ntf.set_timeout(timeout * 1000)
-            ntf.timeout = timeout * 1000
-
             ntf.set_urgency(urgency)
             ntf.set_category(self.CATEGORY_NETWORK)
-            # used to display our app icon an name.
-            ntf.set_hint(self.HINT_DESKTOP_ENTRY, "opensnitch_ui")
+            # used to display our app icon and name.
+            # Note: setting this Hint causes some DEs to call opensnitch_ui.desktop file,
+            # that as of today, kills and relaunches the current opensnitch-ui process.
+            #ntf.set_hint(self.HINT_DESKTOP_ENTRY, "opensnitch_ui")
+            if self.DOES_SUPPORT_ACTIONS and callback != None:
+                ntf.add_action(self.ACTION_ID_OPEN, self.ACTION_OPEN, callback)
             ntf.show()
         except Exception as e:
             print("[notifications] show() exception:", e)
@@ -124,8 +124,8 @@ class DesktopNotifications():
         ntf.timeout = timeout * 1000
         if self.DOES_SUPPORT_ACTIONS:
             ntf.set_urgency(self.ntf2.URGENCY_CRITICAL)
-            ntf.add_action("allow", self.ACTION_ALLOW, callback, connection)
-            ntf.add_action("deny", self.ACTION_DENY, callback, connection)
+            ntf.add_action(self.ACTION_ID_ALLOW, self.ACTION_ALLOW, callback, connection)
+            ntf.add_action(self.ACTION_ID_DENY, self.ACTION_DENY, callback, connection)
             #ntf.add_action("open-gui", QC.translate("popups", "View"), callback, connection)
         ntf.set_category(self.CATEGORY_NETWORK)
         ntf.set_hint(self.HINT_DESKTOP_ENTRY, "opensnitch_ui")

@@ -37,6 +37,8 @@ Download deb/rpm packages for your system from https://github.com/evilsocket/ope
 #### rpm
 > $ sudo yum localinstall opensnitch-1*.rpm; sudo yum localinstall opensnitch-ui*.rpm 
 
+Then run: `$ opensnitch-ui` or launch the GUI from the Applications menu.
+
 Please, refer to [the documentation](https://github.com/evilsocket/opensnitch/wiki/Installation) for detailed information.
 
 ## OpenSnitch in action
@@ -57,6 +59,19 @@ Have you seen a connection you didn't expect? [submit it!](https://github.com/ev
 - 02/2022 [Linux User](https://www.linux-community.de/magazine/linuxuser/2022/03/)
 - 06/2022 [Linux Magazine #259](https://www.linux-magazine.com/Issues/2022/259/OpenSnitch)
 
+## Donations
+
+If you find OpenSnitch useful and want to donate to the dedicated developers, you can do it from the **Sponsor this project** section on the right side of this repository.
+
+You can see here who are the current maintainers of OpenSnitch:
+https://github.com/evilsocket/opensnitch/commits/master
+
 ## Contributors
 
 [See the list](https://github.com/evilsocket/opensnitch/graphs/contributors)
+
+## Translating
+
+<a href="https://hosted.weblate.org/engage/opensnitch/">
+<img src="https://hosted.weblate.org/widgets/opensnitch/-/glossary/multi-auto.svg" alt="Translation status" />
+</a>

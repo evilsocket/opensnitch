@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem, QMouseEvent
+from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
 from PyQt5.QtSql import QSqlQueryModel, QSqlQuery, QSql
 from PyQt5.QtWidgets import QTableView, QAbstractSlider
 from PyQt5.QtCore import QItemSelectionModel, pyqtSignal, QEvent, Qt
@@ -53,10 +53,14 @@ class GenericTableModel(QStandardItemModel):
     def clear(self):
         pass
 
+    def rowCount(self, index=None):
+        """ensures that only the needed rows is created"""
+        return len(self.items)
+
     def data(self, index, role=Qt.DisplayRole):
         """Paint rows with the data stored in self.items
         """
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole or role == Qt.EditRole:
             items_count = len(self.items)
             if index.isValid() and items_count > 0 and index.row() < items_count:
                 return self.items[index.row()][index.column()]
@@ -64,6 +68,10 @@ class GenericTableModel(QStandardItemModel):
 
     # set columns based on query's fields
     def setModelColumns(self, newColumns):
+        # Avoid firing signals while reconfiguring the view, it causes
+        # segfaults.
+        self.blockSignals(True);
+
         self.headerLabels = []
         self.removeColumns(0, self.lastColumnCount)
         self.setHorizontalHeaderLabels(self.headerLabels)
@@ -72,6 +80,8 @@ class GenericTableModel(QStandardItemModel):
         self.lastColumnCount = newColumns
         self.setHorizontalHeaderLabels(self.headerLabels)
         self.setColumnCount(len(self.headerLabels))
+
+        self.blockSignals(False);
 
     def setQuery(self, q, db):
         self.origQueryStr = q
@@ -198,16 +208,19 @@ class GenericTableView(QTableView):
     maxRowsInViewport = 0
     vScrollBar = None
     curSelection = None
+    trackingCol = 0
 
     def __init__(self, parent):
         QTableView.__init__(self, parent)
+        self.mousePressed = False
+
         #eventFilter to catch key up/down events and wheel events
-        self.installEventFilter(self)
         self.verticalHeader().setVisible(True)
         self.horizontalHeader().setDefaultAlignment(Qt.AlignCenter)
         self.horizontalHeader().setStretchLastSection(True)
         #the built-in vertical scrollBar of this view is always off
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.installEventFilter(self)
 
     def setVerticalScrollBar(self, vScrollBar):
         self.vScrollBar = vScrollBar
@@ -217,26 +230,64 @@ class GenericTableView(QTableView):
     def setModel(self, model):
         super().setModel(model)
         model.rowCountChanged.connect(self.onRowCountChanged)
-        model.rowsInserted.connect(self.onRowsInsertedOrRemoved)
-        model.rowsRemoved.connect(self.onRowsInsertedOrRemoved)
         model.beginViewPortRefresh.connect(self.onBeginViewportRefresh)
         model.endViewPortRefresh.connect(self.onEndViewportRefresh)
         self.horizontalHeader().sortIndicatorChanged.disconnect()
         self.setSortingEnabled(False)
 
+    def setTrackingColumn(self, col):
+        """column used to track a selected row while scrolling"""
+        self.trackingCol = col
+
+    def clear(self):
+        pass
+
+    def refresh(self):
+        self.calculateRowsInViewport()
+        self.model().setRowCount(min(self.maxRowsInViewport, self.model().totalRowCount))
+        self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=True)
+
+    def forceViewRefresh(self):
+        return (self.vScrollBar.minimum() == self.vScrollBar.value() or self.vScrollBar.maximum() == self.vScrollBar.value())
+
+    def calculateRowsInViewport(self):
+        rowHeight = self.verticalHeader().defaultSectionSize()
+        #columnSize = self.horizontalHeader().defaultSectionSize()
+        # we don't want partial-height rows in viewport, hence .floor()
+        self.maxRowsInViewport = math.floor(self.viewport().height() / rowHeight)+1
+
+    def currentChanged(self, cur, prev):
+        #super().currentChanged(cur, prev)
+        if not self.mousePressed or prev.row() == cur.row():
+            return
+        maxVal = self.maxRowsInViewport-1
+        if cur.row() >= maxVal or prev.row() >= maxVal:
+            self.vScrollBar.setValue(self.vScrollBar.value() + 1)
+        elif cur.row() == 0:
+            self.vScrollBar.setValue(max(0, self.vScrollBar.value() - 1))
+
+    def mouseReleaseEvent(self, event):
+        super().mouseReleaseEvent(event)
+        self.mousePressed = False
+
     # save the selected index, to preserve selection when moving around.
     def mousePressEvent(self, event):
+        # we need to call upper class to paint selections properly
         super().mousePressEvent(event)
         if event.button() != Qt.LeftButton:
             return
+        self.mousePressed = True
 
         item = self.indexAt(event.pos())
+        clickedItem = self.model().index(item.row(), self.trackingCol)
+        if clickedItem.data() == None:
+            return
+
         if item == None and self.curSelection == None:
             return
         elif item != None and self.curSelection == None:
             # force selecting the row below
             self.curSelection = ""
-        clickedItem = self.model().index(item.row(), 0)
         if clickedItem == None:
             return
 
@@ -252,23 +303,15 @@ class GenericTableView(QTableView):
             flags
         )
 
-    # model().rowCount() is always <= self.maxRowsInViewport
-    # stretch the bottom row; we don't want partial-height rows at the bottom
-    # this will only trigger if rowCount value was changed
-    def onRowsInsertedOrRemoved(self, parent, start, end):
-        if self.model().rowCount() == self.maxRowsInViewport:
-            self.verticalHeader().setStretchLastSection(True)
-        else:
-            self.verticalHeader().setStretchLastSection(False)
-
     def onBeginViewportRefresh(self):
         # if the selected row due to scrolling up/down doesn't match with the
         # saved index, deselect the row, because the saved index is out of the
         # view.
-        index = self.selectionModel().selectedRows(0)
-        if len(index) > 0:
-            if index[0].data() != self.curSelection:
-                self.selectionModel().clear()
+        index = self.selectionModel().selectedRows(self.trackingCol)
+        if len(index) == 0:
+            return
+        if index[0].data() != self.curSelection:
+            self.selectionModel().clear()
 
     def onEndViewportRefresh(self):
         self._selectSavedIndex()
@@ -277,21 +320,6 @@ class GenericTableView(QTableView):
         super().resizeEvent(event)
         #refresh the viewport data based on new geometry
         self.refresh()
-
-    def refresh(self):
-        self.calculateRowsInViewport()
-        self.model().setRowCount(min(self.maxRowsInViewport, self.model().totalRowCount))
-        self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=True)
-
-
-    def forceViewRefresh(self):
-        return (self.vScrollBar.minimum() == self.vScrollBar.value() or self.vScrollBar.maximum() == self.vScrollBar.value())
-
-    def calculateRowsInViewport(self):
-        rowHeight = self.verticalHeader().defaultSectionSize()
-        columnSize = self.horizontalHeader().defaultSectionSize()
-        # we don't want partial-height rows in viewport, hence .floor()
-        self.maxRowsInViewport = math.floor(self.viewport().height() / rowHeight)+1
 
     def onRowCountChanged(self):
         totalCount = self.model().totalRowCount
@@ -337,34 +365,34 @@ class GenericTableView(QTableView):
             )
 
     def _selectSavedIndex(self):
-        if self.curSelection != None:
-            items = self.model().findItems(self.curSelection)
-            if len(items) > 0:
-                self.selectionModel().setCurrentIndex(
-                    items[0].index(),
-                    QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
-                )
+        if self.curSelection == None or self.mousePressed:
+            return
+
+        items = self.model().findItems(self.curSelection, column=self.trackingCol)
+        if len(items) > 0:
+            self.selectionModel().setCurrentIndex(
+                items[0].index(),
+                QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
+            )
 
     def _selectLastRow(self):
         if self.curSelection != None:
             return
         internalId = self.getCurrentIndex()
         self.selectionModel().setCurrentIndex(
-            self.model().createIndex(self.maxRowsInViewport-2, 0, internalId),
+            self.model().createIndex(self.maxRowsInViewport-2, self.trackingCol, internalId),
             QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
         )
 
     def _selectRow(self, pos):
         internalId = self.getCurrentIndex()
         self.selectionModel().setCurrentIndex(
-            self.model().createIndex(pos, 1, internalId),
+            self.model().createIndex(pos, self.trackingCol, internalId),
             QItemSelectionModel.Rows | QItemSelectionModel.SelectCurrent
         )
 
     def onScrollbarValueChanged(self, vSBNewValue):
-        self.onBeginViewportRefresh()
         self.model().refreshViewport(vSBNewValue, self.maxRowsInViewport, force=True)
-        self.onEndViewportRefresh()
 
     def onKeyUp(self):
         self.curSelection = self.selectionModel().currentIndex().data()
@@ -373,9 +401,16 @@ class GenericTableView(QTableView):
 
     def onKeyDown(self):
         self.curSelection = self.selectionModel().currentIndex().data()
-        if self.selectionModel().currentIndex().row() >= self.maxRowsInViewport-2:
-            self.vScrollBar.setValue(self.vScrollBar.value() + 1)
+        if self.curSelection == None:
             self._selectLastRow()
+            return
+
+        curRow = self.selectionModel().currentIndex().row()
+        if curRow >= self.maxRowsInViewport-2:
+            self.onKeyPageDown()
+            self._selectRow(0)
+        else:
+            self._selectRow(curRow)
 
     def onKeyHome(self):
         self.vScrollBar.setValue(0)
@@ -384,6 +419,7 @@ class GenericTableView(QTableView):
     def onKeyEnd(self):
         self.vScrollBar.setValue(self.vScrollBar.maximum())
         self.selectionModel().clear()
+        self._selectLastRow()
 
     def onKeyPageUp(self):
         newValue = max(0, self.vScrollBar.value() - self.maxRowsInViewport)
@@ -394,13 +430,7 @@ class GenericTableView(QTableView):
             return
 
         newValue = self.vScrollBar.value() + (self.maxRowsInViewport-2)
-        if newValue >= self.model().rowCount():
-            self._selectLastRow()
-            return
-
-        if newValue < self.model().rowCount():
-            self.vScrollBar.setValue(newValue)
-            self._selectRow(0)
+        self.vScrollBar.setValue(newValue)
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress:

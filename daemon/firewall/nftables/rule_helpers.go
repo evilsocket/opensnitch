@@ -1,6 +1,7 @@
 package nftables
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
@@ -13,7 +14,7 @@ import (
 // rules examples: https://github.com/google/nftables/blob/master/nftables_test.go
 
 func (n *Nft) buildICMPRule(table, family string, icmpProtoVersion string, icmpOptions []*config.ExprValues) *[]expr.Any {
-	tbl := getTable(table, family)
+	tbl := n.GetTable(table, family)
 	if tbl == nil {
 		return nil
 	}
@@ -39,25 +40,28 @@ func (n *Nft) buildICMPRule(table, family string, icmpProtoVersion string, icmpO
 	for _, icmp := range icmpOptions {
 		switch icmp.Key {
 		case exprs.NFT_ICMP_TYPE:
-			if exprs.NFT_PROTO_ICMPv6 == icmpProtoVersion {
-				icmpType = exprs.GetICMPv6Type(icmp.Value)
-			} else {
-				icmpType = exprs.GetICMPType(icmp.Value)
-			}
-			exprCmp := &expr.Cmp{
-				Op:       expr.CmpOpEq,
-				Register: 1,
-				Data:     []byte{icmpType},
-			}
-			ICMPtemp = append(ICMPtemp, []expr.Any{exprCmp}...)
+			icmpTypeList := strings.Split(icmp.Value, ",")
+			for _, icmpTypeStr := range icmpTypeList {
+				if exprs.NFT_PROTO_ICMPv6 == icmpProtoVersion {
+					icmpType = exprs.GetICMPv6Type(icmpTypeStr)
+				} else {
+					icmpType = exprs.GetICMPType(icmpTypeStr)
+				}
+				exprCmp := &expr.Cmp{
+					Op:       expr.CmpOpEq,
+					Register: 1,
+					Data:     []byte{icmpType},
+				}
+				ICMPtemp = append(ICMPtemp, []expr.Any{exprCmp}...)
 
-			// fill setElements. If there're more than 1 icmp type we'll use it later
-			setElements = append(setElements,
-				[]nftables.SetElement{
-					{
-						Key: []byte{icmpType},
-					},
-				}...)
+				// fill setElements. If there're more than 1 icmp type we'll use it later
+				setElements = append(setElements,
+					[]nftables.SetElement{
+						{
+							Key: []byte{icmpType},
+						},
+					}...)
+			}
 		case exprs.NFT_ICMP_CODE:
 			// TODO
 			offset = 1
@@ -82,7 +86,7 @@ func (n *Nft) buildICMPRule(table, family string, icmpProtoVersion string, icmpO
 			Table:     tbl,
 			KeyType:   setType,
 		}
-		if err := n.conn.AddSet(set, setElements); err != nil {
+		if err := n.Conn.AddSet(set, setElements); err != nil {
 			log.Warning("%s AddSet() error: %s", logTag, err)
 			return nil
 		}
@@ -99,7 +103,7 @@ func (n *Nft) buildICMPRule(table, family string, icmpProtoVersion string, icmpO
 	return &ICMPrule
 }
 
-func (n *Nft) buildConntrackRule(ctOptions []*config.ExprValues) *[]expr.Any {
+func (n *Nft) buildConntrackRule(ctOptions []*config.ExprValues, cmpOp *expr.CmpOp) *[]expr.Any {
 	exprList := []expr.Any{}
 
 	setMark := false
@@ -122,7 +126,7 @@ func (n *Nft) buildConntrackRule(ctOptions []*config.ExprValues) *[]expr.Any {
 		case exprs.NFT_CT_SET_MARK:
 			setMark = true
 		case exprs.NFT_CT_MARK:
-			ctExprMark, err := exprs.NewExprCtMark(setMark, ctOption.Value)
+			ctExprMark, err := exprs.NewExprCtMark(setMark, ctOption.Value, cmpOp)
 			if err != nil {
 				log.Warning("%s ct mark error: %s", logTag, err)
 				return nil
@@ -139,10 +143,52 @@ Exit:
 	return &exprList
 }
 
-func (n *Nft) buildProtocolRule(table, family, ports string, cmpOp *expr.CmpOp) *[]expr.Any {
-	tbl := getTable(table, family)
+// buildL4ProtoRule helper builds a new protocol rule to match ports and protocols.
+//
+// nft --debug=netlink add rule filter input meta l4proto { tcp, udp }  th dport 53
+//	__set%d filter 3 size 2
+//	__set%d filter 0
+//		element 00000006  : 0 [end]	element 00000011  : 0 [end]
+//	ip filter input
+//	  [ meta load l4proto => reg 1 ]
+//	  [ lookup reg 1 set __set%d ]
+//	  [ payload load 2b @ transport header + 2 => reg 1 ]
+//	  [ cmp eq reg 1 0x00003500 ]
+func (n *Nft) buildL4ProtoRule(table, family, l4prots string, cmpOp *expr.CmpOp) (*[]expr.Any, error) {
+	tbl := n.GetTable(table, family)
 	if tbl == nil {
-		return nil
+		return nil, fmt.Errorf("Invalid table (%s, %s)", table, family)
+	}
+	exprList := []expr.Any{}
+	if strings.Index(l4prots, ",") != -1 {
+		set := &nftables.Set{
+			Anonymous: true,
+			Constant:  true,
+			Table:     tbl,
+			KeyType:   nftables.TypeInetProto,
+		}
+		protoSet := exprs.NewExprProtoSet(l4prots)
+		if err := n.Conn.AddSet(set, *protoSet); err != nil {
+			log.Warning("%s protoSet, AddSet() error: %s", logTag, err)
+			return nil, err
+		}
+		exprList = append(exprList, &expr.Lookup{
+			SourceRegister: 1,
+			SetName:        set.Name,
+			SetID:          set.ID,
+		})
+	} else {
+		exprProto := exprs.NewExprL4Proto(l4prots, cmpOp)
+		exprList = append(exprList, *exprProto...)
+	}
+
+	return &exprList, nil
+}
+
+func (n *Nft) buildPortsRule(table, family, ports string, cmpOp *expr.CmpOp) (*[]expr.Any, error) {
+	tbl := n.GetTable(table, family)
+	if tbl == nil {
+		return nil, fmt.Errorf("Invalid table (%s, %s)", table, family)
 	}
 	exprList := []expr.Any{}
 	if strings.Index(ports, ",") != -1 {
@@ -153,8 +199,9 @@ func (n *Nft) buildProtocolRule(table, family, ports string, cmpOp *expr.CmpOp) 
 			KeyType:   nftables.TypeInetService,
 		}
 		setElements := exprs.NewExprPortSet(ports)
-		if err := n.conn.AddSet(set, *setElements); err != nil {
-			log.Warning("%s AddSet() error: %s", logTag, err)
+		if err := n.Conn.AddSet(set, *setElements); err != nil {
+			log.Warning("%s portSet, AddSet() error: %s", logTag, err)
+			return nil, err
 		}
 		exprList = append(exprList, &expr.Lookup{
 			SourceRegister: 1,
@@ -163,10 +210,19 @@ func (n *Nft) buildProtocolRule(table, family, ports string, cmpOp *expr.CmpOp) 
 		})
 		sysSets = append(sysSets, []*nftables.Set{set}...)
 	} else if strings.Index(ports, "-") != -1 {
-		exprList = append(exprList, *exprs.NewExprPortRange(ports)...)
+		portRange, err := exprs.NewExprPortRange(ports, cmpOp)
+		if err != nil {
+			log.Warning("%s invalid portRange: %s, %s", logTag, ports, err)
+			return nil, err
+		}
+		exprList = append(exprList, *portRange...)
 	} else {
-		exprList = append(exprList, *exprs.NewExprPort(ports, cmpOp)...)
+		exprPort, err := exprs.NewExprPort(ports, cmpOp)
+		if err != nil {
+			return nil, err
+		}
+		exprList = append(exprList, *exprPort...)
 	}
 
-	return &exprList
+	return &exprList, nil
 }

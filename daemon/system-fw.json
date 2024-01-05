@@ -162,11 +162,7 @@
                     "Values": [
                       {
                         "Key": "type",
-                        "Value": "echo-request"
-                      },
-                      {
-                        "Key": "type",
-                        "Value": "echo-reply"
+                        "Value": "echo-request,echo-reply,destination-unreachable"
                       }
                     ]
                   }
@@ -187,11 +183,7 @@
                     "Values": [
                       {
                         "Key": "type",
-                        "Value": "echo-request"
-                      },
-                      {
-                        "Key": "type",
-                        "Value": "echo-reply"
+                        "Value": "echo-request,echo-reply,destination-unreachable"
                       }
                     ]
                   }

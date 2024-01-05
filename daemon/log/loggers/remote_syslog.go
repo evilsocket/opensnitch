@@ -2,10 +2,9 @@ package loggers
 
 import (
 	"fmt"
-	"log/syslog"
 	"net"
 	"os"
-	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -37,6 +36,8 @@ type RemoteSyslog struct {
 	Timeout  time.Duration
 	errors   uint32
 	status   uint32
+
+	mu *sync.RWMutex
 }
 
 // NewRemoteSyslog returns a new object that manipulates and prints outbound connections
@@ -45,12 +46,17 @@ func NewRemoteSyslog(cfg *LoggerConfig) (*RemoteSyslog, error) {
 	var err error
 	log.Info("NewSyslog logger: %v", cfg)
 
-	sys := &RemoteSyslog{}
+	sys := &RemoteSyslog{
+		mu: &sync.RWMutex{},
+	}
 	sys.Name = LOGGER_REMOTE_SYSLOG
 	sys.cfg = cfg
 
+	// list of allowed formats for this logger
 	sys.logFormat = formats.NewRfc5424()
-	if cfg.Format == formats.CSV {
+	if cfg.Format == formats.RFC3164 {
+		sys.logFormat = formats.NewRfc3164()
+	} else if cfg.Format == formats.CSV {
 		sys.logFormat = formats.NewCSV()
 	}
 
@@ -62,7 +68,10 @@ func NewRemoteSyslog(cfg *LoggerConfig) (*RemoteSyslog, error) {
 	if err != nil {
 		sys.Hostname = "localhost"
 	}
-	sys.Timeout, _ = time.ParseDuration(writeTimeout)
+	if cfg.WriteTimeout == "" {
+		cfg.WriteTimeout = writeTimeout
+	}
+	sys.Timeout, _ = time.ParseDuration(cfg.WriteTimeout)
 
 	if err = sys.Open(); err != nil {
 		log.Error("Error loading logger: %s", err)
@@ -79,7 +88,9 @@ func (s *RemoteSyslog) Open() (err error) {
 	if s.cfg.Server == "" {
 		return fmt.Errorf("[%s] Server address must not be empty", s.Name)
 	}
+	s.mu.Lock()
 	s.netConn, err = s.Dial(s.cfg.Protocol, s.cfg.Server, s.Timeout*5)
+	s.mu.Unlock()
 
 	if err == nil {
 		atomic.StoreUint32(&s.status, CONNECTED)
@@ -104,6 +115,9 @@ func (s *RemoteSyslog) Dial(proto, addr string, connTimeout time.Duration) (netC
 
 // Close closes the writer object
 func (s *RemoteSyslog) Close() (err error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	if s.netConn != nil {
 		err = s.netConn.Close()
 		//s.netConn.conn = nil
@@ -131,6 +145,8 @@ func (s *RemoteSyslog) ReOpen() {
 // Transform transforms data for proper ingestion.
 func (s *RemoteSyslog) Transform(args ...interface{}) (out string) {
 	if s.logFormat != nil {
+		args = append(args, s.Hostname)
+		args = append(args, s.Tag)
 		out = s.logFormat.Transform(args...)
 	}
 	return
@@ -143,33 +159,22 @@ func (s *RemoteSyslog) Write(msg string) {
 	// Reopening the connection with the server helps to resume sending events to syslog,
 	// and have a continuous stream of events. Otherwise it'd stop working.
 	// I haven't figured out yet why these write errors ocurr.
-	switch s.netConn.(type) {
-	case *net.TCPConn, *net.UDPConn:
-		s.netConn.SetWriteDeadline(deadline)
-		if _, err := s.netConn.Write([]byte(s.formatLine(msg))); err != nil {
-			log.Debug("[%s] %s write error: %v", s.Name, s.cfg.Protocol, err.(net.Error))
-			atomic.AddUint32(&s.errors, 1)
-			if atomic.LoadUint32(&s.errors) > maxAllowedErrors {
-				s.ReOpen()
-				return
-			}
+	s.mu.RLock()
+	s.netConn.SetWriteDeadline(deadline)
+	_, err := s.netConn.Write([]byte(msg))
+	s.mu.RUnlock()
+
+	if err != nil {
+		log.Debug("[%s] %s write error: %v", s.Name, s.cfg.Protocol, err.(net.Error))
+		atomic.AddUint32(&s.errors, 1)
+		if atomic.LoadUint32(&s.errors) > maxAllowedErrors {
+			s.ReOpen()
+			return
 		}
 	}
 }
 
 // https://cs.opensource.google/go/go/+/refs/tags/go1.18.2:src/log/syslog/syslog.go;l=286;drc=0a1a092c4b56a1d4033372fbd07924dad8cbb50b
 func (s *RemoteSyslog) formatLine(msg string) string {
-	timestamp := time.Now().Format(time.RFC3339)
-	nl := ""
-	if !strings.HasSuffix(msg, "\n") {
-		nl = "\n"
-	}
-	return fmt.Sprintf("<%d>%s %s %s[%d]: %s%s",
-		syslog.LOG_NOTICE|syslog.LOG_DAEMON,
-		timestamp,
-		s.Hostname,
-		s.Tag,
-		os.Getpid(),
-		msg,
-		nl)
+	return msg
 }

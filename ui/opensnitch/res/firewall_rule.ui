@@ -245,6 +245,21 @@
            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>FORWARD</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>PREROUTING</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>POSTROUTING</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item>
@@ -264,7 +279,7 @@
           <string>ACCEPT</string>
          </property>
          <property name="icon">
-          <iconset theme="object-select-symbolic">
+          <iconset theme="emblem-default">
            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
          </property>
         </item>
@@ -295,7 +310,55 @@
            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>QUEUE</string>
+         </property>
+         <property name="icon">
+          <iconset theme="go-next"/>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>DNAT</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SNAT</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>REDIRECT</string>
+         </property>
+         <property name="icon">
+          <iconset theme="edit-redo"/>
+         </property>
+        </item>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QComboBox" name="comboVerdictParms"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineVerdictParms">
+          <property name="toolTip">
+           <string>depending on the Action (i.e.: target), the syntaxis of the parameters will vary.
+Some examples:
+
+QUEUE -&gt; num 0 (or 1, 2, ...)
+REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
+ to :22
+ to 192.168.1.254:8080
+ to 192.168.1.254
+ to 1024-2048 (masquerade)</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

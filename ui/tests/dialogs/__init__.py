@@ -20,6 +20,8 @@ class ClientConfig:
     "InterceptUnknown": false,
     "ProcMonitorMethod": "ebpf",
     "LogLevel": 0,
+    "LogUTC": true,
+    "LogMicro": false,
     "Firewall": "iptables",
     "Stats": {
         "MaxEvents": 150,
