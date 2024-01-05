@@ -304,10 +304,10 @@ func (p *Process) readDescriptors() {
 	}
 }
 
-func (p *Process) readIOStats() {
+func (p *Process) readIOStats() (err error) {
 	f, err := os.Open(p.pathIO)
 	if err != nil {
-		return
+		return err
 	}
 	defer f.Close()
 
@@ -318,19 +318,21 @@ func (p *Process) readIOStats() {
 		s := strings.Split(scanner.Text(), " ")
 		switch s[0] {
 		case "rchar:":
-			p.IOStats.RChar, _ = strconv.ParseInt(s[1], 10, 64)
+			p.IOStats.RChar, err = strconv.ParseInt(s[1], 10, 64)
 		case "wchar:":
-			p.IOStats.WChar, _ = strconv.ParseInt(s[1], 10, 64)
+			p.IOStats.WChar, err = strconv.ParseInt(s[1], 10, 64)
 		case "syscr:":
-			p.IOStats.SyscallRead, _ = strconv.ParseInt(s[1], 10, 64)
+			p.IOStats.SyscallRead, err = strconv.ParseInt(s[1], 10, 64)
 		case "syscw:":
-			p.IOStats.SyscallWrite, _ = strconv.ParseInt(s[1], 10, 64)
+			p.IOStats.SyscallWrite, err = strconv.ParseInt(s[1], 10, 64)
 		case "read_bytes:":
-			p.IOStats.ReadBytes, _ = strconv.ParseInt(s[1], 10, 64)
+			p.IOStats.ReadBytes, err = strconv.ParseInt(s[1], 10, 64)
 		case "write_bytes:":
-			p.IOStats.WriteBytes, _ = strconv.ParseInt(s[1], 10, 64)
+			p.IOStats.WriteBytes, err = strconv.ParseInt(s[1], 10, 64)
 		}
 	}
+
+	return err
 }
 
 func (p *Process) readStatus() {
