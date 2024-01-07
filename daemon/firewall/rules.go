@@ -37,8 +37,9 @@ type Firewall interface {
 }
 
 var (
-	fw       Firewall
-	queueNum = 0
+	fw            Firewall
+	queueNum      = 0
+	DefaultConfig = "/etc/opensnitchd/system-fw.json"
 )
 
 // Init initializes the firewall and loads firewall rules.
@@ -46,6 +47,9 @@ var (
 // If iptables is not installed, we can add nftables rules directly to the kernel,
 // without relying on any binaries.
 func Init(fwType, configPath, monitorInterval string, qNum *int) (err error) {
+	if configPath == "" {
+		configPath = DefaultConfig
+	}
 	if fwType == iptables.Name {
 		fw, err = iptables.Fw()
 		if err != nil {

@@ -561,7 +561,7 @@ func main() {
 	repeatPktChan = repeatQueue.Packets()
 
 	fwConfigPath := fwConfigFile
-	if cfg.FwOptions.ConfigPath != "" {
+	if fwConfigPath == "" {
 		fwConfigPath = cfg.FwOptions.ConfigPath
 	}
 	log.Info("Using system fw configuration %s ...", fwConfigPath)
