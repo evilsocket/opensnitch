@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>626</width>
-    <height>503</height>
+    <height>494</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -100,7 +100,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -112,7 +112,7 @@
        <item row="1" column="0" colspan="3">
         <widget class="QLabel" name="label">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -212,12 +212,6 @@
        </item>
        <item row="2" column="0" colspan="4">
         <widget class="QGroupBox" name="groupBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
          <property name="title">
           <string>Default options</string>
          </property>
@@ -227,7 +221,7 @@
             <item>
              <widget class="QCheckBox" name="uidCheck">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -243,7 +237,7 @@
             <item>
              <widget class="QCheckBox" name="dstPortCheck">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -259,7 +253,7 @@
             <item>
              <widget class="QCheckBox" name="dstIPCheck">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -277,7 +271,7 @@
           <item row="0" column="1">
            <widget class="QComboBox" name="comboUIAction">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -327,7 +321,7 @@
              <bool>true</bool>
             </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -362,7 +356,7 @@
           <item row="1" column="1">
            <widget class="QComboBox" name="comboUIDuration">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -431,7 +425,7 @@
           <item row="2" column="1">
            <widget class="QComboBox" name="comboUITarget">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -505,7 +499,7 @@
           <item row="5" column="0">
            <widget class="QLabel" name="label_17">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -568,7 +562,7 @@
             <x>0</x>
             <y>0</y>
             <width>586</width>
-            <height>270</height>
+            <height>252</height>
            </rect>
           </property>
           <attribute name="label">
@@ -735,7 +729,7 @@
             <x>0</x>
             <y>0</y>
             <width>586</width>
-            <height>270</height>
+            <height>240</height>
            </rect>
           </property>
           <attribute name="label">
@@ -842,7 +836,7 @@
             <x>0</x>
             <y>0</y>
             <width>586</width>
-            <height>264</height>
+            <height>240</height>
            </rect>
           </property>
           <attribute name="label">
@@ -938,7 +932,7 @@
             <x>0</x>
             <y>0</y>
             <width>586</width>
-            <height>264</height>
+            <height>240</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1182,7 +1176,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
       <attribute name="title">
        <string>Nodes</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0,0,0">
+      <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0,0">
        <item row="0" column="2">
         <widget class="QCheckBox" name="checkApplyToNodes">
          <property name="sizePolicy">
@@ -1281,7 +1275,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             <x>0</x>
             <y>0</y>
             <width>586</width>
-            <height>229</height>
+            <height>211</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1431,7 +1425,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             <x>0</x>
             <y>0</y>
             <width>586</width>
-            <height>229</height>
+            <height>199</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1562,6 +1556,14 @@ Temporary rules will still be valid, and you can use them when prompted to allow
           </layout>
          </widget>
          <widget class="QWidget" name="page_7">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>572</width>
+            <height>211</height>
+           </rect>
+          </property>
           <attribute name="label">
            <string>Authentication</string>
           </attribute>
@@ -1680,86 +1682,6 @@ Temporary rules will still be valid, and you can use them when prompted to allow
              </property>
              <property name="textInteractionFlags">
               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="page_8">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>226</width>
-            <height>101</height>
-           </rect>
-          </property>
-          <attribute name="label">
-           <string>Rules</string>
-          </attribute>
-          <layout class="QGridLayout" name="gridLayout_16">
-           <item row="9" column="0">
-            <spacer name="verticalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="3" column="0">
-            <layout class="QFormLayout" name="formLayout_3">
-             <item row="1" column="0">
-              <widget class="QRadioButton" name="radioButton_2">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>sha1</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QRadioButton" name="radioButton">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>md5</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="enableChecksums">
-             <property name="statusTip">
-              <string>Compute and verify binaries checksums when they try to establish new connections</string>
-             </property>
-             <property name="text">
-              <string>Enable checksums verification</string>
              </property>
             </widget>
            </item>

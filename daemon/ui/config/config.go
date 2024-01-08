@@ -45,8 +45,7 @@ type serverConfig struct {
 }
 
 type rulesOptions struct {
-	Path            string `json:"Path"`
-	EnableChecksums bool   `json:"EnableChecksums"`
+	Path string `json:"Path"`
 }
 
 // Config holds the values loaded from configFile
