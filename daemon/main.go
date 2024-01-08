@@ -50,6 +50,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 	"github.com/evilsocket/opensnitch/daemon/ui"
+	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
@@ -60,7 +61,8 @@ var (
 	logFile           = ""
 	logUTC            = true
 	logMicro          = false
-	rulesPath         = "rules"
+	rulesPath         = "/etc/opensnitchd/rules/"
+	configFile        = "/etc/opensnitchd/default-config.json"
 	noLiveReload      = false
 	queueNum          = 0
 	repeatQueueNum    int //will be set later to queueNum + 1
@@ -102,6 +104,7 @@ func init() {
 	flag.IntVar(&workers, "workers", workers, "Number of concurrent workers.")
 	flag.BoolVar(&noLiveReload, "no-live-reload", debug, "Disable rules live reloading.")
 
+	flag.StringVar(&configFile, "config-file", configFile, "Path to the daemon configuration file.")
 	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
 	flag.BoolVar(&logUTC, "log-utc", logUTC, "Write logs output with UTC timezone (enabled by default).")
 	flag.BoolVar(&logMicro, "log-micro", logMicro, "Write logs output with microsecond timestamp (disabled by default).")
@@ -112,6 +115,27 @@ func init() {
 
 	flag.StringVar(&cpuProfile, "cpu-profile", cpuProfile, "Write CPU profile to this file.")
 	flag.StringVar(&memProfile, "mem-profile", memProfile, "Write memory profile to this file.")
+}
+
+// Load configuration file from disk, by default from /etc/opensnitchd/default-config.json,
+// or from the path specified by configFile.
+// This configuration will be loaded again by uiClient(), in order to monitor it for changes.
+func loadDiskConfiguration() (*config.Config, error) {
+	if configFile == "" {
+		return nil, fmt.Errorf("Configuration file cannot be empty")
+	}
+
+	raw, err := config.Load(configFile)
+	if err != nil || len(raw) == 0 {
+		return nil, fmt.Errorf("Error loading configuration %s: %s", configFile, err)
+	}
+	clientConfig, err := config.Parse(raw)
+	if err != nil {
+		return nil, fmt.Errorf("Error parsing configuration %s: %s", configFile, err)
+	}
+
+	log.Info("Loading configuration file %s ...", configFile)
+	return &clientConfig, nil
 }
 
 func overwriteLogging() bool {
@@ -482,6 +506,17 @@ func main() {
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
 
+	cfg, err := loadDiskConfiguration()
+	if err != nil {
+		log.Fatal("%s", err)
+	}
+	if err == nil && cfg.Rules.Path != "" {
+		rulesPath = cfg.Rules.Path
+	}
+	if rulesPath == "" {
+		log.Fatal("rules path cannot be empty")
+	}
+
 	rulesPath, err := core.ExpandPath(rulesPath)
 	if err != nil {
 		log.Fatal("Error accessing rules path (does it exist?): %s", err)
@@ -490,14 +525,15 @@ func main() {
 	setupSignals()
 
 	log.Info("Loading rules from %s ...", rulesPath)
-	if rules, err = rule.NewLoader(!noLiveReload); err != nil {
+	rules, err = rule.NewLoader(!noLiveReload)
+	if err != nil {
 		log.Fatal("%s", err)
 	} else if err = rules.Load(rulesPath); err != nil {
 		log.Fatal("%s", err)
 	}
 	stats = statistics.New(rules)
 	loggerMgr = loggers.NewLoggerManager()
-	uiClient = ui.NewClient(uiSocket, stats, rules, loggerMgr)
+	uiClient = ui.NewClient(uiSocket, configFile, stats, rules, loggerMgr)
 
 	// prepare the queue
 	setupWorkers()

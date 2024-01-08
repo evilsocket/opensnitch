@@ -44,19 +44,25 @@ type serverConfig struct {
 	Loggers        []loggers.LoggerConfig `json:"Loggers"`
 }
 
+type rulesOptions struct {
+	Path            string `json:"Path"`
+	EnableChecksums bool   `json:"EnableChecksums"`
+}
+
 // Config holds the values loaded from configFile
 type Config struct {
 	sync.RWMutex
 	Server            serverConfig           `json:"Server"`
+	Stats             statistics.StatsConfig `json:"Stats"`
+	Rules             rulesOptions           `json:"Rules"`
 	DefaultAction     string                 `json:"DefaultAction"`
 	DefaultDuration   string                 `json:"DefaultDuration"`
-	InterceptUnknown  bool                   `json:"InterceptUnknown"`
 	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
+	Firewall          string                 `json:"Firewall"`
 	LogLevel          *uint32                `json:"LogLevel"`
+	InterceptUnknown  bool                   `json:"InterceptUnknown"`
 	LogUTC            bool                   `json:"LogUTC"`
 	LogMicro          bool                   `json:"LogMicro"`
-	Firewall          string                 `json:"Firewall"`
-	Stats             statistics.StatsConfig `json:"Stats"`
 }
 
 // Parse determines if the given configuration is ok.

@@ -59,7 +59,10 @@ type Client struct {
 }
 
 // NewClient creates and configures a new client.
-func NewClient(socketPath string, stats *statistics.Statistics, rules *rule.Loader, loggers *loggers.LoggerManager) *Client {
+func NewClient(socketPath, localConfigFile string, stats *statistics.Statistics, rules *rule.Loader, loggers *loggers.LoggerManager) *Client {
+	if localConfigFile != "" {
+		configFile = localConfigFile
+	}
 	c := &Client{
 		stats:        stats,
 		rules:        rules,
