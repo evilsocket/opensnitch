@@ -280,7 +280,7 @@ func (p *Process) CleanPath() {
 	// to any process.
 	// Therefore we cannot use /proc/self/exe directly, because it resolves to our own process.
 	if strings.HasPrefix(p.Path, ProcSelf) {
-		if link, err := os.Readlink(p.pathExe); err == nil {
+		if link, err := os.Readlink(fmt.Sprint(ProcSelf, "/exe")); err == nil {
 			p.Path = link
 			return
 		}
