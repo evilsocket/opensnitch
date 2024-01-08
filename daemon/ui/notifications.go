@@ -103,8 +103,11 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 		firewall.ChangeFw(newConf.Firewall)
 	}
 
-	if err := monitor.ReconfigureMonitorMethod(newConf.ProcMonitorMethod); err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
+	if err := monitor.ReconfigureMonitorMethod(
+		newConf.ProcMonitorMethod,
+		clientConfig.Ebpf.ModulesPath,
+	); err != nil {
+		c.sendNotificationReply(stream, notification.Id, "", err.Msg)
 		return
 	}
 

@@ -13,40 +13,46 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 )
 
-type serverTLSOptions struct {
-	CACert     string `json:"CACert"`
-	ServerCert string `json:"ServerCert"`
-	ServerKey  string `json:"ServerKey"`
-	ClientCert string `json:"ClientCert"`
-	ClientKey  string `json:"ClientKey"`
-	// https://pkg.go.dev/crypto/tls#Config
-	SkipVerify bool `json:"SkipVerify"`
-	//https://pkg.go.dev/crypto/tls#ClientAuthType
-	ClientAuthType string `json:"ClientAuthType"`
+type (
+	serverTLSOptions struct {
+		CACert     string `json:"CACert"`
+		ServerCert string `json:"ServerCert"`
+		ServerKey  string `json:"ServerKey"`
+		ClientCert string `json:"ClientCert"`
+		ClientKey  string `json:"ClientKey"`
+		// https://pkg.go.dev/crypto/tls#Config
+		SkipVerify bool `json:"SkipVerify"`
+		// https://pkg.go.dev/crypto/tls#ClientAuthType
+		ClientAuthType string `json:"ClientAuthType"`
 
-	// https://pkg.go.dev/crypto/tls#Conn.VerifyHostname
-	//VerifyHostname bool
-	// https://pkg.go.dev/crypto/tls#example-Config-VerifyConnection
-	// VerifyConnection bool
-	// VerifyPeerCertificate bool
-}
+		// https://pkg.go.dev/crypto/tls#Conn.VerifyHostname
+		// VerifyHostname bool
+		// https://pkg.go.dev/crypto/tls#example-Config-VerifyConnection
+		// VerifyConnection bool
+		// VerifyPeerCertificate bool
+	}
 
-type serverAuth struct {
-	// token?, google?, simple-tls, mutual-tls
-	Type       string           `json:"Type"`
-	TLSOptions serverTLSOptions `json:"TLSOptions"`
-}
+	serverAuth struct {
+		// token?, google?, simple-tls, mutual-tls
+		Type       string           `json:"Type"`
+		TLSOptions serverTLSOptions `json:"TLSOptions"`
+	}
 
-type serverConfig struct {
-	Address        string                 `json:"Address"`
-	Authentication serverAuth             `json:"Authentication"`
-	LogFile        string                 `json:"LogFile"`
-	Loggers        []loggers.LoggerConfig `json:"Loggers"`
-}
+	serverConfig struct {
+		Address        string                 `json:"Address"`
+		Authentication serverAuth             `json:"Authentication"`
+		LogFile        string                 `json:"LogFile"`
+		Loggers        []loggers.LoggerConfig `json:"Loggers"`
+	}
 
-type rulesOptions struct {
-	Path string `json:"Path"`
-}
+	rulesOptions struct {
+		Path string `json:"Path"`
+	}
+
+	ebpfOptions struct {
+		ModulesPath string `json:"ModulesPath"`
+	}
+)
 
 // Config holds the values loaded from configFile
 type Config struct {
@@ -54,11 +60,12 @@ type Config struct {
 	Server            serverConfig           `json:"Server"`
 	Stats             statistics.StatsConfig `json:"Stats"`
 	Rules             rulesOptions           `json:"Rules"`
+	Ebpf              ebpfOptions            `json:"Ebpf"`
 	DefaultAction     string                 `json:"DefaultAction"`
 	DefaultDuration   string                 `json:"DefaultDuration"`
 	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
 	Firewall          string                 `json:"Firewall"`
-	LogLevel          *uint32                `json:"LogLevel"`
+	LogLevel          *int32                 `json:"LogLevel"`
 	InterceptUnknown  bool                   `json:"InterceptUnknown"`
 	LogUTC            bool                   `json:"LogUTC"`
 	LogMicro          bool                   `json:"LogMicro"`

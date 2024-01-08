@@ -7,9 +7,9 @@ import (
 	"github.com/iovisor/gobpf/elf"
 )
 
-// LoadEbpfModule loads the given eBPF module
-// It'll try to load from several paths.
-func LoadEbpfModule(module string) (m *elf.Module, err error) {
+// LoadEbpfModule loads the given eBPF module, from the given path if specified.
+// Otherwise t'll try to load the module from several default paths.
+func LoadEbpfModule(module, path string) (m *elf.Module, err error) {
 	var (
 		modulesDir = "/opensnitchd/ebpf"
 		paths      = []string{
@@ -18,6 +18,12 @@ func LoadEbpfModule(module string) (m *elf.Module, err error) {
 			fmt.Sprint("/etc/opensnitchd"), // Deprecated: will be removed in future versions.
 		}
 	)
+
+	// if path has been specified, try to load the module from there.
+	if path != "" {
+		paths = []string{path}
+	}
+
 	modulePath := ""
 	moduleError := fmt.Errorf(`Module not found (%s) in any of the paths.
 You may need to install the corresponding package`, module)

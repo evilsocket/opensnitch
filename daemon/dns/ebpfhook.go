@@ -93,8 +93,8 @@ func lookupSymbol(elffile *elf.File, symbolName string) (uint64, error) {
 }
 
 // ListenerEbpf starts listening for DNS events.
-func ListenerEbpf() error {
-	m, err := core.LoadEbpfModule("opensnitch-dns.o")
+func ListenerEbpf(ebpfModPath string) error {
+	m, err := core.LoadEbpfModule("opensnitch-dns.o", ebpfModPath)
 	if err != nil {
 		log.Error("[eBPF DNS]: %s", err)
 		return err

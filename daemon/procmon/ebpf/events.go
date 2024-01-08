@@ -75,7 +75,7 @@ func initEventsStreamer() {
 	elfOpts := make(map[string]elf.SectionParams)
 	elfOpts["maps/"+perfMapName] = elf.SectionParams{PerfRingBufferPageCount: ringBuffSize}
 	var err error
-	perfMod, err = core.LoadEbpfModule("opensnitch-procs.o")
+	perfMod, err = core.LoadEbpfModule("opensnitch-procs.o", modulesPath)
 	if err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
 		return

@@ -109,8 +109,9 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 		clientErrorRule.Duration = rule.Duration(clientConfig.DefaultDuration)
 	}
 	if clientConfig.ProcMonitorMethod != "" {
-		if err := monitor.ReconfigureMonitorMethod(clientConfig.ProcMonitorMethod); err != nil {
-			msg := fmt.Sprintf("Unable to set new process monitor (%s) method from disk: %v", clientConfig.ProcMonitorMethod, err)
+		err := monitor.ReconfigureMonitorMethod(clientConfig.ProcMonitorMethod, clientConfig.Ebpf.ModulesPath)
+		if err != nil {
+			msg := fmt.Sprintf("Unable to set new process monitor (%s) method from disk: %v", clientConfig.ProcMonitorMethod, err.Msg)
 			log.Warning(msg)
 			c.SendWarningAlert(msg)
 		}
