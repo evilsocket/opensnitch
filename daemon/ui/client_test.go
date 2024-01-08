@@ -55,7 +55,7 @@ func validateConfig(t *testing.T, uiClient *Client, cfg *config.Config) {
 
 func TestClientConfig(t *testing.T) {
 	restoreConfigFile(t)
-	configFile = "./testdata/default-config.json"
+	cfgFile := "./testdata/default-config.json"
 
 	rules, err := rule.NewLoader(false)
 	if err != nil {
@@ -64,7 +64,7 @@ func TestClientConfig(t *testing.T) {
 
 	stats := statistics.New(rules)
 	loggerMgr := loggers.NewLoggerManager()
-	uiClient := NewClient("unix:///tmp/osui.sock", stats, rules, loggerMgr)
+	uiClient := NewClient("unix:///tmp/osui.sock", cfgFile, stats, rules, loggerMgr)
 
 	t.Run("validate-load-config", func(t *testing.T) {
 		validateConfig(t, uiClient, defaultConfig)
