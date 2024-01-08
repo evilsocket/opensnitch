@@ -14,13 +14,6 @@
    <string>Preferences</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QLabel" name="statusLabel">
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -564,7 +557,7 @@
        <string>UI</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="1" column="0" colspan="2">
+       <item row="1" column="1">
         <widget class="QToolBox" name="toolBox_2">
          <property name="currentIndex">
           <number>0</number>
@@ -581,46 +574,24 @@
           <attribute name="label">
            <string>General</string>
           </attribute>
-          <layout class="QGridLayout" name="gridLayout_14">
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_19">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Language</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QLabel" name="labelThemeError">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="comboUILang"/>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="comboUITheme">
-             <item>
-              <property name="text">
-               <string>System</string>
-              </property>
-             </item>
-            </widget>
-           </item>
+          <layout class="QGridLayout" name="gridLayout_5">
            <item row="0" column="0">
+            <widget class="QLabel" name="label_27">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Refresh interval (seconds)</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
             <widget class="QLabel" name="label_21">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -633,7 +604,45 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
+           <item row="1" column="1">
+            <widget class="QComboBox" name="comboUITheme">
+             <item>
+              <property name="text">
+               <string>System</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelThemeError">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_19">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Language</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="comboUILang"/>
+           </item>
+           <item row="4" column="0">
             <widget class="QCheckBox" name="checkAutostart">
              <property name="toolTip">
               <string>By default the GUI is started when login</string>
@@ -645,6 +654,78 @@
               <bool>true</bool>
              </property>
             </widget>
+           </item>
+           <item row="0" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="cmdRefreshUIUp">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset theme="list-add">
+                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spinUIRefresh">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::NoButtons</enum>
+               </property>
+               <property name="accelerated">
+                <bool>true</bool>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="value">
+                <number>1</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="cmdRefreshUIDown">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset theme="list-remove">
+                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -737,7 +818,9 @@
            <item row="1" column="0">
             <widget class="QLabel" name="label_24">
              <property name="toolTip">
-              <string>&lt;p&gt;Simple: no authentication, TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
+              <string>&lt;p&gt;Simple: no authentication&lt;/p&gt;
+&lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
+&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
              </property>
              <property name="text">
               <string>Authentication type</string>
@@ -759,7 +842,7 @@
             <x>0</x>
             <y>0</y>
             <width>586</width>
-            <height>209</height>
+            <height>264</height>
            </rect>
           </property>
           <attribute name="label">
@@ -855,7 +938,7 @@
             <x>0</x>
             <y>0</y>
             <width>586</width>
-            <height>209</height>
+            <height>264</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1602,6 +1685,86 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="page_8">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>226</width>
+            <height>101</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>Rules</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_16">
+           <item row="9" column="0">
+            <spacer name="verticalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="3" column="0">
+            <layout class="QFormLayout" name="formLayout_3">
+             <item row="1" column="0">
+              <widget class="QRadioButton" name="radioButton_2">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>sha1</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QRadioButton" name="radioButton">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>md5</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="enableChecksums">
+             <property name="statusTip">
+              <string>Compute and verify binaries checksums when they try to establish new connections</string>
+             </property>
+             <property name="text">
+              <string>Enable checksums verification</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
        <item row="1" column="0">
@@ -1930,6 +2093,13 @@ Temporary rules will still be valid, and you can use them when prompted to allow
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="statusLabel">
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
   </layout>

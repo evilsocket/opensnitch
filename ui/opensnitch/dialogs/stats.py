@@ -339,6 +339,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._rules.updated.connect(self._cb_app_rules_updated)
         self._actions = Actions().instance()
         self._actions.loadAll()
+        self._last_update = datetime.datetime.now()
 
         # TODO: allow to display multiples dialogs
         self._proc_details_dialog = ProcessDetailsDialog(appicon=appicon)
@@ -718,6 +719,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.TABLES[idx]['cmdCleanStats'].setIcon(clearIcon)
 
     def _load_settings(self):
+        self._ui_refresh_interval = self._cfg.getInt(Config.STATS_REFRESH_INTERVAL, 0)
         dialog_geometry = self._cfg.getSettings(Config.STATS_GEOMETRY)
         dialog_last_tab = self._cfg.getSettings(Config.STATS_LAST_TAB)
         dialog_general_filter_text = self._cfg.getSettings(Config.STATS_FILTER_TEXT)
@@ -2517,6 +2519,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def _on_settings_saved(self):
+        self._ui_refresh_interval = self._cfg.getInt(Config.STATS_REFRESH_INTERVAL, 0)
         self._show_columns()
         self.settings_saved.emit()
 
@@ -2699,6 +2702,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self._update_status_label(running=False, text=self.FIREWALL_DISABLED)
 
+    def _needs_refresh(self):
+        diff = datetime.datetime.now() - self._last_update
+        if diff.seconds < self._ui_refresh_interval:
+            return False
+
+        return True
+
     # launched from a thread
     def update(self, is_local=True, stats=None, need_query_update=True):
         # lock mandatory when there're multiple clients
@@ -2706,8 +2716,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if stats is not None:
                 self._stats = stats
             # do not update any tab if the window is not visible
-            if self.isVisible() and self.isMinimized() == False:
+            if self.isVisible() and self.isMinimized() == False and self._needs_refresh():
                 self._trigger.emit(is_local, need_query_update)
+                self._last_update = datetime.datetime.now()
 
     def update_status(self):
         self.startButton.setDown(self.daemon_connected)
