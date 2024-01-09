@@ -39,6 +39,9 @@ static __always_inline void new_event(struct data_t* data)
     bpf_get_current_comm(&data->comm, sizeof(data->comm));
 };
 
+/*
+ * send to userspace the result of the execve* call.
+ */
 static __always_inline void __handle_exit_execve(struct trace_sys_exit_execve *ctx)
 {
     u64 pid_tgid = bpf_get_current_pid_tgid();
@@ -50,7 +53,7 @@ static __always_inline void __handle_exit_execve(struct trace_sys_exit_execve *c
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, proc, sizeof(*proc));
 
 out:
-	bpf_map_delete_elem(&execMap, &pid_tgid);
+    bpf_map_delete_elem(&execMap, &pid_tgid);
 }
 
 // https://0xax.gitbooks.io/linux-insides/content/SysCall/linux-syscall-4.html
@@ -68,6 +71,8 @@ int tracepoint__sched_sched_process_exit(struct pt_regs *ctx)
     data->type = EVENT_SCHED_EXIT;
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
 
+    u64 pid_tgid = bpf_get_current_pid_tgid();
+    bpf_map_delete_elem(&execMap, &pid_tgid);
     return 0;
 };
 
