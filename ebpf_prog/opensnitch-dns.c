@@ -1,4 +1,24 @@
-#define KBUILD_MODNAME "dummy"
+/*   Copyright (C) 2022      calesanz
+//                 2023-2024 Gustavo Iñiguez Goya
+//
+//   This file is part of OpenSnitch.
+//
+//   OpenSnitch is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   OpenSnitch is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with OpenSnitch.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+#define KBUILD_MODNAME "opensnitch-dns"
 
 #include <linux/in.h>
 #include <linux/in6.h>
@@ -51,7 +71,7 @@ struct addrinfo_args_cache {
 // define temporary array for data
 struct bpf_map_def SEC("maps/addrinfo_args_hash") addrinfo_args_hash = {
     .type = BPF_MAP_TYPE_HASH,
-    .max_entries = MAPSIZE,
+    .max_entries = 256, // max entries at any time
     .key_size = sizeof(u32),
     .value_size = sizeof(struct addrinfo_args_cache),
 };
@@ -61,7 +81,7 @@ struct bpf_map_def SEC("maps/events") events = {
     .type = BPF_MAP_TYPE_PERF_EVENT_ARRAY,
     .key_size = sizeof(u32),
     .value_size = sizeof(u32),
-    .max_entries = MAPSIZE,
+    .max_entries = 256, // max cpus
 };
 
 /**
@@ -170,7 +190,7 @@ int ret_addrinfo(struct pt_regs *ctx) {
         struct addrinfo *res;
         bpf_probe_read(&res, sizeof(res), res_p);
         if (res == NULL) {
-            return 0;
+            goto out;
         }
         bpf_probe_read(&data.addr_type, sizeof(data.addr_type),
                        &res->ai_family);
@@ -186,7 +206,7 @@ int ret_addrinfo(struct pt_regs *ctx) {
 
             bpf_probe_read_user(&data.ip, sizeof(data.ip), &ipv6->sin6_addr);
         } else {
-			return 1;
+			goto out;
 		}
 
         bpf_probe_read_kernel_str(&data.host, sizeof(data.host),
@@ -198,8 +218,14 @@ int ret_addrinfo(struct pt_regs *ctx) {
 
 		struct addrinfo * next;
         bpf_probe_read(&next, sizeof(next), &res->ai_next);
+        if (next == NULL){
+            goto out;
+        }
 		res_p = &next;
     }
+
+out:
+    bpf_map_delete_elem(&addrinfo_args_hash, &tid);
 
     return 0;
 }
