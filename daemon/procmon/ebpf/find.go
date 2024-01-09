@@ -165,7 +165,7 @@ func findConnProcess(value *networkEventT, connKey string) (proc *procmon.Proces
 	proc.UID = int(value.UID)
 
 	err := proc.ReadPath()
-	if ev, found := execEvents.isInStore(value.Pid); found {
+	if ev, found := execEvents.isInStore(uint32(value.Pid)); found {
 		// use socket's UID. See above why ^
 		ev.Proc.UID = proc.UID
 		ev.Proc.ReadCmdline()
@@ -186,8 +186,8 @@ func findConnProcess(value *networkEventT, connKey string) (proc *procmon.Proces
 		log.Debug("[ebpf conn] not in cache, NOR in execEvents: %s, %d -> %s", connKey, proc.ID, proc.Path)
 		// We'll end here if the events module has not been loaded, or if the process is not in cache.
 		proc.GetInfo()
-		execEvents.add(value.Pid,
-			*NewExecEvent(value.Pid, 0, value.UID, proc.Path, value.Comm),
+		execEvents.add(uint32(value.Pid),
+			*NewExecEvent(uint32(value.Pid), 0, uint32(value.UID), proc.Path, value.Comm),
 			*proc)
 	}
 

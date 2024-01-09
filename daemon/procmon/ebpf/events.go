@@ -30,14 +30,17 @@ const TaskCommLen = 16
 
 type execEvent struct {
 	Type        uint64
-	PID         uint64
-	PPID        uint64
-	UID         uint64
-	ArgsCount   uint64
-	ArgsPartial uint64
+	PID         uint32
+	UID         uint32
+	PPID        uint32
+	RetCode     uint32
+	ArgsCount   uint8
+	ArgsPartial uint8
 	Filename    [MaxPathLen]byte
 	Args        [MaxArgs][MaxArgLen]byte
 	Comm        [TaskCommLen]byte
+	Pad1        uint16
+	Pad2        uint32
 }
 
 // Struct that holds the metadata of a connection.
@@ -91,6 +94,8 @@ func initEventsStreamer() {
 		"tracepoint/sched/sched_process_exit",
 		"tracepoint/syscalls/sys_enter_execve",
 		"tracepoint/syscalls/sys_enter_execveat",
+		"tracepoint/syscalls/sys_exit_execve",
+		"tracepoint/syscalls/sys_exit_execveat",
 		//"tracepoint/sched/sched_process_exec",
 		//"tracepoint/sched/sched_process_fork",
 	}
@@ -198,6 +203,7 @@ func event2process(event *execEvent) (proc *procmon.Process) {
 	proc.ReadCwd()
 	proc.ReadEnv()
 	proc.UID = int(event.UID)
+	proc.PPID = int(event.PPID)
 
 	if event.ArgsPartial == 0 {
 		for i := 0; i < int(event.ArgsCount); i++ {

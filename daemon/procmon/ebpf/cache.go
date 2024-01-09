@@ -8,7 +8,7 @@ import (
 )
 
 // NewExecEvent constructs a new execEvent from the arguments.
-func NewExecEvent(pid, ppid, uid uint64, path string, comm [16]byte) *execEvent {
+func NewExecEvent(pid, ppid, uid uint32, path string, comm [16]byte) *execEvent {
 	ev := &execEvent{
 		Type: EV_TYPE_EXEC,
 		PID:  pid,
@@ -31,18 +31,18 @@ type execEventItem struct {
 }
 
 type eventsStore struct {
-	execEvents map[uint64]*execEventItem
+	execEvents map[uint32]*execEventItem
 	sync.RWMutex
 }
 
 // NewEventsStore creates a new store of events.
 func NewEventsStore() *eventsStore {
 	return &eventsStore{
-		execEvents: make(map[uint64]*execEventItem),
+		execEvents: make(map[uint32]*execEventItem),
 	}
 }
 
-func (e *eventsStore) add(key uint64, event execEvent, proc procmon.Process) {
+func (e *eventsStore) add(key uint32, event execEvent, proc procmon.Process) {
 	e.Lock()
 	defer e.Unlock()
 	e.execEvents[key] = &execEventItem{
@@ -51,14 +51,14 @@ func (e *eventsStore) add(key uint64, event execEvent, proc procmon.Process) {
 	}
 }
 
-func (e *eventsStore) isInStore(key uint64) (item *execEventItem, found bool) {
+func (e *eventsStore) isInStore(key uint32) (item *execEventItem, found bool) {
 	e.RLock()
 	defer e.RUnlock()
 	item, found = e.execEvents[key]
 	return
 }
 
-func (e *eventsStore) delete(key uint64) {
+func (e *eventsStore) delete(key uint32) {
 	e.Lock()
 	defer e.Unlock()
 	delete(e.execEvents, key)
