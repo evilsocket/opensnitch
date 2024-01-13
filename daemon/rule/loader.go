@@ -22,11 +22,11 @@ import (
 // Loader is the object that holds the rules loaded from disk, as well as the
 // rules watcher.
 type Loader struct {
+	rules     map[string]*Rule
+	watcher   *fsnotify.Watcher
+	path      string
+	rulesKeys []string
 	sync.RWMutex
-	path              string
-	rules             map[string]*Rule
-	rulesKeys         []string
-	watcher           *fsnotify.Watcher
 	liveReload        bool
 	liveReloadRunning bool
 }

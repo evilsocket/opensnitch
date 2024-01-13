@@ -41,12 +41,12 @@ var (
 
 // Nft holds the fields of our nftables firewall
 type Nft struct {
-	sync.Mutex
-	config.Config
-	common.Common
-
 	Conn   *nftables.Conn
 	chains iptables.SystemChains
+	common.Common
+	config.Config
+
+	sync.Mutex
 }
 
 // NewNft creates a new nftables object

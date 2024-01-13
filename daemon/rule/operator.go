@@ -63,20 +63,22 @@ type opCallback func(value interface{}) bool
 
 // Operator represents what we want to filter of a connection, and how.
 type Operator struct {
-	Type      Type       `json:"type"`
+	cb              opCallback
+	re              *regexp.Regexp
+	netMask         *net.IPNet
+	lists           map[string]interface{}
+	exitMonitorChan chan (bool)
+
 	Operand   Operand    `json:"operand"`
-	Sensitive Sensitive  `json:"sensitive"`
 	Data      string     `json:"data"`
+	Type      Type       `json:"type"`
 	List      []Operator `json:"list"`
+	Sensitive Sensitive  `json:"sensitive"`
+
+	listsMonitorRunning bool
+	isCompiled          bool
 
 	sync.RWMutex
-	cb                  opCallback
-	re                  *regexp.Regexp
-	netMask             *net.IPNet
-	isCompiled          bool
-	lists               map[string]interface{}
-	listsMonitorRunning bool
-	exitMonitorChan     chan (bool)
 }
 
 // NewOperator returns a new operator object

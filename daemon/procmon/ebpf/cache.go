@@ -78,8 +78,8 @@ func (e *eventsStore) DeleteOldItems() {
 //-----------------------------------------------------------------------------
 
 type ebpfCacheItem struct {
-	Proc     procmon.Process
 	Key      []byte
+	Proc     procmon.Process
 	LastSeen int64
 }
 

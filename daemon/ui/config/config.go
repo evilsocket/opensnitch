@@ -20,10 +20,10 @@ type (
 		ServerKey  string `json:"ServerKey"`
 		ClientCert string `json:"ClientCert"`
 		ClientKey  string `json:"ClientKey"`
-		// https://pkg.go.dev/crypto/tls#Config
-		SkipVerify bool `json:"SkipVerify"`
 		// https://pkg.go.dev/crypto/tls#ClientAuthType
 		ClientAuthType string `json:"ClientAuthType"`
+		// https://pkg.go.dev/crypto/tls#Config
+		SkipVerify bool `json:"SkipVerify"`
 
 		// https://pkg.go.dev/crypto/tls#Conn.VerifyHostname
 		// VerifyHostname bool
@@ -39,10 +39,10 @@ type (
 	}
 
 	serverConfig struct {
-		Address        string                 `json:"Address"`
-		Authentication serverAuth             `json:"Authentication"`
-		LogFile        string                 `json:"LogFile"`
 		Loggers        []loggers.LoggerConfig `json:"Loggers"`
+		Address        string                 `json:"Address"`
+		LogFile        string                 `json:"LogFile"`
+		Authentication serverAuth             `json:"Authentication"`
 	}
 
 	rulesOptions struct {
@@ -56,19 +56,20 @@ type (
 
 // Config holds the values loaded from configFile
 type Config struct {
-	sync.RWMutex
-	Server            serverConfig           `json:"Server"`
-	Stats             statistics.StatsConfig `json:"Stats"`
-	Rules             rulesOptions           `json:"Rules"`
-	Ebpf              ebpfOptions            `json:"Ebpf"`
+	LogLevel          *int32                 `json:"LogLevel"`
 	DefaultAction     string                 `json:"DefaultAction"`
 	DefaultDuration   string                 `json:"DefaultDuration"`
 	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
 	Firewall          string                 `json:"Firewall"`
-	LogLevel          *int32                 `json:"LogLevel"`
-	InterceptUnknown  bool                   `json:"InterceptUnknown"`
-	LogUTC            bool                   `json:"LogUTC"`
-	LogMicro          bool                   `json:"LogMicro"`
+	Ebpf              ebpfOptions            `json:"Ebpf"`
+	Rules             rulesOptions           `json:"Rules"`
+	Server            serverConfig           `json:"Server"`
+	Stats             statistics.StatsConfig `json:"Stats"`
+
+	sync.RWMutex
+	InterceptUnknown bool `json:"InterceptUnknown"`
+	LogUTC           bool `json:"LogUTC"`
+	LogMicro         bool `json:"LogMicro"`
 }
 
 // Parse determines if the given configuration is ok.

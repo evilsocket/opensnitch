@@ -5,7 +5,6 @@
 // The firewall rules defined by the user are reloaded in these cases:
 // - When the file system-fw.json changes.
 // - When the firewall rules are not present when listing them.
-//
 package config
 
 import (
@@ -59,21 +58,18 @@ type Expressions struct {
 
 // FwRule holds the fields of a rule
 type FwRule struct {
+	*sync.RWMutex
 	// we need to keep old fields in the struct. Otherwise when receiving a conf from the GUI, the legacy rules would be deleted.
-	Chain      string // TODO: deprecated, remove
-	Table      string // TODO: deprecated, remove
-	Parameters string // TODO: deprecated: remove
-
+	Chain            string // TODO: deprecated, remove
+	Table            string // TODO: deprecated, remove
+	Parameters       string // TODO: deprecated, remove
 	UUID             string
 	Description      string
-	Expressions      []*Expressions
 	Target           string
 	TargetParameters string
-
-	Position uint64 `json:",string"`
-	Enabled  bool
-
-	*sync.RWMutex
+	Expressions      []*Expressions
+	Position         uint64 `json:",string"`
+	Enabled          bool
 }
 
 // FwChain holds the information that defines a firewall chain.
@@ -102,33 +98,31 @@ type rulesList struct {
 }
 
 type chainsList struct {
-	Chains []*FwChain
 	Rule   *FwRule // TODO: deprecated, remove
+	Chains []*FwChain
 }
 
 // SystemConfig holds the list of rules to be added to the system
 type SystemConfig struct {
-	sync.RWMutex
 	SystemRules []*chainsList
-	Version     uint32
-	Enabled     bool
+	sync.RWMutex
+	Version uint32
+	Enabled bool
 }
 
 // Config holds the functionality to re/load the firewall configuration from disk.
 // This is the configuration to manage the system firewall (iptables, nftables).
 type Config struct {
-	sync.Mutex
-	file            string
 	watcher         *fsnotify.Watcher
 	monitorExitChan chan bool
-	SysConfig       SystemConfig
-
-	// preloadCallback is called before reloading the configuration,
-	// in order to delete old fw rules.
+	// preload will be called after daemon startup, whilst reload when a modification is performed.
 	preloadCallback func()
 	// reloadCallback is called after the configuration is written.
 	reloadCallback func()
-	// preload will be called after daemon startup, whilst reload when a modification is performed.
+	file           string
+	SysConfig      SystemConfig
+
+	sync.Mutex
 }
 
 // NewSystemFwConfig initializes config fields

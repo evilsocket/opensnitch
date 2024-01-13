@@ -16,20 +16,20 @@ type Verdict C.uint
 
 // VerdictContainer struct
 type VerdictContainer struct {
-	Verdict Verdict
 	Mark    uint32
+	Verdict Verdict
 	Packet  []byte
 }
 
 // Packet holds the data of a network packet
 type Packet struct {
 	Packet          gopacket.Packet
-	Mark            uint32
 	verdictChannel  chan VerdictContainer
-	UID             uint32
-	NetworkProtocol uint8
 	IfaceInIdx      int
 	IfaceOutIdx     int
+	Mark            uint32
+	UID             uint32
+	NetworkProtocol uint8
 }
 
 // SetVerdict emits a veredict on a packet

@@ -29,32 +29,30 @@ type conEvent struct {
 // Statistics holds the connections and statistics the daemon intercepts.
 // The connections are stored in the Events slice.
 type Statistics struct {
-	sync.RWMutex
-
+	logger       *loggers.LoggerManager
+	rules        *rule.Loader
 	Started      time.Time
+	ByExecutable map[string]uint64
+	ByPort       map[string]uint64
+	ByProto      map[string]uint64
+	ByAddress    map[string]uint64
+	ByHost       map[string]uint64
+	jobs         chan conEvent
+	ByUID        map[string]uint64
+	Events       []*Event
+	Dropped      int
+	// max number of events to keep in the buffer
+	maxEvents int
+	// max number of entries for each By* map
+	maxStats     int
 	DNSResponses int
 	Connections  int
 	Ignored      int
 	Accepted     int
-	Dropped      int
 	RuleHits     int
 	RuleMisses   int
-	Events       []*Event
-	ByProto      map[string]uint64
-	ByAddress    map[string]uint64
-	ByHost       map[string]uint64
-	ByPort       map[string]uint64
-	ByUID        map[string]uint64
-	ByExecutable map[string]uint64
 
-	rules *rule.Loader
-	jobs  chan conEvent
-	// max number of events to keep in the buffer
-	maxEvents int
-	// max number of entries for each By* map
-	maxStats int
-
-	logger *loggers.LoggerManager
+	sync.RWMutex
 }
 
 // New returns a new Statistics object and initializes the go routines to update the stats.

@@ -11,11 +11,11 @@ import (
 type Entry struct {
 	Proto   string
 	SrcIP   net.IP
-	SrcPort uint
 	DstIP   net.IP
-	DstPort uint
 	UserId  int
 	INode   int
+	SrcPort uint
+	DstPort uint
 }
 
 // NewEntry creates a new entry with values from /proc/net/

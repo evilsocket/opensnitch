@@ -39,10 +39,10 @@ type procNetStats struct {
 }
 
 type procDescriptors struct {
+	ModTime time.Time
 	Name    string
 	SymLink string
 	Size    int64
-	ModTime time.Time
 }
 
 type procStatm struct {
@@ -57,12 +57,19 @@ type procStatm struct {
 
 // Process holds the details of a process.
 type Process struct {
-	ID   int
-	PPID int
-	UID  int
-	Comm string
+	Env      map[string]string
+	IOStats  *procIOstats
+	NetStats *procNetStats
+	Statm    *procStatm
+	Maps     string
 	// Path is the absolute path to the binary
-	Path string
+	Path        string
+	Comm        string
+	CWD         string
+	Status      string
+	Stat        string
+	Stack       string
+	Descriptors []*procDescriptors
 	// Args is the command that the user typed. It MAY contain the absolute path
 	// of the binary:
 	// $ curl https://...
@@ -71,17 +78,11 @@ type Process struct {
 	// $ /usr/bin/curl https://...
 	//   -> Path: /usr/bin/curl
 	//   -> Args: /usr/bin/curl https://....
-	Args        []string
-	Env         map[string]string
-	CWD         string
-	Descriptors []*procDescriptors
-	IOStats     *procIOstats
-	NetStats    *procNetStats
-	Status      string
-	Stat        string
-	Statm       *procStatm
-	Stack       string
-	Maps        string
+
+	Args []string
+	ID   int
+	PPID int
+	UID  int
 }
 
 // NewProcess returns a new Process structure.
@@ -97,7 +98,7 @@ func NewProcess(pid int, comm string) *Process {
 	}
 }
 
-//Serialize transforms a Process object to gRPC protocol object
+// Serialize transforms a Process object to gRPC protocol object
 func (p *Process) Serialize() *protocol.Process {
 	ioStats := p.IOStats
 	netStats := p.NetStats

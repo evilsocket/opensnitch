@@ -22,16 +22,15 @@ import (
 
 // Connection represents an outgoing connection.
 type Connection struct {
-	Protocol string
-	SrcIP    net.IP
-	SrcPort  uint
-	DstIP    net.IP
-	DstPort  uint
-	DstHost  string
 	Entry    *netstat.Entry
 	Process  *procmon.Process
-
-	Pkt *netfilter.Packet
+	Pkt      *netfilter.Packet
+	Protocol string
+	DstHost  string
+	SrcIP    net.IP
+	DstIP    net.IP
+	SrcPort  uint
+	DstPort  uint
 }
 
 var showUnknownCons = false

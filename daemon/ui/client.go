@@ -37,25 +37,23 @@ var (
 
 // Client holds the connection information of a client.
 type Client struct {
-	sync.RWMutex
-	clientCtx    context.Context
-	clientCancel context.CancelFunc
-
-	stats          *statistics.Statistics
-	rules          *rule.Loader
-	socketPath     string
-	unixSockPrefix string
-	isUnixSocket   bool
-	con            *grpc.ClientConn
-	client         protocol.UIClient
-	configWatcher  *fsnotify.Watcher
-
+	rules               *rule.Loader
+	stats               *statistics.Statistics
+	con                 *grpc.ClientConn
+	configWatcher       *fsnotify.Watcher
+	client              protocol.UIClient
+	clientCtx           context.Context
+	clientCancel        context.CancelFunc
+	streamNotifications protocol.UI_NotificationsClient
 	isConnected         chan bool
 	alertsChan          chan protocol.Alert
-	streamNotifications protocol.UI_NotificationsClient
-
+	socketPath          string
+	unixSockPrefix      string
 	//isAsking is set to true if the client is awaiting a decision from the GUI
-	isAsking bool
+	isAsking     bool
+	isUnixSocket bool
+
+	sync.RWMutex
 }
 
 // NewClient creates and configures a new client.
@@ -157,14 +155,14 @@ func (c *Client) Connected() bool {
 	return true
 }
 
-//GetIsAsking returns the isAsking flag
+// GetIsAsking returns the isAsking flag
 func (c *Client) GetIsAsking() bool {
 	c.RLock()
 	defer c.RUnlock()
 	return c.isAsking
 }
 
-//SetIsAsking sets the isAsking flag
+// SetIsAsking sets the isAsking flag
 func (c *Client) SetIsAsking(flag bool) {
 	c.Lock()
 	defer c.Unlock()

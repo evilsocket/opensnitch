@@ -48,9 +48,9 @@ const (
 // QuestionMonitorResponse represents a DNS query
 //  "question": [{"class": 1, "type": 28,"name": "images.site.com"}],
 type QuestionMonitorResponse struct {
+	Name  string `json:"name"`
 	Class int    `json:"class"`
 	Type  int    `json:"type"`
-	Name  string `json:"name"`
 }
 
 // KeyType holds question that generated the answer
@@ -67,9 +67,9 @@ type QuestionMonitorResponse struct {
 	"ifindex": 3
 }]*/
 type KeyType struct {
+	Name  string `json:"name"`
 	Class int    `json:"class"`
 	Type  int    `json:"type"`
-	Name  string `json:"name"`
 }
 
 // RRType represents a DNS answer
@@ -100,13 +100,13 @@ type MonitorResponse struct {
 
 // ResolvedMonitor represents a systemd-resolved monitor
 type ResolvedMonitor struct {
+	mu     *sync.RWMutex
 	Ctx    context.Context
 	Cancel context.CancelFunc
 
 	// connection with the systemd-resolved unix socket:
 	// /run/systemd/resolve/io.systemd.Resolve.Monitor
-	Conn      *varlink.Connection
-	connected bool
+	Conn *varlink.Connection
 
 	// channel where all the DNS respones will be sent
 	ChanResponse chan *MonitorResponse
@@ -117,7 +117,7 @@ type ResolvedMonitor struct {
 	// callback that is emited when systemd-resolved resolves a domain name.
 	receiverCb resolvedCallback
 
-	mu *sync.RWMutex
+	connected bool
 }
 
 // NewResolvedMonitor returns a new ResolvedMonitor object.

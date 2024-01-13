@@ -57,8 +57,8 @@ type VerdictContainerC C.verdictContainer
 type Queue struct {
 	h       *C.struct_nfq_handle
 	qh      *C.struct_nfq_q_handle
-	fd      C.int
 	packets chan Packet
+	fd      C.int
 	idx     uint32
 }
 
