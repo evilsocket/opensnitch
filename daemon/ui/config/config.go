@@ -20,11 +20,10 @@ type (
 		ServerKey  string `json:"ServerKey"`
 		ClientCert string `json:"ClientCert"`
 		ClientKey  string `json:"ClientKey"`
-		// https://pkg.go.dev/crypto/tls#Config
-		SkipVerify bool `json:"SkipVerify"`
 		// https://pkg.go.dev/crypto/tls#ClientAuthType
 		ClientAuthType string `json:"ClientAuthType"`
-
+		// https://pkg.go.dev/crypto/tls#Config
+		SkipVerify bool `json:"SkipVerify"`
 		// https://pkg.go.dev/crypto/tls#Conn.VerifyHostname
 		// VerifyHostname bool
 		// https://pkg.go.dev/crypto/tls#example-Config-VerifyConnection
@@ -64,20 +63,21 @@ type (
 
 // Config holds the values loaded from configFile
 type Config struct {
-	sync.RWMutex
-	Server            serverConfig           `json:"Server"`
-	Stats             statistics.StatsConfig `json:"Stats"`
-	Rules             rulesOptions           `json:"Rules"`
-	Ebpf              ebpfOptions            `json:"Ebpf"`
+	LogLevel          *int32                 `json:"LogLevel"`
 	FwOptions         fwOptions              `json:"FwOptions"`
+	Firewall          string                 `json:"Firewall"`
+	Ebpf              ebpfOptions            `json:"Ebpf"`
 	DefaultAction     string                 `json:"DefaultAction"`
 	DefaultDuration   string                 `json:"DefaultDuration"`
 	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
-	Firewall          string                 `json:"Firewall"`
-	LogLevel          *int32                 `json:"LogLevel"`
-	InterceptUnknown  bool                   `json:"InterceptUnknown"`
-	LogUTC            bool                   `json:"LogUTC"`
-	LogMicro          bool                   `json:"LogMicro"`
+	Server            serverConfig           `json:"Server"`
+	Rules             rulesOptions           `json:"Rules"`
+	Stats             statistics.StatsConfig `json:"Stats"`
+	sync.RWMutex
+
+	InterceptUnknown bool `json:"InterceptUnknown"`
+	LogUTC           bool `json:"LogUTC"`
+	LogMicro         bool `json:"LogMicro"`
 }
 
 // Parse determines if the given configuration is ok.

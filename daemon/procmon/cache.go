@@ -12,35 +12,33 @@ import (
 
 // InodeItem represents an item of the InodesCache.
 type InodeItem struct {
-	sync.RWMutex
-
-	Pid      int
 	FdPath   string
+	Pid      int
 	LastSeen int64
+	sync.RWMutex
 }
 
 // ProcItem represents an item of the pidsCache
 type ProcItem struct {
-	sync.RWMutex
-
-	Pid         int
 	FdPath      string
 	Descriptors []string
+	Pid         int
 	LastSeen    int64
+	sync.RWMutex
 }
 
 // CacheProcs holds the cache of processes that have established connections.
 type CacheProcs struct {
-	sync.RWMutex
 	items []*ProcItem
+	sync.RWMutex
 }
 
 // CacheInodes holds the cache of Inodes.
 // The key is formed as follow:
 // inode+srcip+srcport+dstip+dstport
 type CacheInodes struct {
-	sync.RWMutex
 	items map[string]*InodeItem
+	sync.RWMutex
 }
 
 var (

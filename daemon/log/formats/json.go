@@ -19,9 +19,9 @@ const (
 // JSONEventFormat object to be sent to the remote service.
 // TODO: Expand as needed: ebpf events, etc.
 type JSONEventFormat struct {
+	Event  interface{} `json:"Event"`
 	Rule   string      `json:"Rule"`
 	Action string      `json:"Action"`
-	Event  interface{} `json:"Event"`
 	Type   uint8       `json:"Type"`
 }
 

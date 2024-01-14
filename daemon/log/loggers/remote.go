@@ -22,20 +22,18 @@ const (
 // It can write to the local or a remote daemon, UDP or TCP.
 // It supports writing events in RFC5424, RFC3164, CSV and JSON formats.
 type Remote struct {
-	Name     string
-	Tag      string
-	Hostname string
-
+	mu        *sync.RWMutex
 	Writer    *syslog.Writer
-	logFormat formats.LoggerFormat
 	cfg       *LoggerConfig
+	logFormat formats.LoggerFormat
 	netConn   net.Conn
+	Name      string
+	Tag       string
+	Hostname  string
 	Timeout   time.Duration
 	errors    uint32
 	maxErrors uint32
 	status    uint32
-
-	mu *sync.RWMutex
 }
 
 // NewRemote returns a new object that manipulates and prints outbound connections

@@ -41,9 +41,9 @@ const (
 
 // SystemRule blabla
 type SystemRule struct {
+	Rule  *config.FwRule
 	Table string
 	Chain string
-	Rule  *config.FwRule
 }
 
 // SystemChains keeps track of the fw rules that have been added to the system.
@@ -54,16 +54,13 @@ type SystemChains struct {
 
 // Iptables struct holds the fields of the iptables fw
 type Iptables struct {
-	config.Config
-	common.Common
-
-	bin  string
-	bin6 string
-
 	regexRulesQuery       *regexp.Regexp
 	regexSystemRulesQuery *regexp.Regexp
-
-	chains SystemChains
+	bin                   string
+	bin6                  string
+	chains                SystemChains
+	common.Common
+	config.Config
 
 	sync.Mutex
 }

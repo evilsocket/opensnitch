@@ -37,12 +37,12 @@ type Rule struct {
 	Updated     time.Time `json:"updated"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
-	Enabled     bool      `json:"enabled"`
-	Precedence  bool      `json:"precedence"`
-	Nolog       bool      `json:"nolog"`
 	Action      Action    `json:"action"`
 	Duration    Duration  `json:"duration"`
 	Operator    Operator  `json:"operator"`
+	Enabled     bool      `json:"enabled"`
+	Precedence  bool      `json:"precedence"`
+	Nolog       bool      `json:"nolog"`
 }
 
 // Create creates a new rule object with the specified parameters.

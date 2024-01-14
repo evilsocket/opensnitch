@@ -38,25 +38,27 @@ var (
 
 // Client holds the connection information of a client.
 type Client struct {
-	sync.RWMutex
-	clientCtx    context.Context
-	clientCancel context.CancelFunc
+	client              protocol.UIClient
+	streamNotifications protocol.UI_NotificationsClient
+	clientCtx           context.Context
+	clientCancel        context.CancelFunc
 
-	stats          *statistics.Statistics
-	rules          *rule.Loader
+	stats         *statistics.Statistics
+	rules         *rule.Loader
+	con           *grpc.ClientConn
+	configWatcher *fsnotify.Watcher
+
+	alertsChan  chan protocol.Alert
+	isConnected chan bool
+
 	socketPath     string
 	unixSockPrefix string
-	isUnixSocket   bool
-	con            *grpc.ClientConn
-	client         protocol.UIClient
-	configWatcher  *fsnotify.Watcher
-
-	isConnected         chan bool
-	alertsChan          chan protocol.Alert
-	streamNotifications protocol.UI_NotificationsClient
 
 	//isAsking is set to true if the client is awaiting a decision from the GUI
-	isAsking bool
+	isAsking     bool
+	isUnixSocket bool
+
+	sync.RWMutex
 }
 
 // NewClient creates and configures a new client.

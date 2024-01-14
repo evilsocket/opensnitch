@@ -29,32 +29,32 @@ type conEvent struct {
 // Statistics holds the connections and statistics the daemon intercepts.
 // The connections are stored in the Events slice.
 type Statistics struct {
-	sync.RWMutex
-
 	Started      time.Time
-	DNSResponses int
-	Connections  int
-	Ignored      int
-	Accepted     int
-	Dropped      int
-	RuleHits     int
-	RuleMisses   int
-	Events       []*Event
-	ByProto      map[string]uint64
-	ByAddress    map[string]uint64
-	ByHost       map[string]uint64
-	ByPort       map[string]uint64
-	ByUID        map[string]uint64
+	logger       *loggers.LoggerManager
+	rules        *rule.Loader
 	ByExecutable map[string]uint64
+	ByUID        map[string]uint64
+	ByAddress    map[string]uint64
+	ByPort       map[string]uint64
+	ByHost       map[string]uint64
+	ByProto      map[string]uint64
+	jobs         chan conEvent
+	Events       []*Event
 
-	rules *rule.Loader
-	jobs  chan conEvent
+	RuleHits     int
+	Accepted     int
+	Ignored      int
+	Connections  int
+	RuleMisses   int
+	DNSResponses int
 	// max number of events to keep in the buffer
 	maxEvents int
 	// max number of entries for each By* map
-	maxStats int
+	maxStats   int
+	maxWorkers int
+	Dropped    int
 
-	logger *loggers.LoggerManager
+	sync.RWMutex
 }
 
 // New returns a new Statistics object and initializes the go routines to update the stats.
@@ -93,12 +93,12 @@ func (s *Statistics) SetLimits(config StatsConfig) {
 	if config.MaxStats > 0 {
 		s.maxStats = config.MaxStats
 	}
-	wrks := config.Workers
-	if wrks == 0 {
-		wrks = 6
+	s.maxWorkers = config.Workers
+	if s.maxWorkers == 0 {
+		s.maxWorkers = 6
 	}
-	log.Info("Stats, max events: %d, max stats: %d, max workers: %d", s.maxStats, s.maxEvents, wrks)
-	for i := 0; i < wrks; i++ {
+	log.Info("Stats, max events: %d, max stats: %d, max workers: %d", s.maxStats, s.maxEvents, s.maxWorkers)
+	for i := 0; i < s.maxWorkers; i++ {
 		go s.eventWorker(i)
 	}
 

@@ -30,14 +30,12 @@ const (
 // It can write to the local or a remote daemon.
 type RemoteSyslog struct {
 	Syslog
-
-	Hostname string
+	mu       *sync.RWMutex
 	netConn  net.Conn
+	Hostname string
 	Timeout  time.Duration
 	errors   uint32
 	status   uint32
-
-	mu *sync.RWMutex
 }
 
 // NewRemoteSyslog returns a new object that manipulates and prints outbound connections

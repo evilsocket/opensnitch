@@ -43,14 +43,16 @@ const (
 	DNSTypeAAAA = 28
 	// DNSTypeCNAME cname
 	DNSTypeCNAME = 5
+	// DNSTypeSOA soa
+	DNSTypeSOA = 6
 )
 
 // QuestionMonitorResponse represents a DNS query
 //  "question": [{"class": 1, "type": 28,"name": "images.site.com"}],
 type QuestionMonitorResponse struct {
+	Name  string `json:"name"`
 	Class int    `json:"class"`
 	Type  int    `json:"type"`
-	Name  string `json:"name"`
 }
 
 // KeyType holds question that generated the answer
@@ -67,23 +69,23 @@ type QuestionMonitorResponse struct {
 	"ifindex": 3
 }]*/
 type KeyType struct {
+	Name  string `json:"name"`
 	Class int    `json:"class"`
 	Type  int    `json:"type"`
-	Name  string `json:"name"`
 }
 
 // RRType represents a DNS answer
 // if the response is a CNAME, Address will be nil, and Name a domain name.
 type RRType struct {
-	Key     QuestionMonitorResponse `json:"key"`
-	Address []byte                  `json:"address"`
 	Name    string                  `json:"name"`
+	Address []byte                  `json:"address"`
+	Key     QuestionMonitorResponse `json:"key"`
 }
 
 // AnswerMonitorResponse represents the DNS answer of a DNS query.
 type AnswerMonitorResponse struct {
-	RR      RRType `json:"rr"`
 	Raw     string `json:"raw"`
+	RR      RRType `json:"rr"`
 	Ifindex int    `json:"ifindex"`
 }
 
@@ -105,9 +107,7 @@ type ResolvedMonitor struct {
 
 	// connection with the systemd-resolved unix socket:
 	// /run/systemd/resolve/io.systemd.Resolve.Monitor
-	Conn      *varlink.Connection
-	connected bool
-
+	Conn *varlink.Connection
 	// channel where all the DNS respones will be sent
 	ChanResponse chan *MonitorResponse
 
@@ -116,8 +116,8 @@ type ResolvedMonitor struct {
 
 	// callback that is emited when systemd-resolved resolves a domain name.
 	receiverCb resolvedCallback
-
-	mu *sync.RWMutex
+	mu         *sync.RWMutex
+	connected  bool
 }
 
 // NewResolvedMonitor returns a new ResolvedMonitor object.

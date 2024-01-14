@@ -60,27 +60,31 @@ const (
 	OpIPLists             = Operand("lists.ips")
 	OpNetLists            = Operand("lists.nets")
 	// TODO
-	// OpHashMD5 = Operand("lists.hash.md5")
+	//OpHashMD5Lists = Operand("lists.hash.md5")
+	//OpQuota        = Operand("quota")
+	//OpQuotaTxOver  = Operand("quota.sent.over") // 1000b, 1kb, 1mb, 1gb, ...
+	//OpQuotaRxOver  = Operand("quota.recv.over") // 1000b, 1kb, 1mb, 1gb, ...
 )
 
 type opCallback func(value interface{}) bool
 
 // Operator represents what we want to filter of a connection, and how.
 type Operator struct {
-	Type      Type       `json:"type"`
-	Operand   Operand    `json:"operand"`
-	Sensitive Sensitive  `json:"sensitive"`
-	Data      string     `json:"data"`
-	List      []Operator `json:"list"`
+	cb              opCallback
+	re              *regexp.Regexp
+	netMask         *net.IPNet
+	lists           map[string]interface{}
+	exitMonitorChan chan (bool)
 
-	sync.RWMutex
-	re                  *regexp.Regexp
-	netMask             *net.IPNet
-	lists               map[string]interface{}
-	cb                  opCallback
-	exitMonitorChan     chan (bool)
+	Operand             Operand    `json:"operand"`
+	Data                string     `json:"data"`
+	Type                Type       `json:"type"`
+	List                []Operator `json:"list"`
+	Sensitive           Sensitive  `json:"sensitive"`
 	isCompiled          bool
 	listsMonitorRunning bool
+
+	sync.RWMutex
 }
 
 // NewOperator returns a new operator object

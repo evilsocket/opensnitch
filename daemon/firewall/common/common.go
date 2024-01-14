@@ -29,9 +29,9 @@ type (
 	// iptables and nftables.
 	Common struct {
 		RulesChecker       *time.Ticker
-		RulesCheckInterval time.Duration
 		ErrChan            chan string
 		stopChecker        chan bool
+		RulesCheckInterval time.Duration
 		QueueNum           uint16
 		Running            bool
 		Intercepting       bool
