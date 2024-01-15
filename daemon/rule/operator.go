@@ -5,6 +5,7 @@ import (
 	"net"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -271,19 +272,19 @@ func (o *Operator) Match(con *conman.Connection) bool {
 	} else if o.Operand == OpProcessPath {
 		return o.cb(con.Process.Path)
 	} else if o.Operand == OpProcessCmd {
-		return o.cb(strings.Join(con.Process.Args, " "))
+		return o.cb(strings.Join(con.Process.Args, ""))
 	} else if o.Operand == OpDstHost && con.DstHost != "" {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpDstIP {
 		return o.cb(con.DstIP.String())
 	} else if o.Operand == OpDstPort {
-		return o.cb(fmt.Sprintf("%d", con.DstPort))
+		return o.cb(strconv.FormatUint(uint64(con.DstPort), 10))
 	} else if o.Operand == OpDomainsLists {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpIPLists {
 		return o.cb(con.DstIP.String())
 	} else if o.Operand == OpUserID {
-		return o.cb(fmt.Sprintf("%d", con.Entry.UserId))
+		return o.cb(strconv.Itoa(con.Entry.UserId))
 	} else if o.Operand == OpDstNetwork {
 		return o.cb(con.DstIP)
 	} else if o.Operand == OpSrcNetwork {
@@ -305,9 +306,9 @@ func (o *Operator) Match(con *conman.Connection) bool {
 	} else if o.Operand == OpSrcIP {
 		return o.cb(con.SrcIP.String())
 	} else if o.Operand == OpSrcPort {
-		return o.cb(fmt.Sprintf("%d", con.SrcPort))
+		return o.cb(strconv.FormatUint(uint64(con.SrcPort), 10))
 	} else if o.Operand == OpProcessID {
-		return o.cb(fmt.Sprint(con.Process.ID))
+		return o.cb(strconv.Itoa(con.Process.ID))
 	} else if strings.HasPrefix(string(o.Operand), string(OpProcessEnvPrefix)) {
 		envVarName := core.Trim(string(o.Operand[OpProcessEnvPrefixLen:]))
 		envVarValue, _ := con.Process.Env[envVarName]

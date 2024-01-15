@@ -4,8 +4,10 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"strconv"
 	"unsafe"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
@@ -100,7 +102,12 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	}
 	hostByteOrder.PutUint16(key[0:2], uint16(srcPort))
 
-	k := fmt.Sprint(proto, srcPort, srcIP.String(), dstIP.String(), dstPort)
+	k := core.ConcatStrings(
+		proto,
+		strconv.FormatUint(uint64(srcPort), 10),
+		srcIP.String(),
+		dstIP.String(),
+		strconv.FormatUint(uint64(dstPort), 10))
 	if cacheItem, isInCache := ebpfCache.isInCache(k); isInCache {
 		// should we re-read the info?
 		// environ vars might have changed

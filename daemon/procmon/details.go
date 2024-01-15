@@ -62,7 +62,7 @@ func (p *Process) ReadComm() error {
 	if p.Comm != "" {
 		return nil
 	}
-	data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/comm", p.ID))
+	data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/comm"))
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (p *Process) ReadCwd() error {
 	if p.CWD != "" {
 		return nil
 	}
-	link, err := os.Readlink(fmt.Sprintf("/proc/%d/cwd", p.ID))
+	link, err := os.Readlink(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/cwd"))
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (p *Process) ReadCwd() error {
 
 // ReadEnv reads and parses the environment variables of a process.
 func (p *Process) ReadEnv() {
-	data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/environ", p.ID))
+	data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/environ"))
 	if err != nil {
 		return
 	}
@@ -117,7 +117,7 @@ func (p *Process) ReadPath() error {
 	defer func() {
 		if p.Path == "" {
 			// determine if this process might be of a kernel task.
-			if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/maps", p.ID)); err == nil && len(data) == 0 {
+			if data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/maps")); err == nil && len(data) == 0 {
 				p.Path = "Kernel connection"
 				p.Args = append(p.Args, p.Comm)
 				return
@@ -126,7 +126,7 @@ func (p *Process) ReadPath() error {
 		}
 	}()
 
-	linkName := fmt.Sprint("/proc/", p.ID, "/exe")
+	linkName := core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/exe")
 	if _, err := os.Lstat(linkName); err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (p *Process) ReadCmdline() {
 	if len(p.Args) > 0 {
 		return
 	}
-	if data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/cmdline", p.ID)); err == nil {
+	if data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/cmdline")); err == nil {
 		if len(data) == 0 {
 			return
 		}
@@ -184,7 +184,7 @@ func (p *Process) CleanArgs() {
 }
 
 func (p *Process) readDescriptors() {
-	f, err := os.Open(fmt.Sprint("/proc/", p.ID, "/fd/"))
+	f, err := os.Open(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/fd/"))
 	if err != nil {
 		return
 	}
@@ -196,7 +196,7 @@ func (p *Process) readDescriptors() {
 		tempFd := &procDescriptors{
 			Name: fd.Name(),
 		}
-		if link, err := os.Readlink(fmt.Sprint("/proc/", p.ID, "/fd/", fd.Name())); err == nil {
+		if link, err := os.Readlink(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/fd/", fd.Name())); err == nil {
 			tempFd.SymLink = link
 			socket := socketsRegex.FindStringSubmatch(link)
 			if len(socket) > 0 {
@@ -221,7 +221,7 @@ func (p *Process) readDescriptors() {
 }
 
 func (p *Process) readIOStats() {
-	f, err := os.Open(fmt.Sprint("/proc/", p.ID, "/io"))
+	f, err := os.Open(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/io"))
 	if err != nil {
 		return
 	}
@@ -250,19 +250,19 @@ func (p *Process) readIOStats() {
 }
 
 func (p *Process) readStatus() {
-	if data, err := ioutil.ReadFile(fmt.Sprint("/proc/", p.ID, "/status")); err == nil {
+	if data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/status")); err == nil {
 		p.Status = string(data)
 	}
-	if data, err := ioutil.ReadFile(fmt.Sprint("/proc/", p.ID, "/stat")); err == nil {
+	if data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/stat")); err == nil {
 		p.Stat = string(data)
 	}
-	if data, err := ioutil.ReadFile(fmt.Sprint("/proc/", p.ID, "/stack")); err == nil {
+	if data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/stack")); err == nil {
 		p.Stack = string(data)
 	}
-	if data, err := ioutil.ReadFile(fmt.Sprint("/proc/", p.ID, "/maps")); err == nil {
+	if data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/maps")); err == nil {
 		p.Maps = string(data)
 	}
-	if data, err := ioutil.ReadFile(fmt.Sprint("/proc/", p.ID, "/statm")); err == nil {
+	if data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/statm")); err == nil {
 		p.Statm = &procStatm{}
 		fmt.Sscanf(string(data), "%d %d %d %d %d %d %d", &p.Statm.Size, &p.Statm.Resident, &p.Statm.Shared, &p.Statm.Text, &p.Statm.Lib, &p.Statm.Data, &p.Statm.Dt)
 	}
@@ -280,7 +280,7 @@ func (p *Process) CleanPath() {
 	// to any process.
 	// Therefore we cannot use /proc/self/exe directly, because it resolves to our own process.
 	if strings.HasPrefix(p.Path, ProcSelf) {
-		if link, err := os.Readlink(fmt.Sprint(ProcSelf, "/exe")); err == nil {
+		if link, err := os.Readlink(core.ConcatStrings(ProcSelf, "/exe")); err == nil {
 			p.Path = link
 			return
 		}
@@ -309,5 +309,5 @@ func (p *Process) CleanPath() {
 
 // IsAlive checks if the process is still running
 func (p *Process) IsAlive() bool {
-	return core.Exists(fmt.Sprint("/proc/", p.ID))
+	return core.Exists(core.ConcatStrings("/proc/", strconv.Itoa(p.ID)))
 }

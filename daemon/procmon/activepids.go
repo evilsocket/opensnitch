@@ -1,13 +1,13 @@
 package procmon
 
 import (
-	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
@@ -31,7 +31,7 @@ func MonitorActivePids() {
 		time.Sleep(time.Second)
 		activePidsLock.Lock()
 		for k, v := range activePids {
-			data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/stat", k))
+			data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.FormatUint(k, 10), "/stat"))
 			if err != nil {
 				//file does not exists, pid has quit
 				delete(activePids, k)
@@ -70,7 +70,7 @@ func findProcessInActivePidsCache(pid uint64) *Process {
 // AddToActivePidsCache adds the given pid to a list of known processes.
 func AddToActivePidsCache(pid uint64, proc *Process) {
 
-	data, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/stat", pid))
+	data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.FormatUint(pid, 10), "/stat"))
 	if err != nil {
 		//most likely the process has quit by now
 		return
