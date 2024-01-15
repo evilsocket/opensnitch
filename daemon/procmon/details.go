@@ -220,7 +220,7 @@ func (p *Process) ReadPath() error {
 func (p *Process) SetPath(path string) {
 	p.Path = path
 	p.CleanPath()
-	p.RealPath = fmt.Sprint(p.pathRoot, "/", p.Path)
+	p.RealPath = core.ConcatStrings(p.pathRoot, "/", p.Path)
 	if core.Exists(p.RealPath) == false {
 		p.RealPath = p.Path
 		// p.CleanPath() ?
@@ -277,7 +277,7 @@ func (p *Process) readDescriptors() {
 		tempFd := &procDescriptors{
 			Name: fd.Name(),
 		}
-		link, err := os.Readlink(fmt.Sprint(p.pathFd, fd.Name()))
+		link, err := os.Readlink(core.ConcatStrings(p.pathFd, fd.Name()))
 		if err != nil {
 			continue
 		}
@@ -342,7 +342,7 @@ func (p *Process) readStatus() {
 	if data, err := ioutil.ReadFile(p.pathStat); err == nil {
 		p.Stat = string(data)
 	}
-	if data, err := ioutil.ReadFile(fmt.Sprint("/proc/", p.ID, "/stack")); err == nil {
+	if data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/stack")); err == nil {
 		p.Stack = string(data)
 	}
 	if data, err := ioutil.ReadFile(p.pathMaps); err == nil {
@@ -401,7 +401,7 @@ func (p *Process) IsAlive() bool {
 // IsChild determines if this process is child of its parent
 func (p *Process) IsChild() bool {
 	return (p.Parent != nil && p.Parent.Path == p.Path && p.Parent.IsAlive()) ||
-		core.Exists(fmt.Sprint("/proc/", p.PPID, "/task/", p.ID))
+		core.Exists(core.ConcatStrings("/proc/", strconv.Itoa(p.PPID), "/task/", strconv.Itoa(p.ID)))
 
 }
 

@@ -1,7 +1,7 @@
 package statistics
 
 import (
-	"fmt"
+	"strconv"
 	"sync"
 	"time"
 
@@ -198,8 +198,8 @@ func (s *Statistics) onConnection(con *conman.Connection, match *rule.Rule, wasM
 	if con.DstHost != "" {
 		s.incMap(&s.ByHost, con.DstHost)
 	}
-	s.incMap(&s.ByPort, fmt.Sprintf("%d", con.DstPort))
-	s.incMap(&s.ByUID, fmt.Sprintf("%d", con.Entry.UserId))
+	s.incMap(&s.ByPort, strconv.FormatUint(uint64(con.DstPort), 10))
+	s.incMap(&s.ByUID, strconv.Itoa(con.Entry.UserId))
 	s.incMap(&s.ByExecutable, con.Process.Path)
 
 	// if we reached the limit, shift everything back

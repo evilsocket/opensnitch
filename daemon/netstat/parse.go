@@ -3,7 +3,6 @@ package netstat
 import (
 	"bufio"
 	"encoding/binary"
-	"fmt"
 	"net"
 	"os"
 	"regexp"
@@ -83,7 +82,7 @@ func hexToIP(h string) net.IP {
 
 // Parse scans and retrieves the opened connections, from /proc/net/ files
 func Parse(proto string) ([]Entry, error) {
-	filename := fmt.Sprintf("/proc/net/%s", proto)
+	filename := core.ConcatStrings("/proc/net/", proto)
 	fd, err := os.Open(filename)
 	if err != nil {
 		return nil, err

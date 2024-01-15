@@ -2,10 +2,11 @@ package procmon
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
@@ -62,32 +63,18 @@ type procStatm struct {
 
 // Process holds the details of a process.
 type Process struct {
-	Checksums   map[string]string
-	Env         map[string]string
-	Descriptors []*procDescriptors
-	Tree        []*protocol.StringInt
+	mu          *sync.RWMutex
+	Statm       *procStatm
 	Parent      *Process
 	IOStats     *procIOstats
 	NetStats    *procNetStats
-	Statm       *procStatm
-
-	mu *sync.RWMutex
-
-	// Args is the command that the user typed. It MAY contain the absolute path
-	// of the binary:
-	// $ curl https://...
-	//   -> Path: /usr/bin/curl
-	//   -> Args: curl https://....
-	// $ /usr/bin/curl https://...
-	//   -> Path: /usr/bin/curl
-	//   -> Args: /usr/bin/curl https://....
-	Args   []string
-	Status string
-	Stat   string
-	Stack  string
-	Maps   string
-	Comm   string
-
+	Env         map[string]string
+	Checksums   map[string]string
+	Status      string
+	Stat        string
+	Stack       string
+	Maps        string
+	Comm        string
 	pathProc    string
 	pathComm    string
 	pathExe     string
@@ -109,8 +96,19 @@ type Process struct {
 	// RealPath is the path to the binary taking into account its root fs.
 	// The simplest form of accessing the RealPath is by prepending /proc/<pid>/root/ to the path:
 	// /usr/bin/curl -> /proc/<pid>/root/usr/bin/curl
-	RealPath  string
-	CWD       string
+	RealPath    string
+	CWD         string
+	Tree        []*protocol.StringInt
+	Descriptors []*procDescriptors
+	// Args is the command that the user typed. It MAY contain the absolute path
+	// of the binary:
+	// $ curl https://...
+	//   -> Path: /usr/bin/curl
+	//   -> Args: curl https://....
+	// $ /usr/bin/curl https://...
+	//   -> Path: /usr/bin/curl
+	//   -> Args: /usr/bin/curl https://....
+	Args      []string
 	Starttime int64
 	ID        int
 	PPID      int
@@ -133,20 +131,20 @@ func NewProcessEmpty(pid int, comm string) *Process {
 		Statm:     &procStatm{},
 		Checksums: make(map[string]string),
 	}
-	p.pathProc = fmt.Sprint("/proc/", p.ID)
-	p.pathExe = fmt.Sprint(p.pathProc, "/exe")
-	p.pathCwd = fmt.Sprint(p.pathProc, "/cwd")
-	p.pathComm = fmt.Sprint(p.pathProc, "/comm")
-	p.pathCmdline = fmt.Sprint(p.pathProc, "/cmdline")
-	p.pathEnviron = fmt.Sprint(p.pathProc, "/environ")
-	p.pathStatus = fmt.Sprint(p.pathProc, "/status")
-	p.pathStatm = fmt.Sprint(p.pathProc, "/statm")
-	p.pathRoot = fmt.Sprint(p.pathProc, "/root")
-	p.pathMaps = fmt.Sprint(p.pathProc, "/maps")
-	p.pathStat = fmt.Sprint(p.pathProc, "/stat")
-	p.pathMem = fmt.Sprint(p.pathProc, "/mem")
-	p.pathFd = fmt.Sprint(p.pathProc, "/fd/")
-	p.pathIO = fmt.Sprint(p.pathProc, "/io")
+	p.pathProc = core.ConcatStrings("/proc/", strconv.Itoa(p.ID))
+	p.pathExe = core.ConcatStrings(p.pathProc, "/exe")
+	p.pathCwd = core.ConcatStrings(p.pathProc, "/cwd")
+	p.pathComm = core.ConcatStrings(p.pathProc, "/comm")
+	p.pathCmdline = core.ConcatStrings(p.pathProc, "/cmdline")
+	p.pathEnviron = core.ConcatStrings(p.pathProc, "/environ")
+	p.pathStatus = core.ConcatStrings(p.pathProc, "/status")
+	p.pathStatm = core.ConcatStrings(p.pathProc, "/statm")
+	p.pathRoot = core.ConcatStrings(p.pathProc, "/root")
+	p.pathMaps = core.ConcatStrings(p.pathProc, "/maps")
+	p.pathStat = core.ConcatStrings(p.pathProc, "/stat")
+	p.pathMem = core.ConcatStrings(p.pathProc, "/mem")
+	p.pathFd = core.ConcatStrings(p.pathProc, "/fd/")
+	p.pathIO = core.ConcatStrings(p.pathProc, "/io")
 
 	return p
 }

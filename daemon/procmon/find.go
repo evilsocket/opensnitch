@@ -1,10 +1,11 @@
 package procmon
 
 import (
-	"fmt"
 	"os"
 	"sort"
 	"strconv"
+
+	"github.com/evilsocket/opensnitch/daemon/core"
 )
 
 func sortPidsByTime(fdList []os.FileInfo) []os.FileInfo {
@@ -22,14 +23,14 @@ func sortPidsByTime(fdList []os.FileInfo) []os.FileInfo {
 //
 // If the inode is found, the cache is updated ans sorted.
 func inodeFound(pidsPath, expect, inodeKey string, inode, pid int) bool {
-	fdPath := fmt.Sprint(pidsPath, pid, "/fd/")
+	fdPath := core.ConcatStrings(pidsPath, strconv.Itoa(pid), "/fd/")
 	fdList := lookupPidDescriptors(fdPath, pid)
 	if fdList == nil {
 		return false
 	}
 
 	for idx := 0; idx < len(fdList); idx++ {
-		descLink := fmt.Sprint(fdPath, fdList[idx])
+		descLink := core.ConcatStrings(fdPath, fdList[idx])
 		if link, err := os.Readlink(descLink); err == nil && link == expect {
 			inodesCache.add(inodeKey, descLink, pid)
 			pidsCache.add(fdPath, fdList, pid)
