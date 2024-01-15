@@ -272,7 +272,7 @@ func (o *Operator) Match(con *conman.Connection) bool {
 	} else if o.Operand == OpProcessPath {
 		return o.cb(con.Process.Path)
 	} else if o.Operand == OpProcessCmd {
-		return o.cb(strings.Join(con.Process.Args, ""))
+		return o.cb(strings.Join(con.Process.Args, " "))
 	} else if o.Operand == OpDstHost && con.DstHost != "" {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpDstIP {
