@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"runtime/debug"
+
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
@@ -121,6 +123,11 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 			log.Warning(msg)
 			c.SendWarningAlert(msg)
 		}
+	}
+
+	if clientConfig.Internal.GCPercent > 0 {
+		oldgcpercent := debug.SetGCPercent(clientConfig.Internal.GCPercent)
+		log.Info("GC percent set to %d, previously was %d", clientConfig.Internal.GCPercent, oldgcpercent)
 	}
 
 	c.rules.EnableChecksums(clientConfig.Rules.EnableChecksums)

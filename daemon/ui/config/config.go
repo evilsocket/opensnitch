@@ -59,25 +59,31 @@ type (
 	ebpfOptions struct {
 		ModulesPath string `json:"ModulesPath"`
 	}
+
+	internalOptions struct {
+		GCPercent int `json:"GCPercent"`
+	}
 )
 
 // Config holds the values loaded from configFile
 type Config struct {
 	LogLevel          *int32                 `json:"LogLevel"`
-	FwOptions         fwOptions              `json:"FwOptions"`
 	Firewall          string                 `json:"Firewall"`
-	Ebpf              ebpfOptions            `json:"Ebpf"`
 	DefaultAction     string                 `json:"DefaultAction"`
 	DefaultDuration   string                 `json:"DefaultDuration"`
 	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
+	FwOptions         fwOptions              `json:"FwOptions"`
+	Ebpf              ebpfOptions            `json:"Ebpf"`
 	Server            serverConfig           `json:"Server"`
 	Rules             rulesOptions           `json:"Rules"`
 	Stats             statistics.StatsConfig `json:"Stats"`
-	sync.RWMutex
+	Internal          internalOptions        `json:"Internal"`
 
 	InterceptUnknown bool `json:"InterceptUnknown"`
 	LogUTC           bool `json:"LogUTC"`
 	LogMicro         bool `json:"LogMicro"`
+
+	sync.RWMutex
 }
 
 // Parse determines if the given configuration is ok.
