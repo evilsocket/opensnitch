@@ -33,6 +33,7 @@ import (
 	"os/signal"
 	"runtime"
 	"runtime/pprof"
+	"runtime/trace"
 	"syscall"
 	"time"
 
@@ -79,6 +80,8 @@ var (
 
 	cpuProfile = ""
 	memProfile = ""
+	traceFile  = ""
+	memFile    *os.File
 
 	ctx           = (context.Context)(nil)
 	cancel        = (context.CancelFunc)(nil)
@@ -86,6 +89,7 @@ var (
 	rules         = (*rule.Loader)(nil)
 	stats         = (*statistics.Statistics)(nil)
 	queue         = (*netfilter.Queue)(nil)
+	repeatQueue   = (*netfilter.Queue)(nil)
 	repeatPktChan = (<-chan netfilter.Packet)(nil)
 	pktChan       = (<-chan netfilter.Packet)(nil)
 	wrkChan       = (chan netfilter.Packet)(nil)
@@ -119,6 +123,7 @@ func init() {
 
 	flag.StringVar(&cpuProfile, "cpu-profile", cpuProfile, "Write CPU profile to this file.")
 	flag.StringVar(&memProfile, "mem-profile", memProfile, "Write memory profile to this file.")
+	flag.StringVar(&traceFile, "trace-file", traceFile, "Write trace file to this file.")
 }
 
 // Load configuration file from disk, by default from /etc/opensnitchd/default-config.json,
@@ -176,7 +181,24 @@ func setupLogging() {
 }
 
 func setupProfiling() {
+	if traceFile != "" {
+		log.Info("setup trace profile: %s", traceFile)
+		f, err := os.Create(traceFile)
+		if err != nil {
+			log.Fatal("could not create trace profile: %s", err)
+		}
+		trace.Start(f)
+	}
+	if memProfile != "" {
+		log.Info("setup mem profile: %s", memProfile)
+		var err error
+		memFile, err = os.Create(memProfile)
+		if err != nil {
+			log.Fatal("could not create memory profile: %s", err)
+		}
+	}
 	if cpuProfile != "" {
+		log.Info("setup cpu profile: %s", cpuProfile)
 		if f, err := os.Create(cpuProfile); err != nil {
 			log.Fatal("%s", err)
 		} else if err := pprof.StartCPUProfile(f); err != nil {
@@ -311,8 +333,6 @@ func doCleanup(queue, repeatQueue *netfilter.Queue) {
 	firewall.Stop()
 	monitor.End()
 	uiClient.Close()
-	queue.Close()
-	repeatQueue.Close()
 	if resolvMonitor != nil {
 		resolvMonitor.Close()
 	}
@@ -322,17 +342,19 @@ func doCleanup(queue, repeatQueue *netfilter.Queue) {
 	}
 
 	if memProfile != "" {
-		f, err := os.Create(memProfile)
-		if err != nil {
-			fmt.Printf("Could not create memory profile: %s\n", err)
-			return
-		}
-		defer f.Close()
 		runtime.GC() // get up-to-date statistics
-		if err := pprof.WriteHeapProfile(f); err != nil {
-			fmt.Printf("Could not write memory profile: %s\n", err)
+		if err := pprof.WriteHeapProfile(memFile); err != nil {
+			log.Error("Could not write memory profile: %s", err)
 		}
+		log.Info("Writing mem profile to %s", memProfile)
+		memFile.Close()
 	}
+	if traceFile != "" {
+		trace.Stop()
+	}
+
+	repeatQueue.Close()
+	queue.Close()
 }
 
 func onPacket(packet netfilter.Packet) {
