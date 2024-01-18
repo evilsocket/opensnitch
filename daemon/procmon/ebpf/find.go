@@ -107,12 +107,13 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		dstIP.String(),
 		strconv.FormatUint(uint64(dstPort), 10))
 	if cacheItem, isInCache := ebpfCache.isInCache(k); isInCache {
-		// should we re-read the info?
-		// environ vars might have changed
-		//proc.GetDetails()
 		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))
-		proc = &cacheItem.Proc
-		log.Debug("[ebpf conn] in cache: %s, %d -> %s", k, proc.ID, proc.Path)
+		if ev, found := procmon.EventsCache.IsInStoreByPID(cacheItem.Pid); found {
+			proc = &ev.Proc
+			log.Debug("[ebpf conn] in cache: %s, %d -> %s", k, proc.ID, proc.Path)
+			return
+		}
+		log.Info("[ebpf conn] in cache, with no proc %s, %d", k, cacheItem.Pid)
 		return
 	}
 
@@ -151,7 +152,7 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	proc = findConnProcess(&value, k)
 
 	log.Debug("[ebpf conn] adding item to cache: %s", k)
-	ebpfCache.addNewItem(k, key, *proc)
+	ebpfCache.addNewItem(k, key, proc.ID)
 	if delItemIfFound {
 		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))
 	}

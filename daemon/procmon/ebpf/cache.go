@@ -3,14 +3,12 @@ package ebpf
 import (
 	"sync"
 	"time"
-
-	"github.com/evilsocket/opensnitch/daemon/procmon"
 )
 
 type ebpfCacheItem struct {
-	Proc     procmon.Process
-	LastSeen int64
 	Key      []byte
+	LastSeen int64
+	Pid      int
 }
 
 type ebpfCacheType struct {
@@ -27,10 +25,10 @@ var (
 )
 
 // NewEbpfCacheItem creates a new cache item.
-func NewEbpfCacheItem(key []byte, proc procmon.Process) *ebpfCacheItem {
+func NewEbpfCacheItem(key []byte, pid int) *ebpfCacheItem {
 	return &ebpfCacheItem{
 		Key:      key,
-		Proc:     proc,
+		Pid:      pid,
 		LastSeen: time.Now().UnixNano(),
 	}
 }
@@ -51,9 +49,9 @@ func NewEbpfCache() *ebpfCacheType {
 	}
 }
 
-func (e *ebpfCacheType) addNewItem(key interface{}, itemKey []byte, proc procmon.Process) {
+func (e *ebpfCacheType) addNewItem(key interface{}, itemKey []byte, pid int) {
 	e.mu.Lock()
-	e.Items[key] = NewEbpfCacheItem(itemKey, proc)
+	e.Items[key] = NewEbpfCacheItem(itemKey, pid)
 	e.mu.Unlock()
 }
 
@@ -81,17 +79,6 @@ func (e *ebpfCacheType) isInCache(key interface{}) (item *ebpfCacheItem, found b
 func (e *ebpfCacheType) update(key interface{}, item *ebpfCacheItem) {
 	item.LastSeen = time.Now().UnixNano()
 	e.Items[key] = item
-}
-
-func (e *ebpfCacheType) updateByPid(proc *procmon.Process) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
-	for k, item := range e.Items {
-		if proc.ID == item.Proc.ID {
-			e.update(k, item)
-		}
-	}
-
 }
 
 func (e *ebpfCacheType) Len() int {
