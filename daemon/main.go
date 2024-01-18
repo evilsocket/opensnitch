@@ -151,6 +151,30 @@ func overwriteLogging() bool {
 	return debug || warning || important || errorlog || logFile != "" || logMicro
 }
 
+func setupQueues() {
+	// prepare the queue
+	var err error
+	queue, err = netfilter.NewQueue(uint16(queueNum))
+	if err != nil {
+		msg := fmt.Sprintf("Error creating queue #%d: %s", queueNum, err)
+		uiClient.SendWarningAlert(msg)
+		log.Warning("Is opensnitchd already running?")
+		log.Fatal(msg)
+	}
+	pktChan = queue.Packets()
+
+	repeatQueueNum = queueNum + 1
+
+	repeatQueue, err = netfilter.NewQueue(uint16(repeatQueueNum))
+	if err != nil {
+		msg := fmt.Sprintf("Error creating repeat queue #%d: %s", repeatQueueNum, err)
+		uiClient.SendErrorAlert(msg)
+		log.Warning("Is opensnitchd already running?")
+		log.Warning(msg)
+	}
+	repeatPktChan = repeatQueue.Packets()
+}
+
 func setupLogging() {
 	golog.SetOutput(ioutil.Discard)
 	if debug {
@@ -290,6 +314,7 @@ func initSystemdResolvedMonitor() {
 		return
 	}
 	go func() {
+		var ip net.IP
 		for {
 			select {
 			case exit := <-resolvMonitor.Exit():
@@ -313,14 +338,13 @@ func initSystemdResolvedMonitor() {
 						log.Debug("systemd-resolved, excluding answer: %#v", a)
 						continue
 					}
-					domain := a.RR.Key.Name
-					ip := net.IP(a.RR.Address)
-					log.Debug("%d systemd-resolved monitor response: %s -> %s", i, domain, ip)
+					ip = net.IP(a.RR.Address)
+					log.Debug("%d systemd-resolved monitor response: %s -> %s", i, a.RR.Key.Name, a.RR.Address)
 					if a.RR.Key.Type == systemd.DNSTypeCNAME {
-						log.Debug("systemd-resolved CNAME >> %s -> %s", a.RR.Name, domain)
-						dns.Track(a.RR.Name, domain)
+						log.Debug("systemd-resolved CNAME >> %s -> %s", a.RR.Name, a.RR.Key.Name)
+						dns.Track(a.RR.Name, a.RR.Key.Name /*domain*/)
 					} else {
-						dns.Track(ip.String(), domain)
+						dns.Track(ip.String(), a.RR.Key.Name /*domain*/)
 					}
 				}
 			}
@@ -536,6 +560,7 @@ func main() {
 	if err != nil {
 		log.Fatal("%s", err)
 	}
+
 	if err == nil && cfg.Rules.Path != "" {
 		rulesPath = cfg.Rules.Path
 	}
@@ -561,26 +586,8 @@ func main() {
 	loggerMgr = loggers.NewLoggerManager()
 	uiClient = ui.NewClient(uiSocket, configFile, stats, rules, loggerMgr)
 
-	// prepare the queue
 	setupWorkers()
-	queue, err := netfilter.NewQueue(uint16(queueNum))
-	if err != nil {
-		msg := fmt.Sprintf("Error creating queue #%d: %s", queueNum, err)
-		uiClient.SendWarningAlert(msg)
-		log.Warning("Is opensnitchd already running?")
-		log.Fatal(msg)
-	}
-	pktChan = queue.Packets()
-
-	repeatQueueNum = queueNum + 1
-	repeatQueue, rqerr := netfilter.NewQueue(uint16(repeatQueueNum))
-	if rqerr != nil {
-		msg := fmt.Sprintf("Error creating repeat queue #%d: %s", repeatQueueNum, rqerr)
-		uiClient.SendErrorAlert(msg)
-		log.Warning("Is opensnitchd already running?")
-		log.Warning(msg)
-	}
-	repeatPktChan = repeatQueue.Packets()
+	setupQueues()
 
 	fwConfigPath := fwConfigFile
 	if fwConfigPath == "" {

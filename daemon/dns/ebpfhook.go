@@ -169,6 +169,7 @@ func spawnDNSWorker(id int, channel chan []byte, exitChannel chan bool) {
 
 	log.Debug("dns worker initialized #%d", id)
 	var event nameLookupEvent
+	var ip net.IP
 	for {
 		select {
 
@@ -188,7 +189,6 @@ func spawnDNSWorker(id int, channel chan []byte, exitChannel chan bool) {
 			}
 			// Convert C string (null-terminated) to Go string
 			host := string(event.Host[:bytes.IndexByte(event.Host[:], 0)])
-			var ip net.IP
 			// 2 -> AF_INET (ipv4)
 			if event.AddrType == 2 {
 				ip = net.IP(event.IP[:4])
