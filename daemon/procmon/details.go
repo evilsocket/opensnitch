@@ -37,9 +37,13 @@ func (p *Process) GetParent() {
 	if p.PPID == 0 {
 		return
 	}
+	it, found := EventsCache.IsInStoreByPID(p.PPID)
+	if found {
+		p.Parent = &it.Proc
+		p.Parent.GetParent()
+		return
+	}
 
-	// TODO: see how we can reuse this object and the ppid, to save some iterations.
-	// right now it opens the can of leaks.
 	p.mu.Lock()
 	p.Parent = NewProcessEmpty(p.PPID, "")
 	p.mu.Unlock()
@@ -51,9 +55,11 @@ func (p *Process) GetParent() {
 
 // BuildTree returns all the parents of this process.
 func (p *Process) BuildTree() {
-	if len(p.Tree) > 0 {
+	items := len(p.Tree)
+	if items > 0 && p.Tree[items-1].Value == 1 {
 		return
 	}
+
 	// Adding this process to the tree, not to loose track of it.
 	p.Tree = append(p.Tree,
 		&protocol.StringInt{
