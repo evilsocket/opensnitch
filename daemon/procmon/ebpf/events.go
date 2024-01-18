@@ -204,13 +204,11 @@ func processExecEvent(event *execEvent) {
 		procmon.EventsCache.Add(proc)
 		getProcDetails(event, proc)
 		procmon.EventsCache.UpdateItem(proc)
-		ebpfCache.updateByPid(proc)
 		return
 	}
 
 	if found && needsUpdate {
 		procmon.EventsCache.Update(&item.Proc, proc)
-		ebpfCache.updateByPid(&item.Proc)
 	}
 
 	// from now on use cached Process
