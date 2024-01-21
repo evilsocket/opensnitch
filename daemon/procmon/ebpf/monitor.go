@@ -92,6 +92,17 @@ Exit:
 // it will be removed from alreadyEstablished. If we don't do this and keep the alreadyEstablished entry forever,
 // then after the genuine process quits,a malicious process may reuse PID-srcPort-srcIP-dstPort-dstIP
 func monitorAlreadyEstablished() {
+	tcperr := 0
+	errLimitExceeded := func() bool {
+		if tcperr > 100 {
+			log.Debug("monitorAlreadyEstablished() generated too much errors")
+			return true
+		}
+		tcperr++
+
+		return false
+	}
+
 	for {
 		select {
 		case <-ctxTasks.Done():
@@ -100,7 +111,10 @@ func monitorAlreadyEstablished() {
 			time.Sleep(time.Second * 2)
 			socketListTCP, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET), uint8(syscall.IPPROTO_TCP))
 			if err != nil {
-				log.Debug("eBPF error in dumping TCP sockets via netlink")
+				log.Debug("monitorAlreadyEstablished(), error dumping TCP sockets via netlink (%d): %s", tcperr, err)
+				if errLimitExceeded() {
+					goto Exit
+				}
 				continue
 			}
 			alreadyEstablished.Lock()
@@ -121,7 +135,10 @@ func monitorAlreadyEstablished() {
 			if core.IPv6Enabled {
 				socketListTCPv6, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET6), uint8(syscall.IPPROTO_TCP))
 				if err != nil {
-					log.Debug("eBPF error in dumping TCPv6 sockets via netlink: %s", err)
+					if errLimitExceeded() {
+						goto Exit
+					}
+					log.Debug("monitorAlreadyEstablished(), error dumping TCPv6 sockets via netlink (%d): %s", tcperr, err)
 					continue
 				}
 				alreadyEstablished.Lock()
