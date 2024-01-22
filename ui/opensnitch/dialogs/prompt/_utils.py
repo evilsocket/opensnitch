@@ -119,6 +119,20 @@ def set_default_duration(cfg, durationCombo):
     else:
         durationCombo.setCurrentIndex(Config.DEFAULT_DURATION_IDX)
 
+def set_default_target(combo, con, cfg, app_name, app_args):
+    # set appimage as default target if the process path starts with
+    # /tmp/._mount
+    if con.process_path.startswith(_constants.APPIMAGE_PREFIX):
+        idx = combo.findData(_constants.FIELD_APPIMAGE)
+        if idx != -1:
+            combo.setCurrentIndex(idx)
+            return
+
+    if int(con.process_id) > 0 and app_name != "" and app_args != "":
+        combo.setCurrentIndex(int(cfg.getSettings(cfg.DEFAULT_TARGET_KEY)))
+    else:
+        combo.setCurrentIndex(2)
+
 def get_combo_operator(data, comboText, con):
     if data == _constants.FIELD_PROC_PATH:
         return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path

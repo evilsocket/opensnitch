@@ -419,10 +419,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
         _utils.set_default_duration(self._cfg, self.durationCombo)
 
-        if int(con.process_id) > 0 and app_name != "" and app_args != "":
-            self.whatCombo.setCurrentIndex(int(self._cfg.getSettings(self._cfg.DEFAULT_TARGET_KEY)))
-        else:
-            self.whatCombo.setCurrentIndex(2)
+        _utils.set_default_target(self.whatCombo, con, self._cfg, app_name, app_args)
 
         self.checkDstIP.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP))
         self.checkDstPort.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT))
