@@ -30,7 +30,7 @@ func restoreConfigFile(t *testing.T) {
 	// start from a clean state
 	if _, err := core.Exec("cp", []string{
 		// unmodified default config
-		"./testdata/default-config.json.orig",
+		"./testdata/orig-default-config.json",
 		// config will be modified by some tests
 		"./testdata/default-config.json",
 	}); err != nil {
