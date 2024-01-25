@@ -339,7 +339,7 @@ func initSystemdResolvedMonitor() {
 						continue
 					}
 					ip = net.IP(a.RR.Address)
-					log.Debug("%d systemd-resolved monitor response: %s -> %s", i, a.RR.Key.Name, a.RR.Address)
+					log.Debug("%d systemd-resolved monitor response: %s -> %s", i, a.RR.Key.Name, ip)
 					if a.RR.Key.Type == systemd.DNSTypeCNAME {
 						log.Debug("systemd-resolved CNAME >> %s -> %s", a.RR.Name, a.RR.Key.Name)
 						dns.Track(a.RR.Name, a.RR.Key.Name /*domain*/)
