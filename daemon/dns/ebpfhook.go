@@ -123,13 +123,13 @@ func ListenerEbpf(ebpfModPath string) error {
 		probeFunction = strings.Replace(probeFunction, "uprobe/", "", 1)
 		offset, err := lookupSymbol(libcElf, probeFunction)
 		if err != nil {
-			log.Warning("EBPF-DNS: Failed to find symbol for uprobe %s : %s\n", uprobe.Name, err)
+			log.Warning("EBPF-DNS: Failed to find symbol for uprobe %s (offset: %d): %s\n", uprobe.Name, offset, err)
 			continue
 		}
 		err = bpf.AttachUprobe(uprobe, libcFile, offset)
 		if err != nil {
-			log.Error("EBPF-DNS: Failed to attach uprobe %s : %s\n", uprobe.Name, err)
-			return err
+			log.Warning("EBPF-DNS: Failed to attach uprobe %s : %s, (%s, %d)\n", uprobe.Name, err, libcFile, offset)
+			continue
 		}
 		probesAttached++
 	}
