@@ -123,6 +123,10 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
     }
 #endif
 
+// FIXME: on aarch64 we fail to save the event to execMap, so send it to userspace here.
+#if defined(__aarch64__)
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
+#else
     // in case of failure adding the item to the map, send it directly
     u64 pid_tgid = bpf_get_current_pid_tgid();
 	if (bpf_map_update_elem(&execMap, &pid_tgid, data, BPF_ANY) != 0) {
@@ -132,6 +136,7 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
         // Possible workaround: count -95 errors, and from userspace reinitialize the streamer if errors >= n-errors
         bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
     }
+#endif
 
     return 0;
 };
@@ -154,6 +159,9 @@ int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx
     const char *argp={0};
     data->args_count = 0;
     data->args_partial = INCOMPLETE_ARGS;
+
+// FIXME: on i386 arch, the following code fails with permission denied.
+#if !defined(__arm__) && !defined(__i386__)
     #pragma unroll
     for (int i = 0; i < MAX_ARGS; i++) {
         bpf_probe_read_user(&argp, sizeof(argp), &ctx->argv[i]);
@@ -164,7 +172,12 @@ int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx
         }
         data->args_count++;
     }
+#endif
 
+// FIXME: on aarch64 we fail to save the event to execMap, so send it to userspace here.
+#if defined(__aarch64__)
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
+#else
     // in case of failure adding the item to the map, send it directly
     u64 pid_tgid = bpf_get_current_pid_tgid();
 	if (bpf_map_update_elem(&execMap, &pid_tgid, data, BPF_ANY) != 0) {
@@ -174,6 +187,7 @@ int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx
         // Possible workaround: count -95 errors, and from userspace reinitialize the streamer if errors >= n-errors
         bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
     }
+#endif
 
     return 0;
 };
