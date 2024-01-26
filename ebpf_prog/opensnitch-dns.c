@@ -33,8 +33,9 @@
 
 //-----------------------------------
 
+// random values
 #define MAX_ALIASES 5
-#define MAX_IPS 5
+#define MAX_IPS 30
 
 struct nameLookupEvent {
     u32 addr_type;
@@ -104,8 +105,6 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
     char **ips = {0};
     bpf_probe_read(&ips, sizeof(ips), &host->h_addr_list);
 
-#if !defined(__i386__) && !defined(__arm__)
-
 #pragma clang loop unroll(full)
     for (int i = 0; i < MAX_IPS; i++) {
         char *ip={0};
@@ -134,7 +133,7 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
 #pragma clang loop unroll(full)
         for (int j = 0; j < MAX_ALIASES; j++) {
             char *alias = {0};
-            bpf_probe_read(&alias, sizeof(alias), &aliases[i]);
+            bpf_probe_read(&alias, sizeof(alias), &aliases[j]);
 
             if (alias == NULL) {
                 return 0;
@@ -144,8 +143,6 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
                                   sizeof(data));
         }
     }
-
-#endif
 
     return 0;
 }
@@ -188,15 +185,11 @@ int ret_addrinfo(struct pt_regs *ctx) {
     }
 
     struct addrinfo **res_p={0};
-    __builtin_memset(&res_p, 0, sizeof(res_p));
     bpf_probe_read(&res_p, sizeof(res_p), &addrinfo_args->addrinfo_ptr);
-
-#if !defined(__i386__) && !defined(__arm__)
 
 #pragma clang loop unroll(full)
     for (int i = 0; i < MAX_IPS; i++) {
-        struct addrinfo *res = {0};
-       __builtin_memset(&res, 0, sizeof(res));
+        struct addrinfo *res={0};
         bpf_probe_read(&res, sizeof(res), res_p);
         if (res == NULL) {
             goto out;
@@ -206,19 +199,17 @@ int ret_addrinfo(struct pt_regs *ctx) {
 
         if (data.addr_type == AF_INET) {
             struct sockaddr_in *ipv4={0};
-            __builtin_memset(&ipv4, 0, sizeof(ipv4));
             bpf_probe_read(&ipv4, sizeof(ipv4), &res->ai_addr);
             // Only copy the 4 relevant bytes
             bpf_probe_read_user(&data.ip, 4, &ipv4->sin_addr);
         } else if(data.addr_type == AF_INET6) {
             struct sockaddr_in6 *ipv6={0};
-            __builtin_memset(&ipv6, 0, sizeof(ipv6));
             bpf_probe_read(&ipv6, sizeof(ipv6), &res->ai_addr);
 
             bpf_probe_read_user(&data.ip, sizeof(data.ip), &ipv6->sin6_addr);
         } else {
-			goto out;
-		}
+            goto out;
+        }
 
         bpf_probe_read_kernel_str(&data.host, sizeof(data.host),
                                   &addrinfo_args->node);
@@ -226,17 +217,13 @@ int ret_addrinfo(struct pt_regs *ctx) {
         bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data,
                               sizeof(data));
 
-
         struct addrinfo * next={0};
-        __builtin_memset(&next, 0, sizeof(next));
         bpf_probe_read(&next, sizeof(next), &res->ai_next);
         if (next == NULL){
             goto out;
         }
-		res_p = &next;
+        res_p = &next;
     }
-
-#endif
 
 out:
     bpf_map_delete_elem(&addrinfo_args_hash, &tid);
