@@ -97,15 +97,18 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
         return 0;
 
     struct hostent *host = (struct hostent *)PT_REGS_RC(ctx);
-	char * hostnameptr;
-	bpf_probe_read(&hostnameptr, sizeof(hostnameptr), &host->h_name);
+    char * hostnameptr = {0};
+    bpf_probe_read(&hostnameptr, sizeof(hostnameptr), &host->h_name);
     bpf_probe_read_str(&data.host, sizeof(data.host), hostnameptr);
 
-    char **ips;
+    char **ips = {0};
     bpf_probe_read(&ips, sizeof(ips), &host->h_addr_list);
+
+#if !defined(__i386__) && !defined(__arm__)
+
 #pragma clang loop unroll(full)
     for (int i = 0; i < MAX_IPS; i++) {
-        char *ip;
+        char *ip={0};
         bpf_probe_read(&ip, sizeof(ip), &ips[i]);
 
         if (ip == NULL) {
@@ -125,12 +128,12 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
                               sizeof(data));
 
         // char **alias = host->h_aliases;
-        char **aliases;
+        char **aliases = {0};
         bpf_probe_read(&aliases, sizeof(aliases), &host->h_aliases);
 
 #pragma clang loop unroll(full)
         for (int j = 0; j < MAX_ALIASES; j++) {
-            char *alias;
+            char *alias = {0};
             bpf_probe_read(&alias, sizeof(alias), &aliases[i]);
 
             if (alias == NULL) {
@@ -141,6 +144,8 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
                                   sizeof(data));
         }
     }
+
+#endif
 
     return 0;
 }
@@ -182,12 +187,16 @@ int ret_addrinfo(struct pt_regs *ctx) {
         return 0; // missed start
     }
 
-    struct addrinfo **res_p;
+    struct addrinfo **res_p={0};
+    __builtin_memset(&res_p, 0, sizeof(res_p));
     bpf_probe_read(&res_p, sizeof(res_p), &addrinfo_args->addrinfo_ptr);
+
+#if !defined(__i386__) && !defined(__arm__)
 
 #pragma clang loop unroll(full)
     for (int i = 0; i < MAX_IPS; i++) {
-        struct addrinfo *res;
+        struct addrinfo *res = {0};
+       __builtin_memset(&res, 0, sizeof(res));
         bpf_probe_read(&res, sizeof(res), res_p);
         if (res == NULL) {
             goto out;
@@ -196,12 +205,14 @@ int ret_addrinfo(struct pt_regs *ctx) {
                        &res->ai_family);
 
         if (data.addr_type == AF_INET) {
-            struct sockaddr_in *ipv4;
+            struct sockaddr_in *ipv4={0};
+            __builtin_memset(&ipv4, 0, sizeof(ipv4));
             bpf_probe_read(&ipv4, sizeof(ipv4), &res->ai_addr);
             // Only copy the 4 relevant bytes
             bpf_probe_read_user(&data.ip, 4, &ipv4->sin_addr);
         } else if(data.addr_type == AF_INET6) {
-            struct sockaddr_in6 *ipv6;
+            struct sockaddr_in6 *ipv6={0};
+            __builtin_memset(&ipv6, 0, sizeof(ipv6));
             bpf_probe_read(&ipv6, sizeof(ipv6), &res->ai_addr);
 
             bpf_probe_read_user(&data.ip, sizeof(data.ip), &ipv6->sin6_addr);
@@ -216,13 +227,16 @@ int ret_addrinfo(struct pt_regs *ctx) {
                               sizeof(data));
 
 
-		struct addrinfo * next;
+        struct addrinfo * next={0};
+        __builtin_memset(&next, 0, sizeof(next));
         bpf_probe_read(&next, sizeof(next), &res->ai_next);
         if (next == NULL){
             goto out;
         }
 		res_p = &next;
     }
+
+#endif
 
 out:
     bpf_map_delete_elem(&addrinfo_args_hash, &tid);
