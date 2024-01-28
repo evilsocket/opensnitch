@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
@@ -149,7 +150,12 @@ func ListenerEbpf(ebpfModPath string) error {
 	}
 	sig := make(chan os.Signal, 1)
 	exitChannel := make(chan bool)
-	signal.Notify(sig, os.Interrupt, os.Kill)
+	signal.Notify(sig,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGKILL,
+		syscall.SIGQUIT)
 
 	for i := 0; i < 5; i++ {
 		go spawnDNSWorker(i, channel, exitChannel)
