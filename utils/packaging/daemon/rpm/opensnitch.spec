@@ -51,13 +51,13 @@ B=""
 if [ -f /etc/opensnitchd/default-config.json ]; then
     B="-b"
 fi
-install -m 644 -b $B daemon/default-config.json %{buildroot}/etc/opensnitchd/default-config.json
+install -m 644 $B daemon/default-config.json %{buildroot}/etc/opensnitchd/default-config.json
 
 B=""
 if [ -f /etc/opensnitchd/system-fw.json ]; then
     B="-b"
 fi
-install -m 644 -b $B daemon/system-fw.json %{buildroot}/etc/opensnitchd/system-fw.json
+install -m 644 $B daemon/system-fw.json %{buildroot}/etc/opensnitchd/system-fw.json
 
 install -m 644 ebpf_prog/opensnitch.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch.o
 install -m 644 ebpf_prog/opensnitch-dns.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch-dns.o
@@ -91,10 +91,9 @@ fi
 rm -rf %{buildroot}
 
 %files
+%config(noreplace) %{_sysconfdir}/opensnitchd/*
 %{_bindir}/opensnitchd
 %{_prefix}/lib/systemd/system/opensnitch.service
-%{_sysconfdir}/opensnitchd/default-config.json
-%{_sysconfdir}/opensnitchd/system-fw.json
 %{_prefix}/lib/opensnitchd/ebpf/opensnitch.o
 %{_prefix}/lib/opensnitchd/ebpf/opensnitch-dns.o
 %{_prefix}/lib/opensnitchd/ebpf/opensnitch-procs.o
