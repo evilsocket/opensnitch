@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="opensnitch" src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/ui/opensnitch/res/icon.png" height="160" />
+  <img alt="opensnitch" src="https://raw.githubusercontent.com/evilsocket/opensnitch/master/ui/opensnitch/resources/icons/512x512/opensnitch-ui.png" height="160" />
   <p align="center">
     <img src="https://github.com/evilsocket/opensnitch/workflows/Build%20status/badge.svg" />
     <a href="https://github.com/evilsocket/opensnitch/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/evilsocket/opensnitch.svg?style=flat-square"></a>
