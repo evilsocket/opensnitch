@@ -43,9 +43,13 @@ CLANG_FLAGS = -I. \
 	-D__KERNEL__ -D__BPF_TRACING__ -Wno-unused-value -Wno-pointer-sign \
 	-D__TARGET_ARCH_$(ARCH) -Wno-compare-distinct-pointer-types \
 	$(EXTRA_FLAGS) \
+	-Wunused \
+	-Wno-unused-value \
 	-Wno-gnu-variable-sized-type-not-at-end \
-	-Wno-address-of-packed-member -Wno-tautological-compare \
+	-Wno-address-of-packed-member \
+	-Wno-tautological-compare \
 	-Wno-unknown-warning-option  \
+	-fno-stack-protector \
 	-g -O2 -emit-llvm
 
 all: $(BIN)
