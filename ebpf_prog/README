@@ -3,20 +3,22 @@ Compilation requires getting kernel sources for now.
 There's a helper script to automate this process:
  https://github.com/evilsocket/opensnitch/blob/master/utils/packaging/build_modules.sh
 
-The basic steps to compile the modules are:
+ (example to compile the modules for kernel 6.0: bash build_modules.sh 6.0)
 
-  sudo apt install clang llvm libelf-dev libzip-dev flex bison libssl-dev bc rsync python3
+---
+
+The basic steps to manually compile the modules are:
+
+  sudo apt install -y wget flex bison ca-certificates wget python3 rsync bc libssl-dev clang llvm libelf-dev libzip-dev git libpcap-dev
   cd opensnitch
-  wget https://github.com/torvalds/linux/archive/v5.8.tar.gz
-  tar -xf v5.8.tar.gz
-  cp ebpf_prog/opensnitch*.c ebpf_prog/common* ebpf_prog/Makefile linux-5.8/samples/bpf/
-  cp -r ebpf_prog/bpf_headers/ linux-5.8/samples/bpf/
-  cd linux-5.8 && yes "" | make oldconfig && make prepare && make headers_install # (1 min)
-  cd samples/bpf && make KERNEL_DIR=../../linux-5.8/
+  wget https://github.com/torvalds/linux/archive/v6.0.tar.gz
+  tar -xf v6.0.tar.gz
+  cd linux-6.0 && yes "" | make oldconfig && make prepare && make headers_install # (1 min)
+  cd ../ebpf_prog/
+  make KERNEL_DIR=../linux-6.0/ KERNEL_HEADERS=../linux-6.0/
   objdump -h opensnitch.o # you should see many sections, number 1 should be called kprobe/tcp_v4_connect
   llvm-strip -g opensnitch*.o # remove debug info
   sudo cp opensnitch*.o /usr/lib/opensnitchd/ebpf/ # or /etc/opensnitchd for < v1.6.x
-  cd ../../../daemon
 
 Since v1.6.0, opensnitchd expects to find the opensnitch*.o modules under:
  /usr/local/lib/opensnitchd/ebpf/
