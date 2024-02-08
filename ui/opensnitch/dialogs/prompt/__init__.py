@@ -570,12 +570,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             is_list_rule = self._is_list_rule()
 
             # If the user has selected to filter by cmdline, but the launched
-            # command path is not absolute, we can't trust it. In this case,
-            # also filter by the absolute path to the binary.
+            # command path is not absolute or the first component contains
+            # "/proc/" (/proc/self/fd.., /proc/1234/fd...), we can't trust it.
+            # In these cases, also filter by the absolute path to the binary.
             if self._rule.operator.operand == Config.OPERAND_PROCESS_COMMAND:
                 proc_args = " ".join(self._con.process_args)
                 proc_args = proc_args.split(" ")
-                if os.path.isabs(proc_args[0]) == False:
+                if os.path.isabs(proc_args[0]) == False or proc_args[0].startswith("/proc"):
                     is_list_rule = True
                     data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_PROCESS_PATH, "data": str(self._con.process_path)})
 
