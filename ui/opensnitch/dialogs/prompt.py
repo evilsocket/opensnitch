@@ -324,6 +324,20 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.argsLabel.setVisible(False)
             self.argsLabel.setText("")
 
+    def _set_default_target(self, combo, con, app_name, app_args):
+        # set appimage as default target if the process path starts with
+        # /tmp/._mount
+        if con.process_path.startswith(self.APPIMAGE_PREFIX):
+            idx = combo.findData(self.FIELD_APPIMAGE)
+            if idx != -1:
+                combo.setCurrentIndex(idx)
+                return
+
+        if int(con.process_id) > 0 and app_name != "" and app_args != "":
+            self.whatCombo.setCurrentIndex(int(self._cfg.getSettings(self._cfg.DEFAULT_TARGET_KEY)))
+        else:
+            self.whatCombo.setCurrentIndex(2)
+
     def _render_connection(self, con):
         app_name, app_icon, description, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
         app_args = " ".join(con.process_args)
@@ -415,11 +429,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._configure_default_duration()
 
-        if int(con.process_id) > 0 and app_name != "" and app_args != "":
-            self.whatCombo.setCurrentIndex(int(self._cfg.getSettings(self._cfg.DEFAULT_TARGET_KEY)))
-        else:
-            self.whatCombo.setCurrentIndex(2)
-
+        self._set_default_target(self.whatCombo, con, app_name, app_args)
 
         self.checkDstIP.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP))
         self.checkDstPort.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT))
@@ -444,7 +454,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         e.ignore()
 
     def _add_appimage_pattern_to_combo(self, combo, con):
-        """appimages' absolute path usually starts with /tmp/.mount_<
+        """appimages' absolute path usually starts with /tmp/.mount_
         """
         appimage_bin = os.path.basename(con.process_path)
         appimage_path = os.path.dirname(con.process_path)
