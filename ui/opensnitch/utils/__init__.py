@@ -258,8 +258,8 @@ class QuickHelp():
 class Utils():
     @staticmethod
     def check_versions(daemon_version):
-        lMayor, lMinor, lPatch = gui_version.split(".")
-        rMayor, rMinor, rPatch = daemon_version.split(".")
+        lMayor, lMinor, lPatch = gui_version.split(".", 2)
+        rMayor, rMinor, rPatch = daemon_version.split(".", 2)
         return lMayor != rMayor or (lMayor == rMayor and lMinor != rMinor)
 
     @staticmethod
