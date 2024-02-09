@@ -217,6 +217,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._timeout_triggered = False
             self._rule = None
             self._local = is_local
+            self._peer = peer
             self._con = connection
             self._done.clear()
             # trigger and show dialog
