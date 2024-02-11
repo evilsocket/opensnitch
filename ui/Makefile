@@ -1,7 +1,7 @@
 all: opensnitch/resources_rc.py
 
 install:
-	@pip3 install --upgrade .
+	@pip3 install --upgrade . --break-system-packages
 
 opensnitch/resources_rc.py: translations deps
 	@pyrcc5 -o opensnitch/resources_rc.py opensnitch/res/resources.qrc

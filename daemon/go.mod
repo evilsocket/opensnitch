@@ -15,5 +15,19 @@ require (
 	golang.org/x/net v0.17.0
 	golang.org/x/sys v0.13.0
 	google.golang.org/grpc v1.32.0
-	google.golang.org/protobuf v1.26.0 // indirect
+	google.golang.org/protobuf v1.26.0
+)
+
+require (
+	github.com/BurntSushi/toml v0.4.1 // indirect
+	github.com/google/go-cmp v0.5.6 // indirect
+	github.com/josharian/native v0.0.0-20200817173448-b6b71def0850 // indirect
+	github.com/mdlayher/netlink v1.4.2 // indirect
+	github.com/mdlayher/socket v0.0.0-20211102153432-57e3fa563ecb // indirect
+	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55 // indirect
+	honnef.co/go/tools v0.2.2 // indirect
 )
