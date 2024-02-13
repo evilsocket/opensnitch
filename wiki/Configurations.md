@@ -1,4 +1,4 @@
-### Daemon configuration
+### Daemon configuration (>= v1.6.5)
 
 The file _/etc/opensnitchd/default-config.json_ holds the daemon configuration:
 
@@ -8,15 +8,31 @@ The file _/etc/opensnitchd/default-config.json_ holds the daemon configuration:
       "Address": "unix:///tmp/osui.sock",
       "LogFile": "/var/log/opensnitchd.log"
   }, 
-  "DefaultAction":     "deny",
-  "DefaultDuration":   "once",
-  "InterceptUnknown":   true,
-  "ProcMonitorMethod": "proc",
+  "DefaultAction": "deny",
+  "DefaultDuration": "once",
+  "InterceptUnknown": true,
+  "ProcMonitorMethod": "ebpf",
   "LogLevel": 1
-  "Firewall": "iptables",
+  "Firewall": "nftables",
+  "FwOptions": {
+        "ConfigPath": "/etc/opensnitchd/system-fw.json",
+        "MonitorInterval": "15s",
+        "ActionOnOverflow": "drop"
+  },
+  "Rules": {
+        "Path": "",
+        "EnableChecksums": true
+  },
+  "Ebpf": {
+        "ModulesPath": "/tmp/ebpf"
+  },
+  "Internal": {
+        "GCPercent": 75
+  },
   "Stats": {
     "MaxEvents": 150,
-    "MaxStats": 25
+    "MaxStats": 25,
+    "Workers": 6
   }
 }
 ```
@@ -33,8 +49,15 @@ LogLevel | 0 to 4 (debug, info, important, warning, error)
 Firewall | "nftables" or "iptables"
 Stats.MaxEvents | Max events to send to the GUI every second. If you think that you're missing some connections increased this value.
 Stats.MaxStats | Max stats per item (port, host, IP, process, etc) to keep in the backlog.
+Stats.Workers | Max workers to handle the statistics
+Ebpf.ModulesPath (>= v1.6.5) | Alternative location of the eBPF modules (default /usr/lib/opensnitchd/ebpf)
+Rules.Path (>= v1.6.5) | Alternative path to the rules path.
+FwOptions.ConfigPath (>= v1.7.0) | Alternative path to the firewall configuration (default /etc/opensnitchd/system-fw.json)
+FwOptions.MonitorInterval (>= v1.7.0) | Interval time to check that interception rules are loaded.
+Rules.EnableChecksums (>= v1.7.0)| Obtain processes's checksums and allow create rules to filter by them.
+Internal.GCPercent (>= v1.7.0)| Option to configure how often the daemon frees up unused memory (https://tip.golang.org/doc/gc-guide#GOGC).
 
-If you change the configuration or the rules under _/etc/opensnitchd/rules/_, they'll be reloaded. No restart is needed.
+If you change the configuration or the rules under _/etc/opensnitchd/rules/_, they'll be reloaded automatically. No restart is needed.
 
 **[0] NOTE about _DefaultAction_ option**:
 
@@ -49,8 +72,9 @@ If you set daemon's DefaultAction to `deny`, bear in mind that you'll need [a ru
 
  This option was added when OpenSnitch used to miss a lot of connections (couldn't find pid/process in /proc). As of v1.4.0rc2 version, it's safe to set it  to false, and just let it drop those "unknown" connections. It's up to you. Most of the connections intercepted by this option are those in a bad state or similar.
 
- There're some scenarios where this option is useful/needed though, for example when connecting to VPNs or mount NFS shares.
-As the connections are originated from kernel-space, you need to enable this option in order to allow the outgoing connection.
+ There're some scenarios where this option is useful/needed though, for example when connecting to VPNs, mount NFS shares or intercepting forwarded connections from containers.
+
+Also as some connections are originated from kernel-space, you need to enable this option in order to allow the outgoing connection.
 
 ***
 
