@@ -141,9 +141,9 @@ func IsAvailable() error {
 // EnableInterception adds fw rules to intercept connections.
 func (ipt *Iptables) EnableInterception() {
 	if err := ipt.QueueConnections(common.EnableRule, true); err != nil {
-		log.Fatal("Error while running conntrack firewall rule: %s %s", err)
+		log.Fatal("Error while running conntrack firewall rule: %v", err.AsError())
 	} else if err = ipt.QueueDNSResponses(common.EnableRule, true); err != nil {
-		log.Error("Error while running DNS firewall rule: %s %s", err)
+		log.Error("Error while running DNS firewall rule: %v", err.AsError())
 	}
 	// start monitoring firewall rules to intercept network traffic
 	ipt.NewRulesChecker(ipt.AreRulesLoaded, ipt.reloadRulesCallback)
