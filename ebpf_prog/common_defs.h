@@ -4,9 +4,9 @@
 #include <linux/sched.h>
 #include <linux/ptrace.h>
 #include <uapi/linux/bpf.h>
-#include <bpf/bpf_helpers.h>
-#include <bpf/bpf_tracing.h> 
-#include <bpf/bpf_core_read.h> 
+#include "bpf_headers/bpf_helpers.h"
+#include "bpf_headers/bpf_tracing.h"
+//#include <bpf/bpf_core_read.h> 
 
 #define BUF_SIZE_MAP_NS 256
 #define MAPSIZE 12000

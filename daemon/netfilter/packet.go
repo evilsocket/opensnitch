@@ -48,7 +48,7 @@ func (p *Packet) SetRequeueVerdict(newQueueID uint16) {
 	v := uint(NF_QUEUE)
 	q := (uint(newQueueID) << 16)
 	v = v | q
-	p.verdictChannel <- VerdictContainer{Verdict: Verdict(v), Packet: nil, Mark: 0}
+	p.verdictChannel <- VerdictContainer{Verdict: Verdict(v), Packet: nil, Mark: p.Mark}
 }
 
 // SetVerdictWithPacket apply a verdict, but with a new packet

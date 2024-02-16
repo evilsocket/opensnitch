@@ -94,19 +94,19 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 // to identify a process (cmdline, name, environment variables, etc).
 func FindProcess(pid int, interceptUnknown bool) *Process {
 	if interceptUnknown && pid < 0 {
-		return NewProcess(0, "")
+		return NewProcessEmpty(0, "")
 	}
 
-	if proc := findProcessInActivePidsCache(uint64(pid)); proc != nil {
-		return proc
+	if ev, _, found := EventsCache.IsInStore(pid, nil); found {
+		return &ev.Proc
 	}
 
-	proc := NewProcess(pid, "")
-	if err := proc.GetInfo(); err != nil {
+	proc := NewProcessEmpty(pid, "")
+	if err := proc.GetDetails(); err != nil {
 		log.Debug("[%d] FindProcess() error: %s", pid, err)
 		return nil
 	}
 
-	AddToActivePidsCache(uint64(pid), proc)
+	EventsCache.Add(proc)
 	return proc
 }

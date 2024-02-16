@@ -188,7 +188,7 @@ func (s *Socket) deserialize(b []byte) error {
 }
 
 // SocketKill kills a connection
-func socketKill(family, proto uint8, sockID SocketID) error {
+func SocketKill(family, proto uint8, sockID SocketID) error {
 
 	sockReq := &SocketRequest{
 		Family:   family,

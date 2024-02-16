@@ -6,20 +6,27 @@ class Config:
 
     HELP_URL = "https://github.com/evilsocket/opensnitch/wiki/"
     HELP_RULES_URL = "https://github.com/evilsocket/opensnitch/wiki/Rules"
-    HELP_SYS_RULES_URL = "https://github.com/evilsocket/opensnitch/wiki/System-rules"
+    HELP_SYS_RULES_URL = "https://github.com/evilsocket/opensnitch/wiki/System-rules#upgrading-from-previous-versions"
+    HELP_SYSFW_URL = "https://github.com/evilsocket/opensnitch/wiki/System-rules"
     HELP_CONFIG_URL = "https://github.com/evilsocket/opensnitch/wiki/Configurations"
+    HELP_SYSTRAY_WARN = "https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#gui-does-not-show-up"
 
     OPERAND_PROCESS_ID = "process.id"
     OPERAND_PROCESS_PATH = "process.path"
     OPERAND_PROCESS_COMMAND = "process.command"
     OPERAND_PROCESS_ENV = "process.env."
+    OPERAND_PROCESS_HASH_MD5 = "process.hash.md5"
+    OPERAND_PROCESS_HASH_SHA1 = "process.hash.sha1"
     OPERAND_USER_ID = "user.id"
     OPERAND_IFACE_OUT = "iface.out"
     OPERAND_IFACE_IN = "iface.in"
+    OPERAND_SOURCE_IP = "source.ip"
+    OPERAND_SOURCE_PORT = "source.port"
     OPERAND_DEST_IP = "dest.ip"
     OPERAND_DEST_HOST = "dest.host"
     OPERAND_DEST_PORT = "dest.port"
     OPERAND_DEST_NETWORK = "dest.network"
+    OPERAND_SOURCE_NETWORK = "source.network"
     OPERAND_PROTOCOL = "protocol"
     OPERAND_LIST_DOMAINS = "lists.domains"
     OPERAND_LIST_DOMAINS_REGEXP = "lists.domains_regexp"
@@ -97,12 +104,16 @@ class Config:
     DEFAULT_POPUP_ADVANCED_DSTIP = "global/default_popup_advanced_dstip"
     DEFAULT_POPUP_ADVANCED_DSTPORT = "global/default_popup_advanced_dstport"
     DEFAULT_POPUP_ADVANCED_UID = "global/default_popup_advanced_uid"
+    DEFAULT_POPUP_ADVANCED_CHECKSUM = "global/default_popup_advanced_checksum"
     DEFAULT_SERVER_ADDR  = "global/server_address"
-    DEFAULT_DB_TYPE_KEY  = "database/type"
-    DEFAULT_DB_FILE_KEY  = "database/file"
-    DEFAULT_DB_PURGE_OLDEST  = "database/purge_oldest"
-    DEFAULT_DB_MAX_DAYS  = "database/max_days"
-    DEFAULT_DB_PURGE_INTERVAL  = "database/purge_interval"
+    DEFAULT_SERVER_MAX_MESSAGE_LENGTH  = "global/server_max_message_length"
+    DEFAULT_HIDE_SYSTRAY_WARN  = "global/hide_systray_warning"
+    DEFAULT_DB_TYPE_KEY       = "database/type"
+    DEFAULT_DB_FILE_KEY       = "database/file"
+    DEFAULT_DB_PURGE_OLDEST   = "database/purge_oldest"
+    DEFAULT_DB_MAX_DAYS       = "database/max_days"
+    DEFAULT_DB_PURGE_INTERVAL = "database/purge_interval"
+    DEFAULT_DB_JRNL_WAL       = "database/jrnl_wal"
 
     DEFAULT_TIMEOUT = 30
 
@@ -111,6 +122,7 @@ class Config:
     NOTIFICATION_TYPE_SYSTEM = 0
     NOTIFICATION_TYPE_QT = 1
 
+    STATS_REFRESH_INTERVAL = "statsDialog/refresh_interval"
     STATS_GEOMETRY = "statsDialog/geometry"
     STATS_LAST_TAB = "statsDialog/last_tab"
     STATS_FILTER_TEXT = "statsDialog/general_filter_text"
@@ -123,11 +135,19 @@ class Config:
     STATS_GENERAL_FILTER_ACTION = "statsDialog/"
     STATS_RULES_COL_STATE = "statsDialog/rules_columns_state"
     STATS_FW_COL_STATE = "statsDialog/firewall_columns_state"
+    STATS_ALERTS_COL_STATE = "statsDialog/alerts_columns_state"
     STATS_RULES_TREE_EXPANDED_0 = "statsDialog/rules_tree_0_expanded"
     STATS_RULES_TREE_EXPANDED_1 = "statsDialog/rules_tree_1_expanded"
     STATS_RULES_SPLITTER_POS = "statsDialog/rules_splitter_pos"
     STATS_VIEW_COL_STATE =  "statsDialog/view_columns_state"
     STATS_VIEW_DETAILS_COL_STATE =  "statsDialog/view_details_columns_state"
+
+    INFOWIN_GEOMETRY = "infoWindow/geometry"
+
+    AUTH_TYPE = "auth/type"
+    AUTH_CA_CERT = "auth/cacert"
+    AUTH_CERT = "auth/cert"
+    AUTH_CERTKEY = "auth/certkey"
     # don't translate
 
     @staticmethod
@@ -147,7 +167,7 @@ class Config:
         if self.settings.value(self.DEFAULT_TIMEOUT_KEY) == None:
             self.setSettings(self.DEFAULT_TIMEOUT_KEY, self.DEFAULT_TIMEOUT)
         if self.settings.value(self.DEFAULT_ACTION_KEY) == None:
-            self.setSettings(self.DEFAULT_ACTION_KEY, self.ACTION_ALLOW)
+            self.setSettings(self.DEFAULT_ACTION_KEY, self.ACTION_DENY_IDX)
         if self.settings.value(self.DEFAULT_DURATION_KEY) == None:
             self.setSettings(self.DEFAULT_DURATION_KEY, self.DEFAULT_DURATION_IDX)
         if self.settings.value(self.DEFAULT_TARGET_KEY) == None:
@@ -155,6 +175,7 @@ class Config:
         if self.settings.value(self.DEFAULT_DB_TYPE_KEY) == None:
             self.setSettings(self.DEFAULT_DB_TYPE_KEY, Database.DB_TYPE_MEMORY)
             self.setSettings(self.DEFAULT_DB_FILE_KEY, Database.DB_IN_MEMORY)
+            self.setSettings(self.DEFAULT_DB_JRNL_WAL, Database.DB_JRNL_WAL)
 
         self.setRulesDurationFilter(
             self.getBool(self.DEFAULT_IGNORE_RULES),
@@ -213,3 +234,21 @@ class Config:
                 Config.RULES_DURATION_FILTER = []
         except Exception as e:
             print("setRulesDurationFilter() exception:", e)
+
+    def getMaxMsgLength(self):
+        """return maximum configured length for the gRPC channel.
+        Default size is 4MB, but in some scenarios it's not enough.
+        """
+        maxmsglen = 4194304
+        maxmsglencfg = self.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
+        if maxmsglencfg == '4MiB':
+            maxmsglen = 4194304
+        elif maxmsglencfg == '8MiB':
+            maxmsglen = 8388608
+        elif maxmsglencfg == '16MiB':
+            maxmsglen = 16777216
+
+        print("gRPC Max Message Length:", maxmsglencfg)
+        print("                  Bytes:", maxmsglen)
+
+        return maxmsglen

@@ -1,7 +1,9 @@
 package nftables
 
 import (
+	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
@@ -13,17 +15,50 @@ import (
 	"github.com/google/uuid"
 )
 
+// store of tables added to the system
+type sysTablesT struct {
+	tables map[string]*nftables.Table
+	sync.RWMutex
+}
+
+func (t *sysTablesT) Add(name string, tbl *nftables.Table) {
+	t.Lock()
+	defer t.Unlock()
+	t.tables[name] = tbl
+}
+
+func (t *sysTablesT) Get(name string) *nftables.Table {
+	t.RLock()
+	defer t.RUnlock()
+	return t.tables[name]
+}
+
+func (t *sysTablesT) List() map[string]*nftables.Table {
+	t.RLock()
+	defer t.RUnlock()
+	return t.tables
+}
+
+func (t *sysTablesT) Del(name string) {
+	t.Lock()
+	defer t.Unlock()
+	delete(t.tables, name)
+}
+
 var (
 	logTag        = "nftables:"
-	sysTables     map[string]*nftables.Table
-	sysChains     map[string]*nftables.Chain
+	sysTables     *sysTablesT
+	sysChains     *sync.Map
 	origSysChains map[string]*nftables.Chain
 	sysSets       []*nftables.Set
 )
 
-func initMapsStore() {
-	sysTables = make(map[string]*nftables.Table)
-	sysChains = make(map[string]*nftables.Chain)
+// InitMapsStore initializes internal stores of chains and maps.
+func InitMapsStore() {
+	sysTables = &sysTablesT{
+		tables: make(map[string]*nftables.Table),
+	}
+	sysChains = &sync.Map{}
 	origSysChains = make(map[string]*nftables.Chain)
 }
 
@@ -49,8 +84,8 @@ func (n *Nft) CreateSystemRule(chain *config.FwChain, logErrors bool) bool {
 		chainPolicy = nftables.ChainPolicyDrop
 	}
 
-	chainHook := getHook(chain.Hook)
-	chainPrio, chainType := getChainPriority(chain.Family, chain.Type, chain.Hook)
+	chainHook := GetHook(chain.Hook)
+	chainPrio, chainType := GetChainPriority(chain.Family, chain.Type, chain.Hook)
 	if chainPrio == nil {
 		log.Warning("%s Invalid system firewall combination: %s, %s", logTag, chain.Type, chain.Hook)
 		return false
@@ -66,7 +101,7 @@ func (n *Nft) CreateSystemRule(chain *config.FwChain, logErrors bool) bool {
 }
 
 // AddSystemRules creates the system firewall from configuration.
-func (n *Nft) AddSystemRules(reload, backupExistingChains  bool) {
+func (n *Nft) AddSystemRules(reload, backupExistingChains bool) {
 	n.SysConfig.RLock()
 	defer n.SysConfig.RUnlock()
 
@@ -90,7 +125,9 @@ func (n *Nft) AddSystemRules(reload, backupExistingChains  bool) {
 					chain.Rules[i].UUID = uuid.String()
 				}
 				if chain.Rules[i].Enabled {
-					n.AddSystemRule(chain.Rules[i], chain)
+					if err4, _ := n.AddSystemRule(chain.Rules[i], chain); err4 != nil {
+						n.SendError(fmt.Sprintf("%s (%s)", err4, chain.Rules[i].UUID))
+					}
 				}
 			}
 		}
@@ -104,7 +141,7 @@ func (n *Nft) DeleteSystemRules(force, restoreExistingChains, logErrors bool) {
 	n.Lock()
 	defer n.Unlock()
 
-	if err := n.delRulesByKey(systemRuleKey); err != nil {
+	if err := n.delRulesByKey(SystemRuleKey); err != nil {
 		log.Warning("error deleting interception rules: %s", err)
 	}
 
@@ -112,7 +149,7 @@ func (n *Nft) DeleteSystemRules(force, restoreExistingChains, logErrors bool) {
 		n.restoreBackupChains()
 	}
 	if force {
-		n.delSystemTables()
+		n.DelSystemTables()
 	}
 }
 
@@ -123,15 +160,20 @@ func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) (err4, e
 	exprList := []expr.Any{}
 
 	for _, expression := range rule.Expressions {
-		if exprsOfRule := n.parseExpression(chain.Table, chain.Name, chain.Family, expression); exprsOfRule != nil {
-			exprList = append(exprList, *exprsOfRule...)
+		exprsOfRule := n.parseExpression(chain.Table, chain.Name, chain.Family, expression)
+		if exprsOfRule == nil {
+			return fmt.Errorf("%s invalid rule parameters: %v", rule.UUID, expression), nil
 		}
+		exprList = append(exprList, *exprsOfRule...)
 	}
 	if len(exprList) > 0 {
 		exprVerdict := exprs.NewExprVerdict(rule.Target, rule.TargetParameters)
+		if exprVerdict == nil {
+			return fmt.Errorf("%s invalid verdict %s %s", rule.UUID, rule.Target, rule.TargetParameters), nil
+		}
 		exprList = append(exprList, *exprVerdict...)
-		if err := n.insertRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList); err != nil {
-			log.Warning("error adding rule: %v", rule)
+		if err := n.InsertRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList); err != nil {
+			return err, nil
 		}
 	}
 

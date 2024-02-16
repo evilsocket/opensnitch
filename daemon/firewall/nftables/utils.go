@@ -8,7 +8,7 @@ import (
 	"github.com/google/nftables"
 )
 
-func getFamilyCode(family string) nftables.TableFamily {
+func GetFamilyCode(family string) nftables.TableFamily {
 	famCode := nftables.TableFamilyINet
 	switch family {
 	// [filter]: prerouting	forward	input	output	postrouting
@@ -32,7 +32,7 @@ func getFamilyCode(family string) nftables.TableFamily {
 	return famCode
 }
 
-func getHook(chain string) *nftables.ChainHook {
+func GetHook(chain string) *nftables.ChainHook {
 	hook := nftables.ChainHookOutput
 
 	// https://github.com/google/nftables/blob/master/chain.go#L33
@@ -52,12 +52,12 @@ func getHook(chain string) *nftables.ChainHook {
 	return hook
 }
 
-// getChainPriority gets the corresponding priority for the given chain, based
+// GetChainPriority gets the corresponding priority for the given chain, based
 // on the following configuration matrix:
 // https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
 // https://github.com/google/nftables/blob/master/chain.go#L48
 // man nft (table 6.)
-func getChainPriority(family, cType, hook string) (*nftables.ChainPriority, nftables.ChainType) {
+func GetChainPriority(family, cType, hook string) (*nftables.ChainPriority, nftables.ChainType) {
 	// types: route, nat, filter
 	chainType := nftables.ChainTypeFilter
 	// priorities: raw, conntrack, mangle, natdest, filter, security
@@ -119,7 +119,7 @@ func getChainPriority(family, cType, hook string) (*nftables.ChainPriority, nfta
 		chainPrio = nftables.ChainPriorityRaw
 
 	case exprs.NFT_CHAIN_CONNTRACK:
-		chainPrio, chainType = getConntrackPriority(hook)
+		chainPrio, chainType = GetConntrackPriority(hook)
 
 	case exprs.NFT_CHAIN_NATDEST:
 		// hook: prerouting
@@ -152,7 +152,7 @@ func getChainPriority(family, cType, hook string) (*nftables.ChainPriority, nfta
 }
 
 // https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
-func getConntrackPriority(hook string) (*nftables.ChainPriority, nftables.ChainType) {
+func GetConntrackPriority(hook string) (*nftables.ChainPriority, nftables.ChainType) {
 	chainType := nftables.ChainTypeFilter
 	chainPrio := nftables.ChainPriorityConntrack
 	switch hook {

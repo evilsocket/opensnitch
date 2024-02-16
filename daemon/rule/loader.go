@@ -15,6 +15,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -22,13 +23,15 @@ import (
 // Loader is the object that holds the rules loaded from disk, as well as the
 // rules watcher.
 type Loader struct {
-	sync.RWMutex
-	path              string
-	rules             map[string]*Rule
-	rulesKeys         []string
 	watcher           *fsnotify.Watcher
+	rules             map[string]*Rule
+	path              string
+	rulesKeys         []string
 	liveReload        bool
 	liveReloadRunning bool
+	checkSums         bool
+
+	sync.RWMutex
 }
 
 // NewLoader loads rules from disk, and watches for changes made to the rules files
@@ -61,14 +64,33 @@ func (l *Loader) GetAll() map[string]*Rule {
 	return l.rules
 }
 
+// EnableChecksums enables checksums field for rules globally.
+func (l *Loader) EnableChecksums(enable bool) {
+	log.Debug("[rules loader] EnableChecksums: %v", enable)
+	l.checkSums = enable
+	procmon.EventsCache.SetComputeChecksums(enable)
+	procmon.EventsCache.AddChecksumHash(string(OpProcessHashMD5))
+}
+
+// HasChecksums checks if the rule will check for binary checksum matches
+func (l *Loader) HasChecksums(op Operand) {
+	if op == OpProcessHashMD5 {
+		log.Debug("[rules loader] Adding MD5")
+		procmon.EventsCache.AddChecksumHash(string(OpProcessHashMD5))
+	} else if op == OpProcessHashSHA1 {
+		log.Debug("[rules loader] Adding SHA1")
+		procmon.EventsCache.AddChecksumHash(string(OpProcessHashSHA1))
+	}
+}
+
 // Load loads rules files from disk.
 func (l *Loader) Load(path string) error {
 	if core.Exists(path) == false {
-		return fmt.Errorf("Path '%s' does not exist\nCreate it in if you want to save rules to disk", path)
+		return fmt.Errorf("Path '%s' does not exist\nCreate it if you want to save rules to disk", path)
 	}
 	path, err := core.ExpandPath(path)
 	if err != nil {
-		return fmt.Errorf("Error accessing rules path: %s.\nCreate it in if you want to save rules to disk", err)
+		return fmt.Errorf("Error accessing rules path: %s.\nCreate it if you want to save rules to disk", err)
 	}
 
 	expr := filepath.Join(path, "*.json")
@@ -98,6 +120,70 @@ func (l *Loader) Load(path string) error {
 	return nil
 }
 
+// Add adds a rule to the list of rules, and optionally saves it to disk.
+func (l *Loader) Add(rule *Rule, saveToDisk bool) error {
+	l.addUserRule(rule)
+	if saveToDisk {
+		fileName := filepath.Join(l.path, fmt.Sprintf("%s.json", rule.Name))
+		return l.Save(rule, fileName)
+	}
+	return nil
+}
+
+// Replace adds a rule to the list of rules, and optionally saves it to disk.
+func (l *Loader) Replace(rule *Rule, saveToDisk bool) error {
+	if err := l.replaceUserRule(rule); err != nil {
+		return err
+	}
+	if saveToDisk {
+		l.Lock()
+		defer l.Unlock()
+
+		fileName := filepath.Join(l.path, fmt.Sprintf("%s.json", rule.Name))
+		return l.Save(rule, fileName)
+	}
+	return nil
+}
+
+// Save a rule to disk.
+func (l *Loader) Save(rule *Rule, path string) error {
+	rule.Updated = time.Now()
+	raw, err := json.MarshalIndent(rule, "", "  ")
+	if err != nil {
+		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
+	}
+
+	if err = ioutil.WriteFile(path, raw, 0600); err != nil {
+		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
+	}
+
+	return nil
+}
+
+// Delete deletes a rule from the list by name.
+// If the duration is Always (i.e: saved on disk), it'll attempt to delete
+// it from disk.
+func (l *Loader) Delete(ruleName string) error {
+	l.Lock()
+	defer l.Unlock()
+
+	rule := l.rules[ruleName]
+	if rule == nil {
+		return nil
+	}
+	l.cleanListsRule(rule)
+
+	delete(l.rules, ruleName)
+	l.sortRules()
+
+	if rule.Duration != Always {
+		return nil
+	}
+
+	log.Info("Delete() rule: %s", rule)
+	return l.deleteRuleFromDisk(ruleName)
+}
+
 func (l *Loader) loadRule(fileName string) error {
 	raw, err := ioutil.ReadFile(fileName)
 	if err != nil {
@@ -117,7 +203,13 @@ func (l *Loader) loadRule(fileName string) error {
 		l.cleanListsRule(oldRule)
 	}
 
-	if r.Enabled {
+	if !r.Enabled {
+		// XXX: we only parse and load the Data field if the rule is disabled and the Data field is not empty
+		// the rule will remain disabled.
+		if err = l.unmarshalOperatorList(&r.Operator); err != nil {
+			return err
+		}
+	} else {
 		if err := r.Operator.Compile(); err != nil {
 			log.Warning("Operator.Compile() error: %s: %s", err, r.Operator.Data)
 			return fmt.Errorf("(1) Error compiling rule: %s", err)
@@ -191,41 +283,6 @@ func (l *Loader) cleanListsRule(oldRule *Rule) {
 	}
 }
 
-func (l *Loader) liveReloadWorker() {
-	l.liveReloadRunning = true
-
-	log.Debug("Rules watcher started on path %s ...", l.path)
-	if err := l.watcher.Add(l.path); err != nil {
-		log.Error("Could not watch path: %s", err)
-		l.liveReloadRunning = false
-		return
-	}
-
-	for {
-		select {
-		case event := <-l.watcher.Events:
-			// a new rule json file has been created or updated
-			if event.Op&fsnotify.Write == fsnotify.Write {
-				if strings.HasSuffix(event.Name, ".json") {
-					log.Important("Ruleset changed due to %s, reloading ...", path.Base(event.Name))
-					if err := l.loadRule(event.Name); err != nil {
-						log.Warning("%s", err)
-					}
-				}
-			} else if event.Op&fsnotify.Remove == fsnotify.Remove {
-				if strings.HasSuffix(event.Name, ".json") {
-					log.Important("Rule deleted %s", path.Base(event.Name))
-					// we only need to delete from memory rules of type Always,
-					// because the Remove event is of a file, i.e.: Duration == Always
-					l.deleteRule(event.Name)
-				}
-			}
-		case err := <-l.watcher.Errors:
-			log.Error("File system watcher error: %s", err)
-		}
-	}
-}
-
 func (l *Loader) isTemporary(r *Rule) bool {
 	return r.Duration != Restart && r.Duration != Always && r.Duration != Once
 }
@@ -245,6 +302,18 @@ func (l *Loader) setUniqueName(rule *Rule) {
 		idx++
 		rule.Name = fmt.Sprintf("%s-%d", base, idx)
 	}
+}
+
+// Deprecated: rule.Operator.Data no longer holds the operator list in json format as string.
+func (l *Loader) unmarshalOperatorList(op *Operator) error {
+	if op.Type == List && len(op.List) == 0 && op.Data != "" {
+		if err := json.Unmarshal([]byte(op.Data), &op.List); err != nil {
+			return fmt.Errorf("error loading rule of type list: %s", err)
+		}
+		op.Data = ""
+	}
+
+	return nil
 }
 
 func (l *Loader) sortRules() {
@@ -278,22 +347,21 @@ func (l *Loader) replaceUserRule(rule *Rule) (err error) {
 		l.cleanListsRule(oldRule)
 	}
 
+	if err := l.unmarshalOperatorList(&rule.Operator); err != nil {
+		log.Error(err.Error())
+	}
+
 	if rule.Enabled {
 		if err := rule.Operator.Compile(); err != nil {
 			log.Warning("Operator.Compile() error: %s: %s", err, rule.Operator.Data)
-			return fmt.Errorf("(2) Error compiling rule: %s", err)
+			return fmt.Errorf("(2) error compiling rule: %s", err)
 		}
 
 		if rule.Operator.Type == List {
-			// TODO: use List protobuf object instead of un/marshalling to/from json
-			if err = json.Unmarshal([]byte(rule.Operator.Data), &rule.Operator.List); err != nil {
-				return fmt.Errorf("Error loading rule of type list: %s", err)
-			}
-
 			for i := 0; i < len(rule.Operator.List); i++ {
 				if err := rule.Operator.List[i].Compile(); err != nil {
 					log.Warning("Operator.Compile() error: %s: ", err)
-					return fmt.Errorf("(2) Error compiling list rule: %s", err)
+					return fmt.Errorf("(2) error compiling list rule: %s", err)
 				}
 			}
 		}
@@ -333,68 +401,39 @@ func (l *Loader) scheduleTemporaryRule(rule Rule) error {
 	return nil
 }
 
-// Add adds a rule to the list of rules, and optionally saves it to disk.
-func (l *Loader) Add(rule *Rule, saveToDisk bool) error {
-	l.addUserRule(rule)
-	if saveToDisk {
-		fileName := filepath.Join(l.path, fmt.Sprintf("%s.json", rule.Name))
-		return l.Save(rule, fileName)
-	}
-	return nil
-}
+func (l *Loader) liveReloadWorker() {
+	l.liveReloadRunning = true
 
-// Replace adds a rule to the list of rules, and optionally saves it to disk.
-func (l *Loader) Replace(rule *Rule, saveToDisk bool) error {
-	if err := l.replaceUserRule(rule); err != nil {
-		return err
-	}
-	if saveToDisk {
-		l.Lock()
-		defer l.Unlock()
-
-		fileName := filepath.Join(l.path, fmt.Sprintf("%s.json", rule.Name))
-		return l.Save(rule, fileName)
-	}
-	return nil
-}
-
-// Save a rule to disk.
-func (l *Loader) Save(rule *Rule, path string) error {
-	rule.Updated = time.Now()
-	raw, err := json.MarshalIndent(rule, "", "  ")
-	if err != nil {
-		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
+	log.Debug("Rules watcher started on path %s ...", l.path)
+	if err := l.watcher.Add(l.path); err != nil {
+		log.Error("Could not watch path: %s", err)
+		l.liveReloadRunning = false
+		return
 	}
 
-	if err = ioutil.WriteFile(path, raw, 0600); err != nil {
-		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
+	for {
+		select {
+		case event := <-l.watcher.Events:
+			// a new rule json file has been created or updated
+			if event.Op&fsnotify.Write == fsnotify.Write {
+				if strings.HasSuffix(event.Name, ".json") {
+					log.Important("Ruleset changed due to %s, reloading ...", path.Base(event.Name))
+					if err := l.loadRule(event.Name); err != nil {
+						log.Warning("%s", err)
+					}
+				}
+			} else if event.Op&fsnotify.Remove == fsnotify.Remove {
+				if strings.HasSuffix(event.Name, ".json") {
+					log.Important("Rule deleted %s", path.Base(event.Name))
+					// we only need to delete from memory rules of type Always,
+					// because the Remove event is of a file, i.e.: Duration == Always
+					l.deleteRule(event.Name)
+				}
+			}
+		case err := <-l.watcher.Errors:
+			log.Error("File system watcher error: %s", err)
+		}
 	}
-
-	return nil
-}
-
-// Delete deletes a rule from the list by name.
-// If the duration is Always (i.e: saved on disk), it'll attempt to delete
-// it from disk.
-func (l *Loader) Delete(ruleName string) error {
-	l.Lock()
-	defer l.Unlock()
-
-	rule := l.rules[ruleName]
-	if rule == nil {
-		return nil
-	}
-	l.cleanListsRule(rule)
-
-	delete(l.rules, ruleName)
-	l.sortRules()
-
-	if rule.Duration != Always {
-		return nil
-	}
-
-	log.Info("Delete() rule: %s", rule)
-	return l.deleteRuleFromDisk(ruleName)
 }
 
 // FindFirstMatch will try match the connection against the existing rule set.
@@ -407,7 +446,7 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 		if rule.Enabled == false {
 			continue
 		}
-		if rule.Match(con) {
+		if rule.Match(con, l.checkSums) {
 			// We have a match.
 			// Save the rule in order to don't ask the user to take action,
 			// and keep iterating until a Deny or a Priority rule appears.

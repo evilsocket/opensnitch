@@ -37,12 +37,12 @@ type Rule struct {
 	Updated     time.Time `json:"updated"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
-	Enabled     bool      `json:"enabled"`
-	Precedence  bool      `json:"precedence"`
-	Nolog       bool      `json:"nolog"`
 	Action      Action    `json:"action"`
 	Duration    Duration  `json:"duration"`
 	Operator    Operator  `json:"operator"`
+	Enabled     bool      `json:"enabled"`
+	Precedence  bool      `json:"precedence"`
+	Nolog       bool      `json:"nolog"`
 }
 
 // Create creates a new rule object with the specified parameters.
@@ -61,13 +61,17 @@ func Create(name, description string, enabled, precedence, nolog bool, action Ac
 }
 
 func (r *Rule) String() string {
-	return fmt.Sprintf("%s: if(%s){ %s %s }", r.Name, r.Operator.String(), r.Action, r.Duration)
+	enabled := "Disabled"
+	if r.Enabled {
+		enabled = "Enabled"
+	}
+	return fmt.Sprintf("[%s] %s: if(%s){ %s %s }", enabled, r.Name, r.Operator.String(), r.Action, r.Duration)
 }
 
 // Match performs on a connection the checks a Rule has, to determine if it
 // must be allowed or denied.
-func (r *Rule) Match(con *conman.Connection) bool {
-	return r.Operator.Match(con)
+func (r *Rule) Match(con *conman.Connection, hasChecksums bool) bool {
+	return r.Operator.Match(con, hasChecksums)
 }
 
 // Deserialize translates back the rule received to a Rule object
@@ -88,7 +92,7 @@ func Deserialize(reply *protocol.Rule) (*Rule, error) {
 		return nil, err
 	}
 
-	return Create(
+	newRule := Create(
 		reply.Name,
 		reply.Description,
 		reply.Enabled,
@@ -97,7 +101,25 @@ func Deserialize(reply *protocol.Rule) (*Rule, error) {
 		Action(reply.Action),
 		Duration(reply.Duration),
 		operator,
-	), nil
+	)
+
+	if Type(reply.Operator.Type) == List {
+		newRule.Operator.Data = ""
+		reply.Operator.Data = ""
+		for i := 0; i < len(reply.Operator.List); i++ {
+			newRule.Operator.List = append(
+				newRule.Operator.List,
+				Operator{
+					Type:      Type(reply.Operator.List[i].Type),
+					Sensitive: Sensitive(reply.Operator.List[i].Sensitive),
+					Operand:   Operand(reply.Operator.List[i].Operand),
+					Data:      string(reply.Operator.List[i].Data),
+				},
+			)
+		}
+	}
+
+	return newRule, nil
 }
 
 // Serialize translates a Rule to the protocol object
@@ -105,7 +127,11 @@ func (r *Rule) Serialize() *protocol.Rule {
 	if r == nil {
 		return nil
 	}
-	return &protocol.Rule{
+	r.Operator.Lock()
+	defer r.Operator.Unlock()
+
+	protoRule := &protocol.Rule{
+		Created:     r.Created.Unix(),
 		Name:        string(r.Name),
 		Description: string(r.Description),
 		Enabled:     bool(r.Enabled),
@@ -120,4 +146,18 @@ func (r *Rule) Serialize() *protocol.Rule {
 			Data:      string(r.Operator.Data),
 		},
 	}
+	if r.Operator.Type == List {
+		r.Operator.Data = ""
+		for i := 0; i < len(r.Operator.List); i++ {
+			protoRule.Operator.List = append(protoRule.Operator.List,
+				&protocol.Operator{
+					Type:      string(r.Operator.List[i].Type),
+					Sensitive: bool(r.Operator.List[i].Sensitive),
+					Operand:   string(r.Operator.List[i].Operand),
+					Data:      string(r.Operator.List[i].Data),
+				})
+		}
+	}
+
+	return protoRule
 }

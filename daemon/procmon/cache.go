@@ -1,9 +1,9 @@
 package procmon
 
 import (
-	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"sync"
 	"time"
 
@@ -12,35 +12,33 @@ import (
 
 // InodeItem represents an item of the InodesCache.
 type InodeItem struct {
-	sync.RWMutex
-
-	Pid      int
 	FdPath   string
+	Pid      int
 	LastSeen int64
+	sync.RWMutex
 }
 
 // ProcItem represents an item of the pidsCache
 type ProcItem struct {
-	sync.RWMutex
-
-	Pid         int
 	FdPath      string
 	Descriptors []string
+	Pid         int
 	LastSeen    int64
+	sync.RWMutex
 }
 
 // CacheProcs holds the cache of processes that have established connections.
 type CacheProcs struct {
-	sync.RWMutex
 	items []*ProcItem
+	sync.RWMutex
 }
 
 // CacheInodes holds the cache of Inodes.
 // The key is formed as follow:
 // inode+srcip+srcport+dstip+dstport
 type CacheInodes struct {
-	sync.RWMutex
 	items map[string]*InodeItem
+	sync.RWMutex
 }
 
 var (
@@ -237,7 +235,7 @@ func (i *CacheInodes) add(key, descLink string, pid int) {
 	defer i.Unlock()
 
 	if descLink == "" {
-		descLink = fmt.Sprint("/proc/", pid, "/exe")
+		descLink = core.ConcatStrings("/proc/", strconv.Itoa(pid), "/exe")
 	}
 	i.items[key] = &InodeItem{
 		FdPath:   descLink,
@@ -320,7 +318,7 @@ func (i *CacheInodes) cleanup() {
 
 func getPidDescriptorsFromCache(fdPath, inodeKey, expect string, descriptors *[]string, pid int) (int, *[]string) {
 	for fdIdx := 0; fdIdx < len(*descriptors); fdIdx++ {
-		descLink := fmt.Sprint(fdPath, (*descriptors)[fdIdx])
+		descLink := core.ConcatStrings(fdPath, (*descriptors)[fdIdx])
 		if link, err := os.Readlink(descLink); err == nil && link == expect {
 			if fdIdx > 0 {
 				// reordering helps to reduce look up times by a factor of 10.

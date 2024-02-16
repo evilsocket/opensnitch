@@ -1,42 +1,41 @@
-#define KBUILD_MODNAME "dummy"
+/*   Copyright (C) 2022      calesanz
+//                 2023-2024 Gustavo Iñiguez Goya
+//
+//   This file is part of OpenSnitch.
+//
+//   OpenSnitch is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   OpenSnitch is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with OpenSnitch.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+#define KBUILD_MODNAME "opensnitch-dns"
 
 #include <linux/in.h>
 #include <linux/in6.h>
 #include <linux/ptrace.h>
 #include <linux/sched.h>
-#include <linux/version.h>
 #include <net/sock.h>
 #include <uapi/linux/bpf.h>
 #include <uapi/linux/tcp.h>
-#include <bpf/bpf_helpers.h>
-#include <bpf/bpf_tracing.h>
+#include "common_defs.h"
+#include "bpf_headers/bpf_helpers.h"
+#include "bpf_headers/bpf_tracing.h"
 
-#define MAPSIZE 12000
-
-//-------------------------------map definitions
-// which github.com/iovisor/gobpf/elf expects
-#define BUF_SIZE_MAP_NS 256
-
-typedef struct bpf_map_def {
-    unsigned int type;
-    unsigned int key_size;
-    unsigned int value_size;
-    unsigned int max_entries;
-    unsigned int map_flags;
-    unsigned int pinning;
-    char namespace[BUF_SIZE_MAP_NS];
-} bpf_map_def;
-
-enum bpf_pin_type {
-    PIN_NONE = 0,
-    PIN_OBJECT_NS,
-    PIN_GLOBAL_NS,
-    PIN_CUSTOM_NS,
-};
 //-----------------------------------
 
+// random values
 #define MAX_ALIASES 5
-#define MAX_IPS 5
+#define MAX_IPS 30
 
 struct nameLookupEvent {
     u32 addr_type;
@@ -73,7 +72,7 @@ struct addrinfo_args_cache {
 // define temporary array for data
 struct bpf_map_def SEC("maps/addrinfo_args_hash") addrinfo_args_hash = {
     .type = BPF_MAP_TYPE_HASH,
-    .max_entries = MAPSIZE,
+    .max_entries = 256, // max entries at any time
     .key_size = sizeof(u32),
     .value_size = sizeof(struct addrinfo_args_cache),
 };
@@ -83,7 +82,7 @@ struct bpf_map_def SEC("maps/events") events = {
     .type = BPF_MAP_TYPE_PERF_EVENT_ARRAY,
     .key_size = sizeof(u32),
     .value_size = sizeof(u32),
-    .max_entries = MAPSIZE,
+    .max_entries = 256, // max cpus
 };
 
 /**
@@ -99,15 +98,16 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
         return 0;
 
     struct hostent *host = (struct hostent *)PT_REGS_RC(ctx);
-	char * hostnameptr;
-	bpf_probe_read(&hostnameptr, sizeof(hostnameptr), &host->h_name);
+    char * hostnameptr = {0};
+    bpf_probe_read(&hostnameptr, sizeof(hostnameptr), &host->h_name);
     bpf_probe_read_str(&data.host, sizeof(data.host), hostnameptr);
 
-    char **ips;
+    char **ips = {0};
     bpf_probe_read(&ips, sizeof(ips), &host->h_addr_list);
+
 #pragma clang loop unroll(full)
     for (int i = 0; i < MAX_IPS; i++) {
-        char *ip;
+        char *ip={0};
         bpf_probe_read(&ip, sizeof(ip), &ips[i]);
 
         if (ip == NULL) {
@@ -127,13 +127,13 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
                               sizeof(data));
 
         // char **alias = host->h_aliases;
-        char **aliases;
+        char **aliases = {0};
         bpf_probe_read(&aliases, sizeof(aliases), &host->h_aliases);
 
 #pragma clang loop unroll(full)
         for (int j = 0; j < MAX_ALIASES; j++) {
-            char *alias;
-            bpf_probe_read(&alias, sizeof(alias), &aliases[i]);
+            char *alias = {0};
+            bpf_probe_read(&alias, sizeof(alias), &aliases[j]);
 
             if (alias == NULL) {
                 return 0;
@@ -184,32 +184,32 @@ int ret_addrinfo(struct pt_regs *ctx) {
         return 0; // missed start
     }
 
-    struct addrinfo **res_p;
+    struct addrinfo **res_p={0};
     bpf_probe_read(&res_p, sizeof(res_p), &addrinfo_args->addrinfo_ptr);
 
 #pragma clang loop unroll(full)
     for (int i = 0; i < MAX_IPS; i++) {
-        struct addrinfo *res;
+        struct addrinfo *res={0};
         bpf_probe_read(&res, sizeof(res), res_p);
         if (res == NULL) {
-            return 0;
+            goto out;
         }
         bpf_probe_read(&data.addr_type, sizeof(data.addr_type),
                        &res->ai_family);
 
         if (data.addr_type == AF_INET) {
-            struct sockaddr_in *ipv4;
+            struct sockaddr_in *ipv4={0};
             bpf_probe_read(&ipv4, sizeof(ipv4), &res->ai_addr);
             // Only copy the 4 relevant bytes
             bpf_probe_read_user(&data.ip, 4, &ipv4->sin_addr);
         } else if(data.addr_type == AF_INET6) {
-            struct sockaddr_in6 *ipv6;
+            struct sockaddr_in6 *ipv6={0};
             bpf_probe_read(&ipv6, sizeof(ipv6), &res->ai_addr);
 
             bpf_probe_read_user(&data.ip, sizeof(data.ip), &ipv6->sin6_addr);
         } else {
-			return 1;
-		}
+            goto out;
+        }
 
         bpf_probe_read_kernel_str(&data.host, sizeof(data.host),
                                   &addrinfo_args->node);
@@ -217,11 +217,16 @@ int ret_addrinfo(struct pt_regs *ctx) {
         bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data,
                               sizeof(data));
 
-
-		struct addrinfo * next;
+        struct addrinfo * next={0};
         bpf_probe_read(&next, sizeof(next), &res->ai_next);
-		res_p = &next;
+        if (next == NULL){
+            goto out;
+        }
+        res_p = &next;
     }
+
+out:
+    bpf_map_delete_elem(&addrinfo_args_hash, &tid);
 
     return 0;
 }

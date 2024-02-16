@@ -22,8 +22,8 @@ type Action string
 // Actions we apply to the firewall.
 const (
 	fwKey               = "opensnitch-key"
-	interceptionRuleKey = fwKey + "-interception"
-	systemRuleKey       = fwKey + "-system"
+	InterceptionRuleKey = fwKey + "-interception"
+	SystemRuleKey       = fwKey + "-system"
 	Name                = "nftables"
 )
 
@@ -41,12 +41,12 @@ var (
 
 // Nft holds the fields of our nftables firewall
 type Nft struct {
-	sync.Mutex
-	config.Config
-	common.Common
-
-	conn   *nftables.Conn
+	Conn   *nftables.Conn
 	chains iptables.SystemChains
+
+	common.Common
+	config.Config
+	sync.Mutex
 }
 
 // NewNft creates a new nftables object
@@ -71,24 +71,26 @@ func (n *Nft) Name() string {
 
 // Init inserts the firewall rules and starts monitoring for firewall
 // changes.
-func (n *Nft) Init(qNum *int) {
+func (n *Nft) Init(qNum *int, configPath, monitorInterval string) {
 	if n.IsRunning() {
 		return
 	}
-	initMapsStore()
+	n.Conn = NewNft()
+	n.ErrChan = make(chan string, 100)
+	InitMapsStore()
 	n.SetQueueNum(qNum)
-	n.conn = NewNft()
+	n.SetRulesCheckerInterval(monitorInterval)
 
 	// In order to clean up any existing firewall rule before start,
 	// we need to load the fw configuration first to know what rules
 	// were configured.
-	n.NewSystemFwConfig(n.preloadConfCallback, n.reloadConfCallback)
+	n.NewSystemFwConfig(configPath, n.PreloadConfCallback, n.ReloadConfCallback)
 	n.LoadDiskConfiguration(!common.ReloadConf)
 
 	// start from a clean state
 	// The daemon may have exited unexpectedly, leaving residual fw rules, so we
 	// need to clean them up to avoid duplicated rules.
-	n.delInterceptionRules()
+	n.DelInterceptionRules()
 	n.AddSystemRules(!common.ReloadRules, common.BackupChains)
 	n.EnableInterception()
 
@@ -97,6 +99,7 @@ func (n *Nft) Init(qNum *int) {
 
 // Stop deletes the firewall rules, allowing network traffic.
 func (n *Nft) Stop() {
+	n.ErrChan = make(chan string, 100)
 	if n.IsRunning() == false {
 		return
 	}
@@ -104,34 +107,36 @@ func (n *Nft) Stop() {
 	n.StopCheckingRules()
 	n.CleanRules(log.GetLogLevel() == log.DEBUG)
 
+	n.Lock()
 	n.Running = false
+	n.Unlock()
 }
 
 // EnableInterception adds firewall rules to intercept connections
 func (n *Nft) EnableInterception() {
-	if err := n.addInterceptionTables(); err != nil {
+	if err := n.AddInterceptionTables(); err != nil {
 		log.Error("Error while adding interception tables: %s", err)
 		return
 	}
-	if err := n.addInterceptionChains(); err != nil {
+	if err := n.AddInterceptionChains(); err != nil {
 		log.Error("Error while adding interception chains: %s", err)
 		return
 	}
 
-	if err := n.QueueDNSResponses(true, true); err != nil {
+	if err, _ := n.QueueDNSResponses(common.EnableRule, common.EnableRule); err != nil {
 		log.Error("Error while running DNS nftables rule: %s", err)
 	}
-	if err := n.QueueConnections(true, true); err != nil {
+	if err, _ := n.QueueConnections(common.EnableRule, common.EnableRule); err != nil {
 		log.Error("Error while running conntrack nftables rule: %s", err)
 	}
 	// start monitoring firewall rules to intercept network traffic.
-	n.NewRulesChecker(n.AreRulesLoaded, n.reloadRulesCallback)
+	n.NewRulesChecker(n.AreRulesLoaded, n.ReloadRulesCallback)
 }
 
 // DisableInterception removes firewall rules to intercept outbound connections.
 func (n *Nft) DisableInterception(logErrors bool) {
-	n.delInterceptionRules()
 	n.StopCheckingRules()
+	n.DelInterceptionRules()
 }
 
 // CleanRules deletes the rules we added.
@@ -144,7 +149,7 @@ func (n *Nft) CleanRules(logErrors bool) {
 // You add rules, chains or tables, and after calling to Flush() they're added to the system.
 // NOTE: it's very important not to call Flush() without queued tasks.
 func (n *Nft) Commit() bool {
-	if err := n.conn.Flush(); err != nil {
+	if err := n.Conn.Flush(); err != nil {
 		log.Warning("%s error applying changes: %s", logTag, err)
 		return false
 	}

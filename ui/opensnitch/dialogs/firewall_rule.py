@@ -1,10 +1,12 @@
 import sys
 import os
 import os.path
+import ipaddress
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
 
+from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.utils import NetworkServices, NetworkInterfaces, QuickHelp, Icons, Utils
 from opensnitch import ui_pb2
@@ -20,6 +22,9 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     IN = 0
     OUT = 1
+    FORWARD = 2
+    PREROUTING = 3
+    POSTROUTING = 4
 
     OP_NEW = 0
     OP_SAVE = 1
@@ -87,42 +92,75 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.STATM_CONF = {
             self.STATM_DPORT: {
                 'name': Fw.Statements.TCP.value, # tcp, udp, dccp, sctp
+                'tooltip': QC.translate("firewall", """
+Supported formats:
+
+ - Simple: 23
+ - Ranges: 80-1024
+ - Multiple ports: 80,443,8080
+"""),
                 'keys': [
                     {'key': Fw.Statements.DPORT.value, 'values': self.net_srv.to_array()}
                 ]
             },
             self.STATM_SPORT: {
                 'name': Fw.Statements.TCP.value,
+                'tooltip': QC.translate("firewall", """
+Supported formats:
+
+ - Simple: 23
+ - Ranges: 80-1024
+ - Multiple ports: 80,443,8080
+"""),
                 'keys': [
                     {'key': Fw.Statements.SPORT.value, 'values': self.net_srv.to_array()}
                 ]
             },
             self.STATM_DEST_IP: {
                 'name': Fw.Statements.IP.value, # ip or ip6
+                'tooltip': QC.translate("firewall", """
+Supported formats:
+
+ - Simple: 1.2.3.4
+ - IP ranges: 1.2.3.100-1.2.3.200
+ - Network ranges: 1.2.3.4/24
+"""),
                 'keys': [
                     {'key': Fw.Statements.DADDR.value, 'values': []}
                 ]
             },
             self.STATM_SOURCE_IP: {
                 'name': Fw.Statements.IP.value,
+                'tooltip': QC.translate("firewall", """
+Supported formats:
+
+ - Simple: 1.2.3.4
+ - IP ranges: 1.2.3.100-1.2.3.200
+ - Network ranges: 1.2.3.4/24
+"""),
                 'keys': [
                     {'key': Fw.Statements.SADDR.value, 'values': []}
                 ]
             },
             self.STATM_IIFNAME: {
                 'name': Fw.Statements.IIFNAME.value,
+                'tooltip': QC.translate("firewall", """Match input interface. Regular expressions not allowed.
+Use * to match multiple interfaces."""),
                 'keys': [
                     {'key': "", 'values': []}
                 ]
             },
             self.STATM_OIFNAME: {
                 'name': Fw.Statements.OIFNAME.value,
+                'tooltip': QC.translate("firewall", """Match output interface. Regular expressions not allowed.
+Use * to match multiple interfaces."""),
                 'keys': [
                     {'key': "", 'values': []}
                 ]
             },
             self.STATM_CT_SET: {
                 'name': Fw.Statements.CT.value,
+                'tooltip': QC.translate("firewall", "Set a conntrack mark on the connection, in decimal format."),
                 'keys': [
                     # we need 2 keys for this expr: key: set, value: <empty>, key: mark, value: xxx
                     {'key': Fw.ExprCt.SET.value, 'values': None}, # must be empty
@@ -132,12 +170,19 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # match mark
             self.STATM_CT_MARK: {
                 'name': Fw.Statements.CT.value,
+                'tooltip': QC.translate("firewall", "Match a conntrack mark of the connection, in decimal format."),
                 'keys': [
                     {'key': Fw.ExprCt.MARK.value, 'values': []}
                 ]
             },
             self.STATM_CT_STATE: {
                 'name': Fw.Statements.CT.value,
+                'tooltip': QC.translate("firewall", """Match conntrack states.
+
+Supported formats:
+ - Simple: new
+ - Multiple states separated by commas: related,new
+"""),
                 'keys': [
                     {
                         'key': Fw.ExprCt.STATE.value,
@@ -147,12 +192,27 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             },
             self.STATM_META: {
                 'name': Fw.Statements.META.value,
+                'tooltip': QC.translate("firewall", """
+Match packet's metainformation.
+
+Value must be in decimal format, except for the "l4proto" option.
+For l4proto it can be a lower case string, for example:
+ tcp
+ udp
+ icmp,
+ etc
+
+If the value is decimal for protocol or lproto, it'll use it as the code of
+that protocol.
+"""),
                 'keys': [
-                    {'key': Fw.ExprMeta.MARK.value, 'values': []}
+                    {'key': Fw.ExprMeta.MARK.value, 'values': []},
+                    {'key': Fw.ExprMeta.L4PROTO.value, 'values': Fw.Protocols.values()}
                 ]
             },
             self.STATM_META_SET_MARK: {
                 'name': Fw.Statements.META.value,
+                'tooltip': QC.translate("firewall", "Set a mark on the packet matching the specified conditions. The value is in decimal format."),
                 'keys': [
                     {'key': Fw.ExprMeta.SET.value, 'values': None},
                     {'key': Fw.ExprMeta.MARK.value, 'values': []}
@@ -160,24 +220,49 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             },
             self.STATM_ICMP: {
                 'name': Fw.Statements.ICMP.value,
+                'tooltip': QC.translate("firewall", """
+Match ICMP codes.
+
+Supported formats:
+ - Simple: echo-request
+ - Multiple separated by commas: echo-request,echo-reply
+"""),
                 'keys':  [
                     {'key': "type", 'values': Fw.ExprICMP.values()}
                 ]
             },
             self.STATM_ICMPv6: {
                 'name': Fw.Statements.ICMPv6.value,
+                'tooltip': QC.translate("firewall", """
+Match ICMPv6 codes.
+
+Supported formats:
+ - Simple: echo-request
+ - Multiple separated by commas: echo-request,echo-reply
+"""),
                 'keys':  [
                     {'key': "type", 'values': Fw.ExprICMP.values()}
                 ]
             },
             self.STATM_LOG: {
                 'name': Fw.Statements.LOG.value,
+                'tooltip': QC.translate("firewall", "Print a message when this rule matches a packet."),
                 'keys':  [
                     {'key': Fw.ExprLog.PREFIX.value, 'values': []}
                 ]
             },
             self.STATM_QUOTA: {
                 'name': Fw.ExprQuota.QUOTA.value,
+                'tooltip': QC.translate("firewall", """
+Apply quotas on connections.
+
+For example when:
+ - "quota over 10/mbytes" -> apply the Action defined (DROP)
+ - "quota until 10/mbytes" -> apply the Action defined (ACCEPT)
+
+The value must be in the format: VALUE/UNITS, for example:
+ - 10mbytes, 1/gbytes, etc
+"""),
                 'keys':  [
                     {'key': Fw.ExprQuota.OVER.value, 'values': []},
                     {'key': Fw.ExprQuota.UNIT.value, 'values': [
@@ -190,6 +275,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             },
             self.STATM_COUNTER: {
                 'name': Fw.ExprCounter.COUNTER.value,
+                'tooltip': QC.translate("firewall", ""),
                 # packets, bytes
                 'keys':  [
                     {'key': Fw.ExprCounter.PACKETS.value, 'values': None},
@@ -199,6 +285,19 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # TODO: https://github.com/evilsocket/opensnitch/wiki/System-rules#rules-expressions
             self.STATM_LIMIT: {
                 'name': Fw.ExprLimit.LIMIT.value,
+                'tooltip': QC.translate("firewall", """
+Apply limits on connections.
+
+For example when:
+ - "limit over 10/mbytes/minute" -> apply the Action defined (DROP, ACCEPT, etc)
+    (When there're more than 10MB per minute, apply an Action)
+
+ - "limit until 10/mbytes/hour" -> apply the Action defined (ACCEPT)
+
+The value must be in the format: VALUE/UNITS/TIME, for example:
+ - 10/mbytes/minute, 1/gbytes/hour, etc
+"""),
+
                 'keys':  [
                     {'key': Fw.ExprLimit.OVER.value, 'values': []},
                     {'key': Fw.ExprLimit.UNITS.value, 'values': [
@@ -234,6 +333,10 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdSave.clicked.connect(self._cb_save_clicked)
         self.cmdDelete.clicked.connect(self._cb_delete_clicked)
         self.helpButton.clicked.connect(self._cb_help_button_clicked)
+        self.comboVerdict.currentIndexChanged.connect(self._cb_verdict_changed)
+        self.lineVerdictParms.textChanged.connect(self._cb_verdict_parms_changed)
+        self.checkEnable.toggled.connect(self._cb_check_enable_toggled)
+        self.lineDescription.textChanged.connect(self._cb_description_changed)
 
         self.cmdAddStatement.clicked.connect(self._cb_add_new_statement)
         self.cmdDelStatement.clicked.connect(self._cb_del_statement)
@@ -249,12 +352,12 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         # -----------------------------------------------------------
 
-        saveIcon = Icons.new("document-save")
-        closeIcon = Icons.new("window-close")
-        delIcon = Icons.new("edit-delete")
-        addIcon = Icons.new("list-add")
-        remIcon = Icons.new("list-remove")
-        helpIcon = Icons.new("help-browser")
+        saveIcon = Icons.new(self, "document-save")
+        closeIcon = Icons.new(self, "window-close")
+        delIcon = Icons.new(self, "edit-delete")
+        addIcon = Icons.new(self, "list-add")
+        remIcon = Icons.new(self, "list-remove")
+        helpIcon = Icons.new(self, "help-browser")
         self.cmdSave.setIcon(saveIcon)
         self.cmdDelete.setIcon(delIcon)
         self.cmdClose.setIcon(closeIcon)
@@ -279,31 +382,54 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return False
 
         self._load_nodes()
+        self.comboDirection.currentIndexChanged.connect(self._cb_direction_changed)
         return True
 
-
     def _close(self):
+        self.comboDirection.currentIndexChanged.disconnect(self._cb_direction_changed)
         self.hide()
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
         self._enable_buttons()
 
-        if reply.id in self._notifications_sent:
+        try:
+            if reply.id not in self._notifications_sent:
+                return
+
+            rep = self._notifications_sent[reply.id]
             if reply.code == ui_pb2.OK:
-                rep = self._notifications_sent[reply.id]
                 if 'operation' in rep and rep['operation'] == self.OP_DELETE:
                     self.tabWidget.setDisabled(True)
                     self._set_status_successful(QC.translate("firewall", "Rule deleted"))
                     self._disable_controls()
+                    del self._notifications_sent[reply.id]
                     return
 
-                self._set_status_successful(QC.translate("firewall", "Rule added"))
+                if 'operation' in rep and rep['operation'] == self.OP_SAVE:
+                    self._set_status_successful(QC.translate("firewall", "Rule saved"))
+                else:
+                    self._set_status_successful(QC.translate("firewall", "Rule added"))
 
             else:
-                self._set_status_error(QC.translate("firewall", "Error: {0}").format(reply.data))
+                # XXX: The errors returned by the nftables lib are not really descriptive.
+                # "invalid argument", "no such file or directory", without context
+                # 1st one: invalid combination of table/chain/priorities?
+                # 2nd one: does the table/chain exist?
+                errormsg = QC.translate("firewall", "Error adding rules:\n{0}".format(reply.data))
+                if 'operation' in rep and rep['operation'] == self.OP_SAVE:
+                    if 'uuid' in rep and rep['uuid'] in reply.data:
+                        errormsg = QC.translate("firewall", "Error saving rule")
+                    else:
+                        self._set_status_message(QC.translate("firewall", "Rule saved, but there're other rules with errors (REVIEW):\n{0}".format(reply.data)))
+                        return
+                self._set_status_error(errormsg)
 
-            del self._notifications_sent[reply.id]
+        except Exception as e:
+            print("[fw rule dialog exception] notif error:", e)
+        finally:
+            if reply.id in self._notifications_sent:
+                del self._notifications_sent[reply.id]
 
     @QtCore.pyqtSlot(int)
     def _cb_nodes_updated(self, total):
@@ -311,6 +437,13 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def closeEvent(self, e):
         self._close()
+
+
+    def _cb_check_enable_toggled(self, status):
+        self._enable_save()
+
+    def _cb_description_changed(self, text):
+        self._enable_save()
 
     def _cb_help_button_clicked(self):
         QuickHelp.show(
@@ -339,9 +472,15 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_status_error(QC.translate("firewall", "Error updating rule"))
             return
 
-        self.send_notification(node_addr, node['firewall'], self.OP_DELETE)
+        if self.comboNodes.currentIndex() == 0:
+            self.send_notifications(node['firewall'], self.OP_DELETE)
+        else:
+            self.send_notification(node_addr, node['firewall'], self.OP_DELETE)
 
     def _cb_save_clicked(self):
+        if len(self.statements) == 0:
+            self._set_status_message(QC.translate("firewall", "Add at least one statement."))
+            return
         node_addr, node, chain, err = self.form_to_protobuf()
         if err != None:
             self._set_status_error(QC.translate("firewall", "Invalid rule: {0}".format(err)))
@@ -350,17 +489,23 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
         ok, err = self._fw.update_rule(node_addr, self.uuid, chain)
         if not ok:
-            self._set_status_error(QC.translate("firewall", "Error updating rule: {0}".format(err)))
+            self._set_status_error(QC.translate("firewall", "Error updating rule ({0}): {1}".format(node_addr, err)))
             return
 
         self._enable_buttons(False)
-        self.send_notification(node_addr, node['firewall'], self.OP_SAVE)
+        if self.comboNodes.currentIndex() == 0:
+            self.send_notification(node_addr, node['firewall'], self.OP_SAVE, self.uuid)
+        else:
+            self.send_notifications(node['firewall'], self.OP_SAVE)
 
     def _cb_reset_clicked(self):
         self._reset_widgets("", self.toolBoxSimple)
         self.add_new_statement(QC.translate("firewall", "<select a statement>"), self.toolBoxSimple)
 
     def _cb_add_clicked(self):
+        if len(self.statements) == 0:
+            self._set_status_message(QC.translate("firewall", "Add at least one statement."))
+            return
         node_addr, node, chain, err = self.form_to_protobuf()
         if err != None:
             self._set_status_error(QC.translate("firewall", "Invalid rule: {0}".format(err)))
@@ -372,12 +517,19 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
         self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
         self._enable_buttons(False)
-        self.send_notification(node_addr, node['firewall'], self.OP_NEW)
+
+        if self.comboNodes.currentIndex() == 0:
+            self.send_notification(node_addr, node['firewall'], self.OP_NEW, chain.Rules[0].UUID)
+        else:
+            self.send_notifications(node['firewall'], self.OP_NEW)
 
     def _cb_add_new_statement(self):
+        self._enable_save()
         self.add_new_statement(QC.translate("firewall", "<select a statement>"), self.toolBoxSimple)
 
     def _cb_del_statement(self):
+        self._enable_save()
+
         idx = self.toolBoxSimple.currentIndex()
         if idx < 0:
             return
@@ -392,33 +544,136 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._reorder_toolbox_pages()
 
     def _cb_statem_combo_changed(self, idx):
+        self._enable_save()
+
         st_idx = self.toolBoxSimple.currentIndex()
         self._configure_statem_value_opts(st_idx)
-        self._set_statement_title(st_idx, "")
+        w = self.statements[st_idx]
+        tidx = 0 if idx == 0 else idx-1
+        w['value'].setToolTip(self.STATM_CONF[tidx]['tooltip'])
+        self._set_statement_title(st_idx, w['value'].currentText())
 
     def _cb_statem_value_changed(self, val):
+        self._enable_save()
+
         st_idx = self.toolBoxSimple.currentIndex()
         self._set_statement_title(st_idx)
 
     def _cb_statem_value_index_changed(self, idx):
+        self._enable_save()
+
         st_idx = self.toolBoxSimple.currentIndex()
         w = self.statements[st_idx]
         idx = w['what'].currentIndex()-1 # first item is blank
         val = w['value'].currentText().lower()
         if idx != -1 and (idx == self.STATM_SPORT or idx == self.STATM_DPORT):
+            # automagically choose the protocol for the selected port:
+            # echo/7 (tcp) -> tcp
             if Fw.PortProtocols.TCP.value in val:
-                w['opts'].setCurrentIndex(0)
+                w['opts'].setCurrentIndex(
+                    Fw.PortProtocols.values().index(Fw.PortProtocols.TCP.value)
+                )
             elif Fw.PortProtocols.UDP.value in val:
-                w['opts'].setCurrentIndex(1)
+                w['opts'].setCurrentIndex(
+                    Fw.PortProtocols.values().index(Fw.PortProtocols.UDP.value)
+                )
         self._set_statement_title(st_idx)
 
     def _cb_statem_op_changed(self, idx):
+        self._enable_save()
+
         st_idx = self.toolBoxSimple.currentIndex()
         self._set_statement_title(st_idx)
 
     def _cb_statem_opts_changed(self, idx):
+        self._enable_save()
+
         st_idx = self.toolBoxSimple.currentIndex()
         self._set_statement_title(st_idx)
+
+    def _cb_direction_changed(self, idx):
+        self._enable_save()
+
+        self._is_valid_rule()
+
+    def _cb_verdict_changed(self, idx):
+        self._enable_save()
+
+        showVerdictParms = self._has_verdict_parms(idx)
+        self.lineVerdictParms.setVisible(showVerdictParms)
+        self.comboVerdictParms.setVisible(showVerdictParms)
+        self._configure_verdict_parms(idx)
+
+
+    def _cb_verdict_parms_changed(self, idx):
+        self._enable_save()
+
+    def _is_valid_rule(self):
+        if (self.comboVerdict.currentText().lower() == Config.ACTION_REDIRECT or \
+            self.comboVerdict.currentText().lower() == Config.ACTION_TPROXY or \
+            self.comboVerdict.currentText().lower() == Config.ACTION_DNAT) and \
+             (self.comboDirection.currentIndex() == self.IN or self.comboDirection.currentIndex() == self.POSTROUTING):
+            self._set_status_message(
+                QC.translate(
+                    "firewall",
+                    "{0} cannot be used with IN or POSTROUTING directions.".format(self.comboVerdict.currentText().upper())
+                )
+            )
+            return False
+        elif self.comboVerdict.currentText().lower() == Config.ACTION_SNAT and \
+             self.comboDirection.currentIndex() != self.POSTROUTING:
+            self._set_status_message(
+                QC.translate(
+                    "firewall",
+                    "{0} can only be used with POSTROUTING.".format(self.comboVerdict.currentText().upper())
+                )
+            )
+            self.comboDirection.setCurrentIndex(self.POSTROUTING)
+            return False
+
+        self._set_status_message("")
+        return True
+
+    def _has_verdict_parms(self, idx):
+        # TODO:
+        # Fw.Verdicts.values()[idx+1] == Config.ACTION_REJECT or \
+        # Fw.Verdicts.values()[idx+1] == Config.ACTION_JUMP or \
+        return Fw.Verdicts.values()[idx+1] == Config.ACTION_QUEUE or \
+            Fw.Verdicts.values()[idx+1] == Config.ACTION_REDIRECT or \
+            Fw.Verdicts.values()[idx+1] == Config.ACTION_TPROXY or \
+            Fw.Verdicts.values()[idx+1] == Config.ACTION_DNAT or \
+            Fw.Verdicts.values()[idx+1] == Config.ACTION_SNAT or \
+            Fw.Verdicts.values()[idx+1] == Config.ACTION_MASQUERADE
+
+    def _configure_verdict_parms(self, idx):
+        self.comboVerdictParms.clear()
+
+        verdict = Fw.Verdicts.values()[idx+1]
+        if verdict == Config.ACTION_QUEUE:
+            self.comboVerdictParms.addItem(QC.translate("firewall", "num"), "num")
+
+        elif verdict == Config.ACTION_JUMP:
+            self.comboVerdictParms.setVisible(False)
+
+        elif verdict == Config.ACTION_REDIRECT or \
+            verdict == Config.ACTION_TPROXY or \
+            verdict == Config.ACTION_SNAT or \
+            verdict == Config.ACTION_DNAT:
+            self.comboVerdictParms.addItem(QC.translate("firewall", "to"), "to")
+
+        elif verdict == Config.ACTION_MASQUERADE:
+            # for persistent,fully-random,etc, options
+            self.comboVerdictParms.addItem("")
+            self.comboVerdictParms.addItem(QC.translate("firewall", "to"), "to")
+
+        # https://wiki.nftables.org/wiki-nftables/index.php/Performing_Network_Address_Translation_(NAT)#Redirect
+        if (verdict == Config.ACTION_REDIRECT or verdict == Config.ACTION_DNAT) and \
+                (self.comboDirection.currentIndex() != self.OUT and self.comboDirection.currentIndex() != self.PREROUTING):
+            self.comboDirection.setCurrentIndex(self.OUT)
+
+        elif self.comboVerdict.currentText().lower() == Config.ACTION_SNAT and \
+             self.comboDirection.currentIndex() != self.POSTROUTING:
+            self.comboDirection.setCurrentIndex(self.POSTROUTING)
 
     def _reorder_toolbox_pages(self):
         tmp = {}
@@ -469,10 +724,15 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if value != None:
             st_val = value
 
+        # override previous setup for some statements
         if idx == self.STATM_META:
-            title = st + " " + st_opts
-
-        title = "{0} {1} {2}".format(title, st_op, st_val)
+            title = "{0} {1} {2} {3}".format(st, st_opts, st_op, st_val)
+        elif idx == self.STATM_QUOTA:
+            title = "{0} {1} {2}".format(st, st_opts, st_val)
+        elif idx == self.STATM_LIMIT:
+            title = "{0} {1} {2}".format(st, st_opts, st_val)
+        else:
+            title = "{0} {1} {2}".format(title, st_op, st_val)
 
         self.toolBoxSimple.setItemText(st_idx, title)
 
@@ -559,7 +819,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         l.addLayout(boxH1)
         l.addLayout(boxH2)
 
-        # row 1: | statement | operator |
+        # row 1: | statement | protocol |
         stWidget = QtWidgets.QComboBox(w)
         stWidget.addItems(self.STATM_LIST)
 
@@ -568,7 +828,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         stOptsWidget.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
         stOptsWidget.addItems(prots)
 
-        # row 2: | protocol | value |
+        # row 2: | operator | value |
         ops = [
             QC.translate("firewall", "Equal"),
             QC.translate("firewall", "Not equal"),
@@ -586,6 +846,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         stValueWidget.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         stValueWidget.setCurrentText("")
 
+        # add statement, proto/opts, operator and value
         boxH1.addWidget(stWidget)
         boxH1.addWidget(stOptsWidget)
         boxH2.addWidget(stOpWidget)
@@ -621,11 +882,138 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _load_nodes(self):
         self.comboNodes.clear()
         self._node_list = self._nodes.get()
+        #self.comboNodes.addItem(QC.translate("firewall", "All"))
         for addr in self._node_list:
             self.comboNodes.addItem(addr)
 
         if len(self._node_list) == 0:
             self.tabWidget.setDisabled(True)
+
+    def _load_meta_statement(self, exp, idx):
+        try:
+            isMultiProto = False
+            isSetMark = False
+            newStatm = self.STATM_SPORT
+            newValue = ""
+            optsValue = ""
+            for v in exp.Statement.Values:
+                if v.Key ==  Fw.ExprMeta.SET.value:
+                    isSetMark = True
+                    continue
+                if isSetMark and v.Key == Fw.ExprMeta.MARK.value:
+                    newStatm = self.STATM_META_SET_MARK
+                    if self._is_valid_int_value(v.Value):
+                        newValue = v.Value
+                    else:
+                        self._set_status_error(
+                            QC.translate(
+                                "firewall",
+                                "Invalid mark ({0})".format(v.Value)
+                            )
+                        )
+                    break
+
+                if v.Key ==  Fw.ExprMeta.L4PROTO.value:
+                    optsValue = v.Value
+                if v.Key == Fw.Statements.SPORT.value:
+                    isMultiProto = True
+                    newValue = v.Value
+                    break
+                elif v.Key == Fw.Statements.DPORT.value:
+                    newStatm = self.STATM_DPORT
+                    isMultiProto = True
+                    newValue = v.Value
+                    break
+
+            if isSetMark:
+                self.statements[idx]['what'].setCurrentIndex(newStatm+1)
+                self.statements[idx]['value'].setCurrentText(newValue)
+
+            elif isMultiProto:
+                self.statements[idx]['what'].setCurrentIndex(newStatm+1)
+                self.statements[idx]['opts'].setCurrentIndex(
+                    Fw.PortProtocols.values().index(optsValue)
+                )
+                try:
+                    self.statements[idx]['value'].setCurrentIndex(
+                        self.net_srv.index_by_port(newValue)
+                    )
+                except:
+                    self.statements[idx]['value'].setCurrentText(newValue)
+
+            else:
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_META+1)
+                self.statements[idx]['opts'].setCurrentIndex(
+                    # first item of the list is "set", not present in the combobox
+                    Fw.ExprMeta.values().index(exp.Statement.Values[0].Key)-1
+                )
+                self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+
+        except Exception as e:
+            print("_load_meta_statement() exception:", e)
+            self._set_status_message(e)
+
+    def _load_limit_statement(self, exp, idx):
+        try:
+            self.statements[idx]['what'].setCurrentIndex(self.STATM_LIMIT+1)
+            self.statements[idx]['opts'].setCurrentIndex(1)
+            lval = ""
+            for v in exp.Statement.Values:
+                if v.Key == Fw.ExprLimit.OVER.value:
+                    self.statements[idx]['opts'].setCurrentIndex(0)
+                elif v.Key == Fw.ExprLimit.UNITS.value:
+                    lval = v.Value
+                elif v.Key == Fw.ExprLimit.RATE_UNITS.value:
+                    lval = "%s/%s" % (lval, v.Value)
+                elif v.Key == Fw.ExprLimit.TIME_UNITS.value:
+                    lval = "%s/%s" % (lval, v.Value)
+
+            self.statements[idx]['value'].setCurrentText(lval)
+        except Exception as e:
+            print("_load_limit_statement() exception:", e)
+            self._set_status_message(e)
+
+    def _load_ct_statement(self, exp, idx):
+        """load CT statements, for example:
+            Name: ct, Key: set, Key: mark, Value: 123
+            Name: ct, Key: mark, Value: 123
+            Name: ct, Key: state, value: new,established
+        """
+        try:
+            if exp.Statement.Values[0].Key == Fw.ExprCt.STATE.value:
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_STATE+1)
+                self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+                for v in exp.Statement.Values:
+                    curText = self.statements[idx]['value'].currentText()
+                    if v.Value not in curText:
+                        self.statements[idx]['value'].setCurrentText(
+                            "{0},{1}".format(
+                                curText,
+                                v.Value
+                            )
+                        )
+
+            elif exp.Statement.Values[0].Key == Fw.ExprCt.SET.value:
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_SET+1)
+                markVal = ""
+                for v in exp.Statement.Values:
+                    if v.Key == Fw.ExprCt.MARK.value:
+                        markVal = v.Value
+                        break
+
+                self.statements[idx]['value'].setCurrentText(markVal)
+                if markVal == "":
+                    raise ValueError(
+                        QC.translate("firewall", "Warning: ct set mark value is empty, malformed rule?")
+                    )
+
+            elif exp.Statement.Values[0].Key == Fw.ExprCt.MARK.value:
+                self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_MARK+1)
+                self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+
+        except Exception as e:
+            print("_load_ct_statement() exception:", e)
+            self._set_status_message(e)
 
     def load(self, addr, uuid):
         if not self.show():
@@ -640,6 +1028,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkEnable.setEnabled(True)
         self.checkEnable.setChecked(True)
         self.frameDirection.setVisible(True)
+        self.comboNodes.setCurrentText(addr)
 
         self._enable_buttons()
 
@@ -647,7 +1036,11 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         node, rule = self._fw.get_rule_by_uuid(uuid)
         if rule == None or \
-                (rule.Hook.lower() != Fw.Hooks.INPUT.value and rule.Hook.lower() != Fw.Hooks.OUTPUT.value):
+                (rule.Hook.lower() != Fw.Hooks.INPUT.value and \
+                 rule.Hook.lower() != Fw.Hooks.FORWARD.value and \
+                 rule.Hook.lower() != Fw.Hooks.PREROUTING.value and \
+                 rule.Hook.lower() != Fw.Hooks.POSTROUTING.value and \
+                 rule.Hook.lower() != Fw.Hooks.OUTPUT.value):
             hook = "invalid" if rule == None else rule.Hook
             self._set_status_error(QC.translate("firewall", "Rule hook ({0}) not supported yet".format(hook)))
             self._disable_controls()
@@ -720,31 +1113,10 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Key)
 
             elif exp.Statement.Name == Fw.Statements.CT.value:
-                if exp.Statement.Values[0].Key == Fw.ExprCt.STATE.value:
-                    self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_STATE+1)
-                    self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
-                    for v in exp.Statement.Values:
-                        curText = self.statements[idx]['value'].currentText()
-                        if v.Value not in curText:
-                            self.statements[idx]['value'].setCurrentText(
-                                "{0},{1}".format(
-                                    curText,
-                                    v.Value
-                                )
-                            )
-
-                elif exp.Statement.Values[0].Key == Fw.ExprCt.SET.value:
-                    self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_SET+1)
-                elif exp.Statement.Values[0].Key == Fw.ExprCt.MARK.value:
-                    self.statements[idx]['what'].setCurrentIndex(self.STATM_CT_MARK+1)
+                self._load_ct_statement(exp, idx)
 
             elif exp.Statement.Name == Fw.Statements.META.value:
-                self.statements[idx]['what'].setCurrentIndex(self.STATM_META+1)
-                self.statements[idx]['opts'].setCurrentIndex(
-                    # first item of the list is "set", not present in the combobox
-                    Fw.ExprMeta.values().index(exp.Statement.Values[0].Key)-1
-                )
-                self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+                self._load_meta_statement(exp, idx)
 
             elif exp.Statement.Name == Fw.Statements.ICMP.value or exp.Statement.Name == Fw.Statements.ICMPv6.value:
                 if exp.Statement.Name == Fw.Statements.ICMP.value:
@@ -788,26 +1160,13 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         )
 
             elif exp.Statement.Name == Fw.Statements.LIMIT.value:
-                self.statements[idx]['what'].setCurrentIndex(self.STATM_LIMIT+1)
-                self.statements[idx]['opts'].setCurrentIndex(1)
-                lval = ""
-                for v in exp.Statement.Values:
-                    if v.Key == Fw.ExprLimit.OVER.value:
-                        self.statements[idx]['opts'].setCurrentIndex(0)
-                    elif v.Key == Fw.ExprLimit.UNITS.value:
-                        lval = v.Value
-                    elif v.Key == Fw.ExprLimit.RATE_UNITS.value:
-                        lval = "%s/%s" % (lval, v.Value)
-                    elif v.Key == Fw.ExprLimit.TIME_UNITS.value:
-                        lval = "%s/%s" % (lval, v.Value)
-
-                self.statements[idx]['value'].setCurrentText(lval)
-
+                self._load_limit_statement(exp, idx)
 
             elif exp.Statement.Name == Fw.Statements.COUNTER.value:
                 self.statements[idx]['what'].setCurrentIndex(self.STATM_COUNTER+1)
-                if exp.Statement.Values[0].Key == Fw.ExprCounter.NAME.value:
-                    self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
+                for v in exp.Statement.Values:
+                    if v.Key == Fw.ExprCounter.NAME.value:
+                        self.statements[idx]['value'].setCurrentText(v.Value)
 
             else:
                 isNotSupported = True
@@ -829,8 +1188,14 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if rule.Hook.lower() == Fw.Hooks.INPUT.value:
             self.comboDirection.setCurrentIndex(self.IN)
-        else:
+        elif rule.Hook.lower() == Fw.Hooks.OUTPUT.value:
             self.comboDirection.setCurrentIndex(self.OUT)
+        elif rule.Hook.lower() == Fw.Hooks.FORWARD.value:
+            self.comboDirection.setCurrentIndex(self.FORWARD)
+        elif rule.Hook.lower() == Fw.Hooks.PREROUTING.value:
+            self.comboDirection.setCurrentIndex(self.PREROUTING)
+        elif rule.Hook.lower() == Fw.Hooks.POSTROUTING.value:
+            self.comboDirection.setCurrentIndex(self.POSTROUTING)
         # TODO: changing the direction of an existed rule needs work, it causes
         # some nasty effects. Disabled for now.
         self.comboDirection.setEnabled(False)
@@ -841,9 +1206,17 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     rule.Rules[0].Target.lower()
                 )-1
             )
+            if self._has_verdict_parms(self.comboVerdict.currentIndex()):
+                tparms = rule.Rules[0].TargetParameters.lower()
+                parts = tparms.split(" ")
+                self.lineVerdictParms.setText(parts[1])
+                if parts[1] == "":
+                    print("Firewall Rule: verdict parms error:", parts)
         except:
             self._set_status_error(QC.translate("firewall", "Rule target ({0}) not supported yet".format(rule.Rules[0].Target.lower())))
             self._disable_controls()
+
+        self._enable_save(False)
 
     def new(self):
         if not self.show():
@@ -884,7 +1257,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.tabWidget.setTabText(0, "")
         self.hboxAdvanced.setVisible(False)
 
-        dirPort = self.STATM_SPORT+1
+        dirPort = self.STATM_DPORT+1
         self.FORM_TYPE = self.FORM_TYPE_ALLOW_IN_SERVICE
         self.lblExcludeTip.setText(QC.translate("firewall", "Allow inbound connections to the selected port."))
         if direction == self.OUT:
@@ -907,16 +1280,58 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         """Transform form widgets to protobuf struct
         """
         chain = Fw.ChainFilter.input()
-        if self.comboDirection.currentIndex() == self.OUT or self.FORM_TYPE == self.FORM_TYPE_EXCLUDE_SERVICE:
+        # XXX: tproxy does not work with destnat+output
+        if self.comboDirection.currentIndex() == self.OUT and \
+            (self.comboVerdict.currentIndex()+1 == Fw.Verdicts.values().index(Config.ACTION_TPROXY) or \
+                self.comboVerdict.currentIndex()+1 == Fw.Verdicts.values().index(Config.ACTION_DNAT) or \
+                self.comboVerdict.currentIndex()+1 == Fw.Verdicts.values().index(Config.ACTION_REDIRECT)
+            ):
+            chain = Fw.ChainDstNAT.output()
+        elif self.comboDirection.currentIndex() == self.FORWARD:
+            chain = Fw.ChainMangle.forward()
+        elif self.comboDirection.currentIndex() == self.PREROUTING:
+            chain = Fw.ChainDstNAT.prerouting()
+        elif self.comboDirection.currentIndex() == self.POSTROUTING:
+            chain = Fw.ChainDstNAT.postrouting()
+
+        elif self.comboDirection.currentIndex() == self.OUT or self.FORM_TYPE == self.FORM_TYPE_EXCLUDE_SERVICE:
             chain = Fw.ChainMangle.output()
         elif self.comboDirection.currentIndex() == self.IN or self.FORM_TYPE == self.FORM_TYPE_ALLOW_IN_SERVICE:
             chain = Fw.ChainFilter.input()
+
+        verdict_idx = self.comboVerdict.currentIndex()
+        verdict = Fw.Verdicts.values()[verdict_idx+1] # index 0 is ""
+        _target_parms = ""
+        if self._has_verdict_parms(verdict_idx):
+            if self.lineVerdictParms.text() == "":
+                return None, None, None, QC.translate("firewall", "Verdict ({0}) parameters cannot be empty.".format(verdict))
+
+            # these verdicts parameters need ":" to specify a port or ip:port
+            if (self.comboVerdict.currentText().lower() == Config.ACTION_REDIRECT or \
+                self.comboVerdict.currentText().lower() == Config.ACTION_TPROXY or \
+                self.comboVerdict.currentText().lower() == Config.ACTION_SNAT or \
+                self.comboVerdict.currentText().lower() == Config.ACTION_DNAT) and \
+                    ":" not in self.lineVerdictParms.text():
+                return None, None, None, QC.translate("firewall", "Verdict ({0}) parameters format is: <IP>:port.".format(verdict))
+
+            if self.comboVerdict.currentText().lower() == Config.ACTION_QUEUE:
+                try:
+                    t = int(self.lineVerdictParms.text())
+                except:
+                    return None, None, None, QC.translate("firewall", "Verdict ({0}) parameters format must be a number".format(verdict))
+
+            vidx = self.comboVerdictParms.currentIndex()
+            _target_parms = "{0} {1}".format(
+                self.comboVerdictParms.itemData(vidx),
+                self.lineVerdictParms.text().replace(" ", "")
+            )
 
         rule = Fw.Rules.new(
             enabled=self.checkEnable.isChecked(),
             _uuid=self.uuid,
             description=self.lineDescription.text(),
-            target=Fw.Verdicts.values()[self.comboVerdict.currentIndex()+1] # index 0 is ""
+            target=verdict,
+            target_parms=_target_parms
         )
 
         for k in self.statements:
@@ -937,7 +1352,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     statem_value = self.statements[k]['value'].currentText()
                     val_idx = self.statements[k]['value'].currentIndex()
 
-                    if statem_value == "" or statem_value == "0":
+                    if statem_value == "" or (statem_value == "0" and st_idx != self.STATM_META):
                         return None, None, None, QC.translate("firewall", "value cannot be 0 or empty.")
 
                     if st_idx == self.STATM_QUOTA:
@@ -945,14 +1360,17 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                             if self.statements[k]['opts'].currentIndex() == 0:
                                 key_values.append((sk['key'], ""))
                             continue
-                        elif sk['key'] == Fw.ExprQuota.UNIT.value:
+                        elif sk['key'] == Fw.ExprQuota.UNIT.value or sk['key'] in Fw.RateUnits.values():
                             units = statem_value.split("/")
                             if len(units) != 2: # we expect the format key/value
                                 return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, mbytes, gbytes)")
                             if units[1] not in Fw.RateUnits.values():
                                 return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, mbytes, gbytes)")
+
                             sk['key'] = units[1]
                             statem_value = units[0]
+                            if not self._is_valid_int_value(statem_value):
+                                raise ValueError("quota value is invalid ({0}). It must be value/unit (1/kbytes)".format(statem_value))
 
                     elif st_idx == self.STATM_LIMIT:
                         if sk['key'] == Fw.ExprLimit.OVER.value:
@@ -985,24 +1403,71 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         sk['key'] = statem_value
                         statem_value = ""
 
-                    elif st_idx == self.STATM_DEST_IP or \
-                            st_idx == self.STATM_SOURCE_IP or \
-                            st_idx == self.STATM_DPORT or \
-                            st_idx == self.STATM_SPORT:
+                    elif st_idx == self.STATM_DEST_IP or st_idx == self.STATM_SOURCE_IP:
                         statement = statem_opts
+                        # convert network u.x.y.z/nn to 1.2.3.4-1.255.255.255
+                        # format.
+                        # FIXME: This should be supported by the daemon,
+                        # instead of converting it here.
+                        # TODO: validate IP ranges.
+                        if "/" in statem_value:
+                            try:
+                                net = ipaddress.ip_network(statem_value)
+                                hosts = list(net)
+                                statem_value = "{0}-{1}".format(str(hosts[0]), str(hosts[-1]))
+                            except Exception as e:
+                                return None, None, None, QC.translate("firewall", "IP network format error, {0}".format(e))
+                        elif not "-" in statem_value:
+                            try:
+                                ipaddress.ip_address(statem_value)
+                            except Exception as e:
+                                return None, None, None, QC.translate("firewall", "{0}".format(e))
+
+                    elif st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT:
+                        # if it's a tcp+udp port, we need to add a meta+l4proto
+                        # statement, with the protos + ports as values.
+                        optsIdx = self.statements[k]['opts'].currentIndex()
+                        isMultiProto = optsIdx == 0
+                        if isMultiProto:
+                            meta = self.STATM_CONF[self.STATM_META]['keys'][1]
+                            statement = self.STATM_CONF[self.STATM_META]['name']
+                            # key: l4proto
+                            key_values.append((meta['key'], statem_opts))
+
+                        else:
+                            statement = statem_opts
+
+                        # 1. if the value is one of the /etc/services return
+                        # the port
+                        # 2. if the value contains , or - just use the written
+                        # value, to allow multiple ports and ranges.
+                        # 3. otherwise validate that the entered value is an
+                        # int
                         try:
-                            if "," in statem_value or "-" in statem_value or val_idx < 1:
+                            if "," in statem_value or "-" in statem_value:
                                 raise ValueError("port entered is multiport or a port range")
-                            statem_value = self.net_srv.port_by_index(val_idx)
+                            service_idx = self.net_srv.service_by_name(statem_value)
+                            statem_value = self.net_srv.port_by_index(service_idx)
                         except:
-                            if (st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT) and \
-                                    ("," not in statem_value and "-" not in statem_value):
-                                try:
-                                    t = int(statem_value)
-                                except:
+                            if "," not in statem_value and "-" not in statem_value:
+                                if not self._is_valid_int_value(statem_value):
                                     return None, None, None, QC.translate("firewall", "port not valid.")
 
-                    key_values.append((sk['key'], statem_value.replace(" ", "")))
+                    elif st_idx == self.STATM_CT_SET or st_idx == self.STATM_CT_MARK or st_idx == self.STATM_META_SET_MARK:
+                        if not self._is_valid_int_value(statem_value):
+                            return None, None, None, QC.translate("firewall", "Invalid value {0}, number expected.".format(statem_value))
+
+                    elif st_idx == self.STATM_ICMP or st_idx == self.STATM_ICMPv6:
+                        values = statem_value.split(",")
+                        for val in values:
+                            if val not in Fw.ExprICMP.values():
+                                return None, None, None, QC.translate("firewall", "Invalid ICMP type \"{0}\".".format(val))
+
+                    keyVal = (sk['key'], statem_value.replace(" ", ""))
+                    if keyVal not in key_values:
+                        key_values.append(keyVal)
+                    else:
+                        print("[REVIEW] statement values duplicated (there shouldn't be):", keyVal)
 
             exprs = Fw.Expr.new(
                 statem_op,
@@ -1016,9 +1481,22 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         node = self._nodes.get_node(node_addr)
         return node_addr, node, chain, None
 
-    def send_notification(self, node_addr, fw_config, op):
+    def _is_valid_int_value(self, value):
+        try:
+            int(value)
+        except:
+            return False
+
+        return True
+
+    def send_notification(self, node_addr, fw_config, op, uuid):
         nid, notif = self._nodes.reload_fw(node_addr, fw_config, self._notification_callback)
-        self._notifications_sent[nid] = {'addr': node_addr, 'operation': op, 'notif': notif}
+        self._notifications_sent[nid] = {'addr': node_addr, 'operation': op, 'notif': notif, 'uuid': uuid}
+
+    def send_notifications(self, fw_config, op):
+        for addr in self._nodes.get_nodes():
+            nid, notif = self._nodes.reload_fw(addr, fw_config, self._notification_callback)
+            self._notifications_sent[nid] = {'addr': addr, 'operation': op, 'notif': notif}
 
     def _set_status_error(self, msg):
         self.statusLabel.show()
@@ -1060,8 +1538,22 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.lineDescription.setText("")
         self.comboDirection.setCurrentIndex(self.IN)
         self.comboDirection.setEnabled(True)
+
+        self.comboVerdict.blockSignals(True);
         self.comboVerdict.setCurrentIndex(0)
+        self.comboVerdict.blockSignals(False);
+        self.lineVerdictParms.setVisible(False)
+        self.comboVerdictParms.setVisible(False)
+        self.lineVerdictParms.setText("")
+
         self.uuid = ""
+
+    def _enable_save(self, enable=True):
+        """Enable Save buton whenever some detail of a route changes.
+        The button may or not be hidden. If we're editing a rule it'll be shown
+        but disabled/enabled.
+        """
+        self.cmdSave.setEnabled(enable)
 
     def _enable_buttons(self, enable=True):
         """Disable add/save buttons until a response is received from the daemon.

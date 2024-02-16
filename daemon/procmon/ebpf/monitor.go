@@ -39,57 +39,89 @@ func monitorCache() {
 			goto Exit
 		case <-ebpfCacheTicker.C:
 			ebpfCache.DeleteOldItems()
-			execEvents.DeleteOldItems()
 		}
 	}
 Exit:
 }
 
-// maintains a list of this machine's local addresses
-// TODO: use netlink.AddrSubscribeWithOptions()
+// maintain a list of this machine's local addresses
 func monitorLocalAddresses() {
+	newAddrChan := make(chan netlink.AddrUpdate)
+	done := make(chan struct{})
+	defer close(done)
+
+	lock.Lock()
+	localAddresses = daemonNetlink.GetLocalAddrs()
+	lock.Unlock()
+
+	netlink.AddrSubscribeWithOptions(newAddrChan, done,
+		netlink.AddrSubscribeOptions{
+			ErrorCallback: func(err error) {
+				log.Error("AddrSubscribeWithOptions error: %s", err)
+			},
+			ListExisting: true,
+		})
+
 	for {
 		select {
 		case <-ctxTasks.Done():
+			done <- struct{}{}
 			goto Exit
-		default:
-			addr, err := netlink.AddrList(nil, netlink.FAMILY_ALL)
-			if err != nil {
-				log.Error("eBPF error looking up this machine's addresses via netlink: %v", err)
-				continue
+		case addr := <-newAddrChan:
+			if addr.NewAddr && !findAddressInLocalAddresses(addr.LinkAddress.IP) {
+				log.Debug("local addr added: %+v\n", addr)
+				lock.Lock()
+
+				localAddresses[addr.LinkAddress.IP.String()] = daemonNetlink.AddrUpdateToAddr(&addr)
+
+				lock.Unlock()
+			} else if !addr.NewAddr {
+				log.Debug("local addr removed: %+v\n", addr)
+				lock.Lock()
+				delete(localAddresses, addr.LinkAddress.IP.String())
+				lock.Unlock()
 			}
-			lock.Lock()
-			localAddresses = nil
-			for _, a := range addr {
-				localAddresses = append(localAddresses, a.IP)
-			}
-			lock.Unlock()
-			time.Sleep(time.Second * 1)
 		}
 	}
 Exit:
+	log.Debug("monitorLocalAddresses exited")
 }
 
 // monitorAlreadyEstablished makes sure that when an already-established connection is closed
 // it will be removed from alreadyEstablished. If we don't do this and keep the alreadyEstablished entry forever,
 // then after the genuine process quits,a malicious process may reuse PID-srcPort-srcIP-dstPort-dstIP
 func monitorAlreadyEstablished() {
+	tcperr := 0
+	errLimitExceeded := func() bool {
+		if tcperr > 100 {
+			log.Debug("monitorAlreadyEstablished() generated too much errors")
+			return true
+		}
+		tcperr++
+
+		return false
+	}
+
 	for {
 		select {
 		case <-ctxTasks.Done():
 			goto Exit
 		default:
-			time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 2)
 			socketListTCP, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET), uint8(syscall.IPPROTO_TCP))
 			if err != nil {
-				log.Debug("eBPF error in dumping TCP sockets via netlink")
+				log.Debug("monitorAlreadyEstablished(), error dumping TCP sockets via netlink (%d): %s", tcperr, err)
+				if errLimitExceeded() {
+					goto Exit
+				}
+
 				continue
 			}
 			alreadyEstablished.Lock()
 			for aesock := range alreadyEstablished.TCP {
 				found := false
 				for _, sock := range socketListTCP {
-					if socketsAreEqual(aesock, sock) {
+					if daemonNetlink.SocketsAreEqual(aesock, sock) {
 						found = true
 						break
 					}
@@ -103,14 +135,18 @@ func monitorAlreadyEstablished() {
 			if core.IPv6Enabled {
 				socketListTCPv6, err := daemonNetlink.SocketsDump(uint8(syscall.AF_INET6), uint8(syscall.IPPROTO_TCP))
 				if err != nil {
-					log.Debug("eBPF error in dumping TCPv6 sockets via netlink: %s", err)
+					if errLimitExceeded() {
+						goto Exit
+					}
+					log.Debug("monitorAlreadyEstablished(), error dumping TCPv6 sockets via netlink (%d): %s", tcperr, err)
+
 					continue
 				}
 				alreadyEstablished.Lock()
 				for aesock := range alreadyEstablished.TCPv6 {
 					found := false
 					for _, sock := range socketListTCPv6 {
-						if socketsAreEqual(aesock, sock) {
+						if daemonNetlink.SocketsAreEqual(aesock, sock) {
 							found = true
 							break
 						}
@@ -124,14 +160,5 @@ func monitorAlreadyEstablished() {
 		}
 	}
 Exit:
-}
-
-func socketsAreEqual(aSocket, bSocket *daemonNetlink.Socket) bool {
-	return ((*aSocket).INode == (*bSocket).INode &&
-		//inodes are unique enough, so the matches below will never have to be checked
-		(*aSocket).ID.SourcePort == (*bSocket).ID.SourcePort &&
-		(*aSocket).ID.Source.Equal((*bSocket).ID.Source) &&
-		(*aSocket).ID.Destination.Equal((*bSocket).ID.Destination) &&
-		(*aSocket).ID.DestinationPort == (*bSocket).ID.DestinationPort &&
-		(*aSocket).UID == (*bSocket).UID)
+	log.Debug("monitorAlreadyEstablished exited")
 }

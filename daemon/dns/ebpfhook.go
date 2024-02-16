@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
@@ -93,8 +94,8 @@ func lookupSymbol(elffile *elf.File, symbolName string) (uint64, error) {
 }
 
 // ListenerEbpf starts listening for DNS events.
-func ListenerEbpf() error {
-	m, err := core.LoadEbpfModule("opensnitch-dns.o")
+func ListenerEbpf(ebpfModPath string) error {
+	m, err := core.LoadEbpfModule("opensnitch-dns.o", ebpfModPath)
 	if err != nil {
 		log.Error("[eBPF DNS]: %s", err)
 		return err
@@ -123,13 +124,13 @@ func ListenerEbpf() error {
 		probeFunction = strings.Replace(probeFunction, "uprobe/", "", 1)
 		offset, err := lookupSymbol(libcElf, probeFunction)
 		if err != nil {
-			log.Warning("EBPF-DNS: Failed to find symbol for uprobe %s : %s\n", uprobe.Name, err)
+			log.Warning("EBPF-DNS: Failed to find symbol for uprobe %s (offset: %d): %s\n", uprobe.Name, offset, err)
 			continue
 		}
 		err = bpf.AttachUprobe(uprobe, libcFile, offset)
 		if err != nil {
-			log.Error("EBPF-DNS: Failed to attach uprobe %s : %s\n", uprobe.Name, err)
-			return err
+			log.Warning("EBPF-DNS: Failed to attach uprobe %s : %s, (%s, %d)\n", uprobe.Name, err, libcFile, offset)
+			continue
 		}
 		probesAttached++
 	}
@@ -149,7 +150,12 @@ func ListenerEbpf() error {
 	}
 	sig := make(chan os.Signal, 1)
 	exitChannel := make(chan bool)
-	signal.Notify(sig, os.Interrupt, os.Kill)
+	signal.Notify(sig,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGKILL,
+		syscall.SIGQUIT)
 
 	for i := 0; i < 5; i++ {
 		go spawnDNSWorker(i, channel, exitChannel)
@@ -169,6 +175,7 @@ func spawnDNSWorker(id int, channel chan []byte, exitChannel chan bool) {
 
 	log.Debug("dns worker initialized #%d", id)
 	var event nameLookupEvent
+	var ip net.IP
 	for {
 		select {
 
@@ -188,7 +195,6 @@ func spawnDNSWorker(id int, channel chan []byte, exitChannel chan bool) {
 			}
 			// Convert C string (null-terminated) to Go string
 			host := string(event.Host[:bytes.IndexByte(event.Host[:], 0)])
-			var ip net.IP
 			// 2 -> AF_INET (ipv4)
 			if event.AddrType == 2 {
 				ip = net.IP(event.IP[:4])

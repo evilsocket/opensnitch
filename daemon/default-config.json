@@ -9,7 +9,12 @@
     "InterceptUnknown": false,
     "ProcMonitorMethod": "ebpf",
     "LogLevel": 2,
+    "LogUTC": true,
+    "LogMicro": false,
     "Firewall": "nftables",
+    "Rules": {
+        "EnableChecksums": false
+    },
     "Stats": {
         "MaxEvents": 150,
         "MaxStats": 25,

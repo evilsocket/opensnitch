@@ -71,3 +71,8 @@ func GetFileModTime(filepath string) (time.Time, error) {
 	}
 	return fi.ModTime(), nil
 }
+
+// ConcatStrings joins the provided strings.
+func ConcatStrings(args ...string) string {
+	return strings.Join(args, "")
+}

@@ -24,7 +24,7 @@ import (
 // nft --debug netlink add rule mangle prerouting ct mark 123
 // [ ct load mark => reg 1 ]
 // [ cmp eq reg 1 0x0000007b ]
-func NewExprCtMark(setMark bool, value string) (*[]expr.Any, error) {
+func NewExprCtMark(setMark bool, value string, cmpOp *expr.CmpOp) (*[]expr.Any, error) {
 	mark, err := strconv.Atoi(value)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid conntrack mark: %s (%s)", err, value)
@@ -44,7 +44,7 @@ func NewExprCtMark(setMark bool, value string) (*[]expr.Any, error) {
 	}...)
 	if setMark == false {
 		exprCtMark = append(exprCtMark, []expr.Any{
-			&expr.Cmp{Op: expr.CmpOpEq, Register: 1, Data: binaryutil.NativeEndian.PutUint32(uint32(mark))},
+			&expr.Cmp{Op: *cmpOp, Register: 1, Data: binaryutil.NativeEndian.PutUint32(uint32(mark))},
 		}...)
 	}
 

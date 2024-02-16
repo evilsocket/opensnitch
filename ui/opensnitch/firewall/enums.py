@@ -7,7 +7,16 @@ class Verdicts(Enums):
     DROP = Config.ACTION_DROP
     REJECT = Config.ACTION_REJECT
     RETURN = Config.ACTION_RETURN
+    QUEUE = Config.ACTION_QUEUE
+    DNAT = Config.ACTION_DNAT
+    SNAT = Config.ACTION_SNAT
+    REDIRECT = Config.ACTION_REDIRECT
+    TPROXY = Config.ACTION_TPROXY
+    #MASQUERADE = Config.ACTION_MASQUERADE
+    #LOG = Config.ACTION_LOG
     STOP = Config.ACTION_STOP
+
+
 
 class Policy(Enums):
     ACCEPT = "accept"
@@ -26,6 +35,7 @@ class Hooks(Enums):
     POSTROUTING = "postrouting"
 
 class PortProtocols(Enums):
+    TCPUDP = "tcp,udp"
     TCP = "tcp"
     UDP = "udp"
     UDPLITE = "udplite"
@@ -33,8 +43,24 @@ class PortProtocols(Enums):
     DCCP = "dccp"
 
 class Protocols(Enums):
+    TCP = "tcp"
+    UDP = "udp"
+    UDPLITE = "udplite"
+    SCTP = "sctp"
+    DCCP = "dccp"
     ICMP = "icmp"
     ICMPv6 = "icmpv6"
+    AH = "ah"
+    ETHERNET = "ethernet"
+    GREP = "gre"
+    IP = "ip"
+    IPIP = "ipip"
+    L2TP = "l2tp"
+    COMP = "comp"
+    IGMP = "igmp"
+    ESP = "esp"
+    RAW = "raw"
+    ENCAP = "encap"
 
 class Family(Enums):
     INET = "inet"
@@ -45,8 +71,8 @@ class ChainType(Enums):
     FILTER = "filter"
     MANGLE = "mangle"
     ROUTE = "route"
-    SNAT = "snat"
-    DNAT = "dnat"
+    SNAT = "natsource"
+    DNAT = "natdest"
 
 class Operator(Enums):
     EQUAL = "=="
@@ -72,7 +98,9 @@ class Statements(Enums):
     """Enum of known (allowed) statements:
         [tcp,udp,ip] ...
     """
-
+    # we may need in the future:
+    # ANY = tcp,udp,udplite,sctp,dccp
+    TCPUDP = "tcp,udp"
     TCP = "tcp"
     UDP = "udp"
     UDPLITE = "udplite"

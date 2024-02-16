@@ -14,11 +14,11 @@ const (
 // Syslog defines the logger that writes traces to the syslog.
 // It can write to the local or a remote daemon.
 type Syslog struct {
-	Name      string
-	Writer    *syslog.Writer
-	Tag       string
-	logFormat formats.LoggerFormat
 	cfg       *LoggerConfig
+	Writer    *syslog.Writer
+	logFormat formats.LoggerFormat
+	Name      string
+	Tag       string
 }
 
 // NewSyslog returns a new object that manipulates and prints outbound connections

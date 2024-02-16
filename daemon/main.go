@@ -33,6 +33,7 @@ import (
 	"os/signal"
 	"runtime"
 	"runtime/pprof"
+	"runtime/trace"
 	"syscall"
 	"time"
 
@@ -50,28 +51,37 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 	"github.com/evilsocket/opensnitch/daemon/ui"
+	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
 var (
-	showVersion    = false
-	procmonMethod  = ""
-	logFile        = ""
-	rulesPath      = "rules"
-	noLiveReload   = false
-	queueNum       = 0
-	repeatQueueNum int //will be set later to queueNum + 1
-	workers        = 16
-	debug          = false
-	warning        = false
-	important      = false
-	errorlog       = false
+	showVersion       = false
+	checkRequirements = false
+	procmonMethod     = ""
+	logFile           = ""
+	logUTC            = true
+	logMicro          = false
+	rulesPath         = "/etc/opensnitchd/rules/"
+	configFile        = "/etc/opensnitchd/default-config.json"
+	fwConfigFile      = "/etc/opensnitchd/system-fw.json"
+	ebpfModPath       = "" // /usr/lib/opensnitchd/ebpf
+	noLiveReload      = false
+	queueNum          = 0
+	repeatQueueNum    int //will be set later to queueNum + 1
+	workers           = 16
+	debug             = false
+	warning           = false
+	important         = false
+	errorlog          = false
 
 	uiSocket = ""
 	uiClient = (*ui.Client)(nil)
 
 	cpuProfile = ""
 	memProfile = ""
+	traceFile  = ""
+	memFile    *os.File
 
 	ctx           = (context.Context)(nil)
 	cancel        = (context.CancelFunc)(nil)
@@ -79,6 +89,7 @@ var (
 	rules         = (*rule.Loader)(nil)
 	stats         = (*statistics.Statistics)(nil)
 	queue         = (*netfilter.Queue)(nil)
+	repeatQueue   = (*netfilter.Queue)(nil)
 	repeatPktChan = (<-chan netfilter.Packet)(nil)
 	pktChan       = (<-chan netfilter.Packet)(nil)
 	wrkChan       = (chan netfilter.Packet)(nil)
@@ -90,15 +101,21 @@ var (
 
 func init() {
 	flag.BoolVar(&showVersion, "version", debug, "Show daemon version of this executable and exit.")
+	flag.BoolVar(&checkRequirements, "check-requirements", debug, "Check system requirements for incompatibilities.")
 
 	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "How to search for processes path. Options: ftrace, audit (experimental), ebpf (experimental), proc (default)")
 	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
-	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
 	flag.IntVar(&workers, "workers", workers, "Number of concurrent workers.")
 	flag.BoolVar(&noLiveReload, "no-live-reload", debug, "Disable rules live reloading.")
 
+	flag.StringVar(&rulesPath, "rules-path", rulesPath, "Path to load JSON rules from.")
+	flag.StringVar(&configFile, "config-file", configFile, "Path to the daemon configuration file.")
+	flag.StringVar(&fwConfigFile, "fw-config-file", fwConfigFile, "Path to the system fw configuration file.")
+	//flag.StringVar(&ebpfModPath, "ebpf-modules-path", ebpfModPath, "Path to the directory with the eBPF modules.")
 	flag.StringVar(&logFile, "log-file", logFile, "Write logs to this file instead of the standard output.")
+	flag.BoolVar(&logUTC, "log-utc", logUTC, "Write logs output with UTC timezone (enabled by default).")
+	flag.BoolVar(&logMicro, "log-micro", logMicro, "Write logs output with microsecond timestamp (disabled by default).")
 	flag.BoolVar(&debug, "debug", debug, "Enable debug level logs.")
 	flag.BoolVar(&warning, "warning", warning, "Enable warning level logs.")
 	flag.BoolVar(&important, "important", important, "Enable important level logs.")
@@ -106,10 +123,56 @@ func init() {
 
 	flag.StringVar(&cpuProfile, "cpu-profile", cpuProfile, "Write CPU profile to this file.")
 	flag.StringVar(&memProfile, "mem-profile", memProfile, "Write memory profile to this file.")
+	flag.StringVar(&traceFile, "trace-file", traceFile, "Write trace file to this file.")
+}
+
+// Load configuration file from disk, by default from /etc/opensnitchd/default-config.json,
+// or from the path specified by configFile.
+// This configuration will be loaded again by uiClient(), in order to monitor it for changes.
+func loadDiskConfiguration() (*config.Config, error) {
+	if configFile == "" {
+		return nil, fmt.Errorf("Configuration file cannot be empty")
+	}
+
+	raw, err := config.Load(configFile)
+	if err != nil || len(raw) == 0 {
+		return nil, fmt.Errorf("Error loading configuration %s: %s", configFile, err)
+	}
+	clientConfig, err := config.Parse(raw)
+	if err != nil {
+		return nil, fmt.Errorf("Error parsing configuration %s: %s", configFile, err)
+	}
+
+	log.Info("Loading configuration file %s ...", configFile)
+	return &clientConfig, nil
 }
 
 func overwriteLogging() bool {
-	return debug || warning || important || errorlog || logFile != ""
+	return debug || warning || important || errorlog || logFile != "" || logMicro
+}
+
+func setupQueues() {
+	// prepare the queue
+	var err error
+	queue, err = netfilter.NewQueue(uint16(queueNum))
+	if err != nil {
+		msg := fmt.Sprintf("Error creating queue #%d: %s", queueNum, err)
+		uiClient.SendWarningAlert(msg)
+		log.Warning("Is opensnitchd already running?")
+		log.Fatal(msg)
+	}
+	pktChan = queue.Packets()
+
+	repeatQueueNum = queueNum + 1
+
+	repeatQueue, err = netfilter.NewQueue(uint16(repeatQueueNum))
+	if err != nil {
+		msg := fmt.Sprintf("Error creating repeat queue #%d: %s", repeatQueueNum, err)
+		uiClient.SendErrorAlert(msg)
+		log.Warning("Is opensnitchd already running?")
+		log.Warning(msg)
+	}
+	repeatPktChan = repeatQueue.Packets()
 }
 
 func setupLogging() {
@@ -126,6 +189,9 @@ func setupLogging() {
 		log.SetLogLevel(log.INFO)
 	}
 
+	log.SetLogUTC(logUTC)
+	log.SetLogMicro(logMicro)
+
 	var logFileToUse string
 	if logFile == "" {
 		logFileToUse = log.StdoutFile
@@ -139,7 +205,24 @@ func setupLogging() {
 }
 
 func setupProfiling() {
+	if traceFile != "" {
+		log.Info("setup trace profile: %s", traceFile)
+		f, err := os.Create(traceFile)
+		if err != nil {
+			log.Fatal("could not create trace profile: %s", err)
+		}
+		trace.Start(f)
+	}
+	if memProfile != "" {
+		log.Info("setup mem profile: %s", memProfile)
+		var err error
+		memFile, err = os.Create(memProfile)
+		if err != nil {
+			log.Fatal("could not create memory profile: %s", err)
+		}
+	}
 	if cpuProfile != "" {
+		log.Info("setup cpu profile: %s", cpuProfile)
 		if f, err := os.Create(cpuProfile); err != nil {
 			log.Fatal("%s", err)
 		} else if err := pprof.StartCPUProfile(f); err != nil {
@@ -217,31 +300,32 @@ func listenToEvents() {
 func initSystemdResolvedMonitor() {
 	resolvMonitor, err := systemd.NewResolvedMonitor()
 	if err != nil {
-		log.Warning("Unable to use systemd-resolved monitor: %s", err)
+		log.Debug("[DNS] Unable to use systemd-resolved monitor: %s", err)
 		return
 	}
 	_, err = resolvMonitor.Connect()
 	if err != nil {
-		log.Warning("Connecting to systemd-resolved: %s", err)
+		log.Debug("[DNS] Connecting to systemd-resolved: %s", err)
 		return
 	}
 	err = resolvMonitor.Subscribe()
 	if err != nil {
-		log.Warning("Subscribing to systemd-resolved DNS events: %s", err)
+		log.Debug("[DNS] Subscribing to systemd-resolved DNS events: %s", err)
 		return
 	}
 	go func() {
+		var ip net.IP
 		for {
 			select {
 			case exit := <-resolvMonitor.Exit():
 				if exit == nil {
-					log.Info("systemd-resolved monitor stopped")
+					log.Info("[DNS] systemd-resolved monitor stopped")
 					return
 				}
-				log.Debug("systemd-resolved monitor disconnected. Reconnecting...")
+				log.Debug("[DNS] systemd-resolved monitor disconnected. Reconnecting...")
 			case response := <-resolvMonitor.GetDNSResponses():
 				if response.State != systemd.SuccessState {
-					log.Debug("systemd-resolved monitor response error: %v", response)
+					log.Debug("[DNS] systemd-resolved monitor response error: %v", response)
 					continue
 				}
 				/*for i, q := range response.Question {
@@ -254,14 +338,13 @@ func initSystemdResolvedMonitor() {
 						log.Debug("systemd-resolved, excluding answer: %#v", a)
 						continue
 					}
-					domain := a.RR.Key.Name
-					ip := net.IP(a.RR.Address)
-					log.Debug("%d systemd-resolved monitor response: %s -> %s", i, domain, ip)
+					ip = net.IP(a.RR.Address)
+					log.Debug("%d systemd-resolved monitor response: %s -> %s", i, a.RR.Key.Name, ip)
 					if a.RR.Key.Type == systemd.DNSTypeCNAME {
-						log.Debug("systemd-resolved CNAME >> %s -> %s", a.RR.Name, domain)
-						dns.Track(a.RR.Name, domain)
+						log.Debug("systemd-resolved CNAME >> %s -> %s", a.RR.Name, a.RR.Key.Name)
+						dns.Track(a.RR.Name, a.RR.Key.Name /*domain*/)
 					} else {
-						dns.Track(ip.String(), domain)
+						dns.Track(ip.String(), a.RR.Key.Name /*domain*/)
 					}
 				}
 			}
@@ -274,8 +357,6 @@ func doCleanup(queue, repeatQueue *netfilter.Queue) {
 	firewall.Stop()
 	monitor.End()
 	uiClient.Close()
-	queue.Close()
-	repeatQueue.Close()
 	if resolvMonitor != nil {
 		resolvMonitor.Close()
 	}
@@ -285,17 +366,19 @@ func doCleanup(queue, repeatQueue *netfilter.Queue) {
 	}
 
 	if memProfile != "" {
-		f, err := os.Create(memProfile)
-		if err != nil {
-			fmt.Printf("Could not create memory profile: %s\n", err)
-			return
-		}
-		defer f.Close()
 		runtime.GC() // get up-to-date statistics
-		if err := pprof.WriteHeapProfile(f); err != nil {
-			fmt.Printf("Could not write memory profile: %s\n", err)
+		if err := pprof.WriteHeapProfile(memFile); err != nil {
+			log.Error("Could not write memory profile: %s", err)
 		}
+		log.Info("Writing mem profile to %s", memProfile)
+		memFile.Close()
 	}
+	if traceFile != "" {
+		trace.Stop()
+	}
+
+	repeatQueue.Close()
+	queue.Close()
 }
 
 func onPacket(packet netfilter.Packet) {
@@ -441,14 +524,14 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		if r.Operator.Operand == rule.OpTrue {
 			ruleName = log.Dim(r.Name)
 		}
-		log.Debug("%s %s -> %d:%s => %s:%d (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), con.SrcPort, log.Bold(con.SrcIP.String()), log.Bold(con.To()), con.DstPort, ruleName)
+		log.Debug("%s %s -> %d:%s => %s:%d, mark: %x (%s)", log.Bold(log.Green("✔")), log.Bold(con.Process.Path), con.SrcPort, log.Bold(con.SrcIP.String()), log.Bold(con.To()), con.DstPort, packet.Mark, ruleName)
 	} else {
 		if r.Action == rule.Reject {
 			netlink.KillSocket(con.Protocol, con.SrcIP, con.SrcPort, con.DstIP, con.DstPort)
 		}
 		packet.SetVerdict(netfilter.NF_DROP)
 
-		log.Debug("%s %s -> %d:%s => %s:%d (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), con.SrcPort, log.Bold(con.SrcIP.String()), log.Bold(con.To()), con.DstPort, log.Red(r.Name))
+		log.Debug("%s %s -> %d:%s => %s:%d, mark: %x (%s)", log.Bold(log.Red("✘")), log.Bold(con.Process.Path), con.SrcPort, log.Bold(con.SrcIP.String()), log.Bold(con.To()), con.DstPort, packet.Mark, log.Red(r.Name))
 	}
 
 	return r
@@ -463,11 +546,27 @@ func main() {
 		fmt.Println(core.Version)
 		os.Exit(0)
 	}
+	if checkRequirements {
+		core.CheckSysRequirements()
+		os.Exit(0)
+	}
 
 	setupLogging()
 	setupProfiling()
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
+
+	cfg, err := loadDiskConfiguration()
+	if err != nil {
+		log.Fatal("%s", err)
+	}
+
+	if err == nil && cfg.Rules.Path != "" {
+		rulesPath = cfg.Rules.Path
+	}
+	if rulesPath == "" {
+		log.Fatal("rules path cannot be empty")
+	}
 
 	rulesPath, err := core.ExpandPath(rulesPath)
 	if err != nil {
@@ -477,38 +576,30 @@ func main() {
 	setupSignals()
 
 	log.Info("Loading rules from %s ...", rulesPath)
-	if rules, err = rule.NewLoader(!noLiveReload); err != nil {
+	rules, err = rule.NewLoader(!noLiveReload)
+	if err != nil {
 		log.Fatal("%s", err)
 	} else if err = rules.Load(rulesPath); err != nil {
 		log.Fatal("%s", err)
 	}
 	stats = statistics.New(rules)
 	loggerMgr = loggers.NewLoggerManager()
-	uiClient = ui.NewClient(uiSocket, stats, rules, loggerMgr)
+	uiClient = ui.NewClient(uiSocket, configFile, stats, rules, loggerMgr)
 
-	// prepare the queue
 	setupWorkers()
-	queue, err := netfilter.NewQueue(uint16(queueNum))
-	if err != nil {
-		msg := fmt.Sprintf("Error creating queue #%d: %s", queueNum, err)
-		uiClient.SendWarningAlert(msg)
-		log.Warning("Is opensnitchd already running?")
-		log.Fatal(msg)
-	}
-	pktChan = queue.Packets()
+	setupQueues()
 
-	repeatQueueNum = queueNum + 1
-	repeatQueue, rqerr := netfilter.NewQueue(uint16(repeatQueueNum))
-	if rqerr != nil {
-		msg := fmt.Sprintf("Error creating repeat queue #%d: %s", repeatQueueNum, rqerr)
-		uiClient.SendErrorAlert(msg)
-		log.Warning("Is opensnitchd already running?")
-		log.Warning(msg)
+	fwConfigPath := fwConfigFile
+	if fwConfigPath == "" {
+		fwConfigPath = cfg.FwOptions.ConfigPath
 	}
-	repeatPktChan = repeatQueue.Packets()
-
+	log.Info("Using system fw configuration %s ...", fwConfigPath)
 	// queue is ready, run firewall rules and start intercepting connections
-	if err = firewall.Init(uiClient.GetFirewallType(), &queueNum); err != nil {
+	if err = firewall.Init(
+		uiClient.GetFirewallType(),
+		fwConfigPath,
+		cfg.FwOptions.MonitorInterval,
+		&queueNum); err != nil {
 		log.Warning("%s", err)
 		uiClient.SendWarningAlert(err)
 	}
@@ -522,15 +613,15 @@ func main() {
 	// overwrite monitor method from configuration if the user has passed
 	// the option via command line.
 	if procmonMethod != "" {
-		if err := monitor.ReconfigureMonitorMethod(procmonMethod); err != nil {
+		if err := monitor.ReconfigureMonitorMethod(procmonMethod, cfg.Ebpf.ModulesPath); err != nil {
 			msg := fmt.Sprintf("Unable to set process monitor method via parameter: %v", err)
 			uiClient.SendWarningAlert(msg)
 			log.Warning(msg)
 		}
 	}
 
-	go func(uiClient *ui.Client) {
-		if err := dns.ListenerEbpf(); err != nil {
+	go func(uiClient *ui.Client, ebpfPath string) {
+		if err := dns.ListenerEbpf(ebpfPath); err != nil {
 			msg := fmt.Sprintf("EBPF-DNS: Unable to attach ebpf listener: %s", err)
 			log.Warning(msg)
 			// don't display an alert, since this module is not critical
@@ -542,7 +633,7 @@ func main() {
 				msg)
 
 		}
-	}(uiClient)
+	}(uiClient, cfg.Ebpf.ModulesPath)
 
 	initSystemdResolvedMonitor()
 

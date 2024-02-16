@@ -10,6 +10,14 @@ struct bpf_map_def SEC("maps/proc-events") events = {
     .max_entries = 256, // max cpus
 };
 
+struct bpf_map_def SEC("maps/execMap") execMap = {
+	.type = BPF_MAP_TYPE_HASH,
+	.key_size = sizeof(u32),
+	.value_size = sizeof(struct data_t),
+	.max_entries = 256,
+};
+
+
 static __always_inline void new_event(struct data_t* data)
 {
     // initializing variables with __builtin_memset() is required
@@ -23,14 +31,30 @@ static __always_inline void new_event(struct data_t* data)
     bpf_probe_read(&parent, sizeof(parent), &task->real_parent);
     data->pid = bpf_get_current_pid_tgid() >> 32;
 
-    // FIXME: always 0?
 #if !defined(__arm__) && !defined(__i386__)
     // on i686 -> invalid read from stack
-    bpf_probe_read(&data->ppid, sizeof(data->ppid), &parent->tgid);
+    bpf_probe_read(&data->ppid, sizeof(u32), &parent->tgid);
 #endif
     data->uid = bpf_get_current_uid_gid() & 0xffffffff;
     bpf_get_current_comm(&data->comm, sizeof(data->comm));
 };
+
+/*
+ * send to userspace the result of the execve* call.
+ */
+static __always_inline void __handle_exit_execve(struct trace_sys_exit_execve *ctx)
+{
+    u64 pid_tgid = bpf_get_current_pid_tgid();
+    struct data_t *proc = bpf_map_lookup_elem(&execMap, &pid_tgid);
+    if (proc == NULL) { return; }
+    if (ctx->ret != 0) { goto out; }
+    proc->ret_code = ctx->ret;
+
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, proc, sizeof(*proc));
+
+out:
+    bpf_map_delete_elem(&execMap, &pid_tgid);
+}
 
 // https://0xax.gitbooks.io/linux-insides/content/SysCall/linux-syscall-4.html
 // bprm_execve REGS_PARM3
@@ -47,19 +71,25 @@ int tracepoint__sched_sched_process_exit(struct pt_regs *ctx)
     data->type = EVENT_SCHED_EXIT;
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
 
+    u64 pid_tgid = bpf_get_current_pid_tgid();
+    bpf_map_delete_elem(&execMap, &pid_tgid);
     return 0;
 };
 
-struct trace_sys_enter_execve {
-    short common_type;
-    char common_flags;
-    char common_preempt_count;
-    int common_pid;
-    int __syscall_nr;
-    char *filename;
-    const char *const *argv;
-    const char *const *envp;
+SEC("tracepoint/syscalls/sys_exit_execve")
+int tracepoint__syscalls_sys_exit_execve(struct trace_sys_exit_execve *ctx)
+{
+    __handle_exit_execve(ctx);
+    return 0;
 };
+
+SEC("tracepoint/syscalls/sys_exit_execveat")
+int tracepoint__syscalls_sys_exit_execveat(struct trace_sys_exit_execve *ctx)
+{
+    __handle_exit_execve(ctx);
+    return 0;
+};
+
 SEC("tracepoint/syscalls/sys_enter_execve")
 int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
 {
@@ -93,24 +123,24 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
     }
 #endif
 
-    // With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
-    // BUG: after coming back from suspend state, this helper fails with error -95 (EOPNOTSUPP)
-    // Possible workaround: count -95 errors, and from userspace reinitialize the streamer if errors >= n-errors
+// FIXME: on aarch64 we fail to save the event to execMap, so send it to userspace here.
+#if defined(__aarch64__)
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
+#else
+    // in case of failure adding the item to the map, send it directly
+    u64 pid_tgid = bpf_get_current_pid_tgid();
+	if (bpf_map_update_elem(&execMap, &pid_tgid, data, BPF_ANY) != 0) {
+
+        // With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
+        // BUG: after coming back from suspend state, this helper fails with error -95 (EOPNOTSUPP)
+        // Possible workaround: count -95 errors, and from userspace reinitialize the streamer if errors >= n-errors
+        bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
+    }
+#endif
+
     return 0;
 };
 
-struct trace_sys_enter_execveat {
-    short common_type;
-    char common_flags;
-    char common_preempt_count;
-    int common_pid;
-    int __syscall_nr;
-    char *filename;
-    const char *const *argv;
-    const char *const *envp;
-    int flags;
-};
 SEC("tracepoint/syscalls/sys_enter_execveat")
 int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx)
 {
@@ -129,6 +159,9 @@ int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx
     const char *argp={0};
     data->args_count = 0;
     data->args_partial = INCOMPLETE_ARGS;
+
+// FIXME: on i386 arch, the following code fails with permission denied.
+#if !defined(__arm__) && !defined(__i386__)
     #pragma unroll
     for (int i = 0; i < MAX_ARGS; i++) {
         bpf_probe_read_user(&argp, sizeof(argp), &ctx->argv[i]);
@@ -139,11 +172,23 @@ int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx
         }
         data->args_count++;
     }
+#endif
 
-    // With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
-    // BUG: after coming back from suspend state, this helper fails with error -95 (EOPNOTSUPP)
-    // Possible workaround: count -95 errors, and from userspace reinitialize the streamer if errors >= n-errors
+// FIXME: on aarch64 we fail to save the event to execMap, so send it to userspace here.
+#if defined(__aarch64__)
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
+#else
+    // in case of failure adding the item to the map, send it directly
+    u64 pid_tgid = bpf_get_current_pid_tgid();
+	if (bpf_map_update_elem(&execMap, &pid_tgid, data, BPF_ANY) != 0) {
+
+        // With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
+        // BUG: after coming back from suspend state, this helper fails with error -95 (EOPNOTSUPP)
+        // Possible workaround: count -95 errors, and from userspace reinitialize the streamer if errors >= n-errors
+        bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
+    }
+#endif
+
     return 0;
 };
 

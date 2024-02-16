@@ -12,18 +12,22 @@ from opensnitch import ui_pb2
 from opensnitch.config import Config
 from opensnitch.version import version
 from opensnitch.nodes import Nodes
-from opensnitch.firewall import Firewall
+from opensnitch.firewall import Firewall, Rules as FwRules
+from opensnitch.database.enums import AlertFields
 from opensnitch.dialogs.firewall import FirewallDialog
 from opensnitch.dialogs.preferences import PreferencesDialog
 from opensnitch.dialogs.ruleseditor import RulesEditorDialog
 from opensnitch.dialogs.processdetails import ProcessDetailsDialog
+from opensnitch.dialogs.conndetails import ConnDetails
 from opensnitch.customwidgets.colorizeddelegate import ColorizedDelegate
 from opensnitch.customwidgets.firewalltableview import FirewallTableModel
 from opensnitch.customwidgets.generictableview import GenericTableModel
 from opensnitch.customwidgets.addresstablemodel import AddressTableModel
 from opensnitch.utils import Message, QuickHelp, AsnDB, Icons
+from opensnitch.utils.infowindow import InfoWindow
+from opensnitch.utils.xdg import xdg_current_desktop
 from opensnitch.actions import Actions
-from opensnitch.rules import Rule
+from opensnitch.rules import Rule, Rules
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -62,6 +66,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_R_DURATION = 5
     COL_R_OP_TYPE = 6
     COL_R_OP_OPERAND = 7
+    COL_R_CREATED = 8
+
+    # alerts
+    COL_ALERT_TYPE = 2
+    COL_ALERT_BODY = 3
+    COL_ALERT_WHAT = 4
+    COL_ALERT_PRIO = 5
 
     # procs
     COL_PID = 9
@@ -74,19 +85,22 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     TAB_ADDRS = 5
     TAB_PORTS = 6
     TAB_USERS = 7
-    TAB_FIREWALL = 8
+    TAB_FIREWALL = 8 # in rules tab
+    TAB_ALERTS = 9 # in rules tab
 
     # tree's top level items
     RULES_TREE_APPS  = 0
-    RULES_TREE_NODES = 1
-    RULES_TREE_FIREWALL = 2
+    RULES_TREE_ALERTS = 1
+    RULES_TREE_NODES = 2
+    RULES_TREE_FIREWALL = 3
 
     RULES_TREE_PERMANENT = 0
     RULES_TREE_TEMPORARY = 1
 
     RULES_COMBO_PERMANENT = 1
     RULES_COMBO_TEMPORARY = 2
-    RULES_COMBO_FW = 3
+    RULES_COMBO_ALERTS = 3
+    RULES_COMBO_FW = 4
 
     RULES_TYPE_PERMANENT = 0
     RULES_TYPE_TEMPORARY = 1
@@ -112,7 +126,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         TAB_ADDRS: False,
         TAB_PORTS: False,
         TAB_USERS: False,
-        TAB_FIREWALL: False
+        TAB_FIREWALL: False,
+        TAB_ALERTS: False
     }
     # restore scrollbar position when going back from a detail view
     LAST_SCROLL_VALUE = None
@@ -142,7 +157,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "rule as Rule",
             "group_by": LAST_GROUP_BY,
             "last_order_by": "1",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_NODES: {
             "name": "nodes",
@@ -165,7 +181,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "version as Version",
             "header_labels": [],
             "last_order_by": "1",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_RULES: {
             "name": "rules",
@@ -182,10 +199,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "enabled as Enabled," \
                     "action as Action," \
                     "duration as Duration," \
-                    "description as Description",
+                    "description as Description, " \
+                    "created as Created",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 0
+            "last_order_to": 0,
+            "tracking_column:": COL_R_NAME
         },
         TAB_FIREWALL: {
             "name": "firewall",
@@ -199,7 +218,27 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 0
+            "last_order_to": 0,
+            "tracking_column:": COL_TIME
+        },
+        TAB_ALERTS: {
+            "name": "alerts",
+            "label": None,
+            "cmd": None,
+            "cmdCleanStats": None,
+            "view": None,
+            "filterLine": None,
+            "model": None,
+            "delegate": "defaultRulesDelegateConfig",
+            "display_fields": "time as Time, " \
+                "node as Node, " \
+                "type as Type, " \
+                "substr(what, 0, 128) as What, " \
+                "substr(body, 0, 128) as Description ",
+            "header_labels": [],
+            "last_order_by": "1",
+            "last_order_to": 0,
+            "tracking_column:": COL_TIME
         },
         TAB_HOSTS: {
             "name": "hosts",
@@ -213,7 +252,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_PROCS: {
             "name": "procs",
@@ -227,7 +267,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_ADDRS: {
             "name": "addrs",
@@ -241,7 +282,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_PORTS: {
             "name": "ports",
@@ -255,7 +297,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         },
         TAB_USERS: {
             "name": "users",
@@ -269,14 +312,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "*",
             "header_labels": [],
             "last_order_by": "2",
-            "last_order_to": 1
+            "last_order_to": 1,
+            "tracking_column:": COL_TIME
         }
     }
 
     def __init__(self, parent=None, address=None, db=None, dbname="db", appicon=None):
         super(StatsDialog, self).__init__(parent)
-
-        self._current_desktop = os.environ['XDG_CURRENT_DESKTOP'] if os.environ.get("XDG_CURRENT_DESKTOP") != None else None
 
         self.setWindowFlags(QtCore.Qt.Window)
         self.setupUi(self)
@@ -291,6 +333,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.COL_STR_VERSION = QC.translate("stats", "Version", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_RULES_NUM = QC.translate("stats", "Rules", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_TIME = QC.translate("stats", "Time", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_CREATED = QC.translate("stats", "Created", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_ACTION = QC.translate("stats", "Action", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DURATION = QC.translate("stats", "Duration", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DESCRIPTION = QC.translate("stats", "Description", "This is a word, without spaces and symbols.").replace(" ", "")
@@ -322,9 +365,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg = Config.get()
         self._nodes = Nodes.instance()
         self._fw = Firewall().instance()
+        self._rules = Rules.instance()
         self._fw.rules.rulesUpdated.connect(self._cb_fw_rules_updated)
+        self._rules.updated.connect(self._cb_app_rules_updated)
         self._actions = Actions().instance()
         self._actions.loadAll()
+        self._last_update = datetime.datetime.now()
 
         # TODO: allow to display multiples dialogs
         self._proc_details_dialog = ProcessDetailsDialog(appicon=appicon)
@@ -334,6 +380,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
 
         self.fwTable.setVisible(False)
+        self.alertsTable.setVisible(False)
         self.rulesTable.setVisible(True)
 
         self.daemon_connected = False
@@ -395,15 +442,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboRulesFilter.setVisible(False)
 
         menu = QtWidgets.QMenu()
-        menu.addAction(Icons.new("go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_node_export_clicked)
-        menu.addAction(Icons.new("go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_node_import_clicked)
+        menu.addAction(Icons.new(self, "go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_node_export_clicked)
+        menu.addAction(Icons.new(self, "go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_node_import_clicked)
         self.nodeActionsButton.setMenu(menu)
 
         menuActions = QtWidgets.QMenu()
-        menuActions.addAction(Icons.new("go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_export_clicked)
-        menuActions.addAction(Icons.new("go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_import_clicked)
-        menuActions.addAction(Icons.new("document-save"), QC.translate("stats", "Export events to CSV")).triggered.connect(self._on_menu_export_csv_clicked)
-        menuActions.addAction(Icons.new("application-exit"), QC.translate("stats", "Quit")).triggered.connect(self._on_menu_exit_clicked)
+        menuActions.addAction(Icons.new(self, "go-up"), QC.translate("stats", "Export rules")).triggered.connect(self._on_menu_export_clicked)
+        menuActions.addAction(Icons.new(self, "go-down"), QC.translate("stats", "Import rules")).triggered.connect(self._on_menu_import_clicked)
+        menuActions.addAction(Icons.new(self, "document-save"), QC.translate("stats", "Export events to CSV")).triggered.connect(self._on_menu_export_csv_clicked)
+        menuActions.addAction(Icons.new(self, "application-exit"), QC.translate("stats", "Quit")).triggered.connect(self._on_menu_exit_clicked)
         self.actionsButton.setMenu(menuActions)
 
         # translations must be done here, otherwise they don't take effect
@@ -428,6 +475,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.COL_STR_ACTION,
             self.COL_STR_DURATION,
             self.COL_STR_DESCRIPTION,
+            self.COL_STR_CREATED,
+        ]
+
+        self.TABLES[self.TAB_ALERTS]['header_labels'] = [
+            self.COL_STR_TIME,
+            self.COL_STR_NODE,
+            "Type",
+            "What",
+            self.COL_STR_DESCRIPTION,
+            "Priority"
         ]
 
         stats_headers = [
@@ -473,13 +530,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 verticalScrollBar=self.rulesScrollBar,
                 delegate=self.TABLES[self.TAB_RULES]['delegate'],
                 order_by="2",
-                sort_direction=self.SORT_ORDER[0])
-        self.TABLES[self.TAB_FIREWALL]['view'] = self._setup_table(QtWidgets.QTableView,
-                self.fwTable, "firewall",
+                sort_direction=self.SORT_ORDER[0],
+                tracking_column=self.COL_R_NAME)
+        self.TABLES[self.TAB_FIREWALL]['view'] = self._setup_table(QtWidgets.QTableView, self.fwTable, "firewall",
                 model=FirewallTableModel("firewall"),
                 verticalScrollBar=None,
                 delegate=self.TABLES[self.TAB_FIREWALL]['delegate'],
                 order_by="2",
+                sort_direction=self.SORT_ORDER[0])
+        self.TABLES[self.TAB_ALERTS]['view'] = self._setup_table(QtWidgets.QTableView, self.alertsTable, "alerts",
+                fields=self.TABLES[self.TAB_ALERTS]['display_fields'],
+                model=GenericTableModel("alerts", self.TABLES[self.TAB_ALERTS]['header_labels']),
+                verticalScrollBar=self.rulesScrollBar,
+                delegate=self.TABLES[self.TAB_ALERTS]['delegate'],
+                order_by="1",
                 sort_direction=self.SORT_ORDER[0])
         self.TABLES[self.TAB_HOSTS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.hostsTable, "hosts",
@@ -563,7 +627,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_MAIN]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
         self.TABLES[self.TAB_RULES]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.TABLES[self.TAB_RULES]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
-        for idx in range(1,9):
+        self.TABLES[self.TAB_FIREWALL]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.TABLES[self.TAB_FIREWALL]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
+        self.TABLES[self.TAB_ALERTS]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.TABLES[self.TAB_ALERTS]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
+
+        for idx in range(1,10):
             if self.TABLES[idx]['cmd'] != None:
                 self.TABLES[idx]['cmd'].hide()
                 self.TABLES[idx]['cmd'].setVisible(False)
@@ -601,8 +670,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             'users.csv'
         )
 
-        self.iconStart = Icons.new("media-playback-start")
-        self.iconPause = Icons.new("media-playback-pause")
+        self.iconStart = Icons.new(self, "media-playback-start")
+        self.iconPause = Icons.new(self, "media-playback-pause")
 
         self.fwTreeEdit = QtWidgets.QPushButton()
         self.fwTreeEdit.setIcon(QtGui.QIcon().fromTheme("preferences-desktop"))
@@ -620,7 +689,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if event.type() == QtCore.QEvent.WindowStateChange:
             if event.oldState() & QtCore.Qt.WindowMinimized and event.oldState() & QtCore.Qt.WindowMaximized:
                 #a previously minimized maximized window ...
-                if self.windowState() ^ QtCore.Qt.WindowMinimized and self._current_desktop == "KDE":
+                if self.windowState() ^ QtCore.Qt.WindowMinimized and xdg_current_desktop == "KDE":
                     # is not minimized anymore, i.e. it was unminimized
                     # docs: https://doc.qt.io/qt-5/qwidget.html#setWindowState
                     self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
@@ -659,20 +728,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if QtGui.QIcon.hasThemeIcon("document-new"):
             return
 
-        newRuleIcon = Icons.new("document-new")
-        delRuleIcon = Icons.new("edit-delete")
-        editRuleIcon = Icons.new("accessories-text-editor")
-        saveIcon = Icons.new("document-save")
-        prefsIcon = Icons.new("preferences-system")
-        searchIcon = Icons.new("system-search")
-        clearIcon = Icons.new("edit-clear-all")
-        leftArrowIcon = Icons.new("go-previous")
-        fwIcon = Icons.new("security-high")
-        optsIcon = Icons.new("format-justify-fill")
-        helpIcon = Icons.new("help-browser")
-        eventsIcon = Icons.new("view-sort-ascending")
-        rulesIcon = Icons.new("address-book-new")
-        procsIcon = Icons.new("system-run")
+        newRuleIcon = Icons.new(self, "document-new")
+        delRuleIcon = Icons.new(self, "edit-delete")
+        editRuleIcon = Icons.new(self, "accessories-text-editor")
+        saveIcon = Icons.new(self, "document-save")
+        prefsIcon = Icons.new(self, "preferences-system")
+        searchIcon = Icons.new(self, "system-search")
+        clearIcon = Icons.new(self, "edit-clear-all")
+        leftArrowIcon = Icons.new(self, "go-previous")
+        fwIcon = Icons.new(self, "security-high")
+        optsIcon = Icons.new(self, "format-justify-fill")
+        helpIcon = Icons.new(self, "help-browser")
+        eventsIcon = Icons.new(self, "view-sort-ascending")
+        rulesIcon = Icons.new(self, "address-book-new")
+        procsIcon = Icons.new(self, "system-run")
 
         if QtGui.QIcon().hasThemeIcon("preferences-desktop") == False:
             self.fwTreeEdit.setText("+")
@@ -700,6 +769,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.TABLES[idx]['cmdCleanStats'].setIcon(clearIcon)
 
     def _load_settings(self):
+        self._ui_refresh_interval = self._cfg.getInt(Config.STATS_REFRESH_INTERVAL, 0)
         dialog_geometry = self._cfg.getSettings(Config.STATS_GEOMETRY)
         dialog_last_tab = self._cfg.getSettings(Config.STATS_LAST_TAB)
         dialog_general_filter_text = self._cfg.getSettings(Config.STATS_FILTER_TEXT)
@@ -735,6 +805,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._restore_details_view_columns(self.nodesTable.horizontalHeader(), Config.STATS_NODES_COL_STATE)
         self._restore_details_view_columns(self.rulesTable.horizontalHeader(), Config.STATS_RULES_COL_STATE)
         self._restore_details_view_columns(self.fwTable.horizontalHeader(), Config.STATS_FW_COL_STATE)
+        self._restore_details_view_columns(self.alertsTable.horizontalHeader(), Config.STATS_ALERTS_COL_STATE)
 
         rulesTreeNodes_expanded = self._cfg.getBool(Config.STATS_RULES_TREE_EXPANDED_1)
         if rulesTreeNodes_expanded != None:
@@ -764,6 +835,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings(Config.STATS_RULES_COL_STATE, rulesHeader.saveState())
         fwHeader = self.fwTable.horizontalHeader()
         self._cfg.setSettings(Config.STATS_FW_COL_STATE, fwHeader.saveState())
+        alertsHeader = self.alertsTable.horizontalHeader()
+        self._cfg.setSettings(Config.STATS_ALERTS_COL_STATE, alertsHeader.saveState())
 
         rules_tree_apps = self._get_rulesTree_item(self.RULES_TREE_APPS)
         if rules_tree_apps != None:
@@ -797,8 +870,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return ret1 and ret2
 
     def _del_rule(self, rule_name, node_addr):
+        if rule_name == None or node_addr == None:
+            print("_del_rule() invalid parameters")
+            return
         nid, noti = self._nodes.delete_rule(rule_name, node_addr, self._notification_callback)
+        if nid == None:
+            return
         self._notifications_sent[nid] = noti
+        # FIXME: we shouldn't refresh the view here. We should wait for a
+        # notification reply on self._cb_notification_callback
+        self._refresh_active_table()
 
     # https://stackoverflow.com/questions/40225270/copy-paste-multiple-items-from-qtableview-in-pyqt4
     def _copy_selected_rows(self):
@@ -819,9 +900,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             selection = table.selectionModel().selectedRows()
             if not selection:
-                return
+                return False
 
             menu = QtWidgets.QMenu()
+            _menu_details = menu.addAction(QC.translate("stats", "Details"))
             rulesMenu = QtWidgets.QMenu(QC.translate("stats", "Rules"))
             _menu_new_rule = rulesMenu.addAction(QC.translate("stats", "New"))
             menu.addMenu(rulesMenu)
@@ -834,9 +916,85 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             if action == _menu_new_rule:
                 self._table_menu_new_rule_from_row(cur_idx, model, selection)
+            elif action == _menu_details:
+                coltime = model.index(selection[0].row(), self.COL_TIME).data()
+                o = ConnDetails(self)
+                o.showByField("time", coltime)
 
         except Exception as e:
             print(e)
+        finally:
+            self._clear_rows_selection()
+            return True
+
+    def _configure_fwrules_contextual_menu(self, pos):
+        try:
+            cur_idx = self.tabWidget.currentIndex()
+            table = self._get_active_table()
+            model = table.model()
+            menu = QtWidgets.QMenu()
+            exportMenu = QtWidgets.QMenu(QC.translate("stats", "Export"))
+
+            selection = table.selectionModel().selectedRows()
+            if not selection:
+                return False
+            is_rule_enabled = model.index(selection[0].row(), FirewallTableModel.COL_ENABLED).data()
+            rule_action = model.index(selection[0].row(), FirewallTableModel.COL_ACTION).data()
+            rule_action = rule_action.lower()
+
+            if rule_action == Config.ACTION_ACCEPT or \
+                    rule_action == Config.ACTION_DROP or \
+                    rule_action == Config.ACTION_RETURN or \
+                    rule_action == Config.ACTION_REJECT:
+                actionsMenu = QtWidgets.QMenu(QC.translate("stats", "Action"))
+                _action_accept = actionsMenu.addAction(Config.ACTION_ACCEPT)
+                _action_drop = actionsMenu.addAction(Config.ACTION_DROP)
+                _action_reject = actionsMenu.addAction(Config.ACTION_REJECT)
+                _action_return = actionsMenu.addAction(Config.ACTION_RETURN)
+                menu.addSeparator()
+                menu.addMenu(actionsMenu)
+
+            _label_enable = QC.translate("stats", "Disable")
+            if is_rule_enabled == "False":
+                _label_enable = QC.translate("stats", "Enable")
+            _menu_enable = menu.addAction(_label_enable)
+            _menu_delete = menu.addAction(QC.translate("stats", "Delete"))
+            _menu_edit = menu.addAction(QC.translate("stats", "Edit"))
+
+            menu.addSeparator()
+            _toClipboard = exportMenu.addAction(QC.translate("stats", "To clipboard"))
+            #_toDisk = exportMenu.addAction(QC.translate("stats", "To disk"))
+            menu.addMenu(exportMenu)
+
+            # move away menu a few pixels to the right, to avoid clicking on it by mistake
+            point = QtCore.QPoint(pos.x()+10, pos.y()+5)
+            action = menu.exec_(table.mapToGlobal(point))
+
+            model = table.model()
+
+            # block fw rules signals, to prevent reloading them per operation,
+            # which can lead to race conditions.
+            self._fw.rules.blockSignals(True)
+            if action == _menu_delete:
+                self._table_menu_delete(cur_idx, model, selection)
+            elif action == _menu_enable:
+                self._table_menu_enable(cur_idx, model, selection, is_rule_enabled)
+            elif action == _menu_edit:
+                self._table_menu_edit(cur_idx, model, selection)
+            elif action == _action_accept or \
+                action == _action_drop or \
+                action == _action_reject or \
+                action == _action_return:
+                self._table_menu_change_rule_field(cur_idx, model, selection, FwRules.FIELD_TARGET, action.text())
+            elif action == _toClipboard:
+                self._table_menu_export_clipboard(cur_idx, model, selection)
+            #elif action == _toDisk:
+            #    self._table_menu_export_disk(cur_idx, model, selection)
+
+            self._fw.rules.blockSignals(False)
+
+        except Exception as e:
+            print("fwrules contextual menu error:", e)
         finally:
             self._clear_rows_selection()
             return True
@@ -849,7 +1007,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             selection = table.selectionModel().selectedRows()
             if not selection:
-                return
+                return False
 
             menu = QtWidgets.QMenu()
             durMenu = QtWidgets.QMenu(self.COL_STR_DURATION)
@@ -909,7 +1067,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         if ret == QtWidgets.QMessageBox.Cancel:
                             return False
                         self._table_menu_apply_to_node(cur_idx, model, selection, node_addr)
-                        return
+                        return False
 
             if action == _menu_delete:
                 self._table_menu_delete(cur_idx, model, selection)
@@ -943,22 +1101,93 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._table_menu_export_disk(cur_idx, model, selection)
 
         except Exception as e:
-            print(e)
+            print("rules contextual menu exception:", e)
+        finally:
+            self._clear_rows_selection()
+            return True
+
+    def _configure_alerts_contextual_menu(self, pos):
+        try:
+            cur_idx = self.tabWidget.currentIndex()
+            table = self._get_active_table()
+            model = table.model()
+
+            selection = table.selectionModel().selectedRows()
+            if not selection:
+                return False
+
+            menu = QtWidgets.QMenu()
+            exportMenu = QtWidgets.QMenu(QC.translate("stats", "Export"))
+
+            #is_rule_enabled = model.index(selection[0].row(), self.COL_R_ENABLED).data()
+            #menu_label_enable = QC.translate("stats", "Disable")
+            #if is_rule_enabled == "False":
+            #    menu_label_enable = QC.translate("stats", "Enable")
+
+            _menu_view = menu.addAction(QC.translate("stats", "View"))
+            _menu_delete = menu.addAction(QC.translate("stats", "Delete"))
+
+            menu.addSeparator()
+            _toClipboard = exportMenu.addAction(QC.translate("stats", "To clipboard"))
+            _toDisk = exportMenu.addAction(QC.translate("stats", "To disk"))
+            menu.addMenu(exportMenu)
+
+            # move away menu a few pixels to the right, to avoid clicking on it by mistake
+            point = QtCore.QPoint(pos.x()+10, pos.y()+5)
+            action = menu.exec_(table.mapToGlobal(point))
+
+            model = table.model()
+
+            if action == _menu_delete:
+                self._table_menu_delete(cur_idx, model, selection)
+            elif action == _menu_view:
+                for idx in selection:
+                    atime = model.index(idx.row(), self.COL_TIME).data()
+                    anode = model.index(idx.row(), self.COL_NODE).data()
+                    self._display_alert_info(atime, anode)
+
+            elif action == _toClipboard:
+                self._table_menu_export_clipboard(cur_idx, model, selection)
+            elif action == _toDisk:
+                self._table_menu_export_disk(cur_idx, model, selection)
+
+        except Exception as e:
+            print("alerts contextual menu exception:", e)
         finally:
             self._clear_rows_selection()
             return True
 
     def _table_menu_export_clipboard(self, cur_idx, model, selection):
         rules_list = []
-        for idx in selection:
-            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
-            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+        if cur_idx == self.TAB_RULES and self.fwTable.isVisible():
+            for idx in selection:
+                uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
+                node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
+                r = self._fw.get_protorule_by_uuid(node, uuid)
+                if r:
+                    rules_list.append(self._fw.rule_to_json(r))
 
-            json_rule = self._nodes.rule_to_json(node_addr, rule_name)
-            if json_rule != None:
-                rules_list.append(json_rule)
-            else:
-                print("export to clipboard: ERROR converting \"{0}\" to json".format(rule_name))
+        elif cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
+            for idx in selection:
+                rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+                node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+
+                json_rule = self._nodes.rule_to_json(node_addr, rule_name)
+                if json_rule != None:
+                    rules_list.append(json_rule)
+                else:
+                    print("export to clipboard: ERROR converting \"{0}\" to json".format(rule_name))
+
+        elif cur_idx == self.TAB_RULES and self.alertsTable.isVisible():
+            for idx in selection:
+                atime = model.index(idx.row(), self.COL_TIME).data()
+                anode = model.index(idx.row(), self.COL_NODE).data()
+                atype = model.index(idx.row(), self.COL_ALERT_TYPE).data()
+                abody = model.index(idx.row(), self.COL_ALERT_BODY).data()
+                awhat = model.index(idx.row(), self.COL_ALERT_WHAT).data()
+                aprio = model.index(idx.row(), self.COL_ALERT_PRIO).data()
+
+                rules_list.append("{0},{1},{2},{3},{4},{5}".format(atime, anode, atype, abody, awhat, aprio))
 
         cliptext=""
         for r in rules_list:
@@ -1010,7 +1239,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if records == None or records.size() == -1:
                     rule = Rule.new_from_records(records)
                     rule.name = "cloned-{0}-{1}".format(idx, rule.name)
-                    self._db.insert_rule(rule, node_addr)
+                    self._rules.add_rules(node_addr, [rule])
                     break
 
             if records != None and records.size() == -1:
@@ -1029,60 +1258,92 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
             nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
             if nid != None:
-                self._db.insert_rule(rule, node_addr)
+                self._rules.add_rules(node_addr, [rule])
                 self._notifications_sent[nid] = noti
 
     def _table_menu_change_rule_field(self, cur_idx, model, selection, field, value):
-        for idx in selection:
-            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
-            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+        if cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
+            for idx in selection:
+                rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+                node_addr = model.index(idx.row(), self.COL_R_NODE).data()
 
-            records = self._get_rule(rule_name, node_addr)
-            rule = Rule.new_from_records(records)
+                records = self._get_rule(rule_name, node_addr)
+                rule = Rule.new_from_records(records)
 
-            self._db.update(table="rules", fields="{0}=?".format(field),
-                            values=[value], condition="name='{0}' AND node='{1}'".format(rule_name, node_addr),
-                            action_on_conflict="")
+                self._db.update(table="rules", fields="{0}=?".format(field),
+                                values=[value], condition="name='{0}' AND node='{1}'".format(rule_name, node_addr),
+                                action_on_conflict="")
 
-            if field == "action":
-                rule.action = value
-            elif field == "duration":
-                rule.duration = value
-            elif field == "precedence":
-                rule.precedence = value
+                if field == "action":
+                    rule.action = value
+                elif field == "duration":
+                    rule.duration = value
+                elif field == "precedence":
+                    rule.precedence = value
 
-            noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
-            nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
-            if nid != None:
+                noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
+                nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
+                if nid != None:
+                    self._notifications_sent[nid] = noti
+        elif cur_idx == self.TAB_RULES and self.fwTable.isVisible():
+            nodes_updated = []
+            for idx in selection:
+                uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
+                node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
+                updated, err = self._fw.change_rule_field(node, uuid, field, value)
+                if updated:
+                    nodes_updated.append(node)
+                else:
+                    print("error updating fw rule field", field, "value:", value)
+
+            for addr in nodes_updated:
+                node = self._nodes.get_node(addr)
+                nid, noti = self._nodes.reload_fw(addr, node['firewall'], self._notification_callback)
                 self._notifications_sent[nid] = noti
 
     def _table_menu_enable(self, cur_idx, model, selection, is_rule_enabled):
         rule_status = "False" if is_rule_enabled == "True" else "True"
+        enable_rule = False if is_rule_enabled == "True" else True
 
-        for idx in selection:
-            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
-            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+        if cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
+            for idx in selection:
+                rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+                node_addr = model.index(idx.row(), self.COL_R_NODE).data()
 
-            records = self._get_rule(rule_name, node_addr)
-            rule = Rule.new_from_records(records)
-            rule_type = ui_pb2.DISABLE_RULE if is_rule_enabled == "True" else ui_pb2.ENABLE_RULE
+                records = self._get_rule(rule_name, node_addr)
+                rule = Rule.new_from_records(records)
+                rule_type = ui_pb2.DISABLE_RULE if is_rule_enabled == "True" else ui_pb2.ENABLE_RULE
 
-            self._db.update(table="rules", fields="enabled=?",
-                            values=[rule_status], condition="name='{0}' AND node='{1}'".format(rule_name, node_addr),
-                            action_on_conflict="")
+                self._db.update(table="rules", fields="enabled=?",
+                                values=[rule_status], condition="name='{0}' AND node='{1}'".format(rule_name, node_addr),
+                                action_on_conflict="")
 
-            noti = ui_pb2.Notification(type=rule_type, rules=[rule])
-            nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
-            if nid != None:
+                noti = ui_pb2.Notification(type=rule_type, rules=[rule])
+                nid = self._nodes.send_notification(node_addr, noti, self._notification_callback)
+                if nid != None:
+                    self._notifications_sent[nid] = noti
+
+        elif cur_idx == self.TAB_RULES and self.fwTable.isVisible():
+            nodes_updated = []
+            for idx in selection:
+                uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
+                node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
+                updated, err = self._fw.enable_rule(node, uuid, enable_rule)
+                if updated:
+                    nodes_updated.append(node)
+
+            for addr in nodes_updated:
+                node = self._nodes.get_node(addr)
+                nid, noti = self._nodes.reload_fw(addr, node['firewall'], self._notification_callback)
                 self._notifications_sent[nid] = noti
 
     def _table_menu_delete(self, cur_idx, model, selection):
         if cur_idx == self.TAB_MAIN or cur_idx == self.TAB_NODES or self.IN_DETAIL_VIEW[cur_idx]:
             return
 
-        msg = QC.translate("stats", "    Your are about to delete this rule.    ")
+        msg = QC.translate("stats", "    You are about to delete this rule.    ")
         if cur_idx != self.TAB_RULES:
-            msg = QC.translate("stats", "    Your are about to delete this entry.    ")
+            msg = QC.translate("stats", "    You are about to delete this entry.    ")
 
         ret = Message.yes_no(msg,
             QC.translate("stats", "    Are you sure?"),
@@ -1091,21 +1352,33 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return False
 
         if cur_idx == self.TAB_RULES and self.fwTable.isVisible():
-            do_refresh = False
+            nodes_updated = {}
             for idx in selection:
-                uuid = model.index(idx.row(), 1).data()
-                node = model.index(idx.row(), 2).data()
+                uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
+                node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
                 ok, fw_config = self._fw.delete_rule(node, uuid)
-                do_refresh |= ok
+                if ok:
+                    nodes_updated[node] = fw_config
+                else:
+                    print("error deleting fw rule:", uuid, "row:", idx.row())
 
-            if do_refresh:
-                nid, noti = self._nodes.reload_fw(node, fw_config, self._notification_callback)
+            for addr in nodes_updated:
+                nid, noti = self._nodes.reload_fw(addr, nodes_updated[addr], self._notification_callback)
                 self._notifications_sent[nid] = noti
-        elif cur_idx == self.TAB_RULES and not self.fwTable.isVisible():
-            for idx in selection:
-                name = model.index(idx.row(), self.COL_R_NAME).data()
-                node = model.index(idx.row(), self.COL_R_NODE).data()
+
+        elif cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
+            selection = self.TABLES[cur_idx]['view'].copySelection()
+            for row in selection:
+                name = row[self.COL_R_NAME]
+                node = row[self.COL_R_NODE]
                 self._del_rule(name, node)
+
+        elif cur_idx == self.TAB_RULES and self.alertsTable.isVisible():
+            for idx in selection:
+                time = model.index(idx.row(), self.COL_TIME).data()
+                node = model.index(idx.row(), self.COL_NODE).data()
+                self._db.delete_alert(time, node)
+
         elif cur_idx == self.TAB_HOSTS or cur_idx == self.TAB_PROCS or cur_idx == self.TAB_ADDRS or \
             cur_idx == self.TAB_USERS or cur_idx == self.TAB_PORTS:
             do_refresh = False
@@ -1122,27 +1395,39 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         coltime = model.index(selection[0].row(), self.COL_TIME).data()
         if self._rules_dialog.new_rule_from_connection(coltime) == False:
 
-            Message.ok(QC.transslate("stats", "New rule error"),
+            Message.ok(QC.translate("stats", "New rule error"),
                         QC.translate("stats",
                                     "Error creating new rule from event ({0})".format(coltime)
                                     ),
                         QtWidgets.QMessageBox.Warning)
 
     def _table_menu_edit(self, cur_idx, model, selection):
-        for idx in selection:
-            name = model.index(idx.row(), self.COL_R_NAME).data()
-            node = model.index(idx.row(), self.COL_R_NODE).data()
-            records = self._get_rule(name, node)
-            if records == None or records == -1:
-                Message.ok(QC.transslate("stats", "New rule error"),
-                           QC.translate("stats", "Rule not found by that name and node"),
-                           QtWidgets.QMessageBox.Warning)
-                return
-            self._rules_dialog.edit_rule(records, node)
-            break
+        if cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
+            for idx in selection:
+                name = model.index(idx.row(), self.COL_R_NAME).data()
+                node = model.index(idx.row(), self.COL_R_NODE).data()
+                records = self._get_rule(name, node)
+                if records == None or records == -1:
+                    Message.ok(QC.translate("stats", "New rule error"),
+                            QC.translate("stats", "Rule not found by that name and node"),
+                            QtWidgets.QMessageBox.Warning)
+                    return
+                self._rules_dialog.edit_rule(records, node)
+                break
+
+        elif cur_idx == self.TAB_RULES and self.fwTable.isVisible():
+            for idx in selection:
+                uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
+                node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
+                self._fw_dialog.load_rule(node, uuid)
+
+                break
 
     def _cb_fw_rules_updated(self):
         self._add_rulesTree_fw_chains()
+
+    def _cb_app_rules_updated(self, what):
+        self._refresh_active_table()
 
     @QtCore.pyqtSlot(str)
     def _cb_fw_table_rows_reordered(self, node_addr):
@@ -1177,10 +1462,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.ERROR:
                 Message.ok(
-                    QC.translate("stats",
-                                 "<b>Error:</b><br><br>",
-                                 "{0}").format(reply.data),
+                    QC.translate("stats", "Error:"),
+                    "{0}".format(reply.data),
                     QtWidgets.QMessageBox.Warning)
+
+            del self._notifications_sent[reply.id]
 
         else:
             Message.ok(
@@ -1220,8 +1506,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._context_menu_active = True
         if cur_idx == self.TAB_MAIN:
             refresh_table = self._configure_events_contextual_menu(pos)
-        else:
-            refresh_table = self._configure_rules_contextual_menu(pos)
+        elif cur_idx == self.TAB_RULES:
+            if self.fwTable.isVisible():
+                refresh_table = self._configure_fwrules_contextual_menu(pos)
+            elif self.alertsTable.isVisible():
+                refresh_table = self._configure_alerts_contextual_menu(pos)
+            else:
+                refresh_table = self._configure_rules_contextual_menu(pos)
 
         self._context_menu_active = False
         if refresh_table:
@@ -1256,13 +1547,17 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings(Config.STATS_FILTER_TEXT, text)
             self._set_events_query()
             return
+
         elif cur_idx == StatsDialog.TAB_NODES:
             qstr = self._get_nodes_filter_query(model.query().lastQuery(), text)
+
         elif cur_idx == StatsDialog.TAB_RULES and self.fwTable.isVisible():
             self.TABLES[self.TAB_FIREWALL]['view'].filterByQuery(text)
             return
+
         elif self.IN_DETAIL_VIEW[cur_idx] == True:
             qstr = self._get_indetail_filter_query(model.query().lastQuery(), text)
+
         else:
             where_clause = self._get_filter_line_clause(cur_idx, text)
             qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + \
@@ -1297,7 +1592,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_clean_sql_clicked(self, idx):
         cur_idx = self.tabWidget.currentIndex()
-        if self.tabWidget.currentIndex() == StatsDialog.TAB_RULES:
+        if cur_idx == StatsDialog.TAB_RULES:
             self._db.empty_rule(self.TABLES[cur_idx]['label'].text())
         elif self.IN_DETAIL_VIEW[cur_idx]:
             self._del_by_field(cur_idx, self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['label'].text())
@@ -1391,6 +1686,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._fw_dialog.load_rule(addr, uuid)
             return
 
+        elif cur_idx == self.TAB_RULES and self.alertsTable.isVisible():
+            atime = row.model().index(row.row(), self.COL_TIME).data()
+            anode = row.model().index(row.row(), self.COL_NODE).data()
+            self._display_alert_info(atime, anode)
+            return
 
         self.IN_DETAIL_VIEW[cur_idx] = True
         self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_TIME).data()
@@ -1399,6 +1699,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         data = row.data()
 
         if cur_idx == self.TAB_RULES:
+            if self.alertsTable.isVisible():
+                return
+
             rule_name = row.model().index(row.row(), self.COL_R_NAME).data()
             self._set_active_widgets(True, rule_name)
             r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_R_NAME, self.COL_R_NODE)
@@ -1453,6 +1756,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_rules_filter(self.RULES_TREE_APPS, self.RULES_TREE_PERMANENT)
         elif idx == self.RULES_COMBO_TEMPORARY:
             self._set_rules_filter(self.RULES_TREE_APPS, self.RULES_TREE_TEMPORARY)
+        elif idx == self.RULES_TREE_ALERTS:
+            self._set_rules_filter(-1, self.RULES_TREE_ALERTS)
         elif idx == self.RULES_COMBO_FW:
             self._set_rules_filter(-1, self.RULES_TREE_FIREWALL)
 
@@ -1474,6 +1779,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         parent_row = -1
         node_addr = ""
         fw_table = ""
+
+        rulesHeader = self.rulesTable.horizontalHeader()
+        self._cfg.setSettings(Config.STATS_RULES_COL_STATE, rulesHeader.saveState())
 
         self._clear_rows_selection()
 
@@ -1504,9 +1812,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         showFwTable = (parent_row == self.RULES_TREE_FIREWALL or (parent_row == -1 and item_row == self.RULES_TREE_FIREWALL))
+        showAlertsTable = (parent_row == -1 and item_row == self.RULES_TREE_ALERTS)
         self.fwTable.setVisible(showFwTable)
-        self.rulesTable.setVisible(not showFwTable)
-        self.rulesScrollBar.setVisible(self.rulesTable.isVisible())
+        self.alertsTable.setVisible(showAlertsTable)
+        self.rulesTable.setVisible(not showFwTable and not showAlertsTable)
+        self.rulesScrollBar.setVisible(not showFwTable)
 
         self._set_rules_filter(parent_row, item_row, item.text(0), node_addr, fw_table)
 
@@ -1635,6 +1945,32 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                          "<br>".format(Config.HELP_URL)
                          )
         )
+
+    def _display_alert_info(self, time, node):
+        text = ""
+        records = self._db.get_alert(time, node)
+        if records != None and records.next() == False:
+            return
+
+        inf = InfoWindow(self)
+        text += text + """
+                    <b>{0}</b><br>
+                    <b>Node:</b> {1}<br>
+                    <b>Type:</b> {2} &ndash; <b>Severity:</b> {3}<br><br>
+                    <b>{4}</b><br><br>
+                    {5}
+
+                    ---
+""".format(
+    records.value(AlertFields.Time),
+    records.value(AlertFields.Node),
+    records.value(AlertFields.Type),
+    records.value(AlertFields.Priority),
+    records.value(AlertFields.What),
+    records.value(AlertFields.Body)
+)
+
+        inf.showHtml(text)
 
     # must be called after setModel() or setQuery()
     def _show_columns(self):
@@ -1801,15 +2137,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return " ORDER BY %s %s" % (order_field, self.SORT_ORDER[self.TABLES[cur_idx]['last_order_to']])
 
     def _refresh_active_table(self):
+        cur_idx = self.tabWidget.currentIndex()
         model = self._get_active_table().model()
         lastQuery = model.query().lastQuery()
         if "LIMIT" not in lastQuery:
             lastQuery += self._get_limit()
         self.setQuery(model, lastQuery)
+        self.TABLES[cur_idx]['view'].refresh()
 
     def _get_active_table(self):
         if self.tabWidget.currentIndex() == self.TAB_RULES and self.fwTable.isVisible():
             return self.TABLES[self.TAB_FIREWALL]['view']
+        elif self.tabWidget.currentIndex() == self.TAB_RULES and self.alertsTable.isVisible():
+            return self.TABLES[self.TAB_ALERTS]['view']
+
         return self.TABLES[self.tabWidget.currentIndex()]['view']
 
     def _set_active_widgets(self, state, label_txt=""):
@@ -1847,7 +2188,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif cur_idx == self.TAB_NODES:
             col = self.TAB_RULES
 
-        # FIXME: this line causes the gui to segfault. Review GenericTableView
         #self.TABLES[cur_idx]['view'].selectItem(self.LAST_SELECTED_ITEM, col)
         self.LAST_SELECTED_ITEM = ""
 
@@ -1872,19 +2212,34 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeRuleLabel.setText("")
         self.rulesTreePanel.setVisible(active)
 
-        if active:
-            self.rulesSplitter.refresh()
-            self.comboRulesFilter.setVisible(self.rulesTreePanel.width() == 0)
+        if not active:
+            return
 
-            items = self.rulesTreePanel.selectedItems()
-            if len(items) == 0:
-                self._set_rules_filter()
-                return
+        self.rulesSplitter.refresh()
+        self.comboRulesFilter.setVisible(self.rulesTreePanel.width() == 0)
 
-            item_m = self.rulesTreePanel.indexFromItem(items[0], 0)
-            parent = item_m.parent()
-            if parent != None:
-                self._set_rules_filter(parent.row(), item_m.row(), item_m.data())
+        items = self.rulesTreePanel.selectedItems()
+        if len(items) == 0:
+            self._set_rules_filter()
+            return
+
+        rindex = item_m = self.rulesTreePanel.indexFromItem(items[0], 0)
+        parent = item_m.parent()
+
+        # find current root item of the tree panel
+        while rindex.parent().isValid():
+            rindex = rindex.parent()
+        rnum = rindex.row()
+
+        if parent != None and rnum != self.RULES_TREE_FIREWALL:
+            self._set_rules_filter(parent.row(), item_m.row(), item_m.data())
+        else:
+            # when going back to the rules view, reset selection and select the
+            # Apps view.
+            index = self.rulesTreePanel.model().index(self.RULES_TREE_APPS, 0)
+            self.rulesTreePanel.setCurrentIndex(index)
+            self._set_rules_filter()
+
 
     def _set_rules_tab_active(self, row, cur_idx, name_idx, node_idx):
         self._restore_rules_tab_widgets(False)
@@ -1894,6 +2249,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         node = row.model().index(row.row(), node_idx).data()
         self.nodeRuleLabel.setText(node)
 
+        self.alertsTable.setVisible(False)
+        self.fwTable.setVisible(False)
+        self.rulesTable.setVisible(True)
         self.tabWidget.setCurrentIndex(cur_idx)
 
         return r_name, node
@@ -2015,11 +2373,21 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         section = self.FILTER_TREE_APPS
 
         if parent_row == -1:
-            self.fwTable.setVisible(item_row == self.RULES_TREE_FIREWALL)
-            self.rulesTable.setVisible(item_row != self.RULES_TREE_FIREWALL)
+
             if item_row == self.RULES_TREE_NODES:
                 section=self.FILTER_TREE_NODES
                 what=""
+            elif item_row == self.RULES_TREE_ALERTS:
+                section=self.FILTER_TREE_NODES
+                what=""
+                model = self._get_active_table().model()
+                alerts_query = "SELECT {0} FROM alerts {1} {2}".format(
+                    self.TABLES[self.TAB_ALERTS]['display_fields'],
+                    self._get_order(),
+                    self._get_limit()
+                )
+                self.setQuery(model, alerts_query)
+                return
             elif item_row == self.RULES_TREE_FIREWALL:
                 self.TABLES[self.TAB_FIREWALL]['view'].model().filterAll()
                 return
@@ -2074,10 +2442,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._get_order(),
             self._get_limit()
         ))
-        self._restore_details_view_columns(
-            self.TABLES[self.TAB_RULES]['view'].horizontalHeader(),
-            "{0}{1}".format(Config.STATS_VIEW_COL_STATE, self.TAB_RULES)
-        )
 
     def _set_rules_query(self, rule_name="", node=""):
         if node != "":
@@ -2095,27 +2459,26 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.uid as {3}, " \
                 "c.protocol as {4}, " \
                 "c.dst_port as {5}, " \
-                "CASE c.dst_host WHEN ''" \
-                "   THEN c.dst_ip " \
-                "   ELSE c.dst_host " \
-                "END {6}, " \
-                "c.process as {7}, " \
-                "c.process_args as {8}, " \
+                "c.dst_ip as {6}, " \
+                "c.dst_host as {7}, " \
+                "c.process as {8}, " \
+                "c.process_args as {9}, " \
                 "c.process_cwd as CWD " \
             "FROM connections as c " \
-            "WHERE {9} GROUP BY c.process, c.process_args, c.uid, {10}, c.dst_port {11}".format(
+            "WHERE {10} GROUP BY c.process, c.process_args, c.uid, c.dst_ip, c.dst_host, c.dst_port {11}".format(
                 self.COL_STR_TIME,
                 self.COL_STR_NODE,
                 self.COL_STR_HITS,
                 self.COL_STR_UID,
                 self.COL_STR_PROTOCOL,
                 self.COL_STR_DST_PORT,
-                self.COL_STR_DESTINATION,
+                self.COL_STR_DST_IP,
+                self.COL_STR_DST_HOST,
                 self.COL_STR_PROCESS,
                 self.COL_STR_PROC_CMDLINE,
                 condition,
-                self.COL_STR_DESTINATION,
-                self._get_order() + self._get_limit()))
+                self._get_order() + self._get_limit()
+            ))
 
     def _set_hosts_query(self, data):
         model = self._get_active_table().model()
@@ -2337,6 +2700,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     @QtCore.pyqtSlot()
     def _on_settings_saved(self):
+        self._ui_refresh_interval = self._cfg.getInt(Config.STATS_REFRESH_INTERVAL, 0)
         self._show_columns()
         self.settings_saved.emit()
 
@@ -2482,7 +2846,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                             values.append(table.model().index(row, col).data())
                         w.writerow(values)
 
-    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", sort_direction=SORT_ORDER[1], limit="", resize_cols=(), model=None, delegate=None, verticalScrollBar=None):
+    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", sort_direction=SORT_ORDER[1], limit="", resize_cols=(), model=None, delegate=None, verticalScrollBar=None, tracking_column=COL_TIME):
         tableWidget.setSortingEnabled(True)
         if model == None:
             model = self._db.get_new_qsql_model()
@@ -2490,6 +2854,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             tableWidget.setVerticalScrollBar(verticalScrollBar)
         tableWidget.verticalScrollBar().sliderPressed.connect(self._cb_scrollbar_pressed)
         tableWidget.verticalScrollBar().sliderReleased.connect(self._cb_scrollbar_released)
+        tableWidget.setTrackingColumn(tracking_column)
 
         self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " " + sort_direction + limit)
         tableWidget.setModel(model)
@@ -2518,6 +2883,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self._update_status_label(running=False, text=self.FIREWALL_DISABLED)
 
+    def _needs_refresh(self):
+        diff = datetime.datetime.now() - self._last_update
+        if diff.seconds < self._ui_refresh_interval:
+            return False
+
+        return True
+
     # launched from a thread
     def update(self, is_local=True, stats=None, need_query_update=True):
         # lock mandatory when there're multiple clients
@@ -2525,8 +2897,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if stats is not None:
                 self._stats = stats
             # do not update any tab if the window is not visible
-            if self.isVisible() and self.isMinimized() == False:
+            if self.isVisible() and self.isMinimized() == False and self._needs_refresh():
                 self._trigger.emit(is_local, need_query_update)
+                self._last_update = datetime.datetime.now()
 
     def update_status(self):
         self.startButton.setDown(self.daemon_connected)
@@ -2589,7 +2962,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     print("setQuery() error: ", model.lastError().text())
 
                 if self.tabWidget.currentIndex() != self.TAB_MAIN:
-                    self.labelRowsCount.setText("{0}".format(model.rowCount()))
+                    self.labelRowsCount.setText("{0}".format(model.totalRowCount))
                 else:
                     self.labelRowsCount.setText("")
             except Exception as e:

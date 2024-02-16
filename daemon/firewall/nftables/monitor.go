@@ -14,31 +14,35 @@ func (n *Nft) AreRulesLoaded() bool {
 	defer n.Unlock()
 
 	nRules := 0
-	chains, err := n.conn.ListChains()
+	chains, err := n.Conn.ListChains()
 	if err != nil {
 		log.Warning("[nftables] error listing nftables chains: %s", err)
 		return false
 	}
 
 	for _, c := range chains {
-		rules, err := n.conn.GetRule(c.Table, c)
+		rules, err := n.Conn.GetRule(c.Table, c)
 		if err != nil {
 			log.Warning("[nftables] Error listing rules: %s", err)
 			continue
 		}
 		for rdx, r := range rules {
-			if string(r.UserData) == interceptionRuleKey {
+			if string(r.UserData) == InterceptionRuleKey {
+				if c.Table.Name == exprs.NFT_CHAIN_FILTER && c.Name == exprs.NFT_HOOK_INPUT && rdx != 0 {
+					log.Warning("nftables DNS rule not in 1st position (%d)", rdx)
+					return false
+				}
 				nRules++
-				if c.Table.Name == exprs.NFT_CHAIN_MANGLE && rdx+1 != len(rules) {
-					log.Warning("nfables queue rule is not the latest of the list, reloading")
+				if c.Table.Name == exprs.NFT_CHAIN_MANGLE && rdx < len(rules)-2 {
+					log.Warning("nfables queue rule is not the latest of the list (%d/%d), reloading", rdx, len(rules))
 					return false
 				}
 			}
 		}
 	}
-	// we expect to have exactly 2 rules (queue and dns). If there're less or more, then we
+	// we expect to have exactly 3 rules (2 queue and 1 dns). If there're less or more, then we
 	// need to reload them.
-	if nRules != 2 {
+	if nRules != 3 {
 		log.Warning("nfables filter rules not loaded: %d", nRules)
 		return false
 	}
@@ -46,23 +50,23 @@ func (n *Nft) AreRulesLoaded() bool {
 	return true
 }
 
-// reloadConfCallback gets called after the configuration changes.
-func (n *Nft) reloadConfCallback() {
+// ReloadConfCallback gets called after the configuration changes.
+func (n *Nft) ReloadConfCallback() {
 	log.Important("reloadConfCallback changed, reloading")
 	n.DeleteSystemRules(!common.ForcedDelRules, !common.RestoreChains, log.GetLogLevel() == log.DEBUG)
 	n.AddSystemRules(common.ReloadRules, !common.BackupChains)
 }
 
-// reloadRulesCallback gets called when the interception rules are not present.
-func (n *Nft) reloadRulesCallback() {
+// ReloadRulesCallback gets called when the interception rules are not present.
+func (n *Nft) ReloadRulesCallback() {
 	log.Important("nftables firewall rules changed, reloading")
 	n.DisableInterception(log.GetLogLevel() == log.DEBUG)
 	time.Sleep(time.Millisecond * 500)
 	n.EnableInterception()
 }
 
-// preloadConfCallback gets called before the fw configuration is loaded
-func (n *Nft) preloadConfCallback() {
+// PreloadConfCallback gets called before the fw configuration is loaded
+func (n *Nft) PreloadConfCallback() {
 	log.Info("nftables config changed, reloading")
 	n.DeleteSystemRules(!common.ForcedDelRules, common.RestoreChains, log.GetLogLevel() == log.DEBUG)
 }

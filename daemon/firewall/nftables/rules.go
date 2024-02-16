@@ -6,6 +6,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/google/nftables"
 	"github.com/google/nftables/binaryutil"
 	"github.com/google/nftables/expr"
@@ -23,8 +24,8 @@ func (n *Nft) QueueDNSResponses(enable, logError bool) *common.FirewallError {
 	}
 	families := []string{exprs.NFT_FAMILY_INET}
 	for _, fam := range families {
-		table := getTable(exprs.NFT_CHAIN_FILTER, fam)
-		chain := getChain(exprs.NFT_HOOK_INPUT, table)
+		table := n.GetTable(exprs.NFT_CHAIN_FILTER, fam)
+		chain := GetChain(exprs.NFT_HOOK_INPUT, table)
 		if table == nil {
 			log.Error("QueueDNSResponses() Error getting table: %s-filter", fam)
 			continue
@@ -35,7 +36,7 @@ func (n *Nft) QueueDNSResponses(enable, logError bool) *common.FirewallError {
 		}
 
 		// nft list ruleset -a
-		n.conn.InsertRule(&nftables.Rule{
+		n.Conn.InsertRule(&nftables.Rule{
 			Position: 0,
 			Table:    table,
 			Chain:    chain,
@@ -63,7 +64,7 @@ func (n *Nft) QueueDNSResponses(enable, logError bool) *common.FirewallError {
 				},
 			},
 			// rule key, to allow get it later by key
-			UserData: []byte(interceptionRuleKey),
+			UserData: []byte(InterceptionRuleKey),
 		})
 	}
 	// apply changes
@@ -83,20 +84,26 @@ func (n *Nft) QueueConnections(enable, logError bool) *common.FirewallError {
 	if n.conn == nil {
 		return &common.FirewallError{Err4: fmt.Errorf("nftables QueueConnections: netlink connection not active"), Err6: nil}
 	}
-	table := getTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
+	table := n.GetTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
 	if table == nil {
 		return &common.FirewallError{Err4: fmt.Errorf("QueueConnections() Error getting table mangle-inet"), Err6: nil}
 	}
-	chain := getChain(exprs.NFT_HOOK_OUTPUT, table)
+	chain := GetChain(exprs.NFT_HOOK_OUTPUT, table)
 	if chain == nil {
 		return &common.FirewallError{Err4: fmt.Errorf("QueueConnections() Error getting outputChain: output-%s", table.Name), Err6: nil}
 	}
 
-	n.conn.AddRule(&nftables.Rule{
+	n.Conn.AddRule(&nftables.Rule{
 		Position: 0,
 		Table:    table,
 		Chain:    chain,
 		Exprs: []expr.Any{
+			&expr.Meta{Key: expr.MetaKeyL4PROTO, Register: 1},
+			&expr.Cmp{
+				Op:       expr.CmpOpNeq,
+				Register: 1,
+				Data:     []byte{unix.IPPROTO_TCP},
+			},
 			&expr.Ct{Register: 1, SourceRegister: false, Key: expr.CtKeySTATE},
 			&expr.Bitwise{
 				SourceRegister: 1,
@@ -112,8 +119,60 @@ func (n *Nft) QueueConnections(enable, logError bool) *common.FirewallError {
 			},
 		},
 		// rule key, to allow get it later by key
-		UserData: []byte(interceptionRuleKey),
+		UserData: []byte(InterceptionRuleKey),
 	})
+
+	/* nft --debug=netlink add rule inet mangle output tcp flags '& (fin|syn|rst|ack) == syn' queue bypass num 0
+	[ meta load l4proto => reg 1 ]
+	[ cmp eq reg 1 0x00000006 ]
+	[ payload load 1b @ transport header + 13 => reg 1 ]
+	[ bitwise reg 1 = ( reg 1 & 0x00000002 ) ^ 0x00000000 ]
+	[ cmp neq reg 1 0x00000000 ]
+	[ queue num 0 bypass ]
+
+	Intercept packets *only* with the SYN flag set.
+	Using 'ct state NEW' causes to intercept packets with other flags set, which
+	sometimes means that we receive outbound connections not in the expected order:
+	  443:1.1.1.1 -> 192.168.123:12345 (bits ACK, ACK+PSH or SYN+ACK set)
+	*/
+	n.Conn.AddRule(&nftables.Rule{
+		Position: 0,
+		Table:    table,
+		Chain:    chain,
+		Exprs: []expr.Any{
+			&expr.Meta{Key: expr.MetaKeyL4PROTO, Register: 1},
+			&expr.Cmp{
+				Op:       expr.CmpOpEq,
+				Register: 1,
+				Data:     []byte{unix.IPPROTO_TCP},
+			},
+			&expr.Payload{
+				DestRegister: 1,
+				Base:         expr.PayloadBaseTransportHeader,
+				Offset:       13,
+				Len:          1,
+			},
+			&expr.Bitwise{
+				DestRegister:   1,
+				SourceRegister: 1,
+				Len:            1,
+				Mask:           []byte{0x17},
+				Xor:            []byte{0x00},
+			},
+			&expr.Cmp{
+				Op:       expr.CmpOpEq,
+				Register: 1,
+				Data:     []byte{0x02},
+			},
+			&expr.Queue{
+				Num:  n.QueueNum,
+				Flag: expr.QueueFlagBypass,
+			},
+		},
+		// rule key, to allow get it later by key
+		UserData: []byte(InterceptionRuleKey),
+	})
+
 	// apply changes
 	if !n.Commit() {
 		return &common.FirewallError{Err4: fmt.Errorf("Error adding interception rule "), Err6: nil}
@@ -123,68 +182,82 @@ func (n *Nft) QueueConnections(enable, logError bool) *common.FirewallError {
 		// flush conntrack as soon as netfilter rule is set. This ensures that already-established
 		// connections will go to netfilter queue.
 		if err := netlink.ConntrackTableFlush(netlink.ConntrackTable); err != nil {
-			log.Error("nftables, error in ConntrackTableFlush %s", err)
+			log.Error("nftables, error flushing ConntrackTable %s", err)
 		}
+		if err := netlink.ConntrackTableFlush(netlink.ConntrackExpectTable); err != nil {
+			log.Error("nftables, error flusing ConntrackExpectTable %s", err)
+		}
+
+		// Force established connections to reestablish again.
+		daemonNetlink.KillAllSockets()
 	}
 
 	return nil
 }
 
-func (n *Nft) insertRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
-	tbl := getTable(table, family)
+// InsertRule inserts a rule at the top of rules list.
+func (n *Nft) InsertRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
+	tbl := n.GetTable(table, family)
 	if tbl == nil {
-		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
+		return fmt.Errorf("%s getting table: %s, %s", logTag, table, family)
 	}
 
 	chainKey := getChainKey(chain, tbl)
-	chn := sysChains[chainKey]
+	chn, chok := sysChains.Load(chainKey)
+	if !chok {
+		return fmt.Errorf("%s getting table: %s, %s", logTag, table, family)
+	}
 
 	rule := &nftables.Rule{
 		Position: position,
 		Table:    tbl,
-		Chain:    chn,
+		Chain:    chn.(*nftables.Chain),
 		Exprs:    *exprs,
-		UserData: []byte(systemRuleKey),
+		UserData: []byte(SystemRuleKey),
 	}
-	n.conn.InsertRule(rule)
+	n.Conn.InsertRule(rule)
 	if !n.Commit() {
-		return fmt.Errorf("%s Error adding rule", logTag)
+		return fmt.Errorf("rule not added")
 	}
 
 	return nil
 }
 
-func (n *Nft) addRule(chain, table, family string, position uint64, exprs *[]expr.Any) error {
-	tbl := getTable(table, family)
+// AddRule adds a rule to the system.
+func (n *Nft) AddRule(chain, table, family string, position uint64, key string, exprs *[]expr.Any) (*nftables.Rule, error) {
+	tbl := n.GetTable(table, family)
 	if tbl == nil {
-		return fmt.Errorf("%s addRule, Error getting table: %s, %s", logTag, table, family)
+		return nil, fmt.Errorf("getting %s table: %s, %s", logTag, table, family)
 	}
 
 	chainKey := getChainKey(chain, tbl)
-	chn := sysChains[chainKey]
+	chn, chok := sysChains.Load(chainKey)
+	if !chok {
+		return nil, fmt.Errorf("getting table: %s, %s", table, family)
+	}
 
 	rule := &nftables.Rule{
 		Position: position,
 		Table:    tbl,
-		Chain:    chn,
+		Chain:    chn.(*nftables.Chain),
 		Exprs:    *exprs,
-		UserData: []byte(systemRuleKey),
+		UserData: []byte(key),
 	}
-	n.conn.AddRule(rule)
+	n.Conn.AddRule(rule)
 	if !n.Commit() {
-		return fmt.Errorf("%s Error adding rule", logTag)
+		return nil, fmt.Errorf("adding %s rule", logTag)
 	}
 
-	return nil
+	return rule, nil
 }
 
 func (n *Nft) delRulesByKey(key string) error {
-	chains, err := n.conn.ListChains()
+	chains, err := n.Conn.ListChains()
 	if err != nil {
 		return fmt.Errorf("error listing nftables chains (%s): %s", key, err)
 	}
 	for _, c := range chains {
-		rules, err := n.conn.GetRule(c.Table, c)
+		rules, err := n.Conn.GetRule(c.Table, c)
 		if err != nil {
 			log.Warning("Error listing rules (%s): %s", key, err)
 			continue
@@ -195,7 +268,7 @@ func (n *Nft) delRulesByKey(key string) error {
 				continue
 			}
 			// just passing the r object doesn't work.
-			if err := n.conn.DelRule(&nftables.Rule{
+			if err := n.Conn.DelRule(&nftables.Rule{
 				Table:  c.Table,
 				Chain:  c,
 				Handle: r.Handle,
@@ -211,8 +284,9 @@ func (n *Nft) delRulesByKey(key string) error {
 			}
 		}
 		if len(rules) == 0 || len(rules) == delRules {
-			if _, ok := sysChains[getChainKey(c.Name, c.Table)]; ok {
-				n.delChain(c)
+			_, chfound := sysChains.Load(getChainKey(c.Name, c.Table))
+			if chfound {
+				n.DelChain(c)
 			}
 		}
 	}
@@ -220,6 +294,7 @@ func (n *Nft) delRulesByKey(key string) error {
 	return nil
 }
 
-func (n *Nft) delInterceptionRules() {
-	n.delRulesByKey(interceptionRuleKey)
+// DelInterceptionRules deletes our interception rules, by key.
+func (n *Nft) DelInterceptionRules() {
+	n.delRulesByKey(InterceptionRuleKey)
 }

@@ -8,7 +8,11 @@ SOURCES +=  ../opensnitch/service.py \
 	    ../opensnitch/notifications.py \
 	    ../opensnitch/customwidgets/addresstablemodel.py \
 	    ../opensnitch/customwidgets/main.py \
-	    ../opensnitch/dialogs/prompt.py \
+	    ../opensnitch/dialogs/prompt/__init__.py \
+	    ../opensnitch/dialogs/prompt/_utils.py \
+	    ../opensnitch/dialogs/prompt/_details.py \
+	    ../opensnitch/dialogs/prompt/_checksums.py \
+	    ../opensnitch/dialogs/prompt/_constants.py \
 	    ../opensnitch/dialogs/preferences.py \
 	    ../opensnitch/dialogs/ruleseditor.py \
 	    ../opensnitch/dialogs/processdetails.py \
@@ -35,4 +39,6 @@ TRANSLATIONS += locales/de_DE/opensnitch-de_DE.ts \
                 locales/tr_TR/opensnitch-tr_TR.ts \
                 locales/ru_RU/opensnitch-ru_RU.ts \
                 locales/nb_NO/opensnitch-nb_NO.ts \
-                locales/nl_NL/opensnitch-nl_NL.ts
+                locales/nl_NL/opensnitch-nl_NL.ts \
+                locales/fi_FI/opensnitch-fi_FI.ts \
+                locales/zh_TW/opensnitch-zh_TW.ts

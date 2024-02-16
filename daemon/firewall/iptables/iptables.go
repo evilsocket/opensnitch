@@ -41,9 +41,9 @@ const (
 
 // SystemRule blabla
 type SystemRule struct {
+	Rule  *config.FwRule
 	Table string
 	Chain string
-	Rule  *config.FwRule
 }
 
 // SystemChains keeps track of the fw rules that have been added to the system.
@@ -54,16 +54,13 @@ type SystemChains struct {
 
 // Iptables struct holds the fields of the iptables fw
 type Iptables struct {
-	config.Config
-	common.Common
-
-	bin  string
-	bin6 string
-
 	regexRulesQuery       *regexp.Regexp
 	regexSystemRulesQuery *regexp.Regexp
-
-	chains SystemChains
+	bin                   string
+	bin6                  string
+	chains                SystemChains
+	common.Common
+	config.Config
 
 	sync.Mutex
 }
@@ -96,16 +93,18 @@ func (ipt *Iptables) Name() string {
 
 // Init inserts the firewall rules and starts monitoring for firewall
 // changes.
-func (ipt *Iptables) Init(qNum *int) {
+func (ipt *Iptables) Init(qNum *int, configPath, monitorInterval string) {
 	if ipt.IsRunning() {
 		return
 	}
 	ipt.SetQueueNum(qNum)
+	ipt.SetRulesCheckerInterval(monitorInterval)
+	ipt.ErrChan = make(chan string, 100)
 
 	// In order to clean up any existing firewall rule before start,
 	// we need to load the fw configuration first to know what rules
 	// were configured.
-	ipt.NewSystemFwConfig(ipt.preloadConfCallback, ipt.reloadRulesCallback)
+	ipt.NewSystemFwConfig(configPath, ipt.preloadConfCallback, ipt.reloadRulesCallback)
 	ipt.LoadDiskConfiguration(!common.ReloadConf)
 
 	// start from a clean state
@@ -118,6 +117,7 @@ func (ipt *Iptables) Init(qNum *int) {
 
 // Stop deletes the firewall rules, allowing network traffic.
 func (ipt *Iptables) Stop() {
+	ipt.ErrChan = make(chan string, 100)
 	if ipt.Running == false {
 		return
 	}

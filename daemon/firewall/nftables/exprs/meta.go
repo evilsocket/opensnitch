@@ -11,7 +11,7 @@ import (
 
 // NewExprMeta creates a new meta selector to match or set packet metainformation.
 // https://wiki.nftables.org/wiki-nftables/index.php/Matching_packet_metainformation
-func NewExprMeta(values []*config.ExprValues) (*[]expr.Any, error) {
+func NewExprMeta(values []*config.ExprValues, cmpOp *expr.CmpOp) (*[]expr.Any, error) {
 	setMark := false
 	metaExpr := []expr.Any{}
 
@@ -20,10 +20,48 @@ func NewExprMeta(values []*config.ExprValues) (*[]expr.Any, error) {
 		case NFT_META_SET_MARK:
 			setMark = true
 			continue
+		case NFT_META_MARK:
+			metaKey, err := getMetaKey(meta.Key)
+			if err != nil {
+				return nil, err
+			}
+			metaVal, err := getMetaValue(meta.Value)
+			if err != nil {
+				return nil, err
+			}
+			if setMark {
+				metaExpr = append(metaExpr, []expr.Any{
+					&expr.Immediate{
+						Register: 1,
+						Data:     binaryutil.NativeEndian.PutUint32(uint32(metaVal)),
+					}}...)
+				metaExpr = append(metaExpr, []expr.Any{
+					&expr.Meta{Key: metaKey, Register: 1, SourceRegister: setMark}}...)
+			} else {
+				metaExpr = append(metaExpr, []expr.Any{
+					&expr.Meta{Key: metaKey, Register: 1, SourceRegister: setMark},
+					&expr.Cmp{
+						Op:       *cmpOp,
+						Register: 1,
+						Data:     binaryutil.NativeEndian.PutUint32(uint32(metaVal)),
+					}}...)
+			}
 
-		case NFT_META_MARK, NFT_META_PRIORITY,
+			setMark = false
+			return &metaExpr, nil
+
+		case NFT_META_L4PROTO:
+			mexpr, err := NewExprProtocol(meta.Key)
+			if err != nil {
+				return nil, err
+			}
+			metaExpr = append(metaExpr, *mexpr...)
+
+			return &metaExpr, nil
+
+		case NFT_META_PRIORITY,
 			NFT_META_SKUID, NFT_META_SKGID,
-			NFT_META_PROTOCOL, NFT_META_L4PROTO:
+			NFT_META_PROTOCOL:
 
 			metaKey, err := getMetaKey(meta.Key)
 			if err != nil {
@@ -33,20 +71,12 @@ func NewExprMeta(values []*config.ExprValues) (*[]expr.Any, error) {
 			if err != nil {
 				return nil, err
 			}
-			if setMark {
-				// XXX: broken? results in -> [invalid type]
-				metaExpr = append(metaExpr, []expr.Any{
-					&expr.Immediate{
-						Register: 1,
-						Data:     binaryutil.NativeEndian.PutUint32(metaVal),
-					}}...)
-			}
 			metaExpr = append(metaExpr, []expr.Any{
 				&expr.Meta{Key: metaKey, Register: 1, SourceRegister: setMark},
 				&expr.Cmp{
-					Op:       expr.CmpOpEq,
+					Op:       *cmpOp,
 					Register: 1,
-					Data:     binaryutil.NativeEndian.PutUint32(metaVal),
+					Data:     binaryutil.NativeEndian.PutUint32(uint32(metaVal)),
 				}}...)
 
 			setMark = false
@@ -64,7 +94,7 @@ func NewExprMeta(values []*config.ExprValues) (*[]expr.Any, error) {
 			return &[]expr.Any{
 				&expr.Meta{Key: expr.MetaKeyNFTRACE, Register: 1},
 				&expr.Cmp{
-					Op:       expr.CmpOpEq,
+					Op:       *cmpOp,
 					Register: 1,
 					Data:     binaryutil.NativeEndian.PutUint32(uint32(mark)),
 				},

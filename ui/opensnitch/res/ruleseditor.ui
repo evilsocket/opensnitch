@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>557</height>
+    <height>580</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,6 +20,988 @@
    <string>Rule</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
+   <item row="10" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Apply|QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Reset</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="9" column="0">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPlainTextEdit" name="ruleDescEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>60</height>
+      </size>
+     </property>
+     <property name="placeholderText">
+      <string>Description...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <property name="elideMode">
+      <enum>Qt::ElideRight</enum>
+     </property>
+     <property name="documentMode">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="tabWidgetPage1">
+      <attribute name="icon">
+       <iconset theme="system-run">
+        <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Applications</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="1" colspan="2">
+        <widget class="QLineEdit" name="procLine">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The value of this field is always the absolute path to the executable: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;- Simple: /path/to/binary&lt;/p&gt;&lt;p&gt;- Multiple paths: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Multiple binaries: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Deny/Allow executions from /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For more examples visit the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki page&lt;/a&gt; or ask on the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Discussion forums&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="placeholderText">
+          <string notr="true">/path/to/executable, .*/bin/executable[0-9\.]+$, ...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QCheckBox" name="checkCmdlineRegexp">
+         <property name="text">
+          <string>Is regular expression</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="uidCheck">
+         <property name="text">
+          <string>From this user ID</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="cmdlineCheck">
+         <property name="text">
+          <string>From this command line</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" colspan="2">
+        <widget class="QLineEdit" name="cmdlineLine">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will contain and match the command line that was executed by the user.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the command, only the command will appear:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the absolute or relative path to the command, that is what will appear:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="placeholderText">
+          <string notr="true">curl -L https://www.domain.com</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QCheckBox" name="pidCheck">
+         <property name="text">
+          <string>From this PID</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <spacer name="horizontalSpacer_11">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="pidLine">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="uidCombo">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="procCheck">
+         <property name="text">
+          <string>From this executable</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="checkProcRegexp">
+         <property name="text">
+          <string>is regular expression</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabWidgetPage2">
+      <attribute name="icon">
+       <iconset theme="preferences-system-network">
+        <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Network</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="6" column="1">
+        <spacer name="horizontalSpacer_9">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Maximum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>60</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="7" column="4" colspan="2">
+        <widget class="QComboBox" name="ifaceCombo">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="QComboBox" name="protoCombo">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="currentText">
+          <string>TCP</string>
+         </property>
+         <item>
+          <property name="text">
+           <string notr="true">TCP</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">UDP</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">UDPLITE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">TCP6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">UDP6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">UDPLITE6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ICMP</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ICMP6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SCTP</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SCTP6</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="5" column="2" colspan="4">
+        <widget class="QLineEdit" name="dstHostLine">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>Commas or spaces are not allowed to specify multiple domains. 
+
+Use regular expressions instead: 
+.*(opensnitch|duckduckgo).com
+.*\.google.com
+
+or a single domain:
+www.gnu.org - it'll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
+gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</string>
+         </property>
+         <property name="placeholderText">
+          <string>www.domain.org, .*\.domain.org</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QCheckBox" name="dstIPCheck">
+         <property name="text">
+          <string>To this IP / Network</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <spacer name="horizontalSpacer_10">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Maximum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>60</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="protoCheck">
+         <property name="text">
+          <string>Protocol</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2" colspan="4">
+        <widget class="QComboBox" name="srcIPCombo">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>You can specify a single IP:
+- 192.168.1.1
+
+or a regular expression:
+- 192\.168\.1\.[0-9]+
+
+multiple IPs:
+- ^(192\.168\.1\.1|172\.16\.0\.1)$
+
+You can also specify a subnet:
+- 192.168.1.0/24
+
+Note: Commas or spaces are not allowed to separate IPs or networks.</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="currentText">
+          <string notr="true">LAN</string>
+         </property>
+         <item>
+          <property name="text">
+           <string notr="true">LAN</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">MULTICAST</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">127.0.0.0/8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">192.168.0.0/24</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">192.168.1.0/24</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">192.168.2.0/24</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">192.168.0.0/16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">169.254.0.0/16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">172.16.0.0/12</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">10.0.0.0/8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">::1/128</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">fc00::/7</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">ff00::/8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">fe80::/10</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">fd00::/8</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="srcIPCheck">
+         <property name="text">
+          <string>From this IP / Network</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QCheckBox" name="dstHostCheck">
+         <property name="text">
+          <string>To this host</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2" colspan="4">
+        <widget class="QComboBox" name="dstIPCombo">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>You can specify a single IP:
+- 192.168.1.1
+
+or a regular expression:
+- 192\.168\.1\.[0-9]+
+
+multiple IPs:
+- ^(192\.168\.1\.1|172\.16\.0\.1)$
+
+You can also specify a subnet:
+- 192.168.1.0/24
+
+Note: Commas or spaces are not allowed to separate IPs or networks.</string>
+         </property>
+         <property name="statusTip">
+          <string/>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="currentText">
+          <string notr="true">LAN</string>
+         </property>
+         <item>
+          <property name="text">
+           <string notr="true">LAN</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">MULTICAST</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">127.0.0.0/8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">192.168.0.0/24</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">192.168.1.0/24</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">192.168.2.0/24</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">192.168.0.0/16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">169.254.0.0/16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">172.16.0.0/12</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">10.0.0.0/8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">::1/128</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">fc00::/7</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">ff00::/8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">fe80::/10</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">fd00::/8</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QCheckBox" name="ifaceCheck">
+         <property name="text">
+          <string>Network interface</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="6">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QCheckBox" name="srcPortCheck">
+           <property name="text">
+            <string>From this port</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="srcPortLine">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="dstPortCheck">
+           <property name="text">
+            <string>To this port</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="dstPortLine">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabWidgetPage3">
+      <attribute name="icon">
+       <iconset theme="document-properties">
+        <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>List of domains/IPs</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="dstListNetsCheck">
+         <property name="text">
+          <string>To this list of network ranges</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="dstListIPsCheck">
+         <property name="text">
+          <string>To this list of IPs</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QPushButton" name="selectIPsListButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="system-search">
+             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="dstListIPsLine">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of IPs to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;/p&gt;&lt;p&gt;One IP per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="dstListsCheck">
+         <property name="text">
+          <string>To this list of domains</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <item>
+          <widget class="QPushButton" name="selectNetsListButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="system-search">
+             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="dstListNetsLine">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of network ranges to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;One Network Range per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QPushButton" name="selectListButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="system-search">
+             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="dstListsLine">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="dstListRegexpCheck">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>To this list of domains 
+(regular expressions)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <item>
+          <widget class="QPushButton" name="selectListRegexpButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="system-search">
+             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="dstRegexpListsLine">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing regular expressions of domains to block or allow:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;You can also use a domain as is: &amp;quot;example.com&amp;quot; , and it'll match whatever.example.com, whatever.example.com.localdomain, etc.&lt;/p&gt;&lt;p&gt;One domain per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>More</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="2" column="0">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QCheckBox" name="md5Check">
+           <property name="text">
+            <string notr="true">md5</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="md5Line">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="sensitiveCheck">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the field of the rules are case-insensitive, i.e., if a process tries to access gOOgle.CoM and you have a rule to Deny .*google.com, the connection will be blocked.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you check this box, you have to specify the exact string (domain, executable, command line) that you want to filter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Case-sensitive</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Maximum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="nologCheck">
+         <property name="statusTip">
+          <string>Don't log connections that match this rule</string>
+         </property>
+         <property name="text">
+          <string>Don't log connections</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_12">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMaximumSize</enum>
+         </property>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>These options are experimental / in development, they may have bugs or not be completely finished.
+Feedback is welcome</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="dialog-warning">
+             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>In development</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="precedenceCheck">
+     <property name="toolTip">
+      <string>If checked, this rule will take precedence over the rest of the rules. No others rules will be checked after this one.
+
+You must name the rule in such manner that it'll be checked first, because they're checked in alphabetical order. For example:
+
+[x] Priority - 000-priority-rule
+[  ] Priority - 001-less-priority-rule</string>
+     </property>
+     <property name="text">
+      <string>Priority rule</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLineEdit" name="ruleNameEdit">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>The rules are checked in alphabetical order, so you can name them accordingly to prioritize them.
+
+000-allow-localhost
+001-deny-broadcast
+...</string>
+     </property>
+     <property name="placeholderText">
+      <string>Name</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="statusLabel">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="6" column="0">
     <widget class="QGroupBox" name="enableGroup">
      <property name="sizePolicy">
@@ -152,7 +1134,7 @@
           </property>
           <property name="icon">
            <iconset theme="emblem-important">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -169,7 +1151,7 @@
           </property>
           <property name="icon">
            <iconset theme="window-close">
-            <normaloff>.</normaloff>.</iconset>
+            <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
           </property>
          </widget>
         </item>
@@ -192,7 +1174,7 @@
           </property>
           <property name="icon">
            <iconset theme="emblem-default">
-            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+            <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
           </property>
          </widget>
         </item>
@@ -207,90 +1189,6 @@
       <string>Enable</string>
      </property>
     </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QCheckBox" name="precedenceCheck">
-     <property name="toolTip">
-      <string>If checked, this rule will take precedence over the rest of the rules. No others rules will be checked after this one.
-
-You must name the rule in such manner that it'll be checked first, because they're checked in alphabetical order. For example:
-
-[x] Priority - 000-priority-rule
-[  ] Priority - 001-less-priority-rule</string>
-     </property>
-     <property name="text">
-      <string>Priority rule</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLineEdit" name="ruleNameEdit">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>The rules are checked in alphabetical order, so you can name them accordingly to prioritize them.
-
-000-allow-localhost
-001-deny-broadcast
-...</string>
-     </property>
-     <property name="placeholderText">
-      <string>Name</string>
-     </property>
-     <property name="clearButtonEnabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="statusLabel">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <spacer name="horizontalSpacer_6">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Apply|QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Reset</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -325,680 +1223,6 @@ You must name the rule in such manner that it'll be checked first, because they'
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="7" column="0">
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <property name="elideMode">
-      <enum>Qt::ElideRight</enum>
-     </property>
-     <property name="documentMode">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="tabWidgetPage1">
-      <attribute name="icon">
-       <iconset theme="system-run">
-        <normaloff>.</normaloff>.</iconset>
-      </attribute>
-      <attribute name="title">
-       <string>Applications</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="1" colspan="2">
-        <widget class="QLineEdit" name="procLine">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The value of this field is always the absolute path to the executable: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;- Simple: /path/to/binary&lt;/p&gt;&lt;p&gt;- Multiple paths: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Multiple binaries: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Deny/Allow executions from /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For more examples visit the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki page&lt;/a&gt; or ask on the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Discussion forums&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="placeholderText">
-          <string notr="true">/path/to/executable, .*/bin/executable[0-9\.]+$, ...</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QCheckBox" name="checkCmdlineRegexp">
-         <property name="text">
-          <string>Is regular expression</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QCheckBox" name="uidCheck">
-         <property name="text">
-          <string>From this user ID</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QCheckBox" name="cmdlineCheck">
-         <property name="text">
-          <string>From this command line</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1" colspan="2">
-        <widget class="QLineEdit" name="cmdlineLine">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will contain and match the command line that was executed by the user.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the command, only the command will appear:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the absolute or relative path to the command, that is what will appear:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="placeholderText">
-          <string notr="true">curl -L https://www.domain.com</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QCheckBox" name="pidCheck">
-         <property name="text">
-          <string>From this PID</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_11">
-         <item>
-          <spacer name="horizontalSpacer_11">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="pidLine">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="4" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="uidLine">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="0">
-        <widget class="QCheckBox" name="procCheck">
-         <property name="text">
-          <string>From this executable</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QCheckBox" name="checkProcRegexp">
-         <property name="text">
-          <string>is regular expression</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tabWidgetPage2">
-      <attribute name="icon">
-       <iconset theme="preferences-system-network">
-        <normaloff>.</normaloff>.</iconset>
-      </attribute>
-      <attribute name="title">
-       <string>Network</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="4" column="1">
-        <spacer name="horizontalSpacer_9">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="5">
-        <widget class="QComboBox" name="protoCombo">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <property name="currentText">
-          <string>TCP</string>
-         </property>
-         <item>
-          <property name="text">
-           <string notr="true">TCP</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">UDP</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">UDPLITE</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">TCP6</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">UDP6</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">UDPLITE6</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>ICMP</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>ICMP6</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>SCTP</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>SCTP6</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QCheckBox" name="dstHostCheck">
-         <property name="text">
-          <string>To this host</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2" colspan="3">
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>133</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QCheckBox" name="dstPortCheck">
-         <property name="text">
-          <string>To this port</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2" colspan="4">
-        <widget class="QComboBox" name="dstIPCombo">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>You can specify a single IP:
-- 192.168.1.1
-
-or a regular expression:
-- 192\.168\.1\.[0-9]+
-
-multiple IPs:
-- ^(192\.168\.1\.1|172\.16\.0\.1)$
-
-You can also specify a subnet:
-- 192.168.1.0/24
-
-Note: Commas or spaces are not allowed to separate IPs or networks.</string>
-         </property>
-         <property name="statusTip">
-          <string/>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string notr="true">LAN</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">MULTICAST</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">127.0.0.0/8</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">192.168.0.0/24</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">192.168.1.0/24</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">192.168.2.0/24</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">192.168.0.0/16</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">169.254.0.0/16</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">172.16.0.0/12</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">10.0.0.0/8</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">::1/128</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">fc00::/7</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">ff00::/8</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">fe80::/10</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">fd00::/8</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="3" column="2" colspan="4">
-        <widget class="QLineEdit" name="dstHostLine">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Commas or spaces are not allowed to specify multiple domains. 
-
-Use regular expressions instead: 
-.*(opensnitch|duckduckgo).com
-.*\.google.com
-
-or a single domain:
-www.gnu.org - it'll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
-gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</string>
-         </property>
-         <property name="placeholderText">
-          <string>www.domain.org, .*\.domain.org</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <spacer name="horizontalSpacer_10">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="4" column="0">
-        <widget class="QCheckBox" name="dstIPCheck">
-         <property name="text">
-          <string>To this IP / Network</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="5">
-        <widget class="QLineEdit" name="dstPortLine">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="4">
-        <widget class="QCheckBox" name="protoCheck">
-         <property name="text">
-          <string>Protocol</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QCheckBox" name="ifaceCheck">
-         <property name="text">
-          <string>Network interface</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="4" colspan="2">
-        <widget class="QComboBox" name="ifaceCombo">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tabWidgetPage3">
-      <attribute name="icon">
-       <iconset theme="document-properties">
-        <normaloff>.</normaloff>.</iconset>
-      </attribute>
-      <attribute name="title">
-       <string>List of domains/IPs</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="3" column="0">
-        <widget class="QCheckBox" name="dstListNetsCheck">
-         <property name="text">
-          <string>To this list of network ranges</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QCheckBox" name="dstListIPsCheck">
-         <property name="text">
-          <string>To this list of IPs</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <item>
-          <widget class="QPushButton" name="selectIPsListButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="system-search">
-             <normaloff>.</normaloff>.</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="dstListIPsLine">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of IPs to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;/p&gt;&lt;p&gt;One IP per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="0">
-        <widget class="QCheckBox" name="dstListsCheck">
-         <property name="text">
-          <string>To this list of domains</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <item>
-          <widget class="QPushButton" name="selectNetsListButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="system-search">
-             <normaloff>.</normaloff>.</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="dstListNetsLine">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of network ranges to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;One Network Range per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <widget class="QPushButton" name="selectListButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="system-search">
-             <normaloff>.</normaloff>.</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="dstListsLine">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="dstListRegexpCheck">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>To this list of domains 
-(regular expressions)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_10">
-         <item>
-          <widget class="QPushButton" name="selectListRegexpButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="system-search">
-             <normaloff>.</normaloff>.</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="dstRegexpListsLine">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing regular expressions of domains to block or allow:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;You can also use a domain as is: &amp;quot;example.com&amp;quot; , and it'll match whatever.example.com, whatever.example.com.localdomain, etc.&lt;/p&gt;&lt;p&gt;One domain per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>More</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_6">
-       <item row="0" column="0">
-        <widget class="QCheckBox" name="sensitiveCheck">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the field of the rules are case-insensitive, i.e., if a process tries to access gOOgle.CoM and you have a rule to Deny .*google.com, the connection will be blocked.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you check this box, you have to specify the exact string (domain, executable, command line) that you want to filter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Case-sensitive</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="nologCheck">
-         <property name="statusTip">
-          <string>Don't log connections that match this rule</string>
-         </property>
-         <property name="text">
-          <string>Don't log connections</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Maximum</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item row="9" column="0">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QPlainTextEdit" name="ruleDescEdit">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>60</height>
-      </size>
-     </property>
-     <property name="placeholderText">
-      <string>Description...</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

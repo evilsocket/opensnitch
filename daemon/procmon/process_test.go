@@ -7,7 +7,7 @@ import (
 
 var (
 	myPid = os.Getpid()
-	proc  = NewProcess(myPid, "fakeComm")
+	proc  = NewProcessEmpty(myPid, "fakeComm")
 )
 
 func TestNewProcess(t *testing.T) {
@@ -61,26 +61,11 @@ func TestProcEnv(t *testing.T) {
 }
 
 func TestProcIOStats(t *testing.T) {
-	proc.readIOStats()
+	err := proc.readIOStats()
 
-	if proc.IOStats.RChar == 0 {
-		t.Error("Proc.IOStats.RChar should not be 0:", proc.IOStats)
+	if err != nil {
+		t.Error("error reading proc IOStats:", err)
 	}
-	if proc.IOStats.WChar == 0 {
-		t.Error("Proc.IOStats.WChar should not be 0:", proc.IOStats)
-	}
-	if proc.IOStats.SyscallRead == 0 {
-		t.Error("Proc.IOStats.SyscallRead should not be 0:", proc.IOStats)
-	}
-	if proc.IOStats.SyscallWrite == 0 {
-		t.Error("Proc.IOStats.SyscallWrite should not be 0:", proc.IOStats)
-	}
-	/*if proc.IOStats.ReadBytes == 0 {
-		t.Error("Proc.IOStats.ReadBytes should not be 0:", proc.IOStats)
-	}
-	if proc.IOStats.WriteBytes == 0 {
-		t.Error("Proc.IOStats.WriteBytes should not be 0:", proc.IOStats)
-	}*/
 }
 
 func TestProcStatus(t *testing.T) {

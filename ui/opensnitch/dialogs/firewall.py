@@ -39,9 +39,9 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboProfile.setVisible(False)
         self.lblProfile.setVisible(False)
 
-        self.secHighIcon = Icons.new("security-high")
-        self.secMediumIcon = Icons.new("security-medium")
-        self.secLowIcon = Icons.new("security-low")
+        self.secHighIcon = Icons.new(self, "security-high")
+        self.secMediumIcon = Icons.new(self, "security-medium")
+        self.secLowIcon = Icons.new(self, "security-low")
         self.lblStatusIcon.setPixmap(self.secHighIcon.pixmap(96, 96))
 
         self._fwrule_dialog = FwRuleDialog(appicon=self.appicon)
@@ -65,6 +65,9 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboProfile.currentIndexChanged.connect(self._cb_combo_profile_changed)
         self.sliderFwEnable.valueChanged.connect(self._cb_enable_fw_changed)
         self.cmdClose.clicked.connect(self._cb_close_clicked)
+        self.cmdHelp.clicked.connect(
+            lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(Config.HELP_SYSFW_URL))
+        )
 
         # TODO: when output policy is set to Drop, all outbound traffic is
         # blocked.
@@ -73,17 +76,20 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if QtGui.QIcon.hasThemeIcon("document-new"):
             return
 
-        closeIcon = Icons.new("window-close")
-        excludeIcon = Icons.new("go-up")
-        allowInIcon = Icons.new("go-down")
-        newIcon = Icons.new("document-new")
+        closeIcon = Icons.new(self, "window-close")
+        excludeIcon = Icons.new(self, "go-up")
+        allowInIcon = Icons.new(self, "go-down")
+        newIcon = Icons.new(self, "document-new")
+        helpIcon = Icons.new(self, "help-browser")
         self.cmdClose.setIcon(closeIcon)
         self.cmdAllowOUTService.setIcon(excludeIcon)
         self.cmdAllowINService.setIcon(allowInIcon)
         self.cmdNewRule.setIcon(newIcon)
+        self.cmdHelp.setIcon(helpIcon)
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
+        self.comboInput.setEnabled(True)
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.OK:
                 rep = self._notifications_sent[reply.id]
@@ -115,6 +121,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_combo_policy_changed(self, combo):
         self._reset_status_message()
+        self.comboInput.setEnabled(False)
 
         wantedProfile = FwProfiles.ProfileAcceptInput.value
         if combo == self.COMBO_OUT:
@@ -157,6 +164,11 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.allow_in_service()
 
     def _cb_enable_fw_changed(self, enable):
+        if self._nodes.count() == 0:
+            self.sliderFwEnable.blockSignals(True)
+            self.sliderFwEnable.setValue(False)
+            self.sliderFwEnable.blockSignals(False)
+            return
         self.enable_fw(enable)
 
     def _cb_close_clicked(self):

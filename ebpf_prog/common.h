@@ -34,18 +34,55 @@ enum events_type {
     EVENT_SCHED_EXIT,
 };
 
+struct trace_ev_common {
+    short common_type;
+    char common_flags;
+    char common_preempt_count;
+    int common_pid;
+};
+
+struct trace_sys_enter_execve {
+    struct trace_ev_common ext;
+
+    int __syscall_nr;
+    char *filename;
+    const char *const *argv;
+    const char *const *envp;
+};
+
+struct trace_sys_enter_execveat {
+    struct trace_ev_common ext;
+
+    int __syscall_nr;
+    char *filename;
+    const char *const *argv;
+    const char *const *envp;
+    int flags;
+};
+
+struct trace_sys_exit_execve {
+    struct trace_ev_common ext;
+
+    int __syscall_nr;
+    long ret;
+};
+
 
 struct data_t {
     u64 type;
-    u64 pid;  // PID as in the userspace term (i.e. task->tgid in kernel)
-    u64 ppid; // Parent PID as in the userspace term (i.e task->real_parent->tgid in kernel)
-    u64 uid;
-    u64 args_count;
-    u64 args_partial;
+    u32 pid;  // PID as in the userspace term (i.e. task->tgid in kernel)
+    u32 uid;
+    // Parent PID as in the userspace term (i.e task->real_parent->tgid in kernel)
+    u32 ppid;
+    u32 ret_code;
+    u8 args_count;
+    u8 args_partial;
     char filename[MAX_PATH_LEN];
     char args[MAX_ARGS][MAX_ARG_SIZE];
     char comm[TASK_COMM_LEN];
-}__attribute__((packed));
+    u16 pad1;
+    u32 pad2;
+};
 
 //-----------------------------------------------------------------------------
 // maps
