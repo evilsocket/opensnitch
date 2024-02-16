@@ -155,8 +155,8 @@ func TestQueueConnections(t *testing.T) {
 		t.Error("pre step add_chain() output-mangle-inet failed")
 	}
 
-	if err1, err2 := nftest.Fw.QueueConnections(true, true); err1 != nil && err2 != nil {
-		t.Errorf("rule to queue connections not added: %s, %s", err1, err2)
+	if err := nftest.Fw.QueueConnections(true, true); err != nil {
+		t.Errorf("rule to queue connections not added: %v", err.AsError())
 	}
 
 	r, _ := getRule(t, conn, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_OUTPUT, nftb.InterceptionRuleKey, 0)
@@ -189,8 +189,8 @@ func TestQueueDNSResponses(t *testing.T) {
 		t.Error("pre step add_chain() input-filter-inet failed")
 	}
 
-	if err1, err2 := nftest.Fw.QueueDNSResponses(true, true); err1 != nil && err2 != nil {
-		t.Errorf("rule to queue DNS responses not added: %s, %s", err1, err2)
+	if err := nftest.Fw.QueueDNSResponses(true, true); err != nil {
+		t.Errorf("rule to queue DNS responses not added: %v", err.AsError())
 	}
 
 	r, _ := getRule(t, conn, exprs.NFT_CHAIN_FILTER, exprs.NFT_HOOK_INPUT, nftb.InterceptionRuleKey, 0)
