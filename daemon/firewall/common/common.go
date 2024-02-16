@@ -51,6 +51,21 @@ func (e *FirewallError) Error() string {
 	return fmt.Sprintf("IPv4 error: %v, IPv6 error: %v", e.Err4, e.Err6)
 }
 
+// AsError returns combined standard error for both IPv4 and IPv6
+// Only the non-nil errors are formatted into the error
+func (e *FirewallError) AsError() error {
+	switch {
+	case e.Err4 == nil && e.Err6 != nil:
+		return e.Err6
+	case e.Err4 != nil && e.Err6 == nil:
+		return e.Err4
+	case e == &FirewallError{} || e == nil:
+		return nil
+	default:
+		return fmt.Errorf("%v", e.Error())
+	}
+}
+
 // HasError simplifies error handling of the FirewallError type.
 func (e *FirewallError) HasError() bool {
 	return e.Err4 != nil || e.Err6 != nil
@@ -60,6 +75,8 @@ func (s *stopChecker) exit() <-chan bool {
 	s.RLock()
 	defer s.RUnlock()
 	return s.ch
+}
+
 // ErrorsChan returns the channel where the errors are sent to.
 func (c *Common) ErrorsChan() <-chan string {
 	return c.ErrChan
@@ -111,7 +128,6 @@ func (c *Common) SetQueueNum(qNum *int) {
 	if qNum != nil {
 		c.QueueNum = uint16(*qNum)
 	}
-
 }
 
 // IsRunning returns if the firewall is running or not.
