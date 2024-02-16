@@ -22,10 +22,10 @@ func addInterceptionRules(nft *nftb.Nft, t *testing.T) {
 		return
 	}
 
-	if err, _ := nft.QueueDNSResponses(common.EnableRule, common.EnableRule); err != nil {
+	if err := nft.QueueDNSResponses(common.EnableRule, common.EnableRule); err != nil {
 		t.Errorf("Error while running DNS nftables rule: %s", err)
 	}
-	if err, _ := nft.QueueConnections(common.EnableRule, common.EnableRule); err != nil {
+	if err := nft.QueueConnections(common.EnableRule, common.EnableRule); err != nil {
 		t.Errorf("Error while running conntrack nftables rule: %s", err)
 	}
 }
