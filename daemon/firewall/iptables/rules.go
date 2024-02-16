@@ -10,7 +10,7 @@ import (
 )
 
 // RunRule inserts or deletes a firewall rule.
-func (ipt *Iptables) RunRule(action Action, enable bool, logError bool, rule []string) *common.FirewallError {
+func (ipt *Iptables) RunRule(action Action, enable bool, logError bool, rule []string) (err *common.FirewallError) {
 	if enable == false {
 		action = "-D"
 	}
@@ -20,24 +20,24 @@ func (ipt *Iptables) RunRule(action Action, enable bool, logError bool, rule []s
 	ipt.Lock()
 	defer ipt.Unlock()
 
-	if _, err4 = core.Exec(ipt.bin, rule); err4 != nil {
+	if _, err.Err4 = core.Exec(ipt.bin, rule); err != nil {
 		if logError {
-			log.Error("Error while running firewall rule, ipv4 err: %s", err4)
+			log.Error("Error while running firewall rule, ipv4 err: %s", err.Err4)
 			log.Error("rule: %s", rule)
 		}
 	}
 
 	// On some systems IPv6 is disabled
 	if core.IPv6Enabled {
-		if _, err6 = core.Exec(ipt.bin6, rule); err6 != nil {
+		if _, err.Err6 = core.Exec(ipt.bin6, rule); err.Err6 != nil {
 			if logError {
-				log.Error("Error while running firewall rule, ipv6 err: %s", err6)
+				log.Error("Error while running firewall rule, ipv6 err: %s", err.Err6)
 				log.Error("rule: %s", rule)
 			}
 		}
 	}
 
-	return &common.FirewallError{Err4: err4, Err6: err6}
+	return err
 }
 
 // QueueDNSResponses redirects DNS responses to us, in order to keep a cache
