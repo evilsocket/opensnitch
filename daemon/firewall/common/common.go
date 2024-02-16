@@ -71,12 +71,6 @@ func (e *FirewallError) HasError() bool {
 	return e.Err4 != nil || e.Err6 != nil
 }
 
-func (s *stopChecker) exit() <-chan bool {
-	s.RLock()
-	defer s.RUnlock()
-	return s.ch
-}
-
 // ErrorsChan returns the channel where the errors are sent to.
 func (c *Common) ErrorsChan() <-chan string {
 	return c.ErrChan
