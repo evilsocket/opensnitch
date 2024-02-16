@@ -19,7 +19,7 @@ import (
 // This rule must be added in top of the system rules, otherwise it may get bypassed.
 // nft insert rule ip filter input udp sport 53 queue num 0 bypass
 func (n *Nft) QueueDNSResponses(enable, logError bool) *common.FirewallError {
-	if n.conn == nil {
+	if n.Conn == nil {
 		return nil
 	}
 	families := []string{exprs.NFT_FAMILY_INET}
@@ -81,7 +81,7 @@ func (n *Nft) QueueDNSResponses(enable, logError bool) *common.FirewallError {
 // rules above this one to exclude a service/app from being intercepted.
 // nft insert rule ip mangle OUTPUT ct state new queue num 0 bypass
 func (n *Nft) QueueConnections(enable, logError bool) *common.FirewallError {
-	if n.conn == nil {
+	if n.Conn == nil {
 		return &common.FirewallError{Err4: fmt.Errorf("nftables QueueConnections: netlink connection not active"), Err6: nil}
 	}
 	table := n.GetTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
