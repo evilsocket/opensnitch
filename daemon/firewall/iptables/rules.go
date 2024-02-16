@@ -11,6 +11,7 @@ import (
 
 // RunRule inserts or deletes a firewall rule.
 func (ipt *Iptables) RunRule(action Action, enable bool, logError bool, rule []string) (err *common.FirewallError) {
+	err = &common.FirewallError{}
 	if enable == false {
 		action = "-D"
 	}
