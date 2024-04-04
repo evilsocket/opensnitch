@@ -6,10 +6,14 @@ Rules are checked in alphabetical order, so the first step is to name the rules 
     000-allow-very-important-rule
     001-allow-not-so-important-rule
 
-
 The second step is to check the box `[x] Priority` of a rule.
 
-Rules with Action: Deny or rules with the box `Priority` checked will take precedence over the others.
+ℹ️ Remember:
+
+By default the rules are evaluated until a rule with a Deny/Reject Action is found, or when a rule with the `[x] Priority` check marked.
+
+More info:
+https://github.com/evilsocket/opensnitch/wiki/Rules#some-considerations
 
 **Block ads, tracking or malware domains globally**
 ---
