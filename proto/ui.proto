@@ -25,9 +25,10 @@ message Alert {
         HIGH = 2;
     }
     enum Type {
-        ERROR = 0;
-        WARNING = 1;
-        INFO = 2;
+        NOT_DEFINED = 0;
+        ERROR = 1;
+        WARNING = 2;
+        INFO = 3;
     }
     enum Action {
         NONE = 0;
@@ -44,6 +45,11 @@ message Alert {
         NETLINK = 5;
         // bind, exec, etc
         KERNEL_EVENT = 6;
+        KERNEL_PROC_EXEC = 7;
+        KERNEL_PROC_EXIT = 8;
+        KERNEL_NET_BIND = 9;
+        KERNEL_NET_RXTX = 10;
+        UNKNOWN = 999;
     }
 
     uint64 id = 1;
@@ -62,12 +68,50 @@ message Alert {
         Connection conn = 9;
         Rule rule = 10;
         FwRule fwrule = 11;
+        KernelEvent kEvent = 12;
+        Message msg = 13;
     }
 }
 
 message MsgResponse {
     uint64 id = 1;
 }
+
+message KernelProcEvent {
+    uint64 id = 1;
+    uint32 what = 2;
+    Process proc = 3;
+}
+
+message KernelNetEvent {
+    uint64 id = 1;
+    // bind, connection, rxtx, others?
+    uint32 what = 2;
+    Connection conn = 3;
+}
+
+message KernelEvent {
+    enum Generic {
+        GENERIC = 0;
+        PROC_EXEC = 1;
+        PROC_EXIT = 2;
+        // net events
+        NET_BIND = 100;
+        NET_RXTX = 101;
+    }
+
+    uint64 id = 1;
+    // execve, proc (bytes/recv), bind
+    uint32 type = 2;
+    oneof data {
+        string text = 3;
+        KernelProcEvent procEvent = 4;
+        KernelNetEvent netEvent = 5;
+    }
+}
+
+
+// --------------------------------------------------------------------------
 
 message Event {
     string time = 1;
@@ -110,6 +154,11 @@ message StringInt {
     uint32 value = 2;
 }
 
+message Message {
+    string key = 1;
+    string value = 2;
+}
+
 message Process {
     uint64 pid = 1;
     uint64 ppid = 2;
@@ -124,7 +173,9 @@ message Process {
     uint64 io_writes = 11;
     uint64 net_reads = 12;
     uint64 net_writes = 13;
-    repeated StringInt process_tree = 14;
+    map<string, uint64> bytes_sent = 15;
+    map<string, uint64> bytes_recv = 16;
+    repeated StringInt tree = 17;
 }
 
 message Connection {
@@ -138,10 +189,12 @@ message Connection {
     uint32 process_id = 8;
     string process_path = 9;
     string process_cwd = 10;
-    repeated string process_args = 11;
-    map<string, string> process_env = 12;
-    map<string, string> process_checksums = 13;
-    repeated StringInt process_tree = 14;
+    uint64 process_bytessent = 11;
+    uint64 process_bytesrecv = 12;
+    repeated string process_args = 13;
+    map<string, string> process_env = 14;
+    map<string, string> process_checksums = 15;
+    repeated StringInt process_tree = 16;
 }
 
 message Operator {

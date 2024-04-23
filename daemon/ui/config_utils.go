@@ -106,16 +106,19 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 		}
 		c.setSocketPath(tempSocketPath)
 	}
+
 	if clientConfig.DefaultAction != "" {
 		clientDisconnectedRule.Action = rule.Action(clientConfig.DefaultAction)
 		clientErrorRule.Action = rule.Action(clientConfig.DefaultAction)
 		// TODO: reconfigure connected rule if changed, but not save it to disk.
 		//clientConnectedRule.Action = rule.Action(clientConfig.DefaultAction)
 	}
+
 	if clientConfig.DefaultDuration != "" {
 		clientDisconnectedRule.Duration = rule.Duration(clientConfig.DefaultDuration)
 		clientErrorRule.Duration = rule.Duration(clientConfig.DefaultDuration)
 	}
+
 	if clientConfig.ProcMonitorMethod != "" {
 		err := monitor.ReconfigureMonitorMethod(clientConfig.ProcMonitorMethod, clientConfig.Ebpf.ModulesPath)
 		if err != nil {

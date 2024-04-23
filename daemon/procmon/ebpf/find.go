@@ -83,7 +83,7 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		return
 	}
 
-	var value networkEventT
+	var value connEventT
 	var key []byte
 	var isIP4 bool = (proto == "tcp") || (proto == "udp") || (proto == "udplite")
 
@@ -163,7 +163,7 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 // By default we only receive the PID of the process, so we need to get
 // the rest of the details.
 // TODO: get the details from kernel, with mm_struct (exe_file, fd_path, etc).
-func findConnProcess(value *networkEventT, connKey string) (proc *procmon.Process) {
+func findConnProcess(value *connEventT, connKey string) (proc *procmon.Process) {
 
 	// Use socket's UID. A process may have dropped privileges.
 	// This is the UID that we've always used.

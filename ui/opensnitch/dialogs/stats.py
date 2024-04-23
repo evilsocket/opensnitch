@@ -44,6 +44,23 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     LIMITS = ["LIMIT 50", "LIMIT 100", "LIMIT 200", "LIMIT 300", ""]
     LAST_GROUP_BY = ""
 
+    RXTX_BYTES = "bytes"
+    RXTX_UNITS = "units"
+    RXTX_FILTER_BY_BYTES = "rt.total_sent as Tx, rt.total_recv as Rx"
+    RXTX_FILTER_BY_UNITS = """CASE
+    WHEN rt.total_sent >= 1024 AND rt.total_sent <= 1048576 THEN (ROUND(rt.total_sent / 1024, 2)) || ' KBytes'
+    WHEN rt.total_sent > 1048576 AND rt.total_sent < 1073741824 THEN (ROUND(rt.total_sent / 1048576, 2)) || ' MBytes'
+    WHEN rt.total_sent >= 1073741824 THEN (ROUND(rt.total_sent / 1073741824, 2)) || ' GBytes'
+    ELSE rt.total_sent
+  END AS Tx,
+  CASE
+    WHEN rt.total_recv >= 1024 AND rt.total_recv <= 1048576 THEN (ROUND(rt.total_recv / 1024, 2)) || ' KBytes'
+    WHEN rt.total_recv > 1048576 AND rt.total_recv < 1073741824 THEN (ROUND(rt.total_recv / 1048576, 2)) || ' MBytes'
+    WHEN rt.total_recv >= 1073741824 THEN (ROUND(rt.total_recv / 1073741824, 2)) || ' GBytes'
+    ELSE rt.total_recv
+  END AS Rx"""
+
+
     # general
     COL_TIME   = 0
     COL_NODE   = 1
@@ -264,7 +281,26 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "filterLine": None,
             "model": None,
             "delegate": "commonDelegateConfig",
-            "display_fields": "*",
+            "display_fields": "",
+            "bytes_units": RXTX_FILTER_BY_UNITS,
+            "custom_query": """
+WITH rxtx_totals AS (
+  SELECT
+    proc_path_fk,
+    what,
+    total(bytes_sent) AS total_sent,
+    total(bytes_recv) AS total_recv
+  FROM rxtx
+  WHERE what = 0
+  GROUP BY proc_path_fk, what
+)
+
+SELECT
+  procs.what,
+  procs.hits,
+  #UNITS#
+FROM procs
+JOIN rxtx_totals rt ON procs.what = rt.proc_path_fk""",
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 1,
@@ -371,6 +407,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._actions = Actions().instance()
         self._actions.loadAll()
         self._last_update = datetime.datetime.now()
+        self._last_rxtx_update = datetime.datetime.now()
+        self._last_rxtx = {'sent': 0, 'recv': 0}
+        # rxtx timer to reset statusbar stats after 3s if we haven't received
+        # new bytes stats.
+        self._rxtx_timer = QtCore.QTimer()
+        self._rxtx_timer.setInterval(2000)
+        self._rxtx_timer.timeout.connect(self._rxtx_timer_callback)
 
         # TODO: allow to display multiples dialogs
         self._proc_details_dialog = ProcessDetailsDialog(appicon=appicon)
@@ -493,10 +536,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         ]
 
         self.TABLES[self.TAB_HOSTS]['header_labels'] = stats_headers
-        self.TABLES[self.TAB_PROCS]['header_labels'] = stats_headers
         self.TABLES[self.TAB_ADDRS]['header_labels'] = stats_headers
         self.TABLES[self.TAB_PORTS]['header_labels'] = stats_headers
         self.TABLES[self.TAB_USERS]['header_labels'] = stats_headers
+        self.TABLES[self.TAB_PROCS]['header_labels'] = [
+            QC.translate("stats", "What", "This is a word, without spaces and symbols.").replace(" ", ""),
+            QC.translate("stats", "Hits", "This is a word, without spaces and symbols.").replace(" ", ""),
+            'Tx',
+            'Rx'
+        ]
 
         self.TABLES[self.TAB_MAIN]['view'] = self._setup_table(QtWidgets.QTableView, self.eventsTable, "connections",
                 self.TABLES[self.TAB_MAIN]['display_fields'],
@@ -557,11 +605,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_PROCS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.procsTable, "procs",
                 model=GenericTableModel("procs", self.TABLES[self.TAB_PROCS]['header_labels']),
+                fields="",
                 verticalScrollBar=self.procsScrollBar,
                 resize_cols=(self.COL_WHAT,),
                 delegate=self.TABLES[self.TAB_PROCS]['delegate'],
                 order_by="2",
-                limit=self._get_limit()
+                limit=self._get_limit(),
+                custom_query=self.TABLES[self.TAB_PROCS]['custom_query'].replace("#UNITS#", self.TABLES[self.TAB_PROCS]['bytes_units'])
                 )
         self.TABLES[self.TAB_ADDRS]['view'] = self._setup_table(QtWidgets.QTableView,
                 self.addrTable, "addrs",
@@ -631,6 +681,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_FIREWALL]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
         self.TABLES[self.TAB_ALERTS]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.TABLES[self.TAB_ALERTS]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
+        self.TABLES[self.TAB_ALERTS]['view'].resizeRowsToContents()
 
         for idx in range(1,10):
             if self.TABLES[idx]['cmd'] != None:
@@ -682,6 +733,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         )
         self.fwTreeEdit.clicked.connect(self._cb_tree_edit_firewall_clicked)
         self._configure_buttons_icons()
+
+    def _rxtx_timer_callback(self):
+        """Reset rxtx stats if we haven't received new bytes stats in the latest
+        2 seconds.
+        Whenever we receive a new bytes event, the timer is resetted.
+        """
+        self._rxtx_timer.start()
+        self._last_rxtx = {
+            'sent': 0,
+            'recv': 0
+        }
+        self.rxtxLabel.setText(" 🡅 0 🡇 0")
 
     #Sometimes a maximized window which had been minimized earlier won't unminimize
     #To workaround, we explicitely maximize such windows when unminimizing happens
@@ -821,6 +884,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if dialog_general_filter_text != None:
             self.filterLine.setText(dialog_general_filter_text)
 
+        rxtx_units = self._cfg.getSettings(Config.STATS_RXTX_UNITS_FORMAT)
+        if rxtx_units == self.RXTX_BYTES:
+            self.TABLES[self.TAB_PROCS]['bytes_units'] = self.RXTX_FILTER_BY_BYTES
+        else:
+            self.TABLES[self.TAB_PROCS]['bytes_units'] = self.RXTX_FILTER_BY_UNITS
+
     def _save_settings(self):
         self._cfg.setSettings(Config.STATS_GEOMETRY, self.saveGeometry())
         self._cfg.setSettings(Config.STATS_LAST_TAB, self.tabWidget.currentIndex())
@@ -926,6 +995,41 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         finally:
             self._clear_rows_selection()
             return True
+
+    def _configure_headers_procs_contextual_menu(self, pos, cur_idx):
+        try:
+            table = self._get_active_table()
+            point = QtCore.QPoint(pos.x()+10, pos.y()+5)
+
+            menu = QtWidgets.QMenu(self)
+            _menu_units_reset_rx = menu.addAction(QC.translate("stats", "Reset Rx stats"))
+            _menu_units_reset_tx = menu.addAction(QC.translate("stats", "Reset Tx stats"))
+            unitsMenu = QtWidgets.QMenu(QC.translate("stats", "Format"))
+            _menu_units_bytes = unitsMenu.addAction(QC.translate("stats", "Bytes"))
+            _menu_units_group = unitsMenu.addAction(QC.translate("stats", "Group by units"))
+            menu.addMenu(unitsMenu)
+
+            action = menu.exec_(table.mapToGlobal(point))
+
+            if action == _menu_units_reset_rx:
+                self._db.reset_rxtx_stats("bytes_sent", 0)
+            elif action == _menu_units_reset_tx:
+                self._db.reset_rxtx_stats("bytes_recv", 0)
+            elif action == _menu_units_bytes:
+                self._cfg.setSettings(Config.STATS_RXTX_UNITS_FORMAT, self.RXTX_BYTES)
+                self.TABLES[cur_idx]['bytes_units'] = self.RXTX_FILTER_BY_BYTES
+            elif action == _menu_units_group:
+                self._cfg.setSettings(Config.STATS_RXTX_UNITS_FORMAT, self.RXTX_UNITS)
+                self.TABLES[cur_idx]['bytes_units'] = self.RXTX_FILTER_BY_UNITS
+
+            view = self.TABLES[self.TAB_PROCS]['view']
+            model = view.model()
+            qstr = self.TABLES[self.TAB_PROCS]['custom_query'].replace("#UNITS#", self.TABLES[cur_idx]['bytes_units']) \
+                + self._get_order() + self._get_limit()
+            self.setQuery(model, qstr)
+
+        except Exception as e:
+            print("config procs headers exception:", e)
 
     def _configure_fwrules_contextual_menu(self, pos):
         try:
@@ -1495,6 +1599,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._refresh_active_table()
 
+    def _cb_headers_context_menu(self, pos):
+        cur_idx = self.tabWidget.currentIndex()
+
+        #if cur_idx == self.TAB_MAIN:
+        #    self._configure_headers_main_contextual_menu(pos, cur_idx)
+        if cur_idx == self.TAB_PROCS:
+            self._configure_headers_procs_contextual_menu(pos, cur_idx)
+
     def _cb_table_context_menu(self, pos):
         cur_idx = self.tabWidget.currentIndex()
         if cur_idx != self.TAB_RULES and cur_idx != self.TAB_MAIN:
@@ -1560,8 +1672,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         else:
             where_clause = self._get_filter_line_clause(cur_idx, text)
-            qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] ) + \
-                where_clause + self._get_order()
+            if self.TABLES[cur_idx].get('custom_query') != None:
+                qstr = self.TABLES[cur_idx]['custom_query']
+                if cur_idx == StatsDialog.TAB_PROCS:
+                    qstr = self.TABLES[self.TAB_PROCS]['custom_query'].replace("#UNITS#", self.TABLES[cur_idx]['bytes_units'])
+            else:
+                qstr = self._db.get_query( self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['display_fields'] )
+
+            qstr += where_clause + self._get_order()
             if text == "":
                 qstr = qstr + self._get_limit()
 
@@ -1594,6 +1712,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         cur_idx = self.tabWidget.currentIndex()
         if cur_idx == StatsDialog.TAB_RULES:
             self._db.empty_rule(self.TABLES[cur_idx]['label'].text())
+        elif cur_idx == StatsDialog.TAB_PROCS:
+            self._db.clean(self.TABLES[cur_idx]['name'])
+            self._db.clean("proc_details")
+            self._db.clean("rxtx", "what == 0")
         elif self.IN_DETAIL_VIEW[cur_idx]:
             self._del_by_field(cur_idx, self.TABLES[cur_idx]['name'], self.TABLES[cur_idx]['label'].text())
         else:
@@ -1618,11 +1740,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 filter_text = self.TABLES[cur_idx]['filterLine'].text()
                 where_clause = self._get_filter_line_clause(cur_idx, filter_text)
 
-            self.setQuery(model,
-                        self._db.get_query(
-                            self.TABLES[cur_idx]['name'],
-                            self.TABLES[cur_idx]['display_fields']) + where_clause + " " + self._get_order() + self._get_limit()
-                        )
+            if self.TABLES[cur_idx].get('custom_query') != None:
+                qstr = self.TABLES[cur_idx]['custom_query']
+                if cur_idx == StatsDialog.TAB_PROCS:
+                    qstr = self.TABLES[self.TAB_PROCS]['custom_query'].replace("#UNITS#", self.TABLES[cur_idx]['bytes_units'])
+            else:
+                qstr = self._db.get_query(
+                    self.TABLES[cur_idx]['name'],
+                    self.TABLES[cur_idx]['display_fields'])
+
+            qstr += where_clause + self._get_order() + self._get_limit()
+            self.setQuery(model, qstr)
+
         finally:
             self._restore_details_view_columns(
                 self.TABLES[cur_idx]['view'].horizontalHeader(),
@@ -2547,6 +2676,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         nrows = self._get_active_table().model().rowCount()
         self.cmdProcDetails.setVisible(nrows != 0)
+        records = self._db.get_process_bytes(data)
+        if records != None and records.next():
+            labelText = "{0} - sent: {1}, recv: {2}".format(data, records.value(0), records.value(1))
+            self.procsLabel.setText(labelText)
 
     def _set_addrs_query(self, data):
         model = self._get_active_table().model()
@@ -2846,7 +2979,21 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                             values.append(table.model().index(row, col).data())
                         w.writerow(values)
 
-    def _setup_table(self, widget, tableWidget, table_name, fields="*", group_by="", order_by="2", sort_direction=SORT_ORDER[1], limit="", resize_cols=(), model=None, delegate=None, verticalScrollBar=None, tracking_column=COL_TIME):
+    def _setup_table(self,
+                     widget,
+                     tableWidget,
+                     table_name,
+                     fields="*",
+                     group_by="",
+                     order_by="2",
+                     sort_direction=SORT_ORDER[1],
+                     limit="",
+                     resize_cols=(),
+                     model=None,
+                     delegate=None,
+                     verticalScrollBar=None,
+                     tracking_column=COL_TIME,
+                     custom_query=None):
         tableWidget.setSortingEnabled(True)
         if model == None:
             model = self._db.get_new_qsql_model()
@@ -2856,7 +3003,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         tableWidget.verticalScrollBar().sliderReleased.connect(self._cb_scrollbar_released)
         tableWidget.setTrackingColumn(tracking_column)
 
-        self.setQuery(model, "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " " + sort_direction + limit)
+        query_tail = group_by + " ORDER BY " + order_by + " " + sort_direction + limit
+        if custom_query != None:
+            self.setQuery(model, custom_query + query_tail)
+        else:
+            self.setQuery(model, "SELECT " + fields + " FROM " + table_name + query_tail)
         tableWidget.setModel(model)
 
         if delegate != None:
@@ -2866,6 +3017,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         header = tableWidget.horizontalHeader()
         if header != None:
+            header.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+            header.customContextMenuRequested.connect(self._cb_headers_context_menu)
             header.sortIndicatorChanged.connect(self._cb_table_header_clicked)
 
             for _, col in enumerate(resize_cols):
@@ -2935,6 +3088,37 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             if need_query_update and not self._are_rows_selected():
                 self._refresh_active_table()
+
+
+    @QtCore.pyqtSlot(int, int)
+    def on_bytes_updated(self, sent, recv):
+        """Display rxtx stats on the statusbar
+        """
+        # start/reset the timer
+        self._rxtx_timer.start()
+        self._last_rxtx = {
+            'sent': self._last_rxtx['sent'] + sent,
+            'recv': self._last_rxtx['recv'] + recv
+        }
+        tx_units = ""
+        rx_units = ""
+        diff = datetime.datetime.now() - self._last_rxtx_update
+        if diff.seconds < self._ui_refresh_interval:
+            return
+
+        if self._last_rxtx['sent'] > 1024:
+            tx_units = "KB"
+            sent = round(float(self._last_rxtx['sent'] / 1024), 2)
+        if self._last_rxtx['recv'] > 1024:
+            rx_units = "KB"
+            recv = round(float(self._last_rxtx['recv'] / 1024), 2)
+
+        self.rxtxLabel.setText(" 🡅 {0} {1} 🡇 {2} {3}".format(sent, tx_units, recv, rx_units))
+        self._last_rxtx = {
+            'sent': 0,
+            'recv': 0
+        }
+        self._last_rxtx_update = datetime.datetime.now()
 
     # prevent a click on the window's x
     # from quitting the whole application

@@ -360,7 +360,12 @@ func (c *Client) PostAlert(atype protocol.Alert_Type, awhat protocol.Alert_What,
 	if c.Connected() == false {
 		log.Debug("UI not connected, queueing alert: %d", len(c.alertsChan))
 	}
-	c.alertsChan <- *NewAlert(atype, awhat, action, prio, data)
+	switch data.(type) {
+	case *protocol.Alert:
+		c.alertsChan <- *(data.(*protocol.Alert))
+	default:
+		c.alertsChan <- *NewAlert(atype, awhat, action, prio, data)
+	}
 }
 
 func (c *Client) monitorConfigWorker() {

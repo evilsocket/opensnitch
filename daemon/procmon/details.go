@@ -121,7 +121,7 @@ func (p *Process) GetExtraInfo() error {
 // ReadPPID obtains the pid of the parent process
 func (p *Process) ReadPPID() {
 	// ReadFile + parse = ~40us
-	data, err := ioutil.ReadFile(p.pathStat)
+	data, err := ioutil.ReadFile(p.procPath[Stat])
 	if err != nil {
 		p.PPID = 0
 		return
@@ -143,7 +143,7 @@ func (p *Process) ReadComm() error {
 	if p.Comm != "" {
 		return nil
 	}
-	data, err := ioutil.ReadFile(p.pathComm)
+	data, err := ioutil.ReadFile(p.procPath[Comm])
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func (p *Process) ReadCwd() error {
 	if p.CWD != "" {
 		return nil
 	}
-	link, err := os.Readlink(p.pathCwd)
+	link, err := os.Readlink(p.procPath[Cwd])
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,7 @@ func (p *Process) ReadCwd() error {
 
 // ReadEnv reads and parses the environment variables of a process.
 func (p *Process) ReadEnv() {
-	data, err := ioutil.ReadFile(p.pathEnviron)
+	data, err := ioutil.ReadFile(p.procPath[Environ])
 	if err != nil {
 		return
 	}
@@ -200,7 +200,7 @@ func (p *Process) ReadPath() error {
 	defer func() {
 		if p.Path == "" {
 			// determine if this process might be of a kernel task.
-			if data, err := ioutil.ReadFile(p.pathMaps); err == nil && len(data) == 0 {
+			if data, err := ioutil.ReadFile(p.procPath[Maps]); err == nil && len(data) == 0 {
 				p.Path = KernelConnection
 				p.Args = append(p.Args, p.Comm)
 				return
@@ -209,12 +209,12 @@ func (p *Process) ReadPath() error {
 		}
 	}()
 
-	if _, err := os.Lstat(p.pathExe); err != nil {
+	if _, err := os.Lstat(p.procPath[Exe]); err != nil {
 		return err
 	}
 
 	// FIXME: this reading can give error: file name too long
-	link, err := os.Readlink(p.pathExe)
+	link, err := os.Readlink(p.procPath[Exe])
 	if err != nil {
 		return err
 	}
@@ -226,7 +226,7 @@ func (p *Process) ReadPath() error {
 func (p *Process) SetPath(path string) {
 	p.Path = path
 	p.CleanPath()
-	p.RealPath = core.ConcatStrings(p.pathRoot, "/", p.Path)
+	p.RealPath = core.ConcatStrings(p.procPath[Root], "/", p.Path)
 	if core.Exists(p.RealPath) == false {
 		p.RealPath = p.Path
 		// p.CleanPath() ?
@@ -236,13 +236,13 @@ func (p *Process) SetPath(path string) {
 // ReadCmdline reads the cmdline of the process from ProcFS /proc/<pid>/cmdline
 // This file may be empty if the process is of a kernel task.
 // It can also be empty for short-lived processes.
-func (p *Process) ReadCmdline() {
+func (p *Process) ReadCmdline() error {
 	if len(p.Args) > 0 {
-		return
+		return nil
 	}
-	data, err := ioutil.ReadFile(p.pathCmdline)
+	data, err := ioutil.ReadFile(p.procPath[Cmdline])
 	if err != nil || len(data) == 0 {
-		return
+		return fmt.Errorf("%s empty", p.procPath[Cmdline])
 	}
 	// XXX: remove this loop, and split by "\x00"
 	for i, b := range data {
@@ -259,6 +259,8 @@ func (p *Process) ReadCmdline() {
 		}
 	}
 	p.CleanArgs()
+
+	return nil
 }
 
 // CleanArgs applies fixes on the cmdline arguments.
@@ -271,7 +273,7 @@ func (p *Process) CleanArgs() {
 }
 
 func (p *Process) readDescriptors() {
-	f, err := os.Open(p.pathFd)
+	f, err := os.Open(p.procPath[Fd])
 	if err != nil {
 		return
 	}
@@ -283,7 +285,7 @@ func (p *Process) readDescriptors() {
 		tempFd := &procDescriptors{
 			Name: fd.Name(),
 		}
-		link, err := os.Readlink(core.ConcatStrings(p.pathFd, fd.Name()))
+		link, err := os.Readlink(core.ConcatStrings(p.procPath[Fd], fd.Name()))
 		if err != nil {
 			continue
 		}
@@ -311,7 +313,7 @@ func (p *Process) readDescriptors() {
 }
 
 func (p *Process) readIOStats() (err error) {
-	f, err := os.Open(p.pathIO)
+	f, err := os.Open(p.procPath[IO])
 	if err != nil {
 		return err
 	}
@@ -342,19 +344,19 @@ func (p *Process) readIOStats() (err error) {
 }
 
 func (p *Process) readStatus() {
-	if data, err := ioutil.ReadFile(p.pathStatus); err == nil {
+	if data, err := ioutil.ReadFile(p.procPath[Status]); err == nil {
 		p.Status = string(data)
 	}
-	if data, err := ioutil.ReadFile(p.pathStat); err == nil {
+	if data, err := ioutil.ReadFile(p.procPath[Stat]); err == nil {
 		p.Stat = string(data)
 	}
 	if data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/stack")); err == nil {
 		p.Stack = string(data)
 	}
-	if data, err := ioutil.ReadFile(p.pathMaps); err == nil {
+	if data, err := ioutil.ReadFile(p.procPath[Maps]); err == nil {
 		p.Maps = string(data)
 	}
-	if data, err := ioutil.ReadFile(p.pathStatm); err == nil {
+	if data, err := ioutil.ReadFile(p.procPath[Statm]); err == nil {
 		p.Statm = &procStatm{}
 		fmt.Sscanf(string(data), "%d %d %d %d %d %d %d", &p.Statm.Size, &p.Statm.Resident, &p.Statm.Shared, &p.Statm.Text, &p.Statm.Lib, &p.Statm.Data, &p.Statm.Dt)
 	}
@@ -372,7 +374,7 @@ func (p *Process) CleanPath() {
 	// to any process.
 	// Therefore we cannot use /proc/self/exe directly, because it resolves to our own process.
 	if strings.HasPrefix(p.Path, ProcSelf) {
-		if link, err := os.Readlink(p.pathExe); err == nil {
+		if link, err := os.Readlink(p.procPath[Exe]); err == nil {
 			p.Path = link
 			return
 		}
@@ -390,7 +392,7 @@ func (p *Process) CleanPath() {
 	}
 
 	// We may receive relative paths from kernel, but the path of a process must be absolute
-	if core.IsAbsPath(p.Path) == false {
+	if pathLen > 0 && core.IsAbsPath(p.Path) == false {
 		if err := p.ReadPath(); err != nil {
 			log.Debug("ClenPath() error reading process path%s", err)
 			return
@@ -401,7 +403,7 @@ func (p *Process) CleanPath() {
 
 // IsAlive checks if the process is still running
 func (p *Process) IsAlive() bool {
-	return core.Exists(p.pathProc)
+	return core.Exists(p.procPath[ProcID])
 }
 
 // IsChild determines if this process is child of its parent
@@ -459,7 +461,7 @@ func (p *Process) ComputeChecksum(algo string) {
 	//   Path cannot be trusted, because multiple processes with the same path
 	//   can coexist in different namespaces.
 	//   The real path is /proc/<pid>/root/<path-to-the-binary>
-	paths := []string{p.pathExe, p.RealPath, p.Path}
+	paths := []string{p.procPath[Exe], p.RealPath, p.Path}
 
 	var h hash.Hash
 	if algo == HashMD5 {
@@ -530,7 +532,7 @@ func (p *Process) dumpFileImage(filePath string) ([]byte, error) {
 	var mappings []MemoryMapping
 
 	// read memory mappings
-	mapsFile, err := os.Open(p.pathMaps)
+	mapsFile, err := os.Open(p.procPath[Maps])
 	if err != nil {
 		return nil, err
 	}
@@ -593,7 +595,7 @@ func (p *Process) dumpFileImage(filePath string) ([]byte, error) {
 // given a range of addrs, read it from mem and return the content
 func (p *Process) readMem(mappings []MemoryMapping) ([]byte, error) {
 	var elfCode []byte
-	memFile, err := os.Open(p.pathMem)
+	memFile, err := os.Open(p.procPath[Mem])
 	if err != nil {
 		return nil, err
 	}

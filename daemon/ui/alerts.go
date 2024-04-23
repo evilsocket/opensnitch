@@ -33,6 +33,14 @@ func NewAlert(atype protocol.Alert_Type, what protocol.Alert_What, action protoc
 	}
 
 	switch what {
+	case protocol.Alert_KERNEL_PROC_EXIT:
+		switch data.(type) {
+		case procmon.Process:
+			a.Data = &protocol.Alert_Proc{
+				data.(*procmon.Process).Serialize(),
+			}
+		}
+
 	case protocol.Alert_KERNEL_EVENT:
 
 		switch data.(type) {

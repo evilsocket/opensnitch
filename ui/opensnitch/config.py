@@ -141,6 +141,7 @@ class Config:
     STATS_RULES_SPLITTER_POS = "statsDialog/rules_splitter_pos"
     STATS_VIEW_COL_STATE =  "statsDialog/view_columns_state"
     STATS_VIEW_DETAILS_COL_STATE =  "statsDialog/view_details_columns_state"
+    STATS_RXTX_UNITS_FORMAT = "statsDialog/rxtx_units_format"
 
     INFOWIN_GEOMETRY = "infoWindow/geometry"
 

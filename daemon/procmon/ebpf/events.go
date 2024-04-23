@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"unsafe"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -43,10 +44,31 @@ type execEvent struct {
 	Pad2        uint32
 }
 
+type netEventT struct {
+	Type      uint64
+	SaddrV6   uint64
+	DaddrV6   uint64
+	Cookie    uint64
+	BytesSent uint64
+	BytesRecv uint64
+	LastSeen  uint64
+	PID       uint32
+	UID       uint32
+	PPID      uint32
+	Proto     uint32
+
+	Saddr uint32
+	Daddr uint32
+	Sport uint16
+	Dport uint16
+	Fam   uint8
+}
+
 // Struct that holds the metadata of a connection.
-// When we receive a new connection, we look for it on the eBPF maps,
-// and if it's found, this information is returned.
-type networkEventT struct {
+// When we receive a new connection via nfqueue, we look for it on the
+// eBPF maps by the key srcport+srcip+dstip+dstport.
+// If it's found, the following struct/info is returned (defined in opensnitch.c).
+type connEventT struct {
 	Pid  uint64
 	UID  uint64
 	Comm [TaskCommLen]byte
@@ -60,6 +82,10 @@ const (
 	EV_TYPE_EXECVEAT
 	EV_TYPE_FORK
 	EV_TYPE_SCHED_EXIT
+	EV_TYPE_TCP_CONN_DESTROYED
+	EV_TYPE_UDP_CONN_DESTROYED
+	EV_TYPE_RECV_BYTES
+	EV_TYPE_SENT_BYTES
 )
 
 var (
@@ -69,7 +95,7 @@ var (
 	perfMapName  = "proc-events"
 
 	// default value is 8.
-	// Not enough to handle high loads such http downloads, torent traffic, etc.
+	// Not enough to handle "high loads" such http downloads, torrent traffic, etc.
 	// (regular desktop usage)
 	ringBuffSize = 64 // * PAGE_SIZE (4k usually)
 )
@@ -81,13 +107,13 @@ func initEventsStreamer() *Error {
 	perfMod, err = core.LoadEbpfModule("opensnitch-procs.o", modulesPath)
 	if err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
-		return &Error{EventsNotAvailable, err}
+		return &Error{err, EventsNotAvailable}
 	}
 	perfMod.EnableOptionCompatProbe()
 
 	if err = perfMod.Load(elfOpts); err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
-		return &Error{EventsNotAvailable, err}
+		return &Error{err, EventsNotAvailable}
 	}
 
 	tracepoints := []string{
@@ -115,7 +141,7 @@ Verify that your kernel has support for tracepoints (opensnitchd -check-requirem
 		perfMod.Close()
 		if err = perfMod.Load(elfOpts); err != nil {
 			dispatchErrorEvent(fmt.Sprintf("[eBPF events] failed to load /etc/opensnitchd/opensnitch-procs.o (2): %v", err))
-			return &Error{EventsNotAvailable, err}
+			return &Error{err, EventsNotAvailable}
 		}
 		if err = perfMod.EnableKprobes(0); err != nil {
 			dispatchErrorEvent(fmt.Sprintf("[eBPF events] error enabling kprobes: %v", err))
@@ -130,7 +156,7 @@ Verify that your kernel has support for tracepoints (opensnitchd -check-requirem
 
 	eventWorkers = 0
 	if err := initPerfMap(perfMod); err != nil {
-		return &Error{EventsNotAvailable, err}
+		return &Error{err, EventsNotAvailable}
 	}
 
 	return nil
@@ -158,19 +184,64 @@ func initPerfMap(mod *elf.Module) error {
 
 func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents chan interface{}) {
 	var event execEvent
+	var netEvent netEventT
+	var buf bytes.Buffer
+
 	for {
+		event = execEvent{}
+		netEvent = netEventT{}
+		buf.Reset()
+
 		select {
 		case <-ctxTasks.Done():
 			goto Exit
 		case l := <-lost:
 			log.Debug("Lost ebpf events: %d", l)
-		case d := <-chn:
-			if err := binary.Read(bytes.NewBuffer(d), hostByteOrder, &event); err != nil {
-				log.Debug("[eBPF events #%d] error: %s", id, err)
-				continue
+		case incomingEvent := <-chn:
+			switch incomingEvent[0] {
+			case EV_TYPE_SENT_BYTES,
+				EV_TYPE_RECV_BYTES,
+				EV_TYPE_TCP_CONN_DESTROYED,
+				EV_TYPE_UDP_CONN_DESTROYED:
+
+				buf.Write(incomingEvent)
+				if err := binary.Read(&buf, hostByteOrder, &netEvent); err != nil {
+					log.Debug("[eBPF NET events #%d] netbytes error: %s", id, err)
+					continue
+				}
+			default:
+				buf.Write(incomingEvent)
+				if err := binary.Read(&buf, hostByteOrder, &event); err != nil {
+					log.Debug("[eBPF events #%d] error: %s, event: %d", id, err, incomingEvent[0])
+					continue
+				}
 			}
 
-			switch event.Type {
+			switch incomingEvent[0] {
+			case EV_TYPE_SENT_BYTES, EV_TYPE_RECV_BYTES:
+				//dstIP := make(net.IP, 4)
+				//srcIP := make(net.IP, 4)
+				//binary.BigEndian.PutUint32(srcIP, netEvent.Saddr)
+				log.Debug("[eBPF events recv/sent]: %d, pid: %d, proto: %d sport: %d -> dport: %d, bytes_sent: %d, bytes_recv: %d", netEvent.Type, netEvent.PID, netEvent.Proto, netEvent.Sport, netEvent.Dport, netEvent.BytesSent, netEvent.BytesRecv)
+				item, found := procmon.EventsCache.IsInStoreByPID(int(netEvent.PID))
+				if found {
+					dispatchRxTxEvent(&item.Proc, netEvent.Proto, netEvent.Fam, netEvent.BytesSent, netEvent.BytesRecv)
+					// TODO: Proc.AddBytes? to apply quotas more rapidly?
+					procmon.EventsCache.UpdateItem(&item.Proc)
+					continue
+				}
+
+			case EV_TYPE_TCP_CONN_DESTROYED, EV_TYPE_UDP_CONN_DESTROYED:
+				log.Debug("[eBPF events conn destroyed]: %d, pid: %d, proto: %d sport: %d -> dport: %d, bytes_sent: %d, bytes_recv: %d", netEvent.Type, netEvent.PID, netEvent.Proto, netEvent.Sport, netEvent.Dport, netEvent.BytesSent, netEvent.BytesRecv)
+				item, found := procmon.EventsCache.IsInStoreByPID(int(netEvent.PID))
+				if found {
+					dispatchRxTxEvent(&item.Proc, netEvent.Proto, netEvent.Fam, netEvent.BytesSent, netEvent.BytesRecv)
+					item.Proc.AddBytes(netEvent.Fam, netEvent.Proto, netEvent.BytesSent, netEvent.BytesRecv)
+					procmon.EventsCache.UpdateItem(&item.Proc)
+
+					continue
+				}
+
 			case EV_TYPE_EXEC, EV_TYPE_EXECVEAT:
 				processExecEvent(&event)
 
@@ -259,4 +330,7 @@ func getProcDetails(event *execEvent, proc *procmon.Process) {
 func processExitEvent(event *execEvent) {
 	log.Debug("[eBPF exit event] pid: %d, ppid: %d", event.PID, event.PPID)
 	procmon.EventsCache.Delete(int(event.PID))
+
+	m.DeleteElement(perfMod.Map("tcpBytesMap"), unsafe.Pointer(&event.PID))
+	m.DeleteElement(perfMod.Map("udpBytesMap"), unsafe.Pointer(&event.PID))
 }

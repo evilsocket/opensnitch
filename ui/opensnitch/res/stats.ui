@@ -286,49 +286,51 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="GenericTableView" name="nodesTable">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="autoScroll">
-            <bool>false</bool>
-           </property>
-           <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
-           </property>
-           <property name="showGrid">
-            <bool>false</bool>
-           </property>
-           <property name="sortingEnabled">
-            <bool>true</bool>
-           </property>
-           <attribute name="horizontalHeaderStretchLastSection">
-            <bool>true</bool>
-           </attribute>
-           <attribute name="verticalHeaderVisible">
-            <bool>false</bool>
-           </attribute>
-           <attribute name="verticalHeaderStretchLastSection">
-            <bool>false</bool>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <widget class="QScrollBar" name="verticalScrollBar">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QFrame" name="frame_3">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="GenericTableView" name="nodesTable">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="autoScroll">
+             <bool>false</bool>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+            <property name="showGrid">
+             <bool>false</bool>
+            </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
+            <attribute name="horizontalHeaderStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QScrollBar" name="verticalScrollBar">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -504,9 +506,6 @@
            </item>
            <item>
             <widget class="GenericTableView" name="alertsTable">
-             <property name="editTriggers">
-              <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::EditKeyPressed</set>
-             </property>
              <property name="selectionBehavior">
               <enum>QAbstractItemView::SelectRows</enum>
              </property>
@@ -1206,7 +1205,8 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>8</pointsize>
+           <family>DejaVu Sans</family>
+           <pointsize>9</pointsize>
            <kerning>true</kerning>
           </font>
          </property>
@@ -1258,7 +1258,8 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>8</pointsize>
+           <family>DejaVu Sans</family>
+           <pointsize>9</pointsize>
            <kerning>true</kerning>
           </font>
          </property>
@@ -1310,7 +1311,8 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>8</pointsize>
+           <family>DejaVu Sans</family>
+           <pointsize>9</pointsize>
            <kerning>true</kerning>
           </font>
          </property>
@@ -1362,7 +1364,8 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>8</pointsize>
+           <family>DejaVu Sans</family>
+           <pointsize>9</pointsize>
            <kerning>true</kerning>
           </font>
          </property>
@@ -1374,6 +1377,13 @@
          </property>
          <property name="margin">
           <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="rxtxLabel">
+         <property name="text">
+          <string>-</string>
          </property>
         </widget>
        </item>

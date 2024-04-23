@@ -18,6 +18,7 @@ from opensnitch import ui_pb2_grpc
 from opensnitch.dialogs.prompt import PromptDialog
 from opensnitch.dialogs.stats import StatsDialog
 
+from opensnitch.alerts import alert, rxtx
 from opensnitch.notifications import DesktopNotifications
 from opensnitch.firewall import Rules as FwRules
 from opensnitch.nodes import Nodes
@@ -37,6 +38,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _status_change_trigger = QtCore.pyqtSignal(bool)
     _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
     _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
+    _bytes_updated_trigger = QtCore.pyqtSignal(int, int)
 
     # .desktop filename located under /usr/share/applications/
     DESKTOP_FILENAME = "opensnitch_ui.desktop"
@@ -150,6 +152,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._stats_dialog._status_changed_trigger.connect(self._on_stats_status_changed)
         self._stats_dialog.settings_saved.connect(self._on_settings_saved)
         self._stats_dialog.close_trigger.connect(self._on_close)
+        self._bytes_updated_trigger.connect(self._stats_dialog.on_bytes_updated)
         self._show_message_trigger.connect(self._show_systray_message)
 
     def _setup_icons(self):
@@ -301,48 +304,29 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._stats_dialog.update(is_local_request, request.stats, main_need_refresh or details_need_refresh)
 
     @QtCore.pyqtSlot(str, str, ui_pb2.Alert)
-    def _on_new_alert(self, proto, addr, alert):
-        # TODO: move to its own module
+    def _on_new_alert(self, proto, addr, pb_alert):
+        is_local_request = self._is_local_request(proto, addr)
         try:
-            is_local = self._is_local_request(proto, addr)
+            if pb_alert.what == ui_pb2.Alert.GENERIC:
+                al = alerts.Alert(proto, addr, is_local_request, pb_alert)
+                if pb_alert.action == ui_pb2.Alert.SHOW_ALERT:
+                    _title, body, icon, urgency = al.build()
+                    self._show_message_trigger.emit(_title, body, icon, urgency)
 
-            what = "GENERIC"
-            body = alert.text
-            if alert.what == ui_pb2.Alert.KERNEL_EVENT:
-                body = "%s\n%s" % (alert.text, alert.proc.path)
-                what = "KERNEL EVENT"
-            if is_local is False:
-                body = "node: {0}:{1}\n\n{2}\n{3}".format(proto, addr, alert.text, alert.proc.path)
+                if pb_alert.action == ui_pb2.Alert.SAVE_TO_DB:
+                    al.save()
 
-            if alert.action == ui_pb2.Alert.SHOW_ALERT:
-                icon = QtWidgets.QSystemTrayIcon.Information
-                _title = QtCore.QCoreApplication.translate("messages", "Info")
-                atype = "INFO"
-                if alert.type == ui_pb2.Alert.ERROR:
-                    atype = "ERROR"
-                    _title = QtCore.QCoreApplication.translate("messages", "Error")
-                    icon = QtWidgets.QSystemTrayIcon.Critical
-                if alert.type == ui_pb2.Alert.WARNING:
-                    atype = "WARNING"
-                    _title = QtCore.QCoreApplication.translate("messages", "Warning")
-                    icon = QtWidgets.QSystemTrayIcon.Warning
+            # proc_exit/rxtx events are not saved to the alerts table
+            if pb_alert.what == ui_pb2.Alert.KERNEL_NET_RXTX:
+                    rxtxAlert = rxtx.RxTx(proto, addr, pb_alert)
+                    if pb_alert.action == ui_pb2.Alert.SAVE_TO_DB:
+                        rxtxAlert.save()
 
-                urgency = DesktopNotifications.URGENCY_NORMAL
-                if alert.priority == ui_pb2.Alert.LOW:
-                    urgency = DesktopNotifications.URGENCY_LOW
-                elif alert.priority == ui_pb2.Alert.HIGH:
-                    urgency = DesktopNotifications.URGENCY_CRITICAL
+                    self._bytes_updated_trigger.emit(rxtxAlert.bytesSent, rxtxAlert.bytesRecv)
+                    self._stats_dialog.update(is_local_request, None, True)
 
-                self._show_message_trigger.emit(_title, body, icon, urgency)
-
-                self._db.insert("alerts",
-                                "(time, node, type, action, priority, what, body, status)",
-                                (
-                                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                    proto+":"+addr, atype, "", "", what, body, 0
-                                ))
             else:
-                print("PostAlert() unknown alert action:", alert.action)
+                print("PostAlert() unknown alert action:", pb_alert.text)
 
 
         except Exception as e:

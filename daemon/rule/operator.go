@@ -32,6 +32,7 @@ const (
 	List    = Type("list")
 	Network = Type("network")
 	Lists   = Type("lists")
+	Quota   = Type("Quota")
 )
 
 // Available operands
@@ -62,9 +63,9 @@ const (
 	OpNetLists            = Operand("lists.nets")
 	// TODO
 	//OpHashMD5Lists = Operand("lists.hash.md5")
-	//OpQuota        = Operand("quota")
-	//OpQuotaTxOver  = Operand("quota.sent.over") // 1000b, 1kb, 1mb, 1gb, ...
-	//OpQuotaRxOver  = Operand("quota.recv.over") // 1000b, 1kb, 1mb, 1gb, ...
+	OpQuota       = Operand("quota")
+	OpQuotaTxOver = Operand("quota.sent.over") // 1000b, 1kb, 1mb, 1gb, ...
+	OpQuotaRxOver = Operand("quota.recv.over") // 1000b, 1kb, 1mb, 1gb, ...
 )
 
 type opCallback func(value interface{}) bool
@@ -154,6 +155,33 @@ func (o *Operator) Compile() error {
 		o.cb = o.ipNetCmp
 	} else if o.Operand == OpProcessHashMD5 || o.Operand == OpProcessHashSHA1 {
 		o.cb = o.hashCmp
+	} else if o.Operand == OpQuotaTxOver {
+		if o.Data == "" {
+			return fmt.Errorf("Operand quota cannot be empty: %s", o)
+		}
+		o.cb = o.quotaCmp
+		if strings.HasSuffix(o.Data, "kb") {
+			if val, err := strconv.Atoi(o.Data[:len(o.Data)-2]); err == nil {
+				o.Data = fmt.Sprint(val * 1024)
+			}
+		}
+		if strings.HasSuffix(o.Data, "mb") {
+			if val, err := strconv.Atoi(o.Data[:len(o.Data)-2]); err == nil {
+				o.Data = fmt.Sprint((val * 1024) * 1024)
+			}
+		}
+		if strings.HasSuffix(o.Data, "gb") {
+			if val, err := strconv.Atoi(o.Data[:len(o.Data)-2]); err == nil {
+				o.Data = fmt.Sprint(((val * 1024) * 1024) * 1024)
+			}
+		}
+		if strings.HasSuffix(o.Data, "tb") {
+			if val, err := strconv.Atoi(o.Data[:len(o.Data)-2]); err == nil {
+				o.Data = fmt.Sprint((((val * 1024) * 1024) * 1024) * 1024)
+			}
+		} else {
+			o.Data = o.Data[:len(o.Data)-1]
+		}
 	}
 	log.Debug("Operator compiled: %s", o)
 	o.isCompiled = true
@@ -174,6 +202,38 @@ func (o *Operator) simpleCmp(v interface{}) bool {
 		return strings.EqualFold(v.(string), o.Data)
 	}
 	return v == o.Data
+}
+
+// quotaCmp
+// 1. compare sent/recv bytes
+// 2. on bytes over quota:
+//    - reset proc bytes
+//    - send alert
+//    - change action to deny ¿?
+// 3. if comparison matches, apply defined action: over quota? -> reject, until quota? -> allow
+func (o *Operator) quotaCmp(v interface{}) bool {
+
+	con, ok := v.(*conman.Connection)
+	if !ok {
+		return false
+	}
+	// XXX: get rid of this conversion on Compile()?
+	b, err := strconv.ParseUint(o.Data, 10, 64)
+	if err != nil {
+		return false
+	}
+	bsent, _ := con.Process.BytesSent[con.Protocol]
+	brecv, _ := con.Process.BytesRecv[con.Protocol]
+	result := false
+	// quota.over
+	result = bsent > b || brecv > b
+
+	// quota.sent.over
+	//result = bsent > b
+	// quota.until.over
+	//result = bsent < b
+
+	return result
 }
 
 func (o *Operator) reCmp(v interface{}) bool {
@@ -341,6 +401,8 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 		return o.cb(strconv.FormatUint(uint64(con.SrcPort), 10))
 	} else if o.Operand == OpProcessID {
 		return o.cb(strconv.Itoa(con.Process.ID))
+	} else if o.Operand == OpQuotaTxOver {
+		return o.cb(con)
 	} else if strings.HasPrefix(string(o.Operand), string(OpProcessEnvPrefix)) {
 		envVarName := core.Trim(string(o.Operand[OpProcessEnvPrefixLen:]))
 		envVarValue, _ := con.Process.Env[envVarName]

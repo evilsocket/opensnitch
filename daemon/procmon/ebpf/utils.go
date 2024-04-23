@@ -77,7 +77,7 @@ func getItems(proto string, isIPv6 bool) (items uint) {
 		lookupKey = make([]byte, 36)
 		nextKey = make([]byte, 36)
 	}
-	var value networkEventT
+	var value connEventT
 	firstrun := true
 
 	for {
@@ -122,7 +122,7 @@ func deleteOldItems(proto string, isIPv6 bool, maxToDelete uint) (deleted uint) 
 		lookupKey = make([]byte, 36)
 		nextKey = make([]byte, 36)
 	}
-	var value networkEventT
+	var value connEventT
 	firstrun := true
 	i := uint(0)
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -27,6 +28,24 @@ const (
 
 	HashMD5  = "process.hash.md5"
 	HashSHA1 = "process.hash.sha1"
+)
+
+// ..
+const (
+	ProcID = iota
+	Comm
+	Cmdline
+	Exe
+	Cwd
+	Environ
+	Root
+	Status
+	Statm
+	Stat
+	Mem
+	Maps
+	Fd
+	IO
 )
 
 // man 5 proc; man procfs
@@ -61,34 +80,30 @@ type procStatm struct {
 	Dt       int
 }
 
+type procBytes struct {
+	sent  uint64
+	recv  uint64
+	proto uint8
+	fam   uint8
+}
+
 // Process holds the details of a process.
 type Process struct {
-	mu          *sync.RWMutex
-	Statm       *procStatm
-	Parent      *Process
-	IOStats     *procIOstats
-	NetStats    *procNetStats
-	Env         map[string]string
-	Checksums   map[string]string
-	Status      string
-	Stat        string
-	Stack       string
-	Maps        string
-	Comm        string
-	pathProc    string
-	pathComm    string
-	pathExe     string
-	pathCmdline string
-	pathCwd     string
-	pathEnviron string
-	pathRoot    string
-	pathFd      string
-	pathStatus  string
-	pathStatm   string
-	pathStat    string
-	pathMaps    string
-	pathMem     string
-	pathIO      string
+	mu        *sync.RWMutex
+	Statm     *procStatm
+	Parent    *Process
+	IOStats   *procIOstats
+	NetStats  *procNetStats
+	Env       map[string]string
+	BytesSent map[string]uint64
+	BytesRecv map[string]uint64
+	Checksums map[string]string
+	CWD       string
+	Status    string
+	Stat      string
+	Stack     string
+	Maps      string
+	Comm      string
 
 	// Path is the absolute path to the binary
 	Path string
@@ -96,8 +111,8 @@ type Process struct {
 	// RealPath is the path to the binary taking into account its root fs.
 	// The simplest form of accessing the RealPath is by prepending /proc/<pid>/root/ to the path:
 	// /usr/bin/curl -> /proc/<pid>/root/usr/bin/curl
-	RealPath    string
-	CWD         string
+	RealPath string
+
 	Tree        []*protocol.StringInt
 	Descriptors []*procDescriptors
 	// Args is the command that the user typed. It MAY contain the absolute path
@@ -109,6 +124,7 @@ type Process struct {
 	//   -> Path: /usr/bin/curl
 	//   -> Args: /usr/bin/curl https://....
 	Args      []string
+	procPath  []string
 	Starttime int64
 	ID        int
 	PPID      int
@@ -124,27 +140,31 @@ func NewProcessEmpty(pid int, comm string) *Process {
 		PPID:      0,
 		Comm:      comm,
 		Args:      make([]string, 0),
+		procPath:  make([]string, 14),
 		Env:       make(map[string]string),
+		BytesSent: make(map[string]uint64, 2),
+		BytesRecv: make(map[string]uint64, 2),
 		Tree:      make([]*protocol.StringInt, 0),
 		IOStats:   &procIOstats{},
 		NetStats:  &procNetStats{},
 		Statm:     &procStatm{},
 		Checksums: make(map[string]string),
 	}
-	p.pathProc = core.ConcatStrings("/proc/", strconv.Itoa(p.ID))
-	p.pathExe = core.ConcatStrings(p.pathProc, "/exe")
-	p.pathCwd = core.ConcatStrings(p.pathProc, "/cwd")
-	p.pathComm = core.ConcatStrings(p.pathProc, "/comm")
-	p.pathCmdline = core.ConcatStrings(p.pathProc, "/cmdline")
-	p.pathEnviron = core.ConcatStrings(p.pathProc, "/environ")
-	p.pathStatus = core.ConcatStrings(p.pathProc, "/status")
-	p.pathStatm = core.ConcatStrings(p.pathProc, "/statm")
-	p.pathRoot = core.ConcatStrings(p.pathProc, "/root")
-	p.pathMaps = core.ConcatStrings(p.pathProc, "/maps")
-	p.pathStat = core.ConcatStrings(p.pathProc, "/stat")
-	p.pathMem = core.ConcatStrings(p.pathProc, "/mem")
-	p.pathFd = core.ConcatStrings(p.pathProc, "/fd/")
-	p.pathIO = core.ConcatStrings(p.pathProc, "/io")
+
+	p.procPath[ProcID] = core.ConcatStrings("/proc/", strconv.Itoa(p.ID))
+	p.procPath[Exe] = core.ConcatStrings(p.procPath[ProcID], "/exe")
+	p.procPath[Cwd] = core.ConcatStrings(p.procPath[ProcID], "/cwd")
+	p.procPath[Comm] = core.ConcatStrings(p.procPath[ProcID], "/comm")
+	p.procPath[Cmdline] = core.ConcatStrings(p.procPath[ProcID], "/cmdline")
+	p.procPath[Environ] = core.ConcatStrings(p.procPath[ProcID], "/environ")
+	p.procPath[Status] = core.ConcatStrings(p.procPath[ProcID], "/status")
+	p.procPath[Statm] = core.ConcatStrings(p.procPath[ProcID], "/statm")
+	p.procPath[Root] = core.ConcatStrings(p.procPath[ProcID], "/root")
+	p.procPath[Maps] = core.ConcatStrings(p.procPath[ProcID], "/maps")
+	p.procPath[Stat] = core.ConcatStrings(p.procPath[ProcID], "/stat")
+	p.procPath[Mem] = core.ConcatStrings(p.procPath[ProcID], "/mem")
+	p.procPath[Fd] = core.ConcatStrings(p.procPath[ProcID], "/fd/")
+	p.procPath[IO] = core.ConcatStrings(p.procPath[ProcID], "/io")
 
 	return p
 }
@@ -195,8 +215,29 @@ func (p *Process) RUnlock() {
 	p.mu.RUnlock()
 }
 
-//Serialize transforms a Process object to gRPC protocol object
+// AddBytes accumulates the bytes sent by this process
+func (p *Process) AddBytes(fam uint8, proto uint32, sent, recv uint64) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	protoStr := "tcp"
+	if proto == unix.IPPROTO_UDP {
+		protoStr = "udp"
+	}
+	family := ""
+	if fam == unix.AF_INET6 {
+		family = "6"
+	}
+
+	p.BytesSent[protoStr+family] += recv
+	p.BytesRecv[protoStr+family] += recv
+}
+
+// Serialize transforms a Process object to gRPC protocol object
 func (p *Process) Serialize() *protocol.Process {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
 	ioStats := p.IOStats
 	netStats := p.NetStats
 	if ioStats == nil {
@@ -206,21 +247,34 @@ func (p *Process) Serialize() *protocol.Process {
 		netStats = &procNetStats{}
 	}
 
+	// maps are referenced data types, we cannot assign a map to another
+	// an expect to be a copy.
+	bsent := make(map[string]uint64, len(p.BytesSent))
+	brecv := make(map[string]uint64, len(p.BytesRecv))
+	for k, v := range p.BytesSent {
+		bsent[k] = v
+	}
+	for k, v := range p.BytesRecv {
+		brecv[k] = v
+	}
+
 	return &protocol.Process{
-		Pid:         uint64(p.ID),
-		Ppid:        uint64(p.PPID),
-		Uid:         uint64(p.UID),
-		Comm:        p.Comm,
-		Path:        p.Path,
-		Args:        p.Args,
-		Env:         p.Env,
-		Cwd:         p.CWD,
-		Checksums:   p.Checksums,
-		IoReads:     uint64(ioStats.RChar),
-		IoWrites:    uint64(ioStats.WChar),
-		NetReads:    netStats.ReadBytes,
-		NetWrites:   netStats.WriteBytes,
-		ProcessTree: p.Tree,
+		Pid:       uint64(p.ID),
+		Ppid:      uint64(p.PPID),
+		Uid:       uint64(p.UID),
+		Comm:      p.Comm,
+		Path:      p.Path,
+		Args:      p.Args,
+		Env:       p.Env,
+		Cwd:       p.CWD,
+		Checksums: p.Checksums,
+		IoReads:   uint64(ioStats.RChar),
+		IoWrites:  uint64(ioStats.WChar),
+		NetReads:  netStats.ReadBytes,
+		NetWrites: netStats.WriteBytes,
+		BytesSent: bsent,
+		BytesRecv: brecv,
+		Tree:      p.Tree,
 	}
 }
 

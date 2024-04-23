@@ -3,6 +3,7 @@
 
 #include "common_defs.h"
 
+
 //https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/limits.h#L13
 #ifndef MAX_PATH_LEN
  #define MAX_PATH_LEN  4096
@@ -32,6 +33,10 @@ enum events_type {
     EVENT_EXECVEAT,
     EVENT_FORK,
     EVENT_SCHED_EXIT,
+    EVENT_TCP_CONN_DESTROYED,
+    EVENT_UDP_CONN_DESTROYED,
+    EVENT_RECV_BYTES,
+    EVENT_SEND_BYTES
 };
 
 struct trace_ev_common {
@@ -39,6 +44,20 @@ struct trace_ev_common {
     char common_flags;
     char common_preempt_count;
     int common_pid;
+};
+
+struct trace_tcp_destroy_sock {
+    struct trace_ev_common ext;
+
+    const void * skaddr;
+    u16 sport;
+    u16 dport;
+    u16 family;
+    u8 saddr[4];
+    u8 daddr[4];
+    u8 saddr_v6[16];
+    u8 daddr_v6[16];
+    u64 cookie;
 };
 
 struct trace_sys_enter_execve {
@@ -84,14 +103,50 @@ struct data_t {
     u32 pad2;
 };
 
+struct network_event_t {
+    u64 type;
+    u64 saddr_v6;
+    u64 daddr_v6;
+    u64 cookie;
+    u64 bytes_sent;
+    u64 bytes_recv;
+    u64 last_sent;
+    u32 pid;
+    u32 uid;
+    u32 ppid;
+    u32 proto;
+
+    u32 saddr;
+    u32 daddr;
+    u16 sport;
+    u16 dport;
+    u8 family;
+};
+
 //-----------------------------------------------------------------------------
 // maps
 
 struct bpf_map_def SEC("maps/heapstore") heapstore = {
-	.type = BPF_MAP_TYPE_PERCPU_ARRAY,
-	.key_size = sizeof(u32),
-	.value_size = sizeof(struct data_t),
-	.max_entries = 1
+    .type = BPF_MAP_TYPE_PERCPU_ARRAY,
+    .key_size = sizeof(u32),
+    .value_size = sizeof(struct data_t),
+    .max_entries = 1
 };
+
+struct bpf_map_def SEC("maps/tcpBytesMap") tcpBytesMap = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(u64),
+    .value_size = sizeof(struct network_event_t),
+    .max_entries = 13000,
+};
+
+struct bpf_map_def SEC("maps/udpBytesMap") udpBytesMap = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(u64),
+    .value_size = sizeof(struct network_event_t),
+    .max_entries = 13001,
+};
+
+
 
 #endif

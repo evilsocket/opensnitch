@@ -6,25 +6,28 @@ import (
 	"fmt"
 	"sync"
 	"syscall"
+	"time"
 	"unsafe"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 	elf "github.com/iovisor/gobpf/elf"
 	"github.com/vishvananda/netlink"
+	"golang.org/x/sys/unix"
 )
 
-//contains pointers to ebpf maps for a given protocol (tcp/udp/v6)
+// contains pointers to ebpf maps for a given protocol (tcp/udp/v6)
 type ebpfMapsForProto struct {
 	bpfmap *elf.Map
 }
 
 //Not in use, ~4usec faster lookup compared to m.LookupElement()
 
-//mimics union bpf_attr's anonymous struct used by BPF_MAP_*_ELEM commands
-//from <linux_headers>/include/uapi/linux/bpf.h
+// mimics union bpf_attr's anonymous struct used by BPF_MAP_*_ELEM commands
+// from <linux_headers>/include/uapi/linux/bpf.h
 type bpf_lookup_elem_t struct {
 	map_fd uint64 //even though in bpf.h its type is __u32, we must make it 8 bytes long
 	//because "key" is of type __aligned_u64, i.e. "key" must be aligned on an 8-byte boundary
@@ -47,8 +50,8 @@ const (
 
 // Error returns the error type and a message with the explanation
 type Error struct {
-	What int // 1 global error, 2 events error, 3 ...
 	Msg  error
+	What int // 1 global error, 2 events error, 3 ...
 }
 
 var (
@@ -76,22 +79,22 @@ var (
 	hostByteOrder binary.ByteOrder
 )
 
-//Start installs ebpf kprobes
+// Start installs ebpf kprobes
 func Start(modPath string) *Error {
 	modulesPath = modPath
 
 	setRunning(false)
 	if err := mountDebugFS(); err != nil {
 		return &Error{
-			NotAvailable,
 			fmt.Errorf("ebpf.Start: mount debugfs error. Report on github please: %s", err),
+			NotAvailable,
 		}
 	}
 	var err error
 	m, err = core.LoadEbpfModule("opensnitch.o", modulesPath)
 	if err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF]: ", err.Error()))
-		return &Error{NotAvailable, fmt.Errorf("[eBPF] Error loading opensnitch.o: %s", err.Error())}
+		return &Error{fmt.Errorf("[eBPF] Error loading opensnitch.o: %s", err.Error()), NotAvailable}
 	}
 	m.EnableOptionCompatProbe()
 
@@ -101,10 +104,10 @@ func Start(modPath string) *Error {
 	if err := m.EnableKprobes(0); err != nil {
 		m.Close()
 		if err := m.Load(nil); err != nil {
-			return &Error{NotAvailable, fmt.Errorf("eBPF failed to load /etc/opensnitchd/opensnitch.o (2): %v", err)}
+			return &Error{fmt.Errorf("eBPF failed to load /etc/opensnitchd/opensnitch.o (2): %v", err), NotAvailable}
 		}
 		if err := m.EnableKprobes(0); err != nil {
-			return &Error{NotAvailable, fmt.Errorf("eBPF error when enabling kprobes: %v", err)}
+			return &Error{fmt.Errorf("eBPF error when enabling kprobes: %v", err), NotAvailable}
 		}
 	}
 	determineHostByteOrder()
@@ -121,7 +124,7 @@ func Start(modPath string) *Error {
 	}
 	for prot, mfp := range ebpfMaps {
 		if mfp.bpfmap == nil {
-			return &Error{NotAvailable, fmt.Errorf("eBPF module opensnitch.o malformed, bpfmap[%s] nil", prot)}
+			return &Error{fmt.Errorf("eBPF module opensnitch.o malformed, bpfmap[%s] nil", prot), NotAvailable}
 		}
 	}
 
@@ -200,7 +203,7 @@ func Stop() {
 	}
 }
 
-//make bpf() syscall with bpf_lookup prepared by the caller
+// make bpf() syscall with bpf_lookup prepared by the caller
 func makeBpfSyscall(bpf_lookup *bpf_lookup_elem_t) uintptr {
 	BPF_MAP_LOOKUP_ELEM := 1 //cmd number
 	syscall_BPF := 321       //syscall number
@@ -211,9 +214,64 @@ func makeBpfSyscall(bpf_lookup *bpf_lookup_elem_t) uintptr {
 	return r1
 }
 
+// dispatch a rx/tx event to the server
+func dispatchRxTxEvent(proc *procmon.Process, proto uint32, fam uint8, bsent, brecv uint64) {
+	protoProc := proc.Serialize()
+	protoStr := "tcp"
+	if proto == unix.IPPROTO_UDP {
+		protoStr = "udp"
+	}
+	family := ""
+	if fam == unix.AF_INET6 {
+		family = "6"
+	}
+	// send only the bytes received of the packet(s), not the totals of the process.
+	protoProc.BytesSent = map[string]uint64{protoStr + family: bsent}
+	protoProc.BytesRecv = map[string]uint64{protoStr + family: brecv}
+	log.Debug("dispatchProcExit, proto: %s, sent: %d, recv: %d", protoStr, bsent, brecv)
+
+	dispatchEvent(
+		&protocol.Alert{
+			Id:     uint64(time.Now().UnixNano()),
+			Type:   protocol.Alert_INFO,
+			Action: protocol.Alert_SAVE_TO_DB,
+			What:   protocol.Alert_KERNEL_NET_RXTX,
+			// TODO: send a KernelEvent{ KernelNetEvent }
+			Data: &protocol.Alert_Proc{
+				protoProc,
+			},
+		},
+	)
+}
+
+func dispatchProcExitEvent(proc *procmon.Process, proto uint32, fam uint8, bsent, brecv uint64) {
+	protoProc := proc.Serialize()
+	log.Debug("dispatchProcExit: %s", proc.Path)
+
+	dispatchEvent(
+		&protocol.Alert{
+			Id:     uint64(time.Now().UnixNano()),
+			Type:   protocol.Alert_INFO,
+			Action: protocol.Alert_SAVE_TO_DB,
+			What:   protocol.Alert_KERNEL_PROC_EXIT,
+			Data: &protocol.Alert_Proc{
+				protoProc,
+			},
+		},
+	)
+}
+
 func dispatchErrorEvent(what string) {
 	log.Error(what)
-	dispatchEvent(what)
+	dispatchEvent(
+		&protocol.Alert{
+			Id:     uint64(time.Now().UnixNano()),
+			Type:   protocol.Alert_ERROR,
+			Action: protocol.Alert_SHOW_ALERT,
+			What:   protocol.Alert_GENERIC,
+			Data:   &protocol.Alert_Text{what},
+		},
+	)
 }
 
 func dispatchEvent(data interface{}) {

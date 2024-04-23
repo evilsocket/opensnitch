@@ -200,6 +200,47 @@ class Database:
                 ")", self.db)
         q.exec_()
 
+        q = QSqlQuery("create table if not exists rxtx (" \
+                      "id int primary key, " \
+                      "time time, " \
+                      "what int, " \
+                      "proto text, " \
+                      "bytes_sent int, " \
+                      "bytes_recv int, " \
+                      "proc_path_fk text, " \
+                      "FOREIGN KEY(proc_path_fk) REFERENCES procs(path)" \
+                      ")", self.db)
+        q.exec_()
+        q = QSqlQuery("CREATE INDEX idx_rxtx_what_path ON rxtx (what, proc_path_fk)", self.db)
+        q.exec_()
+        q = QSqlQuery("CREATE INDEX idx_rxtx_bytes_sent ON rxtx (bytes_sent)", self.db)
+        q.exec_()
+        q = QSqlQuery("CREATE INDEX idx_rxtx_bytes_recv ON rxtx (bytes_recv)", self.db)
+        q.exec_()
+
+        q = QSqlQuery("create table if not exists proc_details (" \
+                "time time, " \
+                "node text, " \
+                "path text, " \
+                #"hostid text, " \ # container host/id ??
+                "comm text, " \
+                "cmdline text, " \
+                "cwd text, " \
+                "md5 text, " \
+                "tree text, " \
+                "env text, " \
+                "proc_path_fk text, " \
+                "FOREIGN KEY(proc_path_fk) REFERENCES procs(what)" \
+                # what should we consider unique?
+                # node+path prevents from registering different executions of
+                # the same binary. A scenario where this could be useful is
+                # when a process is launched with different environment
+                # variables.
+                "UNIQUE(node, path)" \
+                ")", self.db)
+        q.exec_()
+
+
         q = QSqlQuery("create index rules_index on rules (time)", self.db)
         q.exec_()
 
@@ -300,9 +341,12 @@ class Database:
         q = QSqlQuery("PRAGMA optimize;", self.db)
         q.exec_()
 
-    def clean(self, table):
+    def clean(self, table, where=None):
+        qstr = "DELETE FROM " + table
+        if where is not None:
+            qstr += " WHERE " + where
         with self._lock:
-            q = QSqlQuery("delete from " + table, self.db)
+            q = QSqlQuery(qstr, self.db)
             q.exec_()
 
     def vacuum(self):
@@ -358,6 +402,7 @@ class Database:
             if oldt == None or newt == None or oldt == 0 or newt == 0:
                 return -1
 
+            rows_deleted = 0
             oldest = datetime.strptime(oldt, "%Y-%m-%d %H:%M:%S.%f")
             newest = datetime.strptime(newt, "%Y-%m-%d %H:%M:%S.%f")
             diff = newest - oldest
@@ -368,8 +413,30 @@ class Database:
                 q.prepare("DELETE FROM connections WHERE time < ?")
                 q.bindValue(0, str(date_to_purge))
                 if q.exec_():
-                    print("purge_oldest() {0} records deleted".format(q.numRowsAffected()))
-                    return q.numRowsAffected()
+                    print("purge_oldest() connections: {0} records deleted".format(q.numRowsAffected()))
+                    rows_deleted += q.numRowsAffected()
+                else:
+                    print(q.lastError().driverText())
+
+                # XXX: delete really the alerts? There shouldn't be that many
+                q = QSqlQuery(self.db)
+                q.prepare("DELETE FROM alerts WHERE time < ?")
+                q.bindValue(0, str(date_to_purge))
+                if q.exec_():
+                    print("purge_oldest() alerts: {0} records deleted".format(q.numRowsAffected()))
+                    rows_deleted += q.numRowsAffected()
+
+                q = QSqlQuery(self.db)
+                q.prepare("DELETE FROM rxtx WHERE time < ?")
+                q.bindValue(0, str(date_to_purge))
+                if q.exec_():
+                    print("purge_oldest() rxtx: {0} records deleted".format(q.numRowsAffected()))
+                    rows_deleted += q.numRowsAffected()
+
+
+
+            return rows_deleted
+
         except Exception as e:
             print("db, purge_oldest() error:", e)
 
@@ -405,7 +472,7 @@ class Database:
                 for idx, v in enumerate(columns):
                     q.bindValue(idx, v)
                 if q.exec_():
-                    return True
+                    return True, q.lastInsertId()
                 else:
                     print("_insert() ERROR", query_str)
                     print(q.lastError().driverText())
@@ -415,7 +482,7 @@ class Database:
             finally:
                 q.finish()
 
-        return False
+        return False, -1
 
     def insert(self, table, fields, columns, update_field=None, update_values=None, action_on_conflict="REPLACE"):
         if update_field != None:
@@ -684,7 +751,7 @@ class Database:
 
     def get_alert(self, alert_time, node_addr=None):
         """
-        get alert, given the time of the alert and the node
+        get an alert, given the time of the alert and the node
         """
         qstr = "SELECT * FROM alerts WHERE time=?"
         if node_addr != None:
@@ -698,3 +765,44 @@ class Database:
         q.exec_()
 
         return q
+
+    def get_process(self, path, node_addr=None):
+        qstr = "SELECT * FROM process WHERE path=?"
+        if node_addr != None:
+            qstr = qstr + " AND node=?"
+
+        q = QSqlQuery(qstr, self.db)
+        q.prepare(qstr)
+        q.addBindValue(path)
+        if node_addr != None:
+            q.addBindValue(node_addr)
+        q.exec_()
+
+        return q
+
+    def get_process_bytes(self, path, get_totals=True, node_addr=None):
+        qstr = "SELECT sum(bytes_sent) as bytes_sent, sum(bytes_recv) as bytes_recv FROM process WHERE path=?"
+        if not get_totals:
+            qstr = "SELECT bytes_sent, bytes_recv FROM process WHERE path=?"
+        if node_addr != None:
+            qstr = qstr + " AND node=?"
+
+        q = QSqlQuery(qstr, self.db)
+        q.prepare(qstr)
+        q.addBindValue(path)
+        if node_addr != None:
+            q.addBindValue(node_addr)
+        q.exec_()
+
+        return q
+
+    def reset_rxtx_stats(self, field, object):
+        """Reset rxtx stats to 0 (defined by the 'field' parameter).
+        The object will be used to specify what to reset (process, conns...)
+        """
+        self.update(
+            table="rxtx",
+            fields="{0}=?".format(field),
+            values=[0],
+            condition="what == {0}".format(object),
+            action_on_conflict="")
