@@ -419,7 +419,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         elif self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST) == False and self._cleaner != None:
             self._stop_db_cleaner()
 
-        theme_idx, theme_name = self._themes.get_saved_theme()
+        theme_idx, theme_name, theme_density = self._themes.get_saved_theme()
         if theme_idx > 0:
             self._themes.load_theme(self._app)
 

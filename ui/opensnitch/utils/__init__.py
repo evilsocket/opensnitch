@@ -126,19 +126,24 @@ class Themes():
         return Themes.AVAILABLE
 
     def get_saved_theme(self):
-        if not Themes.AVAILABLE:
-            return 0, ""
-
         theme = self._cfg.getSettings(self._cfg.DEFAULT_THEME)
+        theme_density = self._cfg.getSettings(self._cfg.DEFAULT_THEME_DENSITY_SCALE)
+        if theme_density == "" or theme_density == None:
+            theme_density = '0'
+
+        if not Themes.AVAILABLE:
+            return 0, "", theme_density
+
         if theme != "" and theme != None:
             # 0 == System
-            return self.list_themes().index(theme)+1, theme
-        return 0, ""
+            return self.list_themes().index(theme)+1, theme, theme_density
+        return 0, "", theme_density
 
-    def save_theme(self, theme_idx, theme):
+    def save_theme(self, theme_idx, theme, density_scale):
         if not Themes.AVAILABLE:
             return
 
+        self._cfg.setSettings(self._cfg.DEFAULT_THEME_DENSITY_SCALE, density_scale)
         if theme_idx == 0:
             self._cfg.setSettings(self._cfg.DEFAULT_THEME, "")
         else:
@@ -149,20 +154,23 @@ class Themes():
             return
 
         try:
-            theme_idx, theme_name = self.get_saved_theme()
+            theme_idx, theme_name, theme_density = self.get_saved_theme()
             if theme_name != "":
                 invert = "light" in theme_name
                 print("Using theme:", theme_idx, theme_name, "inverted:", invert)
                 # TODO: load {theme}.xml.extra and .xml.css for further
                 # customizations.
-                Themes.qtmaterial_apply_stylesheet(app, theme=theme_name,  invert_secondary=invert)
+                extra_opts = {
+                    'density_scale': theme_density
+                }
+                Themes.qtmaterial_apply_stylesheet(app, theme=theme_name,  invert_secondary=invert, extra=extra_opts)
         except Exception as e:
             print("Themes.load_theme() exception:", e)
 
-    def change_theme(self, window, theme_name):
+    def change_theme(self, window, theme_name, extra={}):
         try:
             invert = "light" in theme_name
-            Themes.qtmaterial_apply_stylesheet(window, theme=theme_name,  invert_secondary=invert)
+            Themes.qtmaterial_apply_stylesheet(window, theme=theme_name,  invert_secondary=invert, extra=extra)
         except Exception as e:
             print("Themes.change_theme() exception:", e, " - ", window, theme_name)
 
@@ -472,7 +480,8 @@ class Icons():
         'accessories-text-editor': "SP_DialogOpenButton",
         'edit-clear-all': "SP_DialogResetButton",
         'reload': "SP_DialogResetButton",
-        'dialog-information': "SP_MessageBoxInformation"
+        'dialog-information': "SP_MessageBoxInformation",
+        'dialog-warning': "SP_MessageBoxWarning"
     }
 
     @staticmethod

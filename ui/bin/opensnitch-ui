@@ -65,6 +65,21 @@ def restrict_socket_perms(socket):
     except Exception as e:
         print("Unable to change unix socket permissions:", socket, e)
 
+def configure_screen_scale_factor(cfg):
+    """configure qt screen scale:
+        https://doc.qt.io/qt-5/highdpi.html#high-dpi-support-in-qt
+    """
+    auto_screen_factor = cfg.getBool(Config.QT_AUTO_SCREEN_SCALE_FACTOR, default_value=True)
+    screen_factor = cfg.getSettings(Config.QT_SCREEN_SCALE_FACTOR)
+    if screen_factor is None or screen_factor == "":
+        screen_factor = "1"
+
+    print("QT_AUTO_SCREEN_SCALE_FACTOR:", auto_screen_factor)
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = str(int(auto_screen_factor))
+    if auto_screen_factor is False:
+        print("QT_SCREEN_SCALE_FACTORS:", screen_factor)
+        os.environ["QT_SCREEN_SCALE_FACTORS"] = screen_factor
+
 def check_environ():
     if xdg_current_session == "":
         print("""
@@ -111,12 +126,13 @@ Examples:
         faulthandler.enable()
 
     logging.getLogger().disabled = not args.debug
+    cfg = Config.get()
+    configure_screen_scale_factor(cfg)
 
     if args.debug and args.debug_grpc:
         os.environ["GRPC_TRACE"] = "all"
         os.environ["GRPC_VERBOSITY"] = "debug"
 
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     if supported_qt_version(5,6,0):
         try:
             # NOTE: maybe we also need Qt::AA_UseHighDpiPixmaps
@@ -144,7 +160,6 @@ Examples:
         thm = Themes.instance()
         thm.load_theme(app)
 
-        cfg = Config.get()
         if args.socket == None:
             # default
             args.socket = "unix:///tmp/osui.sock"

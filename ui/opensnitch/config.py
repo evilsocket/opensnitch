@@ -90,6 +90,7 @@ class Config:
     POPUP_BOTTOM_LEFT = 4
 
     DEFAULT_THEME = "global/theme"
+    DEFAULT_THEME_DENSITY_SCALE = "global/theme_density_scale"
     DEFAULT_LANGUAGE = "global/language"
     DEFAULT_LANGNAME = "global/langname"
     DEFAULT_DISABLE_POPUPS = "global/disable_popups"
@@ -141,6 +142,9 @@ class Config:
     STATS_RULES_SPLITTER_POS = "statsDialog/rules_splitter_pos"
     STATS_VIEW_COL_STATE =  "statsDialog/view_columns_state"
     STATS_VIEW_DETAILS_COL_STATE =  "statsDialog/view_details_columns_state"
+
+    QT_AUTO_SCREEN_SCALE_FACTOR = "global/screen_scale_factor_auto"
+    QT_SCREEN_SCALE_FACTOR = "global/screen_scale_factor"
 
     INFOWIN_GEOMETRY = "infoWindow/geometry"
 

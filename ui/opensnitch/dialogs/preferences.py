@@ -78,18 +78,21 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dbLabel.setVisible(False)
         self.dbType = None
 
+        intValidator = QtGui.QDoubleValidator(0, 20, 2, self)
+        self.lineUIScreenFactor.setValidator(intValidator)
+
         self.acceptButton.clicked.connect(self._cb_accept_button_clicked)
         self.applyButton.clicked.connect(self._cb_apply_button_clicked)
         self.cancelButton.clicked.connect(self._cb_cancel_button_clicked)
         self.helpButton.clicked.connect(self._cb_help_button_clicked)
         self.popupsCheck.clicked.connect(self._cb_popups_check_toggled)
         self.dbFileButton.clicked.connect(self._cb_file_db_clicked)
-        self.checkUIRules.toggled.connect(self._cb_check_ui_rules_toggled)
-        self.comboUITheme.currentIndexChanged.connect(self._cb_combo_themes_changed)
         self.cmdTimeoutUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUITimeout, self.SUM))
         self.cmdTimeoutDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUITimeout, self.REST))
         self.cmdRefreshUIUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIRefresh, self.SUM))
         self.cmdRefreshUIDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIRefresh, self.REST))
+        self.cmdUIDensityUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIDensity, self.SUM))
+        self.cmdUIDensityDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIDensity, self.REST))
         self.cmdDBMaxDaysUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBMaxDays, self.SUM))
         self.cmdDBMaxDaysDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBMaxDays, self.REST))
         self.cmdDBPurgesUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBPurgeInterval, self.SUM))
@@ -137,6 +140,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdTimeoutDown.setIcon(delIcon)
         self.cmdRefreshUIUp.setIcon(addIcon)
         self.cmdRefreshUIDown.setIcon(delIcon)
+        self.cmdUIDensityUp.setIcon(addIcon)
+        self.cmdUIDensityDown.setIcon(delIcon)
         self.cmdDBMaxDaysUp.setIcon(addIcon)
         self.cmdDBMaxDaysDown.setIcon(delIcon)
         self.cmdDBPurgesUp.setIcon(addIcon)
@@ -207,6 +212,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.lineNodeCertFile.textChanged.connect(self._cb_node_line_certs_changed)
         self.lineNodeCertKeyFile.textChanged.connect(self._cb_node_line_certs_changed)
 
+        self.lineUIScreenFactor.textChanged.connect(self._cb_ui_screen_factor_changed)
+        self.checkUIRules.toggled.connect(self._cb_ui_check_rules_toggled)
+        self.checkUIAutoScreen.toggled.connect(self._cb_ui_check_auto_scale_toggled)
+        self.comboUITheme.currentIndexChanged.connect(self._cb_combo_themes_changed)
+        self.spinUIDensity.valueChanged.connect(self._cb_spin_uidensity_changed)
+
         self.comboDBType.currentIndexChanged.connect(self._cb_db_type_changed)
         self.checkDBMaxDays.toggled.connect(self._cb_db_max_days_toggled)
         self.checkDBJrnlWal.toggled.connect(self._cb_db_jrnl_wal_toggled)
@@ -233,7 +244,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _load_themes(self):
         self.comboUITheme.blockSignals(True)
-        theme_idx, self._saved_theme = self._themes.get_saved_theme()
+        theme_idx, self._saved_theme, theme_density = self._themes.get_saved_theme()
 
         self.labelThemeError.setVisible(False)
         self.labelThemeError.setText("")
@@ -249,6 +260,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.labelThemeError.setText(QC.translate("preferences", "Themes not available. Install qt-material: pip3 install qt-material"))
 
         self.comboUITheme.setCurrentIndex(theme_idx)
+        self._show_ui_density_widgets(theme_idx)
+        try:
+            self.spinUIDensity.setValue(int(theme_density))
+        except Exception as e:
+            print("load_theme() invalid theme density scale:", theme_density, ":", e)
+
         self.comboUITheme.blockSignals(False)
 
     def _load_settings(self):
@@ -264,11 +281,17 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.comboUIDuration.setCurrentIndex(self._default_duration)
         self.comboUIDialogPos.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION))
+        self.comboUIAction.setCurrentIndex(self._default_action)
+        self.comboUITarget.setCurrentIndex(self._default_target)
+        self.spinUITimeout.setValue(self._default_timeout)
+        self.spinUITimeout.setEnabled(not self._disable_popups)
+        self.popupsCheck.setChecked(self._disable_popups)
 
-        self._ui_refresh_interval = self._cfg.getInt(self._cfg.STATS_REFRESH_INTERVAL, 0)
-        self.spinUIRefresh.setValue(self._ui_refresh_interval)
-
-        self.checkAutostart.setChecked(self._autostart.isEnabled())
+        self.showAdvancedCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED))
+        self.dstIPCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP))
+        self.dstPortCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT))
+        self.uidCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_UID))
+        self.checkSum.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_CHECKSUM))
 
         maxmsgsize = self._cfg.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
         if maxmsgsize:
@@ -287,17 +310,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.lineCertKeyFile.setEnabled(False)
         self.comboAuthType.setCurrentIndex(authtype_idx)
 
-        saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
-        if saved_lang:
-            saved_langname = self._cfg.getSettings(Config.DEFAULT_LANGNAME)
-            self.comboUILang.blockSignals(True)
-            self.comboUILang.setCurrentText(saved_langname)
-            self.comboUILang.blockSignals(False)
-
         self.comboUIRules.blockSignals(True)
         self.comboUIRules.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES))
         self.checkUIRules.setChecked(self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES))
         self.comboUIRules.setEnabled(self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES))
+
         #self._set_rules_duration_filter()
 
         self._cfg.setRulesDurationFilter(
@@ -306,19 +323,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         )
         self.comboUIRules.blockSignals(False)
 
-        self.comboUIAction.setCurrentIndex(self._default_action)
-        self.comboUITarget.setCurrentIndex(self._default_target)
-        self.spinUITimeout.setValue(self._default_timeout)
-        self.spinUITimeout.setEnabled(not self._disable_popups)
-        self.popupsCheck.setChecked(self._disable_popups)
-
-        self.showAdvancedCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED))
-        self.dstIPCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTIP))
-        self.dstPortCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_DSTPORT))
-        self.uidCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_UID))
-        self.checkSum.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_CHECKSUM))
-
-        # by default, if no configuration exists, enable notifications.
+         # by default, if no configuration exists, enable notifications.
         self.groupNotifs.setChecked(self._cfg.getBool(Config.NOTIFICATIONS_ENABLED, True))
         self.radioSysNotifs.setChecked(
             True if self._cfg.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_SYSTEM and self._desktop_notifications.is_available() == True else False
@@ -327,6 +332,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             True if self._cfg.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_QT or self._desktop_notifications.is_available() == False else False
         )
 
+        ## db
         self.dbType = self._cfg.getInt(self._cfg.DEFAULT_DB_TYPE_KEY)
         self.comboDBType.setCurrentIndex(self.dbType)
         if self.comboDBType.currentIndex() != Database.DB_TYPE_MEMORY:
@@ -343,6 +349,31 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._load_themes()
         self._load_node_settings()
+        self._load_ui_settings()
+
+    def _load_ui_settings(self):
+        self._ui_refresh_interval = self._cfg.getInt(self._cfg.STATS_REFRESH_INTERVAL, 0)
+        self.spinUIRefresh.setValue(self._ui_refresh_interval)
+
+        saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
+        if saved_lang:
+            saved_langname = self._cfg.getSettings(Config.DEFAULT_LANGNAME)
+            self.comboUILang.blockSignals(True)
+            self.comboUILang.setCurrentText(saved_langname)
+            self.comboUILang.blockSignals(False)
+
+        auto_scale = self._cfg.getBool(Config.QT_AUTO_SCREEN_SCALE_FACTOR, default_value=True)
+        screen_factor = self._cfg.getSettings(Config.QT_SCREEN_SCALE_FACTOR)
+        if screen_factor is None or screen_factor == "":
+            screen_factor = "1"
+        self.lineUIScreenFactor.setText(screen_factor)
+        self.checkUIAutoScreen.blockSignals(True)
+        self.checkUIAutoScreen.setChecked(auto_scale)
+        self.checkUIAutoScreen.blockSignals(False)
+        self._show_ui_scalefactor_widgets(auto_scale)
+
+        self.checkAutostart.setChecked(self._autostart.isEnabled())
+
         self._load_ui_columns_config()
 
     def _load_node_settings(self):
@@ -626,7 +657,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings(self._cfg.NOTIFICATIONS_TYPE,
                                 int(Config.NOTIFICATION_TYPE_SYSTEM if self.radioSysNotifs.isChecked() else Config.NOTIFICATION_TYPE_QT))
 
-            self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText())
+            self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText(), str(self.spinUIDensity.value()))
+
+            self._cfg.setSettings(Config.QT_AUTO_SCREEN_SCALE_FACTOR, bool(self.checkUIAutoScreen.isChecked()))
+            self._cfg.setSettings(Config.QT_SCREEN_SCALE_FACTOR, self.lineUIScreenFactor.text())
 
             if self._themes.available() and self._saved_theme != "" and self.comboUITheme.currentText() == QC.translate("preferences", "System"):
                 self._changes_needs_restart = QC.translate("preferences", "UI theme changed")
@@ -780,6 +814,21 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 QtWidgets.QMessageBox.Warning)
             self._changes_needs_restart = None
 
+
+    def _show_ui_density_widgets(self, idx):
+        """show ui density widget only for qt-material themes:
+            https://github.com/UN-GCPDS/qt-material?tab=readme-ov-file#density-scale
+        """
+        hidden = idx == 0
+        self.labelUIDensity.setHidden(hidden)
+        self.spinUIDensity.setHidden(hidden)
+        self.cmdUIDensityUp.setHidden(hidden)
+        self.cmdUIDensityDown.setHidden(hidden)
+
+    def _show_ui_scalefactor_widgets(self, show=False):
+        self.labelUIScreenFactor.setHidden(show)
+        self.lineUIScreenFactor.setHidden(show)
+
     def _hide_status_label(self):
         self.statusLabel.hide()
 
@@ -820,6 +869,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _enable_db_jrnl_wal(self, enable, db_jrnl_wal):
         self.checkDBJrnlWal.setChecked(db_jrnl_wal)
         self.checkDBJrnlWal.setEnabled(enable)
+
+    def _change_theme(self):
+        extra_opts = {
+            'density_scale': str(self.spinUIDensity.value())
+        }
+        self._themes.change_theme(self, self.comboUITheme.currentText(), extra_opts)
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):
@@ -891,11 +946,22 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_node_needs_update(self):
         self._node_needs_update = True
 
-    def _cb_check_ui_rules_toggled(self, state):
+    def _cb_ui_check_rules_toggled(self, state):
         self.comboUIRules.setEnabled(state)
 
     def _cb_combo_themes_changed(self, index):
-        self._themes.change_theme(self, self.comboUITheme.currentText())
+        self._change_theme()
+        self._show_ui_density_widgets(index)
+
+    def _cb_spin_uidensity_changed(self, value):
+        self._change_theme()
+
+    def _cb_ui_check_auto_scale_toggled(self, checked):
+        self._changes_needs_restart = True
+        self._show_ui_scalefactor_widgets(checked)
+
+    def _cb_ui_screen_factor_changed(self, text):
+        self._changes_needs_restart = True
 
     def _cb_combo_auth_type_changed(self, index):
         curtype = self.comboAuthType.itemData(self.comboAuthType.currentIndex())
