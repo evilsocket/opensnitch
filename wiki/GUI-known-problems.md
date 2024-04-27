@@ -165,6 +165,7 @@ For ArchLinux/Manjaro users this worked:
 
 
 ### GUI size problems on 4k monitors
+(since 1.7.0 [bf9801f917e1a433150dc257453ce3cd719cd195](https://github.com/evilsocket/opensnitch/commit/bf9801f917e1a433150dc257453ce3cd719cd195), users can configure these options from the Preferences dialog)
 
 Some users have reported issues displaying the GUI on 4k monitors. See [#43](https://github.com/evilsocket/opensnitch/issues/43) for more information.
 
