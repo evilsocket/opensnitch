@@ -11,10 +11,10 @@ struct bpf_map_def SEC("maps/proc-events") events = {
 };
 
 struct bpf_map_def SEC("maps/execMap") execMap = {
-	.type = BPF_MAP_TYPE_HASH,
-	.key_size = sizeof(u32),
-	.value_size = sizeof(struct data_t),
-	.max_entries = 256,
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(u32),
+    .value_size = sizeof(struct data_t),
+    .max_entries = 256,
 };
 
 
@@ -46,14 +46,12 @@ static __always_inline void __handle_exit_execve(struct trace_sys_exit_execve *c
 {
     u64 pid_tgid = bpf_get_current_pid_tgid();
     struct data_t *proc = bpf_map_lookup_elem(&execMap, &pid_tgid);
+    // don't delete the pid from execMap here, delegate it to sched_process_exit
     if (proc == NULL) { return; }
-    if (ctx->ret != 0) { goto out; }
+    if (ctx->ret != 0) { return; }
     proc->ret_code = ctx->ret;
 
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, proc, sizeof(*proc));
-
-out:
-    bpf_map_delete_elem(&execMap, &pid_tgid);
 }
 
 // https://0xax.gitbooks.io/linux-insides/content/SysCall/linux-syscall-4.html
@@ -63,6 +61,14 @@ out:
 SEC("tracepoint/sched/sched_process_exit")
 int tracepoint__sched_sched_process_exit(struct pt_regs *ctx)
 {
+    u64 pid_tgid = bpf_get_current_pid_tgid();
+    struct data_t *proc = bpf_map_lookup_elem(&execMap, &pid_tgid);
+    // if the pid is not in execMap cache (because it's not of a pid we've
+    // previously intercepted), do not send the event to userspace, because
+    // we won't do anything with it and it consumes CPU cycles (too much in some
+    // scenarios).
+    if (proc == NULL) { return 0; }
+
     int zero = 0;
     struct data_t *data = bpf_map_lookup_elem(&heapstore, &zero);
     if (!data){ return 0; }
@@ -71,7 +77,6 @@ int tracepoint__sched_sched_process_exit(struct pt_regs *ctx)
     data->type = EVENT_SCHED_EXIT;
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, data, sizeof(*data));
 
-    u64 pid_tgid = bpf_get_current_pid_tgid();
     bpf_map_delete_elem(&execMap, &pid_tgid);
     return 0;
 };
@@ -129,7 +134,7 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
 #else
     // in case of failure adding the item to the map, send it directly
     u64 pid_tgid = bpf_get_current_pid_tgid();
-	if (bpf_map_update_elem(&execMap, &pid_tgid, data, BPF_ANY) != 0) {
+    if (bpf_map_update_elem(&execMap, &pid_tgid, data, BPF_ANY) != 0) {
 
         // With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
         // BUG: after coming back from suspend state, this helper fails with error -95 (EOPNOTSUPP)
@@ -180,7 +185,7 @@ int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx
 #else
     // in case of failure adding the item to the map, send it directly
     u64 pid_tgid = bpf_get_current_pid_tgid();
-	if (bpf_map_update_elem(&execMap, &pid_tgid, data, BPF_ANY) != 0) {
+    if (bpf_map_update_elem(&execMap, &pid_tgid, data, BPF_ANY) != 0) {
 
         // With some commands, this helper fails with error -28 (ENOSPC). Misleading error? cmd failed maybe?
         // BUG: after coming back from suspend state, this helper fails with error -95 (EOPNOTSUPP)
