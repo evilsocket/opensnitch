@@ -158,6 +158,17 @@ func initPerfMap(mod *elf.Module) error {
 
 func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents chan interface{}) {
 	var event execEvent
+	errors := 0
+	maxErrors := 20 // we should have no errors.
+	tooManyErrors := func() bool {
+		errors++
+		if errors > maxErrors {
+			log.Error("[eBPF events] too many errors parsing events from kernel")
+			log.Error("verify that you're using the correct eBPF modules for this version (%s)", core.Version)
+			return true
+		}
+		return false
+	}
 	for {
 		select {
 		case <-ctxTasks.Done():
@@ -167,6 +178,10 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents 
 		case d := <-chn:
 			if err := binary.Read(bytes.NewBuffer(d), hostByteOrder, &event); err != nil {
 				log.Debug("[eBPF events #%d] error: %s", id, err)
+				if tooManyErrors() {
+					goto Exit
+				}
+
 				continue
 			}
 
