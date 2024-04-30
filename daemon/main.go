@@ -392,7 +392,7 @@ func onPacket(packet netfilter.Packet) {
 	// Parse the connection state
 	con := conman.Parse(packet, uiClient.InterceptUnknown())
 	if con == nil {
-		applyDefaultAction(&packet)
+		applyDefaultAction(&packet, nil)
 		return
 	}
 	// accept our own connections
@@ -412,12 +412,15 @@ func onPacket(packet netfilter.Packet) {
 	stats.OnConnectionEvent(con, r, r == nil)
 }
 
-func applyDefaultAction(packet *netfilter.Packet) {
+func applyDefaultAction(packet *netfilter.Packet, con *conman.Connection) {
 	if uiClient.DefaultAction() == rule.Allow {
 		packet.SetVerdictAndMark(netfilter.NF_ACCEPT, packet.Mark)
-	} else {
-		packet.SetVerdict(netfilter.NF_DROP)
+		return
 	}
+	if uiClient.DefaultAction() == rule.Reject && con != nil {
+		netlink.KillSocket(con.Protocol, con.SrcIP, con.SrcPort, con.DstIP, con.DstPort)
+	}
+	packet.SetVerdict(netfilter.NF_DROP)
 }
 
 func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
@@ -430,7 +433,7 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		// send a request to the UI client if
 		// 1) connected and running and 2) we are not already asking
 		if uiClient.Connected() == false || uiClient.GetIsAsking() == true {
-			applyDefaultAction(packet)
+			applyDefaultAction(packet, con)
 			log.Debug("UI is not running or busy, connected: %v, running: %v", uiClient.Connected(), uiClient.GetIsAsking())
 			return nil
 		}
@@ -472,7 +475,7 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 		r = uiClient.Ask(con)
 		if r == nil {
 			log.Error("Invalid rule received, applying default action")
-			applyDefaultAction(packet)
+			applyDefaultAction(packet, con)
 			return nil
 		}
 		ok := false
@@ -514,7 +517,7 @@ func acceptOrDeny(packet *netfilter.Packet, con *conman.Connection) *rule.Rule {
 	}
 
 	if r.Enabled == false {
-		applyDefaultAction(packet)
+		applyDefaultAction(packet, con)
 		ruleName := log.Green(r.Name)
 		log.Info("DISABLED (%s) %s %s -> %s:%d (%s)", uiClient.DefaultAction(), log.Bold(log.Green("✔")), log.Bold(con.Process.Path), log.Bold(con.To()), con.DstPort, ruleName)
 

@@ -1438,6 +1438,14 @@ Temporary rules will still be valid, and you can use them when prompted to allow
                 <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>reject</string>
+              </property>
+              <property name="icon">
+               <iconset theme="window-close"/>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="4" column="1">
