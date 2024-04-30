@@ -180,6 +180,7 @@ func findConnProcess(value *networkEventT, connKey string) (proc *procmon.Proces
 	proc = procmon.NewProcess(int(value.Pid), comm)
 	proc.UID = int(value.UID)
 	procmon.EventsCache.Add(proc)
+	procmon.EventsCache.Update(proc, nil)
 	log.Debug("[ebpf conn] not in cache, NOR in execEvents: %s, %d -> %s -> %s", connKey, proc.ID, proc.Path, proc.Args)
 
 	return
