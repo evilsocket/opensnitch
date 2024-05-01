@@ -28,7 +28,7 @@ func (ipt *Iptables) CreateSystemRule(rule *config.FwRule, table, chain, hook st
 	ipt.RunRule(NEWCHAIN, common.EnableRule, logErrors, []string{chainName, "-t", table})
 
 	// Insert the rule at the top of the chain
-	if err4, err6 := ipt.RunRule(INSERT, common.EnableRule, logErrors, []string{hook, "-t", table, "-j", chainName}); err4 == nil && err6 == nil {
+	if err := ipt.RunRule(INSERT, common.EnableRule, logErrors, []string{hook, "-t", table, "-j", chainName}); err == nil {
 		ipt.chains.Rules[table+"-"+chainName] = &SystemRule{
 			Table: table,
 			Chain: chain,
@@ -102,7 +102,7 @@ func (ipt *Iptables) DeleteSystemRules(force, backupExistingChains, logErrors bo
 }
 
 // DeleteSystemRule deletes a new rule.
-func (ipt *Iptables) DeleteSystemRule(action Action, rule *config.FwRule, table, chain string, enable bool) (err4, err6 error) {
+func (ipt *Iptables) DeleteSystemRule(action Action, rule *config.FwRule, table, chain string, enable bool) *common.FirewallError {
 	chainName := SystemRulePrefix + "-" + chain
 	if table == "" {
 		table = "filter"
@@ -120,9 +120,9 @@ func (ipt *Iptables) DeleteSystemRule(action Action, rule *config.FwRule, table,
 }
 
 // AddSystemRule inserts a new rule.
-func (ipt *Iptables) AddSystemRule(action Action, rule *config.FwRule, table, chain string, enable bool) (err4, err6 error) {
+func (ipt *Iptables) AddSystemRule(action Action, rule *config.FwRule, table, chain string, enable bool) *common.FirewallError {
 	if rule == nil {
-		return nil, nil
+		return nil
 	}
 	ipt.RLock()
 	defer ipt.RUnlock()

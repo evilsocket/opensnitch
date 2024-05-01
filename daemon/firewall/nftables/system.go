@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
 	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
@@ -124,8 +125,8 @@ func (n *Nft) AddSystemRules(reload, backupExistingChains bool) {
 					chain.Rules[i].UUID = uuid.String()
 				}
 				if chain.Rules[i].Enabled {
-					if err4, _ := n.AddSystemRule(chain.Rules[i], chain); err4 != nil {
-						n.SendError(fmt.Sprintf("%s (%s)", err4, chain.Rules[i].UUID))
+					if err := n.AddSystemRule(chain.Rules[i], chain); err != nil {
+						n.SendError(fmt.Sprintf("%s (%s)", err.Err4, chain.Rules[i].UUID))
 					}
 				}
 			}
@@ -153,7 +154,7 @@ func (n *Nft) DeleteSystemRules(force, restoreExistingChains, logErrors bool) {
 }
 
 // AddSystemRule inserts a new rule.
-func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) (err4, err6 error) {
+func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) *common.FirewallError {
 	n.Lock()
 	defer n.Unlock()
 	exprList := []expr.Any{}
@@ -161,20 +162,20 @@ func (n *Nft) AddSystemRule(rule *config.FwRule, chain *config.FwChain) (err4, e
 	for _, expression := range rule.Expressions {
 		exprsOfRule := n.parseExpression(chain.Table, chain.Name, chain.Family, expression)
 		if exprsOfRule == nil {
-			return fmt.Errorf("%s invalid rule parameters: %v", rule.UUID, expression), nil
+			return &common.FirewallError{Err4: fmt.Errorf("%s invalid rule parameters: %v", rule.UUID, expression)}
 		}
 		exprList = append(exprList, *exprsOfRule...)
 	}
 	if len(exprList) > 0 {
 		exprVerdict := exprs.NewExprVerdict(rule.Target, rule.TargetParameters)
 		if exprVerdict == nil {
-			return fmt.Errorf("%s invalid verdict %s %s", rule.UUID, rule.Target, rule.TargetParameters), nil
+			return &common.FirewallError{Err4: fmt.Errorf("%s invalid verdict %s %s", rule.UUID, rule.Target, rule.TargetParameters)}
 		}
 		exprList = append(exprList, *exprVerdict...)
 		if err := n.InsertRule(chain.Name, chain.Table, chain.Family, rule.Position, &exprList); err != nil {
-			return err, nil
+			return &common.FirewallError{Err4: err}
 		}
 	}
 
-	return nil, nil
+	return nil
 }
