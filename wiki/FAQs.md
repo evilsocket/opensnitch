@@ -110,7 +110,7 @@ Sometimes we fail to discover the PID of the process, or the path of the PID, th
 
 #### What's the behaviour of daemon's default action "deny"
 
-The daemon option "default_action" "deny" will block ALL traffic (as of version 1.6.0-rc.4) that is intercepted by _iptables_ or _nftables_ and is not answered or configured by the user. If an outgoing connection timeouts while waiting for user action, then it'll apply the default action.
+The daemon option "DefaultAction" "deny" will block ALL traffic (as of version 1.6.0-rc.4) that is intercepted by _iptables_ or _nftables_ and is not answered or configured by the user. If an outgoing connection timeouts while waiting for user action, then it'll apply the default action.
 
 If you suspect that opensnitch is blocking an application and asking you to allow/deny it (for example VPN traffic), enable the option `[x] Debug invalid connections` from Preferences -> Nodes
 
@@ -125,12 +125,18 @@ Rules
 
 #### In which order does opensnitch check configured rules?
 
-Since version 1.2.0, rules are checked in alphabetical order. There's also a new field to mark a rule as Important.
+Since version 1.2.0, rules are checked in alphabetical order.
+
+They are evaluated until a rule with a Deny/Reject Action is found, or until a rule with the `[x] Priority` check marked is found.
 
 So if you want to prioritize some rules over others:
 1. Name the rule as 000-max-priority, 001-notsomax-priority, 002-less-preiority, not-priority
 2. [x] Priority field checked (Action: allow)
 3. OR Action: deny (not need to check the Priority field in these rules)
+
+More info: 
+  - https://github.com/evilsocket/opensnitch/wiki/Rules-examples
+  - https://github.com/evilsocket/opensnitch/wiki/Rules#best-practices
 
 #### If I allow program A, and it launches another program B, will it be also allowed?
 
@@ -158,16 +164,6 @@ If you create a rule to allow `wget` or `curl` system-wide, a malicious process 
 https://github.com/evilsocket/opensnitch/wiki/Rules#best-practices
 
 Anyway, nothing is unbreakable. If you know a way to bypass application rules, we'd love to see a detailed example! That'll help us to improve the application.
-
-#### Appimages confuse the firewall
-
-Appimages create a random directory under `/tmp/` from where they're executed, so if you allow or deny an appimage by path or command line when the pop-up appears, the next time the app is executed, the path to the binary will be different and OpenSnitch will prompt you again to deny or allow it.
-
-You need to use regular expressions to match the directory by editing the rule:
-
-[x] From this executable: ^(/tmp/\.mount_Archiv[0-9A-Za-z]+/.*)$
-
-See this issue for context and more information: [#408](https://github.com/evilsocket/opensnitch/issues/408)
 
 Other
 ---
