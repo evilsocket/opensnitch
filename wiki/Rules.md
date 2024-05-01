@@ -57,7 +57,7 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 
 ### Some considerations
 
-- All the fields you select when defining a rule will be used to match connections, for example:
+ All the fields you select when defining a rule will be used to match connections, for example:
  - Rule: allow -> port 443 -> Dst IP 1.1.1.1 -> Protocol TCP -> Host www.site.test
    * This rule will match connections to port 443 __AND__ IP 1.1.1.1 __AND__ protocol TCP __AND__ host www.site.test
    * connections to IP 2.2.2.2 won't match, connections to port 80 won't match, etc...
@@ -247,11 +247,11 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
   
   Why? If someone gets access to your system, usually these directories are the only ones where they can write files, thus it's usually used to drop malicious files, that download remote binaries to escalate privileges, etc.
   
-  There're ton of examples [0] [1] (more common on servers than on the desktop): https://github.com/timb-machine/linux-malware
+  There're ton of examples (more common on servers than on the desktop):
+
+  [Collection of Linux malware payloads](https://github.com/evilsocket/opensnitch/discussions/1119)
   
-  [0]. https://www.akamai.com/blog/security-research/kmdsbot-the-attack-and-mine-malware
-    - https://www.akamai.com/site/en/images/blog/2022/kmsdbot1.jpg
-  [1]. https://www.elastic.co/guide/en/security/master/binary-executed-from-shared-memory-directory.html
+  https://github.com/timb-machine/linux-malware
   
   ```
   (*) Deny
