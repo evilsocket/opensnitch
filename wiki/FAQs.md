@@ -64,27 +64,9 @@ Kernels support
 
 Your kernel needs some features to be enabled in order eBPF to work: debugfs (or tracefs), kprobes, perf events, ftrace and syscalls (bpf and ftrace).
 
-You can check if they're available for your kernel with the following commands:
+Since version 1.6.x you can execute the following command to know if your kernel has all the expected features: 
 
-```bash
- $ grep -E "(BPF|FTRACE|KPROBE)" /boot/config-$(uname -r)
-  CONFIG_CGROUP_BPF=y
-  CONFIG_BPF=y
-  CONFIG_BPF_SYSCALL=y
-  CONFIG_BPF_EVENTS=y
-  CONFIG_KPROBES=y
-  CONFIG_KPROBE_EVENTS=y
-  CONFIG_FTRACE=y
-  CONFIG_FTRACE_SYSCALLS=y
-```
-If any of the above options appears as "is not set", your kernel lacks support for it.
-
-```bash
-$ sudo ls /sys/kernel/debug/tracing/kprobe_events
-$ sudo ls /sys/kernel/debug/tracing/events/syscalls/
-```
-
-If some of the above commands outputs "no such file or directory", your kernel lacks support for it.
+`opensnitchd -check-requirements`
 
 [More info](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog)
 
@@ -158,6 +140,7 @@ https://github.com/evilsocket/opensnitch/discussions/791
 https://github.com/evilsocket/opensnitch/discussions/743
 https://github.com/evilsocket/opensnitch/discussions/742
 https://github.com/evilsocket/opensnitch/discussions/564
+https://github.com/evilsocket/opensnitch/discussions/1100
 
 If you create a rule to allow `wget` or `curl` system-wide, a malicious process may use of it to download remote files, so it all depends on what rules you define:
 
