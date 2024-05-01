@@ -41,7 +41,7 @@ Option     | Value
 -----------|------
 Server.Address | Unix socket (unix:///tmp/osui.sock, the "unix:///" part is mandatory) or TCP socket (192.168.1.100:50051)
 Server.LogFile | file to write logs to (use /dev/stdout to write logs to standard output)
-DefaultAction [0] | allow, deny
+DefaultAction [0] | allow, deny, reject (>= 1.6.6)
 ~DefaultDuration~ | ~once, always, until restart, 30s, 5m, 15m, 30m, 1h~ DEPRECATED
 InterceptUnknown [1] | true, false
 ProcMonitorMethod | ebpf, proc, audit
