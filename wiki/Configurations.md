@@ -7,12 +7,14 @@ The file _/etc/opensnitchd/default-config.json_ holds the daemon configuration:
   "Server": {
       "Address": "unix:///tmp/osui.sock",
       "LogFile": "/var/log/opensnitchd.log"
+      "Authentication": {}
   }, 
   "DefaultAction": "deny",
   "DefaultDuration": "once",
   "InterceptUnknown": true,
   "ProcMonitorMethod": "ebpf",
   "LogLevel": 1
+  "Loggers": {}
   "Firewall": "nftables",
   "FwOptions": {
         "ConfigPath": "/etc/opensnitchd/system-fw.json",
@@ -41,11 +43,13 @@ Option     | Value
 -----------|------
 Server.Address | Unix socket (unix:///tmp/osui.sock, the "unix:///" part is mandatory) or TCP socket (192.168.1.100:50051)
 Server.LogFile | file to write logs to (use /dev/stdout to write logs to standard output)
+Server.Authentication | https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161
 DefaultAction [0] | allow, deny, reject (>= 1.6.6)
 ~DefaultDuration~ | ~once, always, until restart, 30s, 5m, 15m, 30m, 1h~ DEPRECATED
 InterceptUnknown [1] | true, false
 ProcMonitorMethod | ebpf, proc, audit
 LogLevel | 0 to 4 (debug, info, important, warning, error)
+Loggers | https://github.com/evilsocket/opensnitch/wiki/SIEM-integration
 Firewall | "nftables" or "iptables"
 Stats.MaxEvents | Max events to send to the GUI every second. If you think that you're missing some connections increased this value.
 Stats.MaxStats | Max stats per item (port, host, IP, process, etc) to keep in the backlog.
