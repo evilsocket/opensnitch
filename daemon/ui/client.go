@@ -43,6 +43,7 @@ type Client struct {
 	clientCtx           context.Context
 	clientCancel        context.CancelFunc
 
+	loggers       *loggers.LoggerManager
 	stats         *statistics.Statistics
 	rules         *rule.Loader
 	con           *grpc.ClientConn
@@ -67,6 +68,7 @@ func NewClient(socketPath, localConfigFile string, stats *statistics.Statistics,
 		configFile = localConfigFile
 	}
 	c := &Client{
+		loggers:      loggers,
 		stats:        stats,
 		rules:        rules,
 		isUnixSocket: false,
@@ -88,9 +90,7 @@ func NewClient(socketPath, localConfigFile string, stats *statistics.Statistics,
 	}
 	procmon.EventsCache.SetComputeChecksums(clientConfig.Rules.EnableChecksums)
 	rules.EnableChecksums(clientConfig.Rules.EnableChecksums)
-	loggers.Load(clientConfig.Server.Loggers, clientConfig.Stats.Workers)
 	stats.SetLimits(clientConfig.Stats)
-	stats.SetLoggers(loggers)
 
 	return c
 }

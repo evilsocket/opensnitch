@@ -1,6 +1,11 @@
 package loggers
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+
+	"github.com/evilsocket/opensnitch/daemon/log"
+)
 
 const logTag = "opensnitch"
 
@@ -31,6 +36,8 @@ type LoggerConfig struct {
 
 // LoggerManager represents the LoggerManager.
 type LoggerManager struct {
+	ctx     context.Context
+	cancel  context.CancelFunc
 	loggers map[string]Logger
 	msgs    chan []interface{}
 	count   int
@@ -38,7 +45,10 @@ type LoggerManager struct {
 
 // NewLoggerManager instantiates all the configured loggers.
 func NewLoggerManager() *LoggerManager {
+	ctx, cancel := context.WithCancel(context.Background())
 	lm := &LoggerManager{
+		ctx:     ctx,
+		cancel:  cancel,
 		loggers: make(map[string]Logger),
 	}
 
@@ -81,6 +91,12 @@ func (l *LoggerManager) Load(configs []LoggerConfig, workers int) {
 
 }
 
+func (l *LoggerManager) Stop() {
+	l.cancel()
+	l.count = 0
+	l.loggers = make(map[string]Logger)
+}
+
 func (l *LoggerManager) write(args ...interface{}) {
 	for _, logger := range l.loggers {
 		logger.Write(logger.Transform(args...))
@@ -89,10 +105,15 @@ func (l *LoggerManager) write(args ...interface{}) {
 
 func newWorker(id int, l *LoggerManager) {
 	for {
-		for msg := range l.msgs {
+		select {
+		case <-l.ctx.Done():
+			goto Exit
+		case msg := <-l.msgs:
 			l.write(msg)
 		}
 	}
+Exit:
+	log.Debug("logger worker %d exited", id)
 }
 
 // Log sends data to the loggers.

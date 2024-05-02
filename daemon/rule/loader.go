@@ -83,6 +83,14 @@ func (l *Loader) HasChecksums(op Operand) {
 	}
 }
 
+// Reload loads rules from the specified path, deleting existing loaded
+// rules from memory.
+func (l *Loader) Reload(path string) error {
+	l.rulesKeys = make([]string, 0)
+	l.rules = make(map[string]*Rule)
+	return l.Load(path)
+}
+
 // Load loads rules files from disk.
 func (l *Loader) Load(path string) error {
 	if core.Exists(path) == false {

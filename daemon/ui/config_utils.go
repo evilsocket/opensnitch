@@ -8,6 +8,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/ui/config"
@@ -55,86 +56,152 @@ func (c *Client) loadDiskConfiguration(reload bool) {
 		return
 	}
 
-	if ok := c.loadConfiguration(raw); ok {
+	err = c.loadConfiguration(reload, raw)
+	if err == nil {
 		if err := c.configWatcher.Add(configFile); err != nil {
 			log.Error("Could not watch path: %s", err)
 			return
 		}
+	} else {
+		log.Error("[client] error loading config file: %s", err.Error())
+		c.SendWarningAlert(err.Error())
 	}
 
 	if reload {
-		firewall.Reload(
-			clientConfig.Firewall,
-			clientConfig.FwOptions.ConfigPath,
-			clientConfig.FwOptions.MonitorInterval,
-		)
 		return
 	}
-
 	go c.monitorConfigWorker()
 }
 
-func (c *Client) loadConfiguration(rawConfig []byte) bool {
+func (c *Client) loadConfiguration(reload bool, rawConfig []byte) error {
 	var err error
-	clientConfig, err = config.Parse(rawConfig)
+	newConfig, err := config.Parse(rawConfig)
 	if err != nil {
-		msg := fmt.Sprintf("Error parsing configuration %s: %s", configFile, err)
-		log.Error(msg)
-		c.SendWarningAlert(msg)
-		return false
+		return fmt.Errorf("parsing configuration %s: %s", configFile, err)
 	}
 
-	clientConfig.Lock()
-	defer clientConfig.Unlock()
+	if err := c.reloadConfiguration(reload, newConfig); err != nil {
+		return fmt.Errorf("reloading configuration: %s", err.Msg)
+	}
+	clientConfig = newConfig
+	return nil
+}
+
+func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *monitor.Error {
 
 	// firstly load config level, to detect further errors if any
-	if clientConfig.LogLevel != nil {
-		log.SetLogLevel(int(*clientConfig.LogLevel))
+	if newConfig.LogLevel != nil {
+		log.SetLogLevel(int(*newConfig.LogLevel))
 	}
-	log.SetLogUTC(clientConfig.LogUTC)
-	log.SetLogMicro(clientConfig.LogMicro)
-	if clientConfig.Server.LogFile != "" {
+	log.SetLogUTC(newConfig.LogUTC)
+	log.SetLogMicro(newConfig.LogMicro)
+	if newConfig.Server.LogFile != "" {
+		log.Debug("[config] using config.server.logfile: %s", newConfig.Server.LogFile)
 		log.Close()
-		log.OpenFile(clientConfig.Server.LogFile)
+		log.OpenFile(newConfig.Server.LogFile)
 	}
 
-	if clientConfig.Server.Address != "" {
-		tempSocketPath := c.getSocketPath(clientConfig.Server.Address)
+	reconnect := newConfig.Server.Authentication.Type != clientConfig.Server.Authentication.Type ||
+		newConfig.Server.Authentication.TLSOptions.CACert != clientConfig.Server.Authentication.TLSOptions.CACert ||
+		newConfig.Server.Authentication.TLSOptions.ServerCert != clientConfig.Server.Authentication.TLSOptions.ServerCert ||
+		newConfig.Server.Authentication.TLSOptions.ServerKey != clientConfig.Server.Authentication.TLSOptions.ServerKey ||
+		newConfig.Server.Authentication.TLSOptions.ClientCert != clientConfig.Server.Authentication.TLSOptions.ClientCert ||
+		newConfig.Server.Authentication.TLSOptions.ClientKey != clientConfig.Server.Authentication.TLSOptions.ClientKey ||
+		newConfig.Server.Authentication.TLSOptions.ClientAuthType != clientConfig.Server.Authentication.TLSOptions.ClientAuthType ||
+		newConfig.Server.Authentication.TLSOptions.SkipVerify != clientConfig.Server.Authentication.TLSOptions.SkipVerify
+
+	if newConfig.Server.Address != "" {
+		tempSocketPath := c.getSocketPath(newConfig.Server.Address)
+		log.Debug("[config] using config.server.address: %s", newConfig.Server.Address)
 		if tempSocketPath != c.socketPath {
 			// disconnect, and let the connection poller reconnect to the new address
-			c.disconnect()
+			reconnect = true
 		}
 		c.setSocketPath(tempSocketPath)
 	}
-	if clientConfig.DefaultAction != "" {
-		clientDisconnectedRule.Action = rule.Action(clientConfig.DefaultAction)
-		clientErrorRule.Action = rule.Action(clientConfig.DefaultAction)
+
+	if reconnect {
+		log.Debug("[config] config.server.address.* changed, reconnecting")
+		c.disconnect()
+	}
+
+	if newConfig.DefaultAction != "" {
+		clientDisconnectedRule.Action = rule.Action(newConfig.DefaultAction)
+		clientErrorRule.Action = rule.Action(newConfig.DefaultAction)
 		// TODO: reconfigure connected rule if changed, but not save it to disk.
-		//clientConnectedRule.Action = rule.Action(clientConfig.DefaultAction)
-	}
-	if clientConfig.DefaultDuration != "" {
-		clientDisconnectedRule.Duration = rule.Duration(clientConfig.DefaultDuration)
-		clientErrorRule.Duration = rule.Duration(clientConfig.DefaultDuration)
-	}
-	if clientConfig.ProcMonitorMethod != "" {
-		err := monitor.ReconfigureMonitorMethod(clientConfig.ProcMonitorMethod, clientConfig.Ebpf.ModulesPath)
-		if err != nil {
-			msg := fmt.Sprintf("Unable to set new process monitor (%s) method from disk: %v", clientConfig.ProcMonitorMethod, err.Msg)
-			log.Warning(msg)
-			c.SendWarningAlert(msg)
-		}
+		//clientConnectedRule.Action = rule.Action(newConfig.DefaultAction)
 	}
 
-	if clientConfig.Internal.GCPercent > 0 {
-		oldgcpercent := debug.SetGCPercent(clientConfig.Internal.GCPercent)
-		log.Info("GC percent set to %d, previously was %d", clientConfig.Internal.GCPercent, oldgcpercent)
+	if newConfig.DefaultDuration != "" {
+		clientDisconnectedRule.Duration = rule.Duration(newConfig.DefaultDuration)
+		clientErrorRule.Duration = rule.Duration(newConfig.DefaultDuration)
 	}
 
-	c.rules.EnableChecksums(clientConfig.Rules.EnableChecksums)
+	if newConfig.Internal.GCPercent > 0 && newConfig.Internal.GCPercent != clientConfig.Internal.GCPercent {
+		oldgcpercent := debug.SetGCPercent(newConfig.Internal.GCPercent)
+		log.Debug("[config] GC percent set to %d, previously was %d", newConfig.Internal.GCPercent, oldgcpercent)
+	} else {
+		log.Debug("[config] config.internal.gcpercent not changed")
+	}
+
+	c.rules.EnableChecksums(newConfig.Rules.EnableChecksums)
+	if clientConfig.Rules.Path != newConfig.Rules.Path {
+		c.rules.Reload(newConfig.Rules.Path)
+		log.Debug("[config] reloading config.rules.path: %s", newConfig.Rules.Path)
+	} else {
+		log.Debug("[config] config.rules.path not changed")
+	}
 	// TODO:
 	//c.stats.SetLimits(clientConfig.Stats)
-	//loggers.Load(clientConfig.Server.Loggers, clientConfig.Stats.Workers)
-	//stats.SetLoggers(loggers)
+	if reload {
+		c.loggers.Stop()
+	}
+	c.loggers.Load(clientConfig.Server.Loggers, clientConfig.Stats.Workers)
+	c.stats.SetLoggers(c.loggers)
 
-	return true
+	if reload && c.GetFirewallType() != newConfig.Firewall ||
+		newConfig.FwOptions.ConfigPath != clientConfig.FwOptions.ConfigPath ||
+		newConfig.FwOptions.MonitorInterval != clientConfig.FwOptions.MonitorInterval {
+		log.Debug("[config] reloading config.firewall")
+
+		firewall.Reload(
+			newConfig.Firewall,
+			newConfig.FwOptions.ConfigPath,
+			newConfig.FwOptions.MonitorInterval,
+		)
+	} else {
+		log.Debug("[config] config.firewall not changed")
+	}
+
+	reloadProc := false
+	if clientConfig.ProcMonitorMethod == "" ||
+		newConfig.ProcMonitorMethod != clientConfig.ProcMonitorMethod {
+		log.Debug("[config] reloading config.ProcMonMethod, old: %s -> new: %s", clientConfig.ProcMonitorMethod, newConfig.ProcMonitorMethod)
+		reloadProc = true
+	} else {
+		log.Debug("[config] config.ProcMonMethod not changed")
+	}
+
+	if reload && procmon.MethodIsEbpf() && newConfig.Ebpf.ModulesPath != "" && clientConfig.Ebpf.ModulesPath != newConfig.Ebpf.ModulesPath {
+		log.Debug("[config] reloading config.Ebpf.ModulesPath: %s", newConfig.Ebpf.ModulesPath)
+		reloadProc = true
+	} else {
+		log.Debug("[config] config.Ebpf.ModulesPath not changed")
+	}
+	if reloadProc {
+		monitor.End()
+		procmon.SetMonitorMethod(newConfig.ProcMonitorMethod)
+		clientConfig.ProcMonitorMethod = newConfig.ProcMonitorMethod
+		err := monitor.Init(newConfig.Ebpf.ModulesPath)
+		if err.What > monitor.NoError {
+			log.Error("[config] config.procmon error: %s", err.Msg)
+			procmon.SetMonitorMethod(clientConfig.ProcMonitorMethod)
+			monitor.Init(clientConfig.Ebpf.ModulesPath)
+			return err
+		}
+	} else {
+		log.Debug("[config] config.procmon not changed")
+	}
+
+	return nil
 }

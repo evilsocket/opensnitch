@@ -13,7 +13,6 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
-	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
@@ -109,23 +108,12 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 		return
 	}
 
-	if c.GetFirewallType() != newConf.Firewall {
-		firewall.Reload(
-			newConf.Firewall,
-			newConf.FwOptions.ConfigPath,
-			newConf.FwOptions.MonitorInterval,
-		)
-	}
-
-	if err := monitor.ReconfigureMonitorMethod(
-		newConf.ProcMonitorMethod,
-		clientConfig.Ebpf.ModulesPath,
-	); err != nil {
+	if err := c.reloadConfiguration(true, newConf); err != nil {
 		c.sendNotificationReply(stream, notification.Id, "", err.Msg)
 		return
 	}
 
-	// this save operation triggers a re-loadConfiguration()
+	// this save operation triggers a regular re-loadConfiguration()
 	err = config.Save(configFile, notification.Data)
 	if err != nil {
 		log.Warning("[notification] CHANGE_CONFIG not applied %s", err)
