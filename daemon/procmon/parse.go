@@ -81,7 +81,7 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 			return aPid
 		}
 	}
-	if found == -1 || methodIsProc() {
+	if found == -1 || MethodIsProc() {
 		found = lookupPidInProc("/proc/", expect, inodeKey, inode)
 	}
 	log.Debug("new pid lookup took (%d): %v", found, time.Since(start))

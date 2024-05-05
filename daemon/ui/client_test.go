@@ -17,13 +17,12 @@ import (
 
 var (
 	defaultConfig = &config.Config{
-		ProcMonitorMethod: procmon.MethodEbpf,
+		ProcMonitorMethod: procmon.MethodProc,
 		DefaultAction:     "allow",
 		DefaultDuration:   "once",
 		InterceptUnknown:  false,
 		Firewall:          "nftables",
 	}
-	reloadConfig = *defaultConfig
 )
 
 func restoreConfigFile(t *testing.T) {
@@ -39,8 +38,8 @@ func restoreConfigFile(t *testing.T) {
 }
 
 func validateConfig(t *testing.T, uiClient *Client, cfg *config.Config) {
-	if uiClient.ProcMonitorMethod() != cfg.ProcMonitorMethod {
-		t.Errorf("not expected ProcMonitorMethod value: %s, expected: %s", uiClient.ProcMonitorMethod(), cfg.ProcMonitorMethod)
+	if uiClient.ProcMonitorMethod() != cfg.ProcMonitorMethod || procmon.GetMonitorMethod() != uiClient.ProcMonitorMethod() {
+		t.Errorf("not expected ProcMonitorMethod value: %s, expected: %s, procmon.MonitorMethod: %s", uiClient.ProcMonitorMethod(), cfg.ProcMonitorMethod, procmon.GetMonitorMethod())
 	}
 	if uiClient.GetFirewallType() != cfg.Firewall {
 		t.Errorf("not expected FirewallType value: %s, expected: %s", uiClient.GetFirewallType(), cfg.Firewall)
@@ -53,7 +52,7 @@ func validateConfig(t *testing.T, uiClient *Client, cfg *config.Config) {
 	}
 }
 
-func TestClientConfig(t *testing.T) {
+func TestClientConfigReloading(t *testing.T) {
 	restoreConfigFile(t)
 	cfgFile := "./testdata/default-config.json"
 
@@ -71,7 +70,8 @@ func TestClientConfig(t *testing.T) {
 	})
 
 	t.Run("validate-reload-config", func(t *testing.T) {
-		reloadConfig.ProcMonitorMethod = procmon.MethodProc
+		reloadConfig := *defaultConfig
+		//reloadConfig.ProcMonitorMethod = procmon.MethodProc
 		reloadConfig.DefaultAction = string(rule.Deny)
 		reloadConfig.InterceptUnknown = true
 		reloadConfig.Firewall = iptables.Name

@@ -256,7 +256,7 @@ func MethodIsAudit() bool {
 	return monitorMethod == MethodAudit
 }
 
-func methodIsProc() bool {
+func MethodIsProc() bool {
 	lock.RLock()
 	defer lock.RUnlock()
 

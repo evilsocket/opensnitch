@@ -121,7 +121,7 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 	}
 
 	if reconnect {
-		log.Debug("[config] config.server.address.* changed, reconnecting")
+		log.Debug("[config] config.server.address.* changed, reconnecting to %s", c.socketPath)
 		c.disconnect()
 	}
 
@@ -189,14 +189,8 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		log.Debug("[config] config.Ebpf.ModulesPath not changed")
 	}
 	if reloadProc {
-		monitor.End()
-		procmon.SetMonitorMethod(newConfig.ProcMonitorMethod)
-		clientConfig.ProcMonitorMethod = newConfig.ProcMonitorMethod
-		err := monitor.Init(newConfig.Ebpf.ModulesPath)
-		if err.What > monitor.NoError {
-			log.Error("[config] config.procmon error: %s", err.Msg)
-			procmon.SetMonitorMethod(clientConfig.ProcMonitorMethod)
-			monitor.Init(clientConfig.Ebpf.ModulesPath)
+		err := monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf.ModulesPath)
+		if err != nil && err.What > monitor.NoError {
 			return err
 		}
 	} else {
