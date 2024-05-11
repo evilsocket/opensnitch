@@ -1,6 +1,7 @@
 package statistics
 
 import (
+	"context"
 	"strconv"
 	"sync"
 	"time"
@@ -29,6 +30,8 @@ type conEvent struct {
 // Statistics holds the connections and statistics the daemon intercepts.
 // The connections are stored in the Events slice.
 type Statistics struct {
+	ctx          context.Context
+	cancel       context.CancelFunc
 	Started      time.Time
 	logger       *loggers.LoggerManager
 	rules        *rule.Loader
@@ -59,7 +62,10 @@ type Statistics struct {
 
 // New returns a new Statistics object and initializes the go routines to update the stats.
 func New(rules *rule.Loader) (stats *Statistics) {
+	ctx, cancel := context.WithCancel(context.Background())
 	stats = &Statistics{
+		ctx:          ctx,
+		cancel:       cancel,
 		Started:      time.Now(),
 		Events:       make([]*Event, 0),
 		ByProto:      make(map[string]uint64),
@@ -79,14 +85,18 @@ func New(rules *rule.Loader) (stats *Statistics) {
 }
 
 // SetLoggers sets the configured loggers where we'll write the events.
-func (s *Statistics) SetLoggers(loggers *loggers.LoggerManager) {
-	s.logger = loggers
+func (s *Statistics) SetLoggers(loggermgr *loggers.LoggerManager) {
+	s.Lock()
+	s.logger = loggermgr
+	s.Unlock()
 }
 
 // SetLimits configures the max events to keep in the backlog before sending
 // the stats to the UI, or while the UI is not connected.
 // if the backlog is full, it'll be shifted by one.
 func (s *Statistics) SetLimits(config StatsConfig) {
+	s.cancel()
+	s.ctx, s.cancel = context.WithCancel(context.Background())
 	if config.MaxEvents > 0 {
 		s.maxEvents = config.MaxEvents
 	}
@@ -99,7 +109,7 @@ func (s *Statistics) SetLimits(config StatsConfig) {
 	}
 	log.Info("Stats, max events: %d, max stats: %d, max workers: %d", s.maxStats, s.maxEvents, s.maxWorkers)
 	for i := 0; i < s.maxWorkers; i++ {
-		go s.eventWorker(i)
+		go s.eventWorker(i, s.ctx.Done())
 	}
 
 }
@@ -164,15 +174,19 @@ func (s *Statistics) incMap(m *map[string]uint64, key string) {
 	}
 }
 
-func (s *Statistics) eventWorker(id int) {
+func (s *Statistics) eventWorker(id int, done <-chan struct{}) {
 	log.Debug("Stats worker #%d started.", id)
 
 	for true {
 		select {
+		case <-done:
+			goto Exit
 		case job := <-s.jobs:
 			s.onConnection(job.con, job.match, job.wasMissed)
 		}
 	}
+Exit:
+	log.Debug("stats.worker() %d exited", id)
 }
 
 func (s *Statistics) onConnection(con *conman.Connection, match *rule.Rule, wasMissed bool) {

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"runtime/debug"
@@ -41,10 +42,10 @@ func (c *Client) setSocketPath(socketPath string) {
 }
 
 func (c *Client) isProcMonitorEqual(newMonitorMethod string) bool {
-	clientConfig.RLock()
-	defer clientConfig.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
-	return newMonitorMethod == clientConfig.ProcMonitorMethod
+	return newMonitorMethod == c.config.ProcMonitorMethod
 }
 
 func (c *Client) loadDiskConfiguration(reload bool) {
@@ -83,7 +84,9 @@ func (c *Client) loadConfiguration(reload bool, rawConfig []byte) error {
 	if err := c.reloadConfiguration(reload, newConfig); err != nil {
 		return fmt.Errorf("reloading configuration: %s", err.Msg)
 	}
-	clientConfig = newConfig
+	c.Lock()
+	c.config = newConfig
+	c.Unlock()
 	return nil
 }
 
@@ -100,15 +103,24 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		log.Close()
 		log.OpenFile(newConfig.Server.LogFile)
 	}
+	if !reflect.DeepEqual(c.config.Server.Loggers, newConfig.Server.Loggers) {
+		log.Debug("[config] reloading config.server.loggers")
+		c.loggers.Stop()
+		c.loggers.Load(newConfig.Server.Loggers)
+		c.stats.SetLoggers(c.loggers)
+	} else {
+		log.Debug("[config] config.server.loggers not changed")
+	}
 
-	reconnect := newConfig.Server.Authentication.Type != clientConfig.Server.Authentication.Type ||
-		newConfig.Server.Authentication.TLSOptions.CACert != clientConfig.Server.Authentication.TLSOptions.CACert ||
-		newConfig.Server.Authentication.TLSOptions.ServerCert != clientConfig.Server.Authentication.TLSOptions.ServerCert ||
-		newConfig.Server.Authentication.TLSOptions.ServerKey != clientConfig.Server.Authentication.TLSOptions.ServerKey ||
-		newConfig.Server.Authentication.TLSOptions.ClientCert != clientConfig.Server.Authentication.TLSOptions.ClientCert ||
-		newConfig.Server.Authentication.TLSOptions.ClientKey != clientConfig.Server.Authentication.TLSOptions.ClientKey ||
-		newConfig.Server.Authentication.TLSOptions.ClientAuthType != clientConfig.Server.Authentication.TLSOptions.ClientAuthType ||
-		newConfig.Server.Authentication.TLSOptions.SkipVerify != clientConfig.Server.Authentication.TLSOptions.SkipVerify
+	if !reflect.DeepEqual(newConfig.Stats, c.config.Stats) {
+		log.Debug("[config] reloading config.stats")
+		c.stats.SetLimits(newConfig.Stats)
+	} else {
+		log.Debug("[config] config.stats not changed")
+	}
+
+	reconnect := newConfig.Server.Authentication.Type != c.config.Server.Authentication.Type ||
+		!reflect.DeepEqual(newConfig.Server.Authentication.TLSOptions, c.config.Server.Authentication.TLSOptions)
 
 	if newConfig.Server.Address != "" {
 		tempSocketPath := c.getSocketPath(newConfig.Server.Address)
@@ -137,7 +149,7 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		clientErrorRule.Duration = rule.Duration(newConfig.DefaultDuration)
 	}
 
-	if newConfig.Internal.GCPercent > 0 && newConfig.Internal.GCPercent != clientConfig.Internal.GCPercent {
+	if newConfig.Internal.GCPercent > 0 && newConfig.Internal.GCPercent != c.config.Internal.GCPercent {
 		oldgcpercent := debug.SetGCPercent(newConfig.Internal.GCPercent)
 		log.Debug("[config] GC percent set to %d, previously was %d", newConfig.Internal.GCPercent, oldgcpercent)
 	} else {
@@ -145,23 +157,16 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 	}
 
 	c.rules.EnableChecksums(newConfig.Rules.EnableChecksums)
-	if clientConfig.Rules.Path != newConfig.Rules.Path {
+	if c.config.Rules.Path != newConfig.Rules.Path {
 		c.rules.Reload(newConfig.Rules.Path)
 		log.Debug("[config] reloading config.rules.path: %s", newConfig.Rules.Path)
 	} else {
 		log.Debug("[config] config.rules.path not changed")
 	}
-	// TODO:
-	//c.stats.SetLimits(clientConfig.Stats)
-	if reload {
-		c.loggers.Stop()
-	}
-	c.loggers.Load(clientConfig.Server.Loggers, clientConfig.Stats.Workers)
-	c.stats.SetLoggers(c.loggers)
 
 	if reload && c.GetFirewallType() != newConfig.Firewall ||
-		newConfig.FwOptions.ConfigPath != clientConfig.FwOptions.ConfigPath ||
-		newConfig.FwOptions.MonitorInterval != clientConfig.FwOptions.MonitorInterval {
+		newConfig.FwOptions.ConfigPath != c.config.FwOptions.ConfigPath ||
+		newConfig.FwOptions.MonitorInterval != c.config.FwOptions.MonitorInterval {
 		log.Debug("[config] reloading config.firewall")
 
 		firewall.Reload(
@@ -174,15 +179,15 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 	}
 
 	reloadProc := false
-	if clientConfig.ProcMonitorMethod == "" ||
-		newConfig.ProcMonitorMethod != clientConfig.ProcMonitorMethod {
-		log.Debug("[config] reloading config.ProcMonMethod, old: %s -> new: %s", clientConfig.ProcMonitorMethod, newConfig.ProcMonitorMethod)
+	if c.config.ProcMonitorMethod == "" ||
+		newConfig.ProcMonitorMethod != c.config.ProcMonitorMethod {
+		log.Debug("[config] reloading config.ProcMonMethod, old: %s -> new: %s", c.config.ProcMonitorMethod, newConfig.ProcMonitorMethod)
 		reloadProc = true
 	} else {
 		log.Debug("[config] config.ProcMonMethod not changed")
 	}
 
-	if reload && procmon.MethodIsEbpf() && newConfig.Ebpf.ModulesPath != "" && clientConfig.Ebpf.ModulesPath != newConfig.Ebpf.ModulesPath {
+	if reload && procmon.MethodIsEbpf() && newConfig.Ebpf.ModulesPath != "" && c.config.Ebpf.ModulesPath != newConfig.Ebpf.ModulesPath {
 		log.Debug("[config] reloading config.Ebpf.ModulesPath: %s", newConfig.Ebpf.ModulesPath)
 		reloadProc = true
 	} else {

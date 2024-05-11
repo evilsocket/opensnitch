@@ -39,12 +39,8 @@ const (
 // New returns the configuration that the UI will use
 // to connect with the server.
 func New(config *config.Config) (grpc.DialOption, error) {
-	config.RLock()
-
 	credsType := config.Server.Authentication.Type
 	tlsOpts := config.Server.Authentication.TLSOptions
-
-	config.RUnlock()
 
 	if credsType == "" || credsType == AuthSimple {
 		log.Debug("UI auth: simple")
