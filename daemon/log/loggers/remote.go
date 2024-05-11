@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/log/formats"
 )
@@ -22,18 +23,19 @@ const (
 // It can write to the local or a remote daemon, UDP or TCP.
 // It supports writing events in RFC5424, RFC3164, CSV and JSON formats.
 type Remote struct {
-	mu        *sync.RWMutex
-	Writer    *syslog.Writer
-	cfg       *LoggerConfig
-	logFormat formats.LoggerFormat
-	netConn   net.Conn
-	Name      string
-	Tag       string
-	Hostname  string
-	Timeout   time.Duration
-	errors    uint32
-	maxErrors uint32
-	status    uint32
+	mu             *sync.RWMutex
+	Writer         *syslog.Writer
+	cfg            *LoggerConfig
+	logFormat      formats.LoggerFormat
+	netConn        net.Conn
+	Name           string
+	Tag            string
+	Hostname       string
+	Timeout        time.Duration
+	ConnectTimeout time.Duration
+	errors         uint32
+	maxErrors      uint32
+	status         uint32
 }
 
 // NewRemote returns a new object that manipulates and prints outbound connections
@@ -66,13 +68,18 @@ func NewRemote(cfg *LoggerConfig) (*Remote, error) {
 	if err != nil {
 		sys.Hostname = "localhost"
 	}
-	if cfg.WriteTimeout == "" {
-		cfg.WriteTimeout = writeTimeout
+	sys.Timeout, err = time.ParseDuration(cfg.WriteTimeout)
+	if err != nil || cfg.WriteTimeout == "" {
+		sys.Timeout = writeTimeout
 	}
-	sys.Timeout = (time.Second * 15)
+
+	sys.ConnectTimeout, err = time.ParseDuration(cfg.ConnectTimeout)
+	if err != nil || cfg.ConnectTimeout == "" {
+		sys.ConnectTimeout = connTimeout
+	}
 
 	if err = sys.Open(); err != nil {
-		log.Error("Error loading logger: %s", err)
+		log.Error("Error loading logger [%s]: %s", sys.Name, err)
 		return nil, err
 	}
 	log.Info("[%s] initialized: %v", sys.Name, cfg)
@@ -87,7 +94,7 @@ func (s *Remote) Open() (err error) {
 		return fmt.Errorf("[%s] Server address must not be empty", s.Name)
 	}
 	s.mu.Lock()
-	s.netConn, err = s.Dial(s.cfg.Protocol, s.cfg.Server, s.Timeout*5)
+	s.netConn, err = s.Dial(s.cfg.Protocol, s.cfg.Server, s.ConnectTimeout)
 	s.mu.Unlock()
 
 	if err == nil {
@@ -113,12 +120,10 @@ func (s *Remote) Dial(proto, addr string, connTimeout time.Duration) (netConn ne
 
 // Close closes the writer object
 func (s *Remote) Close() (err error) {
-	s.mu.RLock()
 	if s.netConn != nil {
 		err = s.netConn.Close()
-		//s.netConn.conn = nil
+		s.netConn = nil
 	}
-	s.mu.RUnlock()
 	atomic.StoreUint32(&s.status, DISCONNECTED)
 	return
 }
@@ -158,9 +163,13 @@ func (s *Remote) Write(msg string) {
 	// and have a continuous stream of events. Otherwise it'd stop working.
 	// I haven't figured out yet why these write errors ocurr.
 	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.netConn.SetWriteDeadline(deadline)
+	if s.netConn == nil {
+		s.ReOpen()
+		return
+	}
 	_, err := s.netConn.Write([]byte(msg))
-	s.mu.Unlock()
 	if err == nil {
 		return
 	}
@@ -178,5 +187,5 @@ func (s *Remote) formatLine(msg string) string {
 	if !strings.HasSuffix(msg, "\n") {
 		nl = "\n"
 	}
-	return fmt.Sprintf("%s%s", msg, nl)
+	return core.ConcatStrings(msg, nl)
 }

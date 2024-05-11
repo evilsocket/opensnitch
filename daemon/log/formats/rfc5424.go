@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"log/syslog"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
@@ -39,18 +42,18 @@ func (r *Rfc5424) Transform(args ...interface{}) (out string) {
 		switch val.(type) {
 		case *protocol.Connection:
 			con := val.(*protocol.Connection)
-			out = fmt.Sprint(out,
+			out = core.ConcatStrings(out,
 				" SRC=\"", con.SrcIp, "\"",
-				" SPT=\"", con.SrcPort, "\"",
+				" SPT=\"", strconv.FormatUint(uint64(con.SrcPort), 10), "\"",
 				" DST=\"", con.DstIp, "\"",
 				" DSTHOST=\"", con.DstHost, "\"",
-				" DPT=\"", con.DstPort, "\"",
+				" DPT=\"", strconv.FormatUint(uint64(con.DstPort), 10), "\"",
 				" PROTO=\"", con.Protocol, "\"",
-				" PID=\"", con.ProcessId, "\"",
-				" UID=\"", con.UserId, "\"",
+				" PID=\"", strconv.FormatUint(uint64(con.ProcessId), 10), "\"",
+				" UID=\"", strconv.FormatUint(uint64(con.UserId), 10), "\"",
 				//" COMM=", con.ProcessComm, "\"",
 				" PATH=\"", con.ProcessPath, "\"",
-				" CMDLINE=\"", con.ProcessArgs, "\"",
+				" CMDLINE=\"", strings.Join(con.ProcessArgs, " "), "\"",
 				" CWD=\"", con.ProcessCwd, "\"",
 			)
 		default:

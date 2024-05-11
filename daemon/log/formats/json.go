@@ -2,8 +2,8 @@ package formats
 
 import (
 	"encoding/json"
-	"fmt"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
@@ -64,6 +64,6 @@ func (j *JSONEventFormat) Transform(args ...interface{}) (out string) {
 	if err != nil {
 		return
 	}
-	out = fmt.Sprint(string(rawCfg), "\n\n")
+	out = core.ConcatStrings(string(rawCfg), "\n\n")
 	return
 }

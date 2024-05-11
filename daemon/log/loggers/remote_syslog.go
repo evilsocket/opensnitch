@@ -14,9 +14,14 @@ import (
 
 const (
 	LOGGER_REMOTE_SYSLOG = "remote_syslog"
-	writeTimeout         = "1s"
 	// restart syslog connection after these amount of errors
 	maxAllowedErrors = 10
+)
+
+var (
+	// default write / connect timeouts
+	writeTimeout, _ = time.ParseDuration("1s")
+	connTimeout, _  = time.ParseDuration("5s")
 )
 
 // connection status
@@ -30,12 +35,13 @@ const (
 // It can write to the local or a remote daemon.
 type RemoteSyslog struct {
 	Syslog
-	mu       *sync.RWMutex
-	netConn  net.Conn
-	Hostname string
-	Timeout  time.Duration
-	errors   uint32
-	status   uint32
+	mu             *sync.RWMutex
+	netConn        net.Conn
+	Hostname       string
+	Timeout        time.Duration
+	ConnectTimeout time.Duration
+	errors         uint32
+	status         uint32
 }
 
 // NewRemoteSyslog returns a new object that manipulates and prints outbound connections
@@ -66,13 +72,18 @@ func NewRemoteSyslog(cfg *LoggerConfig) (*RemoteSyslog, error) {
 	if err != nil {
 		sys.Hostname = "localhost"
 	}
-	if cfg.WriteTimeout == "" {
-		cfg.WriteTimeout = writeTimeout
+	sys.Timeout, err = time.ParseDuration(cfg.WriteTimeout)
+	if err != nil || cfg.WriteTimeout == "" {
+		sys.Timeout = writeTimeout
 	}
-	sys.Timeout, _ = time.ParseDuration(cfg.WriteTimeout)
+
+	sys.ConnectTimeout, err = time.ParseDuration(cfg.ConnectTimeout)
+	if err != nil || cfg.ConnectTimeout == "" {
+		sys.ConnectTimeout = connTimeout
+	}
 
 	if err = sys.Open(); err != nil {
-		log.Error("Error loading logger: %s", err)
+		log.Error("Error loading logger [%s]: %s", sys.Name, err)
 		return nil, err
 	}
 	log.Info("[%s] initialized: %v", sys.Name, cfg)
@@ -87,7 +98,7 @@ func (s *RemoteSyslog) Open() (err error) {
 		return fmt.Errorf("[%s] Server address must not be empty", s.Name)
 	}
 	s.mu.Lock()
-	s.netConn, err = s.Dial(s.cfg.Protocol, s.cfg.Server, s.Timeout*5)
+	s.netConn, err = s.Dial(s.cfg.Protocol, s.cfg.Server, s.ConnectTimeout)
 	s.mu.Unlock()
 
 	if err == nil {
@@ -113,13 +124,12 @@ func (s *RemoteSyslog) Dial(proto, addr string, connTimeout time.Duration) (netC
 
 // Close closes the writer object
 func (s *RemoteSyslog) Close() (err error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
+	//s.mu.RLock()
 	if s.netConn != nil {
 		err = s.netConn.Close()
-		//s.netConn.conn = nil
+		s.netConn = nil
 	}
+	//s.mu.RUnlock()
 	atomic.StoreUint32(&s.status, DISCONNECTED)
 	return
 }
