@@ -576,6 +576,11 @@ func main() {
 		log.Fatal("Error accessing rules path (does it exist?): %s", err)
 	}
 
+	if cfg.FwOptions.ConfigPath == "" {
+		cfg.FwOptions.ConfigPath = fwConfigFile
+	}
+	log.Info("Using system fw configuration %s ...", fwConfigFile)
+
 	setupSignals()
 
 	log.Info("Loading rules from %s ...", rulesPath)
@@ -592,20 +597,7 @@ func main() {
 	setupWorkers()
 	setupQueues()
 
-	fwConfigPath := fwConfigFile
-	if fwConfigPath == "" {
-		fwConfigPath = cfg.FwOptions.ConfigPath
-	}
-	log.Info("Using system fw configuration %s ...", fwConfigPath)
-	// queue is ready, run firewall rules and start intercepting connections
-	if err = firewall.Init(
-		uiClient.GetFirewallType(),
-		fwConfigPath,
-		cfg.FwOptions.MonitorInterval,
-		&queueNum); err != nil {
-		log.Warning("%s", err)
-		uiClient.SendWarningAlert(err)
-	}
+	// queue and firewall rules should be ready by now
 
 	uiClient.Connect()
 	listenToEvents()
