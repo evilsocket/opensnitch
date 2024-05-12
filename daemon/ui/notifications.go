@@ -13,6 +13,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
@@ -199,6 +200,32 @@ func (c *Client) handleActionStopMonitorProcess(stream protocol.UI_Notifications
 	c.sendNotificationReply(stream, notification.Id, "", nil)
 }
 
+func (c *Client) handleActionEnableInterception(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	log.Info("[notification] starting interception")
+	if err := monitor.ReconfigureMonitorMethod(c.config.ProcMonitorMethod, c.config.Ebpf.ModulesPath); err != nil && err.What > monitor.NoError {
+		log.Warning("[notification] error enabling monitor (%s): %s", c.config.ProcMonitorMethod, err.Msg)
+		c.sendNotificationReply(stream, notification.Id, "", err.Msg)
+		return
+	}
+	if err := firewall.EnableInterception(); err != nil {
+		log.Warning("[notification] firewall.EnableInterception() error: %s", err)
+		c.sendNotificationReply(stream, notification.Id, "", err)
+		return
+	}
+	c.sendNotificationReply(stream, notification.Id, "", nil)
+}
+
+func (c *Client) handleActionDisableInterception(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	log.Info("[notification] stopping interception")
+	monitor.End()
+	if err := firewall.DisableInterception(); err != nil {
+		log.Warning("firewall.DisableInterception() error: %s", err)
+		c.sendNotificationReply(stream, notification.Id, "", err)
+		return
+	}
+	c.sendNotificationReply(stream, notification.Id, "", nil)
+}
+
 func (c *Client) handleActionReloadFw(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	log.Info("[notification] reloading firewall")
 
@@ -252,22 +279,10 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 		c.handleActionChangeConfig(stream, notification)
 
 	case notification.Type == protocol.Action_ENABLE_INTERCEPTION:
-		log.Info("[notification] starting interception")
-		if err := firewall.EnableInterception(); err != nil {
-			log.Warning("firewall.EnableInterception() error: %s", err)
-			c.sendNotificationReply(stream, notification.Id, "", err)
-			return
-		}
-		c.sendNotificationReply(stream, notification.Id, "", nil)
+		c.handleActionEnableInterception(stream, notification)
 
 	case notification.Type == protocol.Action_DISABLE_INTERCEPTION:
-		log.Info("[notification] stopping interception")
-		if err := firewall.DisableInterception(); err != nil {
-			log.Warning("firewall.DisableInterception() error: %s", err)
-			c.sendNotificationReply(stream, notification.Id, "", err)
-			return
-		}
-		c.sendNotificationReply(stream, notification.Id, "", nil)
+		c.handleActionDisableInterception(stream, notification)
 
 	case notification.Type == protocol.Action_RELOAD_FW_RULES:
 		c.handleActionReloadFw(stream, notification)
@@ -282,7 +297,7 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, noti
 	case notification.Type == protocol.Action_DELETE_RULE:
 		c.handleActionDeleteRule(stream, notification)
 
-	// CHANGE_RULE can add() or replace) an existing rule.
+	// CHANGE_RULE can add() or replace() an existing rule.
 	case notification.Type == protocol.Action_CHANGE_RULE:
 		c.handleActionChangeRule(stream, notification)
 	}
