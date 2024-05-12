@@ -67,7 +67,8 @@ type (
 
 	// InternalOptions struct
 	InternalOptions struct {
-		GCPercent int `json:"GCPercent"`
+		GCPercent         int  `json:"GCPercent"`
+		FlushConnsOnStart bool `json:"FlushConnsOnStart"`
 	}
 )
 

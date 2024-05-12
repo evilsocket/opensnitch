@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/vishvananda/netlink"
 	"golang.org/x/sys/unix"
 )
 
@@ -201,6 +202,20 @@ func KillAllSockets() {
 		KillSockets(opt.fam, opt.proto, true)
 	}
 
+}
+
+// FlushConnections flushes conntrack as soon as netfilter rule is set.
+// This ensures that already-established connections will go to netfilter queue.
+func FlushConnections() {
+	if err := netlink.ConntrackTableFlush(netlink.ConntrackTable); err != nil {
+		log.Error("error flushing ConntrackTable %s", err)
+	}
+	if err := netlink.ConntrackTableFlush(netlink.ConntrackExpectTable); err != nil {
+		log.Error("error flusing ConntrackExpectTable %s", err)
+	}
+
+	// Force established connections to reestablish again.
+	KillAllSockets()
 }
 
 // SocketsAreEqual compares 2 different sockets to see if they match.
