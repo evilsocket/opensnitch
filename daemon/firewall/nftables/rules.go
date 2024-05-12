@@ -5,11 +5,9 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/log"
-	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/google/nftables"
 	"github.com/google/nftables/binaryutil"
 	"github.com/google/nftables/expr"
-	"github.com/vishvananda/netlink"
 	"golang.org/x/sys/unix"
 )
 
@@ -175,20 +173,6 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 	// apply changes
 	if !n.Commit() {
 		return fmt.Errorf("Error adding interception rule "), nil
-	}
-
-	if enable {
-		// flush conntrack as soon as netfilter rule is set. This ensures that already-established
-		// connections will go to netfilter queue.
-		if err := netlink.ConntrackTableFlush(netlink.ConntrackTable); err != nil {
-			log.Error("nftables, error flushing ConntrackTable %s", err)
-		}
-		if err := netlink.ConntrackTableFlush(netlink.ConntrackExpectTable); err != nil {
-			log.Error("nftables, error flusing ConntrackExpectTable %s", err)
-		}
-
-		// Force established connections to reestablish again.
-		daemonNetlink.KillAllSockets()
 	}
 
 	return nil, nil
