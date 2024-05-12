@@ -15,7 +15,7 @@ import (
 // of resolved domains.
 // This rule must be added in top of the system rules, otherwise it may get bypassed.
 // nft insert rule ip filter input udp sport 53 queue num 0 bypass
-func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
+func (n *Nft) QueueDNSResponses(enable, logError bool) (error, error) {
 	if n.Conn == nil {
 		return nil, nil
 	}
@@ -77,7 +77,7 @@ func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
 // This rule must be added at the end of all the other rules, that way we can add
 // rules above this one to exclude a service/app from being intercepted.
 // nft insert rule ip mangle OUTPUT ct state new queue num 0 bypass
-func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
+func (n *Nft) QueueConnections(enable, logError bool) (error, error) {
 	if n.Conn == nil {
 		return nil, fmt.Errorf("nftables QueueConnections: netlink connection not active")
 	}

@@ -114,7 +114,7 @@ type SystemConfig struct {
 // This is the configuration to manage the system firewall (iptables, nftables).
 type Config struct {
 	watcher         *fsnotify.Watcher
-	monitorExitChan chan bool
+	monitorExitChan chan struct{}
 	// preloadCallback is called before reloading the configuration,
 	// in order to delete old fw rules.
 	preloadCallback func()
@@ -139,7 +139,7 @@ func (c *Config) NewSystemFwConfig(configPath string, preLoadCb, reLoadCb func()
 	defer c.Unlock()
 
 	c.file = configPath
-	c.monitorExitChan = make(chan bool, 1)
+	c.monitorExitChan = make(chan struct{}, 1)
 	c.preloadCallback = preLoadCb
 	c.reloadCallback = reLoadCb
 	c.watcher = watcher
@@ -232,7 +232,7 @@ func (c *Config) StopConfigWatcher() {
 	defer c.Unlock()
 
 	if c.monitorExitChan != nil {
-		c.monitorExitChan <- true
+		c.monitorExitChan <- struct{}{}
 		close(c.monitorExitChan)
 	}
 
