@@ -107,10 +107,10 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		log.Debug("[config] reloading config.server.loggers")
 		c.loggers.Stop()
 		c.loggers.Load(newConfig.Server.Loggers)
-		c.stats.SetLoggers(c.loggers)
 	} else {
 		log.Debug("[config] config.server.loggers not changed")
 	}
+	c.stats.SetLoggers(c.loggers)
 
 	if !reflect.DeepEqual(newConfig.Stats, c.config.Stats) {
 		log.Debug("[config] reloading config.stats")

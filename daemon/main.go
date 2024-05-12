@@ -596,7 +596,14 @@ func main() {
 
 	setupWorkers()
 	setupQueues()
-
+	if err = firewall.Init(
+		uiClient.GetFirewallType(),
+		cfg.FwOptions.ConfigPath,
+		cfg.FwOptions.MonitorInterval,
+		&queueNum); err != nil {
+		log.Warning("%s", err)
+		uiClient.SendWarningAlert(err)
+	}
 	// queue and firewall rules should be ready by now
 
 	uiClient.Connect()
