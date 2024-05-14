@@ -84,14 +84,10 @@ func (c *Common) SetRulesCheckerInterval(interval string) {
 
 // SetQueueNum sets the queue number used by the firewall.
 // It's the queue where all intercepted connections will be sent.
-func (c *Common) SetQueueNum(qNum *int) {
+func (c *Common) SetQueueNum(qNum uint16) {
 	c.Lock()
 	defer c.Unlock()
-
-	if qNum != nil {
-		c.QueueNum = uint16(*qNum)
-	}
-
+	c.QueueNum = qNum
 }
 
 // IsRunning returns if the firewall is running or not.

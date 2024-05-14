@@ -93,7 +93,7 @@ func (ipt *Iptables) Name() string {
 
 // Init inserts the firewall rules and starts monitoring for firewall
 // changes.
-func (ipt *Iptables) Init(qNum *int, configPath, monitorInterval string) {
+func (ipt *Iptables) Init(qNum uint16, configPath, monitorInterval string) {
 	if ipt.IsRunning() {
 		return
 	}

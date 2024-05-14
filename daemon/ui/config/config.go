@@ -58,6 +58,7 @@ type (
 		ConfigPath      string `json:"ConfigPath"`
 		BypassQueue     string `json:"BypassQueue"`
 		MonitorInterval string `json:"MonitorInterval"`
+		QueueNum        uint16 `json:"QueueNum"`
 	}
 
 	// EbpfOptions struct

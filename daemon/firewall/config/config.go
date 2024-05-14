@@ -18,6 +18,11 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
+var (
+	// DefaultConfigFile ..
+	DefaultConfigFile = "/etc/opensnitchd/system-fw.json"
+)
+
 // ExprValues holds the statements' options:
 // "Name": "ct",
 // "Values": [

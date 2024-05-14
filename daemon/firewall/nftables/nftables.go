@@ -71,7 +71,7 @@ func (n *Nft) Name() string {
 
 // Init inserts the firewall rules and starts monitoring for firewall
 // changes.
-func (n *Nft) Init(qNum *int, configPath, monitorInterval string) {
+func (n *Nft) Init(qNum uint16, configPath, monitorInterval string) {
 	if n.IsRunning() {
 		return
 	}

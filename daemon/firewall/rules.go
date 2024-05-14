@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/common"
+	"github.com/evilsocket/opensnitch/daemon/firewall/config"
 	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables"
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -12,11 +13,11 @@ import (
 
 // Firewall is the interface that all firewalls (iptables, nftables) must implement.
 type Firewall interface {
-	Init(*int, string, string)
+	Init(uint16, string, string)
 	Stop()
 	Name() string
 	IsRunning() bool
-	SetQueueNum(num *int)
+	SetQueueNum(num uint16)
 
 	SaveConfiguration(rawConfig string) error
 
@@ -37,19 +38,15 @@ type Firewall interface {
 }
 
 var (
-	fw            Firewall
-	queueNum      = 0
-	DefaultConfig = "/etc/opensnitchd/system-fw.json"
+	fw       Firewall
+	queueNum = uint16(0)
 )
 
 // Init initializes the firewall and loads firewall rules.
 // We'll try to use the firewall configured in the configuration (iptables/nftables).
 // If iptables is not installed, we can add nftables rules directly to the kernel,
 // without relying on any binaries.
-func Init(fwType, configPath, monitorInterval string, qNum *int) (err error) {
-	if configPath == "" {
-		configPath = DefaultConfig
-	}
+func Init(fwType, configPath, monitorInterval string, qNum uint16) (err error) {
 	if fwType == iptables.Name {
 		fw, err = iptables.Fw()
 		if err != nil {
@@ -71,9 +68,12 @@ func Init(fwType, configPath, monitorInterval string, qNum *int) (err error) {
 	if fw == nil {
 		return fmt.Errorf("Firewall not initialized")
 	}
+	if configPath == "" {
+		configPath = config.DefaultConfigFile
+	}
 	fw.Stop()
 	fw.Init(qNum, configPath, monitorInterval)
-	queueNum = *qNum
+	queueNum = qNum
 
 	log.Info("Using %s firewall", fw.Name())
 
@@ -104,9 +104,9 @@ func CleanRules(logErrors bool) {
 }
 
 // Reload stops current firewall and initializes a new one.
-func Reload(fwtype, configPath, monitorInterval string) (err error) {
+func Reload(fwtype, configPath, monitorInterval string, queueNum uint16) (err error) {
 	Stop()
-	err = Init(fwtype, configPath, monitorInterval, &queueNum)
+	err = Init(fwtype, configPath, monitorInterval, queueNum)
 	return
 }
 

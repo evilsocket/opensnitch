@@ -151,19 +151,19 @@ func overwriteLogging() bool {
 	return debug || warning || important || errorlog || logFile != "" || logMicro
 }
 
-func setupQueues() {
+func setupQueues(qNum uint16) {
 	// prepare the queue
 	var err error
-	queue, err = netfilter.NewQueue(uint16(queueNum))
+	queue, err = netfilter.NewQueue(qNum)
 	if err != nil {
-		msg := fmt.Sprintf("Error creating queue #%d: %s", queueNum, err)
+		msg := fmt.Sprintf("Error creating queue #%d: %s", qNum, err)
 		uiClient.SendWarningAlert(msg)
 		log.Warning("Is opensnitchd already running?")
 		log.Fatal(msg)
 	}
 	pktChan = queue.Packets()
 
-	repeatQueueNum = queueNum + 1
+	repeatQueueNum = int(qNum) + 1
 
 	repeatQueue, err = netfilter.NewQueue(uint16(repeatQueueNum))
 	if err != nil {
@@ -173,6 +173,7 @@ func setupQueues() {
 		log.Warning(msg)
 	}
 	repeatPktChan = repeatQueue.Packets()
+	log.Info("Listening on queue number %d ...", qNum)
 }
 
 func setupLogging() {
@@ -581,6 +582,10 @@ func main() {
 	}
 	log.Info("Using system fw configuration %s ...", fwConfigFile)
 
+	if uint16(queueNum) != cfg.FwOptions.QueueNum && queueNum > 0 {
+		cfg.FwOptions.QueueNum = uint16(queueNum)
+	}
+
 	setupSignals()
 
 	log.Info("Loading rules from %s ...", rulesPath)
@@ -596,7 +601,7 @@ func main() {
 	uiClient = ui.NewClient(uiSocket, configFile, stats, rules, loggerMgr)
 
 	setupWorkers()
-	setupQueues()
+	setupQueues(cfg.FwOptions.QueueNum)
 
 	// queue and firewall rules should be ready by now
 
