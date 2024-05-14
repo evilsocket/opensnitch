@@ -165,7 +165,7 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		log.Debug("[config] config.rules.path not changed")
 	}
 
-	if reload && c.GetFirewallType() != newConfig.Firewall ||
+	if c.GetFirewallType() != newConfig.Firewall ||
 		newConfig.FwOptions.ConfigPath != c.config.FwOptions.ConfigPath ||
 		newConfig.FwOptions.MonitorInterval != c.config.FwOptions.MonitorInterval {
 		log.Debug("[config] reloading config.firewall")

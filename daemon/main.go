@@ -592,6 +592,7 @@ func main() {
 	}
 	stats = statistics.New(rules)
 	loggerMgr = loggers.NewLoggerManager()
+	stats.SetLoggers(loggerMgr)
 	uiClient = ui.NewClient(uiSocket, configFile, stats, rules, loggerMgr)
 
 	setupWorkers()
