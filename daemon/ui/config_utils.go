@@ -9,6 +9,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
@@ -176,6 +177,13 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		)
 	} else {
 		log.Debug("[config] config.firewall not changed")
+	}
+
+	if newConfig.Internal.FlushConnsOnStart {
+		log.Debug("[config] flushing established connections")
+		netlink.FlushConnections()
+	} else {
+		log.Debug("[config] not flushing established connections")
 	}
 
 	reloadProc := false

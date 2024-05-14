@@ -30,7 +30,7 @@ type (
 	Common struct {
 		RulesChecker       *time.Ticker
 		ErrChan            chan string
-		stopChecker        chan bool
+		stopChecker        chan struct{}
 		RulesCheckInterval time.Duration
 		QueueNum           uint16
 		Running            bool
@@ -132,12 +132,12 @@ func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callba
 	if c.RulesChecker != nil {
 		c.RulesChecker.Stop()
 		select {
-		case c.stopChecker <- true:
+		case c.stopChecker <- struct{}{}:
 		case <-time.After(5 * time.Millisecond):
 			log.Error("NewRulesChecker: timed out stopping monitor rules")
 		}
 	}
-	c.stopChecker = make(chan bool, 1)
+	c.stopChecker = make(chan struct{}, 1)
 	log.Info("Starting new fw checker every %s ...", c.RulesCheckInterval)
 	c.RulesChecker = time.NewTicker(c.RulesCheckInterval)
 
@@ -146,7 +146,7 @@ func (c *Common) NewRulesChecker(areRulesLoaded callbackBool, reloadRules callba
 
 // StartCheckingRules monitors if our rules are loaded.
 // If the rules to intercept traffic are not loaded, we'll try to insert them again.
-func startCheckingRules(exitChan <-chan bool, rulesChecker *time.Ticker, areRulesLoaded callbackBool, reloadRules callback) {
+func startCheckingRules(exitChan <-chan struct{}, rulesChecker *time.Ticker, areRulesLoaded callbackBool, reloadRules callback) {
 	for {
 		select {
 		case <-exitChan:
@@ -173,7 +173,7 @@ func (c *Common) StopCheckingRules() {
 
 	if c.RulesChecker != nil {
 		select {
-		case c.stopChecker <- true:
+		case c.stopChecker <- struct{}{}:
 			close(c.stopChecker)
 		case <-time.After(5 * time.Millisecond):
 			// We should not arrive here

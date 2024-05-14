@@ -5,11 +5,9 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/log"
-	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/google/nftables"
 	"github.com/google/nftables/binaryutil"
 	"github.com/google/nftables/expr"
-	"github.com/vishvananda/netlink"
 	"golang.org/x/sys/unix"
 )
 
@@ -17,7 +15,7 @@ import (
 // of resolved domains.
 // This rule must be added in top of the system rules, otherwise it may get bypassed.
 // nft insert rule ip filter input udp sport 53 queue num 0 bypass
-func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
+func (n *Nft) QueueDNSResponses(enable, logError bool) (error, error) {
 	if n.Conn == nil {
 		return nil, nil
 	}
@@ -79,7 +77,7 @@ func (n *Nft) QueueDNSResponses(enable bool, logError bool) (error, error) {
 // This rule must be added at the end of all the other rules, that way we can add
 // rules above this one to exclude a service/app from being intercepted.
 // nft insert rule ip mangle OUTPUT ct state new queue num 0 bypass
-func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
+func (n *Nft) QueueConnections(enable, logError bool) (error, error) {
 	if n.Conn == nil {
 		return nil, fmt.Errorf("nftables QueueConnections: netlink connection not active")
 	}
@@ -175,20 +173,6 @@ func (n *Nft) QueueConnections(enable bool, logError bool) (error, error) {
 	// apply changes
 	if !n.Commit() {
 		return fmt.Errorf("Error adding interception rule "), nil
-	}
-
-	if enable {
-		// flush conntrack as soon as netfilter rule is set. This ensures that already-established
-		// connections will go to netfilter queue.
-		if err := netlink.ConntrackTableFlush(netlink.ConntrackTable); err != nil {
-			log.Error("nftables, error flushing ConntrackTable %s", err)
-		}
-		if err := netlink.ConntrackTableFlush(netlink.ConntrackExpectTable); err != nil {
-			log.Error("nftables, error flusing ConntrackExpectTable %s", err)
-		}
-
-		// Force established connections to reestablish again.
-		daemonNetlink.KillAllSockets()
 	}
 
 	return nil, nil
