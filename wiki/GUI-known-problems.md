@@ -27,7 +27,11 @@ If you cannot immediately regenerate your protos, some other possible workaround
  2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
 ```
 
-The solution to this problem is described here: https://github.com/evilsocket/opensnitch/discussions/1003#discussioncomment-6642001
+The solution to this problem is described in these issues:
+
+https://github.com/evilsocket/opensnitch/issues/1129 - (`$ pip install protobuf==3.20.*`)
+
+https://github.com/evilsocket/opensnitch/discussions/1003#discussioncomment-6642001
 
 ### GUI takes 10 to 20s to show up
 
