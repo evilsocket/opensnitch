@@ -168,17 +168,22 @@ func (s *RemoteSyslog) Write(msg string) {
 	// and have a continuous stream of events. Otherwise it'd stop working.
 	// I haven't figured out yet why these write errors ocurr.
 	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.netConn == nil {
+		s.ReOpen()
+		return
+	}
 	s.netConn.SetWriteDeadline(deadline)
 	_, err := s.netConn.Write([]byte(msg))
-	s.mu.RUnlock()
+	if err == nil {
+		return
+	}
 
-	if err != nil {
-		log.Debug("[%s] %s write error: %v", s.Name, s.cfg.Protocol, err.(net.Error))
-		atomic.AddUint32(&s.errors, 1)
-		if atomic.LoadUint32(&s.errors) > maxAllowedErrors {
-			s.ReOpen()
-			return
-		}
+	log.Debug("[%s] %s write error: %v", s.Name, s.cfg.Protocol, err.(net.Error))
+	atomic.AddUint32(&s.errors, 1)
+	if atomic.LoadUint32(&s.errors) > maxAllowedErrors {
+		s.ReOpen()
+		return
 	}
 }
 
