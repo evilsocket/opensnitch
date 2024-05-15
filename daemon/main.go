@@ -614,7 +614,7 @@ func main() {
 	// overwrite monitor method from configuration if the user has passed
 	// the option via command line.
 	if procmonMethod != "" {
-		if err := monitor.ReconfigureMonitorMethod(procmonMethod, cfg.Ebpf.ModulesPath); err != nil {
+		if err := monitor.ReconfigureMonitorMethod(procmonMethod, cfg.Ebpf); err != nil {
 			msg := fmt.Sprintf("Unable to set process monitor method via parameter: %v", err)
 			uiClient.SendWarningAlert(msg)
 			log.Warning(msg)

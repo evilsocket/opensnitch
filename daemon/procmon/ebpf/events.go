@@ -64,21 +64,14 @@ const (
 
 var (
 	perfMapList = make(map[*elf.PerfMap]*elf.Module)
-	// total workers spawned by the different events PerfMaps
-	eventWorkers = 0
-	perfMapName  = "proc-events"
-
-	// default value is 8.
-	// Not enough to handle high loads such http downloads, torent traffic, etc.
-	// (regular desktop usage)
-	ringBuffSize = 64 // * PAGE_SIZE (4k usually)
+	perfMapName = "proc-events"
 )
 
 func initEventsStreamer() *Error {
 	elfOpts := make(map[string]elf.SectionParams)
-	elfOpts["maps/"+perfMapName] = elf.SectionParams{PerfRingBufferPageCount: ringBuffSize}
+	elfOpts["maps/"+perfMapName] = elf.SectionParams{PerfRingBufferPageCount: ebpfCfg.RingBuffSize}
 	var err error
-	perfMod, err = core.LoadEbpfModule("opensnitch-procs.o", modulesPath)
+	perfMod, err = core.LoadEbpfModule("opensnitch-procs.o", ebpfCfg.ModulesPath)
 	if err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
 		return &Error{EventsNotAvailable, err}
@@ -110,6 +103,7 @@ Verify that your kernel has support for tracepoints (opensnitchd -check-requirem
 	}
 
 	if err = perfMod.EnableKprobes(0); err != nil {
+		log.Error("Error enabling kprobe: %s", err)
 		// if previous shutdown was unclean, then we must remove the dangling kprobe
 		// and install it again (close the module and load it again)
 		perfMod.Close()
@@ -128,7 +122,6 @@ Verify that your kernel has support for tracepoints (opensnitchd -check-requirem
 		<-sig
 	}(sig)
 
-	eventWorkers = 0
 	if err := initPerfMap(perfMod); err != nil {
 		return &Error{EventsNotAvailable, err}
 	}
@@ -137,7 +130,7 @@ Verify that your kernel has support for tracepoints (opensnitchd -check-requirem
 }
 
 func initPerfMap(mod *elf.Module) error {
-	perfChan := make(chan []byte)
+	perfChan := make(chan []byte, ebpfCfg.QueueEventsSize)
 	lostEvents := make(chan uint64, 1)
 	var err error
 	perfMap, err := elf.InitPerfMap(mod, perfMapName, perfChan, lostEvents)
@@ -147,8 +140,7 @@ func initPerfMap(mod *elf.Module) error {
 	}
 	perfMapList[perfMap] = mod
 
-	eventWorkers += 8
-	for i := 0; i < eventWorkers; i++ {
+	for i := 0; i < ebpfCfg.EventsWorkers; i++ {
 		go streamEventsWorker(i, perfChan, lostEvents, kernelEvents)
 	}
 	perfMap.PollStart()
@@ -174,7 +166,7 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents 
 		case <-ctxTasks.Done():
 			goto Exit
 		case l := <-lost:
-			log.Debug("Lost ebpf events: %d", l)
+			log.Debug("Lost ebpf events (try increasing QueueEventsSize/EventsWorkers): %d", l)
 		case d := <-chn:
 			if err := binary.Read(bytes.NewBuffer(d), hostByteOrder, &event); err != nil {
 				log.Debug("[eBPF events #%d] error: %s", id, err)

@@ -50,7 +50,7 @@ func stopProcMonitors() {
 }
 
 // ReconfigureMonitorMethod configures a new method for parsing connections.
-func ReconfigureMonitorMethod(newMonitorMethod, ebpfModulesPath string) *Error {
+func ReconfigureMonitorMethod(newMonitorMethod string, ebpfCfg ebpf.Config) *Error {
 	oldMethod := procmon.GetMonitorMethod()
 	if oldMethod == "" {
 		oldMethod = procmon.MethodProc
@@ -60,7 +60,7 @@ func ReconfigureMonitorMethod(newMonitorMethod, ebpfModulesPath string) *Error {
 	// if the new monitor method fails to start, rollback the change and exit
 	// without saving the configuration. Otherwise we can end up with the wrong
 	// monitor method configured and saved to file.
-	err := Init(ebpfModulesPath)
+	err := Init(ebpfCfg)
 	if err.What > NoError {
 		log.Error("Reconf() -> Init() error: %v", err)
 		procmon.SetMonitorMethod(oldMethod)
@@ -72,6 +72,7 @@ func ReconfigureMonitorMethod(newMonitorMethod, ebpfModulesPath string) *Error {
 
 // End stops the way of parsing new connections.
 func End() {
+	log.Debug("monitor.End()")
 	stopProcMonitors()
 	if procmon.MethodIsAudit() {
 		audit.Stop()
@@ -81,7 +82,7 @@ func End() {
 }
 
 // Init starts parsing connections using the method specified.
-func Init(ebpfModulesPath string) (errm *Error) {
+func Init(ebpfCfg ebpf.Config) (errm *Error) {
 	errm = &Error{}
 
 	if cacheMonitorsRunning == false {
@@ -90,7 +91,7 @@ func Init(ebpfModulesPath string) (errm *Error) {
 	}
 
 	if procmon.MethodIsEbpf() {
-		err := ebpf.Start(ebpfModulesPath)
+		err := ebpf.Start(ebpfCfg)
 		if err == nil {
 			log.Info("Process monitor method ebpf")
 			return errm

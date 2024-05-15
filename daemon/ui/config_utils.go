@@ -197,14 +197,15 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		log.Debug("[config] config.ProcMonMethod not changed")
 	}
 
-	if reload && procmon.MethodIsEbpf() && newConfig.Ebpf.ModulesPath != "" && c.config.Ebpf.ModulesPath != newConfig.Ebpf.ModulesPath {
-		log.Debug("[config] reloading config.Ebpf.ModulesPath: %s", newConfig.Ebpf.ModulesPath)
+	if reload && procmon.MethodIsEbpf() &&
+		!reflect.DeepEqual(newConfig.Ebpf, c.config.Ebpf) {
+		log.Debug("[config] reloading config.Ebpf: %v", newConfig.Ebpf)
 		reloadProc = true
 	} else {
 		log.Debug("[config] config.Ebpf.ModulesPath not changed")
 	}
 	if reloadProc {
-		err := monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf.ModulesPath)
+		err := monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf)
 		if err != nil && err.What > monitor.NoError {
 			return err
 		}
