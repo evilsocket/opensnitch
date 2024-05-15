@@ -7,14 +7,14 @@ The file _/etc/opensnitchd/default-config.json_ holds the daemon configuration:
   "Server": {
       "Address": "unix:///tmp/osui.sock",
       "LogFile": "/var/log/opensnitchd.log"
-      "Authentication": {}
+      "Authentication": {},
+      "Loggers": {}
   }, 
   "DefaultAction": "deny",
   "DefaultDuration": "once",
   "InterceptUnknown": true,
   "ProcMonitorMethod": "ebpf",
   "LogLevel": 1
-  "Loggers": {}
   "Firewall": "nftables",
   "FwOptions": {
         "ConfigPath": "/etc/opensnitchd/system-fw.json",
@@ -26,7 +26,9 @@ The file _/etc/opensnitchd/default-config.json_ holds the daemon configuration:
         "EnableChecksums": true
   },
   "Ebpf": {
-        "ModulesPath": "/tmp/ebpf"
+        "ModulesPath": "/tmp/ebpf",
+        "EventsWorkers": 8,
+        "QueueEventsSize": 0
   },
   "Internal": {
         "GCPercent": 75
@@ -44,22 +46,25 @@ Option     | Value
 Server.Address | Unix socket (unix:///tmp/osui.sock, the "unix:///" part is mandatory) or TCP socket (192.168.1.100:50051)
 Server.LogFile | file to write logs to (use /dev/stdout to write logs to standard output)
 Server.Authentication | https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161
+Server.Loggers | https://github.com/evilsocket/opensnitch/wiki/SIEM-integration
 DefaultAction [0] | allow, deny, reject (>= 1.6.6)
 ~DefaultDuration~ | ~once, always, until restart, 30s, 5m, 15m, 30m, 1h~ DEPRECATED
 InterceptUnknown [1] | true, false
 ProcMonitorMethod | ebpf, proc, audit
 LogLevel | 0 to 4 (debug, info, important, warning, error)
-Loggers | https://github.com/evilsocket/opensnitch/wiki/SIEM-integration
 Firewall | "nftables" or "iptables"
 Stats.MaxEvents | Max events to send to the GUI every second. If you think that you're missing some connections increased this value.
 Stats.MaxStats | Max stats per item (port, host, IP, process, etc) to keep in the backlog.
 Stats.Workers | Max workers to handle the statistics
 Ebpf.ModulesPath (>= v1.6.5) | Alternative location of the eBPF modules (default /usr/lib/opensnitchd/ebpf)
-Rules.Path (>= v1.6.5) | Alternative path to the rules path.
+Ebpf.EventsWorkers (>= v1.6.5) | Number of goroutines to handle kernel events (default: 8).
+Ebpf.QueueEventsSize (>= v1.6.5) | Max number of events queued. Default 0, meaning that the events will be processed with the available goroutines. If the value is > 0 and the daemon can't handle the events fast enough, they'll be queued. Once the queue is full, it'll behave as it was of size 0.
+Rules.Path (>= v1.6.5) | Alternative location of to the rules.
 FwOptions.ConfigPath (>= v1.7.0) | Alternative path to the firewall configuration (default /etc/opensnitchd/system-fw.json)
-FwOptions.MonitorInterval (>= v1.7.0) | Interval time to check that interception rules are loaded.
+FwOptions.MonitorInterval (>= v1.7.0) | Interval time to check that interception rules are loaded. Default "15s", "0s" disables the monitor (value format in time.Duration: https://pkg.go.dev/time#ParseDuration)
 Rules.EnableChecksums (>= v1.7.0)| Obtain processes's checksums and allow create rules to filter by them.
 Internal.GCPercent (>= v1.7.0)| Option to configure how often the daemon frees up unused memory (https://tip.golang.org/doc/gc-guide#GOGC).
+Internal.FlushConnsOnStart | Option to kill established connections whenever the firewall is reloaded / started.
 
 If you change the configuration or the rules under _/etc/opensnitchd/rules/_, they'll be reloaded automatically. No restart is needed.
 
