@@ -434,6 +434,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             node_action = Config.ACTION_DENY
             if self.comboNodeAction.currentIndex() == 1:
                 node_action = Config.ACTION_ALLOW
+            elif self.comboNodeAction.currentIndex() == 2:
+                node_action = Config.ACTION_REJECT
 
             node_duration = Config.DURATION_ONCE
             if self.comboNodeDuration.currentIndex() == 1:
