@@ -341,12 +341,6 @@ class GenericTableView(QTableView):
         if selection:
             rows = sorted(index.row() for index in selection)
             rowcount = rows[-1] - rows[0] + 1
-            if limit != "":
-                try:
-                    limit = limit.split(" ")[1]
-                    rowcount = int(limit)
-                except:
-                    pass
             table = self.model().copySelectedRows(
                 selection[0].row() + self.vScrollBar.value() - 1,
                 rowcount)
