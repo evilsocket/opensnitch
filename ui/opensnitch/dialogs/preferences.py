@@ -457,7 +457,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 node_config['Server']['Address'] = self.comboNodeAddress.currentText()
                 node_config['Server']['LogFile'] = self.comboNodeLogFile.currentText()
 
-                cfg = self._load_node_auth_config(node_config['Server'])
+                cfg = self._save_node_auth_config(node_config['Server'])
                 if cfg != None:
                     node_config['Server'] = cfg
             else:
@@ -477,11 +477,18 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _load_node_auth_settings(self, config):
         try:
-            if config.get('Authentication') == None:
-                self.toolBox.setItemEnabled(self.NODE_PAGE_AUTH, False)
+            if config == None:
                 return
+
             auth = config.get('Authentication')
-            authtype_idx = self.comboNodeAuthType.findData(auth['Type'])
+            authtype_idx = 0
+            if auth != None:
+                if auth.get('Type') != None:
+                    authtype_idx = self.comboNodeAuthType.findData(auth['Type'])
+            else:
+                config['Authentication'] = {}
+                auth = config.get('Authentication')
+
             self.lineNodeCACertFile.setEnabled(authtype_idx >= 0)
             self.lineNodeServerCertFile.setEnabled(authtype_idx >= 0)
             self.lineNodeCertFile.setEnabled(authtype_idx >= 0)
@@ -489,39 +496,48 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             tls = auth.get('TLSOptions')
             if tls != None and authtype_idx >= 0:
-                self.lineNodeCACertFile.setText(tls['CACert'])
-                self.lineNodeServerCertFile.setText(tls['ServerCert'])
-                self.lineNodeCertFile.setText(tls['ClientCert'])
-                self.lineNodeCertKeyFile.setText(tls['ClientKey'])
-                self.checkNodeAuthSkipVerify.setChecked(tls['SkipVerify'])
+                if tls.get('CACert') != None:
+                    self.lineNodeCACertFile.setText(tls['CACert'])
+                if tls.get('ServerCert') != None:
+                    self.lineNodeServerCertFile.setText(tls['ServerCert'])
+                if tls.get('ClientCert') != None:
+                    self.lineNodeCertFile.setText(tls['ClientCert'])
+                if tls.get('ClientKey') != None:
+                    self.lineNodeCertKeyFile.setText(tls['ClientKey'])
+                if tls.get('SkipVerify') != None:
+                    self.checkNodeAuthSkipVerify.setChecked(tls['SkipVerify'])
 
-                clienttype_idx = self.comboNodeAuthVerifyType.findData(tls['ClientAuthType'])
-                if clienttype_idx >= 0:
-                    self.comboNodeAuthVerifyType.setCurrentIndex(clienttype_idx)
-            else:
-                authtype_idx = 0
+                if tls.get('ClientAuthType') != None:
+                    clienttype_idx = self.comboNodeAuthVerifyType.findData(tls['ClientAuthType'])
+                    if clienttype_idx >= 0:
+                        self.comboNodeAuthVerifyType.setCurrentIndex(clienttype_idx)
+
             self.comboNodeAuthType.setCurrentIndex(authtype_idx)
             # signals are connected after this method is called
             self._cb_combo_node_auth_type_changed(authtype_idx)
         except Exception as e:
-            print("[prefs] node auth options exception:", e)
+            print("[prefs] load node auth options exception:", e)
             self._set_status_error(str(e))
 
-    def _load_node_auth_config(self, config):
+    def _save_node_auth_config(self, config):
         try:
-            if config.get('Authentication') == None:
-                self.toolBox.setItemEnabled(self.NODE_PAGE_AUTH, False)
-                return
             auth = config.get('Authentication')
+            if auth == None:
+                auth = {}
+
             auth['Type'] = self.NODE_AUTH[self.comboNodeAuthType.currentIndex()]
             tls = auth.get('TLSOptions')
-            if tls != None:
-                tls['CACert']= self.lineNodeCACertFile.text()
-                tls['ServerCert'] = self.lineNodeServerCertFile.text()
-                tls['ClientCert'] = self.lineNodeCertFile.text()
-                tls['ClientKey'] = self.lineNodeCertKeyFile.text()
-                tls['SkipVerify'] = self.checkNodeAuthSkipVerify.isChecked()
-                tls['ClientAuthType'] = self.NODE_AUTH_VERIFY[self.comboNodeAuthVerifyType.currentIndex()]
+            if tls == None:
+                tls = {}
+
+            tls['CACert'] = self.lineNodeCACertFile.text()
+            tls['ServerCert'] = self.lineNodeServerCertFile.text()
+            tls['ClientCert'] = self.lineNodeCertFile.text()
+            tls['ClientKey'] = self.lineNodeCertKeyFile.text()
+            tls['SkipVerify'] = self.checkNodeAuthSkipVerify.isChecked()
+            tls['ClientAuthType'] = self.NODE_AUTH_VERIFY[self.comboNodeAuthVerifyType.currentIndex()]
+            auth['TLSOptions'] = tls
+            config['Authentication'] = auth
 
             return config
         except Exception as e:
@@ -564,6 +580,14 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkNodeLogMicro.setChecked(False)
         self.labelNodeName.setText("")
         self.labelNodeVersion.setText("")
+        self.comboNodeAuthType.setCurrentIndex(self.AUTH_SIMPLE)
+        self.lineNodeCACertFile.setText("")
+        self.lineNodeServerCertFile.setText("")
+        self.lineNodeCertFile.setText("")
+        self.lineNodeCertKeyFile.setText("")
+        self.checkNodeAuthSkipVerify.setChecked(False)
+        self.comboNodeAuthVerifyType.setCurrentIndex(0)
+        self._cb_combo_node_auth_type_changed(0)
 
     def _save_settings(self):
         self._reset_status_message()
@@ -759,38 +783,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return addr + ": " + str(e)
 
         return None
-
-    def _save_node_auth_config(self, config):
-        try:
-            if config.get('Authentication') == None:
-                self.toolBox.setItemEnabled(self.NODE_PAGE_AUTH, False)
-                return
-
-            auth = config['Authentication']
-            authtype_idx = self.comboNodeAuthType.findData(auth['Type'])
-            self.lineNodeCACertFile.setEnabled(authtype_idx >= 0)
-            self.lineNodeServerCertFile.setEnabled(authtype_idx >= 0)
-            self.lineNodeCertFile.setEnabled(authtype_idx >= 0)
-            self.lineNodeCertKeyFile.setEnabled(authtype_idx >= 0)
-
-            tls = auth.get('TLSOptions')
-            if tls != None and authtype_idx >= 0:
-                self.lineNodeCACertFile.setText(tls['CACert'])
-                self.lineNodeServerCertFile.setText(tls['ServerCert'])
-                self.lineNodeCertFile.setText(tls['ClientCert'])
-                self.lineNodeCertKeyFile.setText(tls['ClientKey'])
-                self.checkNodeAuthSkipVerify.setChecked(tls['SkipVerify'])
-
-                clienttype_idx = self.comboNodeAuthVerifyType.findData(tls['ClientAuthType'])
-                if clienttype_idx >= 0:
-                    self.comboNodeAuthVerifyType.setCurrentIndex(clienttype_idx)
-            else:
-                authtype_idx = 0
-            self.comboNodeAuthType.setCurrentIndex(authtype_idx)
-        except Exception as e:
-            print("[prefs] node auth options exception:", e)
-            self._set_status_error(str(e))
-
 
     def _validate_certs(self):
         try:

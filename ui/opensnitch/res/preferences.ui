@@ -857,6 +857,32 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </item>
             </widget>
            </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_24">
+             <property name="toolTip">
+              <string>&lt;p&gt;Simple: no authentication&lt;/p&gt;
+&lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
+&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
+             </property>
+             <property name="text">
+              <string>Authentication type</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCertFile">
+             <property name="placeholderText">
+              <string>Absolute path to the cert file</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCertKeyFile">
+             <property name="placeholderText">
+              <string>Absolute path to the cert key file</string>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="1">
             <widget class="QComboBox" name="comboAuthType">
              <item>
@@ -876,10 +902,10 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </item>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QLineEdit" name="lineCertFile">
+           <item row="2" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCACertFile">
              <property name="placeholderText">
-              <string>Absolute path to the cert file</string>
+              <string>Absolute path to the CA cert file</string>
              </property>
             </widget>
            </item>
@@ -893,29 +919,22 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="0" colspan="2">
-            <widget class="QLineEdit" name="lineCertKeyFile">
-             <property name="placeholderText">
-              <string>Absolute path to the cert key file</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_24">
-             <property name="toolTip">
-              <string>&lt;p&gt;Simple: no authentication&lt;/p&gt;
-&lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
-&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
+           <item row="5" column="0" colspan="2">
+            <widget class="QLabel" name="label_28">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
              <property name="text">
-              <string>Authentication type</string>
+              <string>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;More information&lt;/a&gt;</string>
              </property>
-            </widget>
-           </item>
-           <item row="2" column="0" colspan="2">
-            <widget class="QLineEdit" name="lineCACertFile">
-             <property name="placeholderText">
-              <string>Absolute path to the CA cert file</string>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
              </property>
             </widget>
            </item>
@@ -926,8 +945,8 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>279</height>
+            <width>321</width>
+            <height>112</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1022,8 +1041,8 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>279</height>
+            <width>219</width>
+            <height>115</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1443,7 +1462,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
                <string>reject</string>
               </property>
               <property name="icon">
-               <iconset theme="window-close"/>
+               <iconset theme="window-close">
+                <normaloff>.</normaloff>.</iconset>
               </property>
              </item>
             </widget>
@@ -1523,8 +1543,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>209</height>
+            <width>376</width>
+            <height>118</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1777,7 +1797,10 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <item row="9" column="0">
             <widget class="QLabel" name="label_26">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;More information&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;More information&lt;/a&gt;</string>
+             </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -1794,8 +1817,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>209</height>
+            <width>226</width>
+            <height>101</height>
            </rect>
           </property>
           <attribute name="label">
