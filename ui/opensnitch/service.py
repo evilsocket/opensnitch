@@ -45,7 +45,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         super(UIService, self).__init__()
 
 
-        self.MENU_ENTRY_STATS = QtCore.QCoreApplication.translate("contextual_menu", "Statistics")
+        self.MENU_ENTRY_STATS = QtCore.QCoreApplication.translate("contextual_menu", "Open main window")
         self.MENU_ENTRY_FW_ENABLE = QtCore.QCoreApplication.translate("contextual_menu", "Enable")
         self.MENU_ENTRY_FW_DISABLE = QtCore.QCoreApplication.translate("contextual_menu", "Disable")
         self.MENU_ENTRY_HELP = QtCore.QCoreApplication.translate("contextual_menu", "Help")
