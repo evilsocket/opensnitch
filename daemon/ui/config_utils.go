@@ -165,11 +165,13 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		log.Debug("[config] config.rules.path not changed")
 	}
 
+	reloadFw := false
 	if c.GetFirewallType() != newConfig.Firewall ||
 		newConfig.FwOptions.ConfigPath != c.config.FwOptions.ConfigPath ||
 		newConfig.FwOptions.QueueNum != c.config.FwOptions.QueueNum ||
 		newConfig.FwOptions.MonitorInterval != c.config.FwOptions.MonitorInterval {
 		log.Debug("[config] reloading config.firewall")
+		reloadFw = true
 
 		firewall.Reload(
 			newConfig.Firewall,
@@ -179,13 +181,6 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		)
 	} else {
 		log.Debug("[config] config.firewall not changed")
-	}
-
-	if newConfig.Internal.FlushConnsOnStart {
-		log.Debug("[config] flushing established connections")
-		netlink.FlushConnections()
-	} else {
-		log.Debug("[config] not flushing established connections")
 	}
 
 	reloadProc := false
@@ -211,6 +206,13 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		}
 	} else {
 		log.Debug("[config] config.procmon not changed")
+	}
+
+	if (reloadProc || reloadFw) && newConfig.Internal.FlushConnsOnStart {
+		log.Debug("[config] flushing established connections")
+		netlink.FlushConnections()
+	} else {
+		log.Debug("[config] not flushing established connections")
 	}
 
 	return nil
