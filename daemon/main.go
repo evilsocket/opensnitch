@@ -62,9 +62,9 @@ var (
 	logFile           = ""
 	logUTC            = true
 	logMicro          = false
-	rulesPath         = "/etc/opensnitchd/rules/"
+	rulesPath         = ""
 	configFile        = "/etc/opensnitchd/default-config.json"
-	fwConfigFile      = "/etc/opensnitchd/system-fw.json"
+	fwConfigFile      = ""
 	ebpfModPath       = "" // /usr/lib/opensnitchd/ebpf
 	noLiveReload      = false
 	queueNum          = 0
@@ -103,7 +103,7 @@ func init() {
 	flag.BoolVar(&showVersion, "version", debug, "Show daemon version of this executable and exit.")
 	flag.BoolVar(&checkRequirements, "check-requirements", debug, "Check system requirements for incompatibilities.")
 
-	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "How to search for processes path. Options: ftrace, audit (experimental), ebpf (experimental), proc (default)")
+	flag.StringVar(&procmonMethod, "process-monitor-method", procmonMethod, "Options: audit, ebpf, proc (default)")
 	flag.StringVar(&uiSocket, "ui-socket", uiSocket, "Path the UI gRPC service listener (https://github.com/grpc/grpc/blob/master/doc/naming.md).")
 	flag.IntVar(&queueNum, "queue-num", queueNum, "Netfilter queue number.")
 	flag.IntVar(&workers, "workers", workers, "Number of concurrent workers.")
@@ -149,6 +149,20 @@ func loadDiskConfiguration() (*config.Config, error) {
 
 func overwriteLogging() bool {
 	return debug || warning || important || errorlog || logFile != "" || logMicro
+}
+
+// overwriteFw reloads the fw with the configuration file specified via cli.
+func overwriteFw(cfg *config.Config, qNum uint16, fwCfg string) {
+	firewall.Reload(
+		cfg.Firewall,
+		fwCfg,
+		cfg.FwOptions.MonitorInterval,
+		qNum,
+	)
+	// TODO: Close() closes the daemon if closing the queue timeouts
+	//queue.Close()
+	//repeatQueue.Close()
+	//setupQueues(qNum)
 }
 
 func setupQueues(qNum uint16) {
@@ -557,6 +571,7 @@ func main() {
 
 	setupLogging()
 	setupProfiling()
+	setupSignals()
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
 
@@ -565,34 +580,9 @@ func main() {
 		log.Fatal("%s", err)
 	}
 
-	if err == nil && cfg.Rules.Path != "" {
-		rulesPath = cfg.Rules.Path
-	}
-	if rulesPath == "" {
-		log.Fatal("rules path cannot be empty")
-	}
-
-	rulesPath, err := core.ExpandPath(rulesPath)
-	if err != nil {
-		log.Fatal("Error accessing rules path (does it exist?): %s", err)
-	}
-
-	if cfg.FwOptions.ConfigPath == "" {
-		cfg.FwOptions.ConfigPath = fwConfigFile
-	}
-	log.Info("Using system fw configuration %s ...", fwConfigFile)
-
-	if uint16(queueNum) != cfg.FwOptions.QueueNum && queueNum > 0 {
-		cfg.FwOptions.QueueNum = uint16(queueNum)
-	}
-
-	setupSignals()
-
-	log.Info("Loading rules from %s ...", rulesPath)
+	log.Info("Loading rules from %s ...", cfg.Rules.Path)
 	rules, err = rule.NewLoader(!noLiveReload)
 	if err != nil {
-		log.Fatal("%s", err)
-	} else if err = rules.Load(rulesPath); err != nil {
 		log.Fatal("%s", err)
 	}
 	stats = statistics.New(rules)
@@ -600,20 +590,45 @@ func main() {
 	stats.SetLoggers(loggerMgr)
 	uiClient = ui.NewClient(uiSocket, configFile, stats, rules, loggerMgr)
 
+	// default expected queue from the cli is 0. If it's greater than 0
+	// overwrite config value (which by default is also 0)
+	qNum := cfg.FwOptions.QueueNum
+	if uint16(queueNum) != cfg.FwOptions.QueueNum && queueNum > 0 {
+		qNum = uint16(queueNum)
+	}
+	log.Info("Using queue number %d ...", qNum)
+
 	setupWorkers()
-	setupQueues(cfg.FwOptions.QueueNum)
+	setupQueues(qNum)
 
 	// queue and firewall rules should be ready by now
 
 	uiClient.Connect()
 	listenToEvents()
 
+	// overwrite configuration options with the ones specified from the cli
+
 	if overwriteLogging() {
 		setupLogging()
 	}
+
+	if fwConfigFile != "" {
+		log.Info("Reloading fw rules from %s, queue %d ...", fwConfigFile, qNum)
+		overwriteFw(cfg, qNum, fwConfigFile)
+	}
+	log.Info("Using system fw configuration %s ...", fwConfigFile)
+
+	if rulesPath != "" {
+		log.Info("Reloading rules from %s ...", rulesPath)
+		if err := rules.Reload(rulesPath); err != nil {
+			log.Fatal("Error loading rules path %s", rulesPath)
+		}
+	}
+
 	// overwrite monitor method from configuration if the user has passed
 	// the option via command line.
-	if procmonMethod != "" {
+	if procmonMethod != "" || (ebpfModPath != "" && ebpfModPath != cfg.Ebpf.ModulesPath) {
+		log.Info("Reloading proc monitor (%s) (ebpf mods path: %s)...", procmonMethod, cfg.Ebpf.ModulesPath)
 		if err := monitor.ReconfigureMonitorMethod(procmonMethod, cfg.Ebpf); err != nil {
 			msg := fmt.Sprintf("Unable to set process monitor method via parameter: %v", err)
 			uiClient.SendWarningAlert(msg)

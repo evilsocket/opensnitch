@@ -157,32 +157,16 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		log.Debug("[config] config.internal.gcpercent not changed")
 	}
 
+	// 1. load rules
 	c.rules.EnableChecksums(newConfig.Rules.EnableChecksums)
 	if c.config.Rules.Path != newConfig.Rules.Path {
 		c.rules.Reload(newConfig.Rules.Path)
-		log.Debug("[config] reloading config.rules.path: %s", newConfig.Rules.Path)
+		log.Debug("[config] reloading config.rules.path, old: <%s> new: <%s>", c.config.Rules.Path, newConfig.Rules.Path)
 	} else {
 		log.Debug("[config] config.rules.path not changed")
 	}
 
-	reloadFw := false
-	if c.GetFirewallType() != newConfig.Firewall ||
-		newConfig.FwOptions.ConfigPath != c.config.FwOptions.ConfigPath ||
-		newConfig.FwOptions.QueueNum != c.config.FwOptions.QueueNum ||
-		newConfig.FwOptions.MonitorInterval != c.config.FwOptions.MonitorInterval {
-		log.Debug("[config] reloading config.firewall")
-		reloadFw = true
-
-		firewall.Reload(
-			newConfig.Firewall,
-			newConfig.FwOptions.ConfigPath,
-			newConfig.FwOptions.MonitorInterval,
-			newConfig.FwOptions.QueueNum,
-		)
-	} else {
-		log.Debug("[config] config.firewall not changed")
-	}
-
+	// 2. load proc mon method
 	reloadProc := false
 	if c.config.ProcMonitorMethod == "" ||
 		newConfig.ProcMonitorMethod != c.config.ProcMonitorMethod {
@@ -206,6 +190,25 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		}
 	} else {
 		log.Debug("[config] config.procmon not changed")
+	}
+
+	// 3. load fw
+	reloadFw := false
+	if c.GetFirewallType() != newConfig.Firewall ||
+		newConfig.FwOptions.ConfigPath != c.config.FwOptions.ConfigPath ||
+		newConfig.FwOptions.QueueNum != c.config.FwOptions.QueueNum ||
+		newConfig.FwOptions.MonitorInterval != c.config.FwOptions.MonitorInterval {
+		log.Debug("[config] reloading config.firewall")
+		reloadFw = true
+
+		firewall.Reload(
+			newConfig.Firewall,
+			newConfig.FwOptions.ConfigPath,
+			newConfig.FwOptions.MonitorInterval,
+			newConfig.FwOptions.QueueNum,
+		)
+	} else {
+		log.Debug("[config] config.firewall not changed")
 	}
 
 	if (reloadProc || reloadFw) && newConfig.Internal.FlushConnsOnStart {

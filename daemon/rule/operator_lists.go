@@ -80,7 +80,7 @@ func (o *Operator) monitorLists() {
 Exit:
 	modTimes = nil
 	o.ClearLists()
-	log.Info("lists monitor stopped")
+	log.Info("lists monitor stopped: %s", o.Data)
 }
 
 // ClearLists deletes all the entries of a list

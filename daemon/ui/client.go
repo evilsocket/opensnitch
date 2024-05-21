@@ -76,6 +76,7 @@ func NewClient(socketPath, localConfigFile string, stats *statistics.Statistics,
 		isConnected:  make(chan bool),
 		alertsChan:   make(chan protocol.Alert, maxQueuedAlerts),
 	}
+	c.config.Rules.Path = rules.Path
 	//for i := 0; i < 4; i++ {
 	go c.alertsDispatcher()
 
