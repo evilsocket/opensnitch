@@ -50,6 +50,17 @@ func (c *Client) isProcMonitorEqual(newMonitorMethod string) bool {
 }
 
 func (c *Client) loadDiskConfiguration(reload bool) {
+	// https://pkg.go.dev/github.com/fsnotify/fsnotify#Watcher.Add
+	// "A watch will be automatically removed if the watched path is deleted or renamed"
+	// "A path can only be watched once; watching it more than once is a no-op and will not return an error"
+	//
+	// Add the config file every time we read the file, to survive:
+	// - malformed json file
+	// - intermediate file removal (when writing we receive 2 write events, one of 0 bytes)
+	if err := c.configWatcher.Add(configFile); err != nil {
+		log.Error("Could not watch path: %s", err)
+	}
+
 	raw, err := config.Load(configFile)
 	if err != nil || len(raw) == 0 {
 		// Sometimes we may receive 2 Write events on monitorConfigWorker,
@@ -59,14 +70,10 @@ func (c *Client) loadDiskConfiguration(reload bool) {
 	}
 
 	err = c.loadConfiguration(reload, raw)
-	if err == nil {
-		if err := c.configWatcher.Add(configFile); err != nil {
-			log.Error("Could not watch path: %s", err)
-			return
-		}
-	} else {
+	if err != nil {
 		log.Error("[client] error loading config file: %s", err.Error())
 		c.SendWarningAlert(err.Error())
+		return
 	}
 
 	if reload {
