@@ -86,7 +86,6 @@ func CheckSysRequirements() {
         "Regexps": [
             "CONFIG_KPROBES=y",
             "CONFIG_KPROBES_ON_FTRACE=y",
-            "CONFIG_KPROBES_ON_FTRACE=y",
             "CONFIG_HAVE_KPROBES=y",
             "CONFIG_HAVE_KPROBES_ON_FTRACE=y",
             "CONFIG_KPROBE_EVENTS=y"
