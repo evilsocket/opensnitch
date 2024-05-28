@@ -29,7 +29,7 @@ If you cannot immediately regenerate your protos, some other possible workaround
 
 The solution to this problem is described in these issues:
 
-https://github.com/evilsocket/opensnitch/issues/1129 - (`$ pip install protobuf==3.20.*`)
+https://github.com/evilsocket/opensnitch/issues/1129 - https://stackoverflow.com/a/73383927 (`$ pip install protobuf==3.20.6`)
 
 https://github.com/evilsocket/opensnitch/discussions/1003#discussioncomment-6642001
 
