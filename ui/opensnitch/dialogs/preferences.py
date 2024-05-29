@@ -13,6 +13,7 @@ from opensnitch.database import Database
 from opensnitch.utils import Message, QuickHelp, Themes, Icons, languages
 from opensnitch.utils.xdg import Autostart
 from opensnitch.notifications import DesktopNotifications
+from opensnitch.rules import DefaultRulesPath
 
 from opensnitch import ui_pb2, auth
 
@@ -78,8 +79,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dbLabel.setVisible(False)
         self.dbType = None
 
-        intValidator = QtGui.QDoubleValidator(0, 20, 2, self)
-        self.lineUIScreenFactor.setValidator(intValidator)
+        doubleValidator = QtGui.QDoubleValidator(0, 20, 2, self)
+        intValidator = QtGui.QIntValidator(0, 999999, self)
+        self.lineUIScreenFactor.setValidator(doubleValidator)
+        self.lineNodeMaxEvents.setValidator(intValidator)
+        self.lineNodeMaxStats.setValidator(intValidator)
 
         self.acceptButton.clicked.connect(self._cb_accept_button_clicked)
         self.applyButton.clicked.connect(self._cb_apply_button_clicked)
@@ -93,6 +97,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdRefreshUIDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIRefresh, self.REST))
         self.cmdUIDensityUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIDensity, self.SUM))
         self.cmdUIDensityDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIDensity, self.REST))
+        self.cmdNodeGcUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinNodeGC, self.SUM))
+        self.cmdNodeGcDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinNodeGC, self.REST))
+        self.cmdNodeRulesPath.clicked.connect(self._cb_cmd_node_rulespath_clicked)
         self.cmdDBMaxDaysUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBMaxDays, self.SUM))
         self.cmdDBMaxDaysDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBMaxDays, self.REST))
         self.cmdDBPurgesUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinDBPurgeInterval, self.SUM))
@@ -115,6 +122,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodeAuthVerifyType.setItemData(4, auth.REQ_AND_VERIFY_CERT)
 
         self.comboUIRules.currentIndexChanged.connect(self._cb_combo_uirules_changed)
+
+        # XXX: disable Node duration. It will be removed in the future
+        self.comboNodeDuration.setVisible(False)
+        self.labelNodeDuration.setVisible(False)
 
         if QtGui.QIcon.hasThemeIcon("emblem-default"):
             return
@@ -146,6 +157,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdDBMaxDaysDown.setIcon(delIcon)
         self.cmdDBPurgesUp.setIcon(addIcon)
         self.cmdDBPurgesDown.setIcon(delIcon)
+        self.cmdNodeGcUp.setIcon(addIcon)
+        self.cmdNodeGcDown.setIcon(delIcon)
 
         self.comboUIAction.setItemIcon(Config.ACTION_DENY_IDX, denyIcon)
         self.comboUIAction.setItemIcon(Config.ACTION_ALLOW_IDX, allowIcon)
@@ -188,7 +201,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # the signals
         self.comboNodes.currentIndexChanged.connect(self._cb_node_combo_changed)
         self.comboNodeAction.currentIndexChanged.connect(self._cb_node_needs_update)
-        self.comboNodeDuration.currentIndexChanged.connect(self._cb_node_needs_update)
+        #self.comboNodeDuration.currentIndexChanged.connect(self._cb_node_needs_update)
         self.comboNodeMonitorMethod.currentIndexChanged.connect(self._cb_node_needs_update)
         self.comboNodeLogLevel.currentIndexChanged.connect(self._cb_node_needs_update)
         self.comboNodeLogFile.currentIndexChanged.connect(self._cb_node_needs_update)
@@ -201,6 +214,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkNodeAuthSkipVerify.clicked.connect(self._cb_node_needs_update)
         self.comboNodeAuthVerifyType.currentIndexChanged.connect(self._cb_node_needs_update)
         self.enableChecksums.clicked.connect(self._cb_node_needs_update)
+        self.checkNodeFlushConns.clicked.connect(self._cb_node_needs_update)
+        self.spinNodeGC.valueChanged.connect(self._cb_node_needs_update)
+        self.lineNodeMaxEvents.textChanged.connect(self._cb_node_needs_update)
+        self.lineNodeMaxStats.textChanged.connect(self._cb_node_needs_update)
+        self.lineNodeRulesPath.textChanged.connect(self._cb_node_needs_update)
 
         self.comboAuthType.currentIndexChanged.connect(self._cb_combo_auth_type_changed)
         self.comboNodeAuthType.currentIndexChanged.connect(self._cb_combo_node_auth_type_changed)
@@ -389,7 +407,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             node_config = json.loads(node_data.config)
             self.comboNodeAction.setCurrentText(node_config['DefaultAction'])
-            self.comboNodeDuration.setCurrentText(node_config['DefaultDuration'])
+            #self.comboNodeDuration.setCurrentText(node_config['DefaultDuration'])
             self.comboNodeMonitorMethod.setCurrentText(node_config['ProcMonitorMethod'])
             self.checkInterceptUnknown.setChecked(node_config['InterceptUnknown'])
             self.comboNodeLogLevel.setCurrentIndex(int(node_config['LogLevel']))
@@ -413,18 +431,47 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.comboNodeAddress.setEnabled(False)
                 self.comboNodeLogFile.setEnabled(False)
 
+            rules = node_config.get('Rules')
+            if rules == None:
+                rules = {}
+            if rules.get('EnableChecksums') == None:
+                rules['EnableChecksums'] = False
+            if rules.get('Path') == None or rules.get('Path') == "":
+                rules['Path'] = DefaultRulesPath
+            node_config['Rules'] = rules
 
-            if node_config.get('Rules') != None:
-                self.enableChecksums.setChecked(node_config['Rules']['EnableChecksums'])
-            else:
-                node_config.update({"Rules":{"EnableChecksums":False}})
-                self.enableChecksums.setChecked(False)
+            self.enableChecksums.setChecked(rules.get('EnableChecksums'))
+            self.lineNodeRulesPath.setText(rules.get('Path'))
 
+            internal = node_config.get('Internal')
+            if internal == None:
+                internal = {}
+            if internal.get('FlushConnsOnStart') == None:
+                internal['FlushConnsOnStart'] = False
+            if internal.get('GCPercent') == None:
+                internal['GCPercent'] = 100
+            node_config['Internal'] = internal
+
+            self.checkNodeFlushConns.setChecked(internal.get('FlushConnsOnStart'))
+            self.spinNodeGC.setValue(internal.get('GCPercent'))
+
+            stats = node_config.get('Stats')
+            if stats == None:
+                stats = {}
+            if stats.get('MaxEvents') == None:
+                stats['MaxEvents'] = 250
+            if stats.get('MaxStats') == None:
+                stats['MaxStats'] = 50
+            node_config['Stats'] = stats
+
+            self.lineNodeMaxEvents.setText(str(node_config['Stats']['MaxEvents']))
+            self.lineNodeMaxStats.setText(str(node_config['Stats']['MaxStats']))
 
             self._node_list[addr]['data'].config = json.dumps(node_config, indent="    ")
 
         except Exception as e:
             print(self.LOG_TAG + "exception loading config: ", e)
+            self._set_status_error(QC.translate("preferences", "Error loading config: {0}".format(e)))
 
     def _load_node_config(self, addr):
         try:
@@ -432,16 +479,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return None, QC.translate("preferences", "Server address can not be empty")
 
             node_action = Config.ACTION_DENY
-            if self.comboNodeAction.currentIndex() == 1:
+            if self.comboNodeAction.currentIndex() == Config.ACTION_ALLOW_IDX:
                 node_action = Config.ACTION_ALLOW
-            elif self.comboNodeAction.currentIndex() == 2:
+            elif self.comboNodeAction.currentIndex() == Config.ACTION_REJECT_IDX:
                 node_action = Config.ACTION_REJECT
 
             node_duration = Config.DURATION_ONCE
-            if self.comboNodeDuration.currentIndex() == 1:
-                node_duration = Config.DURATION_UNTIL_RESTART
-            elif self.comboNodeDuration.currentIndex() == 2:
-                node_duration = Config.DURATION_ALWAYS
 
             node_config = json.loads(self._nodes.get_node_config(addr))
             node_config['DefaultAction'] = node_action
@@ -463,15 +506,52 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             else:
                 print(addr, " doesn't have Server item")
 
-            if node_config.get('Rules') != None:
-                node_config['Rules']['EnableChecksums'] = self.enableChecksums.isChecked()
-            else:
-                print(addr, "Doesn't have Rules config option")
-                node_config.update({"Rules":{"EnableChecksums":False}})
+            rules = node_config.get('Rules')
+            if rules == None:
+                rules = {}
+            if rules.get('EnableChecksums') == None:
+                rules['EnableChecksums'] = False
+                self.enableChecksums.setChecked(False)
+            if rules.get('Path') == None or rules.get('Path') == "":
+                rules['Path'] = DefaultRulesPath
+                self.lineNodeRulesPath.setText(DefaultRulesPath)
+
+            rules['EnableChecksums'] = self.enableChecksums.isChecked()
+            rules['Path'] = self.lineNodeRulesPath.text()
+            node_config['Rules'] = rules
+
+            internal = node_config.get('Internal')
+            if internal == None:
+                internal = {}
+            if internal.get('FlushConnsOnStart') == None:
+                internal['FlushConnsOnStart'] = False
+                self.checkNodeFlushConns.setChecked(False)
+            if internal.get('GCPercent') == None:
+                internal['GCPercent'] = 100
+                self.spinNodeGC.setValue(100)
+
+            internal['FlushConnsOnStart'] = self.checkNodeFlushConns.isChecked()
+            internal['GCPercent'] = self.spinNodeGC.value()
+            node_config['Internal'] = internal
+
+            stats = node_config.get('Stats')
+            if stats == None:
+                stats = {}
+            if stats.get('MaxEvents') == None:
+                stats['MaxEvents'] = 250
+                self.lineNodeMaxEvents.setText("250")
+            if stats.get('MaxStats') == None:
+                stats['MaxStats'] = 50
+                self.lineNodeMaxStats.setText("50")
+
+            stats['MaxEvents'] = int(self.lineNodeMaxEvents.text())
+            stats['MaxStats'] = int(self.lineNodeMaxStats.text())
+            node_config['Stats'] = stats
 
             return json.dumps(node_config, indent="    "), None
         except Exception as e:
             print(self.LOG_TAG + "exception loading node config on %s: " % addr, e)
+            self._set_status_error(QC.translate("preferences", "Error loading node config: {0}".format(e)))
 
         return None, QC.translate("preferences", "Error loading {0} configuration").format(addr)
 
@@ -517,7 +597,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cb_combo_node_auth_type_changed(authtype_idx)
         except Exception as e:
             print("[prefs] load node auth options exception:", e)
-            self._set_status_error(str(e))
+            self._set_status_error(QC.translate("preferences", "Error loading node auth config: {0}".format(e)))
 
     def _save_node_auth_config(self, config):
         try:
@@ -572,7 +652,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _reset_node_settings(self):
         self.comboNodeAction.setCurrentIndex(0)
-        self.comboNodeDuration.setCurrentIndex(0)
+        #self.comboNodeDuration.setCurrentIndex(0)
         self.comboNodeMonitorMethod.setCurrentIndex(0)
         self.checkInterceptUnknown.setChecked(False)
         self.comboNodeLogLevel.setCurrentIndex(0)
@@ -591,7 +671,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _save_settings(self):
         self._reset_status_message()
-        self._show_status_label()
         self._save_ui_config()
         if not self._save_db_config():
             return
@@ -734,6 +813,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _save_nodes_config(self):
         addr = self.comboNodes.currentText()
         if (self._node_needs_update or self.checkApplyToNodes.isChecked()) and addr != "":
+            self._set_status_message(QC.translate("preferences", "Saving configuration..."))
             try:
                 notif = ui_pb2.Notification(
                         id=int(str(time.time()).replace(".", "")),
@@ -900,6 +980,19 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._changes_needs_restart = QC.translate("preferences", "Node certs changed")
         self._node_needs_update = True
 
+    def _cb_cmd_node_rulespath_clicked(self):
+        rulesdir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            os.path.expanduser("~"),
+            QC.translate("preferences", 'Select a directory containing rules'),
+            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks
+        )
+        if rulesdir == "":
+            return
+
+        self._node_needs_update = True
+        self.lineNodeRulesPath.setText(rulesdir)
+
     def _cb_file_db_clicked(self):
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "", "","All Files (*)", options=options)
@@ -912,7 +1005,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             idx
             #self._cfg.getInt(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES)
         )
-
 
     def _cb_db_type_changed(self):
         isDBMem = self.comboDBType.currentIndex() == Database.DB_TYPE_MEMORY
@@ -928,7 +1020,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._save_settings()
 
     def _cb_apply_button_clicked(self):
-        self._reset_status_message()
         self._save_settings()
 
     def _cb_cancel_button_clicked(self):
@@ -1009,6 +1100,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         enablePopups = spinWidget.value() > 0
         self.popupsCheck.setChecked(not enablePopups)
         self.spinUITimeout.setEnabled(enablePopups)
+        self._node_needs_update = True
 
     def _cb_radio_system_notifications(self):
         if self._desktop_notifications.is_available() == False:

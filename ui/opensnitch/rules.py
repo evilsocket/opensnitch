@@ -10,6 +10,8 @@ import json
 from datetime import datetime
 from google.protobuf.json_format import MessageToJson, Parse
 
+DefaultRulesPath = "/etc/opensnitchd/rules"
+
 class Rule():
     def __init__(self):
         pass

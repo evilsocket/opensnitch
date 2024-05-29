@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>639</width>
-    <height>512</height>
+    <height>556</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -164,7 +164,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>284</height>
+            <height>328</height>
            </rect>
           </property>
           <attribute name="label">
@@ -381,7 +381,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>284</height>
+            <height>328</height>
            </rect>
           </property>
           <attribute name="label">
@@ -523,7 +523,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>279</height>
+            <height>323</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1385,7 +1385,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>209</height>
+            <height>224</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1402,16 +1402,6 @@ Temporary rules will still be valid, and you can use them when prompted to allow
              </property>
              <property name="wordWrap">
               <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_11">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Default duration</string>
              </property>
             </widget>
            </item>
@@ -1432,6 +1422,23 @@ Temporary rules will still be valid, and you can use them when prompted to allow
                <string>always</string>
               </property>
              </item>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QCheckBox" name="checkInterceptUnknown">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelNodeDuration">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there's no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Default duration</string>
+             </property>
             </widget>
            </item>
            <item row="1" column="1">
@@ -1468,7 +1475,46 @@ Temporary rules will still be valid, and you can use them when prompted to allow
              </item>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_15">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it's a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Address</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboNodeAddress">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string>unix:///tmp/osui.sock</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_12">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don't have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There're some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Debug invalid connections</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>Process monitor method</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
             <widget class="QComboBox" name="comboNodeMonitorMethod">
              <property name="accessibleDescription">
               <string notr="true"/>
@@ -1490,52 +1536,6 @@ Temporary rules will still be valid, and you can use them when prompted to allow
              </item>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_12">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don't have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There're some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Debug invalid connections</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_13">
-             <property name="text">
-              <string>Process monitor method</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_15">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it's a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Address</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QCheckBox" name="checkInterceptUnknown">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="comboNodeAddress">
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-             <item>
-              <property name="text">
-               <string>unix:///tmp/osui.sock</string>
-              </property>
-             </item>
-            </widget>
-           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="page_2">
@@ -1543,8 +1543,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>376</width>
-            <height>118</height>
+            <width>599</width>
+            <height>224</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1679,8 +1679,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>585</width>
-            <height>211</height>
+            <width>599</width>
+            <height>224</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1817,46 +1817,17 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>226</width>
-            <height>101</height>
+            <width>599</width>
+            <height>224</height>
            </rect>
           </property>
           <attribute name="label">
            <string>Rules</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_16">
-           <item row="9" column="0">
-            <spacer name="verticalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="3" column="0">
+           <item row="6" column="0">
             <layout class="QFormLayout" name="formLayout_3">
-             <item row="1" column="0">
-              <widget class="QRadioButton" name="radioButton_2">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>sha1</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
+             <item row="0" column="0" colspan="2">
               <widget class="QRadioButton" name="radioButton">
                <property name="enabled">
                 <bool>false</bool>
@@ -1875,15 +1846,226 @@ Temporary rules will still be valid, and you can use them when prompted to allow
                </property>
               </widget>
              </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="QRadioButton" name="radioButton_2">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>sha1</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
-           <item row="0" column="0">
+           <item row="3" column="0">
             <widget class="QCheckBox" name="enableChecksums">
              <property name="statusTip">
               <string>Compute and verify binaries checksums when they try to establish new connections</string>
              </property>
              <property name="text">
               <string>Enable checksums verification</string>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="0">
+            <spacer name="verticalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_11">
+             <item>
+              <widget class="QPushButton" name="cmdNodeRulesPath">
+               <property name="text">
+                <string>Path</string>
+               </property>
+               <property name="icon">
+                <iconset theme="document-open"/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineNodeRulesPath">
+               <property name="toolTip">
+                <string>If empty, default rules path will be /etc/opensnitchd/rules</string>
+               </property>
+               <property name="placeholderText">
+                <string>absolute path to the rules directory (it must exist)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_11">
+          <attribute name="label">
+           <string>Internal</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_14">
+           <item row="2" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkNodeFlushConns">
+             <property name="text">
+              <string>Flush connections on start</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineNodeMaxEvents">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="inputMethodHints">
+              <set>Qt::ImhDigitsOnly</set>
+             </property>
+             <property name="text">
+              <string>250</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_29">
+             <property name="text">
+              <string>Garbage collector percentage</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="cmdNodeGcDown">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset theme="list-add">
+                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spinNodeGC">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::NoButtons</enum>
+               </property>
+               <property name="accelerated">
+                <bool>true</bool>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="value">
+                <number>100</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="cmdNodeGcUp">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset theme="list-remove">
+                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <spacer name="verticalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineNodeMaxStats">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="inputMethodHints">
+              <set>Qt::ImhDigitsOnly</set>
+             </property>
+             <property name="text">
+              <string>50</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_31">
+             <property name="text">
+              <string>Max events</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_30">
+             <property name="text">
+              <string>Max stats</string>
              </property>
             </widget>
            </item>
