@@ -9,6 +9,11 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
+// DefaultPath directory
+const (
+	DefaultPath = "/etc/opensnitchd/rules"
+)
+
 // Action of a rule
 type Action string
 

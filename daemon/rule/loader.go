@@ -88,6 +88,9 @@ func (l *Loader) HasChecksums(op Operand) {
 // Reload loads rules from the specified path, deleting existing loaded
 // rules from memory.
 func (l *Loader) Reload(path string) error {
+	if path == "" {
+		path = DefaultPath
+	}
 	log.Info("rules.Loader.Reload(): %s", path)
 
 	// check that the new path exists before reloading

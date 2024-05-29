@@ -580,6 +580,9 @@ func main() {
 		log.Fatal("%s", err)
 	}
 
+	if cfg.Rules.Path == "" {
+		cfg.Rules.Path = rule.DefaultPath
+	}
 	log.Info("Loading rules from %s ...", cfg.Rules.Path)
 	rules, err = rule.NewLoader(!noLiveReload)
 	if err != nil {
