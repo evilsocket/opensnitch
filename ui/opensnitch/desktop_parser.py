@@ -101,7 +101,7 @@ class LinuxDesktopParser(threading.Thread):
             "/usr/share/icons/HighContrast/scalable/apps/",
             "/usr/share/icons/HighContrast/48x48/apps/"
         )
-        icon_exts = (".svg", ".png", ".svg")
+        icon_exts = (".svg", ".png", ".xpm")
         for idir in icon_dirs:
             for iext in icon_exts:
                 iconPath = idir + app_name
