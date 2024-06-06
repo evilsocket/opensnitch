@@ -9,7 +9,7 @@ The file _/etc/opensnitchd/default-config.json_ holds the daemon configuration:
       "LogFile": "/var/log/opensnitchd.log"
       "Authentication": {},
       "Loggers": {}
-  }, 
+  },
   "DefaultAction": "deny",
   "DefaultDuration": "once",
   "InterceptUnknown": true,
@@ -104,7 +104,7 @@ On latest v.1.6.x version, you can change it to unix:///run/user/1000/opensnitch
 Use `--socket "[::]:50051"` to have the UI use TCP instead of a Unix socket and run the daemon on another computer with `-ui-socket "x.x.x.x:50051"` (where x.x.x.x is the IP of the computer running the UI service).
 
 Remote Daemon-Only Hosts:
- 
+
 `# /usr/bin/opensnitchd -rules-path /etc/opensnitchd/rules -ui-socket x.x.x.x:50051`
 
 Central GUI Host:

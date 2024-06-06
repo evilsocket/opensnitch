@@ -110,7 +110,7 @@ message Notification {
     string serverName = 3;
     // CHANGE_CONFIG: 2, data: {"default_timeout": 1, ...}
     Action type = 4;
-    string data = 5;   
+    string data = 5;
     repeated Rule rules = 6;
 }
 

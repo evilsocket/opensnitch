@@ -14,11 +14,11 @@
 
 yum:
 
-> $ sudo yum localinstall opensnitch-\*.rpm; sudo yum localinstall opensnitch-ui\*.rpm 
+> $ sudo yum localinstall opensnitch-\*.rpm; sudo yum localinstall opensnitch-ui\*.rpm
 
 dnf:
 
-> $ sudo dnf install ./opensnitch-\*.rpm ./opensnitch-ui-\*.rpm 
+> $ sudo dnf install ./opensnitch-\*.rpm ./opensnitch-ui-\*.rpm
 
 (You can also double-click on the downloaded files)
 
@@ -52,7 +52,7 @@ This packages are provided to you in the aim of being useful and ease the instal
 
 ---
 
-The reason for installing some dependencies using `pip` is that they are not always packaged in all distributions and all versions (`python3-grpcio` on Ubuntu is only available from >= 19.x). Moreover, Ubuntu 20.04 `python3-grpcio` (version 1.16.1) differs from official 1.16.x that causes some working problems. 
+The reason for installing some dependencies using `pip` is that they are not always packaged in all distributions and all versions (`python3-grpcio` on Ubuntu is only available from >= 19.x). Moreover, Ubuntu 20.04 `python3-grpcio` (version 1.16.1) differs from official 1.16.x that causes some working problems.
 
 **Besides, grpc packages distributed with some distributions (python3-grpcio, OpenSuse) do not work.**
 
@@ -84,13 +84,13 @@ Select the right package for your architecture: `$(uname -m) == x86_64` -> opens
    - Pop!_OS
    - MX Linux 19.x
    - PureOS (Librem5)
- 
+
  * UI ([v1.4.0rc2](https://github.com/evilsocket/opensnitch/releases)):
    - Debian >= 9
    - Ubuntu >= 16.x
    - Fedora >= 29
    - OpenSuse Tumbleweed 15.3
-   - LinuxMint >= 18 
+   - LinuxMint >= 18
    - MX Linux 19.x
    - Pop!_OS
    - PureOS (Librem5)

@@ -50,7 +50,7 @@ targets ports 5551, 5552, 5553, 5554 OR 5555.
 ---
 
 `  [x] From this executable: /usr/bin/python3`
-     
+
 (warning: /usr/bin/python3.6/3.7/3.8/etc won't match this rule)
 
 **Allowing or denying Appimages**

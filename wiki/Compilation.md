@@ -18,7 +18,7 @@ export PATH=$PATH:$GOPATH/bin
 # You can try to install them with: sudo apt install python3-grpcio python3-protobuf
 python3 -m pip install --user grpcio-tools qt-material
 
-# clone the repository 
+# clone the repository
 git clone https://github.com/evilsocket/opensnitch
 cd opensnitch
 
@@ -41,7 +41,7 @@ Then it should build properly.
 
 ***Note for Ubuntu 22.xx users***
 
-You may need to install `qttols5-dev` package and set and environment variable:
+You may need to install `qttools5-dev` package and set and environment variable:
 
 ```
 #set env var for QT version
@@ -57,12 +57,12 @@ More info: [#773](https://github.com/evilsocket/opensnitch/issues/773)
 
 Follow the instructions described here: https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog
 
-Additionally, you can use this script to easyly build the modules: 
+Additionally, you can use this script to easyly build the modules:
 https://github.com/evilsocket/opensnitch/blob/master/utils/packaging/build_modules.sh
 
 **Daemon**
 
-The `daemon` is implemented in Go and needs to run as root in order to interact with the Netfilter packet queue, edit 
+The `daemon` is implemented in Go and needs to run as root in order to interact with the Netfilter packet queue, edit
 iptables rules and so on, in order to compile it you will need to install the `protobuf-compiler`, `libpcap-dev` and `libnetfilter-queue-dev`
 packages on your system, then just:
 
@@ -105,7 +105,7 @@ This will install the `opensnitch-ui` command on your system (you can auto start
     sudo apt install locales
     sudo locale-gen en_US.UTF-8
     export LC_CTYPE=en_US.UTF-8
-    
+
 
 
 ***

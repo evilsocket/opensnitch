@@ -9,7 +9,7 @@ install:
 	@systemctl daemon-reload
 
 opensnitchd:
-	@go build -o opensnitchd . 
+	@go build -o opensnitchd .
 
 clean:
 	@rm -rf opensnitchd

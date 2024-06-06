@@ -6,4 +6,4 @@ In order to submit changes for the wiki, please follow these steps:
 
 3. Make necessary modifications to the files located in the wiki/ directory
 
-4. Create a pull request. 
+4. Create a pull request.

@@ -28,7 +28,7 @@ will fail with an error (visible on the Preferences dialog).
 # Interaction with other software:
 
 **1. You don't need to turn off or uninstall other firewalling.**
-OpenSnitch doesn't turn them off, nor delete their rules. 
+OpenSnitch doesn't turn them off, nor delete their rules.
 
 If iptables is used: OpenSnitch's main rules are added to the default filter table,
 INPUT chain (`iptables -L INPUT`) and mangle table, OUTPUT chain (`iptables -t mangle -L OUTPUT`).

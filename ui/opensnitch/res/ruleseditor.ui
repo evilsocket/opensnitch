@@ -257,9 +257,9 @@
          <bool>false</bool>
         </property>
         <property name="toolTip">
-         <string>Commas or spaces are not allowed to specify multiple domains. 
+         <string>Commas or spaces are not allowed to specify multiple domains.
 
-Use regular expressions instead: 
+Use regular expressions instead:
 .*(opensnitch|duckduckgo).com
 .*\.google.com
 

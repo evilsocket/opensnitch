@@ -102,11 +102,11 @@ Allow nfs connections to mount a remote share:
 ```json
         {
             "Rule": {
-                "Description": "Allow nfs", 
+                "Description": "Allow nfs",
                 "Table": "mangle",
                 "Chain": "OUTPUT",
                 "Parameters": "-p tcp --dport 2049",
-                "Target": "ACCEPT", 
+                "Target": "ACCEPT",
                 "TargetParameters": ""
             }
         }
@@ -155,11 +155,11 @@ table inet filter {
     chain input {
         # block by default incoming connections
         type filter hook input priority filter; policy drop;
-        
+
         # allow already established connections
         ct state { established, related } accept
         ct state invalid drop
-        
+
         # allow ssh
         # tcp dport { 22 } accept
     }

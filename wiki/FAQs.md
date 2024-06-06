@@ -24,11 +24,11 @@ Connections
 
 Be sure that the daemon is running: `$ pgrep opensnitchd`
 
-If it's not running, you may need to enable and start it: 
+If it's not running, you may need to enable and start it:
 
 ```
 $ sudo systemctl enable opensnitchd
-$ sudo systemctl start opensnitchd.service 
+$ sudo systemctl start opensnitchd.service
 ```
 
 #### No rules shown in the UI
@@ -64,7 +64,7 @@ Kernels support
 
 Your kernel needs some features to be enabled in order eBPF to work: debugfs (or tracefs), kprobes, perf events, ftrace and syscalls (bpf and ftrace).
 
-Since version 1.6.x you can execute the following command to know if your kernel has all the expected features: 
+Since version 1.6.x you can execute the following command to know if your kernel has all the expected features:
 
 `opensnitchd -check-requirements`
 
@@ -116,7 +116,7 @@ So if you want to prioritize some rules over others:
 2. [x] Priority field checked (Action: allow)
 3. OR Action: deny (not need to check the Priority field in these rules)
 
-More info: 
+More info:
   - https://github.com/evilsocket/opensnitch/wiki/Rules-examples
   - https://github.com/evilsocket/opensnitch/wiki/Rules#best-practices
 
@@ -124,7 +124,7 @@ More info:
 
 No. You only allow program A to access the net. Any other program launched by program A will be stopped until you allow or deny it.
 
-See some examples: 
+See some examples:
  - Spotify launching wget: https://github.com/evilsocket/opensnitch/discussions/401
  - Vivaldi browser deb package trying to install from the internet additional packages: https://github.com/evilsocket/opensnitch/discussions/742
 

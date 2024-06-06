@@ -5,7 +5,7 @@ if eBPF is not used, and Proc or Audit monitor method are used:
 
 - a process is opening connections too fast (nmap for example, firefox sometimes...). [#343](https://github.com/evilsocket/opensnitch/issues/343#issuecomment-813531496)
 
-- the system has a high load and we're unable to find the process in time. 
+- the system has a high load and we're unable to find the process in time.
 
 - _netlink_ does not return the connection we're querying for, thus we can't search for the PID.
 
@@ -49,7 +49,7 @@ In order to know what process opened a particular connection (in userspace), we 
 
    4.2 Using ProcFS
 
-# 
+#
 ### 1. Intercept the connection using iptables and redirect it to us.
 
 When a new connection is opened, 5 steps happen in the system (well, [many more](https://makelinux.github.io/kernel/map/), but for simplicity sake):
@@ -105,7 +105,7 @@ In this case, it's a UNIX socket, and the connection in this case is a Path to a
 So knowing that we can parse `/proc/net` for connections and inodes, when a new connection is redirected to our process, we can search for it in `/proc/net/` because we know the source port, source IP, destination port and destination IP.
 ```
 $ cat /proc/net/tcp
-  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
    0: 0100007F:13AD 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1000        0 18083222 1 ffff9a1677a8cec0 100 0 0 10 0
 ```
 
@@ -163,7 +163,7 @@ However netlink does not always return a match (TODO: explain why), specially fo
 In these cases we can query just for the source port of the connection, which normally will return just one entry, and in some cases (ntp) it will return several inodes for the same srcPort:srcIP<->dstIP:dstPort connection.
 
 
-# 
+#
 ### 3. Find the PID of the connection
 
 
@@ -186,7 +186,7 @@ found: /usr/bin/iceweasel
 easy, right? It is. However, when we reach to this point, the process may have already exited, or the socket being closed. It's not accurate, and besides, many rootkits hide their activity from `/proc` (PIDs, connections, etc).
 
 What options do we have then?
-One approach is to have a list of known PIDs, this is, a list of PIDs which have opened connections. 
+One approach is to have a list of known PIDs, this is, a list of PIDs which have opened connections.
 
 We listen asynchronously for PIDs which open sockets, and when a connection hits the NFQUEUE target and it's redirected to our process, we can get the Inode and search for the PID in a very small list of PIDs. That increase the chances to get the correct PID/process name.
 

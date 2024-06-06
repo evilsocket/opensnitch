@@ -52,7 +52,7 @@ Howto configure OpenSnitch with Grafana+Loki+promtail+syslog-ng
 
    The setup is based on the following example, so all the commands to set it up applies:
    https://github.com/grafana/loki/tree/main/examples/getting-started
-   
+
    Docs: https://grafana.com/docs/loki/latest/getting-started/
 
 2. Enter into the directory where the `docker-compose.yaml` is and execute:
@@ -67,7 +67,7 @@ Howto configure OpenSnitch with Grafana+Loki+promtail+syslog-ng
    syslog-ng done
 
    ```
-   
+
 3. Add logger configuration as explained above to send events to 127.0.0.1 on port 514:
 ```json
     "Server": {
@@ -118,14 +118,14 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
 1. Enter into the directory where the `docker-compose.yml` is and execute:
    ```bash
    # docker-compose up -d
-   Recreating docker-elk-elasticsearch_logstash_1 ... 
+   Recreating docker-elk-elasticsearch_logstash_1 ...
    Recreating docker-elk-elasticsearch_logstash_1 ... done
-   Recreating docker-elk-syslog_logstash_1 ... 
+   Recreating docker-elk-syslog_logstash_1 ...
    Recreating docker-elk-syslog_logstash_1 ... done
-   Recreating docker-elk-kibana_logstash_1 ... 
+   Recreating docker-elk-kibana_logstash_1 ...
    Recreating docker-elk-kibana_logstash_1 ... done
    ```
-   
+
 2. Add the logger configuration as explained above to send events to 127.0.0.1 on port 3333:
 ```json
     "Server": {
@@ -147,7 +147,7 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
 
     If everything went fine, LogStash should be receiving events like this one (`docker logs -f -n 100 <container id>`)
 :
-   
+
    ```
         {
         "@timestamp" => 2023-07-19T13:49:54.546806822Z,
@@ -164,7 +164,7 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
         (...)
         }
    ```
-   
+
 7. Open a web browser and head to `127.0.0.1:5601`.
 8. You'll need to create a Data View with a pattern to match a Data Stream, for example: `logs-*`
 
@@ -183,10 +183,10 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
 **Notes**
 
  - Configure data retention policy to reduce the size of the DB:
-   
+
    Management -> Data -> Index Lifecycle Policies -> Delete phase
 
- - 
+ -
 
 ### Troubleshooting Elastic stack
 
@@ -194,7 +194,7 @@ Howto configure OpenSnitch with ElasticSearch + LogStash + Kibana
 
    ```bash
    ~ $ ss -lptn | grep -E "(3333|9200)"
-     tcp   LISTEN 0      1024                            [::ffff:127.0.0.1]:3333                   *:*    users:(("java",pid=3712866,fd=107))                                  
+     tcp   LISTEN 0      1024                            [::ffff:127.0.0.1]:3333                   *:*    users:(("java",pid=3712866,fd=107))
      tcp   LISTEN 0      4096                                             *:9200                   *:*    users:(("java",pid=3712294,fd=412))
    ```
 

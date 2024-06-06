@@ -62,7 +62,7 @@ How to add a global rule to block ads, trackers or malware domains system-wide o
 Limiting to what domains an application can connect to:
 ---
 
-We'll create 2 rules: 
+We'll create 2 rules:
 - one for allow connections from an app to a limited number of domains.
 - another one for deny everything from that app.
 
@@ -143,7 +143,7 @@ Nets:
 - If you select more than one type of lists on the same rule, bear in mind that the connections you intend to filter must match __ALL__ lists [read more](https://github.com/evilsocket/opensnitch/discussions/877#discussioncomment-5244901).
 - OpenSnitch doesn't refresh periodically the list loaded, but you can do it with this script: [update_adlists.sh](https://raw.githubusercontent.com/evilsocket/opensnitch/master/utils/scripts/ads/update_adlists.sh)
   1. Give it execution permissions:
-  
+
      `chmod +x update_adlists.sh`
   2. Edit the script, and modify the **adsDir** path to point to the directory where you want to save the lists.
   3. Add the script to your user's crontab (in this example, the script will be executed every day at 11am, 17pm and 23pm):
@@ -174,7 +174,7 @@ In order to verify why a domain matched a list, set LogLevel to DEBUG under Pref
 
 (for regexp lists, the last part of the log is the regexp that matched the domain -> ^pixels?[-.])
 
-This feature may not work if your system uses `systemd-resolved` to resolve domains. Compiling `opensnitch-dns.c` [eBPF module](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog) may help to workaround this problem. 
+This feature may not work if your system uses `systemd-resolved` to resolve domains. Compiling `opensnitch-dns.c` [eBPF module](https://github.com/evilsocket/opensnitch/tree/master/ebpf_prog) may help to workaround this problem.
 
 If blocklists still don't work:
 - allow systemd-resolved to connect **only** to port 53 and 127.0.0.1 + your DNS nameservers.

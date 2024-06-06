@@ -101,17 +101,17 @@ Possible options that you can combine to create new chains:
 | Field | Options |
 |-------|---------|
 |Family| ip, ip6, inet, netdev, bridge|
-|Priority| not used|   
+|Priority| not used|
 |Type| filter, mangle, conntrack, natdest, natsource, raw, security, selinux|
 |Hook| prerouting, input, output, postrouting, forward, ingress|
 |Policy| drop, accept|
 
 All the possible options are described here:
 https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
-    
+
 Rules
 ---
-    
+
 Example:
 ```json
     {
@@ -134,15 +134,15 @@ Example:
  |Expressions| List of options to match against connections: tcp dport 22 (see below)|
  |Target| Action applied on the connection: accept, deny, reject, return, jump, goto, stop, tproxy, redirect, dnat, snat|
  |TargetParameters|Parameters of the given Target. For example: Target -> redirect, TargetParameters -> to :8080|
-    
+
  Rules expressions
  ---
- 
- Expressions are a list of statements that represent the actions to be performed on the connections. They can alter control flow (return, jump to a different chain, accept or drop the packet) or can perform actions, such as logging, rejecting a packet, etc. 
- 
+
+ Expressions are a list of statements that represent the actions to be performed on the connections. They can alter control flow (return, jump to a different chain, accept or drop the packet) or can perform actions, such as logging, rejecting a packet, etc.
+
  https://www.netfilter.org/projects/nftables/manpage.html#lbCV
  https://wiki.nftables.org/wiki-nftables/index.php/Building_rules_through_expressions
- 
+
  Example:
  ```json
                "Expressions": [
@@ -172,9 +172,9 @@ Example:
                 }
               ],
 ```
- 
+
  Each statement has different values (Key and Value field). Not all official statements are supported, only the ones described on the following table:
- 
+
  |Statement Name|Values|Description|Example|
  |---------|------|-----------|-------|
  |log| Key: prefix . TODO: flags, log level|Logs connections to the system with the given prefix|Name: log, Key: prefix, Value: "ssh out"|
@@ -186,12 +186,12 @@ Example:
  |counter| Key: name||Name: counter, Key: name, Value: "dport 22 counter"|
  |ct|Key: state, mark; Value: invalid, new, established, related|Matches connections on the conntrack table||
  |meta|Key: mark|||
- 
+
  The field `Op` is the operator to use on the statement: ==, >=, <=, >, <, != . If it's empty, by default the equal operator (==) will be used.
- 
+
  Examples of supported statements
  ---
- 
+
  log:
  ```json
                    "Statement": {
@@ -205,9 +205,9 @@ Example:
                     ]
                   }
  ```
- 
+
  ---
- 
+
  iifname, oifname:
  ```json
                   "Statement": {
@@ -314,7 +314,7 @@ tcp + dport, multiple ports separated by commas
 
 Rate-limit HTTPS downloads to 1MB/s (table filter, chain input)
 
-https://wiki.nftables.org/wiki-nftables/index.php/Rate_limiting_matchings 
+https://wiki.nftables.org/wiki-nftables/index.php/Rate_limiting_matchings
 
 https://wiki.nftables.org/wiki-nftables/index.php/Quick_reference-nftables_in_10_minutes#Limit
 
