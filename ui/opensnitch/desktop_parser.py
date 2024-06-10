@@ -53,7 +53,7 @@ class LinuxDesktopParser(threading.Thread):
                 if os.path.exists(filename):
                     cmd = filename
                     break
-        
+
         return cmd
 
     def _discover_app_icon(self, app_name):

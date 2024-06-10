@@ -10,7 +10,7 @@ On Debian/Ubuntu:
 
 * read messages from the pipe to verify that it's working:
   `socat unix-connect:/var/run/audispd_events stdio`
-   
+
   You'll see lot of messages like these ones:
 ```
 mar 08 18:37:48 ono-sendai audit[12704]: SYSCALL arch=c000003e syscall=41 success=yes exit=204 a0=a a1=2 a2=0 a3=7f02480008d0 items=0 ppid=12654 pid=12704 auid=1000 uid=1000 gid=1000 euid=1000 suid>
@@ -23,7 +23,7 @@ mar 08 18:37:48 ono-sendai audit: SOCKADDR saddr=01002FF2756E2F7FF573613030302F3
 **Possible errors:**
 
 * `AuditReader: auditd error%!(EXTRA *net.OpError=read unix @->/var/run/audispd_events: use of closed network connection)`
-  
+
    You need to restart auditd (service auditd restart)
 
 

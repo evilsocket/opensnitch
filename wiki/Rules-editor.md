@@ -21,7 +21,7 @@ Each field can be literal or a regex expression.
 
 Some examples:
 
-- Filtering by multiple ports: 
+- Filtering by multiple ports:
 
     `[x] To this port: ^(53|80|443)$`
 
@@ -33,10 +33,10 @@ Some examples:
 
 - Filtering by an exact domain, and nothing else: `[x] To this host: github.com` (will match only github.com, not www.github.com, etc)
 - Filtering by a domain and its subdomains: `[x] To this host: .*\.github.com`
-- Filtering an executable path: 
+- Filtering an executable path:
 
     `[x] From this executable: /usr/bin/python3`
-     
+
     (warning: /usr/bin/python3.6/3.7/3.8/etc won't match this rule)
 
 - Allow common system commands:
@@ -62,7 +62,7 @@ Some examples:
      Case insensitive rules:
 
     `[x] From this executable: (?i:.*ping)`
-     
+
      ![](https://user-images.githubusercontent.com/2742953/85209253-aa994a00-b336-11ea-87d9-a7a650510b6b.png)
 
 - Filtering LAN IPs or multiple ranges:

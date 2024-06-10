@@ -62,7 +62,7 @@ fi
 if [ $1 -eq 1 ]; then
     echo -e "\n You need to install 2 more packages:
         unicode_slugify and grpcio-tools.
-    
+
         pip3 install grpcio-tools
         pip3 install unicode_slugify
     "
@@ -83,7 +83,7 @@ if [ $1 -eq 0 ]; then
     done
 
     pkill -15 opensnitch-ui 2>/dev/null || true
-    
+
     echo ""
     echo "  Remember to uninstall grpcio-tools and unicode_slugify if you don't"
     echo "  need them anymore:"

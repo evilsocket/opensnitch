@@ -35,7 +35,7 @@ There are 2 options to verify how gRPC validates credentials:
 
 You can also use the server public certificate to authenticate all nodes, by replacing `"CACert"` with `"ServerCert"`:
     `"ServerCert": "/etc/opensnitchd/certs/server-cert.pem",`
- 
+
 'tls-mutual' configuration example:
 ```json
     "Server": {

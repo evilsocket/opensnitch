@@ -61,10 +61,10 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
  - Rule: allow -> port 443 -> Dst IP 1.1.1.1 -> Protocol TCP -> Host www.site.test
    * This rule will match connections to port 443 __AND__ IP 1.1.1.1 __AND__ protocol TCP __AND__ host www.site.test
    * connections to IP 2.2.2.2 won't match, connections to port 80 won't match, etc...
- 
+
  - Rule: allow -> port 53 ->  [x] domains list -> [x] network ranges list
    * This rule will match connections to port 53 __AND__ domains in the list __AND__ IPs in the network ranges list
- - Rule: allow -> port ^(53|80|443)$ -> UID 1000 -> Path /app/bin/test -> [x] domains list 
+ - Rule: allow -> port ^(53|80|443)$ -> UID 1000 -> Path /app/bin/test -> [x] domains list
    * This rule will match connections to ports (53 __OR__ 80 __OR__ 443) __AND__ UID 1000 __AND__ Path /app/bin/test __AND__ domains in the specified.
 
 - If you select multiple lists on the same rule, bear in mind that the connections you want to match must
@@ -72,7 +72,7 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 
 - By default Deny rules take precedence over the rest of the rules. If a connection match a Deny rule, opensnitch won't continue evaluating rules.
 
-- Since v1.2.0, rules are sorted and checked in alphabetical order. You can name them this way to prioritize Deny rules, for example: 
+- Since v1.2.0, rules are sorted and checked in alphabetical order. You can name them this way to prioritize Deny rules, for example:
 ```
 000-allow-chrome-to-specific-domains
 001-allow-not-so-important-rule
@@ -222,13 +222,13 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
   * Allow `systemd-resolved`, `dnsmasq`, `dnscrypt-proxy`, etc, connect only to your DNS nameservers + port 53  + UID.
   * Besides allowing connections to remote DNS servers (9.9.9.9 for example), you may need to allow connections to localhost IPs (127.0.0.1, etc)
   * If you already allowed these stub resolvers, the easiest way would we to delete the existing rule, let it ask you again to allow/deny it, click on the `[+]` button and then select from the pop-up `from this command line` __AND__ to IP x.x.x.x __AND___ to port xxx
-   
+
 
 - Limit what an application can do as much as possible:
   * Filter by executable + command line: You don't want to allow `curl` or `wget` system wide. Instead, allow only a particular command line, for example:
-  
+
     command launched: `$ wget https://mirror.karneval.cz/pub/linux/fedora/linux/releases/34/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-34-1.2.iso`
-    
+
     Instead of allowing `from this executable: wget`, use allow `from this executable` + `from this command line`
 
     You can narrow it further, by allowing `from this command line` + `from this User ID` + `to this IP` + `to this port`
@@ -242,17 +242,17 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
 - Disable unprivileged namespaces to prevent rules bypass
 
   If `/proc/sys/kernel/unprivileged_userns_clone` is set to 1, change it to 0. Until we obtain the checksum of a binary, it's better to set it to 0.
-  
+
 - Don't allow connections opened by binaries located under certain directories: `/dev/shm`, `/tmp`, `/var/tmp`
-  
+
   Why? If someone gets access to your system, usually these directories are the only ones where they can write files, thus it's usually used to drop malicious files, that download remote binaries to escalate privileges, etc.
-  
+
   There're ton of examples (more common on servers than on the desktop):
 
   [Collection of Linux malware payloads](https://github.com/evilsocket/opensnitch/discussions/1119)
-  
+
   https://github.com/timb-machine/linux-malware
-  
+
   ```
   (*) Deny
   [x] From this executable: ^(/tmp/|/var/tmp/|/dev/shm/|/var/run|/var/lock).*

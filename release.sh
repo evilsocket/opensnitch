@@ -4,7 +4,7 @@
 CURRENT_VERSION=$(cat daemon/core/version.go | grep Version | cut -d '"' -f 2)
 TO_UPDATE=(
     daemon/core/version.go
-    ui/version.py 
+    ui/version.py
 )
 
 echo -n "Current version is $CURRENT_VERSION, select new version: "

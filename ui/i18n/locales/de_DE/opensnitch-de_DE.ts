@@ -666,9 +666,9 @@ Knoten an</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="260"/>
-        <source>Commas or spaces are not allowed to specify multiple domains. 
+        <source>Commas or spaces are not allowed to specify multiple domains.
 
-Use regular expressions instead: 
+Use regular expressions instead:
 .*(opensnitch|duckduckgo).com
 .*\.google.com
 
