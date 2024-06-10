@@ -182,7 +182,8 @@ func (l *Loader) Replace(rule *Rule, saveToDisk bool) error {
 
 // Save a rule to disk.
 func (l *Loader) Save(rule *Rule, path string) error {
-	rule.Updated = time.Now()
+	// When saving the rule, use always RFC3339 format for the Created field (#1140).
+	rule.Updated = time.Now().Format(time.RFC3339)
 	raw, err := json.MarshalIndent(rule, "", "  ")
 	if err != nil {
 		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
