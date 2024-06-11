@@ -70,13 +70,42 @@ targets ports 5551, 5552, 5553, 5554 OR 5555.
   [x] From this User ID: ^(0|115|118)$
   ```
 
-**Blocking connections made by executables launched from /tmp**
+**Blocking connections initiated by executables launched from /tmp*, /var/tmp or /dev/shm*
 ---
 
   ```
-  Action:                   Deny
-  [x] From this executable: /tmp/.*
+  Action: Deny
+  [x] From this executable: ^(/tmp/|/var/tmp/|/dev/shm/).*
   ```
+
+**Blocking connections initiated by executables with certain environment variables (LD_PRELOAD for example)*
+---
+Note: This feature cannot configured from the GUI yet (11/06/2024)
+
+Block outbound connections initiated by executables with certain environment variables, like when LD_PRELOAD is used maliciously:
+
+`~ $ LD_PRELOAD=/tmp/backdoor.so sshd 1.2.3.4 443`
+
+```json
+{
+  "created": "2024-05-31T23:39:28+02:00",
+  "updated": "2024-05-31T23:39:28+02:00",
+  "name": "000-block-ld-preload",
+  "description": "",
+  "action": "reject",
+  "duration": "always",
+  "enabled": true,
+  "precedence": true,
+  "nolog": false
+  "operator": {
+    "operand": "process.env.LD_PRELOAD",
+    "data": "^(\\.|/).*",
+    "type": "regexp",
+    "sensitive": false
+  }
+}
+
+```
 
 **Filtering an executable path with regexp, for example any python binary in /usr/bin/**
 ---
