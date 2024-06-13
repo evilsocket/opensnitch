@@ -146,8 +146,8 @@ class Rules(QObject):
             # exclude this field when exporting to json
             tempRule = MessageToJson(rule)
             jRule = json.loads(tempRule)
-            jRule['created'] = str(datetime.fromtimestamp(
-                rule.created).strftime("%Y-%m-%d %H:%M:%S")
+            jRule['created'] = "{0}Z".format(
+                datetime.fromtimestamp(rule.created).isoformat(timespec='microseconds')
             )
             return json.dumps(jRule, indent="    ")
         except Exception as e:
