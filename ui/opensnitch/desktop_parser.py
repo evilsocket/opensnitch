@@ -1,12 +1,18 @@
 from threading import Lock
 import configparser
-import pyinotify
 import threading
 import glob
 import os
 import re
 import shutil
 import locale
+
+is_pyinotify_available = True
+try:
+    import pyinotify
+except Exception as e:
+    is_pyinotify_available = False
+    print("Error importing pyinotify:", e)
 
 DESKTOP_PATHS = tuple([
     os.path.join(d, 'applications')
@@ -37,7 +43,8 @@ class LinuxDesktopParser(threading.Thread):
             for desktop_file in glob.glob(os.path.join(desktop_path, '*.desktop')):
                 self._parse_desktop_file(desktop_file)
 
-        self.start()
+        if is_pyinotify_available:
+            self.start()
 
     def get_locale(self):
         try:
