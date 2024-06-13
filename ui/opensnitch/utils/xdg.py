@@ -63,6 +63,13 @@ class Autostart():
             self.systemAutostart = '/usr' + self.systemAutostart
         self.userAutostart = os.path.join(xdg_config_home, 'autostart', desktopFile)
 
+    def _copyfile(self, src, dst):
+        """copy file (.desktop) to dst. Ignore exception if src and dst are equal"""
+        try:
+            shutil.copyfile(src, dst)
+        except shutil.SameFileError:
+            pass
+
     def createUserDir(self):
         if not os.path.isdir(xdg_config_home):
             os.makedirs(xdg_config_home, 0o700)
@@ -88,10 +95,10 @@ class Autostart():
             if os.path.isfile(self.systemAutostart) and os.path.isfile(self.userAutostart):
                 os.remove(self.userAutostart)
             elif os.path.isfile(self.systemDesktop):
-                shutil.copyfile(self.systemDesktop, self.userAutostart)
+                self._copyfile(self.systemDesktop, self.userAutostart)
         else:
             if os.path.isfile(self.systemAutostart):
-                shutil.copyfile(self.systemAutostart, self.userAutostart)
+                self._copyfile(self.systemAutostart, self.userAutostart)
                 with open(self.userAutostart, 'a') as f:
                     f.write('Hidden=true\n')
             elif os.path.isfile(self.userAutostart):
