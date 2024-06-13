@@ -43,17 +43,34 @@ func CheckSysRequirements() {
 	log.Raw("\n\t%sChecking system requirements for kernel version %s%s\n", log.FG_WHITE+log.BG_LBLUE, kVer, log.RESET)
 	log.Raw("%s------------------------------------------------------------------------------%s\n\n", log.FG_WHITE+log.BG_LBLUE, log.RESET)
 
-	confFile := fmt.Sprint("/boot/config-", kVer)
+	confPaths := []string{
+		fmt.Sprint("/boot/config-", kVer),
+		"/proc/config.gz",
+		// Fedora SilverBlue
+		fmt.Sprint("/usr/lib/modules/", kVer, "/config"),
+	}
+
 	var fileContent []byte
 	var err error
-	if Exists(confFile) {
-		fileContent, err = ioutil.ReadFile(confFile)
-	} else {
-		confFile = "/proc/config.gz"
-		fileContent, err = ReadGzipFile(confFile)
+	for _, confFile := range confPaths {
+		if !Exists(confFile) {
+			err = fmt.Errorf("%s not found", confFile)
+			log.Debug(err.Error())
+			continue
+		}
+
+		if confFile[len(confFile)-2:] == "gz" {
+			fileContent, err = ReadGzipFile(confFile)
+		} else {
+			fileContent, err = ioutil.ReadFile(confFile)
+		}
+		if err == nil {
+			break
+		}
 	}
 	if err != nil {
-		log.Error("%s not found", confFile)
+		fmt.Printf("\n\t%s kernel config not found (%s) in any of the expected paths.\n", log.Bold(log.Red("✘")), kVer)
+		fmt.Printf("\tPlease, open a new issue on github specifying your kernel and distro version (/etc/os-release).\n\n")
 		return
 	}
 
