@@ -33,22 +33,24 @@ const (
 // The fields match the ones saved as json to disk.
 // If a .json rule file is modified on disk, it's reloaded automatically.
 type Rule struct {
-	Created     time.Time `json:"created"`
-	Updated     time.Time `json:"updated"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Action      Action    `json:"action"`
-	Duration    Duration  `json:"duration"`
-	Operator    Operator  `json:"operator"`
-	Enabled     bool      `json:"enabled"`
-	Precedence  bool      `json:"precedence"`
-	Nolog       bool      `json:"nolog"`
+	// Save date fields as string, to avoid issues marshalling Time (#1140).
+	Created string `json:"created"`
+	Updated string `json:"updated"`
+
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Action      Action   `json:"action"`
+	Duration    Duration `json:"duration"`
+	Operator    Operator `json:"operator"`
+	Enabled     bool     `json:"enabled"`
+	Precedence  bool     `json:"precedence"`
+	Nolog       bool     `json:"nolog"`
 }
 
 // Create creates a new rule object with the specified parameters.
 func Create(name, description string, enabled, precedence, nolog bool, action Action, duration Duration, op *Operator) *Rule {
 	return &Rule{
-		Created:     time.Now(),
+		Created:     time.Now().Format(time.RFC3339),
 		Enabled:     enabled,
 		Precedence:  precedence,
 		Nolog:       nolog,
@@ -105,8 +107,16 @@ func (r *Rule) Serialize() *protocol.Rule {
 	if r == nil {
 		return nil
 	}
+
+	created, err := time.Parse(time.RFC3339, r.Created)
+	if err != nil {
+		log.Warning("Error parsing rule Created date (it should be in RFC3339 format): %s  (%s)", err, string(r.Name))
+		log.Warning("using current time instead: %s", created)
+		created = time.Now()
+	}
+
 	return &protocol.Rule{
-		Created:     r.Created.Unix(),
+		Created:     created.Unix(),
 		Name:        string(r.Name),
 		Description: string(r.Description),
 		Enabled:     bool(r.Enabled),
