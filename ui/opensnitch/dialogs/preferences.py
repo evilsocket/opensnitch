@@ -985,9 +985,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             spinWidget.setValue(spinWidget.value() - 1)
 
-        enablePopups = spinWidget.value() > 0
-        self.popupsCheck.setChecked(not enablePopups)
-        self.spinUITimeout.setEnabled(enablePopups)
+        if spinWidget == self.popupsCheck:
+            enablePopups = spinWidget.value() > 0
+            self.popupsCheck.setChecked(not enablePopups)
+            self.spinUITimeout.setEnabled(enablePopups)
 
     def _cb_radio_system_notifications(self):
         if self._desktop_notifications.is_available() == False:
