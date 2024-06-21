@@ -106,6 +106,7 @@ func Deserialize(reply *protocol.Rule) (*Rule, error) {
 	)
 
 	if Type(reply.Operator.Type) == List {
+		newRule.Operator.Data = ""
 		reply.Operator.Data = ""
 		for i := 0; i < len(reply.Operator.List); i++ {
 			newRule.Operator.List = append(
