@@ -1,0 +1,32 @@
+{
+  "created": "2023-10-03T18:06:52.209804547+01:00",
+  "updated": "2023-10-03T18:06:52.209857713+01:00",
+  "name": "rule-with-operator-list-data-empty",
+  "enabled": true,
+  "precedence": true,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "list",
+    "operand": "list",
+    "sensitive": false,
+    "data": "",
+    "list": [
+        {
+        "type": "simple",
+        "operand": "process.path",
+        "sensitive": false,
+        "data": "/usr/bin/telnet",
+        "list": null
+      },
+      {
+        "type": "simple",
+        "operand": "dest.port",
+        "sensitive": false,
+        "data": "53",
+        "list": null
+      }
+    ]
+  }
+}
+

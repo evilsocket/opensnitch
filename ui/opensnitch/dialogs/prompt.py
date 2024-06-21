@@ -18,7 +18,7 @@ from opensnitch.desktop_parser import LinuxDesktopParser
 from opensnitch.config import Config
 from opensnitch.version import version
 from opensnitch.actions import Actions
-from opensnitch.rules import Rules
+from opensnitch.rules import Rules, Rule
 
 from opensnitch import ui_pb2
 
@@ -685,10 +685,25 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_PROCESS_PATH, "data": str(self._con.process_path)})
 
             if is_list_rule:
-                data.append({"type": self._rule.operator.type, "operand": self._rule.operator.operand, "data": self._rule.operator.data})
+                data.append({
+                    "type": self._rule.operator.type,
+                    "operand": self._rule.operator.operand,
+                    "data": self._rule.operator.data
+                })
+                # We need to send back the operator list to the AskRule() call
+                # as json string, in order to add it to the DB.
                 self._rule.operator.data = json.dumps(data)
                 self._rule.operator.type = Config.RULE_TYPE_LIST
                 self._rule.operator.operand = Config.RULE_TYPE_LIST
+                for op in data:
+                    self._rule.operator.list.extend([
+                        ui_pb2.Operator(
+                            type=op['type'],
+                            operand=op['operand'],
+                            sensitive=False if op.get('sensitive') == None else op['sensitive'],
+                            data="" if op.get('data') == None else op['data']
+                        )
+                    ])
 
             exists = self._rules.exists(self._rule, self._peer)
             if not exists:

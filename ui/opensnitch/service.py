@@ -696,6 +696,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                                  rule.operator.data,
                                  str(datetime.fromtimestamp(rule.created).strftime("%Y-%m-%d %H:%M:%S"))
                                  )
+            if rule.operator.type == Config.RULE_TYPE_LIST:
+                # reset list operator data before sending it back to the
+                # daemon.
+                rule.operator.data = ""
 
         elif kwargs['action'] == self.DELETE_RULE:
             self._db.delete_rule(kwargs['name'], kwargs['addr'])
