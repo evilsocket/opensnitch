@@ -1,6 +1,34 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
+
+# https://github.com/evilsocket/opensnitch/issues/647
+wa_grpcio_647()
+{
+    badversion="1.30.2-3build6"
+    source /etc/os-release
+    if [ "$ID" = "linuxmint" -o "$ID" = "ubuntu" -o "$ID" = "pop" -o "$ID" = "elementary" -o "$ID" = "zorin" ]; then
+        v=$(dpkg-query -W -f '${Version}' python3-grpcio)
+        if [ "$v" = "$badversion" ]; then
+            echo
+            echo
+            echo "@@@@@@@@@@@@@@@@@@@ WARNING @@@@@@@@@@@@@@@@@@@@"
+            echo "    invalid python3-grpcio version installed"
+            echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+            echo "Installed python3-grpcio package ($badversion) has a bug which makes opensnitch UI unresponsive."
+            echo
+            echo "Launch opensnitch-ui, and if it consumes 100% of the CPU, try this:"
+            echo "~ $ sudo apt install python3-pip"
+            echo "~ $ pip3 install grpcio==1.44.0"
+            echo
+            echo "More information:"
+            echo " - https://bugs.launchpad.net/ubuntu/+source/grpc/+bug/1971114"
+            echo " - https://github.com/evilsocket/opensnitch/issues/647"
+            echo
+            echo
+        fi
+    fi
+}
 
 autostart_by_default()
 {
@@ -15,5 +43,7 @@ autostart_by_default
 if command -v gtk-update-icon-cache >/dev/null && test -f /usr/share/icons/hicolor/index.theme ; then
     gtk-update-icon-cache --quiet /usr/share/icons/hicolor/
 fi
+
+wa_grpcio_647
 
 #DEBHELPER#
