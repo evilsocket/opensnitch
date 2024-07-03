@@ -22,6 +22,8 @@ dnf:
 
 (You can also double-click on the downloaded files)
 
+#### Arch Linux  
+> $ sudo pacman -S opensnitch
 
 ➡️ Then lanch the GUI: `$ opensnitch-ui` or launch it from the Applications menu.
 
@@ -131,6 +133,9 @@ Remove the packages + rules + configuration:
 - Yum: `sudo yum remove opensnitch opensnitch-ui`
 - Dnf: `sudo dnf remove opensnitch opensnitch-ui`
 - Zypper: `sudo zypper remove opensnitch opensnitch-ui`
+
+**pacman packages**
+- pacman: `sudo pacman -R opensnitch`
 
 If you installed pip packages:
 - `pip3 uninstall grpcio-tools unicode_slugify pyinotify`
