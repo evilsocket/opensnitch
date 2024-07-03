@@ -168,9 +168,14 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 		exprList = append(exprList, *exprs.NewNoTrack()...)
 
 	case exprs.NFT_COUNTER:
+		tbl := n.GetTable(table, family)
+		if tbl == nil {
+			log.Warning("%s Error getting table counter: %s, %s, %s", logTag, table, chain, family)
+			return nil
+		}
 		defaultCounterName := "opensnitch"
 		counterObj := &nftables.CounterObj{
-			Table:   &nftables.Table{Name: table, Family: nftables.TableFamilyIPv4},
+			Table:   tbl,
 			Name:    defaultCounterName,
 			Bytes:   0,
 			Packets: 0,
@@ -187,7 +192,17 @@ func (n *Nft) parseExpression(table, chain, family string, expression *config.Ex
 				counterObj.Packets = 1
 			}
 		}
-		n.Conn.AddObj(counterObj)
+		cntObj := n.Conn.AddObj(counterObj)
+		if cntObj == nil {
+			log.Warning("Error adding counter %s", defaultCounterName)
+			return nil
+		}
+		if !n.Commit() {
+			log.Warning("Error creating counter %s", defaultCounterName)
+			return nil
+		}
+		log.Debug("%s counter %s created (%s, %s, %s)", logTag, defaultCounterName, table, chain, family)
+
 		exprList = append(exprList, *exprs.NewExprCounter(defaultCounterName)...)
 	}
 
