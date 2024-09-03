@@ -16,7 +16,13 @@ from opensnitch.nodes import Nodes
 from opensnitch.database import Database
 from opensnitch.database.enums import RuleFields, ConnFields
 from opensnitch.version import version
-from opensnitch.utils import Message, FileDialog, Icons, NetworkInterfaces
+from opensnitch.utils import (
+    Message,
+    FileDialog,
+    Icons,
+    NetworkInterfaces,
+    qvalidator
+)
 from opensnitch.rules import Rule, Rules
 
 DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name__].__file__)
@@ -32,6 +38,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     LAN_RANGES = "^(" + others_net + "|" + classC_net + "|" + classB_net + "|" + classA_net + "|::1|f[cde].*::.*)$"
     LAN_LABEL = "LAN"
     MULTICAST_LABEL = "MULTICAST"
+
+    INVALID_RULE_NAME_CHARS = '/'
 
     ADD_RULE = 0
     EDIT_RULE = 1
@@ -54,6 +62,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.setupUi(self)
         self.setWindowIcon(appicon)
+
+        self.ruleNameValidator = qvalidator.RestrictChars(RulesEditorDialog.INVALID_RULE_NAME_CHARS)
+        self.ruleNameValidator.result.connect(self._cb_rule_name_validator_result)
+        self.ruleNameEdit.setValidator(self.ruleNameValidator)
 
         self.buttonBox.setStandardButtons(
             QtWidgets.QDialogButtonBox.Help |
@@ -138,6 +150,16 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _bool(self, s):
         return s == 'True'
+
+    def _cb_rule_name_validator_result(self, result):
+        if result == QtGui.QValidator.Invalid:
+            self._set_status_error(
+                QC.translate("rules",
+                             "Invalid rule name (not allowed characters: '{0}' )".format(RulesEditorDialog.INVALID_RULE_NAME_CHARS)
+                             )
+            )
+        else:
+            self._set_status_message("")
 
     def _cb_accept_clicked(self):
         pass
