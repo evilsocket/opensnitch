@@ -5,7 +5,7 @@
 #
 KERNEL_DIR ?= /lib/modules/$(shell uname -r)/source
 KERNEL_HEADERS ?= /usr/src/linux-headers-$(shell uname -r)/
-CLANG ?= clang
+CC = clang
 LLC ?= llc
 LLVM_STRIP ?= llvm-strip -g
 ARCH ?= $(shell uname -m)
@@ -27,8 +27,9 @@ ifeq ($(ARCH),arm)
 	EXTRA_FLAGS = "-D__LINUX_ARM_ARCH__=7"
 endif
 
-BIN := opensnitch.o opensnitch-procs.o opensnitch-dns.o
-CLANG_FLAGS = -I. \
+SRC := $(wildcard *.c)
+BIN := $(SRC:.c=.o)
+CFLAGS = -I. \
 	-I$(KERNEL_HEADERS)/arch/$(ARCH)/include/generated/ \
 	-I$(KERNEL_HEADERS)/include \
 	-include $(KERNEL_DIR)/include/linux/kconfig.h \
@@ -54,10 +55,13 @@ CLANG_FLAGS = -I. \
 
 all: $(BIN)
 
-%.o: %.c
-	$(CLANG) $(CLANG_FLAGS) -c $< -o $@.partial
-	$(LLC) -march=bpf -mcpu=generic -filetype=obj -o $@ $@.partial
-	rm -f $@.partial
+%.bc: %.c
+	$(CC) $(CFLAGS) -c $<
+
+%.o: %.bc
+	$(LLC) -march=bpf -mcpu=generic -filetype=obj -o $@ $<
 
 clean:
-	rm -f *.o *.partial
+	rm -f $(BIN)
+
+.SUFFIXES:
