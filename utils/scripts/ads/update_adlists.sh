@@ -36,24 +36,6 @@ adsListNames=(
     "adaway-hosts.txt"
     "yoyo-adservers.txt")
 
-function download_cname_trackers
-{
-    remoteSize=$(curl --silent -I https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/SpywareFilter/sections/cname_trackers.txt | awk '/content-length:/ {print $2}'|tr -d '\r')
-    localSize=$(stat -c %s $adsDir/cname_trackers.txt)
-    if [ ! -z $remoteSize ]; then
-        if [ "$remoteSize" != "$localSize" ]; then
-            > /tmp/.cname_temp
-            cname_trackers=$(curl --silent https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/SpywareFilter/sections/cname_trackers.txt | awk '/^!#include/ { print $2 }')
-            for tracker in $cname_trackers
-            do
-                curl --silent $tracker | grep "^||" | sed 's/^||\(.*\)^/0.0.0.0 \1/' >> /tmp/.cname_temp
-            done
-            mv /tmp/.cname_temp $adsDir/cname_trackers.txt
-        else
-            echo "[-] cname trackers not updated yet"
-        fi
-    fi
-}
 
 function download_list
 {
@@ -101,6 +83,5 @@ fi
 cd $adsDir
 
 download_ads_list
-download_cname_trackers
 
 echo "[~] Done"
