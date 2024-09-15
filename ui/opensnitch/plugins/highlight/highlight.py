@@ -1,5 +1,7 @@
 from PyQt5 import Qt, QtCore
-from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QColor
+
+from opensnitch.plugins import PluginBase, PluginSignal
 
 # PyQt5 >= v5.15.8 (#821)
 if hasattr(Qt, 'QStyle'):
@@ -7,29 +9,90 @@ if hasattr(Qt, 'QStyle'):
 else:
     from PyQt5.QtWidgets import QStyle
 
-class Highlight():
+
+class Highlight(PluginBase):
     """Customizes QTablewView cells via QItemDelegates.
     Format:
-    [
+    "highlight": {
+      "cells": [
         {
-            'text': {"allow", "True", "online"},
-            'cols': {1,4,5},
-            'color': "green",
-            'bgcolor': None,
-            'alignment': ["center"],
-            #"margins': [0, 0]
-            #'font': {}
-        },
-    ]
+          "text": ["allow", "True"],
+          "cols": [3, 4],
+          "color": "green",
+          "bgcolor": "",
+          "alignment": ["center"]
+        }
+      ]
+      "rows":[
+        {
+          "text": ["False"],
+          "cols": [3],
+          "color": "black",
+          "bgcolor": "darkgray"
+        }
+      ]
+    }
 
-    text: will match any of the given texts.
-    cols: look for patterns on these columns.
-    color: colorizes the color of the text.
-    bgcolor: colorizes the background color of the cell.
+    cells: rules will be applied only on individual cells.
+    rows: rules will be applied to rows on the given columns.
+
+    Fields:
+      text: will match any of the given texts (the comparison is an OR operation).
+      cols: look for patterns on these columns.
+      color: colorizes the color of the text.
+      bgcolor: colorizes the background color of the cell.
     etc.
-    """
 
-    NAME = "highlight"
+    Color names: https://doc.qt.io/qt-6/qcolor.html#predefined-colors
+
+    Notes:
+     - There're 3 default configurations that are applied on the views:
+         - commonDelegateConfig, defaultRulesDelegateConfig and
+         defaultFWDelegateConfig
+
+        Creating/Copying these configurations under
+        XDG_CONFIG_HOME/.config/opensnitch/actions/ allows to overwrite and hence
+        personalize the views highlighting colors.
+
+     - The order of the "rules" are applied from top to bottom, meaning that
+     the last "rule" of the "cells" or "rows" arrays will override previous
+     rules if there're conflicts. For example:
+
+     [Rules tab]
+        Action | Name                | Enabled | ...
+         deny  | allow-always-telnet |  False  | ...
+
+    Config:
+       "rows": [
+          {
+              "text": ["False"],
+              "cols": [3],
+              "color": "black",
+              "bgcolor": "darkgray"
+          },
+          {
+              "text": ["allow"],
+              "cols": [4],
+              "color": "white",
+              "bgcolor": "green"
+          }
+       ]
+
+    In this example, the background color of this row will always be green,
+    because the latest "rule" will be the one that will be applied.
+    It may have more sense to put the first "rule" last, to properly colorize
+    not enabled rules.
+
+    """
+    name = "Highlight"
+    version = "0.1"
+    author = "opensnitch"
+    created = ""
+    modified = ""
+    #enabled = True
+
+    # where this plugin is allowed
+    TYPE = [PluginBase.TYPE_VIEWS]
 
     MARGINS = "margins"
     ALIGNMENT = "alignment"
@@ -48,11 +111,59 @@ class Highlight():
     COLS = "cols"
     TEXT = "text"
 
-    def __init__(self, config):
+
+    def __init__(self, config=None):
         # original json config received
         self._config = config
         self._last_visited_row = -1
         self._rowcells = ""
+        self.signal_in.connect(self.cb_signal)
+
+    def get_name(self):
+        return self.name
+
+    def is_enabled(self):
+        return self.enabled
+
+    def set_enabled(self, enable):
+        self.enabled = enable
+
+    def get_description(self):
+        return self.description
+
+    def configure(self):
+        # TODO: allow to configure rules from the GUI
+        #  - add button(s) to the rules editor dialog, to allow choose a color
+        #  for a row based on patterns.
+        #  - create a dialog to configure new rules.
+        pass
+
+    def _compile(self, what):
+        cell_list = self._config.get(what)
+        if cell_list == None:
+            print("highlight plugin: configuration has no '{0}' configuration".format(what))
+            return
+        for cell in cell_list:
+            for item in cell:
+                # colors
+                if (item == Highlight.COLOR or item == Highlight.BGCOLOR):
+                    if cell[item] != "" and cell[item] is not None:
+                        try:
+                            cell[item] = QColor(cell[item])
+                        except Exception as e:
+                            cell[item] = None
+                    else:
+                        cell[item] = None
+
+                # alignments
+                if item == Highlight.ALIGNMENT:
+                    cell[item] = self.getAlignment(cell[item])
+
+                # TODO: fonts
+                #if item == Highlight.FONT:
+                #    cell[item] = self.getFont(cell[item])
+
+        return self._config
 
     def compile(self):
         """transform json items to Qt objects.
@@ -62,30 +173,11 @@ class Highlight():
 
             Return the original json object transformed.
         """
-        # cells, rows
-        for idx in self._config:
-            cells = self._config[idx]
-            for cell in cells:
-                for item in cell:
-                    # colors
-                    if (item == Highlight.COLOR or item == Highlight.BGCOLOR):
-                        if cell[item] != "" and cell[item] is not None:
-                            cell[item] = QColor(cell[item])
-                        else:
-                            cell[item] = None
-
-                    # alignments
-                    if item == Highlight.ALIGNMENT:
-                        cell[item] = self.getAlignment(cell[item])
-
-                    # fonts
-                    if item == Highlight.FONT:
-                        self.getFont(cell[item])
-
+        self._config = self._compile(Highlight.CELLS)
+        self._config = self._compile(Highlight.ROWS)
         return self._config
 
-
-    def run(self, args):
+    def run(self, parent, args):
         """Highlight cells or rows based on patterns.
 
         Return if the cell was modified.
@@ -93,6 +185,7 @@ class Highlight():
         Keyword arguments:
             args -- tuple of options.
         """
+        #parent == ColorizedDelegate
         painter = args[0]
         option = args[1]
         index = args[2]
@@ -105,6 +198,7 @@ class Highlight():
         cellAlignment = args[9]
         cellRect = args[10]
         cellValue = args[11]
+        #print(type(self), ">", type(parent), ">", type(option.widget))
 
         # signal that this cell has been modified
         modified = False
@@ -141,7 +235,9 @@ class Highlight():
                     style,
                     painter,
                     option,
+                    index,
                     defaultPen,
+                    defaultBrush,
                     cellAlignment,
                     cellRect,
                     cellColor,
@@ -154,9 +250,13 @@ class Highlight():
         # get row's cells only for the first cell of the row,
         # then reuse them for the rest of the cells of the current row.
         if curRow != self._last_visited_row:
-            self._rowcells = " ".join(
-                [index.sibling(curRow, col).data() for col in range(0, modelColumns)]
-            )
+            try:
+                # TODO: check for NoneType
+                self._rowcells = " ".join(
+                    [index.sibling(curRow, col).data() for col in range(0, modelColumns)]
+                )
+            except:
+                pass
         self._last_visited_row = curRow
 
         for row in rows:
@@ -184,7 +284,9 @@ class Highlight():
                 style,
                 painter,
                 option,
+                index,
                 defaultPen,
+                defaultBrush,
                 cellAlignment,
                 cellRect,
                 cellColor,
@@ -193,16 +295,27 @@ class Highlight():
 
         return (modified,)
 
-    def paintCell(self, style, painter, option, defaultPen, cellAlignment, cellRect, cellColor, cellBgColor, cellValue):
+    def paintCell(self,
+                  style,
+                  painter,
+                  option,
+                  index,
+                  defaultPen,
+                  defaultBrush,
+                  cellAlignment,
+                  cellRect,
+                  cellColor,
+                  cellBgColor,
+                  cellValue):
         cellSelected = option.state & QStyle.State_Selected
 
         painter.save()
         # don't customize selected state
         if not cellSelected:
-            if cellBgColor != None:
+            if cellBgColor:
                 painter.fillRect(option.rect, cellBgColor)
 
-            if cellColor is not None:
+            if cellColor:
                 defaultPen.setColor(cellColor)
         painter.setPen(defaultPen)
 
@@ -234,3 +347,14 @@ class Highlight():
     def getFont(self, font):
         # TODO
         pass
+
+    def stop(self):
+        pass
+
+    def cb_signal(self, signal):
+        #print("Plugin.signal received:", self.name, signal)
+        try:
+            if signal['signal'] == PluginSignal.ENABLE:
+                self.enabled = True
+        except Exception as e:
+            print("Plugin.Highlight.cb_signal() exception:", e)

@@ -148,6 +148,8 @@ class Config:
 
     INFOWIN_GEOMETRY = "infoWindow/geometry"
 
+    PLUGINS = "plugins/list"
+
     AUTH_TYPE = "auth/type"
     AUTH_CA_CERT = "auth/cacert"
     AUTH_CERT = "auth/cert"

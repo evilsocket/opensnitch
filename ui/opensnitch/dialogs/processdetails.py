@@ -8,6 +8,8 @@ from opensnitch import ui_pb2
 from opensnitch.nodes import Nodes
 from opensnitch.desktop_parser import LinuxDesktopParser
 from opensnitch.utils import Message, Icons
+from opensnitch.actions import Actions
+from opensnitch.plugins import PluginBase
 from opensnitch.config import Config
 
 DIALOG_UI_PATH = "%s/../res/process_details.ui" % os.path.dirname(sys.modules[__name__].__file__)
@@ -63,6 +65,9 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self._apps_parser = LinuxDesktopParser()
         self._nodes = Nodes.instance()
         self._notification_callback.connect(self._cb_notification_callback)
+        self._actions = Actions.instance()
+        self._action_list = self._actions.getByType(PluginBase.TYPE_PROC_DIALOG)
+        self._configure_plugins()
 
         self._nid = None
         self._pid = ""
@@ -91,6 +96,15 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.cmdClose.setIcon(closeIcon)
         self.iconStart = Icons.new(self, "media-playback-start")
         self.iconPause = Icons.new(self, "media-playback-pause")
+
+    def _configure_plugins(self):
+        for conf in self._action_list:
+            action = self._action_list[conf]
+            for name in action['actions']:
+                try:
+                    action['actions'][name].configure(self)
+                except Exception as e:
+                    print("procdialog._configure_plugins() exception:", name, " you may want to enable this plugin -", e)
 
     @QtCore.pyqtSlot(ui_pb2.NotificationReply)
     def _cb_notification_callback(self, reply):

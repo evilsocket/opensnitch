@@ -17,6 +17,8 @@ from opensnitch.utils import Icons
 from opensnitch.desktop_parser import LinuxDesktopParser
 from opensnitch.config import Config
 from opensnitch.version import version
+from opensnitch.actions import Actions
+from opensnitch.plugins import PluginBase
 from opensnitch.rules import Rules, Rule
 from opensnitch.nodes import Nodes
 
@@ -28,6 +30,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     _prompt_trigger = QtCore.pyqtSignal()
     _tick_trigger = QtCore.pyqtSignal()
     _timeout_trigger = QtCore.pyqtSignal()
+
+    TYPE = "popups"
 
     def __init__(self, parent=None, appicon=None):
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
@@ -48,6 +52,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.restoreGeometry(dialog_geometry)
 
         self.setWindowTitle("OpenSnitch v%s" % version)
+
+        self._actions = Actions.instance()
+        self._action_list = self._actions.getByType(PluginBase.TYPE_POPUPS)
+        self._configure_plugins()
 
         self._lock = threading.Lock()
         self._con = None
@@ -128,6 +136,37 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.actionButton.setIcon(self._action_icon[self._default_action])
         self.actionButton.clicked.connect(self._on_deny_btn_clicked)
 
+    def _configure_plugins(self):
+        """configure the plugins that apply to this dialog.
+        When configuring the plugins on a particular view, they'll add,
+        change or extend the existing functionality.
+        """
+        for conf in self._action_list:
+            action = self._action_list[conf]
+            for name in action['actions']:
+                try:
+                    action['actions'][name].configure(self)
+                except Exception as e:
+                    print("popups._configure_plugins() exception:", name, " you may want to enable this plugin -", e)
+
+    def _pre_popup_plugins(self, con):
+        pass
+
+    def _post_popup_plugins(self, conn):
+        """Actions performed on the pop-up once the connection details have
+        been displayed on the screen.
+        """
+        if self._action_list == None:
+            return
+
+        for conf in self._action_list:
+            action = self._action_list[conf]
+            for name in action['actions']:
+                try:
+                    action['actions'][name].run(self, (conn,))
+                except Exception as e:
+                    print("popups._post_popup_plugins() exception:", name, "-", e)
+
     def eventFilter(self, obj, event):
         if event.type() == QEvent.MouseButtonPress:
             self._stop_countdown()
@@ -187,9 +226,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _button_clicked(self):
         self._stop_countdown()
 
-    def _cb_warninglbl_clicked(self):
+    def _cb_warninglbl_clicked(self, link):
         self._stop_countdown()
-        self.stackedWidget.setCurrentIndex(_constants.PAGE_CHECKSUMS)
+        if link == "#warning-checksum":
+            self.stackedWidget.setCurrentIndex(_constants.PAGE_CHECKSUMS)
 
     def _cb_cmdinfo_clicked(self):
         self.stackedWidget.setCurrentIndex(_constants.PAGE_DETAILS)
@@ -321,7 +361,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if not validates:
                 self.messageLabel.setStyleSheet('color: red')
                 self.messageLabel.setText(
-                    QC.translate("popups", "WARNING, bad checksum (<a href='#'>More info</a>)"
+                    QC.translate("popups", "WARNING, bad checksum (<a href='#warning-checksum'>More info</a>)"
                                  )
                 )
                 self.labelChecksumNote.setText(
@@ -432,6 +472,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkAdvanced.setFocus()
 
         self.setFixedSize(self.size())
+
+        self._post_popup_plugins(con)
 
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):

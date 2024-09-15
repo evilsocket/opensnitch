@@ -200,25 +200,30 @@ class GenericTimer(Thread):
     stop_flag = None
     callback = None
 
-    def __init__(self, _interval, _callback, _args=()):
+    def __init__(self, _interval, _in_loop, _callback, _args=()):
         Thread.__init__(self, name="generic_timer_thread")
         self.interval = _interval
+        self.in_loop = _in_loop
         self.stop_flag = Event()
         self.callback = _callback
         self.args = _args
 
     def run(self):
-        while self.stop_flag.wait(self.interval):
-            if self.stop_flag.is_set():
+        if self.in_loop:
+            while not self.stop_flag.wait(self.interval):
                 self.callback(self.args)
-                break
+            return
+
+        if self.stop_flag.wait(self.interval):
+            return
+        self.callback(self.args)
 
     def stop(self):
         self.stop_flag.set()
 
 class OneshotTimer(GenericTimer):
     def __init__(self, _interval, _callback, _args=()):
-        GenericTimer.__init__(self, _interval, _callback, _args)
+        GenericTimer.__init__(self, _interval, False, _callback, _args)
 
     def run(self):
         self.stop_flag.wait(self.interval)

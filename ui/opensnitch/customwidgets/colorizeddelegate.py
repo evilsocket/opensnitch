@@ -7,7 +7,10 @@ if hasattr(Qt, 'QItemDelegate'):
 else:
     from PyQt5.QtWidgets import QItemDelegate, QStyleOptionViewItem
 
+
 class ColorizedDelegate(QItemDelegate):
+    TYPE = 'views'
+
     HMARGIN = 0
     VMARGIN = 1
 
@@ -61,9 +64,17 @@ class ColorizedDelegate(QItemDelegate):
         # set default margins for this cell
         cellRect.adjust(hmargin, vmargin, -painter.pen().width(), -painter.pen().width())
 
-        for a in self._actions['actions']:
-            action = self._actions['actions'][a]
-            modified = action.run(
+        for conf in self._actions['actions']:
+            action = self._actions['actions'][conf]
+            # if the corresponding plugin is not loaded, action will be dict
+            # instead of instanceof(Plugin...)
+            if type(action) is dict:
+                continue
+
+            if self.TYPE not in action.TYPE:
+                print("colorizeddelegate: skipping action of type:", action.TYPE)
+                continue
+            modified = action.run(self,
                              (painter,
                               option,
                               index,

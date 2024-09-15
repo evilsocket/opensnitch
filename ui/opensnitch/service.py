@@ -18,6 +18,8 @@ from opensnitch import ui_pb2_grpc
 from opensnitch.dialogs.prompt import PromptDialog
 from opensnitch.dialogs.stats import StatsDialog
 
+from opensnitch.plugins import PluginsManager, PluginBase, PluginsList, PluginSignal
+from opensnitch.actions import Actions
 from opensnitch.notifications import DesktopNotifications
 from opensnitch.firewall import Rules as FwRules
 from opensnitch.nodes import Nodes
@@ -92,6 +94,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._remote_stats = {}
         self._autostart = Autostart()
 
+        # create plugins and actions before dialogs
+        self._plugin_mgr = PluginsManager.instance()
+        self._actions = Actions().instance()
+        self._plugin_mgr.load_plugins()
+        self._actions.loadAll()
+
         self.translator = None
         self._init_translation()
         self._themes = Themes()
@@ -127,6 +135,29 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         )
         if self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES):
             self._nodes.delete_rule_by_field(Config.DURATION_FIELD, Config.RULES_DURATION_FILTER)
+
+        self._load_plugins()
+
+    def _load_plugins(self):
+        for action_conf in self._actions.getAll():
+            # get one global conf
+            action_def = self._actions.get(action_conf)
+            # initialize global plugins
+            if action_def == None or action_def.get('type') == None or PluginBase.TYPE_GLOBAL not in action_def['type']:
+                continue
+            # get the actions defined in the conf
+            for name in action_def['actions']:
+                try:
+                    action = action_def['actions'][name]
+                    action.run()
+                except Exception as e:
+                    print("global._load_plugins() exception:", e, "is {0} enabled?".format(name))
+
+    def _stop_plugins(self):
+        for plug in PluginsList.actions:
+            p = plug()
+            p.signal_in.emit({"plugin": p.get_name(), "signal": PluginSignal.STOP})
+        self._plugin_mgr.unload_all()
 
     # https://gist.github.com/pklaus/289646
     def _setup_interfaces(self):
@@ -268,6 +299,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._db.optimize()
         self._db.close()
         self._stop_db_cleaner()
+        self._stop_plugins()
         self._on_exit()
 
     def _show_stats_dialog(self):
@@ -769,7 +801,6 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                                             .format(rule.action, node_text, " ".join(request.process_args)),
                                             QtWidgets.QSystemTrayIcon.NoIcon,
                                             DesktopNotifications.URGENCY_NORMAL)
-
 
         if rule.duration in Config.RULES_DURATION_FILTER:
             self._node_actions_trigger.emit(

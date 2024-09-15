@@ -27,6 +27,7 @@ from opensnitch.utils import Message, QuickHelp, AsnDB, Icons
 from opensnitch.utils.infowindow import InfoWindow
 from opensnitch.utils.xdg import xdg_current_desktop
 from opensnitch.actions import Actions
+from opensnitch.plugins import PluginBase
 from opensnitch.rules import Rule, Rules
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
@@ -369,7 +370,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._fw.rules.rulesUpdated.connect(self._cb_fw_rules_updated)
         self._rules.updated.connect(self._cb_app_rules_updated)
         self._actions = Actions().instance()
-        self._actions.loadAll()
+        self._action_list = self._actions.getByType(PluginBase.TYPE_MAIN_DIALOG)
         self._last_update = datetime.datetime.now()
 
         # TODO: allow to display multiples dialogs
@@ -682,6 +683,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         )
         self.fwTreeEdit.clicked.connect(self._cb_tree_edit_firewall_clicked)
         self._configure_buttons_icons()
+        self._configure_plugins()
 
     #Sometimes a maximized window which had been minimized earlier won't unminimize
     #To workaround, we explicitely maximize such windows when unminimizing happens
@@ -723,6 +725,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self._refresh_active_table()
                 return True
         return super(StatsDialog, self).eventFilter(source, event)
+
+    def _configure_plugins(self):
+        for conf in self._action_list:
+            action = self._action_list[conf]
+            for name in action['actions']:
+                try:
+                    action['actions'][name].configure(self)
+                except Exception as e:
+                    print("stats._configure_plugins() exception:", name, "-", e)
 
     def _configure_buttons_icons(self):
         if QtGui.QIcon.hasThemeIcon("document-new"):
@@ -2860,6 +2871,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         tableWidget.setModel(model)
 
         if delegate != None:
+            # configure the personalized delegate from actions, if any
             action = self._actions.get(delegate)
             if action != None:
                 tableWidget.setItemDelegate(ColorizedDelegate(tableWidget, actions=action))
