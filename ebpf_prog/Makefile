@@ -7,7 +7,6 @@ KERNEL_DIR ?= /lib/modules/$(shell uname -r)/source
 KERNEL_HEADERS ?= /usr/src/linux-headers-$(shell uname -r)/
 CC = clang
 LLC ?= llc
-LLVM_STRIP ?= llvm-strip -g
 ARCH ?= $(shell uname -m)
 
 # as in /usr/src/linux-headers-*/arch/
