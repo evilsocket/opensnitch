@@ -1,0 +1,71 @@
+{
+  "name": "downloadersActions",
+  "created": "",
+  "updated": "",
+  "description": "download ads/malware lists, save them to a local directory, and create a rule to filter by lists in that directory",
+  "type": ["global"],
+  "actions": {
+      "downloader": {
+          "enabled": true,
+          "config": [
+              {
+                  "name": "update ads lists",
+                  "interval": "6",
+                  "units": "hours",
+                  "urls": [
+                      {
+                          "name": "adaway",
+                          "enabled": true,
+                          "remote": "https://adaway.org/hosts.txt",
+                          "localfile": "/tmp/blocklist/ads-adaway-hosts.txt"
+                      },
+                      {
+                          "name": "developerdan",
+                          "enabled": true,
+                          "remote": "https://www.github.developerdan.com/hosts/lists/tracking-aggressive-extended.txt",
+                          "localfile": "/tmp/blocklist/ads-tracking-aggressive-extended.txt"
+                      },
+                      {
+                          "name": "1hosts",
+                          "enabled": true,
+                          "remote": "https://raw.githubusercontent.com/badmojr/1Hosts/master/Pro/hosts.txt",
+                          "localfile": "/tmp/blocklist/ads-1hosts.txt"
+                      },
+                      {
+                          "name": "frogeye multipary",
+                          "enabled": true,
+                          "remote": "https://hostfiles.frogeye.fr/multiparty-trackers-hosts.txt",
+                          "localfile": "/tmp/blocklist/frog-multiparty.txt"
+                      },
+                      {
+                          "name": "frogeye firstpary",
+                          "enabled": true,
+                          "remote": "https://hostfiles.frogeye.fr/firstparty-trackers-hosts.txt",
+                          "localfile": "/tmp/blocklist/frog-firstparty.txt"
+                      },
+                      {
+                          "name": "urlhaus",
+                          "enabled": true,
+                          "remote": "https://urlhaus.abuse.ch/downloads/hostfile/",
+                          "localfile": "/tmp/blocklist/urlhaus-hosts.txt"
+                      },
+                      {
+                          "name": "pgl.yoyo.org",
+                          "enabled": true,
+                          "remote": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext",
+                          "localfile": "/tmp/blocklist/pgl.yoyo.txt"
+                      }
+                  ],
+                  "notify": {
+                      "success": {
+                          "desktop": "Blocklists updated"
+                      },
+                      "error": {
+                          "desktop": "Error updating blocklists"
+                      }
+                  }
+              } 
+          ]
+      }
+  }
+}

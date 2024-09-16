@@ -1,0 +1,54 @@
+{
+  "name": "defaultRulesDelegateConfig",
+  "created": "",
+  "updated": "",
+  "description": "customize rules list. The name of this action MUST be defaultRulesDelegateConfig for now.",
+  "actions": {
+    "Highlight": {
+        "enabled": true,
+      "cells": [
+        {
+          "text": ["allow", "True"],
+          "cols": [3, 4],
+          "color": "green",
+          "bgcolor": "",
+          "alignment": ["center"]
+        },
+        {
+          "text": ["deny", "False"],
+          "cols": [3, 4],
+          "color": "red",
+          "bgcolor": "",
+          "alignment": ["center"]
+        },
+        {
+          "text": ["reject"],
+          "cols": [3, 4],
+          "color": "purple",
+          "bgcolor": "",
+          "alignment": ["center"]
+        }
+      ],
+      "rows": [
+          {
+              "text": ["allow"],
+              "cols": [4],
+              "color": "white",
+              "bgcolor": "green"
+          },
+          {
+              "text": ["deny"],
+              "cols": [4],
+              "color": "white",
+              "bgcolor": "crimson"
+          },
+          {
+              "text": ["False"],
+              "cols": [3],
+              "color": "black",
+              "bgcolor": "darkGray"
+          }
+      ]
+    }
+  }
+}

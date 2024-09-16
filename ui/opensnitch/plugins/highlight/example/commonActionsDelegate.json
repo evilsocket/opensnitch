@@ -1,0 +1,77 @@
+{
+  "name": "commonDelegateConfig",
+  "created": "",
+  "updated": "",
+  "description": "customize Events tab view colors. Name of this action MUST be commonDelegateConfig for now",
+  "actions": {
+    "Highlight": {
+      "enabled": true,
+      "cells": [
+        {
+          "text": [
+            "allow",
+            "✓ online"
+          ],
+          "cols": [1, 2, 3],
+          "color": "green",
+          "bgcolor": "",
+          "alignment": [
+            "center"
+          ]
+        },
+        {
+          "text": [
+            "deny",
+            "☓ offline"
+          ],
+          "cols": [1, 2, 3],
+          "color": "red",
+          "bgcolor": "",
+          "alignment": [
+            "center"
+          ]
+        },
+        {
+          "text": [
+            "reject"
+          ],
+          "cols": [1, 2, 3],
+          "color": "purple",
+          "bgcolor": "",
+          "alignment": [
+            "center"
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "text": [
+            "->  53"
+          ],
+          "cols": [3],
+          "color": "black",
+          "bgcolor": "yellow",
+          "alignment": []
+        },
+        {
+          "text": [
+            "->  443"
+          ],
+          "cols": [3],
+          "color": "white",
+          "bgcolor": "darkRed",
+          "alignment": []
+        },
+        {
+          "text": [
+            "block-domains"
+          ],
+          "cols": [8],
+          "color": "white",
+          "bgcolor": "darkMagenta",
+          "alignment": []
+        }
+      ]
+    }
+  }
+}
