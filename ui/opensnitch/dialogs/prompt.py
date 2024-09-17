@@ -605,7 +605,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         elif combo.itemData(what_idx) == self.FIELD_APPIMAGE:
             appimage_bin = os.path.basename(con.process_path)
-            appimage_path = os.path.dirname(con.process_path).replace(".", "\.")
+            appimage_path = os.path.dirname(con.process_path).replace('.', r'\.')
             appimage_path = appimage_path[0:len(self.APPIMAGE_PREFIX)+7]
             return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]{{6}}\/.*{1}$'.format(appimage_path, appimage_bin)
 
