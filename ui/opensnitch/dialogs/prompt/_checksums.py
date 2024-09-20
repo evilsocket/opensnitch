@@ -6,9 +6,13 @@ def verify(con, rule):
     """return true if the checksum of a rule matches the one of the process
     opening a connection.
     """
+    # when verifying checksums, we'll always have a rule type List, with at
+    # least: path of the process + checksum
     if rule.operator.type != Config.RULE_TYPE_LIST:
         return True, ""
 
+    # checksum will be empty if the daemon failed to calculate it.
+    # in this case assume that it's ok (ignore it).
     if con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "":
         return True, ""
 
@@ -27,7 +31,7 @@ def update_rule(node, rules, rule_name, con):
     # get rule from the db
     records = rules.get_by_name(node, rule_name)
     if records == None or records.first() == False:
-        return None, QC.translate("popups", "Rule not updated, not found by name")
+        return None, QC.translate("popups", "Rule not updated, not found by name ({0})".format(rule_name))
 
     # transform it to proto rule
     rule_obj = Rule.new_from_records(records)
@@ -42,6 +46,6 @@ def update_rule(node, rules, rule_name, con):
     # add it back again to the db
     added = rules.add_rules(node, [rule_obj])
     if not added:
-        return None, QC.translate("popups", "Rule not updated.")
+        return None, QC.translate("popups", "Rule not updated ({0}).".format(rule_name))
 
     return rule_obj, ""

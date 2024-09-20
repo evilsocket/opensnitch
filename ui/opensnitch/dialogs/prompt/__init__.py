@@ -92,7 +92,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdInfo.clicked.connect(self._cb_cmdinfo_clicked)
         self.cmdBack.clicked.connect(self._cb_cmdback_clicked)
 
-        self.cmdUpdateRule.clicked.connect(self._cb_update_rule_clicked)
+        self.cmdUpdateRule.clicked.connect(lambda: self._cb_update_rule_clicked(updateAll=False))
+        self.cmdUpdateRuleAll.clicked.connect(lambda: self._cb_update_rule_clicked(updateAll=True))
         self.cmdBackChecksums.clicked.connect(self._cb_cmdback_clicked)
         self.messageLabel.linkActivated.connect(self._cb_warninglbl_clicked)
 
@@ -235,29 +236,35 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.stackedWidget.setCurrentIndex(_constants.PAGE_DETAILS)
         self._stop_countdown()
 
-    def _cb_update_rule_clicked(self):
+    def _cb_update_rule_clicked(self, updateAll=False):
         self.labelChecksumStatus.setStyleSheet('')
         curRule = self.comboChecksumRule.currentText()
         if curRule == "":
             return
 
-        rule, error = _checksums.update_rule(self._peer, self._rules, curRule, self._con)
-        if rule == None:
-            self.labelChecksumStatus.setStyleSheet('color: red')
-            self.labelChecksumStatus.setText("✘ " + error)
-            return
+        for idx in range(0, self.comboChecksumRule.count()):
+            curRule = self.comboChecksumRule.itemText(idx)
 
-        self._nodes.send_notification(
-            self._peer,
-            ui_pb2.Notification(
-                id=int(str(time.time()).replace(".", "")),
-                type=ui_pb2.CHANGE_RULE,
-                data="",
-                rules=[rule]
+            rule, error = _checksums.update_rule(self._peer, self._rules, curRule, self._con)
+            if rule == None:
+                self.labelChecksumStatus.setStyleSheet('color: red')
+                self.labelChecksumStatus.setText("✘ " + error)
+                return
+
+            self._nodes.send_notification(
+                self._peer,
+                ui_pb2.Notification(
+                    id=int(str(time.time()).replace(".", "")),
+                    type=ui_pb2.CHANGE_RULE,
+                    data="",
+                    rules=[rule]
+                )
             )
-        )
-        self.labelChecksumStatus.setStyleSheet('color: green')
-        self.labelChecksumStatus.setText("✔" + QC.translate("popups", "Rule updated."))
+            self.labelChecksumStatus.setStyleSheet('color: green')
+            self.labelChecksumStatus.setText("✔" + QC.translate("popups", "Rule updated."))
+
+            if not updateAll:
+                break
 
     def _cb_cmdback_clicked(self):
         self.stackedWidget.setCurrentIndex(_constants.PAGE_MAIN)
