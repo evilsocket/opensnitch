@@ -30,15 +30,16 @@ FORMS += ../opensnitch/res/prompt.ui \
 TRANSLATIONS += locales/de_DE/opensnitch-de_DE.ts \
                 locales/es_ES/opensnitch-es_ES.ts \
                 locales/eu_ES/opensnitch-eu_ES.ts \
-                locales/hu_HU/opensnitch-hu_HU.ts \
-                locales/ja_JP/opensnitch-ja_JP.ts \
-                locales/pt_BR/opensnitch-pt_BR.ts \
-                locales/ro_RO/opensnitch-ro_RO.ts \
+                locales/fi_FI/opensnitch-fi_FI.ts \
                 locales/fr_FR/opensnitch-fr_FR.ts \
+                locales/hu_HU/opensnitch-hu_HU.ts \
+                locales/id_ID/opensnitch-id_ID.ts \
+                locales/ja_JP/opensnitch-ja_JP.ts \
                 locales/lt_LT/opensnitch-lt_LT.ts \
-                locales/tr_TR/opensnitch-tr_TR.ts \
-                locales/ru_RU/opensnitch-ru_RU.ts \
                 locales/nb_NO/opensnitch-nb_NO.ts \
                 locales/nl_NL/opensnitch-nl_NL.ts \
-                locales/fi_FI/opensnitch-fi_FI.ts \
+                locales/pt_BR/opensnitch-pt_BR.ts \
+                locales/ro_RO/opensnitch-ro_RO.ts \
+                locales/ru_RU/opensnitch-ru_RU.ts \
+                locales/tr_TR/opensnitch-tr_TR.ts \
                 locales/zh_TW/opensnitch-zh_TW.ts
