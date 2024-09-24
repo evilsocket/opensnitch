@@ -334,7 +334,7 @@ class Nodes(QObject):
             # delete only one-time notifications
             # we need the ID of streaming notifications from the server
             # (monitor_process for example) to keep track of the data sent to us.
-            if self._notifications_sent[reply.id]['type'] != ui_pb2.MONITOR_PROCESS:
+            if self._notifications_sent[reply.id]['type'] != ui_pb2.TASK_START:
                 del self._notifications_sent[reply.id]
         except Exception as e:
             print(self.LOG_TAG, "notification exception:", e)

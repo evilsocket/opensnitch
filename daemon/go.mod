@@ -1,6 +1,6 @@
 module github.com/evilsocket/opensnitch/daemon
 
-go 1.17
+go 1.20
 
 require (
 	github.com/fsnotify/fsnotify v1.4.7

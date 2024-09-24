@@ -132,10 +132,14 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
                 self._delete_notification(reply.id)
                 return
 
-            if noti.type == ui_pb2.MONITOR_PROCESS and reply.data != "":
+            if noti.type != ui_pb2.TASK_START:
+                print("proc-details, invalid notification type?", noti)
+                return
+
+            if noti.type == ui_pb2.TASK_START and reply.data != "":
                 self._load_data(reply.data)
 
-            elif noti.type == ui_pb2.STOP_MONITOR_PROCESS:
+            elif noti.type == ui_pb2.TASK_STOP:
                 if reply.data != "":
                     self._show_message(
                         QtCore.QCoreApplication.translate(
@@ -233,7 +237,12 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
                 return
 
             self._set_button_running(True)
-            noti = ui_pb2.Notification(clientName="", serverName="", type=ui_pb2.MONITOR_PROCESS, data=self._pid, rules=[])
+            noti = ui_pb2.Notification(
+                clientName="",
+                serverName="",
+                type=ui_pb2.TASK_START,
+                data=self._build_notification_message(self._pid),
+                rules=[])
             self._nid = self._nodes.send_notification(self._pids[self._pid], noti, self._notification_callback)
             self._notifications_sent[self._nid] = noti
         except Exception as e:
@@ -244,7 +253,12 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             return
 
         self._set_button_running(False)
-        noti = ui_pb2.Notification(clientName="", serverName="", type=ui_pb2.STOP_MONITOR_PROCESS, data=str(self._pid), rules=[])
+        noti = ui_pb2.Notification(
+            clientName="",
+            serverName="",
+            type=ui_pb2.TASK_STOP,
+            data=self._build_notification_message(self._pid),
+            rules=[])
         self._nid = self._nodes.send_notification(self._pids[self._pid], noti, self._notification_callback)
         self._notifications_sent[self._nid] = noti
         self._pid = ""
@@ -379,4 +393,6 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
 
         self._set_tab_text(self.TAB_ENVS, text)
 
-
+    def _build_notification_message(self, pid):
+        # TODO: make interval configurable
+        return '{"name": "pid-monitor", "data": { "interval": "5s", "pid": "%s" }}' % pid

@@ -164,6 +164,8 @@ message Rule {
     Operator operator = 9;
 }
 
+/* Action is the list of actions sent or received via the Notifications channel.
+ */
 enum Action {
     NONE = 0;
     ENABLE_INTERCEPTION = 1;
@@ -178,8 +180,18 @@ enum Action {
     CHANGE_RULE = 10;
     LOG_LEVEL = 11;
     STOP = 12;
-    MONITOR_PROCESS = 13;
-    STOP_MONITOR_PROCESS = 14;
+
+    /* Notifications of type TASK_START or TASK_STOP expect a JSON in the
+     * Notification.data field.
+     * It's parsed to a struct with format
+     * TaskNotification { Name string, Data interface{} }
+     * where Data is translated to a map of values (map[string]string), with
+     * the configuration for each task:
+     * PidMonitor: {"interval": "5s", "pid": "1234"}
+     * SocketsMonitor: {"interval": "5s", "states": "1,10"}
+     */
+    TASK_START = 13;
+    TASK_STOP = 14;
 }
 
 message StatementValues {
@@ -248,7 +260,16 @@ message ClientConfig {
     SysFirewall systemFirewall = 8;
 }
 
-// notification sent to the clients (daemons)
+/* Notification message is sent to the clients (daemons) from the GUI (server)
+ * for several purposes:
+ *  - Start tasks.
+ *  - Change configurations (rules, firewall, configuration)
+ *  - Start / Stop interception or firewall.
+ *  - Sent back the status of each task (errors, ok)
+ *
+ * Notifications are sent via an always open streaming channel.
+ * It's also used indirectly to maintain the connection status with the GUI (server).
+ */
 message Notification {
     uint64 id = 1;
     string clientName = 2;

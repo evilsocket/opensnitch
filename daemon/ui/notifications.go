@@ -12,15 +12,14 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/firewall"
 	"github.com/evilsocket/opensnitch/daemon/log"
-	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
+	"github.com/evilsocket/opensnitch/daemon/tasks"
+	"github.com/evilsocket/opensnitch/daemon/tasks/pidmonitor"
 	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 	"golang.org/x/net/context"
 )
-
-var stopMonitoringProcess = make(chan int)
 
 // NewReply constructs a new protocol notification reply
 func NewReply(rID uint64, replyCode protocol.NotificationReplyCode, data string) *protocol.NotificationReply {
@@ -59,44 +58,37 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 	}
 }
 
-func (c *Client) monitorProcessDetails(pid int, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	p := &procmon.Process{}
-	item, found := procmon.EventsCache.IsInStoreByPID(pid)
-	if found {
-		newProc := item.Proc
-		p = &newProc
-		if len(p.Tree) == 0 {
-			p.GetParent()
-			p.BuildTree()
-		}
-	} else {
-		p = procmon.NewProcess(pid, "")
-	}
-	ticker := time.NewTicker(2 * time.Second)
-
-	for {
-		select {
-		case _pid := <-stopMonitoringProcess:
-			if _pid != pid {
-				continue
-			}
-			goto Exit
-		case <-ticker.C:
-			if err := p.GetExtraInfo(); err != nil {
-				c.sendNotificationReply(stream, notification.Id, notification.Data, err)
-				goto Exit
-			}
-
-			pJSON, err := json.Marshal(p)
-			notification.Data = string(pJSON)
-			if errs := c.sendNotificationReply(stream, notification.Id, notification.Data, err); errs != nil {
-				goto Exit
-			}
-		}
+func (c *Client) monitorProcessDetails(pid int, interval string, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	if !core.Exists(fmt.Sprint("/proc/", pid)) {
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("The process is no longer running"))
+		return
 	}
 
-Exit:
-	ticker.Stop()
+	taskName, pidMonTask := pidmonitor.New(pid, interval, true)
+	ctx, err := TaskMgr.AddTask(taskName, pidMonTask)
+	if err != nil {
+		c.sendNotificationReply(stream, notification.Id, "", err)
+		return
+	}
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				goto Exit
+			case err := <-pidMonTask.Errors():
+				c.sendNotificationReply(stream, notification.Id, "", err)
+			case temp := <-pidMonTask.Results():
+				data, ok := temp.(string)
+				if !ok {
+					goto Exit
+				}
+				c.sendNotificationReply(stream, notification.Id, data, nil)
+			}
+		}
+	Exit:
+		TaskMgr.RemoveTask(taskName)
+	}(ctx)
+
 }
 
 func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
@@ -176,28 +168,50 @@ func (c *Client) handleActionDeleteRule(stream protocol.UI_NotificationsClient, 
 	c.sendNotificationReply(stream, notification.Id, "", err)
 }
 
-func (c *Client) handleActionMonitorProcess(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	pid, err := strconv.Atoi(notification.Data)
+func (c *Client) handleActionTaskStart(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	var taskConf tasks.TaskNotification
+	err := json.Unmarshal([]byte(notification.Data), &taskConf)
 	if err != nil {
-		log.Error("parsing PID to monitor: %d, err: %s", pid, err)
+		log.Error("parsing TaskStart, err: %s, %s", err, notification.Data)
+		c.sendNotificationReply(stream, notification.Id, "", err)
 		return
 	}
-	if !core.Exists(fmt.Sprint("/proc/", pid)) {
-		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("The process is no longer running"))
-		return
+	switch taskConf.Name {
+	case pidmonitor.Name:
+		pid, err := strconv.Atoi(taskConf.Data["pid"])
+		if err != nil {
+			log.Error("TaskStart.Data, PID err: %s, %v", err, taskConf)
+			c.sendNotificationReply(stream, notification.Id, "", err)
+			return
+		}
+		c.monitorProcessDetails(pid, taskConf.Data["interval"], stream, notification)
+	default:
+		log.Debug("TaskStart, unknown task: %v", taskConf)
+		//c.sendNotificationReply(stream, notification.Id, "", err)
 	}
-	go c.monitorProcessDetails(pid, stream, notification)
 }
 
-func (c *Client) handleActionStopMonitorProcess(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	pid, err := strconv.Atoi(notification.Data)
+func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	var taskConf tasks.TaskNotification
+	err := json.Unmarshal([]byte(notification.Data), &taskConf)
 	if err != nil {
-		log.Error("parsing PID to stop monitor: %d, err: %s", pid, err)
-		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error stopping monitor: %s", notification.Data))
+		log.Error("parsing TaskStop, err: %s, %s", err, notification.Data)
+		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error stopping task: %s", notification.Data))
 		return
 	}
-	stopMonitoringProcess <- pid
-	c.sendNotificationReply(stream, notification.Id, "", nil)
+	switch taskConf.Name {
+	case pidmonitor.Name:
+		pid, err := strconv.Atoi(taskConf.Data["pid"])
+		if err != nil {
+			log.Error("TaskStop.Data, err: %s, %s, %v+, %q", err, notification.Data, taskConf.Data, taskConf.Data)
+			c.sendNotificationReply(stream, notification.Id, "", err)
+			return
+		}
+		TaskMgr.RemoveTask(fmt.Sprint(taskConf.Name, "-", pid))
+	default:
+		log.Debug("TaskStop, unknown task: %v", taskConf)
+		//c.sendNotificationReply(stream, notification.Id, "", err)
+	}
 }
 
 func (c *Client) handleActionEnableInterception(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
@@ -269,11 +283,11 @@ func (c *Client) handleActionReloadFw(stream protocol.UI_NotificationsClient, no
 
 func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	switch {
-	case notification.Type == protocol.Action_MONITOR_PROCESS:
-		c.handleActionMonitorProcess(stream, notification)
+	case notification.Type == protocol.Action_TASK_START:
+		c.handleActionTaskStart(stream, notification)
 
-	case notification.Type == protocol.Action_STOP_MONITOR_PROCESS:
-		c.handleActionStopMonitorProcess(stream, notification)
+	case notification.Type == protocol.Action_TASK_STOP:
+		c.handleActionTaskStop(stream, notification)
 
 	case notification.Type == protocol.Action_CHANGE_CONFIG:
 		c.handleActionChangeConfig(stream, notification)
@@ -384,4 +398,5 @@ Exit:
 	notisStream.CloseSend()
 	log.Info("Stop receiving notifications")
 	c.disconnect()
+	TaskMgr.StopAll()
 }

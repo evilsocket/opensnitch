@@ -13,6 +13,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
+	"github.com/evilsocket/opensnitch/daemon/tasks"
 	"github.com/evilsocket/opensnitch/daemon/ui/auth"
 	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
@@ -33,6 +34,8 @@ var (
 	clientErrorRule     = rule.Create("ui.client.error", "", true, false, false, rule.Allow, rule.Once, dummyOperator)
 
 	maxQueuedAlerts = 1024
+
+	TaskMgr = tasks.NewTaskManager()
 )
 
 // Client holds the connection information of a client.
