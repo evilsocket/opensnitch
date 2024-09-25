@@ -53,6 +53,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
                 }
             }
 
+    SOCKET_REGEX = "(socket.*:.*state.*)"
+
     def __init__(self, parent=None, appicon=None):
         super(ProcessDetailsDialog, self).__init__(parent)
         QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
@@ -72,6 +74,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self._nid = None
         self._pid = ""
         self._notifications_sent = {}
+
+        self._socketsRE = re.compile(self.SOCKET_REGEX)
 
         self.cmdClose.clicked.connect(self._cb_close_clicked)
         self.cmdAction.clicked.connect(self._cb_action_clicked)
@@ -378,7 +382,21 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
     def _load_descriptors(self, descriptors):
         text = "%-12s%-40s%-8s -> %s\n\n" % ("Size", "Time", "Name", "Symlink")
         for d in descriptors:
+            if self.checkFilterFiles.isChecked() and d['Size'] == 0:
+                continue
             text += "{:<12}{:<40}{:<8} -> {}\n".format(str(d['Size']), d['ModTime'], d['Name'], d['SymLink'])
+
+        if self.checkFilterSockets.isChecked():
+            matches = self._socketsRE.findall(text)
+            if len(matches) > 0:
+                sockets = ""
+                for m in matches:
+                    sockets = "{0}\n{1}".format(sockets, m)
+
+                if self.checkFilterFiles.isChecked():
+                    text += sockets
+                else:
+                    text = sockets
 
         self._set_tab_text(self.TAB_DESCRIPTORS, text)
 

@@ -186,6 +186,30 @@
        <string>Open files</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
+       <item row="3" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QCheckBox" name="checkFilterSockets">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Filter sockets</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkFilterFiles">
+           <property name="text">
+            <string>Filter files</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item row="1" column="0">
         <widget class="QPlainTextEdit" name="textOpenedFiles">
          <property name="undoRedoEnabled">
@@ -317,6 +341,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>cmdClose</tabstop>
+  <tabstop>cmdAction</tabstop>
+  <tabstop>comboPids</tabstop>
+  <tabstop>textStatus</tabstop>
+  <tabstop>checkFilterSockets</tabstop>
+  <tabstop>checkFilterFiles</tabstop>
+  <tabstop>textIOStats</tabstop>
+  <tabstop>textMappedFiles</tabstop>
+  <tabstop>textStack</tabstop>
+  <tabstop>textEnv</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>textOpenedFiles</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
