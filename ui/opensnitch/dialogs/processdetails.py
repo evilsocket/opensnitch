@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import re
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
