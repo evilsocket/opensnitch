@@ -160,7 +160,7 @@ class Nodes(QObject):
     def get_node(self, addr):
         try:
             return self._nodes[addr]
-        except Exception as e:
+        except:
             return None
 
     def get_nodes(self):
@@ -194,6 +194,13 @@ class Nodes(QObject):
         except:
             print(self.LOG_TAG, "get_addr() error getting addr:", peer)
             return peer
+
+    def is_connected(self, addr):
+        try:
+            nd = self.get_node(addr)
+            return nd != None or (nd in self._nodes and self._nodes[nd]['online'] == True)
+        except:
+            return None
 
     def is_local(self, addr):
         if addr.startswith("unix"):

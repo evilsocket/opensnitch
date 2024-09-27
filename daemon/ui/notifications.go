@@ -15,6 +15,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/tasks"
+	"github.com/evilsocket/opensnitch/daemon/tasks/nodemonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/pidmonitor"
 	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
@@ -56,6 +57,33 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 		Rules:             ruleList,
 		SystemFirewall:    sysfw,
 	}
+}
+
+func (c *Client) monitorNode(node, interval string, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	taskName, nodeMonTask := nodemonitor.New(node, interval, true)
+	ctxNode, err := TaskMgr.AddTask(taskName, nodeMonTask)
+	if err != nil {
+		c.sendNotificationReply(stream, notification.Id, "", err)
+		return
+	}
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				goto Exit
+			case err := <-nodeMonTask.Errors():
+				c.sendNotificationReply(stream, notification.Id, "", err)
+			case temp := <-nodeMonTask.Results():
+				data, ok := temp.(string)
+				if !ok {
+					goto Exit
+				}
+				c.sendNotificationReply(stream, notification.Id, data, nil)
+			}
+		}
+	Exit:
+		TaskMgr.RemoveTask(taskName)
+	}(ctxNode)
 }
 
 func (c *Client) monitorProcessDetails(pid int, interval string, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
@@ -185,6 +213,8 @@ func (c *Client) handleActionTaskStart(stream protocol.UI_NotificationsClient, n
 			return
 		}
 		c.monitorProcessDetails(pid, taskConf.Data["interval"], stream, notification)
+	case nodemonitor.Name:
+		c.monitorNode(taskConf.Data["node"], taskConf.Data["interval"], stream, notification)
 	default:
 		log.Debug("TaskStart, unknown task: %v", taskConf)
 		//c.sendNotificationReply(stream, notification.Id, "", err)
@@ -208,6 +238,8 @@ func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, no
 			return
 		}
 		TaskMgr.RemoveTask(fmt.Sprint(taskConf.Name, "-", pid))
+	case nodemonitor.Name:
+		TaskMgr.RemoveTask(fmt.Sprint(nodemonitor.Name, "-", taskConf.Data["node"]))
 	default:
 		log.Debug("TaskStop, unknown task: %v", taskConf)
 		//c.sendNotificationReply(stream, notification.Id, "", err)
