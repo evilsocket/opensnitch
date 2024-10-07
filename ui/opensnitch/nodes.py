@@ -276,6 +276,7 @@ class Nodes(QObject):
                 # FIXME: the reply is sent before we return the notification id
                 if callback_signal != None:
                     callback_signal.emit(
+                        addr,
                         ui_pb2.NotificationReply(
                             id=notification.id,
                             code=ui_pb2.ERROR,
@@ -294,6 +295,7 @@ class Nodes(QObject):
             print(self.LOG_TAG + " exception sending notification: ", e, addr, notification)
             if callback_signal != None:
                 callback_signal.emit(
+                    addr,
                     ui_pb2.NotificationReply(
                         id=notification.id,
                         code=ui_pb2.ERROR,
@@ -336,7 +338,7 @@ class Nodes(QObject):
                 return
 
             if self._notifications_sent[reply.id]['callback'] != None:
-                self._notifications_sent[reply.id]['callback'].emit(reply)
+                self._notifications_sent[reply.id]['callback'].emit(addr, reply)
 
             # delete only one-time notifications
             # we need the ID of streaming notifications from the server

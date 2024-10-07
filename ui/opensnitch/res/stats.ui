@@ -560,7 +560,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>336</width>
+             <width>314</width>
              <height>404</height>
             </rect>
            </property>
@@ -1515,6 +1515,313 @@
           </widget>
          </item>
         </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_9">
+      <attribute name="icon">
+       <iconset theme="network"/>
+      </attribute>
+      <attribute name="title">
+       <string>Netstat</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="2" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_18">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="GenericTableView" name="netstatTable">
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="showGrid">
+            <bool>false</bool>
+           </property>
+           <property name="sortingEnabled">
+            <bool>false</bool>
+           </property>
+           <property name="cornerButtonEnabled">
+            <bool>false</bool>
+           </property>
+           <attribute name="horizontalHeaderStretchLastSection">
+            <bool>true</bool>
+           </attribute>
+           <attribute name="verticalHeaderStretchLastSection">
+            <bool>false</bool>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <widget class="QScrollBar" name="netstatScrollBar">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_20">
+         <item>
+          <widget class="QPushButton" name="cmdNetstatBack">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="go-previous">
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboNetstatInterval">
+           <item>
+            <property name="text">
+             <string>Stop</string>
+            </property>
+            <property name="icon">
+             <iconset theme="stop"/>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>5s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>10s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>15s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>20s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>30s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>45s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>1m</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>5m</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>10m</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboNetstatNodes">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <item>
+            <property name="text">
+             <string>All nodes</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Protocol</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboNetstatProto">
+           <item>
+            <property name="text">
+             <string>ALL</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">UDP</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">SCTP</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">DCCP</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">ICMP</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">RAW</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Family</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboNetstatFamily">
+           <item>
+            <property name="text">
+             <string>ALL</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">AF_INET</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">AF_INET6</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">AF_PACKET</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>State</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboNetstatStates">
+           <item>
+            <property name="text">
+             <string>ALL</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Established</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP_SYN_SENT</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP_SYN_RECV</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP_FIN_WAIT1</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP_FIN_WAIT2</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP_TIME_WAIT</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP_CLOSE</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP_CLOSE_WAIT</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP_LAST_ACK</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP_LISTEN</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string notr="true">TCP_CLOSING</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="netstatLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

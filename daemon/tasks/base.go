@@ -48,7 +48,7 @@ type Task interface {
 // and Data is the configuration of each task (a map[string]string, converted by the json package).
 type TaskNotification struct {
 	// Data of the task.
-	Data map[string]string
+	Data interface{}
 
 	// Name of the task.
 	Name string

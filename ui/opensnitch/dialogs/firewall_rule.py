@@ -53,7 +53,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     STATM_COUNTER = 15
     STATM_LIMIT = 16
 
-    _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
+    _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
 
     def __init__(self, parent=None, appicon=None):
         QtWidgets.QDialog.__init__(self, parent)
@@ -389,8 +389,8 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.comboDirection.currentIndexChanged.disconnect(self._cb_direction_changed)
         self.hide()
 
-    @QtCore.pyqtSlot(ui_pb2.NotificationReply)
-    def _cb_notification_callback(self, reply):
+    @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
+    def _cb_notification_callback(self, addr, reply):
         self._enable_buttons()
 
         try:

@@ -18,7 +18,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
 
     LOG_TAG = "[ProcessDetails]: "
 
-    _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
+    _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
 
     TAB_STATUS          = 0
     TAB_DESCRIPTORS     = 1
@@ -111,8 +111,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
                 except Exception as e:
                     print("procdialog._configure_plugins() exception:", name, " you may want to enable this plugin -", e)
 
-    @QtCore.pyqtSlot(ui_pb2.NotificationReply)
-    def _cb_notification_callback(self, reply):
+    @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
+    def _cb_notification_callback(self, addr, reply):
         if reply.id not in self._notifications_sent:
             print("[stats] unknown notification received: ", reply.id)
         else:

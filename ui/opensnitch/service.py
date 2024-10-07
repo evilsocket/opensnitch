@@ -37,7 +37,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _add_alert_trigger = QtCore.pyqtSignal(str, str, ui_pb2.Alert)
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal(bool)
-    _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
+    _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
     _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
 
     # .desktop filename located under /usr/share/applications/
@@ -401,8 +401,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         else:
             self._tray.setIcon(self.off_icon)
 
-    @QtCore.pyqtSlot(ui_pb2.NotificationReply)
-    def _on_notification_reply(self, reply):
+    @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
+    def _on_notification_reply(self, addr, reply):
         if reply.code == ui_pb2.ERROR:
             self._tray.showMessage("Error",
                                 reply.data,

@@ -131,3 +131,51 @@ rulesDelegateConfig = {
         }
     }
 }
+
+netstatDelegateConfig = {
+    "name": "netstatDelegateConfig",
+    "created": "",
+    "updated": "",
+    "actions": {
+        "highlight": {
+            "enabled": True,
+            "cells": [
+                {
+                    "text": ["LISTEN"],
+                    "cols": [1],
+                    "color": "green",
+                    "bgcolor": "",
+                    "alignment": ["center"]
+                },
+                {
+                    "text": ["CLOSE"],
+                    "cols": [1],
+                    "color": "red",
+                    "bgcolor": "",
+                    "alignment": ["center"]
+                },
+                {
+                    "text": ["Established"],
+                    "cols": [1],
+                    "color": "blue",
+                    "bgcolor": "",
+                    "alignment": ["center"]
+                },
+                {
+                    "text": [
+                        "TCP_SYN_SENT", "TCP_SYN_RECV",
+                        "TCP_FIN_WAIT1", "TCP_FIN_WAIT2",
+                        "TCP_TIME_WAIT", "TCP_CLOSE_WAIT",
+                        "TCP_LAST_ACK", "TCP_CLOSING",
+                        "TCP_NEW_SYNC_RECV"
+                    ],
+                    "cols": [1],
+                    "color": "",
+                    "bgcolor": "",
+                    "alignment": ["center"]
+                }
+            ],
+            "rows": []
+        }
+    }
+}

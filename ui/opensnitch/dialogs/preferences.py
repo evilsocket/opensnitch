@@ -21,7 +21,7 @@ DIALOG_UI_PATH = "%s/../res/preferences.ui" % os.path.dirname(sys.modules[__name
 class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     LOG_TAG = "[Preferences] "
-    _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
+    _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
     saved = QtCore.pyqtSignal()
 
     TAB_POPUPS = 0
@@ -962,8 +962,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         }
         self._themes.change_theme(self, self.comboUITheme.currentText(), extra_opts)
 
-    @QtCore.pyqtSlot(ui_pb2.NotificationReply)
-    def _cb_notification_callback(self, reply):
+    @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
+    def _cb_notification_callback(self, addr, reply):
         #print(self.LOG_TAG, "Config notification received: ", reply.id, reply.code)
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.OK:

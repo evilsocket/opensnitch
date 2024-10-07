@@ -199,7 +199,48 @@ class Database:
                 "status int " \
                 ")", self.db)
         q.exec_()
-
+        q = QSqlQuery("create table if not exists sockets (" \
+                      "id int primary key, " \
+                      "last_seen text, " \
+                      "node text, " \
+                      "src_port text, " \
+                      "src_ip text, " \
+                      "dst_ip text, " \
+                      "dst_port text, " \
+                      "proto text, " \
+                      "uid text, " \
+                      "inode text, " \
+                      "iface text, " \
+                      "family text, " \
+                      "state text, " \
+                      "cookies text, " \
+                      "rqueue text, " \
+                      "wqueue text, " \
+                      "expires text, " \
+                      "retrans text, " \
+                      "timer text, " \
+                      "mark text, " \
+                      "proc_pid text, " \
+                      "proc_comm text, " \
+                      "proc_path text, " \
+                      "UNIQUE(node, src_port, src_ip, dst_ip, dst_port, proto, family, inode)" \
+                      ")", self.db)
+        q.exec_()
+        q = QSqlQuery("create index sck_srcport_index on sockets (src_port)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index sck_dstip_index on sockets (dst_ip)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index sck_srcip_index on sockets (src_ip)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index sck_dsthost_index on sockets (dst_host)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index sck_state_index on sockets (state)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index sck_comm_index on sockets (proc_comm)", self.db)
+        q.exec_()
+        q = QSqlQuery("create index sck_path_index on sockets (proc_path)", self.db)
+        q.exec_()
+        q.exec_()
         q = QSqlQuery("create index rules_index on rules (time)", self.db)
         q.exec_()
 

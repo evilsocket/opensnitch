@@ -17,6 +17,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/tasks"
 	"github.com/evilsocket/opensnitch/daemon/tasks/nodemonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/pidmonitor"
+	"github.com/evilsocket/opensnitch/daemon/tasks/socketsmonitor"
 	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 	"golang.org/x/net/context"
@@ -57,6 +58,37 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 		Rules:             ruleList,
 		SystemFirewall:    sysfw,
 	}
+}
+
+func (c *Client) monitorSockets(config interface{}, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+	sockMonTask, err := socketsmonitor.New(config, true)
+	if err != nil {
+		c.sendNotificationReply(stream, notification.Id, "", err)
+		return
+	}
+	ctxSock, err := TaskMgr.AddTask(socketsmonitor.Name, sockMonTask)
+	if err != nil {
+		c.sendNotificationReply(stream, notification.Id, "", err)
+		return
+	}
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				goto Exit
+			case err := <-sockMonTask.Errors():
+				c.sendNotificationReply(stream, notification.Id, "", err)
+			case temp := <-sockMonTask.Results():
+				data, ok := temp.(string)
+				if !ok {
+					goto Exit
+				}
+				c.sendNotificationReply(stream, notification.Id, data, nil)
+			}
+		}
+	Exit:
+		// task should have already been removed via TASK_STOP
+	}(ctxSock)
 }
 
 func (c *Client) monitorNode(node, interval string, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
@@ -206,15 +238,28 @@ func (c *Client) handleActionTaskStart(stream protocol.UI_NotificationsClient, n
 	}
 	switch taskConf.Name {
 	case pidmonitor.Name:
-		pid, err := strconv.Atoi(taskConf.Data["pid"])
+		conf, ok := taskConf.Data.(map[string]interface{})
+		if !ok {
+			log.Error("[pidmon] TaskStart.Data, PID err (string expected): %v", taskConf)
+			return
+		}
+		pid, err := strconv.Atoi(conf["pid"].(string))
 		if err != nil {
-			log.Error("TaskStart.Data, PID err: %s, %v", err, taskConf)
+			log.Error("[pidmon] TaskStart.Data, PID err: %s, %v", err, taskConf)
 			c.sendNotificationReply(stream, notification.Id, "", err)
 			return
 		}
-		c.monitorProcessDetails(pid, taskConf.Data["interval"], stream, notification)
+		interval, _ := conf["interval"].(string)
+		c.monitorProcessDetails(pid, interval, stream, notification)
 	case nodemonitor.Name:
-		c.monitorNode(taskConf.Data["node"], taskConf.Data["interval"], stream, notification)
+		conf, ok := taskConf.Data.(map[string]interface{})
+		if !ok {
+			log.Error("[nodemon] TaskStart.Data, \"node\" err (string expected): %v", taskConf)
+			return
+		}
+		c.monitorNode(conf["node"].(string), conf["interval"].(string), stream, notification)
+	case socketsmonitor.Name:
+		c.monitorSockets(taskConf.Data, stream, notification)
 	default:
 		log.Debug("TaskStart, unknown task: %v", taskConf)
 		//c.sendNotificationReply(stream, notification.Id, "", err)
@@ -231,7 +276,12 @@ func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, no
 	}
 	switch taskConf.Name {
 	case pidmonitor.Name:
-		pid, err := strconv.Atoi(taskConf.Data["pid"])
+		conf, ok := taskConf.Data.(map[string]interface{})
+		if !ok {
+			log.Error("[pidmon] TaskStop.Data, PID err (string expected): %v", taskConf)
+			return
+		}
+		pid, err := strconv.Atoi(conf["pid"].(string))
 		if err != nil {
 			log.Error("TaskStop.Data, err: %s, %s, %v+, %q", err, notification.Data, taskConf.Data, taskConf.Data)
 			c.sendNotificationReply(stream, notification.Id, "", err)
@@ -239,7 +289,14 @@ func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, no
 		}
 		TaskMgr.RemoveTask(fmt.Sprint(taskConf.Name, "-", pid))
 	case nodemonitor.Name:
-		TaskMgr.RemoveTask(fmt.Sprint(nodemonitor.Name, "-", taskConf.Data["node"]))
+		conf, ok := taskConf.Data.(map[string]interface{})
+		if !ok {
+			log.Error("[pidmon] TaskStop.Data, PID err (string expected): %v", taskConf)
+			return
+		}
+		TaskMgr.RemoveTask(fmt.Sprint(nodemonitor.Name, "-", conf["node"].(string)))
+	case socketsmonitor.Name:
+		TaskMgr.RemoveTask(socketsmonitor.Name)
 	default:
 		log.Debug("TaskStop, unknown task: %v", taskConf)
 		//c.sendNotificationReply(stream, notification.Id, "", err)

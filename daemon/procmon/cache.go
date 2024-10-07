@@ -140,8 +140,8 @@ func (c *CacheProcs) sort(pid int) {
 	if item != nil && item.Pid == pid {
 		return
 	}
-	c.RLock()
-	defer c.RUnlock()
+	c.Lock()
+	defer c.Unlock()
 
 	sort.Slice(c.items, func(i, j int) bool {
 		t := c.items[i].LastSeen

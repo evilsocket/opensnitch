@@ -9,7 +9,8 @@ from opensnitch.utils.xdg import xdg_config_home
 from opensnitch.actions.default_configs import (
     commonDelegateConfig,
     rulesDelegateConfig,
-    fwDelegateConfig
+    fwDelegateConfig,
+    netstatDelegateConfig
 )
 
 from opensnitch.plugins import PluginsList
@@ -129,6 +130,7 @@ class Actions(QObject):
         self._actions_list[commonDelegateConfig[Actions.KEY_NAME]] = self.compile(commonDelegateConfig)
         self._actions_list[rulesDelegateConfig[Actions.KEY_NAME]] = self.compile(rulesDelegateConfig)
         self._actions_list[fwDelegateConfig[Actions.KEY_NAME]] = self.compile(fwDelegateConfig)
+        self._actions_list[netstatDelegateConfig[Actions.KEY_NAME]] = self.compile(netstatDelegateConfig)
 
     def load(self, action_file):
         """read a json file from disk and create the action."""

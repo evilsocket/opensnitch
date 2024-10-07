@@ -26,7 +26,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     POLICY_ACCEPT = 0
     POLICY_DROP = 1
 
-    _notification_callback = QtCore.pyqtSignal(ui_pb2.NotificationReply)
+    _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
 
     def __init__(self, parent=None, appicon=None, node=None):
         QtWidgets.QDialog.__init__(self, parent)
@@ -87,8 +87,8 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdNewRule.setIcon(newIcon)
         self.cmdHelp.setIcon(helpIcon)
 
-    @QtCore.pyqtSlot(ui_pb2.NotificationReply)
-    def _cb_notification_callback(self, reply):
+    @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
+    def _cb_notification_callback(self, addr, reply):
         self.comboInput.setEnabled(True)
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.OK:
