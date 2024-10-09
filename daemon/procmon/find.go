@@ -84,18 +84,19 @@ func lookupPidDescriptors(fdPath string, pid int) []string {
 }
 
 // getProcPids returns the list of running PIDs, /proc or /proc/<pid>/task/ .
-func getProcPids(pidsPath string) (pidList []int) {
+func getProcPids(pidsPath string) []int {
 	f, err := os.Open(pidsPath)
 	if err != nil {
-		return pidList
+		return []int{}
 	}
 	ls, err := f.Readdir(-1)
 	f.Close()
 	if err != nil {
-		return pidList
+		return []int{}
 	}
 	ls = sortPidsByTime(ls)
 
+	pidList := make([]int, 0, len(ls))
 	for _, f := range ls {
 		if f.IsDir() == false {
 			continue
