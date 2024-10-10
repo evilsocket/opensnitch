@@ -7,11 +7,10 @@ import (
 // TaskBase holds the common fields of every task.
 // Warning: don't define fields in tasks with these names.
 type TaskBase struct {
-	Ctx      context.Context
-	Cancel   context.CancelFunc
-	Results  chan interface{}
-	Errors   chan error
-	StopChan chan struct{}
+	Ctx     context.Context
+	Cancel  context.CancelFunc
+	Results chan interface{}
+	Errors  chan error
 
 	// Stop the task if the daemon is disconnected from the GUI (server).
 	// Some tasks don't need to run if the daemon is not connected to the GUI,

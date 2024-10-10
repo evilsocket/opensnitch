@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"syscall"
 	"time"
 	"unsafe"
@@ -24,6 +25,7 @@ type Config struct {
 // NodeMonitor monitors the resources of a node (ram, swap, load avg, etc).
 type NodeMonitor struct {
 	tasks.TaskBase
+	mu     *sync.RWMutex
 	Ticker *time.Ticker
 
 	Interval string
@@ -34,10 +36,10 @@ type NodeMonitor struct {
 func New(node, interval string, stopOnDisconnect bool) (string, *NodeMonitor) {
 	return fmt.Sprint(Name, "-", node), &NodeMonitor{
 		TaskBase: tasks.TaskBase{
-			Results:  make(chan interface{}),
-			Errors:   make(chan error),
-			StopChan: make(chan struct{}),
+			Results: make(chan interface{}),
+			Errors:  make(chan error),
 		},
+		mu:       &sync.RWMutex{},
 		Node:     node,
 		Interval: interval,
 	}
@@ -45,6 +47,9 @@ func New(node, interval string, stopOnDisconnect bool) (string, *NodeMonitor) {
 
 // Start ...
 func (pm *NodeMonitor) Start(ctx context.Context, cancel context.CancelFunc) error {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
 	pm.Ctx = ctx
 	pm.Cancel = cancel
 
@@ -60,8 +65,6 @@ func (pm *NodeMonitor) Start(ctx context.Context, cancel context.CancelFunc) err
 		var info syscall.Sysinfo_t
 		for {
 			select {
-			case <-pm.StopChan:
-				goto Exit
 			case <-ctx.Done():
 				goto Exit
 			case <-pm.Ticker.C:
@@ -102,9 +105,13 @@ func (pm *NodeMonitor) Resume() error {
 
 // Stop ...
 func (pm *NodeMonitor) Stop() error {
+	pm.mu.RLock()
+	defer pm.mu.RUnlock()
+
 	if pm.StopOnDisconnect {
 		return nil
 	}
+	pm.Ticker.Stop()
 	pm.Cancel()
 	close(pm.TaskBase.Results)
 	close(pm.TaskBase.Errors)

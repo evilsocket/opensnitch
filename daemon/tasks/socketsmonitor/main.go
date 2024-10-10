@@ -71,9 +71,8 @@ func New(config interface{}, stopOnDisconnect bool) (*SocketsMonitor, error) {
 	}
 	return &SocketsMonitor{
 		TaskBase: tasks.TaskBase{
-			Results:  make(chan interface{}),
-			Errors:   make(chan error),
-			StopChan: make(chan struct{}),
+			Results: make(chan interface{}),
+			Errors:  make(chan error),
 		},
 		mu:               &sync.RWMutex{},
 		StopOnDisconnect: stopOnDisconnect,
@@ -98,8 +97,6 @@ func (pm *SocketsMonitor) Start(ctx context.Context, cancel context.CancelFunc) 
 	go func(ctx context.Context) {
 		for {
 			select {
-			case <-pm.TaskBase.StopChan:
-				goto Exit
 			case <-ctx.Done():
 				goto Exit
 			case <-pm.Ticker.C:

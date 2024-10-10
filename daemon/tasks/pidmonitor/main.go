@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 	"unsafe"
 
@@ -25,19 +26,21 @@ type Config struct {
 // PIDMonitor monitors a process ID.
 type PIDMonitor struct {
 	tasks.TaskBase
-	Ticker   *time.Ticker
-	Interval string
-	Pid      int
+	mu        *sync.RWMutex
+	Ticker    *time.Ticker
+	Interval  string
+	Pid       int
+	isStopped bool
 }
 
 // New returns a new PIDMonitor
 func New(pid int, interval string, stopOnDisconnect bool) (string, *PIDMonitor) {
 	return fmt.Sprint(Name, "-", pid), &PIDMonitor{
 		TaskBase: tasks.TaskBase{
-			Results:  make(chan interface{}),
-			Errors:   make(chan error),
-			StopChan: make(chan struct{}),
+			Results: make(chan interface{}),
+			Errors:  make(chan error),
 		},
+		mu:       &sync.RWMutex{},
 		Pid:      pid,
 		Interval: interval,
 	}
@@ -45,6 +48,9 @@ func New(pid int, interval string, stopOnDisconnect bool) (string, *PIDMonitor) 
 
 // Start ...
 func (pm *PIDMonitor) Start(ctx context.Context, cancel context.CancelFunc) error {
+	pm.mu.RLock()
+	defer pm.mu.RUnlock()
+
 	pm.Ctx = ctx
 	pm.Cancel = cancel
 	p := &procmon.Process{}
@@ -71,8 +77,6 @@ func (pm *PIDMonitor) Start(ctx context.Context, cancel context.CancelFunc) erro
 	go func(ctx context.Context) {
 		for {
 			select {
-			case <-pm.StopChan:
-				goto Exit
 			case <-ctx.Done():
 				goto Exit
 			case <-pm.Ticker.C:
@@ -85,6 +89,9 @@ func (pm *PIDMonitor) Start(ctx context.Context, cancel context.CancelFunc) erro
 				if err != nil {
 					pm.TaskBase.Errors <- err
 					continue
+				}
+				if pm.isStopped {
+					goto Exit
 				}
 				// ~200µs (string()) vs ~60ns
 				pm.TaskBase.Results <- unsafe.String(unsafe.SliceData(pJSON), len(pJSON))
@@ -111,12 +118,17 @@ func (pm *PIDMonitor) Resume() error {
 
 // Stop ...
 func (pm *PIDMonitor) Stop() error {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
 	if pm.StopOnDisconnect {
 		log.Debug("[task.PIDMonitor] ignoring Stop()")
 		return nil
 	}
+	pm.isStopped = true
+
 	log.Debug("[task.PIDMonitor] Stop()")
-	pm.StopChan <- struct{}{}
+	pm.Ticker.Stop()
 	pm.Cancel()
 	close(pm.TaskBase.Results)
 	close(pm.TaskBase.Errors)
