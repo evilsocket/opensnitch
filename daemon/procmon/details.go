@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/dns"
@@ -24,6 +25,7 @@ import (
 )
 
 var socketsRegex, _ = regexp.Compile(`socket:\[([0-9]+)\]`)
+var pageSize = int64(os.Getpagesize())
 
 // GetParent obtains the information of this process' parent.
 func (p *Process) GetParent() {
@@ -182,6 +184,42 @@ func (p *Process) ReadEnv() {
 	}
 }
 
+// ReadMaps reads the /proc/<pid>/maps file.
+func (p *Process) ReadMaps() {
+	data, err := ioutil.ReadFile(p.pathMaps)
+	if err != nil {
+		return
+	}
+	p.Maps = unsafe.String(unsafe.SliceData(data), len(data))
+}
+
+// ReadStatm reads and parses the /proc/<pid>/statm file.
+// Memory usage is measured in pages.
+func (p *Process) ReadStatm() {
+	if data, err := ioutil.ReadFile(p.pathStatm); err == nil {
+		p.Statm = &procStatm{}
+		fmt.Sscanf(string(data), "%d %d %d %d %d %d %d", &p.Statm.Size, &p.Statm.Resident, &p.Statm.Shared, &p.Statm.Text, &p.Statm.Lib, &p.Statm.Data, &p.Statm.Dt)
+		p.Statm.Size = p.Statm.Size * pageSize
+		p.Statm.Resident = p.Statm.Resident * pageSize
+		p.Statm.Shared = p.Statm.Shared * pageSize
+		p.Statm.Text = p.Statm.Text * pageSize
+		p.Statm.Lib = p.Statm.Lib * pageSize
+		p.Statm.Data = p.Statm.Data * pageSize
+		p.Statm.Dt = p.Statm.Dt * int(pageSize)
+	}
+}
+
+// ReadExeLink reads the link that /proc/<pid>/exe points to.
+// This is the real path to the path that was executed and loaded in memory.
+// It may or not be the same binary that exists on disk (for example when a
+// binary is executed, and later updated or deleted).
+// If a process is launched from a chroot, this link will point to the absolute
+// path, including the host path to the chroot.
+func (p *Process) ReadExeLink() (string, error) {
+	// FIXME: this reading can give error: file name too long
+	return os.Readlink(p.pathExe)
+}
+
 // ReadPath reads the symbolic link that /proc/<pid>/exe points to.
 // Note 1: this link might not exist on the root filesystem, it might
 // have been executed from a container, so the real path would be:
@@ -209,12 +247,7 @@ func (p *Process) ReadPath() error {
 		}
 	}()
 
-	if _, err := os.Lstat(p.pathExe); err != nil {
-		return err
-	}
-
-	// FIXME: this reading can give error: file name too long
-	link, err := os.Readlink(p.pathExe)
+	link, err := p.ReadExeLink()
 	if err != nil {
 		return err
 	}
@@ -351,13 +384,8 @@ func (p *Process) readStatus() {
 	if data, err := ioutil.ReadFile(core.ConcatStrings("/proc/", strconv.Itoa(p.ID), "/stack")); err == nil {
 		p.Stack = string(data)
 	}
-	if data, err := ioutil.ReadFile(p.pathMaps); err == nil {
-		p.Maps = string(data)
-	}
-	if data, err := ioutil.ReadFile(p.pathStatm); err == nil {
-		p.Statm = &procStatm{}
-		fmt.Sscanf(string(data), "%d %d %d %d %d %d %d", &p.Statm.Size, &p.Statm.Resident, &p.Statm.Shared, &p.Statm.Text, &p.Statm.Lib, &p.Statm.Data, &p.Statm.Dt)
-	}
+	p.ReadMaps()
+	p.ReadStatm()
 }
 
 // CleanPath applies fixes on the path to the binary:

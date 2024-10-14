@@ -369,14 +369,12 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.textIOStats.appendHtml(ioText)
 
     def _load_mem_data(self, mem):
-        # assuming page size == 4096
-        pagesize = 4096
         memText = "<b>VIRT:</b> %dMB, <b>RSS:</b> %dMB, <b>Libs:</b> %dMB, <b>Data:</b> %dMB, <b>Text:</b> %dMB" % (
-                ((mem['Size'] * pagesize) / 1024) / 1024,
-                ((mem['Resident'] * pagesize) / 1024) / 1024,
-                ((mem['Lib'] * pagesize) / 1024) / 1024,
-                ((mem['Data'] * pagesize) / 1024) / 1024,
-                ((mem['Text'] * pagesize) / 1024) / 1024
+                (mem['Size'] / 1024) / 1024,
+                (mem['Resident'] / 1024) / 1024,
+                (mem['Lib'] / 1024) / 1024,
+                (mem['Data'] / 1024) / 1024,
+                (mem['Text'] / 1024) / 1024
                 )
         self.labelStatm.setText(memText)
 
