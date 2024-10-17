@@ -53,11 +53,31 @@ func TestProcDescriptors(t *testing.T) {
 }
 
 func TestProcEnv(t *testing.T) {
+	proc.pathEnviron = "testdata/proc-environ"
 	proc.ReadEnv()
 
-	if len(proc.Env) == 0 {
-		t.Error("Proc Env should not be empty:", proc.Env)
+	expected := map[string]string{
+		"EMPTY":                    "",
+		"TEST1":                    "xxx=123",
+		"TEST2":                    "xxx=123==456",
+		"SSH_AGENT_PID":            "4873",
+		"XDG_CURRENT_DESKTOP":      "i3",
+		"USER":                     "opensnitch",
+		"HOME":                     "/tmp",
+		"XDG_DATA_DIRS":            "/usr/share/gnome:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share",
+		"DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+		// Test latest var
+		"LS_COLORS": "rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;",
+
+		//"LAST":      "",
 	}
+
+	for k, v := range expected {
+		if env, found := proc.Env[k]; !found || env != v {
+			t.Error("Proc Env error, expected", ":", v, "got:", env, "(", k, ")")
+		}
+	}
+
 }
 
 func TestProcIOStats(t *testing.T) {
@@ -111,5 +131,11 @@ func TestProcCleanPath(t *testing.T) {
 	proc.CleanPath()
 	if proc.Path != "/fake/path/binary" {
 		t.Error("Proc cleanPath() not cleaned:", proc.Path)
+	}
+}
+
+func BenchmarkProcReadEnv(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		proc.ReadEnv()
 	}
 }

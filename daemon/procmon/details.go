@@ -168,19 +168,23 @@ func (p *Process) ReadCwd() error {
 
 // ReadEnv reads and parses the environment variables of a process.
 func (p *Process) ReadEnv() {
-	data, err := ioutil.ReadFile(p.pathEnviron)
+	raw, err := ioutil.ReadFile(p.pathEnviron)
 	if err != nil {
 		return
 	}
-	for _, s := range strings.Split(string(data), "\x00") {
-		parts := strings.SplitN(core.Trim(s), "=", 2)
-		if parts != nil && len(parts) == 2 {
-			key := core.Trim(parts[0])
-			val := core.Trim(parts[1])
-			p.mu.Lock()
-			p.Env[key] = val
-			p.mu.Unlock()
+	raw = bytes.Trim(raw, "\r\n\t")
+	vars := strings.Split(string(raw), "\x00")
+	for _, s := range vars {
+		idx := strings.Index(s, "=")
+		if idx == -1 {
+			continue
 		}
+
+		key := s[:idx]
+		val := s[idx+1 : len(s)]
+		p.mu.Lock()
+		p.Env[key] = val
+		p.mu.Unlock()
 	}
 }
 
