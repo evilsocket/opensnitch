@@ -22,6 +22,9 @@ var (
 		DefaultDuration:   "once",
 		InterceptUnknown:  false,
 		Firewall:          "nftables",
+		Rules: config.RulesOptions{
+			Path: "/etc/opensnitchd/rules",
+		},
 	}
 )
 
@@ -75,6 +78,7 @@ func TestClientConfigReloading(t *testing.T) {
 		reloadConfig.DefaultAction = string(rule.Deny)
 		reloadConfig.InterceptUnknown = true
 		reloadConfig.Firewall = iptables.Name
+		reloadConfig.FwOptions.QueueBypass = true
 		reloadConfig.Server.Address = "unix:///run/user/1000/opensnitch/osui.sock"
 
 		plainJSON, err := json.Marshal(reloadConfig)
@@ -84,7 +88,8 @@ func TestClientConfigReloading(t *testing.T) {
 		if err = config.Save(configFile, string(plainJSON)); err != nil {
 			t.Errorf("error saving config to disk: %s", err)
 		}
-		time.Sleep(time.Second * 3)
+		// wait for the config to load
+		time.Sleep(time.Second * 10)
 
 		validateConfig(t, uiClient, &reloadConfig)
 	})

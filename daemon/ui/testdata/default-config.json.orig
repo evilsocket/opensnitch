@@ -26,10 +26,10 @@
     "FwOptions": {
         "ConfigPath": "/etc/opensnitchd/system-fw.json",
         "MonitorInterval": "25s",
-        "ActionOnOverflow": "drop"
+        "QueueBypass": false
     },
     "Rules": {
-        "Path": "",
+        "Path": "/etc/opensnitchd/rules",
         "EnableChecksums": true
     },
     "Ebpf": {
