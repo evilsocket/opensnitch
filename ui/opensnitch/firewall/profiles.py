@@ -30,21 +30,6 @@ class ProfileAcceptOutput():
         ]
     }
 
-
-class ProfileDropOutput():
-    value = {
-        "Name": "drop-mangle-output",
-        "Table": "mangle",
-        "Family": "inet",
-        "Priority": "",
-        "Type": "mangle",
-        "Hook": "output",
-        "Policy": "drop",
-        "Rules": [
-        ]
-    }
-
-
 class ProfileAcceptForward():
     value = {
         "Name": "accept-mangle-forward",
@@ -145,6 +130,45 @@ class ProfileDropInput():
                                 {
                                     "Key": "state",
                                     "Value": "established"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "Target": "accept",
+                "TargetParameters": ""
+            }
+        ]
+    }
+
+class ProfileDropOutput():
+    """
+    Set output mangle table policy to DROP and add the needed rules to allow
+    outbound connections.
+    """
+
+    value = {
+        "Name": "drop-mangle-output",
+        "Table": "mangle",
+        "Family": "inet",
+        "Priority": "",
+        "Type": "mangle",
+        "Hook": "output",
+        "Policy": "drop",
+        "Rules": [
+            {
+                "Enabled": True,
+                "Description": "[profile-drop-outbound] allow established,related connections",
+                "UUID": "profile-drop-outbound-e1fc1a1c-c21c-11ec-9a2a-3c970e298b0c",
+                "Expressions": [
+                    {
+                        "Statement": {
+                            "Op": "",
+                            "Name": "ct",
+                            "Values": [
+                                {
+                                    "Key": "state",
+                                    "Value": "established,related"
                                 }
                             ]
                         }

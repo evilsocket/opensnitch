@@ -307,7 +307,7 @@ QSlider::sub-page:horizontal {
           <item row="2" column="0">
            <widget class="QLabel" name="label_4">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
              <string>Outbound</string>
@@ -324,7 +324,7 @@ QSlider::sub-page:horizontal {
           <item row="2" column="1">
            <widget class="QComboBox" name="comboOutput">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
