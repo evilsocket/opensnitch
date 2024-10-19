@@ -6,7 +6,16 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/google/nftables"
+	"github.com/google/nftables/expr"
 )
+
+func (n *Nft) getBypassFlag() expr.QueueFlag {
+	if n.bypassQueue {
+		return expr.QueueFlagBypass
+	}
+
+	return 0x0
+}
 
 func GetFamilyCode(family string) nftables.TableFamily {
 	famCode := nftables.TableFamilyINet

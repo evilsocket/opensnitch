@@ -157,6 +157,7 @@ func overwriteFw(cfg *config.Config, qNum uint16, fwCfg string) {
 		cfg.Firewall,
 		fwCfg,
 		cfg.FwOptions.MonitorInterval,
+		cfg.FwOptions.QueueBypass,
 		qNum,
 	)
 	// TODO: Close() closes the daemon if closing the queue timeouts

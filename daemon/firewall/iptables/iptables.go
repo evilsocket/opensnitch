@@ -59,6 +59,7 @@ type Iptables struct {
 	bin                   string
 	bin6                  string
 	chains                SystemChains
+	bypassQueue           bool
 	common.Common
 	config.Config
 
@@ -71,7 +72,7 @@ func Fw() (*Iptables, error) {
 		return nil, err
 	}
 
-	reRulesQuery, _ := regexp.Compile(`NFQUEUE.*ctstate NEW,RELATED.*NFQUEUE num.*bypass`)
+	reRulesQuery, _ := regexp.Compile(`NFQUEUE.*ctstate NEW,RELATED.*NFQUEUE num.*`)
 	reSystemRulesQuery, _ := regexp.Compile(SystemRulePrefix + ".*")
 
 	ipt := &Iptables{
@@ -93,10 +94,11 @@ func (ipt *Iptables) Name() string {
 
 // Init inserts the firewall rules and starts monitoring for firewall
 // changes.
-func (ipt *Iptables) Init(qNum uint16, configPath, monitorInterval string) {
+func (ipt *Iptables) Init(qNum uint16, configPath, monitorInterval string, bypassQueue bool) {
 	if ipt.IsRunning() {
 		return
 	}
+	ipt.bypassQueue = bypassQueue
 	ipt.SetQueueNum(qNum)
 	ipt.SetRulesCheckerInterval(monitorInterval)
 	ipt.ErrChan = make(chan string, 100)

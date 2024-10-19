@@ -41,8 +41,9 @@ var (
 
 // Nft holds the fields of our nftables firewall
 type Nft struct {
-	Conn   *nftables.Conn
-	chains iptables.SystemChains
+	Conn        *nftables.Conn
+	chains      iptables.SystemChains
+	bypassQueue bool
 
 	common.Common
 	config.Config
@@ -71,10 +72,11 @@ func (n *Nft) Name() string {
 
 // Init inserts the firewall rules and starts monitoring for firewall
 // changes.
-func (n *Nft) Init(qNum uint16, configPath, monitorInterval string) {
+func (n *Nft) Init(qNum uint16, configPath, monitorInterval string, bypassQueue bool) {
 	if n.IsRunning() {
 		return
 	}
+	n.bypassQueue = bypassQueue
 	n.Conn = NewNft()
 	n.ErrChan = make(chan string, 100)
 	InitMapsStore()

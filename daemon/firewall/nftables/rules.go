@@ -57,7 +57,7 @@ func (n *Nft) QueueDNSResponses(enable, logError bool) (error, error) {
 				},
 				&expr.Queue{
 					Num:  n.QueueNum,
-					Flag: expr.QueueFlagBypass,
+					Flag: n.getBypassFlag(),
 				},
 			},
 			// rule key, to allow get it later by key
@@ -112,7 +112,7 @@ func (n *Nft) QueueConnections(enable, logError bool) (error, error) {
 			&expr.Cmp{Op: expr.CmpOpNeq, Register: 1, Data: []byte{0, 0, 0, 0}},
 			&expr.Queue{
 				Num:  n.QueueNum,
-				Flag: expr.QueueFlagBypass,
+				Flag: n.getBypassFlag(),
 			},
 		},
 		// rule key, to allow get it later by key
@@ -163,7 +163,7 @@ func (n *Nft) QueueConnections(enable, logError bool) (error, error) {
 			},
 			&expr.Queue{
 				Num:  n.QueueNum,
-				Flag: expr.QueueFlagBypass,
+				Flag: n.getBypassFlag(),
 			},
 		},
 		// rule key, to allow get it later by key

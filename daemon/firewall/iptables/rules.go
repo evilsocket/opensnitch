@@ -8,12 +8,27 @@ import (
 	"github.com/vishvananda/netlink"
 )
 
+func (ipt *Iptables) getBypassQueue() string {
+	if !ipt.bypassQueue {
+		return ""
+	}
+
+	return "--queue-bypass"
+}
+
 // RunRule inserts or deletes a firewall rule.
 func (ipt *Iptables) RunRule(action Action, enable bool, logError bool, rule []string) (err4, err6 error) {
 	if enable == false {
 		action = "-D"
 	}
 
+	// If the last argument of the rule is "", the iptables command fails.
+	// So if the user selects "QueueBypass: false", delete the last token of the rule,
+	// which will be "".
+	args := len(rule)
+	if rule[args-1] == "" {
+		rule = append(rule[:args-1], rule[args:]...)
+	}
 	rule = append([]string{string(action)}, rule...)
 
 	ipt.Lock()
@@ -49,7 +64,7 @@ func (ipt *Iptables) QueueDNSResponses(enable bool, logError bool) (err4, err6 e
 		"--sport", "53",
 		"-j", "NFQUEUE",
 		"--queue-num", fmt.Sprintf("%d", ipt.QueueNum),
-		"--queue-bypass",
+		ipt.getBypassQueue(),
 	})
 }
 
@@ -64,7 +79,7 @@ func (ipt *Iptables) QueueConnections(enable bool, logError bool) (error, error)
 		"--ctstate", "NEW,RELATED",
 		"-j", "NFQUEUE",
 		"--queue-num", fmt.Sprintf("%d", ipt.QueueNum),
-		"--queue-bypass",
+		ipt.getBypassQueue(),
 	})
 	if enable {
 		// flush conntrack as soon as netfilter rule is set. This ensures that already-established

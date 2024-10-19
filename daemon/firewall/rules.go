@@ -13,7 +13,7 @@ import (
 
 // Firewall is the interface that all firewalls (iptables, nftables) must implement.
 type Firewall interface {
-	Init(uint16, string, string)
+	Init(uint16, string, string, bool)
 	Stop()
 	Name() string
 	IsRunning() bool
@@ -46,7 +46,7 @@ var (
 // We'll try to use the firewall configured in the configuration (iptables/nftables).
 // If iptables is not installed, we can add nftables rules directly to the kernel,
 // without relying on any binaries.
-func Init(fwType, configPath, monitorInterval string, qNum uint16) (err error) {
+func Init(fwType, configPath, monitorInterval string, bypassQueue bool, qNum uint16) (err error) {
 	if fwType == iptables.Name {
 		fw, err = iptables.Fw()
 		if err != nil {
@@ -72,7 +72,7 @@ func Init(fwType, configPath, monitorInterval string, qNum uint16) (err error) {
 		configPath = config.DefaultConfigFile
 	}
 	fw.Stop()
-	fw.Init(qNum, configPath, monitorInterval)
+	fw.Init(qNum, configPath, monitorInterval, bypassQueue)
 	queueNum = qNum
 
 	log.Info("Using %s firewall", fw.Name())
@@ -104,9 +104,9 @@ func CleanRules(logErrors bool) {
 }
 
 // Reload stops current firewall and initializes a new one.
-func Reload(fwtype, configPath, monitorInterval string, queueNum uint16) (err error) {
+func Reload(fwtype, configPath, monitorInterval string, bypassQueue bool, queueNum uint16) (err error) {
 	Stop()
-	err = Init(fwtype, configPath, monitorInterval, queueNum)
+	err = Init(fwtype, configPath, monitorInterval, bypassQueue, queueNum)
 	return
 }
 

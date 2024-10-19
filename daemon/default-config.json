@@ -17,7 +17,8 @@
     "Firewall": "nftables",
     "FwOptions": {
         "ConfigPath": "/etc/opensnitchd/system-fw.json",
-        "MonitorInterval": "15s"
+        "MonitorInterval": "15s",
+        "BypassQueue": true
     },
     "Rules": {
         "Path": "/etc/opensnitchd/rules/",

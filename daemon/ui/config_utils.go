@@ -204,7 +204,8 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 	if c.GetFirewallType() != newConfig.Firewall ||
 		newConfig.FwOptions.ConfigPath != c.config.FwOptions.ConfigPath ||
 		newConfig.FwOptions.QueueNum != c.config.FwOptions.QueueNum ||
-		newConfig.FwOptions.MonitorInterval != c.config.FwOptions.MonitorInterval {
+		newConfig.FwOptions.MonitorInterval != c.config.FwOptions.MonitorInterval ||
+		newConfig.FwOptions.QueueBypass != c.config.FwOptions.QueueBypass {
 		log.Debug("[config] reloading config.firewall")
 		reloadFw = true
 
@@ -212,6 +213,7 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 			newConfig.Firewall,
 			newConfig.FwOptions.ConfigPath,
 			newConfig.FwOptions.MonitorInterval,
+			newConfig.FwOptions.QueueBypass,
 			newConfig.FwOptions.QueueNum,
 		)
 	} else {
