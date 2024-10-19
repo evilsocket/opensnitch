@@ -119,7 +119,7 @@ func (e *EventsStore) ReplaceItem(oldProc, newProc *Process) {
 	if len(oldProc.Tree) == 0 {
 		oldProc.GetParent()
 		oldProc.BuildTree()
-		e.UpdateItem(newProc)
+		e.UpdateItem(oldProc)
 	}
 
 	// TODO: work on improving the process tree (specially with forks/clones*)
@@ -220,15 +220,17 @@ func (e *EventsStore) IsInStore(key int, proc *Process) (item ExecEventItem, nee
 
 // IsInStoreByPID checks if a pid exists in cache.
 func (e *EventsStore) IsInStoreByPID(key int) (item ExecEventItem, found bool) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
+	e.mu.RLock()
 	item, found = e.eventByPID[key]
+	e.mu.RUnlock()
 
 	if !found {
 		return
 	}
 
+	e.mu.Lock()
 	item.LastSeen = time.Now().UnixNano()
+	e.mu.Unlock()
 
 	return
 }
@@ -272,8 +274,6 @@ func (e *EventsStore) DeleteOldItems() {
 
 // ComputeChecksums obtains the checksums of the process
 func (e *EventsStore) ComputeChecksums(proc *Process) bool {
-	e.mu.RLock()
-	defer e.mu.RUnlock()
 
 	if !e.checksumsEnabled || proc != nil && proc.IsAlive() && proc.ChecksumsCount() > 0 {
 		log.Debug("[cache] ComputeChecksums, already hashed: %s -> %v", proc.Path, proc.Checksums)
