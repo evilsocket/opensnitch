@@ -261,7 +261,7 @@ For example when:
  - "quota until 10/mbytes" -> apply the Action defined (ACCEPT)
 
 The value must be in the format: VALUE/UNITS, for example:
- - 10mbytes, 1/gbytes, etc
+ - 10/mbytes, 1/gbytes, etc
 """),
                 'keys':  [
                     {'key': Fw.ExprQuota.OVER.value, 'values': []},
