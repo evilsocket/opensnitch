@@ -131,7 +131,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="704"/>
         <source>from this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>iš šio PID</translation>
     </message>
 </context>
 <context>

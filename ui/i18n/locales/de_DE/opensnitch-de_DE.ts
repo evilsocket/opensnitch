@@ -146,7 +146,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="704"/>
         <source>from this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>von dieser pid</translation>
     </message>
 </context>
 <context>
