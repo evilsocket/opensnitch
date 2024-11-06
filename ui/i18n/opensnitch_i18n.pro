@@ -27,13 +27,16 @@ FORMS += ../opensnitch/res/prompt.ui \
 	    ../opensnitch/res/stats.ui \
 	    ../opensnitch/res/firewall.ui \
 	    ../opensnitch/res/firewall_rule.ui
-TRANSLATIONS += locales/de_DE/opensnitch-de_DE.ts \
+TRANSLATIONS += locales/cs_CZ/opensnitch-cs_CZ.ts \
+                locales/de_DE/opensnitch-de_DE.ts \
                 locales/es_ES/opensnitch-es_ES.ts \
                 locales/eu_ES/opensnitch-eu_ES.ts \
                 locales/fi_FI/opensnitch-fi_FI.ts \
                 locales/fr_FR/opensnitch-fr_FR.ts \
                 locales/hu_HU/opensnitch-hu_HU.ts \
+                locales/hi_IN/opensnitch-hi_IN.ts \
                 locales/id_ID/opensnitch-id_ID.ts \
+                locales/it_IT/opensnitch-it_IT.ts \
                 locales/ja_JP/opensnitch-ja_JP.ts \
                 locales/lt_LT/opensnitch-lt_LT.ts \
                 locales/nb_NO/opensnitch-nb_NO.ts \
@@ -41,5 +44,6 @@ TRANSLATIONS += locales/de_DE/opensnitch-de_DE.ts \
                 locales/pt_BR/opensnitch-pt_BR.ts \
                 locales/ro_RO/opensnitch-ro_RO.ts \
                 locales/ru_RU/opensnitch-ru_RU.ts \
+                locales/sv_SE/opensnitch-sv_SE.ts \
                 locales/tr_TR/opensnitch-tr_TR.ts \
                 locales/zh_TW/opensnitch-zh_TW.ts

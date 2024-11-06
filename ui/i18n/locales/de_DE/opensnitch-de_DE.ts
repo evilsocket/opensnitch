@@ -126,7 +126,7 @@
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="346"/>
         <source>Deny</source>
-        <translation type="unfinished">Verweigern</translation>
+        <translation>Verweigern</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="337"/>
@@ -146,42 +146,42 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="727"/>
         <source>from this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>von dieser pid</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="809"/>
         <source>action</source>
-        <translation type="unfinished"></translation>
+        <translation>aktion</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="14"/>
         <source>Firewall</source>
-        <translation type="unfinished"></translation>
+        <translation>Firewall</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="55"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Firewall&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Firewall&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="320"/>
         <source>Inbound</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingehend</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="313"/>
         <source>Outbound</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgehend</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="275"/>
         <source>Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="375"/>
         <source>Allow inbound connections to a port</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaube eingehende Verbindungen zu einem Port</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="378"/>
@@ -191,57 +191,57 @@
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="397"/>
         <source>Exclude outbound connections to a port from being intercepted</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließe ausgehende Verbindungen zu einem Port vom Mitschnitt aus</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="406"/>
         <source>Allow service (OUT)</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaube service (ausgehend)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="426"/>
         <source>New rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Regel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="431"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>schließen</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="14"/>
         <source>Firewall rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Firewall regel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="26"/>
         <source>Node</source>
-        <translation type="unfinished">Knoten</translation>
+        <translation>Knoten</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="38"/>
         <source>Enable</source>
-        <translation type="unfinished">Aktivieren</translation>
+        <translation>Aktivieren</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="50"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="90"/>
         <source>Simple</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfach</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="154"/>
         <source>Add new condition</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge neue Bedingung hinzu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="177"/>
         <source>Remove selected condition</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne ausgewählte Verbindung</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="233"/>
@@ -261,12 +261,12 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="223"/>
         <source>Action</source>
-        <translation type="unfinished">Aktion</translation>
+        <translation>Aktion</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="285"/>
         <source>ACCEPT</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlauben</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="294"/>

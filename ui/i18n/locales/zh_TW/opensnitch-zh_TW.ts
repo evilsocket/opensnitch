@@ -1246,7 +1246,15 @@ Use regular expressions instead:
 or a single domain:
 www.gnu.org - it&apos;ll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
 gnu.org         - it&apos;ll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</source>
-        <translation type="unfinished"></translation>
+        <translation>不能使用逗號或空格來指定多個網域。
+
+請改用正則表達式：
+.*(opensnitch|duckduckgo).com
+.*\.google.com
+
+或單一網域：
+www.gnu.org - 這樣只會比對 www.gnu.org，不會比對 ftp.gnu.org 或 www2.gnu.org，...
+gnu.org      - 這樣只會比對 gnu.org，不會比對 www.gnu.org 或 ftp.gnu.org，...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="597"/>

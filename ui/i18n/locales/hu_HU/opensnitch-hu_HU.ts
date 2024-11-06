@@ -316,37 +316,37 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="266"/>
         <source>FORWARD</source>
-        <translation type="unfinished"></translation>
+        <translation>ELŐRE</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="271"/>
         <source>PREROUTING</source>
-        <translation type="unfinished"></translation>
+        <translation>ELŐ ÚTVÁLASZTÁS</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="276"/>
         <source>POSTROUTING</source>
-        <translation type="unfinished"></translation>
+        <translation>UTÁN ÚTVÁLASZTÁS</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="321"/>
         <source>QUEUE</source>
-        <translation type="unfinished"></translation>
+        <translation>VÁRAKOZÁSI SOR</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="330"/>
         <source>DNAT</source>
-        <translation type="unfinished"></translation>
+        <translation>DNAT</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="335"/>
         <source>SNAT</source>
-        <translation type="unfinished"></translation>
+        <translation>SNAT</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="340"/>
         <source>REDIRECT</source>
-        <translation type="unfinished"></translation>
+        <translation>ÁTIRÁNYÍTÁS</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="359"/>
@@ -359,7 +359,15 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
  to 192.168.1.254:8080
  to 192.168.1.254
  to 1024-2048 (masquerade)</source>
-        <translation type="unfinished"></translation>
+        <translation>a művelettől (azaz: céltól) függően a paraméterek szintaxisa változni fog.
+Néhány példa:
+
+VÁRAKOZÁSI SOR -&gt; szám: 0 (vagy 1, 2, …)
+ÁTIRÁNYÍTÁS, TPROXY, DNAT, SNAT, HELYETTESÍTÉS:
+  ide :22
+  ide 192.168.1.254:8080
+  ide 192.168.1.254
+  ide 1024-2048 (helyettesítés)</translation>
     </message>
 </context>
 <context>
@@ -971,7 +979,7 @@ Az ideiglenes szabályok továbbra is érvényesek maradnak, és használhatja �
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="724"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Nyelv</translation>
     </message>
 </context>
 <context>
@@ -1337,7 +1345,7 @@ gnu.org         - csak a gnu.org-nak fog megfelelni, nem a www.gnu.org-nak, nem 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="245"/>
         <source>Name</source>
-        <translation type="unfinished">Név</translation>
+        <translation>Név</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="207"/>
@@ -1547,17 +1555,17 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="743"/>
         <source>From this IP / Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Erről az IP-címről/hálózatról</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="872"/>
         <source>From this port</source>
-        <translation type="unfinished"></translation>
+        <translation>Ebből a kikötőből</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="918"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Több kikötőt is megadhat reguláris kifejezésekkel:&lt;/p&gt;&lt;p&gt;- 53, 80 vagy 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 vagy 5551, 5552, 5553, stb:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -1983,7 +1991,7 @@ A szabályt úgy kell megneveznie, hogy először ellenőrizni fogják, mert bet
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="420"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
-        <translation>A ',' vagy '-' karakterekkel több kikötők/IP-címet vagy tartományt/értéket adhat meg:&lt;br&gt;&lt;br&gt;kikötők: 22 vagy 22,443 vagy 50000-60000&lt;br&gt;IP-címek: 192.168.1.1 vagy 192.168 .1.30-192.168.1.130&lt;br&gt;Értékek: echo-reply,echo-request&lt;br&gt;Értékek: new,established,related</translation>
+        <translation>A &apos;,&apos; vagy &apos;-&apos; karakterekkel több kikötők/IP-címet vagy tartományt/értéket adhat meg:&lt;br&gt;&lt;br&gt;kikötők: 22 vagy 22,443 vagy 50000-60000&lt;br&gt;IP-címek: 192.168.1.1 vagy 192.168 .1.30-192.168.1.130&lt;br&gt;Értékek: echo-reply,echo-request&lt;br&gt;Értékek: new,established,related</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="440"/>
@@ -2114,7 +2122,13 @@ Supported formats:
  - Ranges: 80-1024
  - Multiple ports: 80,443,8080
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Támogatott formátumok:
+
+  - Egyszerű: 23
+  - Tartomány: 80-1024
+  - Több kikötő: 80,443,8080
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="134"/>
@@ -2125,27 +2139,33 @@ Supported formats:
  - IP ranges: 1.2.3.100-1.2.3.200
  - Network ranges: 1.2.3.4/24
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Támogatott formátumok:
+
+  - Egyszerű: 1.2.3.4
+  - IP-címtartomány: 1.2.3.100-1.2.3.200
+  - Hálózati tartomány: 1.2.3.4/24
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="147"/>
         <source>Match input interface. Regular expressions not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bemeneti felület egyezése. A reguláris kifejezések nem engedélyezettek.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="154"/>
         <source>Match output interface. Regular expressions not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kimeneti felület egyezése. A reguláris kifejezések nem engedélyezettek.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="161"/>
         <source>Set a conntrack mark on the connection, in decimal format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Állítson be egy conntrack jelet a kapcsolaton decimális formátumban.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="171"/>
         <source>Match a conntrack mark of the connection, in decimal format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Párosítsa a kapcsolat conntrack jelét decimális formátumban.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="178"/>
@@ -2155,7 +2175,12 @@ Supported formats:
  - Simple: new
  - Multiple states separated by commas: related,new
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Conntrack állapotegyeztetése.
+
+Támogatott formátumok:
+  - Egyszerű: új
+  - Több állapot vesszővel elválasztva: kapcsolódó,új
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="193"/>
@@ -2172,12 +2197,23 @@ For l4proto it can be a lower case string, for example:
 If the value is decimal for protocol or lproto, it&apos;ll use it as the code of
 that protocol.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+A csomag metainformációinak egyezése.
+
+Az értéket decimális formátumban kell megadni, kivéve az „l4proto” beállítást.
+Az l4proto esetén ez lehet egy kisbetűs karakterlánc, például:
+  tcp
+  udp
+  icmp
+  stb.
+
+Ha az érték decimális a protokoll vagy az lproto esetében, akkor ezt használja a kódjaként azt a protokollt.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="213"/>
         <source>Set a mark on the packet matching the specified conditions. The value is in decimal format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Állítson be egy jelölést a csomagon, amely megfelel a megadott feltételeknek. Az érték decimális formátumban van megadva.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="221"/>
@@ -2188,7 +2224,13 @@ Supported formats:
  - Simple: echo-request
  - Multiple separated by commas: echo-request,echo-reply
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Az ICMP-kódok egyezése.
+
+Támogatott formátumok:
+  - Egyszerű: echo-request
+  - Több vesszővel elválasztva: echo-request,echo-reply
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="234"/>
@@ -2199,12 +2241,18 @@ Supported formats:
  - Simple: echo-request
  - Multiple separated by commas: echo-request,echo-reply
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Az ICMPv6-kódok egyezése.
+
+Támogatott formátumok:
+  - Egyszerű: echo-request
+  - Több vesszővel elválasztva: echo-request,echo-reply
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="247"/>
         <source>Print a message when this rule matches a packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Üzenet nyomtatása, ha ez a szabály megegyezik egy csomaggal.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="254"/>
@@ -2218,7 +2266,16 @@ For example when:
 The value must be in the format: VALUE/UNITS, for example:
  - 10mbytes, 1/gbytes, etc
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Alkalmazzon kvótákat a kapcsolatokra.
+
+Például amikor:
+  - „10 mbájt feletti kvóta” → alkalmazza a meghatározott műveletet (ELDOBÁS)
+  - „10 mbájt alatti kvóta” → alkalmazza a meghatározott műveletet (ELFOGADÁS)
+
+A mennyiségnek a következő formátumban kell lennie: ÉRTÉK/EGYSÉG, például:
+  - 10/mbájt, 1/gbyte, stb.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="286"/>
@@ -2234,17 +2291,28 @@ For example when:
 The value must be in the format: VALUE/UNITS/TIME, for example:
  - 10/mbytes/minute, 1/gbytes/hour, etc
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Alkalmazzon korlátozásokat a kapcsolatokra.
+
+Például amikor:
+  - „10 mbájt/perc feletti korlát” → alkalmazza a meghatározott műveletet (ELDOBÁS, ELFOGADÁS, stb.)
+     (Ha több mint 10 MB percenként, alkalmazzon egy műveletet)
+
+  - „10 mbájt/óra alatti korlát” → a meghatározott művelet alkalmazása (ELFOGADÁS)
+
+A mennyiségnek a következő formátumban kell lennie: ÉRTÉK/EGYSÉG/IDŐ, például:
+  - 10/mbájt/perc, 1/gbyte/óra, stb.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="607"/>
         <source>num</source>
-        <translation type="unfinished"></translation>
+        <translation>szám</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="621"/>
         <source>to</source>
-        <translation type="unfinished"></translation>
+        <translation>a következőnek:</translation>
     </message>
 </context>
 <context>
@@ -2383,7 +2451,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/notifications.py" line="42"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Megnyitás</translation>
     </message>
 </context>
 <context>
@@ -2486,12 +2554,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="164"/>
         <source>System default</source>
-        <translation type="unfinished"></translation>
+        <translation>Rendszer alapértelmezett</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="433"/>
         <source>Language changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Nyelv módosítva</translation>
     </message>
 </context>
 <context>
@@ -2656,22 +2724,22 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="713"/>
         <source>Source port can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Forráskikötő nem lehet üres</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="727"/>
         <source>Source port regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Forráskikötő szabályos kifejezési hiba</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="767"/>
         <source>Source IP/Network can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Forrás IP-címe/hálózata nem lehet üres</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="793"/>
         <source>Source IP regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>ForrásIP-cím szabályos kifejezési hiba</translation>
     </message>
 </context>
 <context>
@@ -2704,7 +2772,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="834"/>
         <source>Rules</source>
-        <translation type="unfinished">Szabályok</translation>
+        <translation>Szabályok</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="299"/>
@@ -2714,7 +2782,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="875"/>
         <source>Action</source>
-        <translation type="unfinished">Művelet</translation>
+        <translation>Művelet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
@@ -3235,17 +3303,17 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/service.py" line="211"/>
         <source>WARNING</source>
-        <translation type="unfinished">FIGYELMEZTETÉS</translation>
+        <translation>FIGYELMEZTETÉS</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="833"/>
         <source>Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Részletek</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="835"/>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>Új</translation>
     </message>
 </context>
 </TS>

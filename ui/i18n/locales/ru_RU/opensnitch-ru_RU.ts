@@ -76,22 +76,22 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="756"/>
         <source>30s</source>
-        <translation>30 секунд</translation>
+        <translation>30 сек</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="761"/>
         <source>5m</source>
-        <translation>5 минут</translation>
+        <translation>5 мин</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="766"/>
         <source>15m</source>
-        <translation>15 минут</translation>
+        <translation>15 мин</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="771"/>
         <source>30m</source>
-        <translation>30 минут</translation>
+        <translation>30 мин</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="776"/>
@@ -131,7 +131,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="727"/>
         <source>from this PID</source>
-        <translation>из этого PIDа</translation>
+        <translation>из этого PID&apos;а</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="809"/>
@@ -141,12 +141,12 @@
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="14"/>
         <source>Firewall</source>
-        <translation>Фаервол</translation>
+        <translation>Межсетевой экран</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="55"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Firewall&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Фаервол&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Межсетевой экран&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="320"/>
@@ -201,7 +201,7 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="14"/>
         <source>Firewall rule</source>
-        <translation>Правило фаервола</translation>
+        <translation>Правило межсетевого экрана</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="26"/>
@@ -301,7 +301,7 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="266"/>
         <source>FORWARD</source>
-        <translation type="unfinished"></translation>
+        <translation>ПЕРЕАДРЕСОВАТЬ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="271"/>
@@ -316,17 +316,17 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="321"/>
         <source>QUEUE</source>
-        <translation type="unfinished"></translation>
+        <translation>ОЧЕРЕДЬ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="330"/>
         <source>DNAT</source>
-        <translation type="unfinished"></translation>
+        <translation>DNAT</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="335"/>
         <source>SNAT</source>
-        <translation type="unfinished"></translation>
+        <translation>SNAT</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="340"/>
@@ -367,7 +367,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="466"/>
         <source>Default timeout</source>
-        <translation>Тайм-аут по умолчанию</translation>
+        <translation>Удержание по умолчанию</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="340"/>
@@ -457,22 +457,22 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="219"/>
         <source>30s</source>
-        <translation>30 секунд</translation>
+        <translation>30 сек</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="224"/>
         <source>5m</source>
-        <translation>5 минут</translation>
+        <translation>5 мин</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="229"/>
         <source>15m</source>
-        <translation>15 минут</translation>
+        <translation>15 мин</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="234"/>
         <source>30m</source>
-        <translation>30 минут</translation>
+        <translation>30 мин</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="239"/>
@@ -737,7 +737,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="905"/>
         <source>Default action when the GUI is disconnected</source>
-        <translation>Обычное действие, когда интерфейс отключен</translation>
+        <translation>Обычное действие, когда интерфейс отключён</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1001"/>
@@ -752,7 +752,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="64"/>
         <source>Default options</source>
-        <translation>Параметры по умолчанию</translation>
+        <translation>Настройки по умолчанию</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="330"/>
@@ -904,7 +904,9 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
         <source>When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.
 
 Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Если выбран этот параметр, правила выбранной продолжительности не будут добавлены в список временных правил в графическом интерфейсе.
+
+Временные правила по-прежнему будут действительны, и вы сможете использовать их, когда будет предложено разрешить/запретить новое соединение.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="761"/>
@@ -1864,12 +1866,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="290"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
-        <translation>Чтобы настроить правила фаервола из графического интерфейса, нам нужно использовать &apos;nftables&apos; вместо &apos;iptables&apos;</translation>
+        <translation>Чтобы настроить правила межсетевого экрана из оболочки, нам нужно использовать &apos;nftables&apos; вместо &apos;iptables&apos;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="304"/>
         <source>Enabling firewall...</source>
-        <translation>Включение фаервола...</translation>
+        <translation>Включение межсетевого экрана...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="306"/>
@@ -2016,7 +2018,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1350"/>
         <source>Firewall rule</source>
-        <translation>Правило фаервола</translation>
+        <translation>Правило межсетевого экрана</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="885"/>
@@ -3329,12 +3331,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/service.py" line="211"/>
         <source>WARNING</source>
-        <translation type="unfinished"></translation>
+        <translation>ВНИМАНИЕ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="833"/>
         <source>Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Подробности</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="835"/>
