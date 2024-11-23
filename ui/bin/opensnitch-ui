@@ -243,3 +243,7 @@ Examples:
         on_exit()
     except Exception as e:
         print(e)
+    finally:
+        if service:
+            # finish gracefully, closing notifications channel.
+            service.close()
