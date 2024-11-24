@@ -707,6 +707,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         elif kwargs['action'] == self.NODE_DELETE:
             self._delete_node(kwargs['peer'])
 
+    def OpenWindow(self):
+        self._stats_dialog.show()
+
+    def close(self):
+        self._on_close()
 
     def PostAlert(self, alert, context):
         proto, addr = self._get_peer(context.peer())
@@ -899,6 +904,3 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 context.cancel()
 
         return node_iter
-
-    def OpenWindow(self):
-        self._stats_dialog.show()
