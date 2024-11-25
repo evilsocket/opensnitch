@@ -787,8 +787,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         # TODO: allow connections originated from ourselves: os.getpid() == request.pid)
         self._asking = True
-        proto, addr = self._get_peer(context.peer())
-        rule, timeout_triggered = self._prompt_dialog.promptUser(request, self._is_local_request(proto, addr), context.peer())
+        peer = context.peer()
+        proto, addr = self._get_peer(peer)
+        rule, timeout_triggered = self._prompt_dialog.promptUser(request, self._is_local_request(proto, addr), peer)
         self._last_ping = datetime.now()
         self._asking = False
         if rule == None:
@@ -812,14 +813,14 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 {
                     'action': self.DELETE_RULE,
                     'name': rule.name,
-                    'addr': context.peer()
+                    'addr': peer
                 }
             )
         else:
             self._node_actions_trigger.emit(
                 {
                     'action': self.ADD_RULE,
-                    'peer': context.peer(),
+                    'peer': peer,
                     'rule': rule
                 }
             )
