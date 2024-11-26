@@ -84,6 +84,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.lineUIScreenFactor.setValidator(doubleValidator)
         self.lineNodeMaxEvents.setValidator(intValidator)
         self.lineNodeMaxStats.setValidator(intValidator)
+        self.lineNodeFwMonInterval.setValidator(intValidator)
 
         self.acceptButton.clicked.connect(self._cb_accept_button_clicked)
         self.applyButton.clicked.connect(self._cb_apply_button_clicked)
@@ -215,9 +216,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodeAuthVerifyType.currentIndexChanged.connect(self._cb_node_needs_update)
         self.enableChecksums.clicked.connect(self._cb_node_needs_update)
         self.checkNodeFlushConns.clicked.connect(self._cb_node_needs_update)
+        self.checkNodeBypassQueue.clicked.connect(self._cb_node_needs_update)
         self.spinNodeGC.valueChanged.connect(self._cb_node_needs_update)
         self.lineNodeMaxEvents.textChanged.connect(self._cb_node_needs_update)
         self.lineNodeMaxStats.textChanged.connect(self._cb_node_needs_update)
+        self.lineNodeFwMonInterval.textChanged.connect(self._cb_node_needs_update)
         self.lineNodeRulesPath.textChanged.connect(self._cb_node_needs_update)
 
         self.comboAuthType.currentIndexChanged.connect(self._cb_combo_auth_type_changed)
@@ -455,6 +458,19 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.checkNodeFlushConns.setChecked(internal.get('FlushConnsOnStart'))
             self.spinNodeGC.setValue(internal.get('GCPercent'))
 
+            fwOptions = node_config.get('FwOptions')
+            if fwOptions == None:
+                fwOptions = {}
+            if fwOptions.get('MonitorInterval') == None:
+                fwOptions['MonitorInterval'] = "15"
+            if fwOptions.get('QueueBypass') == None:
+                fwOptions['QueueBypass'] = True
+            node_config['FwOptions'] = fwOptions
+
+            monInterval = fwOptions['MonitorInterval'].removesuffix("s")
+            self.checkNodeBypassQueue.setChecked(fwOptions.get('QueueBypass'))
+            self.lineNodeFwMonInterval.setText(monInterval)
+
             stats = node_config.get('Stats')
             if stats == None:
                 stats = {}
@@ -474,6 +490,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_status_error(QC.translate("preferences", "Error loading config: {0}".format(e)))
 
     def _load_node_config(self, addr):
+        """load the config of a node before sending it back to the node"""
+        print("_load_node_config()")
         try:
             if self.comboNodeAddress.currentText() == "":
                 return None, QC.translate("preferences", "Server address can not be empty")
@@ -533,6 +551,18 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             internal['FlushConnsOnStart'] = self.checkNodeFlushConns.isChecked()
             internal['GCPercent'] = self.spinNodeGC.value()
             node_config['Internal'] = internal
+
+            fwOptions = node_config.get('FwOptions')
+            if fwOptions == None:
+                fwOptions = {}
+            if fwOptions.get('MonitorInterval') == None:
+                fwOptions['MonitorInterval'] = "15s"
+            if fwOptions.get('QueueBypass') == None:
+                fwOptions['QueueBypass'] = True
+            node_config['FwOptions'] = fwOptions
+
+            fwOptions['QueueBypass'] = self.checkNodeBypassQueue.isChecked()
+            fwOptions['MonitorInterval'] = self.lineNodeFwMonInterval.text() + "s"
 
             stats = node_config.get('Stats')
             if stats == None:

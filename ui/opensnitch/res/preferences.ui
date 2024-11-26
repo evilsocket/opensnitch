@@ -647,19 +647,6 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="0">
-            <widget class="QCheckBox" name="checkAutostart">
-             <property name="toolTip">
-              <string>By default the GUI is started when login</string>
-             </property>
-             <property name="text">
-              <string>Autostart the GUI upon login</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_19">
              <property name="sizePolicy">
@@ -708,16 +695,6 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
              <property name="text">
               <string>Theme density scale</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QCheckBox" name="checkUIAutoScreen">
-             <property name="text">
-              <string>Auto screen scale factor</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -812,6 +789,29 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
             </widget>
            </item>
+           <item row="6" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkUIAutoScreen">
+             <property name="text">
+              <string>Auto screen scale factor</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkAutostart">
+             <property name="toolTip">
+              <string>By default the GUI is started when login</string>
+             </property>
+             <property name="text">
+              <string>Autostart the GUI upon login</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="page_6">
@@ -820,7 +820,7 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>279</height>
+            <height>323</height>
            </rect>
           </property>
           <attribute name="label">
@@ -945,8 +945,8 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>321</width>
-            <height>112</height>
+            <width>599</width>
+            <height>323</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1041,8 +1041,8 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>219</width>
-            <height>115</height>
+            <width>599</width>
+            <height>323</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1297,22 +1297,6 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </property>
          <property name="text">
           <string>Apply configuration to all nodes</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Version</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
          </property>
         </widget>
        </item>
@@ -1895,7 +1879,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
                 <string>Path</string>
                </property>
                <property name="icon">
-                <iconset theme="document-open"/>
+                <iconset theme="document-open">
+                 <normaloff>.</normaloff>.</iconset>
                </property>
               </widget>
              </item>
@@ -1914,14 +1899,61 @@ Temporary rules will still be valid, and you can use them when prompted to allow
           </layout>
          </widget>
          <widget class="QWidget" name="page_11">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>599</width>
+            <height>224</height>
+           </rect>
+          </property>
           <attribute name="label">
            <string>Internal</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_14">
-           <item row="2" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkNodeFlushConns">
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineNodeMaxStats">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="inputMethodHints">
+              <set>Qt::ImhDigitsOnly</set>
+             </property>
              <property name="text">
-              <string>Flush connections on start</string>
+              <string>50</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_31">
+             <property name="text">
+              <string>Max events</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
+            <spacer name="verticalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_29">
+             <property name="text">
+              <string>Garbage collector percentage</string>
              </property>
             </widget>
            </item>
@@ -1944,14 +1976,26 @@ Temporary rules will still be valid, and you can use them when prompted to allow
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_29">
+           <item row="5" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkNodeFlushConns">
+             <property name="toolTip">
+              <string>When this option is on, all the existing sockets will be killed, in order to force them establish the connection again so we can intercept them.
+
+Note that this option may be not acceptable on servers, for example because downloads/uploads are taking place.</string>
+             </property>
              <property name="text">
-              <string>Garbage collector percentage</string>
+              <string>Flush connections on start</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_30">
+             <property name="text">
+              <string>Max stats</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_10">
              <property name="spacing">
               <number>0</number>
@@ -2023,49 +2067,45 @@ Temporary rules will still be valid, and you can use them when prompted to allow
              </item>
             </layout>
            </item>
-           <item row="4" column="0" colspan="2">
-            <spacer name="verticalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="toolTip">
+              <string>Check every n seconds that the interception rules are present in the system.
+If they're no present, all the rules will be deleted and added again.
+
+Use 0 to disable this feature.</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
+             <property name="text">
+              <string>Firewall rules monitoring interval (seconds)</string>
              </property>
-            </spacer>
+            </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineNodeMaxStats">
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineNodeFwMonInterval">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="inputMethodHints">
-              <set>Qt::ImhDigitsOnly</set>
-             </property>
              <property name="text">
-              <string>50</string>
+              <string/>
+             </property>
+             <property name="maxLength">
+              <number>5</number>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_31">
-             <property name="text">
-              <string>Max events</string>
+             <property name="placeholderText">
+              <string>10s, 15s, 60s, etc</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_30">
+           <item row="3" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkNodeBypassQueue">
              <property name="text">
-              <string>Max stats</string>
+              <string>Block outbound network traffic if the daemon unexpectedly dies</string>
              </property>
             </widget>
            </item>
@@ -2073,7 +2113,23 @@ Temporary rules will still be valid, and you can use them when prompted to allow
          </widget>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="2" column="0" colspan="2">
+        <widget class="QLabel" name="label_9">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Version</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
         <widget class="QLabel" name="label_8">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
