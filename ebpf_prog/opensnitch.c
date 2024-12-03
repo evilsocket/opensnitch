@@ -327,7 +327,6 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 	udpv6_key.saddr = sock.saddr;
 #endif
 
-	u32 zero_key = 0;
 	struct udpv6_value_t *lookedupValue = bpf_map_lookup_elem(&udpv6Map, &udpv6_key);
 	u64 pid = bpf_get_current_pid_tgid() >> 32;
 	if ( lookedupValue == NULL || lookedupValue->pid != pid) {
@@ -369,7 +368,6 @@ int kprobe__iptunnel_xmit(struct pt_regs *ctx)
 
 	struct udp_key_t udp_key;
 	struct udp_value_t udp_value;
-	u32 zero_key = 0;
 	__builtin_memset(&udp_key, 0, sizeof(udp_key));
 	__builtin_memset(&udp_value, 0, sizeof(udp_value));
 
