@@ -2,7 +2,7 @@
 
 (tested on Debian Sid and Ubuntu 18 and 20. It may fail on other distributions.)
 
-Make sure you have a correctly configured **Go >= 1.16** environment and then:
+Make sure you have a correctly configured **Go** environment and then:
 
 ```bash
 # install dependencies
@@ -16,6 +16,7 @@ export PATH=$PATH:$GOPATH/bin
 
 # This step is optional if your distribution already packages these 2 libs.
 # You can try to install them with: sudo apt install python3-grpcio python3-protobuf
+python3 -m pip install --user grpcio protobuf
 python3 -m pip install --user grpcio-tools qt-material
 
 # clone the repository
@@ -63,7 +64,8 @@ https://github.com/evilsocket/opensnitch/blob/master/utils/packaging/build_modul
 **Daemon**
 
 The `daemon` is implemented in Go and needs to run as root in order to interact with the Netfilter packet queue, edit
-iptables rules and so on, in order to compile it you will need to install the `protobuf-compiler`, `libpcap-dev` and `libnetfilter-queue-dev`
+iptables rules and so on..
+In order to compile it you will need to install the `protobuf-compiler`, `libpcap-dev` and `libnetfilter-queue-dev`
 packages on your system, then just:
 
     cd daemon
