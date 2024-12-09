@@ -17,6 +17,14 @@ If you're running GNOME you need to install this extension -> https://github.com
 See the instructions detailed below to see how to enable it.
 
 👉 On the other hand, if you're running **LinuxMint <= 21.1** or **Ubuntu <= 22.10** or **Pop!_OS 22.04 LTS**, see if the process `opensnitch-ui` is consuming 100% of the CPU.
+
+Solution to this problem:
+
+```bash
+~ $ pip install grpcio==1.41.0
+~ $ pip install protobuf==3.20.0
+```
+
 See this issue for more information: https://github.com/evilsocket/opensnitch/issues/647#issuecomment-1383956333
 
 🐛 As a consequence of the previous problem, you may also encounter this error:
@@ -27,7 +35,9 @@ If you cannot immediately regenerate your protos, some other possible workaround
  2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
 ```
 
-The solution to this problem is described in these issues:
+The solution to this problem is also described in detail in these issues:
+
+https://github.com/evilsocket/opensnitch/issues/1214#issuecomment-2518864350
 
 https://github.com/evilsocket/opensnitch/issues/1129 - https://stackoverflow.com/a/73383927 (`$ pip install protobuf==3.20.6`)
 
@@ -118,7 +128,7 @@ If either of these methods work, add the variable to your `~/.bashrc` or `/etc/e
 https://codebrowser.dev/qt5/qtbase/src/gui/kernel/qguiapplication.cpp.html#1406
 
 
-### GUI crash/exception/does not show up on old distros (ubuntu 16, 18, ...)
+### GUI crash/exception/does not show up on old distros (ubuntu 16..18, linuxmint 17..19, ...)
 
 You have to install `unicode_slugify` and `grpcio-tools`, usually not available in old distros. You can install them using pip:
 
