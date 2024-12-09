@@ -43,11 +43,11 @@ https://github.com/evilsocket/opensnitch/issues/1129 - https://stackoverflow.com
 
 https://github.com/evilsocket/opensnitch/discussions/1003#discussioncomment-6642001
 
-### GUI takes 10 to 20s to show up
+#### GUI takes 10 to 20s to show up
 
 Same problem than above, sytray icons not supported. Install the `gnome-shell-extension-appindicator`, and follow the instructions detailed below.
 
-### OpenSnitch icon does not show up on Gnome-Shell
+#### OpenSnitch icon does not show up on Gnome-Shell
 
 On Gnome-Shell >= 3.16, systray icons have been removed. You have to install the extension gnome-shell-extension-appindicator to get them back.
 
@@ -63,6 +63,11 @@ On Gnome-Shell >= 3.16, systray icons have been removed. You have to install the
 
 See this comment/issue for more information: [#44](https://github.com/evilsocket/opensnitch/issues/44).
 
+### OpenSnitch starts maximized in Hyperland
+
+ > guttermoonk: The solution is to set services.opensnitch.enable = true; in configuration.nix, which will launch the program on it's own during startup.
+
+https://github.com/evilsocket/opensnitch/issues/1218#issuecomment-2466759612
 
 ### Random crashes or problems on Wayland
 
