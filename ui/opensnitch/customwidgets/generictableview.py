@@ -216,6 +216,8 @@ class GenericTableView(QTableView):
 
         #eventFilter to catch key up/down events and wheel events
         self.verticalHeader().setVisible(True)
+        self.verticalHeader().setMinimumSectionSize(16)
+        self.verticalHeader().setDefaultSectionSize(16)
         self.horizontalHeader().setDefaultAlignment(Qt.AlignCenter)
         self.horizontalHeader().setStretchLastSection(True)
         #the built-in vertical scrollBar of this view is always off
