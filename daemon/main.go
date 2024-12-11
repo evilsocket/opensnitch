@@ -64,6 +64,7 @@ var (
 	logMicro          = false
 	rulesPath         = ""
 	configFile        = "/etc/opensnitchd/default-config.json"
+	aliasFile         = "network_aliases.json"
 	fwConfigFile      = ""
 	ebpfModPath       = "" // /usr/lib/opensnitchd/ebpf
 	noLiveReload      = false
@@ -575,6 +576,12 @@ func main() {
 	setupSignals()
 
 	log.Important("Starting %s v%s", core.Name, core.Version)
+
+	err := rule.LoadAliases(aliasFile)
+	if err != nil {
+		log.Fatal("Error loading network aliases: %v", err)
+	}
+	log.Info("Loading network aliases from %s ...", aliasFile)
 
 	cfg, err := loadDiskConfiguration()
 	if err != nil {
