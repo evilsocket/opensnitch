@@ -25,6 +25,8 @@ from opensnitch.nodes import Nodes
 from opensnitch import ui_pb2
 from opensnitch.dialogs.prompt import _utils, _constants, _checksums, _details
 
+from network_aliases import NetworkAliases
+
 DIALOG_UI_PATH = "%s/../../res/prompt.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     _prompt_trigger = QtCore.pyqtSignal()
@@ -505,6 +507,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         combo.addItem(QC.translate("popups", "to port {0}").format(con.dst_port), _constants.FIELD_DST_PORT)
         combo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), _constants.FIELD_DST_IP)
 
+        alias = NetworkAliases.get_alias(con.dst_ip)
+        if alias:
+            combo.addItem(QC.translate("popups", f"to {alias}"), _constants.FIELD_DST_NETWORK)
+
         combo.addItem(QC.translate("popups", "from user {0}").format(uid), _constants.FIELD_USER_ID)
         if int(con.user_id) < 0:
             combo.model().item(4).setEnabled(False)
@@ -595,6 +601,20 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             # TODO: move to a method
             data=[]
+
+            alias_selected = False
+
+            if self.whatCombo.itemData(what_idx) == _constants.FIELD_DST_NETWORK:
+                alias = NetworkAliases.get_alias(self._con.dst_ip)
+                if alias:
+                    alias_selected = True
+                    data.append({
+                        "type": Config.RULE_TYPE_SIMPLE,
+                        "operand": Config.OPERAND_PROCESS_PATH,
+                        "data": self._con.process_path
+                    })
+                    rule_temp_name = slugify(f"{rule_temp_name}-{os.path.basename(self._con.process_path)}")
+
             if self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != _constants.FIELD_DST_IP:
                 _type, _operand, _data = _utils.get_combo_operator(
                     self.whatIPCombo.itemData(self.whatIPCombo.currentIndex()),
@@ -629,7 +649,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     is_list_rule = True
                     data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_PROCESS_PATH, "data": str(self._con.process_path)})
 
-            if is_list_rule:
+            if is_list_rule or alias_selected:
                 data.append({
                     "type": self._rule.operator.type,
                     "operand": self._rule.operator.operand,
