@@ -48,6 +48,7 @@ Server.LogFile | file to write logs to (use /dev/stdout to write logs to standar
 Server.Authentication | https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161
 Server.Loggers | https://github.com/evilsocket/opensnitch/wiki/SIEM-integration
 DefaultAction [0] | allow, deny, reject (>= 1.6.6)
+_ | Warning: _reject_ option may cause in some services (dnsmasq, sshd, tinyproxy, ...) to enter in an infinite loop. Use it **at your own risk**
 ~DefaultDuration~ | ~once, always, until restart, 30s, 5m, 15m, 30m, 1h~ DEPRECATED
 InterceptUnknown [1] | true, false
 ProcMonitorMethod | ebpf, proc, audit
