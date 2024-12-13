@@ -228,10 +228,11 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         try:
             enableFw = False
-            if self._nodes.count() == 0:
-                self.sliderFwEnable.blockSignals(True)
-                self.sliderFwEnable.setEnabled(False)
-                self.sliderFwEnable.blockSignals(False)
+            enableFwBtn = (self._nodes.count() > 0)
+            self.sliderFwEnable.blockSignals(True)
+            self.sliderFwEnable.setEnabled(enableFwBtn)
+            self.sliderFwEnable.blockSignals(False)
+            if not enableFwBtn:
                 return
 
             # TODO: handle nodes' firewall properly
