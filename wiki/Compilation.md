@@ -8,9 +8,9 @@ Make sure you have a correctly configured **Go** environment and then:
 # install dependencies
 sudo apt-get install git libnetfilter-queue-dev libpcap-dev protobuf-compiler python3-pip pyqt5-dev-tools qttools5-dev-tools qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools python3-pyqt5.qtsql python3-notify2
 
-go install google.golang.org/protobuf@latest
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.32.0
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+
 export GOPATH=~/go #you may want to change this if your Go directory is different
 export PATH=$PATH:$GOPATH/bin
 
@@ -30,6 +30,20 @@ sudo make install
 sudo systemctl enable --now opensnitchd
 opensnitch-ui &
 ```
+
+***grpcio and protobuf conflicts***
+
+Installing latest grpcio and protobuf packages may cause compilation errors.
+
+```
+go install google.golang.org/protobuf@latest
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+```
+
+As of today (13/12/2024), the versions that work are specified in the installation steps (protoc-gen-go@v1.32.0, protoc-gen-go-grpc@v1.3.0).
+
+More info: https://github.com/evilsocket/opensnitch/discussions/1222#discussioncomment-11531525
 
 ***Note for Fedora users***
 
