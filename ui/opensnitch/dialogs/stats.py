@@ -448,7 +448,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeLabel.setText("")
         self.nodeLabel.setStyleSheet('color: green;font-size:12pt; font-weight:600;')
         self.rulesSplitter.setStretchFactor(0,0)
-        self.rulesSplitter.setStretchFactor(1,2)
+        self.rulesSplitter.setStretchFactor(1,5)
         self.nodesSplitter.setStretchFactor(0,0)
         self.nodesSplitter.setStretchFactor(0,3)
         self.rulesTreePanel.resizeColumnToContents(0)
@@ -923,20 +923,22 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             elif len(rulesSizes) > 0:
                 self.comboRulesFilter.setVisible(rulesSizes[0] == 0)
         else:
-            # default position when the user hasn't moved it.
+            # default position when the user hasn't moved it yet.
+
+            # FIXME: The first time show() event is fired, this widget has no
+            # real width yet. The second time is fired the width of the widget
+            # is correct.
             w = self.rulesSplitter.width()
-            self.rulesSplitter.setSizes([int(w/2), int(w/4)])
+            self.rulesSplitter.setSizes([int(w/4), int(w/1)])
 
         nodes_splitter_pos = self._cfg.getSettings(Config.STATS_NODES_SPLITTER_POS)
         if type(nodes_splitter_pos) == QtCore.QByteArray:
             self.nodesSplitter.restoreState(nodes_splitter_pos)
             nodesSizes = self.nodesSplitter.sizes()
             self.nodesSplitter.setVisible(not self.IN_DETAIL_VIEW[self.TAB_NODES] and nodesSizes[0] > 0)
-            #elif len(rulesSizes) > 0:
-            #    self.comboRulesFilter.setVisible(rulesSizes[0] == 0)
         else:
             w = self.nodesSplitter.width()
-            self.nodesSplitter.setSizes([int(w/2), int(w/3)])
+            self.nodesSplitter.setSizes([w, 0])
 
         self._configure_netstat_combos()
 
