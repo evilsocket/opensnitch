@@ -26,7 +26,7 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideRight</enum>
@@ -515,7 +515,7 @@
        <item row="1" column="1">
         <widget class="QToolBox" name="toolBox_2">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="page_5">
           <property name="geometry">
@@ -947,7 +947,11 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Set the address where the GUI is listening for new nodes.</string>
+              <string>Set the address where the GUI is listening for new nodes.
+
+It can be a unix socket: unix:///run/user/1000/opensnitch/osui.sock
+
+or a network socket: 127.0.0.1:50051</string>
              </property>
              <property name="text">
               <string>Address</string>
@@ -1069,8 +1073,8 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>219</width>
-            <height>115</height>
+            <width>599</width>
+            <height>323</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1104,35 +1108,17 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
               <property name="spacing">
                <number>0</number>
               </property>
-              <item row="0" column="0">
-               <widget class="QCheckBox" name="checkHideTime">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
+              <item row="2" column="0">
+               <widget class="QCheckBox" name="checkHideSrcPort">
                 <property name="text">
-                 <string>Time</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
+                 <string>Source port</string>
                 </property>
                </widget>
               </item>
-              <item row="6" column="0">
-               <widget class="QCheckBox" name="checkHideRule">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
+              <item row="2" column="1">
+               <widget class="QCheckBox" name="checkHideSrcIP">
                 <property name="text">
-                 <string>Rule</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
+                 <string>Source IP</string>
                 </property>
                </widget>
               </item>
@@ -1152,23 +1138,17 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
                 </property>
                </widget>
               </item>
-              <item row="4" column="0">
-               <widget class="QCheckBox" name="checkHideProto">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
+              <item row="7" column="1">
+               <widget class="QCheckBox" name="checkHideCmdline">
                 <property name="text">
-                 <string>Protocol</string>
+                 <string>Command line</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
+              <item row="0" column="2">
                <widget class="QCheckBox" name="checkHideAction">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -1184,8 +1164,8 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1">
-               <widget class="QCheckBox" name="checkHideDst">
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="checkHideTime">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -1193,14 +1173,46 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>Destination</string>
+                 <string>Time</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
                 </property>
                </widget>
               </item>
-              <item row="4" column="1">
+              <item row="5" column="0">
+               <widget class="QCheckBox" name="checkHideProto">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Protocol</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="2">
+               <widget class="QCheckBox" name="checkHideRule">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Rule</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="0">
                <widget class="QCheckBox" name="checkHideProc">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -1216,13 +1228,50 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
                 </property>
                </widget>
               </item>
-              <item row="6" column="1">
-               <widget class="QCheckBox" name="checkHideCmdline">
+              <item row="5" column="1">
+               <widget class="QCheckBox" name="checkHidePID">
                 <property name="text">
-                 <string>Command line</string>
+                 <string>PID</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QCheckBox" name="checkHideDstPort">
+                <property name="text">
+                 <string>Dest port</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QCheckBox" name="checkHideDstHost">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Dest host</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QCheckBox" name="checkHideDstIP">
+                <property name="text">
+                 <string>Dest IP</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2">
+               <widget class="QCheckBox" name="checkHideUID">
+                <property name="text">
+                 <string>UID</string>
                 </property>
                </widget>
               </item>
