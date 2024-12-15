@@ -14,7 +14,9 @@ The file _/etc/opensnitchd/default-config.json_ holds the daemon configuration:
   "DefaultDuration": "once",
   "InterceptUnknown": true,
   "ProcMonitorMethod": "ebpf",
-  "LogLevel": 1
+  "LogLevel": 1,
+  "LogUTC": false,
+  "LogMicro": false,
   "Firewall": "nftables",
   "FwOptions": {
         "ConfigPath": "/etc/opensnitchd/system-fw.json",
@@ -53,6 +55,8 @@ _ | Warning: _reject_ option may cause in some services (dnsmasq, sshd, tinyprox
 InterceptUnknown [1] | true, false
 ProcMonitorMethod | ebpf, proc, audit
 LogLevel | 0 to 4 (debug, info, important, warning, error)
+LogUTC | print the logs in UTC format (true, false)
+LogMicro | print the logs in microseconds (true, false)
 Firewall | "nftables" or "iptables"
 Stats.MaxEvents | Max events to send to the GUI every second. If you think that you're missing some connections increased this value.
 Stats.MaxStats | Max stats per item (port, host, IP, process, etc) to keep in the backlog.
