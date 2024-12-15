@@ -178,13 +178,17 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._load_langs()
 
             self.comboNodeAddress.clear()
+            self.comboServerAddr.clear()
             run_path = "/run/user/{0}/opensnitch/".format(os.getuid())
             var_run_path = "/var{0}".format(run_path)
             self.comboNodeAddress.addItem("unix:///tmp/osui.sock")
+            self.comboServerAddr.addItem("unix:///tmp/osui.sock")
             if os.path.exists(run_path):
                 self.comboNodeAddress.addItem("unix://%s/osui.sock" % run_path)
+                self.comboServerAddr.addItem("unix://%s/osui.sock" % run_path)
             if os.path.exists(var_run_path):
                 self.comboNodeAddress.addItem("unix://%s/osui.sock" % var_run_path)
+                self.comboServerAddr.addItem("unix://%s/osui.sock" % var_run_path)
 
             self._node_list = self._nodes.get()
             for addr in self._node_list:
@@ -209,6 +213,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkNodeLogUTC.clicked.connect(self._cb_node_needs_update)
         self.checkNodeLogMicro.clicked.connect(self._cb_node_needs_update)
         self.comboNodeAddress.currentTextChanged.connect(self._cb_node_needs_update)
+        self.comboServerAddr.currentTextChanged.connect(self._cb_node_needs_update)
         self.checkInterceptUnknown.clicked.connect(self._cb_node_needs_update)
         self.checkApplyToNodes.clicked.connect(self._cb_node_needs_update)
         self.comboNodeAction.currentIndexChanged.connect(self._cb_node_needs_update)
@@ -314,23 +319,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.uidCheck.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_UID))
         self.checkSum.setChecked(self._cfg.getBool(self._cfg.DEFAULT_POPUP_ADVANCED_CHECKSUM))
 
-        maxmsgsize = self._cfg.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
-        if maxmsgsize:
-            self.comboGrpcMsgSize.setCurrentText(maxmsgsize)
-        else:
-            self.comboGrpcMsgSize.setCurrentIndex(0)
-
-        self.lineCACertFile.setText(self._cfg.getSettings(Config.AUTH_CA_CERT))
-        self.lineCertFile.setText(self._cfg.getSettings(Config.AUTH_CERT))
-        self.lineCertKeyFile.setText(self._cfg.getSettings(Config.AUTH_CERTKEY))
-        authtype_idx = self.comboAuthType.findData(self._cfg.getSettings(Config.AUTH_TYPE))
-        if authtype_idx <= 0:
-            authtype_idx = 0
-            self.lineCACertFile.setEnabled(False)
-            self.lineCertFile.setEnabled(False)
-            self.lineCertKeyFile.setEnabled(False)
-        self.comboAuthType.setCurrentIndex(authtype_idx)
-
         self.comboUIRules.blockSignals(True)
         self.comboUIRules.setCurrentIndex(self._cfg.getInt(self._cfg.DEFAULT_IGNORE_TEMPORARY_RULES))
         self.checkUIRules.setChecked(self._cfg.getBool(self._cfg.DEFAULT_IGNORE_RULES))
@@ -394,6 +382,28 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._show_ui_scalefactor_widgets(auto_scale)
 
         self.checkAutostart.setChecked(self._autostart.isEnabled())
+
+        maxmsgsize = self._cfg.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
+        if maxmsgsize:
+            self.comboGrpcMsgSize.setCurrentText(maxmsgsize)
+        else:
+            self.comboGrpcMsgSize.setCurrentIndex(0)
+
+        server_addr = self._cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
+        if server_addr == "" or server_addr == None:
+            server_addr = self.comboServerAddr.itemText(0)
+        self.comboServerAddr.setCurrentText(server_addr)
+
+        self.lineCACertFile.setText(self._cfg.getSettings(Config.AUTH_CA_CERT))
+        self.lineCertFile.setText(self._cfg.getSettings(Config.AUTH_CERT))
+        self.lineCertKeyFile.setText(self._cfg.getSettings(Config.AUTH_CERTKEY))
+        authtype_idx = self.comboAuthType.findData(self._cfg.getSettings(Config.AUTH_TYPE))
+        if authtype_idx <= 0:
+            authtype_idx = 0
+            self.lineCACertFile.setEnabled(False)
+            self.lineCertFile.setEnabled(False)
+            self.lineCertKeyFile.setEnabled(False)
+        self.comboAuthType.setCurrentIndex(authtype_idx)
 
         self._load_ui_columns_config()
 
@@ -491,7 +501,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _load_node_config(self, addr):
         """load the config of a node before sending it back to the node"""
-        print("_load_node_config()")
         try:
             if self.comboNodeAddress.currentText() == "":
                 return None, QC.translate("preferences", "Server address can not be empty")
@@ -504,7 +513,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             node_duration = Config.DURATION_ONCE
 
-            node_config = json.loads(self._nodes.get_node_config(addr))
+            node_conf = self._nodes.get_node_config(addr)
+            if node_conf == None:
+                return None, " "
+            node_config = json.loads(node_conf)
             node_config['DefaultAction'] = node_action
             node_config['DefaultDuration'] = node_duration
             node_config['ProcMonitorMethod'] = self.comboNodeMonitorMethod.currentText()
@@ -748,6 +760,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             maxmsgsize = self.comboGrpcMsgSize.currentText()
             if maxmsgsize != "":
                 self._cfg.setSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH, maxmsgsize.replace(" ", ""))
+                self._changes_needs_restart = QC.translate("preferences", "Server options changed")
 
             savedauthtype = self._cfg.getSettings(Config.AUTH_TYPE)
             authtype = self.comboAuthType.itemData(self.comboAuthType.currentIndex())
@@ -756,6 +769,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             certkey = self._cfg.getSettings(Config.AUTH_CERTKEY)
             if not self._validate_certs():
                 return
+
+            server_addr = self._cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
+            if self.comboServerAddr.currentText() != server_addr:
+                self._cfg.setSettings(Config.DEFAULT_SERVER_ADDR, self.comboServerAddr.currentText())
+                self._changes_needs_restart = QC.translate("preferences", "Server address changed")
 
             if savedauthtype != authtype or self.lineCertFile.text() != cert or \
                     self.lineCertKeyFile.text() != certkey or self.lineCACertFile.text() != cacert:
@@ -871,17 +889,17 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _save_node_config(self, notifObject, addr):
         try:
+            if self._nodes.count() == 0:
+                return
             self._set_status_message(QC.translate("preferences", "Applying configuration on {0} ...").format(addr))
             notifObject.data, error = self._load_node_config(addr)
             if error != None:
                 return error
 
-            savedAddr = self._cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
             # exclude this message if there're more than one node connected
-            if self.comboNodes.count() == 1 and savedAddr != None and savedAddr != self.comboNodeAddress.currentText():
-                self._changes_needs_restart = QC.translate("preferences", "Ok")
-
-            self._cfg.setSettings(Config.DEFAULT_SERVER_ADDR, self.comboNodeAddress.currentText())
+            if self.comboNodes.currentText() != self.comboNodeAddress.currentText() or \
+                    self.comboServerAddr.currentText() != self.comboNodeAddress.currentText():
+                self._changes_needs_restart = QC.translate("preferences", "Node address changed (update GUI address if needed)")
 
             self._nodes.save_node_config(addr, notifObject.data)
             nid = self._nodes.send_notification(addr, notifObject, self._notification_callback)

@@ -26,7 +26,7 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideRight</enum>
@@ -380,8 +380,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>328</height>
+            <width>425</width>
+            <height>83</height>
            </rect>
           </property>
           <attribute name="label">
@@ -515,7 +515,7 @@
        <item row="1" column="1">
         <widget class="QToolBox" name="toolBox_2">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="page_5">
           <property name="geometry">
@@ -827,7 +827,69 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
            <string>Server</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_13">
-           <item row="0" column="1">
+           <item row="5" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCertKeyFile">
+             <property name="placeholderText">
+              <string>Absolute path to the cert key file</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCACertFile">
+             <property name="placeholderText">
+              <string>Absolute path to the CA cert file</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_20">
+             <property name="toolTip">
+              <string>Maximum size of each message from nodes. Default 4MB</string>
+             </property>
+             <property name="text">
+              <string>Max gRPC channel size</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_24">
+             <property name="toolTip">
+              <string>&lt;p&gt;Simple: no authentication&lt;/p&gt;
+&lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
+&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
+             </property>
+             <property name="text">
+              <string>Authentication type</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCertFile">
+             <property name="placeholderText">
+              <string>Absolute path to the cert file</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="comboAuthType">
+             <item>
+              <property name="text">
+               <string>Simple</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Simple TLS</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mutual TLS</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="1">
             <widget class="QComboBox" name="comboGrpcMsgSize">
              <property name="editable">
               <bool>true</bool>
@@ -857,69 +919,7 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </item>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_24">
-             <property name="toolTip">
-              <string>&lt;p&gt;Simple: no authentication&lt;/p&gt;
-&lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
-&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Authentication type</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QLineEdit" name="lineCertFile">
-             <property name="placeholderText">
-              <string>Absolute path to the cert file</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0" colspan="2">
-            <widget class="QLineEdit" name="lineCertKeyFile">
-             <property name="placeholderText">
-              <string>Absolute path to the cert key file</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="comboAuthType">
-             <item>
-              <property name="text">
-               <string>Simple</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Simple TLS</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Mutual TLS</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="2" column="0" colspan="2">
-            <widget class="QLineEdit" name="lineCACertFile">
-             <property name="placeholderText">
-              <string>Absolute path to the CA cert file</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_20">
-             <property name="toolTip">
-              <string>Maximum size of each message from nodes. Default 4MB</string>
-             </property>
-             <property name="text">
-              <string>Max gRPC channel size</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0" colspan="2">
+           <item row="6" column="0" colspan="2">
             <widget class="QLabel" name="label_28">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -938,6 +938,34 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
             </widget>
            </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_32">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Set the address where the GUI is listening for new nodes.</string>
+             </property>
+             <property name="text">
+              <string>Address</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboServerAddr">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string>unix:///tmp/osui.sock</string>
+              </property>
+             </item>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="page_3">
@@ -945,8 +973,8 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>323</height>
+            <width>321</width>
+            <height>112</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1041,8 +1069,8 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>323</height>
+            <width>219</width>
+            <height>115</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1527,8 +1555,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>224</height>
+            <width>376</width>
+            <height>118</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1663,8 +1691,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>224</height>
+            <width>296</width>
+            <height>211</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1801,8 +1829,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>224</height>
+            <width>226</width>
+            <height>133</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1903,8 +1931,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>224</height>
+            <width>430</width>
+            <height>191</height>
            </rect>
           </property>
           <attribute name="label">
