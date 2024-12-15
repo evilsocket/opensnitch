@@ -730,6 +730,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
         self._save_nodes_config()
 
+        self._set_status_successful(QC.translate("preferences", "Configuration applied."))
         self.saved.emit()
         self._settingsSaved = True
         self._needs_restart()
@@ -770,7 +771,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._save_ui_columns_config()
 
             maxmsgsize = self.comboGrpcMsgSize.currentText()
-            if maxmsgsize != "":
+            mmsize_saved = self._cfg.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
+            if maxmsgsize != "" and mmsize_saved != maxmsgsize:
                 self._cfg.setSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH, maxmsgsize.replace(" ", ""))
                 self._changes_needs_restart = QC.translate("preferences", "Server options changed")
 
@@ -997,20 +999,25 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._show_status_label()
         self.statusLabel.setStyleSheet('color: red')
         self.statusLabel.setText(msg)
+        QtWidgets.QApplication.processEvents()
 
     def _set_status_successful(self, msg):
         self._show_status_label()
         self.statusLabel.setStyleSheet('color: green')
         self.statusLabel.setText(msg)
+        QtWidgets.QApplication.processEvents()
 
     def _set_status_message(self, msg):
         self._show_status_label()
         self.statusLabel.setStyleSheet('color: darkorange')
         self.statusLabel.setText(msg)
+        QtWidgets.QApplication.processEvents()
 
     def _reset_status_message(self):
         self.statusLabel.setText("")
         self._hide_status_label()
+        # force widgets repainting
+        QtWidgets.QApplication.processEvents()
 
     def _enable_db_cleaner_options(self, enable, db_max_days):
         self.checkDBMaxDays.setChecked(enable)
