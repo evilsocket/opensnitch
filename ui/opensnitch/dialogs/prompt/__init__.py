@@ -507,10 +507,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         combo.addItem(QC.translate("popups", "to port {0}").format(con.dst_port), _constants.FIELD_DST_PORT)
         combo.addItem(QC.translate("popups", "to {0}").format(con.dst_ip), _constants.FIELD_DST_IP)
 
-        alias = NetworkAliases.get_alias(con.dst_ip)
-        if alias:
-            combo.addItem(QC.translate("popups", f"to {alias}"), _constants.FIELD_DST_NETWORK)
-
         combo.addItem(QC.translate("popups", "from user {0}").format(uid), _constants.FIELD_USER_ID)
         if int(con.user_id) < 0:
             combo.model().item(4).setEnabled(False)
@@ -538,6 +534,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         )
 
     def _add_dst_networks_to_combo(self, combo, dst_ip):
+        alias = NetworkAliases.get_alias(dst_ip)
+        if alias:
+            combo.addItem(QC.translate("popups", f"to {alias}"), _constants.FIELD_DST_NETWORK)
         if type(ipaddress.ip_address(dst_ip)) == ipaddress.IPv4Address:
             combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/24", strict=False)),  _constants.FIELD_DST_NETWORK)
             combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/16", strict=False)),  _constants.FIELD_DST_NETWORK)
@@ -590,7 +589,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = _utils.get_combo_operator(
                 self.whatCombo.itemData(what_idx),
                 self.whatCombo.currentText(),
-                self._con)
+                self._con)  
             if self._rule.operator.data == "":
                 print("popups: Invalid rule, discarding: ", self._rule)
                 self._rule = None
@@ -607,13 +606,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.whatCombo.itemData(what_idx) == _constants.FIELD_DST_NETWORK:
                 alias = NetworkAliases.get_alias(self._con.dst_ip)
                 if alias:
+                    _type, _operand, _data = Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, self._con.process_path
+                    data.append({"type": _type, "operand": _operand, "data": _data})
+                    rule_temp_name = slugify(f"{rule_temp_name} {os.path.basename(self._con.process_path)}")
                     alias_selected = True
-                    data.append({
-                        "type": Config.RULE_TYPE_SIMPLE,
-                        "operand": Config.OPERAND_PROCESS_PATH,
-                        "data": self._con.process_path
-                    })
-                    rule_temp_name = slugify(f"{rule_temp_name}-{os.path.basename(self._con.process_path)}")
 
             if self.checkDstIP.isChecked() and self.whatCombo.itemData(what_idx) != _constants.FIELD_DST_IP:
                 _type, _operand, _data = _utils.get_combo_operator(
