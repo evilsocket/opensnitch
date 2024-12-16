@@ -64,7 +64,7 @@ var (
 	logMicro          = false
 	rulesPath         = ""
 	configFile        = "/etc/opensnitchd/default-config.json"
-	aliasFile         = "network_aliases.json"
+	aliasFile         = "/etc/opensnitchd/network_aliases.json"
 	fwConfigFile      = ""
 	ebpfModPath       = "" // /usr/lib/opensnitchd/ebpf
 	noLiveReload      = false
@@ -579,7 +579,7 @@ func main() {
 
 	err := rule.LoadAliases(aliasFile)
 	if err != nil {
-		log.Fatal("Error loading network aliases: %v", err)
+		log.Warning("Error loading network aliases: %v", err)
 	}
 	log.Info("Loading network aliases from %s ...", aliasFile)
 

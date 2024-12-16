@@ -14,6 +14,8 @@ install:
 		-t $(DESTDIR)/etc/opensnitchd/
 	@install -Dm644 system-fw.json \
 		-t $(DESTDIR)/etc/opensnitchd/
+	@install -Dm644 network_aliases.json \
+		-t $(DESTDIR)/etc/opensnitchd/
 	@systemctl daemon-reload
 
 opensnitchd: $(SRC)
