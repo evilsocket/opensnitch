@@ -48,15 +48,22 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     LAST_GROUP_BY = ""
 
     # general
-    COL_TIME   = 0
-    COL_NODE   = 1
-    COL_ACTION = 2
-    COL_DSTIP  = 3
-    COL_PROTO  = 4
-    COL_PROCS  = 5
-    COL_CMDLINE   = 6
-    COL_RULES  = 7
-    GENERAL_COL_NUM = 8
+    COL_TIME    = 0
+    COL_NODE    = 1
+    COL_ACTION  = 2
+    COL_SRCPORT = 3
+    COL_SRCIP   = 4
+    COL_DSTIP   = 5
+    COL_DSTHOST = 6
+    COL_DSTPORT = 7
+    COL_PROTO   = 8
+    COL_UID     = 9
+    COL_PID     = 10
+    COL_PROCS   = 11
+    COL_CMDLINE = 12
+    COL_RULES   = 13
+    # total number of columns: cols + 1
+    GENERAL_COL_NUM = 14
 
     # nodes
     COL_N_STATUS = 2
@@ -159,11 +166,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "time as Time, " \
                     "node as Node, " \
                     "action as Action, " \
-                    "CASE dst_host WHEN ''" \
-                    "   THEN dst_ip || '  ->  ' || dst_port " \
-                    "   ELSE dst_host || '  ->  ' || dst_port " \
-                    "END Destination, " \
+                    "src_port as SrcPort, " \
+                    "src_ip as SrcIP, " \
+                    "dst_ip as DstIP, " \
+                    "dst_host as DstHost, " \
+                    "dst_port as DstPort, " \
                     "protocol as Protocol, " \
+                    "uid as UID, " \
+                    "pid as PID, " \
                     "process as Process, " \
                     "process_args as Cmdline, " \
                     "rule as Rule",
@@ -382,11 +392,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.COL_STR_PROCESS = QC.translate("stats", "Process", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_PROC_CMDLINE = QC.translate("stats", "Cmdline", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DESTINATION = QC.translate("stats", "Destination", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_SRC_PORT = QC.translate("stats", "SrcPort", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_SRC_IP = QC.translate("stats", "SrcIP", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DST_IP = QC.translate("stats", "DstIP", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DST_HOST = QC.translate("stats", "DstHost", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DST_PORT = QC.translate("stats", "DstPort", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_RULE = QC.translate("stats", "Rule", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_UID = QC.translate("stats", "UserID", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_PID = QC.translate("stats", "PID", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_LAST_CONNECTION = QC.translate("stats", "LastConnection", "This is a word, without spaces and symbols.").replace(" ", "")
 
         self.FIREWALL_STOPPED  = QC.translate("stats", "Not running")
@@ -433,6 +446,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # used to skip updates while the user is moving the scrollbar
         self.scrollbar_active = False
 
+        # flag to force a refresh of the columns
+        self._refresh_columns = False
+
         self._lock = threading.RLock()
         self._address = address
         self._stats = None
@@ -448,7 +464,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeLabel.setText("")
         self.nodeLabel.setStyleSheet('color: green;font-size:12pt; font-weight:600;')
         self.rulesSplitter.setStretchFactor(0,0)
-        self.rulesSplitter.setStretchFactor(1,2)
+        self.rulesSplitter.setStretchFactor(1,5)
         self.nodesSplitter.setStretchFactor(0,0)
         self.nodesSplitter.setStretchFactor(0,3)
         self.rulesTreePanel.resizeColumnToContents(0)
@@ -607,9 +623,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self.COL_STR_TIME,
                     self.COL_STR_NODE,
                     self.COL_STR_ACTION,
-                    self.COL_STR_DESTINATION,
+                    self.COL_STR_SRC_PORT,
+                    self.COL_STR_SRC_IP,
+                    self.COL_STR_DST_IP,
+                    self.COL_STR_DST_HOST,
+                    self.COL_STR_DST_PORT,
                     self.COL_STR_PROTOCOL,
+                    self.COL_STR_UID,
+                    self.COL_STR_PID,
                     self.COL_STR_PROCESS,
+                    self.COL_STR_PROC_CMDLINE,
                     self.COL_STR_RULE,
                 ]),
                 verticalScrollBar=self.connectionsTableScrollBar,
@@ -923,20 +946,22 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             elif len(rulesSizes) > 0:
                 self.comboRulesFilter.setVisible(rulesSizes[0] == 0)
         else:
-            # default position when the user hasn't moved it.
+            # default position when the user hasn't moved it yet.
+
+            # FIXME: The first time show() event is fired, this widget has no
+            # real width yet. The second time is fired the width of the widget
+            # is correct.
             w = self.rulesSplitter.width()
-            self.rulesSplitter.setSizes([int(w/2), int(w/4)])
+            self.rulesSplitter.setSizes([int(w/4), int(w/1)])
 
         nodes_splitter_pos = self._cfg.getSettings(Config.STATS_NODES_SPLITTER_POS)
         if type(nodes_splitter_pos) == QtCore.QByteArray:
             self.nodesSplitter.restoreState(nodes_splitter_pos)
             nodesSizes = self.nodesSplitter.sizes()
             self.nodesSplitter.setVisible(not self.IN_DETAIL_VIEW[self.TAB_NODES] and nodesSizes[0] > 0)
-            #elif len(rulesSizes) > 0:
-            #    self.comboRulesFilter.setVisible(rulesSizes[0] == 0)
         else:
             w = self.nodesSplitter.width()
-            self.nodesSplitter.setSizes([int(w/2), int(w/3)])
+            self.nodesSplitter.setSizes([w, 0])
 
         self._configure_netstat_combos()
 
@@ -1868,14 +1893,44 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_rules_query(r_name, node)
 
         elif idx == StatsDialog.COL_DSTIP:
-            cur_idx = self.TAB_HOSTS
+            cur_idx = self.TAB_ADDRS
             self.IN_DETAIL_VIEW[cur_idx] = True
             rowdata = row.model().index(row.row(), self.COL_DSTIP).data()
-            hostip = rowdata.split(" ")[0]
-            self.LAST_SELECTED_ITEM = hostip
+            ip = rowdata
+            self.LAST_SELECTED_ITEM = ip
             self.tabWidget.setCurrentIndex(cur_idx)
-            self._set_active_widgets(True, hostip)
-            self._set_hosts_query(hostip)
+            self._set_active_widgets(True, ip)
+            self._set_addrs_query(ip)
+
+        elif idx == StatsDialog.COL_DSTHOST:
+            cur_idx = self.TAB_HOSTS
+            self.IN_DETAIL_VIEW[cur_idx] = True
+            rowdata = row.model().index(row.row(), self.COL_DSTHOST).data()
+            host = rowdata
+            self.LAST_SELECTED_ITEM = host
+            self.tabWidget.setCurrentIndex(cur_idx)
+            self._set_active_widgets(True, host)
+            self._set_hosts_query(host)
+
+        elif idx == StatsDialog.COL_DSTPORT:
+            cur_idx = self.TAB_PORTS
+            self.IN_DETAIL_VIEW[cur_idx] = True
+            rowdata = row.model().index(row.row(), self.COL_DSTPORT).data()
+            port = rowdata
+            self.LAST_SELECTED_ITEM = port
+            self.tabWidget.setCurrentIndex(cur_idx)
+            self._set_active_widgets(True, port)
+            self._set_ports_query(port)
+
+        elif idx == StatsDialog.COL_UID:
+            cur_idx = self.TAB_USERS
+            self.IN_DETAIL_VIEW[cur_idx] = True
+            rowdata = row.model().index(row.row(), self.COL_UID).data()
+            uid = rowdata
+            self.LAST_SELECTED_ITEM = uid
+            self.tabWidget.setCurrentIndex(cur_idx)
+            self._set_active_widgets(True, uid)
+            self._set_users_query(uid)
 
         else:
             cur_idx = self.TAB_PROCS
@@ -3227,6 +3282,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._ui_refresh_interval = self._cfg.getInt(Config.STATS_REFRESH_INTERVAL, 0)
         self._show_columns()
         self.settings_saved.emit()
+        self._refresh_columns = True
 
     def _on_menu_node_export_clicked(self, triggered):
         outdir = QtWidgets.QFileDialog.getExistingDirectory(self,
@@ -3506,4 +3562,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             except Exception as e:
                 print(self._address, "setQuery() exception: ", e)
             finally:
-                self._show_columns()
+                if self._refresh_columns:
+                    self._show_columns()
+                    self._refresh_columns = False

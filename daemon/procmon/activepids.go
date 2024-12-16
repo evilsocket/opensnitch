@@ -31,6 +31,8 @@ func MonitorProcEvents(stop <-chan struct{}) {
 				// we don't receive the path of the process, therefore we need to discover it,
 				// to check if the PID has replaced the PPID.
 				proc := NewProcessWithParent(int(ev.PID), int(ev.TGID), "")
+				proc.GetParent()
+				proc.BuildTree()
 
 				log.Debug("[procmon exec event] %d, pid:%d tgid:%d %s, %s -> %s\n", ev.TimeStamp, ev.PID, ev.TGID, proc.Comm, proc.Path, proc.Parent.Path)
 				if item, needsUpdate, found := EventsCache.IsInStore(int(ev.PID), proc); found {

@@ -228,10 +228,11 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         try:
             enableFw = False
-            if self._nodes.count() == 0:
-                self.sliderFwEnable.blockSignals(True)
-                self.sliderFwEnable.setEnabled(False)
-                self.sliderFwEnable.blockSignals(False)
+            enableFwBtn = (self._nodes.count() > 0)
+            self.sliderFwEnable.blockSignals(True)
+            self.sliderFwEnable.setEnabled(enableFwBtn)
+            self.sliderFwEnable.blockSignals(False)
+            if not enableFwBtn:
                 return
 
             # TODO: handle nodes' firewall properly
@@ -325,33 +326,65 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return False
 
     def enable_fw(self, enable):
-        self._disable_widgets(not enable)
-        if enable:
-            self._set_status_message(QC.translate("firewall", "Enabling firewall..."))
-        else:
-            self._set_status_message(QC.translate("firewall", "Disabling firewall..."))
+        try:
+            self._disable_widgets(not enable)
+            if enable:
+                self._set_status_message(QC.translate("firewall", "Enabling firewall..."))
+            else:
+                self._set_status_message(QC.translate("firewall", "Disabling firewall..."))
 
-        # if previous input policy was DROP, when disabling the firewall it
-        # must be ACCEPT to allow output traffic.
-        if not enable and self.comboInput.currentIndex() == self.POLICY_DROP:
-            self.comboInput.blockSignals(True)
-            self.comboInput.setCurrentIndex(self.POLICY_ACCEPT)
-            self.comboInput.blockSignals(False)
+            # if previous input policy was DROP, when disabling the firewall it
+            # must be ACCEPT to allow output traffic.
+            if not enable and self.comboInput.currentIndex() == self.POLICY_DROP:
+                self.comboInput.blockSignals(True)
+                self.comboInput.setCurrentIndex(self.POLICY_ACCEPT)
+                self.comboInput.blockSignals(False)
+                for addr in self._nodes.get():
+                    json_profile = json.dumps(FwProfiles.ProfileAcceptInput.value)
+                    ok, err = self._fw.apply_profile(addr, json_profile)
+                    if not ok:
+                        self._set_status_error(
+                            QC.translate("firewall", "Error applying INPUT ACCEPT profile: {0}".format(err))
+                        )
+                        return
+
+            if not enable and self.comboOutput.currentIndex() == self.POLICY_DROP:
+                self.comboOutput.blockSignals(True)
+                self.comboOutput.setCurrentIndex(self.POLICY_ACCEPT)
+                self.comboOutput.blockSignals(False)
+                for addr in self._nodes.get():
+                    json_profile = json.dumps(FwProfiles.ProfileAcceptOutput.value)
+                    ok, err = self._fw.apply_profile(addr, json_profile)
+                    if not ok:
+                        self._set_status_error(
+                            QC.translate("firewall", "Error applying OUTPUT ACCEPT profile: {0}".format(err))
+                        )
+                        return
+
             for addr in self._nodes.get():
-                json_profile = json.dumps(FwProfiles.ProfileAcceptInput.value)
-                ok, err = self._fw.apply_profile(addr, json_profile)
-                if not ok:
-                    print("[firewall] Error applying INPUT ACCEPT profile: {0}".format(err))
+                # FIXME:
+                # Due to how the daemon reacts to events when the fw configuration
+                # is modified, changing the policy + disabling the fw doesn't work
+                # as expected.
+                # The daemon detects that the fw is disabled, and it never changes
+                # the policy.
+                # As a workaround to this problem, we send 2 fw changes:
+                # - one for changing the policy
+                # - another one for disabling the fw
 
-        for addr in self._nodes.get():
-            fwcfg = self._nodes.get_node(addr)['firewall']
-            fwcfg.Enabled = True if enable else False
-            self.send_notification(addr, fwcfg)
+                fwcfg = self._nodes.get_node(addr)['firewall']
+                self.send_notification(addr, fwcfg)
+                time.sleep(0.5)
+                fwcfg.Enabled = True if enable else False
+                self.send_notification(addr, fwcfg)
 
-        self.lblStatusIcon.setEnabled(enable)
-        self.policiesBox.setEnabled(enable)
+            self.lblStatusIcon.setEnabled(enable)
+            self.policiesBox.setEnabled(enable)
 
-        time.sleep(0.5)
+            time.sleep(0.5)
+
+        except Exception as e:
+            QC.translate("firewall", "Error: {0}".format(e))
 
     def load_rule(self, addr, uuid):
         self._fwrule_dialog.load(addr, uuid)
