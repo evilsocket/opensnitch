@@ -23,7 +23,7 @@ Supported list stypes
 
 [Troubleshooting](#troubleshooting)
 
-[Video tutorial](#resources)
+[Video tutorial](#video-tutorials)
 
 [Resources](#resources)
 
@@ -98,6 +98,7 @@ Remember that you may need to add the domain without the subdomains (`domain.com
 127.0.0.1 www.domain.com
 ```
 
+---
 
 #### Lists of domains with regular expressions
 - one regular expression per line:
@@ -117,6 +118,8 @@ adtrack(er|ing)?[0-9]*[_.-]
 
 Here's a playground you can use to test regular expressions: https://go.dev/play/p/JzQCeNH4OH1
 
+---
+
 #### Lists of IPs
 - One per line:
 IPs
@@ -125,6 +128,8 @@ IPs
 6.7.8.9
 9.8.7.6
 ```
+
+---
 
 #### Lists of NETs
 You can use these lists for exmple for GeoIP blocking: https://www.ipdeny.com/ipblocks/
@@ -135,6 +140,8 @@ Nets:
 1.0.1.0/24
 1.2.3.0/16
 ```
+
+---
 
 #### Notes
 - Lines started with # are ignored. Write comments always on a new line, not after a domain.
@@ -186,13 +193,6 @@ See this issue [#646](https://github.com/evilsocket/opensnitch/issues/646) for m
 
 ### Resources
 
-Video tutorials:
-
-https://user-images.githubusercontent.com/2742953/192171195-ba14e4cc-420a-4b85-a6c7-7f023a6a63e3.webm
-
-https://user-images.githubusercontent.com/2742953/192171230-330adbd0-4ef8-48f8-a304-96812fd31c41.webm
-
----
 Lists of ads, trackers, malware domains, etc that you can use:
 
 https://github.com/badmojr/1Hosts
@@ -211,6 +211,20 @@ https://pgl.yoyo.org/adservers/
 
 https://iplists.firehol.org/
 
+List of active malware domains:
+
+https://urlhaus.abuse.ch/api/#hostfile
+
+https://threatfox.abuse.ch/export/#hostfile
+
 Collections of Threat Intel feeds (by hash, IPs, domains, and more):
 
 https://github.com/Bert-JanP/Open-Source-Threat-Intel-Feeds
+
+---
+
+### Video tutorials:
+
+https://user-images.githubusercontent.com/2742953/192171195-ba14e4cc-420a-4b85-a6c7-7f023a6a63e3.webm
+
+https://user-images.githubusercontent.com/2742953/192171230-330adbd0-4ef8-48f8-a304-96812fd31c41.webm
