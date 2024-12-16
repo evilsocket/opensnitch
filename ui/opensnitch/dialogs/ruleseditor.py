@@ -25,6 +25,8 @@ from opensnitch.utils import (
 )
 from opensnitch.rules import Rule, Rules
 
+from network_aliases import NetworkAliases
+
 DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
@@ -61,6 +63,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._old_rule_name = None
 
         self.setupUi(self)
+        self.load_aliases_into_menu()
         self.setWindowIcon(appicon)
 
         self.ruleNameValidator = qvalidator.RestrictChars(RulesEditorDialog.INVALID_RULE_NAME_CHARS)
@@ -119,6 +122,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if _rule != None:
             self._load_rule(rule=_rule)
+
+    def load_aliases_into_menu(self):
+        aliases = NetworkAliases.get_alias_all()
+
+        for alias in reversed(aliases):
+            if self.dstIPCombo.findText(alias) == -1:
+                self.dstIPCombo.insertItem(0, alias)
 
     def showEvent(self, event):
         super(RulesEditorDialog, self).showEvent(event)
@@ -854,29 +864,34 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             dstIPtext = self.dstIPCombo.currentText()
 
-            if dstIPtext == self.LAN_LABEL:
-                self.rule.operator.operand = Config.OPERAND_DEST_IP
-                self.rule.operator.type = Config.RULE_TYPE_REGEXP
-                dstIPtext = self.LAN_RANGES
-            elif dstIPtext == self.MULTICAST_LABEL:
-                self.rule.operator.operand = Config.OPERAND_DEST_IP
-                self.rule.operator.type = Config.RULE_TYPE_REGEXP
-                dstIPtext = self.MULTICAST_RANGE
+            if dstIPtext in NetworkAliases.get_alias_all():
+                self.rule.operator.type = Config.RULE_TYPE_NETWORK
+                self.rule.operator.operand = Config.OPERAND_DEST_NETWORK
+                self.rule.operator.data = dstIPtext
             else:
-                try:
-                    if type(ipaddress.ip_address(self.dstIPCombo.currentText())) == ipaddress.IPv4Address \
-                    or type(ipaddress.ip_address(self.dstIPCombo.currentText())) == ipaddress.IPv6Address:
-                        self.rule.operator.operand = Config.OPERAND_DEST_IP
-                        self.rule.operator.type = Config.RULE_TYPE_SIMPLE
-                except Exception:
-                    self.rule.operator.operand = Config.OPERAND_DEST_NETWORK
-                    self.rule.operator.type = Config.RULE_TYPE_NETWORK
-
-                if self._is_regex(dstIPtext):
+                if dstIPtext == self.LAN_LABEL:
                     self.rule.operator.operand = Config.OPERAND_DEST_IP
                     self.rule.operator.type = Config.RULE_TYPE_REGEXP
-                    if self._is_valid_regex(self.dstIPCombo.currentText()) == False:
-                        return False, QC.translate("rules", "Dst IP regexp error")
+                    dstIPtext = self.LAN_RANGES
+                elif dstIPtext == self.MULTICAST_LABEL:
+                    self.rule.operator.operand = Config.OPERAND_DEST_IP
+                    self.rule.operator.type = Config.RULE_TYPE_REGEXP
+                    dstIPtext = self.MULTICAST_RANGE
+                else:
+                    try:
+                        if type(ipaddress.ip_address(self.dstIPCombo.currentText())) == ipaddress.IPv4Address \
+                        or type(ipaddress.ip_address(self.dstIPCombo.currentText())) == ipaddress.IPv6Address:
+                            self.rule.operator.operand = Config.OPERAND_DEST_IP
+                            self.rule.operator.type = Config.RULE_TYPE_SIMPLE
+                    except Exception:
+                        self.rule.operator.operand = Config.OPERAND_DEST_NETWORK
+                        self.rule.operator.type = Config.RULE_TYPE_NETWORK
+
+                    if self._is_regex(dstIPtext):
+                        self.rule.operator.operand = Config.OPERAND_DEST_IP
+                        self.rule.operator.type = Config.RULE_TYPE_REGEXP
+                        if self._is_valid_regex(self.dstIPCombo.currentText()) == False:
+                            return False, QC.translate("rules", "Dst IP regexp error")
 
             rule_data.append(
                     {
