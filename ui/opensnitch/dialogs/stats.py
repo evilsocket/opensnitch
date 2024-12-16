@@ -2579,7 +2579,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             qstr += " WHERE " + action + " ("\
                     " " + self.COL_STR_PROCESS + " LIKE '%" + filter_text + "%'" \
                     " OR " + self.COL_STR_PROC_CMDLINE + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_DESTINATION + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_SRC_PORT + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_SRC_IP + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_DST_IP + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_DST_HOST + " LIKE '%" + filter_text + "%'" \
+                    " OR " + self.COL_STR_DST_PORT + " LIKE '%" + filter_text + "%'" \
                     " OR " + self.COL_STR_RULE + " LIKE '%" + filter_text + "%'" \
                     " OR " + self.COL_STR_NODE + " LIKE '%" + filter_text + "%'" \
                     " OR " + self.COL_STR_TIME + " LIKE '%" + filter_text + "%'" \
