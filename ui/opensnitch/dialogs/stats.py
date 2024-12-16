@@ -1907,6 +1907,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.IN_DETAIL_VIEW[cur_idx] = True
             rowdata = row.model().index(row.row(), self.COL_DSTHOST).data()
             host = rowdata
+            if host == "":
+                return
             self.LAST_SELECTED_ITEM = host
             self.tabWidget.setCurrentIndex(cur_idx)
             self._set_active_widgets(True, host)
