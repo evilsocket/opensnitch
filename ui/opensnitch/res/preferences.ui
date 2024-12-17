@@ -222,7 +222,15 @@
        </item>
        <item row="2" column="0" colspan="4">
         <widget class="QToolBox" name="toolBox">
-         <widget class="QWidget" name="page_7" native="true">
+         <widget class="QWidget" name="page_7">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>586</width>
+            <height>306</height>
+           </rect>
+          </property>
           <attribute name="label">
            <string>Default options</string>
           </attribute>
@@ -432,6 +440,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page_8">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>333</width>
+            <height>83</height>
+           </rect>
+          </property>
           <attribute name="label">
            <string>More</string>
           </attribute>
@@ -571,6 +587,25 @@
            <string>General</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_16">
+           <item row="10" column="2" colspan="2">
+            <widget class="QLineEdit" name="lineUIScreenFactor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Use numbers to define a global scale factor for the whole application:
+1, 1.2, 1.5, 2, etc ...
+
+Use ; to define multiple screens: 1;1.5 etc...</string>
+             </property>
+             <property name="placeholderText">
+              <string>ex: 1, 1.25, 1.5, 2, ...</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="2" colspan="2">
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <property name="spacing">
@@ -643,6 +678,28 @@
              </item>
             </layout>
            </item>
+           <item row="3" column="2" colspan="2">
+            <widget class="QComboBox" name="comboUITheme">
+             <item>
+              <property name="text">
+               <string>System</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="12" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkAutostart">
+             <property name="toolTip">
+              <string>By default the GUI is started when login</string>
+             </property>
+             <property name="text">
+              <string>Autostart the GUI upon login</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="label_27">
              <property name="sizePolicy">
@@ -659,42 +716,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="2" colspan="2">
-            <widget class="QLineEdit" name="lineUIScreenFactor">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Use numbers to define a global scale factor for the whole application:
-1, 1.2, 1.5, 2, etc ...
-
-Use ; to define multiple screens: 1;1.5 etc...</string>
-             </property>
-             <property name="placeholderText">
-              <string>ex: 1, 1.25, 1.5, 2, ...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2" colspan="2">
-            <widget class="QComboBox" name="comboUILang"/>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QLabel" name="label_19">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Language</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0" colspan="2">
+           <item row="11" column="0" colspan="2">
             <widget class="QLabel" name="labelUIDensity">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -704,6 +726,16 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
              <property name="text">
               <string>Theme density scale</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="4">
+            <widget class="QCheckBox" name="checkUIAutoScreen">
+             <property name="text">
+              <string>Auto screen scale factor</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -720,17 +752,10 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="4">
-            <widget class="QCheckBox" name="checkUIAutoScreen">
-             <property name="text">
-              <string>Auto screen scale factor</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
+           <item row="1" column="2" colspan="2">
+            <widget class="QComboBox" name="comboUILang"/>
            </item>
-           <item row="6" column="0">
+           <item row="10" column="0">
             <widget class="QLabel" name="labelUIScreenFactor">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -743,7 +768,7 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="2" colspan="2">
+           <item row="11" column="2" colspan="2">
             <layout class="QHBoxLayout" name="horizontalLayout_9">
              <property name="spacing">
               <number>0</number>
@@ -818,16 +843,20 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </item>
             </layout>
            </item>
-           <item row="3" column="2" colspan="2">
-            <widget class="QComboBox" name="comboUITheme">
-             <item>
-              <property name="text">
-               <string>System</string>
-              </property>
-             </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QLabel" name="label_19">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Language</string>
+             </property>
             </widget>
            </item>
-           <item row="4" column="0" colspan="4">
+           <item row="4" column="0">
             <widget class="QLabel" name="labelThemeError">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -843,16 +872,38 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
             </widget>
            </item>
-           <item row="8" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkAutostart">
+           <item row="5" column="2" colspan="2">
+            <widget class="QComboBox" name="comboUIQtPlatform">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string/>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">xcb</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">wayland</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QLabel" name="label_29">
              <property name="toolTip">
-              <string>By default the GUI is started when login</string>
+              <string>This option will set QT_QPA_PLATFORM when launching the GUI.
+
+xcb         - X11 compatibility. If you experience issues with wayland, use this plugin.
+wayland</string>
              </property>
              <property name="text">
-              <string>Autostart the GUI upon login</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
+              <string>Qt platform plugin</string>
              </property>
             </widget>
            </item>
@@ -863,8 +914,8 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>586</width>
-            <height>301</height>
+            <width>259</width>
+            <height>178</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1723,8 +1774,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>586</width>
-            <height>260</height>
+            <width>296</width>
+            <height>211</height>
            </rect>
           </property>
           <attribute name="label">

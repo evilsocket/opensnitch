@@ -80,6 +80,14 @@ def configure_screen_scale_factor(cfg):
         print("QT_SCREEN_SCALE_FACTORS:", screen_factor)
         os.environ["QT_SCREEN_SCALE_FACTORS"] = screen_factor
 
+def configure_qt_platform_plugin(cfg):
+    qt_plugin = cfg.getSettings(Config.QT_PLATFORM_PLUGIN)
+    if qt_plugin is None or qt_plugin == "":
+        return
+
+    print("QT_QPA_PLATFORM:", qt_plugin)
+    os.environ["QT_QPA_PLATFORM"] = qt_plugin
+
 def check_environ():
     if xdg_current_session == "":
         print("""
@@ -128,6 +136,7 @@ Examples:
     logging.getLogger().disabled = not args.debug
     cfg = Config.get()
     configure_screen_scale_factor(cfg)
+    configure_qt_platform_plugin(cfg)
 
     if args.debug and args.debug_grpc:
         os.environ["GRPC_TRACE"] = "all"

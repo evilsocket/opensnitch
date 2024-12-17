@@ -139,6 +139,7 @@ class Config:
     STATS_VIEW_COL_STATE =  "statsDialog/view_columns_state"
     STATS_VIEW_DETAILS_COL_STATE =  "statsDialog/view_details_columns_state"
 
+    QT_PLATFORM_PLUGIN = "global/qt_platform_plugin"
     QT_AUTO_SCREEN_SCALE_FACTOR = "global/screen_scale_factor_auto"
     QT_SCREEN_SCALE_FACTOR = "global/screen_scale_factor"
 
