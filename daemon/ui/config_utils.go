@@ -190,14 +190,6 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 	} else {
 		log.Debug("[config] config.Ebpf.ModulesPath not changed")
 	}
-	if reloadProc {
-		err := monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf)
-		if err != nil && err.What > monitor.NoError {
-			return err
-		}
-	} else {
-		log.Debug("[config] config.procmon not changed")
-	}
 
 	// 3. load fw
 	reloadFw := false
@@ -218,6 +210,16 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		)
 	} else {
 		log.Debug("[config] config.firewall not changed")
+	}
+
+	// 4. reload procmon if needed
+	if reloadProc {
+		err := monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf)
+		if err != nil && err.What > monitor.NoError {
+			return err
+		}
+	} else {
+		log.Debug("[config] config.procmon not changed")
 	}
 
 	if (reloadProc || reloadFw) && newConfig.Internal.FlushConnsOnStart {
