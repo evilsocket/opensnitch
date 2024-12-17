@@ -6,10 +6,13 @@ from PyQt5.QtCore import QCoreApplication as QC
 from opensnitch.config import Config
 from opensnitch.dialogs.prompt import _constants
 
-def set_elide_text(widget, text, max_size=132):
+def truncate_text(text, max_size=64):
     if len(text) > max_size:
         text = text[:max_size] + "..."
+    return text
 
+def set_elide_text(widget, text, max_size=64):
+    text = truncate_text(text, max_size)
     widget.setText(text)
 
 def get_rule_name(rule, is_list):
@@ -28,6 +31,8 @@ def get_popup_message(is_local, node, app_name, con):
     the pop-up dialog. Example:
         curl is connecting to www.opensnitch.io on TCP port 443
     """
+    app_name = truncate_text(app_name)
+
     message = "<b>%s</b>" % app_name
     if not is_local:
         message = QC.translate("popups", "<b>Remote</b> process %s running on <b>%s</b>") % ( \
@@ -72,16 +77,28 @@ def set_app_path(appPathLabel, app_name, app_args, con):
         appPathLabel.setVisible(False)
         appPathLabel.setText("")
 
+    appPathLabel.setText(
+        "".join(
+            filter(str.isprintable, appPathLabel.text())
+        )
+    )
+
 def set_app_args(argsLabel, app_name, app_args):
     # if the app name and the args are the same, there's no need to display
     # the args label (amule for example)
     if app_name.lower() != app_args:
         argsLabel.setVisible(True)
-        set_elide_text(argsLabel, app_args)
+        set_elide_text(argsLabel, app_args, 256)
         argsLabel.setToolTip(app_args)
     else:
         argsLabel.setVisible(False)
         argsLabel.setText("")
+
+    argsLabel.setText(
+        "".join(
+            filter(str.isprintable, argsLabel.text())
+        )
+    )
 
 def set_app_description(appDescriptionLabel, description):
     if description != None and description != "":
@@ -93,6 +110,12 @@ def set_app_description(appDescriptionLabel, description):
         appDescriptionLabel.setVisible(False)
         appDescriptionLabel.setFixedHeight(0)
         appDescriptionLabel.setText("")
+
+    appDescriptionLabel.setText(
+        "".join(
+            filter(str.isprintable, appDescriptionLabel.text())
+        )
+    )
 
 def get_duration(duration_idx):
     if duration_idx == 0:
