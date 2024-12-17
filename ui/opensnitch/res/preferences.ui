@@ -380,8 +380,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>425</width>
-            <height>83</height>
+            <width>599</width>
+            <height>328</height>
            </rect>
           </property>
           <attribute name="label">
@@ -530,7 +530,42 @@
            <string>General</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_5">
-           <item row="7" column="0">
+           <item row="16" column="0">
+            <widget class="QLabel" name="labelUIDensity">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Theme density scale</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_19">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Language</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="comboUITheme">
+             <item>
+              <property name="text">
+               <string>System</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="15" column="0">
             <widget class="QLabel" name="labelUIScreenFactor">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -543,22 +578,91 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
-            <widget class="QLineEdit" name="lineUIScreenFactor">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+           <item row="16" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <property name="spacing">
+              <number>0</number>
              </property>
+             <item>
+              <widget class="QPushButton" name="cmdUIDensityUp">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset theme="list-add">
+                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spinUIDensity">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::NoButtons</enum>
+               </property>
+               <property name="accelerated">
+                <bool>true</bool>
+               </property>
+               <property name="minimum">
+                <number>-20</number>
+               </property>
+               <property name="maximum">
+                <number>20</number>
+               </property>
+               <property name="value">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="cmdUIDensityDown">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset theme="list-remove">
+                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="18" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkAutostart">
              <property name="toolTip">
-              <string>Use numbers to define a global scale factor for the whole application:
-1, 1.2, 1.5, 2, etc ...
-
-Use ; to define multiple screens: 1;1.5 etc...</string>
+              <string>By default the GUI is started when login</string>
              </property>
-             <property name="placeholderText">
-              <string>ex: 1, 1.25, 1.5, 2, ...</string>
+             <property name="text">
+              <string>Autostart the GUI upon login</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -634,31 +738,27 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </item>
             </layout>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_21">
+           <item row="15" column="1">
+            <widget class="QLineEdit" name="lineUIScreenFactor">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="text">
-              <string>Theme</string>
+             <property name="toolTip">
+              <string>Use numbers to define a global scale factor for the whole application:
+1, 1.2, 1.5, 2, etc ...
+
+Use ; to define multiple screens: 1;1.5 etc...</string>
+             </property>
+             <property name="placeholderText">
+              <string>ex: 1, 1.25, 1.5, 2, ...</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_19">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Language</string>
-             </property>
-            </widget>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="comboUILang"/>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_27">
@@ -676,120 +776,20 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QComboBox" name="comboUITheme">
-             <item>
-              <property name="text">
-               <string>System</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="8" column="0">
-            <widget class="QLabel" name="labelUIDensity">
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_21">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Theme density scale</string>
+              <string>Theme</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="comboUILang"/>
-           </item>
-           <item row="8" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_9">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QPushButton" name="cmdUIDensityUp">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset theme="list-add">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-               </property>
-               <property name="flat">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="spinUIDensity">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-               <property name="buttonSymbols">
-                <enum>QAbstractSpinBox::NoButtons</enum>
-               </property>
-               <property name="accelerated">
-                <bool>true</bool>
-               </property>
-               <property name="minimum">
-                <number>-20</number>
-               </property>
-               <property name="maximum">
-                <number>20</number>
-               </property>
-               <property name="value">
-                <number>0</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="cmdUIDensityDown">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset theme="list-remove">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-               </property>
-               <property name="flat">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="labelThemeError">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0" colspan="2">
+           <item row="14" column="0" colspan="2">
             <widget class="QCheckBox" name="checkUIAutoScreen">
              <property name="text">
               <string>Auto screen scale factor</string>
@@ -799,16 +799,63 @@ Use ; to define multiple screens: 1;1.5 etc...</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkAutostart">
+           <item row="10" column="0">
+            <widget class="QLabel" name="label_33">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="toolTip">
-              <string>By default the GUI is started when login</string>
+              <string>This option will set QT_QPA_PLATFORM when launching the GUI.
+
+xcb         - X11 compatibility. If you experience issues with wayland, use this plugin.
+wayland</string>
              </property>
              <property name="text">
-              <string>Autostart the GUI upon login</string>
+              <string>Qt platform plugin</string>
              </property>
-             <property name="checked">
+            </widget>
+           </item>
+           <item row="10" column="1">
+            <widget class="QComboBox" name="comboUIQtPlatform">
+             <property name="editable">
               <bool>true</bool>
+             </property>
+             <property name="currentText">
+              <string notr="true"/>
+             </property>
+             <property name="placeholderText">
+              <string notr="true"/>
+             </property>
+             <item>
+              <property name="text">
+               <string/>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">xcb</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">wayland</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="9" column="0" colspan="2">
+            <widget class="QLabel" name="labelThemeError">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
              </property>
             </widget>
            </item>

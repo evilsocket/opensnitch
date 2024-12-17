@@ -381,6 +381,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkUIAutoScreen.blockSignals(False)
         self._show_ui_scalefactor_widgets(auto_scale)
 
+        qt_platform = self._cfg.getSettings(Config.QT_PLATFORM_PLUGIN)
+        if qt_platform is not None and qt_platform != "":
+            self.comboUIQtPlatform.setCurrentText(qt_platform)
+
         self.checkAutostart.setChecked(self._autostart.isEnabled())
 
         maxmsgsize = self._cfg.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
@@ -834,6 +838,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText(), str(self.spinUIDensity.value()))
 
+            qt_platform = self._cfg.getSettings(Config.QT_PLATFORM_PLUGIN)
+            if qt_platform != self.comboUIQtPlatform.currentText():
+                self._changes_needs_restart = QC.translate("preferences", "Qt platform plugin changed")
+            self._cfg.setSettings(Config.QT_PLATFORM_PLUGIN, self.comboUIQtPlatform.currentText())
             self._cfg.setSettings(Config.QT_AUTO_SCREEN_SCALE_FACTOR, bool(self.checkUIAutoScreen.isChecked()))
             self._cfg.setSettings(Config.QT_SCREEN_SCALE_FACTOR, self.lineUIScreenFactor.text())
 
@@ -844,7 +852,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # see #79 for more information.
             if self.popupsCheck.isChecked():
                 self._cfg.setSettings(self._cfg.DEFAULT_TIMEOUT_KEY, 0)
-
 
             self._autostart.enable(self.checkAutostart.isChecked())
 
@@ -1133,11 +1140,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._change_theme()
 
     def _cb_ui_check_auto_scale_toggled(self, checked):
-        self._changes_needs_restart = True
+        self._changes_needs_restart = QC.translate("preferences", "Auto scale option changed")
         self._show_ui_scalefactor_widgets(checked)
 
     def _cb_ui_screen_factor_changed(self, text):
-        self._changes_needs_restart = True
+        self._changes_needs_restart = QC.translate("preferences", "Screen factor option changed")
 
     def _cb_combo_auth_type_changed(self, index):
         curtype = self.comboAuthType.itemData(self.comboAuthType.currentIndex())

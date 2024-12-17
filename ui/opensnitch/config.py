@@ -148,6 +148,7 @@ class Config:
     STATS_NETSTAT_FILTER_FAMILY = "statsDialog/netstat_family_filter"
     STATS_NETSTAT_FILTER_STATE = "statsDialog/netstat_state_filter"
 
+    QT_PLATFORM_PLUGIN = "global/qt_platform_plugin"
     QT_AUTO_SCREEN_SCALE_FACTOR = "global/screen_scale_factor_auto"
     QT_SCREEN_SCALE_FACTOR = "global/screen_scale_factor"
 
