@@ -446,9 +446,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # used to skip updates while the user is moving the scrollbar
         self.scrollbar_active = False
 
-        # flag to force a refresh of the columns
-        self._refresh_columns = False
-
         self._lock = threading.RLock()
         self._address = address
         self._stats = None
@@ -845,6 +842,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._add_rulesTree_fw_chains()
         self.setWindowTitle(window_title)
         self._refresh_active_table()
+        self._show_columns()
 
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.KeyPress:
@@ -3296,7 +3294,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._ui_refresh_interval = self._cfg.getInt(Config.STATS_REFRESH_INTERVAL, 0)
         self._show_columns()
         self.settings_saved.emit()
-        self._refresh_columns = True
 
     def _on_menu_node_export_clicked(self, triggered):
         outdir = QtWidgets.QFileDialog.getExistingDirectory(self,
@@ -3575,7 +3572,3 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self.labelRowsCount.setText("")
             except Exception as e:
                 print(self._address, "setQuery() exception: ", e)
-            finally:
-                if self._refresh_columns:
-                    self._show_columns()
-                    self._refresh_columns = False
