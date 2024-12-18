@@ -656,6 +656,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._add_rulesTree_fw_chains()
         self.setWindowTitle(window_title)
         self._refresh_active_table()
+        self._show_columns()
 
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.KeyPress:
@@ -2786,5 +2787,3 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self.labelRowsCount.setText("")
             except Exception as e:
                 print(self._address, "setQuery() exception: ", e)
-            finally:
-                self._show_columns()
