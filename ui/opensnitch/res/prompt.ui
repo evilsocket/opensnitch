@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
-    <height>302</height>
+    <width>515</width>
+    <height>315</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -156,6 +156,12 @@
        </item>
        <item>
         <widget class="QLabel" name="appDescriptionLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -182,6 +188,12 @@
        </item>
        <item>
         <widget class="QLabel" name="appPathLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string notr="true">(/path/to/bin/chromium)</string>
          </property>
@@ -201,9 +213,16 @@
        </item>
        <item>
         <widget class="QLabel" name="argsLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
-           <pointsize>10</pointsize>
+           <family>DejaVu Sans</family>
+           <pointsize>9</pointsize>
            <kerning>true</kerning>
           </font>
          </property>
@@ -242,35 +261,33 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="messageLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>520</width>
-       <height>40</height>
-      </size>
-     </property>
-     <property name="text">
-      <string notr="true">Chromium Web Browser wants to connect to www.evilsocket.net on tcp port 443. And maybe to www.goodsocket.net on port 344</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-     <property name="margin">
-      <number>5</number>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0">
+     <item>
+      <widget class="QLabel" name="messageLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string notr="true">Chromium Web Browser wants to connect to www.evilsocket.net on tcp port 443. And maybe to www.goodsocket.net on port 344</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="margin">
+        <number>5</number>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
@@ -280,44 +297,10 @@
      <property name="verticalSpacing">
       <number>3</number>
      </property>
-     <item row="6" column="1">
-      <widget class="QLabel" name="label_6">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-         <kerning>true</kerning>
-        </font>
-       </property>
-       <property name="text">
-        <string>User ID</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
      <item row="0" column="1">
       <widget class="QLabel" name="label_2">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -337,6 +320,12 @@
      </item>
      <item row="6" column="0">
       <widget class="QCheckBox" name="checkUserID">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -344,6 +333,12 @@
      </item>
      <item row="2" column="0">
       <widget class="QCheckBox" name="checkDstIP">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -352,22 +347,19 @@
      <item row="6" column="3">
       <widget class="QLabel" name="uidLabel">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>90</width>
-         <height>0</height>
-        </size>
        </property>
        <property name="font">
         <font>
          <pointsize>10</pointsize>
          <kerning>true</kerning>
         </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="text">
         <string>TextLabel</string>
@@ -386,22 +378,19 @@
      <item row="1" column="3">
       <widget class="QLabel" name="sourceIPLabel">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>90</width>
-         <height>0</height>
-        </size>
        </property>
        <property name="font">
         <font>
          <pointsize>10</pointsize>
          <kerning>true</kerning>
         </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="text">
         <string>TextLabel</string>
@@ -420,7 +409,7 @@
      <item row="1" column="1">
       <widget class="QLabel" name="label">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -441,7 +430,7 @@
      <item row="7" column="1">
       <widget class="QLabel" name="pidLabelWidget">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -462,22 +451,19 @@
      <item row="5" column="3">
       <widget class="QLabel" name="destPortLabel">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>90</width>
-         <height>0</height>
-        </size>
        </property>
        <property name="font">
         <font>
          <pointsize>10</pointsize>
          <kerning>true</kerning>
         </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="text">
         <string>TextLabel</string>
@@ -496,22 +482,19 @@
      <item row="2" column="3">
       <widget class="QLabel" name="destIPLabel">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>90</width>
-         <height>0</height>
-        </size>
        </property>
        <property name="font">
         <font>
          <pointsize>10</pointsize>
          <kerning>true</kerning>
         </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="text">
         <string>TextLabel</string>
@@ -530,7 +513,7 @@
      <item row="2" column="2">
       <widget class="QComboBox" name="whatIPCombo">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -543,16 +526,10 @@
      <item row="0" column="3">
       <widget class="QLabel" name="cwdLabel">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>90</width>
-         <height>0</height>
-        </size>
        </property>
        <property name="font">
         <font>
@@ -576,6 +553,12 @@
      </item>
      <item row="5" column="0">
       <widget class="QCheckBox" name="checkDstPort">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -584,7 +567,7 @@
      <item row="2" column="1">
       <widget class="QLabel" name="label_3">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -602,10 +585,41 @@
        </property>
       </widget>
      </item>
+     <item row="7" column="3">
+      <widget class="QLabel" name="pidLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <kerning>true</kerning>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+       </property>
+      </widget>
+     </item>
      <item row="5" column="1">
       <widget class="QLabel" name="destPortLabel_1">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -623,49 +637,55 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="3">
-      <widget class="QLabel" name="pidLabel">
+     <item row="6" column="1">
+      <widget class="QLabel" name="label_6">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>90</width>
-         <height>0</height>
-        </size>
-       </property>
        <property name="font">
         <font>
          <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
          <kerning>true</kerning>
         </font>
        </property>
        <property name="text">
-        <string>TextLabel</string>
-       </property>
-       <property name="textFormat">
-        <enum>Qt::PlainText</enum>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="textInteractionFlags">
-        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        <string>User ID</string>
        </property>
       </widget>
+     </item>
+     <item row="0" column="2">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
    <item>
     <widget class="QLabel" name="label_5">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
      </property>
      <property name="text">
       <string notr="true"/>
@@ -680,7 +700,7 @@
      <item>
       <widget class="QComboBox" name="whatCombo">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -689,12 +709,6 @@
         <size>
          <width>97</width>
          <height>26</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>204</width>
-         <height>30</height>
         </size>
        </property>
        <item>
@@ -731,16 +745,16 @@
      </item>
      <item>
       <widget class="QComboBox" name="durationCombo">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
          <width>97</width>
          <height>26</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>204</width>
-         <height>30</height>
         </size>
        </property>
        <property name="currentText">
@@ -790,16 +804,16 @@
      </item>
      <item>
       <widget class="QToolButton" name="actionButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
          <width>97</width>
          <height>26</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>204</width>
-         <height>30</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -809,7 +823,8 @@
         <string>action</string>
        </property>
        <property name="icon">
-        <iconset theme="emblem-important"/>
+        <iconset theme="emblem-important">
+         <normaloff>.</normaloff>.</iconset>
        </property>
        <property name="popupMode">
         <enum>QToolButton::MenuButtonPopup</enum>
@@ -821,23 +836,24 @@
      </item>
      <item>
       <widget class="QPushButton" name="allowButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
          <width>97</width>
          <height>26</height>
         </size>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>204</width>
-         <height>30</height>
-        </size>
-       </property>
        <property name="text">
         <string>Allow</string>
        </property>
        <property name="icon">
-        <iconset theme="emblem-default"/>
+        <iconset theme="emblem-default">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -878,13 +894,14 @@
  </widget>
  <tabstops>
   <tabstop>checkAdvanced</tabstop>
+  <tabstop>allowButton</tabstop>
   <tabstop>actionButton</tabstop>
   <tabstop>durationCombo</tabstop>
   <tabstop>whatCombo</tabstop>
-  <tabstop>whatIPCombo</tabstop>
-  <tabstop>checkUserID</tabstop>
-  <tabstop>checkDstIP</tabstop>
   <tabstop>checkDstPort</tabstop>
+  <tabstop>checkDstIP</tabstop>
+  <tabstop>checkUserID</tabstop>
+  <tabstop>whatIPCombo</tabstop>
  </tabstops>
  <resources>
   <include location="resources.qrc"/>
