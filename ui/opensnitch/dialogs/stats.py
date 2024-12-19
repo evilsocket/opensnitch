@@ -1477,7 +1477,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             cur_idx = self.tabWidget.currentIndex()
             self.IN_DETAIL_VIEW[cur_idx] = False
 
-            self._set_active_widgets(False)
+            self._set_active_widgets(cur_idx, False)
             if cur_idx == StatsDialog.TAB_RULES:
                 self._restore_rules_tab_widgets(True)
                 return
@@ -1504,6 +1504,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._restore_last_selected_row()
 
     def _cb_main_table_double_clicked(self, row):
+        prev_idx = self.tabWidget.currentIndex()
         data = row.data()
         idx = row.column()
         cur_idx = 1
@@ -1513,7 +1514,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.IN_DETAIL_VIEW[cur_idx] = True
             self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_NODE).data()
             self.tabWidget.setCurrentIndex(cur_idx)
-            self._set_active_widgets(True, str(data))
+            self._set_active_widgets(prev_idx, True, str(data))
             self._set_nodes_query(data)
 
         elif idx == StatsDialog.COL_RULES:
@@ -1521,7 +1522,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.IN_DETAIL_VIEW[cur_idx] = True
             self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_RULES).data()
             r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_RULES, self.COL_NODE)
-            self._set_active_widgets(True, str(data))
+            self._set_active_widgets(prev_idx, True, str(data))
             self._set_rules_query(r_name, node)
 
         elif idx == StatsDialog.COL_DSTIP:
@@ -1531,7 +1532,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             hostip = rowdata.split(" ")[0]
             self.LAST_SELECTED_ITEM = hostip
             self.tabWidget.setCurrentIndex(cur_idx)
-            self._set_active_widgets(True, hostip)
+            self._set_active_widgets(prev_idx, True, hostip)
             self._set_hosts_query(hostip)
 
         else:
@@ -1539,7 +1540,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.IN_DETAIL_VIEW[cur_idx] = True
             self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_PROCS).data()
             self.tabWidget.setCurrentIndex(cur_idx)
-            self._set_active_widgets(True, self.LAST_SELECTED_ITEM)
+            self._set_active_widgets(prev_idx, True, self.LAST_SELECTED_ITEM)
             self._set_process_query(self.LAST_SELECTED_ITEM)
 
         self._restore_details_view_columns(
@@ -1567,7 +1568,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if cur_idx == self.TAB_RULES:
             rule_name = row.model().index(row.row(), self.COL_R_NAME).data()
-            self._set_active_widgets(True, rule_name)
+            self._set_active_widgets(cur_idx, True, rule_name)
             r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_R_NAME, self.COL_R_NODE)
             self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_R_NAME).data()
             self._set_rules_query(r_name, node)
@@ -1584,7 +1585,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             data = row.model().index(row.row(), self.COL_WHAT).data()
 
 
-        self._set_active_widgets(True, str(data))
+        self._set_active_widgets(cur_idx, True, str(data))
 
         if cur_idx == StatsDialog.TAB_NODES:
             self._set_nodes_query(data)
@@ -1984,7 +1985,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return self.TABLES[self.TAB_FIREWALL]['view']
         return self.TABLES[self.tabWidget.currentIndex()]['view']
 
-    def _set_active_widgets(self, state, label_txt=""):
+    def _set_active_widgets(self, prev_idx, state, label_txt=""):
         cur_idx = self.tabWidget.currentIndex()
         self._clear_rows_selection()
         self.TABLES[cur_idx]['label'].setVisible(state)
@@ -2005,10 +2006,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         header = self.TABLES[cur_idx]['view'].horizontalHeader()
         if state == True:
-            # going to normal state
-            self._cfg.setSettings("{0}{1}".format(Config.STATS_VIEW_COL_STATE, cur_idx), header.saveState())
-        else:
             # going to details state
+            self._cfg.setSettings("{0}{1}".format(Config.STATS_VIEW_COL_STATE, prev_idx), header.saveState())
+        else:
+            # going to normal state
             self._cfg.setSettings("{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx), header.saveState())
 
     def _restore_last_selected_row(self):
@@ -2030,6 +2031,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _restore_details_view_columns(self, header, settings_key):
         header.blockSignals(True);
+        # In order to resize the last column of a view, we firstly force a
+        # resizeToContens call.
+        # Secondly set resizeMode to Interactive (allow to move columns by
+        # users + programmatically)
+        header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
 
         col_state = self._cfg.getSettings(settings_key)
         if type(col_state) == QtCore.QByteArray:
