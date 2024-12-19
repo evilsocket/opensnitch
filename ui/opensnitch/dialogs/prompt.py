@@ -67,8 +67,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setWindowIcon(appicon)
         self.installEventFilter(self)
 
-        self._width = None
-        self._height = None
+        self._width = self.width()
+        self._height = self.height()
 
         dialog_geometry = self._cfg.getSettings("promptDialog/geometry")
         if dialog_geometry == QtCore.QByteArray:
