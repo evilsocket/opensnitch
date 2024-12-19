@@ -69,6 +69,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._width = self.width()
         self._height = self.height()
+        self.reset_widgets()
 
         dialog_geometry = self._cfg.getSettings("promptDialog/geometry")
         if dialog_geometry == QtCore.QByteArray:
@@ -155,6 +156,22 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.adjust_size()
         self.move_popup()
 
+    def reset_widgets(self):
+        # Don't allow labels to grow more than the dialog's width.
+        # This can happen if the path or the binary name is too large.
+
+        self.appNameLabel.setMaximumWidth(self._width-5)
+        self.appDescriptionLabel.setMaximumWidth(self._width-5)
+        self.appPathLabel.setMaximumWidth(self._width-5)
+        self.argsLabel.setMaximumWidth(self._width-5)
+        self.messageLabel.setMaximumWidth(self._width-5)
+
+        self.appNameLabel.setText("")
+        self.appDescriptionLabel.setText("")
+        self.appPathLabel.setText("")
+        self.argsLabel.setText("")
+        self.messageLabel.setText("")
+
     def adjust_size(self):
         if self._width is None or self._height is None:
             self._width = self.width()
@@ -208,6 +225,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         widget.setText(text)
 
     def promptUser(self, connection, is_local, peer):
+        self.reset_widgets()
+
         # one at a time
         with self._lock:
             # reset state
@@ -298,6 +317,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.appDescriptionLabel.setVisible(False)
             self.appDescriptionLabel.setFixedHeight(0)
             self.appDescriptionLabel.setText("")
+            return
 
         self.appDescriptionLabel.setText(
             "".join(
@@ -322,12 +342,15 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self.appPathLabel.setVisible(False)
             self.appPathLabel.setText("")
+            return
 
         self.appPathLabel.setText(
             "".join(
                 filter(str.isprintable, self.appPathLabel.text())
             )
         )
+        if self.appPathLabel.width() >= self._width:
+            self.appPathLabel.setText("\u200b".join(self.appPathLabel.text()))
 
     def _set_app_args(self, app_name, app_args):
         # if the app name and the args are the same, there's no need to display
@@ -339,12 +362,15 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self.argsLabel.setVisible(False)
             self.argsLabel.setText("")
+            return
 
         self.argsLabel.setText(
             "".join(
                 filter(str.isprintable, self.argsLabel.text())
             )
         )
+        if self.argsLabel.width() >= self._width:
+            self.argsLabel.setText("\u200b".join(self.argsLabel.text()))
 
     def _set_default_target(self, combo, con, app_name, app_args):
         # set appimage as default target if the process path starts with
@@ -559,6 +585,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 con.dst_ip,
                 con.protocol.upper(),
                 con.dst_port)
+
+        if self.messageLabel.width() >= self._width:
+            self.messageLabel.setText("\u200b".join(self.messageLabel.text()))
 
         return "%s %s" % (message, msg_action)
 
