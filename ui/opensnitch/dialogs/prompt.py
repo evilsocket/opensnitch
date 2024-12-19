@@ -198,10 +198,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _button_clicked(self):
         self._stop_countdown()
 
-    def _set_elide_text(self, widget, text, max_size=132):
+    def truncate_text(self, text, max_size=64):
         if len(text) > max_size:
             text = text[:max_size] + "..."
+        return text
 
+    def _set_elide_text(self, widget, text, max_size=64):
+        text = self.truncate_text(text, max_size)
         widget.setText(text)
 
     def promptUser(self, connection, is_local, peer):
@@ -296,6 +299,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.appDescriptionLabel.setFixedHeight(0)
             self.appDescriptionLabel.setText("")
 
+        self.appDescriptionLabel.setText(
+            "".join(
+                filter(str.isprintable, self.appDescriptionLabel.text())
+            )
+        )
+
     def _set_app_path(self, app_name, app_args, con):
         # show the binary path if it's not part of the cmdline args:
         # cmdline: telnet 1.1.1.1 (path: /usr/bin/telnet.netkit)
@@ -314,16 +323,28 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.appPathLabel.setVisible(False)
             self.appPathLabel.setText("")
 
+        self.appPathLabel.setText(
+            "".join(
+                filter(str.isprintable, self.appPathLabel.text())
+            )
+        )
+
     def _set_app_args(self, app_name, app_args):
         # if the app name and the args are the same, there's no need to display
         # the args label (amule for example)
         if app_name.lower() != app_args:
             self.argsLabel.setVisible(True)
-            self._set_elide_text(self.argsLabel, app_args)
+            self._set_elide_text(self.argsLabel, app_args, 256)
             self.argsLabel.setToolTip(app_args)
         else:
             self.argsLabel.setVisible(False)
             self.argsLabel.setText("")
+
+        self.argsLabel.setText(
+            "".join(
+                filter(str.isprintable, self.argsLabel.text())
+            )
+        )
 
     def _set_default_target(self, combo, con, app_name, app_args):
         # set appimage as default target if the process path starts with
@@ -514,6 +535,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         the pop-up dialog. Example:
             curl is connecting to www.opensnitch.io on TCP port 443
         """
+        app_name = self.truncate_text(app_name)
         message = "<b>%s</b>" % app_name
         if not self._local:
             message = QC.translate("popups", "<b>Remote</b> process %s running on <b>%s</b>") % ( \
