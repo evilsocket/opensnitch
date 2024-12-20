@@ -2611,23 +2611,29 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "count(c.process) as {2}, " \
                 "c.uid as {3}, " \
                 "c.protocol as {4}, " \
-                "c.dst_ip as {5}, " \
-                "c.dst_host as {6}, " \
-                "c.dst_port as {7}, " \
-                "c.process || ' (' || c.pid || ')' as {8}, " \
-                "c.process_args as {9}, " \
+                "c.src_port as {5}, " \
+                "c.src_ip as {6}, " \
+                "c.dst_ip as {7}, " \
+                "c.dst_host as {8}, " \
+                "c.dst_port as {9}, " \
+                "c.pid as {10}, " \
+                "c.process as {11}, " \
+                "c.process_args as {12}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as {10} " \
+                "c.rule as {13} " \
             "FROM connections as c " \
-            "WHERE c.node = '{11}' GROUP BY {12}, c.process_args, c.uid, c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.protocol {13}".format(
+            "WHERE c.node = '{14}' GROUP BY {15}, c.process_args, c.uid, c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.protocol {16}".format(
                 self.COL_STR_TIME,
                 self.COL_STR_ACTION,
                 self.COL_STR_HITS,
                 self.COL_STR_UID,
                 self.COL_STR_PROTOCOL,
+                self.COL_STR_SRC_PORT,
+                self.COL_STR_SRC_IP,
                 self.COL_STR_DST_IP,
                 self.COL_STR_DST_HOST,
                 self.COL_STR_DST_PORT,
+                self.COL_STR_PID,
                 self.COL_STR_PROCESS,
                 self.COL_STR_PROC_CMDLINE,
                 self.COL_STR_RULE,
@@ -3049,22 +3055,28 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "count(c.process) as {2}, " \
                 "c.uid as {3}, " \
                 "c.protocol as {4}, " \
-                "c.dst_port as {5}, " \
-                "c.dst_ip as {6}, " \
-                "c.dst_host as {7}, " \
-                "c.process as {8}, " \
-                "c.process_args as {9}, " \
+                "c.src_port as {5}, " \
+                "c.src_ip as {6}, " \
+                "c.dst_ip as {7}, " \
+                "c.dst_host as {8}, " \
+                "c.dst_port as {9}, " \
+                "c.pid as {10}, " \
+                "c.process as {11}, " \
+                "c.process_args as {12}, " \
                 "c.process_cwd as CWD " \
             "FROM connections as c " \
-            "WHERE {10} GROUP BY c.process, c.process_args, c.uid, c.dst_ip, c.dst_host, c.dst_port {11}".format(
+            "WHERE {13} GROUP BY c.process, c.process_args, c.uid, c.dst_ip, c.dst_host, c.dst_port {14}".format(
                 self.COL_STR_TIME,
                 self.COL_STR_NODE,
                 self.COL_STR_HITS,
                 self.COL_STR_UID,
                 self.COL_STR_PROTOCOL,
-                self.COL_STR_DST_PORT,
+                self.COL_STR_SRC_PORT,
+                self.COL_STR_SRC_IP,
                 self.COL_STR_DST_IP,
                 self.COL_STR_DST_HOST,
+                self.COL_STR_DST_PORT,
+                self.COL_STR_PID,
                 self.COL_STR_PROCESS,
                 self.COL_STR_PROC_CMDLINE,
                 condition,
@@ -3080,22 +3092,28 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.action as {3}, " \
                 "c.uid as {4}, " \
                 "c.protocol as {5}, " \
-                "c.dst_port as {6}, " \
-                "c.dst_ip as {7}, " \
-                "c.process || ' (' || c.pid || ')' as {8}, " \
-                "c.process_args as {9}, " \
+                "c.src_port as {6}, " \
+                "c.src_ip as {7}, " \
+                "c.dst_ip as {8}, " \
+                "c.dst_port as {9}, " \
+                "c.pid as {10}, " \
+                "c.process as {11}, " \
+                "c.process_args as {12}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as {10} " \
+                "c.rule as {13} " \
             "FROM connections as c " \
-            "WHERE c.dst_host = '{11}' GROUP BY c.pid, {12}, c.process_args, c.src_ip, c.dst_ip, c.dst_port, c.protocol, c.action, c.node {13}".format(
+            "WHERE c.dst_host = '{14}' GROUP BY c.pid, {15}, c.process_args, c.src_ip, c.dst_ip, c.dst_port, c.protocol, c.action, c.node {16}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
                           self.COL_STR_ACTION,
                           self.COL_STR_UID,
                           self.COL_STR_PROTOCOL,
-                          self.COL_STR_DST_PORT,
+                          self.COL_STR_SRC_PORT,
+                          self.COL_STR_SRC_IP,
                           self.COL_STR_DST_IP,
+                          self.COL_STR_DST_PORT,
+                          self.COL_STR_PID,
                           self.COL_STR_PROCESS,
                           self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
@@ -3112,25 +3130,30 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.action as {3}, " \
                 "c.uid as {4}, " \
                 "c.protocol as {5}, " \
-                "c.dst_ip as {6}, " \
-                "c.dst_host as {7}, " \
-                "c.dst_port as {8}, " \
-                "c.pid as PID, " \
-                "c.process_args as {9}, " \
+                "c.src_port as {6}, " \
+                "c.src_ip as {7}, " \
+                "c.dst_ip as {8}, " \
+                "c.dst_host as {9}, " \
+                "c.dst_port as {10}, " \
+                "c.pid as {11}, " \
+                "c.process_args as {12}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as {10} " \
+                "c.rule as {13} " \
             "FROM connections as c " \
-            "WHERE c.process = '{11}' " \
-                      "GROUP BY c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.uid, c.action, c.node, c.pid, c.process_args {12}".format(
+            "WHERE c.process = '{14}' " \
+                      "GROUP BY c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.uid, c.action, c.node, c.pid, c.process_args {15}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
                           self.COL_STR_ACTION,
                           self.COL_STR_UID,
                           self.COL_STR_PROTOCOL,
+                          self.COL_STR_SRC_PORT,
+                          self.COL_STR_SRC_IP,
                           self.COL_STR_DST_IP,
-                          self.COL_STR_DESTINATION,
+                          self.COL_STR_DST_HOST,
                           self.COL_STR_DST_PORT,
+                          self.COL_STR_PID,
                           self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
                           data,
@@ -3148,31 +3171,34 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.action as {3}, " \
                 "c.uid as {4}, " \
                 "c.protocol as {5}, " \
-                "CASE c.dst_host WHEN ''" \
-                "   THEN c.dst_ip " \
-                "   ELSE c.dst_host " \
-                "END {6}, " \
-                "c.dst_port as {7}, " \
-                "c.process || ' (' || c.pid || ')' as {8}, " \
-                "c.process_args as {9}, " \
+                "c.src_port as {6}, " \
+                "c.src_ip as {7}, " \
+                "c.dst_host as {8}, " \
+                "c.dst_port as {9}, " \
+                "c.pid as {10}, " \
+                "c.process as {11}, " \
+                "c.process_args as {12}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as {10} " \
+                "c.rule as {13} " \
             "FROM connections as c " \
-            "WHERE c.dst_ip = '{11}' GROUP BY c.pid, {12}, c.process_args, c.src_ip, c.dst_port, {13}, c.protocol, c.action, c.uid, c.node {14}".format(
+            "WHERE c.dst_ip = '{14}' GROUP BY c.pid, {15}, c.process_args, c.src_ip, c.dst_port, {16}, c.protocol, c.action, c.uid, c.node {17}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
                           self.COL_STR_ACTION,
                           self.COL_STR_UID,
                           self.COL_STR_PROTOCOL,
-                          self.COL_STR_DESTINATION,
+                          self.COL_STR_SRC_PORT,
+                          self.COL_STR_SRC_IP,
+                          self.COL_STR_DST_HOST,
                           self.COL_STR_DST_PORT,
+                          self.COL_STR_PID,
                           self.COL_STR_PROCESS,
                           self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
                           data,
                           self.COL_STR_PROCESS,
-                          self.COL_STR_DESTINATION,
+                          self.COL_STR_DST_HOST,
                           self._get_order("1") + self._get_limit()))
 
     def _set_ports_query(self, data):
@@ -3184,31 +3210,34 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.action as {3}, " \
                 "c.uid as {4}, " \
                 "c.protocol as {5}, " \
-                "c.dst_ip as {6}, " \
-                "CASE c.dst_host WHEN ''" \
-                "   THEN c.dst_ip " \
-                "   ELSE c.dst_host " \
-                "END {7}, " \
-                "c.process || ' (' || c.pid || ')' as {8}, " \
-                "c.process_args as {9}, " \
+                "c.src_port as {6}, " \
+                "c.src_ip as {7}, " \
+                "c.dst_ip as {8}, " \
+                "c.dst_host as {9}, " \
+                "c.pid as {10}, " \
+                "c.process as {11}, " \
+                "c.process_args as {12}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as {10} " \
+                "c.rule as {13} " \
             "FROM connections as c " \
-            "WHERE c.dst_port = '{11}' GROUP BY c.pid, {12}, c.process_args, {13}, c.src_ip, c.dst_ip, c.protocol, c.action, c.uid, c.node {14}".format(
+            "WHERE c.dst_port = '{14}' GROUP BY c.pid, {15}, c.process_args, {16}, c.src_ip, c.dst_ip, c.protocol, c.action, c.uid, c.node {17}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
                           self.COL_STR_ACTION,
                           self.COL_STR_UID,
                           self.COL_STR_PROTOCOL,
+                          self.COL_STR_SRC_PORT,
+                          self.COL_STR_SRC_IP,
                           self.COL_STR_DST_IP,
-                          self.COL_STR_DESTINATION,
+                          self.COL_STR_DST_HOST,
+                          self.COL_STR_PID,
                           self.COL_STR_PROCESS,
                           self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
                           data,
                           self.COL_STR_PROCESS,
-                          self.COL_STR_DESTINATION,
+                          self.COL_STR_DST_HOST,
                           self._get_order("1") + self._get_limit()))
 
     def _set_users_query(self, data):
@@ -3220,28 +3249,33 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "MAX(c.time) as {0}, " \
-                "c.uid, " \
                 "c.node as {1}, " \
                 "count(c.dst_ip) as {2}, " \
                 "c.action as {3}, " \
                 "c.protocol as {4}, " \
-                "c.dst_ip as {5}, " \
-                "c.dst_host as {6}, " \
-                "c.dst_port as {7}, " \
-                "c.process || ' (' || c.pid || ')' as {8}, " \
-                "c.process_args as {9}, " \
+                "c.src_port as {5}, " \
+                "c.src_ip as {6}, " \
+                "c.dst_ip as {7}, " \
+                "c.dst_host as {8}, " \
+                "c.dst_port as {9}, " \
+                "c.pid as {10}, " \
+                "c.process as {11}, " \
+                "c.process_args as {12}, " \
                 "c.process_cwd as CWD, " \
-                "c.rule as {10} " \
+                "c.rule as {13} " \
             "FROM connections as c " \
-            "WHERE c.uid = '{11}' GROUP BY c.pid, {12}, c.process_args, c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.protocol, c.action, c.node {13}".format(
+            "WHERE c.uid = '{14}' GROUP BY c.pid, {15}, c.process_args, c.src_ip, c.dst_ip, c.dst_host, c.dst_port, c.protocol, c.action, c.node {16}".format(
                           self.COL_STR_TIME,
                           self.COL_STR_NODE,
                           self.COL_STR_HITS,
                           self.COL_STR_ACTION,
                           self.COL_STR_PROTOCOL,
+                          self.COL_STR_SRC_PORT,
+                          self.COL_STR_SRC_IP,
                           self.COL_STR_DST_IP,
-                          self.COL_STR_DESTINATION,
+                          self.COL_STR_DST_HOST,
                           self.COL_STR_DST_PORT,
+                          self.COL_STR_PID,
                           self.COL_STR_PROCESS,
                           self.COL_STR_PROC_CMDLINE,
                           self.COL_STR_RULE,
