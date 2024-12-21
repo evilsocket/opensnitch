@@ -772,7 +772,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.TABLES[idx]['cmdCleanStats'] != None:
                 self.TABLES[idx]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(idx))
             if self.TABLES[idx]['label'] != None:
-                self.TABLES[idx]['label'].setStyleSheet('color: blue; font-size:9pt; font-weight:600;')
+                self.TABLES[idx]['label'].setStyleSheet('font-weight:600;')
                 self.TABLES[idx]['label'].setVisible(False)
             self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
             self.TABLES[idx]['view'].selectionModel().selectionChanged.connect(self._cb_table_selection_changed)
