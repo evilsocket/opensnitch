@@ -8,9 +8,9 @@ class NetstatTableModel(GenericTableModel):
     def __init__(self, tableName, headerLabels):
         super().__init__(tableName, headerLabels)
 
-        self.COL_STATE = 1
-        self.COL_PROTO = 6
-        self.COL_FAMILY = 8
+        self.COL_STATE =2
+        self.COL_PROTO = 7
+        self.COL_FAMILY = 10
 
     def data(self, index, role=Qt.DisplayRole):
         """Paint rows with the data stored in self.items"""

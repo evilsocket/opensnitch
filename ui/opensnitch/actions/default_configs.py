@@ -142,21 +142,21 @@ netstatDelegateConfig = {
             "cells": [
                 {
                     "text": ["LISTEN"],
-                    "cols": [1],
+                    "cols": [2],
                     "color": "green",
                     "bgcolor": "",
                     "alignment": ["center"]
                 },
                 {
                     "text": ["CLOSE"],
-                    "cols": [1],
+                    "cols": [2],
                     "color": "red",
                     "bgcolor": "",
                     "alignment": ["center"]
                 },
                 {
                     "text": ["Established"],
-                    "cols": [1],
+                    "cols": [2],
                     "color": "blue",
                     "bgcolor": "",
                     "alignment": ["center"]
@@ -169,7 +169,7 @@ netstatDelegateConfig = {
                         "TCP_LAST_ACK", "TCP_CLOSING",
                         "TCP_NEW_SYNC_RECV"
                     ],
-                    "cols": [1],
+                    "cols": [2],
                     "color": "",
                     "bgcolor": "",
                     "alignment": ["center"]

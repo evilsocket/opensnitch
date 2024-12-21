@@ -95,7 +95,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_ALERT_PRIO = 5
 
     # procs
-    COL_PID = 9
+    COL_PROC_PID = 9
+
+    # netstat
+    COL_NET_COMM = 0
+    COL_NET_PROC = 1
+    COL_NET_DST_IP = 5
+    COL_NET_DST_PORT = 6
+    COL_NET_UID = 8
+    COL_NET_PID = 9
 
     TAB_MAIN  = 0
     TAB_NODES = 1
@@ -313,6 +321,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "model": None,
             "delegate": "netstatDelegateConfig",
             "display_fields": "proc_comm as Comm," \
+                "proc_path as Process, " \
                 "state as State, " \
                 "src_port as SrcPort, " \
                 "src_ip as SrcIP, " \
@@ -320,9 +329,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "dst_port as DstPort, " \
                 "proto as Protocol, " \
                 "uid as UID, " \
+                "proc_pid as PID, " \
                 "family as Family, " \
                 "iface as IFace, " \
-                "'pid:' || proc_pid || ', inode: ' || inode || ', cookies: '|| cookies || ', rqueue: ' || rqueue || ', wqueue: ' || wqueue || ', expires: ' || expires || ', retrans: ' || retrans || ', timer: ' || timer as Metadata ",
+                "'inode: ' || inode || ', cookies: '|| cookies || ', rqueue: ' || rqueue || ', wqueue: ' || wqueue || ', expires: ' || expires || ', retrans: ' || retrans || ', timer: ' || timer as Metadata ",
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 1,
@@ -599,12 +609,15 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.LAST_NETSTAT_NODE = None
         self.TABLES[self.TAB_NETSTAT]['header_labels'] = [
             "Comm",
+            self.COL_STR_PROCESS,
             QC.translate("stats", "State", "This is a word, without spaces and symbols.").replace(" ", ""),
-            QC.translate("stats", "SrcPort", "This is a word, without spaces and symbols.").replace(" ", ""),
-            QC.translate("stats", "SrcIP", "This is a word, without spaces and symbols.").replace(" ", ""),
-            QC.translate("stats", "DstIP", "This is a word, without spaces and symbols.").replace(" ", ""),
-            QC.translate("stats", "DstPort", "This is a word, without spaces and symbols.").replace(" ", ""),
-            QC.translate("stats", "UID", "This is a word, without spaces and symbols.").replace(" ", ""),
+            self.COL_STR_SRC_PORT,
+            self.COL_STR_SRC_IP,
+            self.COL_STR_DST_IP,
+            self.COL_STR_DST_PORT,
+            self.COL_STR_PROTOCOL,
+            self.COL_STR_UID,
+            self.COL_STR_PID,
             QC.translate("stats", "Family", "This is a word, without spaces and symbols.").replace(" ", ""),
             QC.translate("stats", "Iface", "This is a word, without spaces and symbols.").replace(" ", ""),
             QC.translate("stats", "Metadata", "This is a word, without spaces and symbols.").replace(" ", "")
@@ -1647,7 +1660,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         nrows = table.model().rowCount()
         pids = {}
         for row in range(0, nrows):
-            pid = table.model().index(row, self.COL_PID).data()
+            pid = table.model().index(row, self.COL_PROC_PID).data()
             node = table.model().index(row, self.COL_NODE).data()
             if pid not in pids:
                 pids[pid] = node
@@ -1700,7 +1713,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if index == self.TAB_MAIN:
             self._set_events_query()
         elif index == self.TAB_NETSTAT:
-            self.IN_DETAIL_VIEW[index] = True
             self._monitor_node_netstat()
         else:
             if index == self.TAB_RULES:
@@ -1934,6 +1946,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_active_widgets(prev_idx, True, uid)
             self._set_users_query(uid)
 
+        elif idx == StatsDialog.COL_PID:
+            node = row.model().index(row.row(), self.COL_NODE).data()
+            pid = row.model().index(row.row(), self.COL_PID).data()
+            self.LAST_SELECTED_ITEM = pid
+            self._proc_details_dialog.monitor(
+                {pid: node}
+            )
+            return
         else:
             cur_idx = self.TAB_PROCS
             self.IN_DETAIL_VIEW[cur_idx] = True
@@ -2011,7 +2031,28 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if cur_idx > self.TAB_RULES:
             self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_WHAT).data()
             data = row.model().index(row.row(), self.COL_WHAT).data()
+        if cur_idx == self.TAB_NETSTAT:
+            self.IN_DETAIL_VIEW[cur_idx] = False
 
+            if row.column() == self.COL_NET_DST_IP:
+                cur_idx = StatsDialog.TAB_ADDRS
+                data = row.model().index(row.row(), self.COL_NET_DST_IP).data()
+            elif row.column() == self.COL_NET_DST_PORT:
+                cur_idx = StatsDialog.TAB_PORTS
+                data = row.model().index(row.row(), self.COL_NET_DST_PORT).data()
+            elif row.column() == self.COL_NET_UID:
+                cur_idx = StatsDialog.TAB_USERS
+                data = row.model().index(row.row(), self.COL_NET_UID).data()
+            elif row.column() == self.COL_NET_PID:
+                pid = row.model().index(row.row(), self.COL_NET_PID).data()
+                self._proc_details_dialog.monitor({pid: self.comboNetstatNodes.currentText()})
+                return
+            else:
+                cur_idx = StatsDialog.TAB_PROCS
+                data = row.model().index(row.row(), self.COL_NET_PROC).data()
+                if data == "":
+                    return
+            self.tabWidget.setCurrentIndex(cur_idx)
 
         self._set_active_widgets(cur_idx, True, str(data))
 
