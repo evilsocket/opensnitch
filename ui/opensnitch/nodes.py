@@ -168,6 +168,8 @@ class Nodes(QObject):
 
     def get_node_config(self, addr):
         try:
+            if addr not in self._nodes:
+                return None
             return self._nodes[addr]['data'].config
         except Exception as e:
             print(self.LOG_TAG + " exception get_node_config(): ", e)

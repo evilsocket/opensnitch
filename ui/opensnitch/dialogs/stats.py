@@ -43,15 +43,22 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     LAST_GROUP_BY = ""
 
     # general
-    COL_TIME   = 0
-    COL_NODE   = 1
-    COL_ACTION = 2
-    COL_DSTIP  = 3
-    COL_PROTO  = 4
-    COL_PROCS  = 5
-    COL_CMDLINE   = 6
-    COL_RULES  = 7
-    GENERAL_COL_NUM = 8
+    COL_TIME    = 0
+    COL_NODE    = 1
+    COL_ACTION  = 2
+    COL_SRCPORT = 3
+    COL_SRCIP   = 4
+    COL_DSTIP   = 5
+    COL_DSTHOST = 6
+    COL_DSTPORT = 7
+    COL_PROTO   = 8
+    COL_UID     = 9
+    COL_PID     = 10
+    COL_PROCS   = 11
+    COL_CMDLINE = 12
+    COL_RULES   = 13
+    # total number of columns: cols + 1
+    GENERAL_COL_NUM = 14
 
     # stats
     COL_WHAT   = 0
@@ -135,11 +142,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "display_fields": "time as Time, " \
                     "node as Node, " \
                     "action as Action, " \
-                    "CASE dst_host WHEN ''" \
-                    "   THEN dst_ip || '  ->  ' || dst_port " \
-                    "   ELSE dst_host || '  ->  ' || dst_port " \
-                    "END Destination, " \
+                    "src_port as SrcPort, " \
+                    "src_ip as SrcIP, " \
+                    "dst_ip as DstIP, " \
+                    "dst_host as DstHost, " \
+                    "dst_port as DstPort, " \
                     "protocol as Protocol, " \
+                    "uid as UID, " \
+                    "pid as PID, " \
                     "process as Process, " \
                     "process_args as Cmdline, " \
                     "rule as Rule",
@@ -314,11 +324,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.COL_STR_PROCESS = QC.translate("stats", "Process", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_PROC_CMDLINE = QC.translate("stats", "Cmdline", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DESTINATION = QC.translate("stats", "Destination", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_SRC_PORT = QC.translate("stats", "SrcPort", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_SRC_IP = QC.translate("stats", "SrcIP", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DST_IP = QC.translate("stats", "DstIP", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DST_HOST = QC.translate("stats", "DstHost", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DST_PORT = QC.translate("stats", "DstPort", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_RULE = QC.translate("stats", "Rule", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_UID = QC.translate("stats", "UserID", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_PID = QC.translate("stats", "UserID", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_LAST_CONNECTION = QC.translate("stats", "LastConnection", "This is a word, without spaces and symbols.").replace(" ", "")
 
         self.FIREWALL_STOPPED  = QC.translate("stats", "Not running")
@@ -467,9 +480,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self.COL_STR_TIME,
                     self.COL_STR_NODE,
                     self.COL_STR_ACTION,
-                    self.COL_STR_DESTINATION,
+                    self.COL_STR_SRC_PORT,
+                    self.COL_STR_SRC_IP,
+                    self.COL_STR_DST_IP,
+                    self.COL_STR_DST_HOST,
+                    self.COL_STR_DST_PORT,
                     self.COL_STR_PROTOCOL,
+                    self.COL_STR_UID,
+                    self.COL_STR_PID,
                     self.COL_STR_PROCESS,
+                    self.COL_STR_PROC_CMDLINE,
                     self.COL_STR_RULE,
                 ]),
                 verticalScrollBar=self.connectionsTableScrollBar,
@@ -1526,14 +1546,44 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_rules_query(r_name, node)
 
         elif idx == StatsDialog.COL_DSTIP:
-            cur_idx = self.TAB_HOSTS
+            cur_idx = self.TAB_ADDRS
             self.IN_DETAIL_VIEW[cur_idx] = True
             rowdata = row.model().index(row.row(), self.COL_DSTIP).data()
-            hostip = rowdata.split(" ")[0]
-            self.LAST_SELECTED_ITEM = hostip
+            ip = rowdata
+            self.LAST_SELECTED_ITEM = ip
             self.tabWidget.setCurrentIndex(cur_idx)
-            self._set_active_widgets(prev_idx, True, hostip)
-            self._set_hosts_query(hostip)
+            self._set_active_widgets(prev_idx, True, ip)
+            self._set_addrs_query(ip)
+
+        elif idx == StatsDialog.COL_DSTHOST:
+            cur_idx = self.TAB_HOSTS
+            self.IN_DETAIL_VIEW[cur_idx] = True
+            rowdata = row.model().index(row.row(), self.COL_DSTHOST).data()
+            host = rowdata
+            self.LAST_SELECTED_ITEM = host
+            self.tabWidget.setCurrentIndex(cur_idx)
+            self._set_active_widgets(prev_idx, True, host)
+            self._set_hosts_query(host)
+
+        elif idx == StatsDialog.COL_DSTPORT:
+            cur_idx = self.TAB_PORTS
+            self.IN_DETAIL_VIEW[cur_idx] = True
+            rowdata = row.model().index(row.row(), self.COL_DSTPORT).data()
+            port = rowdata
+            self.LAST_SELECTED_ITEM = port
+            self.tabWidget.setCurrentIndex(cur_idx)
+            self._set_active_widgets(prev_idx, True, port)
+            self._set_ports_query(port)
+
+        elif idx == StatsDialog.COL_UID:
+            cur_idx = self.TAB_USERS
+            self.IN_DETAIL_VIEW[cur_idx] = True
+            rowdata = row.model().index(row.row(), self.COL_UID).data()
+            uid = rowdata
+            self.LAST_SELECTED_ITEM = uid
+            self.tabWidget.setCurrentIndex(cur_idx)
+            self._set_active_widgets(prev_idx, True, uid)
+            self._set_users_query(uid)
 
         else:
             cur_idx = self.TAB_PROCS

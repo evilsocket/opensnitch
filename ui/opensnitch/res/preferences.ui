@@ -444,8 +444,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>333</width>
-            <height>83</height>
+            <width>586</width>
+            <height>306</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1136,8 +1136,8 @@ wayland</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>219</width>
-            <height>115</height>
+            <width>586</width>
+            <height>301</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1171,39 +1171,7 @@ wayland</string>
               <property name="spacing">
                <number>0</number>
               </property>
-              <item row="0" column="0">
-               <widget class="QCheckBox" name="checkHideTime">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Time</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="0">
-               <widget class="QCheckBox" name="checkHideRule">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Rule</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
+              <item row="2" column="1">
                <widget class="QCheckBox" name="checkHideNode">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -1219,16 +1187,10 @@ wayland</string>
                 </property>
                </widget>
               </item>
-              <item row="4" column="0">
-               <widget class="QCheckBox" name="checkHideProto">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
+              <item row="8" column="1">
+               <widget class="QCheckBox" name="checkHideCmdline">
                 <property name="text">
-                 <string>Protocol</string>
+                 <string>Command line</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
@@ -1236,6 +1198,22 @@ wayland</string>
                </widget>
               </item>
               <item row="2" column="0">
+               <widget class="QCheckBox" name="checkHideTime">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Time</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
                <widget class="QCheckBox" name="checkHideAction">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -1251,8 +1229,22 @@ wayland</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1">
-               <widget class="QCheckBox" name="checkHideDst">
+              <item row="4" column="0">
+               <widget class="QCheckBox" name="checkHideSrcPort">
+                <property name="text">
+                 <string>Source port</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QCheckBox" name="checkHideSrcIP">
+                <property name="text">
+                 <string>Source IP</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2">
+               <widget class="QCheckBox" name="checkHideRule">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -1260,14 +1252,14 @@ wayland</string>
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>Destination</string>
+                 <string>Rule</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
                 </property>
                </widget>
               </item>
-              <item row="4" column="1">
+              <item row="8" column="0">
                <widget class="QCheckBox" name="checkHideProc">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -1283,13 +1275,63 @@ wayland</string>
                 </property>
                </widget>
               </item>
-              <item row="6" column="1">
-               <widget class="QCheckBox" name="checkHideCmdline">
+              <item row="5" column="1">
+               <widget class="QCheckBox" name="checkHideDstIP">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="text">
-                 <string>Command line</string>
+                 <string>Dest IP</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QCheckBox" name="checkHideDstPort">
+                <property name="text">
+                 <string>Dest port</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2">
+               <widget class="QCheckBox" name="checkHideDstHost">
+                <property name="text">
+                 <string>Dest host</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="0">
+               <widget class="QCheckBox" name="checkHideProto">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Protocol</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1">
+               <widget class="QCheckBox" name="checkHidePID">
+                <property name="text">
+                 <string>PID</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="2">
+               <widget class="QCheckBox" name="checkHideUID">
+                <property name="text">
+                 <string>UID</string>
                 </property>
                </widget>
               </item>

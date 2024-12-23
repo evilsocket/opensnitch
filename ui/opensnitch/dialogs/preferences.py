@@ -534,7 +534,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if cols == None:
             return
 
-        for c in range(8):
+        for c in range(13):
             checked = str(c) in cols
 
             if c == 0:
@@ -544,14 +544,26 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             elif c == 2:
                 self.checkHideAction.setChecked(checked)
             elif c == 3:
-                self.checkHideDst.setChecked(checked)
+                self.checkHideSrcPort.setChecked(checked)
             elif c == 4:
-                self.checkHideProto.setChecked(checked)
+                self.checkHideSrcIP.setChecked(checked)
             elif c == 5:
-                self.checkHideProc.setChecked(checked)
+                self.checkHideDstIP.setChecked(checked)
             elif c == 6:
-                self.checkHideCmdline.setChecked(checked)
+                self.checkHideDstHost.setChecked(checked)
             elif c == 7:
+                self.checkHideDstPort.setChecked(checked)
+            elif c == 8:
+                self.checkHideProto.setChecked(checked)
+            elif c == 9:
+                self.checkHideUID.setChecked(checked)
+            elif c == 10:
+                self.checkHidePID.setChecked(checked)
+            elif c == 11:
+                self.checkHideProc.setChecked(checked)
+            elif c == 12:
+                self.checkHideCmdline.setChecked(checked)
+            elif c == 13:
                 self.checkHideRule.setChecked(checked)
 
     def _reset_node_settings(self):
@@ -706,16 +718,28 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             cols.append("1")
         if self.checkHideAction.isChecked():
             cols.append("2")
-        if self.checkHideDst.isChecked():
+        if self.checkHideSrcPort.isChecked():
             cols.append("3")
-        if self.checkHideProto.isChecked():
+        if self.checkHideSrcIP.isChecked():
             cols.append("4")
-        if self.checkHideProc.isChecked():
+        if self.checkHideDstIP.isChecked():
             cols.append("5")
-        if self.checkHideCmdline.isChecked():
+        if self.checkHideDstHost.isChecked():
             cols.append("6")
-        if self.checkHideRule.isChecked():
+        if self.checkHideDstPort.isChecked():
             cols.append("7")
+        if self.checkHideProto.isChecked():
+            cols.append("8")
+        if self.checkHideUID.isChecked():
+            cols.append("9")
+        if self.checkHidePID.isChecked():
+            cols.append("10")
+        if self.checkHideProc.isChecked():
+            cols.append("11")
+        if self.checkHideCmdline.isChecked():
+            cols.append("12")
+        if self.checkHideRule.isChecked():
+            cols.append("13")
 
         self._cfg.setSettings(Config.STATS_SHOW_COLUMNS, cols)
 
