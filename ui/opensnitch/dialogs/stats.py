@@ -95,7 +95,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_ALERT_PRIO = 5
 
     # procs
-    COL_PROC_PID = 9
+    COL_PROC_PID = 11
 
     # netstat
     COL_NET_COMM = 0
