@@ -74,7 +74,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     COL_R_CREATED = 8
 
     # procs
-    COL_PID = 9
+    COL_PROC_PID = 11
 
     TAB_MAIN  = 0
     TAB_NODES = 1
@@ -1348,7 +1348,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         nrows = table.model().rowCount()
         pids = {}
         for row in range(0, nrows):
-            pid = table.model().index(row, self.COL_PID).data()
+            pid = table.model().index(row, self.COL_PROC_PID).data()
             node = table.model().index(row, self.COL_NODE).data()
             if pid not in pids:
                 pids[pid] = node
