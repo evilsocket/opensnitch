@@ -15,14 +15,17 @@ wa_grpcio_647()
             echo "@@@@@@@@@@@@@@@@@@@ WARNING @@@@@@@@@@@@@@@@@@@@"
             echo "    invalid python3-grpcio version installed"
             echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+            echo
             echo "Installed python3-grpcio package ($badversion) has a bug which makes opensnitch UI unresponsive."
             echo
             echo "Launch opensnitch-ui, and if it consumes 100% of the CPU, try this:"
             echo "~ $ sudo apt install python3-pip"
-            echo "~ $ pip3 install grpcio==1.44.0"
+            echo "~ $ pip3 install grpcio==1.41.0"
+            echo "~ $ pip3 install protobuf==3.20.0"
             echo
             echo "More information:"
             echo " - https://bugs.launchpad.net/ubuntu/+source/grpc/+bug/1971114"
+            echo " - "
             echo " - https://github.com/evilsocket/opensnitch/issues/647"
             echo
             echo
