@@ -5,7 +5,7 @@ install:
 
 opensnitch/resources_rc.py: translations deps
 	@pyrcc5 -o opensnitch/resources_rc.py opensnitch/res/resources.qrc
-	sed -i 's/^import ui_pb2/from . import ui_pb2/' opensnitch/ui_pb2*
+	@find opensnitch/proto/ -name 'ui_pb2_grpc.py' -exec sed -i 's/^import ui_pb2/from . import ui_pb2/' {} \;
 
 translations:
 	@cd i18n ; make
@@ -16,3 +16,4 @@ deps:
 clean:
 	@rm -rf *.pyc
 	@rm -rf opensnitch/resources_rc.py
+	@find i18n/ -name '*.qm' -delete
