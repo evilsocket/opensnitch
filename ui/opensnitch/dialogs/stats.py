@@ -2687,6 +2687,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _get_nodes_filter_query(self, lastQuery, text):
         base_query = lastQuery.split("GROUP BY")
+        if not self.IN_DETAIL_VIEW[self.TAB_NODES]:
+            base_query = lastQuery.split("ORDER BY")
+
         qstr = base_query[0]
         if "AND" in qstr:
             # strip out ANDs if any
@@ -2694,18 +2697,36 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             qstr = os[0]
 
         if text != "":
-            qstr += "AND (c.time LIKE '%{0}%' OR " \
-                "c.action LIKE '%{0}%' OR " \
-                "c.pid LIKE '%{0}%' OR " \
-                "c.src_port LIKE '%{0}%' OR " \
-                "c.dst_port LIKE '%{0}%' OR " \
-                "c.src_ip LIKE '%{0}%' OR " \
-                "c.dst_ip LIKE '%{0}%' OR " \
-                "c.dst_host LIKE '%{0}%' OR " \
-                "c.process LIKE '%{0}%' OR " \
-                "c.process_args LIKE '%{0}%')".format(text)
-        if len(base_query) > 1:
+            if self.IN_DETAIL_VIEW[self.TAB_NODES]:
+                qstr += "AND (c.time LIKE '%{0}%' OR " \
+                    "c.action LIKE '%{0}%' OR " \
+                    "c.uid LIKE '%{0}%' OR " \
+                    "c.pid LIKE '%{0}%' OR " \
+                    "c.src_port LIKE '%{0}%' OR " \
+                    "c.dst_port LIKE '%{0}%' OR " \
+                    "c.src_ip LIKE '%{0}%' OR " \
+                    "c.dst_ip LIKE '%{0}%' OR " \
+                    "c.dst_host LIKE '%{0}%' OR " \
+                    "c.process LIKE '%{0}%' OR " \
+                    "c.process_cwd LIKE '%{0}%' OR " \
+                    "c.process_args LIKE '%{0}%')".format(text)
+            else:
+                if "WHERE" in qstr:
+                    w = qstr.split('WHERE')
+                    qstr = w[0]
+
+                qstr += "WHERE (" \
+                    "last_connection LIKE '%{0}%' OR " \
+                    "addr LIKE '%{0}%' OR " \
+                    "status LIKE '%{0}%' OR " \
+                    "hostname LIKE '%{0}%' OR " \
+                    "version LIKE '%{0}%'" \
+                    ")".format(text)
+
+        if self.IN_DETAIL_VIEW[self.TAB_NODES]:
             qstr += " GROUP BY" + base_query[1]
+        else:
+            qstr += " ORDER BY" + base_query[1]
 
         return qstr
 
