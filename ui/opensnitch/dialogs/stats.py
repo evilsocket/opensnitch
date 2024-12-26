@@ -148,7 +148,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "dst_host as DstHost, " \
                     "dst_port as DstPort, " \
                     "protocol as Protocol, " \
-                    "uid as UID, " \
+                    "uid as UserID, " \
                     "pid as PID, " \
                     "process as Process, " \
                     "process_args as Cmdline, " \
