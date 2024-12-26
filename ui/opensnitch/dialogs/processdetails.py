@@ -4,7 +4,9 @@ import json
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 
-from opensnitch import ui_pb2
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
+
 from opensnitch.nodes import Nodes
 from opensnitch.desktop_parser import LinuxDesktopParser
 from opensnitch.utils import Message, Icons

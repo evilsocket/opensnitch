@@ -7,9 +7,11 @@ import re
 import sys
 import os
 import pwd
-from opensnitch import ui_pb2
 import time
 import ipaddress
+
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes

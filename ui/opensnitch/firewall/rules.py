@@ -3,7 +3,9 @@ from PyQt5.QtCore import QCoreApplication as QC
 from google.protobuf.json_format import MessageToJson
 import uuid
 
-from opensnitch import ui_pb2
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
+
 from .enums import Operator
 from .exprs import ExprLog
 

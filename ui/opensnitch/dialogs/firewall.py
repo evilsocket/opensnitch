@@ -11,10 +11,11 @@ from opensnitch.utils import Icons, Message
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.dialogs.firewall_rule import FwRuleDialog
-from opensnitch import ui_pb2
 import opensnitch.firewall as Fw
 import opensnitch.firewall.profiles as FwProfiles
 
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 DIALOG_UI_PATH = "%s/../res/firewall.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):

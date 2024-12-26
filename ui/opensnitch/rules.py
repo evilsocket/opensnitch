@@ -1,9 +1,11 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from opensnitch import ui_pb2
 from opensnitch.database import Database
 from opensnitch.database.enums import RuleFields
 from opensnitch.config import Config
+
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 import os
 import json

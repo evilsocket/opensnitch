@@ -20,7 +20,8 @@ from opensnitch.version import version
 from opensnitch.actions import Actions
 from opensnitch.rules import Rules, Rule
 
-from opensnitch import ui_pb2
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 DIALOG_UI_PATH = "%s/../res/prompt.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
