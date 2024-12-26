@@ -331,7 +331,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.COL_STR_DST_PORT = QC.translate("stats", "DstPort", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_RULE = QC.translate("stats", "Rule", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_UID = QC.translate("stats", "UserID", "This is a word, without spaces and symbols.").replace(" ", "")
-        self.COL_STR_PID = QC.translate("stats", "UserID", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_PID = QC.translate("stats", "PID", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_LAST_CONNECTION = QC.translate("stats", "LastConnection", "This is a word, without spaces and symbols.").replace(" ", "")
 
         self.FIREWALL_STOPPED  = QC.translate("stats", "Not running")
