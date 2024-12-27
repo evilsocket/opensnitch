@@ -698,13 +698,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return super(StatsDialog, self).eventFilter(source, event)
 
     def _configure_buttons_icons(self):
-        if QtGui.QIcon.hasThemeIcon("document-new"):
-            return
-
         newRuleIcon = Icons.new(self, "document-new")
         delRuleIcon = Icons.new(self, "edit-delete")
         editRuleIcon = Icons.new(self, "accessories-text-editor")
-        saveIcon = Icons.new(self, "document-save")
         prefsIcon = Icons.new(self, "preferences-system")
         searchIcon = Icons.new(self, "system-search")
         clearIcon = Icons.new(self, "edit-clear-all")
