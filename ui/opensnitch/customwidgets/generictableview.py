@@ -337,16 +337,19 @@ class GenericTableView(QTableView):
         self.selectionModel().clearCurrentIndex()
 
     def copySelection(self):
-        selection = self.selectedIndexes()
-        if selection:
-            rows = sorted(index.row() for index in selection)
-            rowcount = rows[-1] - rows[0] + 1
-            table = self.model().copySelectedRows(
-                selection[0].row() + self.vScrollBar.value() - 1,
-                rowcount)
-            return table
+        model = self.selectionModel()
+        curModel = self.model()
+        selection = model.selectedRows()
+        if not selection:
+            return None
 
-        return None
+        rows = []
+        for idx in selection:
+            row = []
+            for col in range(0, curModel.columnCount()):
+                row.append(curModel.index(idx.row(), col).data())
+            rows.append(row)
+        return rows
 
     def getCurrentIndex(self):
         return self.selectionModel().currentIndex().internalId()

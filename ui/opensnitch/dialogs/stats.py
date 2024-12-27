@@ -852,6 +852,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         cur_idx = self.tabWidget.currentIndex()
         if self.tabWidget.currentIndex() == self.TAB_RULES and self.fwTable.isVisible():
             cur_idx = self.TAB_FIREWALL
+        elif self.tabWidget.currentIndex() == self.TAB_RULES and not self.fwTable.isVisible():
+            cur_idx = self.TAB_RULES
+
         selection = self.TABLES[cur_idx]['view'].copySelection()
         if selection:
             stream = io.StringIO()
@@ -1270,10 +1273,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._notifications_sent[nid] = noti
 
         elif cur_idx == self.TAB_RULES and not self.fwTable.isVisible():
-            selection = self.TABLES[cur_idx]['view'].copySelection()
-            for row in selection:
-                name = row[self.COL_R_NAME]
-                node = row[self.COL_R_NODE]
+            for idx in selection:
+                name = model.index(idx.row(), self.COL_R_NAME).data()
+                node = model.index(idx.row(), self.COL_R_NODE).data()
                 self._del_rule(name, node)
         elif cur_idx == self.TAB_HOSTS or cur_idx == self.TAB_PROCS or cur_idx == self.TAB_ADDRS or \
             cur_idx == self.TAB_USERS or cur_idx == self.TAB_PORTS:
