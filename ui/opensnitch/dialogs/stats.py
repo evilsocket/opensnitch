@@ -172,19 +172,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "model": None,
             "delegate": "commonDelegateConfig",
             "display_fields": "time as Time, " \
-                    "node as Node, " \
-                    "action as Action, " \
-                    "src_port as SrcPort, " \
-                    "src_ip as SrcIP, " \
-                    "dst_ip as DstIP, " \
-                    "dst_host as DstHost, " \
-                    "dst_port as DstPort, " \
-                    "protocol as Protocol, " \
-                    "uid as UID, " \
-                    "pid as PID, " \
-                    "process as Process, " \
-                    "process_args as Cmdline, " \
-                    "rule as Rule",
+                    "node, " \
+                    "action, " \
+                    "src_port, " \
+                    "src_ip, " \
+                    "dst_ip, " \
+                    "dst_host, " \
+                    "dst_port, " \
+                    "protocol, " \
+                    "uid, " \
+                    "pid, " \
+                    "process, " \
+                    "process_args, " \
+                    "rule",
             "group_by": LAST_GROUP_BY,
             "last_order_by": "1",
             "last_order_to": 1,
@@ -2615,11 +2615,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         filter_text = self.filterLine.text()
         action = ""
         if self.comboAction.currentIndex() == 1:
-            action = "Action = \"{0}\"".format(Config.ACTION_ALLOW)
+            action = "action = \"{0}\"".format(Config.ACTION_ALLOW)
         elif self.comboAction.currentIndex() == 2:
-            action = "Action = \"{0}\"".format(Config.ACTION_DENY)
+            action = "action = \"{0}\"".format(Config.ACTION_DENY)
         elif self.comboAction.currentIndex() == 3:
-            action = "Action = \"{0}\"".format(Config.ACTION_REJECT)
+            action = "action = \"{0}\"".format(Config.ACTION_REJECT)
 
         # FIXME: use prepared statements
         if filter_text == "":
@@ -2628,18 +2628,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             if action != "":
                 action += " AND "
-            qstr += " WHERE " + action + " ("\
-                    " " + self.COL_STR_PROCESS + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_PROC_CMDLINE + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_SRC_PORT + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_SRC_IP + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_DST_IP + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_DST_HOST + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_DST_PORT + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_RULE + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_NODE + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_TIME + " LIKE '%" + filter_text + "%'" \
-                    " OR " + self.COL_STR_PROTOCOL + " LIKE '%" + filter_text + "%')" \
+            qstr += " WHERE " + action + " (" \
+                    " process LIKE '%" + filter_text + "%'" \
+                    " OR process_args LIKE '%" + filter_text + "%'" \
+                    " OR src_port LIKE '%" + filter_text + "%'" \
+                    " OR src_ip LIKE '%" + filter_text + "%'" \
+                    " OR dst_ip LIKE '%" + filter_text + "%'" \
+                    " OR dst_host LIKE '%" + filter_text + "%'" \
+                    " OR dst_port LIKE '%" + filter_text + "%'" \
+                    " OR rule LIKE '%" + filter_text + "%'" \
+                    " OR node LIKE '%" + filter_text + "%'" \
+                    " OR time LIKE '%" + filter_text + "%'" \
+                    " OR uid LIKE '%" + filter_text + "%'" \
+                    " OR pid LIKE '%" + filter_text + "%'" \
+                    " OR protocol LIKE '%" + filter_text + "%')" \
 
         qstr += self._get_order() + self._get_limit()
         self.setQuery(model, qstr)
