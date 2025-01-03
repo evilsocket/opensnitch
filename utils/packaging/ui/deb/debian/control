@@ -27,6 +27,7 @@ Depends:
  python3-pyinotify,
  python3-grpcio,
  python3-protobuf,
+ python3-packaging,
  python3-slugify,
  python3-notify2,
  xdg-user-dirs,
