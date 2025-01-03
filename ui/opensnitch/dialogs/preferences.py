@@ -15,7 +15,9 @@ from opensnitch.utils.xdg import Autostart
 from opensnitch.notifications import DesktopNotifications
 from opensnitch.rules import DefaultRulesPath
 
-from opensnitch import ui_pb2, auth
+from opensnitch import auth
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 DIALOG_UI_PATH = "%s/../res/preferences.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):

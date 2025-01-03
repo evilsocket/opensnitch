@@ -22,8 +22,9 @@ from opensnitch.plugins import PluginBase
 from opensnitch.rules import Rules, Rule
 from opensnitch.nodes import Nodes
 
-from opensnitch import ui_pb2
 from opensnitch.dialogs.prompt import _utils, _constants, _checksums, _details
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 from network_aliases import NetworkAliases
 
@@ -589,7 +590,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule.operator.type, self._rule.operator.operand, self._rule.operator.data = _utils.get_combo_operator(
                 self.whatCombo.itemData(what_idx),
                 self.whatCombo.currentText(),
-                self._con)  
+                self._con)
             if self._rule.operator.data == "":
                 print("popups: Invalid rule, discarding: ", self._rule)
                 self._rule = None

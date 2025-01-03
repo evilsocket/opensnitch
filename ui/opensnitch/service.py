@@ -12,8 +12,8 @@ import copy
 path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(path)
 
-from opensnitch import ui_pb2
-from opensnitch import ui_pb2_grpc
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 from opensnitch.dialogs.prompt import PromptDialog
 from opensnitch.dialogs.stats import StatsDialog

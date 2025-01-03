@@ -42,8 +42,10 @@ from opensnitch.service import UIService
 from opensnitch.config import Config
 from opensnitch.utils import Themes, Utils, Versions, Message
 from opensnitch.utils.xdg import xdg_opensnitch_dir, xdg_current_session
-from opensnitch.ui_pb2_grpc import add_UIServicer_to_server
 from opensnitch import auth
+
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 app_id = os.path.join(xdg_opensnitch_dir, "io.github.evilsocket.opensnitch")
 
@@ -202,7 +204,7 @@ Examples:
                                     ('grpc.max_receive_message_length', maxmsglen),
                                 ))
 
-        add_UIServicer_to_server(service, server)
+        ui_pb2_grpc.add_UIServicer_to_server(service, server)
 
         auth_type = auth.Simple
         if args.socket_auth != None:

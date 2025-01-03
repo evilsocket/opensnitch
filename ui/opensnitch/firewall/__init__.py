@@ -1,6 +1,8 @@
 from PyQt5.QtCore import QObject, QCoreApplication as QC
 from google.protobuf import json_format
-from opensnitch import ui_pb2
+
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 from opensnitch.nodes import Nodes
 from .enums import *

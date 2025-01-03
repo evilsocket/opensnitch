@@ -9,7 +9,6 @@ import json
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
 
-from opensnitch import ui_pb2
 from opensnitch.config import Config
 from opensnitch.version import version
 from opensnitch.nodes import Nodes
@@ -31,6 +30,9 @@ from opensnitch.utils.xdg import xdg_current_desktop
 from opensnitch.actions import Actions
 from opensnitch.plugins import PluginBase
 from opensnitch.rules import Rule, Rules
+
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 DIALOG_UI_PATH = "%s/../res/stats.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):

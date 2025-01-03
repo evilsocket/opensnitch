@@ -4,11 +4,13 @@ from datetime import datetime
 import time
 import json
 
-from opensnitch import ui_pb2
 from opensnitch.database import Database
 from opensnitch.config import Config
 from opensnitch.utils import NetworkInterfaces
 from opensnitch.rules import Rules
+
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 class Nodes(QObject):
     __instance = None

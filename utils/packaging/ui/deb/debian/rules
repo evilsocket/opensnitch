@@ -13,25 +13,15 @@ override_dh_auto_clean:
 	python3 setup.py clean -a
 	find . -name \*.pyc -exec rm {} \;
 
-
-
 override_dh_auto_build:
 	python3 setup.py build --force
-
-
 
 override_dh_auto_install:
 	cd i18n; make
 	cp -r i18n/locales/ opensnitch/i18n/
 	pyrcc5 -o opensnitch/resources_rc.py opensnitch/res/resources.qrc
-	sed -i 's/^import ui_pb2/from . import ui_pb2/' opensnitch/ui_pb2*
+	find opensnitch/proto/ -name 'ui_pb2_grpc.py' -exec sed -i 's/^import ui_pb2/from . import ui_pb2/' {} \;
 	python3 setup.py install --force --root=debian/python3-opensnitch-ui --no-compile -O0 --install-layout=deb  
-
-
 
 override_dh_python2:
 	dh_python2 --no-guessing-versions
-
-
-
-

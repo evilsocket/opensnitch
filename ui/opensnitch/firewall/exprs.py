@@ -1,6 +1,8 @@
 
-from opensnitch import ui_pb2
 from .enums import *
+
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 class Expr():
     """
