@@ -210,7 +210,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         else:
             self.actionButton.setText(self._action_text[action_idx])
             self.actionButton.setIcon(self._action_icon[action_idx])
-        self._tick_thread.stop = True
+        if self._tick_thread != None:
+            self._tick_thread.stop = True
 
     def _check_advanced_toggled(self, state):
         self.checkDstIP.setVisible(state)
@@ -495,6 +496,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def closeEvent(self, e):
         self._send_rule()
         e.ignore()
+
+    def close(self):
+        self._stop_countdown()
+        self._done.set()
+        self.hide()
 
     def _add_fixed_options_to_combo(self, combo, con, uid):
         # the order of these combobox entries must match those in the preferences dialog

@@ -292,6 +292,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _on_close(self):
         self._exit = True
         self._tray.setIcon(self.off_icon)
+        self._prompt_dialog.close()
         self._app.processEvents()
         self._nodes.stop_notifications()
         self._nodes.update_all(Nodes.OFFLINE)
