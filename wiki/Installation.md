@@ -25,6 +25,14 @@ dnf:
 #### Arch Linux  
 > $ sudo pacman -S opensnitch
 
+#### NixOS
+
+Add following line to your system configuration to install and enable OpenSnitch
+
+> services.opensnitch.enable = true;
+
+https://nixos.wiki/wiki/OpenSnitch
+
 ➡️ Then lanch the GUI: `$ opensnitch-ui` or launch it from the Applications menu.
 
 **Remember:**
@@ -74,7 +82,7 @@ Select the right package for your architecture: `$(uname -m) == x86_64` -> opens
 
 ***
 
-**These packages have been (briefly) tested on:**
+**These packages have been tested on:**
  * Daemon ([v1.4.0rc2](https://github.com/evilsocket/opensnitch/releases)):
    - RedHat Enterprise >= 7.0
    - CentOS 8.x
@@ -86,6 +94,7 @@ Select the right package for your architecture: `$(uname -m) == x86_64` -> opens
    - Pop!_OS
    - MX Linux 19.x
    - PureOS (Librem5)
+   - NixOS
 
  * UI ([v1.4.0rc2](https://github.com/evilsocket/opensnitch/releases)):
    - Debian >= 9
@@ -96,6 +105,7 @@ Select the right package for your architecture: `$(uname -m) == x86_64` -> opens
    - MX Linux 19.x
    - Pop!_OS
    - PureOS (Librem5)
+   - NixOS
 
  * Window Managers:
    - Cinnamon
