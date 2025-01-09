@@ -28,8 +28,12 @@ dnf:
 #### NixOS
 
 Add following line to your system configuration to install and enable OpenSnitch
-
-> services.opensnitch.enable = true;
+```bash
+services.opensnitch.enable = true;
+environment.systemPackages = with pkgs; [
+      opensnitch-ui
+];
+```
 
 https://nixos.wiki/wiki/OpenSnitch
 
