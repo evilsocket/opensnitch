@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/user"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -47,6 +48,7 @@ const (
 	OpProcessHashMD5      = Operand("process.hash.md5")
 	OpProcessHashSHA1     = Operand("process.hash.sha1")
 	OpUserID              = Operand("user.id")
+	OpUserName            = Operand("user.name")
 	OpSrcIP               = Operand("source.ip")
 	OpSrcPort             = Operand("source.port")
 	OpDstIP               = Operand("dest.ip")
@@ -208,6 +210,15 @@ func (o *Operator) Compile() error {
 			o.netMask = netMask
 			o.cb = o.cmpNetwork
 		}
+	}
+	if o.Operand == OpUserName && o.Type == Simple {
+		// TODO: allow regexps, take into account users from containers.
+		u, err := user.Lookup(o.Data)
+		if err != nil {
+			return fmt.Errorf("user.name Operand error: %s", err)
+		}
+		o.cb = o.simpleCmp
+		o.Data = u.Uid
 	}
 	if o.Operand == OpDomainsLists {
 		if o.Data == "" {
@@ -382,7 +393,7 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpIPLists {
 		return o.cb(con.DstIP.String())
-	} else if o.Operand == OpUserID {
+	} else if o.Operand == OpUserID || o.Operand == OpUserName {
 		return o.cb(strconv.Itoa(con.Entry.UserId))
 	} else if o.Operand == OpDstNetwork {
 		return o.cb(con.DstIP)
