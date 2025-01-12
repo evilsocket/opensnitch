@@ -325,6 +325,140 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
     return 0;
 };
 
+// TODO: armhf
+#if !defined(__arm__)
+SEC("kprobe/inet_dgram_connect")
+int kprobe__inet_dgram_connect(struct pt_regs *ctx)
+{
+#if defined(__i386__)
+    struct socket *skt = (struct socket *)PT_REGS_PARM1(ctx);
+    struct sockaddr *saddr = (struct sockaddr *)PT_REGS_PARM2(ctx);
+#else
+    struct socket *skt = (struct socket *)PT_REGS_PARM1(ctx);
+    struct sockaddr *saddr = (struct sockaddr *)PT_REGS_PARM2(ctx);
+#endif
+
+    u64 pid_tgid = bpf_get_current_pid_tgid();
+    u64 skp = (u64)skt;
+    u64 sa = (u64)saddr;
+    bpf_map_update_elem(&tcpsock, &pid_tgid, &skp, BPF_ANY);
+    bpf_map_update_elem(&icmpsock, &pid_tgid, &sa, BPF_ANY);
+    return 0;
+}
+
+SEC("kretprobe/inet_dgram_connect")
+int kretprobe__inet_dgram_connect(int retval)
+{
+    u64 pid_tgid = bpf_get_current_pid_tgid();
+    u64 *skp = bpf_map_lookup_elem(&tcpsock, &pid_tgid);
+    if (skp == NULL) { goto out; }
+    u64 *sap = bpf_map_lookup_elem(&icmpsock, &pid_tgid);
+    if (sap == NULL) { goto out; }
+
+    struct sock *sk;
+    struct socket *skt;
+    __builtin_memset(&sk, 0, sizeof(sk));
+    __builtin_memset(&skt, 0, sizeof(skt));
+    skt = (struct socket *)*skp;
+    bpf_probe_read(&sk, sizeof(sk), &skt->sk);
+
+    u8 proto = 0;
+    u8 type = 0;
+    u8 fam = 0;
+    bpf_probe_read(&proto, sizeof(proto), &sk->sk_protocol);
+    bpf_probe_read(&type, sizeof(type), &sk->sk_type);
+    bpf_probe_read(&fam, sizeof(type), &sk->sk_family);
+
+    struct udp_value_t udp_value={0};
+    __builtin_memset(&udp_value, 0, sizeof(udp_value));
+    udp_value.pid = pid_tgid >> 32;
+    udp_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
+    bpf_get_current_comm(&udp_value.comm, sizeof(udp_value.comm));
+
+    if (fam == AF_INET){
+        struct sockaddr_in *ska;
+        struct udp_key_t udp_key;
+        __builtin_memset(&ska, 0, sizeof(ska));
+        __builtin_memset(&udp_key, 0, sizeof(udp_key));
+        ska = (struct sockaddr_in *)*sap;
+
+        bpf_probe_read(&udp_key.daddr, sizeof(udp_key.daddr), &ska->sin_addr.s_addr);
+        bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &ska->sin_port);
+        if (udp_key.dport == 0){
+            bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &sk->__sk_common.skc_dport);
+            bpf_probe_read(&udp_key.daddr, sizeof(udp_key.daddr), &sk->__sk_common.skc_daddr);
+        }
+        bpf_probe_read(&udp_key.sport, sizeof(udp_key.sport), &sk->__sk_common.skc_num);
+        bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &sk->__sk_common.skc_rcv_saddr);
+
+        udp_key.sport = (udp_key.sport >> 8) | ((udp_key.sport << 8) & 0xff00);
+
+        // There're several reasons for these fields to be empty:
+        // - saddr may be empty if sk_state is 7 (CLOSE)
+        // - <insert more here>
+        if (udp_key.dport == 0 || udp_key.daddr == 0){
+            goto out;
+        }
+
+        if (proto == IPPROTO_UDP){
+            bpf_map_update_elem(&udpMap, &udp_key, &udp_value, BPF_ANY);
+        }
+    } else if (fam == AF_INET6){
+        struct sockaddr_in6 *ska;
+        struct udpv6_key_t udpv6_key;
+        __builtin_memset(&ska, 0, sizeof(ska));
+        __builtin_memset(&udpv6_key, 0, sizeof(udpv6_key));
+        ska = (struct sockaddr_in6 *)*sap;
+
+        bpf_probe_read(&udpv6_key.dport, sizeof(udpv6_key.dport), &sk->__sk_common.skc_dport);
+        if (udpv6_key.dport != 0){ //likely
+            bpf_probe_read(&udpv6_key.daddr, sizeof(udpv6_key.daddr), &sk->__sk_common.skc_v6_daddr.in6_u.u6_addr32);
+        }
+        else {
+            bpf_probe_read(&udpv6_key.dport, sizeof(udpv6_key.dport), &ska->sin6_port);
+            bpf_probe_read(&udpv6_key.daddr, sizeof(udpv6_key.daddr), &ska->sin6_addr.in6_u.u6_addr32);
+        }
+
+        bpf_probe_read(&udpv6_key.sport, sizeof(udpv6_key.sport), &sk->__sk_common.skc_num);
+        bpf_probe_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
+
+#if defined(__i386__)
+        struct sock_on_x86_32_t sock;
+        __builtin_memset(&sock, 0, sizeof(sock));
+        bpf_probe_read(&sock, sizeof(sock), *(&sk));
+        udpv6_key.daddr = sock.daddr;
+        udpv6_key.saddr = sock.saddr;
+#endif
+
+        if (udpv6_key.dport == 0){
+            goto out;
+        }
+
+        if (proto == IPPROTO_UDP){
+            bpf_map_update_elem(&udpv6Map, &udpv6_key, &udp_value, BPF_ANY);
+        }
+    }
+    //if (proto == IPPROTO_UDP && type == SOCK_DGRAM && udp_key.dport == 1025){
+    //    udp_key.dport = 0;
+    //    udp_key.sport = 0;
+    //    bpf_map_update_elem(&icmpMap, &udp_key, &udp_value, BPF_ANY);
+    //}
+    //else if (proto == IPPROTO_UDP && type == SOCK_DGRAM && udp_key.dport != 1025){
+    //    bpf_map_update_elem(&icmpMap, &udp_key, &udp_value, BPF_ANY);
+    //} else if (proto == IPPROTO_TCP && type == SOCK_RAW){
+    //    sport always 6 and dport 0
+    //    bpf_map_update_elem(&tcpMap, &udp_key, &udp_value, BPF_ANY);
+    //}
+
+    return 0;
+out:
+    bpf_map_delete_elem(&tcpsock, &pid_tgid);
+    bpf_map_delete_elem(&icmpsock, &pid_tgid);
+
+    return 0;
+};
+#endif
+
 // TODO: for 32bits
 #if !defined(__arm__) && !defined(__i386__)
 
