@@ -150,6 +150,8 @@ Examples:
         except Exception:
             pass
 
+    service = None
+
     try:
         Utils.create_socket_dirs()
         app = QtWidgets.QApplication(sys.argv)
