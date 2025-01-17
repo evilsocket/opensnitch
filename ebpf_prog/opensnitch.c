@@ -255,6 +255,17 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
     bpf_probe_read(&udp_key.sport, sizeof(udp_key.sport), &sk->__sk_common.skc_num);
     bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &sk->__sk_common.skc_rcv_saddr);
 
+// TODO: armhf
+#if !defined(__arm__)
+    // extract from the ancillary message the source IP.
+    if (udp_key.saddr == 0){
+        u64 cmsg=0;
+        bpf_probe_read(&cmsg, sizeof(cmsg), &msg->msg_control);
+        struct in_pktinfo *inpkt = (struct in_pktinfo *)CMSG_DATA(cmsg);
+        bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &inpkt->ipi_spec_dst.s_addr);
+    }
+#endif
+
     u32 zero_key = 0;
     __builtin_memset(&zero_key, 0, sizeof(zero_key));
     struct udp_value_t *lookedupValue = bpf_map_lookup_elem(&udpMap, &udp_key);
@@ -301,6 +312,11 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 
     bpf_probe_read(&udpv6_key.sport, sizeof(udpv6_key.sport), &sk->__sk_common.skc_num);
     bpf_probe_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
+
+    // TODO: obtain IPs from ancillary messages if daddr == 0 || saddr == 0
+    // https://elixir.bootlin.com/linux/v4.4.60/source/net/ipv4/ip_sockglue.c#L224
+    //
+    // IPV6_PKTINFO, in6_pktinfo
 
 
 #if defined(__i386__)
