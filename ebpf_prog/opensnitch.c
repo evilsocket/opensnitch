@@ -313,11 +313,12 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
     bpf_probe_read(&udpv6_key.sport, sizeof(udpv6_key.sport), &sk->__sk_common.skc_num);
     bpf_probe_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
 
-    // TODO: obtain IPs from ancillary messages if daddr == 0 || saddr == 0
-    // https://elixir.bootlin.com/linux/v4.4.60/source/net/ipv4/ip_sockglue.c#L224
-    //
-    // IPV6_PKTINFO, in6_pktinfo
-
+    if (udpv6_key.saddr.part1 == 0){
+        u64 cmsg=0;
+        bpf_probe_read(&cmsg, sizeof(cmsg), &msg->msg_control);
+        struct in6_pktinfo *inpkt = (struct in6_pktinfo *)CMSG_DATA(cmsg);
+        bpf_probe_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &inpkt->ipi6_addr.s6_addr32);
+    }
 
 #if defined(__i386__)
     struct sock_on_x86_32_t sock;
