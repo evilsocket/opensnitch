@@ -170,13 +170,18 @@ func KillSockets(fam, proto uint8, excludeLocal bool) error {
 	}
 
 	for _, sock := range sockListTCP {
+		if sock == nil {
+			continue
+		}
 		if excludeLocal && (isPrivate(sock.ID.Destination) ||
 			sock.ID.Source.IsUnspecified() ||
 			sock.ID.Destination.IsUnspecified()) {
+			log.Trace("not killing socket: %+v", sock.ID)
 			continue
 		}
+		log.Trace("killing socket: %+v", sock.ID)
 		if err := SocketKill(fam, proto, sock.ID); err != nil {
-			log.Debug("Unable to kill socket (%+v): %s", sock.ID, err)
+			log.Trace("Unable to kill socket (%+v): %s", sock.ID, err)
 		}
 	}
 

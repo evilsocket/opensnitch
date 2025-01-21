@@ -41,7 +41,7 @@ const (
 	TCP_LAST_ACK
 	TCP_LISTEN
 	TCP_CLOSING
-	TCP_NEW_SYN_REC
+	TCP_NEW_SYN_RECV
 	TCP_MAX_STATES
 )
 
@@ -63,36 +63,36 @@ var TCPStatesMap = map[uint8]string{
 
 // SocketID holds the socket information of a request/response to the kernel
 type SocketID struct {
-	SourcePort      uint16
-	DestinationPort uint16
 	Source          net.IP
 	Destination     net.IP
-	Interface       uint32
 	Cookie          [2]uint32
+	Interface       uint32
+	SourcePort      uint16
+	DestinationPort uint16
 }
 
 // Socket represents a netlink socket.
 type Socket struct {
-	Family  uint8
-	State   uint8
-	Timer   uint8
-	Retrans uint8
 	ID      SocketID
 	Expires uint32
 	RQueue  uint32
 	WQueue  uint32
 	UID     uint32
 	INode   uint32
+	Family  uint8
+	State   uint8
+	Timer   uint8
+	Retrans uint8
 }
 
 // SocketRequest holds the request/response of a connection to the kernel
 type SocketRequest struct {
+	ID       SocketID
+	States   uint32
 	Family   uint8
 	Protocol uint8
 	Ext      uint8
 	pad      uint8
-	States   uint32
-	ID       SocketID
 }
 
 type writeBuffer struct {
@@ -244,7 +244,7 @@ func netlinkRequest(sockReq *SocketRequest, family uint8, proto uint8, srcPort, 
 	if len(msgs) == 0 {
 		return nil, errors.New("Warning, no message nor error from netlink, or no connections found")
 	}
-	var sock []*Socket
+	sock := make([]*Socket, len(msgs))
 	for n, m := range msgs {
 		s := &Socket{}
 		if err = s.deserialize(m); err != nil {
@@ -254,11 +254,9 @@ func netlinkRequest(sockReq *SocketRequest, family uint8, proto uint8, srcPort, 
 				s.ID.SourcePort, s.ID.Source, s.ID.Destination, s.ID.DestinationPort)
 			continue
 		}
-		if s.INode == 0 {
-			continue
-		}
-
-		sock = append([]*Socket{s}, sock...)
+		// INode can be zero for some connections states, like TCP_FIN_WAT, TCP_TIME_WAIT, etc.
+		// so don't exclude those entries, in order to get all sockets.
+		sock[n] = s
 	}
 	return sock, err
 }
