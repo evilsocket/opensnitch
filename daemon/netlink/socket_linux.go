@@ -21,12 +21,6 @@ const (
 	sizeofSocket        = sizeofSocketID + 0x18
 )
 
-var (
-	native       = nl.NativeEndian()
-	networkOrder = binary.BigEndian
-	TCP_ALL      = uint32(0xfff)
-)
-
 // https://elixir.bootlin.com/linux/latest/source/include/net/tcp_states.h
 const (
 	TCP_INVALID = iota
@@ -43,6 +37,12 @@ const (
 	TCP_CLOSING
 	TCP_NEW_SYN_RECV
 	TCP_MAX_STATES
+)
+
+var (
+	native       = nl.NativeEndian()
+	networkOrder = binary.BigEndian
+	TCP_ALL      = uint32(1<<TCP_ESTABLISHED | 1<<TCP_SYN_SENT | 1<<TCP_SYN_RECV | 1<<TCP_FIN_WAIT1 | 1<<TCP_FIN_WAIT2 | 1<<TCP_TIME_WAIT | 1<<TCP_CLOSE | 1<<TCP_CLOSE_WAIT | 1<<TCP_LAST_ACK | 1<<TCP_LISTEN | 1<<TCP_CLOSING | 1<<TCP_NEW_SYN_RECV | 0x2001)
 )
 
 // TCPStatesMap holds the list of TCP states
@@ -125,10 +125,8 @@ func (r *SocketRequest) Serialize() []byte {
 		copy(b.Next(16), r.ID.Source)
 		copy(b.Next(16), r.ID.Destination)
 	} else {
-		copy(b.Next(4), r.ID.Source.To4())
-		b.Next(12)
-		copy(b.Next(4), r.ID.Destination.To4())
-		b.Next(12)
+		copy(b.Next(16), r.ID.Source.To4())
+		copy(b.Next(16), r.ID.Destination.To4())
 	}
 	native.PutUint32(b.Next(4), r.ID.Interface)
 	native.PutUint32(b.Next(4), r.ID.Cookie[0])
@@ -231,11 +229,11 @@ func SocketsDump(family uint8, proto uint8) ([]*Socket, error) {
 		Protocol: proto,
 		States:   TCP_ALL,
 	}
-	return netlinkRequest(sockReq, 0, 0, 0, 0, nil, nil)
+	return netlinkRequest(sockReq, family, proto, 0, 0, nil, nil)
 }
 
 func netlinkRequest(sockReq *SocketRequest, family uint8, proto uint8, srcPort, dstPort uint16, local, remote net.IP) ([]*Socket, error) {
-	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, syscall.NLM_F_DUMP)
+	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, syscall.NLM_F_REQUEST|syscall.NLM_F_DUMP)
 	req.AddData(sockReq)
 	msgs, err := req.Execute(syscall.NETLINK_INET_DIAG, 0)
 	if err != nil {
