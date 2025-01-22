@@ -97,7 +97,7 @@ func lookupSymbol(elffile *elf.File, symbolName string) (uint64, error) {
 func ListenerEbpf(ebpfModPath string) error {
 	m, err := core.LoadEbpfModule("opensnitch-dns.o", ebpfModPath)
 	if err != nil {
-		log.Error("[eBPF DNS]: %s", err)
+		log.Warning("[eBPF DNS]: %s", err)
 		return err
 	}
 	defer m.Close()
@@ -109,13 +109,13 @@ func ListenerEbpf(ebpfModPath string) error {
 	libcFile, err := findLibc()
 
 	if err != nil {
-		log.Error("EBPF-DNS: Failed to find libc.so: %v", err)
+		log.Error("[eBPF DNS]: Failed to find libc.so: %v", err)
 		return err
 	}
 
 	libcElf, err := elf.Open(libcFile)
 	if err != nil {
-		log.Error("EBPF-DNS: Failed to open %s: %v", libcFile, err)
+		log.Error("[eBPF DNS]: Failed to open %s: %v", libcFile, err)
 		return err
 	}
 	probesAttached := 0
@@ -124,19 +124,19 @@ func ListenerEbpf(ebpfModPath string) error {
 		probeFunction = strings.Replace(probeFunction, "uprobe/", "", 1)
 		offset, err := lookupSymbol(libcElf, probeFunction)
 		if err != nil {
-			log.Warning("EBPF-DNS: Failed to find symbol for uprobe %s (offset: %d): %s\n", uprobe.Name, offset, err)
+			log.Warning("[eBPF DNS]: Failed to find symbol for uprobe %s (offset: %d): %s\n", uprobe.Name, offset, err)
 			continue
 		}
 		err = bpf.AttachUprobe(uprobe, libcFile, offset)
 		if err != nil {
-			log.Warning("EBPF-DNS: Failed to attach uprobe %s : %s, (%s, %d)\n", uprobe.Name, err, libcFile, offset)
+			log.Warning("[eBPF DNS]: Failed to attach uprobe %s : %s, (%s, %d)\n", uprobe.Name, err, libcFile, offset)
 			continue
 		}
 		probesAttached++
 	}
 
 	if probesAttached == 0 {
-		log.Warning("EBPF-DNS: Failed to find symbols for uprobes.")
+		log.Warning("[eBPF DNS]: Failed to find symbols for uprobes.")
 		return errors.New("Failed to find symbols for uprobes")
 	}
 
@@ -145,7 +145,7 @@ func ListenerEbpf(ebpfModPath string) error {
 	//log.Warning("EBPF-DNS: %+v\n", m)
 	perfMap, err := bpf.InitPerfMap(m, "events", channel, nil)
 	if err != nil {
-		log.Error("EBPF-DNS: Failed to init perf map: %s\n", err)
+		log.Error("[eBPF DNS]: Failed to init perf map: %s\n", err)
 		return err
 	}
 	sig := make(chan os.Signal, 1)
@@ -163,7 +163,7 @@ func ListenerEbpf(ebpfModPath string) error {
 
 	perfMap.PollStart()
 	<-sig
-	log.Info("EBPF-DNS: Received signal: terminating ebpf dns hook.")
+	log.Info("[eBPF DNS]: Received signal: terminating ebpf dns hook.")
 	perfMap.PollStop()
 	for i := 0; i < 5; i++ {
 		exitChannel <- true
@@ -173,7 +173,7 @@ func ListenerEbpf(ebpfModPath string) error {
 
 func spawnDNSWorker(id int, channel chan []byte, exitChannel chan bool) {
 
-	log.Debug("dns worker initialized #%d", id)
+	log.Debug("[eBPF DNS] worker initialized #%d", id)
 	var event nameLookupEvent
 	var ip net.IP
 	for {
@@ -186,11 +186,11 @@ func spawnDNSWorker(id int, channel chan []byte, exitChannel chan bool) {
 		default:
 			data := <-channel
 			if len(data) > 0 {
-				log.Debug("(%d) EBPF-DNS: LookupEvent %d %x %x %x", id, len(data), data[:4], data[4:20], data[20:])
+				log.Trace("(%d) [eBPF DNS]: LookupEvent %d %x %x %x", id, len(data), data[:4], data[4:20], data[20:])
 			}
 			err := binary.Read(bytes.NewBuffer(data), binary.LittleEndian, &event)
 			if err != nil {
-				log.Warning("(%d) EBPF-DNS: Failed to decode ebpf nameLookupEvent: %s\n", id, err)
+				log.Warning("(%d) [eBPF DNS]: Failed to decode ebpf nameLookupEvent: %s\n", id, err)
 				continue
 			}
 			// Convert C string (null-terminated) to Go string
@@ -202,11 +202,11 @@ func spawnDNSWorker(id int, channel chan []byte, exitChannel chan bool) {
 				ip = net.IP(event.IP[:])
 			}
 
-			log.Debug("(%d) EBPF-DNS: Tracking Resolved Message: %s -> %s\n", id, host, ip.String())
+			log.Debug("(%d) [eBPF DNS]: Tracking Resolved Message: %s -> %s\n", id, host, ip.String())
 			Track(ip.String(), host)
 		}
 	}
 
 Exit:
-	log.Debug("DNS worker #%d closed", id)
+	log.Debug("[eBPF DNS] worker #%d closed", id)
 }

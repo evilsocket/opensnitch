@@ -203,7 +203,7 @@ func (r *ResolvedMonitor) monitor(ctx context.Context, chanResponse chan *Monito
 		if continues != varlink.Continues {
 			goto Exit
 		}
-		log.Debug("ResolvedMonitor >> new response: %#v", m)
+		log.Trace("ResolvedMonitor >> new response: %#v", m)
 		chanResponse <- m
 	}
 
