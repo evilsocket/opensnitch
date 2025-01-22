@@ -26,12 +26,11 @@ func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint
 	}
 	if findAddressInLocalAddresses(dstIP) {
 		// NOTE:
-		// Sometimes every outbound connection has the fields swapped:
-		// 443:public-ip -> local-ip:local-port , like if it was a response (but it's not).
+		// Sometimes outbound connections may have the fields swapped:
+		// 443:public-ip -> local-ip:local-port.
+		// @see: e090833d29738274c1d171eba53e239c1c49ea7c
 		// Swapping connection fields helps to identify the connection + pid + process, and continue working as usual
 		// when systemd-resolved is being used.
-		// This seems to be the case when using conntrack to intercept outbound connections, specially for TCP.
-		// @see: e090833d29738274c1d171eba53e239c1c49ea7c
 
 		if proc := getPidFromEbpf(proto, dstPort, dstIP, srcIP, srcPort); proc != nil {
 			return proc, true, fmt.Errorf("[ebpf conn] FIXME: found swapping fields, systemd-resolved is that you? set DNS=x.x.x.x to your DNS server in /etc/systemd/resolved.conf to workaround this problem")
@@ -121,7 +120,12 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	if err != nil {
 		// key not found
 		// sometimes srcIP is 0.0.0.0. Happens especially with UDP sendto()
-		// for example: 57621:10.0.3.1 -> 10.0.3.255:57621 , reported as: 0.0.0.0 -> 10.0.3.255
+		// for example:
+		//  - 57621:10.0.3.1 -> 10.0.3.255:57621 , reported as: 0.0.0.0 -> 10.0.3.255
+		//  - 58306:192.168.11.241 -> 1.2.3.4:54703, reported as: 58306:0.0.0.0 -> 1.2.3.4:54703
+		//    ^ incoming connection to port 58306
+		// ---
+		// Sometimes the srcIP is specified in ancillary messages, using IP_PKTINFO.
 		if isIP4 {
 			zeroes := make([]byte, 4)
 			copy(key[8:12], zeroes)
@@ -131,17 +135,27 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		}
 		err = m.LookupElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&key[0]), unsafe.Pointer(&value))
 		if err == nil {
+			log.Trace("[eBPF] found in srcIP 0.0.0.0 (%s): %+v -> %+v", proto, srcIP, dstIP)
 			delItemIfFound = false
 		}
 	}
 	if err != nil && proto == "udp" && srcIP.String() == dstIP.String() {
-		// very rarely I see this connection. It has srcIP and dstIP == 0.0.0.0 in ebpf map
-		// it is a localhost to localhost connection
-		// srcIP was already set to 0, set dstIP to zero also
+		// Sometimes we may intercept srcIP and dstIP == 0.0.0.0 in ebpf.
 		// TODO try to reproduce it and look for srcIP/dstIP in other kernel structures
+		//
+		// entries like 1234:0.0.0.0 -> 0.0.0.0:0 can be of a listening port:
+		// 38673:0.0.0.0 -> 0.0.0.0:0
+		// ss -lupn|grep 36523
+		//   UNCONN 0      0   *:36523 *:*    users:(("python3",pid=6075,fd=32))
+		//   6075 ?        S      0:00 python3 /usr/bin/wsdd
+
+		// srcIP was already set to 0, set dstIP to zero also
 		zeroes := make([]byte, 4)
 		copy(key[2:6], zeroes)
 		err = m.LookupElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&key[0]), unsafe.Pointer(&value))
+		if err == nil {
+			log.Trace("[eBPF] found in 0.0.0.0 -> 0.0.0.0 (%s): %+v -> %+v", proto, srcIP, dstIP)
+		}
 	}
 
 	if err != nil {

@@ -41,6 +41,7 @@ var showUnknownCons = false
 // process generated a connection.
 func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
 	showUnknownCons = interceptUnknown
+	log.Trace("Connection.Parse(): %v", nfp)
 
 	if nfp.IsIPv4() {
 		con, err := NewConnection(&nfp)
@@ -70,7 +71,7 @@ func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
 func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (cr *Connection, err error) {
 	// no errors but not enough info neither
 	if c.parseDirection(protoType) == false {
-		log.Debug("discarding conn: %+v", c)
+		log.Trace("discarding connection (proto %s): %+v", protoType, c)
 		return nil, nil
 	}
 	log.Debug("new connection %s => %d:%v -> %v (%s):%d uid: %d, mark: %x", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstHost, c.DstPort, nfp.UID, nfp.Mark)
