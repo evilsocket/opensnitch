@@ -15,6 +15,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 )
 
 // Type is the type of rule.
@@ -64,8 +65,9 @@ const (
 	OpDomainsRegexpLists  = Operand("lists.domains_regexp")
 	OpIPLists             = Operand("lists.ips")
 	OpNetLists            = Operand("lists.nets")
+	OpHashMD5Lists        = Operand("lists.hash.md5")
+
 	// TODO
-	//OpHashMD5Lists = Operand("lists.hash.md5")
 	//OpQuota        = Operand("quota")
 	//OpQuotaTxOver  = Operand("quota.sent.over") // 1000b, 1kb, 1mb, 1gb, ...
 	//OpQuotaRxOver  = Operand("quota.recv.over") // 1000b, 1kb, 1mb, 1gb, ...
@@ -225,7 +227,7 @@ func (o *Operator) Compile() error {
 			return fmt.Errorf("Operand lists is empty, nothing to load: %s", o)
 		}
 		o.loadLists()
-		o.cb = o.domainsListCmp
+		o.cb = o.domainsListsCmp
 	} else if o.Operand == OpDomainsRegexpLists {
 		if o.Data == "" {
 			return fmt.Errorf("Operand regexp lists is empty, nothing to load: %s", o)
@@ -237,13 +239,19 @@ func (o *Operator) Compile() error {
 			return fmt.Errorf("Operand ip lists is empty, nothing to load: %s", o)
 		}
 		o.loadLists()
-		o.cb = o.ipListCmp
+		o.cb = o.simpleListsCmp
 	} else if o.Operand == OpNetLists {
 		if o.Data == "" {
 			return fmt.Errorf("Operand net lists is empty, nothing to load: %s", o)
 		}
 		o.loadLists()
 		o.cb = o.ipNetCmp
+	} else if o.Operand == OpHashMD5Lists {
+		if o.Data == "" {
+			return fmt.Errorf("Operand lists.hash.md5 is empty, nothing to load: %s", o)
+		}
+		o.loadLists()
+		o.cb = o.simpleListsCmp
 	} else if o.Operand == OpProcessHashMD5 || o.Operand == OpProcessHashSHA1 {
 		o.cb = o.hashCmp
 	}
@@ -288,7 +296,15 @@ func (o *Operator) cmpNetwork(destIP interface{}) bool {
 	return o.netMask.Contains(destIP.(net.IP))
 }
 
-func (o *Operator) domainsListCmp(v interface{}) bool {
+func (o *Operator) matchListsCmp(msg, what string) bool {
+	if item, found := o.lists[what]; found {
+		log.Debug("%s: %s, %s", log.Red(msg), what, item)
+		return true
+	}
+	return false
+}
+
+func (o *Operator) domainsListsCmp(v interface{}) bool {
 	dstHost := v.(string)
 	if dstHost == "" {
 		return false
@@ -299,26 +315,18 @@ func (o *Operator) domainsListCmp(v interface{}) bool {
 	o.RLock()
 	defer o.RUnlock()
 
-	if _, found := o.lists[dstHost]; found {
-		log.Debug("%s: %s, %s", log.Red("domain list match"), dstHost, o.lists[dstHost])
-		return true
-	}
-	return false
+	return o.matchListsCmp("domains list match", dstHost)
 }
 
-func (o *Operator) ipListCmp(v interface{}) bool {
-	dstIP := v.(string)
-	if dstIP == "" {
+func (o *Operator) simpleListsCmp(v interface{}) bool {
+	what := v.(string)
+	if what == "" {
 		return false
 	}
 	o.RLock()
 	defer o.RUnlock()
 
-	if _, found := o.lists[dstIP]; found {
-		log.Debug("%s: %s, %s", log.Red("IP list match"), dstIP, o.lists[dstIP].(string))
-		return true
-	}
-	return false
+	return o.matchListsCmp("simple list match", what)
 }
 
 func (o *Operator) ipNetCmp(dstIP interface{}) bool {
@@ -393,6 +401,8 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpIPLists {
 		return o.cb(con.DstIP.String())
+	} else if o.Operand == OpHashMD5Lists {
+		return o.cb(con.Process.Checksums[procmon.HashMD5])
 	} else if o.Operand == OpUserID || o.Operand == OpUserName {
 		return o.cb(strconv.Itoa(con.Entry.UserId))
 	} else if o.Operand == OpDstNetwork {

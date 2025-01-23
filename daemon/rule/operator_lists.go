@@ -104,32 +104,46 @@ func (o *Operator) StopMonitoringLists() {
 	}
 }
 
-func (o *Operator) readDomainsList(raw, fileName string) (dups uint64) {
-	log.Debug("Loading domains list: %s, size: %d", fileName, len(raw))
-	lines := strings.Split(string(raw), "\n")
-	for _, domain := range lines {
-		if len(domain) < 9 {
-			continue
-		}
-		// exclude not valid lines
-		if domain[:7] != "0.0.0.0" && domain[:9] != "127.0.0.1" {
-			continue
-		}
-		host := domain[8:]
-		// exclude localhost entries
-		if domain[:9] == "127.0.0.1" {
-			host = domain[10:]
-		}
-		if host == "local" || host == "localhost" || host == "localhost.localdomain" || host == "broadcasthost" {
-			continue
-		}
+func filterDomains(line, defValue string) (bool, string, string) {
+	if len(line) < 9 {
+		return true, line, defValue
+	}
+	// exclude not valid lines
+	if line[:7] != "0.0.0.0" && line[:9] != "127.0.0.1" {
+		return true, line, defValue
+	}
+	host := line[8:]
+	// exclude localhost entries
+	if line[:9] == "127.0.0.1" {
+		host = line[10:]
+	}
+	if host == "local" || host == "localhost" || host == "localhost.localdomain" || host == "broadcasthost" {
+		return true, line, defValue
+	}
 
-		host = core.Trim(host)
-		if _, found := o.lists[host]; found {
+	return false, host, defValue
+}
+
+func filterSimple(line, hashPath string) (bool, string, string) {
+	// XXX: some lists may use TABs as separator
+	hash := strings.SplitN(line, " ", 2)
+	return false, hash[0], hash[1]
+}
+
+func (o *Operator) readTupleList(raw, fileName string, filter func(line, defValue string) (bool, string, string)) (dups uint64) {
+	log.Debug("Loading list: %s, size: %d", fileName, len(raw))
+	lines := strings.Split(string(raw), "\n")
+	for _, line := range lines {
+		skip, key, value := filter(line, fileName)
+		if skip || len(line) < 9 {
+			continue
+		}
+		key = core.Trim(key)
+		if _, found := o.lists[key]; found {
 			dups++
 			continue
 		}
-		o.lists[host] = fileName
+		o.lists[key] = value
 	}
 	lines = nil
 	log.Info("%d domains loaded, %s", len(o.lists), fileName)
@@ -187,22 +201,25 @@ func (o *Operator) readRegexpList(raw, fileName string) (dups uint64) {
 	return dups
 }
 
-func (o *Operator) readIPList(raw, fileName string) (dups uint64) {
-	log.Debug("Loading IPs list: %s, size: %d", fileName, len(raw))
+// A simple list is a list composed of one column with several entries, that
+// don't require manipulation.
+// It can be a list of IPs, domains, etc.
+func (o *Operator) readSimpleList(raw, fileName string) (dups uint64) {
+	log.Debug("Loading simple list: %s, size: %d", fileName, len(raw))
 	lines := strings.Split(string(raw), "\n")
 	for _, line := range lines {
 		if line == "" || line[0] == '#' {
 			continue
 		}
-		ip := core.Trim(line)
-		if _, found := o.lists[ip]; found {
+		what := core.Trim(line)
+		if _, found := o.lists[what]; found {
 			dups++
 			continue
 		}
-		o.lists[ip] = fileName
+		o.lists[what] = fileName
 	}
 	lines = nil
-	log.Info("%d IPs loaded, %s", len(o.lists), fileName)
+	log.Info("%d entries loaded, %s", len(o.lists), fileName)
 
 	return dups
 }
@@ -236,13 +253,15 @@ func (o *Operator) readLists() error {
 		}
 
 		if o.Operand == OpDomainsLists {
-			dups += o.readDomainsList(string(raw), fileName)
+			dups += o.readTupleList(string(raw), fileName, filterDomains)
 		} else if o.Operand == OpDomainsRegexpLists {
 			dups += o.readRegexpList(string(raw), fileName)
 		} else if o.Operand == OpNetLists {
 			dups += o.readNetList(string(raw), fileName)
 		} else if o.Operand == OpIPLists {
-			dups += o.readIPList(string(raw), fileName)
+			dups += o.readSimpleList(string(raw), fileName)
+		} else if o.Operand == OpHashMD5Lists {
+			dups += o.readSimpleList(string(raw), fileName)
 		} else {
 			log.Warning("Unknown lists operand type: %s", o.Operand)
 		}
