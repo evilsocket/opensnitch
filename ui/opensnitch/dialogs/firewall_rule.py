@@ -935,11 +935,10 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                 self.statements[idx]['opts'].setCurrentIndex(
                     Fw.PortProtocols.values().index(optsValue)
                 )
-                try:
-                    self.statements[idx]['value'].setCurrentIndex(
-                        self.net_srv.index_by_port(newValue)
-                    )
-                except:
+                pidx = self.net_srv.index_by_port(newValue)
+                if pidx > 0:
+                    self.statements[idx]['value'].setCurrentIndex(pidx)
+                else:
                     self.statements[idx]['value'].setCurrentText(newValue)
 
             else:
@@ -1080,11 +1079,10 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                 elif exp.Statement.Values[0].Key == Fw.Statements.SPORT.value:
                     self.statements[idx]['what'].setCurrentIndex(self.STATM_SPORT+1)
 
-                try:
-                    self.statements[idx]['value'].setCurrentIndex(
-                        self.net_srv.index_by_port(exp.Statement.Values[0].Value)
-                    )
-                except:
+                pidx = self.net_srv.index_by_port(exp.Statement.Values[0].Value)
+                if pidx > 0:
+                    self.statements[idx]['value'].setCurrentIndex(pidx)
+                else:
                     self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
 
                 st_name = exp.Statement.Name
@@ -1446,9 +1444,10 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                         # int
                         try:
                             service_idx = self.net_srv.service_by_name(statem_value)
-                            statem_value = self.net_srv.port_by_index(service_idx)
-                            if service_idx > 0 and "," in statem_value or "-" in statem_value:
-                                raise ValueError("port entered is multiport or a port range")
+                            if service_idx > 0:
+                                statem_value = self.net_srv.port_by_index(service_idx)
+                                if "," in statem_value or "-" in statem_value:
+                                    raise ValueError("port entered is multiport or a port range")
                         except:
                             if "," not in statem_value and "-" not in statem_value:
                                 if not self._is_valid_int_value(statem_value):
