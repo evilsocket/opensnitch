@@ -435,16 +435,28 @@ class NetworkServices():
         return self.srv_array
 
     def service_by_index(self, idx):
-        return self.srv_array[idx]
+        try:
+            return self.srv_array[idx]
+        except:
+            return ""
 
     def service_by_name(self, name):
-        return self.srv_array.index(name)
+        try:
+            return self.srv_array.index(name)
+        except:
+            return -1
 
     def port_by_index(self, idx):
-        return self.ports_list[idx]
+        try:
+            return self.ports_list[idx]
+        except:
+            return -1
 
     def index_by_port(self, port):
-        return self.ports_list.index(str(port))
+        try:
+            return self.ports_list.index(str(port))
+        except:
+            return -1
 
 class Icons():
     """Util to display Qt's built-in icons when the system is not configured as
