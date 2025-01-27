@@ -20,7 +20,10 @@ func createNewProc(pid int) *Process {
 	return proc
 }
 
-// Test regular use.
+// Test regular use:
+// - New exec   -> add to cache
+// - Query      -> get it from cache
+// - Proc alive -> keep it in cache
 func TestCacheEvents(t *testing.T) {
 	evtsCache := NewEventsStore()
 	proc := createNewProc(ourPid)
@@ -73,10 +76,13 @@ func TestCacheEvents2(t *testing.T) {
 		}
 	})
 
-	// this process does not exist, so it should be removed from cache
+	// This process does not exist, so it should be removed from cache
+	// inmediately. We wait a couple of seconds, before deleting it.
+	// See exitDelay description for more info.
 	t.Run("Delete() !isAlive()", func(t *testing.T) {
 		evtsCache.Delete(fakePid)
-		if _, _, found := evtsCache.IsInStore(ourPid, nil); found {
+		<-time.After(3 * time.Second)
+		if _, _, found := evtsCache.IsInStore(fakePid, nil); found {
 			t.Error("PID not deleted from cache.")
 		}
 	})

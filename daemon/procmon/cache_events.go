@@ -12,10 +12,18 @@ var (
 	EventsCache       *EventsStore
 	eventsCacheTicker *time.Ticker
 
-	// When we receive an Exit event, we'll delete it from cache.
+	// When we receive an Exit event, we'll delete it from cache if the PID is not alive.
 	// This TTL defines how much time we retain a PID on cache, before we receive
 	// an Exit event.
 	pidTTL = 20 // seconds
+
+	// Delay the deletion time of an item.
+	// Sometimes we may receive a connection event AFTER the Exit of the process.
+	// In these scenarios, we need to delay the deletion from cache a little bit.
+	// [exec] /bin/xxx, pid 1234
+	// [exit] /bin/xxx, pid 1234
+	// [new conn] pid 1234 -> process unknown (no /proc entry)
+	exitDelay, _ = time.ParseDuration("2s")
 )
 
 func init() {
@@ -245,15 +253,19 @@ func (e *EventsStore) Len() int {
 // Delete schedules an item to be deleted from cache.
 func (e *EventsStore) Delete(key int) {
 	e.mu.Lock()
-	defer e.mu.Unlock()
-
 	ev, found := e.eventByPID[key]
+	e.mu.Unlock()
+
 	if !found {
 		return
 	}
-	if !ev.Proc.IsAlive() {
-		delete(e.eventByPID, key)
-	}
+	time.AfterFunc(exitDelay, func() {
+		e.mu.Lock()
+		defer e.mu.Unlock()
+		if !ev.Proc.IsAlive() {
+			delete(e.eventByPID, key)
+		}
+	})
 }
 
 // DeleteOldItems deletes items that have exited and exceeded the TTL.
