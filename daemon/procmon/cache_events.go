@@ -73,7 +73,7 @@ func NewEventsStore() *EventsStore {
 
 	return &EventsStore{
 		mu:         &sync.RWMutex{},
-		checksums:  make(map[string]uint, 500),
+		checksums:  make(map[string]uint, 2),
 		eventByPID: make(map[int]ExecEventItem, 500),
 	}
 }
@@ -82,7 +82,7 @@ func NewEventsStore() *EventsStore {
 // If computing checksums is enabled, new checksums will be computed if needed,
 // or reused existing ones otherwise.
 func (e *EventsStore) Add(proc *Process) {
-	log.Debug("[cache] EventsStore.Add() %d, %s", proc.ID, proc.Path)
+	log.Debug("[cache] EventsStore.Add() %d, %s, %s, total: %d", proc.ID, proc.Path, proc.Tree, e.Len())
 	// Add the item to cache ASAP,
 	// then calculate the checksums if needed.
 	e.UpdateItem(proc)
@@ -91,12 +91,12 @@ func (e *EventsStore) Add(proc *Process) {
 			e.UpdateItem(proc)
 		}
 	}
-	log.Debug("[cache] EventsStore.Add() finished")
+	log.Debug("[cache] EventsStore.Add() finished %s, %s", proc.Path, proc.Tree)
 }
 
 // UpdateItem updates a cache item
 func (e *EventsStore) UpdateItem(proc *Process) {
-	log.Debug("[cache] updateItem() updating events store (total: %d), pid: %d, path: %s", e.Len(), proc.ID, proc.Path)
+	log.Debug("[cache] updateItem() updating events store (total: %d), pid: %d, path: %s, %v", e.Len(), proc.ID, proc.Path, proc.Tree)
 	if proc.Path == "" {
 		return
 	}
@@ -111,7 +111,7 @@ func (e *EventsStore) UpdateItem(proc *Process) {
 
 // ReplaceItem replaces an existing process with a new one.
 func (e *EventsStore) ReplaceItem(oldProc, newProc *Process) {
-	log.Debug("[event inCache, replacement] new: %d, %s -> inCache: %d -> %s", newProc.ID, newProc.Path, oldProc.ID, oldProc.Path)
+	log.Debug("[event inCache, replacement] new: %d, %s -> inCache: %d -> %s - Trees: %s, %s", newProc.ID, newProc.Path, oldProc.ID, oldProc.Path, oldProc.Tree, newProc.Tree)
 	// Note: in rare occasions, the process being replaced is the older one.
 	// if oldProc.Starttime > newProc.Starttime {}
 	//
@@ -263,6 +263,7 @@ func (e *EventsStore) Delete(key int) {
 		e.mu.Lock()
 		defer e.mu.Unlock()
 		if !ev.Proc.IsAlive() {
+			log.Debug("[cache delete] deleted %d: %s", key, ev.Proc.Path)
 			delete(e.eventByPID, key)
 		}
 	})
@@ -279,6 +280,7 @@ func (e *EventsStore) DeleteOldItems() {
 	log.Debug("[cache] deleting old events, total byPID: %d", len(e.eventByPID))
 	for k, item := range e.eventByPID {
 		if !item.isValid() && !item.Proc.IsAlive() {
+			log.Debug("[cache] deleting old item: %d", k)
 			delete(e.eventByPID, k)
 		}
 	}
@@ -313,7 +315,6 @@ func (e *EventsStore) DelChecksumHash(hash string) {
 }
 
 // SetComputeChecksums configures if we compute checksums of processes.
-// They will  be disabled if there's no rule that requires checksums.
 // When enabling this functionality, some already stored process may don't have
 // the checksums computed yet, so when enabling compute them.
 func (e *EventsStore) SetComputeChecksums(compute bool) {
