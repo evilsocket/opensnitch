@@ -165,6 +165,16 @@ class Rules(QObject):
 
         return rule_name
 
+    def disable(self, addr, name):
+        """Mark a rule as not enabled in the DB"""
+        self._db.update(
+            "rules",
+            "enabled='False'",
+            (name, addr),
+            "name=? AND node=?",
+            action_on_conflict="OR REPLACE"
+        )
+
     def update_time(self, time, name, addr):
         """Updates the time of a rule, whenever a new connection matched a
         rule.

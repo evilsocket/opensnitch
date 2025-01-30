@@ -26,8 +26,15 @@ from opensnitch.nodes import Nodes
 from opensnitch.config import Config
 from opensnitch.version import version
 from opensnitch.database import Database
-from opensnitch.utils import Utils, CleanerTask, Themes
-from opensnitch.utils import Message, languages
+from opensnitch.utils import (
+    Utils,
+    CleanerTask,
+    Themes,
+    OneshotTimer,
+    languages,
+    Message
+)
+from opensnitch.utils.duration import duration
 from opensnitch.utils.xdg import Autostart
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
@@ -737,6 +744,16 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 # reset list operator data before sending it back to the
                 # daemon.
                 rule.operator.data = ""
+
+            # disable temporal rules in the db
+            def _disable_temp_rule(args):
+                self._nodes.disable_rule(args[0], args[1].name)
+            timeout = duration.to_seconds(rule.duration)
+            if rule.duration == Config.DURATION_ONCE:
+                timeout = 1
+            if timeout > 0:
+                ost = OneshotTimer(timeout, _disable_temp_rule, (kwargs['peer'], rule,))
+                ost.start()
 
         elif kwargs['action'] == self.DELETE_RULE:
             self._db.delete_rule(kwargs['name'], kwargs['addr'])

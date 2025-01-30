@@ -227,7 +227,13 @@ class OneshotTimer(GenericTimer):
 
     def run(self):
         self.stop_flag.wait(self.interval)
+        if self.stop_flag.is_set():
+            return
         self.callback(self.args)
+        self.stop()
+
+    def stop(self):
+        self.stop_flag.set()
 
 class CleanerTask(Thread):
     interval = 1

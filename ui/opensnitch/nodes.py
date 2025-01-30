@@ -134,6 +134,9 @@ class Nodes(QObject):
 
         return nid, notif, rules_list
 
+    def disable_rule(self, addr, rule_name):
+        self._rules.disable(addr, rule_name)
+
     def update_rule_time(self, time, rule_name, addr):
         self._rules.update_time(time, rule_name, addr)
 
