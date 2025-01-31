@@ -752,7 +752,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if rule.duration == Config.DURATION_ONCE:
                 timeout = 1
             if timeout > 0:
-                ost = OneshotTimer(timeout, _disable_temp_rule, (kwargs['peer'], rule,))
+                ost = OneshotTimer(timeout, _disable_temp_rule, ("{0}:{1}".format(proto, addr), rule,))
                 ost.start()
 
         elif kwargs['action'] == self.DELETE_RULE:
