@@ -2468,6 +2468,22 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             idx == StatsDialog.TAB_PORTS or \
             idx == StatsDialog.TAB_USERS:
             return " WHERE what LIKE '%{0}%' ".format(text)
+        elif idx == StatsDialog.TAB_NETSTAT:
+            return " WHERE proc_comm LIKE '%{0}%' OR" \
+                " proc_path LIKE '%{1}%' OR" \
+                " state LIKE '%{2}%' OR" \
+                " src_port LIKE '%{3}%' OR" \
+                " src_ip LIKE '%{4}%' OR" \
+                " dst_ip LIKE '%{5}%' OR" \
+                " dst_port LIKE '%{6}%' OR" \
+                " proto LIKE '%{7}%' OR" \
+                " uid LIKE '%{8}%' OR" \
+                " proc_pid LIKE '%{9}%' OR" \
+                " family LIKE '%{10}%' OR" \
+                " iface LIKE '%{11}%' OR" \
+                " inode LIKE '%{12}%'".format(
+                    text, text, text, text, text, text, text, text, text, text, text, text, text
+                )
 
         return ""
 
