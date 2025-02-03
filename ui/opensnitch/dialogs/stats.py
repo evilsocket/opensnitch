@@ -539,6 +539,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNetstatFamily.addItem(QC.translate("stats", "ALL"), 0)
         self.comboNetstatFamily.addItem("AF_INET", 2)
         self.comboNetstatFamily.addItem("AF_INET6", 10)
+        self.comboNetstatFamily.addItem("AF_PACKET", 17) # 0x11
         self.comboNetstatInterval.currentIndexChanged.connect(lambda index: self._cb_combo_netstat_changed(0, index))
         self.comboNetstatNodes.activated.connect(lambda index: self._cb_combo_netstat_changed(1, index))
         self.comboNetstatProto.currentIndexChanged.connect(lambda index: self._cb_combo_netstat_changed(2, index))

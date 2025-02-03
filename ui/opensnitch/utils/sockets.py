@@ -5,7 +5,7 @@ Family = {
     '0': 'AF_UNSPEC',
     '2': 'AF_INET',
     '10': 'AF_INET6',
-    '11': 'AF_PACKET',
+    '17': 'AF_PACKET',
     '40': 'AF_VSOCK',
     '44': 'AF_XDP',
     '45': 'AF_MCTP',
@@ -27,6 +27,8 @@ Proto = {
 }
 
 State = {
+# special case for protos that don't report state (AF_PACKET)
+    '0': 'LISTEN',
     '1': 'Established',
     '2': 'TCP_SYN_SENT',
     '3': 'TCP_SYN_RECV',

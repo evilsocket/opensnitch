@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"syscall"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
+	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"golang.org/x/sys/unix"
 )
 
 const (
@@ -69,6 +72,35 @@ func (pm *SocketsMonitor) dumpSockets() *SocketsTable {
 		}
 		wg.Wait()
 	}
+
+	if exclude(pm.Config.Family, unix.AF_PACKET) {
+		return socketList
+	}
+	entries, err := netstat.ParsePacket()
+	if err != nil {
+		return socketList
+	}
+	var wg sync.WaitGroup
+
+	pktList := make(map[int]struct{}, len(entries))
+	for n, e := range entries {
+		if _, isDup := pktList[n]; isDup {
+			continue
+		}
+		pktList[n] = struct{}{}
+
+		wg.Add(1)
+		s := daemonNetlink.Socket{}
+		s.Family = unix.AF_PACKET
+		s.INode = uint32(e.INode)
+		s.UID = uint32(e.UserId)
+		s.ID = daemonNetlink.SocketID{
+			Interface: uint32(e.Iface),
+		}
+		// TODO: report the protocol and type
+		go addSocketToTable(pm.Ctx, &wg, syscall.IPPROTO_RAW, socketList, s)
+	}
+	wg.Wait()
 
 	return socketList
 }
