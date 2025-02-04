@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
-	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
+	"github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"golang.org/x/sys/unix"
@@ -22,7 +22,7 @@ const (
 
 // Socket represents every socket dumped from the kernel for the given filter.
 type Socket struct {
-	Socket *daemonNetlink.Socket
+	Socket *netlink.Socket
 	Iface  string
 	PID    int
 	Mark   uint32
@@ -40,6 +40,7 @@ func (pm *SocketsMonitor) dumpSockets() *SocketsTable {
 	socketList := &SocketsTable{}
 	socketList.Table = make([]*Socket, 0)
 	socketList.Processes = make(map[int]*procmon.Process, 0)
+
 	for n, opt := range options {
 		if exclude(pm.Config.Family, opt.Fam) {
 			continue
@@ -48,7 +49,7 @@ func (pm *SocketsMonitor) dumpSockets() *SocketsTable {
 			continue
 		}
 
-		sockList, err := daemonNetlink.SocketsDump(opt.Fam, opt.Proto)
+		sockList, err := netlink.SocketsDump(opt.Fam, opt.Proto)
 		if err != nil {
 			log.Debug("[sockmon][%d] fam: %d, proto: %d, error: %s", n, opt.Fam, opt.Proto, err)
 			continue
@@ -73,6 +74,26 @@ func (pm *SocketsMonitor) dumpSockets() *SocketsTable {
 		wg.Wait()
 	}
 
+	if !exclude(pm.Config.Family, unix.AF_XDP) && !exclude(pm.Config.Proto, syscall.IPPROTO_RAW) {
+		xdpList, err := netlink.SocketGetXDP()
+		if err == nil {
+			var wg sync.WaitGroup
+			for _, xdp := range xdpList {
+				s := netlink.Socket{}
+				s.Family = unix.AF_XDP
+				s.INode = uint32(xdp.XDPDiagMsg.Ino)
+				s.UID = uint32(xdp.XDPInfo.UID)
+				s.ID = netlink.SocketID{
+					Interface: xdp.XDPInfo.Ifindex,
+					Cookie:    xdp.XDPDiagMsg.Cookie,
+				}
+				wg.Add(1)
+				go addSocketToTable(pm.Ctx, &wg, syscall.IPPROTO_RAW, socketList, s)
+			}
+			wg.Wait()
+		}
+	}
+
 	if exclude(pm.Config.Family, unix.AF_PACKET) {
 		return socketList
 	}
@@ -90,11 +111,11 @@ func (pm *SocketsMonitor) dumpSockets() *SocketsTable {
 		pktList[n] = struct{}{}
 
 		wg.Add(1)
-		s := daemonNetlink.Socket{}
+		s := netlink.Socket{}
 		s.Family = unix.AF_PACKET
 		s.INode = uint32(e.INode)
 		s.UID = uint32(e.UserId)
-		s.ID = daemonNetlink.SocketID{
+		s.ID = netlink.SocketID{
 			Interface: uint32(e.Iface),
 		}
 		// TODO: report the protocol and type
@@ -109,7 +130,7 @@ func exclude(expected, what uint8) bool {
 	return expected > AnySocket && expected != what
 }
 
-func addSocketToTable(ctx context.Context, wg *sync.WaitGroup, proto uint8, st *SocketsTable, s daemonNetlink.Socket) {
+func addSocketToTable(ctx context.Context, wg *sync.WaitGroup, proto uint8, st *SocketsTable, s netlink.Socket) {
 	inode := int(s.INode)
 	pid := procmon.GetPIDFromINode(inode, fmt.Sprint(inode,
 		s.ID.Source, s.ID.SourcePort, s.ID.Destination, s.ID.DestinationPort),

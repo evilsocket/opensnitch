@@ -10,11 +10,12 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/iovisor/gobpf v0.2.0
 	github.com/varlink/go v0.4.0
-	github.com/vishvananda/netlink v1.1.1-0.20220115184804-dd687eb2f2d4
-	github.com/vishvananda/netns v0.0.0-20200728191858-db3c7e526aae
+	github.com/vishvananda/netlink v1.3.0
+	github.com/vishvananda/netns v0.0.4
 	golang.org/x/net v0.17.0
 	golang.org/x/sys v0.13.0
 	google.golang.org/grpc v1.32.0
+	google.golang.org/protobuf v1.26.0
 )
 
 require (
@@ -27,6 +28,5 @@ require (
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
 	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55 // indirect
-	google.golang.org/protobuf v1.26.0 // indirect
 	honnef.co/go/tools v0.2.2 // indirect
 )
