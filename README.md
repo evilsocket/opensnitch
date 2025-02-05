@@ -70,7 +70,7 @@ Have you seen a connection you didn't expect? [submit it!](https://github.com/ev
 
 ## Donations
 
-If you find OpenSnitch useful and want to donate to the dedicated developers, you can do it from the **Sponsor this project** section on the right side of this repository.
+If you find OpenSnitch useful and want to donate to the dedicated developers, you can do it from the **[Sponsor this project](https://github.com/sponsors/gustavo-iniguez-goya)** section on the right side of this repository.
 
 You can see here who are the current maintainers of OpenSnitch:
 https://github.com/evilsocket/opensnitch/commits/master
