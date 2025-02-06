@@ -756,7 +756,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             def _disable_temp_rule(args):
                 srv = args[0]
                 # sched task key
-                key = args[1]+args[2]
+                key = args[1]+args[2].name
                 srv._nodes.disable_rule(args[1], args[2].name)
                 try:
                     del srv._sched_tasks[key]
