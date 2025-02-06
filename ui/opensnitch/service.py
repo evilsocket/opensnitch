@@ -129,6 +129,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 'ports':{},
                 'users':{}
                 }
+        # list of active scheduled tasks to disable temporal rules.
+        self._sched_tasks = {}
 
         if not start_in_bg:
             self._show_gui_if_tray_not_available()
@@ -308,6 +310,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._db.close()
         self._stop_db_cleaner()
         self._stop_plugins()
+
+        for k in self._sched_tasks:
+            self._sched_tasks[k].stop()
+
         self._on_exit()
 
     def _show_stats_dialog(self):
@@ -732,8 +738,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         elif kwargs['action'] == self.ADD_RULE:
             rule = kwargs['rule']
             proto, addr = self._get_peer(kwargs['peer'])
+            node_addr = "{0}:{1}".format(proto, addr)
             self._nodes.add_rule((datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                                 "{0}:{1}".format(proto, addr),
+                                 node_addr,
                                  rule.name, rule.description, str(rule.enabled),
                                  str(rule.precedence), str(rule.nolog), rule.action, rule.duration,
                                  rule.operator.type, str(rule.operator.sensitive), rule.operator.operand,
@@ -747,12 +754,22 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
             # disable temporal rules in the db
             def _disable_temp_rule(args):
-                self._nodes.disable_rule(args[0], args[1].name)
+                srv = args[0]
+                # sched task key
+                key = args[1]+args[2]
+                srv._nodes.disable_rule(args[1], args[2].name)
+                try:
+                    del srv._sched_tasks[key]
+                except:
+                    pass
+
             timeout = duration.to_seconds(rule.duration)
             if rule.duration == Config.DURATION_ONCE:
                 timeout = 1
             if timeout > 0:
-                ost = OneshotTimer(timeout, _disable_temp_rule, ("{0}:{1}".format(proto, addr), rule,))
+                ost = OneshotTimer(timeout, _disable_temp_rule, (self, node_addr, rule,))
+                key = node_addr + rule.name
+                self._sched_tasks[key] = ost
                 ost.start()
 
         elif kwargs['action'] == self.DELETE_RULE:
