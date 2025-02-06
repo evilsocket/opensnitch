@@ -21,12 +21,13 @@ const (
 )
 
 // Socket represents every socket dumped from the kernel for the given filter.
+// Internal to this package, and sent to the GUI as JSON.
 type Socket struct {
 	Socket *netlink.Socket
 	Iface  string
 	PID    int
 	Mark   uint32
-	Proto  uint8
+	Proto  uint16
 }
 
 // SocketsTable holds all the dumped sockets, after applying the filters, if any.
@@ -69,48 +70,86 @@ func (pm *SocketsMonitor) dumpSockets() *SocketsTable {
 			}
 			wg.Add(1)
 			// XXX: firing a goroutine per socket may be too much on some scenarios
-			go addSocketToTable(pm.Ctx, &wg, opt.Proto, socketList, *sock)
+			go addSocketToTable(pm.Ctx, &wg, uint16(opt.Proto), socketList, *sock)
 		}
 		wg.Wait()
 	}
 
-	if !exclude(pm.Config.Family, unix.AF_XDP) && !exclude(pm.Config.Proto, syscall.IPPROTO_RAW) {
-		xdpList, err := netlink.SocketGetXDP()
-		if err == nil {
-			var wg sync.WaitGroup
-			for _, xdp := range xdpList {
-				s := netlink.Socket{}
-				s.Family = unix.AF_XDP
-				s.INode = uint32(xdp.XDPDiagMsg.Ino)
-				s.UID = uint32(xdp.XDPInfo.UID)
-				s.ID = netlink.SocketID{
-					Interface: xdp.XDPInfo.Ifindex,
-					Cookie:    xdp.XDPDiagMsg.Cookie,
-				}
-				wg.Add(1)
-				go addSocketToTable(pm.Ctx, &wg, syscall.IPPROTO_RAW, socketList, s)
-			}
-			wg.Wait()
-		}
-	}
+	dumpXDPSockets(pm.Ctx, pm.Config, socketList)
+	dumpPacketSockets(pm.Ctx, pm.Config, socketList)
 
-	if exclude(pm.Config.Family, unix.AF_PACKET) {
-		return socketList
+	return socketList
+}
+
+func dumpXDPSockets(ctx context.Context, conf *monConfig, socketList *SocketsTable) {
+	if exclude(conf.Family, unix.AF_XDP) && exclude(conf.Proto, syscall.IPPROTO_RAW) {
+		return
 	}
-	entries, err := netstat.ParsePacket()
+	xdpList, err := netlink.SocketGetXDP()
 	if err != nil {
-		return socketList
+		return
+	}
+	var wg sync.WaitGroup
+	for _, xdp := range xdpList {
+		s := netlink.Socket{}
+		s.Family = unix.AF_XDP
+		s.INode = uint32(xdp.XDPDiagMsg.Ino)
+		s.UID = uint32(xdp.XDPInfo.UID)
+		s.ID = netlink.SocketID{
+			Interface: xdp.XDPInfo.Ifindex,
+			Cookie:    xdp.XDPDiagMsg.Cookie,
+		}
+		wg.Add(1)
+		go addSocketToTable(ctx, &wg, syscall.IPPROTO_RAW, socketList, s)
+	}
+	wg.Wait()
+}
+
+func dumpPacketSockets(ctx context.Context, conf *monConfig, socketList *SocketsTable) {
+	if exclude(conf.Family, unix.AF_PACKET) {
+		return
 	}
 	var wg sync.WaitGroup
 
-	pktList := make(map[int]struct{}, len(entries))
+	pktList, err := netlink.SocketDiagPacket(0)
+	for _, pkt := range pktList {
+		/*if excludePacket(pm.Config.Proto, pkt.Num) {
+			continue
+		}*/
+
+		s := netlink.Socket{}
+		s.Family = unix.AF_PACKET
+		s.INode = uint32(pkt.Inode)
+		s.UID = uint32(pkt.UID)
+		s.ID = netlink.SocketID{
+			Interface: uint32(pkt.Mclist.Index),
+			Cookie:    pkt.Cookie,
+		}
+		wg.Add(1)
+		go addSocketToTable(ctx, &wg, pkt.Num /* proto */, socketList, s)
+	}
+	wg.Wait()
+
+	if err == nil {
+		return
+	}
+
+	// dumping AF_PACKET from kernel failed. Try it with /proc
+	entries, err := netstat.ParsePacket()
+	if err != nil {
+		return
+	}
+
+	pktEntr := make(map[int]struct{}, len(entries))
 	for n, e := range entries {
-		if _, isDup := pktList[n]; isDup {
+		if _, isDup := pktEntr[n]; isDup {
 			continue
 		}
-		pktList[n] = struct{}{}
+		pktEntr[n] = struct{}{}
 
-		wg.Add(1)
+		/*if excludePacket(conf.Proto, opt.Proto) {
+			continue
+		}*/
 		s := netlink.Socket{}
 		s.Family = unix.AF_PACKET
 		s.INode = uint32(e.INode)
@@ -118,19 +157,18 @@ func (pm *SocketsMonitor) dumpSockets() *SocketsTable {
 		s.ID = netlink.SocketID{
 			Interface: uint32(e.Iface),
 		}
-		// TODO: report the protocol and type
-		go addSocketToTable(pm.Ctx, &wg, syscall.IPPROTO_RAW, socketList, s)
+		// TODO: report sock type
+		wg.Add(1)
+		go addSocketToTable(ctx, &wg, syscall.IPPROTO_RAW, socketList, s)
 	}
 	wg.Wait()
-
-	return socketList
 }
 
 func exclude(expected, what uint8) bool {
 	return expected > AnySocket && expected != what
 }
 
-func addSocketToTable(ctx context.Context, wg *sync.WaitGroup, proto uint8, st *SocketsTable, s netlink.Socket) {
+func addSocketToTable(ctx context.Context, wg *sync.WaitGroup, proto uint16, st *SocketsTable, s netlink.Socket) {
 	inode := int(s.INode)
 	pid := procmon.GetPIDFromINode(inode, fmt.Sprint(inode,
 		s.ID.Source, s.ID.SourcePort, s.ID.Destination, s.ID.DestinationPort),

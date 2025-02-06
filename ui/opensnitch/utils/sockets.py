@@ -15,7 +15,6 @@ Proto = {
     '0': 'IP',
     '1': 'ICMP',
     '2': 'IGMP',
-    '3': 'ETH_P_ALL',
     '6': 'TCP',
     '17': 'UDP',
     '33': 'DCCP',
@@ -23,7 +22,17 @@ Proto = {
     '58': 'ICMPv6',
     '132': 'SCTP',
     '136': 'UDPLITE',
-    '255': 'RAW'
+    '255': 'RAW',
+    '3':     'ETH_P_ALL',
+    '2048':  'ETH_P_IP',
+    '34525': 'ETH_P_IPV6',
+    '2054':  'ETH_P_ARP',
+    '32821': 'ETH_P_RARP',
+    '33024': 'ETH_P_8021Q',
+    '4':     'ETH_P_802_2',
+    '34916': 'ETH_P_PPPOE',
+    '34958': 'ETH_P_PAE',
+    '35085': 'ETH_P_FCOE'
 }
 
 State = {
