@@ -267,7 +267,7 @@ func (l *Loader) loadRule(fileName string) error {
 	l.rules[r.Name] = &r
 	l.sortRules()
 
-	if l.isTemporary(&r) {
+	if r.Enabled && l.isTemporary(&r) {
 		err = l.scheduleTemporaryRule(r)
 	}
 
@@ -408,7 +408,7 @@ func (l *Loader) replaceUserRule(rule *Rule) (err error) {
 	l.sortRules()
 	l.Unlock()
 
-	if l.isTemporary(rule) {
+	if rule.Enabled && l.isTemporary(rule) {
 		err = l.scheduleTemporaryRule(*rule)
 	}
 
