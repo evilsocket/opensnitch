@@ -6,23 +6,26 @@ After [installing opensnitch](https://github.com/evilsocket/opensnitch/wiki/Inst
 You can launch the GUI from that icon or from the system menu (Internet -> OpenSnitch)
 
 
-The daemon will start intercepting connections, prompting you to allow or deny them. If you don't apply an action, after 15 seconds (configurable) it'll apply the default action configured.
+The daemon should start intercepting connections, prompting you to allow or deny them. If you don't apply an action, after 30 seconds (configurable) it'll apply the default action configured.
 
 ![image](https://user-images.githubusercontent.com/2742953/122794725-da1dc200-d2bc-11eb-9f47-5fc3fc995db7.png)
 
 <br/>
 
-When you open the GUI, you'll see all the connections and processes that the daemon has intercepted. Double click on a row to view the details of a process, rule, host or user.
+When you open the GUI, you'll see all the connections and processes that the daemon has intercepted. If you don't see connections being made, or anything in <kbd>Status</kbd> or <kbd>Version</kbd>, make sure you've [installed](../Installation) the daemon package as well, not just the GUI. For other GUI issues, see the [known GUI problems(../GUI-known-problems).
+
+Double click on a row to view the details of a process, rule, host or user.
 
 ![image](https://user-images.githubusercontent.com/2742953/122794871-02a5bc00-d2bd-11eb-8e7d-8f0827e8d09c.png)
 
 <br/>
 
-:information_source: **Tip:** Configure the default action to Allow (Preferences -> UI -> Default Action, and optionally [x] Disable pop-ups), let it run for a while (hours, days, weeks), and observe passively what your machine is doing.
+> [!NOTE] 
+> **Tip:** Configure the default action to Allow (<kbd>Preferences -> Pop-ups -> Action</kbd>, and optionally check [x] <kbd>Disable pop-ups</kbd>), let it run for a while (hours, days, weeks), and observe passively what your machine is doing.
 
 ![](https://user-images.githubusercontent.com/2742953/85337403-b294ed80-b4e0-11ea-8c65-d8251c6af25b.png)
 
-This action has two advantages: you'll learn about your system and OpenSnitch will create the rules for you (Rules tab -> Temporary).
+This action has two advantages: you'll learn about your system and OpenSnitch will create the rules for you (<kbd>Rules</kbd> tab -> Temporary).
 
 Remember to change it back to Deny.
 
