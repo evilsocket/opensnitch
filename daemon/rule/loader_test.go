@@ -222,26 +222,26 @@ func testNumRules(t *testing.T, l *Loader, num int) {
 }
 
 func testRulesOrder(t *testing.T, l *Loader) {
-	if l.rulesKeys[0] != "000-aaa-name" {
-		t.Error("Rules not in order (0): ", l.rulesKeys)
+	if l.activeRules[0] != "000-aaa-name" {
+		t.Error("Rules not in order (0): ", l.activeRules)
 	}
-	if l.rulesKeys[1] != "000-allow-chrome" {
-		t.Error("Rules not in order (1): ", l.rulesKeys)
+	if l.activeRules[1] != "000-allow-chrome" {
+		t.Error("Rules not in order (1): ", l.activeRules)
 	}
-	if l.rulesKeys[2] != "001-deny-chrome" {
-		t.Error("Rules not in order (2): ", l.rulesKeys)
+	if l.activeRules[2] != "001-deny-chrome" {
+		t.Error("Rules not in order (2): ", l.activeRules)
 	}
 }
 
 func testSortRules(t *testing.T, l *Loader) {
-	l.rulesKeys[1] = "001-deny-chrome"
-	l.rulesKeys[2] = "000-allow-chrome"
+	l.activeRules[1] = "001-deny-chrome"
+	l.activeRules[2] = "000-allow-chrome"
 	l.sortRules()
-	if l.rulesKeys[1] != "000-allow-chrome" {
-		t.Error("Rules not in order (1): ", l.rulesKeys)
+	if l.activeRules[1] != "000-allow-chrome" {
+		t.Error("Rules not in order (1): ", l.activeRules)
 	}
-	if l.rulesKeys[2] != "001-deny-chrome" {
-		t.Error("Rules not in order (2): ", l.rulesKeys)
+	if l.activeRules[2] != "001-deny-chrome" {
+		t.Error("Rules not in order (2): ", l.activeRules)
 	}
 }
 

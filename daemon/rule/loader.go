@@ -25,7 +25,7 @@ import (
 type Loader struct {
 	watcher           *fsnotify.Watcher
 	rules             map[string]*Rule
-	rulesKeys         []string
+	activeRules       []string
 	Path              string
 	liveReload        bool
 	liveReloadRunning bool
@@ -111,7 +111,7 @@ func (l *Loader) Reload(path string) error {
 
 	// then delete the rules, and reload everything
 	l.Lock()
-	l.rulesKeys = make([]string, 0)
+	l.activeRules = make([]string, 0)
 	l.rules = make(map[string]*Rule)
 	l.Unlock()
 	return l.Load(path)
@@ -354,11 +354,15 @@ func (l *Loader) unmarshalOperatorList(op *Operator) error {
 }
 
 func (l *Loader) sortRules() {
-	l.rulesKeys = make([]string, 0, len(l.rules))
-	for k := range l.rules {
-		l.rulesKeys = append(l.rulesKeys, k)
+	l.activeRules = make([]string, 0, len(l.rules))
+	for k, r := range l.rules {
+		// exclude not enabled rules from the list of active rules
+		if !r.Enabled {
+			continue
+		}
+		l.activeRules = append(l.activeRules, k)
 	}
-	sort.Strings(l.rulesKeys)
+	sort.Strings(l.activeRules)
 }
 
 func (l *Loader) addUserRule(rule *Rule) {
@@ -483,11 +487,8 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 	l.RLock()
 	defer l.RUnlock()
 
-	for _, idx := range l.rulesKeys {
+	for _, idx := range l.activeRules {
 		rule, _ := l.rules[idx]
-		if rule.Enabled == false {
-			continue
-		}
 		if rule.Match(con, l.checkSums) {
 			// We have a match.
 			// Save the rule in order to don't ask the user to take action,
