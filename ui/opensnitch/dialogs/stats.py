@@ -3377,7 +3377,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             where = qstr.split("WHERE")[1]  # get SELECT ... WHERE (*)
             ands = where.split("AND (")[0] # get WHERE (*) AND (...)
             qstr = qstr.split("WHERE")[0]  # get * WHERE ...
-            qstr += "WHERE %s" % ands
+            qstr += "WHERE %s" % ands.lstrip()
 
             # if there's no text to filter, strip the filter "AND ()", and
             # return the original query.
@@ -3389,7 +3389,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 "c.pid LIKE '%{0}%' OR " \
                 "c.protocol LIKE '%{0}%' OR " \
                 "c.src_port LIKE '%{0}%' OR " \
-                "c.src_ip LIKE '%{0}%' OR ".format(text)
+                "c.src_ip LIKE '%{0}%' OR " \
+                "c.process_cwd LIKE '%{0}%' OR " \
+                "c.rule LIKE '%{0}%' OR ".format(text)
 
             # exclude from query the field of the view we're filtering by
             if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_PORTS:
@@ -3400,6 +3402,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 qstr += "c.dst_host LIKE '%{0}%' OR ".format(text)
             if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_PROCS:
                 qstr += "c.process LIKE '%{0}%' OR ".format(text)
+            if self.IN_DETAIL_VIEW[cur_idx] != self.TAB_USERS:
+                qstr += "c.uid LIKE '%{0}%' OR ".format(text)
 
             qstr += "c.process_args LIKE '%{0}%')".format(text)
 
