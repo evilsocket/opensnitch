@@ -348,11 +348,6 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         # setTabVisible not available on <= 5.14
         #self.tabWidget.setTabVisible(0, True)
 
-        if QtGui.QIcon.hasThemeIcon("emblem-default"):
-            return
-
-        # -----------------------------------------------------------
-
         saveIcon = Icons.new(self, "document-save")
         closeIcon = Icons.new(self, "window-close")
         delIcon = Icons.new(self, "edit-delete")
@@ -422,7 +417,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                     if 'uuid' in rep and rep['uuid'] in reply.data:
                         errormsg = QC.translate("firewall", "Error saving rule")
                     else:
-                        self._set_status_message(QC.translate("firewall", "Rule saved, but there're other rules with errors (REVIEW):\n{0}".format(reply.data)))
+                        self._set_status_message(
+                            QC.translate(
+                                "firewall",
+                                "Rule saved, but there're other rules with errors (REVIEW):\n{0}".format(reply.data)
+                            )
+                        )
                         return
                 self._set_status_error(errormsg)
 

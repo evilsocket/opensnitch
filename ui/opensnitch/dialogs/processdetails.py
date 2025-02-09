@@ -96,9 +96,6 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
         self.iconStart = QtGui.QIcon.fromTheme("media-playback-start")
         self.iconPause = QtGui.QIcon.fromTheme("media-playback-pause")
 
-        if QtGui.QIcon.hasThemeIcon("window-close"):
-            return
-
         closeIcon = Icons.new(self, "window-close")
         self.cmdClose.setIcon(closeIcon)
         self.iconStart = Icons.new(self, "media-playback-start")

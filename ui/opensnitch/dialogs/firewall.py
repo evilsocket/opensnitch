@@ -74,9 +74,6 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # blocked.
         self.comboOutput.currentIndexChanged.connect(lambda: self._cb_combo_policy_changed(self.COMBO_OUT))
 
-        if QtGui.QIcon.hasThemeIcon("document-new"):
-            return
-
         closeIcon = Icons.new(self, "window-close")
         excludeIcon = Icons.new(self, "go-up")
         allowInIcon = Icons.new(self, "go-down")
@@ -94,7 +91,6 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboOutput.setEnabled(True)
         if reply.id in self._notifications_sent:
             if reply.code == ui_pb2.OK:
-                rep = self._notifications_sent[reply.id]
                 self._set_status_successful(QC.translate("firewall", "Configuration applied."))
 
             else:

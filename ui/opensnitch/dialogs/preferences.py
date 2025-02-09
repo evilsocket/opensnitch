@@ -130,9 +130,6 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodeDuration.setVisible(False)
         self.labelNodeDuration.setVisible(False)
 
-        if QtGui.QIcon.hasThemeIcon("emblem-default"):
-            return
-
         saveIcon = Icons.new(self, "document-save")
         applyIcon = Icons.new(self, "emblem-default")
         delIcon = Icons.new(self, "edit-delete")

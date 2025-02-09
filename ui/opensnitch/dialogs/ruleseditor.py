@@ -107,9 +107,6 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self._users_list = pwd.getpwall()
 
-        if QtGui.QIcon.hasThemeIcon("emblem-default"):
-            return
-
         applyIcon = Icons.new(self, "emblem-default")
         denyIcon = Icons.new(self, "emblem-important")
         rejectIcon = Icons.new(self, "window-close")
