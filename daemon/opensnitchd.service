@@ -1,15 +1,37 @@
 [Unit]
 Description=Application firewall OpenSnitch
 Documentation=https://github.com/evilsocket/opensnitch/wiki
+Documentation=man:systemd.special
+Documentation=man:systemd.service
+Documentation=man:systemd.exec
+Documentation=man:systemd.unit
+
+DefaultDependencies=no
+Before=network-pre.target shutdown.target
+Wants=network-pre.target
+Conflicts=shutdown.target
+# Don't start when 'no-appfw` is in kernel command-line, to allow booting without it.
+ConditionKernelCommandLine=!no-appfw
 
 [Service]
-Type=simple
-PermissionsStartOnly=true
-ExecStartPre=/bin/mkdir -p /etc/opensnitchd/rules
-ExecStart=/usr/local/bin/opensnitchd -rules-path /etc/opensnitchd/rules
+Type=exec
+ConfigurationDirectory=%N/rules
+ConfigurationDirectoryMode=0700
+
+# Add extra options to the daemon below. fe.'opts=-debug' to add the '-debug' option.
+Environment='opts='
+
+ExecCondition=%N -check-requirements
+ExecStart=%N -rules-path $CONFIGURATION_DIRECTORY $opts
+
+# Signal-info was taken from the init.d script, but it just exits and then systemd restarts the service...
+ExecReload=kill -HUP $MAINPID
 Restart=always
 RestartSec=30
 TimeoutStopSec=10
+# Ensure it is not killed by the Linux kernel's Out-Of-Memory (OOM) killer.
+# https://www.freedesktop.org/software/systemd/man/systemd.exec.html#OOMScoreAdjust=
+OOMScoreAdjust=-1000
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=basic.target
