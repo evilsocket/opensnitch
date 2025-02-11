@@ -31,7 +31,7 @@ var pageSize = int64(os.Getpagesize())
 func (p *Process) GetParent() {
 	hasParent := p.Parent != nil
 
-	if hasParent {
+	if hasParent && p.ID == 1 {
 		return
 	}
 
