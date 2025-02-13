@@ -43,6 +43,7 @@ const (
 	OpTrue                = Operand("true")
 	OpProcessID           = Operand("process.id")
 	OpProcessPath         = Operand("process.path")
+	OpProcessParentPath   = Operand("process.parent.path")
 	OpProcessCmd          = Operand("process.command")
 	OpProcessEnvPrefix    = Operand("process.env.")
 	OpProcessEnvPrefixLen = 12
@@ -389,6 +390,14 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 		return o.listMatch(con, hasChecksums)
 	} else if o.Operand == OpProcessPath {
 		return o.cb(con.Process.Path)
+	} else if o.Operand == OpProcessParentPath {
+		p := con.Process
+		for pp := p.Parent; pp != nil; pp = pp.Parent {
+			if o.cb(pp.Path) {
+				return true
+			}
+		}
+		return false
 	} else if o.Operand == OpProcessCmd {
 		return o.cb(strings.Join(con.Process.Args, " "))
 	} else if o.Operand == OpDstHost && con.DstHost != "" {
