@@ -46,6 +46,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _status_change_trigger = QtCore.pyqtSignal(bool)
     _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
     _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
+    _temp_rule_expired = QtCore.pyqtSignal(str, str)
 
     # .desktop filename located under /usr/share/applications/
     DESKTOP_FILENAME = "opensnitch_ui.desktop"
@@ -191,6 +192,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._stats_dialog.settings_saved.connect(self._on_settings_saved)
         self._stats_dialog.close_trigger.connect(self._on_close)
         self._show_message_trigger.connect(self._show_systray_message)
+        self._temp_rule_expired.connect(self._on_temp_rule_expired)
 
     def _setup_icons(self):
         self.off_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-off.png"))
@@ -719,6 +721,15 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         return newconf
 
+    @QtCore.pyqtSlot(str, str)
+    def _on_temp_rule_expired(self, node_addr, rule_name):
+        self._nodes.disable_rule(node_addr, rule_name)
+        try:
+            key = node_addr+rule_name
+            del self._sched_tasks[key]
+        except:
+            pass
+
     @QtCore.pyqtSlot(dict)
     def _on_node_actions(self, kwargs):
         if kwargs['action'] == self.NODE_ADD:
@@ -754,20 +765,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
             # disable temporal rules in the db
             def _disable_temp_rule(args):
-                srv = args[0]
-                # sched task key
-                key = args[1]+args[2].name
-                srv._nodes.disable_rule(args[1], args[2].name)
-                try:
-                    del srv._sched_tasks[key]
-                except:
-                    pass
+                self._temp_rule_expired.emit(args[0], args[1].name)
 
             timeout = duration.to_seconds(rule.duration)
             if rule.duration == Config.DURATION_ONCE:
                 timeout = 1
             if timeout > 0:
-                ost = OneshotTimer(timeout, _disable_temp_rule, (self, node_addr, rule,))
+                ost = OneshotTimer(timeout, _disable_temp_rule, (node_addr, rule,))
                 key = node_addr + rule.name
                 self._sched_tasks[key] = ost
                 ost.start()
