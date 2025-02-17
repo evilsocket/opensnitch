@@ -174,6 +174,7 @@ func (p *Process) ReadEnv() {
 	}
 	raw = bytes.Trim(raw, "\r\n\t")
 	vars := strings.Split(string(raw), "\x00")
+	env := make(map[string]string, len(vars))
 	for _, s := range vars {
 		idx := strings.Index(s, "=")
 		if idx == -1 {
@@ -182,10 +183,14 @@ func (p *Process) ReadEnv() {
 
 		key := s[:idx]
 		val := s[idx+1 : len(s)]
-		p.mu.Lock()
-		p.Env[key] = val
-		p.mu.Unlock()
+		env[key] = val
 	}
+	// Minimize the risk of race conditions by not locking the map inside the loop.
+	// It may cause leaks when prompting the user to allow/deny.
+	p.mu.Lock()
+	p.Env = env
+	p.mu.Unlock()
+
 }
 
 // ReadMaps reads the /proc/<pid>/maps file.
