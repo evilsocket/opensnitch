@@ -18,7 +18,7 @@
     "FwOptions": {
         "ConfigPath": "/etc/opensnitchd/system-fw.json",
         "MonitorInterval": "15s",
-        "BypassQueue": true
+        "QueueBypass": true
     },
     "Rules": {
         "Path": "/etc/opensnitchd/rules/",

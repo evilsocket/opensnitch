@@ -482,7 +482,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             monInterval = fwOptions['MonitorInterval'][:-1]
             self.lineNodeFwMonInterval.setText(monInterval)
-            self.checkNodeBypassQueue.setChecked(fwOptions.get('QueueBypass'))
+            self.checkNodeBypassQueue.setChecked(not fwOptions.get('QueueBypass'))
 
             stats = node_config.get('Stats')
             if stats == None:
@@ -576,7 +576,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 fwOptions['QueueBypass'] = True
             node_config['FwOptions'] = fwOptions
 
-            fwOptions['QueueBypass'] = self.checkNodeBypassQueue.isChecked()
+            fwOptions['QueueBypass'] = not self.checkNodeBypassQueue.isChecked()
             fwOptions['MonitorInterval'] = self.lineNodeFwMonInterval.text() + "s"
 
             stats = node_config.get('Stats')
