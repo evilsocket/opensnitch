@@ -929,7 +929,9 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return error
 
             # exclude this message if there're more than one node connected
-            if self.comboNodes.currentText() != self.comboNodeAddress.currentText() or \
+            # XXX: unix:/local is a special name for the node, when the gRPC
+            # does not return the correct address of the node.
+            if (self.comboNodes.currentText() != "unix:/local" and self.comboNodes.currentText() != self.comboNodeAddress.currentText()) or \
                     self.comboServerAddr.currentText() != self.comboNodeAddress.currentText():
                 self._changes_needs_restart = QC.translate("preferences", "Node address changed (update GUI address if needed)")
 
