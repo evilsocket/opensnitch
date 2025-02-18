@@ -826,9 +826,6 @@ wayland</string>
              <property name="currentText">
               <string notr="true"/>
              </property>
-             <property name="placeholderText">
-              <string notr="true"/>
-             </property>
              <item>
               <property name="text">
                <string/>
@@ -866,8 +863,8 @@ wayland</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>323</height>
+            <width>318</width>
+            <height>207</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1120,8 +1117,8 @@ or a network socket: 127.0.0.1:50051</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>323</height>
+            <width>321</width>
+            <height>136</height>
            </rect>
           </property>
           <attribute name="label">

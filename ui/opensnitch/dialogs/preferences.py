@@ -474,15 +474,15 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             fwOptions = node_config.get('FwOptions')
             if fwOptions == None:
                 fwOptions = {}
-            if fwOptions.get('MonitorInterval') == None:
-                fwOptions['MonitorInterval'] = "15"
+            if fwOptions.get('MonitorInterval') == None or fwOptions.get('MonitorInterval') == "":
+                fwOptions['MonitorInterval'] = "15s"
             if fwOptions.get('QueueBypass') == None:
                 fwOptions['QueueBypass'] = True
             node_config['FwOptions'] = fwOptions
 
-            monInterval = fwOptions['MonitorInterval'].removesuffix("s")
-            self.checkNodeBypassQueue.setChecked(fwOptions.get('QueueBypass'))
+            monInterval = fwOptions['MonitorInterval'][:-1]
             self.lineNodeFwMonInterval.setText(monInterval)
+            self.checkNodeBypassQueue.setChecked(fwOptions.get('QueueBypass'))
 
             stats = node_config.get('Stats')
             if stats == None:
