@@ -226,13 +226,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         widget.setText(text)
 
     def promptUser(self, connection, is_local, peer):
-        self.reset_widgets()
-
         # one at a time
         with self._lock:
             # reset state
+            self.reset_widgets()
             if self._tick_thread != None and self._tick_thread.is_alive():
                 self._tick_thread.join()
+
             self._cfg.reload()
             self._tick = int(self._cfg.getSettings(self._cfg.DEFAULT_TIMEOUT_KEY)) if self._cfg.hasKey(self._cfg.DEFAULT_TIMEOUT_KEY) else self.DEFAULT_TIMEOUT
             self._tick_thread = threading.Thread(target=self._timeout_worker)
@@ -647,7 +647,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             text = parts[len(parts)-1]
             # ^(|.*\.)yahoo\.com
             dsthost = r'\.'.join(text.split('.')).replace("*", "")
-            dsthost = r'^(|.*\.)%s' % dsthost[2:]
+            dsthost = r'^(|.*\.)%s$' % dsthost[2:]
             return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_HOST, dsthost
 
         elif combo.itemData(what_idx) == self.FIELD_REGEX_IP:
