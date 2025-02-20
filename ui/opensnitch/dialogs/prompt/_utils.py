@@ -193,7 +193,7 @@ def get_combo_operator(data, comboText, con):
         text = parts[len(parts)-1]
         # ^(|.*\.)yahoo\.com
         dsthost = r'\.'.join(text.split('.')).replace("*", "")
-        dsthost = r'^(|.*\.)%s' % dsthost[2:]
+        dsthost = r'^(|.*\.)%s$' % dsthost[2:]
         return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_HOST, dsthost
 
     elif data == _constants.FIELD_REGEX_IP:
