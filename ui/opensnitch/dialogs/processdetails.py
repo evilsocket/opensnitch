@@ -283,7 +283,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             if 'Tree' in proc:
                 proc['Tree'].reverse()
                 self.labelParent.setText(
-                    "<b>Parent(s): </b>" + " 🡆 ".join(
+                    "<b>Parent(s): </b>" + " \U000027a1 ".join(
                         path['key'] for path in proc['Tree']
                     )
                 )
