@@ -2275,7 +2275,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Version</string>
+        <string>Daemon version</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
