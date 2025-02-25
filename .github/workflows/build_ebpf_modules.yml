@@ -53,7 +53,7 @@ jobs:
             bash utils/packaging/build_modules.sh $kernel_version
             sha1sum ebpf_prog/modules/opensnitch*o > ebpf_prog/modules/checksums.txt
 
-        - uses: actions/upload-artifact@v3
+        - uses: actions/upload-artifact@v4
           with:
             name: opensnitch-ebpf-modules-${{ matrix.kernel }}-${{ matrix.tag }}
             path: ebpf_prog/modules/*
