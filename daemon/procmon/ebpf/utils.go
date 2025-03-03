@@ -59,7 +59,7 @@ func byteArrayToString(arr []byte) string {
 
 func deleteEbpfEntry(proto string, key unsafe.Pointer) bool {
 	if err := m.DeleteElement(ebpfMaps[proto].bpfmap, key); err != nil {
-		log.Debug("error deleting ebpf entry: %s", err)
+		log.Trace("error deleting ebpf entry: %s", err)
 		return false
 	}
 	return true
@@ -88,7 +88,7 @@ func getItems(proto string, isIPv6 bool) (items uint) {
 		ok, err := m.LookupNextElement(mp.bpfmap, unsafe.Pointer(&lookupKey[0]),
 			unsafe.Pointer(&nextKey[0]), unsafe.Pointer(&value))
 		if !ok || err != nil { //reached end of map
-			log.Debug("[ebpf] %s map: %d active items", proto, items)
+			log.Trace("[ebpf] %s map: %d active items", proto, items)
 			return
 		}
 		if firstrun {

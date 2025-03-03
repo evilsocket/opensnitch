@@ -277,7 +277,7 @@ func worker(id int) {
 		default:
 			pkt, ok := <-wrkChan
 			if !ok {
-				log.Debug("worker channel closed %d", id)
+				log.Trace("worker channel closed %d", id)
 				goto Exit
 			}
 			onPacket(pkt)
@@ -346,21 +346,21 @@ func initSystemdResolvedMonitor() {
 					continue
 				}
 				/*for i, q := range response.Question {
-					log.Debug("%d SYSTEMD RESPONSE Q: %s", i, q.Name)
+					log.Trace("[DNS] %d systemd response, question: %s", i, q.Name)
 				}*/
 				for i, a := range response.Answer {
 					if a.RR.Key.Type != systemd.DNSTypeA &&
 						a.RR.Key.Type != systemd.DNSTypeAAAA &&
 						a.RR.Key.Type != systemd.DNSTypeCNAME {
-						log.Debug("systemd-resolved, excluding answer: %#v", a)
+						log.Trace("systemd-resolved, excluding answer: %#v", a)
 						continue
 					}
-					ip = net.IP(a.RR.Address)
-					log.Debug("%d systemd-resolved monitor response: %s -> %s", i, a.RR.Key.Name, ip)
 					if a.RR.Key.Type == systemd.DNSTypeCNAME {
 						log.Debug("systemd-resolved CNAME >> %s -> %s", a.RR.Name, a.RR.Key.Name)
 						dns.Track(a.RR.Name, a.RR.Key.Name /*domain*/)
 					} else {
+						ip = net.IP(a.RR.Address)
+						log.Debug("%d systemd-resolved monitor response: %s -> %s", i, a.RR.Key.Name, ip)
 						dns.Track(ip.String(), a.RR.Key.Name /*domain*/)
 					}
 				}

@@ -91,12 +91,12 @@ func (e *EventsStore) Add(proc *Process) {
 			e.UpdateItem(proc)
 		}
 	}
-	log.Debug("[cache] EventsStore.Add() finished %s, %s", proc.Path, proc.Tree)
+	log.Debug("[cache] EventsStore.Add() finished %d, %s, %s", proc.ID, proc.Path, proc.Tree)
 }
 
 // UpdateItem updates a cache item
 func (e *EventsStore) UpdateItem(proc *Process) {
-	log.Debug("[cache] updateItem() updating events store (total: %d), pid: %d, path: %s, %v", e.Len(), proc.ID, proc.Path, proc.Tree)
+	log.Trace("[cache] updateItem() updating events store (total: %d), pid: %d, path: %s, %v", e.Len(), proc.ID, proc.Path, proc.Tree)
 	if proc.Path == "" {
 		return
 	}
@@ -111,7 +111,7 @@ func (e *EventsStore) UpdateItem(proc *Process) {
 
 // ReplaceItem replaces an existing process with a new one.
 func (e *EventsStore) ReplaceItem(oldProc, newProc *Process) {
-	log.Debug("[event inCache, replacement] new: %d, %s -> inCache: %d -> %s - Trees: %s, %s", newProc.ID, newProc.Path, oldProc.ID, oldProc.Path, oldProc.Tree, newProc.Tree)
+	log.Trace("[event inCache, replacement] new: %d, %s -> inCache: %d -> %s - Trees: %s, %s", newProc.ID, newProc.Path, oldProc.ID, oldProc.Path, oldProc.Tree, newProc.Tree)
 	// Note: in rare occasions, the process being replaced is the older one.
 	// if oldProc.Starttime > newProc.Starttime {}
 	//
@@ -165,11 +165,11 @@ func (e *EventsStore) Update(oldProc, proc *Process) {
 	}
 
 	if updateOld {
-		log.Debug("[cache] Update end, updating oldProc: %d, %s, %v", oldProc.ID, oldProc.Path, oldProc.Tree)
+		log.Trace("[cache] Update end, updating oldProc: %d, %s, %v", oldProc.ID, oldProc.Path, oldProc.Tree)
 		e.UpdateItem(oldProc)
 	}
 	if update {
-		log.Debug("[cache] Update end, updating newProc: %d, %s, %v", proc.ID, proc.Path, proc.Tree)
+		log.Trace("[cache] Update end, updating newProc: %d, %s, %v", proc.ID, proc.Path, proc.Tree)
 		e.UpdateItem(proc)
 	}
 }
@@ -263,7 +263,7 @@ func (e *EventsStore) Delete(key int) {
 		e.mu.Lock()
 		defer e.mu.Unlock()
 		if !ev.Proc.IsAlive() {
-			log.Debug("[cache delete] deleted %d: %s", key, ev.Proc.Path)
+			log.Trace("[cache delete] deleted %d: %s", key, ev.Proc.Path)
 			delete(e.eventByPID, key)
 		}
 	})
@@ -280,7 +280,7 @@ func (e *EventsStore) DeleteOldItems() {
 	log.Debug("[cache] deleting old events, total byPID: %d", len(e.eventByPID))
 	for k, item := range e.eventByPID {
 		if !item.isValid() && !item.Proc.IsAlive() {
-			log.Debug("[cache] deleting old item: %d", k)
+			log.Trace("[cache] deleting old item: %d", k)
 			delete(e.eventByPID, k)
 		}
 	}
