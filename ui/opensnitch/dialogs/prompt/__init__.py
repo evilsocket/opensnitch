@@ -126,9 +126,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         m.addAction(denyIcon, self._action_text[Config.ACTION_DENY_IDX]).triggered.connect(
             lambda: self._on_action_clicked(Config.ACTION_DENY_IDX)
         )
-        m.addAction(self.allowIcon, self._action_text[Config.ACTION_ALLOW_IDX]).triggered.connect(
-            lambda: self._on_action_clicked(Config.ACTION_ALLOW_IDX)
-        )
         m.addAction(rejectIcon, self._action_text[Config.ACTION_REJECT_IDX]).triggered.connect(
             lambda: self._on_action_clicked(Config.ACTION_REJECT_IDX)
         )
