@@ -112,7 +112,7 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 			log.Debug("[ebpf conn] in cache: %s, %d -> %s", k, proc.ID, proc.Path)
 			return
 		}
-		log.Info("[ebpf conn] in cache, with no proc %s, %d", k, cacheItem.Pid)
+		log.Trace("[ebpf conn] in cache, with no proc %s, %d", k, cacheItem.Pid)
 		return
 	}
 

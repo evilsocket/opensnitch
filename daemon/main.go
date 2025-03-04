@@ -430,6 +430,7 @@ func onPacket(packet netfilter.Packet) {
 }
 
 func applyDefaultAction(packet *netfilter.Packet, con *conman.Connection) {
+	log.Trace("Applying DefaultAction (%s) on %s", uiClient.DefaultAction(), con)
 	if uiClient.DefaultAction() == rule.Allow {
 		packet.SetVerdictAndMark(netfilter.NF_ACCEPT, packet.Mark)
 		return
