@@ -82,5 +82,5 @@ https://github.com/evilsocket/opensnitch/commits/master
 ## Translating
 
 <a href="https://hosted.weblate.org/engage/opensnitch/">
-<img src="https://hosted.weblate.org/widgets/opensnitch/-/glossary/multi-auto.svg" alt="Translation status" />
+<img src="https://hosted.weblate.org/widget/opensnitch/multi-auto.svg" alt="Translation status" />
 </a>
