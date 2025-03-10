@@ -1,6 +1,7 @@
 package loggers
 
 import (
+	"context"
 	"fmt"
 	"log/syslog"
 	"net"
@@ -19,28 +20,42 @@ const (
 	LOGGER_REMOTE = "remote"
 )
 
-// Remote defines the logger that writes events to a generic remote server.
-// It can write to the local or a remote daemon, UDP or TCP.
+// Remote defines a logger that writes events to a generic remote server.
+// It can write to a local or a remote daemon, UDP or TCP.
 // It supports writing events in RFC5424, RFC3164, CSV and JSON formats.
 type Remote struct {
-	mu             *sync.RWMutex
-	Writer         *syslog.Writer
-	cfg            *LoggerConfig
-	logFormat      formats.LoggerFormat
-	netConn        net.Conn
-	Name           string
-	Tag            string
-	Hostname       string
-	Timeout        time.Duration
+	mu        *sync.RWMutex
+	Writer    *syslog.Writer
+	cfg       LoggerConfig
+	ctx       context.Context
+	cancel    context.CancelFunc
+	logFormat formats.LoggerFormat
+
+	netConn net.Conn
+
+	// Name of the logger
+	Name string
+
+	// channel used to write mesages
+	writerChan chan string
+
+	Tag string
+
+	// Name of the host where the daemon is running
+	Hostname string
+
+	// Write timeouts
+	Timeout time.Duration
+
+	// Connect timeout
 	ConnectTimeout time.Duration
-	errors         uint32
-	maxErrors      uint32
-	status         uint32
+
+	status uint32
 }
 
 // NewRemote returns a new object that manipulates and prints outbound connections
-// to a remote syslog server, with the given format (RFC5424 by default)
-func NewRemote(cfg *LoggerConfig) (*Remote, error) {
+// to a remote server, with the given format (RFC5424 by default)
+func NewRemote(cfg LoggerConfig) (*Remote, error) {
 	var err error
 	log.Info("NewRemote logger: %v", cfg)
 
@@ -49,6 +64,7 @@ func NewRemote(cfg *LoggerConfig) (*Remote, error) {
 	}
 	sys.Name = LOGGER_REMOTE
 	sys.cfg = cfg
+	sys.ctx, sys.cancel = context.WithCancel(context.Background())
 
 	// list of allowed formats for this logger
 	sys.logFormat = formats.NewRfc5424()
@@ -78,18 +94,26 @@ func NewRemote(cfg *LoggerConfig) (*Remote, error) {
 		sys.ConnectTimeout = connTimeout
 	}
 
+	// initial connection test
 	if err = sys.Open(); err != nil {
 		log.Error("Error loading logger [%s]: %s", sys.Name, err)
 		return nil, err
 	}
 	log.Info("[%s] initialized: %v", sys.Name, cfg)
 
+	sys.writerChan = make(chan string)
+	if sys.cfg.Workers == 0 {
+		sys.cfg.Workers = 1
+	}
+	for i := 0; i < sys.cfg.Workers; i++ {
+		go writerWorker(i, *sys, sys.writerChan, sys.ctx.Done())
+	}
+
 	return sys, err
 }
 
 // Open opens a new connection with a server or with the daemon.
 func (s *Remote) Open() (err error) {
-	atomic.StoreUint32(&s.errors, 0)
 	if s.cfg.Server == "" {
 		return fmt.Errorf("[%s] Server address must not be empty", s.Name)
 	}
@@ -112,7 +136,7 @@ func (s *Remote) Dial(proto, addr string, connTimeout time.Duration) (netConn ne
 			return nil, err
 		}
 	default:
-		return nil, fmt.Errorf("[%s] Network protocol %s not supported", s.Name, proto)
+		return nil, fmt.Errorf("[%s] Network protocol %s not supported (use 'tcp' or 'udp')", s.Name, proto)
 	}
 
 	return netConn, nil
@@ -124,6 +148,7 @@ func (s *Remote) Close() (err error) {
 		err = s.netConn.Close()
 		s.netConn = nil
 	}
+	s.cancel()
 	atomic.StoreUint32(&s.status, DISCONNECTED)
 	return
 }
@@ -156,30 +181,7 @@ func (s *Remote) Transform(args ...interface{}) (out string) {
 }
 
 func (s *Remote) Write(msg string) {
-	deadline := time.Now().Add(s.Timeout)
-
-	// BUG: it's fairly common to have write timeouts via udp/tcp.
-	// Reopening the connection with the server helps to resume sending events to the server,
-	// and have a continuous stream of events. Otherwise it'd stop working.
-	// I haven't figured out yet why these write errors ocurr.
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.netConn.SetWriteDeadline(deadline)
-	if s.netConn == nil {
-		s.ReOpen()
-		return
-	}
-	_, err := s.netConn.Write([]byte(msg))
-	if err == nil {
-		return
-	}
-
-	log.Debug("[%s] %s write error: %v", s.Name, s.cfg.Protocol, err.(net.Error))
-	atomic.AddUint32(&s.errors, 1)
-	if atomic.LoadUint32(&s.errors) > maxAllowedErrors {
-		s.ReOpen()
-		return
-	}
+	s.writerChan <- msg
 }
 
 func (s *Remote) formatLine(msg string) string {
@@ -188,4 +190,42 @@ func (s *Remote) formatLine(msg string) string {
 		nl = "\n"
 	}
 	return core.ConcatStrings(msg, nl)
+}
+
+// each worker opens a new connection with the remote server, and waits for
+// incoming messages to be forwarded to the server.
+func writerWorker(id int, sys Remote, msgs <-chan string, done <-chan struct{}) {
+	errors := 0
+	conn, err := sys.Dial(sys.cfg.Protocol, sys.cfg.Server, sys.ConnectTimeout)
+	if err != nil {
+		log.Error("[%s] Error opening connection, worker %d", sys.Name, id)
+		return
+	}
+	log.Debug("[%s] worker %d, connection opened", sys.Name, id)
+
+	for {
+		select {
+		case <-done:
+			goto Exit
+		case msg := <-msgs:
+			log.Trace("[%s] %d writing writes", sys.Name, id)
+
+			// define a write timeout for this operation from Now.
+			deadline := time.Now().Add(sys.Timeout)
+			conn.SetWriteDeadline(deadline)
+			b, err := conn.Write([]byte(msg))
+			if err != nil {
+				log.Trace("[%s] error writing via writer %d (%d): %s", sys.Name, id, b, err)
+				// TODO: reopen the connection on max errors
+				errors++
+				if errors > maxAllowedErrors {
+					log.Important("[%s] writer %d: too much errors, review the configuration and / or connectivity with the remote server", sys.Name, id)
+					goto Exit
+				}
+			}
+		}
+	}
+Exit:
+	log.Debug("[%s] %d connection closed (errors: %d)", sys.Name, id, errors)
+	conn.Close()
 }

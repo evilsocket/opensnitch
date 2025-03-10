@@ -14,8 +14,8 @@ const (
 // Syslog defines the logger that writes traces to the syslog.
 // It can write to the local or a remote daemon.
 type Syslog struct {
-	cfg       *LoggerConfig
 	Writer    *syslog.Writer
+	cfg       LoggerConfig
 	logFormat formats.LoggerFormat
 	Name      string
 	Tag       string
@@ -23,7 +23,7 @@ type Syslog struct {
 
 // NewSyslog returns a new object that manipulates and prints outbound connections
 // to syslog (local or remote), with the given format (RFC5424 by default)
-func NewSyslog(cfg *LoggerConfig) (*Syslog, error) {
+func NewSyslog(cfg LoggerConfig) (*Syslog, error) {
 	var err error
 	log.Info("NewSyslog logger: %v", cfg)
 

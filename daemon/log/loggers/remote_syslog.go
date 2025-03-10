@@ -46,7 +46,7 @@ type RemoteSyslog struct {
 
 // NewRemoteSyslog returns a new object that manipulates and prints outbound connections
 // to a remote syslog server, with the given format (RFC5424 by default)
-func NewRemoteSyslog(cfg *LoggerConfig) (*RemoteSyslog, error) {
+func NewRemoteSyslog(cfg LoggerConfig) (*RemoteSyslog, error) {
 	var err error
 	log.Info("NewSyslog logger: %v", cfg)
 

@@ -103,15 +103,15 @@ func (l *LoggerManager) Load(configs []LoggerConfig) {
 	for _, cfg := range configs {
 		switch cfg.Name {
 		case LOGGER_REMOTE:
-			if lgr, err := NewRemote(&cfg); err == nil {
+			if lgr, err := NewRemote(cfg); err == nil {
 				l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
 			}
 		case LOGGER_REMOTE_SYSLOG:
-			if lgr, err := NewRemoteSyslog(&cfg); err == nil {
+			if lgr, err := NewRemoteSyslog(cfg); err == nil {
 				l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
 			}
 		case LOGGER_SYSLOG:
-			if lgr, err := NewSyslog(&cfg); err == nil {
+			if lgr, err := NewSyslog(cfg); err == nil {
 				l.loggers[lgr.Name] = lgr
 			}
 		}
@@ -143,6 +143,7 @@ func (l *LoggerManager) Stop() {
 func (l *LoggerManager) write(args ...interface{}) {
 	//l.mu.RLock()
 	//defer l.mu.RUnlock()
+	// FIXME: leak when configuring the loggers.
 	for _, logger := range l.loggers {
 		logger.Write(logger.Transform(args...))
 	}
