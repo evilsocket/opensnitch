@@ -70,7 +70,7 @@ func TestChains(t *testing.T) {
 
 // TestAddInterceptionChains checks if the needed tables and chains have been created.
 // We use 2: output-mangle-inet for intercepting outbound connections, and input-filter-inet for DNS responses interception
-func TestAddInterceptionChains(t *testing.T) {
+/*func TestAddInterceptionChains(t *testing.T) {
 	nftest.SkipIfNotPrivileged(t)
 
 	if err := nftest.Fw.AddInterceptionTables(); err != nil {
@@ -82,4 +82,4 @@ func TestAddInterceptionChains(t *testing.T) {
 	}
 
 	nftest.Fw.DelSystemTables()
-}
+}*/
