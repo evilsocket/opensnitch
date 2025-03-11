@@ -2,11 +2,8 @@ package formats
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 	"time"
 
-	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
@@ -40,35 +37,8 @@ func (r *Rfc5424) Transform(args ...interface{}) (out string) {
 	for n, val := range values {
 		switch val.(type) {
 		case *protocol.Connection:
-			tree := ""
-			checksums := ""
-			con := val.(*protocol.Connection)
 			event = "CONNECTION"
-
-			for k, v := range con.ProcessChecksums {
-				checksums = core.ConcatStrings(checksums, k, ":", v)
-			}
-			for _, y := range con.ProcessTree {
-				tree = core.ConcatStrings(tree, y.Key, ",")
-			}
-
-			// TODO: allow to configure this via configuration file.
-			out = core.ConcatStrings(out,
-				" SRC=\"", con.SrcIp, "\"",
-				" SPT=\"", strconv.FormatUint(uint64(con.SrcPort), 10), "\"",
-				" DST=\"", con.DstIp, "\"",
-				" DSTHOST=\"", con.DstHost, "\"",
-				" DPT=\"", strconv.FormatUint(uint64(con.DstPort), 10), "\"",
-				" PROTO=\"", con.Protocol, "\"",
-				" PID=\"", strconv.FormatUint(uint64(con.ProcessId), 10), "\"",
-				" UID=\"", strconv.FormatUint(uint64(con.UserId), 10), "\"",
-				//" COMM=", con.ProcessComm, "\"",
-				" PATH=\"", con.ProcessPath, "\"",
-				" CMDLINE=\"", strings.Join(con.ProcessArgs, " "), "\"",
-				" CWD=\"", con.ProcessCwd, "\"",
-				" CHECKSUMS=\"", checksums, "\"",
-				" PROCTREE=\"", tree, "\"",
-			)
+			out = connToSD(out, val)
 		default:
 			out = fmt.Sprint(out, " ARG", n, "=\"", val, "\"")
 		}
