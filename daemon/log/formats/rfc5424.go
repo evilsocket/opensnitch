@@ -2,8 +2,6 @@ package formats
 
 import (
 	"fmt"
-	"log/syslog"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -30,6 +28,7 @@ func NewRfc5424() *Rfc5424 {
 func (r *Rfc5424) Transform(args ...interface{}) (out string) {
 	hostname := ""
 	tag := ""
+	event := "GENERIC"
 	arg1 := args[0]
 	if len(args) > 1 {
 		arg2 := args[1]
@@ -41,7 +40,19 @@ func (r *Rfc5424) Transform(args ...interface{}) (out string) {
 	for n, val := range values {
 		switch val.(type) {
 		case *protocol.Connection:
+			tree := ""
+			checksums := ""
 			con := val.(*protocol.Connection)
+			event = "CONNECTION"
+
+			for k, v := range con.ProcessChecksums {
+				checksums = core.ConcatStrings(checksums, k, ":", v)
+			}
+			for _, y := range con.ProcessTree {
+				tree = core.ConcatStrings(tree, y.Key, ",")
+			}
+
+			// TODO: allow to configure this via configuration file.
 			out = core.ConcatStrings(out,
 				" SRC=\"", con.SrcIp, "\"",
 				" SPT=\"", strconv.FormatUint(uint64(con.SrcPort), 10), "\"",
@@ -55,17 +66,20 @@ func (r *Rfc5424) Transform(args ...interface{}) (out string) {
 				" PATH=\"", con.ProcessPath, "\"",
 				" CMDLINE=\"", strings.Join(con.ProcessArgs, " "), "\"",
 				" CWD=\"", con.ProcessCwd, "\"",
+				" CHECKSUMS=\"", checksums, "\"",
+				" PROCTREE=\"", tree, "\"",
 			)
 		default:
 			out = fmt.Sprint(out, " ARG", n, "=\"", val, "\"")
 		}
 	}
-	out = fmt.Sprintf("<%d>1 %s %s %s %d TCPOUT - [%s]\n",
-		syslog.LOG_NOTICE|syslog.LOG_DAEMON,
+	out = fmt.Sprintf("<%s>1 %s %s %s %s %s - [%s]\n",
+		syslogLevel,
 		time.Now().Format(time.RFC3339),
 		hostname,
 		tag,
-		os.Getpid(),
+		ourPid,
+		event,
 		out[1:])
 
 	return
