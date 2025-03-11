@@ -18,6 +18,24 @@ import (
 
 const (
 	LOGGER_REMOTE = "remote"
+
+	// restart syslog connection after these amount of errors
+	maxAllowedErrors = 10
+	maxConnRetries   = 600
+)
+
+var (
+	// default write / connect timeouts
+	writeTimeout, _   = time.ParseDuration("1s")
+	connTimeout, _    = time.ParseDuration("5s")
+	reopenInterval, _ = time.ParseDuration("5s")
+)
+
+// connection status
+const (
+	DISCONNECTED = iota
+	CONNECTED
+	CONNECTING
 )
 
 // Remote defines a logger that writes events to a generic remote server.
@@ -153,23 +171,6 @@ func (s *Remote) Close() (err error) {
 	return
 }
 
-// ReOpen tries to reestablish the connection with the writer
-func (s *Remote) ReOpen() {
-	if atomic.LoadUint32(&s.status) == CONNECTING {
-		return
-	}
-	atomic.StoreUint32(&s.status, CONNECTING)
-	if err := s.Close(); err != nil {
-		log.Debug("[%s] error closing Close(): %s", s.Name, err)
-	}
-
-	if err := s.Open(); err != nil {
-		log.Debug("[%s] ReOpen() error: %s", s.Name, err)
-	} else {
-		log.Debug("[%s] ReOpen() ok", s.Name)
-	}
-}
-
 // Transform transforms data for proper ingestion.
 func (s *Remote) Transform(args ...interface{}) (out string) {
 	if s.logFormat != nil {
@@ -196,11 +197,25 @@ func (s *Remote) formatLine(msg string) string {
 // incoming messages to be forwarded to the server.
 func writerWorker(id int, sys Remote, msgs <-chan string, done <-chan struct{}) {
 	errors := 0
+	connRetries := 0
+
+Reopen:
+	errors = 0
+
 	conn, err := sys.Dial(sys.cfg.Protocol, sys.cfg.Server, sys.ConnectTimeout)
 	if err != nil {
-		log.Error("[%s] Error opening connection, worker %d", sys.Name, id)
-		return
+		log.Debug("[%s] Error opening connection, worker %d, retrying... (%d/%d)", sys.Name, id, connRetries, maxConnRetries)
+		connRetries++
+		if connRetries > maxConnRetries {
+			log.Error("[%s] Error opening connection, worker %d, giving up", sys.Name, id)
+			return
+		}
+
+		// wait time before reopen attempt
+		time.Sleep(reopenInterval)
+		goto Reopen
 	}
+	connRetries = 0
 	log.Debug("[%s] worker %d, connection opened", sys.Name, id)
 
 	for {
@@ -208,24 +223,24 @@ func writerWorker(id int, sys Remote, msgs <-chan string, done <-chan struct{}) 
 		case <-done:
 			goto Exit
 		case msg := <-msgs:
-			log.Trace("[%s] %d writing writes", sys.Name, id)
+			//log.Trace("[%s] %d writing writes", sys.Name, id)
 
 			// define a write timeout for this operation from Now.
 			deadline := time.Now().Add(sys.Timeout)
 			conn.SetWriteDeadline(deadline)
-			b, err := conn.Write([]byte(msg))
+			_, err := conn.Write([]byte(msg))
 			if err != nil {
-				log.Trace("[%s] error writing via writer %d (%d): %s", sys.Name, id, b, err)
-				// TODO: reopen the connection on max errors
+				log.Trace("[%s] error writing via writer %d: %s", sys.Name, id, err)
 				errors++
 				if errors > maxAllowedErrors {
 					log.Important("[%s] writer %d: too much errors, review the configuration and / or connectivity with the remote server", sys.Name, id)
-					goto Exit
+					goto Reopen
 				}
 			}
 		}
 	}
+
 Exit:
-	log.Debug("[%s] %d connection closed (errors: %d)", sys.Name, id, errors)
+	log.Debug("[%s logger] %d connection closed (errors: %d)", sys.Name, id, errors)
 	conn.Close()
 }
