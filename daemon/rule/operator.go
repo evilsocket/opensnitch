@@ -168,8 +168,8 @@ func (o *Operator) Compile() error {
 	}
 
 	// the only operator Type that can have the Data field empty is List.
-	if o.Type != List && o.Data == "" {
-		return fmt.Errorf("Operand lists %s cannot be empty: %s", o, o.Operand)
+	if o.Type != List && o.Operand != OpTrue && o.Data == "" {
+		return fmt.Errorf("Operand %s cannot be empty (%s)", o.Operand, o.Type)
 	}
 
 	if o.Type == Simple {
