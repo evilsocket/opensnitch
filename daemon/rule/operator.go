@@ -111,30 +111,6 @@ func (o *Operator) Compile() error {
 			return err
 		}
 		o.re = re
-	} else if o.Operand == OpDomainsLists {
-		if o.Data == "" {
-			return fmt.Errorf("Operand lists is empty, nothing to load: %s", o)
-		}
-		o.loadLists()
-		o.cb = o.domainsListCmp
-	} else if o.Operand == OpDomainsRegexpLists {
-		if o.Data == "" {
-			return fmt.Errorf("Operand regexp lists is empty, nothing to load: %s", o)
-		}
-		o.loadLists()
-		o.cb = o.reListCmp
-	} else if o.Operand == OpIPLists {
-		if o.Data == "" {
-			return fmt.Errorf("Operand ip lists is empty, nothing to load: %s", o)
-		}
-		o.loadLists()
-		o.cb = o.ipListCmp
-	} else if o.Operand == OpNetLists {
-		if o.Data == "" {
-			return fmt.Errorf("Operand net lists is empty, nothing to load: %s", o)
-		}
-		o.loadLists()
-		o.cb = o.ipNetCmp
 	} else if o.Type == List {
 		o.Operand = OpList
 	} else if o.Type == Network {
@@ -144,7 +120,31 @@ func (o *Operator) Compile() error {
 			return err
 		}
 		o.cb = o.cmpNetwork
+	} else if o.Type == Lists {
+		if o.Data == "" {
+			return fmt.Errorf("Operand lists is empty, nothing to load: %s", o)
+		}
+
+		if o.Operand == OpDomainsLists {
+			o.loadLists()
+			o.cb = o.domainsListCmp
+		} else if o.Operand == OpDomainsRegexpLists {
+			o.loadLists()
+			o.cb = o.reListCmp
+		} else if o.Operand == OpIPLists {
+			o.loadLists()
+			o.cb = o.ipListCmp
+		} else if o.Operand == OpNetLists {
+			o.loadLists()
+			o.cb = o.ipNetCmp
+		} else {
+			return fmt.Errorf("Unknown Lists operand: %s", o.Operand)
+		}
+
+	} else {
+		return fmt.Errorf("Unknown type: %s", o.Type)
 	}
+
 	log.Debug("Operator compiled: %s", o)
 	o.isCompiled = true
 
