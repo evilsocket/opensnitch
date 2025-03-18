@@ -166,8 +166,29 @@ func (o *Operator) Compile() error {
 	if o.isCompiled {
 		return nil
 	}
+
+	// the only operator Type that can have the Data field empty is List.
+	if o.Type != List && o.Data == "" {
+		return fmt.Errorf("Operand lists %s cannot be empty: %s", o, o.Operand)
+	}
+
 	if o.Type == Simple {
+		if o.Operand == OpUserName {
+			// TODO: allow regexps, take into account users from containers.
+			u, err := user.Lookup(o.Data)
+			if err != nil {
+				return fmt.Errorf("user.name Operand error: %s", err)
+			}
+			o.cb = o.simpleCmp
+			o.Data = u.Uid
+			return nil
+		} else if o.Operand == OpProcessHashMD5 || o.Operand == OpProcessHashSHA1 {
+			o.cb = o.hashCmp
+			return nil
+		}
+
 		o.cb = o.simpleCmp
+
 	} else if o.Type == Regexp {
 		o.cb = o.reCmp
 		if o.Sensitive == false {
@@ -187,11 +208,8 @@ func (o *Operator) Compile() error {
 				ip := value.(net.IP)
 				matchFound := false
 
-				// fmt.Printf("\nStarting IP check %s for alias '%s'\n", ip, o.Data)
-
 				for _, ipNet := range ipNets {
 					if ipNet.Contains(ip) {
-						// fmt.Printf(" -> Match found: IP %s in network %s for alias '%s'\n", ip, ipNet, o.Data)
 						matchFound = true
 						break
 					}
@@ -203,7 +221,6 @@ func (o *Operator) Compile() error {
 				*/
 				return matchFound
 			}
-			// fmt.Printf("Network alias '%s' successfully compiled for the operator.\n", o.Data)
 		} else {
 			// Parse the data as a CIDR if it's not an alias
 			_, netMask, err := net.ParseCIDR(o.Data)
@@ -213,49 +230,31 @@ func (o *Operator) Compile() error {
 			o.netMask = netMask
 			o.cb = o.cmpNetwork
 		}
+
+	} else if o.Type == Lists {
+		if o.Operand == OpDomainsLists {
+			o.loadLists()
+			o.cb = o.domainsListsCmp
+		} else if o.Operand == OpDomainsRegexpLists {
+			o.loadLists()
+			o.cb = o.reListCmp
+		} else if o.Operand == OpIPLists {
+			o.loadLists()
+			o.cb = o.simpleListsCmp
+		} else if o.Operand == OpNetLists {
+			o.loadLists()
+			o.cb = o.ipNetCmp
+		} else if o.Operand == OpHashMD5Lists {
+			o.loadLists()
+			o.cb = o.simpleListsCmp
+		} else {
+			return fmt.Errorf("Unknown Lists operand %s", o.Operand)
+		}
+
+	} else {
+		return fmt.Errorf("Unknown Operator type %s", o.Type)
 	}
-	if o.Operand == OpUserName && o.Type == Simple {
-		// TODO: allow regexps, take into account users from containers.
-		u, err := user.Lookup(o.Data)
-		if err != nil {
-			return fmt.Errorf("user.name Operand error: %s", err)
-		}
-		o.cb = o.simpleCmp
-		o.Data = u.Uid
-	}
-	if o.Operand == OpDomainsLists {
-		if o.Data == "" {
-			return fmt.Errorf("Operand lists is empty, nothing to load: %s", o)
-		}
-		o.loadLists()
-		o.cb = o.domainsListsCmp
-	} else if o.Operand == OpDomainsRegexpLists {
-		if o.Data == "" {
-			return fmt.Errorf("Operand regexp lists is empty, nothing to load: %s", o)
-		}
-		o.loadLists()
-		o.cb = o.reListCmp
-	} else if o.Operand == OpIPLists {
-		if o.Data == "" {
-			return fmt.Errorf("Operand ip lists is empty, nothing to load: %s", o)
-		}
-		o.loadLists()
-		o.cb = o.simpleListsCmp
-	} else if o.Operand == OpNetLists {
-		if o.Data == "" {
-			return fmt.Errorf("Operand net lists is empty, nothing to load: %s", o)
-		}
-		o.loadLists()
-		o.cb = o.ipNetCmp
-	} else if o.Operand == OpHashMD5Lists {
-		if o.Data == "" {
-			return fmt.Errorf("Operand lists.hash.md5 is empty, nothing to load: %s", o)
-		}
-		o.loadLists()
-		o.cb = o.simpleListsCmp
-	} else if o.Operand == OpProcessHashMD5 || o.Operand == OpProcessHashSHA1 {
-		o.cb = o.hashCmp
-	}
+
 	log.Debug("Operator compiled: %s", o)
 	o.isCompiled = true
 

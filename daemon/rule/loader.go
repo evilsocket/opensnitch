@@ -247,13 +247,13 @@ func (l *Loader) loadRule(fileName string) error {
 		}
 	} else {
 		if err := r.Operator.Compile(); err != nil {
-			log.Warning("Operator.Compile() error: %s: %s", err, r.Operator.Data)
+			log.Warning("Operator.Compile() error: %s, %s (%s)", err, r.Operator.Data, r.Name)
 			return fmt.Errorf("(1) Error compiling rule: %s", err)
 		}
 		if r.Operator.Type == List {
 			for i := 0; i < len(r.Operator.List); i++ {
 				if err := r.Operator.List[i].Compile(); err != nil {
-					log.Warning("Operator.Compile() error: %s: ", err)
+					log.Warning("Operator.Compile() error: %s (%s)", err, r.Name)
 					return fmt.Errorf("(1) Error compiling list rule: %s", err)
 				}
 			}
