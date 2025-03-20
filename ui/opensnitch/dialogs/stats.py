@@ -1202,9 +1202,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             table = self._get_active_table()
             model = table.model()
 
-            selection = table.selectionModel().selectedRows()
-            if not selection:
-                return False
+            selection = table.selectedRows()
 
             menu = QtWidgets.QMenu()
             durMenu = QtWidgets.QMenu(self.COL_STR_DURATION)
@@ -1231,12 +1229,18 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             _dur5m = durMenu.addAction(Config.DURATION_5m)
             menu.addMenu(durMenu)
 
-            is_rule_enabled = model.index(selection[0].row(), self.COL_R_ENABLED).data()
-            menu_label_enable = QC.translate("stats", "Disable")
-            if is_rule_enabled == "False":
-                menu_label_enable = QC.translate("stats", "Enable")
+            is_rule_enabled = True
+            _menu_enable = None
+            # if there's more than one rule selected, we choose an action
+            # based on the status of the first rule.
+            if selection and len(selection) > 0:
+                is_rule_enabled = selection[0][self.COL_R_ENABLED]
+                menu_label_enable = QC.translate("stats", "Disable")
+                if is_rule_enabled == "False":
+                    menu_label_enable = QC.translate("stats", "Enable")
 
-            _menu_enable = menu.addAction(QC.translate("stats", menu_label_enable))
+                _menu_enable = menu.addAction(QC.translate("stats", menu_label_enable))
+
             _menu_duplicate = menu.addAction(QC.translate("stats", "Duplicate"))
             _menu_edit = menu.addAction(QC.translate("stats", "Edit"))
             _menu_delete = menu.addAction(QC.translate("stats", "Delete"))
@@ -1365,9 +1369,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     rules_list.append(self._fw.rule_to_json(r))
 
         elif cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
-            for idx in selection:
-                rule_name = model.index(idx.row(), self.COL_R_NAME).data()
-                node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+            for row in selection:
+                rule_name = row[self.COL_R_NAME]
+                node_addr = row[self.COL_R_NODE]
 
                 json_rule = self._nodes.rule_to_json(node_addr, rule_name)
                 if json_rule != None:
@@ -1393,17 +1397,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         QtWidgets.qApp.clipboard().setText(cliptext)
 
     def _table_menu_export_disk(self, cur_idx, model, selection):
-        outdir = QtWidgets.QFileDialog.getExistingDirectory(self,
-                                                            os.path.expanduser("~"),
-                                                            QC.translate("stats", 'Select a directory to export rules'),
-                                                            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+        outdir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            os.path.expanduser("~"),
+            QC.translate("stats", 'Select a directory to export rules'),
+            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks
+        )
         if outdir == "":
             return
 
         error_list = []
-        for idx in selection:
-            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
-            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+        for row in selection:
+            node_addr = row[self.COL_R_NODE]
+            rule_name = row[self.COL_R_NAME]
 
             ok = self._nodes.export_rule(node_addr, rule_name, outdir)
             if not ok:
@@ -1426,9 +1432,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _table_menu_duplicate(self, cur_idx, model, selection):
 
-        for idx in selection:
-            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
-            node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+        for row in selection:
+            node_addr = row[self.COL_R_NODE]
+            rule_name = row[self.COL_R_NAME]
 
             records = None
             for idx in range(0,100):
@@ -1460,9 +1466,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _table_menu_change_rule_field(self, cur_idx, model, selection, field, value):
         if cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
-            for idx in selection:
-                rule_name = model.index(idx.row(), self.COL_R_NAME).data()
-                node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+            for row in selection:
+                rule_name = row[self.COL_R_NAME]
+                node_addr = row[self.COL_R_NODE]
 
                 records = self._get_rule(rule_name, node_addr)
                 rule = Rule.new_from_records(records)
@@ -1503,9 +1509,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         enable_rule = False if is_rule_enabled == "True" else True
 
         if cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
-            for idx in selection:
-                rule_name = model.index(idx.row(), self.COL_R_NAME).data()
-                node_addr = model.index(idx.row(), self.COL_R_NODE).data()
+            for row in selection:
+                rule_name = row[self.COL_R_NAME]
+                node_addr = row[self.COL_R_NODE]
 
                 records = self._get_rule(rule_name, node_addr)
                 rule = Rule.new_from_records(records)
@@ -1564,10 +1570,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._notifications_sent[nid] = noti
 
         elif cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
-            for idx in selection:
-                name = model.index(idx.row(), self.COL_R_NAME).data()
-                node = model.index(idx.row(), self.COL_R_NODE).data()
-                self._del_rule(name, node)
+            for row in selection:
+                node = row[self.COL_R_NODE]
+                name = row[self.COL_R_NAME]
             self._refresh_active_table()
 
         elif cur_idx == self.TAB_RULES and self.alertsTable.isVisible():
@@ -1600,9 +1605,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _table_menu_edit(self, cur_idx, model, selection):
         if cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
-            for idx in selection:
-                name = model.index(idx.row(), self.COL_R_NAME).data()
-                node = model.index(idx.row(), self.COL_R_NODE).data()
+            for row in selection:
+                node = row[self.COL_R_NODE]
+                name = row[self.COL_R_NAME]
                 records = self._get_rule(name, node)
                 if records == None or records == -1:
                     Message.ok(QC.translate("stats", "New rule error"),

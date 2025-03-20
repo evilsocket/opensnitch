@@ -298,7 +298,7 @@ class FirewallTableView(QTableView):
     def clearSelection(self):
         pass
 
-    def copySelection(self):
+    def selectedRows(self):
         selection = self.selectedIndexes()
         if not selection:
             return None
