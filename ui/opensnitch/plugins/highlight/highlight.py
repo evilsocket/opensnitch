@@ -317,6 +317,9 @@ class Highlight(PluginBase):
 
             if cellColor:
                 defaultPen.setColor(cellColor)
+        else:
+            painter.fillRect(option.rect, option.palette.color(QPalette.Highlight))
+
         painter.setPen(defaultPen)
 
         # setting option.displayAlignment has no effect here, so we need to
