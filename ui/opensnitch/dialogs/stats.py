@@ -1573,6 +1573,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             for row in selection:
                 node = row[self.COL_R_NODE]
                 name = row[self.COL_R_NAME]
+                self._del_rule(name, node)
             self._refresh_active_table()
 
         elif cur_idx == self.TAB_RULES and self.alertsTable.isVisible():
