@@ -319,6 +319,7 @@ class Highlight(PluginBase):
                 defaultPen.setColor(cellColor)
         else:
             painter.fillRect(option.rect, option.palette.color(QPalette.Highlight))
+            defaultPen.setColor(option.palette.color(QPalette.HighlightedText))
 
         painter.setPen(defaultPen)
 
