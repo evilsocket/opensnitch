@@ -1,5 +1,5 @@
 from PyQt5 import Qt, QtCore
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QPalette
 
 from opensnitch.plugins import PluginBase, PluginSignal
 
