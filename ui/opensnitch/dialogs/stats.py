@@ -870,7 +870,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return True
             elif event.key() == QtCore.Qt.Key_Delete:
                 table = self._get_active_table()
-                selection = table.selectionModel().selectedRows()
+                selection = table.selectedRows()
                 if selection:
                     model = table.model()
                     self._table_menu_delete(self.tabWidget.currentIndex(), model, selection)
