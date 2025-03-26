@@ -2027,6 +2027,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._set_active_widgets(cur_idx, True, rule_name)
             r_name, node = self._set_rules_tab_active(row, cur_idx, self.COL_R_NAME, self.COL_R_NODE)
             self.LAST_SELECTED_ITEM = row.model().index(row.row(), self.COL_R_NAME).data()
+            # Use COL_TIME as index when in detail view. Otherwise COL_R_NAME
+            # (col number 2) will be used, leading to incorrect selections.
+            self.TABLES[cur_idx]['view'].setTrackingColumn(self.COL_TIME)
             self._set_rules_query(r_name, node)
             self._restore_details_view_columns(
                 self.TABLES[cur_idx]['view'].horizontalHeader(),
@@ -2582,6 +2585,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.editRuleButton.setVisible(not active)
         self.nodeRuleLabel.setText("")
         self.rulesTreePanel.setVisible(active)
+        self.TABLES[self.TAB_RULES]['view'].setTrackingColumn(self.COL_R_NAME)
 
         if not active:
             return
