@@ -1,9 +1,9 @@
-As a general rule of thumb, if the GUI crashes or doesn't show up, open a terminal and type: `~ $ opensnitch-ui`
+As a general rule of thumb, if the GUI crashes or doesn't show up, open a terminal and type: `~ $ opensnitch-ui --debug`
 
 It'll display more details.
 
 Be sure before launching it that no other `opensnitch-ui` process is running (`pgrep opensnitch-ui`).
-Also check how much CPU the process `opensnitch-ui` is consuming. If it consumes 90-100% of the CPU continuously it may be this Ubuntu bug: #647
+Also check how much CPU the process `opensnitch-ui` is consuming. If it consumes 90-100% of the CPU continuously it may be this Ubuntu 22.x bug: #647
 
 
 ### GUI does not show up
@@ -47,7 +47,7 @@ https://github.com/evilsocket/opensnitch/discussions/1003#discussioncomment-6642
 
 Same problem than above, sytray icons not supported. Install the `gnome-shell-extension-appindicator`, and follow the instructions detailed below.
 
-#### OpenSnitch icon does not show up on Gnome-Shell
+#### OpenSnitch systray icon does not show up on Gnome-Shell
 
 On Gnome-Shell >= 3.16, systray icons have been removed. You have to install the extension gnome-shell-extension-appindicator to get them back.
 
@@ -62,6 +62,12 @@ On Gnome-Shell >= 3.16, systray icons have been removed. You have to install the
 ```
 
 See this comment/issue for more information: [#44](https://github.com/evilsocket/opensnitch/issues/44).
+
+#### OpenSnitch systray icon does not show up on Xfce4 (and maybe other Desktop Environments)
+
+Some systems may have installed `ayatana-indicator-application`, a service to "proxy" menu items from AppIndicator apps to a renderer supporting the Ayatana System Indicators implementation.
+
+In this scenario, our icon and others do not show up on the systray. The solution is remove it: `sudo apt remove ayatana-indicator-application`
 
 ### OpenSnitch starts maximized in Hyperland
 
