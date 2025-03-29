@@ -18,6 +18,9 @@ func NewRemoteSyslog(cfg LoggerConfig) (*RemoteSyslog, error) {
 	log.Info("NewRemoteSyslog logger: %v", cfg)
 
 	r, err := NewRemote(cfg)
+	if err != nil {
+		return nil, err
+	}
 	r.Name = LOGGER_REMOTE_SYSLOG
 	rs := &RemoteSyslog{
 		Remote: *r,
