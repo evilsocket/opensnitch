@@ -512,7 +512,13 @@ class Icons():
         icon = QtGui.QIcon.fromTheme(icon_name, QtGui.QIcon.fromTheme(icon_name + "-symbolic"))
         if icon.isNull():
             try:
-                return widget.style().standardIcon(getattr(QtWidgets.QStyle, Icons.defaults[icon_name]))
+                icon = widget.style().standardIcon(getattr(QtWidgets.QStyle, Icons.defaults[icon_name]))
+                # in some DEs, like Enlightenment, some builtins icons may be
+                # empty. The icon is not Null, but there're no available sizes,
+                # and the pixmap is empty.
+                # TODO: Create a default icon, and distribute it as resource.
+                if len(icon.availableSizes()) == 0:
+                    icon = widget.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_FileIcon'))
             except Exception as e:
                 print("Qt standardIcon exception:", icon_name, ",", e)
 
