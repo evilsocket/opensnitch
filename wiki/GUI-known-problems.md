@@ -69,6 +69,8 @@ Some systems may have installed `ayatana-indicator-application`, a service to "p
 
 In this scenario, our icon and others do not show up on the systray. The solution is remove it: `sudo apt remove ayatana-indicator-application`
 
+https://gitlab.xfce.org/xfce/xfce4-panel/-/issues/599#note_60861
+
 ### OpenSnitch starts maximized in Hyperland
 
  > guttermoonk: The solution is to set services.opensnitch.enable = true; in configuration.nix, which will launch the program on it's own during startup.
