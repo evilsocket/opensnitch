@@ -1,11 +1,15 @@
-from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
-from PyQt5.QtSql import QSqlQueryModel, QSqlQuery, QSql
-from PyQt5.QtWidgets import QTableView, QAbstractSlider
-from PyQt5.QtCore import QItemSelectionRange, QItemSelectionModel, QItemSelection, pyqtSignal, QEvent, Qt
-import time
+from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtSql import QSqlQuery, QSql
+from PyQt5.QtWidgets import QTableView
+from PyQt5.QtCore import (
+    QItemSelectionRange,
+    QItemSelectionModel,
+    QItemSelection,
+    QModelIndex,
+    pyqtSignal,
+    QEvent,
+    Qt)
 import math
-
-from PyQt5.QtCore import QCoreApplication as QC
 
 class GenericTableModel(QStandardItemModel):
     rowCountChanged = pyqtSignal()
@@ -302,7 +306,7 @@ class GenericTableView(QTableView):
             clickedItem = self.model().index(row, self.trackingCol)
             if clickedItem.data() == None:
                 return
-            self.handleMouseMoveEvent(row, clickedItem, self.selectionModel().isRowSelected(row))
+            self.handleMouseMoveEvent(row, clickedItem, self.selectionModel().isRowSelected(row, QModelIndex()))
 
         finally:
             # call upper implementation to select/deselect rows.
