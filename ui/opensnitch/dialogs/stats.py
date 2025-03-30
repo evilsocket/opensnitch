@@ -1066,7 +1066,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             cur_idx = self.TAB_FIREWALL
         elif self.tabWidget.currentIndex() == self.TAB_RULES and not self.fwTable.isVisible():
             cur_idx = self.TAB_RULES
-        selection = self.TABLES[cur_idx]['view'].copySelection()
+        selection = self.TABLES[cur_idx]['view'].selectedRows()
         if selection:
             stream = io.StringIO()
             csv.writer(stream, delimiter=',').writerows(selection)
