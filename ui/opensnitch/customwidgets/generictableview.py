@@ -364,8 +364,13 @@ class GenericTableView(QTableView):
                 del self._rows_selection[clickedItem.data()]
                 flags = QItemSelectionModel.Rows | QItemSelectionModel.Deselect
         else:
-            deselectCurRow = len(self._rows_selection.keys()) == 1
-            if not rightBtnPressed:
+            deselectCurRow = len(self._rows_selection.keys()) == 1 and not rightBtnPressed
+            # discard current selection:
+            # - if the user right clicked on a row not part of a selection.
+            # - if the user clicked on a row, and there's only one row
+            # selected.
+            # - if the user clicked on a row already selected.
+            if (not rowSelected and rightBtnPressed) or not rightBtnPressed or deselectCurRow:
                 self.selectionModel().clear()
                 self._rows_selection = {}
             if rowSelected and deselectCurRow and not rightBtnPressed:
