@@ -36,12 +36,12 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="601"/>
         <source>Destination IP</source>
-        <translation>IP назначения</translation>
+        <translation>Целевой IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="622"/>
         <source>Dst Port</source>
-        <translation>Порт назначения</translation>
+        <translation>Целевой Порт</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="702"/>
@@ -56,7 +56,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="712"/>
         <source>this destination port</source>
-        <translation>этот порт назначения</translation>
+        <translation>этот целевой порт</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="717"/>
@@ -66,7 +66,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="722"/>
         <source>this destination ip</source>
-        <translation>этот ip-адрес назначения</translation>
+        <translation>этот целевой ip-адрес</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="751"/>
@@ -76,7 +76,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="756"/>
         <source>30s</source>
-        <translation>30 сек</translation>
+        <translation>30 с</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="761"/>
@@ -96,7 +96,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="776"/>
         <source>1h</source>
-        <translation>1 час</translation>
+        <translation>1 ч</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="706"/>
@@ -106,7 +106,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="786"/>
         <source>forever</source>
-        <translation>постоянно</translation>
+        <translation>навсегда</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall.ui" line="346"/>
@@ -226,7 +226,7 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="90"/>
         <source>Simple</source>
-        <translation>Просто</translation>
+        <translation>Простой</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="154"/>
@@ -261,22 +261,22 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="285"/>
         <source>ACCEPT</source>
-        <translation>ПРИНИМАТЬ</translation>
+        <translation>ПРИНЯТЬ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="294"/>
         <source>DROP</source>
-        <translation>ОТБРАСЫВАТЬ</translation>
+        <translation>ОТБРОСИТЬ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="303"/>
         <source>REJECT</source>
-        <translation>ОТКЛОНЯТЬ</translation>
+        <translation>ОТКЛОНИТЬ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="312"/>
         <source>RETURN</source>
-        <translation>ВОЗВРАЩАТЬ</translation>
+        <translation>ВОЗВРАТ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="442"/>
@@ -306,12 +306,12 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="271"/>
         <source>PREROUTING</source>
-        <translation type="unfinished"></translation>
+        <translation>ПРЕДВАРИТЕЛЬНАЯ ОБРАБОТКА</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="276"/>
         <source>POSTROUTING</source>
-        <translation type="unfinished"></translation>
+        <translation>ПОСЛЕДУЮЩАЯ ОБРАБОТКА</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="321"/>
@@ -344,7 +344,15 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
  to 192.168.1.254:8080
  to 192.168.1.254
  to 1024-2048 (masquerade)</source>
-        <translation type="unfinished"></translation>
+        <translation>в зависимости от Действия (т.е.цели), синтаксис параметров будет различаться.
+Например:
+
+QUEUE -&gt; num 0 (or 1, 2, ...)
+REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
+ to :22
+ to 192.168.1.254:8080
+ to 192.168.1.254
+ to 1024-2048 (masquerade)</translation>
     </message>
 </context>
 <context>
@@ -367,7 +375,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="466"/>
         <source>Default timeout</source>
-        <translation>Удержание по умолчанию</translation>
+        <translation>Тайм-аут по умолчанию</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="340"/>
@@ -437,12 +445,12 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="293"/>
         <source>by destination port</source>
-        <translation>по порту назначения</translation>
+        <translation>по целевому порту</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="298"/>
         <source>by destination ip</source>
-        <translation>по IP-адресу назначения</translation>
+        <translation>по целевому IP-адресу</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="303"/>
@@ -457,7 +465,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="219"/>
         <source>30s</source>
-        <translation>30 сек</translation>
+        <translation>30 с</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="224"/>
@@ -477,7 +485,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="239"/>
         <source>1h</source>
-        <translation>1 час</translation>
+        <translation>1 ч</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="240"/>
@@ -487,7 +495,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="249"/>
         <source>forever</source>
-        <translation>постоянно</translation>
+        <translation>навсегда</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1012"/>
@@ -707,12 +715,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="97"/>
         <source>Destination port</source>
-        <translation>Порт назначения</translation>
+        <translation>Целевой порт</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="113"/>
         <source>Destination IP</source>
-        <translation>IP назначения</translation>
+        <translation>Целевой IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="463"/>
@@ -787,7 +795,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="669"/>
         <source>Destination</source>
-        <translation>Назначение</translation>
+        <translation>Цель</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="637"/>
@@ -857,7 +865,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="998"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don&apos;t have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Если установлено, OpenSnitch будет запрашивать у вас разрешение или отказ на соединения, которые не имеют связанного PID, по нескольким причинам, в основном из-за плохих состояний соединений.&lt;/p&gt;&lt;p&gt;Всплывающее окно будет содержать только информацию о сетевом соединении.&lt;/p&gt;&lt;p&gt;Тем не менее, есть некоторые сценарии, когда это допустимые соединения, например, при установлении VPN с использованием WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1294"/>
@@ -916,7 +924,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="779"/>
         <source>30s or less</source>
-        <translation>Не более 30 сек</translation>
+        <translation>Не более 30 с</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="784"/>
@@ -936,7 +944,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="799"/>
         <source>1h or less</source>
-        <translation>Не более 1 часа</translation>
+        <translation>Не более 1 ч</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="724"/>
@@ -1292,7 +1300,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="245"/>
         <source>Name</source>
-        <translation type="unfinished">Имя</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="207"/>
@@ -1335,7 +1343,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="222"/>
         <source>Priority rule</source>
-        <translation>Правило приоритета</translation>
+        <translation>Приоритетное правило</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1092"/>
@@ -1395,7 +1403,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="355"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The value of this field is always the absolute path to the executable: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;- Simple: /path/to/binary&lt;/p&gt;&lt;p&gt;- Multiple paths: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Multiple binaries: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Deny/Allow executions from /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For more examples visit the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki page&lt;/a&gt; or ask on the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Discussion forums&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Значение этого поля всегда является абсолютным путем к исполняемому файлу: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Примеры:&lt;/p&gt;&lt;p&gt;- Простой: /path/to/binary&lt;/p&gt;&lt;p&gt;- Несколько путей: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Несколько бинарных файлов: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Запретить/Разрешить выполнение из /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Для получения дополнительных примеров посетите &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;страницу вики&lt;/a&gt; или задайте вопрос на &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;форуме обсуждений&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="365"/>
@@ -1405,7 +1413,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="389"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will contain and match the command line that was executed by the user.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the command, only the command will appear:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the absolute or relative path to the command, that is what will appear:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Это поле будет содержать и сопоставлять командную строку, которая была выполнена пользователем.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Если пользователь ввел команду, то отобразится только команда:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Если пользователь ввел абсолютный или относительный путь к команде, то отобразится именно он:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="399"/>
@@ -1440,17 +1448,17 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="971"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of IPs to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;/p&gt;&lt;p&gt;One IP per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Выберите каталог с файлами, содержащими список IP-адресов для блокировки или разрешения:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;и т.д.&lt;/p&gt;&lt;p&gt;Один IP-адрес на строку. Пустые строки или строки, начинающиеся с #, игнорируются.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1006"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of network ranges to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;One Network Range per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Выберите каталог с файлами, содержащими список сетевых диапазонов для блокировки или разрешения:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;и т.д.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Один сетевой диапазон на строку. Пустые строки или строки, начинающиеся с #, игнорируются.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1034"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Выберите каталог со списками доменов для блокировки или разрешения.&lt;/p&gt;&lt;p&gt;Поместите в этот каталог файлы с любым расширением, содержащие списки доменов.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;Формат каждой записи в списке следующий (формат hosts):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;или &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Пустые строки или строки, начинающиеся с #, игнорируются.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1049"/>
@@ -1462,7 +1470,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1076"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing regular expressions of domains to block or allow:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;You can also use a domain as is: &amp;quot;example.com&amp;quot; , and it&apos;ll match whatever.example.com, whatever.example.com.localdomain, etc.&lt;/p&gt;&lt;p&gt;One domain per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Выберите каталог с файлами, содержащими регулярные выражения доменов для блокировки или разрешения:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;Вы также можете использовать домен как есть: &amp;quot;example.com&amp;quot;, и он будет соответствовать whatever.example.com, whatever.example.com.localdomain и т.д.&lt;/p&gt;&lt;p&gt;Один домен на строку. Пустые строки или строки, начинающиеся с #, игнорируются.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1086"/>
@@ -1502,7 +1510,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1102"/>
         <source>Don&apos;t log connections that match this rule</source>
-        <translation>Не логировать соединения соотвтсвующие этому правилу</translation>
+        <translation>Не логировать соединения соответствующие этому правилу</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1105"/>
@@ -1522,7 +1530,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="743"/>
         <source>From this IP / Network</source>
-        <translation>От этого IP или сети</translation>
+        <translation>От этого IP / Сети</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="872"/>
@@ -1532,7 +1540,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="918"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Вы можете указать несколько портов, используя регулярные выражения:&lt;/p&gt;&lt;p&gt;- 53, 80 или 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 или 5551, 5552, 5553 и т.д.:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -1565,7 +1573,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="413"/>
         <source>Status</source>
-        <translation>Состояние</translation>
+        <translation>Статус</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1793"/>
@@ -1851,7 +1859,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="193"/>
         <source>Applying changes...</source>
-        <translation>Применить изменения...</translation>
+        <translation>Применение изменений...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="230"/>
@@ -1876,12 +1884,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="306"/>
         <source>Disabling firewall...</source>
-        <translation>Выключение фервола...</translation>
+        <translation>Выключение межсетевого экрана...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="71"/>
         <source>Dest Port</source>
-        <translation>Порт назначения</translation>
+        <translation>Целевой Порт</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="72"/>
@@ -1891,7 +1899,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="73"/>
         <source>Dest IP</source>
-        <translation>IP-адрес назначения</translation>
+        <translation>Целевой IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="74"/>
@@ -1963,7 +1971,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="420"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы можете использовать &apos;,&apos; или &apos;-&apos; для указания нескольких портов/IP-адресов или диапазонов/значений:&lt;br&gt;&lt;br&gt;порты: 22 или 22,443 или 50000-60000&lt;br&gt;IP-адреса: 192.168.1.1 или 192.168.1.30-192.168.1.130&lt;br&gt;Значения: echo-reply, echo-request&lt;br&gt;Значения: new, established, related</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="440"/>
@@ -1983,7 +1991,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="492"/>
         <source>&lt;select a statement&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;выберите утверждение&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="787"/>
@@ -2053,7 +2061,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1201"/>
         <source>select a statement.</source>
-        <translation type="unfinished"></translation>
+        <translation>выберите утверждение.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1217"/>
@@ -2094,7 +2102,13 @@ Supported formats:
  - Ranges: 80-1024
  - Multiple ports: 80,443,8080
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Поддерживаемые форматы:
+
+ - Простой: 23
+ - Диапазоны: 80-1024
+ - Несколько портов: 80,443,8080
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="134"/>
@@ -2105,27 +2119,33 @@ Supported formats:
  - IP ranges: 1.2.3.100-1.2.3.200
  - Network ranges: 1.2.3.4/24
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Поддерживаемые форматы:
+
+ - Простой: 1.2.3.4
+ - Диапазон: 1.2.3.100-1.2.3.200
+ - Сетевой диапазон: 1.2.3.4/24
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="147"/>
         <source>Match input interface. Regular expressions not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Совпадение входного интерфейса. Регулярные выражения не допускаются.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="154"/>
         <source>Match output interface. Regular expressions not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Совпадение выходного интерфейса. Регулярные выражения не допускаются.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="161"/>
         <source>Set a conntrack mark on the connection, in decimal format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Установить метку conntrack на соединении в десятичном формате.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="171"/>
         <source>Match a conntrack mark of the connection, in decimal format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Совпадение метки conntrack соединения в десятичном формате.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="178"/>
@@ -2135,7 +2155,12 @@ Supported formats:
  - Simple: new
  - Multiple states separated by commas: related,new
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Совпадение состояний conntrack.
+
+Поддерживаемые форматы::
+ - Простой: new
+ - Несколько состояний, разделенных запятыми: related,new
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="193"/>
@@ -2152,12 +2177,24 @@ For l4proto it can be a lower case string, for example:
 If the value is decimal for protocol or lproto, it&apos;ll use it as the code of
 that protocol.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Совпадение метаинформации пакета.
+
+Значение должно быть в десятичном формате, за исключением опции &quot;l4proto&quot;.
+Для l4proto это может быть строка в нижнем регистре, например:
+
+ tcp
+ udp
+ icmp,
+ и т.д.
+
+Если значение является десятичным для протокола или lproto, оно будет использоваться как код этого протокола.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="213"/>
         <source>Set a mark on the packet matching the specified conditions. The value is in decimal format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Установите метку на пакете, соответствующем указанным условиям. Значение должно быть в десятичном формате.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="221"/>
@@ -2168,7 +2205,13 @@ Supported formats:
  - Simple: echo-request
  - Multiple separated by commas: echo-request,echo-reply
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Совпадение ICMP кодов.
+
+Поддерживаемые форматы:
+ - Простой: echo-request
+ - Несколько, разделенных запятыми: echo-request,echo-reply
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="234"/>
@@ -2179,12 +2222,18 @@ Supported formats:
  - Simple: echo-request
  - Multiple separated by commas: echo-request,echo-reply
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Совпадение ICMPv6 кодов.
+
+Поддерживаемые форматы:
+ - Простой: echo-request
+ - Несколько, разделенных запятыми: echo-request,echo-reply
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="247"/>
         <source>Print a message when this rule matches a packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вывести сообщение, когда это правило совпадает с пакетом.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="254"/>
@@ -2198,7 +2247,16 @@ For example when:
 The value must be in the format: VALUE/UNITS, for example:
  - 10mbytes, 1/gbytes, etc
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Применить квоты на соединения.
+
+Например, когда:
+ - &quot;quota over 10/mbytes&quot; -&gt; применить определенное действие (DROP)
+ - &quot;quota until 10/mbytes&quot; -&gt; применить определенное действие (ACCEPT)
+
+Значение должно быть в формате: VALUE/UNITS, например:
+ - 10mbytes, 1/gbytes, и т.д.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="286"/>
@@ -2214,17 +2272,28 @@ For example when:
 The value must be in the format: VALUE/UNITS/TIME, for example:
  - 10/mbytes/minute, 1/gbytes/hour, etc
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Применить ограничения на соединения.
+
+Например, когда:
+ - &quot;limit over 10/mbytes/minute&quot; -&gt; применить определенное действие (DROP, ACCEPT и т.д.)
+    (Когда превышается 10MB в минуту, применить действие)
+
+ - &quot;limit until 10/mbytes/hour&quot; -&gt; применить определенное действие (ACCEPT)
+
+Значение должно быть в формате: VALUE/UNITS/TIME, например:
+ - 10/mbytes/minute, 1/gbytes/hour, и т.д.
+</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="607"/>
         <source>num</source>
-        <translation type="unfinished"></translation>
+        <translation>число</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="621"/>
         <source>to</source>
-        <translation type="unfinished"></translation>
+        <translation>к</translation>
     </message>
 </context>
 <context>
@@ -2397,12 +2466,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="497"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt;, %s</source>
-        <translation type="unfinished"></translation>
+        <translation>соединяется с &lt;b&gt;%s&lt;/b&gt;, %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/notifications.py" line="42"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыто</translation>
     </message>
 </context>
 <context>
@@ -2533,12 +2602,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="164"/>
         <source>System default</source>
-        <translation type="unfinished"></translation>
+        <translation>Системное значение по умолчанию</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="433"/>
         <source>Language changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Язык изменён</translation>
     </message>
 </context>
 <context>
@@ -2613,22 +2682,22 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="731"/>
         <source>Dest port can not be empty</source>
-        <translation>Порт назначения не может быть пустым</translation>
+        <translation>Целевой порт не может быть пустым</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="745"/>
         <source>Dst port regexp error</source>
-        <translation>Ошибка регулярного выражения порта назначения</translation>
+        <translation>Ошибка регулярного выражения целевого порта</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="749"/>
         <source>Dest host can not be empty</source>
-        <translation>Хост назначения не может быть пустым</translation>
+        <translation>Целевой хост не может быть пустым</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="763"/>
         <source>Dst host regexp error</source>
-        <translation>Ошибка регулярного выражения хоста назначения</translation>
+        <translation>Ошибка регулярного выражения целевого хоста</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="805"/>
@@ -2708,22 +2777,22 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="713"/>
         <source>Source port can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Исходный порт не может быть пустым</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="727"/>
         <source>Source port regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка регулярного выражения исходного порта</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="767"/>
         <source>Source IP/Network can not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Исходный IP/Сеть не может быть пустым</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="793"/>
         <source>Source IP regexp error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка регулярного выражения исходного IP</translation>
     </message>
 </context>
 <context>
@@ -2801,7 +2870,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="834"/>
         <source>Rules</source>
-        <translation type="unfinished">Reglas</translation>
+        <translation>Правила</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="299"/>
@@ -2811,7 +2880,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="875"/>
         <source>Action</source>
-        <translation type="unfinished">Acción</translation>
+        <translation>Действие</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
@@ -3080,7 +3149,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="290"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Имя хоста</translation>
+        <translation>ИмяХоста</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="423"/>
@@ -3146,7 +3215,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
         <source>Destination</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Назначение</translation>
+        <translation>Цель</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="309"/>
@@ -3158,13 +3227,13 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="310"/>
         <source>UserID</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>ID пользователя</translation>
+        <translation>ПользID</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="311"/>
         <source>LastConnection</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Последнее соединение</translation>
+        <translation>ПоследнСоединение</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
@@ -3176,19 +3245,19 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="306"/>
         <source>DstIP</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>IP назначения</translation>
+        <translation>ЦелевойIP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="307"/>
         <source>DstHost</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Хост назначения</translation>
+        <translation>ЦелевойХост</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="308"/>
         <source>DstPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Порт назначения</translation>
+        <translation>ЦелевойПорт</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/service.py" line="776"/>
@@ -3209,7 +3278,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="291"/>
         <source>Uptime</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Время работы</translation>
+        <translation>ВремяРаботы</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="300"/>
@@ -3255,7 +3324,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="304"/>
         <source>Cmdline</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Командная строка</translation>
+        <translation>КоманднаяСтрока</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="406"/>
@@ -3331,7 +3400,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/service.py" line="211"/>
         <source>WARNING</source>
-        <translation>ВНИМАНИЕ</translation>
+        <translation>ПРЕДУПРЕЖДЕНИЕ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="833"/>
@@ -3341,7 +3410,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="835"/>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>Новое</translation>
     </message>
 </context>
 <context>
