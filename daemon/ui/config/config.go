@@ -83,9 +83,10 @@ type Config struct {
 	Internal          InternalOptions        `json:"Internal"`
 	Stats             statistics.StatsConfig `json:"Stats"`
 
-	InterceptUnknown bool `json:"InterceptUnknown"`
-	LogUTC           bool `json:"LogUTC"`
-	LogMicro         bool `json:"LogMicro"`
+	InterceptLoopback bool `json:"InterceptLoopback"`
+	InterceptUnknown  bool `json:"InterceptUnknown"`
+	LogUTC            bool `json:"LogUTC"`
+	LogMicro          bool `json:"LogMicro"`
 }
 
 // Parse determines if the given configuration is ok.

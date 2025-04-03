@@ -75,6 +75,7 @@ class TestPreferences():
         self.prefs.checkNodeLogUTC.setChecked(False)
         self.prefs.checkNodeLogMicro.setChecked(True)
         self.prefs.checkInterceptUnknown.setChecked(True)
+        self.prefs.checkInterceptLoopback.setChecked(True)
         self.prefs.tabWidget.setCurrentIndex(self.prefs.TAB_NODES)
         self.prefs._node_needs_update = True
 
@@ -84,6 +85,7 @@ class TestPreferences():
         for n in self.prefs._notifications_sent:
             conf = json.loads(self.prefs._notifications_sent[n].data)
             assert conf['InterceptUnknown'] == True
+            assert conf['InterceptLoopback'] == True
             assert conf['ProcMonitorMethod'] == "audit"
             assert conf['LogLevel'] == 5
             assert conf['LogUTC'] == False

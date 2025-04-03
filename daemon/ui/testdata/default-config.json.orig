@@ -18,6 +18,7 @@
     "DefaultAction": "allow",
     "DefaultDuration": "once",
     "InterceptUnknown": false,
+    "InterceptLoopback": false,
     "ProcMonitorMethod": "proc",
     "LogLevel": 0,
     "LogUTC": true,

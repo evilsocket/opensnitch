@@ -407,10 +407,17 @@ func onPacket(packet netfilter.Packet) {
 	}
 
 	// Parse the connection state
-	con := conman.Parse(packet, uiClient.InterceptUnknown())
+	con, pass := conman.Parse(packet, uiClient.InterceptUnknown(), uiClient.InterceptLoopback())
+	//log.Debug("onPacket(): con %s, pass %t, uiClient.InterceptLoopback() %t", con, pass, uiClient.InterceptLoopback())
+	// Skip localhost connections when InterceptLoopback is disabled
 	if con == nil {
-		applyDefaultAction(&packet, nil)
-		return
+		if uiClient.InterceptLoopback() == false && pass == true {
+			packet.SetVerdict(netfilter.NF_ACCEPT)
+			return
+		} else {
+			applyDefaultAction(&packet, nil)
+			return
+		}
 	}
 	// accept our own connections
 	if con.Process.ID == os.Getpid() {

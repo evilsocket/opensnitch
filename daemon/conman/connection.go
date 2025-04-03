@@ -36,43 +36,54 @@ type Connection struct {
 }
 
 var showUnknownCons = false
+var showLoopbackCons = false
+
+// Check for loopback IP address
+func isLoopback(ip net.IP) bool {
+	res := net.ParseIP(ip.String())
+	return res != nil && res.IsLoopback()
+}
 
 // Parse extracts the IP layers from a network packet to determine what
 // process generated a connection.
-func Parse(nfp netfilter.Packet, interceptUnknown bool) *Connection {
+func Parse(nfp netfilter.Packet, interceptUnknown bool, interceptLoopback bool) (con *Connection, pass bool) {
 	showUnknownCons = interceptUnknown
+	showLoopbackCons = interceptLoopback
 	log.Trace("Connection.Parse(): %v", nfp)
 
 	if nfp.IsIPv4() {
-		con, err := NewConnection(&nfp)
+		con, err, pass := NewConnection(&nfp)
 		if err != nil {
 			log.Debug("%s", err)
-			return nil
+			return nil, pass
 		} else if con == nil {
-			return nil
+			return nil, pass
 		}
-		return con
+		return con, pass
 	}
 
 	if core.IPv6Enabled == false {
-		return nil
+		return nil, false
 	}
-	con, err := NewConnection6(&nfp)
+	con, err, pass := NewConnection6(&nfp)
 	if err != nil {
 		log.Debug("%s", err)
-		return nil
+		return nil, pass
 	} else if con == nil {
-		return nil
+		return nil, pass
 	}
-	return con
+	return con, pass
 
 }
 
-func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (cr *Connection, err error) {
+func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (cr *Connection, err error, pass bool) {
 	// no errors but not enough info neither
+	// always pass false for the "pass" variable
+	// because we never want to skip these
+
 	if c.parseDirection(protoType) == false {
 		log.Trace("discarding connection (proto %s): %+v", protoType, c)
-		return nil, nil
+		return nil, nil, false
 	}
 	log.Debug("new connection %s => %d:%v -> %v (%s):%d uid: %d, mark: %x", c.Protocol, c.SrcPort, c.SrcIP, c.DstIP, c.DstHost, c.DstPort, nfp.UID, nfp.Mark)
 
@@ -97,7 +108,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 
 		if c.Process != nil {
 			c.Entry.UserId = c.Process.UID
-			return c, nil
+			return c, nil, false
 		}
 		if err != nil {
 			log.Debug("ebpf warning: %v", err)
@@ -119,7 +130,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 			c.Process.CleanPath()
 
 			procmon.EventsCache.Add(c.Process)
-			return c, nil
+			return c, nil, false
 		}
 		log.Debug("[auditd conn] PID not found via auditd, falling back to proc")
 	}
@@ -156,7 +167,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 		// return a Process object with our PID, to be able to exclude our own connections
 		// (to the UI on a local socket for example)
 		c.Process = procmon.NewProcessEmpty(pid, "")
-		return c, nil
+		return c, nil, false
 	}
 
 	if nfp.UID != 0xffffffff {
@@ -166,22 +177,29 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 
 	if c.Process == nil {
 		if c.Process = procmon.FindProcess(pid, showUnknownCons); c.Process == nil {
-			return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c)
+			return nil, fmt.Errorf("Could not find process by its pid %d for: %s", pid, c), false
 		}
 	}
 
-	return c, nil
+	return c, nil, false
 }
 
 // NewConnection creates a new Connection object, and returns the details of it.
-func NewConnection(nfp *netfilter.Packet) (c *Connection, err error) {
+func NewConnection(nfp *netfilter.Packet) (c *Connection, err error, pass bool) {
 	ipv4 := nfp.Packet.Layer(layers.LayerTypeIPv4)
 	if ipv4 == nil {
-		return nil, errors.New("Error getting IPv4 layer")
+		return nil, errors.New("Error getting IPv4 layer"), false
 	}
 	ip, ok := ipv4.(*layers.IPv4)
 	if !ok {
-		return nil, errors.New("Error getting IPv4 layer data")
+		return nil, errors.New("Error getting IPv4 layer data"), false
+	}
+	//log.Debug("NewConnection(): showLoopbackCons %t, isLoopback(ip.SrcIP) %t, isLoopback(ip.DstIP) %t", showLoopbackCons, isLoopback(ip.SrcIP), isLoopback(ip.DstIP))
+	// set pass variable to true to skip localhost connections
+	if showLoopbackCons == false {
+		if isLoopback(ip.SrcIP) || isLoopback(ip.DstIP) {
+			return nil, nil, true
+		}
 	}
 	c = &Connection{
 		SrcIP:   ip.SrcIP,
@@ -194,14 +212,21 @@ func NewConnection(nfp *netfilter.Packet) (c *Connection, err error) {
 }
 
 // NewConnection6 creates a IPv6 new Connection object, and returns the details of it.
-func NewConnection6(nfp *netfilter.Packet) (c *Connection, err error) {
+func NewConnection6(nfp *netfilter.Packet) (c *Connection, err error, pass bool) {
 	ipv6 := nfp.Packet.Layer(layers.LayerTypeIPv6)
 	if ipv6 == nil {
-		return nil, errors.New("Error getting IPv6 layer")
+		return nil, errors.New("Error getting IPv6 layer"), false
 	}
 	ip, ok := ipv6.(*layers.IPv6)
 	if !ok {
-		return nil, errors.New("Error getting IPv6 layer data")
+		return nil, errors.New("Error getting IPv6 layer data"), false
+	}
+	//log.Debug("NewConnection6(): showLoopbackCons %t, isLoopback(ip.SrcIP) %t, isLoopback(ip.DstIP) %t", showLoopbackCons, isLoopback(ip.SrcIP), isLoopback(ip.DstIP))
+	// set pass variable to true to skip localhost connections
+	if showLoopbackCons == false {
+		if isLoopback(ip.SrcIP) || isLoopback(ip.DstIP) {
+			return nil, nil, true
+		}
 	}
 	c = &Connection{
 		SrcIP:   ip.SrcIP,
