@@ -36,24 +36,34 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 | precedence       | true or false. Sets if a rule take precedence (>= v1.2.0)|
 | action           | Can be `deny`, `reject` or `allow`. |
 | duration         | For rules persisting on disk, this value is default to `always`. |
-| operator.type    | Can be `simple`, in which case a simple `==` comparison will be performed, `regexp` if the `data` field is a regular expression to match, `network` which will match a network range (127.0.0.1/8), `lists` which will look for matches on lists of something (domains, IPs, etc), or `list`, which is a combination of all of the types.|
-| operator.operand | What element of the connection to compare, can be one of: |
+| operator.type    | `simple`, `regexp`, `network`, `lists`, `list`.|
+| | `simple` is a simple `==` comparison. `regexp` will match the regexp from the `data` field against the Operand, `network` which will match a network range (127.0.0.1/8), `lists` will look for matches on lists of something (domains, IPs, etc), and `list`, a combination of all of the previous types. |
+| operator.data    | The data to compare the `operand` to, can be a regular expression if `type` is `regexp`, or a path to a directory with list of IPs/domains in the case of `lists`. |
+| operator.operand | Element of the connection to compare against, can be one of: |
 | |* `true` (will always match) |
-| |* `process.path` (the path of the executable) |
-| |* `process.id` PID|
-| |* `process.command` (full command line, including path and arguments)|
-| |* `provess.env.ENV_VAR_NAME` (use the value of an environment variable of the process given its name)
+| |* `process.path` (the absolute path of the executable) |
+| |* `process.id` PID of the process|
+| |* `process.command` (full command line, including path and arguments). Note that cmdlines can contain or not the process, and the path can be absolute or relative (`./cmd -x a`)|
+| |* `process.parent.path` (v1.7.0) check against ONE of the parent path. Include more parent paths to match the tree of a process. |
+| |* `provess.env.ENV_VAR_NAME` (use the value of an environment variable of the process given its name). |
+| |* `process.hash.md5` (v1.7.0) |
 | |* `user.id` (UID)|
+| |* `user.name` user name (v1.7.0). Check against a regular system username (no namespaces, containers or virtual user names).|
 | |* `protocol`|
+| |* `source.port` |
+| |* `source.ip` |
+| |* `source.network` |
 | |* `dest.ip` |
 | |* `dest.host` |
-| |* `dest.network` (>= v1.3.0)|
+| |* `dest.network` (v1.3.0)|
 | |* `dest.port` |
-| |* `lists.domains` (>= 1.4.0) lists of domains in hosts format [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
-| |* `lists.domains_regexp` (>= 1.5.0) list of domains with regular expressions (`.*\.example\.com`) [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
-| |* `lists.ips` (>= 1.5.0) list of IPs [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
-| |* `lists.nets` (>= 1.5.0) list of network ranges [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
-| operator.data    | The data to compare the `operand` to, can be a regular expression if `type` is `regexp`, or a path to a directory with list of IPs/domains in the case of `lists`. |
+| |* `iface.in` (v1.6.0) |
+| |* `iface.out` (v1.6.0) |
+| |* `lists.domains` (v1.4.0) lists of domains in hosts format [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| |* `lists.domains_regexp` (v1.5.0) list of domains with regular expressions (`.*\.example\.com`) [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| |* `lists.ips` (v1.5.0) list of IPs [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| |* `lists.nets` (v1.5.0) list of network ranges [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| |* `lists.hash.md5` (v1.7.0) list of md5s |
 
 ### Some considerations
 
