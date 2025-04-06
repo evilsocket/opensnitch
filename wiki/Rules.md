@@ -80,8 +80,7 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 - If you select multiple lists on the same rule, bear in mind that the connections you want to match must
  [Read this disccussion to learn more](https://github.com/evilsocket/opensnitch/discussions/877#discussioncomment-5247997)
 
-- Rule precedence: When a connection is attempted, OpenSnitch evaluates each of the defined rules in the rule name's alphabetical order (since v.1.2.0). As soon as it encounters a  Deny/Reject rule or an _Important_ ([x] Priority) rule (since v1.2.0) that matches the connection, that rule will be immediately selected as the effective rule. If no such rule is found, then the last non-Important Allow rule that matched will be selected. If no rule matched, it shows a pop-up dialogue, or applys the default action if that's not possible.
-- If a disabled rule is selected to be the effective rule for a given connection, the default action is applied. **This means disabling a rule ends up with a different filtering behavior than deleting it.**
+Rule precedence: When a connection is attempted, OpenSnitch evaluates each of the enabled rules. The rules are sorted in the alphabetical order of rule names (since v.1.2.0). OpenSnitch goes through the list and as soon as it encounters a  Deny/Reject rule or an _Important_ ([x] Priority) rule (since v1.2.0) that matches the connection, that rule will be immediately selected as the effective rule. If no such rule is found, then the last non-Important Allow rule that matched will be selected. If no rule matched, it shows a pop-up dialogue, or applys the default action if that's not possible.
 
 - In the following example, the Deny rule takes precedence over the Allow rules:
 ```
