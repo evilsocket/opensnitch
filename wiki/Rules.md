@@ -80,19 +80,19 @@ Rules are stored as JSON files inside the `-rule-path` folder, in the simplest c
 - If you select multiple lists on the same rule, bear in mind that the connections you want to match must
  [Read this disccussion to learn more](https://github.com/evilsocket/opensnitch/discussions/877#discussioncomment-5247997)
 
-- By default Deny rules take precedence over the rest of the rules. If a connection match a Deny rule, opensnitch won't continue evaluating rules.
+- Rule precedence: When a connection is attempted, OpenSnitch evaluates each of the defined rules in the rule name's alphabetical order (since v.1.2.0). As soon as it encounters a  Deny/Reject rule or an _Important_ ([x] Priority) rule (since v1.2.0) that matches the connection, that rule will be immediately selected as the effective rule. If no such rule is found, then the last non-Important Allow rule that matched will be selected. If no rule matched, it shows a pop-up dialogue, or applys the default action if that's not possible.
+- If a disabled rule is selected to be the effective rule for a given connection, the default action is applied. **This means disabling a rule ends up with a different filtering behavior than deleting it.**
 
-- Since v1.2.0, rules are sorted and checked in alphabetical order. You can name them this way to prioritize Deny rules, for example:
+- In the following example, the Deny rule takes precedence over the Allow rules:
 ```
 000-allow-chrome-to-specific-domains
 001-allow-not-so-important-rule
 001-deny-chrome
 ```
 
-- Also since v1.2.0, you can configure a rule as _Important_ ([x] Priority) to take precedence over the rest of the rules. If you set this flag and name the rule as mentioned above, you can also prioritize Allow rules:
-
+- In the following example, the first Allow rule takes precedence because it is set to Priority and it comes first in the alphabetical order:
 ```
-000-allow-chrome-to-specific-domains [x] Priority <-- if the connection matches this rule, it'll allow this rule and won't continue evaluating the rest of rules.
+000-allow-chrome-to-specific-domains [x] Priority
 001-allow-not-so-important-rule
 001-deny-chrome
 ```
@@ -101,9 +101,9 @@ This way you can not only prioritize critical connections (like VPNs), but also 
 
 **More on rules performance**
 
-As already mentioned, the order of the rule is critical. If you prioritize Firefox the web navegation will be faster.
+As already mentioned, the order of rules is critical. If you use Firefox and prioritize Allow rules to allow Firefox's connections, web navegation will be faster.
 
-But the type of rule also impacts the rules performance. `regexp` and `list` types are slower than `simple`, in the end, `regexp` and `list` types check multiple parameters while simple rules check just one.
+But the type of rule also impacts the rule's performance. `regexp` and `list` types are slower than `simple` because `regexp` and `list` types check multiple parameters while simple rules check just one.
 
 ---
 
