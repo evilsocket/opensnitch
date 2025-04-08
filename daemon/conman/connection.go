@@ -191,7 +191,7 @@ func NewConnection(nfp *netfilter.Packet) (c *Connection, err error, pass bool) 
 	//log.Debug("NewConnection(): showLoopbackCons %t, isLoopback(ip.SrcIP) %t, isLoopback(ip.DstIP) %t", showLoopbackCons, isLoopback(ip.SrcIP), isLoopback(ip.DstIP))
 	// set pass variable to true to skip localhost connections
 	if showLoopbackCons == false {
-		if ip.SrcIP.IsLoopback() || ip.DstIP.IsLoopback() {
+		if ip.SrcIP[0] == 127 || ip.DstIP[0] == 127 {
 			return nil, nil, true
 		}
 	}
@@ -218,7 +218,7 @@ func NewConnection6(nfp *netfilter.Packet) (c *Connection, err error, pass bool)
 	//log.Debug("NewConnection6(): showLoopbackCons %t, isLoopback(ip.SrcIP) %t, isLoopback(ip.DstIP) %t", showLoopbackCons, isLoopback(ip.SrcIP), isLoopback(ip.DstIP))
 	// set pass variable to true to skip localhost connections
 	if showLoopbackCons == false {
-		if ip.SrcIP.IsLoopback() || ip.DstIP.IsLoopback() {
+		if string(ip.SrcIP) == string(net.IPv6loopback) || string(ip.DstIP) == string(net.IPv6loopback) {
 			return nil, nil, true
 		}
 	}
