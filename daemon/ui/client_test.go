@@ -21,6 +21,7 @@ var (
 		DefaultAction:     "allow",
 		DefaultDuration:   "once",
 		InterceptUnknown:  false,
+		InterceptLoopback: false,
 		Firewall:          "nftables",
 		Rules: config.RulesOptions{
 			Path: "/etc/opensnitchd/rules",
@@ -50,6 +51,9 @@ func validateConfig(t *testing.T, uiClient *Client, cfg *config.Config) {
 	if uiClient.InterceptUnknown() != cfg.InterceptUnknown {
 		t.Errorf("not expected InterceptUnknown value: %v, expected: %v", uiClient.InterceptUnknown(), cfg.InterceptUnknown)
 	}
+	if uiClient.InterceptLoopback() != cfg.InterceptLoopback {
+		t.Errorf("not expected InterceptLoopback value: %v, expected: %v", uiClient.InterceptLoopback(), cfg.InterceptLoopback)
+	}
 	if uiClient.DefaultAction() != rule.Action(cfg.DefaultAction) {
 		t.Errorf("not expected DefaultAction value: %s, expected: %s", clientDisconnectedRule.Action, cfg.DefaultAction)
 	}
@@ -77,6 +81,7 @@ func TestClientConfigReloading(t *testing.T) {
 		//reloadConfig.ProcMonitorMethod = procmon.MethodProc
 		reloadConfig.DefaultAction = string(rule.Deny)
 		reloadConfig.InterceptUnknown = true
+		reloadConfig.InterceptLoopback = true
 		reloadConfig.Firewall = iptables.Name
 		reloadConfig.FwOptions.QueueBypass = true
 		reloadConfig.Server.Address = "unix:///run/user/1000/opensnitch/osui.sock"

@@ -1641,6 +1641,23 @@ Temporary rules will still be valid, and you can use them when prompted to allow
              </item>
             </widget>
            </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_30">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;If un-checked, OpenSnitch will skip connections that traverse loopback interfaces.&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Intercept loopback connections</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QCheckBox" name="checkInterceptLoopback">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="page_2">

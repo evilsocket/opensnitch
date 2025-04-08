@@ -123,6 +123,13 @@ func (c *Client) InterceptUnknown() bool {
 	return c.config.InterceptUnknown
 }
 
+// InterceptLoopback returns
+func (c *Client) InterceptLoopback() bool {
+	c.RLock()
+	defer c.RUnlock()
+	return c.config.InterceptLoopback
+}
+
 // GetFirewallType returns the firewall to use
 func (c *Client) GetFirewallType() string {
 	c.RLock()
@@ -165,14 +172,14 @@ func (c *Client) Connected() bool {
 	return true
 }
 
-//GetIsAsking returns the isAsking flag
+// GetIsAsking returns the isAsking flag
 func (c *Client) GetIsAsking() bool {
 	c.RLock()
 	defer c.RUnlock()
 	return c.isAsking
 }
 
-//SetIsAsking sets the isAsking flag
+// SetIsAsking sets the isAsking flag
 func (c *Client) SetIsAsking(flag bool) {
 	c.Lock()
 	defer c.Unlock()
