@@ -11,6 +11,13 @@
 #define BUF_SIZE_MAP_NS 256
 #define MAPSIZE 12000
 
+#define debug(fmt, ...) \
+    ( \
+     { \
+     char __fmt[] = fmt; \
+     bpf_trace_printk(__fmt, sizeof(__fmt), ##__VA_ARGS__); \
+     })
+
 // even though we only need 32 bits of pid, on x86_32 ebpf verifier complained when pid type was set to u32
 typedef u64 pid_size_t;
 typedef u64 uid_size_t; 

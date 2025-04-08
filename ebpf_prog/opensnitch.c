@@ -123,7 +123,6 @@ struct bpf_map_def SEC("maps/icmpsock") icmpsock = {
     .max_entries = 300,
 };
 
-
 // initializing variables with __builtin_memset() is required
 // for compatibility with bpf on kernel 4.4
 
@@ -255,16 +254,12 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
     bpf_probe_read(&udp_key.sport, sizeof(udp_key.sport), &sk->__sk_common.skc_num);
     bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &sk->__sk_common.skc_rcv_saddr);
 
-// TODO: armhf
-#if !defined(__arm__)
-    // extract from the ancillary message the source IP.
     if (udp_key.saddr == 0){
         u64 cmsg=0;
         bpf_probe_read(&cmsg, sizeof(cmsg), &msg->msg_control);
         struct in_pktinfo *inpkt = (struct in_pktinfo *)CMSG_DATA(cmsg);
         bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &inpkt->ipi_spec_dst.s_addr);
     }
-#endif
 
     u32 zero_key = 0;
     __builtin_memset(&zero_key, 0, sizeof(zero_key));
@@ -342,8 +337,7 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
     return 0;
 };
 
-// TODO: armhf
-#if !defined(__arm__)
+
 SEC("kprobe/inet_dgram_connect")
 int kprobe__inet_dgram_connect(struct pt_regs *ctx)
 {
@@ -399,6 +393,7 @@ int kretprobe__inet_dgram_connect(int retval)
         __builtin_memset(&udp_key, 0, sizeof(udp_key));
         ska = (struct sockaddr_in *)*sap;
 
+        // this is in reality the daddr
         bpf_probe_read(&udp_key.daddr, sizeof(udp_key.daddr), &ska->sin_addr.s_addr);
         bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &ska->sin_port);
         if (udp_key.dport == 0){
@@ -474,10 +469,16 @@ out:
 
     return 0;
 };
-#endif
 
 // TODO: for 32bits
-#if !defined(__arm__) && !defined(__i386__)
+#if defined(__arm__) && !defined(__i386__)
+SEC("kprobe/iptunnel_xmit")
+int kprobe__iptunnel_xmit(struct pt_regs *ctx)
+{
+    // empty kprobe, so the ebpf lib does not complain about missing kprobe on 32bits archs.
+    return 0;
+}
+#else
 
 SEC("kprobe/iptunnel_xmit")
 int kprobe__iptunnel_xmit(struct pt_regs *ctx)
@@ -521,6 +522,7 @@ int kprobe__iptunnel_xmit(struct pt_regs *ctx)
 
     return 0;
 };
+
 #endif
 
 char _license[] SEC("license") = "GPL";

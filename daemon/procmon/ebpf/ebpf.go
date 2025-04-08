@@ -8,17 +8,47 @@ import (
 	"syscall"
 	"unsafe"
 
+	"github.com/cilium/ebpf"
+	"github.com/cilium/ebpf/link"
+	"github.com/cilium/ebpf/ringbuf"
+	"github.com/cilium/ebpf/rlimit"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
-	elf "github.com/iovisor/gobpf/elf"
 	"github.com/vishvananda/netlink"
 )
 
+// KProbeDefs holds the hooks defined in the main module, for network interception.
+type KProbeDefs struct {
+	KProbeTCPv4Connect        *ebpf.Program `ebpf:"kprobe__tcp_v4_connect"`
+	KretProbeTCPv4Connect     *ebpf.Program `ebpf:"kretprobe__tcp_v4_connect"`
+	KProbeTCPv6Connect        *ebpf.Program `ebpf:"kprobe__tcp_v6_connect"`
+	KretProbeTCPv6Connect     *ebpf.Program `ebpf:"kretprobe__tcp_v6_connect"`
+	KProbeUDPv4Connect        *ebpf.Program `ebpf:"kprobe__udp_sendmsg"`
+	KProbeUDPv6Connect        *ebpf.Program `ebpf:"kprobe__udpv6_sendmsg"`
+	KProbeIPtunnelXmit        *ebpf.Program `ebpf:"kprobe__iptunnel_xmit"`
+	KProbeInetDgramConnect    *ebpf.Program `ebpf:"kprobe__inet_dgram_connect"`
+	KretProbeInetDgramConnect *ebpf.Program `ebpf:"kretprobe__inet_dgram_connect"`
+}
+
+// MapDefs holds the map definitions of the main module
+type MapDefs struct {
+	TCPMap   *ebpf.Map `ebpf:"tcpMap"`
+	UDPMap   *ebpf.Map `ebpf:"udpMap"`
+	TCPv6Map *ebpf.Map `ebpf:"tcpv6Map"`
+	UDPv6Map *ebpf.Map `ebpf:"udpv6Map"`
+}
+
+// container of hooks and maps
+type ebpfDefsT struct {
+	KProbeDefs
+	MapDefs
+}
+
 // contains pointers to ebpf maps for a given protocol (tcp/udp/v6)
 type ebpfMapsForProto struct {
-	bpfmap *elf.Map
+	bpfMap *ebpf.Map
 }
 
 //Not in use, ~4usec faster lookup compared to m.LookupElement()
@@ -47,16 +77,17 @@ const (
 
 // Error returns the error type and a message with the explanation
 type Error struct {
-	What int // 1 global error, 2 events error, 3 ...
 	Msg  error
+	What int // 1 global error, 2 events error, 3 ...
 }
 
 var (
-	m, perfMod *elf.Module
-	ebpfCfg    Config
-	lock       = sync.RWMutex{}
-	mapSize    = uint(12000)
-	ebpfMaps   map[string]*ebpfMapsForProto
+	m            *ebpf.Collection
+	eventsReader *ringbuf.Reader
+	ebpfCfg      Config
+	lock         = sync.RWMutex{}
+	mapSize      = uint(12000)
+	ebpfMaps     map[string]*ebpfMapsForProto
 
 	//connections which were established at the time when opensnitch started
 	alreadyEstablished = alreadyEstablishedConns{
@@ -74,54 +105,98 @@ var (
 	localAddresses = make(map[string]netlink.Addr)
 
 	hostByteOrder binary.ByteOrder
+
+	// "Losing the reference to the resulting Link (kp) will close the Kprobe and
+	// prevent further execution of prog. The Link must be Closed during program
+	// shutdown to avoid leaking system resources."
+	// https://pkg.go.dev/github.com/cilium/ebpf/link#Kprobe
+
+	// array that holds the reference to every loaded hook.
+	hooks          = []link.Link{}
+	collectionMaps = make([]*ebpf.Collection, 0)
 )
 
 // Start installs ebpf kprobes
 func Start(ebpfOpts Config) *Error {
 	setConfig(ebpfOpts)
-
 	setRunning(false)
-	if err := mountDebugFS(); err != nil {
-		return &Error{
-			NotAvailable,
-			fmt.Errorf("ebpf.Start: mount debugfs error. Report on github please: %s", err),
-		}
+
+	if err := rlimit.RemoveMemlock(); err != nil {
+		log.Warning("[eBPF] unable to remove memlock")
 	}
+
 	var err error
+	// load definitions from the elf file.
 	m, err = core.LoadEbpfModule("opensnitch.o", ebpfCfg.ModulesPath)
 	if err != nil {
 		dispatchErrorEvent(fmt.Sprint("[eBPF]: ", err.Error()))
-		return &Error{NotAvailable, fmt.Errorf("[eBPF] Error loading opensnitch.o: %s", err.Error())}
-	}
-	m.EnableOptionCompatProbe()
-
-	// if previous shutdown was unclean, then we must remove the dangling kprobe
-	// and install it again (close the module and load it again)
-
-	if err := m.EnableKprobes(0); err != nil {
-		m.Close()
-		if err := m.Load(nil); err != nil {
-			return &Error{NotAvailable, fmt.Errorf("eBPF failed to load /etc/opensnitchd/opensnitch.o (2): %v", err)}
-		}
-		if err := m.EnableKprobes(0); err != nil {
-			return &Error{NotAvailable, fmt.Errorf("eBPF error when enabling kprobes: %v", err)}
-		}
+		return &Error{fmt.Errorf("[eBPF] Error loading opensnitch.o: %s", err.Error()), NotAvailable}
 	}
 	determineHostByteOrder()
 
+	// create objects from the definitions
+	ebpfMod := ebpfDefsT{}
+	if err := m.Assign(&ebpfMod); err != nil {
+		dispatchErrorEvent(fmt.Sprint("[eBPF] loadAndAssign error: ", err))
+		return &Error{fmt.Errorf("[eBPF] Error loading opensnitch.o (collection): %s", err), NotAvailable}
+	}
+	collectionMaps = append(collectionMaps, m)
+
+	kp, err := link.Kprobe("tcp_v4_connect", ebpfMod.KProbeTCPv4Connect, nil)
+	if err != nil {
+		log.Error("opening kprobe: %s", err)
+	}
+	hooks = append(hooks, kp)
+	kp, err = link.Kretprobe("tcp_v4_connect", ebpfMod.KretProbeTCPv4Connect, nil)
+	if err != nil {
+		log.Error("opening kretprobe: %s", err)
+	}
+	hooks = append(hooks, kp)
+	kp, err = link.Kprobe("tcp_v6_connect", ebpfMod.KProbeTCPv6Connect, nil)
+	if err != nil {
+		log.Error("opening kprobe: %s", err)
+	}
+	hooks = append(hooks, kp)
+	kp, err = link.Kretprobe("tcp_v6_connect", ebpfMod.KretProbeTCPv6Connect, nil)
+	if err != nil {
+		log.Error("opening kretprobe: %s", err)
+	}
+	hooks = append(hooks, kp)
+	kp, err = link.Kprobe("udp_sendmsg", ebpfMod.KProbeUDPv4Connect, nil)
+	if err != nil {
+		log.Error("opening kprobe: %s", err)
+	}
+	hooks = append(hooks, kp)
+	kp, err = link.Kprobe("udpv6_sendmsg", ebpfMod.KProbeUDPv6Connect, nil)
+	if err != nil {
+		log.Error("opening kprobe: %s", err)
+	}
+	hooks = append(hooks, kp)
+	kp, err = link.Kprobe("iptunnel_xmit", ebpfMod.KProbeIPtunnelXmit, nil)
+	if err != nil {
+		log.Error("opening kprobe: %s", err)
+	}
+	hooks = append(hooks, kp)
+	kp, err = link.Kprobe("inet_dgram_connect", ebpfMod.KProbeInetDgramConnect, nil)
+	if err != nil {
+		log.Error("opening kprobe: %s", err)
+	}
+	hooks = append(hooks, kp)
+	kp, err = link.Kretprobe("inet_dgram_connect", ebpfMod.KretProbeInetDgramConnect, nil)
+	if err != nil {
+		log.Error("opening kretprobe: %s", err)
+	}
+	hooks = append(hooks, kp)
+
 	ebpfMaps = map[string]*ebpfMapsForProto{
-		"tcp": {
-			bpfmap: m.Map("tcpMap")},
-		"tcp6": {
-			bpfmap: m.Map("tcpv6Map")},
-		"udp": {
-			bpfmap: m.Map("udpMap")},
-		"udp6": {
-			bpfmap: m.Map("udpv6Map")},
+		"tcp":  {bpfMap: ebpfMod.TCPMap},
+		"udp":  {bpfMap: ebpfMod.UDPMap},
+		"tcp6": {bpfMap: ebpfMod.TCPv6Map},
+		"udp6": {bpfMap: ebpfMod.UDPv6Map},
 	}
 	for prot, mfp := range ebpfMaps {
-		if mfp.bpfmap == nil {
-			return &Error{NotAvailable, fmt.Errorf("eBPF module opensnitch.o malformed, bpfmap[%s] nil", prot)}
+		if mfp.bpfMap == nil {
+			return &Error{fmt.Errorf("eBPF module opensnitch.o malformed, bpfmap[%s] nil", prot), NotAvailable}
 		}
 	}
 
@@ -152,6 +227,9 @@ func saveEstablishedConnections(commDomain uint8) error {
 	}
 
 	for _, sock := range socketListTCP {
+		if sock == nil {
+			continue
+		}
 		inode := int((*sock).INode)
 		pid := procmon.GetPIDFromINode(inode, fmt.Sprint(inode,
 			(*sock).ID.Source, (*sock).ID.SourcePort, (*sock).ID.Destination, (*sock).ID.DestinationPort))
@@ -180,26 +258,32 @@ func Stop() {
 	cancelTasks()
 	ebpfCache.clear()
 
-	for pm := range perfMapList {
-		if pm != nil {
-			pm.PollStop()
+	if eventsReader != nil {
+		eventsReader.Close()
+	}
+
+	for _, k := range hooks {
+		if k != nil {
+			log.Trace("[eBPF] Stop() hook: %+v\n", k)
+			k.Close()
 		}
 	}
-	for k, mod := range perfMapList {
-		if mod != nil {
-			mod.Close()
-			delete(perfMapList, k)
+	for _, k := range collectionMaps {
+		if k != nil {
+			log.Trace("[eBPF] Stop() map: %+v\n", k)
+			k.Close()
 		}
 	}
+	hooks = []link.Link{}
+	collectionMaps = make([]*ebpf.Collection, 0)
+
 	if m != nil {
 		m.Close()
 	}
 
-	if perfMod != nil {
-		perfMod.Close()
-	}
 }
 
+// TODO: remove
 // make bpf() syscall with bpf_lookup prepared by the caller
 func makeBpfSyscall(bpf_lookup *bpf_lookup_elem_t) uintptr {
 	BPF_MAP_LOOKUP_ELEM := 1 //cmd number
@@ -218,7 +302,7 @@ func dispatchErrorEvent(what string) {
 
 func dispatchEvent(data interface{}) {
 	if len(kernelEvents) > maxKernelEvents-1 {
-		fmt.Printf("kernelEvents queue full (%d)", len(kernelEvents))
+		//fmt.Printf("kernelEvents queue full (%d)", len(kernelEvents))
 		<-kernelEvents
 	}
 	select {

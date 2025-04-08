@@ -78,12 +78,14 @@ struct bpf_map_def SEC("maps/addrinfo_args_hash") addrinfo_args_hash = {
 };
 
 // BPF output events
-struct bpf_map_def SEC("maps/events") events = {
-    .type = BPF_MAP_TYPE_PERF_EVENT_ARRAY,
-    .key_size = sizeof(u32),
-    .value_size = sizeof(u32),
-    .max_entries = 256, // max cpus
-};
+struct {
+    __uint(type, BPF_MAP_TYPE_RINGBUF);
+
+    // max_entries must be:
+    // - no 0
+    // - multiple of 4096
+    __uint(max_entries, 1 << 24);
+} events SEC(".maps");
 
 /**
  * Hooks gethostbyname calls and emits multiple nameLookupEvent events.
@@ -123,8 +125,7 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
             bpf_probe_read_user(&data.ip, sizeof(data.ip), ip);
         }
 
-        bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data,
-                              sizeof(data));
+        bpf_ringbuf_output(&events, &data, sizeof(data), 0);
 
         // char **alias = host->h_aliases;
         char **aliases = {0};
@@ -139,8 +140,7 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
                 return 0;
             }
             bpf_probe_read_user(&data.host, sizeof(data.host), alias);
-            bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data,
-                                  sizeof(data));
+            bpf_ringbuf_output(&events, &data, sizeof(data), 0);
         }
     }
 
@@ -149,7 +149,7 @@ int uretprobe__gethostbyname(struct pt_regs *ctx) {
 
 // capture getaddrinfo call and store the relevant arguments to a hash.
 SEC("uprobe/getaddrinfo")
-int addrinfo(struct pt_regs *ctx) {
+int uprobe__getaddrinfo(struct pt_regs *ctx) {
     struct addrinfo_args_cache addrinfo_args = {0};
     if (!PT_REGS_PARM1(ctx))
         return 0;
@@ -171,7 +171,7 @@ int addrinfo(struct pt_regs *ctx) {
 }
 
 SEC("uretprobe/getaddrinfo")
-int ret_addrinfo(struct pt_regs *ctx) {
+int uretprobe__getaddrinfo(struct pt_regs *ctx) {
     struct nameLookupEvent data = {0};
     struct addrinfo_args_cache *addrinfo_args = {0};
 
@@ -214,8 +214,7 @@ int ret_addrinfo(struct pt_regs *ctx) {
         bpf_probe_read_kernel_str(&data.host, sizeof(data.host),
                                   &addrinfo_args->node);
 
-        bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data,
-                              sizeof(data));
+        bpf_ringbuf_output(&events, &data, sizeof(data), 0);
 
         struct addrinfo * next={0};
         bpf_probe_read(&next, sizeof(next), &res->ai_next);

@@ -5,50 +5,11 @@ import (
 	"os/exec"
 	"strconv"
 	"syscall"
-	"unsafe"
 
-	"github.com/evilsocket/opensnitch/daemon/log"
 	daemonNetlink "github.com/evilsocket/opensnitch/daemon/netlink"
-	elf "github.com/iovisor/gobpf/elf"
 )
 
 // print map contents. used only for debugging
-func dumpMap(bpfmap *elf.Map, isIPv6 bool) {
-	var lookupKey []byte
-	var nextKey []byte
-	var value []byte
-	if !isIPv6 {
-		lookupKey = make([]byte, 12)
-		nextKey = make([]byte, 12)
-	} else {
-		lookupKey = make([]byte, 36)
-		nextKey = make([]byte, 36)
-	}
-	value = make([]byte, 40)
-	firstrun := true
-	i := 0
-	for {
-		i++
-		ok, err := m.LookupNextElement(bpfmap, unsafe.Pointer(&lookupKey[0]),
-			unsafe.Pointer(&nextKey[0]), unsafe.Pointer(&value[0]))
-		if err != nil {
-			log.Error("eBPF LookupNextElement error: %v", err)
-			return
-		}
-		if firstrun {
-			// on first run lookupKey is a dummy, nothing to delete
-			firstrun = false
-			copy(lookupKey, nextKey)
-			continue
-		}
-		fmt.Println("key, value", lookupKey, value)
-
-		if !ok { //reached end of map
-			break
-		}
-		copy(lookupKey, nextKey)
-	}
-}
 
 //PrintEverything prints all the stats. used only for debugging
 func PrintEverything() {

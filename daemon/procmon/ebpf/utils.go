@@ -57,16 +57,16 @@ func byteArrayToString(arr []byte) string {
 	return string(bytes.Trim(temp[:], "\x00"))
 }
 
-func deleteEbpfEntry(proto string, key unsafe.Pointer) bool {
-	if err := m.DeleteElement(ebpfMaps[proto].bpfmap, key); err != nil {
-		log.Trace("error deleting ebpf entry: %s", err)
+func deleteEbpfEntry(proto string, key []byte) bool {
+	if err := ebpfMaps[proto].bpfMap.Delete(&key); err != nil {
+		log.Trace("[eBPF] error deleting ebpf entry: %s", err)
 		return false
 	}
 	return true
 }
 
 func getItems(proto string, isIPv6 bool) (items uint) {
-	isDup := make(map[string]uint8)
+	//isDup := make(map[string]uint8)
 	var lookupKey []byte
 	var nextKey []byte
 
@@ -77,32 +77,18 @@ func getItems(proto string, isIPv6 bool) (items uint) {
 		lookupKey = make([]byte, 36)
 		nextKey = make([]byte, 36)
 	}
-	var value networkEventT
-	firstrun := true
 
-	for {
-		mp, ok := ebpfMaps[proto]
-		if !ok {
-			return
+	prot, ok := ebpfMaps[proto]
+	if !ok || prot.bpfMap == nil {
+		log.Trace("[eBPF] getItems: %s", proto)
+		return
+	}
+	for err := prot.bpfMap.NextKey(nil, &lookupKey); ; err = prot.bpfMap.NextKey(&lookupKey, &nextKey) {
+		if err != nil {
+			break
 		}
-		ok, err := m.LookupNextElement(mp.bpfmap, unsafe.Pointer(&lookupKey[0]),
-			unsafe.Pointer(&nextKey[0]), unsafe.Pointer(&value))
-		if !ok || err != nil { //reached end of map
-			log.Trace("[ebpf] %s map: %d active items", proto, items)
-			return
-		}
-		if firstrun {
-			// on first run lookupKey is a dummy, nothing to delete
-			firstrun = false
-			copy(lookupKey, nextKey)
-			continue
-		}
-		if counter, duped := isDup[string(lookupKey)]; duped && counter > 1 {
-			deleteEbpfEntry(proto, unsafe.Pointer(&lookupKey[0]))
-			continue
-		}
-		isDup[string(lookupKey)]++
-		copy(lookupKey, nextKey)
+		log.Trace("[eBPF] %d cache item %s, key: %+v -> next: %+v", items, proto, lookupKey, nextKey)
+		lookupKey = nextKey
 		items++
 	}
 
@@ -112,7 +98,6 @@ func getItems(proto string, isIPv6 bool) (items uint) {
 // deleteOldItems deletes maps' elements in order to keep them below maximum capacity.
 // If ebpf maps are full they don't allow any more insertions, ending up lossing events.
 func deleteOldItems(proto string, isIPv6 bool, maxToDelete uint) (deleted uint) {
-	isDup := make(map[string]uint8)
 	var lookupKey []byte
 	var nextKey []byte
 	if !isIPv6 {
@@ -122,42 +107,20 @@ func deleteOldItems(proto string, isIPv6 bool, maxToDelete uint) (deleted uint) 
 		lookupKey = make([]byte, 36)
 		nextKey = make([]byte, 36)
 	}
-	var value networkEventT
-	firstrun := true
-	i := uint(0)
 
-	for {
-		i++
-		if i > maxToDelete {
-			return
+	prot, ok := ebpfMaps[proto]
+	if !ok || prot.bpfMap == nil {
+		log.Trace("[eBPF] DELETE ITEMS: %s", proto)
+		return
+	}
+	for err := prot.bpfMap.NextKey(nil, &lookupKey); ; err = prot.bpfMap.NextKey(&lookupKey, &nextKey) {
+		log.Trace("[eBPF] DELETE ITEMS %s: %s -> %+v -> %+v", proto, err, lookupKey, nextKey)
+		if err != nil {
+			break
 		}
-		ok, err := m.LookupNextElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&lookupKey[0]),
-			unsafe.Pointer(&nextKey[0]), unsafe.Pointer(&value))
-		if !ok || err != nil { //reached end of map
-			return
-		}
-		if _, duped := isDup[string(lookupKey)]; duped {
-			if deleteEbpfEntry(proto, unsafe.Pointer(&lookupKey[0])) {
-				deleted++
-				copy(lookupKey, nextKey)
-				continue
-			}
-			return
-		}
-
-		if firstrun {
-			// on first run lookupKey is a dummy, nothing to delete
-			firstrun = false
-			copy(lookupKey, nextKey)
-			continue
-		}
-
-		if !deleteEbpfEntry(proto, unsafe.Pointer(&lookupKey[0])) {
-			return
-		}
-		deleted++
-		isDup[string(lookupKey)]++
-		copy(lookupKey, nextKey)
+		log.Trace("[eBPF] DELETE ITEMS %s: %+v -> %+v", proto, lookupKey, nextKey)
+		prot.bpfMap.Delete(&lookupKey)
+		lookupKey = nextKey
 	}
 
 	return

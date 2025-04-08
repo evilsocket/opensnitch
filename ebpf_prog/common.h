@@ -67,7 +67,6 @@ struct trace_sys_exit_execve {
     long ret;
 };
 
-
 struct data_t {
     u64 type;
     u32 pid;  // PID as in the userspace term (i.e. task->tgid in kernel)
@@ -87,11 +86,11 @@ struct data_t {
 //-----------------------------------------------------------------------------
 // maps
 
-struct bpf_map_def SEC("maps/heapstore") heapstore = {
-	.type = BPF_MAP_TYPE_PERCPU_ARRAY,
-	.key_size = sizeof(u32),
-	.value_size = sizeof(struct data_t),
-	.max_entries = 1
-};
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+	__type(key, u32);
+	__type(value, struct data_t);
+	__uint(max_entries, 1);
+} heapstore SEC(".maps");
 
 #endif

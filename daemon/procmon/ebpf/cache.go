@@ -9,6 +9,7 @@ type ebpfCacheItem struct {
 	Key      []byte
 	LastSeen int64
 	Pid      int
+	UID      int
 }
 
 type ebpfCacheType struct {
@@ -19,16 +20,17 @@ type ebpfCacheType struct {
 var (
 	// TODO: allow to configure these options
 	maxTTL          = 40 // Seconds
-	maxCacheItems   = 50000
+	maxCacheItems   = 5000
 	ebpfCache       *ebpfCacheType
 	ebpfCacheTicker *time.Ticker
 )
 
 // NewEbpfCacheItem creates a new cache item.
-func NewEbpfCacheItem(key []byte, pid int) *ebpfCacheItem {
+func NewEbpfCacheItem(key []byte, pid, uid int) *ebpfCacheItem {
 	return &ebpfCacheItem{
 		Key:      key,
 		Pid:      pid,
+		UID:      uid,
 		LastSeen: time.Now().UnixNano(),
 	}
 }
@@ -49,9 +51,9 @@ func NewEbpfCache() *ebpfCacheType {
 	}
 }
 
-func (e *ebpfCacheType) addNewItem(key interface{}, itemKey []byte, pid int) {
+func (e *ebpfCacheType) addNewItem(key interface{}, itemKey []byte, pid, uid int) {
 	e.mu.Lock()
-	e.Items[key] = NewEbpfCacheItem(itemKey, pid)
+	e.Items[key] = NewEbpfCacheItem(itemKey, pid, uid)
 	e.mu.Unlock()
 }
 

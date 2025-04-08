@@ -9,13 +9,15 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"strings"
+	"runtime"
 	"syscall"
 	"time"
 
+	"github.com/cilium/ebpf"
+	"github.com/cilium/ebpf/link"
+	"github.com/cilium/ebpf/ringbuf"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
-	bpf "github.com/iovisor/gobpf/elf"
 )
 
 /*
@@ -49,6 +51,7 @@ char* find_libc() {
             break;
         }
 
+        //printf("map->l_name: %s\n", map->l_name);
         if(strstr(map->l_name, "libc.so")){
             fprintf(stderr,"found %s\n", map->l_name);
             return map->l_name;
@@ -57,8 +60,6 @@ char* find_libc() {
     }
     return NULL;
 }
-
-
 */
 import "C"
 
@@ -66,6 +67,25 @@ type nameLookupEvent struct {
 	AddrType uint32
 	IP       [16]uint8
 	Host     [252]byte
+}
+
+// ProbeDefs holds the hooks defined in the module
+type ProbeDefs struct {
+	URProbeGethostByname *ebpf.Program `ebpf:"uretprobe__gethostbyname"`
+	UProbeGetAddrinfo    *ebpf.Program `ebpf:"uprobe__getaddrinfo"`
+	URProbeGetAddrinfo   *ebpf.Program `ebpf:"uretprobe__getaddrinfo"`
+}
+
+// MapDefs holds the maps defined in the module
+type MapDefs struct {
+	// BPF_MAP_TYPE_RINGBUF
+	PerfEvents *ebpf.Map `ebpf:"events"`
+}
+
+// container of hooks and maps
+type dnsDefsT struct {
+	ProbeDefs
+	MapDefs
 }
 
 func findLibc() (string, error) {
@@ -95,61 +115,103 @@ func lookupSymbol(elffile *elf.File, symbolName string) (uint64, error) {
 
 // ListenerEbpf starts listening for DNS events.
 func ListenerEbpf(ebpfModPath string) error {
+	probesAttached := 0
 	m, err := core.LoadEbpfModule("opensnitch-dns.o", ebpfModPath)
 	if err != nil {
-		log.Warning("[eBPF DNS]: %s", err)
 		return err
 	}
 	defer m.Close()
+
+	ebpfMod := dnsDefsT{}
+	if err := m.Assign(&ebpfMod); err != nil {
+		return err
+	}
+
+	// --------------
 
 	// libbcc resolves the offsets for us. without bcc the offset for uprobes must parsed from the elf files
 	// some how 0 must be replaced with the offset of getaddrinfo bcc does this using bcc_resolve_symname
 
 	// Attaching to uprobe using perf open might be a better aproach requires https://github.com/iovisor/gobpf/pull/277
+
 	libcFile, err := findLibc()
-
 	if err != nil {
-		log.Error("[eBPF DNS]: Failed to find libc.so: %v", err)
+		log.Error("[eBPF DNS] Failed to find libc.so: %v", err)
+		return err
+	}
+	ex, err := link.OpenExecutable(libcFile)
+	if err != nil {
 		return err
 	}
 
-	libcElf, err := elf.Open(libcFile)
+	// --------------
+
+	// User space needs to call perf_event_open() (...) before eBPF program can send data into it.
+	rd, err := ringbuf.NewReader(ebpfMod.PerfEvents)
 	if err != nil {
-		log.Error("[eBPF DNS]: Failed to open %s: %v", libcFile, err)
 		return err
 	}
-	probesAttached := 0
-	for uprobe := range m.IterUprobes() {
-		probeFunction := strings.Replace(uprobe.Name, "uretprobe/", "", 1)
-		probeFunction = strings.Replace(probeFunction, "uprobe/", "", 1)
-		offset, err := lookupSymbol(libcElf, probeFunction)
-		if err != nil {
-			log.Warning("[eBPF DNS]: Failed to find symbol for uprobe %s (offset: %d): %s\n", uprobe.Name, offset, err)
-			continue
-		}
-		err = bpf.AttachUprobe(uprobe, libcFile, offset)
-		if err != nil {
-			log.Warning("[eBPF DNS]: Failed to attach uprobe %s : %s, (%s, %d)\n", uprobe.Name, err, libcFile, offset)
-			continue
-		}
-		probesAttached++
+	defer rd.Close()
+
+	// --------------
+
+	urg, err := ex.Uretprobe("gethostbyname", ebpfMod.URProbeGethostByname, nil)
+	if err != nil {
+		log.Error("[eBPF DNS] uretprobe__gethostbyname: %s", err)
 	}
+	defer urg.Close()
+	probesAttached++
+
+	up, err := ex.Uprobe("getaddrinfo", ebpfMod.UProbeGetAddrinfo, nil)
+	if err != nil {
+		log.Error("[eBPF DNS] uprobe__getaddrinfo: %s", err)
+	}
+	defer up.Close()
+	probesAttached++
+
+	urp, err := ex.Uretprobe("getaddrinfo", ebpfMod.URProbeGetAddrinfo, nil)
+	if err != nil {
+		log.Error("[eBPF-DNS] uretprobe__getaddrinfo: %s", err)
+	}
+	defer urp.Close()
+	probesAttached++
 
 	if probesAttached == 0 {
 		log.Warning("[eBPF DNS]: Failed to find symbols for uprobes.")
 		return errors.New("Failed to find symbols for uprobes")
 	}
 
-	// Reading Events
-	channel := make(chan []byte)
-	//log.Warning("EBPF-DNS: %+v\n", m)
-	perfMap, err := bpf.InitPerfMap(m, "events", channel, nil)
-	if err != nil {
-		log.Error("[eBPF DNS]: Failed to init perf map: %s\n", err)
-		return err
+	// --------------
+
+	exitChannel := make(chan struct{})
+	perfChan := make(chan []byte, 0)
+
+	for i := 0; i < runtime.NumCPU(); i++ {
+		go spawnDNSWorker(i, perfChan, exitChannel)
 	}
+
+	go func(perfChan chan []byte, rd *ringbuf.Reader) {
+		for {
+			select {
+			case <-exitChannel:
+				goto Exit
+			default:
+				record, err := rd.Read()
+				if err != nil {
+					if errors.Is(err, ringbuf.ErrClosed) {
+						goto Exit
+					}
+					log.Debug("[eBPF DNS] reader error: %s", err)
+					continue
+				}
+				perfChan <- record.RawSample
+			}
+		}
+	Exit:
+		log.Debug("[eBPF DNS] reader closed")
+	}(perfChan, rd)
+
 	sig := make(chan os.Signal, 1)
-	exitChannel := make(chan bool)
 	signal.Notify(sig,
 		syscall.SIGHUP,
 		syscall.SIGINT,
@@ -157,21 +219,16 @@ func ListenerEbpf(ebpfModPath string) error {
 		syscall.SIGKILL,
 		syscall.SIGQUIT)
 
-	for i := 0; i < 5; i++ {
-		go spawnDNSWorker(i, channel, exitChannel)
-	}
-
-	perfMap.PollStart()
 	<-sig
 	log.Info("[eBPF DNS]: Received signal: terminating ebpf dns hook.")
-	perfMap.PollStop()
-	for i := 0; i < 5; i++ {
-		exitChannel <- true
+	exitChannel <- struct{}{}
+	for i := 0; i < runtime.NumCPU(); i++ {
+		exitChannel <- struct{}{}
 	}
 	return nil
 }
 
-func spawnDNSWorker(id int, channel chan []byte, exitChannel chan bool) {
+func spawnDNSWorker(id int, channel chan []byte, exitChannel chan struct{}) {
 
 	log.Debug("[eBPF DNS] worker initialized #%d", id)
 	var event nameLookupEvent

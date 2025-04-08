@@ -3,14 +3,15 @@ package ebpf
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
-	"os"
-	"os/signal"
 
+	"github.com/cilium/ebpf"
+	"github.com/cilium/ebpf/link"
+	"github.com/cilium/ebpf/ringbuf"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
-	elf "github.com/iovisor/gobpf/elf"
 )
 
 // MaxPathLen defines the maximum length of a path, as defined by the kernel:
@@ -62,94 +63,130 @@ const (
 	EV_TYPE_SCHED_EXIT
 )
 
-var (
-	perfMapList = make(map[*elf.PerfMap]*elf.Module)
-	perfMapName = "proc-events"
-)
+// EventsProgsDefs holds the hooks defined in the module
+type EventsProgsDefs struct {
+	TPointExecve        *ebpf.Program `ebpf:"tracepoint__syscalls_sys_enter_execve"`
+	TPointExecveAt      *ebpf.Program `ebpf:"tracepoint__syscalls_sys_enter_execveat"`
+	TPointExitExecve    *ebpf.Program `ebpf:"tracepoint__syscalls_sys_exit_execve"`
+	TPointExitExecveAt  *ebpf.Program `ebpf:"tracepoint__syscalls_sys_exit_execveat"`
+	TPointSchedProcExit *ebpf.Program `ebpf:"tracepoint__sched_sched_process_exit"`
+	//TPointSchedProcExec *ebpf.Program `ebpf:"tracepoint__sched_sched_process_exec"`
+	//TPointBind *ebpf.Program `ebpf:"tracepoint__syscalls_sys_enter_bind"`
+	//TPointBindExit *ebpf.Program `ebpf:"tracepoint__syscalls_sys_exit_bind"`
+}
+
+// EventsMapsDefs holds the maps defined in the module
+type EventsMapsDefs struct {
+	// BPF_MAP_TYPE_PERF_EVENT_ARRAY
+	PerfEvents *ebpf.Map `ebpf:"events"`
+}
+
+// container of hooks and maps
+type eventsDefsT struct {
+	EventsProgsDefs
+	EventsMapsDefs
+}
 
 func initEventsStreamer() *Error {
-	elfOpts := make(map[string]elf.SectionParams)
-	elfOpts["maps/"+perfMapName] = elf.SectionParams{PerfRingBufferPageCount: ebpfCfg.RingBuffSize}
-	var err error
-	perfMod, err = core.LoadEbpfModule("opensnitch-procs.o", ebpfCfg.ModulesPath)
+	eventsColl, err := core.LoadEbpfModule("opensnitch-procs.o", ebpfCfg.ModulesPath)
 	if err != nil {
-		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
-		return &Error{EventsNotAvailable, err}
-	}
-	perfMod.EnableOptionCompatProbe()
-
-	if err = perfMod.Load(elfOpts); err != nil {
-		dispatchErrorEvent(fmt.Sprint("[eBPF events]: ", err))
-		return &Error{EventsNotAvailable, err}
+		dispatchErrorEvent(fmt.Sprint("[eBPF events] collections: ", err))
+		return &Error{err, EventsNotAvailable}
 	}
 
-	tracepoints := []string{
-		"tracepoint/sched/sched_process_exit",
-		"tracepoint/syscalls/sys_enter_execve",
-		"tracepoint/syscalls/sys_enter_execveat",
-		"tracepoint/syscalls/sys_exit_execve",
-		"tracepoint/syscalls/sys_exit_execveat",
-		//"tracepoint/sched/sched_process_exec",
-		//"tracepoint/sched/sched_process_fork",
+	ebpfMod := eventsDefsT{}
+	if err := eventsColl.Assign(&ebpfMod); err != nil {
+		dispatchErrorEvent(fmt.Sprint("[eBPF events] assign: ", err))
+		return &Error{err, EventsNotAvailable}
+	}
+	collectionMaps = append(collectionMaps, eventsColl)
+
+	// User space needs to perf_event_open() it (...) before eBPF program can send data into it.
+	if err := initPerfMap(ebpfMod.PerfEvents); err != nil {
+		dispatchErrorEvent(fmt.Sprint("[eBPF events] perfMap: ", err))
+		return &Error{err, EventsNotAvailable}
 	}
 
-	// Enable tracepoints first, that way if kprobes fail loading we'll still have some
-	for _, tp := range tracepoints {
-		err = perfMod.EnableTracepoint(tp)
-		if err != nil {
-			dispatchErrorEvent(fmt.Sprintf(`[eBPF events] error enabling tracepoint %s: %s
-Verify that your kernel has support for tracepoints (opensnitchd -check-requirements).`, tp, err))
-		}
+	failed_tps := ""
+	tp1, err := link.Tracepoint("syscalls", "sys_enter_execve", ebpfMod.TPointExecve, nil)
+	if err != nil {
+		failed_tps = "sys_enter_execve"
+		log.Error("[eBPF events] sys_enter_execve: %s", err)
 	}
-
-	if err = perfMod.EnableKprobes(0); err != nil {
-		log.Error("Error enabling kprobe: %s", err)
-		// if previous shutdown was unclean, then we must remove the dangling kprobe
-		// and install it again (close the module and load it again)
-		perfMod.Close()
-		if err = perfMod.Load(elfOpts); err != nil {
-			dispatchErrorEvent(fmt.Sprintf("[eBPF events] failed to load /etc/opensnitchd/opensnitch-procs.o (2): %v", err))
-			return &Error{EventsNotAvailable, err}
-		}
-		if err = perfMod.EnableKprobes(0); err != nil {
-			dispatchErrorEvent(fmt.Sprintf("[eBPF events] error enabling kprobes: %v", err))
-		}
+	hooks = append(hooks, tp1)
+	tp2, err := link.Tracepoint("syscalls", "sys_exit_execve", ebpfMod.TPointExitExecve, nil)
+	if err != nil {
+		failed_tps += " sys_exit_execve"
+		log.Error("[eBPF events] sys_exit_execve: %s", err)
 	}
+	hooks = append(hooks, tp2)
+	tp3, err := link.Tracepoint("syscalls", "sys_enter_execveat", ebpfMod.TPointExecveAt, nil)
+	if err != nil {
+		failed_tps += " sys_enter_execveat"
+		log.Error("[eBPF events] sys_enter_execveat: %s", err)
+	}
+	hooks = append(hooks, tp3)
+	tp4, err := link.Tracepoint("syscalls", "sys_exit_execveat", ebpfMod.TPointExitExecveAt, nil)
+	if err != nil {
+		failed_tps += " sys_exit_execveat"
+		log.Error("[eBPF events] sys_exit_execveat: %s", err)
+	}
+	hooks = append(hooks, tp4)
+	tpe, err := link.Tracepoint("sched", "sched_process_exit", ebpfMod.TPointSchedProcExit, nil)
+	if err != nil {
+		failed_tps += " sched_process_exit"
+		log.Error("[eBPF events] sched_process_exit: %s", err)
+	}
+	hooks = append(hooks, tpe)
 
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, os.Interrupt, os.Kill)
-	go func(sig chan os.Signal) {
-		<-sig
-	}(sig)
-
-	if err := initPerfMap(perfMod); err != nil {
-		return &Error{EventsNotAvailable, err}
+	if failed_tps != "" {
+		dispatchErrorEvent(fmt.Sprint("[eBPF events] Some tracepoints not loaded:\n", failed_tps))
 	}
 
 	return nil
 }
 
-func initPerfMap(mod *elf.Module) error {
-	perfChan := make(chan []byte, ebpfCfg.QueueEventsSize)
-	lostEvents := make(chan uint64, 1)
+func initPerfMap(events *ebpf.Map) error {
 	var err error
-	perfMap, err := elf.InitPerfMap(mod, perfMapName, perfChan, lostEvents)
+	eventsReader, err = ringbuf.NewReader(events)
 	if err != nil {
-		dispatchErrorEvent(fmt.Sprintf("[eBPF events] Error initializing eBPF events perfMap: %s", err))
 		return err
 	}
-	perfMapList[perfMap] = mod
+	perfChan := make(chan []byte, ebpfCfg.QueueEventsSize)
 
 	for i := 0; i < ebpfCfg.EventsWorkers; i++ {
-		go streamEventsWorker(i, perfChan, lostEvents, kernelEvents)
+		go streamEventsWorker(i, perfChan, kernelEvents)
 	}
-	perfMap.PollStart()
+
+	// TODO: check if spawning several goroutines improves performance.
+	go func(perfChan chan []byte, rd *ringbuf.Reader) {
+		for {
+			select {
+			case <-ctxTasks.Done():
+				goto Exit
+			default:
+				record, err := rd.Read()
+				if err != nil {
+					if errors.Is(err, ringbuf.ErrClosed) {
+						goto Exit
+					}
+					// XXX: control max errors?
+					log.Trace("[eBPF events] reader error: %s", err)
+					continue
+				}
+				perfChan <- record.RawSample
+			}
+		}
+	Exit:
+		log.Debug("[eBPF events] reader closed")
+	}(perfChan, eventsReader)
 
 	return nil
 }
 
-func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents chan interface{}) {
+func streamEventsWorker(id int, chn chan []byte, kernelEvents chan interface{}) {
 	var event execEvent
+	var buf bytes.Buffer
 	errors := 0
 	maxErrors := 20 // we should have no errors.
 	tooManyErrors := func() bool {
@@ -161,29 +198,32 @@ func streamEventsWorker(id int, chn chan []byte, lost chan uint64, kernelEvents 
 		}
 		return false
 	}
-	for {
+
+	for incomingEvent := range chn {
+		event = execEvent{}
+		buf.Reset()
+
 		select {
 		case <-ctxTasks.Done():
 			goto Exit
-		case l := <-lost:
-			log.Debug("Lost ebpf events (try increasing QueueEventsSize/EventsWorkers): %d", l)
-		case d := <-chn:
-			if err := binary.Read(bytes.NewBuffer(d), hostByteOrder, &event); err != nil {
-				log.Debug("[eBPF events #%d] error: %s", id, err)
-				if tooManyErrors() {
-					goto Exit
-				}
+		default:
+		}
 
-				continue
+		buf.Write(incomingEvent)
+		if err := binary.Read(&buf, hostByteOrder, &event); err != nil {
+			if tooManyErrors() {
+				goto Exit
 			}
+			log.Debug("[eBPF events #%d] error: %s -> %d", id, err, incomingEvent[0])
+			continue
+		}
 
-			switch event.Type {
-			case EV_TYPE_EXEC, EV_TYPE_EXECVEAT:
-				processExecEvent(&event)
+		switch event.Type {
+		case EV_TYPE_EXEC, EV_TYPE_EXECVEAT:
+			processExecEvent(&event)
 
-			case EV_TYPE_SCHED_EXIT:
-				processExitEvent(&event)
-			}
+		case EV_TYPE_SCHED_EXIT:
+			processExitEvent(&event)
 
 		}
 	}
@@ -192,7 +232,7 @@ Exit:
 	log.Debug("perfMap goroutine exited #%d", id)
 }
 
-// processExecEvent parses an execEevent to Process, saves or reuses it to
+// processExecEvent parses an execEvent to Process, saves or reuses it to
 // cache, and decides if it needs to be updated.
 func processExecEvent(event *execEvent) {
 	proc := event2process(event)

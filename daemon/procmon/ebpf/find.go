@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"strconv"
-	"unsafe"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -26,15 +25,12 @@ func GetPid(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstPort uint
 	}
 	if findAddressInLocalAddresses(dstIP) {
 		// NOTE:
-		// Sometimes outbound connections may have the fields swapped:
+		// Sometimes we may receive response packets instead of new outbound connections:
 		// 443:public-ip -> local-ip:local-port.
 		// @see: e090833d29738274c1d171eba53e239c1c49ea7c
-		// Swapping connection fields helps to identify the connection + pid + process, and continue working as usual
-		// when systemd-resolved is being used.
+		// This occurs mainly when using Conntrack to intercept outbound connections.
+		// Swapping connection fields helps to identify the connection + pid + process, and continue working as usual.
 
-		if proc := getPidFromEbpf(proto, dstPort, dstIP, srcIP, srcPort); proc != nil {
-			return proc, true, fmt.Errorf("[ebpf conn] FIXME: found swapping fields, systemd-resolved is that you? set DNS=x.x.x.x to your DNS server in /etc/systemd/resolved.conf to workaround this problem")
-		}
 		return nil, false, fmt.Errorf("[ebpf conn] unknown source IP: %s", srcIP)
 	}
 	//check if it comes from already established TCP
@@ -106,7 +102,7 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		dstIP.String(),
 		strconv.FormatUint(uint64(dstPort), 10))
 	if cacheItem, isInCache := ebpfCache.isInCache(k); isInCache {
-		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))
+		deleteEbpfEntry(proto, key)
 		if ev, found := procmon.EventsCache.IsInStoreByPID(cacheItem.Pid); found {
 			proc = &ev.Proc
 			log.Debug("[ebpf conn] in cache: %s, %d -> %s", k, proc.ID, proc.Path)
@@ -116,7 +112,7 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		return
 	}
 
-	err := m.LookupElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&key[0]), unsafe.Pointer(&value))
+	err := ebpfMaps[proto].bpfMap.Lookup(&key, &value)
 	if err != nil {
 		// key not found
 		// sometimes srcIP is 0.0.0.0. Happens especially with UDP sendto()
@@ -126,35 +122,38 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		//    ^ incoming connection to port 58306
 		// ---
 		// Sometimes the srcIP is specified in ancillary messages, using IP_PKTINFO.
+		// bind(226, {sa_family=AF_INET6, sin6_port=htons(5353), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::", &sin6_addr), sin6_scope_id=0}, 28) = 0
+		// socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0) = 227
+		// setsockopt(226, SOL_IPV6, IPV6_MULTICAST_IF, [3], 4) = 0
+		// setsockopt(226, SOL_IPV6, IPV6_ADD_MEMBERSHIP, {inet_pton(AF_INET6, "ff02::fb", &ipv6mr_multiaddr), ipv6mr_interface=if_nametoindex("wlp3s0")}, 20) = 0
+		//
+		nkey := key
 		if isIP4 {
 			zeroes := make([]byte, 4)
-			copy(key[8:12], zeroes)
+			copy(nkey[8:12], zeroes)
 		} else {
 			zeroes := make([]byte, 16)
-			copy(key[20:36], zeroes)
+			copy(nkey[20:36], zeroes)
 		}
-		err = m.LookupElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&key[0]), unsafe.Pointer(&value))
+		err = ebpfMaps[proto].bpfMap.Lookup(&nkey, &value)
 		if err == nil {
-			log.Trace("[eBPF] found in srcIP 0.0.0.0 (%s): %+v -> %+v", proto, srcIP, dstIP)
+			log.Trace("[eBPF] found via srcIP == 0.0.0.0 (%s): %+v -> %+v", proto, srcIP, dstIP)
 			delItemIfFound = false
 		}
 	}
-	if err != nil && proto == "udp" && srcIP.String() == dstIP.String() {
-		// Sometimes we may intercept srcIP and dstIP == 0.0.0.0 in ebpf.
-		// TODO try to reproduce it and look for srcIP/dstIP in other kernel structures
-		//
-		// entries like 1234:0.0.0.0 -> 0.0.0.0:0 can be of a listening port:
-		// 38673:0.0.0.0 -> 0.0.0.0:0
-		// ss -lupn|grep 36523
-		//   UNCONN 0      0   *:36523 *:*    users:(("python3",pid=6075,fd=32))
-		//   6075 ?        S      0:00 python3 /usr/bin/wsdd
-
-		// srcIP was already set to 0, set dstIP to zero also
-		zeroes := make([]byte, 4)
-		copy(key[2:6], zeroes)
-		err = m.LookupElement(ebpfMaps[proto].bpfmap, unsafe.Pointer(&key[0]), unsafe.Pointer(&value))
+	if err != nil {
+		nkey := key
+		if isIP4 {
+			copy(key[2:6], srcIP)
+			copy(key[8:12], dstIP)
+		} else {
+			copy(nkey[2:18], srcIP)
+			copy(nkey[20:36], dstIP)
+		}
+		err = ebpfMaps[proto].bpfMap.Lookup(&nkey, &value)
 		if err == nil {
-			log.Trace("[eBPF] found in 0.0.0.0 -> 0.0.0.0 (%s): %+v -> %+v", proto, srcIP, dstIP)
+			log.Error("[eBPF] found via dstIP -> srcIP: %+v -> %+v", srcIP, dstIP)
+			delItemIfFound = false
 		}
 	}
 
@@ -166,9 +165,9 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	proc = findConnProcess(&value, k)
 
 	log.Debug("[ebpf conn] adding item to cache: %s", k)
-	ebpfCache.addNewItem(k, key, proc.ID)
+	ebpfCache.addNewItem(k, key, proc.ID, int(value.UID))
 	if delItemIfFound {
-		deleteEbpfEntry(proto, unsafe.Pointer(&key[0]))
+		deleteEbpfEntry(proto, key)
 	}
 	return
 }
