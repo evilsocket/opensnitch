@@ -38,12 +38,6 @@ type Connection struct {
 var showUnknownCons = false
 var showLoopbackCons = false
 
-// Check for loopback IP address
-func isLoopback(ip net.IP) bool {
-	res := net.ParseIP(ip.String())
-	return res != nil && res.IsLoopback()
-}
-
 // Parse extracts the IP layers from a network packet to determine what
 // process generated a connection.
 func Parse(nfp netfilter.Packet, interceptUnknown bool, interceptLoopback bool) (con *Connection, pass bool) {
@@ -197,7 +191,7 @@ func NewConnection(nfp *netfilter.Packet) (c *Connection, err error, pass bool) 
 	//log.Debug("NewConnection(): showLoopbackCons %t, isLoopback(ip.SrcIP) %t, isLoopback(ip.DstIP) %t", showLoopbackCons, isLoopback(ip.SrcIP), isLoopback(ip.DstIP))
 	// set pass variable to true to skip localhost connections
 	if showLoopbackCons == false {
-		if isLoopback(ip.SrcIP) || isLoopback(ip.DstIP) {
+		if ip.SrcIP.IsLoopback() || ip.DstIP.IsLoopback() {
 			return nil, nil, true
 		}
 	}
@@ -224,7 +218,7 @@ func NewConnection6(nfp *netfilter.Packet) (c *Connection, err error, pass bool)
 	//log.Debug("NewConnection6(): showLoopbackCons %t, isLoopback(ip.SrcIP) %t, isLoopback(ip.DstIP) %t", showLoopbackCons, isLoopback(ip.SrcIP), isLoopback(ip.DstIP))
 	// set pass variable to true to skip localhost connections
 	if showLoopbackCons == false {
-		if isLoopback(ip.SrcIP) || isLoopback(ip.DstIP) {
+		if ip.SrcIP.IsLoopback() || ip.DstIP.IsLoopback() {
 			return nil, nil, true
 		}
 	}
