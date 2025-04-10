@@ -214,7 +214,7 @@ func streamEventsWorker(id int, chn chan []byte, kernelEvents chan interface{}) 
 			if tooManyErrors() {
 				goto Exit
 			}
-			log.Debug("[eBPF events #%d] error: %s -> %d", id, err, incomingEvent[0])
+			log.Debug("[eBPF events #%d] error: %s", id, err)
 			continue
 		}
 
