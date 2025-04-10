@@ -75,53 +75,58 @@ struct sock_on_x86_32_t {
 
 
 // Add +1,+2,+3 etc. to map size helps to easier distinguish maps in bpftool's output
-struct bpf_map_def SEC("maps/tcpMap") tcpMap = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(struct tcp_key_t),
-    .value_size = sizeof(struct tcp_value_t),
-    .max_entries = MAPSIZE+1,
-};
-struct bpf_map_def SEC("maps/tcpv6Map") tcpv6Map = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(struct tcpv6_key_t),
-    .value_size = sizeof(struct tcpv6_value_t),
-    .max_entries = MAPSIZE+2,
-};
-struct bpf_map_def SEC("maps/udpMap") udpMap = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(struct udp_key_t),
-    .value_size = sizeof(struct udp_value_t),
-    .max_entries = MAPSIZE+3,
-};
-struct bpf_map_def SEC("maps/udpv6Map") udpv6Map = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(struct udpv6_key_t),
-    .value_size = sizeof(struct udpv6_value_t),
-    .max_entries = MAPSIZE+4,
-};
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __type(key, struct tcp_key_t);
+    __type(value, struct tcp_value_t);
+    __uint(max_entries, MAPSIZE+1);
+} tcpMap SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __type(key, struct tcpv6_key_t);
+    __type(value, struct tcpv6_value_t);
+    __uint(max_entries, MAPSIZE+2);
+} tcpv6Map SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __type(key, struct udp_key_t);
+    __type(value, struct udp_value_t);
+    __uint(max_entries, MAPSIZE+3);
+} udpMap SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __type(key, struct udpv6_key_t);
+    __type(value, struct udpv6_value_t);
+    __uint(max_entries, MAPSIZE+4);
+} udpv6Map SEC(".maps");
 
 // for TCP the IP-tuple can be copied from "struct sock" only upon return from tcp_connect().
 // We stash the socket here to look it up upon return.
-struct bpf_map_def SEC("maps/tcpsock") tcpsock = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(u64),
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __type(key, u64);
     // using u64 instead of sizeof(struct sock *)
     // to avoid pointer size related quirks on x86_32
-    .value_size = sizeof(u64),
-    .max_entries = 300,
-};
-struct bpf_map_def SEC("maps/tcpv6sock") tcpv6sock = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(u64),
-    .value_size = sizeof(u64),
-    .max_entries = 300,
-};
-struct bpf_map_def SEC("maps/icmpsock") icmpsock = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(u64),
-    .value_size = sizeof(u64),
-    .max_entries = 300,
-};
+    __type(value, u64);
+    __uint(max_entries, 300);
+} tcpsock SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __type(key, u64);
+    __type(value, u64);
+    __uint(max_entries, 300);
+} tcpv6sock SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __type(key, u64);
+    __type(value, u64);
+    __uint(max_entries, 300);
+} icmpsock SEC(".maps");
 
 // initializing variables with __builtin_memset() is required
 // for compatibility with bpf on kernel 4.4

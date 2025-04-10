@@ -70,12 +70,12 @@ struct addrinfo_args_cache {
     char node[256];
 };
 // define temporary array for data
-struct bpf_map_def SEC("maps/addrinfo_args_hash") addrinfo_args_hash = {
-    .type = BPF_MAP_TYPE_HASH,
-    .max_entries = 256, // max entries at any time
-    .key_size = sizeof(u32),
-    .value_size = sizeof(struct addrinfo_args_cache),
-};
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __type(key, u32);
+    __type(value, struct addrinfo_args_cache);
+    __uint(max_entries, 256); // max entries at any time
+} addrinfo_args_hash SEC(".maps");
 
 // BPF output events
 struct {
