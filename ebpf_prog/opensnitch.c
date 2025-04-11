@@ -342,17 +342,6 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
     return 0;
 };
 
-// FIXME: armhf
-#if defined(__arm__)
-SEC("kprobe/inet_dgram_connect")
-int kprobe__inet_dgram_connect(int retval)
-{
-    // empty kprobe, so the ebpf lib does not complain about missing kprobe on 32bits archs.
-    return 0;
-}
-
-#else
-
 SEC("kprobe/inet_dgram_connect")
 int kprobe__inet_dgram_connect(struct pt_regs *ctx)
 {
@@ -366,18 +355,6 @@ int kprobe__inet_dgram_connect(struct pt_regs *ctx)
     bpf_map_update_elem(&icmpsock, &pid_tgid, &sa, BPF_ANY);
     return 0;
 }
-#endif
-
-// FIXME: armhf
-#if defined(__arm__)
-SEC("kretprobe/inet_dgram_connect")
-int kretprobe__inet_dgram_connect(int retval)
-{
-    // empty kprobe, so the ebpf lib does not complain about missing kprobe on 32bits archs.
-    return 0;
-}
-
-#else
 
 SEC("kretprobe/inet_dgram_connect")
 int kretprobe__inet_dgram_connect(int retval)
@@ -388,9 +365,8 @@ int kretprobe__inet_dgram_connect(int retval)
     u64 *sap = bpf_map_lookup_elem(&icmpsock, &pid_tgid);
     if (sap == NULL) { goto out; }
 
-    struct sock *sk;
-    struct socket *skt;
-    __builtin_memset(&sk, 0, sizeof(sk));
+    struct sock *sk=NULL;
+    struct socket *skt=NULL;
     __builtin_memset(&skt, 0, sizeof(skt));
     skt = (struct socket *)*skp;
     bpf_probe_read(&sk, sizeof(sk), &skt->sk);
@@ -491,7 +467,6 @@ out:
 
     return 0;
 };
-#endif
 
 SEC("kprobe/iptunnel_xmit")
 int kprobe__iptunnel_xmit(struct pt_regs *ctx)
