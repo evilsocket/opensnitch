@@ -158,27 +158,30 @@ func ListenerEbpf(ebpfModPath string) error {
 	urg, err := ex.Uretprobe("gethostbyname", ebpfMod.URProbeGethostByname, nil)
 	if err != nil {
 		log.Error("[eBPF DNS] uretprobe__gethostbyname: %s", err)
+	} else {
+		defer urg.Close()
+		probesAttached++
 	}
-	defer urg.Close()
-	probesAttached++
 
 	up, err := ex.Uprobe("getaddrinfo", ebpfMod.UProbeGetAddrinfo, nil)
 	if err != nil {
 		log.Error("[eBPF DNS] uprobe__getaddrinfo: %s", err)
+	} else {
+		defer up.Close()
+		probesAttached++
 	}
-	defer up.Close()
-	probesAttached++
 
 	urp, err := ex.Uretprobe("getaddrinfo", ebpfMod.URProbeGetAddrinfo, nil)
 	if err != nil {
 		log.Error("[eBPF-DNS] uretprobe__getaddrinfo: %s", err)
+	} else {
+		defer urp.Close()
+		probesAttached++
 	}
-	defer urp.Close()
-	probesAttached++
 
 	if probesAttached == 0 {
-		log.Warning("[eBPF DNS]: Failed to find symbols for uprobes.")
-		return errors.New("Failed to find symbols for uprobes")
+		log.Warning("[eBPF DNS]: Failed to attach uprobes.")
+		return errors.New("Failed to attach uprobes")
 	}
 
 	// --------------
