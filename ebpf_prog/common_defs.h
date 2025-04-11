@@ -23,10 +23,10 @@ typedef u64 pid_size_t;
 typedef u64 uid_size_t; 
 
 enum bpf_pin_type {
-	PIN_NONE = 0,
-	PIN_OBJECT_NS,
-	PIN_GLOBAL_NS,
-	PIN_CUSTOM_NS,
+    PIN_NONE = 0,
+    PIN_OBJECT_NS,
+    PIN_GLOBAL_NS,
+    PIN_CUSTOM_NS,
 };
 //-----------------------------------
 

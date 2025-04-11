@@ -342,17 +342,22 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
     return 0;
 };
 
+// FIXME: armhf
+#if defined(__arm__)
+SEC("kprobe/inet_dgram_connect")
+int kprobe__inet_dgram_connect(int retval)
+{
+    // empty kprobe, so the ebpf lib does not complain about missing kprobe on 32bits archs.
+    return 0;
+}
+
+#else
 
 SEC("kprobe/inet_dgram_connect")
 int kprobe__inet_dgram_connect(struct pt_regs *ctx)
 {
-#if defined(__i386__)
     struct socket *skt = (struct socket *)PT_REGS_PARM1(ctx);
     struct sockaddr *saddr = (struct sockaddr *)PT_REGS_PARM2(ctx);
-#else
-    struct socket *skt = (struct socket *)PT_REGS_PARM1(ctx);
-    struct sockaddr *saddr = (struct sockaddr *)PT_REGS_PARM2(ctx);
-#endif
 
     u64 pid_tgid = bpf_get_current_pid_tgid();
     u64 skp = (u64)skt;
@@ -361,6 +366,18 @@ int kprobe__inet_dgram_connect(struct pt_regs *ctx)
     bpf_map_update_elem(&icmpsock, &pid_tgid, &sa, BPF_ANY);
     return 0;
 }
+#endif
+
+// FIXME: armhf
+#if defined(__arm__)
+SEC("kretprobe/inet_dgram_connect")
+int kretprobe__inet_dgram_connect(int retval)
+{
+    // empty kprobe, so the ebpf lib does not complain about missing kprobe on 32bits archs.
+    return 0;
+}
+
+#else
 
 SEC("kretprobe/inet_dgram_connect")
 int kretprobe__inet_dgram_connect(int retval)
@@ -474,45 +491,47 @@ out:
 
     return 0;
 };
-
-// TODO: for 32bits
-#if defined(__arm__) && !defined(__i386__)
-SEC("kprobe/iptunnel_xmit")
-int kprobe__iptunnel_xmit(struct pt_regs *ctx)
-{
-    // empty kprobe, so the ebpf lib does not complain about missing kprobe on 32bits archs.
-    return 0;
-}
-#else
+#endif
 
 SEC("kprobe/iptunnel_xmit")
 int kprobe__iptunnel_xmit(struct pt_regs *ctx)
 {
     struct sk_buff *skb = (struct sk_buff *)PT_REGS_PARM3(ctx);
     u32 src = (u32)PT_REGS_PARM4(ctx);
-    u32 dst = (u32)PT_REGS_PARM5(ctx);
-
+    u32 dst = 0;
     u16 sport = 0;
-    unsigned char *head;
-    u16 pkt_hdr;
-    __builtin_memset(&head, 0, sizeof(head));
-    __builtin_memset(&pkt_hdr, 0, sizeof(pkt_hdr));
-    bpf_probe_read(&head, sizeof(head), &skb->head);
-    bpf_probe_read(&pkt_hdr, sizeof(pkt_hdr), &skb->transport_header);
-    struct udphdr *udph;
-    __builtin_memset(&udph, 0, sizeof(udph));
-
-    udph = (struct udphdr *)(head + pkt_hdr);
-    bpf_probe_read(&sport, sizeof(sport), &udph->source);
-    sport = (sport >> 8) | ((sport << 8) & 0xff00);
-
     struct udp_key_t udp_key;
     struct udp_value_t udp_value;
-    __builtin_memset(&udp_key, 0, sizeof(udp_key));
-    __builtin_memset(&udp_value, 0, sizeof(udp_value));
+    u16 pkt_hdr = 0;
+    bpf_probe_read(&pkt_hdr, sizeof(pkt_hdr), &skb->transport_header);
+
+#if defined(__i386__)
+    dst = (u32)(ctx->sp + 20);
+#else
+    dst = (u32)PT_REGS_PARM5(ctx);
+#endif
+
+#if defined(__i386__) || defined(__arm__)
+    unsigned char *data=NULL;
+    bpf_probe_read(&data, sizeof(data), &skb->data);
+    unsigned char *udp_start = data + pkt_hdr;
+
+    bpf_probe_read(&sport, sizeof(sport), udp_start);
+    bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &udp_start+2);
+#else
+    unsigned char *head;
+    struct udphdr *udph;
+    __builtin_memset(&udph, 0, sizeof(udph));
+    __builtin_memset(&head, 0, sizeof(head));
+
+    bpf_probe_read(&head, sizeof(head), &skb->head);
+    udph = (struct udphdr *)(head + pkt_hdr);
+    bpf_probe_read(&sport, sizeof(sport), &udph->source);
+    bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &udph->dest);
+#endif
+    sport = (sport >> 8) | ((sport << 8) & 0xff00);
 
     bpf_probe_read(&udp_key.sport, sizeof(udp_key.sport), &sport);
-    bpf_probe_read(&udp_key.dport, sizeof(udp_key.dport), &udph->dest);
     bpf_probe_read(&udp_key.saddr, sizeof(udp_key.saddr), &src);
     bpf_probe_read(&udp_key.daddr, sizeof(udp_key.daddr), &dst);
 
@@ -528,7 +547,6 @@ int kprobe__iptunnel_xmit(struct pt_regs *ctx)
     return 0;
 };
 
-#endif
 
 char _license[] SEC("license") = "GPL";
 // this number will be interpreted by the elf loader

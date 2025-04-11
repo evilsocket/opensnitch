@@ -87,10 +87,10 @@ struct data_t {
 // maps
 
 struct {
-	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
-	__type(key, u32);
-	__type(value, struct data_t);
-	__uint(max_entries, 1);
+    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+    __type(key, u32);
+    __type(value, struct data_t);
+    __uint(max_entries, 1);
 } heapstore SEC(".maps");
 
 #endif
