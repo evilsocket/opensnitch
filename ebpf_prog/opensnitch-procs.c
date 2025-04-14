@@ -111,16 +111,14 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
     }
     new_event(data);
     data->type = EVENT_EXEC;
-    // bpf_probe_read_user* helpers were introduced in kernel 5.5
-    // Since the args can be overwritten anyway, maybe we could get them from
-    // mm_struct instead for a wider kernel version support range?
+
+    data->args_count = 0;
+    data->args_partial = INCOMPLETE_ARGS;
     bpf_probe_read_user_str(&data->filename, sizeof(data->filename), (const char *)ctx->filename);
 
 // FIXME: on i386 arch, the following code fails with permission denied.
 #if !defined(__arm__) && !defined(__i386__)
     const char *argp={0};
-    data->args_count = 0;
-    data->args_partial = INCOMPLETE_ARGS;
 
     #pragma unroll
     for (int i = 0; i < MAX_ARGS; i++) {
@@ -157,6 +155,7 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
         // -28 ENOSPC (no space left)
         //     -> perf reader buffer too small.
         //     -> also happens after coming back from suspend state.
+        // -11 EAGAIN - ringbuf full?
         // -7 E2BIG (arg list too long) -> too much args?
         // -2 ENOENT (no such file or directory) -> map index not found. on different cpu?
 
@@ -182,11 +181,12 @@ int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx
     data->type = EVENT_EXECVEAT;
     bpf_probe_read_user_str(&data->filename, sizeof(data->filename), (const char *)ctx->filename);
 
+    data->args_count = 0;
+    data->args_partial = INCOMPLETE_ARGS;
+
 // FIXME: on i386 arch, the following code fails with permission denied.
 #if !defined(__arm__) && !defined(__i386__)
     const char *argp={0};
-    data->args_count = 0;
-    data->args_partial = INCOMPLETE_ARGS;
 
     #pragma unroll
     for (int i = 0; i < MAX_ARGS; i++) {

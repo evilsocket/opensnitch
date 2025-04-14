@@ -35,13 +35,12 @@ type execEvent struct {
 	UID         uint32
 	PPID        uint32
 	RetCode     uint32
+	Pad         uint16
 	ArgsCount   uint8
 	ArgsPartial uint8
 	Filename    [MaxPathLen]byte
 	Args        [MaxArgs][MaxArgLen]byte
 	Comm        [TaskCommLen]byte
-	Pad1        uint16
-	Pad2        uint32
 }
 
 // Struct that holds the metadata of a connection.

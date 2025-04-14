@@ -74,13 +74,12 @@ struct data_t {
     // Parent PID as in the userspace term (i.e task->real_parent->tgid in kernel)
     u32 ppid;
     u32 ret_code;
+    u16 _pad;
     u8 args_count;
     u8 args_partial;
     char filename[MAX_PATH_LEN];
     char args[MAX_ARGS][MAX_ARG_SIZE];
     char comm[TASK_COMM_LEN];
-    u16 pad1;
-    u32 pad2;
 };
 
 //-----------------------------------------------------------------------------
