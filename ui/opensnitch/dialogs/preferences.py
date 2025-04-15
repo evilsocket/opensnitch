@@ -728,12 +728,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _save_settings(self):
         self._reset_status_message()
-        self._save_ui_config()
-        if not self._save_db_config():
-            return
-        self._save_nodes_config()
+        ui_saved = self._save_ui_config()
+        db_saved = self._save_db_config()
+        nodes_saved = self._save_nodes_config()
 
-        self._set_status_successful(QC.translate("preferences", "Configuration applied."))
+        if ui_saved and db_saved and nodes_saved:
+            self._set_status_successful(QC.translate("preferences", "Configuration applied."))
         self.saved.emit()
         self._settingsSaved = True
         self._needs_restart()
@@ -785,7 +785,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             cert = self._cfg.getSettings(Config.AUTH_CERT)
             certkey = self._cfg.getSettings(Config.AUTH_CERTKEY)
             if not self._validate_certs():
-                return
+                return False
 
             server_addr = self._cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
             if self.comboServerAddr.currentText() != server_addr:
@@ -854,8 +854,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             self._autostart.enable(self.checkAutostart.isChecked())
 
+            return True
+
         except Exception as e:
             self._set_status_error(str(e))
+            return False
 
     def _save_ui_columns_config(self):
         cols=list()
@@ -905,19 +908,24 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         error = self._save_node_config(notif, addr)
                         if error != None:
                             self._set_status_error(error)
-                            return
+                            return False
                 else:
                     error = self._save_node_config(notif, addr)
                     if error != None:
                         self._set_status_error(error)
-                        return
+                        return False
             except Exception as e:
                 print(self.LOG_TAG + "exception saving config: ", e)
                 self._set_status_error(QC.translate("preferences", "Exception saving config: {0}").format(str(e)))
+                return False
+
         elif addr == "":
             self._set_status_message(QC.translate("preferences", "There're no nodes connected"))
+            return False
 
         self._node_needs_update = False
+
+        return True
 
     def _save_node_config(self, notifObject, addr):
         try:
