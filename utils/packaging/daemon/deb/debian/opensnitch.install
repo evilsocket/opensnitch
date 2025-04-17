@@ -1,5 +1,6 @@
 daemon/default-config.json etc/opensnitchd/
 daemon/system-fw.json etc/opensnitchd/
+daemon//network_aliases.json etc/opensnitchd/
 ebpf_prog/opensnitch.o usr/lib/opensnitchd/ebpf/
 ebpf_prog/opensnitch-dns.o usr/lib/opensnitchd/ebpf/
 ebpf_prog/opensnitch-procs.o usr/lib/opensnitchd/ebpf/
