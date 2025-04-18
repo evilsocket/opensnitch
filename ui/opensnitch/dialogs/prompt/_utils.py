@@ -131,6 +131,8 @@ def get_duration(duration_idx):
     elif duration_idx == 5:
         return _constants.DURATION_1h
     elif duration_idx == 6:
+        return _constants.DURATION_12h
+    elif duration_idx == 7:
         return Config.DURATION_UNTIL_RESTART
     else:
         return Config.DURATION_ALWAYS
