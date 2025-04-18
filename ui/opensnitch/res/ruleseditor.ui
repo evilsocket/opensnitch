@@ -1106,6 +1106,11 @@ You must name the rule in such manner that it'll be checked first, because they'
         </item>
         <item>
          <property name="text">
+          <string notr="true">12h</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>until reboot</string>
          </property>
         </item>

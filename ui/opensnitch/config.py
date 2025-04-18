@@ -66,6 +66,7 @@ class Config:
     DURATION_UNTIL_RESTART = "until restart"
     DURATION_ALWAYS = "always"
     DURATION_ONCE = "once"
+    DURATION_12h = "12h"
     DURATION_1h = "1h"
     DURATION_30m = "30m"
     DURATION_15m = "15m"
@@ -79,6 +80,7 @@ class Config:
     RULES_TEMPORARY_LIST = [
         DURATION_ONCE, DURATION_30s, DURATION_5m,
         DURATION_15m, DURATION_30m, DURATION_1h,
+        DURATION_12h,
         DURATION_UNTIL_RESTART]
 
     DEFAULT_DURATION_IDX = 6 # until restart
@@ -229,6 +231,7 @@ class Config:
                 Config.RULES_DURATION_FILTER = [
                     Config.DURATION_ONCE, Config.DURATION_30s, Config.DURATION_5m,
                     Config.DURATION_15m, Config.DURATION_30m, Config.DURATION_1h,
+                    Config.DURATION_12h,
                     Config.DURATION_UNTIL_RESTART]
 
                 Config.RULES_DURATION_FILTER = [
