@@ -18,6 +18,7 @@ class ClientConfig:
     "DefaultAction": "deny",
     "DefaultDuration": "once",
     "InterceptUnknown": false,
+    "InterceptLoopback": false,
     "ProcMonitorMethod": "ebpf",
     "LogLevel": 0,
     "LogUTC": true,

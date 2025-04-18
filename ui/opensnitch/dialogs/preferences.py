@@ -214,6 +214,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNodeAddress.currentTextChanged.connect(self._cb_node_needs_update)
         self.comboServerAddr.currentTextChanged.connect(self._cb_node_needs_update)
         self.checkInterceptUnknown.clicked.connect(self._cb_node_needs_update)
+        self.checkInterceptLoopback.clicked.connect(self._cb_node_needs_update)
         self.checkApplyToNodes.clicked.connect(self._cb_node_needs_update)
         self.comboNodeAction.currentIndexChanged.connect(self._cb_node_needs_update)
         self.checkNodeAuthSkipVerify.clicked.connect(self._cb_node_needs_update)
@@ -426,6 +427,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             #self.comboNodeDuration.setCurrentText(node_config['DefaultDuration'])
             self.comboNodeMonitorMethod.setCurrentText(node_config['ProcMonitorMethod'])
             self.checkInterceptUnknown.setChecked(node_config['InterceptUnknown'])
+            self.checkInterceptLoopback.setChecked(node_config['InterceptLoopback'])
             self.comboNodeLogLevel.setCurrentIndex(int(node_config['LogLevel']))
 
             if node_config.get('LogUTC') == None:
@@ -527,6 +529,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             node_config['LogUTC'] = self.checkNodeLogUTC.isChecked()
             node_config['LogMicro'] = self.checkNodeLogMicro.isChecked()
             node_config['InterceptUnknown'] = self.checkInterceptUnknown.isChecked()
+            node_config['InterceptLoopback'] = self.checkInterceptLoopback.isChecked()
 
             if node_config.get('Server') != None:
                 # skip setting Server Address if we're applying the config to all nodes
@@ -712,6 +715,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         #self.comboNodeDuration.setCurrentIndex(0)
         self.comboNodeMonitorMethod.setCurrentIndex(0)
         self.checkInterceptUnknown.setChecked(False)
+        self.checkInterceptLoopback.setChecked(False)
         self.comboNodeLogLevel.setCurrentIndex(0)
         self.checkNodeLogUTC.setChecked(True)
         self.checkNodeLogMicro.setChecked(False)
