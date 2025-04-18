@@ -1679,6 +1679,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_notification_callback(self, node_addr, reply):
         if reply.id in self._notifications_sent:
             noti = self._notifications_sent[reply.id]
+
+            # convert dictionary sent from _cb_fw_table_rows_reordered()
+            if isinstance(noti, dict) and isinstance(noti["notif"].type, int):
+                noti = noti["notif"]
+
             if noti.type == ui_pb2.TASK_START and reply.code != ui_pb2.ERROR:
                 noti_data = json.loads(noti.data)
                 if noti_data['name'] == "node-monitor":
