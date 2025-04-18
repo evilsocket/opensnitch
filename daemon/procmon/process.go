@@ -23,7 +23,9 @@ const (
 	MethodEbpf  = "ebpf"
 
 	KernelConnection = "Kernel connection"
+	ProcPrefix       = "/proc"
 	ProcSelf         = "/proc/self/"
+	ProcSelfExe      = "/proc/self/exe"
 
 	HashMD5  = "process.hash.md5"
 	HashSHA1 = "process.hash.sha1"
@@ -92,6 +94,10 @@ type Process struct {
 
 	// Path is the absolute path to the binary
 	Path string
+
+	// Root is the root directory of the process.
+	// Usually /, but if the process is in a chroot it'll be /whatever/a/b/c
+	Root string
 
 	// RealPath is the path to the binary taking into account its root fs.
 	// The simplest form of accessing the RealPath is by prepending /proc/<pid>/root/ to the path:

@@ -229,9 +229,31 @@ func (p *Process) ReadExeLink() (string, error) {
 	return os.Readlink(p.pathExe)
 }
 
+// ReadRoot obtains the root directory of the process.
+// This symlink may point to any directory:
+//  - Usually it'll point to the root filesystem (/).
+//  - If the process chroot-ed to some dir, it'll point to it:
+//    /proc/1234/root -> /etc/avahi
+//    /proc/2345/root -> /var/cache/pbuilder/build/...
+//    /proc/3456/root -> /proc
+// In some cases it'll point to a fs root, and others no.
+func (p *Process) ReadRoot() {
+	if p.Root != "" {
+		return
+	}
+	defer func() {
+		log.Info("ReadRoot() %s -> %s", p.Path, p.Root)
+	}()
+	if root, err := os.Readlink(p.pathRoot); err == nil {
+		p.Root = root
+		return
+	}
+	p.Root = "/"
+}
+
 // ReadPath reads the symbolic link that /proc/<pid>/exe points to.
 // Note 1: this link might not exist on the root filesystem, it might
-// have been executed from a container, so the real path would be:
+// have been executed from a container or a chroot, so the real path would be:
 // /proc/<pid>/root/<path that 'exe' points to>
 //
 // Note 2:
@@ -268,10 +290,21 @@ func (p *Process) ReadPath() error {
 func (p *Process) SetPath(path string) {
 	p.Path = path
 	p.CleanPath()
-	p.RealPath = core.ConcatStrings(p.pathRoot, "/", p.Path)
+	p.ReadRoot()
+
+	p.RealPath = core.ConcatStrings(p.pathRoot, p.Path)
 	if core.Exists(p.RealPath) == false {
 		p.RealPath = p.Path
-		// p.CleanPath() ?
+	}
+
+	// /proc/<pid>/root may point to any directory.
+	// if a process chroot's to a directory, that's what it will point to.
+	// It may be a fs root, or any random dir with the minimum files needed.
+	if p.Root != "/" && !strings.HasPrefix(p.Path, p.Root) {
+		chrootPath := core.ConcatStrings(p.Root, p.Path)
+		if core.Exists(chrootPath) {
+			p.Path = chrootPath
+		}
 	}
 }
 
@@ -306,8 +339,10 @@ func (p *Process) ReadCmdline() {
 // CleanArgs applies fixes on the cmdline arguments.
 // - AppImages cmdline reports the execuable launched as /proc/self/exe,
 //   instead of the actual path to the binary.
+// - For processes launched from a file descriptor, leave them with the orig
+//   path, which usually starts with /proc/*/fd/<number>.
 func (p *Process) CleanArgs() {
-	if len(p.Args) > 0 && p.Args[0] == ProcSelf {
+	if len(p.Args) > 0 && p.Args[0] == ProcSelfExe {
 		p.Args[0] = p.Path
 	}
 }
@@ -401,14 +436,17 @@ func (p *Process) readStatus() {
 // - Remove extra characters from the link that it points to.
 //   When a running process is deleted, the symlink has the bytes " (deleted")
 //   appended to the link.
-// - If the path is /proc/self/exe, resolve the symlink that it points to.
+// - If the path is /proc/self/exe or /proc/<pid>/fd/<number>, resolve the symlink
+//   that it points to.
 func (p *Process) CleanPath() {
 
 	// Sometimes the path to the binary reported is the symbolic link of the process itself.
 	// This is not useful to the user, and besides it's a generic path that can represent
 	// to any process.
 	// Therefore we cannot use /proc/self/exe directly, because it resolves to our own process.
-	if strings.HasPrefix(p.Path, ProcSelf) {
+	// Same for /proc/<pid>/fd/<number>
+	if strings.HasPrefix(p.Path, ProcPrefix) {
+		fmt.Println("CleanPath, /proc/self prefix:", p.Path, p.Args)
 		if link, err := os.Readlink(p.pathExe); err == nil {
 			p.Path = link
 			return
