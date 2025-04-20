@@ -17,6 +17,8 @@ else ifeq ($(ARCH),i686)
 	ARCH := x86
 else ifeq ($(ARCH),armv7l)
 	ARCH := arm
+else ifeq ($(ARCH),armv8l)
+	ARCH := arm
 else ifeq ($(ARCH),aarch64)
 	ARCH := arm64
 endif
