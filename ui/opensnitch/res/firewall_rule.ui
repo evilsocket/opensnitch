@@ -403,6 +403,23 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="cmdDelete">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Delete</string>
+       </property>
+       <property name="icon">
+        <iconset theme="edit-delete">
+         <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -416,17 +433,6 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="cmdClose">
-       <property name="text">
-        <string>Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="window-close">
-         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="cmdReset">
        <property name="text">
         <string>Clear</string>
@@ -438,13 +444,13 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="cmdDelete">
+      <widget class="QPushButton" name="cmdClose">
        <property name="text">
-        <string>Delete</string>
+        <string>Close</string>
        </property>
        <property name="icon">
-        <iconset theme="edit-delete">
-         <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+        <iconset theme="window-close">
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>
