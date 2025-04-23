@@ -1223,6 +1223,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             _durAlways = durMenu.addAction(QC.translate("stats", "Always"))
             _durUntilReboot = durMenu.addAction(QC.translate("stats", "Until reboot"))
+            _dur12h = durMenu.addAction(Config.DURATION_12h)
             _dur1h = durMenu.addAction(Config.DURATION_1h)
             _dur30m = durMenu.addAction(Config.DURATION_30m)
             _dur15m = durMenu.addAction(Config.DURATION_15m)
@@ -1280,6 +1281,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._table_menu_duplicate(cur_idx, model, selection)
             elif action == _durAlways:
                 self._table_menu_change_rule_field(cur_idx, model, selection, "duration", Config.DURATION_ALWAYS)
+            elif action == _dur12h:
+                self._table_menu_change_rule_field(cur_idx, model, selection, "duration", Config.DURATION_12h)
             elif action == _dur1h:
                 self._table_menu_change_rule_field(cur_idx, model, selection, "duration", Config.DURATION_1h)
             elif action == _dur30m:

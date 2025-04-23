@@ -24,6 +24,7 @@ DURATION_5m     = "5m"
 DURATION_15m    = "15m"
 DURATION_30m    = "30m"
 DURATION_1h     = "1h"
+DURATION_12h     = "12h"
 # don't translate
 
 APPIMAGE_PREFIX = "/tmp/.mount_"
