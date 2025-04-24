@@ -238,7 +238,7 @@ func processExecEvent(event *execEvent) {
 	if proc == nil {
 		return
 	}
-	log.Debug("[eBPF exec event] type: %d, ppid: %d, pid: %d, %s -> %s", event.Type, event.PPID, event.PID, proc.Path, proc.Args)
+	log.Debug("[eBPF exec event] type: %d, ppid: %d, pid: %d, uid: %d, %s -> %s", event.Type, event.PPID, event.PID, event.UID, proc.Path, proc.Args)
 	itemParent, pfound := procmon.EventsCache.IsInStoreByPID(proc.PPID)
 	if pfound {
 		proc.Parent = &itemParent.Proc
@@ -258,7 +258,7 @@ func processExecEvent(event *execEvent) {
 	}
 
 	// from now on use cached Process
-	log.Debug("[eBPF event inCache] -> %d, %s", event.PID, item.Proc.Path)
+	log.Debug("[eBPF event inCache] pid: %d, uid: %d, %s", event.PID, event.UID, item.Proc.Path)
 }
 
 // event2process creates a new Process from execEvent
