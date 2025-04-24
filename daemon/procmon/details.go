@@ -241,9 +241,6 @@ func (p *Process) ReadRoot() {
 	if p.Root != "" {
 		return
 	}
-	defer func() {
-		log.Info("ReadRoot() %s -> %s", p.Path, p.Root)
-	}()
 	if root, err := os.Readlink(p.pathRoot); err == nil {
 		p.Root = root
 		return
