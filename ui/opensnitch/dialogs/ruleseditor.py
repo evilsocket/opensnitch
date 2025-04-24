@@ -25,9 +25,9 @@ from opensnitch.utils import (
     NetworkInterfaces,
     qvalidator
 )
+from opensnitch.utils.network_aliases import NetworkAliases
 from opensnitch.rules import Rule, Rules
 
-from network_aliases import NetworkAliases
 
 DIALOG_UI_PATH = "%s/../res/ruleseditor.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):

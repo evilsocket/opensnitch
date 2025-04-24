@@ -1,7 +1,8 @@
 /*   Copyright (C) 2018      Simone Margaritelli
 //                 2021      themighty1
 //                 2022      calesanz
-//                 2019-2022 Gustavo Iñiguez Goia
+//				   2024      Nolan Carouge
+//                 2019-2025 Gustavo Iñiguez Goia
 //
 //   This file is part of OpenSnitch.
 //

@@ -26,7 +26,7 @@ from opensnitch.dialogs.prompt import _utils, _constants, _checksums, _details
 import opensnitch.proto as proto
 ui_pb2, ui_pb2_grpc = proto.import_()
 
-from network_aliases import NetworkAliases
+from opensnitch.utils.network_aliases import NetworkAliases
 
 DIALOG_UI_PATH = "%s/../../res/prompt.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
