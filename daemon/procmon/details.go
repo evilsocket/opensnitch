@@ -443,7 +443,6 @@ func (p *Process) CleanPath() {
 	// Therefore we cannot use /proc/self/exe directly, because it resolves to our own process.
 	// Same for /proc/<pid>/fd/<number>
 	if strings.HasPrefix(p.Path, ProcPrefix) {
-		fmt.Println("CleanPath, /proc/self prefix:", p.Path, p.Args)
 		if link, err := os.Readlink(p.pathExe); err == nil {
 			p.Path = link
 			return
