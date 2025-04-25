@@ -53,8 +53,10 @@ type (
 		ModulesPath string `json:"ModulesPath"`
 	}
 
+	// InternalOptions struct
 	internalOptions struct {
-		GCPercent int `json:"GCPercent"`
+		GCPercent         int  `json:"GCPercent"`
+		FlushConnsOnStart bool `json:"FlushConnsOnStart"`
 	}
 )
 

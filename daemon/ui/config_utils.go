@@ -7,6 +7,7 @@ import (
 	"runtime/debug"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/netlink"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
 	"github.com/evilsocket/opensnitch/daemon/ui/config"
@@ -110,13 +111,24 @@ func (c *Client) loadConfiguration(rawConfig []byte) bool {
 		clientDisconnectedRule.Duration = rule.Duration(clientConfig.DefaultDuration)
 		clientErrorRule.Duration = rule.Duration(clientConfig.DefaultDuration)
 	}
+
+	reloaded := false
 	if clientConfig.ProcMonitorMethod != "" {
 		err := monitor.ReconfigureMonitorMethod(clientConfig.ProcMonitorMethod, clientConfig.Ebpf.ModulesPath)
 		if err != nil {
 			msg := fmt.Sprintf("Unable to set new process monitor (%s) method from disk: %v", clientConfig.ProcMonitorMethod, err.Msg)
 			log.Warning(msg)
 			c.SendWarningAlert(msg)
+		} else {
+			reloaded = true
 		}
+	}
+
+	if reloaded && clientConfig.Internal.FlushConnsOnStart {
+		log.Debug("[config] flushing established connections")
+		netlink.FlushConnections()
+	} else {
+		log.Debug("[config] not flushing established connections")
 	}
 
 	if clientConfig.Internal.GCPercent > 0 {

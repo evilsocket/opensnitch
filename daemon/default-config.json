@@ -12,9 +12,16 @@
     "LogUTC": true,
     "LogMicro": false,
     "Firewall": "nftables",
+    "Rules": {
+        "Path": "/etc/opensnitchd/rules/"
+    },
     "Stats": {
         "MaxEvents": 150,
         "MaxStats": 25,
         "Workers": 6
+    },
+    "Internal": {
+        "GCPercent": 100,
+        "FlushConnsOnStart": true
     }
 }
