@@ -36,6 +36,8 @@ class LinuxDesktopParser(threading.Thread):
             '/usr/bin/pidgin.orig': '/usr/bin/pidgin'
         }
 
+        self.terminal_icon = ""
+
         for desktop_path in DESKTOP_PATHS:
             if not os.path.exists(desktop_path):
                 continue
@@ -97,26 +99,14 @@ class LinuxDesktopParser(threading.Thread):
     @staticmethod
     def discover_app_icon(app_name):
         # more hacks
-        # normally qt will find icons if the system if configured properly.
+        # normally qt will find icons if the system is configured properly.
         # if it's not, qt won't be able to find the icon by using QIcon().fromTheme(""),
         # so we fallback to try to determine if the icon exist in some well known system paths.
-        icon_dirs = (
-            "/usr/share/icons/hicolor/scalable/apps/",
-            "/usr/share/icons/gnome/48x48/apps/",
-            "/usr/share/pixmaps/",
-            "/usr/share/icons/hicolor/48x48/apps/",
-            "/usr/share/icons/HighContrast/scalable/apps/",
-            "/usr/share/icons/HighContrast/48x48/apps/"
-        )
-        icon_exts = (".svg", ".png", ".xpm")
-        for idir in icon_dirs:
-            for iext in icon_exts:
-                iconPath = idir + app_name
-                if iext not in app_name:
-                    iconPath = idir + app_name + iext
+        for idir in glob.glob('/usr/share/icons/*/*/apps/*'):
+            if app_name in idir:
+                return idir
 
-                if os.path.exists(iconPath):
-                    return iconPath
+        return None
 
     def _parse_desktop_file(self, desktop_path):
         parser = configparser.ConfigParser(strict=False)  # Allow duplicate config entries
@@ -134,6 +124,8 @@ class LinuxDesktopParser(threading.Thread):
             icon = parser.get('Desktop Entry', 'Icon', raw=True, fallback=None)
             name = parser.get('Desktop Entry', 'Name', raw=True, fallback=None)
             desc = self.get_app_description(parser)
+            if "terminal" in icon:
+                self.terminal_icon = icon
 
             if name == "flatpak":
                 return
@@ -143,6 +135,8 @@ class LinuxDesktopParser(threading.Thread):
                 # FIXME: even if we return an icon, if the DE is not properly configured,
                 # it won't be loaded/displayed.
                 icon = LinuxDesktopParser.discover_app_icon(basename)
+                if icon == None:
+                    icon = self.terminal_icon
 
             with self.lock:
                 # The Exec entry may have an absolute path to a binary or just the binary with parameters.
@@ -173,12 +167,11 @@ class LinuxDesktopParser(threading.Thread):
             return self.apps.get(def_name, (def_name, default_icon, "", None))
 
         # last try to get a default terminal icon
-        for def_icon in ("terminal", "utilities-terminal", "xterm", "gnome-terminal", "openterm", "xfce-terminal", "terminator"):
-            test = self.apps.get(def_name, (def_name, def_icon, "", None))
-            if test != None:
-                return test
+        icon = self.discover_app_icon(def_name)
+        if icon == None:
+            icon = self.terminal_icon
 
-        return self.apps.get(def_name, (def_name, default_icon, "", None))
+        return self.apps.get(def_name, (def_name, icon, "", None))
 
     def get_info_by_binname(self, name, default_icon):
         def_name = os.path.basename(name)
