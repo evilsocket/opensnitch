@@ -22,6 +22,8 @@ else ifeq ($(ARCH),armv8l)
 	ARCH := arm
 else ifeq ($(ARCH),aarch64)
 	ARCH := arm64
+else ifeq ($(ARCH),s390x)
+	ARCH := s390
 endif
 
 ifeq ($(ARCH),arm)
