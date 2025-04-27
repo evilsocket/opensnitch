@@ -103,13 +103,10 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 		strconv.FormatUint(uint64(dstPort), 10))
 	if cacheItem, isInCache := ebpfCache.isInCache(k); isInCache {
 		deleteEbpfEntry(proto, key)
-		if ev, found := procmon.EventsCache.IsInStoreByPID(cacheItem.Pid); found {
-			proc = &ev.Proc
-			log.Debug("[ebpf conn] in cache: %s, %d -> %s", k, proc.ID, proc.Path)
+		if p := isPIDinEventsCache(cacheItem.Pid, cacheItem.UID); p != nil {
+			proc = p
 			return
 		}
-		log.Trace("[ebpf conn] in cache, with no proc %s, %d", k, cacheItem.Pid)
-		return
 	}
 
 	err := ebpfMaps[proto].bpfMap.Lookup(&key, &value)
@@ -172,20 +169,28 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	return
 }
 
+// Check if the PID of the connection is in the cache.
+func isPIDinEventsCache(pid, uid int) (proc *procmon.Process) {
+	if ev, found := procmon.EventsCache.IsInStoreByPID(pid); found {
+		// In some cases, a process may have dropped its privileges, from 0 to 123 for example.
+		// In these cases use socket's UID. This is the UID that we've always used,
+		ev.Proc.UID = uid
+		proc = &ev.Proc
+		log.Debug("[ebpf conn] not in cache, but in execEvents, pid: %d, uid: %d -> %s -> %s", proc.ID, proc.UID, proc.Path, proc.Args)
+		return proc
+	}
+
+	return nil
+}
+
 // findConnProcess finds the process' details of a connection.
 // By default we only receive the PID of the process, so we need to get
 // the rest of the details.
 // TODO: get the details from kernel, with mm_struct (exe_file, fd_path, etc).
 func findConnProcess(value *networkEventT, connKey string) (proc *procmon.Process) {
 
-	// Use socket's UID. A process may have dropped privileges.
-	// This is the UID that we've always used.
-
-	if ev, found := procmon.EventsCache.IsInStoreByPID(int(value.Pid)); found {
-		ev.Proc.UID = int(value.UID)
-		proc = &ev.Proc
-		log.Debug("[ebpf conn] not in cache, but in execEvents: %s, %d -> %s -> %s", connKey, proc.ID, proc.Path, proc.Args)
-		return
+	if p := isPIDinEventsCache(int(value.Pid), int(value.UID)); p != nil {
+		return p
 	}
 
 	// We'll end here if the events module has not been loaded, or if the process is not in cache.
