@@ -17,6 +17,9 @@
 #elif defined(__TARGET_ARCH_arm64)
 	#define bpf_target_arm64
 	#define bpf_target_defined
+#elif defined(__TARGET_ARCH_loongarch)
+	#define bpf_target_loongarch
+	#define bpf_target_defined
 #elif defined(__TARGET_ARCH_mips)
 	#define bpf_target_mips
 	#define bpf_target_defined
@@ -46,6 +49,9 @@
 	#define bpf_target_defined
 #elif defined(__aarch64__)
 	#define bpf_target_arm64
+	#define bpf_target_defined
+#elif defined(__loongarch64)
+	#define bpf_target_loongarch
 	#define bpf_target_defined
 #elif defined(__mips__)
 	#define bpf_target_mips
@@ -178,6 +184,20 @@ struct pt_regs___arm64 {
 #define __PT_IP_REG pc
 #define PT_REGS_PARM1_SYSCALL(x) PT_REGS_PARM1_CORE_SYSCALL(x)
 #define PT_REGS_PARM1_CORE_SYSCALL(x) BPF_CORE_READ((const struct pt_regs___arm64 *)(x), orig_x0)
+
+#elif defined(bpf_target_loongarch)
+
+#define __PT_REGS_CAST(x) ((const struct user_pt_regs *)(x))
+#define __PT_PARM1_REG regs[4]
+#define __PT_PARM2_REG regs[5]
+#define __PT_PARM3_REG regs[6]
+#define __PT_PARM4_REG regs[7]
+#define __PT_PARM5_REG regs[8]
+#define __PT_RET_REG regs[1]
+#define __PT_FP_REG regs[22]
+#define __PT_RC_REG regs[4]
+#define __PT_SP_REG regs[3]
+#define __PT_IP_REG pc
 
 #elif defined(bpf_target_mips)
 
