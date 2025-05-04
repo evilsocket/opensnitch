@@ -342,6 +342,81 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
     return 0;
 };
 
+SEC("kprobe/udp_tunnel6_xmit_skb")
+int kprobe__udp_tunnel6_xmit_skb(struct pt_regs *ctx)
+{
+#if defined(__x86_64__)
+    struct sock *sk = (struct sock *)PT_REGS_PARM2(ctx);
+    struct in6_addr *saddr = (struct in6_addr *)PT_REGS_PARM5(ctx);
+    // 6th
+    struct in6_addr *daddr = (struct in6_addr *)(ctx->r9);
+    // 10th
+    void *sport_ptr = (void *)(ctx->sp + 32);
+    // 11th
+    void *dport_ptr = (void *)(ctx->sp + 40);
+
+    struct udpv6_key_t udpv6_key, udpv6_key2;
+    __builtin_memset(&udpv6_key, 0, sizeof(udpv6_key));
+    __builtin_memset(&udpv6_key2, 0, sizeof(udpv6_key2));
+    u16 dport = 0, sport = 0;
+
+    bpf_probe_read(&sport, sizeof(sport), (void *)sport_ptr);
+    bpf_probe_read(&dport, sizeof(dport), (void *)dport_ptr);
+    if (dport == 0 || sport == 0){
+        return 0;
+    }
+
+    udpv6_key.dport = dport;
+    udpv6_key.sport = (sport >> 8) | ((sport << 8) & 0xff00);
+    udpv6_key2.sport = udpv6_key.sport;
+    udpv6_key2.dport = udpv6_key.dport;
+
+    // tunnel addrs
+    bpf_probe_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &saddr->in6_u.u6_addr32);
+    bpf_probe_read(&udpv6_key.daddr, sizeof(udpv6_key.daddr), &daddr->in6_u.u6_addr32);
+
+    //bpf_probe_read(&udpv6_key.dport, sizeof(udpv6_key.dport), &sk->__sk_common.skc_dport);
+    //bpf_probe_read(&udpv6_key.sport, sizeof(udpv6_key.sport), &sk->__sk_common.skc_num);
+
+    // internet addrs
+    bpf_probe_read(&udpv6_key2.daddr, sizeof(udpv6_key2.daddr), &sk->__sk_common.skc_v6_daddr.in6_u.u6_addr32);
+    bpf_probe_read(&udpv6_key2.saddr, sizeof(udpv6_key2.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
+
+    u64 pid_tgid = bpf_get_current_pid_tgid();
+    u64 pid = pid_tgid >> 32;
+    struct udpv6_value_t udpv6_value={0};
+    __builtin_memset(&udpv6_value, 0, sizeof(udpv6_value));
+    bpf_get_current_comm(&udpv6_value.comm, sizeof(udpv6_value.comm));
+    udpv6_value.pid = pid;
+    udpv6_value.uid = bpf_get_current_uid_gid() & 0xffffffff;
+
+    struct udpv6_value_t *lookedupValue = bpf_map_lookup_elem(&udpv6Map, &udpv6_key2);
+    if (lookedupValue == NULL || lookedupValue->pid != pid) {
+        bpf_map_update_elem(&udpv6Map, &udpv6_key2, &udpv6_value, BPF_ANY);
+    }
+
+    lookedupValue = bpf_map_lookup_elem(&udpv6Map, &udpv6_key);
+    if (lookedupValue == NULL || lookedupValue->pid != pid) {
+        bpf_map_update_elem(&udpv6Map, &udpv6_key, &udpv6_value, BPF_ANY);
+    }
+
+    // when saddr and daddr are empty, usually the connection is from-to localhost.
+    if (saddr == 0 && daddr == 0){
+        udpv6_key.saddr.part1 = 0;
+        udpv6_key.saddr.part2 = htonll(1);
+        udpv6_key.daddr.part1 = 0;
+        udpv6_key.daddr.part2 = htonll(1);
+        bpf_map_update_elem(&udpv6Map, &udpv6_key, &udpv6_value, BPF_ANY);
+    }
+
+#endif
+
+    // TODO: other architectures
+
+    return 0;
+};
+
+
 SEC("kprobe/inet_dgram_connect")
 int kprobe__inet_dgram_connect(struct pt_regs *ctx)
 {

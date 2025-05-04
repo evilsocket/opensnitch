@@ -3,6 +3,7 @@
 
 #include <linux/sched.h>
 #include <linux/ptrace.h>
+#include <linux/byteorder/generic.h>
 #include <uapi/linux/bpf.h>
 #include "bpf_headers/bpf_helpers.h"
 #include "bpf_headers/bpf_tracing.h"
@@ -10,6 +11,10 @@
 
 #define BUF_SIZE_MAP_NS 256
 #define MAPSIZE 12000
+
+#ifndef htonll
+  #define htonll(x) cpu_to_be64(x)
+#endif
 
 #define debug(fmt, ...) \
     ( \

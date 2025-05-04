@@ -30,6 +30,8 @@ type KProbeDefs struct {
 	KProbeIPtunnelXmit        *ebpf.Program `ebpf:"kprobe__iptunnel_xmit"`
 	KProbeInetDgramConnect    *ebpf.Program `ebpf:"kprobe__inet_dgram_connect"`
 	KretProbeInetDgramConnect *ebpf.Program `ebpf:"kretprobe__inet_dgram_connect"`
+
+	KProbeUDPtunnel6Xmit *ebpf.Program `ebpf:"kprobe__udp_tunnel6_xmit_skb"`
 }
 
 // MapDefs holds the map definitions of the main module
@@ -185,6 +187,11 @@ func Start(ebpfOpts Config) *Error {
 	kp, err = link.Kretprobe("inet_dgram_connect", ebpfMod.KretProbeInetDgramConnect, nil)
 	if err != nil {
 		log.Error("opening kretprobe: %s", err)
+	}
+	hooks = append(hooks, kp)
+	kp, err = link.Kprobe("udp_tunnel6_xmit_skb", ebpfMod.KProbeUDPtunnel6Xmit, nil)
+	if err != nil {
+		log.Error("opening kprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 
