@@ -475,6 +475,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         if self.translator:
             self._app.removeTranslator(self.translator)
         saved_lang = self._cfg.getSettings(Config.DEFAULT_LANGUAGE)
+        if saved_lang == languages.DEFAULT_LANG:
+            return
         self.translator = languages.init(saved_lang)
         self._app.installTranslator(self.translator)
 

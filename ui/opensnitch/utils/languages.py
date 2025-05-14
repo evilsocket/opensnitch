@@ -3,6 +3,9 @@ import os
 
 from opensnitch.config import Config
 
+DEFAULT_LANG = "en"
+DEFAULT_LANGNAME = "English"
+
 def __get_i18n_path():
     return os.path.dirname(os.path.realpath(__file__)) + "/../i18n"
 
@@ -20,12 +23,15 @@ def init(saved_lang):
 
 def save(cfg, lang):
     q = QtCore.QLocale(lang)
+    langname = q.nativeLanguageName().capitalize()
+    if lang == DEFAULT_LANG:
+        langname = DEFAULT_LANGNAME
     cfg.setSettings(Config.DEFAULT_LANGUAGE, lang)
-    cfg.setSettings(Config.DEFAULT_LANGNAME, q.nativeLanguageName().capitalize())
+    cfg.setSettings(Config.DEFAULT_LANGNAME, langname)
 
 def get_all():
-    langs = []
-    names = []
+    langs = [DEFAULT_LANG]
+    names = [DEFAULT_LANGNAME]
     i18n_path = __get_i18n_path()
     lang_dirs = os.listdir(i18n_path)
     lang_dirs.sort()
