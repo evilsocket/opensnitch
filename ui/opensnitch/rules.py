@@ -69,7 +69,7 @@ class Rule():
                     ])
                 rule.operator.data = ""
         except Exception as e:
-            print("new_from_records exception parsing operartor list:", e)
+            print("new_from_records exception parsing operator list:", e)
 
 
         return rule

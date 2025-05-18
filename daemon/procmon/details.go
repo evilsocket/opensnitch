@@ -334,7 +334,7 @@ func (p *Process) ReadCmdline() {
 }
 
 // CleanArgs applies fixes on the cmdline arguments.
-// - AppImages cmdline reports the execuable launched as /proc/self/exe,
+// - AppImages cmdline reports the executable launched as /proc/self/exe,
 //   instead of the actual path to the binary.
 // - For processes launched from a file descriptor, leave them with the orig
 //   path, which usually starts with /proc/*/fd/<number>.
@@ -497,7 +497,7 @@ func (p *Process) ResetChecksums() {
 }
 
 // ComputeChecksums calculates the checksums of a the process path to the binary.
-// Users may want to use different hashing alogrithms.
+// Users may want to use different hashing algorithms.
 func (p *Process) ComputeChecksums(hashes map[string]uint) {
 	if p.IsAlive() && len(p.Checksums) > 0 {
 		log.Debug("process.ComputeChecksums() already hashed: %d, path: %s, %v", p.ID, p.Path, p.Checksums)

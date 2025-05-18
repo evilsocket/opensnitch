@@ -96,7 +96,7 @@ func getItems(proto string, isIPv6 bool) (items uint) {
 }
 
 // deleteOldItems deletes maps' elements in order to keep them below maximum capacity.
-// If ebpf maps are full they don't allow any more insertions, ending up lossing events.
+// If ebpf maps are full they don't allow any more insertions, ending up losing events.
 func deleteOldItems(proto string, isIPv6 bool, maxToDelete uint) (deleted uint) {
 	var lookupKey []byte
 	var nextKey []byte

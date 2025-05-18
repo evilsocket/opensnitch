@@ -54,7 +54,7 @@ func TestNodeMonitor(t *testing.T) {
 		var sysinfo syscall.Sysinfo_t
 		err = json.Unmarshal([]byte(sysinfoRaw), &sysinfo)
 		if err != nil {
-			t.Error("Error unmarshaling response:", err)
+			t.Error("Error unmarshalling response:", err)
 		}
 	})
 

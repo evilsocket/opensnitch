@@ -1549,7 +1549,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.uuid = ""
 
     def _enable_save(self, enable=True):
-        """Enable Save buton whenever some detail of a route changes.
+        """Enable Save button whenever some detail of a route changes.
         The button may or not be hidden. If we're editing a rule it'll be shown
         but disabled/enabled.
         """

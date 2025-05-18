@@ -160,7 +160,7 @@ func CheckSysRequirements() {
 ]
 `
 
-	reqsFullfiled := true
+	reqsFulfilled := true
 	dec := json.NewDecoder(strings.NewReader(reqsList))
 	for {
 		var reqs []ReqsList
@@ -187,13 +187,13 @@ func CheckSysRequirements() {
 			if checkOk {
 				fmt.Printf("\n\t* %s\t %s\n", log.Bold(log.Green(req.Item)), log.Bold(log.Green("✔")))
 			} else {
-				reqsFullfiled = false
+				reqsFulfilled = false
 				fmt.Printf("\n\t* %s\t %s\n", log.Bold(log.Red(req.Item)), log.Bold(log.Red("✘")))
 			}
 			fmt.Println()
 		}
 	}
-	if !reqsFullfiled {
+	if !reqsFulfilled {
 		log.Raw("\n%sWARNING:%s Your kernel doesn't support some of the features OpenSnitch needs:\nRead more: https://github.com/evilsocket/opensnitch/issues/774\n", log.FG_WHITE+log.BG_YELLOW, log.RESET)
 	}
 }
