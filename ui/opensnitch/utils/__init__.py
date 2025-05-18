@@ -105,6 +105,8 @@ class Themes():
     __instance = None
 
     AVAILABLE = False
+    IS_DARK = False
+    SYSTEM_ICON_THEME = ""
     try:
         from qt_material import apply_stylesheet as qtmaterial_apply_stylesheet
         from qt_material import list_themes as qtmaterial_themes
@@ -154,9 +156,12 @@ class Themes():
             return
 
         try:
+            Themes.SYSTEM_ICON_THEME = QtGui.QIcon().themeName()
             theme_idx, theme_name, theme_density = self.get_saved_theme()
             if theme_name != "":
                 invert = "light" in theme_name
+                self.set_icon_theme(theme_name)
+
                 print("Using theme:", theme_idx, theme_name, "inverted:", invert)
                 # TODO: load {theme}.xml.extra and .xml.css for further
                 # customizations.
@@ -170,6 +175,8 @@ class Themes():
     def change_theme(self, window, theme_name, extra={}):
         try:
             invert = "light" in theme_name
+            self.set_icon_theme(theme_name)
+
             Themes.qtmaterial_apply_stylesheet(window, theme=theme_name,  invert_secondary=invert, extra=extra)
         except Exception as e:
             print("Themes.change_theme() exception:", e, " - ", window, theme_name)
@@ -194,6 +201,24 @@ class Themes():
 
         themes += Themes.qtmaterial_themes()
         return themes
+
+    def set_icon_theme(self, theme_name):
+        Themes.IS_DARK = theme_name.startswith("dark")
+        if Themes.IS_DARK:
+            self.set_dark_icon_theme()
+        else:
+            self.set_system_icon_theme()
+
+        print("Using icon theme", QtGui.QIcon().themeName())
+
+    def set_dark_icon_theme(self):
+        # If the current qt-material theme is dark, use HighContrast icon theme.
+        # Sometimes system theme icons are practically dark, making them
+        # visually indistinguishable with q-material dark themes.
+        QtGui.QIcon().setThemeName("HighContrast")
+
+    def set_system_icon_theme(self):
+        QtGui.QIcon().setThemeName(Themes.SYSTEM_ICON_THEME)
 
 class GenericTimer(Thread):
     interval = 1
