@@ -3,12 +3,12 @@ import os
 import os.path
 import ipaddress
 
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt5 import QtCore, uic, QtWidgets
 from PyQt5.QtCore import QCoreApplication as QC
 
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
-from opensnitch.utils import NetworkServices, NetworkInterfaces, QuickHelp, Icons, Utils
+from opensnitch.utils import NetworkServices, NetworkInterfaces, QuickHelp, Icons
 import opensnitch.firewall as Fw
 from opensnitch.firewall.utils import Utils as FwUtils
 
