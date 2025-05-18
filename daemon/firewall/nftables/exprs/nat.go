@@ -141,7 +141,7 @@ func NewExprDNAT() *expr.NAT {
 
 // NewExprTproxy returns a new tproxy expression.
 // XXX: is "to x.x.x.x:1234" supported by google/nftables lib? or only "to :1234"?
-// it creates an erronous rule.
+// it creates an erroneous rule.
 func NewExprTproxy() *[]expr.Any {
 	return &[]expr.Any{
 		&expr.TProxy{

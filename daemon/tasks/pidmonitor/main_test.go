@@ -70,7 +70,7 @@ func TestPIDMonitor(t *testing.T) {
 		var proc procmon.Process
 		err = json.Unmarshal([]byte(procRaw), &proc)
 		if err != nil {
-			t.Error("Error unmarshaling response:", err)
+			t.Error("Error unmarshalling response:", err)
 		}
 		if proc.ID != ourPID {
 			t.Error("invalid Process object received:", ourPID, proc)
