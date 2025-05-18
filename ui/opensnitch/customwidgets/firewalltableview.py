@@ -2,7 +2,7 @@
 from PyQt5 import QtCore
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtSql import QSqlQuery, QSqlError
-from PyQt5.QtWidgets import QTableView, QAbstractSlider, QItemDelegate, QAbstractItemView, QPushButton, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QTableView
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QCoreApplication as QC
 

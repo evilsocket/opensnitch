@@ -1,6 +1,4 @@
 from PyQt5.QtCore import QCoreApplication as QC
-import os
-from opensnitch.utils import Utils
 from opensnitch.config import Config
 
 class DesktopNotifications():

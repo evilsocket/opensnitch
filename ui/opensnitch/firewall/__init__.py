@@ -8,7 +8,6 @@ from opensnitch.nodes import Nodes
 from .enums import *
 from .rules import *
 from .chains import *
-from .utils import Utils
 from .exprs import *
 from .profiles import *
 
