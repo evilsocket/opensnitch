@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16"
+   height="16"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="terminator.svg"
+   inkscape:export-filename="/home/sboddy/Development/terminator/terminator-trunk-ssh/data/icons/HighContrast/16x16/apps/terminator.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="16"
+     inkscape:cx="9.473784"
+     inkscape:cy="11.271827"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1006"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:snap-bbox="true"
+     inkscape:snap-nodes="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2985"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1036.3622)">
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3116"
+       width="16"
+       height="16"
+       x="0"
+       y="0"
+       transform="translate(0,1036.3622)"
+       ry="2"
+       rx="2" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3886"
+       width="14"
+       height="14"
+       x="1"
+       y="1"
+       transform="translate(0,1036.3622)"
+       rx="1"
+       ry="1" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3888"
+       width="12"
+       height="12"
+       x="2"
+       y="2"
+       transform="translate(0,1036.3622)"
+       rx="0"
+       ry="0" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       d="M 3,13 3,12 5.5192815,9.5 3,7 3,6 4,6 7.5192815,9.5 4,13 z"
+       id="path4124"
+       inkscape:connector-curvature="0"
+       transform="translate(0,1036.3622)"
+       sodipodi:nodetypes="ccccccccc" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect4126"
+       width="5"
+       height="1"
+       x="8"
+       y="12"
+       transform="translate(0,1036.3622)" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect4128"
+       width="12"
+       height="1"
+       x="2"
+       y="4"
+       transform="translate(0,1036.3622)" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect4130"
+       width="1"
+       height="2"
+       x="5"
+       y="2"
+       transform="translate(0,1036.3622)" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect4132"
+       width="1"
+       height="2"
+       x="10"
+       y="2"
+       transform="translate(0,1036.3622)" />
+    <path
+       style="fill:#000000;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m 6,4 4,-2 0,2 z"
+       id="path4134"
+       inkscape:connector-curvature="0"
+       transform="translate(0,1036.3622)" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect4136"
+       width="3"
+       height="2"
+       x="2"
+       y="2"
+       transform="translate(0,1036.3622)"
+       rx="0"
+       ry="0" />
+  </g>
+</svg>

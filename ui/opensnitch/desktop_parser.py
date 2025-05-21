@@ -36,7 +36,10 @@ class LinuxDesktopParser(threading.Thread):
             '/usr/bin/pidgin.orig': '/usr/bin/pidgin'
         }
 
-        self.terminal_icon = ""
+        self.terminal_icon = os.path.join(
+           os.path.abspath(os.path.dirname(__file__)),
+            "res/terminal.svg"
+        )
 
         for desktop_path in DESKTOP_PATHS:
             if not os.path.exists(desktop_path):
@@ -124,8 +127,6 @@ class LinuxDesktopParser(threading.Thread):
             icon = parser.get('Desktop Entry', 'Icon', raw=True, fallback=None)
             name = parser.get('Desktop Entry', 'Name', raw=True, fallback=None)
             desc = self.get_app_description(parser)
-            if "terminal" in icon:
-                self.terminal_icon = icon
 
             if name == "flatpak":
                 return
