@@ -110,31 +110,31 @@ func initEventsStreamer() *Error {
 	tp1, err := link.Tracepoint("syscalls", "sys_enter_execve", ebpfMod.TPointExecve, nil)
 	if err != nil {
 		failed_tps = "sys_enter_execve"
-		log.Error("[eBPF events] sys_enter_execve: %s", err)
+		log.Warning("[eBPF events] sys_enter_execve: %s", err)
 	}
 	hooks = append(hooks, tp1)
 	tp2, err := link.Tracepoint("syscalls", "sys_exit_execve", ebpfMod.TPointExitExecve, nil)
 	if err != nil {
 		failed_tps += " sys_exit_execve"
-		log.Error("[eBPF events] sys_exit_execve: %s", err)
+		log.Warning("[eBPF events] sys_exit_execve: %s", err)
 	}
 	hooks = append(hooks, tp2)
 	tp3, err := link.Tracepoint("syscalls", "sys_enter_execveat", ebpfMod.TPointExecveAt, nil)
 	if err != nil {
 		failed_tps += " sys_enter_execveat"
-		log.Error("[eBPF events] sys_enter_execveat: %s", err)
+		log.Warning("[eBPF events] sys_enter_execveat: %s", err)
 	}
 	hooks = append(hooks, tp3)
 	tp4, err := link.Tracepoint("syscalls", "sys_exit_execveat", ebpfMod.TPointExitExecveAt, nil)
 	if err != nil {
 		failed_tps += " sys_exit_execveat"
-		log.Error("[eBPF events] sys_exit_execveat: %s", err)
+		log.Warning("[eBPF events] sys_exit_execveat: %s", err)
 	}
 	hooks = append(hooks, tp4)
 	tpe, err := link.Tracepoint("sched", "sched_process_exit", ebpfMod.TPointSchedProcExit, nil)
 	if err != nil {
 		failed_tps += " sched_process_exit"
-		log.Error("[eBPF events] sched_process_exit: %s", err)
+		log.Warning("[eBPF events] sched_process_exit: %s", err)
 	}
 	hooks = append(hooks, tpe)
 

@@ -146,52 +146,53 @@ func Start(ebpfOpts Config) *Error {
 
 	kp, err := link.Kprobe("tcp_v4_connect", ebpfMod.KProbeTCPv4Connect, nil)
 	if err != nil {
-		log.Error("opening kprobe: %s", err)
+		log.Warning("opening kprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 	kp, err = link.Kretprobe("tcp_v4_connect", ebpfMod.KretProbeTCPv4Connect, nil)
 	if err != nil {
-		log.Error("opening kretprobe: %s", err)
+		log.Warning("opening kretprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 	kp, err = link.Kprobe("tcp_v6_connect", ebpfMod.KProbeTCPv6Connect, nil)
 	if err != nil {
-		log.Error("opening kprobe: %s", err)
+		log.Warning("opening kprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 	kp, err = link.Kretprobe("tcp_v6_connect", ebpfMod.KretProbeTCPv6Connect, nil)
 	if err != nil {
-		log.Error("opening kretprobe: %s", err)
+		log.Warning("opening kretprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 	kp, err = link.Kprobe("udp_sendmsg", ebpfMod.KProbeUDPv4Connect, nil)
 	if err != nil {
-		log.Error("opening kprobe: %s", err)
+		log.Warning("opening kprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 	kp, err = link.Kprobe("udpv6_sendmsg", ebpfMod.KProbeUDPv6Connect, nil)
 	if err != nil {
-		log.Error("opening kprobe: %s", err)
+		log.Warning("opening kprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 	kp, err = link.Kprobe("iptunnel_xmit", ebpfMod.KProbeIPtunnelXmit, nil)
 	if err != nil {
-		log.Error("opening kprobe: %s", err)
+		log.Warning("opening kprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 	kp, err = link.Kprobe("inet_dgram_connect", ebpfMod.KProbeInetDgramConnect, nil)
 	if err != nil {
-		log.Error("opening kprobe: %s", err)
+		log.Warning("opening kprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 	kp, err = link.Kretprobe("inet_dgram_connect", ebpfMod.KretProbeInetDgramConnect, nil)
 	if err != nil {
-		log.Error("opening kretprobe: %s", err)
+		log.Warning("opening kretprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 	kp, err = link.Kprobe("udp_tunnel6_xmit_skb", ebpfMod.KProbeUDPtunnel6Xmit, nil)
 	if err != nil {
-		log.Error("opening kprobe: %s", err)
+		// likely. udp_tunnel6_xmit_skb depends on the module ip6_udp_tunnel being loaded.
+		log.Debug("opening kprobe: %s", err)
 	}
 	hooks = append(hooks, kp)
 
