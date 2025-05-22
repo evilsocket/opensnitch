@@ -66,7 +66,7 @@ class Actions(QObject):
         "actions" is the list of actions to execute:
 
             - the name of the action defines the python plugin to load:
-                "highligh" -> plugins/highligh/highlight.py
+                "highlight" -> plugins/highligh/highlight.py
                 "downloader" -> plugins/downloader/downloader.py, etc.
             - every action has its own plugin (*.py file) which is in charge
             of parse and compile to configuration if needed.
