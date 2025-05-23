@@ -99,7 +99,7 @@ func (l *Loader) Reload(path string) error {
 	}
 
 	// stop monitors
-	if l.liveReloadRunning {
+	if l.isLiveReloadRunning() {
 		l.stopLiveReload <- struct{}{}
 	}
 	if l.watcher != nil {
@@ -148,7 +148,7 @@ func (l *Loader) Load(path string) error {
 		}
 	}
 
-	if l.liveReload && l.liveReloadRunning == false {
+	if l.liveReload && l.isLiveReloadRunning() == false {
 		go l.liveReloadWorker()
 	}
 
@@ -341,6 +341,18 @@ func (l *Loader) setUniqueName(rule *Rule) {
 	}
 }
 
+func (l *Loader) setLiveReloadRunning(running bool) {
+	l.Lock()
+	l.liveReloadRunning = running
+	l.Unlock()
+}
+
+func (l *Loader) isLiveReloadRunning() bool {
+	l.RLock()
+	defer l.RUnlock()
+	return l.liveReloadRunning
+}
+
 // Deprecated: rule.Operator.Data no longer holds the operator list in json format as string.
 func (l *Loader) unmarshalOperatorList(op *Operator) error {
 	if op.Type == List && len(op.List) == 0 && op.Data != "" {
@@ -443,12 +455,12 @@ func (l *Loader) scheduleTemporaryRule(rule Rule) error {
 }
 
 func (l *Loader) liveReloadWorker() {
-	l.liveReloadRunning = true
+	l.setLiveReloadRunning(true)
+	defer l.setLiveReloadRunning(false)
 
 	log.Debug("Rules watcher started on path %s ...", l.Path)
 	if err := l.watcher.Add(l.Path); err != nil {
 		log.Error("Could not watch path: %s", err)
-		l.liveReloadRunning = false
 		return
 	}
 
@@ -479,7 +491,6 @@ func (l *Loader) liveReloadWorker() {
 	}
 Exit:
 	log.Debug("[rules] liveReloadWorker() exited")
-	l.liveReloadRunning = false
 }
 
 // FindFirstMatch will try match the connection against the existing rule set.
