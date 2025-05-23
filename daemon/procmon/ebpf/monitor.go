@@ -50,17 +50,15 @@ func monitorLocalAddresses() {
 	done := make(chan struct{})
 	defer close(done)
 
-	lock.Lock()
-	localAddresses = daemonNetlink.GetLocalAddrs()
-	lock.Unlock()
+	addrs := daemonNetlink.GetLocalAddrs()
+	if addrs != nil {
+		lock.Lock()
+		localAddresses = addrs
+		lock.Unlock()
+		log.Debug("local Addrs: %v", localAddresses)
+	}
 
-	netlink.AddrSubscribeWithOptions(newAddrChan, done,
-		netlink.AddrSubscribeOptions{
-			ErrorCallback: func(err error) {
-				log.Error("AddrSubscribeWithOptions error: %s", err)
-			},
-			ListExisting: true,
-		})
+	netlink.AddrSubscribe(newAddrChan, done)
 
 	for {
 		select {
