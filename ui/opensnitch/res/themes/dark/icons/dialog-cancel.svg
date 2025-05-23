@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg3304"
+   sodipodi:version="0.32"
+   inkscape:version="0.42"
+   sodipodi:docbase="/home/luca/Desktop/black-and-white/scalable/actions"
+   sodipodi:docname="dialog-cancel.svg">
+  <defs
+     id="defs3306" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="15.958333"
+     inkscape:cx="23.999998"
+     inkscape:cy="23.999998"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1280"
+     inkscape:window-height="950"
+     inkscape:window-x="0"
+     inkscape:window-y="26">
+    <sodipodi:guide
+       orientation="horizontal"
+       position="24.000000"
+       id="guide6244" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="24.000000"
+       id="guide6246" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata3309">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+       id="rect3312"
+       width="48.000000"
+       height="48.000000"
+       x="0.0000000"
+       y="0.0000000"
+       rx="0.0000000" />
+    <path
+       d="M 43.988319 24.006371 A 19.994690 19.994690 0 1 1  3.9989395,24.006371 A 19.994690 19.994690 0 1 1  43.988319 24.006371 z"
+       sodipodi:ry="19.994690"
+       sodipodi:rx="19.994690"
+       sodipodi:cy="24.006371"
+       sodipodi:cx="23.993629"
+       id="path7705"
+       style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#ffffff;stroke-width:6.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;stroke-miterlimit:4.0000000;stroke-dasharray:none"
+       sodipodi:type="arc" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+       id="path4768"
+       sodipodi:cx="23.993629"
+       sodipodi:cy="24.006371"
+       sodipodi:rx="18.992079"
+       sodipodi:ry="19.117405"
+       d="M 42.985708 24.006371 A 18.992079 19.117405 0 1 1  5.0015507,24.006371 A 18.992079 19.117405 0 1 1  42.985708 24.006371 z" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+       id="path6249"
+       sodipodi:cx="24.000000"
+       sodipodi:cy="24.000000"
+       sodipodi:rx="12.748488"
+       sodipodi:ry="12.748488"
+       d="M 36.748488 24.000000 A 12.748488 12.748488 0 1 1  11.251512,24.000000 A 12.748488 12.748488 0 1 1  36.748488 24.000000 z"
+       transform="matrix(0.950710,0.000000,0.000000,0.950710,1.182974,1.182974)" />
+    <rect
+       style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+       id="rect6977"
+       width="31.867102"
+       height="7.3353643"
+       x="-15.933557"
+       y="30.273449"
+       transform="matrix(-0.707107,0.707107,0.707107,0.707107,0.000000,0.000000)"
+       ry="0.0000000" />
+  </g>
+</svg>

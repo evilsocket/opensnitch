@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 9.0, SVG Export Plug-In  -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48.000000px"
+   height="48.000000px"
+   viewBox="0 0 48 48"
+   xml:space="preserve"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.44"
+   sodipodi:docname="document-new.svg"
+   sodipodi:docbase="/home/luca/Artwork/blackwhite-icon-theme/scalable/actions"><metadata
+   id="metadata19"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title>Document new</dc:title><dc:creator><cc:Agent><dc:title>Luca Ferretti &lt;elle.uca@libero.it&gt;</dc:title></cc:Agent></dc:creator><cc:license
+         rdf:resource="http://creativecommons.org/licenses/LGPL/2.1/" /><dc:subject><rdf:Bag><rdf:li>document new</rdf:li><rdf:li>document add</rdf:li></rdf:Bag></dc:subject><dc:description>A paper sheet with a + sign</dc:description></cc:Work><cc:License
+       rdf:about="http://creativecommons.org/licenses/LGPL/2.1/"><cc:permits
+         rdf:resource="http://web.resource.org/cc/Reproduction" /><cc:permits
+         rdf:resource="http://web.resource.org/cc/Distribution" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/Notice" /><cc:permits
+         rdf:resource="http://web.resource.org/cc/DerivativeWorks" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/ShareAlike" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/SourceCode" /></cc:License></rdf:RDF></metadata><defs
+   id="defs17">
+		
+		
+		
+		
+	</defs><sodipodi:namedview
+   inkscape:window-height="944"
+   inkscape:window-width="1270"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   borderopacity="1.0"
+   bordercolor="#666666"
+   pagecolor="#ffffff"
+   id="base"
+   gridtolerance="0.50000000px"
+   showgrid="true"
+   guidetolerance="0.50000000px"
+   inkscape:grid-points="true"
+   inkscape:zoom="15.958333"
+   inkscape:cx="24"
+   inkscape:cy="29.013055"
+   inkscape:window-x="0"
+   inkscape:window-y="25"
+   inkscape:current-layer="svg2"
+   showguides="true"
+   inkscape:guide-bbox="true"><sodipodi:guide
+     orientation="vertical"
+     position="24.944882"
+     id="guide3305" /><sodipodi:guide
+     orientation="horizontal"
+     position="28.031496"
+     id="guide3307" /></sodipodi:namedview>
+	<rect
+   style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+   id="rect3319"
+   width="48.000000"
+   height="48.000000"
+   x="0.0000000"
+   y="0.0000000" /><path
+   sodipodi:nodetypes="cccccc"
+   style="fill:#ffffff;fill-rule:nonzero;stroke:#ffffff;stroke-width:12.000000;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;fill-opacity:1.0000000;stroke-opacity:1.0000000"
+   d="M 39.000000,41.000000 L 9.0000000,41.000000 L 9.0000000,6.0000000 L 26.000000,6.0000000 L 39.000000,20.000000 L 39.000000,41.000000 z "
+   id="path4775" /><path
+   id="path7"
+   d="M 39.000000,41.000000 L 9.0000000,41.000000 L 9.0000000,6.0000000 L 26.000000,6.0000000 L 39.000000,20.000000 L 39.000000,41.000000 z "
+   style="fill:#000000;fill-rule:nonzero;stroke:#000000;stroke-width:4.0000000;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;fill-opacity:1.0000000"
+   sodipodi:nodetypes="cccccc" /><path
+   id="path9"
+   d="M 36.991406,20 L 36.996573,39.003906 L 11,39 L 11.016535,8.0181102 L 24.969291,8.0338583 L 36.991406,20 z "
+   style="fill:#ffffff;fill-rule:nonzero;stroke:none;stroke-miterlimit:4.0000000"
+   sodipodi:nodetypes="cccccc" />
+	
+<path
+   style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+   d="M 23,16 L 23,32"
+   id="path1309"
+   sodipodi:nodetypes="cc" /><path
+   id="path2184"
+   d="M 31,24 L 15,24"
+   style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+   sodipodi:nodetypes="cc" /></svg>

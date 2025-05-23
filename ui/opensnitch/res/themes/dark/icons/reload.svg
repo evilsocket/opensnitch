@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 9.0, SVG Export Plug-In  -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48"
+   height="48"
+   viewBox="0 0 48 48"
+   xml:space="preserve"
+   id="svg3737"
+   sodipodi:version="0.32"
+   inkscape:version="0.44"
+   sodipodi:docname="view-refresh.svg"
+   sodipodi:docbase="/home/luca/Artwork/blackwhite-icon-theme/scalable/actions"
+   version="1.0"><metadata
+   id="metadata3756"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title>Reload View</dc:title><dc:creator><cc:Agent><dc:title>Jakub Stainer &lt;jimmac@novell.com&gt;</dc:title></cc:Agent></dc:creator><dc:subject><rdf:Bag><rdf:li>reload</rdf:li><rdf:li>view</rdf:li><rdf:li>refresh</rdf:li><rdf:li>update</rdf:li></rdf:Bag></dc:subject><dc:contributor><cc:Agent><dc:title>Luca Ferretti &lt;elle.uca@libero.it&gt;</dc:title></cc:Agent></dc:contributor><cc:license
+         rdf:resource="http://creativecommons.org/licenses/LGPL/2.1/" /></cc:Work><cc:License
+       rdf:about="http://creativecommons.org/licenses/LGPL/2.1/"><cc:permits
+         rdf:resource="http://web.resource.org/cc/Reproduction" /><cc:permits
+         rdf:resource="http://web.resource.org/cc/Distribution" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/Notice" /><cc:permits
+         rdf:resource="http://web.resource.org/cc/DerivativeWorks" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/ShareAlike" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/SourceCode" /></cc:License></rdf:RDF></metadata><defs
+   id="defs3754">
+		
+	
+			
+			
+			
+			
+		</defs><sodipodi:namedview
+   inkscape:window-height="951"
+   inkscape:window-width="1280"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   guidetolerance="10.0"
+   gridtolerance="10.0"
+   objecttolerance="10.0"
+   borderopacity="1.0"
+   bordercolor="#666666"
+   pagecolor="#ffffff"
+   id="base"
+   width="48px"
+   height="48px"
+   showgrid="true"
+   inkscape:object-bbox="false"
+   inkscape:object-points="false"
+   inkscape:grid-points="true"
+   inkscape:zoom="15.333333"
+   inkscape:cx="24"
+   inkscape:cy="24"
+   inkscape:window-x="0"
+   inkscape:window-y="25"
+   inkscape:current-layer="svg3737"
+   showguides="true"
+   inkscape:guide-bbox="true" />
+	<path
+   sodipodi:type="arc"
+   style="fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+   id="path5537"
+   sodipodi:cx="24"
+   sodipodi:cy="24"
+   sodipodi:rx="23"
+   sodipodi:ry="23"
+   d="M 47 24 A 23 23 0 1 1  1,24 A 23 23 0 1 1  47 24 z" /><path
+   sodipodi:type="arc"
+   style="fill:black;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+   id="path6424"
+   sodipodi:cx="24"
+   sodipodi:cy="24"
+   sodipodi:rx="19"
+   sodipodi:ry="19"
+   d="M 43 24 A 19 19 0 1 1  5,24 A 19 19 0 1 1  43 24 z" /><path
+   style="fill:white;fill-rule:nonzero;stroke:none;stroke-miterlimit:4"
+   d="M 29.1,8.9 C 29.1,8.8 28.9,8.7 28.9,8.8 L 20.9,16.9 C 20.6,17.2 20.7,17.2 20.9,17.4 L 28.9,25.4 C 29,25.5 29.1,25.4 29.1,25.3 L 29,20 L 31,20 C 33,20 34,20.2 34,22 L 34,25 C 34,27 30.1,27.3 30.1,27.9 C 30.1,28.5 31,29 31,29 L 34,29 C 36.7,29 38,26.6 38,24 L 38,20 C 38,15.8 35.4,14 32,14 L 29,14 L 29,8.9 L 29.1,8.9 z "
+   id="path3746"
+   sodipodi:nodetypes="ccccccccccscccccccc" />
+	<g
+   id="crop_x0020_marks"
+   style="fill-rule:nonzero;stroke:black;stroke-miterlimit:4">
+		<path
+   style="fill:none;stroke:none"
+   d="M 48,48 L 0,48 L 0,0 L 48,0 L 48,48 z "
+   id="path3751" />
+	</g>
+<path
+   sodipodi:nodetypes="ccccccccccscccccccc"
+   id="path7311"
+   d="M 18.9,39.1 C 18.9,39.2 19.1,39.3 19.1,39.2 L 27.1,31.1 C 27.4,30.8 27.3,30.8 27.1,30.6 L 19.1,22.6 C 19,22.5 18.9,22.6 18.9,22.7 L 19,28 L 17,28 C 15,28 14,27.8 14,26 L 14,23 C 14,21 17.9,20.7 17.9,20.1 C 17.9,19.5 17,19 17,19 L 14,19 C 11.3,19 10,21.4 10,24 L 10,28 C 10,32.2 12.6,34 16,34 L 19,34 L 19,39.1 L 18.9,39.1 z "
+   style="fill:white;fill-rule:nonzero;stroke:none;stroke-miterlimit:4" /></svg>

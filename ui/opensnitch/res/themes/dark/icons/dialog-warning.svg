@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 9.0, SVG Export Plug-In  -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48.000000px"
+   height="48.000000px"
+   viewBox="0 0 48 48"
+   xml:space="preserve"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.42"
+   sodipodi:docname="dialog-warning.svg"
+   sodipodi:docbase="/home/luca/Desktop/black-and-white/scalable/status"><metadata
+   id="metadata23"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title>Dialow warning</dc:title><dc:creator><cc:Agent><dc:title>Luca Ferretti &lt;elle.uca@libero.it&gt;</dc:title></cc:Agent></dc:creator><cc:license
+         rdf:resource="http://creativecommons.org/licenses/GPL/2.0/" /><dc:contributor><cc:Agent><dc:title>Based on icon from jimmac</dc:title></cc:Agent></dc:contributor></cc:Work><cc:License
+       rdf:about="http://creativecommons.org/licenses/GPL/2.0/"><cc:permits
+         rdf:resource="http://web.resource.org/cc/Reproduction" /><cc:permits
+         rdf:resource="http://web.resource.org/cc/Distribution" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/Notice" /><cc:permits
+         rdf:resource="http://web.resource.org/cc/DerivativeWorks" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/ShareAlike" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/SourceCode" /></cc:License></rdf:RDF></metadata><defs
+   id="defs21">
+		
+	
+			
+			
+			
+			
+		
+				
+			</defs><sodipodi:namedview
+   inkscape:window-height="950"
+   inkscape:window-width="1280"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   borderopacity="1.0"
+   bordercolor="#666666"
+   pagecolor="#ffffff"
+   id="base"
+   showgrid="true"
+   inkscape:grid-bbox="true"
+   inkscape:grid-points="true"
+   gridtolerance="0.50000000px"
+   guidetolerance="0.50000000pt"
+   inkscape:zoom="8.0000000"
+   inkscape:cx="57.610985"
+   inkscape:cy="27.987074"
+   inkscape:window-x="0"
+   inkscape:window-y="26"
+   inkscape:current-layer="svg2" />
+	<rect
+   style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+   id="rect6236"
+   width="48.000000"
+   height="48.000000"
+   x="0.0000000"
+   y="0.0000000"
+   rx="0.0000000"
+   ry="0.0000000" /><path
+   sodipodi:nodetypes="cccc"
+   id="path5508"
+   d="M 24.000000,9.0000000 L 7.0000000,39.000000 L 41.000000,39.000000 L 24.000000,9.0000000 z "
+   style="fill:#ffffff;fill-rule:nonzero;stroke:#ffffff;stroke-width:12.000000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" /><path
+   style="fill:#ffffff;fill-rule:nonzero;stroke:#000000;stroke-width:6.0000000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none"
+   d="M 24.000000,9.0000000 L 7.0000000,39.000000 L 41.000000,39.000000 L 24.000000,9.0000000 z "
+   id="path9"
+   sodipodi:nodetypes="cccc" /><path
+   style="fill:#ffffff;fill-rule:nonzero;stroke:none;stroke-miterlimit:4.0000000"
+   d="M 24.000000,10.000000 L 8.0000000,38.000000 L 40.000000,38.000000 L 24.000000,10.000000 z "
+   id="path11"
+   sodipodi:nodetypes="cccc" /><path
+   id="path15"
+   d="M 22.000000,29.000000 L 21.000000,18.000000 L 27.000000,18.000000 L 26.000000,29.000000 L 22.000000,29.000000 z "
+   style="fill-rule:nonzero;stroke:none;stroke-miterlimit:4.0000000"
+   sodipodi:nodetypes="ccccc" />
+	
+<path
+   sodipodi:type="arc"
+   style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+   id="path6965"
+   sodipodi:cx="24.000000"
+   sodipodi:cy="32.000000"
+   sodipodi:rx="2.9687500"
+   sodipodi:ry="3.0156250"
+   d="M 26.968750 32.000000 A 2.9687500 3.0156250 0 1 1  21.031250,32.000000 A 2.9687500 3.0156250 0 1 1  26.968750 32.000000 z"
+   transform="translate(-3.125000e-2,1.984375)" /></svg>

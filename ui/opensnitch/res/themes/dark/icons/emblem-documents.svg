@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 9.0, SVG Export Plug-In  -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48"
+   height="48"
+   viewBox="0 0 48 48"
+   xml:space="preserve"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.44+devel"
+   sodipodi:docname="emblem-documents.svg"
+   sodipodi:docbase="/home/luca/Artwork/blackwhite-icon-theme/scalable/emblems"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.0"
+   sodipodi:modified="true"><metadata
+   id="metadata19"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title>Documents (emblem)</dc:title><dc:creator><cc:Agent><dc:title>Luca Ferretti</dc:title></cc:Agent></dc:creator><dc:subject><rdf:Bag><rdf:li>emblem documents</rdf:li></rdf:Bag></dc:subject><cc:license
+         rdf:resource="http://creativecommons.org/licenses/LGPL/2.1/" /></cc:Work><cc:License
+       rdf:about="http://creativecommons.org/licenses/LGPL/2.1/"><cc:permits
+         rdf:resource="http://web.resource.org/cc/Reproduction" /><cc:permits
+         rdf:resource="http://web.resource.org/cc/Distribution" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/Notice" /><cc:permits
+         rdf:resource="http://web.resource.org/cc/DerivativeWorks" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/ShareAlike" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/SourceCode" /></cc:License></rdf:RDF></metadata><defs
+   id="defs17" /><sodipodi:namedview
+   inkscape:window-height="944"
+   inkscape:window-width="1274"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   borderopacity="1.0"
+   bordercolor="#666666"
+   pagecolor="#ffffff"
+   id="base"
+   inkscape:zoom="15.125"
+   inkscape:cx="24"
+   inkscape:cy="24"
+   inkscape:window-x="0"
+   inkscape:window-y="26"
+   inkscape:current-layer="svg2"
+   width="48px"
+   height="48px"
+   showgrid="true"
+   objecttolerance="50"
+   inkscape:object-nodes="true"
+   inkscape:guide-points="false"
+   inkscape:object-points="true"
+   inkscape:object-bbox="true"
+   inkscape:grid-points="true" />
+	
+	<path
+   id="path7662"
+   d="M 6,33.008264 L 29,33.008264 L 29,6.0082645 L 13.064301,6.063595 L 6.030643,11.973734 L 6,33.008264 z "
+   style="fill:white;fill-opacity:1;fill-rule:nonzero;stroke:white;stroke-width:12;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+   sodipodi:nodetypes="cccccc" /><g
+   id="crop_x0020_marks"
+   style="fill-rule:nonzero;stroke:black;stroke-miterlimit:4">
+		<path
+   style="fill:none;stroke:none"
+   d="M 48,48 L 0,48 L 0,0 L 48,0 L 48,48 z "
+   id="path14" />
+	</g>
+<path
+   sodipodi:nodetypes="cccccc"
+   style="fill:white;fill-rule:nonzero;stroke:white;stroke-width:12;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1;stroke-opacity:1"
+   d="M 42,42 L 19,42 L 19,15 L 33.018393,15.041044 L 42,21 L 42,42 z "
+   id="path6771" /><path
+   id="path7"
+   d="M 42,42 L 19,42 L 19,15 L 35,15 L 42,21.090909 L 42,42 z "
+   style="fill:black;fill-rule:nonzero;stroke:black;stroke-width:4;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+   sodipodi:nodetypes="cccccc" /><path
+   id="path9"
+   d="M 39.975823,21.984889 L 40,40 L 20.999986,39.992223 L 21,17 L 33.983471,17 L 39.975823,21.984889 z "
+   style="fill:white;fill-rule:nonzero;stroke:none;stroke-miterlimit:4"
+   sodipodi:nodetypes="cccccc" /><path
+   sodipodi:nodetypes="cccccc"
+   style="fill:black;fill-opacity:1;fill-rule:nonzero;stroke:black;stroke-width:4;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+   d="M 6,33 L 29,33 L 29,6 L 12.978645,6.0183044 L 6,12 L 6,33 z "
+   id="path7658" /><path
+   sodipodi:nodetypes="cccccc"
+   style="fill:white;fill-rule:nonzero;stroke:none;stroke-miterlimit:4"
+   d="M 7.946196,13.096082 L 8,31 L 27.000014,30.992223 L 27,8 L 14,8 L 7.946196,13.096082 z "
+   id="path7660" /></svg>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 9.0, SVG Export Plug-In  -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48"
+   height="48"
+   viewBox="0 0 48 48"
+   xml:space="preserve"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.45.1"
+   sodipodi:docname="document-properties.svg"
+   sodipodi:docbase="/home/luca/svn/gnome2/gnome-themes/icon-themes/HighContrast-SVG/scalable/actions"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.0"><metadata
+   id="metadata17"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title>Document Properties</dc:title><dc:date>November 2007</dc:date><dc:creator><cc:Agent><dc:title>Jakub Stainer</dc:title></cc:Agent></dc:creator><dc:source>http://www.gnome.org/</dc:source><dc:subject><rdf:Bag><rdf:li>document</rdf:li><rdf:li>properties</rdf:li></rdf:Bag></dc:subject><dc:contributor><cc:Agent><dc:title>Canvas resize and pixel perfect by Luca Ferretti</dc:title></cc:Agent></dc:contributor><cc:license
+         rdf:resource="http://creativecommons.org/licenses/LGPL/2.1/" /></cc:Work><cc:License
+       rdf:about="http://creativecommons.org/licenses/LGPL/2.1/"><cc:permits
+         rdf:resource="http://web.resource.org/cc/Reproduction" /><cc:permits
+         rdf:resource="http://web.resource.org/cc/Distribution" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/Notice" /><cc:permits
+         rdf:resource="http://web.resource.org/cc/DerivativeWorks" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/ShareAlike" /><cc:requires
+         rdf:resource="http://web.resource.org/cc/SourceCode" /></cc:License></rdf:RDF></metadata><defs
+   id="defs15">
+		
+	
+			
+			
+		</defs><sodipodi:namedview
+   inkscape:window-height="949"
+   inkscape:window-width="1280"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   guidetolerance="10.0"
+   gridtolerance="10.0"
+   objecttolerance="10.0"
+   borderopacity="1.0"
+   bordercolor="#666666"
+   pagecolor="#ffffff"
+   id="base"
+   width="48px"
+   height="48px"
+   showgrid="true"
+   inkscape:grid-points="true"
+   inkscape:zoom="15.1875"
+   inkscape:cx="24"
+   inkscape:cy="24"
+   inkscape:window-x="0"
+   inkscape:window-y="25"
+   inkscape:current-layer="svg2" />
+	<rect
+   style="opacity:0.6;fill:none;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.70588235"
+   id="rect2169"
+   width="48"
+   height="48"
+   x="0"
+   y="0" /><path
+   sodipodi:nodetypes="ccccccccsccsccc"
+   id="path3149"
+   d="M 40,27 C 41.3,25.8 41.4,24.5 42,23 L 40,17 L 34,23 L 27,21 L 25,14 L 31,8 L 25,6 C 23.5,6.6 22.2,7.8 21,9 C 17.2,12.8 16.1,18.3 18,23 L 7,34 C 5.1,35.9 5.1,39.1 7,41 C 8.9,42.9 12.1,42.9 14,41 L 25,30 C 29.7,32 36.2,30.8 40,27 z "
+   style="fill-rule:nonzero;stroke:#ffffff;stroke-miterlimit:4;fill:#ffffff;fill-opacity:1;stroke-opacity:1;stroke-linejoin:round;stroke-linecap:round;stroke-width:8;stroke-dasharray:none" /><path
+   style="fill-rule:nonzero;stroke:none;stroke-miterlimit:4"
+   d="M 40,27 C 41.3,25.8 41.4,24.5 42,23 L 40,17 L 34,23 L 27,21 L 25,14 L 31,8 L 25,6 C 23.5,6.6 22.2,7.8 21,9 C 17.2,12.8 16.1,18.3 18,23 L 7,34 C 5.1,35.9 5.1,39.1 7,41 C 8.9,42.9 12.1,42.9 14,41 L 25,30 C 29.7,32 36.2,30.8 40,27 z "
+   id="path9"
+   sodipodi:nodetypes="ccccccccsccsccc" />
+	
+<path
+   sodipodi:type="arc"
+   style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.70588235"
+   id="path2176"
+   sodipodi:cx="10"
+   sodipodi:cy="38"
+   sodipodi:rx="2"
+   sodipodi:ry="2"
+   d="M 12 38 A 2 2 0 1 1  8,38 A 2 2 0 1 1  12 38 z" /></svg>

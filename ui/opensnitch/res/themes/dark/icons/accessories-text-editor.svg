@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 9.0, SVG Export Plug-In  -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48"
+   height="48"
+   viewBox="0 0 48 48"
+   xml:space="preserve"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="accessories-text-editor.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.0"><metadata
+   id="metadata32"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title>Text Editor</dc:title><dc:date>May 2009</dc:date><dc:creator><cc:Agent><dc:title>Jakub Steiner</dc:title></cc:Agent></dc:creator><dc:coverage></dc:coverage><dc:description>A paper with a pencil on it</dc:description><dc:subject><rdf:Bag><rdf:li>text</rdf:li><rdf:li>editor</rdf:li></rdf:Bag></dc:subject></cc:Work></rdf:RDF></metadata><defs
+   id="defs30" /><sodipodi:namedview
+   inkscape:window-height="744"
+   inkscape:window-width="1024"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   guidetolerance="10000"
+   gridtolerance="10000"
+   objecttolerance="10000"
+   borderopacity="1.0"
+   bordercolor="#666666"
+   pagecolor="#ffffff"
+   id="base"
+   showgrid="true"
+   inkscape:object-nodes="true"
+   inkscape:object-paths="true"
+   inkscape:zoom="10.291667"
+   inkscape:cx="22.299595"
+   inkscape:cy="24"
+   inkscape:window-x="-5"
+   inkscape:window-y="0"
+   inkscape:current-layer="svg2"><inkscape:grid
+     type="xygrid"
+     id="grid2393"
+     visible="true"
+     enabled="true" /></sodipodi:namedview>
+	<rect
+   style="fill:none;fill-opacity:0.47478991999999998;stroke:none;stroke-width:8;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+   id="rect2400"
+   width="48"
+   height="48"
+   x="0"
+   y="0" /><rect
+   ry="3.4532373"
+   y="4"
+   x="7"
+   height="40"
+   width="32"
+   id="rect3174"
+   style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:8;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" /><rect
+   style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:8;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+   id="rect3172"
+   width="32"
+   height="40"
+   x="7"
+   y="4"
+   ry="3.4532373" /><path
+   id="path13"
+   d="M 36,7 L 10,7 L 10,41 L 36,41 L 36,7 z"
+   style="fill:#ffffff;fill-rule:nonzero;stroke:none;stroke-miterlimit:4" />
+	<g
+   id="g3176"
+   transform="matrix(0.9946524,0,0,0.973822,0.1410826,0.9038053)"><path
+     style="fill:none;fill-rule:nonzero;stroke:#ffffff;stroke-width:12.76490021;stroke-linejoin:round;stroke-miterlimit:4"
+     d="M 38.7,30.4 L 25,16.7 L 17.3,13.7 L 20,22.4 L 33.3,35.8 L 38.7,30.4 L 38.7,30.4 z"
+     id="path7" /><g
+     style="fill-rule:nonzero;stroke:#000000;stroke-miterlimit:4"
+     id="Layer_x0020_4">
+		<path
+   id="path16"
+   d="M 38.7,30.4 L 25,16.7 L 17.3,13.7 L 20,22.4 L 33.3,35.8 L 38.7,30.4 L 38.7,30.4 z"
+   style="fill:none;stroke-width:4.97149992;stroke-linejoin:round" />
+		<path
+   id="path18"
+   d="M 38.7,30.4 L 25,16.7 L 17.3,13.7 L 20,22.4 L 33.3,35.8 L 38.7,30.4 L 38.7,30.4 z"
+   style="stroke:none" />
+		<path
+   id="path20"
+   d="M 20.6,14.7 L 18.1,17.2 L 17,13.4 L 20.6,14.7 L 20.6,14.7 z"
+   style="stroke:none" />
+		<path
+   id="path22"
+   d="M 19.6,22.2 L 22.6,21.9 L 25,19.5 L 25.4,16.7"
+   style="fill:none;stroke-width:1.24290001" />
+		<path
+   id="path24"
+   d="M 20.4,14.9 L 18.3,17 L 19.9,22.2 L 22.6,21.9 L 25,19.5 L 25.3,17.1 L 20.3,14.9 L 20.4,14.9 z"
+   style="fill:#ffffff;stroke:none" />
+	</g></g>
+	<g
+   id="crop"
+   style="fill-rule:nonzero;stroke:#000000;stroke-miterlimit:4">
+		<path
+   style="fill:none;stroke:none"
+   d="M 48,48 L 0,48 L 0,0 L 48,0 L 48,48 z"
+   id="path27" />
+	</g>
+</svg>

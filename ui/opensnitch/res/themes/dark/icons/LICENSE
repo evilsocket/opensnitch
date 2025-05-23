@@ -1,0 +1,45 @@
+These files are part of the HighContrast theme:
+https://download.gnome.org/sources/gnome-themes-standard/
+
+Copyright: Copyright (C) 2010  Aron Xu <aronxu@gnome.org>
+           Copyright (C) 2010  A S Alam <aalam@users.sf.net>
+           Copyright (C) 2010  Carlos Garnacho <carlosg@gnome.org>
+           Copyright (C) 2010  Daniel Nylander <po@danielnylander.se>
+           Copyright (C) 2010  Fran Diéguez <fran.dieguez@mabishu.com>
+           Copyright (C) 2010  Gheyret T.Kenji <gheyret@gmail.com>
+           Copyright (C) 2010  Ivar Smolin <okul@linux.ee>
+           Copyright (C) 2010  Jakub Steiner <jimmac@gmail.com>
+           Copyright (C) 2010  Jorge González <jorgegonz@svn.gnome.org>
+           Copyright (C) 2010  Kenneth Nielsen <k.nielsen81@gmail.com>
+           Copyright (C) 2010  Kjartan Maraas <kmaraas@gnome.org>
+           Copyright (C) 2010  Kris Thomsen <lakristho@gmail.com>
+           Copyright (C) 2010  Lapo Calamandrei <calamandrei@gmail.com>
+           Copyright (C) 2010  Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
+           Copyright (C) 2010  Matej Urbančič <mateju@svn.gnome.org>
+           Copyright (C) 2010  Matthias Clasen <mclasen@redhat.com>
+           Copyright (C) 2010  Priit Laes <plaes@plaes.org>
+           Copyright (C) 2010  Theodore Dimitriadis <liakoni@gmail.com>
+           Copyright (C) 2010  Theppitak Karoonboonyanan <thep@linux.thai.net>
+           Copyright (C) 2010  William Jon McCann <jmccann@redhat.com>
+           Copyright (C) 2010  Yaron Shahrabani <sh.yaron@gmail.com>
+           Copyright (C) 2010  Hylke Bons
+           Copyright (C) 2012  Red Hat, Inc
+           Copyright (C)       Bill Haneman
+           Copyright (C)       T. Liebeck
+License: LGPL-2.1+
+ This library is free software; you can redistribute it and/or modify it
+ under the terms of the GNU Lesser General Public License as published by the
+ Free Software Foundation; either version 2.1 of the License, or (at your
+ option) any later version.
+ .
+ This library is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
+ for more details.
+ .
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the
+ Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ 02110-1301  USA.
+ .
+ See /usr/share/common-licenses/LGPL-2.1 on your debian system.

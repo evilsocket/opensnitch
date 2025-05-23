@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 9.0, SVG Export Plug-In  -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48"
+   height="48"
+   viewBox="0 0 48 48"
+   xml:space="preserve"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   sodipodi:docname="document-save.svg"
+   sodipodi:docbase="/home/luca/Artwork/blackwhite-icon-theme/scalable/actions"
+   version="1.0"><metadata
+   id="metadata25"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+   id="defs23">
+		
+	
+			
+			
+			
+			
+			
+			
+		</defs><sodipodi:namedview
+   inkscape:window-height="974"
+   inkscape:window-width="1280"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   borderopacity="1.0"
+   bordercolor="#666666"
+   pagecolor="#ffffff"
+   id="base"
+   showgrid="true"
+   inkscape:grid-bbox="true"
+   inkscape:grid-points="true"
+   inkscape:zoom="16.416667"
+   inkscape:cx="23.978069"
+   inkscape:cy="24.011974"
+   inkscape:window-x="0"
+   inkscape:window-y="0"
+   inkscape:current-layer="svg2" />
+	<path
+   sodipodi:nodetypes="cccccc"
+   id="path4837"
+   d="M 40,39 L 12,39 L 8,35 L 8,8 L 40,8 L 40,39 z "
+   style="fill:none;fill-rule:nonzero;stroke:#ffffff;stroke-width:14;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" /><path
+   style="fill:none;fill-rule:nonzero;stroke:#000000;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+   d="M 40,39 L 12,39 L 8,35 L 8,8 L 40,8 L 40,39 z "
+   id="path9"
+   sodipodi:nodetypes="cccccc" /><path
+   style="fill-rule:nonzero;stroke:none;stroke-miterlimit:4"
+   d="M 39.8,38.7 L 12,38.7 L 8.2,34.9 L 8.2,8.8 L 39.8,8.8 L 39.8,38.7 z "
+   id="path11" /><path
+   style="fill:#ffffff;fill-rule:nonzero;stroke:none;stroke-width:1.67390001;stroke-miterlimit:4"
+   d="M 33,37 C 33,38.1 32.1,39 31,39 L 14,39 C 12.9,39 12,38.1 12,37 L 12,28 C 12,26.9 12.9,26 14,26 L 31,26 C 32.1,26 33,26.9 33,28 L 33,37 z "
+   id="path13"
+   sodipodi:nodetypes="ccccccccc" /><path
+   style="fill-rule:nonzero;stroke:none;stroke-miterlimit:4"
+   d="M 21,37 L 15,37 L 15,28 L 21,28 L 21,37 z "
+   id="path15"
+   sodipodi:nodetypes="ccccc" /><path
+   style="fill:#ffffff;fill-rule:nonzero;stroke:none;stroke-width:1.67390001;stroke-miterlimit:4"
+   d="M 38,22 L 10,22 L 10,9 L 38,9 L 38,22 z "
+   id="path17"
+   sodipodi:nodetypes="ccccc" />
+	<g
+   id="crop_x0020_marks"
+   style="fill-rule:nonzero;stroke:#000000;stroke-miterlimit:4">
+		<path
+   style="fill:none;stroke:none"
+   d="M 48,48 L 0,48 L 0,0 L 48,0 L 48,48 z "
+   id="path20" />
+	</g>
+</svg>

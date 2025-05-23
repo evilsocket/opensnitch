@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="256"
+   height="256"
+   viewBox="0 0 256 256"
+   sodipodi:docname="security-high.svg"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="2.5273438"
+     inkscape:cx="128"
+     inkscape:cy="128"
+     inkscape:window-width="1600"
+     inkscape:window-height="850"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1">
+    <inkscape:page
+       x="0"
+       y="0"
+       width="256"
+       height="256"
+       id="page2"
+       margin="0"
+       bleed="0" />
+  </sodipodi:namedview>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g1">
+    <path
+       style="fill:#ffffff;stroke-width:1.22309"
+       d="M 120.93455,244.20858 C 102.26536,233.30234 82.968323,218.57414 64.212534,200.91624 48.037626,185.68816 39.000833,174.20304 32.07084,160.06645 24.342472,144.30125 24.078892,141.41079 24.054908,72.162387 L 24.033336,9.8639875 H 128.41731 232.80129 l -0.0216,62.2983995 c -0.0245,70.860793 -0.17326,72.298223 -9.30832,89.970923 -9.66395,18.69585 -28.02166,38.40754 -55.91008,60.03377 -11.06335,8.57912 -37.28556,26.06098 -39.07851,26.05291 -0.37775,-0.001 -3.77446,-1.80685 -7.54824,-4.01141 z m 17.84233,-42.88825 c 23.36747,-15.67781 43.80152,-36.86618 53.35967,-55.32939 l 5.24873,-10.13884 0.35292,-46.140373 0.35292,-46.140396 H 128.40486 58.718593 l 0.36537,46.648559 0.365356,46.64856 3.838273,7.82493 c 5.448434,11.10747 17.254995,25.71427 30.8863,38.21178 11.353938,10.40955 30.649608,24.1983 34.040318,24.32535 0.91352,0.0342 5.66672,-2.62537 10.56267,-5.91018 z M 121.03083,182.01034 C 105.6771,171.2538 87.314846,151.13244 79.934575,136.97714 l -3.70926,-7.11433 V 95.143918 60.425008 h 52.191995 52.19198 v 34.71891 34.718892 l -3.71054,7.11433 c -4.92088,9.43495 -12.93161,19.60856 -23.93515,30.39752 -7.50653,7.36014 -23.02405,19.55481 -24.7041,19.41407 -0.25495,-0.0213 -3.50785,-2.17163 -7.22867,-4.77839 z"
+       id="path1" />
+  </g>
+</svg>

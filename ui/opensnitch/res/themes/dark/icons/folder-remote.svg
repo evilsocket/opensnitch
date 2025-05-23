@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 9.0, SVG Export Plug-In  -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48.000000px"
+   height="48.000000px"
+   viewBox="0 0 48 48"
+   xml:space="preserve"
+   id="svg1358"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   sodipodi:docname="folder-remote.svg"
+   sodipodi:docbase="/home/luca/Artwork/blackwhite-icon-theme/scalable/places">
+<metadata
+   id="metadata1375">
+  <rdf:RDF>
+    <cc:Work
+   rdf:about="">
+      <dc:format>image/svg+xml</dc:format>
+      <dc:type
+   rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      <dc:title>Remote Folder Icon</dc:title>
+      <dc:description>A remote or networked folder</dc:description>
+      <cc:license
+   rdf:resource="http://creativecommons.org/licenses/GPL/2.0/" />
+      <dc:contributor>
+        <cc:Agent>
+          <dc:title></dc:title>
+        </cc:Agent>
+      </dc:contributor>
+      <dc:subject>
+        <rdf:Bag>
+          <rdf:li>folder</rdf:li>
+          <rdf:li>remote</rdf:li>
+          <rdf:li>share</rdf:li>
+        </rdf:Bag>
+      </dc:subject>
+      <dc:date />
+    </cc:Work>
+   <cc:License
+   rdf:about="http://creativecommons.org/licenses/LGPL/2.1/"><cc:permits
+     rdf:resource="http://web.resource.org/cc/Reproduction" /><cc:permits
+     rdf:resource="http://web.resource.org/cc/Distribution" /><cc:requires
+     rdf:resource="http://web.resource.org/cc/Notice" /><cc:permits
+     rdf:resource="http://web.resource.org/cc/DerivativeWorks" /><cc:requires
+     rdf:resource="http://web.resource.org/cc/ShareAlike" /><cc:requires
+     rdf:resource="http://web.resource.org/cc/SourceCode" /></cc:License></rdf:RDF></metadata><defs
+   id="defs1373" /><sodipodi:namedview
+   inkscape:window-height="948"
+   inkscape:window-width="1280"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   borderopacity="1.0"
+   bordercolor="#666666"
+   pagecolor="#ffffff"
+   id="base"
+   inkscape:document-units="px"
+   showgrid="true"
+   gridspacingy="1.0000000px"
+   gridspacingx="1.0000000px"
+   gridoriginy="0.0000000px"
+   gridoriginx="0.0000000px"
+   gridtolerance="0.50000000px"
+   gridempspacing="5"
+   inkscape:grid-points="true"
+   guidetolerance="0.50000000px"
+   inkscape:zoom="15.9375"
+   inkscape:cx="24"
+   inkscape:cy="23.363607"
+   inkscape:window-x="6"
+   inkscape:window-y="46"
+   inkscape:current-layer="svg1358"
+   showguides="true"
+   inkscape:guide-bbox="true" />
+	<rect
+   style="fill:none;fill-opacity:0.64571428;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+   id="rect4762"
+   width="48.000000"
+   height="48.000000"
+   x="0.0000000"
+   y="0.0000000" /><path
+   id="path5481"
+   d="M 9.0000000,4.0000000 C 7.0000000,4.0000000 6.0000000,5.0000000 6.0000000,7.0000000 L 6.0000000,28.000000 C 6.0000000,30.000000 8.0000000,32.000000 10.000000,32.000000 L 21.000000,32.000000 L 21.000000,39.000000 L 12.000000,39.000000 C 10.000000,41.000000 10.000000,42.000000 12.000000,44.000000 L 34.000000,44.000000 C 36.000000,42.000000 36.000000,41.000000 34.000000,39.000000 L 25.000000,39.000000 L 25.000000,32.000000 L 38.000000,32.000000 C 40.000000,32.000000 42.000000,30.000000 42.000000,28.000000 L 42.000000,14.000000 C 42.000000,12.000000 40.000000,10.000000 38.000000,10.000000 L 24.000000,10.000000 L 24.000000,7.0000000 C 24.000000,5.0000000 23.000000,4.0000000 21.000000,4.0000000 L 9.0000000,4.0000000 z "
+   style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#ffffff;stroke-width:8.0000000;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+   sodipodi:nodetypes="cccccccccccccccccccc" /><path
+   sodipodi:nodetypes="cccccccccccccccccccc"
+   style="fill:#000000;fill-opacity:1.0000000;fill-rule:nonzero;stroke:none;stroke-width:7.0000000;stroke-miterlimit:4.0000000;stroke-dasharray:none"
+   d="M 9,4 C 7,4 6,5 6,7 L 6,28 C 6,30 8,32 10,32 L 21,32 L 21,39 L 12,39 C 10,41 10,42 12,44 L 34,44 C 36,42 36,41 34,39 L 25,39 L 25,32 L 38,32 C 40,32 42,30 42,28 L 42,14 C 42,12 40,10 38,10 L 24,10 L 24,7 C 24,5 23,4 21,4 L 9,4 z "
+   id="path1365" />
+	
+<path
+   style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+   d="M 11,12 L 19,12 L 19,16 L 37,16"
+   id="path1306"
+   sodipodi:nodetypes="cccc" /></svg>

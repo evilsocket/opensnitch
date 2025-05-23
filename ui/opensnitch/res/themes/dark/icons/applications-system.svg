@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg5490"
+   sodipodi:version="0.32"
+   inkscape:version="0.44"
+   sodipodi:docbase="/home/luca/tmp/dev/gnome-themes/icon-themes/HighContrast-SVG/scalable/categories"
+   sodipodi:docname="applications-system.svg">
+  <defs
+     id="defs5492" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.4748737"
+     inkscape:cx="-10.240306"
+     inkscape:cy="25.31314"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1274"
+     inkscape:window-height="945"
+     inkscape:window-x="0"
+     inkscape:window-y="25" />
+  <metadata
+     id="metadata5495">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>System Applications</dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/LGPL/2.1/" />
+        <dc:date>October 2006</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Andreas Nilsson</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:source>http://www.gnome.org</dc:source>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>system</rdf:li>
+            <rdf:li>applications</rdf:li>
+            <rdf:li>group</rdf:li>
+            <rdf:li>category</rdf:li>
+            <rdf:li>admin</rdf:li>
+            <rdf:li>root</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/LGPL/2.1/">
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Reproduction" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Distribution" />
+        <cc:requires
+           rdf:resource="http://web.resource.org/cc/Notice" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://web.resource.org/cc/ShareAlike" />
+        <cc:requires
+           rdf:resource="http://web.resource.org/cc/SourceCode" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <path
+       style="opacity:1;fill:black;fill-opacity:1;stroke:white;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 19.585519,1.9999995 L 19.585519,7.8514109 C 18.216608,8.2056432 17.102724,8.7191612 15.893015,9.387815 L 11.806834,5.3016339 L 5.1381865,11.970281 L 9.2570572,16.056463 L 9.2570572,16.089152 C 8.4554991,17.570213 7.8496719,18.792407 7.5245164,20.499418 L 1.9999995,20.499418 L 1.9999995,29.460542 L 8.0802371,29.460542 C 8.3910597,30.402639 8.7916751,31.116323 9.2570572,31.976224 C 9.2616655,31.984741 9.2524346,32.000407 9.2570572,32.008913 L 5.1381865,36.095094 L 11.806834,42.763742 L 15.893015,38.677562 C 17.102724,39.346214 18.216608,39.859733 19.585519,40.213966 L 19.585519,45.999998 L 28.54664,45.999998 L 28.54664,40.213966 C 29.891169,39.866041 30.78487,39.3619 31.976225,38.71025 L 36.127784,42.86181 L 42.796432,36.193163 L 38.644871,32.041603 C 39.125869,31.162235 39.535669,30.426558 39.854382,29.460542 L 45.999998,29.460542 L 45.999998,20.499418 L 40.410102,20.499418 C 40.080154,18.767246 39.464724,17.522638 38.644871,16.023773 L 42.796432,11.872213 L 36.127784,5.2035655 L 31.976225,9.3551255 C 30.78487,8.7034758 29.891169,8.1993339 28.54664,7.8514109 L 28.54664,1.9999995 L 19.585519,1.9999995 z M 23.967309,16.710251 C 28.009296,16.710252 31.289746,19.990705 31.289746,24.032688 C 31.289745,28.074669 28.009296,31.355124 23.967309,31.355124 C 19.925322,31.355124 16.644872,28.07467 16.644872,24.032688 C 16.644872,19.990704 19.925322,16.710251 23.967309,16.710251 z "
+       id="path5498"
+       sodipodi:nodetypes="cccccccccccsccccccccccccccccccccccccsssc" />
+  </g>
+</svg>

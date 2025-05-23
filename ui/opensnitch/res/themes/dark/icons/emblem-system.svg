@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg1307"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docbase="/home/luca/Artwork/blackwhite-icon-theme/scalable/emblems"
+   sodipodi:docname="emblem-system.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <defs
+     id="defs1309" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="16"
+     inkscape:cx="24"
+     inkscape:cy="24"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1276"
+     inkscape:window-height="949"
+     inkscape:window-x="0"
+     inkscape:window-y="26" />
+  <metadata
+     id="metadata1312">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>System (emblem)</dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Luca Ferretti</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>emblem</rdf:li>
+            <rdf:li>system</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/LGPL/2.1/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/LGPL/2.1/">
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Reproduction" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Distribution" />
+        <cc:requires
+           rdf:resource="http://web.resource.org/cc/Notice" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://web.resource.org/cc/ShareAlike" />
+        <cc:requires
+           rdf:resource="http://web.resource.org/cc/SourceCode" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="rect3942"
+       width="48"
+       height="48"
+       x="0"
+       y="0"
+       ry="0" />
+    <path
+       transform="translate(0,1.875003)"
+       d="M 23.938113,3.1251011 C 28.80352,2.9768321 24.214319,7.7659001 28.717512,9.613985 C 33.570828,11.605758 33.526159,5.0331198 37.347002,8.627976 C 40.892207,11.963496 34.260769,12.104823 36.138214,16.595855 C 38.16163,21.436064 42.777602,16.756921 42.937399,22.000613 C 43.085668,26.86602 38.2966,22.276819 36.448515,26.780012 C 34.456742,31.633328 41.02938,31.588659 37.434524,35.409502 C 34.099004,38.954707 33.957677,32.323269 29.466645,34.200714 C 24.626436,36.22413 29.305579,40.840102 24.061887,40.999899 C 19.19648,41.148168 23.785681,36.3591 19.282488,34.511015 C 14.429172,32.519242 14.473841,39.09188 10.652998,35.497024 C 7.1077934,32.161504 13.739231,32.020177 11.861786,27.529145 C 9.8383695,22.688936 5.2223981,27.368079 5.0626011,22.124387 C 4.9143321,17.25898 9.7034001,21.848181 11.551485,17.344988 C 13.543258,12.491672 6.9706198,12.536341 10.565476,8.7154976 C 13.900996,5.1702934 14.042323,11.801731 18.533355,9.9242858 C 23.373564,7.9008695 18.694421,3.2848981 23.938113,3.1251011 z "
+       inkscape:randomized="0"
+       inkscape:rounded="0.604"
+       inkscape:flatsided="false"
+       sodipodi:arg2="-1.2085568"
+       sodipodi:arg1="-1.5740643"
+       sodipodi:r2="13.312417"
+       sodipodi:r1="18.9375"
+       sodipodi:cy="22.0625"
+       sodipodi:cx="24"
+       sodipodi:sides="8"
+       id="path2190"
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:8;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       sodipodi:type="star" />
+    <path
+       sodipodi:type="star"
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="path1315"
+       sodipodi:sides="8"
+       sodipodi:cx="24"
+       sodipodi:cy="22.0625"
+       sodipodi:r1="18.9375"
+       sodipodi:r2="13.312417"
+       sodipodi:arg1="-1.5740643"
+       sodipodi:arg2="-1.2085568"
+       inkscape:flatsided="false"
+       inkscape:rounded="0.604"
+       inkscape:randomized="0"
+       d="M 23.938113,3.1251011 C 28.80352,2.9768321 24.214319,7.7659001 28.717512,9.613985 C 33.570828,11.605758 33.526159,5.0331198 37.347002,8.627976 C 40.892207,11.963496 34.260769,12.104823 36.138214,16.595855 C 38.16163,21.436064 42.777602,16.756921 42.937399,22.000613 C 43.085668,26.86602 38.2966,22.276819 36.448515,26.780012 C 34.456742,31.633328 41.02938,31.588659 37.434524,35.409502 C 34.099004,38.954707 33.957677,32.323269 29.466645,34.200714 C 24.626436,36.22413 29.305579,40.840102 24.061887,40.999899 C 19.19648,41.148168 23.785681,36.3591 19.282488,34.511015 C 14.429172,32.519242 14.473841,39.09188 10.652998,35.497024 C 7.1077934,32.161504 13.739231,32.020177 11.861786,27.529145 C 9.8383695,22.688936 5.2223981,27.368079 5.0626011,22.124387 C 4.9143321,17.25898 9.7034001,21.848181 11.551485,17.344988 C 13.543258,12.491672 6.9706198,12.536341 10.565476,8.7154976 C 13.900996,5.1702934 14.042323,11.801731 18.533355,9.9242858 C 23.373564,7.9008695 18.694421,3.2848981 23.938113,3.1251011 z "
+       transform="translate(0,1.875003)" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="path3065"
+       sodipodi:cx="24.0625"
+       sodipodi:cy="23.9375"
+       sodipodi:rx="5.0546875"
+       sodipodi:ry="4.9375"
+       d="M 29.117188 23.9375 A 5.0546875 4.9375 0 1 1  19.007812,23.9375 A 5.0546875 4.9375 0 1 1  29.117188 23.9375 z"
+       transform="translate(-7.8125e-3,0.125)" />
+  </g>
+</svg>
