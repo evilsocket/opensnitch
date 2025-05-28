@@ -493,17 +493,17 @@ sólo mostrar alerta</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="991"/>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresa</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1131"/>
         <source>Default log level</source>
-        <translation type="unfinished"></translation>
+        <translation>Výchozí úroveň podrobností záznamu událostí</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1039"/>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Verze</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="902"/>
@@ -518,7 +518,7 @@ sólo mostrar alerta</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="849"/>
         <source>Log file</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor se záznamem událostí</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="578"/>
@@ -548,72 +548,72 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="975"/>
         <source>until restart</source>
-        <translation type="unfinished"></translation>
+        <translation>do restartu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="980"/>
         <source>always</source>
-        <translation type="unfinished"></translation>
+        <translation>vždy</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1102"/>
         <source>/var/log/opensnitchd.log</source>
-        <translation type="unfinished"></translation>
+        <translation>/var/log/opensnitchd.log</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1107"/>
         <source>/dev/stdout</source>
-        <translation type="unfinished"></translation>
+        <translation>/dev/stdout</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="879"/>
         <source>Apply configuration to all nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Uplatnit nastavení na veškeré uzly</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1146"/>
         <source>Database</source>
-        <translation type="unfinished"></translation>
+        <translation>Databáze</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1181"/>
         <source>In memory</source>
-        <translation type="unfinished"></translation>
+        <translation>V paměti</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1186"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1482"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavřít</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1493"/>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Použít</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1504"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="244"/>
         <source>until reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>do restartu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1200"/>
         <source>Database type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ databáze</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1207"/>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Vybrat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="83"/>
@@ -633,12 +633,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="359"/>
         <source>Show advanced view by default</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako výchozí rovnou pokročilé zobrazení</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="653"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Akce</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="375"/>
@@ -648,7 +648,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="343"/>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Doba trvání</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="263"/>
@@ -658,7 +658,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="266"/>
         <source>Filter connections also by:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtrovat spojení také podle:</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="362"/>
@@ -668,17 +668,17 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="81"/>
         <source>User ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identif. uživatele</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="97"/>
         <source>Destination port</source>
-        <translation type="unfinished"></translation>
+        <translation>Cílový port</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="113"/>
         <source>Destination IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Cílová IP adresa</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="463"/>
@@ -688,12 +688,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="356"/>
         <source>The advanced view allows you to easily select multiple fields to filter connections</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokročilé zobrazení umožňuje snadno vybrat vícero kolonek pro filtrování spojení</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="110"/>
         <source>If checked, this field will be selected when a pop-up is displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokud zaškrtnuto, bu při zobrazení vyskakovacího okna vybrána tato kolonka</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="159"/>
@@ -703,32 +703,32 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="905"/>
         <source>Default action when the GUI is disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>Výchozí akce při odpojení grafického uživ. rozhraní</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1001"/>
         <source>Debug invalid connections</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladit neplatná spojení</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="39"/>
         <source>Pop-ups</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyskakovací okna</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="64"/>
         <source>Default options</source>
-        <translation type="unfinished"></translation>
+        <translation>Výchozí volby</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="330"/>
         <source>Default position on screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Výchozí pozice na obrazovce</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="769"/>
         <source>any temporary rules</source>
-        <translation type="unfinished"></translation>
+        <translation>jakákoli dočasná pravidla</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="487"/>
@@ -748,32 +748,32 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="589"/>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Čas</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="669"/>
         <source>Destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Cíl</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="637"/>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokol</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="685"/>
         <source>Process</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="605"/>
         <source>Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Pravidlo</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="621"/>
         <source>Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Uzel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="723"/>
@@ -783,37 +783,37 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="577"/>
         <source>Events tab columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Sloupce panelu událostí</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="308"/>
         <source>by PID</source>
-        <translation type="unfinished"></translation>
+        <translation>podle identif. procesu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="473"/>
         <source>Disable pop-ups, only display a notification</source>
-        <translation type="unfinished"></translation>
+        <translation>Vypnout vyskakovací okna (zobrazovat pouze upozornění)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="496"/>
         <source>Desktop notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Upozornění do desktopového prostředí</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="514"/>
         <source>Use system notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Použít systémová upozornění</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="530"/>
         <source>Use Qt notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Použít upozornění v rámci Qt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="559"/>
         <source>Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyzkoušet</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="998"/>
@@ -823,47 +823,47 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1294"/>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>minut</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1326"/>
         <source>Minutes between events purges</source>
-        <translation type="unfinished"></translation>
+        <translation>Minut po jejichž uplynutí čistit události</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1352"/>
         <source>days</source>
-        <translation type="unfinished"></translation>
+        <translation>dnů</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1365"/>
         <source>Maximum days of events to keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolik nejvíce dnů událostí uchovávat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="147"/>
         <source>reject</source>
-        <translation type="unfinished"></translation>
+        <translation>odmítnout</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="716"/>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translation>Systém</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="695"/>
         <source>Command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Příkazový řádek</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="708"/>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Motiv vzhledu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="219"/>
         <source>30s</source>
-        <translation type="unfinished"></translation>
+        <translation>30s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="224"/>
@@ -873,22 +873,22 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="229"/>
         <source>15m</source>
-        <translation type="unfinished"></translation>
+        <translation>15m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="234"/>
         <source>30m</source>
-        <translation type="unfinished"></translation>
+        <translation>30m</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="239"/>
         <source>1h</source>
-        <translation type="unfinished"></translation>
+        <translation>1h</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="748"/>
         <source>Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Pravidla</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="756"/>
@@ -900,37 +900,37 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="761"/>
         <source>Don&apos;t save/Delete rules of duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Neukládat/nemazat pravidla trvání</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="779"/>
         <source>30s or less</source>
-        <translation type="unfinished"></translation>
+        <translation>30s nebo méně</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="784"/>
         <source>5m or less</source>
-        <translation type="unfinished"></translation>
+        <translation>5m nebo méně</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="789"/>
         <source>15m or less</source>
-        <translation type="unfinished"></translation>
+        <translation>15m nebo méně</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="794"/>
         <source>30m or less</source>
-        <translation type="unfinished"></translation>
+        <translation>30m nebo méně</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="799"/>
         <source>1h or less</source>
-        <translation type="unfinished"></translation>
+        <translation>1h nebo méně</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="724"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Jazyk</translation>
     </message>
 </context>
 <context>
@@ -938,37 +938,37 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="14"/>
         <source>Process details</source>
-        <translation type="unfinished"></translation>
+        <translation>Podrobnosti procesu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="61"/>
         <source>loading...</source>
-        <translation type="unfinished"></translation>
+        <translation>načítání…</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="81"/>
         <source>CWD: loading...</source>
-        <translation type="unfinished"></translation>
+        <translation>CWD: načítání…</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="93"/>
         <source>mem stats: loading...</source>
-        <translation type="unfinished"></translation>
+        <translation>statistiky paměti: načítání…</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="121"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Stav</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="135"/>
         <source>Open files</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřené soubory</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="149"/>
         <source>I/O Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiky vstupu/výst.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="163"/>
@@ -978,27 +978,27 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="177"/>
         <source>Stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Zásobník</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="191"/>
         <source>Environment variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Proměnné prostředí</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="210"/>
         <source>Application pids</source>
-        <translation type="unfinished"></translation>
+        <translation>Identif. procesů aplikace</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="240"/>
         <source>Start or stop monitoring this process</source>
-        <translation type="unfinished"></translation>
+        <translation>Spustit nebo zastavit dohledování tohoto procesu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="256"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavřít</translation>
     </message>
 </context>
 <context>
@@ -1006,32 +1006,32 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="20"/>
         <source>Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Pravidlo</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="300"/>
         <source>Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Uzel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="323"/>
         <source>Apply rule to all nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Uplatnit pravidlo na všechny uzly</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="379"/>
         <source>From this command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Z tohoto příkazového řádku</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="472"/>
         <source>From this executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Z tohoto spustitelného souboru</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="56"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Akce</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="138"/>
@@ -1041,12 +1041,12 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="610"/>
         <source>To this IP / Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Na tuto IP adresu / do této sítě</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="97"/>
         <source>once</source>
-        <translation type="unfinished"></translation>
+        <translation>jedinkrát</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="230"/>
@@ -1056,17 +1056,17 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="132"/>
         <source>always</source>
-        <translation type="unfinished"></translation>
+        <translation>vždy</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="902"/>
         <source>To this port</source>
-        <translation type="unfinished"></translation>
+        <translation>Na tento port</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="372"/>
         <source>From this user ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Z tohoto identif. uživatele</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="592"/>
@@ -1094,7 +1094,7 @@ gnu.org         - it&apos;ll only match gnu.org, nor www.gnu.org, nor ftp.gnu.or
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="532"/>
         <source>TCP</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="760"/>
@@ -1116,37 +1116,37 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="89"/>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Trvání</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="633"/>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokol</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="750"/>
         <source>To this host</source>
-        <translation type="unfinished"></translation>
+        <translation>Na tohoto hostitele</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="151"/>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>Odepřít</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="191"/>
         <source>Allow</source>
-        <translation type="unfinished"></translation>
+        <translation>Umožnit</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="245"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Název</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="207"/>
         <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapnout</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="238"/>
@@ -1175,7 +1175,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="222"/>
         <source>Priority rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Pravidlo priority</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1092"/>
@@ -1185,7 +1185,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1095"/>
         <source>Case-sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozlišovat malá/VELKÁ písmena</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="686"/>
@@ -1201,12 +1201,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="127"/>
         <source>until reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>do restart</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="980"/>
         <source>To this list of domains</source>
-        <translation type="unfinished"></translation>
+        <translation>Na tento seznam domén</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="539"/>
@@ -1216,7 +1216,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="346"/>
         <source>Applications</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikace</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="216"/>
@@ -1231,27 +1231,27 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="399"/>
         <source>From this PID</source>
-        <translation type="unfinished"></translation>
+        <translation>Z tohoto identif. procesu</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="491"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Síť</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="932"/>
         <source>List of domains/IPs</source>
-        <translation type="unfinished"></translation>
+        <translation>Seznam domén / IP adres</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="938"/>
         <source>To this list of network ranges</source>
-        <translation type="unfinished"></translation>
+        <translation>Na tento seznam síťových rozsahů</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="945"/>
         <source>To this list of IPs</source>
-        <translation type="unfinished"></translation>
+        <translation>Na tento seznam IP adres</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="971"/>
@@ -1272,7 +1272,8 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1049"/>
         <source>To this list of domains 
 (regular expressions)</source>
-        <translation type="unfinished"></translation>
+        <translation>Na tento seznam domén 
+(regulární výrazy)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1076"/>
@@ -1282,12 +1283,12 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="168"/>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Odmítnout</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1151"/>
         <source>Description...</source>
-        <translation type="unfinished"></translation>
+        <translation>Popis…</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="355"/>
@@ -1297,7 +1298,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="365"/>
         <source>Is regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Je regulární výraz</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="479"/>

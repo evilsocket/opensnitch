@@ -745,7 +745,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="905"/>
         <source>Default action when the GUI is disconnected</source>
-        <translation>Обычное действие, когда интерфейс отключён</translation>
+        <translation>Действие по умолчанию, когда интерфейс отключён</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1001"/>
