@@ -50,7 +50,7 @@ def get_popup_message(is_local, node, app_name, con):
             con.dst_host or con.dst_ip,
             con.protocol.upper() )
 
-    if con.dst_port == 53 and con.dst_ip != con.dst_host and con.dst_host != "":
+    if con.dst_port == "53" and con.dst_ip != con.dst_host and con.dst_host != "":
         msg_action = QC.translate("popups", "is attempting to resolve <b>%s</b> via %s, %s port %d") % ( \
             con.dst_host,
             con.dst_ip,
