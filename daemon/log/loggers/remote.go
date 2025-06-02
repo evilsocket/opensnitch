@@ -21,7 +21,6 @@ const (
 
 	// restart syslog connection after these amount of errors
 	maxAllowedErrors = 10
-	maxConnRetries   = 600
 )
 
 var (
@@ -48,8 +47,6 @@ type Remote struct {
 	ctx       context.Context
 	cancel    context.CancelFunc
 	logFormat formats.LoggerFormat
-
-	netConn net.Conn
 
 	// Name of the logger
 	Name string
@@ -112,63 +109,83 @@ func NewRemote(cfg LoggerConfig) (*Remote, error) {
 		sys.ConnectTimeout = connTimeout
 	}
 
-	// initial connection test
-	if err = sys.Open(); err != nil {
-		log.Error("Error loading logger [%s]: %s", sys.Name, err)
-		return nil, err
-	}
-	log.Info("[%s] initialized: %v", sys.Name, cfg)
-
 	sys.writerChan = make(chan string)
 	if sys.cfg.Workers == 0 {
 		sys.cfg.Workers = 1
 	}
 	for i := 0; i < sys.cfg.Workers; i++ {
-		go writerWorker(i, *sys, sys.writerChan, sys.ctx.Done())
+		go writerWorker(i, sys, sys.writerChan, sys.ctx.Done())
 	}
 
 	return sys, err
 }
 
-// Open opens a new connection with a server or with the daemon.
-func (s *Remote) Open() (err error) {
-	if s.cfg.Server == "" {
-		return fmt.Errorf("[%s] Server address must not be empty", s.Name)
-	}
-	s.mu.Lock()
-	s.netConn, err = s.Dial(s.cfg.Protocol, s.cfg.Server, s.ConnectTimeout)
-	s.mu.Unlock()
+// Open establishes a connection with a remote server.
+// It'll try to reopen the connection based on the configuration provided:
+// If MaxConnectAttempts is 0, indefinitely. Otherwise the amount of attempts specified.
+func (s *Remote) Open() (net.Conn, bool) {
+	atomic.StoreUint32(&s.status, DISCONNECTED)
+	connRetries := uint16(0)
 
-	if err == nil {
-		atomic.StoreUint32(&s.status, CONNECTED)
+Reopen:
+
+	select {
+	case <-s.ctx.Done():
+		log.Info("[%s] %s worker stopped", s.Name, s.cfg.Server)
+		return nil, false
+	default:
 	}
-	return err
+	log.Debug("[%s] %s trying to connect", s.Name, s.cfg.Server)
+
+	conn, err := s.Dial(s.cfg.Protocol, s.cfg.Server, s.ConnectTimeout)
+	if err != nil {
+		log.Debug("[%s] Error opening connection (%s), retrying... (%d/%d)", s.Name, s.cfg.Server, connRetries, s.cfg.MaxConnectAttempts)
+		connRetries++
+		if s.cfg.MaxConnectAttempts > 0 && connRetries > s.cfg.MaxConnectAttempts {
+			log.Info("[%s] %s, Max connections attempts reached, giving up", s.Name, s.cfg.Server)
+			return nil, false
+		}
+
+		// wait time before reopen attempt
+		time.Sleep(reopenInterval)
+		goto Reopen
+	}
+	connRetries = 0
+	atomic.StoreUint32(&s.status, CONNECTED)
+
+	log.Info("[%s] connected to %s", s.Name, s.cfg.Server)
+
+	return conn, true
 }
 
 // Dial opens a new connection with a remote server.
 func (s *Remote) Dial(proto, addr string, connTimeout time.Duration) (netConn net.Conn, err error) {
+	atomic.StoreUint32(&s.status, DISCONNECTED)
 	switch proto {
 	case "udp", "tcp":
 		netConn, err = net.DialTimeout(proto, addr, connTimeout)
 		if err != nil {
+			log.Warning("remote.Dial() %s error: %s", s.cfg.Server, err)
 			return nil, err
 		}
 	default:
 		return nil, fmt.Errorf("[%s] Network protocol %s not supported (use 'tcp' or 'udp')", s.Name, proto)
 	}
 
+	atomic.StoreUint32(&s.status, CONNECTED)
 	return netConn, nil
 }
 
 // Close closes the writer object
 func (s *Remote) Close() (err error) {
-	if s.netConn != nil {
-		err = s.netConn.Close()
-		s.netConn = nil
-	}
 	s.cancel()
 	atomic.StoreUint32(&s.status, DISCONNECTED)
 	return
+}
+
+func (s *Remote) isConnected() bool {
+	status := atomic.LoadUint32(&s.status)
+	return status == CONNECTED
 }
 
 // Transform transforms data for proper ingestion.
@@ -182,6 +199,10 @@ func (s *Remote) Transform(args ...interface{}) (out string) {
 }
 
 func (s *Remote) Write(msg string) {
+	if !s.isConnected() {
+		log.Trace("[%s] %s not connected", s.Name, s.cfg.Server)
+		return
+	}
 	s.writerChan <- msg
 }
 
@@ -195,45 +216,31 @@ func (s *Remote) formatLine(msg string) string {
 
 // each worker opens a new connection with the remote server, and waits for
 // incoming messages to be forwarded to the server.
-func writerWorker(id int, sys Remote, msgs <-chan string, done <-chan struct{}) {
+func writerWorker(id int, sys *Remote, msgs <-chan string, done <-chan struct{}) {
 	errors := 0
-	connRetries := 0
 
 Reopen:
-	errors = 0
-
-	conn, err := sys.Dial(sys.cfg.Protocol, sys.cfg.Server, sys.ConnectTimeout)
-	if err != nil {
-		log.Debug("[%s] Error opening connection, worker %d, retrying... (%d/%d)", sys.Name, id, connRetries, maxConnRetries)
-		connRetries++
-		if connRetries > maxConnRetries {
-			log.Error("[%s] Error opening connection, worker %d, giving up", sys.Name, id)
-			return
-		}
-
-		// wait time before reopen attempt
-		time.Sleep(reopenInterval)
-		goto Reopen
+	conn, reconnected := sys.Open()
+	if !reconnected {
+		goto Exit
 	}
-	connRetries = 0
-	log.Debug("[%s] worker %d, connection opened", sys.Name, id)
 
 	for {
 		select {
 		case <-done:
 			goto Exit
 		case msg := <-msgs:
-			//log.Trace("[%s] %d writing writes", sys.Name, id)
+			//log.Trace("[%s] %d writing", sys.Name, id)
 
 			// define a write timeout for this operation from Now.
 			deadline := time.Now().Add(sys.Timeout)
 			conn.SetWriteDeadline(deadline)
 			_, err := conn.Write([]byte(msg))
 			if err != nil {
-				log.Trace("[%s] error writing via writer %d: %s", sys.Name, id, err)
+				log.Debug("[%s] error writing via writer %d: %s", sys.Name, id, err)
 				errors++
 				if errors > maxAllowedErrors {
-					log.Important("[%s] writer %d: too much errors, review the configuration and / or connectivity with the remote server", sys.Name, id)
+					log.Warning("[%s] writer %d: too much errors, review the configuration and / or connectivity with the remote server", sys.Name, id)
 					goto Reopen
 				}
 			}
@@ -241,6 +248,9 @@ Reopen:
 	}
 
 Exit:
-	log.Debug("[%s logger] %d connection closed (errors: %d)", sys.Name, id, errors)
-	conn.Close()
+	log.Info("[%s logger] %d connection closed (errors: %d)", sys.Name, id, errors)
+	if conn != nil {
+		conn.Close()
+	}
+	sys.Close()
 }

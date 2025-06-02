@@ -9,7 +9,7 @@ const (
 )
 
 type RemoteSyslog struct {
-	Remote
+	*Remote
 }
 
 // NewRemoteSyslog returns a new object that manipulates and prints outbound connections
@@ -18,13 +18,10 @@ func NewRemoteSyslog(cfg LoggerConfig) (*RemoteSyslog, error) {
 	log.Info("NewRemoteSyslog logger: %v", cfg)
 
 	r, err := NewRemote(cfg)
-	if err != nil {
-		return nil, err
-	}
+	r.mu.Lock()
 	r.Name = LOGGER_REMOTE_SYSLOG
-	rs := &RemoteSyslog{
-		Remote: *r,
-	}
+	r.mu.Unlock()
+	rs := &RemoteSyslog{r}
 
 	return rs, err
 }

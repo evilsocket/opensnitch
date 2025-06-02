@@ -44,6 +44,10 @@ type LoggerConfig struct {
 
 	// Workers: number of workers
 	Workers int
+
+	// MaxConnectAttempts holds the max attemps to connect to the remote server.
+	// A value of 0 will try to connect indefinitely.
+	MaxConnectAttempts uint16
 }
 
 // LoggerManager represents the LoggerManager.
@@ -103,17 +107,14 @@ func (l *LoggerManager) Load(configs []LoggerConfig) {
 	for _, cfg := range configs {
 		switch cfg.Name {
 		case LOGGER_REMOTE:
-			if lgr, err := NewRemote(cfg); err == nil {
-				l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
-			}
+			lgr, _ := NewRemote(cfg)
+			l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
 		case LOGGER_REMOTE_SYSLOG:
-			if lgr, err := NewRemoteSyslog(cfg); err == nil {
-				l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
-			}
+			lgr, _ := NewRemoteSyslog(cfg)
+			l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
 		case LOGGER_SYSLOG:
-			if lgr, err := NewSyslog(cfg); err == nil {
-				l.loggers[lgr.Name] = lgr
-			}
+			lgr, _ := NewSyslog(cfg)
+			l.loggers[lgr.Name] = lgr
 		}
 	}
 
@@ -167,6 +168,7 @@ func (l *LoggerManager) Log(args ...interface{}) {
 	if l.count == 0 {
 		return
 	}
+
 	// Sending messages to the queue (channel) should be instantaneous, but there're
 	// several scenarios where we can end up filling up the queue (channel):
 	// - If we're not connected to the server (GUI), and we need to allow some
