@@ -75,7 +75,7 @@ func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPo
 			log.Debug("GetSocketInfo() invalid: %d:%v -> %v:%d", sock.ID.SourcePort, sock.ID.Source, sock.ID.Destination, sock.ID.DestinationPort)
 		}
 
-		// handle special cases (see function description): ntp queries (123), broadcasts, incomming connections.
+		// handle special cases (see function description): ntp queries (123), broadcasts, incoming connections.
 		if len(inodes) == 0 && len(sockList) > 0 {
 			for n, sock := range sockList {
 				if sockList[n].ID.Destination.Equal(net.IPv4zero) || sockList[n].ID.Destination.Equal(net.IPv6zero) {
@@ -216,7 +216,7 @@ func FlushConnections() {
 		log.Error("error flushing ConntrackTable %s", err)
 	}
 	if err := netlink.ConntrackTableFlush(netlink.ConntrackExpectTable); err != nil {
-		log.Error("error flusing ConntrackExpectTable %s", err)
+		log.Error("error flushing ConntrackExpectTable %s", err)
 	}
 
 	// Force established connections to reestablish again.

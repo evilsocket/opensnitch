@@ -126,7 +126,7 @@ class FirewallTableModel(QStandardItemModel):
     def refresh(self, force=False):
         self.fillVisibleRows(0, force, *self.lastQueryArgs)
 
-    #Some QSqlQueryModel methods must be mimiced so that this class can serve as a drop-in replacement
+    #Some QSqlQueryModel methods must be mimicked so that this class can serve as a drop-in replacement
     #mimic QSqlQueryModel.query()
     def query(self):
         return self

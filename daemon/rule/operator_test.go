@@ -665,7 +665,7 @@ func TestNewOperatorListsDomainsRegexp(t *testing.T) {
 }
 
 // Must be launched with -race to test that we don't cause leaks
-// Race occured on operator.go:241 reListCmp().MathString()
+// Race occurred on operator.go:241 reListCmp().MathString()
 // fixed here: 53419fe
 func TestRaceNewOperatorListsDomainsRegexp(t *testing.T) {
 	t.Log("Test NewOperator() Lists domains_regexp")
