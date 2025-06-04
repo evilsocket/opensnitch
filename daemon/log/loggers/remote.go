@@ -165,7 +165,7 @@ func (s *Remote) Dial(proto, addr string, connTimeout time.Duration) (netConn ne
 	case "udp", "tcp":
 		netConn, err = net.DialTimeout(proto, addr, connTimeout)
 		if err != nil {
-			log.Warning("remote.Dial() %s error: %s", s.cfg.Server, err)
+			log.Debug("remote.Dial() %s error: %s", s.cfg.Server, err)
 			return nil, err
 		}
 	default:
