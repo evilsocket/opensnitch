@@ -35,7 +35,7 @@ from concurrent import futures
 import grpc
 
 dist_path = '/usr/lib/python3/dist-packages/'
-if dist_path not in sys.path:
+if os.path.exists(dist_path) and dist_path not in sys.path:
     sys.path.append(dist_path)
 
 from opensnitch.service import UIService
