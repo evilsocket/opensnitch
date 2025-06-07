@@ -266,17 +266,27 @@ func event2process(event *execEvent) (proc *procmon.Process) {
 	proc = procmon.NewProcessEmpty(int(event.PID), byteArrayToString(event.Comm[:]))
 	proc.UID = int(event.UID)
 
-	// NOTE: this is the absolute path executed, but no the real path to the binary.
+	// NOTE:
+	// this is the absolute path of the binary executed, but no the real path to the binary on disk.
 	// if it's executed from a chroot, the absolute path will be /chroot/path/usr/bin/blabla
-	// if it's from a container, the real absolute path will be /proc/<pid>/root/usr/bin/blabla
+	// if it's from a container, the real absolute path on disk will be /proc/<pid>/root/usr/bin/blabla
 	path := byteArrayToString(event.Filename[:])
-	if path != "" {
-		proc.SetPath(path)
+
+	// the path of the binary may also be a symlink, so we need to get where it points to.
+	exePath, err := proc.ReadExeLink()
+
+	if err == nil && exePath != "" {
+		proc.SetPath(exePath)
 	} else {
-		if proc.ReadPath() != nil {
-			return nil
+		if path != "" {
+			proc.SetPath(path)
+		} else {
+			if proc.ReadPath() != nil {
+				return nil
+			}
 		}
 	}
+
 	if event.PPID != 0 {
 		proc.PPID = int(event.PPID)
 	} else {
