@@ -1,4 +1,5 @@
 import os
+import os.path
 import logging
 import requests
 import threading
@@ -72,6 +73,9 @@ class Downloader(PluginBase):
                     if url['localfile'] == "" or url['remote'] == "" or config['name'] == "":
                         logger.debug("compile() downloader name, url, localfile, units and interval fields cannot be empty")
                         continue
+                    localdir = os.path.dirname(url['localfile'])
+                    if not os.path.isdir(localdir):
+                        os.makedirs(localdir, 0o700)
 
                 self._notify = config.get('notify')
                 if self._notify != None:
