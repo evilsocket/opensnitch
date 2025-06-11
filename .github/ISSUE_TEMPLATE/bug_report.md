@@ -28,7 +28,7 @@ Include the following information:
  - OS: [e.g. Debian GNU/Linux, ArchLinux, Slackware, ...]
  - OS version: [e.g. Buster, 10.3, 20.04]
  - Window Manager: [e.g. GNOME Shell, KDE, enlightenment, i3wm, ...]
- - Kernel version: [`echo $(uname -a)`]
+ - Kernel version: [`uname -a`]
 
 ### To Reproduce:
 <!-- Describe in detail as much as you can what happened. -->
