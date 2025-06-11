@@ -360,36 +360,53 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _display_checksums_warning(self, peer, con):
         self.messageLabel.setStyleSheet('')
         self.labelChecksumStatus.setText('')
+        is_valid = True
+        checksums = con.process_checksums
+        expected_list = []
 
         records = self._rules.get_by_field(peer, "operator_data", con.process_path)
 
         if records != None and records.first():
-            rule = Rule.new_from_records(records)
-            validates, expected = _checksums.verify(con, rule)
-            if not validates:
-                self.messageLabel.setStyleSheet('color: red')
-                self.messageLabel.setText(
-                    QC.translate("popups", "WARNING, bad checksum (<a href='#warning-checksum'>More info</a>)"
-                                 )
-                )
-                self.labelChecksumNote.setText(
-                    QC.translate("popups", "<font color=\"red\">WARNING, checksums differ.</font><br><br>Current process ({0}):<br>{1}<br><br>Expected from the rule:<br>{2}"
-                                 .format(
-                                     con.process_id,
-                                     con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5],
-                                     expected
-                )))
+            rules_names = []
+            while True:
+                if not records.next():
+                    break
+                rule = Rule.new_from_records(records)
 
-                self.comboChecksumRule.clear()
-                self.comboChecksumRule.addItem(rule.name)
-                while records.next():
-                    rule = Rule.new_from_records(records)
-                    self.comboChecksumRule.addItem(rule.name)
+                if not rule.enabled:
+                    continue
+                rules_names.append(rule.name)
+                validates, expected = _checksums.verify(checksums, rule)
+                if not validates:
+                    expected_list.append(expected)
+                is_valid &= validates
 
-                return "<b>WARNING</b><br>bad md5<br>This process:{0}<br>Expected from rule: {1}<br><br>".format(
-                    con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5],
-                    expected
-                )
+            if is_valid:
+                return ""
+
+            self.messageLabel.setStyleSheet('color: red')
+            self.messageLabel.setText(
+                QC.translate("popups", "WARNING, bad checksum (<a href='#warning-checksum'>More info</a>)"
+                                )
+            )
+            self.labelChecksumNote.setText(
+                QC.translate(
+                    "popups",
+                    "<font color=\"red\">WARNING, checksums differ for at least one rule.</font><br><br>Current process ({0}):<br>{1}<br><br>Expected from the rule:<br>{2}"
+                    .format(
+                        con.process_id,
+                        checksums[Config.OPERAND_PROCESS_HASH_MD5],
+                        expected_list
+                    ))
+            )
+
+            self.comboChecksumRule.clear()
+            self.comboChecksumRule.addItems(rules_names)
+
+            return "<b>WARNING</b><br>bad md5<br>This process:{0}<br>Expected from rule: {1}<br><br>".format(
+                checksums[Config.OPERAND_PROCESS_HASH_MD5],
+                expected
+            )
 
         return ""
 

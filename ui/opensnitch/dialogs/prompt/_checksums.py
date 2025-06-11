@@ -2,7 +2,7 @@ from PyQt5.QtCore import QCoreApplication as QC
 from opensnitch.config import Config
 from opensnitch.rules import Rule
 
-def verify(con, rule):
+def verify(checksums, rule):
     """return true if the checksum of a rule matches the one of the process
     opening a connection.
     """
@@ -13,12 +13,14 @@ def verify(con, rule):
 
     # checksum will be empty if the daemon failed to calculate it.
     # in this case assume that it's ok (ignore it).
-    if con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "":
+    if checksums[Config.OPERAND_PROCESS_HASH_MD5] == "":
         return True, ""
 
+    if not rule.enabled:
+        return True, ""
     for ro in rule.operator.list:
         if ro.type == Config.RULE_TYPE_SIMPLE and ro.operand == Config.OPERAND_PROCESS_HASH_MD5:
-            if ro.data != con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5]:
+            if ro.data != checksums[Config.OPERAND_PROCESS_HASH_MD5]:
                 return False, ro.data
 
     return True, ""
