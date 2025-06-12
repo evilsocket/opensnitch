@@ -1,8 +1,12 @@
 package procmon
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"testing"
+
+	"github.com/evilsocket/opensnitch/daemon/core"
 )
 
 var (
@@ -127,11 +131,45 @@ func TestProcStatus(t *testing.T) {
 }
 
 func TestProcCleanPath(t *testing.T) {
-	proc.Path = "/fake/path/binary (deleted)"
-	proc.CleanPath()
-	if proc.Path != "/fake/path/binary" {
-		t.Error("Proc cleanPath() not cleaned:", proc.Path)
-	}
+	t.Run("test (deleted) in path", func(t *testing.T) {
+		proc.SetPath("/fake/path/binary (deleted)")
+		if proc.Path != "/fake/path/binary" {
+			t.Error("Proc cleanPath() not cleaned:", proc.Path)
+		}
+	})
+
+	t.Run("test /proc/self/exe as path", func(t *testing.T) {
+		proc.SetPath("/proc/self/exe")
+		if strings.HasPrefix(proc.Path, "/proc") {
+			t.Error("/proc/self/exe path not resolved:", proc.Path)
+		}
+	})
+
+	t.Run("test /proc/ prefix in path", func(t *testing.T) {
+		proc.SetPath(fmt.Sprintf("/proc/%d/fd/4", myPid))
+		if strings.HasPrefix(proc.Path, "/proc") {
+			t.Error("/proc/self/exe path not resolved:", proc.Path)
+		}
+	})
+
+	t.Run("test relative path", func(t *testing.T) {
+		proc.SetPath("./opensnitchd")
+		if !core.IsAbsPath(proc.Path) {
+			t.Error("relative path not resolved:", proc.Path)
+		}
+	})
+}
+
+func TestProcCleanArgs(t *testing.T) {
+	proc.SetPath("/proc/self/exe")
+	proc.Args = make([]string, 1)
+	t.Run("resolve /proc/self/exe from arguments", func(t *testing.T) {
+		proc.Args[0] = "/proc/self/exe"
+		proc.CleanArgs()
+		if proc.Args[0] == "/proc/self/exe" {
+			t.Error("/proc/self/exe arg not cleaned (CleanArgs()):", proc.Args)
+		}
+	})
 }
 
 func BenchmarkProcReadEnv(b *testing.B) {
