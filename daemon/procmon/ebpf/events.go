@@ -157,8 +157,22 @@ func initPerfMap(events *ebpf.Map) error {
 		go streamEventsWorker(i, perfChan, kernelEvents)
 	}
 
-	// TODO: check if spawning several goroutines improves performance.
 	go func(perfChan chan []byte, rd *ringbuf.Reader) {
+		// drainPerfChain drains the channel if it gets full.
+		// This can happen when there're too much events and the queue size is
+		// not big enough to hold all the events.
+		// To prevent blocking the ringbuf channel, we need to discard the events
+		// from the queue, so the ringbuf can continue sending events from kernel space.
+		drainPerfChan := func() {
+			for {
+				select {
+				case <-perfChan:
+				default:
+					return
+				}
+			}
+		}
+
 		for {
 			select {
 			case <-ctxTasks.Done():
@@ -173,7 +187,13 @@ func initPerfMap(events *ebpf.Map) error {
 					log.Trace("[eBPF events] reader error: %s", err)
 					continue
 				}
-				perfChan <- record.RawSample
+
+				select {
+				case perfChan <- record.RawSample:
+				default:
+					log.Debug("[eBPF] events queue full (%d/%d), ringbuf record lost. Try increasing the queue size and/or the number of workers", len(perfChan), cap(perfChan))
+					drainPerfChan()
+				}
 			}
 		}
 	Exit:
