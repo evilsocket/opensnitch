@@ -175,6 +175,8 @@ func (e *EventsStore) Update(oldProc, proc *Process) {
 }
 
 func (e *EventsStore) needsUpdate(cachedProc, proc *Process) bool {
+	sumsCount := cachedProc.ChecksumsCount()
+
 	cachedProc.RLock()
 	defer cachedProc.RUnlock()
 
@@ -186,8 +188,6 @@ func (e *EventsStore) needsUpdate(cachedProc, proc *Process) bool {
 	if proc != nil && (proc.ID == cachedProc.ID && proc.Path != cachedProc.Path) {
 		return true
 	}
-
-	sumsCount := cachedProc.ChecksumsCount()
 
 	if proc != nil && sumsCount > 0 && cachedProc.IsAlive() {
 		return false
