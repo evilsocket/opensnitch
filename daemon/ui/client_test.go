@@ -17,13 +17,32 @@ import (
 
 var (
 	defaultConfig = &config.Config{
+		Server: config.ServerConfig{
+			Address: "unix:///tmp/osui.sock",
+		},
 		ProcMonitorMethod: procmon.MethodProc,
 		DefaultAction:     "allow",
 		DefaultDuration:   "once",
 		InterceptUnknown:  false,
 		Firewall:          "nftables",
+		FwOptions: config.FwOptions{
+			ConfigPath:      "/etc/opensnitchd/system-fw.json",
+			MonitorInterval: "15s",
+			QueueNum:        0,
+			QueueBypass:     false,
+		},
 		Rules: config.RulesOptions{
-			Path: "/etc/opensnitchd/rules",
+			Path:            "/etc/opensnitchd/rules",
+			EnableChecksums: false,
+		},
+		Stats: statistics.StatsConfig{
+			MaxEvents: 150,
+			MaxStats:  25,
+			Workers:   6,
+		},
+		Internal: config.InternalOptions{
+			GCPercent:         100,
+			FlushConnsOnStart: true,
 		},
 	}
 )
@@ -53,9 +72,55 @@ func validateConfig(t *testing.T, uiClient *Client, cfg *config.Config) {
 	if uiClient.DefaultAction() != rule.Action(cfg.DefaultAction) {
 		t.Errorf("not expected DefaultAction value: %s, expected: %s", clientDisconnectedRule.Action, cfg.DefaultAction)
 	}
+	if uiClient.DefaultDuration() != rule.Duration(cfg.DefaultDuration) {
+		t.Errorf("not expected DefaultDuration value: %s, expected: %s", clientDisconnectedRule.Duration, cfg.DefaultDuration)
+	}
+	if uiClient.config.Server.Address != cfg.Server.Address {
+		t.Errorf("not expected Server.Address value: %s, expected: %s", uiClient.config.Server.Address, cfg.Server.Address)
+	}
 }
 
-func TestClientConfigReloading(t *testing.T) {
+func validateInvalidProcMonConfig(t *testing.T, uiClient *Client, cfg *config.Config) {
+	if uiClient.ProcMonitorMethod() != procmon.MethodProc {
+		t.Errorf("not expected ProcMonitorMethod, using value: %s, cfg value: %s, expected: proc", uiClient.ProcMonitorMethod(), procmon.GetMonitorMethod())
+	}
+	if uiClient.GetFirewallType() != cfg.Firewall {
+		t.Errorf("not expected FirewallType value: %s, expected: %s", uiClient.GetFirewallType(), cfg.Firewall)
+	}
+	if uiClient.InterceptUnknown() != cfg.InterceptUnknown {
+		t.Errorf("not expected InterceptUnknown value: %v, expected: %v", uiClient.InterceptUnknown(), cfg.InterceptUnknown)
+	}
+	if uiClient.DefaultAction() != rule.Action(cfg.DefaultAction) {
+		t.Errorf("not expected DefaultAction value: %s, expected: %s", clientDisconnectedRule.Action, cfg.DefaultAction)
+	}
+	if uiClient.DefaultDuration() != rule.Duration(cfg.DefaultDuration) {
+		t.Errorf("not expected DefaultDuration value: %s, expected: %s", clientDisconnectedRule.Duration, cfg.DefaultDuration)
+	}
+	if uiClient.config.Server.Address != cfg.Server.Address {
+		t.Errorf("not expected Server.Address value: %s, expected: %s", uiClient.config.Server.Address, cfg.Server.Address)
+	}
+}
+
+func TestClientDefaultConfig(t *testing.T) {
+	restoreConfigFile(t)
+	cfgFile := "./testdata/default-config.json"
+
+	rules, err := rule.NewLoader(false)
+	if err != nil {
+		log.Fatal("")
+	}
+
+	stats := statistics.New(rules)
+	loggerMgr := loggers.NewLoggerManager()
+	uiClient := NewClient("unix:///tmp/osui.sock", cfgFile, stats, rules, loggerMgr)
+
+	t.Run("validate-load-config", func(t *testing.T) {
+		validateConfig(t, uiClient, defaultConfig)
+	})
+
+}
+
+func TestClientReloadingConfig(t *testing.T) {
 	restoreConfigFile(t)
 	cfgFile := "./testdata/default-config.json"
 
@@ -93,4 +158,27 @@ func TestClientConfigReloading(t *testing.T) {
 
 		validateConfig(t, uiClient, &reloadConfig)
 	})
+}
+
+// test a configuration with a Process Monitor which fails to load.
+// The configuration must be loaded, but the proc monitor should be "proc".
+func TestClientInvalidProcMon(t *testing.T) {
+	restoreConfigFile(t)
+	cfgFile := "./testdata/config-invalid-procmon.json"
+
+	rules, err := rule.NewLoader(false)
+	if err != nil {
+		log.Fatal("")
+	}
+
+	stats := statistics.New(rules)
+	loggerMgr := loggers.NewLoggerManager()
+	uiClient := NewClient("unix:///tmp/osui.sock", cfgFile, stats, rules, loggerMgr)
+
+	t.Run("validate-load-config", func(t *testing.T) {
+		file, _ := config.Load(cfgFile)
+		cfg, _ := config.Parse(file)
+		validateInvalidProcMonConfig(t, uiClient, &cfg)
+	})
+
 }

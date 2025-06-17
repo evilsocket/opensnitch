@@ -100,6 +100,7 @@ func Init(ebpfCfg ebpf.Config) (errm *Error) {
 
 		// XXX: this will have to be rewritten when we'll have more events (bind, listen, etc)
 		if err.What == ebpf.EventsNotAvailable {
+			errm.What = EbpfEventsErr
 			log.Info("Process monitor method ebpf")
 			log.Warning("opensnitch-procs.o not available: %s", err.Msg)
 
@@ -109,7 +110,7 @@ func Init(ebpfCfg ebpf.Config) (errm *Error) {
 		// we need to stop this method even if it has failed to start, in order to clean up the kprobes
 		// It helps with the error "cannot write...kprobe_events: file exists".
 		ebpf.Stop()
-		errm.What = err.What
+		errm.What = EbpfErr
 		errm.Msg = err.Msg
 		log.Warning("error starting ebpf monitor method: %v", err)
 

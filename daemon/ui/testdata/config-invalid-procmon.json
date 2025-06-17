@@ -18,7 +18,7 @@
     "DefaultAction": "allow",
     "DefaultDuration": "once",
     "InterceptUnknown": false,
-    "ProcMonitorMethod": "proc",
+    "ProcMonitorMethod": "ebpf",
     "LogLevel": 0,
     "LogUTC": true,
     "LogMicro": false,

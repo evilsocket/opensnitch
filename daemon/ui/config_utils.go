@@ -82,23 +82,25 @@ func (c *Client) loadDiskConfiguration(reload bool) {
 	go c.monitorConfigWorker()
 }
 
-func (c *Client) loadConfiguration(reload bool, rawConfig []byte) error {
-	var err error
+func (c *Client) loadConfiguration(reload bool, rawConfig []byte) (errf error) {
 	newConfig, err := config.Parse(rawConfig)
 	if err != nil {
 		return fmt.Errorf("parsing configuration %s: %s", configFile, err)
 	}
 
-	if err := c.reloadConfiguration(reload, newConfig); err != nil {
-		return fmt.Errorf("reloading configuration: %s", err.Msg)
+	if err := c.reloadConfiguration(reload, &newConfig); err != nil {
+		errf = fmt.Errorf("%s", err.Msg)
 	}
+	// We need to use the new config, even if some of the new options failed,
+	// to avoid ending up running with an empty config.
+	// On reloadConfig we should fall back to a default option if anything fails.
 	c.Lock()
 	c.config = newConfig
 	c.Unlock()
-	return nil
+	return errf
 }
 
-func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *monitor.Error {
+func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err *monitor.Error) {
 
 	// firstly load config level, to detect further errors if any
 	if newConfig.LogLevel != nil {
@@ -214,9 +216,11 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 
 	// 4. reload procmon if needed
 	if reloadProc {
-		err := monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf)
-		if err != nil && err.What > monitor.NoError {
-			return err
+		err = monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf)
+		// override newConfig's procMon with the one configured on Reconfig,
+		// which should be the last known good one (or proc by default).
+		if err != nil && (err.What == monitor.EbpfErr || err.What == monitor.AuditdErr) {
+			newConfig.ProcMonitorMethod = procmon.GetMonitorMethod()
 		}
 	} else {
 		log.Debug("[config] config.procmon not changed")
@@ -229,5 +233,5 @@ func (c *Client) reloadConfiguration(reload bool, newConfig config.Config) *moni
 		log.Debug("[config] not flushing established connections")
 	}
 
-	return nil
+	return err
 }

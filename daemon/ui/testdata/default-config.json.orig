@@ -36,7 +36,8 @@
         "ModulesPath": "/usr/lib/opensnitchd/ebpf"
     },
     "Internal": {
-        "GCPercent": 75
+        "GCPercent": 75,
+        "FlushConnsOnStart": true
     },
     "Stats": {
         "MaxEvents": 150,

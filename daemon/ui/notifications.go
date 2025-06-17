@@ -70,7 +70,7 @@ func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient
 		return
 	}
 
-	if err := c.reloadConfiguration(true, newConf); err != nil {
+	if err := c.reloadConfiguration(true, &newConf); err != nil {
 		c.sendNotificationReply(stream, notification.Id, "", err.Msg)
 		return
 	}
