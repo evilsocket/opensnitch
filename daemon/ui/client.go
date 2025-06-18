@@ -61,6 +61,7 @@ type Client struct {
 	//isAsking is set to true if the client is awaiting a decision from the GUI
 	isAsking     bool
 	isUnixSocket bool
+	isPolling    bool
 
 	sync.RWMutex
 }
@@ -100,6 +101,10 @@ func NewClient(socketPath, localConfigFile string, stats *statistics.Statistics,
 
 // Connect starts the connection poller
 func (c *Client) Connect() {
+	if c.isPolling {
+		return
+	}
+	c.isPolling = true
 	go c.poller()
 }
 
@@ -188,6 +193,11 @@ func (c *Client) poller() {
 			log.Info("Client.poller() exit, Done()")
 			goto Exit
 		default:
+			if c.getCurrentSocketPath() == "" {
+				log.Error("client.Server address not set, exiting")
+				goto Exit
+			}
+
 			isConnected := c.Connected()
 			if wasConnected != isConnected {
 				c.onStatusChange(isConnected)
@@ -212,6 +222,9 @@ func (c *Client) poller() {
 	}
 Exit:
 	log.Info("uiClient exit")
+	c.Lock()
+	c.isPolling = false
+	c.Unlock()
 }
 
 func (c *Client) onStatusChange(connected bool) {

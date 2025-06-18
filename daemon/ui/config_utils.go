@@ -35,6 +35,13 @@ func (c *Client) getSocketPath(socketPath string) string {
 	return socketPath
 }
 
+func (c *Client) getCurrentSocketPath() string {
+	c.RLock()
+	defer c.RUnlock()
+
+	return c.socketPath
+}
+
 func (c *Client) setSocketPath(socketPath string) {
 	c.Lock()
 	defer c.Unlock()
@@ -129,22 +136,43 @@ func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err
 		log.Debug("[config] config.stats not changed")
 	}
 
+	// 1. disconnect from the server (GUI) if the new server addr is empty.
+	// 2. connect to the server (GUI) if the new server addr is not empty, and previous addr was empty.
+	// 3. reconnect if:
+	//   - Auth options changed.
+	//   - previous addr was not empty, new addr is not empty and new addr has changed.
 	reconnect := newConfig.Server.Authentication.Type != c.config.Server.Authentication.Type ||
 		!reflect.DeepEqual(newConfig.Server.Authentication.TLSOptions, c.config.Server.Authentication.TLSOptions)
+	connect := false
 
-	if newConfig.Server.Address != "" {
+	if newConfig.Server.Address == "" {
+		log.Debug("[config] config.server.address changed, disconnecting from %s", c.socketPath)
+		c.setSocketPath("")
+	}
+	if newConfig.Server.Address != "" && newConfig.Server.Address != c.config.Server.Address {
 		tempSocketPath := c.getSocketPath(newConfig.Server.Address)
-		log.Debug("[config] using config.server.address: %s", newConfig.Server.Address)
+		log.Debug("[config] using new config.server.address: %s -> %s", c.config.Server.Address, newConfig.Server.Address)
 		if tempSocketPath != c.socketPath {
 			// disconnect, and let the connection poller reconnect to the new address
 			reconnect = true
 		}
 		c.setSocketPath(tempSocketPath)
+		// if we were not connected (i.e.: connection poller stopped), connect again.
+		if c.config.Server.Address == "" {
+			log.Debug("[config] previous address was empty, connected: %v, connecting to %s", c.Connected(), tempSocketPath)
+			c.config.Server.Address = newConfig.Server.Address
+			connect = true
+		}
 	}
+	log.Debug("[config] server.address old: %s, new: %s, reconnect: %v, connect: %v", c.config.Server.Address, newConfig.Server.Address, reconnect, connect)
 
 	if reconnect {
-		log.Debug("[config] config.server.address.* changed, reconnecting to %s", c.socketPath)
+		log.Debug("[config] config.server.address.* changed, disconnecting from %s", c.config.Server.Address)
 		c.disconnect()
+	}
+	if connect {
+		log.Debug("[config] config.server. changed, connecting to %s", c.socketPath)
+		c.Connect()
 	}
 
 	if newConfig.DefaultAction != "" {
