@@ -26,13 +26,13 @@ var (
 		InterceptUnknown:  false,
 		Firewall:          "nftables",
 		FwOptions: config.FwOptions{
-			ConfigPath:      "/etc/opensnitchd/system-fw.json",
+			ConfigPath:      "../system-fw.json",
 			MonitorInterval: "15s",
 			QueueNum:        0,
-			QueueBypass:     false,
+			QueueBypass:     true,
 		},
 		Rules: config.RulesOptions{
-			Path:            "/etc/opensnitchd/rules",
+			Path:            "/tmp",
 			EnableChecksums: false,
 		},
 		Stats: statistics.StatsConfig{
@@ -83,6 +83,8 @@ func validateConfig(t *testing.T, uiClient *Client, cfg *config.Config) {
 func validateInvalidProcMonConfig(t *testing.T, uiClient *Client, cfg *config.Config) {
 	if uiClient.ProcMonitorMethod() != procmon.MethodProc {
 		t.Errorf("not expected ProcMonitorMethod, using value: %s, cfg value: %s, expected: proc", uiClient.ProcMonitorMethod(), procmon.GetMonitorMethod())
+		t.Logf("loaded config: %v", cfg)
+		t.Logf("procmon.method: %s", procmon.GetMonitorMethod())
 	}
 	if uiClient.GetFirewallType() != cfg.Firewall {
 		t.Errorf("not expected FirewallType value: %s, expected: %s", uiClient.GetFirewallType(), cfg.Firewall)
@@ -175,10 +177,8 @@ func TestClientInvalidProcMon(t *testing.T) {
 	loggerMgr := loggers.NewLoggerManager()
 	uiClient := NewClient("unix:///tmp/osui.sock", cfgFile, stats, rules, loggerMgr)
 
-	t.Run("validate-load-config", func(t *testing.T) {
-		file, _ := config.Load(cfgFile)
-		cfg, _ := config.Parse(file)
-		validateInvalidProcMonConfig(t, uiClient, &cfg)
+	t.Run("validate-invalid-config", func(t *testing.T) {
+		validateInvalidProcMonConfig(t, uiClient, &uiClient.config)
 	})
 
 }

@@ -24,12 +24,12 @@
     "LogMicro": false,
     "Firewall": "nftables",
     "FwOptions": {
-        "ConfigPath": "/etc/opensnitchd/system-fw.json",
+        "ConfigPath": "../system-fw.json",
         "MonitorInterval": "25s",
-        "QueueBypass": false
+        "QueueBypass": true
     },
     "Rules": {
-        "Path": "/etc/opensnitchd/rules",
+        "Path": "/tmp",
         "EnableChecksums": true
     },
     "Ebpf": {
