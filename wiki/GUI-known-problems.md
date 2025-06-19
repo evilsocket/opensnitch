@@ -87,6 +87,15 @@ In these cases, try launching the GUI as follow:
 
 `~ $ QT_QPA_PLATFORM=xcb opensnitch-ui`
 
+Or since v1.7.x, configure it from the Preferences:
+
+![image](https://private-user-images.githubusercontent.com/2742953/452647999-db352793-916f-4c77-96ef-355c1ece0cc9.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NTAzNzEwODMsIm5iZiI6MTc1MDM3MDc4MywicGF0aCI6Ii8yNzQyOTUzLzQ1MjY0Nzk5OS1kYjM1Mjc5My05MTZmLTRjNzctOTZlZi0zNTVjMWVjZTBjYzkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI1MDYxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTA2MTlUMjIwNjIzWiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9Yzk4ZWNjOTRjZGQ1ZTk1Y2JjMGM0MGQ4MzdlMmQ0ZjhmZGFkNGY0ZWZhYWRjYWUwYmZmMmI2NzJhNGI1ZjYzNyZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QifQ.eo4lcGD5qCNW5o0_zFFR7SqX2Nuzu2rdFUvr9GigY3c)
+
+https://discuss.kde.org/t/kde-plasma-support-for-qt-windowstaysontophint-flag-in-wayland/3106/2
+
+https://bugreports.qt.io/browse/QTBUG-73456
+
+https://github.com/evilsocket/opensnitch/issues/796#issuecomment-2953043880
 
 ### Opensnicth GUI not working across reboots
 
@@ -108,7 +117,7 @@ see issue [#434](https://github.com/evilsocket/opensnitch/issues/434#issuecommen
 
 ### The GUI does not change to dark style theme
 
-It's usually a problem of the Desktop Environment. You can try to configure the theme by using `qt5ct`, or executing the following commands:
+It's usually a problem of the Desktop Environment. You can try to configure the theme by using `qt5ct`, or by executing the following commands:
 
 ```bash
 ~ $ sudo apt-get install -y qt5-style-plugins
