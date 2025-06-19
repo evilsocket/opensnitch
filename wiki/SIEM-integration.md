@@ -28,11 +28,15 @@ syslog logger possible fields and values:
 
 |Option|Description|
 |-------|-------|
-|Name|Name that identifies the logger: syslog, remote or remote_syslog|
-|Server|Server address. Leave it empty to log events to the local daemon|
-|Protocol|Only applicable if Server is not empty|
-|Format|possible values: rfc3164, rfc5424, csv or json. RFC5424 will log events witht the format KEY=VALUE|
-|Tag|Optional tag to identify events in the syslog. If empty, syslog will use the name of the daemon|
+|Name (string)| Name that identifies the logger: syslog, remote or remote_syslog|
+|Server (string)| Server address. Leave it empty to log events to the local daemon|
+|Protocol (string)| "tcp" or "udp". Only applicable if Server is not empty|
+|MaxConnectAttempts (integer, >= v1.7.1)|integer. Maximum attempts to connect to the server. 0 will try to reconnect indefinitely. |
+|ConnectTimeout (string)|Default "5s". In Golang's Duration format https://pkg.go.dev/time#ParseDuration |
+|WriteTimeout (string)|Default "1s". If we fail sending the event to the server, after 10 failures we'll reopen the connection with the server.|
+|Workers (integer) | Default 1. Number of workers to handle events |
+|Format (string) | Supported formats: rfc3164, rfc5424, csv or json. RFC5424 will log events witht the format KEY=VALUE|
+|Tag (string) | Optional tag to identify events in the syslog. If empty, syslog will use the name of the daemon|
 
 After modify the configuration, restart OpenSnitch.
 
