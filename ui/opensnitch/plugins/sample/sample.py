@@ -2,7 +2,7 @@ from opensnitch.plugins import PluginBase, PluginSignal
 
 
 class Sample(PluginBase):
-    # fields overriden from parent class
+    # fields overridden from parent class
     name = "Sample"
     version = 0
     author = "opensnitch"
