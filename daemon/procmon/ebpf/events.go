@@ -89,20 +89,17 @@ type eventsDefsT struct {
 func initEventsStreamer() *Error {
 	eventsColl, err := core.LoadEbpfModule("opensnitch-procs.o", ebpfCfg.ModulesPath)
 	if err != nil {
-		dispatchErrorEvent(fmt.Sprint("[eBPF events] collections: ", err))
 		return &Error{err, EventsNotAvailable}
 	}
 
 	ebpfMod := eventsDefsT{}
 	if err := eventsColl.Assign(&ebpfMod); err != nil {
-		dispatchErrorEvent(fmt.Sprint("[eBPF events] assign: ", err))
 		return &Error{err, EventsNotAvailable}
 	}
 	collectionMaps = append(collectionMaps, eventsColl)
 
 	// User space needs to perf_event_open() it (...) before eBPF program can send data into it.
 	if err := initPerfMap(ebpfMod.PerfEvents); err != nil {
-		dispatchErrorEvent(fmt.Sprint("[eBPF events] perfMap: ", err))
 		return &Error{err, EventsNotAvailable}
 	}
 

@@ -101,6 +101,7 @@ func Init(ebpfCfg ebpf.Config) (errm *Error) {
 		// XXX: this will have to be rewritten when we'll have more events (bind, listen, etc)
 		if err.What == ebpf.EventsNotAvailable {
 			errm.What = EbpfEventsErr
+			errm.Msg = err.Msg
 			log.Info("Process monitor method ebpf")
 			log.Warning("opensnitch-procs.o not available: %s", err.Msg)
 

@@ -131,7 +131,6 @@ func Start(ebpfOpts Config) *Error {
 	// load definitions from the elf file.
 	m, err = core.LoadEbpfModule("opensnitch.o", ebpfCfg.ModulesPath)
 	if err != nil {
-		dispatchErrorEvent(fmt.Sprint("[eBPF]: ", err.Error()))
 		return &Error{fmt.Errorf("[eBPF] Error loading opensnitch.o: %s", err.Error()), NotAvailable}
 	}
 	determineHostByteOrder()
@@ -139,7 +138,6 @@ func Start(ebpfOpts Config) *Error {
 	// create objects from the definitions
 	ebpfMod := ebpfDefsT{}
 	if err := m.Assign(&ebpfMod); err != nil {
-		dispatchErrorEvent(fmt.Sprint("[eBPF] loadAndAssign error: ", err))
 		return &Error{fmt.Errorf("[eBPF] Error loading opensnitch.o (collection): %s", err), NotAvailable}
 	}
 	collectionMaps = append(collectionMaps, m)
