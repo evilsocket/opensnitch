@@ -9,9 +9,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"runtime"
 	"syscall"
-	"time"
 
 	"github.com/cilium/ebpf"
 	"github.com/cilium/ebpf/link"
@@ -116,6 +114,7 @@ func lookupSymbol(elffile *elf.File, symbolName string) (uint64, error) {
 // ListenerEbpf starts listening for DNS events.
 func ListenerEbpf(ebpfModPath string) error {
 	probesAttached := 0
+	probesList := []link.Link{}
 	m, err := core.LoadEbpfModule("opensnitch-dns.o", ebpfModPath)
 	if err != nil {
 		return err
@@ -159,7 +158,7 @@ func ListenerEbpf(ebpfModPath string) error {
 	if err != nil {
 		log.Error("[eBPF DNS] uretprobe__gethostbyname: %s", err)
 	} else {
-		defer urg.Close()
+		probesList = append(probesList, urg)
 		probesAttached++
 	}
 
@@ -167,7 +166,7 @@ func ListenerEbpf(ebpfModPath string) error {
 	if err != nil {
 		log.Error("[eBPF DNS] uprobe__getaddrinfo: %s", err)
 	} else {
-		defer up.Close()
+		probesList = append(probesList, up)
 		probesAttached++
 	}
 
@@ -175,7 +174,7 @@ func ListenerEbpf(ebpfModPath string) error {
 	if err != nil {
 		log.Error("[eBPF-DNS] uretprobe__getaddrinfo: %s", err)
 	} else {
-		defer urp.Close()
+		probesList = append(probesList, urp)
 		probesAttached++
 	}
 
@@ -187,13 +186,27 @@ func ListenerEbpf(ebpfModPath string) error {
 	// --------------
 
 	exitChannel := make(chan struct{})
-	perfChan := make(chan []byte, 0)
 
-	for i := 0; i < runtime.NumCPU(); i++ {
-		go spawnDNSWorker(i, perfChan, exitChannel)
+	// TODO: make these options configurable
+
+	// 30 is the maximum amount of IPs sent from kernel to user-space.
+	// Defined in opensnitch-dns.c.
+	perfChan := make(chan []byte, 30)
+	for i := 0; i < 4; i++ {
+		go dnsWorker(i, perfChan, exitChannel)
 	}
 
 	go func(perfChan chan []byte, rd *ringbuf.Reader) {
+		drainPerfChan := func() {
+			for {
+				select {
+				case <-perfChan:
+				default:
+					return
+				}
+			}
+		}
+
 		for {
 			select {
 			case <-exitChannel:
@@ -207,7 +220,12 @@ func ListenerEbpf(ebpfModPath string) error {
 					log.Debug("[eBPF DNS] reader error: %s", err)
 					continue
 				}
-				perfChan <- record.RawSample
+				select {
+				case perfChan <- record.RawSample:
+				default:
+					log.Debug("[eBPF DNS] events queue full, emptying queue (if you see this error too often, report it to the developers).")
+					drainPerfChan()
+				}
 			}
 		}
 	Exit:
@@ -224,27 +242,28 @@ func ListenerEbpf(ebpfModPath string) error {
 
 	<-sig
 	log.Info("[eBPF DNS]: Received signal: terminating ebpf dns hook.")
-	exitChannel <- struct{}{}
-	for i := 0; i < runtime.NumCPU(); i++ {
+	for _, p := range probesList {
+		p.Close()
+	}
+	for i := 0; i < 4; i++ {
 		exitChannel <- struct{}{}
 	}
 	return nil
 }
 
-func spawnDNSWorker(id int, channel chan []byte, exitChannel chan struct{}) {
+func dnsWorker(id int, channel chan []byte, exitChannel chan struct{}) {
 
 	log.Debug("[eBPF DNS] worker initialized #%d", id)
 	var event nameLookupEvent
 	var ip net.IP
-	for {
-		select {
 
-		case <-time.After(1 * time.Millisecond):
-			continue
+	for data := range channel {
+		select {
 		case <-exitChannel:
 			goto Exit
+			//	case data := <-channel:
 		default:
-			data := <-channel
+			event = nameLookupEvent{}
 			if len(data) > 0 {
 				log.Trace("(%d) [eBPF DNS]: LookupEvent %d %x %x %x", id, len(data), data[:4], data[4:20], data[20:])
 			}
