@@ -28,10 +28,10 @@ syslog logger possible fields and values:
 
 |Option|Description|
 |-------|-------|
-|Name (string)| Name that identifies the logger: syslog, remote or remote_syslog|
-|Server (string)| Server address. Leave it empty to log events to the local daemon|
-|Protocol (string)| "tcp" or "udp". Only applicable if Server is not empty|
-|MaxConnectAttempts (integer, >= v1.7.1)|integer. Maximum attempts to connect to the server. 0 will try to reconnect indefinitely. |
+|Name (string) | Name that identifies the logger: syslog, remote or remote_syslog|
+|Server (string) | Server address. Leave it empty to log events to the local daemon|
+|Protocol (string) | "tcp" or "udp". Only applicable if Server is not empty|
+|MaxConnectAttempts (integer, >= v1.7.1) | Default 0 (indefinitely). Maximum attempts to connect to the server.|
 |ConnectTimeout (string)|Default "5s". In Golang's Duration format https://pkg.go.dev/time#ParseDuration |
 |WriteTimeout (string)|Default "1s". If we fail sending the event to the server, after 10 failures we'll reopen the connection with the server.|
 |Workers (integer) | Default 1. Number of workers to handle events |
