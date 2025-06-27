@@ -33,38 +33,42 @@ def get_popup_message(is_local, node, app_name, con):
     """
     app_name = truncate_text(app_name)
 
-    message = "<b>%s</b>" % app_name
+    message = "<b>{0}</b>".format(app_name)
     if not is_local:
-        message = QC.translate("popups", "<b>Remote</b> process %s running on <b>%s</b>") % ( \
+        message = QC.translate("popups", "<b>Remote</b> process {0} running on <b>{1}</b>".format(
             message,
             node.split(':')[1])
+        )
 
-    msg_action = QC.translate("popups", "is connecting to <b>%s</b> on %s port %d") % ( \
+    msg_action = QC.translate("popups", "is connecting to <b>{0}</b> on {1} port {2}".format(
         con.dst_host or con.dst_ip,
         con.protocol.upper(),
         con.dst_port )
+    )
 
     # icmp port is 0 (i.e.: no port)
     if con.dst_port == 0:
-        msg_action = QC.translate("popups", "is connecting to <b>%s</b>, %s") % ( \
+        msg_action = QC.translate("popups", "is connecting to <b>{0}</b>, {1}".format(
             con.dst_host or con.dst_ip,
             con.protocol.upper() )
+        )
 
     if con.dst_port == 53 and con.dst_ip != con.dst_host and con.dst_host != "":
-        msg_action = QC.translate("popups", "is attempting to resolve <b>%s</b> via %s, %s port %d") % ( \
+        msg_action = QC.translate("popups", "is attempting to resolve <b>{0}</b> via {1}, {2} port {3}".format(
             con.dst_host,
             con.dst_ip,
             con.protocol.upper(),
             con.dst_port)
+        )
 
-    return "%s %s" % (message, msg_action)
+    return "{0} {1}".format(message, msg_action)
 
 def set_app_path(appPathLabel, app_name, app_args, con):
     # show the binary path if it's not part of the cmdline args:
     # cmdline: telnet 1.1.1.1 (path: /usr/bin/telnet.netkit)
     # cmdline: /usr/bin/telnet.netkit 1.1.1.1 (the binary path is part of the cmdline args, no need to display it)
     if con.process_path != "" and len(con.process_args) >= 1 and con.process_path not in con.process_args:
-        appPathLabel.setToolTip("Process path: %s" % con.process_path)
+        appPathLabel.setToolTip("Process path: {0}".format(con.process_path))
         if app_name.lower() == app_args:
             set_elide_text(appPathLabel, "%s" % con.process_path)
         else:
@@ -172,10 +176,10 @@ def get_combo_operator(data, comboText, con):
         return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_ID, "{0}".format(con.process_id)
 
     elif data == _constants.FIELD_USER_ID:
-        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_USER_ID, "%s" % con.user_id
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_USER_ID, "{0}".format(con.user_id)
 
     elif data == _constants.FIELD_DST_PORT:
-        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_PORT, "%s" % con.dst_port
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_PORT, "{0}".format(con.dst_port)
 
     elif data == _constants.FIELD_DST_IP:
         return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_IP, con.dst_ip

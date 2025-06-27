@@ -459,11 +459,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         if self._local:
             try:
-                uid = "%d (%s)" % (con.user_id, pwd.getpwuid(con.user_id).pw_name)
+                uid = "{0} ({1})".format(con.user_id, pwd.getpwuid(con.user_id).pw_name)
             except:
                 uid = ""
         else:
-            uid = "%d" % con.user_id
+            uid = "{0}".format(con.user_id)
 
         self.uidLabel.setText(uid)
 
