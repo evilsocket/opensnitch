@@ -3,7 +3,15 @@
     {
         "Address":"unix:///tmp/osui.sock",
         "Authentication": {
-            "Type": "simple"
+            "Type": "simple",
+            "TLSOptions": {
+                "CACert": "",
+                "ServerCert": "",
+                "ClientCert": "",
+                "ClientKey": "",
+                "SkipVerify": false,
+                "ClientAuthType": "no-client-cert"
+            }
         },
         "LogFile":"/var/log/opensnitchd.log"
     },
