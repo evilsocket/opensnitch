@@ -936,7 +936,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                     Fw.PortProtocols.values().index(optsValue)
                 )
                 pidx = self.net_srv.index_by_port(newValue)
-                if pidx > 0:
+                if pidx >= 0:
                     self.statements[idx]['value'].setCurrentIndex(pidx)
                 else:
                     self.statements[idx]['value'].setCurrentText(newValue)
@@ -1080,7 +1080,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                     self.statements[idx]['what'].setCurrentIndex(self.STATM_SPORT+1)
 
                 pidx = self.net_srv.index_by_port(exp.Statement.Values[0].Value)
-                if pidx > 0:
+                if pidx >= 0:
                     self.statements[idx]['value'].setCurrentIndex(pidx)
                 else:
                     self.statements[idx]['value'].setCurrentText(exp.Statement.Values[0].Value)
@@ -1444,10 +1444,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                         # int
                         try:
                             service_idx = self.net_srv.service_by_name(statem_value)
-                            if service_idx > 0:
+                            if service_idx >= 0:
                                 statem_value = self.net_srv.port_by_index(service_idx)
                                 if "," in statem_value or "-" in statem_value:
                                     raise ValueError("port entered is multiport or a port range")
+                            else:
+                                raise ValueError("port not found by name")
                         except:
                             if "," not in statem_value and "-" not in statem_value:
                                 if not self._is_valid_int_value(statem_value):
