@@ -1073,7 +1073,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
             # configured properly.
             self.toolBoxSimple.setCurrentIndex(idx)
 
-            if Fw.Utils.isExprPort(exp.Statement.Name):
+            if FwUtils.isExprPort(exp.Statement.Name):
                 if exp.Statement.Values[0].Key == Fw.Statements.DPORT.value:
                     self.statements[idx]['what'].setCurrentIndex(self.STATM_DPORT+1)
                 elif exp.Statement.Values[0].Key == Fw.Statements.SPORT.value:
