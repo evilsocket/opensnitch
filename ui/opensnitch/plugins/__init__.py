@@ -73,7 +73,7 @@ class PluginBase(PluginsList, ABC):
     When calling compile(), every plugin must create the python objects needed,
     so they can be reused later when run() is called.
 
-    When calling configure(), every plugin is responsable to modify the GUI
+    When calling configure(), every plugin is responsible to modify the GUI
     as needed, adding new buttons, modifying existing widgets, behaviour, ...
     """
     name = "PluginBase"
