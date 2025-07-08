@@ -40,7 +40,7 @@ class GenericTableModel(QStandardItemModel):
         QStandardItemModel.__init__(self, 0, self.lastColumnCount)
         self.setHorizontalHeaderLabels(self.headerLabels)
 
-    #Some QSqlQueryModel methods must be mimiced so that this class can serve as a drop-in replacement
+    #Some QSqlQueryModel methods must be mimicked so that this class can serve as a drop-in replacement
     #mimic QSqlQueryModel.query()
     def query(self):
         return self
@@ -159,7 +159,7 @@ class GenericTableModel(QStandardItemModel):
         for x in range(0, upperBound):
             q.next()
             if q.at() < 0:
-                # if we don't set query to a valid record here, it gets stucked
+                # if we don't set query to a valid record here, it gets stuck
                 # forever at -2/-1.
                 q.seek(upperBound)
                 break
@@ -404,7 +404,7 @@ class GenericTableView(QTableView):
         self.vScrollBar.setVisible(True if totalCount > self.maxRowsInViewport else False)
 
         self.vScrollBar.setMinimum(0)
-        # we need to substract the displayed rows to the total rows, to scroll
+        # we need to subtract the displayed rows to the total rows, to scroll
         # down correctly.
         self.vScrollBar.setMaximum(max(0, totalCount - self.maxRowsInViewport+1))
 

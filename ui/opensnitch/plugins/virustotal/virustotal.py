@@ -347,7 +347,7 @@ class Virustotal(PluginBase):
             #print("[Virustotal] RESULT:\n", conn.dst_host, "\n", result['data']['attributes']['last_analysis_stats'])
 
             # XXX: if we analyze multiple objects (domains, ips, hashes...),
-            # onlye the last response is stored.
+            # only the last response is stored.
             _popups.add_vt_response(parent, result)
 
             malicious = self.is_malicious(verdict['malicious'])
