@@ -111,8 +111,16 @@ func (o *Operator) Compile() error {
 		return nil
 	}
 
-	// the only operator Type that can have the Data field empty is List.
-	if o.Type != List && o.Operand != OpTrue && o.Data == "" {
+	// The only operator Type that can have the Data field empty are:
+	// Simple, Regexp, List.
+	// For List, because it uses List field and not Data field.
+	// For Simple and Regexp, because it can be useful to match on some
+	// operands that can in practice be equal to an empty string. This is the
+	// case, for example, when a request has a "bare" IP instead of a domain
+	// name, therefore DstHost field will be empty. You can match empty string
+	// with simple comparison or the "^$" regexp pattern.
+	if !(o.Type == Simple || o.Type == Regexp || o.Type == List) &&
+		o.Operand != OpTrue && o.Data == "" {
 		return fmt.Errorf("Operand %s cannot be empty (%s)", o.Operand, o.Type)
 	}
 
@@ -343,7 +351,7 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 		return false
 	} else if o.Operand == OpProcessCmd {
 		return o.cb(strings.Join(con.Process.Args, " "))
-	} else if o.Operand == OpDstHost && con.DstHost != "" {
+	} else if o.Operand == OpDstHost {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpDstIP {
 		return o.cb(con.DstIP.String())
