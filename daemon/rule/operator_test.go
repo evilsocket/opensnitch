@@ -740,3 +740,47 @@ func TestRaceNewOperatorListsDomainsRegexp(t *testing.T) {
 
 	restoreConnection()
 }
+
+func TestNewOperatorRegexpBareIpNoHostName(t *testing.T) {
+	t.Log("Test NewOperator() regex bare IP (no host name)")
+	var dummyList []Operator
+
+	conn.DstHost = ""
+
+	opRE, err := NewOperator(Regexp, true, OpDstHost, "^$", dummyList)
+	if err != nil {
+		t.Error("NewOperator regexp.case-sensitive.err should be nil: ", err)
+		t.Fail()
+	}
+	if err = opRE.Compile(); err != nil {
+		t.Fail()
+	}
+	if opRE.Match(conn, false) == false {
+		t.Error("Test NewOperator() RE sensitive match:", conn.DstHost)
+		t.Fail()
+	}
+
+	restoreConnection()
+}
+
+func TestNewOperatorSimpleBareIpNoHostName(t *testing.T) {
+	t.Log("Test NewOperator() simple bare IP (no host name)")
+	var dummyList []Operator
+
+	conn.DstHost = ""
+
+	opSimple, err := NewOperator(Simple, true, OpDstHost, "", dummyList)
+	if err != nil {
+		t.Error("NewOperator simple.case-sensitive.err should be nil: ", err)
+		t.Fail()
+	}
+	if err = opSimple.Compile(); err != nil {
+		t.Fail()
+	}
+	if opSimple.Match(conn, false) == false {
+		t.Error("Test NewOperator() simple sensitive match:", conn.DstHost)
+		t.Fail()
+	}
+
+	restoreConnection()
+}
