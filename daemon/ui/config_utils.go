@@ -231,13 +231,15 @@ func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err
 		log.Debug("[config] reloading config.firewall")
 		reloadFw = true
 
-		firewall.Reload(
+		if err := firewall.Reload(
 			newConfig.Firewall,
 			newConfig.FwOptions.ConfigPath,
 			newConfig.FwOptions.MonitorInterval,
 			newConfig.FwOptions.QueueBypass,
 			newConfig.FwOptions.QueueNum,
-		)
+		); err != nil {
+			log.Error("[config] firewall reload error: %s", err)
+		}
 	} else {
 		log.Debug("[config] config.firewall not changed")
 	}
