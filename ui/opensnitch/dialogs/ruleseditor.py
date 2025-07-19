@@ -470,6 +470,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.md5Line.setEnabled(False)
 
     def _load_rule(self, addr=None, rule=None):
+        # Generalize AppImage path if rule is for a mounted AppImage
+        if hasattr(rule, "path") and isinstance(rule.path, str) and rule.path.startswith("/tmp/.mount_"):
+            rule.path = "/tmp/.mount_[A-Za-z0-9]+"
+
         if self._load_nodes(addr) == False:
             return False
 
