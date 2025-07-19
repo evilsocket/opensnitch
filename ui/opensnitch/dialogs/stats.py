@@ -839,7 +839,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._configure_plugins()
 
     #Sometimes a maximized window which had been minimized earlier won't unminimize
-    #To workaround, we explicitely maximize such windows when unminimizing happens
+    #To workaround, we explicitly maximize such windows when unminimizing happens
     def changeEvent(self, event):
         if event.type() == QtCore.QEvent.WindowStateChange:
             if event.oldState() & QtCore.Qt.WindowMinimized and event.oldState() & QtCore.Qt.WindowMaximized:
@@ -1732,7 +1732,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._monitor_node_netstat()
         else:
             if index == self.TAB_RULES:
-                # display the clean buton only if not in detail view
+                # display the clean button only if not in detail view
                 self.TABLES[index]['cmdCleanStats'].setVisible( self.IN_DETAIL_VIEW[index] )
                 self._add_rulesTree_nodes()
 
@@ -2581,7 +2581,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _restore_details_view_columns(self, header, settings_key):
         header.blockSignals(True);
         # In order to resize the last column of a view, we firstly force a
-        # resizeToContens call.
+        # resizeToContents call.
         # Secondly set resizeMode to Interactive (allow to move columns by
         # users + programmatically)
         header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
