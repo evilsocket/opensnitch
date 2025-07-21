@@ -10,8 +10,9 @@ from PyQt5.QtCore import QCoreApplication as QC
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
-from opensnitch.utils import Message, QuickHelp, Themes, Icons, languages
+from opensnitch.utils import Message, QuickHelp, Icons, languages
 from opensnitch.utils.xdg import Autostart
+from opensnitch.utils.themes import Themes
 from opensnitch.notifications import DesktopNotifications
 from opensnitch.rules import DefaultRulesPath
 

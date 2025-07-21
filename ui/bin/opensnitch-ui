@@ -2,9 +2,10 @@
 
 #   Copyright (C) 2018      Simone Margaritelli
 #                 2018      MiWCryptAnalytics
-#                 2023      munix9
 #                 2023      Wojtek Widomski
-#                 2019-2023 Gustavo Iñiguez Goia
+#                 2024      Nolan Carouge
+#                 2023,2025 munix9
+#                 2019-2025 Gustavo Iñiguez Goia
 #
 #   This file is part of OpenSnitch.
 #
@@ -40,7 +41,8 @@ if os.path.exists(dist_path) and dist_path not in sys.path:
 
 from opensnitch.service import UIService
 from opensnitch.config import Config
-from opensnitch.utils import Themes, Utils, Versions
+from opensnitch.utils import Utils, Versions
+from opensnitch.utils.themes import Themes
 from opensnitch.utils.xdg import xdg_opensnitch_dir, xdg_current_session
 from opensnitch import auth
 

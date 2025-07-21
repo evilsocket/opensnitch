@@ -29,12 +29,12 @@ from opensnitch.database import Database
 from opensnitch.utils import (
     Utils,
     CleanerTask,
-    Themes,
     OneshotTimer,
     languages,
     Message
 )
 from opensnitch.utils.duration import duration
+from opensnitch.utils.themes import Themes
 from opensnitch.utils.xdg import Autostart
 
 class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
