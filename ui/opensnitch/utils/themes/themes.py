@@ -50,9 +50,12 @@ class Themes():
         if not Themes.AVAILABLE:
             return 0, "", theme_density
 
-        if theme != "" and theme != None:
-            # 0 == System
-            return self.list_themes().index(theme)+1, theme, theme_density
+        try:
+            if theme != "" and theme != None:
+                # 0 == System
+                return self.list_themes().index(theme)+1, theme, theme_density
+        except Exception as e:
+            print("Themes.get_saved_theme() error:", e)
         return 0, "", theme_density
 
     def save_theme(self, theme_idx, theme, density_scale):
