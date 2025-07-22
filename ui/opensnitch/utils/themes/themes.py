@@ -15,7 +15,7 @@ class Themes():
     """
     THEMES_PATH = [
         os.path.expanduser("~/.config/opensnitch/"),
-        os.path.dirname(sys.modules[__name__].__file__)
+        os.path.dirname(sys.modules[__name__].__file__) + "/../.."
     ]
     __instance = None
 
@@ -52,8 +52,11 @@ class Themes():
 
         try:
             if theme != "" and theme != None:
-                # 0 == System
-                return self.list_themes().index(theme)+1, theme, theme_density
+                themes_list = self.list_themes()
+                for idx, tml in enumerate(themes_list):
+                    if theme in tml:
+                        # 0 == System
+                        return idx+1, theme, theme_density
         except Exception as e:
             print("Themes.get_saved_theme() error:", e)
         return 0, "", theme_density
@@ -106,6 +109,8 @@ class Themes():
 
         try:
             for tdir in self.THEMES_PATH:
+                if not os.path.isdir(tdir):
+                    continue
                 themes += glob.glob(tdir + "/themes/*.xml")
         except Exception:
             pass

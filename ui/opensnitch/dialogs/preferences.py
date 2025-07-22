@@ -275,10 +275,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.labelThemeError.setVisible(False)
         self.labelThemeError.setText("")
         self.comboUITheme.clear()
-        self.comboUITheme.addItem(QC.translate("preferences", "System"))
+        self.comboUITheme.addItem(QC.translate("preferences", "System"), "System")
         if self._themes.available():
             themes = self._themes.list_themes()
-            self.comboUITheme.addItems(themes)
+            for t in themes:
+                self.comboUITheme.addItem(os.path.basename(t), t)
         else:
             self._saved_theme = ""
             self.labelThemeError.setStyleSheet('color: red')
@@ -836,7 +837,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings(self._cfg.NOTIFICATIONS_TYPE,
                                 int(Config.NOTIFICATION_TYPE_SYSTEM if self.radioSysNotifs.isChecked() else Config.NOTIFICATION_TYPE_QT))
 
-            self._themes.save_theme(self.comboUITheme.currentIndex(), self.comboUITheme.currentText(), str(self.spinUIDensity.value()))
+            thm_name = self.get_theme_name()
+            self._themes.save_theme(self.comboUITheme.currentIndex(), thm_name, str(self.spinUIDensity.value()))
 
             qt_platform = self._cfg.getSettings(Config.QT_PLATFORM_PLUGIN)
             if qt_platform != self.comboUIQtPlatform.currentText():
@@ -845,7 +847,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings(Config.QT_AUTO_SCREEN_SCALE_FACTOR, bool(self.checkUIAutoScreen.isChecked()))
             self._cfg.setSettings(Config.QT_SCREEN_SCALE_FACTOR, self.lineUIScreenFactor.text())
 
-            if self._themes.available() and self._saved_theme != "" and self.comboUITheme.currentText() == QC.translate("preferences", "System"):
+            if self._themes.available() and \
+                    self._saved_theme != "" and \
+                    (self.comboUITheme.currentText() == QC.translate("preferences", "System") or \
+                     "dark" in self.comboUITheme.currentText()):
                 self._changes_needs_restart = QC.translate("preferences", "UI theme changed")
 
             # this is a workaround for not display pop-ups.
@@ -1052,11 +1057,16 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkDBJrnlWal.setChecked(db_jrnl_wal)
         self.checkDBJrnlWal.setEnabled(enable)
 
+    def get_theme_name(self):
+        thm_idx = self.comboUITheme.currentIndex()
+        return self.comboUITheme.itemData(thm_idx)
+
     def _change_theme(self):
         extra_opts = {
             'density_scale': str(self.spinUIDensity.value())
         }
-        self._themes.change_theme(self, self.comboUITheme.currentText(), extra_opts)
+        thm_name = self.get_theme_name()
+        self._themes.change_theme(self, thm_name, extra_opts)
 
     @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
     def _cb_notification_callback(self, addr, reply):
