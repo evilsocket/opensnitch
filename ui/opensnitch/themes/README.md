@@ -24,10 +24,18 @@
   <color name="secondaryColor">#232629</color>
   <color name="secondaryLightColor">#4f5b62</color>
   <color name="secondaryDarkColor">#31363b</color>
-  <color name="primaryTextColor">#000000</color>
+  <color name="primaryTextColor">#f0f0f0</color>
   <color name="secondaryTextColor">#d1d1d1</color>
 </resources>
  ```
+
+- primaryColor: color of widgets borders (RadioButtons, CheckBoxes, Buttons, Tabs).
+- primaryLightColor: color of active widgets (QToolBox, pressed PushButton).
+- secondaryColor: background color of textboxes (including editable ComboBoxes), disabled or not selected widgets.
+- secondaryLightColor: tooltips color.
+- secondaryDarkColor: background color of widgets (windows, buttons, ...).
+- primaryTextColor: foreground (text) widgets color (textboxes, buttons, combo boxes...).
+- secondaryTextColor: text color of labels (labels, table headers, tabs text, ...).
 
  If you create a new theme, feel free to open a new PR, adding the theme to this
  directory.
