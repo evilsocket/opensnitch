@@ -141,8 +141,8 @@ func getPidFromEbpf(proto string, srcPort uint, srcIP net.IP, dstIP net.IP, dstP
 	if err != nil {
 		nkey := key
 		if isIP4 {
-			copy(key[2:6], srcIP)
-			copy(key[8:12], dstIP)
+			copy(nkey[2:6], srcIP)
+			copy(nkey[8:12], dstIP)
 		} else {
 			copy(nkey[2:18], srcIP)
 			copy(nkey[20:36], dstIP)
