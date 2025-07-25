@@ -920,7 +920,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Dst Port</string>
+            <string>Destination Port</string>
            </property>
           </widget>
          </item>
