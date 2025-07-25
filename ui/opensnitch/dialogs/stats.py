@@ -933,12 +933,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _load_settings(self):
         self._ui_refresh_interval = self._cfg.getInt(Config.STATS_REFRESH_INTERVAL, 0)
         dialog_geometry = self._cfg.getSettings(Config.STATS_GEOMETRY)
+        dialog_maximized = self._cfg.getBool(Config.STATS_MAXIMIZED)
         dialog_last_tab = self._cfg.getSettings(Config.STATS_LAST_TAB)
         dialog_general_filter_text = self._cfg.getSettings(Config.STATS_FILTER_TEXT)
         dialog_general_filter_action = self._cfg.getSettings(Config.STATS_FILTER_ACTION)
         dialog_general_limit_results = self._cfg.getSettings(Config.STATS_LIMIT_RESULTS)
         if dialog_geometry != None:
             self.restoreGeometry(dialog_geometry)
+        if dialog_maximized:
+            wsize = self.screen().geometry()
+            self.setGeometry(0, 0, wsize.width(), wsize.height())
         if dialog_last_tab != None:
             self.tabWidget.setCurrentIndex(int(dialog_last_tab))
         if dialog_general_filter_action != None:
@@ -1001,6 +1005,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.filterLine.setText(dialog_general_filter_text)
 
     def _save_settings(self):
+        self._cfg.setSettings(Config.STATS_MAXIMIZED, self.isMaximized())
         self._cfg.setSettings(Config.STATS_GEOMETRY, self.saveGeometry())
         self._cfg.setSettings(Config.STATS_LAST_TAB, self.tabWidget.currentIndex())
         self._cfg.setSettings(Config.STATS_LIMIT_RESULTS, self.limitCombo.currentIndex())

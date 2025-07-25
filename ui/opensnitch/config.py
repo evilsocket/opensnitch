@@ -127,6 +127,7 @@ class Config:
 
     STATS_REFRESH_INTERVAL = "statsDialog/refresh_interval"
     STATS_GEOMETRY = "statsDialog/geometry"
+    STATS_MAXIMIZED = "statsDialog/maximized"
     STATS_LAST_TAB = "statsDialog/last_tab"
     STATS_FILTER_TEXT = "statsDialog/general_filter_text"
     STATS_FILTER_ACTION = "statsDialog/general_filter_action"
