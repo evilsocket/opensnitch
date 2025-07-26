@@ -193,7 +193,7 @@ func (c *Config) LoadDiskConfiguration(reload bool) error {
 	return nil
 }
 
-// loadConfigutation reads the system firewall rules from disk.
+// loadConfiguration reads the system firewall rules from disk.
 // Then the rules are added based on the configuration defined.
 func (c *Config) loadConfiguration(rawConfig []byte) error {
 	c.SysConfig.Lock()
