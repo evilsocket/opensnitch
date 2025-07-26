@@ -1443,13 +1443,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         for row in selection:
             node_addr = row[self.COL_R_NODE]
             rule_name = row[self.COL_R_NAME]
+            records = self._db.get_rule(rule_name, node_addr)
+            if records.next() == False:
+                print("[stats clone] rule not found:", rule_name, node_addr)
+                continue
+            rule = Rule.new_from_records(records)
 
-            records = None
+            temp_name = rule_name
             for idx in range(0,100):
-                records = self._get_rule(rule_name, node_addr)
-                if records == None or records.size() == -1:
-                    rule = Rule.new_from_records(records)
-                    rule.name = "cloned-{0}-{1}".format(idx, rule.name)
+                temp_name = temp_name.split("-duplicated-")[0]
+                temp_name = "{0}-duplicated-{1}".format(temp_name, idx)
+
+                rec = self._rules.get_by_name(node_addr, temp_name)
+                if rec.next() == False:
+                    rule.name = temp_name
                     self._rules.add_rules(node_addr, [rule])
                     break
 
