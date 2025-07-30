@@ -208,10 +208,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_proc_check_toggled(self, state):
         self.procLine.setEnabled(state)
         self.checkProcRegexp.setEnabled(state)
+        self.checkProcRegexp.setVisible(state)
 
     def _cb_cmdline_check_toggled(self, state):
         self.cmdlineLine.setEnabled(state)
         self.checkCmdlineRegexp.setEnabled(state)
+        self.checkCmdlineRegexp.setVisible(state)
 
     def _cb_iface_check_toggled(self, state):
         self.ifaceCombo.setEnabled(state)
@@ -467,11 +469,13 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.procCheck.setChecked(False)
         self.checkProcRegexp.setEnabled(False)
         self.checkProcRegexp.setChecked(False)
+        self.checkProcRegexp.setVisible(False)
         self.procLine.setText("")
 
         self.cmdlineCheck.setChecked(False)
         self.checkCmdlineRegexp.setEnabled(False)
         self.checkCmdlineRegexp.setChecked(False)
+        self.checkCmdlineRegexp.setVisible(False)
         self.cmdlineLine.setText("")
 
         self.uidCheck.setChecked(False)
@@ -561,6 +565,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.procLine.setEnabled(True)
             self.procLine.setText(operator.data)
             self.checkProcRegexp.setEnabled(True)
+            self.checkProcRegexp.setVisible(True)
             self.checkProcRegexp.setChecked(operator.type == Config.RULE_TYPE_REGEXP)
 
         if operator.operand == Config.OPERAND_PROCESS_COMMAND:
@@ -568,6 +573,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.cmdlineLine.setEnabled(True)
             self.cmdlineLine.setText(operator.data)
             self.checkCmdlineRegexp.setEnabled(True)
+            self.checkCmdlineRegexp.setVisible(True)
             self.checkCmdlineRegexp.setChecked(operator.type == Config.RULE_TYPE_REGEXP)
 
         if operator.operand == Config.OPERAND_USER_ID:
