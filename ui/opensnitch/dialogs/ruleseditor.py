@@ -363,6 +363,55 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # always
             return 8
 
+    def _comma_to_regexp(self, text, expected_type):
+        """translates items separated by comma, to regular expression
+        returns True|False, regexp|error
+        """
+        s_parts = text.replace(" ", "").split(",")
+        sp_regex = r'^('
+        for p in s_parts:
+            if expected_type == int:
+                try:
+                    int(p)
+                except:
+                    return False, QC.translate("rules", "Invalid text")
+            if p == "":
+                return False, QC.translate("rules", "Invalid text")
+
+            sp_regex += '{0}|'.format(p)
+        sp_regex = sp_regex.removesuffix("|")
+        sp_regex += r')$'
+        if not self._is_valid_regex(sp_regex):
+            return False, QC.translate("rules", "regexp error (report it)")
+
+        return True, sp_regex
+
+    def _regexp_to_comma(self, text, expected_type):
+        """translates a regular expression to a comma separated list
+        from ^(1|2|3)$ to "1,2,3"
+        """
+        error = ""
+        # match ^(1|2|3)$
+        regexp_str = r'\^\(([\d|]+)\)\$'
+        if expected_type == str:
+            # match ^(www.a-b-c.org|fff.uk|ooo.tw)$
+            regexp_str = r'\^\(([.\-\w|]+)\)\$'
+        q = re.search(regexp_str, text)
+        if not q:
+            return None, error
+        try:
+            parts = q.group(1).split("|")
+            for p in parts:
+                # unlikely. The regexp should haven't match.
+                if expected_type == int:
+                    int(p)
+            return ",".join(parts), ""
+        except Exception as e:
+            print("_regexp_to_comma exception:", e)
+            error = "Error parsing regexp to comma: {0}".format(e)
+
+        return None, error
+
     def _is_regex(self, text):
         charset="\\*{[|^?$"
         for c in charset:
@@ -500,7 +549,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if operator.operand == Config.OPERAND_PROTOCOL:
             self.protoCheck.setChecked(True)
             self.protoCombo.setEnabled(True)
-            self.protoCombo.setCurrentText(operator.data.upper())
+            prots, err = self._regexp_to_comma(operator.data, str)
+            if err != "":
+                self._set_status_error(err)
+            if prots is None:
+                prots = operator.data
+            self.protoCombo.setCurrentText(prots.upper())
 
         if operator.operand == Config.OPERAND_PROCESS_PATH:
             self.procCheck.setChecked(True)
@@ -529,17 +583,32 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if operator.operand == Config.OPERAND_IFACE_OUT:
             self.ifaceCheck.setChecked(True)
             self.ifaceCombo.setEnabled(True)
-            self.ifaceCombo.setCurrentText(operator.data)
+            ifaces, err = self._regexp_to_comma(operator.data, str)
+            if err != "":
+                self._set_status_error(err)
+            if ifaces is None:
+                ifaces = operator.data
+            self.ifaceCombo.setCurrentText(ifaces)
 
         if operator.operand == Config.OPERAND_SOURCE_PORT:
             self.srcPortCheck.setChecked(True)
             self.srcPortLine.setEnabled(True)
-            self.srcPortLine.setText(operator.data)
+            ports, err = self._regexp_to_comma(operator.data, int)
+            if err != "":
+                self._set_status_error(err)
+            if ports is None:
+                ports = operator.data
+            self.srcPortLine.setText(ports)
 
         if operator.operand == Config.OPERAND_DEST_PORT:
             self.dstPortCheck.setChecked(True)
             self.dstPortLine.setEnabled(True)
-            self.dstPortLine.setText(operator.data)
+            ports, err = self._regexp_to_comma(operator.data, int)
+            if err != "":
+                self._set_status_error(err)
+            if ports is None:
+                ports = operator.data
+            self.dstPortLine.setText(ports)
 
         if operator.operand == Config.OPERAND_SOURCE_IP or operator.operand == Config.OPERAND_SOURCE_NETWORK:
             self.srcIPCheck.setChecked(True)
@@ -549,7 +618,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             elif operator.data == self.MULTICAST_RANGE:
                 self.srcIPCombo.setCurrentText(self.MULTICAST_LABEL)
             else:
-                self.srcIPCombo.setCurrentText(operator.data)
+                ips, err = self._regexp_to_comma(operator.data, str)
+                if err != "":
+                    self._set_status_error(err)
+                if ips is None:
+                    ips = operator.data
+                self.srcIPCombo.setCurrentText(ips)
 
         if operator.operand == Config.OPERAND_DEST_IP or operator.operand == Config.OPERAND_DEST_NETWORK:
             self.dstIPCheck.setChecked(True)
@@ -559,12 +633,22 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             elif operator.data == self.MULTICAST_RANGE:
                 self.dstIPCombo.setCurrentText(self.MULTICAST_LABEL)
             else:
-                self.dstIPCombo.setCurrentText(operator.data)
+                ips, err = self._regexp_to_comma(operator.data, str)
+                if err != "":
+                    self._set_status_error(err)
+                if ips is None:
+                    ips = operator.data
+                self.dstIPCombo.setCurrentText(ips)
 
         if operator.operand == Config.OPERAND_DEST_HOST:
             self.dstHostCheck.setChecked(True)
             self.dstHostLine.setEnabled(True)
-            self.dstHostLine.setText(operator.data)
+            hosts, err = self._regexp_to_comma(operator.data, str)
+            if err != "":
+                self._set_status_error(err)
+            if hosts is None:
+                hosts = operator.data
+            self.dstHostLine.setText(hosts)
 
         if operator.operand == Config.OPERAND_LIST_DOMAINS:
             self.dstListsCheck.setChecked(True)
@@ -715,6 +799,14 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if self._is_valid_regex(self.protoCombo.currentText()) == False:
                     return False, QC.translate("rules", "Protocol regexp error")
 
+            elif "," in self.protoCombo.currentText():
+                ok, result = self._comma_to_regexp(self.protoCombo.currentText().lower(), str)
+                if ok:
+                    rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
+                    rule_data[len(rule_data)-1]['data'] = result
+                else:
+                    return False, result
+
         if self.procCheck.isChecked():
             if self.procLine.text() == "":
                 return False, QC.translate("rules", "process path can not be empty")
@@ -769,6 +861,14 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if self._is_valid_regex(self.ifaceCombo.currentText()) == False:
                     return False, QC.translate("rules", "Network interface regexp error")
 
+            elif "," in self.ifaceCombo.currentText():
+                ok, result = self._comma_to_regexp(self.ifaceCombo.currentText(), str)
+                if ok:
+                    rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
+                    rule_data[len(rule_data)-1]['data'] = result
+                else:
+                    return False, result
+
         if self.srcPortCheck.isChecked():
             if self.srcPortLine.text() == "":
                 return False, QC.translate("rules", "Source port can not be empty")
@@ -786,6 +886,14 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
                 if self._is_valid_regex(self.srcPortLine.text()) == False:
                     return False, QC.translate("rules", "Source port regexp error")
+
+            elif "," in self.srcPortLine.text():
+                ok, result = self._comma_to_regexp(self.srcPortLine.text(), int)
+                if ok:
+                    rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
+                    rule_data[len(rule_data)-1]['data'] = result
+                else:
+                    return False, result
 
         if self.dstPortCheck.isChecked():
             if self.dstPortLine.text() == "":
@@ -805,6 +913,14 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if self._is_valid_regex(self.dstPortLine.text()) == False:
                     return False, QC.translate("rules", "Dst port regexp error")
 
+            elif "," in self.dstPortLine.text():
+                ok, result = self._comma_to_regexp(self.dstPortLine.text(), int)
+                if ok:
+                    rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
+                    rule_data[len(rule_data)-1]['data'] = result
+                else:
+                    return False, result
+
         if self.dstHostCheck.isChecked():
             if self.dstHostLine.text() == "":
                 return False, QC.translate("rules", "Dest host can not be empty")
@@ -822,6 +938,14 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
                 if self._is_valid_regex(self.dstHostLine.text()) == False:
                     return False, QC.translate("rules", "Dst host regexp error")
+
+            elif "," in self.dstHostLine.text():
+                ok, result = self._comma_to_regexp(self.dstHostLine.text(), str)
+                if ok:
+                    rule_data[len(rule_data)-1]['type'] = Config.RULE_TYPE_REGEXP
+                    rule_data[len(rule_data)-1]['data'] = result
+                else:
+                    return False, result
 
         if self.srcIPCheck.isChecked():
             if self.srcIPCombo.currentText() == "":
@@ -852,6 +976,15 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     self.rule.operator.type = Config.RULE_TYPE_REGEXP
                     if self._is_valid_regex(self.srcIPCombo.currentText()) == False:
                         return False, QC.translate("rules", "Source IP regexp error")
+
+                elif "," in srcIPtext:
+                    ok, result = self._comma_to_regexp(srcIPtext, str)
+                    if ok:
+                        self.rule.operator.operand = Config.OPERAND_SOURCE_IP
+                        self.rule.operator.type = Config.RULE_TYPE_REGEXP
+                        srcIPtext = result
+                    else:
+                        return False, result
 
             rule_data.append(
                     {
@@ -895,6 +1028,14 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         self.rule.operator.type = Config.RULE_TYPE_REGEXP
                         if self._is_valid_regex(self.dstIPCombo.currentText()) == False:
                             return False, QC.translate("rules", "Dst IP regexp error")
+                    elif "," in dstIPtext:
+                        ok, result = self._comma_to_regexp(dstIPtext, str)
+                        if ok:
+                            self.rule.operator.operand = Config.OPERAND_DEST_IP
+                            self.rule.operator.type = Config.RULE_TYPE_REGEXP
+                            dstIPtext = result
+                        else:
+                            return False, result
 
             rule_data.append(
                     {
