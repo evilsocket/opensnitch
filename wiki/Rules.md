@@ -252,7 +252,7 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
 
   If `/proc/sys/kernel/unprivileged_userns_clone` is set to 1, change it to 0. Until we obtain the checksum of a binary, it's better to set it to 0.
 
-- Don't allow connections opened by binaries located under certain directories: `/dev/shm`, `/tmp`, `/var/tmp`
+- Don't allow connections opened by binaries located under certain directories: `/dev/shm`, `/tmp`, `/var/tmp` or `/memfd`
 
   Why? If someone gets access to your system, usually these directories are the only ones where they can write files, thus it's usually used to drop malicious files, that download remote binaries to escalate privileges, etc.
 
@@ -264,7 +264,7 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
 
   ```
   (*) Deny
-  [x] From this executable: ^(/tmp/|/var/tmp/|/dev/shm/|/var/run|/var/lock).*
+  [x] From this executable: ^(/memfd|/tmp/|/var/tmp/|/dev/shm/|/var/run|/var/lock).*
   ```
 
   **Note** that the default policy should be deny everything unless explicitely allowed. But by creating a rule to deny specifically these directories, you can have a place where to monitor these executions.
