@@ -42,6 +42,7 @@ class DesktopNotifications():
         self.ACTION_DENY = QC.translate("popups", "Deny")
         self.IS_LIBNOTIFY_AVAILABLE = True
         self.DOES_SUPPORT_ACTIONS = True
+        self.ntf2 = None
 
         try:
             import notify2
@@ -55,6 +56,10 @@ class DesktopNotifications():
                 self.ntf2.init("opensnitch", mainloop=mloop)
             except Exception:
                 self.DOES_SUPPORT_ACTIONS = False
+                if self.ntf2 == None:
+                    print("DesktopNotifications() notify2 package not available. Try installing python3-notify2, or 'notify2' as your regular user (pip3 install notify2)")
+                    return
+
                 self.ntf2.init("opensnitch")
 
                 # usually because dbus mainloop is not initiated, specially
