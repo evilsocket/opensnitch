@@ -7,7 +7,7 @@
 
 ### Format
 
-Rules are stored as JSON files inside the `-rule-path` folder, in the simplest case a rule looks like this:
+Rules are stored as JSON files inside the `-rule-path` directory (by default `/etc/opensnitchd/rules`), in the simplest case a rule looks like this:
 
 ```json
 {
@@ -159,7 +159,6 @@ Example of a complex rule using the operator _list_, saved from the GUI (Note: v
   "operator": {
     "type": "list",
     "operand": "list",
-    "data": "[{\"type\": \"simple\", \"operand\": \"dest.ip\", \"data\": \"1.1.0.1\"}, {\"type\": \"simple\", \"operand\": \"dest.port\", \"data\": \"23\"}, {\"type\": \"simple\", \"operand\": \"user.id\", \"data\": \"1000\"}, {\"type\": \"simple\", \"operand\": \"process.path\", \"data\": \"/usr/bin/telnet.netkit\"}]",
     "list": [
       {
         "type": "simple",
@@ -206,16 +205,16 @@ Here's a rule to allow localhost connections:
 {
   "created": "2023-07-05T10:46:47.904024069+01:00",
   "updated": "2023-07-05T10:46:47.921828104+01:00",
-  "name": "000-aallow-localhost",
+  "name": "000-allow-localhost",
   "enabled": true,
   "precedence": true,
   "action": "allow",
   "duration": "always",
   "operator": {
-    "type": "regexp",
-    "operand": "dest.ip",
+    "type": "network",
+    "operand": "dest.network",
     "sensitive": false,
-    "data": "^(127\\.0\\.0\\.1|::1)$",
+    "data": "127.0.0.0/8",
     "list": []
   }
 }
@@ -265,6 +264,26 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
   ```
   (*) Deny
   [x] From this executable: ^(/memfd|/tmp/|/var/tmp/|/dev/shm/|/var/run|/var/lock).*
+  ```
+
+  /etc/opensnitchd/rules/000-deny-tmp.json:
+  ```
+  {
+  "created": "2025-04-26T09:58:03.704090244+02:00",
+  "updated": "2025-04-26T09:58:03.704216578+02:00",
+  "name": "000-deny-tmp",
+  "enabled": true,
+  "precedence": true,
+  "action": "reject",
+  "duration": "always",
+  "operator": {
+    "type": "regexp",
+    "operand": "process.path",
+    "sensitive": false,
+    "data": "^(/var/tmp|/dev|/memfd|/tmp).*",
+    "list": []
+    }
+  }
   ```
 
   **Note** that the default policy should be deny everything unless explicitely allowed. But by creating a rule to deny specifically these directories, you can have a place where to monitor these executions.
