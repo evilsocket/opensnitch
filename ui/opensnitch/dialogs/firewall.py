@@ -226,9 +226,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         try:
             enableFw = False
             enableFwBtn = (self._nodes.count() > 0)
-            self.sliderFwEnable.blockSignals(True)
             self.sliderFwEnable.setEnabled(enableFwBtn)
-            self.sliderFwEnable.blockSignals(False)
             if not enableFwBtn:
                 return
 
@@ -272,6 +270,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._disable_widgets(not enableFw)
             self.lblStatusIcon.setEnabled(enableFw)
             self.sliderFwEnable.setValue(enableFw)
+
             self.sliderFwEnable.blockSignals(False)
             self.comboInput.blockSignals(False)
             self.comboOutput.blockSignals(False)
