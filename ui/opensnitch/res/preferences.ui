@@ -1416,7 +1416,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
        <item row="0" column="2">
         <widget class="QCheckBox" name="checkApplyToNodes">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -1458,7 +1458,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
+          <enum>QSizePolicy::Maximum</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>

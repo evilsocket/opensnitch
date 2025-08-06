@@ -197,6 +197,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if len(self._node_list) == 0:
                 self._reset_node_settings()
                 self._set_status_message(QC.translate("preferences", "There're no nodes connected"))
+
+            showNodes = len(self._node_list) > 1
+            self.comboNodes.setVisible(showNodes)
+            self.checkApplyToNodes.setVisible(showNodes)
         except Exception as e:
             print(self.LOG_TAG + "exception loading nodes:", e)
 

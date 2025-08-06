@@ -21,7 +21,13 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QLabel" name="label_7">
+      <widget class="QLabel" name="labelNode">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Node</string>
        </property>
@@ -104,7 +110,7 @@
             <x>0</x>
             <y>0</y>
             <width>448</width>
-            <height>200</height>
+            <height>169</height>
            </rect>
           </property>
           <attribute name="label">
@@ -315,7 +321,8 @@
           <string>QUEUE</string>
          </property>
          <property name="icon">
-          <iconset theme="go-next"/>
+          <iconset theme="go-next">
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </item>
         <item>
@@ -333,7 +340,8 @@
           <string>REDIRECT</string>
          </property>
          <property name="icon">
-          <iconset theme="edit-redo"/>
+          <iconset theme="edit-redo">
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </item>
        </widget>

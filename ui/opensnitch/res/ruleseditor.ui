@@ -1198,19 +1198,15 @@ You must name the rule in such manner that it'll be checked first, because they'
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Node</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QComboBox" name="nodesCombo"/>
      </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Maximum</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -1222,6 +1218,12 @@ You must name the rule in such manner that it'll be checked first, because they'
      </item>
      <item>
       <widget class="QCheckBox" name="nodeApplyAllCheck">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Apply rule to all nodes</string>
        </property>

@@ -707,6 +707,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if addr != None:
                 self.nodesCombo.setCurrentText(addr)
 
+            showNodes = len(self._node_list) > 1
+            self.nodesCombo.setVisible(showNodes)
+            self.nodeApplyAllCheck.setVisible(showNodes)
+
         except Exception as e:
             print(self.LOG_TAG, "exception loading nodes: ", e, addr)
             return False

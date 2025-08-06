@@ -890,6 +890,10 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         if len(self._node_list) == 0:
             self.tabWidget.setDisabled(True)
 
+        hideNodes = len(self._node_list) > 1
+        self.comboNodes.setVisible(hideNodes)
+        self.labelNode.setVisible(hideNodes)
+
     def _load_meta_statement(self, exp, idx):
         try:
             isMultiProto = False

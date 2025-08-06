@@ -1651,7 +1651,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         prevNode = self.comboNetstatNodes.currentIndex()
         self.comboNetstatNodes.blockSignals(True);
         self.comboNetstatNodes.clear()
-        for node in self._nodes.get_nodes():
+        node_list = self._nodes.get_nodes()
+        for node in node_list:
             self.comboNetstatNodes.addItem(node)
 
         if prevNode == -1:
@@ -1660,6 +1661,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if count == 0:
             self.netstatLabel.setText("")
             self.comboNetstatInterval.setCurrentIndex(0)
+
+        showNodes = len(node_list) > 1
+        self.comboNetstatNodes.setVisible(showNodes)
+
         self.comboNetstatNodes.blockSignals(False);
 
     @QtCore.pyqtSlot(str)
