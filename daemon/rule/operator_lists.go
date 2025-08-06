@@ -67,7 +67,7 @@ func (o *Operator) monitorLists() {
 			if needReload {
 				// we can't reload a single list, because the domains of all lists are added to the same map.
 				// we could have the domains separated by lists/files, but then we'd need to iterate the map in order
-				// to match a domain. Reloading the lists shoud only occur once a day.
+				// to match a domain. Reloading the lists should only occur once a day.
 				if err := o.readLists(); err != nil {
 					log.Warning("%s", err)
 				}
