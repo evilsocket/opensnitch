@@ -362,12 +362,12 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="129"/>
         <source>12h</source>
-        <translation type="unfinished"></translation>
+        <translation>12j</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="923"/>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Tujuan</translation>
     </message>
 </context>
 <context>
@@ -1278,7 +1278,7 @@ Pakai 0 untuk menonaktifkan fitur ini.</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="275"/>
         <source>12h</source>
-        <translation type="unfinished"></translation>
+        <translation>12j</translation>
     </message>
 </context>
 <context>
@@ -2150,7 +2150,7 @@ Umpan balik diharapkan</translation>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="314"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
-        <translation>Untuk mengonfigurasi aturan firewall dari GUI, kami perlu memakai 'nftables' sebagai pengganti 'iptables'</translation>
+        <translation>Untuk mengonfigurasi aturan firewall dari GUI, kami perlu memakai &apos;nftables&apos; sebagai pengganti &apos;iptables&apos;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="329"/>
@@ -2247,7 +2247,7 @@ Umpan balik diharapkan</translation>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="450"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
-        <translation>Anda dapat memakai ',' atau '-' untuk menyatakan beberapa port/IP atai rentang/nilai-nilai:&lt;br&gt;&lt;br&gt;port: 22 atau 22,443 atau 50000-60000&lt;br&gt;IP: 192.168.1.1 atau 192.168.1.30-192.168.1.130&lt;br&gt;Nilai: echo-reply,echo-request&lt;br&gt;Nilai: new,established,related</translation>
+        <translation>Anda dapat memakai &apos;,&apos; atau &apos;-&apos; untuk menyatakan beberapa port/IP atai rentang/nilai-nilai:&lt;br&gt;&lt;br&gt;port: 22 atau 22,443 atau 50000-60000&lt;br&gt;IP: 192.168.1.1 atau 192.168.1.30-192.168.1.130&lt;br&gt;Nilai: echo-reply,echo-request&lt;br&gt;Nilai: new,established,related</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="470"/>
@@ -2747,7 +2747,7 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
     <message>
         <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="388"/>
         <source>WARNING, bad checksum (&lt;a href=&apos;#warning-checksum&apos;&gt;More info&lt;/a&gt;)</source>
-        <translation>PERINGATAN, checksum buruk (&lt;a href='#warning-checksum'&gt;Info lebih lanjut&lt;/a&gt;)</translation>
+        <translation>PERINGATAN, checksum buruk (&lt;a href=&apos;#warning-checksum&apos;&gt;Info lebih lanjut&lt;/a&gt;)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="552"/>
@@ -3145,12 +3145,12 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="380"/>
         <source>Invalid text</source>
-        <translation type="unfinished"></translation>
+        <translation>Teks tidak valid</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="386"/>
         <source>regexp error (report it)</source>
-        <translation type="unfinished"></translation>
+        <translation>kesalahan regex (laporkan)</translation>
     </message>
 </context>
 <context>

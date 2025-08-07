@@ -131,7 +131,7 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="81"/>
         <source>from this PID</source>
-        <translation>из этого PID'а</translation>
+        <translation>из этого PID&apos;а</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="156"/>
@@ -357,7 +357,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="20"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Диалог</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="129"/>
@@ -367,22 +367,22 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="371"/>
         <source>Update rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновить правило</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="382"/>
         <source>Update All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Обновить все</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="829"/>
         <source>Checksum</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Контрольная сумма</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="923"/>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Порт назначения</translation>
     </message>
 </context>
 <context>
@@ -390,12 +390,12 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="14"/>
         <source>Preferences</source>
-        <translation>Настройки</translation>
+        <translation type="unfinished">Настройки</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="521"/>
         <source>UI</source>
-        <translation>Пользовательский интерфейс</translation>
+        <translation>Интерфейс</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="54"/>
@@ -410,7 +410,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="228"/>
         <source>Pop-up default duration</source>
-        <translation>Продолжительность всплывающего окна по умолчанию</translation>
+        <translation>Продолжительность уведомления по умолчанию</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1554"/>
@@ -2467,7 +2467,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="314"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
-        <translation>Чтобы настроить правила межсетевого экрана из оболочки, нам нужно использовать 'nftables' вместо 'iptables'</translation>
+        <translation>Чтобы настроить правила межсетевого экрана из оболочки, нам нужно использовать &apos;nftables&apos; вместо &apos;iptables&apos;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="329"/>
@@ -2564,7 +2564,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="450"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
-        <translation>Вы можете использовать ',' или '-' для указания нескольких портов/IP-адресов или диапазонов/значений:&lt;br&gt;&lt;br&gt;порты: 22 или 22,443 или 50000-60000&lt;br&gt;IP-адреса: 192.168.1.1 или 192.168.1.30-192.168.1.130&lt;br&gt;Значения: echo-reply, echo-request&lt;br&gt;Значения: new, established, related</translation>
+        <translation>Вы можете использовать &apos;,&apos; или &apos;-&apos; для указания нескольких портов/IP-адресов или диапазонов/значений:&lt;br&gt;&lt;br&gt;порты: 22 или 22,443 или 50000-60000&lt;br&gt;IP-адреса: 192.168.1.1 или 192.168.1.30-192.168.1.130&lt;br&gt;Значения: echo-reply, echo-request&lt;br&gt;Значения: new, established, related</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="470"/>
