@@ -69,6 +69,19 @@ install -m 644 ebpf_prog/opensnitch.o %{buildroot}/usr/lib/opensnitchd/ebpf/open
 install -m 644 ebpf_prog/opensnitch-dns.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch-dns.o
 install -m 644 ebpf_prog/opensnitch-procs.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch-procs.o
 
+B=""
+r="/etc/opensnitchd/rules/000-allow-localhost.json"
+if [ -f $r ]; then
+    B="-b"
+fi
+install -m 600 $B daemon/data/rules/000-allow-localhost.json %{buildroot}$r
+B=""
+r="/etc/opensnitchd/rules/000-allow-localhost6.json"
+if [ -f $r ]; then
+    B="-b"
+fi
+install -m 600 $B daemon/data/rules/000-allow-localhost6.json %{buildroot}$r
+
 # upgrade, uninstall
 %preun
 systemctl stop opensnitch.service || true

@@ -16,6 +16,7 @@ install:
 		-t $(DESTDIR)/etc/opensnitchd/
 	@install -Dm644 network_aliases.json \
 		-t $(DESTDIR)/etc/opensnitchd/
+	@install -Dm600 data/rules/* $(DESTDIR)/etc/opensnitchd/rules/
 	@systemctl daemon-reload
 
 opensnitchd: $(SRC)

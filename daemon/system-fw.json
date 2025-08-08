@@ -151,6 +151,28 @@
           "Policy": "accept",
           "Rules": [
             {
+              "Enabled": false,
+              "Position": "0",
+              "Description": "allow localhost connections",
+              "Parameters": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "==",
+                    "Name": "ip",
+                    "Values": [
+                      {
+                        "Key": "daddr",
+                        "Value": "127.0.0.0-127.255.255.255"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            },
+            {
               "Enabled": true,
               "Position": "0",
               "Description": "Allow ICMP",
