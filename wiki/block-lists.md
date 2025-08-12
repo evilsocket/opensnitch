@@ -18,6 +18,7 @@ Supported list stypes
  * [Lists of regular expressions](#lists-of-domains-with-regular-expressions)
  * [Lists of IPs](#lists-of-ips)
  * [Lists of Nets](#lists-of-nets)
+ * [Lsits of MD5s](#lists-of-md5s-added-in-v170)
 
 [Notes](#notes)
 
@@ -110,11 +111,11 @@ adtrack(er|ing)?[0-9]*[_.-]
 ^stat(s|istics)?[0-9]*[_.-]
 ```
 
-**Note**: if you add a domain without regex to this type of list, it'll match everything for that domain: _google.com_ will match _clients6.google.com_, _docs.google.com_, etc.
+**Note**: if you add a domain without a regex to this type of list, it'll match everything for that domain: _google.com_ will match _clients6.google.com_, _docs.google.com_, etc.
 
-**Note**: Sometimes regular expressions can be too generic, so they may block too much domains. You can go to Rules tab -> double click on the rule, and see what domains the rule has matched, and refine the list accordingly.
+**Note**: Sometimes regular expressions can be too generic, so they may block too many domains. You can go to Rules tab -> double click on the rule, and see what domains the rule has matched, and refine the list accordingly.
 
-**Warning**: This lists must be small (~500 items). Using it with huge lists will lead to important performance penalty ([#866](https://github.com/evilsocket/opensnitch/issues/866)).
+⚠️ **WARNING** ⚠️: This list must be small (~500 items). Using it with huge lists will lead to important performance penalty ([#866](https://github.com/evilsocket/opensnitch/issues/866)).
 
 Here's a playground you can use to test regular expressions: https://go.dev/play/p/JzQCeNH4OH1
 
@@ -122,6 +123,7 @@ Here's a playground you can use to test regular expressions: https://go.dev/play
 
 #### Lists of IPs
 - One per line:
+
 IPs
 ```
 # https://iplists.firehol.org/
@@ -139,6 +141,32 @@ Nets:
 # https://iplists.firehol.org/
 1.0.1.0/24
 1.2.3.0/16
+```
+
+---
+
+#### Lists of md5s (added in v1.7.0)
+Use this type to allow or block list of md5s.
+
+```json
+  "operator": {
+    "type": "lists",
+    "operand": "lists.hash.md5",
+    "sensitive": false,
+    "data": "/etc/opensnitchd/md5list/",
+    "list": []
+  }
+```
+
+For example you can download a list of known malware in the wild from [bazaar.abuse.ch](https://bazaar.abuse.ch/export/)
+
+```bash
+~ $ wget https://bazaar.abuse.ch/export/txt/md5/full/ -O /tmp/md5list-full.zip
+~ $ unzip -d /tmp/md5list-full.zip /etc/opensnitchd/md5list/
+~ $ head -3 /etc/opensnitchd/md5list/full_md5.txt
+################################################################
+# MalwareBazaar full malware samples dump (MD5 hashes)         #
+# Last updated: 2025-08-12 19:33:06 UTC                        #
 ```
 
 ---
@@ -216,6 +244,8 @@ List of active malware domains:
 https://urlhaus.abuse.ch/api/#hostfile
 
 https://threatfox.abuse.ch/export/#hostfile
+
+https://bazaar.abuse.ch/export/
 
 Collections of Threat Intel feeds (by hash, IPs, domains, and more):
 
