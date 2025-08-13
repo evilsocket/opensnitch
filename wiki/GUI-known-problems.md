@@ -133,7 +133,9 @@ Since version v1.5.1, you can change GUI theme from the Preferences -> UI -> The
 
 ### No icons on the GUI
 
-Be sure that you have properly set the icon theme of your Window Manager.
+Be sure that the package `qt5-svg` is installed. On Arch the package is `qt5-svg`, on Debian `libqt5svg5` (in other systems it may be called differently). Usually this package is a dependency of qt5ct, a tool to customize Qt appearance.
+
+Be sure also that you have properly set the icon theme of your Window Manager.
 
 Launch the GUI as follow and see if the icons show up: `~ $ XDG_CURRENT_DESKTOP=GNOME opensnitch-ui`
 
