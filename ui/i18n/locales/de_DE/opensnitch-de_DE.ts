@@ -286,7 +286,7 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="440"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Leeren</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="416"/>
@@ -349,37 +349,45 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
  to 192.168.1.254:8080
  to 192.168.1.254
  to 1024-2048 (masquerade)</source>
-        <translation type="unfinished"></translation>
+        <translation>Abhängig von der Aktion (d. h.: Ziel) variiert die Syntax der Parameter.
+Einige Beispiele:
+
+QUEUE -&gt; num 0 (or 1, 2, ...)
+REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
+to :22
+to 192.168.1.254:8080
+to 192.168.1.254
+to 1024-2048 (masquerade)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="20"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="129"/>
         <source>12h</source>
-        <translation type="unfinished"></translation>
+        <translation>12h</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="371"/>
         <source>Update rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisiere Regel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="382"/>
         <source>Update All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle aktualisieren</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="829"/>
         <source>Checksum</source>
-        <translation type="unfinished"></translation>
+        <translation>Prüfsumme</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="923"/>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Zielport</translation>
     </message>
 </context>
 <context>
