@@ -8,8 +8,8 @@ import json
 import ipaddress
 from datetime import datetime
 
-from PyQt5 import QtCore, uic, QtWidgets
-from PyQt5.QtCore import QCoreApplication as QC, QEvent
+from PyQt6 import QtCore, QtGui, uic, QtWidgets
+from PyQt6.QtCore import QCoreApplication as QC, QEvent
 
 from slugify import slugify
 
@@ -37,7 +37,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     TYPE = "popups"
 
     def __init__(self, parent=None, appicon=None):
-        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
+        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowType.WindowStaysOnTopHint)
         # Other interesting flags: QtCore.Qt.Tool | QtCore.Qt.BypassWindowManagerHint
         self._cfg = Config.get()
         self._rules = Rules.instance()
@@ -169,7 +169,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     print("popups._post_popup_plugins() exception:", name, "-", e)
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.MouseButtonPress:
+        if event.type() == QEvent.Type.MouseButtonPress:
             self._stop_countdown()
             return True
         return False
@@ -189,7 +189,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def move_popup(self):
         popup_pos = self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION)
-        point = QtWidgets.QDesktopWidget().availableGeometry()
+        point = self.screen().availableGeometry()
+        point = self.screen().virtualSiblingAt(QtGui.QCursor.pos()).availableGeometry()
         if popup_pos == self._cfg.POPUP_TOP_RIGHT:
             self.move(point.topRight())
         elif popup_pos == self._cfg.POPUP_TOP_LEFT:
@@ -502,7 +503,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):
-        if not event.key() == QtCore.Qt.Key_Escape:
+        if not event.key() == QtCore.Qt.Key.Key_Escape:
             super(PromptDialog, self).keyPressEvent(event)
 
     # prevent a click on the window's x

@@ -1,13 +1,9 @@
-from PyQt5 import Qt, QtCore
-from PyQt5.QtGui import QColor, QPalette
+from PyQt6 import QtCore
+from PyQt6.QtGui import QColor, QPalette
+from PyQt6.QtWidgets import QStyle
 
 from opensnitch.plugins import PluginBase, PluginSignal
 
-# PyQt5 >= v5.15.8 (#821)
-if hasattr(Qt, 'QStyle'):
-    from PyQt5.Qt import QStyle
-else:
-    from PyQt5.QtWidgets import QStyle
 
 
 class Highlight(PluginBase):
@@ -307,7 +303,7 @@ class Highlight(PluginBase):
                   cellColor,
                   cellBgColor,
                   cellValue):
-        cellSelected = option.state & QStyle.State_Selected
+        cellSelected = option.state & QStyle.StateFlag.State_Selected
 
         painter.save()
         # don't customize selected state
@@ -318,8 +314,8 @@ class Highlight(PluginBase):
             if cellColor:
                 defaultPen.setColor(cellColor)
         else:
-            painter.fillRect(option.rect, option.palette.color(QPalette.Highlight))
-            defaultPen.setColor(option.palette.color(QPalette.HighlightedText))
+            painter.fillRect(option.rect, option.palette.color(QPalette.ColorRole.Highlight))
+            defaultPen.setColor(option.palette.color(QPalette.ColorRole.HighlightedText))
 
         painter.setPen(defaultPen)
 
@@ -337,11 +333,11 @@ class Highlight(PluginBase):
         alignFlags = 0
         for align in alignments:
             if align == Highlight.ALIGN_CENTER:
-                alignFlags |= QtCore.Qt.AlignCenter
+                alignFlags |= QtCore.Qt.AlignmentFlag.AlignCenter
             elif align == Highlight.ALIGN_HCENTER:
-                alignFlags |= QtCore.Qt.AlignHCenter
+                alignFlags |= QtCore.Qt.AlignmentFlag.AlignHCenter
             elif align == Highlight.ALIGN_VCENTER:
-                alignFlags |= QtCore.Qt.AlignVCenter
+                alignFlags |= QtCore.Qt.AlignmentFlag.AlignVCenter
 
         if alignFlags == 0:
             return None

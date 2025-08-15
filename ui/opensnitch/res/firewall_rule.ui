@@ -48,7 +48,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <property name="sizeConstraint">
-      <enum>QLayout::SetMaximumSize</enum>
+      <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
      </property>
      <item>
       <widget class="QLabel" name="label">
@@ -56,7 +56,7 @@
         <string>Description</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+        <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
        </property>
       </widget>
      </item>
@@ -77,13 +77,13 @@
 }</string>
      </property>
      <property name="tabPosition">
-      <enum>QTabWidget::South</enum>
+      <enum>QTabWidget::TabPosition::South</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
      <property name="elideMode">
-      <enum>Qt::ElideRight</enum>
+      <enum>Qt::TextElideMode::ElideRight</enum>
      </property>
      <property name="documentMode">
       <bool>true</bool>
@@ -110,7 +110,7 @@
             <x>0</x>
             <y>0</y>
             <width>448</width>
-            <height>169</height>
+            <height>177</height>
            </rect>
           </property>
           <attribute name="label">
@@ -131,7 +131,7 @@
           <string/>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -163,8 +163,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset theme="list-add">
-          <normaloff>.</normaloff>.</iconset>
+         <iconset theme="list-add"/>
         </property>
         <property name="flat">
          <bool>true</bool>
@@ -186,8 +185,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset theme="list-remove">
-          <normaloff>.</normaloff>.</iconset>
+         <iconset theme="list-remove"/>
         </property>
         <property name="flat">
          <bool>true</bool>
@@ -206,10 +204,10 @@
       </sizepolicy>
      </property>
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
+      <enum>QFrame::Shadow::Plain</enum>
      </property>
      <property name="lineWidth">
       <number>0</number>
@@ -227,7 +225,7 @@
          <string>Direction</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+         <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
         </property>
        </widget>
       </item>
@@ -274,7 +272,7 @@
          <string>Action</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+         <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
         </property>
        </widget>
       </item>
@@ -321,8 +319,7 @@
           <string>QUEUE</string>
          </property>
          <property name="icon">
-          <iconset theme="go-next">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="go-next"/>
          </property>
         </item>
         <item>
@@ -340,8 +337,7 @@
           <string>REDIRECT</string>
          </property>
          <property name="icon">
-          <iconset theme="edit-redo">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="edit-redo"/>
          </property>
         </item>
        </widget>
@@ -374,7 +370,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
    <item>
     <widget class="Line" name="line">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -430,7 +426,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -446,8 +442,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <string>Clear</string>
        </property>
        <property name="icon">
-        <iconset theme="reload">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset theme="reload"/>
        </property>
       </widget>
      </item>

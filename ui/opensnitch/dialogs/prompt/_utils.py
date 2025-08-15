@@ -1,7 +1,7 @@
 from slugify import slugify
 import os
 
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6.QtCore import QCoreApplication as QC
 
 from opensnitch.config import Config
 from opensnitch.dialogs.prompt import _constants

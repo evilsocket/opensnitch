@@ -1,10 +1,10 @@
 
-from PyQt5 import QtCore
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtSql import QSqlQuery, QSqlError
-from PyQt5.QtWidgets import QTableView
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6 import QtCore
+from PyQt6.QtGui import QStandardItemModel, QStandardItem
+from PyQt6.QtSql import QSqlQuery, QSqlError
+from PyQt6.QtWidgets import QTableView
+from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import QCoreApplication as QC
 
 from opensnitch.nodes import Nodes
 from opensnitch.firewall import Firewall
@@ -110,11 +110,11 @@ class FirewallTableModel(QStandardItemModel):
         for c in range(self.columnCount()):
             curItem = self.index(row.row(), c).data()
             nextIdx = self.index(row.row()+action, c)
-            self.setData(nextIdx, curItem, QtCore.Qt.DisplayRole)
+            self.setData(nextIdx, curItem, QtCore.Qt.ItemDataRole.DisplayRole)
         # restore row with the overwritten data
         for i, nr in enumerate(newRow):
             idx = self.index(row.row(), i)
-            self.setData(idx, nr, QtCore.Qt.DisplayRole)
+            self.setData(idx, nr, QtCore.Qt.ItemDataRole.DisplayRole)
 
         self.rowsReordered.emit(
             self.activeFilter,
@@ -212,7 +212,7 @@ class FirewallTableModel(QStandardItemModel):
             cols.append(QStandardItem("")) # buttons column
             for cl in rows:
                 item = QStandardItem(cl)
-                item.setData(cl, QtCore.Qt.UserRole+1)
+                item.setData(cl, QtCore.Qt.ItemDataRole.UserRole+1)
                 cols.append(item)
             self.appendRow(cols)
 
@@ -232,7 +232,7 @@ class FirewallTableView(QTableView):
         self._fw.rules.rulesUpdated.connect(self._cb_fw_rules_updated)
 
         self.verticalHeader().setVisible(True)
-        self.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.horizontalHeader().setStretchLastSection(True)
 
         # FIXME: if the firewall being used is iptables, hide the column to

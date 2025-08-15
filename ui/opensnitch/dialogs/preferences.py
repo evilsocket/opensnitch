@@ -4,8 +4,8 @@ import os
 import json
 import stat
 
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6 import QtCore, QtGui, uic, QtWidgets
+from PyQt6.QtCore import QCoreApplication as QC
 
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
@@ -58,7 +58,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     }
 
     def __init__(self, parent=None, appicon=None):
-        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
+        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowType.WindowStaysOnTopHint)
 
         self._themes = Themes.instance()
         self._saved_theme = ""
@@ -759,7 +759,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 Message.ok(
                     QC.translate("preferences", "Warning"),
                     QC.translate("preferences", "You must select a file for the database<br>or choose \"In memory\" type."),
-                    QtWidgets.QMessageBox.Warning)
+                    QtWidgets.QMessageBox.Icon.Warning)
                 self.dbLabel.setText("")
                 return False
         else:
@@ -997,7 +997,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self._changes_needs_restart:
             Message.ok(self._changes_needs_restart,
                 self._restart_msg,
-                QtWidgets.QMessageBox.Warning)
+                QtWidgets.QMessageBox.Icon.Warning)
             self._changes_needs_restart = None
 
 
@@ -1095,7 +1095,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self,
             os.path.expanduser("~"),
             QC.translate("preferences", 'Select a directory containing rules'),
-            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks
+            QtWidgets.QFileDialog.Option.ShowDirsOnly | QtWidgets.QFileDialog.Option.DontResolveSymlinks
         )
         if rulesdir == "":
             return

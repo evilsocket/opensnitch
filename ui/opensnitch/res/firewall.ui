@@ -22,7 +22,7 @@
 }</string>
      </property>
      <property name="tabPosition">
-      <enum>QTabWidget::South</enum>
+      <enum>QTabWidget::TabPosition::South</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -55,14 +55,14 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Firewall&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_3">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -127,13 +127,13 @@ QSlider::sub-page:horizontal {
             <number>1</number>
            </property>
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="invertedAppearance">
             <bool>false</bool>
            </property>
            <property name="tickPosition">
-            <enum>QSlider::TicksBothSides</enum>
+            <enum>QSlider::TickPosition::TicksBothSides</enum>
            </property>
           </widget>
          </item>
@@ -148,10 +148,10 @@ QSlider::sub-page:horizontal {
           </sizepolicy>
          </property>
          <property name="textFormat">
-          <enum>Qt::AutoText</enum>
+          <enum>Qt::TextFormat::AutoText</enum>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -160,7 +160,7 @@ QSlider::sub-page:horizontal {
           <bool>true</bool>
          </property>
          <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+          <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
@@ -169,7 +169,7 @@ QSlider::sub-page:horizontal {
          <item>
           <spacer name="horizontalSpacer_4">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -194,14 +194,14 @@ QSlider::sub-page:horizontal {
             </size>
            </property>
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
           </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_5">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -228,7 +228,7 @@ QSlider::sub-page:horizontal {
           <string/>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -265,7 +265,7 @@ QSlider::sub-page:horizontal {
              </sizepolicy>
             </property>
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
            </widget>
           </item>
@@ -378,8 +378,7 @@ QSlider::sub-page:horizontal {
                <string>Allow service (IN)</string>
               </property>
               <property name="icon">
-               <iconset theme="go-down">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="go-down"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -398,7 +397,7 @@ QSlider::sub-page:horizontal {
                <string>Exclude outbound connections to a port from being intercepted</string>
               </property>
               <property name="layoutDirection">
-               <enum>Qt::RightToLeft</enum>
+               <enum>Qt::LayoutDirection::RightToLeft</enum>
               </property>
               <property name="styleSheet">
                <string notr="true">QPushButton { text-align: right; }</string>
@@ -407,8 +406,7 @@ QSlider::sub-page:horizontal {
                <string>Allow service (OUT)</string>
               </property>
               <property name="icon">
-               <iconset theme="go-up">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="go-up"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -455,7 +453,7 @@ QSlider::sub-page:horizontal {
         <bool>true</bool>
        </property>
        <property name="textInteractionFlags">
-        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -469,15 +467,14 @@ QSlider::sub-page:horizontal {
         <string/>
        </property>
        <property name="icon">
-        <iconset theme="help-browser">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset theme="help-browser"/>
        </property>
       </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>

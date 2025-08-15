@@ -1,5 +1,5 @@
-from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QCoreApplication as QC
 from google.protobuf.json_format import MessageToJson
 import uuid
 

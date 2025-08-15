@@ -4,8 +4,8 @@ import os
 import os.path
 import json
 
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6 import QtCore, QtGui, uic, QtWidgets
+from PyQt6.QtCore import QCoreApplication as QC
 
 from opensnitch.utils import Icons, Message
 from opensnitch.config import Config
@@ -315,8 +315,8 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         "In order to configure firewall rules from the GUI, we need to use 'nftables' instead of 'iptables'"
                         ),
             QC.translate("firewall", "Change default firewall to 'nftables' on node {0}?".format(addr)),
-            QtWidgets.QMessageBox.Warning)
-        if ret != QtWidgets.QMessageBox.Cancel:
+            QtWidgets.QMessageBox.Icon.Warning)
+        if ret != QtWidgets.QMessageBox.StandardButton.Cancel:
             return True
 
         return False

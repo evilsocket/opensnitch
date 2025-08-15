@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6.QtCore import QCoreApplication as QC
 
 PAGE_MAIN = 2
 PAGE_DETAILS = 0

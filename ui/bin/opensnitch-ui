@@ -40,8 +40,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with OpenSnitch.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtNetwork import QLocalServer, QLocalSocket
+from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtNetwork import QLocalServer, QLocalSocket
 
 import sys
 import os
@@ -183,7 +183,7 @@ Examples:
             raise Exception("GUI already running, opening its window and exiting.")
         else:
             localserver = QLocalServer()
-            localserver.setSocketOptions(QLocalServer.UserAccessOption)
+            localserver.setSocketOptions(QLocalServer.SocketOption.UserAccessOption)
             localserver.removeServer(app_id)
             localserver.listen(app_id)
 
@@ -212,19 +212,20 @@ Examples:
         check_environ()
         localserver.newConnection.connect(service.OpenWindow)
         # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
-        server = grpc.server(futures.ThreadPoolExecutor(),
-                                options=(
-                                    # https://github.com/grpc/grpc/blob/master/doc/keepalive.md
-                                    # https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
-                                    # send keepalive ping every 5 second, default is 2 hours)
-                                    ('grpc.keepalive_time_ms', 5000),
-                                    # after 5s of inactivity, wait 20s and close the connection if
-                                    # there's no response.
-                                    ('grpc.keepalive_timeout_ms', 20000),
-                                    ('grpc.keepalive_permit_without_calls', True),
-                                    ('grpc.max_send_message_length', maxmsglen),
-                                    ('grpc.max_receive_message_length', maxmsglen),
-                                ))
+        server = grpc.server(
+            futures.ThreadPoolExecutor(),
+            options=(
+                # https://github.com/grpc/grpc/blob/master/doc/keepalive.md
+                # https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
+                # send keepalive ping every 5 second, default is 2 hours)
+                ('grpc.keepalive_time_ms', 5000),
+                # after 5s of inactivity, wait 20s and close the connection if
+                # there's no response.
+                ('grpc.keepalive_timeout_ms', 20000),
+                ('grpc.keepalive_permit_without_calls', True),
+                ('grpc.max_send_message_length', maxmsglen),
+                ('grpc.max_receive_message_length', maxmsglen),
+            ))
 
         ui_pb2_grpc.add_UIServicer_to_server(service, server)
 
@@ -269,7 +270,7 @@ Examples:
 
         restrict_socket_perms(args.socket)
 
-        app.exec_()
+        app.exec()
 
     except KeyboardInterrupt:
         on_exit()

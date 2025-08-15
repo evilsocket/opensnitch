@@ -1,9 +1,9 @@
 
-from PyQt5.QtSql import QSqlQuery
+from PyQt6.QtSql import QSqlQuery
 
 from opensnitch.utils import AsnDB
 from opensnitch.customwidgets.generictableview import GenericTableModel
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6.QtCore import QCoreApplication as QC
 
 class AddressTableModel(GenericTableModel):
 
@@ -29,7 +29,7 @@ class AddressTableModel(GenericTableModel):
         if self.prevQueryStr != self.origQueryStr:
             self.realQuery = QSqlQuery(q, db)
 
-        self.realQuery.exec_()
+        self.realQuery.exec()
         self.realQuery.last()
 
         queryRows = max(0, self.realQuery.at()+1)

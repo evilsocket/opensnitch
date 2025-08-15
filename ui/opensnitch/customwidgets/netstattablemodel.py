@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QStandardItemModel
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QStandardItemModel
 from opensnitch.customwidgets.generictableview import GenericTableModel
 from opensnitch.utils import sockets
 
@@ -12,9 +12,9 @@ class NetstatTableModel(GenericTableModel):
         self.COL_PROTO = 7
         self.COL_FAMILY = 10
 
-    def data(self, index, role=Qt.DisplayRole):
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         """Paint rows with the data stored in self.items"""
-        if role == Qt.DisplayRole or role == Qt.EditRole:
+        if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.EditRole:
             items_count = len(self.items)
             if index.isValid() and items_count > 0 and index.row() < items_count:
                 try:

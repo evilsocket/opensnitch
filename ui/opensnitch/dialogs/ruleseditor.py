@@ -1,6 +1,6 @@
 
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6 import QtCore, QtGui, uic, QtWidgets
+from PyQt6.QtCore import QCoreApplication as QC
 from slugify import slugify
 from datetime import datetime
 import re
@@ -73,16 +73,16 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.ruleNameEdit.setValidator(self.ruleNameValidator)
 
         self.buttonBox.setStandardButtons(
-            QtWidgets.QDialogButtonBox.Help |
-            QtWidgets.QDialogButtonBox.Reset |
-            QtWidgets.QDialogButtonBox.Close |
-            QtWidgets.QDialogButtonBox.Save
+            QtWidgets.QDialogButtonBox.StandardButton.Help |
+            QtWidgets.QDialogButtonBox.StandardButton.Reset |
+            QtWidgets.QDialogButtonBox.StandardButton.Close |
+            QtWidgets.QDialogButtonBox.StandardButton.Save
         )
 
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Reset).clicked.connect(self._cb_reset_clicked)
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Close).clicked.connect(self._cb_close_clicked)
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Save).clicked.connect(self._cb_save_clicked)
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Help).clicked.connect(self._cb_help_clicked)
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Reset).clicked.connect(self._cb_reset_clicked)
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Close).clicked.connect(self._cb_close_clicked)
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Save).clicked.connect(self._cb_save_clicked)
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Help).clicked.connect(self._cb_help_clicked)
         self.selectListButton.clicked.connect(self._cb_select_list_button_clicked)
         self.selectListRegexpButton.clicked.connect(self._cb_select_regexp_list_button_clicked)
         self.selectIPsListButton.clicked.connect(self._cb_select_ips_list_button_clicked)
@@ -161,7 +161,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return s == 'True'
 
     def _cb_rule_name_validator_result(self, result):
-        if result == QtGui.QValidator.Invalid:
+        if result == QtGui.QValidator.State.Invalid:
             self._set_status_error(
                 QC.translate("rules",
                              "Invalid rule name (not allowed characters: '{0}' )".format(RulesEditorDialog.INVALID_RULE_NAME_CHARS)
@@ -695,7 +695,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if addr != None and addr not in self._node_list:
                 Message.ok(QC.translate("rules", "<b>Error loading rule</b>"),
                         QC.translate("rules", "node {0} not connected".format(addr)),
-                        QtWidgets.QMessageBox.Warning)
+                        QtWidgets.QMessageBox.Icon.Warning)
                 return False
 
             if len(self._node_list) < 2:
@@ -1237,7 +1237,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.rule.operator.type not in Config.RulesTypes:
             Message.ok(QC.translate("rules", "<b>Rule not supported</b>"),
                        QC.translate("rules", "This type of rule ({0}) is not supported by version {1}".format(self.rule.operator.type, version)),
-                       QtWidgets.QMessageBox.Warning)
+                       QtWidgets.QMessageBox.Icon.Warning)
             self.hide()
             return
 

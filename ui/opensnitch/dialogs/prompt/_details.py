@@ -1,4 +1,4 @@
-from PyQt5 import QtGui
+from PyQt6 import QtGui
 from opensnitch.config import Config
 
 def render(node, detailsWidget, con):
@@ -47,4 +47,4 @@ tree,
 
     detailsWidget.document().clear()
     detailsWidget.document().setHtml(details)
-    detailsWidget.moveCursor(QtGui.QTextCursor.Start)
+    detailsWidget.moveCursor(QtGui.QTextCursor.MoveOperation.Start)

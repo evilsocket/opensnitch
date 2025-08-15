@@ -1,5 +1,5 @@
 import json
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 from opensnitch.plugins.virustotal.virustotal import VTAnalysis, Virustotal
 from opensnitch.plugins.virustotal import _utils
 
@@ -15,7 +15,7 @@ def build_vt_tab(plugin, parent):
     wdg.setObjectName("vt_tab")
     gridLayout =  QtWidgets.QGridLayout()
     textWdg = QtWidgets.QTextEdit()
-    textWdg.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+    textWdg.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
     gridLayout.addWidget(textWdg, 0, 0)
     wdg.setLayout(gridLayout)
 

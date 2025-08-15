@@ -28,8 +28,10 @@ all: $(TSFILES) $(QMFILES)
 
 #if any file from SOURCES or FORMS is older than any file from $(TSFILES)  
 #or if opensnitch_i18n.pro was manually modified
-$(TSFILES): $(SOURCES) $(FORMS) opensnitch_i18n.pro
-	@pylupdate5 opensnitch_i18n.pro
+
+# FIXME: pylupdate6 does not support parsing .pro files anymore
+#$(TSFILES): $(SOURCES) $(FORMS) opensnitch_i18n.pro
+#	@pylupdate6 opensnitch_i18n.pro
 
 #if any of the *.ts files are older that any of the *.qm files
 #QMFILES may also be a phony target (when no *.qm exist yet) which will always run

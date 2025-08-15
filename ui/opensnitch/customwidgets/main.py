@@ -1,12 +1,12 @@
-from PyQt5 import QtCore
-from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
-from PyQt5.QtSql import QSqlQueryModel, QSqlQuery, QSql
-from PyQt5.QtWidgets import QTableView
-from PyQt5.QtCore import QItemSelectionModel, pyqtSignal, QEvent
+from PyQt6 import QtCore
+from PyQt6.QtGui import QColor, QStandardItemModel, QStandardItem
+from PyQt6.QtSql import QSqlQueryModel, QSqlQuery, QSql
+from PyQt6.QtWidgets import QTableView
+from PyQt6.QtCore import QItemSelectionModel, pyqtSignal, QEvent
 import time
 import math
 
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6.QtCore import QCoreApplication as QC
 class ColorizedQSqlQueryModel(QSqlQueryModel):
     """
         model=CustomQSqlQueryModel(
@@ -199,7 +199,7 @@ class ConnectionsTableModel(QStandardItemModel):
                 #either 1) only action was present or 2) filter which has a match (with or without action)
                 q.bindValue(":lowerBound", str(lowerBound))
                 q.bindValue(":upperBound", str(upperBound))
-                q.exec_()
+                q.exec()
                 q.first()
                 rowsInRange = int(q.value(0))
             else:

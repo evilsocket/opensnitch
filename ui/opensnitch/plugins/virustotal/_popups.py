@@ -1,12 +1,12 @@
 import json
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt6 import QtWidgets, QtGui, QtCore
 from opensnitch.utils import Icons
 from opensnitch.plugins.virustotal import _utils
 
 def build_vt_tab(plugin, parent):
     """add a new tab with a text field that will contain the result of the query in JSON format.
     """
-    backIcon = Icons.new(plugin, "go-previous")
+    backIcon = Icons.new(parent, "go-previous")
 
     # FIXME: find the widget with the name 'vt_tab', there could be more
     # plugins that are tabs.
@@ -23,12 +23,12 @@ def build_vt_tab(plugin, parent):
 
     # 0 details, 1 checksums, 2 main
     cmdBack.clicked.connect(lambda: parent.stackedWidget.setCurrentIndex(2))
-    cmdBack.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+    cmdBack.setSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
     textWdg = QtWidgets.QTextEdit()
     textWdg.setTextInteractionFlags(
-        QtCore.Qt.LinksAccessibleByMouse | QtCore.Qt.TextSelectableByKeyboard | QtCore.Qt.TextSelectableByMouse
+        QtCore.Qt.TextInteractionFlag.LinksAccessibleByMouse | QtCore.Qt.TextInteractionFlag.TextSelectableByKeyboard | QtCore.Qt.TextInteractionFlag.TextSelectableByMouse
     )
-    textWdg.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+    textWdg.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
     wdg.setObjectName("vt_tab")
     gridLayout.setContentsMargins(5, 3, 5, 5)
     gridLayout.setVerticalSpacing(3)
@@ -57,7 +57,7 @@ def add_vt_response(parent, response, error=None):
         ))
     else:
         textWdg.setHtml(_utils.report_to_html(response))
-    textWdg.moveCursor(QtGui.QTextCursor.Start)
+    textWdg.moveCursor(QtGui.QTextCursor.MoveOperation.Start)
 
 def add_analyzing_msg(vt, parent):
     parent.messageLabel.setText("{0}<br>{1}".format(

@@ -1,4 +1,4 @@
-from PyQt5.QtSql import QSqlDatabase, QSqlQueryModel, QSqlQuery
+from PyQt6.QtSql import QSqlDatabase, QSqlQueryModel, QSqlQuery
 import threading
 import sys
 import os
@@ -83,7 +83,7 @@ class Database:
         # XXX: quick_check may not be fast enough with some DBs on slow
         # hardware.
         q = QSqlQuery("PRAGMA quick_check;", self.db)
-        if q.exec_() is not True:
+        if q.exec() is not True:
             print(q.lastError().driverText())
             return False, q.lastError().driverText()
 
@@ -135,25 +135,25 @@ class Database:
                 "UNIQUE(node, action, protocol, src_ip, src_port, dst_ip, dst_port, uid, pid, process, process_args))",
                 self.db)
         q = QSqlQuery("create index time_index on connections (time)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index action_index on connections (action)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index protocol_index on connections (protocol)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index dst_host_index on connections (dst_host)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index process_index on connections (process)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index dst_ip_index on connections (dst_ip)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index dst_port_index on connections (dst_port)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index rule_index on connections (rule)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index node_index on connections (node)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("CREATE INDEX details_query_index on connections (process, process_args, uid, pid, dst_ip, dst_host, dst_port, action, node, protocol)", self.db)
-        q.exec_()
+        q.exec()
 
         q = QSqlQuery("create table if not exists nodes (" \
                 "addr text primary key," \
@@ -167,7 +167,7 @@ class Database:
                 "status text, " \
                 "last_connection text)"
                 , self.db)
-        q.exec_()
+        q.exec()
 
         q = QSqlQuery("create table if not exists rules (" \
                 "time text, " \
@@ -186,7 +186,7 @@ class Database:
                 "created text, " \
                 "UNIQUE(node, name)"
                 ")", self.db)
-        q.exec_()
+        q.exec()
 
         q = QSqlQuery("create table if not exists alerts (" \
                 "time text, " \
@@ -198,7 +198,7 @@ class Database:
                 "body text, " \
                 "status int " \
                 ")", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create table if not exists sockets (" \
                       "id int primary key, " \
                       "last_seen text, " \
@@ -225,39 +225,39 @@ class Database:
                       "proc_path text, " \
                       "UNIQUE(node, src_port, src_ip, dst_ip, dst_port, proto, family, inode)" \
                       ")", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index sck_srcport_index on sockets (src_port)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index sck_dstip_index on sockets (dst_ip)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index sck_srcip_index on sockets (src_ip)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index sck_dsthost_index on sockets (dst_host)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index sck_state_index on sockets (state)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index sck_comm_index on sockets (proc_comm)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create index sck_path_index on sockets (proc_path)", self.db)
-        q.exec_()
-        q.exec_()
+        q.exec()
+        q.exec()
         q = QSqlQuery("create index rules_index on rules (time)", self.db)
-        q.exec_()
+        q.exec()
 
         q = QSqlQuery("create table if not exists hosts (what text primary key, hits integer)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create table if not exists procs (what text primary key, hits integer)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create table if not exists addrs (what text primary key, hits integer)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create table if not exists ports (what text primary key, hits integer)", self.db)
-        q.exec_()
+        q.exec()
         q = QSqlQuery("create table if not exists users (what text primary key, hits integer)", self.db)
-        q.exec_()
+        q.exec()
 
     def get_schema_version(self):
         q = QSqlQuery("PRAGMA user_version;", self.db)
-        q.exec_()
+        q.exec()
         if q.next():
             print("schema version:", q.value(0))
             return int(q.value(0))
@@ -267,12 +267,12 @@ class Database:
     def set_schema_version(self, version):
         print("setting schema version to:", version)
         q = QSqlQuery("PRAGMA user_version = {0}".format(version), self.db)
-        if q.exec_() == False:
+        if q.exec() == False:
             print("Error updating updating schema version:", q.lastError().text())
 
     def get_journal_mode(self):
         q = QSqlQuery("PRAGMA journal_mode;", self.db)
-        q.exec_()
+        q.exec()
         if q.next():
             return str(q.value(0))
 
@@ -284,23 +284,23 @@ class Database:
         if self.get_journal_mode().lower() != mode_str.lower():
             print("Setting journal_mode: ", mode_str)
             q = QSqlQuery("PRAGMA journal_mode = {modestr};".format(modestr = mode_str), self.db)
-            if q.exec_() == False:
+            if q.exec() == False:
                 print("Error updating PRAGMA journal_mode:", q.lastError().text())
                 return False
         if mode == 3 or mode == 5:
             print("Setting DB memory optimizations")
             q = QSqlQuery("PRAGMA synchronous = OFF;", self.db)
-            if q.exec_() == False:
+            if q.exec() == False:
                 print("Error updating PRAGMA synchronous:", q.lastError().text())
                 return False
             q = QSqlQuery("PRAGMA cache_size=10000;", self.db)
-            if q.exec_() == False:
+            if q.exec() == False:
                 print("Error updating PRAGMA cache_size:", q.lastError().text())
                 return False
         else:
             print("Setting synchronous = NORMAL")
             q = QSqlQuery("PRAGMA synchronous = NORMAL;", self.db)
-            if q.exec_() == False:
+            if q.exec() == False:
                 print("Error updating PRAGMA synchronous:", q.lastError().text())
 
         return True
@@ -339,23 +339,23 @@ class Database:
         """https://www.sqlite.org/pragma.html#pragma_optimize
         """
         q = QSqlQuery("PRAGMA optimize;", self.db)
-        q.exec_()
+        q.exec()
 
     def clean(self, table):
         with self._lock:
             q = QSqlQuery("delete from " + table, self.db)
-            q.exec_()
+            q.exec()
 
     def vacuum(self):
         q = QSqlQuery("VACUUM;", self.db)
-        q.exec_()
+        q.exec()
 
     def clone_db(self, name):
         return QSqlDatabase.cloneDatabase(self.db, name)
 
     def clone(self):
         q = QSqlQuery(".dump", self.db)
-        q.exec_()
+        q.exec()
 
     def transaction(self):
         self.db.transaction()
@@ -369,7 +369,7 @@ class Database:
     def get_total_records(self):
         try:
             q = QSqlQuery("SELECT count(*) FROM connections", self.db)
-            if q.exec_() and q.first():
+            if q.exec() and q.first():
                 r = q.value(0)
         except Exception as e:
             print("db, get_total_records() error:", e)
@@ -377,7 +377,7 @@ class Database:
     def get_newest_record(self):
         try:
             q = QSqlQuery("SELECT time FROM connections ORDER BY 1 DESC LIMIT 1", self.db)
-            if q.exec_() and q.first():
+            if q.exec() and q.first():
                 return q.value(0)
         except Exception as e:
             print("db, get_newest_record() error:", e)
@@ -386,7 +386,7 @@ class Database:
     def get_oldest_record(self):
         try:
             q = QSqlQuery("SELECT time FROM connections ORDER BY 1 ASC LIMIT 1", self.db)
-            if q.exec_() and q.first():
+            if q.exec() and q.first():
                 return q.value(0)
         except Exception as e:
             print("db, get_oldest_record() error:", e)
@@ -408,7 +408,7 @@ class Database:
                 q = QSqlQuery(self.db)
                 q.prepare("DELETE FROM connections WHERE time < ?")
                 q.bindValue(0, str(date_to_purge))
-                if q.exec_():
+                if q.exec():
                     print("purge_oldest() {0} records deleted".format(q.numRowsAffected()))
                     return q.numRowsAffected()
         except Exception as e:
@@ -427,7 +427,7 @@ class Database:
     def remove(self, qstr):
         try:
             q = QSqlQuery(qstr, self.db)
-            if q.exec_():
+            if q.exec():
                 return True
             else:
                 print("db, remove() ERROR: ", qstr)
@@ -445,7 +445,7 @@ class Database:
                 q.prepare(query_str)
                 for idx, v in enumerate(columns):
                     q.bindValue(idx, v)
-                if q.exec_():
+                if q.exec():
                     return True
                 else:
                     print("_insert() ERROR", query_str)
@@ -492,7 +492,7 @@ class Database:
                 q.prepare(qstr)
                 for idx, v in enumerate(values):
                     q.bindValue(idx, v)
-                if not q.exec_():
+                if not q.exec():
                     print("update ERROR:", qstr, "values:", values)
                     print(q.lastError().driverText())
 
@@ -543,13 +543,13 @@ class Database:
             s = s[0:len(s)-1]
             with self._lock:
                 q = QSqlQuery(s, self.db)
-                if not q.exec_():
+                if not q.exec():
                     print("update batch ERROR", s)
                     print(q.lastError().driverText())
 
     def dump(self):
         q = QSqlQuery(".dump", db=self.db)
-        q.exec_()
+        q.exec()
 
     def get_query(self, table, fields):
         return "SELECT " + fields + " FROM " + table
@@ -563,7 +563,7 @@ class Database:
             q = QSqlQuery(qstr, self.db)
             q.prepare(qstr)
             q.addBindValue(name)
-            if not q.exec_():
+            if not q.exec():
                 print("db, empty_rule() ERROR: ", qstr)
                 print(q.lastError().driverText())
 
@@ -578,7 +578,7 @@ class Database:
             q.addBindValue(name)
             if node_addr != None:
                 q.addBindValue(node_addr)
-            if not q.exec_():
+            if not q.exec():
                 print("db, delete_rule() ERROR: ", qstr)
                 print(q.lastError().driverText())
                 return False
@@ -602,7 +602,7 @@ class Database:
             for v in values:
                 q.addBindValue(v)
 
-            if not q.exec_():
+            if not q.exec():
                 print("db, delete_rule_by_field() ERROR: ", qstr)
                 print(q.lastError().driverText())
                 return False
@@ -617,7 +617,7 @@ class Database:
         q = QSqlQuery(qstr, self.db)
         q.prepare(qstr)
         q.addBindValue(date)
-        q.exec_()
+        q.exec()
 
         return q
 
@@ -634,7 +634,7 @@ class Database:
         q.addBindValue(rule_name)
         if node_addr != None:
             q.addBindValue(node_addr)
-        q.exec_()
+        q.exec()
 
         return q
 
@@ -651,7 +651,7 @@ class Database:
         q.addBindValue("%" + value + "%")
         if node_addr != None:
             q.addBindValue(node_addr)
-        if not q.exec_():
+        if not q.exec():
             print("get_rule_by_field() error:", q.lastError().driverText())
             return None
 
@@ -665,7 +665,7 @@ class Database:
         q = QSqlQuery(qstr, self.db)
         q.prepare(qstr)
         q.addBindValue(node_addr)
-        if not q.exec_():
+        if not q.exec():
             return None
 
         return q
@@ -699,7 +699,7 @@ class Database:
         q.addBindValue(rule.operator.type)
         q.addBindValue(rule.operator.operand)
         q.addBindValue(rule.operator.data)
-        if not q.exec_() or q.next() == False:
+        if not q.exec() or q.next() == False:
             return None
 
         return q
@@ -716,7 +716,7 @@ class Database:
             q.addBindValue(time)
             if node_addr != None:
                 q.addBindValue(node_addr)
-            if not q.exec_():
+            if not q.exec():
                 print("db, delete_alert() ERROR: ", qstr)
                 print(q.lastError().driverText())
                 return False
@@ -736,6 +736,6 @@ class Database:
         q.addBindValue(alert_time)
         if node_addr != None:
             q.addBindValue(node_addr)
-        q.exec_()
+        q.exec()
 
         return q

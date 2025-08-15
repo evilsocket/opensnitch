@@ -1,5 +1,5 @@
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui
 from opensnitch.version import version as gui_version
 from opensnitch.database import Database
 from opensnitch.config import Config
@@ -11,7 +11,7 @@ import socket
 import fcntl
 import struct
 import array
-import os, sys, glob
+import os, os.path, sys, glob
 import enum
 import re
 
@@ -226,24 +226,24 @@ class Message():
     @staticmethod
     def ok(title, message, icon):
         msgBox = QtWidgets.QMessageBox()
-        msgBox.setWindowFlags(msgBox.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+        msgBox.setWindowFlags(msgBox.windowFlags() | QtCore.Qt.WindowType.WindowStaysOnTopHint)
         msgBox.setText("<b>{0}</b><br><br>{1}".format(title, message))
         msgBox.setIcon(icon)
         msgBox.setModal(True)
-        msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
-        msgBox.exec_()
+        msgBox.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+        msgBox.exec()
 
     @staticmethod
     def yes_no(title, message, icon):
         msgBox = QtWidgets.QMessageBox()
-        msgBox.setWindowFlags(msgBox.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+        msgBox.setWindowFlags(msgBox.windowFlags() | QtCore.Qt.WindowType.WindowStaysOnTopHint)
         msgBox.setText(title)
         msgBox.setIcon(icon)
         msgBox.setModal(True)
         msgBox.setInformativeText(message)
-        msgBox.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Yes)
-        msgBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
-        return msgBox.exec_()
+        msgBox.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.Yes)
+        msgBox.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Cancel)
+        return msgBox.exec()
 
 class FileDialog():
 
@@ -417,19 +417,19 @@ class Icons():
             if os.path.exists(icon_pix):
                 icon_image = QtGui.QPixmap(icon_pix)
                 icon = QtGui.QIcon()
-                icon.addPixmap(icon_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                icon.addPixmap(icon_image, QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 return icon
 
         icon = QtGui.QIcon.fromTheme(icon_name, QtGui.QIcon.fromTheme(icon_name + "-symbolic"))
         if icon.isNull():
             try:
-                icon = widget.style().standardIcon(getattr(QtWidgets.QStyle, Icons.defaults[icon_name]))
+                icon = widget.style().standardIcon(getattr(QtWidgets.QStyle.StandardPixmap, Icons.defaults[icon_name]))
                 # in some DEs, like Enlightenment, some builtins icons may be
                 # empty. The icon is not Null, but there're no available sizes,
                 # and the pixmap is empty.
                 # TODO: Create a default icon, and distribute it as resource.
                 if len(icon.availableSizes()) == 0:
-                    icon = widget.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_FileIcon'))
+                    icon = widget.style().standardIcon(getattr(QtWidgets.QStyle.StandardPixmap, 'SP_FileIcon'))
             except Exception as e:
                 print("Qt standardIcon exception:", icon_name, ",", e)
 

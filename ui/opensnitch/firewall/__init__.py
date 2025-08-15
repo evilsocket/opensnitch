@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject, QCoreApplication as QC
+from PyQt6.QtCore import QObject, QCoreApplication as QC
 from google.protobuf import json_format
 
 import opensnitch.proto as proto

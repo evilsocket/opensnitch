@@ -6,8 +6,8 @@ import csv
 import io
 import json
 
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6 import QtCore, QtGui, uic, QtWidgets
+from PyQt6.QtCore import QCoreApplication as QC
 
 from opensnitch.config import Config
 from opensnitch.version import version
@@ -379,7 +379,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def __init__(self, parent=None, address=None, db=None, dbname="db", appicon=None):
         super(StatsDialog, self).__init__(parent)
 
-        self.setWindowFlags(QtCore.Qt.Window)
+        self.setWindowFlags(QtCore.Qt.WindowType.Window)
         self.setupUi(self)
         self.setWindowIcon(appicon)
 
@@ -774,13 +774,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.TABLES[self.TAB_MAIN]['view'].installEventFilter(self)
         self.TABLES[self.TAB_MAIN]['filterLine'].textChanged.connect(self._cb_events_filter_line_changed)
 
-        self.TABLES[self.TAB_MAIN]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.TABLES[self.TAB_MAIN]['view'].setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
         self.TABLES[self.TAB_MAIN]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
-        self.TABLES[self.TAB_RULES]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.TABLES[self.TAB_RULES]['view'].setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
         self.TABLES[self.TAB_RULES]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
-        self.TABLES[self.TAB_FIREWALL]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.TABLES[self.TAB_FIREWALL]['view'].setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
         self.TABLES[self.TAB_FIREWALL]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
-        self.TABLES[self.TAB_ALERTS]['view'].setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.TABLES[self.TAB_ALERTS]['view'].setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
         self.TABLES[self.TAB_ALERTS]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
 
         for idx in range(1,10):
@@ -832,7 +832,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.fwTreeEdit.autoFillBackground = True
         self.fwTreeEdit.setFlat(True)
         self.fwTreeEdit.setSizePolicy(
-            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Fixed)
         )
         self.fwTreeEdit.clicked.connect(self._cb_tree_edit_firewall_clicked)
         self._configure_buttons_icons()
@@ -841,13 +841,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     #Sometimes a maximized window which had been minimized earlier won't unminimize
     #To workaround, we explicitely maximize such windows when unminimizing happens
     def changeEvent(self, event):
-        if event.type() == QtCore.QEvent.WindowStateChange:
-            if event.oldState() & QtCore.Qt.WindowMinimized and event.oldState() & QtCore.Qt.WindowMaximized:
+        if event.type() == QtCore.QEvent.Type.WindowStateChange:
+            if event.oldState() & QtCore.Qt.WindowState.WindowMinimized and event.oldState() & QtCore.Qt.WindowState.WindowMaximized:
                 #a previously minimized maximized window ...
-                if self.windowState() ^ QtCore.Qt.WindowMinimized and xdg_current_desktop == "KDE":
+                if self.windowState() ^ QtCore.Qt.WindowState.WindowMinimized and xdg_current_desktop == "KDE":
                     # is not minimized anymore, i.e. it was unminimized
                     # docs: https://doc.qt.io/qt-5/qwidget.html#setWindowState
-                    self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
+                    self.setWindowState(self.windowState() & ~QtCore.Qt.WindowState.WindowMinimized | QtCore.Qt.WindowState.WindowActive)
 
     def showEvent(self, event):
         super(StatsDialog, self).showEvent(event)
@@ -864,11 +864,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._show_columns()
 
     def eventFilter(self, source, event):
-        if event.type() == QtCore.QEvent.KeyPress:
-            if event.matches(QtGui.QKeySequence.Copy):
+        if event.type() == QtCore.QEvent.Type.KeyPress:
+            if event.matches(QtGui.QKeySequence.StandardKey.Copy):
                 self._copy_selected_rows()
                 return True
-            elif event.key() == QtCore.Qt.Key_Delete:
+            elif event.key() == QtCore.Qt.Key.Key_Delete:
                 table = self._get_active_table()
                 selection = table.selectedRows()
                 if selection:
@@ -1075,7 +1075,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if selection:
             stream = io.StringIO()
             csv.writer(stream, delimiter=',').writerows(selection)
-            QtWidgets.qApp.clipboard().setText(stream.getvalue())
+            QtWidgets.QApplication.clipboard().setText(stream.getvalue())
 
     def _configure_netstat_combos(self):
         self.comboNetstatStates.blockSignals(True);
@@ -1112,7 +1112,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             # move away menu a few pixels to the right, to avoid clicking on it by mistake
             point = QtCore.QPoint(pos.x()+10, pos.y()+5)
-            action = menu.exec_(table.mapToGlobal(point))
+            action = menu.exec(table.mapToGlobal(point))
 
             model = table.model()
 
@@ -1170,7 +1170,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             # move away menu a few pixels to the right, to avoid clicking on it by mistake
             point = QtCore.QPoint(pos.x()+10, pos.y()+5)
-            action = menu.exec_(table.mapToGlobal(point))
+            action = menu.exec(table.mapToGlobal(point))
 
             model = table.model()
 
@@ -1258,7 +1258,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             # move away menu a few pixels to the right, to avoid clicking on it by mistake
             point = QtCore.QPoint(pos.x()+10, pos.y()+5)
-            action = menu.exec_(table.mapToGlobal(point))
+            action = menu.exec(table.mapToGlobal(point))
 
             model = table.model()
 
@@ -1270,8 +1270,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         ret = Message.yes_no(
                             QC.translate("stats", "    Apply this rule to {0}  ".format(node_addr)),
                             QC.translate("stats", "    Are you sure?"),
-                            QtWidgets.QMessageBox.Warning)
-                        if ret == QtWidgets.QMessageBox.Cancel:
+                            QtWidgets.QMessageBox.Icon.Warning)
+                        if ret == QtWidgets.QMessageBox.StandardButton.Cancel:
                             return False
                         self._table_menu_apply_to_node(cur_idx, model, selection, node_addr)
                         return False
@@ -1343,7 +1343,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             # move away menu a few pixels to the right, to avoid clicking on it by mistake
             point = QtCore.QPoint(pos.x()+10, pos.y()+5)
-            action = menu.exec_(table.mapToGlobal(point))
+            action = menu.exec(table.mapToGlobal(point))
 
             model = table.model()
 
@@ -1402,14 +1402,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         for r in rules_list:
             cliptext = "{0}\n{1}".format(cliptext, r)
 
-        QtWidgets.qApp.clipboard().setText(cliptext)
+        QtWidgets.QApplication.clipboard().setText(cliptext)
 
     def _table_menu_export_disk(self, cur_idx, model, selection):
         outdir = QtWidgets.QFileDialog.getExistingDirectory(
             self,
             os.path.expanduser("~"),
             QC.translate("stats", 'Select a directory to export rules'),
-            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks
+            QtWidgets.QFileDialog.Option.ShowDirsOnly | QtWidgets.QFileDialog.Option.DontResolveSymlinks
         )
         if outdir == "":
             return
@@ -1426,7 +1426,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if len(error_list) == 0:
             Message.ok("Rules export",
                        QC.translate("stats", "Rules exported to {0}".format(outdir)),
-                       QtWidgets.QMessageBox.Information)
+                       QtWidgets.QMessageBox.Icon.Information)
         else:
             error_text = ""
             for e in error_list:
@@ -1436,7 +1436,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         QC.translate("stats",
                                      "Error exporting the following rules:<br><br>".format(error_text)
                                     ),
-                        QtWidgets.QMessageBox.Warning)
+                        QtWidgets.QMessageBox.Icon.Warning)
 
     def _table_menu_duplicate(self, cur_idx, model, selection):
 
@@ -1565,8 +1565,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         ret = Message.yes_no(msg,
             QC.translate("stats", "    Are you sure?"),
-            QtWidgets.QMessageBox.Warning)
-        if ret == QtWidgets.QMessageBox.Cancel:
+            QtWidgets.QMessageBox.Icon.Warning)
+        if ret == QtWidgets.QMessageBox.StandardButton.Cancel:
             return False
 
         if cur_idx == self.TAB_RULES and self.fwTable.isVisible():
@@ -1617,7 +1617,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         QC.translate("stats",
                                     "Error creating new rule from event ({0})".format(coltime)
                                     ),
-                        QtWidgets.QMessageBox.Warning)
+                        QtWidgets.QMessageBox.Icon.Warning)
 
     def _table_menu_edit(self, cur_idx, model, selection):
         if cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
@@ -1628,7 +1628,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if records == None or records == -1:
                     Message.ok(QC.translate("stats", "New rule error"),
                             QC.translate("stats", "Rule not found by that name and node"),
-                            QtWidgets.QMessageBox.Warning)
+                            QtWidgets.QMessageBox.Icon.Warning)
                     return
                 self._rules_dialog.edit_rule(records, node)
                 break
@@ -1719,7 +1719,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 Message.ok(
                     QC.translate("stats", "Error:"),
                     "{0}".format(reply.data),
-                    QtWidgets.QMessageBox.Warning)
+                    QtWidgets.QMessageBox.Icon.Warning)
             else:
                 print("_cb_notification_callback, unknown reply:", reply)
 
@@ -1730,7 +1730,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             Message.ok(
                 QC.translate("stats", "Warning:"),
                 "{0}".format(reply.data),
-                QtWidgets.QMessageBox.Warning)
+                QtWidgets.QMessageBox.Icon.Warning)
 
     def _cb_tab_changed(self, index):
         self.comboAction.setVisible(index == self.TAB_MAIN)
@@ -1788,6 +1788,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
 
     def _cb_table_header_clicked(self, pos, sortIdx):
+        # sortIdx is a SortOrder enum
+
         cur_idx = self.tabWidget.currentIndex()
         # TODO: allow ordering by Network column
         if cur_idx == self.TAB_ADDRS and pos == 2:
@@ -1796,10 +1798,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         model = self._get_active_table().model()
         qstr = model.query().lastQuery().split("ORDER BY")[0]
 
-        q = qstr.strip(" ") + " ORDER BY %d %s" % (pos+1, self.SORT_ORDER[sortIdx])
+        q = qstr.strip(" ") + " ORDER BY %d %s" % (pos+1, self.SORT_ORDER[sortIdx.value])
         if cur_idx > 0 and self.TABLES[cur_idx]['cmd'].isVisible() == False:
             self.TABLES[cur_idx]['last_order_by'] = pos+1
-            self.TABLES[cur_idx]['last_order_to'] = sortIdx
+            self.TABLES[cur_idx]['last_order_to'] = sortIdx.value
 
             q = qstr.strip(" ") + self._get_order()
 
@@ -2027,8 +2029,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         if cur_idx == self.TAB_RULES and self.fwTable.isVisible():
-            uuid = row.model().index(row.row(), 1).data(QtCore.Qt.UserRole+1)
-            addr = row.model().index(row.row(), 2).data(QtCore.Qt.UserRole+1)
+            uuid = row.model().index(row.row(), 1).data(QtCore.Qt.ItemDataRole.UserRole.value+1)
+            addr = row.model().index(row.row(), 2).data(QtCore.Qt.ItemDataRole.UserRole.value+1)
             self._fw_dialog.load_rule(addr, uuid)
             return
 
@@ -2236,8 +2238,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         ret = Message.yes_no(
             QC.translate("stats", "    You are about to delete this node.    "),
             QC.translate("stats", "    Are you sure?"),
-            QtWidgets.QMessageBox.Warning)
-        if ret == QtWidgets.QMessageBox.Cancel:
+            QtWidgets.QMessageBox.Icon.Warning)
+        if ret == QtWidgets.QMessageBox.StandardButton.Cancel:
             return
 
         addr = self.TABLES[self.TAB_NODES]['label'].text()
@@ -2246,7 +2248,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 QC.translate("stats",
                                 "<b>Error deleting node</b><br><br>",
                                 "{0}").format(addr),
-                QtWidgets.QMessageBox.Warning)
+                QtWidgets.QMessageBox.Icon.Warning)
             return
 
         self._nodes.delete(addr)
@@ -2269,8 +2271,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         ret = Message.yes_no(
             QC.translate("stats", "    You are about to delete this rule.    "),
             QC.translate("stats", "    Are you sure?"),
-            QtWidgets.QMessageBox.Warning)
-        if ret == QtWidgets.QMessageBox.Cancel:
+            QtWidgets.QMessageBox.Icon.Warning)
+        if ret == QtWidgets.QMessageBox.StandardButton.Cancel:
             return
 
         self._del_rule(self.TABLES[self.tabWidget.currentIndex()]['label'].text(), self.nodeRuleLabel.text())
@@ -2387,7 +2389,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         items = []
         while it.value():
             x = it.value()
-            if x.data(0, QtCore.Qt.UserRole) == item_data:
+            if x.data(0, QtCore.Qt.ItemDataRole.UserRole) == item_data:
                 items.append(x)
             it+=1
 
@@ -2418,7 +2420,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         for addr in chains:
             # add nodes
             nodeRoot = QtWidgets.QTreeWidgetItem(["{0}".format(addr)])
-            nodeRoot.setData(0, QtCore.Qt.UserRole, addr)
+            nodeRoot.setData(0, QtCore.Qt.ItemDataRole.UserRole, addr)
             fwItem.addChild(nodeRoot)
             for nodeChains in chains[addr]:
                 # exclude legacy system rules
@@ -2428,11 +2430,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     # add tables
                     tableName = "{0}-{1}".format(cc.Table, cc.Family)
                     nodeTable = QtWidgets.QTreeWidgetItem([tableName])
-                    nodeTable.setData(0, QtCore.Qt.UserRole, "{0}-{1}".format(addr, tableName))
+                    nodeTable.setData(0, QtCore.Qt.ItemDataRole.UserRole, "{0}-{1}".format(addr, tableName))
 
                     chainName = "{0}-{1}".format(cc.Name, cc.Hook)
                     nodeChain = QtWidgets.QTreeWidgetItem([chainName, cc.Policy])
-                    nodeChain.setData(0, QtCore.Qt.UserRole, "{0}-{1}".format(addr, chainName))
+                    nodeChain.setData(0, QtCore.Qt.ItemDataRole.UserRole, "{0}-{1}".format(addr, chainName))
 
                     items = self._find_tree_fw_items("{0}-{1}".format(addr, tableName))
                     if len(items) == 0:
@@ -2601,8 +2603,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         # resizeToContens call.
         # Secondly set resizeMode to Interactive (allow to move columns by
         # users + programmatically)
-        header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
+        header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
 
         col_state = self._cfg.getSettings(settings_key)
         if type(col_state) == QtCore.QByteArray:
@@ -3456,10 +3458,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.settings_saved.emit()
 
     def _on_menu_node_export_clicked(self, triggered):
-        outdir = QtWidgets.QFileDialog.getExistingDirectory(self,
-                                                            os.path.expanduser("~"),
-                                                            QC.translate("stats", 'Select a directory to export rules'),
-                                                            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+        outdir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            os.path.expanduser("~"),
+            QC.translate("stats", 'Select a directory to export rules'),
+            QtWidgets.QFileDialog.Option.ShowDirsOnly | QtWidgets.QFileDialog.Option.DontResolveSymlinks
+        )
         if outdir == "":
             return
 
@@ -3469,18 +3473,20 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                        QC.translate("stats",
                                     "Error exporting rules"
                                     ),
-                       QtWidgets.QMessageBox.Warning)
+                       QtWidgets.QMessageBox.Icon.Warning)
         else:
             Message.ok("Rules export",
                        QC.translate("stats", "Rules exported to {0}".format(outdir)),
-                       QtWidgets.QMessageBox.Information)
+                       QtWidgets.QMessageBox.Icon.Information)
 
 
     def _on_menu_node_import_clicked(self, triggered):
-        rulesdir = QtWidgets.QFileDialog.getExistingDirectory(self,
-                                                                os.path.expanduser("~"),
-                                                                QC.translate("stats", 'Select a directory with rules to import (JSON files)'),
-                                                                QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+        rulesdir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            os.path.expanduser("~"),
+            QC.translate("stats", 'Select a directory with rules to import (JSON files)'),
+            QtWidgets.QFileDialog.Option.ShowDirsOnly | QtWidgets.QFileDialog.Option.DontResolveSymlinks
+        )
         if rulesdir == '':
                 return
 
@@ -3494,7 +3500,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
                 Message.ok("Rules import",
                         QC.translate("stats", "Rules imported fine"),
-                        QtWidgets.QMessageBox.Information)
+                        QtWidgets.QMessageBox.Icon.Information)
                 if self.tabWidget.currentIndex() == self.TAB_RULES:
                     self._refresh_active_table()
         else:
@@ -3502,7 +3508,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                         QC.translate("stats",
                                         "Error importing rules from {0}".format(rulesdir)
                                         ),
-                        QtWidgets.QMessageBox.Warning)
+                        QtWidgets.QMessageBox.Icon.Warning)
 
 
 
@@ -3510,10 +3516,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.close_trigger.emit()
 
     def _on_menu_export_clicked(self, triggered):
-        outdir = QtWidgets.QFileDialog.getExistingDirectory(self,
-                                                            os.path.expanduser("~"),
-                                                            QC.translate("stats", 'Select a directory to export rules'),
-                                                            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+        outdir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            os.path.expanduser("~"),
+            QC.translate("stats", 'Select a directory to export rules'),
+            QtWidgets.QFileDialog.Option.ShowDirsOnly | QtWidgets.QFileDialog.Option.DontResolveSymlinks
+        )
         if outdir == "":
             return
 
@@ -3532,17 +3540,19 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                                     "Error exporting rules of the following nodes:<br><br>{0}"
                                     .format(errorlist)
                                     ),
-                       QtWidgets.QMessageBox.Warning)
+                       QtWidgets.QMessageBox.Icon.Warning)
         else:
             Message.ok("Rules export",
                        QC.translate("stats", "Rules exported to {0}".format(outdir)),
-                       QtWidgets.QMessageBox.Information)
+                       QtWidgets.QMessageBox.Icon.Information)
 
     def _on_menu_import_clicked(self, triggered):
-       rulesdir = QtWidgets.QFileDialog.getExistingDirectory(self,
-                                                            os.path.expanduser("~"),
-                                                            QC.translate("stats", 'Select a directory with rules to import (JSON files)'),
-                                                            QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+       rulesdir = QtWidgets.QFileDialog.getExistingDirectory(
+           self,
+           os.path.expanduser("~"),
+           QC.translate("stats", 'Select a directory with rules to import (JSON files)'),
+           QtWidgets.QFileDialog.Option.ShowDirsOnly | QtWidgets.QFileDialog.Option.DontResolveSymlinks
+       )
        if rulesdir == '':
             return
 
@@ -3555,7 +3565,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             Message.ok("Rules import",
                        QC.translate("stats", "Rules imported fine"),
-                       QtWidgets.QMessageBox.Information)
+                       QtWidgets.QMessageBox.Icon.Information)
             if self.tabWidget.currentIndex() == self.TAB_RULES:
                 self._refresh_active_table()
        else:
@@ -3563,15 +3573,16 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                        QC.translate("stats",
                                     "Error importing rules from {0}".format(rulesdir)
                                     ),
-                       QtWidgets.QMessageBox.Warning)
+                       QtWidgets.QMessageBox.Icon.Warning)
 
     def _on_menu_export_csv_clicked(self, triggered):
         tab_idx = self.tabWidget.currentIndex()
 
-        filename = QtWidgets.QFileDialog.getSaveFileName(self,
-                    QC.translate("stats", 'Save as CSV'),
-                    self._file_names[tab_idx],
-                    'All Files (*);;CSV Files (*.csv)')[0].strip()
+        filename = QtWidgets.QFileDialog.getSaveFileName(
+            self,
+            QC.translate("stats", 'Save as CSV'),
+            self._file_names[tab_idx],
+            'All Files (*);;CSV Files (*.csv)')[0].strip()
         if filename == '':
             return
 
@@ -3582,7 +3593,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             cols = []
 
             for col in range(0, ncols):
-                cols.append(table.model().headerData(col, QtCore.Qt.Horizontal))
+                cols.append(table.model().headerData(col, QtCore.Qt.Orientation.Horizontal))
 
             with open(filename, 'w') as csvfile:
                 w = csv.writer(csvfile, dialect='excel')
@@ -3634,7 +3645,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             header.sortIndicatorChanged.connect(self._cb_table_header_clicked)
 
             for _, col in enumerate(resize_cols):
-                header.setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
+                header.setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         cur_idx = self.tabWidget.currentIndex()
         self._cfg.setSettings("{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx), header.saveState())
@@ -3713,7 +3724,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):
-        if not event.key() == QtCore.Qt.Key_Escape:
+        if not event.key() == QtCore.Qt.Key.Key_Escape:
             super(StatsDialog, self).keyPressEvent(event)
 
     def setQuery(self, model, q):

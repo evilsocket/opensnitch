@@ -1,5 +1,5 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6 import QtWidgets, QtGui, QtCore
+from PyQt6.QtCore import QCoreApplication as QC
 
 from datetime import datetime, timedelta
 from threading import Thread, Lock, Event
@@ -45,11 +45,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal(bool)
     _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
-    _show_message_trigger = QtCore.pyqtSignal(str, str, int, int)
+    _show_message_trigger = QtCore.pyqtSignal(str, str, QtWidgets.QSystemTrayIcon.MessageIcon, int)
     _temp_rule_expired = QtCore.pyqtSignal(str, str)
 
     # .desktop filename located under /usr/share/applications/
-    DESKTOP_FILENAME = "opensnitch_ui.desktop"
+    DESKTOP_FILENAME = "opensnitch_ui"
 
     def __init__(self, app, on_exit, start_in_bg=False):
         super(UIService, self).__init__()
@@ -80,11 +80,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         if db_status is False:
             Message.ok(
                 QtCore.QCoreApplication.translate("preferences", "Warning"),
-                QtCore.QCoreApplication.translate("preferences",
-                                                  "The DB is corrupted and it's not safe to continue.<br>\
-                                                  Remove, backup or recover the file before continuing.<br><br>\
-                                                  Corrupted database file: {0}".format(db_file)),
-                QtWidgets.QMessageBox.Warning)
+                QtCore.QCoreApplication.translate(
+                    "preferences",
+                    "The DB is corrupted and it's not safe to continue.<br>\
+                    Remove, backup or recover the file before continuing.<br><br>\
+                    Corrupted database file: {0}".format(db_file)),
+                QtWidgets.QMessageBox.Icon.Warning)
             sys.exit(-1)
 
         self._db_sqlite = self._db.get_db()
@@ -197,19 +198,19 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _setup_icons(self):
         self.off_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-off.png"))
         self.off_icon = QtGui.QIcon()
-        self.off_icon.addPixmap(self.off_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.off_icon.addPixmap(self.off_image, QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.white_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-white.svg"))
         self.white_icon = QtGui.QIcon()
-        self.white_icon.addPixmap(self.white_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.white_icon.addPixmap(self.white_image, QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.red_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-red.png"))
         self.red_icon = QtGui.QIcon()
-        self.red_icon.addPixmap(self.red_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.red_icon.addPixmap(self.red_image, QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pause_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-pause.png"))
         self.pause_icon = QtGui.QIcon()
-        self.pause_icon.addPixmap(self.pause_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.pause_icon.addPixmap(self.pause_image, QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.alert_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-alert.png"))
         self.alert_icon = QtGui.QIcon()
-        self.alert_icon.addPixmap(self.alert_image, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.alert_icon.addPixmap(self.alert_image, QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
 
         self._app.setWindowIcon(self.white_icon)
         # NOTE: only available since pyqt 5.7
@@ -288,7 +289,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._cfg.setSettings(Config.DEFAULT_HIDE_SYSTRAY_WARN, True)
 
     def _on_tray_icon_activated(self, reason):
-        if reason == QtWidgets.QSystemTrayIcon.Trigger or reason == QtWidgets.QSystemTrayIcon.MiddleClick:
+        if reason == QtWidgets.QSystemTrayIcon.ActivationReason.Trigger or reason == QtWidgets.QSystemTrayIcon.ActivationReason.MiddleClick:
             if self._stats_dialog.isVisible() and not self._stats_dialog.isMinimized():
                 self._stats_dialog.hide()
             elif self._stats_dialog.isVisible() and self._stats_dialog.isMinimized() and not self._stats_dialog.isMaximized():
@@ -334,11 +335,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     @QtCore.pyqtSlot(str, str)
     def _on_diff_versions(self, daemon_ver, ui_ver):
         if self._version_warning_shown == False:
-            self._msg.setIcon(QtWidgets.QMessageBox.Warning)
+            self._msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             self._msg.setWindowTitle("OpenSnitch version mismatch!")
             self._msg.setText(("You are running version <b>%s</b> of the daemon, while the UI is at version " + \
                               "<b>%s</b>, they might not be fully compatible.") % (daemon_ver, ui_ver))
-            self._msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            self._msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
             self._msg.show()
             self._version_warning_shown = True
 
@@ -363,17 +364,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 body = "node: {0}:{1}\n\n{2}\n{3}".format(proto, addr, alert.text, alert.proc.path)
 
             if alert.action == ui_pb2.Alert.SHOW_ALERT:
-                icon = QtWidgets.QSystemTrayIcon.Information
+                icon = QtWidgets.QSystemTrayIcon.MessageIcon.Information
                 _title = QtCore.QCoreApplication.translate("messages", "Info")
                 atype = "INFO"
                 if alert.type == ui_pb2.Alert.ERROR:
                     atype = "ERROR"
                     _title = QtCore.QCoreApplication.translate("messages", "Error")
-                    icon = QtWidgets.QSystemTrayIcon.Critical
+                    icon = QtWidgets.QSystemTrayIcon.MessageIcon.Critical
                 if alert.type == ui_pb2.Alert.WARNING:
                     atype = "WARNING"
                     _title = QtCore.QCoreApplication.translate("messages", "Warning")
-                    icon = QtWidgets.QSystemTrayIcon.Warning
+                    icon = QtWidgets.QSystemTrayIcon.MessageIcon.Warning
 
                 urgency = DesktopNotifications.URGENCY_NORMAL
                 if alert.priority == ui_pb2.Alert.LOW:
@@ -420,15 +421,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
     def _on_notification_reply(self, addr, reply):
         if reply.code == ui_pb2.ERROR:
-            self._tray.showMessage("Error",
-                                reply.data,
-                                QtWidgets.QSystemTrayIcon.Information,
-                                5000)
+            self._tray.showMessage(
+                "Error",
+                reply.data,
+                QtWidgets.QSystemTrayIcon.MessageIcon.Information,
+                5000
+            )
 
     def _on_remote_stats_menu(self, address):
         self._remote_stats[address]['dialog'].show()
 
-    @QtCore.pyqtSlot(str, str, int, int)
+    @QtCore.pyqtSlot(str, str, QtWidgets.QSystemTrayIcon.MessageIcon, int)
     def _show_systray_message(self, title, body, icon, urgency):
         def callback_open_clicked(notifObject, action):
             if action == DesktopNotifications.ACTION_ID_OPEN:
@@ -452,7 +455,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             else:
                 self._tray.showMessage(title, body, icon, timeout * 1000)
 
-        if icon == QtWidgets.QSystemTrayIcon.NoIcon:
+        if icon == QtWidgets.QSystemTrayIcon.MessageIcon.NoIcon:
             self._tray.setIcon(self.alert_icon)
 
     def _on_enable_interception_clicked(self):
@@ -544,10 +547,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         if self._connected == False:
             return
         if self._nodes.count() == 0:
-            self._tray.showMessage("No nodes connected",
-                                "",
-                                QtWidgets.QSystemTrayIcon.Information,
-                                5000)
+            self._tray.showMessage(
+                QC.translated("stats", "No nodes connected"),
+                "",
+                QtWidgets.QSystemTrayIcon.MessageIcon.Information,
+                5000
+            )
             return
         if self._nodes.count() > 1:
             print("enable interception for all nodes not supported yet")
@@ -843,11 +848,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
 
             node_text = "" if self._is_local_request(proto, addr) else "on node {0}:{1}".format(proto, addr)
-            self._show_message_trigger.emit(_title,
-                                            "{0} action applied {1}\nCommand line: {2}"
-                                            .format(rule.action, node_text, " ".join(request.process_args)),
-                                            QtWidgets.QSystemTrayIcon.NoIcon,
-                                            DesktopNotifications.URGENCY_NORMAL)
+            self._show_message_trigger.emit(
+                _title,
+                "{0} action applied {1}\nCommand line: {2}"
+                .format(rule.action, node_text, " ".join(request.process_args)),
+                QtWidgets.QSystemTrayIcon.MessageIcon.NoIcon,
+                DesktopNotifications.URGENCY_NORMAL
+            )
 
         if rule.duration in Config.RULES_DURATION_FILTER:
             self._node_actions_trigger.emit(
@@ -895,7 +902,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 self._show_message_trigger.emit(
                     QtCore.QCoreApplication.translate("stats", "New node connected"),
                     "({0})".format(context.peer()),
-                    QtWidgets.QSystemTrayIcon.Information,
+                    QtWidgets.QSystemTrayIcon.MessageIcon.Information,
                     DesktopNotifications.URGENCY_LOW
                 )
         except Exception as e:
@@ -935,10 +942,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             #    if nd[0].get_config().isFirewallRunning:
 
             if self._is_local_request(proto, addr) == False:
-                self._show_message_trigger.emit("node exited",
-                                                "({0})".format(context.peer()),
-                                                QtWidgets.QSystemTrayIcon.Information,
-                                                DesktopNotifications.URGENCY_LOW)
+                self._show_message_trigger.emit(
+                    "node exited",
+                    "({0})".format(context.peer()),
+                    QtWidgets.QSystemTrayIcon.MessageIcon.Information,
+                    DesktopNotifications.URGENCY_LOW
+                )
 
         context.add_callback(_on_client_closed)
 

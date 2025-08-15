@@ -1,4 +1,4 @@
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 from abc import ABC, abstractmethod
 from importlib import util
 import os

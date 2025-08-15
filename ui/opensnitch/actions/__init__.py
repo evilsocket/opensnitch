@@ -1,9 +1,9 @@
 import json
 import os
 import glob
-import sys
+#import sys
 
-from PyQt5.QtCore import QObject
+from PyQt6.QtCore import QObject
 
 from opensnitch.utils.xdg import xdg_config_home
 from opensnitch.actions.default_configs import (

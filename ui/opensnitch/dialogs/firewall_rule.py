@@ -3,8 +3,8 @@ import os
 import os.path
 import ipaddress
 
-from PyQt5 import QtCore, uic, QtWidgets
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6 import QtCore, uic, QtWidgets
+from PyQt6.QtCore import QCoreApplication as QC
 
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
@@ -826,7 +826,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
 
         prots = ["TCP", "UDP", "ICMP"]
         stOptsWidget = QtWidgets.QComboBox(w)
-        stOptsWidget.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+        stOptsWidget.setSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Fixed)
         stOptsWidget.addItems(prots)
 
         # row 2: | operator | value |
@@ -839,12 +839,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
             QC.translate("firewall", "Less than")
         ]
         stOpWidget = QtWidgets.QComboBox(w)
-        stOpWidget.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+        stOpWidget.setSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Fixed)
         stOpWidget.addItems(ops)
 
         stValueWidget = QtWidgets.QComboBox(w)
         stValueWidget.setEditable(True)
-        stValueWidget.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        stValueWidget.setSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         stValueWidget.setCurrentText("")
 
         # add statement, proto/opts, operator and value

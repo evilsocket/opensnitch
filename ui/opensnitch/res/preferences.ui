@@ -23,13 +23,13 @@
       </sizepolicy>
      </property>
      <property name="tabPosition">
-      <enum>QTabWidget::North</enum>
+      <enum>QTabWidget::TabPosition::North</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
      <property name="elideMode">
-      <enum>Qt::ElideRight</enum>
+      <enum>Qt::TextElideMode::ElideRight</enum>
      </property>
      <widget class="QWidget" name="tab">
       <property name="sizePolicy">
@@ -76,10 +76,10 @@
             </sizepolicy>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
            <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::NoButtons</enum>
+            <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
            </property>
            <property name="accelerated">
             <bool>true</bool>
@@ -164,7 +164,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>328</height>
+            <height>331</height>
            </rect>
           </property>
           <attribute name="label">
@@ -386,7 +386,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>328</height>
+            <height>331</height>
            </rect>
           </property>
           <attribute name="label">
@@ -528,7 +528,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>323</height>
+            <height>328</height>
            </rect>
           </property>
           <attribute name="label">
@@ -617,10 +617,10 @@
                 </sizepolicy>
                </property>
                <property name="alignment">
-                <set>Qt::AlignCenter</set>
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
                <property name="buttonSymbols">
-                <enum>QAbstractSpinBox::NoButtons</enum>
+                <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
                </property>
                <property name="accelerated">
                 <bool>true</bool>
@@ -705,10 +705,10 @@
                 </sizepolicy>
                </property>
                <property name="alignment">
-                <set>Qt::AlignCenter</set>
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
                <property name="buttonSymbols">
-                <enum>QAbstractSpinBox::NoButtons</enum>
+                <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
                </property>
                <property name="accelerated">
                 <bool>true</bool>
@@ -868,8 +868,8 @@ wayland</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>318</width>
-            <height>207</height>
+            <width>316</width>
+            <height>200</height>
            </rect>
           </property>
           <attribute name="label">
@@ -983,7 +983,7 @@ wayland</string>
               <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+              <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
              </property>
             </widget>
            </item>
@@ -1026,8 +1026,8 @@ or a network socket: 127.0.0.1:50051</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>321</width>
-            <height>112</height>
+            <width>319</width>
+            <height>109</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1093,7 +1093,7 @@ or a network socket: 127.0.0.1:50051</string>
                 <item>
                  <spacer name="horizontalSpacer_5">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -1123,7 +1123,7 @@ or a network socket: 127.0.0.1:50051</string>
             <x>0</x>
             <y>0</y>
             <width>321</width>
-            <height>136</height>
+            <height>131</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1139,7 +1139,7 @@ or a network socket: 127.0.0.1:50051</string>
               </sizepolicy>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
              <layout class="QGridLayout" name="gridLayout_7">
               <property name="leftMargin">
@@ -1396,7 +1396,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
        <item row="1" column="0">
         <spacer name="verticalSpacer_2">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -1448,17 +1448,17 @@ Temporary rules will still be valid, and you can use them when prompted to allow
           <string/>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <spacer name="horizontalSpacer_3">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeType">
-          <enum>QSizePolicy::Maximum</enum>
+          <enum>QSizePolicy::Policy::Maximum</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -1480,7 +1480,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
           <string/>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
          </property>
         </widget>
        </item>
@@ -1495,7 +1495,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>224</height>
+            <height>232</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1579,8 +1579,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
                <string>reject</string>
               </property>
               <property name="icon">
-               <iconset theme="window-close">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="window-close"/>
               </property>
              </item>
             </widget>
@@ -1653,8 +1652,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>376</width>
-            <height>118</height>
+            <width>377</width>
+            <height>116</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1769,10 +1768,10 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <item row="4" column="1">
             <spacer name="verticalSpacer_3">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Maximum</enum>
+              <enum>QSizePolicy::Policy::Maximum</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -1789,8 +1788,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>296</width>
-            <height>211</height>
+            <width>295</width>
+            <height>204</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1913,7 +1912,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
               <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+              <set>Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByMouse</set>
              </property>
             </widget>
            </item>
@@ -1928,7 +1927,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             <x>0</x>
             <y>0</y>
             <width>226</width>
-            <height>133</height>
+            <height>130</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1987,7 +1986,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <item row="12" column="0">
             <spacer name="verticalSpacer_4">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -2005,8 +2004,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
                 <string>Path</string>
                </property>
                <property name="icon">
-                <iconset theme="document-open">
-                 <normaloff>.</normaloff>.</iconset>
+                <iconset theme="document-open"/>
                </property>
               </widget>
              </item>
@@ -2029,8 +2027,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>430</width>
-            <height>191</height>
+            <width>432</width>
+            <height>186</height>
            </rect>
           </property>
           <attribute name="label">
@@ -2046,13 +2044,13 @@ Temporary rules will still be valid, and you can use them when prompted to allow
               </sizepolicy>
              </property>
              <property name="inputMethodHints">
-              <set>Qt::ImhDigitsOnly</set>
+              <set>Qt::InputMethodHint::ImhDigitsOnly</set>
              </property>
              <property name="text">
               <string>50</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -2066,7 +2064,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <item row="7" column="0" colspan="2">
             <spacer name="verticalSpacer_5">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -2092,13 +2090,13 @@ Temporary rules will still be valid, and you can use them when prompted to allow
               </sizepolicy>
              </property>
              <property name="inputMethodHints">
-              <set>Qt::ImhDigitsOnly</set>
+              <set>Qt::InputMethodHint::ImhDigitsOnly</set>
              </property>
              <property name="text">
               <string>250</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -2155,10 +2153,10 @@ Note that this option may be not acceptable on servers, for example because down
                 </sizepolicy>
                </property>
                <property name="alignment">
-                <set>Qt::AlignCenter</set>
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
                <property name="buttonSymbols">
-                <enum>QAbstractSpinBox::NoButtons</enum>
+                <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
                </property>
                <property name="accelerated">
                 <bool>true</bool>
@@ -2221,7 +2219,7 @@ Use 0 to disable this feature.</string>
               <number>5</number>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
              <property name="placeholderText">
               <string>10s, 15s, 60s, etc</string>
@@ -2251,7 +2249,7 @@ Use 0 to disable this feature.</string>
           <string>Version</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
          </property>
         </widget>
        </item>
@@ -2267,7 +2265,7 @@ Use 0 to disable this feature.</string>
           <string>HostName</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
          </property>
         </widget>
        </item>
@@ -2279,7 +2277,7 @@ Use 0 to disable this feature.</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,0,0,0,0">
        <property name="sizeConstraint">
-        <enum>QLayout::SetDefaultConstraint</enum>
+        <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
        </property>
        <property name="leftMargin">
         <number>9</number>
@@ -2347,7 +2345,7 @@ Use 0 to disable this feature.</string>
        <item row="5" column="0">
         <spacer name="verticalSpacer">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -2360,7 +2358,7 @@ Use 0 to disable this feature.</string>
        <item row="0" column="1">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -2381,10 +2379,10 @@ Use 0 to disable this feature.</string>
             <bool>false</bool>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
            <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::NoButtons</enum>
+            <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
            </property>
            <property name="minimum">
             <number>1</number>
@@ -2436,10 +2434,10 @@ Use 0 to disable this feature.</string>
             <bool>false</bool>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
            <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::NoButtons</enum>
+            <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
            </property>
            <property name="minimum">
             <number>5</number>
@@ -2458,14 +2456,14 @@ Use 0 to disable this feature.</string>
             <string>Minutes between events purges</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
           <spacer name="horizontalSpacer">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -2615,7 +2613,7 @@ Use 0 to disable this feature.</string>
      <item>
       <spacer name="horizontalSpacer_4">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>

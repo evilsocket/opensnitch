@@ -1,6 +1,6 @@
 import os.path
 import sys, glob
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 from opensnitch.config import Config
 

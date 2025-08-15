@@ -3,7 +3,7 @@ import requests
 import json
 import re
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 from opensnitch.version import version
 from opensnitch.config import Config
 from opensnitch.plugins import PluginBase, PluginSignal

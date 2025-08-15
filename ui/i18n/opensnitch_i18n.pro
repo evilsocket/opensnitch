@@ -7,6 +7,7 @@
 SOURCES +=  ../opensnitch/service.py \
 	    ../opensnitch/notifications.py \
 	    ../opensnitch/customwidgets/addresstablemodel.py \
+	    ../opensnitch/customwidgets/firewalltableview.py \
 	    ../opensnitch/customwidgets/main.py \
 	    ../opensnitch/dialogs/prompt/__init__.py \
 	    ../opensnitch/dialogs/prompt/_utils.py \
@@ -18,7 +19,8 @@ SOURCES +=  ../opensnitch/service.py \
 	    ../opensnitch/dialogs/processdetails.py \
 	    ../opensnitch/dialogs/stats.py \
 	    ../opensnitch/dialogs/firewall.py \
-	    ../opensnitch/dialogs/firewall_rule.py
+	    ../opensnitch/dialogs/firewall_rule.py \
+	    ../opensnitch/firewall/rules.py
 
 FORMS += ../opensnitch/res/prompt.ui \
 	    ../opensnitch/res/ruleseditor.ui \
