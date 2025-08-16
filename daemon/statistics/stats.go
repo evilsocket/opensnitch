@@ -14,7 +14,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
-// StatsConfig holds the stats confguration
+// StatsConfig holds the stats configuration
 type StatsConfig struct {
 	MaxEvents int `json:"MaxEvents"`
 	MaxStats  int `json:"MaxStats"`
