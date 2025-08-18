@@ -50,3 +50,5 @@ TRANSLATIONS += locales/cs_CZ/opensnitch-cs_CZ.ts \
                 locales/tr_TR/opensnitch-tr_TR.ts \
                 locales/uk_UA/opensnitch-uk_UA.ts \
                 locales/zh_TW/opensnitch-zh_TW.ts
+
+TSFILES := $(TRANSLATIONS)
