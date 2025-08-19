@@ -2,7 +2,7 @@
 pyqt6>=6.4
 protobuf
 grpcio-tools>=1.10.1
-unicode_slugify==0.1.5
+python-slugify>=7.0.0
 
 # suggested
 #  file changes monitoring
