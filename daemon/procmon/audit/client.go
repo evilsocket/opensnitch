@@ -80,6 +80,10 @@ const (
 )
 
 var (
+	auditCfg Config
+)
+
+var (
 	// Lock holds a mutex
 	Lock   sync.RWMutex
 	ourPid = os.Getpid()
@@ -93,9 +97,8 @@ var (
 	eventsExitChan = (chan bool)(nil)
 	auditConn      net.Conn
 	// TODO: we may need arm arch
-	rule64      = []string{"exit,always", "-F", "arch=b64", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socket,connect", "-k", "opensnitch"}
-	rule32      = []string{"exit,always", "-F", "arch=b32", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socketcall", "-F", "a0=1", "-k", "opensnitch"}
-	audispdPath = "/var/run/audispd_events"
+	rule64 = []string{"exit,always", "-F", "arch=b64", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socket,connect", "-k", "opensnitch"}
+	rule32 = []string{"exit,always", "-F", "arch=b32", "-F", fmt.Sprint("ppid!=", ourPid), "-F", fmt.Sprint("pid!=", ourPid), "-S", "socketcall", "-F", "a0=1", "-k", "opensnitch"}
 )
 
 // OPENSNITCH_RULES_KEY is the mark we place on every event we are interested in.
@@ -309,7 +312,7 @@ func reconnect() (net.Conn, error) {
 func connect() (net.Conn, error) {
 	addRules()
 	// TODO: make the unix socket path configurable
-	return net.Dial("unix", audispdPath)
+	return net.Dial("unix", auditCfg.AudispSocketPath)
 }
 
 // Stop stops listening for events from auditd and delete the auditd rules.
@@ -339,7 +342,8 @@ func Stop() {
 }
 
 // Start makes a new connection to the audisp af_unix socket.
-func Start() (net.Conn, error) {
+func Start(auditOpts Config) (net.Conn, error) {
+	setConfig(auditOpts)
 	auditConn, err := connect()
 	if err != nil {
 		log.Error("auditd Start() connection error %v", err)
