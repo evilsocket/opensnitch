@@ -642,7 +642,7 @@ func main() {
 	// the option via command line.
 	if procmonMethod != "" || (ebpfModPath != "" && ebpfModPath != cfg.Ebpf.ModulesPath) {
 		log.Info("Reloading proc monitor (%s) (ebpf mods path: %s)...", procmonMethod, cfg.Ebpf.ModulesPath)
-		if err := monitor.ReconfigureMonitorMethod(procmonMethod, cfg.Ebpf); err != nil {
+		if err := monitor.ReconfigureMonitorMethod(procmonMethod, cfg.Ebpf, cfg.Audit); err != nil {
 			msg := fmt.Sprintf("Unable to set process monitor method via parameter: %v", err)
 			uiClient.SendWarningAlert(msg)
 			log.Warning(msg)
