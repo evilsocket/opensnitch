@@ -51,7 +51,7 @@ type Remote struct {
 	// Name of the logger
 	Name string
 
-	// channel used to write mesages
+	// channel used to write messages
 	writerChan chan string
 
 	Tag string
