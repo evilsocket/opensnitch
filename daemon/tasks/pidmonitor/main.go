@@ -129,7 +129,9 @@ func (pm *PIDMonitor) Stop() error {
 
 	log.Debug("[task.PIDMonitor] Stop()")
 	pm.Ticker.Stop()
-	pm.Cancel()
+	if pm.Cancel != nil {
+		pm.Cancel()
+	}
 	close(pm.TaskBase.Results)
 	close(pm.TaskBase.Errors)
 	return nil

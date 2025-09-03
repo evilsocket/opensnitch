@@ -114,7 +114,9 @@ func (pm *NodeMonitor) Stop() error {
 	if pm.Ticker != nil {
 		pm.Ticker.Stop()
 	}
-	pm.Cancel()
+	if pm.Cancel != nil {
+		pm.Cancel()
+	}
 	close(pm.TaskBase.Results)
 	close(pm.TaskBase.Errors)
 	return nil

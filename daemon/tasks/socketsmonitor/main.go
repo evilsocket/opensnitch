@@ -145,8 +145,12 @@ func (pm *SocketsMonitor) Stop() error {
 	}
 	log.Debug("[task.SocketsMonitor] Stop()")
 	pm.isStopped = true
-	pm.Ticker.Stop()
-	pm.Cancel()
+	if pm.Ticker != nil {
+		pm.Ticker.Stop()
+	}
+	if pm.Cancel != nil {
+		pm.Cancel()
+	}
 	close(pm.TaskBase.Results)
 	close(pm.TaskBase.Errors)
 	return nil
