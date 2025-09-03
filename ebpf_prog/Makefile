@@ -3,73 +3,52 @@
 # On Debian based distros we need the following 2 directories.
 # Otherwise, just use the kernel headers from the kernel sources.
 #
-KERNEL_VER ?= $(shell ls -d /lib/modules/*/source | sort | tail -1 | cut -d/ -f4)
-KERNEL_DIR ?= /lib/modules/$(KERNEL_VER)/source
-KERNEL_HEADERS ?= /usr/src/linux-headers-$(KERNEL_VER)/
+
+KERNEL_VER = $(shell ls -d /lib/modules/*/source | sort | tail -1 | cut -d/ -f4)
+KERNEL_DIR = /lib/modules/$(KERNEL_VER)/source
 CC = clang
-LLC ?= llc
-ARCH ?= $(shell uname -m)
+LLC = llc
 
-# as in /usr/src/linux-headers-*/arch/
-# TODO: extract correctly the archs, and add more if needed.
-ifeq ($(ARCH),x86_64)
-	ARCH := x86
-else ifeq ($(ARCH),i686)
-	ARCH := x86
-else ifeq ($(ARCH),armv7l)
-	ARCH := arm
-else ifeq ($(ARCH),armv8l)
-	ARCH := arm
-else ifeq ($(ARCH),aarch64)
-	ARCH := arm64
-else ifeq ($(ARCH),loongarch64)
-	ARCH := loongarch
-else ifeq ($(ARCH),riscv64)
-	ARCH := riscv
-else ifeq ($(ARCH),s390x)
-	ARCH := s390
-endif
+# Find all .c files and create a list of corresponding .o targets.
+SRC_FILES := $(wildcard *.c)
+BPF_TARGETS := $(SRC_FILES:.c=.o)
 
-ifeq ($(ARCH),arm)
-	# on previous archs, it fails with "SMP not supported on pre-ARMv6"
-	EXTRA_FLAGS = "-D__LINUX_ARM_ARCH__=7"
-endif
+# 'always-y' tells kbuild to compile our BPF targets.
+always-y := $(BPF_TARGETS)
 
-SRC := $(wildcard *.c)
-BIN := $(SRC:.c=.o)
-CFLAGS = -I. \
-	-I$(KERNEL_HEADERS)/arch/$(ARCH)/include/generated/ \
-	-I$(KERNEL_HEADERS)/include \
-	-include $(KERNEL_DIR)/include/linux/kconfig.h \
-	-I$(KERNEL_DIR)/include \
-	-I$(KERNEL_DIR)/include/uapi \
-	-I$(KERNEL_DIR)/include/generated/uapi \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include/generated \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include/uapi \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include/generated/uapi \
-	-I$(KERNEL_DIR)/tools/testing/selftests/bpf/ \
-	-D__KERNEL__ -D__BPF_TRACING__ -Wno-unused-value -Wno-pointer-sign \
-	-D__TARGET_ARCH_$(ARCH) -Wno-compare-distinct-pointer-types \
-	$(EXTRA_FLAGS) \
-	-Wunused \
-	-Wno-unused-value \
-	-Wno-gnu-variable-sized-type-not-at-end \
-	-Wno-address-of-packed-member \
-	-Wno-tautological-compare \
-	-Wno-unknown-warning-option  \
-	-fno-stack-protector \
-	-g -O2 -emit-llvm
+# Add extra compiler flags. We add flags to suppress warnings that
+# originate from the kernel headers themselves or are common style issues.
+ccflags-y := \\
+	-g -O2 \\
+	-Wno-unused-value \\
+	-Wno-pointer-sign \\
+	-Wno-compare-distinct-pointer-types \\
+	-Wno-gnu-variable-sized-type-not-at-end \\
+	-Wno-address-of-packed-member \\
+	-Wno-tautological-compare \\
+	-Wno-unknown-warning-option \\
+	-Wno-duplicate-decl-specifier \\
+	-Wno-enum-enum-conversion \\
+	-Wno-missing-prototypes
 
-all: $(BIN)
+# List of gcc-specific flags from your log that clang 20 does not understand.
+GCC_ONLY_FLAGS := \\
+	-mpreferred-stack-boundary=3 \\
+	-mindirect-branch=thunk-extern \\
+	-mindirect-branch-register \\
+	-mrecord-mcount \\
+	-fno-allow-store-data-races \\
+	-fmin-function-alignment=16 \\
+	-fconserve-stack
 
-%.bc: %.c
-	$(CC) $(CFLAGS) -c $<
+# For each of our BPF object files, remove the incompatible gcc flags.
+$(foreach bpf_obj,$(BPF_TARGETS),$(eval CFLAGS_REMOVE_$(bpf_obj) = $(GCC_ONLY_FLAGS)))
 
-%.o: %.bc
-	$(LLC) -march=bpf -mcpu=generic -filetype=obj -o $@ $<
+# Standard targets for an external module Makefile.
+all:
+	$(MAKE) -C $(KERNEL_DIR) M=$(PWD) CC=$(CC)
 
 clean:
-	rm -f $(BIN)
+	$(MAKE) -C $(KERNEL_DIR) M=$(PWD) clean
 
-.SUFFIXES:
+.PHONY: all clean
