@@ -96,7 +96,6 @@ var (
 	pktChan       = (<-chan netfilter.Packet)(nil)
 	wrkChan       = (chan netfilter.Packet)(nil)
 	sigChan       = (chan os.Signal)(nil)
-	exitChan      = (chan bool)(nil)
 	loggerMgr     *loggers.LoggerManager
 	resolvMonitor *systemd.ResolvedMonitor
 )
@@ -251,7 +250,6 @@ func setupProfiling() {
 
 func setupSignals() {
 	sigChan = make(chan os.Signal, 1)
-	exitChan = make(chan bool, workers+1)
 	signal.Notify(sigChan,
 		syscall.SIGHUP,
 		syscall.SIGINT,
