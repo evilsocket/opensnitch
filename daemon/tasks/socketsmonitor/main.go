@@ -99,7 +99,7 @@ func (pm *SocketsMonitor) Start(ctx context.Context, cancel context.CancelFunc) 
 			select {
 			case <-ctx.Done():
 				goto Exit
-			case <-pm.Ticker.C:
+			default:
 				// FIXME: ensure that dumpSockets() are not overlapped
 				socketList := pm.dumpSockets()
 				sockJSON, err := json.Marshal(socketList)
@@ -114,6 +114,8 @@ func (pm *SocketsMonitor) Start(ctx context.Context, cancel context.CancelFunc) 
 				}
 
 				pm.TaskBase.Results <- unsafe.String(unsafe.SliceData(sockJSON), len(sockJSON))
+
+				<-pm.Ticker.C
 			}
 		}
 	Exit:

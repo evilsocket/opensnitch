@@ -67,7 +67,7 @@ func (pm *NodeMonitor) Start(ctx context.Context, cancel context.CancelFunc) err
 			select {
 			case <-ctx.Done():
 				goto Exit
-			case <-pm.Ticker.C:
+			default:
 				// TODO:
 				//  - filesystem stats
 				//  - daemon status (mem && cpu usage, internal/debug pkg, etc)
@@ -82,6 +82,8 @@ func (pm *NodeMonitor) Start(ctx context.Context, cancel context.CancelFunc) err
 					continue
 				}
 				pm.TaskBase.Results <- unsafe.String(unsafe.SliceData(infoJSON), len(infoJSON))
+
+				<-pm.Ticker.C
 			}
 		}
 	Exit:

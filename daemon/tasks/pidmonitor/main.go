@@ -79,7 +79,7 @@ func (pm *PIDMonitor) Start(ctx context.Context, cancel context.CancelFunc) erro
 			select {
 			case <-ctx.Done():
 				goto Exit
-			case <-pm.Ticker.C:
+			default:
 				// TODO: errors counter, and exit on errors > X
 				if err := p.GetExtraInfo(); err != nil {
 					pm.TaskBase.Errors <- err
@@ -95,6 +95,8 @@ func (pm *PIDMonitor) Start(ctx context.Context, cancel context.CancelFunc) erro
 				}
 				// ~200µs (string()) vs ~60ns
 				pm.TaskBase.Results <- unsafe.String(unsafe.SliceData(pJSON), len(pJSON))
+
+				<-pm.Ticker.C
 			}
 		}
 	Exit:
