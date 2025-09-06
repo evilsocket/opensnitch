@@ -23,6 +23,7 @@ class Policy(Enums):
     DROP = "drop"
 
 class Table(Enums):
+    OPENSNITCH = "opensnitch"
     FILTER = "filter"
     MANGLE = "mangle"
     NAT = "nat"

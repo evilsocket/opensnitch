@@ -14,6 +14,12 @@ type sysChainsListT struct {
 	expectedRules int
 }
 
+const (
+	CHAIN_FILTER_INPUT   = "filter_input"
+	CHAIN_MANGLE_OUTPUT  = "mangle_output"
+	CHAIN_MANGLE_FORWARD = "mangle_forward"
+)
+
 var (
 	configFile = "./testdata/test-sysfw-conf.json"
 )
@@ -37,28 +43,25 @@ func TestAddSystemRules(t *testing.T) {
 
 	nftest.Fw.AddSystemRules(false, false)
 
-	rules, _ := getRulesList(t, conn, exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_FILTER, exprs.NFT_HOOK_INPUT)
-	// 3 rules in total, 1 disabled.
+	rules, _ := getRulesList(t, conn, exprs.NFT_FAMILY_INET, exprs.TABLE_OPENSNITCH, CHAIN_FILTER_INPUT)
 	if len(rules) != 1 {
-		t.Errorf("test-load-conf.json mangle-output should contain only 3 rules, no -> %d", len(rules))
+		t.Errorf("test-sysfw-conf.json filter_input should contain only 1 rule, no -> %d", len(rules))
 		for _, r := range rules {
 			t.Logf("%+v", r)
 		}
 	}
 
-	rules, _ = getRulesList(t, conn, exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_OUTPUT)
-	// 3 rules in total, 1 disabled.
+	rules, _ = getRulesList(t, conn, exprs.NFT_FAMILY_INET, exprs.TABLE_OPENSNITCH, CHAIN_MANGLE_OUTPUT)
 	if len(rules) != 3 {
-		t.Errorf("test-load-conf.json mangle-output should contain only 3 rules, no -> %d", len(rules))
+		t.Errorf("test-sysfw-conf.json mangle_output should contain only 3 rules, no -> %d", len(rules))
 		for _, r := range rules {
 			t.Log(r)
 		}
 	}
 
-	rules, _ = getRulesList(t, conn, exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_FORWARD)
-	// 3 rules in total, 1 disabled.
+	rules, _ = getRulesList(t, conn, exprs.NFT_FAMILY_INET, exprs.TABLE_OPENSNITCH, CHAIN_MANGLE_FORWARD)
 	if len(rules) != 1 {
-		t.Errorf("test-load-conf.json mangle-output should contain only 3 rules, no -> %d", len(rules))
+		t.Errorf("test-sysfw-conf.json mangle_forward should contain only 1 rules, no -> %d", len(rules))
 		for _, r := range rules {
 			t.Log(r)
 		}
@@ -87,13 +90,13 @@ func TestFwConfDisabled(t *testing.T) {
 
 	tests := []sysChainsListT{
 		{
-			exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_OUTPUT, 3,
+			exprs.NFT_FAMILY_INET, exprs.TABLE_OPENSNITCH, CHAIN_FILTER_INPUT, 1,
 		},
 		{
-			exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_FORWARD, 1,
+			exprs.NFT_FAMILY_INET, exprs.TABLE_OPENSNITCH, CHAIN_MANGLE_OUTPUT, 3,
 		},
 		{
-			exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_FILTER, exprs.NFT_HOOK_INPUT, 1,
+			exprs.NFT_FAMILY_INET, exprs.TABLE_OPENSNITCH, CHAIN_MANGLE_FORWARD, 1,
 		},
 	}
 
@@ -126,13 +129,13 @@ func TestDeleteSystemRules(t *testing.T) {
 
 	tests := []sysChainsListT{
 		{
-			exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_OUTPUT, 3,
+			exprs.NFT_FAMILY_INET, exprs.TABLE_OPENSNITCH, CHAIN_FILTER_INPUT, 1,
 		},
 		{
-			exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_FORWARD, 1,
+			exprs.NFT_FAMILY_INET, exprs.TABLE_OPENSNITCH, CHAIN_MANGLE_OUTPUT, 3,
 		},
 		{
-			exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_FILTER, exprs.NFT_HOOK_INPUT, 1,
+			exprs.NFT_FAMILY_INET, exprs.TABLE_OPENSNITCH, CHAIN_MANGLE_FORWARD, 1,
 		},
 	}
 	for _, tt := range tests {

@@ -31,13 +31,13 @@ func addInterceptionRules(nft *nftb.Nft, t *testing.T) {
 }
 
 func _testMonitorReload(t *testing.T, conn *nftables.Conn, nft *nftb.Nft) {
-	tblfilter := nft.GetTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET)
-	if tblfilter == nil || tblfilter.Name != exprs.NFT_CHAIN_FILTER {
-		t.Error("table filter-inet not in the list")
+	tblfilter := nft.GetTable(exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET)
+	if tblfilter == nil || tblfilter.Name != exprs.TABLE_OPENSNITCH {
+		t.Error("table opensnitch-inet not in the list")
 	}
-	chnFilterInput := nftest.Fw.GetChain(exprs.NFT_HOOK_INPUT, tblfilter, exprs.NFT_FAMILY_INET)
+	chnFilterInput := nftest.Fw.GetChain(exprs.CHAIN_INTERCEPT_DNS, tblfilter, exprs.NFT_FAMILY_INET)
 	if chnFilterInput == nil {
-		t.Error("chain input-filter-inet not in the list")
+		t.Error("chain intercept_dns-opensnitch-inet not in the list")
 	}
 	rules, _ := conn.GetRules(tblfilter, chnFilterInput)
 	if len(rules) == 0 {
@@ -49,14 +49,14 @@ func _testMonitorReload(t *testing.T, conn *nftables.Conn, nft *nftb.Nft) {
 	// the rules checker checks the rules every 10s
 	reloaded := false
 	for i := 0; i < 15; i++ {
-		if r, _ := getRule(t, conn, tblfilter.Name, exprs.NFT_HOOK_INPUT, nftb.InterceptionRuleKey, 0); r != nil {
+		if r, _ := getRule(t, conn, tblfilter.Name, exprs.CHAIN_INTERCEPT_DNS, nftb.InterceptionRuleKey, 0); r != nil {
 			reloaded = true
 			break
 		}
 		time.Sleep(time.Second)
 	}
 	if !reloaded {
-		t.Error("rules under input-filter-inet not reloaded after 10s")
+		t.Error("rules under intercept_dns-opensnitch-inet not reloaded after 10s")
 	}
 }
 
