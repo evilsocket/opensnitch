@@ -5,8 +5,8 @@
     {
       "Chains": [
         {
-          "Name": "input",
-          "Table": "filter",
+          "Name": "filter_input",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "filter",
@@ -38,8 +38,8 @@
           ]
         },
         {
-          "Name": "output",
-          "Table": "mangle",
+          "Name": "mangle_output",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "mangle",
@@ -121,8 +121,8 @@
           ]
         },
         {
-          "Name": "forward",
-          "Table": "mangle",
+          "Name": "mangle_forward",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "mangle",

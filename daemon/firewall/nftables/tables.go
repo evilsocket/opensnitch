@@ -36,21 +36,10 @@ func getTableKey(name string, family interface{}) string {
 
 // AddInterceptionTables adds the needed tables to intercept traffic.
 func (n *Nft) AddInterceptionTables() error {
-	if _, err := n.AddTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET); err != nil {
-		return err
-	}
-	if _, err := n.AddTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET); err != nil {
+	if _, err := n.AddTable(exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET); err != nil {
 		return err
 	}
 	return nil
-}
-
-// Contrary to iptables, in nftables there're no predefined rules.
-// Convention is though to use the iptables names by default.
-// We need at least: mangle and filter tables, inet family (IPv4 and IPv6).
-func (n *Nft) addSystemTables() {
-	n.AddTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
-	n.AddTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET)
 }
 
 // return the number of rules that we didn't add.

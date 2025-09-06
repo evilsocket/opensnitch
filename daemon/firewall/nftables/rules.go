@@ -21,14 +21,14 @@ func (n *Nft) QueueDNSResponses(enable, logError bool) (error, error) {
 	}
 	families := []string{exprs.NFT_FAMILY_INET}
 	for _, fam := range families {
-		table := n.GetTable(exprs.NFT_CHAIN_FILTER, fam)
-		chain := GetChain(exprs.NFT_HOOK_INPUT, table)
+		table := n.GetTable(exprs.TABLE_OPENSNITCH, fam)
+		chain := GetChain(exprs.CHAIN_INTERCEPT_DNS, table)
 		if table == nil {
-			log.Error("QueueDNSResponses() Error getting table: %s-filter", fam)
+			log.Error("QueueDNSResponses() Error getting table: opensnitch-%s", fam)
 			continue
 		}
 		if chain == nil {
-			log.Error("QueueDNSResponses() Error getting chain: %s-%d", table.Name, table.Family)
+			log.Error("QueueDNSResponses() Error getting chain: intercept_dns-%s-%s", table.Name, fam)
 			continue
 		}
 
@@ -81,13 +81,13 @@ func (n *Nft) QueueConnections(enable, logError bool) (error, error) {
 	if n.Conn == nil {
 		return nil, fmt.Errorf("nftables QueueConnections: netlink connection not active")
 	}
-	table := n.GetTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
+	table := n.GetTable(exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET)
 	if table == nil {
-		return nil, fmt.Errorf("QueueConnections() Error getting table mangle-inet")
+		return nil, fmt.Errorf("QueueConnections() Error getting table opensnitch-inet")
 	}
-	chain := GetChain(exprs.NFT_HOOK_OUTPUT, table)
+	chain := GetChain(exprs.CHAIN_INTERCEPT_CON, table)
 	if chain == nil {
-		return nil, fmt.Errorf("QueueConnections() Error getting outputChain: output-%s", table.Name)
+		return nil, fmt.Errorf("QueueConnections() Error getting outputChain: intercept_con-%s-inet", table.Name)
 	}
 
 	n.Conn.AddRule(&nftables.Rule{

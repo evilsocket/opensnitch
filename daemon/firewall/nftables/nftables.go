@@ -9,7 +9,6 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/firewall/common"
 	"github.com/evilsocket/opensnitch/daemon/firewall/config"
 	"github.com/evilsocket/opensnitch/daemon/firewall/iptables"
-	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 	"github.com/golang/protobuf/jsonpb"
@@ -25,18 +24,6 @@ const (
 	InterceptionRuleKey = fwKey + "-interception"
 	SystemRuleKey       = fwKey + "-system"
 	Name                = "nftables"
-)
-
-var (
-	filterTable = &nftables.Table{
-		Family: nftables.TableFamilyINet,
-		Name:   exprs.NFT_CHAIN_FILTER,
-	}
-
-	mangleTable = &nftables.Table{
-		Family: nftables.TableFamilyINet,
-		Name:   exprs.NFT_CHAIN_FILTER,
-	}
 )
 
 // Nft holds the fields of our nftables firewall

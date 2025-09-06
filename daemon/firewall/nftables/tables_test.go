@@ -80,7 +80,7 @@ func TestAddTable(t *testing.T) {
 }
 
 // TestAddInterceptionTables checks if the needed tables have been created.
-// We use 2: mangle-inet for intercepting outbound connections, and filter-inet for DNS responses interception
+// We use opensnitch-inet for intercepting outbound connections (chain intercept_con) and DNS responses (chain intercept_dns)
 func TestAddInterceptionTables(t *testing.T) {
 	nftest.SkipIfNotPrivileged(t)
 
@@ -92,22 +92,13 @@ func TestAddInterceptionTables(t *testing.T) {
 		t.Errorf("addInterceptionTables() error: %s", err)
 	}
 
-	t.Run("mangle-inet", func(t *testing.T) {
-		tblmangle := nftest.Fw.GetTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
-		if tblmangle == nil {
-			t.Error("interception table mangle-inet not in the list")
+	t.Run("opensnitch-inet", func(t *testing.T) {
+		tbl := nftest.Fw.GetTable(exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET)
+		if tbl == nil {
+			t.Error("interception table opensnitch-inet not in the list")
 		}
-		if tableExists(t, nftest.Fw.Conn, tblmangle, exprs.NFT_FAMILY_INET) == false {
-			t.Error("table mangle-inet not in the list")
-		}
-	})
-	t.Run("filter-inet", func(t *testing.T) {
-		tblfilter := nftest.Fw.GetTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET)
-		if tblfilter == nil {
-			t.Error("interception table filter-inet not in the list")
-		}
-		if tableExists(t, nftest.Fw.Conn, tblfilter, exprs.NFT_FAMILY_INET) == false {
-			t.Error("table filter-inet not in the list")
+		if tableExists(t, nftest.Fw.Conn, tbl, exprs.NFT_FAMILY_INET) == false {
+			t.Error("table opensnitch-inet not in the list")
 		}
 	})
 }

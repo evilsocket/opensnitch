@@ -20,7 +20,7 @@ class Profiles():
 class ProfileAcceptOutput():
     value = {
         "Name": "accept-mangle-output",
-        "Table": "mangle",
+        "Table": "opensnitch",
         "Family": "inet",
         "Priority": "",
         "Type": "mangle",
@@ -33,7 +33,7 @@ class ProfileAcceptOutput():
 class ProfileAcceptForward():
     value = {
         "Name": "accept-mangle-forward",
-        "Table": "mangle",
+        "Table": "opensnitch",
         "Family": "inet",
         "Priority": "",
         "Type": "mangle",
@@ -47,7 +47,7 @@ class ProfileAcceptForward():
 class ProfileDropForward():
     value = {
         "Name": "drop-mangle-forward",
-        "Table": "mangle",
+        "Table": "opensnitch",
         "Family": "inet",
         "Priority": "",
         "Type": "mangle",
@@ -61,7 +61,7 @@ class ProfileDropForward():
 class ProfileAcceptInput():
     value = {
         "Name": "accept-filter-input",
-        "Table": "filter",
+        "Table": "opensnitch",
         "Family": "inet",
         "Priority": "",
         "Type": "filter",
@@ -81,7 +81,7 @@ class ProfileDropInput():
     # TODO: delete dropInput profile's rules
     value = {
         "Name": "drop-filter-input",
-        "Table": "filter",
+        "Table": "opensnitch",
         "Family": "inet",
         "Priority": "",
         "Type": "filter",
@@ -149,7 +149,7 @@ class ProfileDropOutput():
 
     value = {
         "Name": "drop-mangle-output",
-        "Table": "mangle",
+        "Table": "opensnitch",
         "Family": "inet",
         "Priority": "",
         "Type": "mangle",
