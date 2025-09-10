@@ -9,6 +9,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/log/loggers"
+	"github.com/evilsocket/opensnitch/daemon/procmon/audit"
 	"github.com/evilsocket/opensnitch/daemon/procmon/ebpf"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 )
@@ -77,6 +78,7 @@ type Config struct {
 	DefaultDuration   string                 `json:"DefaultDuration"`
 	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
 	FwOptions         FwOptions              `json:"FwOptions"`
+	Audit             audit.Config           `json:"Audit"`
 	Ebpf              ebpf.Config            `json:"Ebpf"`
 	Server            ServerConfig           `json:"Server"`
 	Rules             RulesOptions           `json:"Rules"`

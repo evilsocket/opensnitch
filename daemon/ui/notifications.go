@@ -214,7 +214,7 @@ func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, no
 
 func (c *Client) handleActionEnableInterception(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
 	log.Info("[notification] starting interception")
-	if err := monitor.ReconfigureMonitorMethod(c.config.ProcMonitorMethod, c.config.Ebpf); err != nil && err.What > monitor.NoError {
+	if err := monitor.ReconfigureMonitorMethod(c.config.ProcMonitorMethod, c.config.Ebpf, c.config.Audit); err != nil && err.What > monitor.NoError {
 		log.Warning("[notification] error enabling monitor (%s): %s", c.config.ProcMonitorMethod, err.Msg)
 		c.sendNotificationReply(stream, notification.Id, "", err.Msg)
 		return

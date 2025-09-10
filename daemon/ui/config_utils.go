@@ -221,6 +221,14 @@ func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err
 		log.Debug("[config] config.Ebpf.ModulesPath not changed")
 	}
 
+	if reload && procmon.MethodIsAudit() &&
+		!reflect.DeepEqual(newConfig.Audit, c.config.Audit) {
+		log.Debug("[config] reloading config.Audit: %v", newConfig.Audit)
+		reloadProc = true
+	} else {
+		log.Debug("[config] config.Audit not changed")
+	}
+
 	// 3. load fw
 	reloadFw := false
 	if c.GetFirewallType() != newConfig.Firewall ||
@@ -246,7 +254,7 @@ func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err
 
 	// 4. reload procmon if needed
 	if reloadProc {
-		err = monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf)
+		err = monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf, newConfig.Audit)
 		// override newConfig's procMon with the one configured on Reconfig,
 		// which should be the last known good one (or proc by default).
 		if err != nil && (err.What == monitor.EbpfErr || err.What == monitor.AuditdErr) {
