@@ -37,7 +37,7 @@
     },
     "Audit": {
         "AudispSocketPath": "/var/run/audispd_events"
-    }
+    },
     "Internal": {
         "GCPercent": 75,
         "FlushConnsOnStart": true
