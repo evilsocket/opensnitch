@@ -80,7 +80,7 @@ func TestAddTable(t *testing.T) {
 }
 
 // TestAddInterceptionTables checks if the needed tables have been created.
-// We use opensnitch-inet for intercepting outbound connections (chain intercept_con) and DNS responses (chain intercept_dns)
+// We use opensnitch-inet for intercepting outbound connections (chain mangle_output) and DNS responses (chain filter_input)
 func TestAddInterceptionTables(t *testing.T) {
 	nftest.SkipIfNotPrivileged(t)
 

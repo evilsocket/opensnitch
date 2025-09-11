@@ -22,7 +22,7 @@ func TestChains(t *testing.T) {
 	t.Run("AddChain", func(t *testing.T) {
 		filterPolicy := nftables.ChainPolicyAccept
 		chn := nftest.Fw.AddChain(
-			exprs.NFT_HOOK_INPUT,
+			exprs.CHAIN_FILTER_INPUT,
 			exprs.TABLE_OPENSNITCH,
 			exprs.NFT_FAMILY_INET,
 			nftables.ChainPriorityFilter,
@@ -30,10 +30,10 @@ func TestChains(t *testing.T) {
 			nftables.ChainHookInput,
 			filterPolicy)
 		if chn == nil {
-			t.Error("chain input-opensnitch-inet not created")
+			t.Error("chain filter_input-opensnitch-inet not created")
 		}
 		if !nftest.Fw.Commit() {
-			t.Error("error adding input-opensnitch-inet chain")
+			t.Error("error adding filter_input-opensnitch-inet chain")
 		}
 	})
 
@@ -43,9 +43,9 @@ func TestChains(t *testing.T) {
 			t.Error("table opensnitch-inet not created")
 		}
 
-		chn := nftest.Fw.GetChain(exprs.NFT_HOOK_INPUT, tblfilter, exprs.NFT_FAMILY_INET)
+		chn := nftest.Fw.GetChain(exprs.CHAIN_FILTER_INPUT, tblfilter, exprs.NFT_FAMILY_INET)
 		if chn == nil {
-			t.Error("chain input-opensnitch-inet not added")
+			t.Error("chain filter_input-opensnitch-inet not added")
 		}
 	})
 
@@ -55,13 +55,13 @@ func TestChains(t *testing.T) {
 			t.Error("table opensnitch-inet not created")
 		}
 
-		chn := nftest.Fw.GetChain(exprs.NFT_HOOK_INPUT, tblfilter, exprs.NFT_FAMILY_INET)
+		chn := nftest.Fw.GetChain(exprs.CHAIN_FILTER_INPUT, tblfilter, exprs.NFT_FAMILY_INET)
 		if chn == nil {
-			t.Error("chain input-opensnitch-inet not added")
+			t.Error("chain filter_input-opensnitch-inet not added")
 		}
 
 		if err := nftest.Fw.DelChain(chn); err != nil {
-			t.Error("error deleting chain input-opensnitch-inet")
+			t.Error("error deleting chain filter_input-opensnitch-inet")
 		}
 	})
 
@@ -69,7 +69,7 @@ func TestChains(t *testing.T) {
 }
 
 // TestAddInterceptionChains checks if the needed tables and chains have been created.
-// We use 2: intercept_con-opensnitch-inet for intercepting outbound connections, and intercept_dns-opensnitch-inet for DNS responses interception
+// We use 2: mangle_output-opensnitch-inet for intercepting outbound connections, and filter_input-opensnitch-inet for DNS responses interception
 /*func TestAddInterceptionChains(t *testing.T) {
 	nftest.SkipIfNotPrivileged(t)
 

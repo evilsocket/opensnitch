@@ -107,30 +107,45 @@ func (n *Nft) addRegularChain(name, table, family string) error {
 
 // AddInterceptionChains adds the needed chains to intercept traffic.
 func (n *Nft) AddInterceptionChains() error {
-	var filterPriority *nftables.ChainPriority
-	var manglePriority *nftables.ChainPriority
-	filterPriority = nftables.ChainPriorityRef(*nftables.ChainPriorityFilter - nftables.ChainPriority(1))
-	manglePriority = nftables.ChainPriorityRef(*nftables.ChainPriorityMangle + nftables.ChainPriority(1))
+	var filterPolicy nftables.ChainPolicy
+	var manglePolicy nftables.ChainPolicy
+	filterPolicy = nftables.ChainPolicyAccept
+	manglePolicy = nftables.ChainPolicyAccept
+
+	tbl := n.GetTable(exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET)
+	if tbl != nil {
+		key := getChainKey(exprs.CHAIN_FILTER_INPUT, tbl)
+		ch, found := sysChains.Load(key)
+		if key != "" && found {
+			filterPolicy = *ch.(*nftables.Chain).Policy
+		}
+	}
+	if tbl != nil {
+		key := getChainKey(exprs.CHAIN_MANGLE_OUTPUT, tbl)
+		ch, found := sysChains.Load(key)
+		if key != "" && found {
+			manglePolicy = *ch.(*nftables.Chain).Policy
+		}
+	}
 
 	// nft list tables
-	n.AddChain(exprs.CHAIN_INTERCEPT_DNS, exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET,
-		filterPriority, nftables.ChainTypeFilter, nftables.ChainHookInput, nftables.ChainPolicyAccept)
+	n.AddChain(exprs.CHAIN_FILTER_INPUT, exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET,
+		nftables.ChainPriorityFilter, nftables.ChainTypeFilter, nftables.ChainHookInput, filterPolicy)
 	if !n.Commit() {
-		return fmt.Errorf("Error adding DNS interception chain intercept_dns-opensnitch-inet")
+		return fmt.Errorf("Error adding DNS interception chain filter_input-opensnitch-inet")
 	}
-	n.AddChain(exprs.CHAIN_INTERCEPT_CON, exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET,
-		manglePriority, nftables.ChainTypeRoute, nftables.ChainHookOutput, nftables.ChainPolicyAccept)
+	n.AddChain(exprs.CHAIN_MANGLE_OUTPUT, exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET,
+		nftables.ChainPriorityMangle, nftables.ChainTypeRoute, nftables.ChainHookOutput, manglePolicy)
 	if !n.Commit() {
-		log.Error("(1) Error adding interception chain intercept_con-opensnitch-inet, trying with type Filter instead of Route")
+		log.Error("(1) Error adding interception chain mangle_output-opensnitch-inet, trying with type Filter instead of Route")
 
 		// Workaround for kernels 4.x and maybe others.
 		// @see firewall/nftables/utils.go:GetChainPriority()
 		chainPrio, chainType := GetChainPriority(exprs.NFT_FAMILY_INET, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_OUTPUT)
-		chainPrio = nftables.ChainPriorityRef(*chainPrio + nftables.ChainPriority(1))
-		n.AddChain(exprs.CHAIN_INTERCEPT_CON, exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET,
-			chainPrio, chainType, nftables.ChainHookOutput, nftables.ChainPolicyAccept)
+		n.AddChain(exprs.CHAIN_MANGLE_OUTPUT, exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET,
+			chainPrio, chainType, nftables.ChainHookOutput, manglePolicy)
 		if !n.Commit() {
-			return fmt.Errorf("(2) Error adding interception chain intercept_con-opensnitch-inet with type Filter. Report it on github please, specifying the distro and the kernel")
+			return fmt.Errorf("(2) Error adding interception chain mangle_output-opensnitch-inet with type Filter. Report it on github please, specifying the distro and the kernel")
 		}
 	}
 

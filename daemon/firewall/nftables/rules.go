@@ -22,13 +22,13 @@ func (n *Nft) QueueDNSResponses(enable, logError bool) (error, error) {
 	families := []string{exprs.NFT_FAMILY_INET}
 	for _, fam := range families {
 		table := n.GetTable(exprs.TABLE_OPENSNITCH, fam)
-		chain := GetChain(exprs.CHAIN_INTERCEPT_DNS, table)
+		chain := GetChain(exprs.CHAIN_FILTER_INPUT, table)
 		if table == nil {
 			log.Error("QueueDNSResponses() Error getting table: opensnitch-%s", fam)
 			continue
 		}
 		if chain == nil {
-			log.Error("QueueDNSResponses() Error getting chain: intercept_dns-%s-%s", table.Name, fam)
+			log.Error("QueueDNSResponses() Error getting chain: filter_input-%s-%s", table.Name, fam)
 			continue
 		}
 
@@ -85,9 +85,9 @@ func (n *Nft) QueueConnections(enable, logError bool) (error, error) {
 	if table == nil {
 		return nil, fmt.Errorf("QueueConnections() Error getting table opensnitch-inet")
 	}
-	chain := GetChain(exprs.CHAIN_INTERCEPT_CON, table)
+	chain := GetChain(exprs.CHAIN_MANGLE_OUTPUT, table)
 	if chain == nil {
-		return nil, fmt.Errorf("QueueConnections() Error getting outputChain: intercept_con-%s-inet", table.Name)
+		return nil, fmt.Errorf("QueueConnections() Error getting outputChain: mangle_output-%s-inet", table.Name)
 	}
 
 	n.Conn.AddRule(&nftables.Rule{

@@ -21,7 +21,7 @@ func (n *Nft) AreRulesLoaded() bool {
 	}
 
 	for _, c := range chains {
-		if c.Table.Name != exprs.TABLE_OPENSNITCH || (c.Name != exprs.CHAIN_INTERCEPT_DNS && c.Name != exprs.CHAIN_INTERCEPT_CON) {
+		if c.Table.Name != exprs.TABLE_OPENSNITCH {
 			continue
 		}
 		rules, err := n.Conn.GetRule(c.Table, c)
@@ -29,9 +29,17 @@ func (n *Nft) AreRulesLoaded() bool {
 			log.Warning("[nftables] Error listing rules: %s", err)
 			continue
 		}
-		for _, r := range rules {
+		for rdx, r := range rules {
 			if string(r.UserData) == InterceptionRuleKey {
+				if c.Name == exprs.CHAIN_FILTER_INPUT && rdx != 0 {
+					log.Warning("nftables DNS rule not in 1st position (%d)", rdx)
+					return false
+				}
 				nRules++
+				if c.Name == exprs.CHAIN_MANGLE_OUTPUT && rdx < len(rules)-2 {
+					log.Warning("nftables queue rule is not the latest of the list (%d/%d), reloading", rdx, len(rules))
+					return false
+				}
 			}
 		}
 	}
