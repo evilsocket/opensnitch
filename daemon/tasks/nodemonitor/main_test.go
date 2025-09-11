@@ -24,7 +24,7 @@ func taskEvents(tm *tasks.TaskManager, t *testing.T) {
 }
 
 func TestNodeMonitor(t *testing.T) {
-	tkMgr := tasks.NewTaskManager("none")
+	tkMgr := tasks.NewTaskManager()
 	go taskEvents(tkMgr, t)
 
 	taskName, nodeMon := New("my-node", "1s", false)

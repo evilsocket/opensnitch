@@ -25,7 +25,7 @@ func taskEvents(tm *tasks.TaskManager, t *testing.T) {
 }
 
 func TestPIDMonitor(t *testing.T) {
-	tkMgr := tasks.NewTaskManager("none")
+	tkMgr := tasks.NewTaskManager()
 	go taskEvents(tkMgr, t)
 
 	ourPID := os.Getpid()

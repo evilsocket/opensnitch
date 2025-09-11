@@ -50,7 +50,7 @@ func taskEvents(tm *TaskManager, t *testing.T) {
 }
 
 func TestTaskManager(t *testing.T) {
-	tkMgr := NewTaskManager("none")
+	tkMgr := NewTaskManager()
 	go taskEvents(tkMgr, t)
 
 	t.Run("AddTask", func(t *testing.T) {
