@@ -19,8 +19,8 @@
     {
       "Chains": [
         {
-          "Name": "forward",
-          "Table": "filter",
+          "Name": "filter_forward",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "filter",
@@ -29,8 +29,8 @@
           "Rules": []
         },
         {
-          "Name": "output",
-          "Table": "filter",
+          "Name": "filter_output",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "filter",
@@ -39,8 +39,8 @@
           "Rules": []
         },
         {
-          "Name": "input",
-          "Table": "filter",
+          "Name": "filter_input",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "filter",
@@ -72,8 +72,8 @@
           ]
         },
         {
-          "Name": "filter-prerouting",
-          "Table": "nat",
+          "Name": "filter_prerouting",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "filter",
@@ -82,8 +82,8 @@
           "Rules": []
         },
         {
-          "Name": "prerouting",
-          "Table": "mangle",
+          "Name": "mangle_prerouting",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "mangle",
@@ -92,8 +92,8 @@
           "Rules": []
         },
         {
-          "Name": "postrouting",
-          "Table": "mangle",
+          "Name": "mangle_postrouting",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "mangle",
@@ -102,8 +102,8 @@
           "Rules": []
         },
         {
-          "Name": "prerouting",
-          "Table": "nat",
+          "Name": "nat_prerouting",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "natdest",
@@ -112,8 +112,8 @@
           "Rules": []
         },
         {
-          "Name": "postrouting",
-          "Table": "nat",
+          "Name": "nat_postrouting",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "natsource",
@@ -122,8 +122,8 @@
           "Rules": []
         },
         {
-          "Name": "input",
-          "Table": "nat",
+          "Name": "nat_input",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "natsource",
@@ -132,8 +132,8 @@
           "Rules": []
         },
         {
-          "Name": "output",
-          "Table": "nat",
+          "Name": "nat_output",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "natdest",
@@ -142,8 +142,8 @@
           "Rules": []
         },
         {
-          "Name": "output",
-          "Table": "mangle",
+          "Name": "mangle_output",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "mangle",
@@ -239,8 +239,8 @@
           ]
         },
         {
-          "Name": "forward",
-          "Table": "mangle",
+          "Name": "mangle_forward",
+          "Table": "opensnitch",
           "Family": "inet",
           "Priority": "",
           "Type": "mangle",

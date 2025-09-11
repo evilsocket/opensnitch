@@ -141,25 +141,25 @@ func TestQueueConnections(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	_, err := nftest.Fw.AddTable(exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET)
+	_, err := nftest.Fw.AddTable(exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET)
 	if err != nil {
-		t.Error("pre step add_table() mangle-inet failed")
+		t.Error("pre step add_table() opensnitch-inet failed")
 	}
 	chn := nftest.Fw.AddChain(
-		exprs.NFT_HOOK_OUTPUT, exprs.NFT_CHAIN_MANGLE, exprs.NFT_FAMILY_INET,
+		exprs.CHAIN_MANGLE_OUTPUT, exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET,
 		nftables.ChainPriorityFilter,
 		nftables.ChainTypeFilter,
 		nftables.ChainHookInput,
 		nftables.ChainPolicyAccept)
 	if chn == nil {
-		t.Error("pre step add_chain() output-mangle-inet failed")
+		t.Error("pre step add_chain() mangle_output-opensnitch-inet failed")
 	}
 
 	if err1, err2 := nftest.Fw.QueueConnections(true, true); err1 != nil && err2 != nil {
 		t.Errorf("rule to queue connections not added: %s, %s", err1, err2)
 	}
 
-	r, _ := getRule(t, conn, exprs.NFT_CHAIN_MANGLE, exprs.NFT_HOOK_OUTPUT, nftb.InterceptionRuleKey, 0)
+	r, _ := getRule(t, conn, exprs.TABLE_OPENSNITCH, exprs.CHAIN_MANGLE_OUTPUT, nftb.InterceptionRuleKey, 0)
 	if r == nil {
 		t.Error("rule to queue connections not in the list")
 	}
@@ -175,25 +175,25 @@ func TestQueueDNSResponses(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	_, err := nftest.Fw.AddTable(exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET)
+	_, err := nftest.Fw.AddTable(exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET)
 	if err != nil {
-		t.Error("pre step add_table() filter-inet failed")
+		t.Error("pre step add_table() opensnitch-inet failed")
 	}
 	chn := nftest.Fw.AddChain(
-		exprs.NFT_HOOK_INPUT, exprs.NFT_CHAIN_FILTER, exprs.NFT_FAMILY_INET,
+		exprs.CHAIN_FILTER_INPUT, exprs.TABLE_OPENSNITCH, exprs.NFT_FAMILY_INET,
 		nftables.ChainPriorityFilter,
 		nftables.ChainTypeFilter,
 		nftables.ChainHookInput,
 		nftables.ChainPolicyAccept)
 	if chn == nil {
-		t.Error("pre step add_chain() input-filter-inet failed")
+		t.Error("pre step add_chain() filter_input-opensnitch-inet failed")
 	}
 
 	if err1, err2 := nftest.Fw.QueueDNSResponses(true, true); err1 != nil && err2 != nil {
 		t.Errorf("rule to queue DNS responses not added: %s, %s", err1, err2)
 	}
 
-	r, _ := getRule(t, conn, exprs.NFT_CHAIN_FILTER, exprs.NFT_HOOK_INPUT, nftb.InterceptionRuleKey, 0)
+	r, _ := getRule(t, conn, exprs.TABLE_OPENSNITCH, exprs.CHAIN_FILTER_INPUT, nftb.InterceptionRuleKey, 0)
 	if r == nil {
 		t.Error("rule to queue DNS responses not in the list")
 	}
@@ -208,7 +208,7 @@ func TestQueueDNSResponses(t *testing.T) {
 	/*if err1, err2 := nft.QueueDNSResponses(false, true); err1 != nil && err2 != nil {
 		t.Errorf("rule to queue DNS responses not deleted: %s, %s", err1, err2)
 	}
-	r, _ = getRule(t, conn, exprs.NFT_CHAIN_FILTER, exprs.NFT_HOOK_INPUT, nftb.InterceptionRuleKey, 0)
+	r, _ = getRule(t, conn, exprs.TABLE_OPENSNITCH, exprs.CHAIN_FILTER_INPUT, nftb.InterceptionRuleKey, 0)
 	if r != nil {
 		t.Error("rule to queue DNS responses should have been deleted")
 	}*/
