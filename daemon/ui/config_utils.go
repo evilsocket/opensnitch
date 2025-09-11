@@ -65,14 +65,14 @@ func (c *Client) loadDiskConfiguration(reload bool) {
 	// - malformed json file
 	// - intermediate file removal (when writing we receive 2 write events, one of 0 bytes)
 	if err := c.configWatcher.Add(configFile); err != nil {
-		log.Error("Could not watch path: %s", err)
+		log.Error("[config] Could not watch path: %s", err)
 	}
 
 	raw, err := config.Load(configFile)
 	if err != nil || len(raw) == 0 {
 		// Sometimes we may receive 2 Write events on monitorConfigWorker,
 		// Which may lead to read 0 bytes.
-		log.Warning("Error loading configuration from disk %s: %s", configFile, err)
+		log.Warning("[config] Error loading configuration from disk %s: %s", configFile, err)
 		return
 	}
 
@@ -269,6 +269,15 @@ func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err
 		netlink.FlushConnections()
 	} else {
 		log.Debug("[config] not flushing established connections")
+	}
+
+	if newConfig.TasksOptions.ConfigPath != c.config.TasksOptions.ConfigPath {
+		log.Debug("[config] reloading TasksOptions.ConfigFile from %s", newConfig.TasksOptions.ConfigPath)
+		if err := TaskMgr.LoadTaskFile(newConfig.TasksOptions.ConfigPath); err != nil {
+			log.Debug("[config] config.TasksOptions reload error: %s", err)
+		}
+	} else {
+		log.Debug("[config] config.TasksOptions not changed")
 	}
 
 	return err

@@ -1,7 +1,17 @@
-package tasks
+package base
 
 import (
 	"context"
+)
+
+const (
+	PID_MON      = 9000
+	NODE_MON     = 9001
+	SOCKETS_MON  = 9002
+	DOWNLOADER   = 9003
+	NETSNIFFER   = 9004
+	IOCS_SCANNER = 9005
+	REDFLAGS     = 9006
 )
 
 // TaskBase holds the common fields of every task.
@@ -9,8 +19,17 @@ import (
 type TaskBase struct {
 	Ctx     context.Context
 	Cancel  context.CancelFunc
+	Name    string
 	Results chan interface{}
 	Errors  chan error
+
+	// ID that identifies this task
+	// Temporary tasks like PIDMonitor have a NotificationID which is used
+	// to receive and display the data from the task on the GUI.
+	// Permanent tasks like a background downloader won't have this ID,
+	// so this ID will serve as initial identification to know who is sending what,
+	// and treat data apropiately, if needed (sometimes it'll just be a desktop notification).
+	ID uint64
 
 	// Stop the task if the daemon is disconnected from the GUI (server).
 	// Some tasks don't need to run if the daemon is not connected to the GUI,
@@ -20,6 +39,23 @@ type TaskBase struct {
 	StopOnDisconnect bool
 }
 
+func (t *TaskBase) SetID(id uint64) {
+	t.ID = id
+}
+
+func (t *TaskBase) GetID() uint64 {
+	return t.ID
+}
+
+func (t *TaskBase) IsTemporary() bool {
+	return t.StopOnDisconnect
+}
+
+type TaskResults struct {
+	Type int
+	Data interface{}
+}
+
 // Task defines the interface for tasks that the task manager will execute.
 type Task interface {
 	// Start starts the task, potentially running it asynchronously.
@@ -27,6 +63,11 @@ type Task interface {
 
 	// Stop stops the task.
 	Stop() error
+
+	//GetName() string
+	SetID(uint64)
+	GetID() uint64
+	IsTemporary() bool
 
 	Pause() error
 	Resume() error

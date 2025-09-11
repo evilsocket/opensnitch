@@ -9,7 +9,7 @@ import (
 	"unsafe"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
-	"github.com/evilsocket/opensnitch/daemon/tasks"
+	"github.com/evilsocket/opensnitch/daemon/tasks/base"
 )
 
 // Name of this task
@@ -26,7 +26,7 @@ type monConfig struct {
 
 // SocketsMonitor monitors a process ID.
 type SocketsMonitor struct {
-	tasks.TaskBase
+	base.TaskBase
 	mu     *sync.RWMutex
 	Ticker *time.Ticker
 
@@ -64,13 +64,14 @@ func initConfig(config interface{}) (*monConfig, error) {
 }
 
 // New returns a new SocketsMonitor
-func New(config interface{}, stopOnDisconnect bool) (*SocketsMonitor, error) {
+func New(name string, config interface{}, stopOnDisconnect bool) (*SocketsMonitor, error) {
 	cfg, err := initConfig(config)
 	if err != nil {
 		return nil, err
 	}
 	return &SocketsMonitor{
-		TaskBase: tasks.TaskBase{
+		TaskBase: base.TaskBase{
+			Name:    Name,
 			Results: make(chan interface{}),
 			Errors:  make(chan error),
 		},
@@ -142,11 +143,9 @@ func (pm *SocketsMonitor) Stop() error {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 
-	if !pm.StopOnDisconnect {
-		return nil
-	}
-	log.Debug("[task.SocketsMonitor] Stop()")
 	pm.isStopped = true
+
+	log.Debug("[task.SocketsMonitor] Stop()")
 	if pm.Ticker != nil {
 		pm.Ticker.Stop()
 	}

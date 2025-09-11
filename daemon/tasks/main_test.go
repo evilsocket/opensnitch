@@ -3,11 +3,12 @@ package tasks
 import (
 	"context"
 	"testing"
+
+	"github.com/evilsocket/opensnitch/daemon/tasks/base"
 )
 
 type BasicTask struct {
-	TaskBase
-	Name string
+	base.TaskBase
 }
 
 func (pm *BasicTask) Start(ctx context.Context, cancel context.CancelFunc) error {
@@ -30,15 +31,27 @@ func (pm *BasicTask) Results() <-chan interface{} {
 }
 
 var basicTask = BasicTask{
-	TaskBase: TaskBase{
+	TaskBase: base.TaskBase{
+		Name:    "basic-task",
 		Results: make(chan interface{}),
 		Errors:  make(chan error),
 	},
-	Name: "basic-task",
+}
+
+func taskEvents(tm *TaskManager, t *testing.T) {
+	for {
+		select {
+		case task := <-tm.TaskAdded:
+			t.Log("TaskMgr.TaskAdded:", task.Name)
+		case task := <-tm.TaskRemoved:
+			t.Log("TaskMgr.TaskRemoved:", task.Name)
+		}
+	}
 }
 
 func TestTaskManager(t *testing.T) {
-	tkMgr := NewTaskManager()
+	tkMgr := NewTaskManager("none")
+	go taskEvents(tkMgr, t)
 
 	t.Run("AddTask", func(t *testing.T) {
 		_, err := tkMgr.AddTask(basicTask.Name, &basicTask)

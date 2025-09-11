@@ -35,7 +35,7 @@ var (
 
 	maxQueuedAlerts = 1024
 
-	TaskMgr = tasks.NewTaskManager()
+	TaskMgr *tasks.TaskManager
 )
 
 // Client holds the connection information of a client.
@@ -95,6 +95,10 @@ func NewClient(socketPath, localConfigFile string, stats *statistics.Statistics,
 	}
 	procmon.EventsCache.SetComputeChecksums(c.config.Rules.EnableChecksums)
 	rules.EnableChecksums(c.config.Rules.EnableChecksums)
+
+	TaskMgr = tasks.NewTaskManager()
+	TaskMgr.LoadTaskFile(c.config.TasksOptions.ConfigPath)
+	go c.monitorTaskManager(TaskMgr)
 
 	return c
 }

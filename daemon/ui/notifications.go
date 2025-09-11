@@ -14,7 +14,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
-	"github.com/evilsocket/opensnitch/daemon/tasks"
+	"github.com/evilsocket/opensnitch/daemon/tasks/base"
 	"github.com/evilsocket/opensnitch/daemon/tasks/nodemonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/pidmonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/socketsmonitor"
@@ -138,7 +138,7 @@ func (c *Client) handleActionDeleteRule(stream protocol.UI_NotificationsClient, 
 }
 
 func (c *Client) handleActionTaskStart(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	var taskConf tasks.TaskNotification
+	var taskConf base.TaskNotification
 	err := json.Unmarshal([]byte(notification.Data), &taskConf)
 	if err != nil {
 		log.Error("parsing TaskStart, err: %s, %s", err, notification.Data)
@@ -146,6 +146,9 @@ func (c *Client) handleActionTaskStart(stream protocol.UI_NotificationsClient, n
 		return
 	}
 	switch taskConf.Name {
+	//case downloader.Name:
+	// save to disk
+	//  - c.sendNotifReply(ok - nook)
 	case pidmonitor.Name:
 		conf, ok := taskConf.Data.(map[string]interface{})
 		if !ok {
@@ -176,7 +179,7 @@ func (c *Client) handleActionTaskStart(stream protocol.UI_NotificationsClient, n
 }
 
 func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	var taskConf tasks.TaskNotification
+	var taskConf base.TaskNotification
 	err := json.Unmarshal([]byte(notification.Data), &taskConf)
 	if err != nil {
 		log.Error("parsing TaskStop, err: %s, %s", err, notification.Data)
@@ -197,6 +200,7 @@ func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, no
 			return
 		}
 		TaskMgr.RemoveTask(fmt.Sprint(taskConf.Name, "-", pid))
+
 	case nodemonitor.Name:
 		conf, ok := taskConf.Data.(map[string]interface{})
 		if !ok {
@@ -204,8 +208,10 @@ func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, no
 			return
 		}
 		TaskMgr.RemoveTask(fmt.Sprint(nodemonitor.Name, "-", conf["node"].(string)))
+
 	case socketsmonitor.Name:
 		TaskMgr.RemoveTask(socketsmonitor.Name)
+
 	default:
 		log.Debug("TaskStop, unknown task: %v", taskConf)
 		//c.sendNotificationReply(stream, notification.Id, "", err)
@@ -362,15 +368,16 @@ func (c *Client) listenForNotifications() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	var err error
 	// open the stream channel
 	streamReply := &protocol.NotificationReply{Id: 0, Code: protocol.NotificationReplyCode_OK}
-	notisStream, err := c.client.Notifications(ctx)
+	c.streamNotifications, err = c.client.Notifications(ctx)
 	if err != nil {
 		log.Error("establishing notifications channel %s", err)
 		return
 	}
 	// send the first notification
-	if err := notisStream.Send(streamReply); err != nil {
+	if err := c.streamNotifications.Send(streamReply); err != nil {
 		log.Error("sending notification HELLO %s", err)
 		return
 	}
@@ -380,7 +387,7 @@ func (c *Client) listenForNotifications() {
 		case <-c.clientCtx.Done():
 			goto Exit
 		default:
-			noti, err := notisStream.Recv()
+			noti, err := c.streamNotifications.Recv()
 			if err == io.EOF {
 				log.Warning("notification channel closed by the server")
 				goto Exit
@@ -389,12 +396,12 @@ func (c *Client) listenForNotifications() {
 				log.Error("getting notifications: %s %s", err, noti)
 				goto Exit
 			}
-			c.handleNotification(notisStream, noti)
+			c.handleNotification(c.streamNotifications, noti)
 		}
 	}
 Exit:
-	notisStream.CloseSend()
+	c.streamNotifications.CloseSend()
 	log.Info("Stop receiving notifications")
 	c.disconnect()
-	TaskMgr.StopAll()
+	TaskMgr.StopTempTasks()
 }

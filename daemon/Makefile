@@ -6,6 +6,7 @@ all: opensnitchd
 
 install:
 	@mkdir -p $(DESTDIR)/etc/opensnitchd/rules
+	@mkdir -p $(DESTDIR)/etc/opensnitchd/tasks
 	@install -Dm755 opensnitchd \
 		-t $(DESTDIR)$(PREFIX)/bin/
 	@install -Dm644 opensnitchd.service \
@@ -17,6 +18,7 @@ install:
 	@install -Dm644 network_aliases.json \
 		-t $(DESTDIR)/etc/opensnitchd/
 	@install -Dm600 data/rules/* $(DESTDIR)/etc/opensnitchd/rules/
+	@install -Dm600 data/tasks/tasks.json $(DESTDIR)/etc/opensnitchd/tasks/
 	@systemctl daemon-reload
 
 opensnitchd: $(SRC)

@@ -10,9 +10,23 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/tasks"
 )
 
-var tkMgr = tasks.NewTaskManager()
+var tkMgr tasks.TaskManager
+
+func taskEvents(tm *tasks.TaskManager, t *testing.T) {
+	for {
+		select {
+		case task := <-tm.TaskAdded:
+			t.Log("TaskMgr.TaskAdded:", task.Name)
+		case task := <-tm.TaskRemoved:
+			t.Log("TaskMgr.TaskRemoved:", task.Name)
+		}
+	}
+}
 
 func TestNodeMonitor(t *testing.T) {
+	tkMgr := tasks.NewTaskManager("none")
+	go taskEvents(tkMgr, t)
+
 	taskName, nodeMon := New("my-node", "1s", false)
 	activity := false
 	var ctx context.Context

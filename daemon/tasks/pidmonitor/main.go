@@ -10,7 +10,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
-	"github.com/evilsocket/opensnitch/daemon/tasks"
+	"github.com/evilsocket/opensnitch/daemon/tasks/base"
 )
 
 // Name s the base name of this task.
@@ -25,7 +25,7 @@ type Config struct {
 
 // PIDMonitor monitors a process ID.
 type PIDMonitor struct {
-	tasks.TaskBase
+	base.TaskBase
 	mu        *sync.RWMutex
 	Ticker    *time.Ticker
 	Interval  string
@@ -36,7 +36,8 @@ type PIDMonitor struct {
 // New returns a new PIDMonitor
 func New(pid int, interval string, stopOnDisconnect bool) (string, *PIDMonitor) {
 	return fmt.Sprint(Name, "-", pid), &PIDMonitor{
-		TaskBase: tasks.TaskBase{
+		TaskBase: base.TaskBase{
+			Name:    Name,
 			Results: make(chan interface{}),
 			Errors:  make(chan error),
 		},
@@ -123,14 +124,12 @@ func (pm *PIDMonitor) Stop() error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	if pm.StopOnDisconnect {
-		log.Debug("[task.PIDMonitor] ignoring Stop()")
-		return nil
-	}
 	pm.isStopped = true
 
 	log.Debug("[task.PIDMonitor] Stop()")
-	pm.Ticker.Stop()
+	if pm.Ticker != nil {
+		pm.Ticker.Stop()
+	}
 	if pm.Cancel != nil {
 		pm.Cancel()
 	}
