@@ -3,6 +3,20 @@
   "Version": 1,
   "SystemRules": [
     {
+      "Rule": {
+        "Table": "mangle",
+        "Chain": "OUTPUT",
+        "Enabled": false,
+        "Position": "0",
+        "Description": "Allow icmp",
+        "Parameters": "-p icmp",
+        "Expressions": [],
+        "Target": "ACCEPT",
+        "TargetParameters": ""
+      },
+      "Chains": []
+    },
+    {
       "Chains": [
         {
           "Name": "filter_forward",
