@@ -7,7 +7,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/tasks/config"
 	//"github.com/evilsocket/opensnitch/daemon/tasks/downloader"
 	//"github.com/evilsocket/opensnitch/daemon/tasks/iocscanner"
-	//"github.com/evilsocket/opensnitch/daemon/tasks/looptask"
+	"github.com/evilsocket/opensnitch/daemon/tasks/looptask"
 	//"github.com/evilsocket/opensnitch/daemon/tasks/netsniffer"
 )
 
@@ -109,7 +109,13 @@ func (tm *TaskManager) loadDiskTasks(tasks []config.TaskConfig) {
 func (tm *TaskManager) loadDiskTask(name string, taskConf config.TaskData) error {
 	log.Debug("TaskMgr.loadDiskTask() %s, %s", name, taskConf.Name)
 	switch name {
-
+	case looptask.Name:
+		// TODO: check interface errors
+		taskName, looper := looptask.New(taskConf.Name, taskConf.Data["interval"].(string))
+		_, err := tm.AddTask(taskName, looper)
+		if err != nil {
+			return err
+		}
 	default:
 		log.Debug("TaskStart, unknown task %s: %s", name, taskConf.Name)
 	}
