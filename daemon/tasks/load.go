@@ -5,7 +5,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/tasks/config"
-	//"github.com/evilsocket/opensnitch/daemon/tasks/downloader"
+	"github.com/evilsocket/opensnitch/daemon/tasks/downloader"
 	//"github.com/evilsocket/opensnitch/daemon/tasks/iocscanner"
 	"github.com/evilsocket/opensnitch/daemon/tasks/looptask"
 	//"github.com/evilsocket/opensnitch/daemon/tasks/netsniffer"
@@ -60,7 +60,7 @@ func (tm *TaskManager) LoadTaskFile(cfgfile string) error {
 
 				log.Info("[tasks] LoadTaskFile, task %s running", taskConf.Name)
 				if err := tm.RemoveTask(taskConf.Name); err != nil {
-					log.Error("[tasks] LoadTaskFile, error removing task: %s", taskConf.Name)
+					log.Error("[tasks] LoadTaskFile, error removing task %s: %s", taskConf.Name, err)
 				}
 
 				if err := tm.loadDiskTask(taskConf.Name, taskConf); err != nil {
@@ -114,8 +114,18 @@ func (tm *TaskManager) loadDiskTask(name string, taskConf config.TaskData) error
 		taskName, looper := looptask.New(taskConf.Name, taskConf.Data["interval"].(string))
 		_, err := tm.AddTask(taskName, looper)
 		if err != nil {
+			log.Error("loading task %s: %s", taskName, err)
 			return err
 		}
+	case downloader.Name:
+		downloader := downloader.New(taskConf.Data, false)
+		log.Info("LoadTaskData, downloader: %s", taskConf.Name)
+		_, err := tm.AddTask(taskConf.Name, downloader)
+		if err != nil {
+			log.Error("loading task %s: %s", taskConf.Name, err)
+			return err
+		}
+
 	default:
 		log.Debug("TaskStart, unknown task %s: %s", name, taskConf.Name)
 	}
