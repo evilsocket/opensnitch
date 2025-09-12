@@ -6,9 +6,9 @@
   "action": "allow",
   "duration": "always",
   "operator": {
-    "operand": "dest.network",
-    "data": "::1/128",
-    "type": "network",
+    "operand": "dest.ip",
+    "data": "::1",
+    "type": "simple",
     "list": [],
     "sensitive": false
   },
