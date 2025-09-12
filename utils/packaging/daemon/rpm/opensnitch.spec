@@ -41,7 +41,7 @@ go mod vendor
 go build -o opensnitchd .
 
 %install
-mkdir -p %{buildroot}/usr/bin/ %{buildroot}/usr/lib/opensnitchd/ebpf/ %{buildroot}/usr/lib/systemd/system/ %{buildroot}/etc/opensnitchd/rules %{buildroot}/etc/logrotate.d
+mkdir -p %{buildroot}/usr/bin/ %{buildroot}/usr/lib/opensnitchd/ebpf/ %{buildroot}/usr/lib/systemd/system/ %{buildroot}/etc/opensnitchd/rules %{buildroot}/etc/opensnitchd/tasks %{buildroot}/etc/logrotate.d
 sed -i 's/\/usr\/local/\/usr/' daemon/opensnitchd.service
 install -m 755 daemon/opensnitchd %{buildroot}/usr/bin/opensnitchd
 install -m 644 daemon/opensnitchd.service %{buildroot}/usr/lib/systemd/system/opensnitch.service
@@ -81,6 +81,12 @@ if [ -f $r ]; then
     B="-b"
 fi
 install -m 600 $B daemon/data/rules/000-allow-localhost6.json %{buildroot}$r
+
+B=""
+if [ -f /etc/opensnitchd/tasks/tasks.json ]; then
+    B="-b"
+fi
+install -D -m 600 $B daemon/data/tasks/tasks.json %{buildroot}/etc/opensnitchd/tasks/tasks.json
 
 # upgrade, uninstall
 %preun
