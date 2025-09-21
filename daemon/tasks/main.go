@@ -75,9 +75,14 @@ func (tm *TaskManager) AddTask(name string, task base.Task) (context.Context, er
 
 		select {
 		case <-tm.Ctx.Done():
-			task.Stop()
+			goto Exit
 		case <-ctx.Done():
-			return
+			goto Exit
+		}
+	Exit:
+		if _, found := tm.GetTask(name); found {
+			log.Debug("[tasks] AddTask() stopping task %s", name)
+			task.Stop()
 		}
 	}(ctx, cancel)
 
@@ -96,6 +101,7 @@ func (tm *TaskManager) RemoveTask(name string) error {
 	}
 
 	tm.TaskRemoved <- EventTask{Task: tk, Name: name}
+	log.Debug("[tasks] RemoveTask() stopping task %s", name)
 	tk.Stop()
 
 	delete(tm.tasks, name)
@@ -169,6 +175,7 @@ func (tm *TaskManager) UpdateTask(name string, task base.Task) (context.Context,
 
 // Stop stops all running tasks.
 func (tm *TaskManager) Stop() {
+	tm.StopAll()
 	if tm.Cancel != nil {
 		tm.Cancel()
 	}

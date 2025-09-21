@@ -97,8 +97,8 @@ func NewClient(socketPath, localConfigFile string, stats *statistics.Statistics,
 	rules.EnableChecksums(c.config.Rules.EnableChecksums)
 
 	TaskMgr = tasks.NewTaskManager()
-	TaskMgr.LoadTaskFile(c.config.TasksOptions.ConfigPath)
 	go c.monitorTaskManager(TaskMgr)
+	TaskMgr.LoadTaskFile(c.config.TasksOptions.ConfigPath)
 
 	return c
 }
@@ -115,6 +115,7 @@ func (c *Client) Connect() {
 // Close cancels the running tasks: pinging the server and (re)connection poller.
 func (c *Client) Close() {
 	c.clientCancel()
+	TaskMgr.Stop()
 }
 
 // ProcMonitorMethod returns the monitor method configured.

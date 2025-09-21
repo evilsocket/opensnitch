@@ -6,7 +6,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/tasks/config"
 	"github.com/evilsocket/opensnitch/daemon/tasks/downloader"
-	//"github.com/evilsocket/opensnitch/daemon/tasks/iocscanner"
+	"github.com/evilsocket/opensnitch/daemon/tasks/iocscanner"
 	"github.com/evilsocket/opensnitch/daemon/tasks/looptask"
 	//"github.com/evilsocket/opensnitch/daemon/tasks/netsniffer"
 )
@@ -126,6 +126,13 @@ func (tm *TaskManager) loadDiskTask(name string, taskConf config.TaskData) error
 			return err
 		}
 
+	case iocscanner.Name:
+		taskName, iocscanner := iocscanner.New(taskConf.Name, taskConf.Data, false)
+		_, err := tm.AddTask(taskName, iocscanner)
+		if err != nil {
+			log.Error("loading task %s: %s", taskConf.Name, err)
+			return err
+		}
 	default:
 		log.Debug("TaskStart, unknown task %s: %s", name, taskConf.Name)
 	}

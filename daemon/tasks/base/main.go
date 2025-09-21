@@ -37,6 +37,8 @@ type TaskBase struct {
 	// There might be other tasks that will perform some actions, and they
 	// may send a notification on finish.
 	StopOnDisconnect bool
+
+	stopped bool
 }
 
 func (t *TaskBase) SetID(id uint64) {
@@ -64,7 +66,6 @@ type Task interface {
 	// Stop stops the task.
 	Stop() error
 
-	//GetName() string
 	SetID(uint64)
 	GetID() uint64
 	IsTemporary() bool
