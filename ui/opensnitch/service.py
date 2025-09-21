@@ -387,7 +387,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 self._db.insert("alerts",
                                 "(time, node, type, action, priority, what, body, status)",
                                 (
-                                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                    datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
                                     proto+":"+addr, atype, "", "", what, body, 0
                                 ))
             else:
