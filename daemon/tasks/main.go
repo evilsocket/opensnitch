@@ -73,17 +73,20 @@ func (tm *TaskManager) AddTask(name string, task base.Task) (context.Context, er
 		}
 		tm.TaskAdded <- EventTask{Ctx: ctx, Cancel: cancel, Task: task, Name: name}
 
-		select {
-		case <-tm.Ctx.Done():
-			goto Exit
-		case <-ctx.Done():
-			goto Exit
+		for {
+			select {
+			case <-tm.Ctx.Done():
+				goto Exit
+			case <-ctx.Done():
+				goto Exit
+			}
 		}
 	Exit:
 		if _, found := tm.GetTask(name); found {
 			log.Debug("[tasks] AddTask() stopping task %s", name)
 			task.Stop()
 		}
+
 	}(ctx, cancel)
 
 	return ctx, nil

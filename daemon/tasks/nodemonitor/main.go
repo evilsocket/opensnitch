@@ -112,7 +112,7 @@ func (pm *NodeMonitor) Stop() error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	log.Debug("[task.PIDMonitor] Stop()")
+	log.Debug("[task.NodeMonitor] Stop()")
 	if pm.Ticker != nil {
 		pm.Ticker.Stop()
 	}
