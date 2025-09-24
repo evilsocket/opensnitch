@@ -32,24 +32,26 @@ In this case the tool "debsums" will execute the command "debsums -c", parse the
 and send the results to the GUI.
 
 
- TODO:
-	[] - list and scan processes (yara, our own rules?)
-         - suspicious names, suspicious paths, etc.
-	[] - list/analyze cached processes (yara, our own rules?)
-	[] - find hidden kmods and rootkits (LD_PRELOAD, lkm)
-	[] - apply actions (kill, quarantine, stop, ...)
-    [] - reuse rules format? daemon/rules/operator/
-    [] - subscribe to real-time events (ebpf)
-         - optionally, monitor files/directories for changes (inotify). /etc/ld.so.preload, /etc/modules, etc.
-	[x] - verify the integrity of files installed by packages: `debsums -c`, `dpkg --verify`
-	[x] - apply rules - (yara)
-	[x] - [Partially] send notifications (GUI, SIEM).
-	[x] - [decloacker] find hidden processes, files, dirs, content.
-	[x] - [DONE] implement advanced scheduling
+TODO:
+ 
+- [ ] list and scan processes (yara, our own rules?)
+  - suspicious names (`[kworker/0:0-events]`, `[kthreadd]`) + suspicious paths (`/tmp/kworker`, `/memfd`, `/dev/shm/script.sh`), etc.
+- [ ] list/analyze cached processes (yara, our own rules?)
+- [ ] find hidden kmods and rootkits (LD_PRELOAD, lkm)
+- [ ] apply actions (kill, quarantine, stop, ...)
+- [ ] reuse rules format? daemon/rules/operator/
+- [ ] subscribe to real-time events (ebpf)
+     - optionally, monitor files/directories for changes (inotify). /etc/ld.so.preload, /etc/modules, etc.
+- [ ] Add a default set of YARA rules to scan for unix redflags (inspired by https://github.com/timb-machine/linux-malware/blob/main/defensive/yara/personal-malware-bazaar/unixredflags3.yara).
+- [x] verify the integrity of files installed by packages: `debsums -c`, `dpkg --verify`
+- [x] find IOCs with YARA rules.
+- [x] [Partially] send notifications (GUI, TODO: SIEM).
+- [x] [decloacker] find hidden processes, files, directories, connections or content.
+- [x] [DONE] implement advanced scheduling
 
 IOCScanner task configuration example to run Yara with a set of rules:
 
-```json
+```bash
 ~ # cat /etc/opensnitchd/tasks/iocscanner/iocscanner.json
 {
     "name": "IOC-scanner",
