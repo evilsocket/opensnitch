@@ -102,7 +102,7 @@ func (c *Client) alertsDispatcher() {
 		case ready := <-c.isConnected:
 			connected = ready
 			if ready {
-				log.Important("UI connected, dispathing queued alerts: %d", len(c.alertsChan))
+				log.Important("UI connected, dispatching queued alerts: %d", len(c.alertsChan))
 				for {
 					if isQueueEmpty(queuedAlerts) {
 						// no more queued alerts, exit

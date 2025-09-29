@@ -26,7 +26,7 @@ class Downloader(PluginBase):
     This plugin may require to create a rule to allow connections to the
     configured urls, to avoid popups.
     """
-    # fields overriden from parent class
+    # fields overridden from parent class
     name = "Downloader"
     version = 0
     author = "opensnitch"

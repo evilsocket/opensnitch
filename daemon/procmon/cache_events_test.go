@@ -77,7 +77,7 @@ func TestCacheEvents2(t *testing.T) {
 	})
 
 	// This process does not exist, so it should be removed from cache
-	// inmediately. We wait a couple of seconds, before deleting it.
+	// immediately. We wait a couple of seconds, before deleting it.
 	// See exitDelay description for more info.
 	t.Run("Delete() !isAlive()", func(t *testing.T) {
 		evtsCache.Delete(fakePid)

@@ -108,13 +108,13 @@ type ResolvedMonitor struct {
 	// connection with the systemd-resolved unix socket:
 	// /run/systemd/resolve/io.systemd.Resolve.Monitor
 	Conn *varlink.Connection
-	// channel where all the DNS respones will be sent
+	// channel where all the DNS responses will be sent
 	ChanResponse chan *MonitorResponse
 
 	// error channel to signal any problem
 	ChanConnError chan error
 
-	// callback that is emited when systemd-resolved resolves a domain name.
+	// callback that is emitted when systemd-resolved resolves a domain name.
 	receiverCb resolvedCallback
 	mu         *sync.RWMutex
 	connected  bool
