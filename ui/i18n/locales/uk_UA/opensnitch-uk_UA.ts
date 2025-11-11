@@ -526,7 +526,7 @@ sólo mostrar alerta</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1595"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it&apos;s a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Адреса вузла.&lt;/p&gt;&lt;p&gt;За замовчуванням: unix:///tmp/osui.sock (unix:// є обов'язковим, якщо це Unix сокет) &lt;/p&gt;&lt;p&gt;Це також може бути IP-адреса з портом: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Адреса вузла.&lt;/p&gt;&lt;p&gt;За замовчуванням: unix:///tmp/osui.sock (unix:// є обов&apos;язковим, якщо це Unix сокет) &lt;/p&gt;&lt;p&gt;Це також може бути IP-адреса з портом: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1598"/>
@@ -576,7 +576,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="2271"/>
         <source>HostName</source>
-        <translation>Ім'я хосту</translation>
+        <translation>Ім&apos;я хосту</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1609"/>
@@ -616,7 +616,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="2317"/>
         <source>In memory</source>
-        <translation>В пам'яті</translation>
+        <translation>В пам&apos;яті</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="2322"/>
@@ -691,12 +691,12 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="503"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;За замовчуванням, коли з'являється нове спливаюче вікно, у його простій формі, ви зможете фільтрувати з'єднання чи застосунки за однією властивістю з'єднання (виконуваний файл, порт, IP-адреса тощо.).&lt;/p&gt;&lt;p&gt;За допомогою цих варіантів, ви можете обрати декілька полів для фільтрації з'єднань.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;За замовчуванням, коли з&apos;являється нове спливаюче вікно, у його простій формі, ви зможете фільтрувати з&apos;єднання чи застосунки за однією властивістю з&apos;єднання (виконуваний файл, порт, IP-адреса тощо.).&lt;/p&gt;&lt;p&gt;За допомогою цих варіантів, ви можете обрати декілька полів для фільтрації з&apos;єднань.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="506"/>
         <source>Filter connections also by:</source>
-        <translation>Також фільтрувати з'єднання за:</translation>
+        <translation>Також фільтрувати з&apos;єднання за:</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="362"/>
@@ -726,7 +726,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="425"/>
         <source>The advanced view allows you to easily select multiple fields to filter connections</source>
-        <translation>Розширений вигляд дозволяє легко обирати декілька полів для фільтрації з'єднань</translation>
+        <translation>Розширений вигляд дозволяє легко обирати декілька полів для фільтрації з&apos;єднань</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="478"/>
@@ -736,7 +736,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="159"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. new outgoing connections are denied.&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Дія спливаючого вікна за замовчуванням.&lt;/p&gt;&lt;p&gt;Коли буде встановлене нове вихідне з'єднання, ця дія буде обрана за замовчуванням, тому, якщо тайм-аут спрацьовує, буде застосований цей параметр.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Коли спливаюче вікно просить користувача дозволити чи заборонити з'єднання:&lt;/p&gt;&lt;p &gt;1. нові вихідні з'єднання заборонені.&lt;/p&gt;&lt;p&gt;2. відомі з'єднання дозволяються чи забороняються відповідно до правил, заданих користувачем.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Дія спливаючого вікна за замовчуванням.&lt;/p&gt;&lt;p&gt;Коли буде встановлене нове вихідне з&apos;єднання, ця дія буде обрана за замовчуванням, тому, якщо тайм-аут спрацьовує, буде застосований цей параметр.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Коли спливаюче вікно просить користувача дозволити чи заборонити з&apos;єднання:&lt;/p&gt;&lt;p &gt;1. нові вихідні з&apos;єднання заборонені.&lt;/p&gt;&lt;p&gt;2. відомі з&apos;єднання дозволяються чи забороняються відповідно до правил, заданих користувачем.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1515"/>
@@ -746,7 +746,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1620"/>
         <source>Debug invalid connections</source>
-        <translation>Налагодження недійсних з'єднань</translation>
+        <translation>Налагодження недійсних з&apos;єднань</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="46"/>
@@ -856,7 +856,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1617"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don&apos;t have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Якщо прапорець встановлено, OpenSnitch питатиме у вас про дозвіл чи заборону з'єднаннь, які з певних причин не пов'язані з конкретним PID, в основному через недійсний стан з'єднання.&lt;/p&gt;&lt;p&gt;Спливаюче вікно міститиме лише інформацію про мережеве з'єднання.&lt;/p&gt;&lt;p&gt;Існують сценарії, коли такі з’єднання є дійсними, наприклад, під час підключення до VPN за допомогою WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Якщо прапорець встановлено, OpenSnitch питатиме у вас про дозвіл чи заборону з&apos;єднаннь, які з певних причин не пов&apos;язані з конкретним PID, в основному через недійсний стан з&apos;єднання.&lt;/p&gt;&lt;p&gt;Спливаюче вікно міститиме лише інформацію про мережеве з&apos;єднання.&lt;/p&gt;&lt;p&gt;Існують сценарії, коли такі з’єднання є дійсними, наприклад, під час підключення до VPN за допомогою WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="2430"/>
@@ -935,7 +935,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
 Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.</source>
         <translation>Коли обраний цей параметр, правила обраної тривалості не будуть додані до списку тимчасових правил у графічному інтерфейсі.
 
-Тимчасові правила залишаться дійсними, і ви зможете використовувати їх, коли буде запропоновано дозволити/заборонити нове з'єднання.</translation>
+Тимчасові правила залишаться дійсними, і ви зможете використовувати їх, коли буде запропоновано дозволити/заборонити нове з&apos;єднання.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1355"/>
@@ -1385,7 +1385,7 @@ Use 0 to disable this feature.</source>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="138"/>
         <source>mem stats: loading...</source>
-        <translation>статистика пам'яті: завантаження...</translation>
+        <translation>статистика пам&apos;яті: завантаження...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="172"/>
@@ -1405,7 +1405,7 @@ Use 0 to disable this feature.</source>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="238"/>
         <source>Memory mapped files</source>
-        <translation>Файли з відображенням пам'яті</translation>
+        <translation>Файли з відображенням пам&apos;яті</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="252"/>
@@ -1608,7 +1608,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</source>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="985"/>
         <source>Name</source>
-        <translation>Ім'я</translation>
+        <translation>Ім&apos;я</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1194"/>
@@ -1656,7 +1656,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="867"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the field of the rules are case-insensitive, i.e., if a process tries to access gOOgle.CoM and you have a rule to Deny .*google.com, the connection will be blocked.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you check this box, you have to specify the exact string (domain, executable, command line) that you want to filter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;За замовчуванням поле правил не чутливе до регістру, тобто якщо процес намагається отримати доступ до gOOgle.CoM, а у вас є правило Заборонити .*google.com, з'єднання буде заблоковане.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Якщо ви встановите цей прапорець, ви маєте вказати точний рядок (домен, виконуваний файл, командний рядок), який ви хочете відфільтрувати.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;За замовчуванням поле правил не чутливе до регістру, тобто якщо процес намагається отримати доступ до gOOgle.CoM, а у вас є правило Заборонити .*google.com, з&apos;єднання буде заблоковане.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Якщо ви встановите цей прапорець, ви маєте вказати точний рядок (домен, виконуваний файл, командний рядок), який ви хочете відфільтрувати.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="870"/>
@@ -1769,7 +1769,7 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="105"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The value of this field is always the absolute path to the executable: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;- Simple: /path/to/binary&lt;/p&gt;&lt;p&gt;- Multiple paths: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Multiple binaries: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Deny/Allow executions from /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For more examples visit the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki page&lt;/a&gt; or ask on the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Discussion forums&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Значення цього поля завжди є абсолютним шляхом до виконуваного файлу: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Приклади:&lt;/p&gt;&lt;p&gt;- Простий: /path/to/binary&lt;/p&gt;&lt;p&gt;- Декілька виконуваних файлов: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Декілька виконуваних файлов: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Заборонити/Дозволити виконання з /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Для перегляду інших прикладів відвідайте &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki сторінку&lt;/a&gt; або запитайте на &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;форумі дискусій&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Значення цього поля завжди є абсолютним шляхом до виконуваного файлу: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Приклади:&lt;/p&gt;&lt;p&gt;- Простий: /path/to/binary&lt;/p&gt;&lt;p&gt;- Декілька виконуваних файлів: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Декілька виконуваних файлів: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Заборонити/Дозволити виконання з /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Для перегляду інших прикладів відвідайте &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki сторінку&lt;/a&gt; або запитайте на &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;форумі дискусій&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="115"/>
@@ -1794,27 +1794,27 @@ You must name the rule in such manner that it&apos;ll be checked first, because 
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="893"/>
         <source>Don&apos;t log connections that match this rule</source>
-        <translation>Не логувати з'єднання що відповідають цьому правилу</translation>
+        <translation>Не логувати з&apos;єднання що відповідають цьому правилу</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="896"/>
         <source>Don&apos;t log connections</source>
-        <translation>Не логувати з'єднання</translation>
+        <translation>Не логувати з&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1135"/>
         <source>Deny will just discard the connection</source>
-        <translation>Заборона миттєво розірве з'єднання</translation>
+        <translation>Заборона миттєво розірве з&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1152"/>
         <source>Reject will drop the connection, and kill the socket that initiated it</source>
-        <translation>Відхилення призведе до розриву з'єднання та знищенню сокету, який його ініціював</translation>
+        <translation>Відхилення призведе до розриву з&apos;єднання та знищенню сокету, який його ініціював</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1172"/>
         <source>Allow will allow the connection</source>
-        <translation>Дозволити дозволить з'єднання</translation>
+        <translation>Дозволити дозволить з&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="316"/>
@@ -1993,12 +1993,12 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="926"/>
         <source>Permanent</source>
-        <translation>Постійно</translation>
+        <translation>Постійні</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="935"/>
         <source>Temporary</source>
-        <translation>Тимчасово</translation>
+        <translation>Тимчасові</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1057"/>
@@ -2033,7 +2033,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="2074"/>
         <source>Connections</source>
-        <translation>З'єднання</translation>
+        <translation>З&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="2126"/>
@@ -2339,7 +2339,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="314"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
-        <translation>Щоб налаштувати правила міжмережевого екрану через графічний інтерфейс, нам необхідно використати 'nftables' замість 'iptables'</translation>
+        <translation>Щоб налаштувати правила міжмережевого екрану через графічний інтерфейс, нам необхідно використати &apos;nftables&apos; замість &apos;iptables&apos;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="329"/>
@@ -2384,17 +2384,17 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="78"/>
         <source>Set conntrack mark</source>
-        <translation>Встановити мітку з'єднання</translation>
+        <translation>Встановити мітку з&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="79"/>
         <source>Match conntrack mark</source>
-        <translation>Співпадіння з міткою з'єднання</translation>
+        <translation>Співпадіння з міткою з&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="80"/>
         <source>Match conntrack state(s)</source>
-        <translation>Співпадіння з станом з'єднання</translation>
+        <translation>Співпадіння з станом з&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="81"/>
@@ -2414,7 +2414,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="90"/>
         <source>Rate limit connections</source>
-        <translation>З'єднання з обмеженням швидкості</translation>
+        <translation>З&apos;єднання з обмеженням швидкості</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="372"/>
@@ -2436,7 +2436,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="450"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
-        <translation>Ви можете використати ',' або '-' для зазначення кількох портів/IP або діапазонів/значень:&lt;br&gt;&lt;br&gt;порти: 22 або 22,443 або 50000-60000&lt;br&gt;IP: 192.168.1.1 або 192.168.1.30-192.168.1.130&lt;br&gt;Значення: echo-reply,echo-request&lt;br&gt;Значення: new,established,related</translation>
+        <translation>Ви можете використати &apos;,&apos; або &apos;-&apos; для зазначення кількох портів/IP або діапазонів/значень:&lt;br&gt;&lt;br&gt;порти: 22 або 22,443 або 50000-60000&lt;br&gt;IP: 192.168.1.1 або 192.168.1.30-192.168.1.130&lt;br&gt;Значення: echo-reply,echo-request&lt;br&gt;Значення: new,established,related</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="470"/>
@@ -2516,12 +2516,12 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1261"/>
         <source>Allow inbound connections to the selected port.</source>
-        <translation>Дозволити вхідні з'єднання на обраний порт.</translation>
+        <translation>Дозволити вхідні з&apos;єднання на обраний порт.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1263"/>
         <source>Allow outbound connections to the selected port.</source>
-        <translation>Дозволити вихідні з'єднання на обраний порт.</translation>
+        <translation>Дозволити вихідні з&apos;єднання на обраний порт.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1339"/>
@@ -2605,12 +2605,12 @@ Supported formats:
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="164"/>
         <source>Set a conntrack mark on the connection, in decimal format.</source>
-        <translation>Встановити conntrack мітку на з'єднанні, в числовому форматі.</translation>
+        <translation>Встановити conntrack мітку на з&apos;єднанні, в числовому форматі.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="174"/>
         <source>Match a conntrack mark of the connection, in decimal format.</source>
-        <translation>Співпадіння з conntrack міткою з'єднання, в числовому форматі.</translation>
+        <translation>Співпадіння з conntrack міткою з&apos;єднання, в числовому форматі.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="181"/>
@@ -2713,7 +2713,7 @@ The value must be in the format: VALUE/UNITS, for example:
  - 10mbytes, 1/gbytes, etc
 </source>
         <translation type="obsolete">
-Застосувати квоти до з'єднань.
+Застосувати квоти до з&apos;єднань.
 
 Наприклад, коли:
  - &quot;quota over 10/mbytes&quot; -&gt; застосувати Дію (ВІДКИНУТИ)
@@ -2738,7 +2738,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
  - 10/mbytes/minute, 1/gbytes/hour, etc
 </source>
         <translation>
-Застосувати ліміти до з'єднань.
+Застосувати ліміти до з&apos;єднань.
 
 Наприклад, коли:
  - &quot;limit over 10/mbytes/minute&quot; -&gt; застосувати Дію (ВІДКИНУТИ, ПРИЙНЯТИ, тощо)
@@ -2887,7 +2887,7 @@ The value must be in the format: VALUE/UNITS, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="429"/>
         <source>Outgoing connection</source>
-        <translation>Вихідне з'єднання</translation>
+        <translation>Вихідне з&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="436"/>
@@ -2977,7 +2977,7 @@ The value must be in the format: VALUE/UNITS, for example:
     <message>
         <location filename="../../../opensnitch/notifications.py" line="117"/>
         <source>New outgoing connection</source>
-        <translation>Нове вихідне з'єднання</translation>
+        <translation>Нове вихідне з&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="121"/>
@@ -2987,7 +2987,7 @@ The value must be in the format: VALUE/UNITS, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="497"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt;, %s</source>
-        <translation type="obsolete">з'єднується з &lt;b&gt;%s&lt;/b&gt;, %s</translation>
+        <translation type="obsolete">з&apos;єднується з &lt;b&gt;%s&lt;/b&gt;, %s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/notifications.py" line="40"/>
@@ -3083,7 +3083,7 @@ The value must be in the format: VALUE/UNITS, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="755"/>
         <source>You must select a file for the database&lt;br&gt;or choose &quot;In memory&quot; type.</source>
-        <translation>Ви повинні обрати файл для бази даних&lt;br&gt;або обрати тип &quot;У пам'яті&quot;.</translation>
+        <translation>Ви повинні обрати файл для бази даних&lt;br&gt;або обрати тип &quot;У пам&apos;яті&quot;.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="749"/>
@@ -3787,7 +3787,7 @@ The value must be in the format: VALUE/UNITS, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="387"/>
         <source>Name</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Ім'я</translation>
+        <translation>Ім&apos;я</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="388"/>
@@ -3805,7 +3805,7 @@ The value must be in the format: VALUE/UNITS, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="390"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Ім'я хосту</translation>
+        <translation>Ім&apos;я хосту</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="581"/>
@@ -3889,7 +3889,7 @@ The value must be in the format: VALUE/UNITS, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="415"/>
         <source>LastConnection</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>Останнє з'єднання</translation>
+        <translation>Останнє з&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="301"/>
@@ -3948,7 +3948,7 @@ The value must be in the format: VALUE/UNITS, for example:
     <message>
         <location filename="../../../opensnitch/customwidgets/addresstablemodel.py" line="19"/>
         <source>Network name</source>
-        <translation>Ім'я мережі</translation>
+        <translation>Ім&apos;я мережі</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="378"/>
@@ -3966,7 +3966,7 @@ The value must be in the format: VALUE/UNITS, for example:
         <location filename="../../../opensnitch/dialogs/stats.py" line="579"/>
         <source>Connections</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation>З'єднання</translation>
+        <translation>З&apos;єднання</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="580"/>
