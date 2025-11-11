@@ -35,8 +35,9 @@ TRANSLATIONS += locales/cs_CZ/opensnitch-cs_CZ.ts \
                 locales/eu_ES/opensnitch-eu_ES.ts \
                 locales/fi_FI/opensnitch-fi_FI.ts \
                 locales/fr_FR/opensnitch-fr_FR.ts \
-                locales/hu_HU/opensnitch-hu_HU.ts \
+                locales/he_IL/opensnitch-he_IL.ts \
                 locales/hi_IN/opensnitch-hi_IN.ts \
+                locales/hu_HU/opensnitch-hu_HU.ts \
                 locales/id_ID/opensnitch-id_ID.ts \
                 locales/it_IT/opensnitch-it_IT.ts \
                 locales/ja_JP/opensnitch-ja_JP.ts \
@@ -46,6 +47,7 @@ TRANSLATIONS += locales/cs_CZ/opensnitch-cs_CZ.ts \
                 locales/pt_BR/opensnitch-pt_BR.ts \
                 locales/ro_RO/opensnitch-ro_RO.ts \
                 locales/ru_RU/opensnitch-ru_RU.ts \
+                locales/sq_AL/opensnitch-sq_AL.ts \
                 locales/sv_SE/opensnitch-sv_SE.ts \
                 locales/tr_TR/opensnitch-tr_TR.ts \
                 locales/uk_UA/opensnitch-uk_UA.ts \
