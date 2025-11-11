@@ -122,16 +122,8 @@ func (s *Scheduler) SetupDailyTimers() {
 }
 
 func (s *Scheduler) Start() {
-	if len(s.Tickers) > 0 {
-		for _, t := range s.Tickers {
-			if t != nil {
-				t.Stop()
-			}
-		}
-		if s.Cancel != nil {
-			s.Cancel()
-		}
-	}
+	log.Debug("[tasks-scheduler] Start()")
+
 	if len(s.Config.Time) > 0 {
 		go s.SetupDailyTimers()
 	}
@@ -229,9 +221,6 @@ func (s *Scheduler) Stop() {
 	}
 	if s.Ticker != nil {
 		s.Ticker.Stop()
-	}
-	if s.Cancel != nil {
-		s.Cancel()
 	}
 }
 

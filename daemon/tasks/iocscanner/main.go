@@ -113,9 +113,10 @@ func (pm *IOCScanner) Start(ctx context.Context, cancel context.CancelFunc) erro
 		return fmt.Errorf("no tools configured")
 	}
 	for n, schedCfg := range pm.Config.Schedule {
-		sched := scheduler.New(ctx, cancel, schedCfg)
-		sched.Start()
 		go func() {
+			sched := scheduler.New(ctx, cancel, schedCfg)
+			sched.Start()
+
 			for {
 				select {
 				case <-sched.Ctx.Done():
@@ -138,6 +139,7 @@ func (pm *IOCScanner) Start(ctx context.Context, cancel context.CancelFunc) erro
 			}
 		Exit:
 			log.Debug("[IOCScanner] scheduler stopped")
+			sched.Stop()
 		}()
 	}
 
@@ -184,8 +186,8 @@ func (pm *IOCScanner) Stop() error {
 	if pm.Cancel != nil {
 		pm.Cancel()
 	}
-	close(pm.TaskBase.Results)
-	close(pm.TaskBase.Errors)
+	//close(pm.TaskBase.Results)
+	//close(pm.TaskBase.Errors)
 	return nil
 }
 
