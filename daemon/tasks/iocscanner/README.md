@@ -37,7 +37,6 @@ TODO:
 - [ ] list and scan processes (yara, our own rules?)
   - suspicious names (`[kworker/0:0-events]`, `[kthreadd]`) + suspicious paths (`/tmp/kworker`, `/memfd`, `/dev/shm/script.sh`), etc.
 - [ ] list/analyze cached processes (yara, our own rules?)
-- [ ] find hidden kmods and rootkits (LD_PRELOAD, lkm)
 - [ ] apply actions (kill, quarantine, stop, ...)
 - [ ] reuse rules format? daemon/rules/operator/
 - [ ] subscribe to real-time events (ebpf)
@@ -46,8 +45,8 @@ TODO:
 - [x] verify the integrity of files installed by packages: `debsums -c`, `dpkg --verify`
 - [x] find IOCs with YARA rules.
 - [x] [Partially] send notifications (GUI, TODO: SIEM).
-- [x] [decloacker] find hidden processes, files, directories, connections or content.
-- [x] [DONE] implement advanced scheduling
+- [x] [decloacker] find hidden processes, files, directories, connections or content: https://github.com/gustavo-iniguez-goya/decloaker
+- [x] implement advanced scheduling
 
 IOCScanner task configuration example to run Yara with a set of rules:
 
@@ -121,6 +120,48 @@ IOCScanner task configuration example to run Yara with a set of rules:
                         "exfiltration",
                         "persistance"
                     ]
+                }
+            },
+            {
+                "name": "decloaker-procs",
+                "enabled": true,
+                "cmd": [
+                    "/home/ga/Proiektuak/opensnitch/decloaker/bin/decloaker",
+                    "--log-level", "debug", "scan", "hidden-procs"
+                ],
+                "options": {
+                    "recursive": false,
+                    "priority": 0,
+                    "dirs": [],
+                    "files": []
+                }
+            },
+            {
+                "name": "script-decloaker-lkms",
+                "enabled": true,
+                "cmd": [
+                    "/home/ga/Proiektuak/opensnitch/decloaker/bin/decloaker",
+                    "--log-level", "detection", "scan", "hidden-lkms"
+                ],
+                "options": {
+                    "recursive": false,
+                    "priority": 0,
+                    "dirs": [],
+                    "files": []
+                }
+            },
+            {
+                "name": "script-decloaker-hidden-content",
+                "enabled": true,
+                "cmd": [
+                    "/home/ga/Proiektuak/opensnitch/decloaker/bin/decloaker",
+                    "--log-level", "detection", "scan", "hidden-content", "--with-builtin-paths"
+                ],
+                "options": {
+                    "recursive": false,
+                    "priority": 0,
+                    "dirs": [],
+                    "files": []
                 }
             }
         ]
