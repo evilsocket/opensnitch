@@ -29,7 +29,8 @@ FORMS += ../opensnitch/res/prompt.ui \
 	    ../opensnitch/res/stats.ui \
 	    ../opensnitch/res/firewall.ui \
 	    ../opensnitch/res/firewall_rule.ui
-TRANSLATIONS += locales/cs_CZ/opensnitch-cs_CZ.ts \
+TRANSLATIONS += locales/ar/opensnitch-ar.ts \
+                locales/cs_CZ/opensnitch-cs_CZ.ts \
                 locales/de_DE/opensnitch-de_DE.ts \
                 locales/es_ES/opensnitch-es_ES.ts \
                 locales/eu_ES/opensnitch-eu_ES.ts \
