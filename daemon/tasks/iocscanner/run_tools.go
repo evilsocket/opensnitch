@@ -18,9 +18,8 @@ import (
 func (pm *IOCScanner) runTool(tool base.Tool) {
 	start := time.Now()
 
-	report := fmt.Sprintf("==== %s - %s - %s (%s) ====\n\n\n", tool.GetProperty(base.PropMsgStart), tool.GetProperty(base.PropName), pm.Hostname, start.Format("02-01-2006, 15:04:05"))
+	report := fmt.Sprintf("==== %s - %s (%s) ====\n\n\n", tool.GetProperty(base.PropName), pm.Hostname, start.Format("02-01-2006, 15:04:05"))
 
-	pm.TaskBase.Results <- tool.GetProperty(base.PropMsgStart)
 	go func() {
 		var wg sync.WaitGroup
 		for i := 0; i < tool.Workers(); i++ {
@@ -41,13 +40,12 @@ func (pm *IOCScanner) runTool(tool base.Tool) {
 					}
 				}
 			Exit:
-				scanFinished := fmt.Sprintf("\n\n=== %s - %s - (%s) ===\n", tool.GetProperty(base.PropMsgEnd), tool.GetProperty(base.PropName), time.Since(start).Truncate(time.Second))
+				scanFinished := fmt.Sprintf("\n\n=== %s - (%s) ===\n", tool.GetProperty(base.PropName), time.Since(start).Truncate(time.Second))
 				report += scanFinished
 				tool.Log(report)
 
 				// we're using QTextEdit.setHtml() to display the report, so new lines must be converted to <br>
 				pm.TaskBase.Results <- strings.ReplaceAll(report, "\n", "<br>")
-				pm.TaskBase.Results <- scanFinished
 			}()
 		}
 		wg.Wait()
