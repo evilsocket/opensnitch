@@ -88,19 +88,19 @@ func (pm *IOCScanner) Start(ctx context.Context, cancel context.CancelFunc) erro
 
 	pm.Tools = []baseT.Tool{}
 	for _, opts := range pm.Config.Tools {
-		if strings.HasPrefix(opts.Name, "yara") && opts.Enabled {
+		if strings.HasPrefix(opts.Name, yara.Prefix) && opts.Enabled {
 			yaraT := yara.New(opts)
 			if yaraT != nil {
 				pm.Tools = append(pm.Tools, yaraT)
 			}
 		}
-		if (strings.HasPrefix(opts.Name, "debsums") || strings.HasPrefix(opts.Name, "dpkg")) && opts.Enabled {
+		if (strings.HasPrefix(opts.Name, dpkg.PrefixDebsums) || strings.HasPrefix(opts.Name, dpkg.PrefixDpkg)) && opts.Enabled {
 			dpkgT := dpkg.New(opts)
 			if dpkgT != nil {
 				pm.Tools = append(pm.Tools, dpkgT)
 			}
 		}
-		if strings.HasPrefix(opts.Name, "script") && opts.Enabled {
+		if strings.HasPrefix(opts.Name, generic.Prefix) && opts.Enabled {
 			genericT := generic.New(opts)
 			if genericT != nil {
 				pm.Tools = append(pm.Tools, genericT)
@@ -129,6 +129,7 @@ func (pm *IOCScanner) Start(ctx context.Context, cancel context.CancelFunc) erro
 						// are already running, or should we stop previous instances?
 						// or make it configurable?
 						if t.Running() {
+							log.Trace("IOCScanner tick, task already running: %s", t.GetProperty(baseT.PropName))
 							continue
 						}
 						log.Trace("[%d] IOCScanner tick, running task: %s\n", n, t.GetProperty(baseT.PropName))

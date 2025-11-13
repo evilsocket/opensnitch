@@ -19,6 +19,17 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/tasks/iocscanner/tools/executer"
 )
 
+const (
+	// Prefix is the name that identifies this tool in the configuration.
+	// It must appear at the beginning of the name.
+	// You can append more details after it, in order to create multiple instances of this tool.
+	// Examples:
+	// name: "yara"
+	// name: "yara-yarify-ruleset"
+	// name: "yara-virustotal-ruleset"
+	Prefix = "yara"
+)
+
 var (
 	DataDir        = "/etc/opensnitchd/tasks/iocscanner/data/yara"
 	reportsPrefix  = "/ioc-report-"

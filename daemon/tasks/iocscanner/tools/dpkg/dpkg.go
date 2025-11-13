@@ -19,6 +19,17 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/tasks/iocscanner/tools/executer"
 )
 
+const (
+	// Prefix is the name that identifies this tool in the configuration.
+	// It must appear at the beginning of the name.
+	// You can append more details after it, in order to create multiple instances of this tool.
+	// Examples:
+	// name: "dpkg"
+	// name: "debsums"
+	PrefixDpkg    = "dpkg"
+	PrefixDebsums = "debsums"
+)
+
 type DpkgTool struct {
 	base.ToolBase
 }
