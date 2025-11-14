@@ -26,10 +26,7 @@ type Executer struct {
 }
 
 func New() *Executer {
-	ctx, cancel := context.WithCancel(context.Background())
 	return &Executer{
-		Ctx:    ctx,
-		Cancel: cancel,
 		Stdout: make(chan string, 0),
 		Stderr: make(chan string, 0),
 	}
@@ -39,9 +36,10 @@ func New() *Executer {
 // It's a blocking operation.
 func (e *Executer) Start(bin string, args []string) {
 	log.Debug("[executer] Start() %s %v\n", bin, args)
-	cmd := exec.CommandContext(e.Ctx, bin, args...)
+	e.Ctx, e.Cancel = context.WithCancel(context.Background())
 	e.isRunning = false
 
+	cmd := exec.CommandContext(e.Ctx, bin, args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Error("[executer] error: %s", err)
@@ -67,7 +65,8 @@ func (e *Executer) Start(bin string, args []string) {
 		log.Debug("[executer] stdout reader exit")
 		e.Stop()
 	}()
-	log.Debug("[executer] Waiting... %s", bin)
+
+	log.Trace("[executer] cmd.Start() ... %s", bin)
 	if err := cmd.Start(); err != nil {
 		log.Error("Executer.Start() %s", err)
 		return
@@ -81,12 +80,12 @@ func (e *Executer) Start(bin string, args []string) {
 		log.Debug("[executer] unable to the change process priority")
 	}
 
+	log.Trace("[executer] Waiting... %s", bin)
 	if err := cmd.Wait(); err != nil {
 		// many cli tools/scripts can exit with error
 		log.Debug("[executer] Wait error: %s", err)
 	}
 	log.Info("[executer] finished")
-
 }
 
 func (e *Executer) SetPriority(prio int) {
@@ -98,7 +97,9 @@ func (e *Executer) Running() bool {
 }
 
 func (e *Executer) Stop() {
-	if e.Cancel != nil {
+	log.Debug("[executer] Stop() running: %v", e.isRunning)
+	if e.Running() && e.Cancel != nil {
 		e.Cancel()
 	}
+	e.isRunning = false
 }
