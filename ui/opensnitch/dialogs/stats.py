@@ -940,9 +940,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         dialog_general_limit_results = self._cfg.getSettings(Config.STATS_LIMIT_RESULTS)
         if dialog_geometry != None:
             self.restoreGeometry(dialog_geometry)
-        if dialog_maximized:
-            wsize = self.screen().geometry()
-            self.setGeometry(0, 0, wsize.width(), wsize.height())
+        if dialog_maximized and self.isVisible():
+            self.showMaximized()
         if dialog_last_tab != None:
             self.tabWidget.setCurrentIndex(int(dialog_last_tab))
         if dialog_general_filter_action != None:
