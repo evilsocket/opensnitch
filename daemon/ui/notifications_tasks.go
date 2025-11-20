@@ -6,7 +6,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/tasks"
-	//"github.com/evilsocket/opensnitch/daemon/tasks/base"
+	taskBase "github.com/evilsocket/opensnitch/daemon/tasks/base"
 	"github.com/evilsocket/opensnitch/daemon/tasks/nodemonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/pidmonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/socketsmonitor"
@@ -24,6 +24,7 @@ func (c *Client) monitorTaskManager(tm *tasks.TaskManager) {
 			log.Debug("Task Added: %s", taskEvent.Name)
 			go c.monitorTaskEvents(
 				taskEvent.Ctx,
+				taskEvent.Name,
 				c.streamNotifications,
 				taskEvent.Task.GetID(),
 				taskEvent.Task.Results(),
@@ -38,10 +39,10 @@ Exit:
 }
 
 // monitor events sent by the tasks.
-func (c *Client) monitorTaskEvents(ctx context.Context, stream protocol.UI_NotificationsClient, notifId uint64, results <-chan interface{}, errors <-chan error) {
+func (c *Client) monitorTaskEvents(ctx context.Context, taskName string, stream protocol.UI_NotificationsClient, notifId uint64, results <-chan interface{}, errors <-chan error) {
 	postMsg := func(data string, err error) {
 
-		// when a task is loaded frm disk, we don't have a notification ID to
+		// when a task is loaded from disk, we don't have a notification ID to
 		// identify this task on the UI. For these cases, we use a unique ID for
 		// each task.
 		// The notification ID sent from the UI is a timestamp, so we don't expect
@@ -59,6 +60,10 @@ func (c *Client) monitorTaskEvents(ctx context.Context, stream protocol.UI_Notif
 				protocol.Alert_SHOW_ALERT,
 				protocol.Alert_MEDIUM,
 				data)
+			c.loggers.Log(
+				taskBase.TaskNotification{Data: data, Name: taskName},
+				nil,
+				nil)
 		}
 	}
 
