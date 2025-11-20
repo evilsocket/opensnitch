@@ -179,8 +179,6 @@ func (pm *Downloader) Stop() error {
 	if pm.Cancel != nil {
 		pm.Cancel()
 	}
-	close(pm.TaskBase.Results)
-	close(pm.TaskBase.Errors)
 	return nil
 }
 

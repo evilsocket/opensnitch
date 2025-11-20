@@ -26,11 +26,10 @@ type Config struct {
 // PIDMonitor monitors a process ID.
 type PIDMonitor struct {
 	base.TaskBase
-	mu        *sync.RWMutex
-	Ticker    *time.Ticker
-	Interval  string
-	Pid       int
-	isStopped bool
+	mu       *sync.RWMutex
+	Ticker   *time.Ticker
+	Interval string
+	Pid      int
 }
 
 // New returns a new PIDMonitor
@@ -91,9 +90,6 @@ func (pm *PIDMonitor) Start(ctx context.Context, cancel context.CancelFunc) erro
 					pm.TaskBase.Errors <- err
 					continue
 				}
-				if pm.isStopped {
-					goto Exit
-				}
 				// ~200µs (string()) vs ~60ns
 				pm.TaskBase.Results <- unsafe.String(unsafe.SliceData(pJSON), len(pJSON))
 
@@ -124,8 +120,6 @@ func (pm *PIDMonitor) Stop() error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	pm.isStopped = true
-
 	log.Debug("[task.PIDMonitor] Stop()")
 	if pm.Ticker != nil {
 		pm.Ticker.Stop()
@@ -133,8 +127,6 @@ func (pm *PIDMonitor) Stop() error {
 	if pm.Cancel != nil {
 		pm.Cancel()
 	}
-	close(pm.TaskBase.Results)
-	close(pm.TaskBase.Errors)
 	return nil
 }
 

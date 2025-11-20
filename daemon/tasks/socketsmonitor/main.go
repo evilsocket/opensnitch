@@ -35,10 +35,6 @@ type SocketsMonitor struct {
 
 	// stop the task if the daemon is disconnected from the GUI (server)
 	StopOnDisconnect bool
-
-	// flag to indicate that the task has been stopped, so any running task should
-	// exit on finish, to avoid sending data to closed channels.
-	isStopped bool
 }
 
 // initConfig parses the received configuration, and initializes it if
@@ -105,13 +101,7 @@ func (pm *SocketsMonitor) Start(ctx context.Context, cancel context.CancelFunc) 
 				socketList := pm.dumpSockets()
 				sockJSON, err := json.Marshal(socketList)
 				if err != nil {
-					if !pm.isStopped {
-						pm.TaskBase.Errors <- err
-					}
-					goto Exit
-				}
-				if pm.isStopped {
-					goto Exit
+					pm.TaskBase.Errors <- err
 				}
 
 				pm.TaskBase.Results <- unsafe.String(unsafe.SliceData(sockJSON), len(sockJSON))
@@ -143,8 +133,6 @@ func (pm *SocketsMonitor) Stop() error {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 
-	pm.isStopped = true
-
 	log.Debug("[task.SocketsMonitor] Stop()")
 	if pm.Ticker != nil {
 		pm.Ticker.Stop()
@@ -152,8 +140,6 @@ func (pm *SocketsMonitor) Stop() error {
 	if pm.Cancel != nil {
 		pm.Cancel()
 	}
-	close(pm.TaskBase.Results)
-	close(pm.TaskBase.Errors)
 	return nil
 }
 
