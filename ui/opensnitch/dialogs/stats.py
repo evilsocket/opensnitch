@@ -849,8 +849,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     # docs: https://doc.qt.io/qt-5/qwidget.html#setWindowState
                     self.setWindowState(self.windowState() & ~QtCore.Qt.WindowState.WindowMinimized | QtCore.Qt.WindowState.WindowActive)
 
-    def showEvent(self, event):
-        super(StatsDialog, self).showEvent(event)
+    def show(self):
+        super(StatsDialog, self).show()
         self._shown_trigger.emit()
         window_title = QC.translate("stats", "OpenSnitch Network Statistics {0}").format(version)
         if self._address is not None:
