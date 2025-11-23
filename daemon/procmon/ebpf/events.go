@@ -87,6 +87,12 @@ type eventsDefsT struct {
 }
 
 func initEventsStreamer() *Error {
+	if !core.IsTraceFSMounted() {
+		if err := mountTraceFS(); err != nil {
+			return &Error{err, EventsNotAvailable}
+		}
+	}
+
 	eventsColl, err := core.LoadEbpfModule("opensnitch-procs.o", ebpfCfg.ModulesPath)
 	if err != nil {
 		return &Error{err, EventsNotAvailable}

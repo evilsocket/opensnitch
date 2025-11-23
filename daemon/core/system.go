@@ -28,6 +28,23 @@ func GetKernelVersion() string {
 	return strings.Replace(string(version), "\n", "", -1)
 }
 
+// GetMounts returns the mounts of the system
+func GetMounts() []string {
+	buf, _ := ioutil.ReadFile("/proc/mounts")
+	return strings.Split(string(buf), "\n")
+}
+
+// HasTraceFS returns if tracefs is mounted
+func IsTraceFSMounted() bool {
+	for _, line := range GetMounts() {
+		if strings.Contains(line, "tracefs") {
+			return true
+		}
+	}
+
+	return false
+}
+
 // CheckSysRequirements checks system features we need to work properly
 func CheckSysRequirements() {
 	type checksT struct {
@@ -109,7 +126,7 @@ func CheckSysRequirements() {
         "Regexps": [
             "CONFIG_FTRACE=y"
             ],
-        "Reason": " - CONFIG_TRACE=y not set. Common error => Error while loading kprobes: invalid argument."
+        "Reason": " - CONFIG_FTRACE=y not set. Common error => Error while loading kprobes: invalid argument."
     }
 },
 {
@@ -117,9 +134,11 @@ func CheckSysRequirements() {
     "Checks": {
         "Regexps": [
             "CONFIG_HAVE_SYSCALL_TRACEPOINTS=y",
-            "CONFIG_FTRACE_SYSCALLS=y"
+            "CONFIG_FTRACE_SYSCALLS=y",
+			"CONFIG_TRACING=[my]",
+			"CONFIG_EVENT_TRACING=[my]"
             ],
-        "Reason": " - CONFIG_FTRACE_SYSCALLS or CONFIG_HAVE_SYSCALL_TRACEPOINTS not set. Common error => error enabling tracepoint tracepoint/syscalls/sys_enter_execve: cannot read tracepoint id"
+        "Reason": " - CONFIG_FTRACE_SYSCALLS, CONFIG_HAVE_SYSCALL_TRACEPOINTS, CONFIG_TRACE or CONFIG_EVENT_TRACING not set. Common error => error enabling tracepoint tracepoint/syscalls/sys_enter_execve: cannot read tracepoint id"
     }
 },
 {
@@ -193,6 +212,14 @@ func CheckSysRequirements() {
 			fmt.Println()
 		}
 	}
+
+	if IsTraceFSMounted() {
+		fmt.Printf("\t* %s\t %s\n\n", log.Bold(log.Green("tracefs mount")), log.Bold(log.Green("✔")))
+	} else {
+		reqsFullfiled = false
+		fmt.Printf("\t* %s\t %s\n\n", log.Bold(log.Red("tracefs mount not found, needed for syscalls (mount -t tracefs none /sys/kernel/tracing/)")), log.Bold(log.Red("✘")))
+	}
+
 	if !reqsFullfiled {
 		log.Raw("\n%sWARNING:%s Your kernel doesn't support some of the features OpenSnitch needs:\nRead more: https://github.com/evilsocket/opensnitch/issues/774\n", log.FG_WHITE+log.BG_YELLOW, log.RESET)
 	}
