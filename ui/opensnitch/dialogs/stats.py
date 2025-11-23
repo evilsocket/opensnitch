@@ -849,8 +849,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     # docs: https://doc.qt.io/qt-5/qwidget.html#setWindowState
                     self.setWindowState(self.windowState() & ~QtCore.Qt.WindowState.WindowMinimized | QtCore.Qt.WindowState.WindowActive)
 
-    def showEvent(self, event):
-        super(StatsDialog, self).showEvent(event)
+    def show(self):
+        super(StatsDialog, self).show()
         self._shown_trigger.emit()
         window_title = QC.translate("stats", "OpenSnitch Network Statistics {0}").format(version)
         if self._address is not None:
@@ -940,9 +940,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         dialog_general_limit_results = self._cfg.getSettings(Config.STATS_LIMIT_RESULTS)
         if dialog_geometry != None:
             self.restoreGeometry(dialog_geometry)
-        if dialog_maximized:
-            wsize = self.screen().geometry()
-            self.setGeometry(0, 0, wsize.width(), wsize.height())
+        if dialog_maximized and self.isVisible():
+            self.showMaximized()
         if dialog_last_tab != None:
             self.tabWidget.setCurrentIndex(int(dialog_last_tab))
         if dialog_general_filter_action != None:
