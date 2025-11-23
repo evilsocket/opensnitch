@@ -347,22 +347,22 @@ REDIRECCIONAR, TPROXY, DNAT, SNAT, MASCARADA:
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="20"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="129"/>
         <source>12h</source>
-        <translation type="unfinished"></translation>
+        <translation>12h</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="371"/>
         <source>Update rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualizar regla</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="382"/>
         <source>Update All</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualizar Todo</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="829"/>
@@ -372,7 +372,7 @@ REDIRECCIONAR, TPROXY, DNAT, SNAT, MASCARADA:
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="923"/>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Puerto de Destino</translation>
     </message>
 </context>
 <context>
@@ -981,7 +981,7 @@ Las reglas temporales seguirán siendo válidas y podrá usarlas cuando se le so
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="181"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. the daemon&apos;s default action will be applied (see Nodes tab).&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Acción por defecto del Pop-up&lt;/p&gt;&lt;p&gt;Cuando una nueva conexión saliente esta a punto de ser establecida, esta acción sera seleccionada por defecto, si expira, esta opción sera aplicada&lt;/p&gt;&lt;p&gt;Cuando un pop-up pregunta al usuario para permitir o denegar una conexión:&lt;/p&gt;&lt;p&gt;1. la acción por defecto del daemon será aplicada. (Vea la pestaña de Nodos).&lt;/p&gt;&lt;p&gt;2. las conexiones existentes son permitidas o denegadas de acuerdo a las reglas definidas por el usuario.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="275"/>
@@ -1001,7 +1001,7 @@ Las reglas temporales seguirán siendo válidas y podrá usarlas cuando se le so
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1506"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>General</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="551"/>
@@ -1011,17 +1011,17 @@ Las reglas temporales seguirán siendo válidas y podrá usarlas cuando se le so
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="586"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Scale factor (use ; for multiple displays) &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#gui-size-problems-on-4k-monitors&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;More information&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Factor de escala (usar ; para multiples pantallas) &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#gui-size-problems-on-4k-monitors&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Más información&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="668"/>
         <source>By default the GUI is started when login</source>
-        <translation type="unfinished"></translation>
+        <translation>Por defecto la interfaz inicia al iniciar sesión</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="671"/>
         <source>Autostart the GUI upon login</source>
-        <translation type="unfinished"></translation>
+        <translation>Iniciar la interfaz tras iniciar sesión</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="759"/>
@@ -1029,17 +1029,20 @@ Las reglas temporales seguirán siendo válidas y podrá usarlas cuando se le so
 1, 1.2, 1.5, 2, etc ...
 
 Use ; to define multiple screens: 1;1.5 etc...</source>
-        <translation type="unfinished"></translation>
+        <translation>Usá números para definir el factor global de escala para toda la aplicación:
+1, 1.2, 1.5, 2, etc ...
+
+Usa ; para definir multiples pantallas: 1;1.5 etc...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="765"/>
         <source>ex: 1, 1.25, 1.5, 2, ...</source>
-        <translation type="unfinished"></translation>
+        <translation>ej: 1, 1.25, 1.5, 2, ...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="781"/>
         <source>Refresh interval (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Intervalo de actualización (segundos)</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="804"/>
@@ -1062,12 +1065,12 @@ wayland</source>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="880"/>
         <source>Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Servidor</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1900"/>
         <source>Absolute path to the cert key file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ruta absoluta al archivo de clave del certificado</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1853"/>
@@ -1077,29 +1080,31 @@ wayland</source>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="900"/>
         <source>Maximum size of each message from nodes. Default 4MB</source>
-        <translation type="unfinished"></translation>
+        <translation>Máximo tamaño de cada mensaje de los nodos. Por defecto 4MB</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="903"/>
         <source>Max gRPC channel size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamaño máximo del canal gRPC</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="910"/>
         <source>&lt;p&gt;Simple: no authentication&lt;/p&gt;
 &lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
 &lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Simple: Sin autenticación&lt;/p&gt;
+&lt;p&gt;TLS simple/mutual: usa certificados SSL para autentificar los nodos&lt;/p&gt;
+&lt;p&gt;Visita la wiki para más información.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1819"/>
         <source>Authentication type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo de autenticación</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1807"/>
         <source>Absolute path to the cert file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruta absoluta al archivo de certificado</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1833"/>
@@ -1109,37 +1114,37 @@ wayland</source>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1838"/>
         <source>Simple TLS</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS Simple</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1843"/>
         <source>Mutual TLS</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS Mutual</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="955"/>
         <source>4MiB</source>
-        <translation type="unfinished"></translation>
+        <translation>4MiB</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="960"/>
         <source>8MiB</source>
-        <translation type="unfinished"></translation>
+        <translation>8MiB</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="965"/>
         <source>16MiB</source>
-        <translation type="unfinished"></translation>
+        <translation>16MiB</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="970"/>
         <source>32MiB</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">32MiB</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1914"/>
         <source>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;More information&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;Más información&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1003"/>
@@ -1148,7 +1153,11 @@ wayland</source>
 It can be a unix socket: unix:///run/user/1000/opensnitch/osui.sock
 
 or a network socket: 127.0.0.1:50051</source>
-        <translation type="unfinished"></translation>
+        <translation>Configura la dirección donde la interfaz examinara por nuevos nodos.
+
+Puede ser un socket unix: unix:///run/user/1000/opensnitch/osui.sock
+
+o un socket de red: 127.0.0.1:50051</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1050"/>
@@ -1158,12 +1167,12 @@ or a network socket: 127.0.0.1:50051</source>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1167"/>
         <source>Source port</source>
-        <translation type="unfinished"></translation>
+        <translation>Puerto fuente</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1174"/>
         <source>Source IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP fuente</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1287"/>
@@ -1173,7 +1182,7 @@ or a network socket: 127.0.0.1:50051</source>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1294"/>
         <source>Dest port</source>
-        <translation type="unfinished"></translation>
+        <translation>Puerto destino</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1310"/>
@@ -1193,7 +1202,7 @@ or a network socket: 127.0.0.1:50051</source>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1512"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will be applied to new outbound connections in two scenarios:&lt;/p&gt;&lt;p&gt;when the daemon is not connected to the UI, or when there&apos;s a pop-up running.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;La acción por defecto sera aplicada a nuevas conexiones salientes en dos escenarios:&lt;/p&gt;&lt;p&gt;cuando el daemon no esta conectado a la interfaz, o cuando un pop-up esta ejecutándose.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1665"/>
@@ -1203,7 +1212,7 @@ or a network socket: 127.0.0.1:50051</source>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1688"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will log timestamp microseconds.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Al habilitar, OpenSnitch va a registrar el tiempo en microsegundos.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1691"/>
@@ -2347,7 +2356,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="314"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
-        <translation>Para configurar las reglas del firewall desde la GUI, necesitamos usar 'nftables' en lugar de 'iptables'</translation>
+        <translation>Para configurar las reglas del firewall desde la GUI, necesitamos usar &apos;nftables&apos; en lugar de &apos;iptables&apos;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="329"/>
@@ -2444,7 +2453,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="450"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
-        <translation>Puedes usar ',' o '-' para especificar multiples puertos/IPs o rangos/valores:&lt;br&gt;&lt;br&gt;puertos: 22 o 22,443 o 50000-60000&lt;br&gt;IPs: 192.168.1.1 o 192.168.1.30-192.168.1.130&lt;br&gt;Valores: echo-reply,echo-request&lt;br&gt;Valores: new,established,related</translation>
+        <translation>Puedes usar &apos;,&apos; o &apos;-&apos; para especificar multiples puertos/IPs o rangos/valores:&lt;br&gt;&lt;br&gt;puertos: 22 o 22,443 o 50000-60000&lt;br&gt;IPs: 192.168.1.1 o 192.168.1.30-192.168.1.130&lt;br&gt;Valores: echo-reply,echo-request&lt;br&gt;Valores: new,established,related</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="470"/>
