@@ -42,7 +42,7 @@ go build -o opensnitchd .
 
 %install
 mkdir -p %{buildroot}/usr/bin/ %{buildroot}/usr/lib/opensnitchd/ebpf/ %{buildroot}/usr/lib/systemd/system/ %{buildroot}/etc/opensnitchd/rules %{buildroot}/etc/opensnitchd/tasks %{buildroot}/etc/logrotate.d
-sed -i 's/\/usr\/local/\/usr/' daemon/opensnitchd.service
+sed -i 's/\/usr\/local/\/usr/' daemon/data/init/opensnitchd.service
 install -m 755 daemon/opensnitchd %{buildroot}/usr/bin/opensnitchd
 install -m 644 daemon/data/init/opensnitchd.service %{buildroot}/usr/lib/systemd/system/opensnitch.service
 install -m 644 utils/packaging/daemon/deb/debian/opensnitch.logrotate %{buildroot}/etc/logrotate.d/opensnitch
