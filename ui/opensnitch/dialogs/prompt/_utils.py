@@ -35,9 +35,10 @@ def get_popup_message(is_local, node, app_name, con):
 
     message = "<b>{0}</b>".format(app_name)
     if not is_local:
-        message = QC.translate("popups", "<b>Remote</b> process {0} running on <b>{1}</b>".format(
+        message = QC.translate("popups", "<b>Remote</b> process {0} running on <b>{1} ({2})</b>".format(
             message,
-            node.split(':')[1])
+            node.split(':')[1],
+            hostname)
         )
 
     msg_action = QC.translate("popups", "is connecting to <b>{0}</b> on {1} port {2}".format(

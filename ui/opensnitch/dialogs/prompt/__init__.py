@@ -290,6 +290,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # XXX: workaround for protobufs that don't report the address of
             # the node. In this case the addr is "unix:/local"
             proto, addr = self._nodes.get_addr(peer)
+            self._hostname = self._nodes.get_node_hostname("%s:%s" % (proto, addr))
             self._peer = proto
             if addr != None:
                 self._peer = proto+":"+addr
@@ -440,7 +441,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         pixmap = Icons.get_by_appname(app_icon)
         self.iconLabel.setPixmap(pixmap)
 
-        message = _utils.get_popup_message(self._local, self._peer, app_name, con)
+        message = _utils.get_popup_message(self._local, self._peer, self._hostname, app_name, con)
 
         self.messageLabel.setText(message)
         self.messageLabel.setToolTip(message)

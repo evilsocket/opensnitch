@@ -171,6 +171,15 @@ class Nodes(QObject):
     def get_nodes(self):
         return self._nodes
 
+    def get_node_hostname(self, addr):
+        try:
+            if addr not in self._nodes:
+                return ""
+            return self._nodes[addr]['data'].name
+        except Exception as e:
+            print(self.LOG_TAG + " exception get_node_hostname(): ", e)
+            return ""
+
     def get_node_config(self, addr):
         try:
             if addr not in self._nodes:
