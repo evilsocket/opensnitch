@@ -1471,8 +1471,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _table_menu_apply_to_node(self, cur_idx, model, selection, node_addr):
 
-        for idx in selection:
-            rule_name = model.index(idx.row(), self.COL_R_NAME).data()
+        for row in selection:
+            rule_name = row[self.COL_R_NAME]
             records = self._get_rule(rule_name, None)
             rule = Rule.new_from_records(records)
 
@@ -2851,7 +2851,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if nid != None:
                 self._notifications_sent[nid] = noti
             self.labelNodeDetails.setText("")
-            print("taskStop, prev node:", last_addr, "nid:", nid)
 
             # XXX: would be useful to leave latest data?
             #self._reset_node_info()
