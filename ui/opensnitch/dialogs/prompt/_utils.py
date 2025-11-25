@@ -25,7 +25,7 @@ def get_rule_name(rule, is_list):
 
     return rule_temp_name[:128]
 
-def get_popup_message(is_local, node, app_name, con):
+def get_popup_message(is_local, node, hostname, app_name, con):
     """
     _get_popup_message helps constructing the message that is displayed on
     the pop-up dialog. Example:
