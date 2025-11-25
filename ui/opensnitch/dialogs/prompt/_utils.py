@@ -157,6 +157,11 @@ def set_default_target(combo, con, cfg, app_name, app_args):
         if idx != -1:
             combo.setCurrentIndex(idx)
             return
+    elif con.process_path.startswith(_constants.SNAP_PREFIX):
+        idx = combo.findData(_constants.FIELD_SNAP)
+        if idx != -1:
+            combo.setCurrentIndex(idx)
+            return
 
     if int(con.process_id) > 0 and app_name != "" and app_args != "":
         combo.setCurrentIndex(int(cfg.getSettings(cfg.DEFAULT_TARGET_KEY)))
@@ -213,3 +218,12 @@ def get_combo_operator(data, comboText, con):
         appimage_path = os.path.dirname(con.process_path).replace('.', r'\.')
         appimage_path = appimage_path[0:len(_constants.APPIMAGE_PREFIX)+7]
         return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]{{6,7}}\/.*{1}$'.format(appimage_path, appimage_bin)
+
+    elif data == _constants.FIELD_SNAP:
+        snap_path = con.process_path
+        snap_parts = snap_path.split('/')
+        snap_prefix = snap_parts[1]
+        app = snap_parts[2]
+        app_path = r'\/'.join(snap_parts[4:])
+        regexp = r'^\/{0}\/{1}\/[0-9]+\/{2}$'.format(snap_prefix, app, app_path)
+        return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, regexp

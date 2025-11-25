@@ -475,6 +475,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._add_fixed_options_to_combo(self.whatCombo, con, uid)
         if con.process_path.startswith(_constants.APPIMAGE_PREFIX):
             self._add_appimage_pattern_to_combo(self.whatCombo, con)
+        elif con.process_path.startswith(_constants.SNAP_PREFIX):
+            self._add_snap_pattern_to_combo(self.whatCombo, con)
         self._add_dst_networks_to_combo(self.whatCombo, con.dst_ip)
 
         if con.dst_host != "" and con.dst_host != con.dst_ip:
@@ -555,6 +557,22 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             QC.translate("popups", "from {0}*/{1}").format(appimage_path, appimage_bin),
             _constants.FIELD_APPIMAGE
         )
+
+    def _add_snap_pattern_to_combo(self, combo, con):
+        """snap absolute path usually starts with /snap/, followed by a revision
+        number which changes after every installation or update.
+        """
+        snap_path = con.process_path
+        snap_parts = snap_path.split('/')
+        app = snap_parts[2]
+        app_path = "/".join(snap_parts[4:])
+        from_field = "from {0}/{1}/*/{2}".format(_constants.SNAP_PREFIX, app, app_path)
+
+        combo.addItem(
+            QC.translate("popups", from_field),
+            _constants.FIELD_SNAP
+        )
+
 
     def _add_dst_networks_to_combo(self, combo, dst_ip):
         alias = NetworkAliases.get_alias(dst_ip)

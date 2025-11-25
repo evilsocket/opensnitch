@@ -18,6 +18,7 @@ FIELD_DST_PORT      = "dst_port"
 FIELD_DST_NETWORK   = "dst_network"
 FIELD_DST_HOST      = "simple_host"
 FIELD_APPIMAGE      = "appimage_path"
+FIELD_SNAP          = "snap_path"
 
 DURATION_30s    = "30s"
 DURATION_5m     = "5m"
@@ -28,6 +29,7 @@ DURATION_12h     = "12h"
 # don't translate
 
 APPIMAGE_PREFIX = "/tmp/.mount_"
+SNAP_PREFIX = "/snap"
 
 # label displayed in the pop-up combo
 DURATION_session = QC.translate("popups", "until reboot")
