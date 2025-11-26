@@ -2382,8 +2382,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self._nodes.count() > 0:
             nodesItem = self.rulesTreePanel.topLevelItem(self.RULES_TREE_NODES)
             nodesItem.takeChildren()
-            for n in self._nodes.get_nodes():
-                nodesItem.addChild(QtWidgets.QTreeWidgetItem([n]))
+            nodes = self._nodes.get_nodes()
+            for n in nodes:
+                hostname = self._nodes.get_node_hostname(n)
+                item = QtWidgets.QTreeWidgetItem(
+                    [n, hostname]
+                )
+                nodesItem.addChild(item)
 
     def _find_tree_fw_items(self, item_data):
         """find fw items by data stored in UserRole role.
