@@ -217,7 +217,10 @@ def get_combo_operator(data, comboText, con):
         appimage_bin = os.path.basename(con.process_path)
         appimage_path = os.path.dirname(con.process_path).replace('.', r'\.')
         appimage_path = appimage_path[0:len(_constants.APPIMAGE_PREFIX)+7]
-        return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]{{6,7}}\/.*{1}$'.format(appimage_path, appimage_bin)
+        # usually appimages add 6 random characters after the prefix, but
+        # some appimages do not follow this rule (Eden appimage for example,
+        # #1377).
+        return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]+\/.*{1}$'.format(appimage_path, appimage_bin)
 
     elif data == _constants.FIELD_SNAP:
         snap_path = con.process_path
