@@ -1813,6 +1813,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setQuery(model, q)
 
     def _cb_events_filter_line_changed(self, text):
+        self.set_filter_line_color(text)
+
         cur_idx = self.tabWidget.currentIndex()
 
         model = self.TABLES[cur_idx]['view'].model()
@@ -2497,6 +2499,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return None
 
         return records
+
+    def set_filter_line_color(self, text):
+        if text == "":
+            self.filterLine.setStyleSheet('')
+        else:
+            self.filterLine.setStyleSheet('background-color: #55ff7f')
 
     def _get_filter_line_clause(self, idx, text):
         if text == "":
