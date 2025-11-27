@@ -26,6 +26,7 @@ func (c *Client) monitorTaskManager(tm *tasks.TaskManager) {
 				taskEvent.Ctx,
 				taskEvent.Name,
 				c.streamNotifications,
+				0,
 				taskEvent.Task.GetID(),
 				taskEvent.Task.Results(),
 				taskEvent.Task.Errors(),
@@ -39,7 +40,7 @@ Exit:
 }
 
 // monitor events sent by the tasks.
-func (c *Client) monitorTaskEvents(ctx context.Context, taskName string, stream protocol.UI_NotificationsClient, notifId uint64, results <-chan interface{}, errors <-chan error) {
+func (c *Client) monitorTaskEvents(ctx context.Context, taskName string, stream protocol.UI_NotificationsClient, ntfType protocol.Action, ntfId uint64, results <-chan interface{}, errors <-chan error) {
 	postMsg := func(data string, err error) {
 
 		// when a task is loaded from disk, we don't have a notification ID to
@@ -47,8 +48,8 @@ func (c *Client) monitorTaskEvents(ctx context.Context, taskName string, stream 
 		// each task.
 		// The notification ID sent from the UI is a timestamp, so we don't expect
 		// low values here.
-		if stream != nil && notifId > 10000 {
-			c.sendNotificationReply(stream, notifId, data, err)
+		if stream != nil && ntfId > 10000 {
+			c.sendNotificationReply(stream, ntfType, ntfId, data, err)
 		} else {
 			alertType := protocol.Alert_INFO
 			if err != nil {
@@ -83,44 +84,44 @@ func (c *Client) monitorTaskEvents(ctx context.Context, taskName string, stream 
 	}
 Exit:
 	// task should have already been removed via TASK_STOP
-	log.Debug("[tasks] stop monitoring events %d", notifId)
+	log.Debug("[tasks] stop monitoring events %d (%d)", ntfId, ntfType)
 }
 
-func (c *Client) monitorSockets(config interface{}, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) monitorSockets(config interface{}, stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	sockMonTask, err := socketsmonitor.New(socketsmonitor.Name, config, true)
-	sockMonTask.SetID(notification.Id)
+	sockMonTask.SetID(ntf.Id)
 	if err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 		return
 	}
 	_, err = TaskMgr.AddTask(sockMonTask.Name, sockMonTask)
 	if err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 		return
 	}
 }
 
-func (c *Client) monitorNode(node, interval string, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) monitorNode(node, interval string, stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	taskName, nodeMonTask := nodemonitor.New(node, interval, true)
-	nodeMonTask.SetID(notification.Id)
+	nodeMonTask.SetID(ntf.Id)
 	_, err := TaskMgr.AddTask(taskName, nodeMonTask)
 	if err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 		return
 	}
 }
 
-func (c *Client) monitorProcessDetails(pid int, interval string, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) monitorProcessDetails(pid int, interval string, stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	if !core.Exists(fmt.Sprint("/proc/", pid)) {
-		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("The process is no longer running"))
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("The process is no longer running"))
 		return
 	}
 
 	taskName, pidMonTask := pidmonitor.New(pid, interval, true)
-	pidMonTask.SetID(notification.Id)
+	pidMonTask.SetID(ntf.Id)
 	_, err := TaskMgr.AddTask(taskName, pidMonTask)
 	if err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 		return
 	}
 }
