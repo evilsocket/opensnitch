@@ -10,6 +10,7 @@ import (
 	"os"
 	//"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
@@ -93,6 +94,7 @@ func New(opts config.ToolOpts) *GenericTool {
 				Cancel: cancel,
 				Stdout: make(chan string, opts.ReadBuffer),
 				Stderr: make(chan string, 0),
+				Mu:     &sync.RWMutex{},
 			},
 		},
 	}

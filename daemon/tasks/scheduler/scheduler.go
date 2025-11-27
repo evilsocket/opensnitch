@@ -44,6 +44,8 @@ type Scheduler struct {
 	TickChan chan time.Time
 	ticky    chan time.Time
 	Config   Config
+
+	mu *sync.RWMutex
 }
 
 func New(ctx context.Context, cancel context.CancelFunc, config Config) *Scheduler {
@@ -53,6 +55,7 @@ func New(ctx context.Context, cancel context.CancelFunc, config Config) *Schedul
 		TickChan: make(chan time.Time),
 		ticky:    make(chan time.Time),
 		Config:   config,
+		mu:       &sync.RWMutex{},
 	}
 
 	return sched
@@ -103,7 +106,9 @@ func (s *Scheduler) SetupDailyTimers() {
 				return
 			}
 			// save tickers to stop them later when stopping the scheduler.
+			s.mu.Lock()
 			s.Tickers = append(s.Tickers, tck)
+			s.mu.Unlock()
 
 			// wait for ticks while the tickers are active.
 			go func() {

@@ -9,12 +9,15 @@ import (
 	"context"
 	"io"
 	"os/exec"
+	"sync"
 	"syscall"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 )
 
 type Executer struct {
+	Mu *sync.RWMutex
+
 	Ctx    context.Context
 	Cancel context.CancelFunc
 
@@ -29,6 +32,7 @@ func New() *Executer {
 	return &Executer{
 		Stdout: make(chan string, 0),
 		Stderr: make(chan string, 0),
+		Mu:     &sync.RWMutex{},
 	}
 }
 
@@ -36,8 +40,7 @@ func New() *Executer {
 // It's a blocking operation.
 func (e *Executer) Start(bin string, args []string) {
 	log.Debug("[executer] Start() %s %v\n", bin, args)
-	e.Ctx, e.Cancel = context.WithCancel(context.Background())
-	e.isRunning = false
+	e.setRunning(false)
 
 	cmd := exec.CommandContext(e.Ctx, bin, args...)
 	stdout, err := cmd.StdoutPipe()
@@ -71,8 +74,8 @@ func (e *Executer) Start(bin string, args []string) {
 		log.Error("Executer.Start() %s", err)
 		return
 	}
-	e.isRunning = true
-	defer func() { e.isRunning = false }()
+	e.setRunning(true)
+	defer func() { e.setRunning(false) }()
 
 	if cmd.Process != nil {
 		syscall.Setpriority(syscall.PRIO_PROCESS, cmd.Process.Pid, e.Priority)
@@ -92,14 +95,22 @@ func (e *Executer) SetPriority(prio int) {
 	e.Priority = prio
 }
 
+func (e *Executer) setRunning(running bool) {
+	e.Mu.Lock()
+	e.isRunning = running
+	e.Mu.Unlock()
+}
+
 func (e *Executer) Running() bool {
+	e.Mu.RLock()
+	defer e.Mu.RUnlock()
 	return e.isRunning
 }
 
 func (e *Executer) Stop() {
-	log.Debug("[executer] Stop() running: %v", e.isRunning)
+	log.Debug("[executer] Stop() running: %v", e.Running())
 	if e.Running() && e.Cancel != nil {
 		e.Cancel()
 	}
-	e.isRunning = false
+	e.setRunning(false)
 }

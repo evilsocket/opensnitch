@@ -52,7 +52,7 @@ func (t *ToolBase) TransformLogline(line string) string {
 }
 
 func (t *ToolBase) Done() <-chan struct{} {
-	return t.Ctx.Done()
+	return t.Executer.Ctx.Done()
 }
 
 func (t *ToolBase) Stdout() chan string {

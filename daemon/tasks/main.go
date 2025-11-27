@@ -136,7 +136,9 @@ func (tm *TaskManager) ResumeAll() {
 func (tm *TaskManager) StopAll() {
 	for name := range tm.tasks {
 		log.Debug("[tasks] Stopping task %s", name)
-		tm.RemoveTask(name)
+		if err := tm.RemoveTask(name); err != nil {
+			log.Debug("[tasks] Remove task error: %s", err)
+		}
 	}
 }
 
@@ -158,7 +160,9 @@ func (tm *TaskManager) StopTempTasks() {
 
 // GetTask ...
 func (tm *TaskManager) GetTask(name string) (tk base.Task, found bool) {
+	tm.mu.Lock()
 	tk, found = tm.tasks[name]
+	tm.mu.Unlock()
 	return
 }
 
