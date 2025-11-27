@@ -193,7 +193,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "group_by": LAST_GROUP_BY,
             "last_order_by": "1",
             "last_order_to": 1,
-            "tracking_column:": COL_TIME
+            "tracking_column": COL_TIME
         },
         TAB_NODES: {
             "name": "nodes",
@@ -217,7 +217,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "header_labels": [],
             "last_order_by": "1",
             "last_order_to": 1,
-            "tracking_column:": COL_TIME
+            "tracking_column": COL_N_UPTIME
         },
         TAB_RULES: {
             "name": "rules",
@@ -239,7 +239,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 0,
-            "tracking_column:": COL_R_NAME
+            "tracking_column": COL_R_NAME
         },
         TAB_HOSTS: {
             "name": "hosts",
@@ -254,7 +254,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 1,
-            "tracking_column:": COL_TIME
+            "tracking_column": COL_TIME
         },
         TAB_PROCS: {
             "name": "procs",
@@ -269,7 +269,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 1,
-            "tracking_column:": COL_TIME
+            "tracking_column": COL_TIME
         },
         TAB_ADDRS: {
             "name": "addrs",
@@ -284,7 +284,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 1,
-            "tracking_column:": COL_TIME
+            "tracking_column": COL_TIME
         },
         TAB_PORTS: {
             "name": "ports",
@@ -299,7 +299,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 1,
-            "tracking_column:": COL_TIME
+            "tracking_column": COL_TIME
         },
         TAB_USERS: {
             "name": "users",
@@ -314,7 +314,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 1,
-            "tracking_column:": COL_TIME
+            "tracking_column": COL_TIME
         },
         TAB_NETSTAT: {
             "name": "sockets",
@@ -341,7 +341,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 1,
-            "tracking_column:": COL_TIME
+            "tracking_column": COL_NET_METADATA
         },
         TAB_FIREWALL: {
             "name": "firewall",
@@ -356,7 +356,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "header_labels": [],
             "last_order_by": "2",
             "last_order_to": 0,
-            "tracking_column:": COL_TIME
+            "tracking_column": COL_TIME
         },
         TAB_ALERTS: {
             "name": "alerts",
@@ -375,7 +375,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "header_labels": [],
             "last_order_by": "1",
             "last_order_to": 0,
-            "tracking_column:": COL_TIME
+            "tracking_column": COL_TIME
         }
     }
 
@@ -664,7 +664,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 model=GenericTableModel("nodes", self.TABLES[self.TAB_NODES]['header_labels']),
                 verticalScrollBar=self.verticalScrollBar,
                 sort_direction=self.SORT_ORDER[1],
-                delegate=self.TABLES[self.TAB_NODES]['delegate'])
+                delegate=self.TABLES[self.TAB_NODES]['delegate'],
+                tracking_column=self.TABLES[self.TAB_NODES]['tracking_column'])
         self.TABLES[self.TAB_RULES]['view'] = self._setup_table(QtWidgets.QTableView, self.rulesTable, "rules",
                 fields=self.TABLES[self.TAB_RULES]['display_fields'],
                 model=GenericTableModel("rules", self.TABLES[self.TAB_RULES]['header_labels']),
@@ -672,7 +673,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 delegate=self.TABLES[self.TAB_RULES]['delegate'],
                 order_by="2",
                 sort_direction=self.SORT_ORDER[0],
-                tracking_column=self.COL_R_NAME)
+                tracking_column=self.TABLES[self.TAB_RULES]['tracking_column'])
         self.TABLES[self.TAB_FIREWALL]['view'] = self._setup_table(QtWidgets.QTableView, self.fwTable, "firewall",
                 model=FirewallTableModel("firewall"),
                 verticalScrollBar=None,
@@ -740,7 +741,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 delegate=self.TABLES[self.TAB_NETSTAT]['delegate'],
                 order_by="2",
                 limit=self._get_limit(),
-                tracking_column=self.COL_NET_METADATA
+                tracking_column=self.TABLES[self.TAB_NETSTAT]['tracking_column']
                 )
 
         self.TABLES[self.TAB_NODES]['label'] = self.nodesLabel
