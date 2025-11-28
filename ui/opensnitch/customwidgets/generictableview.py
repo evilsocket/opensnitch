@@ -216,8 +216,11 @@ class GenericTableView(QTableView):
         self.mousePressed = False
         self.shiftPressed = False
         self.ctrlPressed = False
-        self._rows_selection = {}
         self.trackingCol = 0
+        self._rows_selection = {}
+        # first and last row selected with shift pressed
+        self._first_row_selected = None
+        self._last_row_selected = None
 
         #eventFilter to catch key up/down events and wheel events
         self.verticalHeader().setVisible(True)
@@ -288,6 +291,9 @@ class GenericTableView(QTableView):
         if event.button() != Qt.MouseButton.LeftButton:
             return
 
+        if self.shiftPressed and self._first_row_selected is not None and self._last_row_selected is not None:
+            self.handleShiftPressed()
+
         for idx in self.selectionModel().selectedRows(self.trackingCol):
             if idx.data() != None and idx.data() not in self._rows_selection.keys():
                 self._rows_selection[idx.data()] = self.getRowCells(idx.row())
@@ -312,25 +318,6 @@ class GenericTableView(QTableView):
         finally:
             # call upper implementation to select/deselect rows.
             super().mouseMoveEvent(event)
-
-    def handleMouseMoveEvent(self, row, clickedItem, selected):
-        if not selected:
-            if clickedItem.data() in self._rows_selection.keys():
-                del self._rows_selection[clickedItem.data()]
-        else:
-            self._rows_selection[clickedItem.data()] = self.getRowCells(row)
-
-        # handle scrolling the view while dragging the mouse.
-        if self.mousePressed:
-            scrollPos = self.scrollViewport(row)
-            if scrollPos == None:
-                return
-
-            nextItem = self.model().index(scrollPos, self.trackingCol)
-            if nextItem == None or nextItem.data() == None:
-                return
-            if clickedItem.data() not in self._rows_selection.keys():
-                self._rows_selection[nextItem.data()] = self.getRowCells(nextItem.row())
 
     # save the selected index, to preserve selection when moving around.
     def mousePressEvent(self, event):
@@ -360,10 +347,18 @@ class GenericTableView(QTableView):
         # clicked row.
         # 4. if Left button has not been pressed, do not discard the selection.
         rowSelected = clickedItem.data() in self._rows_selection.keys()
+        if self._first_row_selected is None:
+            self._first_row_selected = row
         if self.ctrlPressed:
             if rowSelected:
                 del self._rows_selection[clickedItem.data()]
                 flags = QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Deselect
+                self._first_row_selected = None
+        elif self.shiftPressed:
+            if self._first_row_selected is None:
+                self._first_row_selected = row
+            elif self._last_row_selected is None:
+                self._last_row_selected = row
         else:
             deselectCurRow = len(self._rows_selection.keys()) == 1 and not rightBtnPressed
             # discard current selection:
@@ -375,6 +370,7 @@ class GenericTableView(QTableView):
                 self.selectionModel().clear()
                 self._rows_selection = {}
             if rowSelected and deselectCurRow and not rightBtnPressed:
+                self._first_row_selected = None
                 flags = QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Deselect
             else:
                 self._rows_selection[clickedItem.data()] = self.getRowCells(row)
@@ -383,6 +379,45 @@ class GenericTableView(QTableView):
             clickedItem,
             flags
         )
+
+    def handleShiftPressed(self):
+        x = self.vScrollBar.value()
+        if self._first_row_selected > self._last_row_selected:
+            # FIXME:
+            # handle rows selection correctly when selecting them from
+            # bottom to top + scrolling.
+            last = self._first_row_selected
+            first = self._last_row_selected
+            self._last_row_selected = last
+            self._first_row_selected = first
+        for row in range(self._first_row_selected, self._last_row_selected+1):
+            idx = self.model().index(row, self.trackingCol)
+            self._rows_selection[idx.data()] = self.getRowCells(row)
+            self.selectionModel().setCurrentIndex(
+                idx,
+                QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.SelectCurrent
+            )
+        # self._first_row_selected is resetted on mousePressEvent
+        self._last_row_selected = None
+
+    def handleMouseMoveEvent(self, row, clickedItem, selected):
+        if not selected:
+            if clickedItem.data() in self._rows_selection.keys():
+                del self._rows_selection[clickedItem.data()]
+        else:
+            self._rows_selection[clickedItem.data()] = self.getRowCells(row)
+
+        # handle scrolling the view while dragging the mouse.
+        if self.mousePressed:
+            scrollPos = self.scrollViewport(row)
+            if scrollPos == None:
+                return
+
+            nextItem = self.model().index(scrollPos, self.trackingCol)
+            if nextItem == None or nextItem.data() == None:
+                return
+            if clickedItem.data() not in self._rows_selection.keys():
+                self._rows_selection[nextItem.data()] = self.getRowCells(nextItem.row())
 
     def onBeginViewportRefresh(self):
         # if the selected row due to scrolling up/down doesn't match with the
