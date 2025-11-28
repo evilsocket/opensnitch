@@ -1658,7 +1658,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboNetstatNodes.clear()
         node_list = self._nodes.get_nodes()
         for node in node_list:
-            self.comboNetstatNodes.addItem(node)
+            hostname = ""
+            try:
+                hostname = node_list[node]['data'].name
+            except:
+                pass
+            if hostname != "":
+                node_lbl = "{0} - {1}".format(node, hostname)
+            self.comboNetstatNodes.addItem(node_lbl, node)
 
         if prevNode == -1:
             prevNode = 0
@@ -1858,7 +1865,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif combo == 4:
             self._cfg.setSettings(Config.STATS_NETSTAT_FILTER_STATE, self.comboNetstatStates.currentIndex())
 
-        self.LAST_NETSTAT_NODE = self.comboNetstatNodes.currentText()
+        nIdx = self.comboNetstatNodes.currentIndex()
+        self.LAST_NETSTAT_NODE = self.comboNetstatNodes.itemData(nIdx)
 
     def _cb_limit_combo_changed(self, idx):
         if self.tabWidget.currentIndex() == self.TAB_MAIN:
@@ -2223,7 +2231,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._notifications_sent[nid] = noti
 
     def _cb_node_start_clicked(self):
-        addr = self.TABLES[self.TAB_NODES]['label'].text()
+        nIdx = self.comboNetstatNodes.currentIndex()
+        addr = self.comboNetstatNodes.itemData(nIdx)
         if addr == "":
             return
         if self.nodeStartButton.isChecked():
@@ -2875,7 +2884,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         #  config
         self.netstatLabel.show()
 
-        node_addr = self.comboNetstatNodes.currentText()
+        nIdx = self.comboNetstatNodes.currentIndex()
+        node_addr = self.comboNetstatNodes.itemData(nIdx)
         if node_addr == "":
             print("monitor_netstat_node: no nodes")
             self.netstatLabel.setText("")
