@@ -2094,8 +2094,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 cur_idx = StatsDialog.TAB_USERS
                 data = row.model().index(row.row(), self.COL_NET_UID).data()
             elif row.column() == self.COL_NET_PID:
+                if self.LAST_NETSTAT_NODE == None:
+                    return
                 pid = row.model().index(row.row(), self.COL_NET_PID).data()
-                self._proc_details_dialog.monitor({pid: self.comboNetstatNodes.currentText()})
+                pids = {}
+                pids[pid] = self.LAST_NETSTAT_NODE
+                self._proc_details_dialog.monitor(pids)
                 return
             else:
                 cur_idx = StatsDialog.TAB_PROCS
