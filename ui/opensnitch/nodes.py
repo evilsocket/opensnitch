@@ -373,14 +373,15 @@ class Nodes(QObject):
     def update(self, peer, status=ONLINE):
         try:
             proto, addr = self.get_addr(peer)
+            naddr = "{0}:{1}".format(proto, addr)
             self._db.update("nodes",
                     "hostname=?,version=?,last_connection=?,status=?",
                     (
-                        self._nodes[proto+":"+addr]['data'].name,
-                        self._nodes[proto+":"+addr]['data'].version,
+                        self._nodes[naddr]['data'].name,
+                        self._nodes[naddr]['data'].version,
                         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         status,
-                        "{0}:{1}".format(proto, addr)),
+                        naddr),
                         "addr=?"
                     )
         except Exception as e:

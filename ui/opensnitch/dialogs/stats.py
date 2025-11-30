@@ -2167,6 +2167,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         parent_row = -1
         node_addr = ""
         fw_table = ""
+        item_text = item.text(0)
 
         rulesHeader = self.rulesTable.horizontalHeader()
         self._cfg.setSettings(Config.STATS_RULES_COL_STATE, rulesHeader.saveState())
@@ -2193,8 +2194,14 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if parent.parent() != None:
                     parent = parent.parent()
                     parent_model = self.rulesTreePanel.indexFromItem(parent.parent(), 0)
-                    item_row =  self.FILTER_TREE_FW_CHAIN
                     parent_row = self.RULES_TREE_FIREWALL
+                    item_row =  self.FILTER_TREE_FW_CHAIN
+                    item_text = item.data(0, QtCore.Qt.ItemDataRole.UserRole)
+            # node
+            else:
+                if parent_row == self.RULES_TREE_FIREWALL:
+                    item_row =  self.FILTER_TREE_FW_NODE
+                node_addr = item_text
 
         if node_addr == None:
             return
@@ -2206,7 +2213,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rulesTable.setVisible(not showFwTable and not showAlertsTable)
         self.rulesScrollBar.setVisible(not showFwTable)
 
-        self._set_rules_filter(parent_row, item_row, item.text(0), node_addr, fw_table)
+        self._set_rules_filter(parent_row, item_row, item_text, node_addr, fw_table)
 
     def _cb_splitter_moved(self, tab, pos, index):
         if tab == self.TAB_RULES:
@@ -2444,7 +2451,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         chains = self._fw.get_chains()
         for addr in chains:
             # add nodes
-            nodeRoot = QtWidgets.QTreeWidgetItem(["{0}".format(addr)])
+            hostname = self._nodes.get_node_hostname(addr)
+            nodeRoot = QtWidgets.QTreeWidgetItem([addr, hostname])
             nodeRoot.setData(0, QtCore.Qt.ItemDataRole.UserRole, addr)
             fwItem.addChild(nodeRoot)
             for nodeChains in chains[addr]:
@@ -2460,6 +2468,12 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     chainName = "{0}-{1}".format(cc.Name, cc.Hook)
                     nodeChain = QtWidgets.QTreeWidgetItem([chainName, cc.Policy])
                     nodeChain.setData(0, QtCore.Qt.ItemDataRole.UserRole, "{0}-{1}".format(addr, chainName))
+                    nodeChain.setData(
+                        0,
+                        QtCore.Qt.ItemDataRole.UserRole,
+                        # key to identify this chain
+                        "{0}#{1}#{2}".format(addr, cc.Hook, cc.Name)
+                    )
 
                     items = self._find_tree_fw_items("{0}-{1}".format(addr, tableName))
                     if len(items) == 0:
@@ -3167,9 +3181,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     return
                 self.TABLES[self.TAB_FIREWALL]['view'].filterByTable(what1, parm[0], parm[1])
             elif item_row == self.FILTER_TREE_FW_CHAIN: # + table
-                parm = what.split("-")
-                tbl = what1.split("-")
-                self.TABLES[self.TAB_FIREWALL]['view'].filterByChain(what2, tbl[0], tbl[1], parm[0], parm[1])
+                # 1. addr, 2. hook, 3. chainname
+                try:
+                    parm = what.split("#")
+                    tbl = what1.split("-")
+                    self.TABLES[self.TAB_FIREWALL]['view'].filterByChain(what2, tbl[0], tbl[1], parm[2], parm[1])
+                except Exception as e:
+                    print("Exception loading firewall chains:", what, ",", what1, "-", e)
             return
 
         if section == self.FILTER_TREE_APPS:
