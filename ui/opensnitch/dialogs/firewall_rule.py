@@ -462,67 +462,87 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self._close()
 
     def _cb_delete_clicked(self):
-        node_addr, node, chain, err = self.form_to_protobuf()
-        if err != None:
+        chain, err = self.form_to_protobuf()
+        if err is not None:
             self._set_status_error(QC.translate("firewall", "Invalid rule: {0}".format(err)))
             return
 
-        self._set_status_message(QC.translate("firewall", "Deleting rule, wait"))
-        ok, fw_config = self._fw.delete_rule(node_addr, self.uuid)
-        if not ok:
-            self._set_status_error(QC.translate("firewall", "Error updating rule"))
-            return
+        nIdx = self.comboNodes.currentIndex()
+        node_addr = self.comboNodes.itemData(nIdx)
+        node = self._nodes.get_node(node_addr)
 
-        if self.comboNodes.currentIndex() == 0:
-            self.send_notifications(node['firewall'], self.OP_DELETE)
+        self._set_status_message(QC.translate("firewall", "Deleting rule, wait"))
+        if nIdx == 0:
+            for addr in self._nodes.get_nodes():
+                node = self._nodes.get_node(addr)
+                err = self.delete_rule(addr, node, self.uuid)
+                if err is not None:
+                    self._set_status_error(err)
         else:
-            self.send_notification(node_addr, node['firewall'], self.OP_DELETE)
+            err = self.delete_rule(node_addr, node, self.uuid)
+            if err is not None:
+                self._set_status_error(err)
 
     def _cb_save_clicked(self):
         if len(self.statements) == 0:
             self._set_status_message(QC.translate("firewall", "Add at least one statement."))
             return
-        node_addr, node, chain, err = self.form_to_protobuf()
-        if err != None:
+        chain, err = self.form_to_protobuf()
+        if err is not None:
             self._set_status_error(QC.translate("firewall", "Invalid rule: {0}".format(err)))
             return
 
-        self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
-        ok, err = self._fw.update_rule(node_addr, self.uuid, chain)
-        if not ok:
-            self._set_status_error(QC.translate("firewall", "Error updating rule ({0}): {1}".format(node_addr, err)))
-            return
+        nIdx = self.comboNodes.currentIndex()
+        node_addr = self.comboNodes.itemData(nIdx)
+        node = self._nodes.get_node(node_addr)
 
-        self._enable_buttons(False)
-        if self.comboNodes.currentIndex() == 0:
-            self.send_notification(node_addr, node['firewall'], self.OP_SAVE, self.uuid)
+        self._set_status_message(QC.translate("firewall", "Saving rule, wait"))
+        if nIdx == 0:
+            for addr in self._nodes.get_nodes():
+                node = self._nodes.get_node(addr)
+                err = self.save_rule(addr, node, chain, self.uuid)
+                if not None:
+                    self._set_status_error(err)
+                else:
+                    node = self._nodes.get_node(addr)
+                    self.send_notification(addr, node['firewall'], self.OP_SAVE, self.uuid)
         else:
-            self.send_notifications(node['firewall'], self.OP_SAVE)
-
-    def _cb_reset_clicked(self):
-        self._reset_widgets("", self.toolBoxSimple)
-        self.add_new_statement(QC.translate("firewall", "<select a statement>"), self.toolBoxSimple)
+            self.save_rule(node_addr, node, chain, self.uuid)
+            if err is not None:
+                self._set_status_error(err)
+                return
+            self._enable_buttons(False)
 
     def _cb_add_clicked(self):
         if len(self.statements) == 0:
             self._set_status_message(QC.translate("firewall", "Add at least one statement."))
             return
-        node_addr, node, chain, err = self.form_to_protobuf()
-        if err != None:
+        chain, err = self.form_to_protobuf()
+        if err is not None:
             self._set_status_error(QC.translate("firewall", "Invalid rule: {0}".format(err)))
             return
 
-        ok, err = self._fw.insert_rule(node_addr, chain)
-        if not ok:
-            self._set_status_error(QC.translate("firewall", "Error adding rule: {0}".format(err)))
-            return
-        self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
-        self._enable_buttons(False)
+        nIdx = self.comboNodes.currentIndex()
+        node_addr = self.comboNodes.itemData(nIdx)
+        node = self._nodes.get_node(node_addr)
 
-        if self.comboNodes.currentIndex() == 0:
-            self.send_notification(node_addr, node['firewall'], self.OP_NEW, chain.Rules[0].UUID)
+        self._set_status_message(QC.translate("firewall", "Adding rule, wait"))
+        if nIdx == 0:
+            for addr in self._nodes.get_nodes():
+                node = self._nodes.get_node(addr)
+                err = self.add_rule(addr, node, chain)
+                if err is not None:
+                    self._set_status_error(err)
         else:
-            self.send_notifications(node['firewall'], self.OP_NEW)
+            err = self.add_rule(node_addr, node, chain)
+            if err is not None:
+                self._set_status_error(err)
+                return
+            self._enable_buttons(False)
+
+    def _cb_reset_clicked(self):
+        self._reset_widgets("", self.toolBoxSimple)
+        self.add_new_statement(QC.translate("firewall", "<select a statement>"), self.toolBoxSimple)
 
     def _cb_add_new_statement(self):
         self._enable_save()
@@ -881,18 +901,25 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.st_num += 1
 
     def _load_nodes(self):
+        self.comboNodes.blockSignals(True)
+
         self.comboNodes.clear()
         self._node_list = self._nodes.get()
-        #self.comboNodes.addItem(QC.translate("firewall", "All"))
+        self.comboNodes.addItem(QC.translate("firewall", "All"), "all")
         for addr in self._node_list:
-            self.comboNodes.addItem(addr)
+            hostname = self._nodes.get_node_hostname(addr)
+            self.comboNodes.addItem(f"{addr} - {hostname}", addr)
 
         if len(self._node_list) == 0:
             self.tabWidget.setDisabled(True)
+        elif len(self._node_list) == 1:
+            self.comboNodes.setCurrentIndex(1)
 
         hideNodes = len(self._node_list) > 1
         self.comboNodes.setVisible(hideNodes)
         self.labelNode.setVisible(hideNodes)
+
+        self.comboNodes.blockSignals(False)
 
     def _load_meta_statement(self, exp, idx):
         try:
@@ -1022,6 +1049,10 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     def load(self, addr, uuid):
         if not self.show():
             return
+        nIdx = self.comboNodes.findData(addr)
+        if nIdx == -1:
+            self._set_status_message(f"node not found: {addr}")
+            return
 
         self.FORM_TYPE = self.FORM_TYPE_SIMPLE
         self.setWindowTitle(QC.translate("firewall", "Firewall rule"))
@@ -1032,7 +1063,8 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.checkEnable.setEnabled(True)
         self.checkEnable.setChecked(True)
         self.frameDirection.setVisible(True)
-        self.comboNodes.setCurrentText(addr)
+
+        self.comboNodes.setCurrentIndex(nIdx)
 
         self._enable_buttons()
 
@@ -1307,7 +1339,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         _target_parms = ""
         if self._has_verdict_parms(verdict_idx):
             if self.lineVerdictParms.text() == "":
-                return None, None, None, QC.translate("firewall", "Verdict ({0}) parameters cannot be empty.".format(verdict))
+                return None, QC.translate("firewall", "Verdict ({0}) parameters cannot be empty.".format(verdict))
 
             # these verdicts parameters need ":" to specify a port or ip:port
             if (self.comboVerdict.currentText().lower() == Config.ACTION_REDIRECT or \
@@ -1315,13 +1347,13 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                 self.comboVerdict.currentText().lower() == Config.ACTION_SNAT or \
                 self.comboVerdict.currentText().lower() == Config.ACTION_DNAT) and \
                     ":" not in self.lineVerdictParms.text():
-                return None, None, None, QC.translate("firewall", "Verdict ({0}) parameters format is: <IP>:port.".format(verdict))
+                return None, QC.translate("firewall", "Verdict ({0}) parameters format is: <IP>:port.".format(verdict))
 
             if self.comboVerdict.currentText().lower() == Config.ACTION_QUEUE:
                 try:
                     t = int(self.lineVerdictParms.text())
                 except:
-                    return None, None, None, QC.translate("firewall", "Verdict ({0}) parameters format must be a number".format(verdict))
+                    return None, QC.translate("firewall", "Verdict ({0}) parameters format must be a number".format(verdict))
 
             vidx = self.comboVerdictParms.currentIndex()
             _target_parms = "{0} {1}".format(
@@ -1340,7 +1372,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         for k in self.statements:
             st_idx = self.statements[k]['what'].currentIndex()-1
             if st_idx == -1:
-                return None, None, None, QC.translate("firewall", "select a statement.")
+                return None, QC.translate("firewall", "select a statement.")
 
             statement = self.STATM_CONF[st_idx]['name']
             statem_keys = self.STATM_CONF[st_idx]['keys']
@@ -1356,7 +1388,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                     val_idx = self.statements[k]['value'].currentIndex()
 
                     if statem_value == "" or (statem_value == "0" and st_idx != self.STATM_META):
-                        return None, None, None, QC.translate("firewall", "value cannot be 0 or empty.")
+                        return None, QC.translate("firewall", "value cannot be 0 or empty.")
 
                     if st_idx == self.STATM_QUOTA:
                         if sk['key'] == Fw.ExprQuota.OVER.value:
@@ -1366,9 +1398,9 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                         elif sk['key'] == Fw.ExprQuota.UNIT.value or sk['key'] in Fw.RateUnits.values():
                             units = statem_value.split("/")
                             if len(units) != 2: # we expect the format key/value
-                                return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, mbytes, gbytes)")
+                                return None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, mbytes, gbytes)")
                             if units[1] not in Fw.RateUnits.values():
-                                return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, mbytes, gbytes)")
+                                return None, QC.translate("firewall", "the value format is 1024/kbytes (or bytes, mbytes, gbytes)")
 
                             sk['key'] = units[1]
                             statem_value = units[0]
@@ -1382,12 +1414,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                         elif sk['key'] == Fw.ExprLimit.UNITS.value:
                             units = statem_value.split("/")
                             if len(units) != 3: # we expect the format key/value
-                                return None, None, None, QC.translate("firewall", "the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)")
+                                return None, QC.translate("firewall", "the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)")
 
                             if units[1] not in Fw.RateUnits.values():
-                                return None, None, None, QC.translate("firewall", "rate-limit not valid, use: bytes, kbytes, mbytes or gbytes.")
+                                return None, QC.translate("firewall", "rate-limit not valid, use: bytes, kbytes, mbytes or gbytes.")
                             if units[2] not in Fw.TimeUnits.values():
-                                return None, None, None, QC.translate("firewall", "time-limit not valid, use: second, minute, hour or day")
+                                return None, QC.translate("firewall", "time-limit not valid, use: second, minute, hour or day")
                             key_values.append((Fw.ExprLimit.UNITS.value, units[0]))
                             key_values.append((Fw.ExprLimit.RATE_UNITS.value, units[1]))
                             key_values.append((Fw.ExprLimit.TIME_UNITS.value, units[2]))
@@ -1419,12 +1451,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                                 hosts = list(net)
                                 statem_value = "{0}-{1}".format(str(hosts[0]), str(hosts[-1]))
                             except Exception as e:
-                                return None, None, None, QC.translate("firewall", "IP network format error, {0}".format(e))
+                                return None, QC.translate("firewall", "IP network format error, {0}".format(e))
                         elif not "-" in statem_value:
                             try:
                                 ipaddress.ip_address(statem_value)
                             except Exception as e:
-                                return None, None, None, QC.translate("firewall", "{0}".format(e))
+                                return None, QC.translate("firewall", "{0}".format(e))
 
                     elif st_idx == self.STATM_DPORT or st_idx == self.STATM_SPORT:
                         # if it's a tcp+udp port, we need to add a meta+l4proto
@@ -1457,17 +1489,17 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                         except:
                             if "," not in statem_value and "-" not in statem_value:
                                 if not self._is_valid_int_value(statem_value):
-                                    return None, None, None, QC.translate("firewall", "port not valid.")
+                                    return None, QC.translate("firewall", "port not valid.")
 
                     elif st_idx == self.STATM_CT_SET or st_idx == self.STATM_CT_MARK or st_idx == self.STATM_META_SET_MARK:
                         if not self._is_valid_int_value(statem_value):
-                            return None, None, None, QC.translate("firewall", "Invalid value {0}, number expected.".format(statem_value))
+                            return None, QC.translate("firewall", "Invalid value {0}, number expected.".format(statem_value))
 
                     elif st_idx == self.STATM_ICMP or st_idx == self.STATM_ICMPv6:
                         values = statem_value.split(",")
                         for val in values:
                             if val not in Fw.ExprICMP.values():
-                                return None, None, None, QC.translate("firewall", "Invalid ICMP type \"{0}\".".format(val))
+                                return None, QC.translate("firewall", "Invalid ICMP type \"{0}\".".format(val))
 
                     keyVal = (sk['key'], statem_value.replace(" ", ""))
                     if keyVal not in key_values:
@@ -1483,9 +1515,29 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
             rule.Expressions.extend([exprs])
         chain.Rules.extend([rule])
 
-        node_addr = self.comboNodes.currentText()
-        node = self._nodes.get_node(node_addr)
-        return node_addr, node, chain, None
+        return chain, None
+
+    def add_rule(self, addr, node, chain):
+        ok, err = self._fw.insert_rule(addr, chain)
+        if not ok:
+            return QC.translate("firewall", "Error adding rule: {0}".format(err))
+        self.send_notification(addr, node['firewall'], self.OP_NEW, chain.Rules[0].UUID)
+        return None
+
+    def save_rule(self, addr, node, chain, uuid):
+        ok, err = self._fw.update_rule(addr, uuid, chain)
+        if not ok:
+            return QC.translate("firewall", "Error saving rule {0}".format(err))
+        self.send_notification(addr, node['firewall'], self.OP_SAVE, uuid)
+        return None
+
+    def delete_rule(self, addr, node, uuid):
+        ok, fw_config = self._fw.delete_rule(addr, uuid)
+        if not ok:
+            return QC.translate("firewall", "Error deleting rule, {0}".format(addr))
+        else:
+            self.send_notification(addr, node['firewall'], self.OP_DELETE, uuid)
+        return None
 
     def _is_valid_int_value(self, value):
         try:
