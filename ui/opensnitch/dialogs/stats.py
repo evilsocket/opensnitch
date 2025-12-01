@@ -476,10 +476,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.nodeLabel.setText("")
         self.nodeLabel.setStyleSheet('color: green;font-size:12pt; font-weight:600;')
         self.rulesSplitter.setStretchFactor(0,0)
-        self.rulesSplitter.setStretchFactor(1,5)
+        self.rulesSplitter.setStretchFactor(1,4)
         self.nodesSplitter.setStretchFactor(0,0)
         self.nodesSplitter.setStretchFactor(0,3)
-        self.rulesTreePanel.resizeColumnToContents(0)
         self.rulesTreePanel.resizeColumnToContents(1)
         self.rulesTreePanel.itemExpanded.connect(self._cb_rules_tree_item_expanded)
 
@@ -2377,11 +2376,13 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     # must be called after setModel() or setQuery()
     def _show_columns(self):
         cols = self._cfg.getSettings(Config.STATS_SHOW_COLUMNS)
-        if cols == None:
+        if cols is not None:
+            for c in range(StatsDialog.GENERAL_COL_NUM):
+                self.eventsTable.setColumnHidden(c, str(c) not in cols)
             return
-
-        for c in range(StatsDialog.GENERAL_COL_NUM):
-            self.eventsTable.setColumnHidden(c, str(c) not in cols)
+        if self._nodes.count() < 2:
+            self.eventsTable.setColumnHidden(self.COL_NODE, True)
+            self.rulesTable.setColumnHidden(self.COL_R_NODE, True)
 
     def _update_status_label(self, running=False, text=FIREWALL_DISABLED):
         self.statusLabel.setText("%12s" % text)
