@@ -136,7 +136,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         oldUid = self.uidCombo.currentText()
         self.ifaceCombo.clear()
         self.uidCombo.clear()
-        if self._nodes.is_local(self.nodesCombo.currentText()):
+        addr = self.get_node_addr()
+        if addr is not None and self._nodes.is_local(addr):
             self.ifaceCombo.addItems(NetworkInterfaces.list().keys())
             try:
                 for ip in NetworkInterfaces.list().values():
@@ -277,7 +278,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if rule_name == "":
             return
 
-        node = self.nodesCombo.currentText()
+        #node = self.nodesCombo.currentText()
+        node = self.get_node_addr()
         # avoid to overwrite rules when:
         # - adding a new rule.
         # - when a rule is renamed, i.e., the rule is edited or added and the
@@ -431,7 +433,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _is_valid_list_path(self, listWidget):
         if listWidget.text() == "":
             return QC.translate("rules", "Lists field cannot be empty")
-        if self._nodes.is_local(self.nodesCombo.currentText()) and \
+        if self._nodes.is_local(self.get_node_addr()) and \
             self.nodeApplyAllCheck.isChecked() == False and \
             os.path.isdir(listWidget.text()) == False:
             return QC.translate("rules", "Lists field must be a directory")
@@ -439,7 +441,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         return None
 
     def set_fields_from_connection(self, records):
-        self.nodesCombo.setCurrentText(records.value(ConnFields.Node))
+        nIdx = self.nodesCombo.findData(records.value(ConnFields.Node))
+        if nIdx == -1:
+            self.set_status_error("Unable to load connection, unknown node? ({0})".format(nIdx))
+            return
+        self.nodesCombo.setCurrentIndex(nIdx)
         self.protoCombo.setCurrentText(records.value(ConnFields.Protocol).upper())
         self.srcIPCombo.setCurrentText(records.value(ConnFields.SrcIP))
         self.dstIPCombo.setCurrentText(records.value(ConnFields.DstIP))
@@ -691,7 +697,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.nodesCombo.clear()
             self._node_list = self._nodes.get()
 
-            if addr != None and addr not in self._node_list:
+            if addr is not None and addr not in self._node_list:
                 Message.ok(QC.translate("rules", "<b>Error loading rule</b>"),
                         QC.translate("rules", "node {0} not connected".format(addr)),
                         QtWidgets.QMessageBox.Icon.Warning)
@@ -701,10 +707,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.nodeApplyAllCheck.setVisible(False)
 
             for node in self._node_list:
-                self.nodesCombo.addItem(node)
+                hostname = self._nodes.get_node_hostname(node)
+                self.nodesCombo.addItem(f"{node} - {hostname}", node)
 
-            if addr != None:
-                self.nodesCombo.setCurrentText(addr)
+            nIdx = self.nodesCombo.findData(addr)
+            if nIdx != -1:
+                self.nodesCombo.setCurrentIndex(nIdx)
 
             showNodes = len(self._node_list) > 1
             self.nodesCombo.setVisible(showNodes)
@@ -716,6 +724,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         return True
 
+    def get_node_addr(self):
+        nIdx = self.nodesCombo.currentIndex()
+        addr = self.nodesCombo.itemData(nIdx)
+        return addr
+
     def _insert_rule_to_db(self, node_addr):
         # the order of the fields doesn't matter here, as long as we use the
         # name of the field.
@@ -723,11 +736,12 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _add_rule(self):
         try:
+            addr = self.get_node_addr()
             if self.nodeApplyAllCheck.isChecked():
-                for pos in range(self.nodesCombo.count()):
-                    self._insert_rule_to_db(self.nodesCombo.itemText(pos))
+                for idx in range(self.nodesCombo.count()):
+                    self._insert_rule_to_db(self.nodesCombo.itemData(idx))
             else:
-                self._insert_rule_to_db(self.nodesCombo.currentText())
+                self._insert_rule_to_db(addr)
 
             notif = ui_pb2.Notification(
                     id=int(str(time.time()).replace(".", "")),
@@ -737,7 +751,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.nodeApplyAllCheck.isChecked():
                 nid = self._nodes.send_notifications(notif, self._notification_callback)
             else:
-                nid = self._nodes.send_notification(self.nodesCombo.currentText(), notif, self._notification_callback)
+                nid = self._nodes.send_notification(addr, notif, self._notification_callback)
 
             self._notifications_sent[nid] = notif
         except Exception as e:
@@ -747,7 +761,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         try:
             # if the rule name has changed, we need to remove the old one
             if self._old_rule_name != self.rule.name:
-                node = self.nodesCombo.currentText()
+                node = self.get_node_addr()
                 old_rule = self.rule
                 old_rule.name = self._old_rule_name
                 if self.nodeApplyAllCheck.isChecked():

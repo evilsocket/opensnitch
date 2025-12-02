@@ -190,17 +190,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.comboNodeAddress.addItem("unix://%s/osui.sock" % var_run_path)
                 self.comboServerAddr.addItem("unix://%s/osui.sock" % var_run_path)
 
-            self._node_list = self._nodes.get()
-            for addr in self._node_list:
-                self.comboNodes.addItem(addr)
-
-            if len(self._node_list) == 0:
-                self._reset_node_settings()
-                self._set_status_message(QC.translate("preferences", "There're no nodes connected"))
-
-            showNodes = len(self._node_list) > 1
-            self.comboNodes.setVisible(showNodes)
-            self.checkApplyToNodes.setVisible(showNodes)
+            self.load_nodes()
         except Exception as e:
             print(self.LOG_TAG + "exception loading nodes:", e)
 
@@ -257,8 +247,29 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def show_node_prefs(self, addr):
         self.show()
-        self.comboNodes.setCurrentText(addr)
-        self.tabWidget.setCurrentIndex(self.TAB_NODES)
+        nIdx = self.comboNodes.findData(addr)
+        if nIdx != -1:
+            self.comboNodes.setCurrentIndex(nIdx)
+            self.tabWidget.setCurrentIndex(self.TAB_NODES)
+
+    def load_nodes(self):
+        self._node_list = self._nodes.get()
+        for addr in self._node_list:
+            hostname = self._nodes.get_node_hostname(addr)
+            self.comboNodes.addItem(f"{addr} - {hostname}", addr)
+
+        if len(self._node_list) == 0:
+            self._reset_node_settings()
+            self._set_status_message(QC.translate("preferences", "There're no nodes connected"))
+
+        showNodes = len(self._node_list) > 1
+        self.comboNodes.setVisible(showNodes)
+        self.checkApplyToNodes.setVisible(showNodes)
+
+    def get_node_addr(self):
+        nIdx = self.comboNodes.currentIndex()
+        addr = self.comboNodes.itemData(nIdx)
+        return addr
 
     def _load_langs(self):
         try:
@@ -417,8 +428,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._load_ui_columns_config()
 
     def _load_node_settings(self):
-        addr = self.comboNodes.currentText()
-        if addr == "":
+        addr = self.get_node_addr()
+        if addr is None:
             return
 
         try:
@@ -506,7 +517,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         except Exception as e:
             print(self.LOG_TAG + "exception loading config: ", e)
-            self._set_status_error(QC.translate("preferences", "Error loading config: {0}".format(e)))
+            self._set_status_error(QC.translate("preferences", "Error loading config {0}: {1}".format(addr, e)))
 
     def _load_node_config(self, addr):
         """load the config of a node before sending it back to the node"""
@@ -904,8 +915,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._cfg.setSettings(Config.STATS_SHOW_COLUMNS, cols)
 
     def _save_nodes_config(self):
-        addr = self.comboNodes.currentText()
-        if (self._node_needs_update or self.checkApplyToNodes.isChecked()) and addr != "":
+        addr = self.get_node_addr()
+        if (self._node_needs_update or self.checkApplyToNodes.isChecked()) and addr is not None:
             self._set_status_message(QC.translate("preferences", "Saving configuration..."))
             try:
                 notif = ui_pb2.Notification(
@@ -929,7 +940,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._set_status_error(QC.translate("preferences", "Exception saving config: {0}").format(str(e)))
                 return False
 
-        elif addr == "":
+        elif addr is None:
             self._set_status_message(QC.translate("preferences", "There're no nodes connected"))
             return False
 
@@ -949,7 +960,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # exclude this message if there're more than one node connected
             # XXX: unix:/local is a special name for the node, when the gRPC
             # does not return the correct address of the node.
-            if (self.comboNodes.currentText() != "unix:/local" and self.comboNodes.currentText() != self.comboNodeAddress.currentText()) or \
+            naddr = self.get_node_addr()
+            if (naddr != "unix:/local" and naddr != self.comboNodeAddress.currentText()) or \
                     self.comboServerAddr.currentText() != self.comboNodeAddress.currentText():
                 self._changes_needs_restart = QC.translate("preferences", "Node address changed (update GUI address if needed)")
 
