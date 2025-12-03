@@ -1084,7 +1084,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.uuid = uuid
         self.addr = addr
 
-        node, rule = self._fw.get_rule_by_uuid(uuid)
+        node, rule = self._fw.get_rule_by_uuid(uuid, addr)
         if rule == None or \
                 (rule.Hook.lower() != Fw.Hooks.INPUT.value and \
                  rule.Hook.lower() != Fw.Hooks.FORWARD.value and \
