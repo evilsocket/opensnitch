@@ -325,9 +325,11 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self._notifications_sent = {}
 
         self.uuid = ""
+        self.addr = ""
         self.simple_port_idx = None
 
         self._nodes.nodesUpdated.connect(self._cb_nodes_updated)
+        self.comboNodes.currentIndexChanged.connect(self._cb_combo_nodes_changed)
         self.cmdClose.clicked.connect(self._cb_close_clicked)
         self.cmdReset.clicked.connect(self._cb_reset_clicked)
         self.cmdAdd.clicked.connect(self._cb_add_clicked)
@@ -402,9 +404,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                     del self._notifications_sent[reply.id]
                     return
 
-                if 'operation' in rep and rep['operation'] == self.OP_SAVE:
+                opSave = 'operation' in rep and rep['operation'] == self.OP_SAVE
+                if opSave:
                     self._set_status_successful(QC.translate("firewall", "Rule saved"))
                 else:
+                    self.cmdAdd.setVisible(opSave)
+                    self.cmdSave.setVisible(not opSave)
                     self._set_status_successful(QC.translate("firewall", "Rule added"))
 
             else:
@@ -435,6 +440,12 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     @QtCore.pyqtSlot(int)
     def _cb_nodes_updated(self, total):
         self.tabWidget.setDisabled(True if total == 0 else False)
+
+    def _cb_combo_nodes_changed(self, idx):
+        naddr = self.comboNodes.itemData(idx)
+        add = naddr != self.addr
+        self.cmdSave.setVisible(not add)
+        self.cmdAdd.setVisible(add)
 
     def closeEvent(self, e):
         self._close()
@@ -763,8 +774,8 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         if idx == -1:
             return
 
-        w['value'].blockSignals(True);
-        w['opts'].blockSignals(True);
+        w['value'].blockSignals(True)
+        w['opts'].blockSignals(True)
 
         oldValue = w['value'].currentText()
         w['value'].clear()
@@ -822,8 +833,8 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
             w['op'].setVisible(False)
             w['opts'].setVisible(False)
 
-        w['opts'].blockSignals(False);
-        w['value'].blockSignals(False);
+        w['opts'].blockSignals(False)
+        w['value'].blockSignals(False)
 
     def add_new_statement(self, title="", topWidget=None):
         """Creates dynamically the widgets to define firewall rules:
@@ -1064,11 +1075,14 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.checkEnable.setChecked(True)
         self.frameDirection.setVisible(True)
 
+        self.comboNodes.blockSignals(True)
         self.comboNodes.setCurrentIndex(nIdx)
+        self.comboNodes.blockSignals(False)
 
         self._enable_buttons()
 
         self.uuid = uuid
+        self.addr = addr
 
         node, rule = self._fw.get_rule_by_uuid(uuid)
         if rule == None or \
@@ -1085,7 +1099,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.checkEnable.setChecked(rule.Rules[0].Enabled)
         self.lineDescription.setText(rule.Rules[0].Description)
 
-        self.tabWidget.blockSignals(True);
+        self.tabWidget.blockSignals(True)
         self.hboxAdvanced.setVisible(True)
         self._reset_widgets("", self.toolBoxSimple)
         self.tabWidget.setCurrentIndex(0)
@@ -1098,7 +1112,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
                 self.add_new_statement("", self.toolBoxSimple)
             self.tabWidget.setTabText(0, QC.translate("firewall", "Advanced"))
 
-        self.tabWidget.blockSignals(False);
+        self.tabWidget.blockSignals(False)
 
         isNotSupported = False
         idx = 0
@@ -1597,14 +1611,15 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
         self.comboDirection.setCurrentIndex(self.IN)
         self.comboDirection.setEnabled(True)
 
-        self.comboVerdict.blockSignals(True);
+        self.comboVerdict.blockSignals(True)
         self.comboVerdict.setCurrentIndex(0)
-        self.comboVerdict.blockSignals(False);
+        self.comboVerdict.blockSignals(False)
         self.lineVerdictParms.setVisible(False)
         self.comboVerdictParms.setVisible(False)
         self.lineVerdictParms.setText("")
 
         self.uuid = ""
+        self.addr = ""
 
     def _enable_save(self, enable=True):
         """Enable Save buton whenever some detail of a route changes.
