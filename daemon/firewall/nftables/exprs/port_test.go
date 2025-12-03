@@ -47,19 +47,23 @@ func TestExprPort(t *testing.T) {
 			r, _ := nftest.AddTestRule(t, conn, portExpr)
 			if r == nil {
 				t.Errorf("Error adding rule with port (%s) expression", test.port)
+				return
 			}
 			e := r.Exprs[0]
 			cmp, ok := e.(*expr.Cmp)
 			if !ok {
 				t.Errorf("%s - invalid port expr: %T", test.port, e)
+				return
 			}
 			//fmt.Printf("%s, %+v\n", reflect.TypeOf(e).String(), e)
 			if reflect.TypeOf(e).String() != "*expr.Cmp" {
 				t.Errorf("%s - first expression should be *expr.Cmp, instead of: %s", test.port, reflect.TypeOf(e))
+				return
 			}
 			portVal := binaryutil.BigEndian.PutUint16(uint16(test.portVal))
 			if !bytes.Equal(cmp.Data, portVal) {
 				t.Errorf("%s - invalid port in expr.Cmp: %d", test.port, cmp.Data)
+				return
 			}
 
 		})
@@ -94,11 +98,13 @@ func TestExprPortRange(t *testing.T) {
 			r, _ := nftest.AddTestRule(t, conn, portExpr)
 			if r == nil {
 				t.Errorf("Error adding rule with port range (%s) expression", test.port)
+				return
 			}
 			e := r.Exprs[0]
 			_, ok := e.(*expr.Range)
 			if !ok {
 				t.Errorf("%s - invalid port range expr: %T", test.port, e)
+				return
 			}
 			fmt.Printf("%s, %+v\n", reflect.TypeOf(e).String(), e)
 			if reflect.TypeOf(e).String() != "*expr.Range" {

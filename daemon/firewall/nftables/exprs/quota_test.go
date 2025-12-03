@@ -228,6 +228,7 @@ func TestExprQuota(t *testing.T) {
 			r, _ := nftest.AddTestRule(t, conn, quotaExpr)
 			if r == nil && !test.ExpectedFail {
 				t.Error("Error adding rule with Quota expression")
+				return
 			}
 
 			if !nftest.AreExprsValid(t, &test, r) {

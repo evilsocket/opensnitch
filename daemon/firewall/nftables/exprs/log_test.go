@@ -133,6 +133,7 @@ func TestExprLog(t *testing.T) {
 			r, _ := nftest.AddTestRule(t, conn, logExpr)
 			if r == nil {
 				t.Error("Error adding rule with log expression")
+				return
 			}
 
 			if !nftest.AreExprsValid(t, &test.TestsT, r) {
