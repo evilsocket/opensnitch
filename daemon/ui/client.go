@@ -218,7 +218,7 @@ func (c *Client) poller() {
 			if c.Connected() == true {
 				// if the client is connected and ready, send a ping
 				if err := c.ping(time.Now()); err != nil {
-					log.Warning("Error while pinging UI service: %s, state: %v", err, c.con.GetState())
+					log.Debug("Error while pinging UI service: %s, state: %v", err, c.con.GetState())
 				}
 			}
 
