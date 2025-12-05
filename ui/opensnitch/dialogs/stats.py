@@ -1747,7 +1747,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboAction.setVisible(index == self.TAB_MAIN)
 
         if index != self.TAB_NETSTAT and self.LAST_TAB == self.TAB_NETSTAT:
-            self._unmonitor_node_netstat(self.LAST_SELECTED_ITEM)
+            self._unmonitor_node_netstat(self.LAST_NETSTAT_NODE)
             self.comboNetstatNodes.setCurrentIndex(0)
 
         if self.LAST_TAB == self.TAB_NODES and self.LAST_SELECTED_ITEM != "":
@@ -1865,7 +1865,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._cfg.setSettings(Config.STATS_NETSTAT_FILTER_STATE, self.comboNetstatStates.currentIndex())
 
         nIdx = self.comboNetstatNodes.currentIndex()
-        self.LAST_NETSTAT_NODE = self.comboNetstatNodes.itemData(nIdx)
 
     def _cb_limit_combo_changed(self, idx):
         if self.tabWidget.currentIndex() == self.TAB_MAIN:
@@ -2105,6 +2104,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 data = row.model().index(row.row(), self.COL_NET_PROC).data()
                 if data == "":
                     return
+            self._unmonitor_node_netstat(self.LAST_NETSTAT_NODE)
             self.tabWidget.setCurrentIndex(cur_idx)
 
         self._set_active_widgets(cur_idx, True, str(data))
@@ -2944,7 +2944,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if nid != None:
             self._notifications_sent[nid] = noti
 
-        self.LAST_SELECTED_ITEM = node_addr
+        self.LAST_NETSTAT_NODE = node_addr
 
     def _unmonitor_node_netstat(self, node_addr):
         self.netstatLabel.hide()
@@ -2967,6 +2967,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             )
             if nid != None:
                 self._notifications_sent[nid] = noti
+
+        self.LAST_NETSTAT_NODE = None
 
     def _update_netstat_table(self, node_addr, data):
         netstat = json.loads(data)
