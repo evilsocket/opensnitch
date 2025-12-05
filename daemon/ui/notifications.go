@@ -405,5 +405,7 @@ Exit:
 	c.streamNotifications.CloseSend()
 	log.Info("Stop receiving notifications")
 	c.disconnect()
-	TaskMgr.StopTempTasks()
+	if TaskMgr != nil {
+		TaskMgr.StopTempTasks()
+	}
 }
