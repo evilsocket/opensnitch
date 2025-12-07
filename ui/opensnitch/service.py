@@ -12,8 +12,8 @@ import copy
 path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(path)
 
-import opensnitch.proto as proto
-ui_pb2, ui_pb2_grpc = proto.import_()
+import opensnitch.proto as pb2
+ui_pb2, ui_pb2_grpc = pb2.import_()
 
 from opensnitch.dialogs.prompt import PromptDialog
 from opensnitch.dialogs.stats import StatsDialog
@@ -820,8 +820,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             #            self._remote_stats[addr]['dialog'].update(addr, request.stats)
 
         except Exception as e:
-            print("Ping exception: ", e)
-
+            print("Ping exception", context.peer(), ":", e)
         return ui_pb2.PingReply(id=request.id)
 
     def AskRule(self, request, context):
@@ -882,6 +881,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         @doc: https://grpc.github.io/grpc/python/grpc.html#service-side-context
         """
+        print(datetime.now(), "[Subscribe]", context.peer())
         # if the exit mark is set, don't accept new connections.
         # db vacuum operation may take a lot of time to complete.
         if self._exit:
@@ -921,17 +921,26 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         @doc: https://grpc.github.io/grpc/python/grpc.html#service-side-context
         @doc: https://grpc.io/docs/what-is-grpc/core-concepts/
         """
+        local_peer = context.peer()
+
+        print(datetime.now(), "[Notifications] channel started:", context.peer())
+        print()
         proto, addr = self._get_peer(context.peer())
-        _node = self._nodes.get_node("%s:%s" % (proto, addr))
+        node_addr = f"{proto}:{addr}"
+        _node = self._nodes.get_node(node_addr)
         if _node == None:
             return
 
         stop_event = Event()
         def _on_client_closed():
             stop_event.set()
+            print(datetime.now(), "[Notifications] client closed", context.peer())
+            self._nodes.stop_notifications(node_addr)
+
+
             self._node_actions_trigger.emit(
                 {'action': self.NODE_DELETE,
-                 'peer': context.peer(),
+                 'peer': local_peer,
                  })
 
             self._status_change_trigger.emit(False)
@@ -944,12 +953,14 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if self._is_local_request(proto, addr) == False:
                 self._show_message_trigger.emit(
                     "node exited",
-                    "({0})".format(context.peer()),
+                    f"({local_peer})",
                     QtWidgets.QSystemTrayIcon.MessageIcon.Information,
                     DesktopNotifications.URGENCY_LOW
                 )
 
-        context.add_callback(_on_client_closed)
+        added = context.add_callback(_on_client_closed)
+        if added is False:
+            print("[Notifications] add_callback() not added")
 
         # TODO: move to notifications.py
         def new_node_message():
@@ -969,9 +980,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     print("[Notifications] Node {0} exited".format(addr))
                     break
                 except grpc.RpcError as e:
-                    print("[Notifications] grpc exception new_node_message(): ", addr, in_message)
+                    print(datetime.now(), "[Notifications] grpc exception new_node_message(): ", addr, e)
+                    break
                 except Exception as e:
-                    print("[Notifications] unexpected exception new_node_message(): ", addr, e, in_message)
+                    print("[Notifications] unexpected exception new_node_message(): ", addr, e)
+                    break
 
         read_thread = Thread(target=new_node_message)
         read_thread.daemon = True
@@ -983,11 +996,18 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
             try:
                 noti = _node['notifications'].get()
-                if noti != None:
-                    _node['notifications'].task_done()
-                    yield noti
+                if noti is not None:
+                    if noti.type > 0:
+                        _node['notifications'].task_done()
+                        yield noti
+                    elif noti.type == -1:
+                        print("[Notifications] notify exit, break the loop")
+                        break
             except Exception as e:
                 print("[Notifications] exception getting notification from queue:", addr, e)
-                context.cancel()
+                break
 
+        # force call to _on_client_closed
+        context.cancel()
+        print("[Notifications] channel closed:", local_peer)
         return node_iter

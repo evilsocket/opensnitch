@@ -364,11 +364,14 @@ class Nodes(QObject):
         except Exception as e:
             print(self.LOG_TAG, "notification exception:", e)
 
-    def stop_notifications(self):
+    def stop_notifications(self, addr=None):
         """Send a dummy notification to force Notifications class to exit.
         """
-        exit_noti = ui_pb2.Notification(clientName="", serverName="", type=0, data="", rules=[])
-        self.send_notifications(exit_noti)
+        exit_ntf = ui_pb2.Notification(clientName="", serverName="", type=-1, data="", rules=[])
+        if addr is not None:
+            self.send_notification(addr, exit_ntf)
+            return
+        self.send_notifications(exit_ntf)
 
     def update(self, peer, status=ONLINE):
         try:
