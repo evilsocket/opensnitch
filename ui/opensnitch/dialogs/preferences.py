@@ -519,7 +519,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             print(self.LOG_TAG + "exception loading config: ", e)
             self._set_status_error(QC.translate("preferences", "Error loading config {0}: {1}".format(addr, e)))
 
-    def _load_node_config(self, addr):
+    def _build_node_config(self, addr):
         """load the config of a node before sending it back to the node"""
         try:
             if self.comboNodeAddress.currentText() == "":
@@ -534,7 +534,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             node_duration = Config.DURATION_ONCE
 
             node_conf = self._nodes.get_node_config(addr)
-            if node_conf == None:
+            if node_conf is None:
                 return None, " "
             node_config = json.loads(node_conf)
             node_config['DefaultAction'] = node_action
@@ -631,6 +631,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 config['Authentication'] = {}
                 auth = config.get('Authentication')
 
+            self.lineNodeCACertFile.blockSignals(True)
+            self.lineNodeServerCertFile.blockSignals(True)
+            self.lineNodeCertFile.blockSignals(True)
+            self.lineNodeCertKeyFile.blockSignals(True)
+
             self.lineNodeCACertFile.setEnabled(authtype_idx >= 0)
             self.lineNodeServerCertFile.setEnabled(authtype_idx >= 0)
             self.lineNodeCertFile.setEnabled(authtype_idx >= 0)
@@ -660,6 +665,12 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         except Exception as e:
             print("[prefs] load node auth options exception:", e)
             self._set_status_error(QC.translate("preferences", "Error loading node auth config: {0}".format(e)))
+
+        finally:
+            self.lineNodeCACertFile.blockSignals(False)
+            self.lineNodeServerCertFile.blockSignals(False)
+            self.lineNodeCertFile.blockSignals(False)
+            self.lineNodeCertKeyFile.blockSignals(False)
 
     def _save_node_auth_config(self, config):
         try:
@@ -952,17 +963,23 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         try:
             if self._nodes.count() == 0:
                 return
+            if not self._nodes.is_connected(addr):
+                return
             self._set_status_message(QC.translate("preferences", "Applying configuration on {0} ...").format(addr))
-            notifObject.data, error = self._load_node_config(addr)
+            notifObject.data, error = self._build_node_config(addr)
             if error != None:
                 return error
 
             # exclude this message if there're more than one node connected
             # XXX: unix:/local is a special name for the node, when the gRPC
             # does not return the correct address of the node.
-            naddr = self.get_node_addr()
-            if (naddr != "unix:/local" and naddr != self.comboNodeAddress.currentText()) or \
-                    self.comboServerAddr.currentText() != self.comboNodeAddress.currentText():
+            current_node = self.get_node_addr()
+            node_address = self.comboNodeAddress.currentText()
+            server_addr = self.comboServerAddr.currentText()
+            if server_addr.startswith("unix:") and (current_node != node_address or \
+                    server_addr != node_address):
+                self._changes_needs_restart = QC.translate("preferences", "Node address changed (update GUI address if needed)")
+            if node_address.startswith("unix:") and server_addr.startswith("unix:") is False:
                 self._changes_needs_restart = QC.translate("preferences", "Node address changed (update GUI address if needed)")
 
             self._nodes.save_node_config(addr, notifObject.data)
@@ -971,7 +988,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         except Exception as e:
             print(self.LOG_TAG + "exception saving node config on %s: " % addr, e)
-            self._set_status_error(QC.translate("preferences", "Exception saving node config {0}: {1}").format((addr, str(e))))
+            self._set_status_error(
+                QC.translate("preferences", "Exception saving node config {0}: {1}").format(
+                    addr, str(e)
+                )
+            )
             return addr + ": " + str(e)
 
         return None
