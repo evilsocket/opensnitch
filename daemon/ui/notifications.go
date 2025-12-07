@@ -389,16 +389,20 @@ func (c *Client) listenForNotifications() {
 		case <-c.clientCtx.Done():
 			goto Exit
 		default:
-			noti, err := c.streamNotifications.Recv()
+			ntf, err := c.streamNotifications.Recv()
 			if err == io.EOF {
 				log.Warning("notification channel closed by the server")
 				goto Exit
 			}
 			if err != nil {
-				log.Error("getting notifications: %s %s", err, noti)
+				log.Error("getting notifications: %s %s", err, ntf)
 				goto Exit
 			}
-			c.handleNotification(c.streamNotifications, noti)
+			if ntf.Type <= protocol.Action_NONE {
+				log.Debug("Server ordered to close notifications")
+				goto Exit
+			}
+			c.handleNotification(c.streamNotifications, ntf)
 		}
 	}
 Exit:
