@@ -19,7 +19,7 @@ class RestrictChars(QtGui.QValidator):
         for char in self._restricted_chars:
             if char in value:
                 self.result.emit(QtGui.QValidator.State.Invalid)
-                return QtGui.QValidator.Invalid, value, pos
+                return QtGui.QValidator.State.Invalid, value, pos
 
         self.result.emit(QtGui.QValidator.State.Acceptable)
         return QtGui.QValidator.State.Acceptable, value, pos
