@@ -110,7 +110,10 @@ class Config:
     DEFAULT_POPUP_ADVANCED_CHECKSUM = "global/default_popup_advanced_checksum"
     DEFAULT_SERVER_ADDR  = "global/server_address"
     DEFAULT_SERVER_MAX_MESSAGE_LENGTH  = "global/server_max_message_length"
+    DEFAULT_SERVER_MAX_WORKERS = "global/max_workers"
+    DEFAULT_SERVER_MAX_CLIENTS = "global/max_clients"
     DEFAULT_HIDE_SYSTRAY_WARN  = "global/hide_systray_warning"
+
     DEFAULT_DB_TYPE_KEY       = "database/type"
     DEFAULT_DB_FILE_KEY       = "database/file"
     DEFAULT_DB_PURGE_OLDEST   = "database/purge_oldest"
