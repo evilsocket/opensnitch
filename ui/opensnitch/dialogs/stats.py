@@ -978,8 +978,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         nodes_splitter_pos = self._cfg.getSettings(Config.STATS_NODES_SPLITTER_POS)
         if type(nodes_splitter_pos) == QtCore.QByteArray:
             self.nodesSplitter.restoreState(nodes_splitter_pos)
-            nodesSizes = self.nodesSplitter.sizes()
-            self.nodesSplitter.setVisible(not self.IN_DETAIL_VIEW[self.TAB_NODES] and nodesSizes[0] > 0)
         else:
             w = self.nodesSplitter.width()
             self.nodesSplitter.setSizes([w, 0])
