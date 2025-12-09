@@ -1160,8 +1160,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.lineNodeRulesPath.setText(rulesdir)
 
     def _cb_file_db_clicked(self):
-        options = QtWidgets.QFileDialog.Options()
-        fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "", "","All Files (*)", options=options)
+        fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "", "","All Files (*)")
         if fileName:
             self.dbLabel.setText(fileName)
 

@@ -249,20 +249,17 @@ class FileDialog():
 
     @staticmethod
     def save(parent):
-        options = QtWidgets.QFileDialog.Options()
-        fileName, _ = QtWidgets.QFileDialog.getSaveFileName(parent, "", "","All Files (*)", options=options)
+        fileName, _ = QtWidgets.QFileDialog.getSaveFileName(parent, "", "","All Files (*)")
         return fileName
 
     @staticmethod
     def select(parent):
-        options = QtWidgets.QFileDialog.Options()
-        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(parent, "", "","All Files (*)", options=options)
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(parent, "", "","All Files (*)")
         return fileName
 
     @staticmethod
     def select_dir(parent, current_dir):
-        options = QtWidgets.QFileDialog.Options()
-        fileName = QtWidgets.QFileDialog.getExistingDirectory(parent, "", current_dir, options)
+        fileName = QtWidgets.QFileDialog.getExistingDirectory(parent, "", current_dir)
         return fileName
 
 # https://stackoverflow.com/questions/29503339/how-to-get-all-values-from-python-enum-class
