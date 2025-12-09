@@ -101,6 +101,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdRefreshUIDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIRefresh, self.REST))
         self.cmdUIDensityUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIDensity, self.SUM))
         self.cmdUIDensityDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinUIDensity, self.REST))
+        self.cmdGrpcWorkersUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinGrpcMaxWorkers, self.REST))
+        self.cmdGrpcWorkersDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinGrpcMaxWorkers, self.SUM))
+        self.cmdGrpcClientsUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinGrpcMaxClients, self.REST))
+        self.cmdGrpcClientsDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinGrpcMaxClients, self.SUM))
         self.cmdNodeGcUp.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinNodeGC, self.SUM))
         self.cmdNodeGcDown.clicked.connect(lambda: self._cb_cmd_spin_clicked(self.spinNodeGC, self.REST))
         self.cmdNodeRulesPath.clicked.connect(self._cb_cmd_node_rulespath_clicked)
@@ -208,6 +212,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkNodeLogMicro.clicked.connect(self._cb_node_needs_update)
         self.comboNodeAddress.currentTextChanged.connect(self._cb_node_needs_update)
         self.comboServerAddr.currentTextChanged.connect(self._cb_node_needs_update)
+        self.spinGrpcMaxWorkers.valueChanged.connect(self._cb_node_needs_update)
+        self.spinGrpcMaxClients.valueChanged.connect(self._cb_node_needs_update)
         self.checkInterceptUnknown.clicked.connect(self._cb_node_needs_update)
         self.checkApplyToNodes.clicked.connect(self._cb_node_needs_update)
         self.comboNodeAction.currentIndexChanged.connect(self._cb_node_needs_update)
@@ -413,6 +419,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if server_addr == "" or server_addr == None:
             server_addr = self.comboServerAddr.itemText(0)
         self.comboServerAddr.setCurrentText(server_addr)
+
+        max_workers = self._cfg.getInt(Config.DEFAULT_SERVER_MAX_WORKERS, 20)
+        self.spinGrpcMaxWorkers.setValue(max_workers)
+        max_clients = self._cfg.getInt(Config.DEFAULT_SERVER_MAX_CLIENTS, 0)
+        self.spinGrpcMaxClients.setValue(max_clients)
 
         self.lineCACertFile.setText(self._cfg.getSettings(Config.AUTH_CA_CERT))
         self.lineCertFile.setText(self._cfg.getSettings(Config.AUTH_CERT))
@@ -819,6 +830,18 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.comboServerAddr.currentText() != server_addr:
                 self._cfg.setSettings(Config.DEFAULT_SERVER_ADDR, self.comboServerAddr.currentText())
                 self._changes_needs_restart = QC.translate("preferences", "Server address changed")
+
+            old_workers = self._cfg.getInt(Config.DEFAULT_SERVER_MAX_WORKERS, 20)
+            max_workers = self.spinGrpcMaxWorkers.value()
+            if old_workers != max_workers:
+                self._cfg.setSettings(Config.DEFAULT_SERVER_MAX_WORKERS, int(self.spinGrpcMaxWorkers.value()))
+                self._changes_needs_restart = QC.translate("preferences", "Server max workers changed")
+
+            old_clients = self._cfg.getInt(Config.DEFAULT_SERVER_MAX_CLIENTS, 0)
+            max_clients = self.spinGrpcMaxClients.value()
+            if old_clients != max_clients:
+                self._cfg.setSettings(Config.DEFAULT_SERVER_MAX_CLIENTS, int(self.spinGrpcMaxClients.value()))
+                self._changes_needs_restart = QC.translate("preferences", "Server max clients changed")
 
             if savedauthtype != authtype or self.lineCertFile.text() != cert or \
                     self.lineCertKeyFile.text() != certkey or self.lineCACertFile.text() != cacert:

@@ -221,9 +221,15 @@ Examples:
             ('grpc.max_receive_message_length', maxmsglen),
         )
         print("[server] addr:", args.socket)
+        max_clients = ('grpc.max_allowed_incoming_connections', args.max_clients)
+        cfg_max_clients = cfg.getInt(Config.DEFAULT_SERVER_MAX_CLIENTS, 0)
+        if cfg_max_clients > 0:
+            print(f"[server] limiting the number of allowed nodes to {cfg_max_clients}")
+            max_clients = (max_clients[0], cfg_max_clients)
         if args.max_clients is not None:
-            print("[server] limiting the number of allowed nodes to", args.max_clients)
-            server_options += (('grpc.max_allowed_incoming_connections', args.max_clients),)
+            print(f"[server] limiting the number of allowed nodes to {args.max_clients}")
+            max_clients = (max_clients[0], args.max_clients)
+            server_options += (max_clients,)
 
         service = UIService(app, on_exit, start_in_bg=args.background)
         check_environ()
@@ -232,10 +238,14 @@ Examples:
         # by default, the number of workers are calculated based on the number
         # of cpus: min(32, os.cpu_count() + 4)
         # https://docs.python.org/3.12/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor
-        executor = futures.ThreadPoolExecutor()
+
+        cfg_max_workers = cfg.getInt(Config.DEFAULT_SERVER_MAX_WORKERS, 20)
+        executor = None
         if args.max_workers is not None:
             print(f"[server] using {args.max_workers} workers")
             executor = futures.ThreadPoolExecutor(max_workers=args.max_workers)
+        else:
+            executor = futures.ThreadPoolExecutor(max_workers=cfg_max_workers)
         #print("workers:", executor._max_workers)
         #print("thread:", len(executor._threads))
 

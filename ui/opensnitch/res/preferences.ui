@@ -164,7 +164,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>331</height>
+            <height>334</height>
            </rect>
           </property>
           <attribute name="label">
@@ -386,7 +386,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>331</height>
+            <height>334</height>
            </rect>
           </property>
           <attribute name="label">
@@ -528,13 +528,16 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>328</height>
+            <height>330</height>
            </rect>
           </property>
           <attribute name="label">
            <string>General</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_5">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
            <item row="16" column="0">
             <widget class="QLabel" name="labelUIDensity">
              <property name="sizePolicy">
@@ -868,125 +871,14 @@ wayland</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>316</width>
-            <height>200</height>
+            <width>599</width>
+            <height>330</height>
            </rect>
           </property>
           <attribute name="label">
            <string>Server</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_13">
-           <item row="5" column="0" colspan="2">
-            <widget class="QLineEdit" name="lineCertKeyFile">
-             <property name="placeholderText">
-              <string>Absolute path to the cert key file</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QLineEdit" name="lineCACertFile">
-             <property name="placeholderText">
-              <string>Absolute path to the CA cert file</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_20">
-             <property name="toolTip">
-              <string>Maximum size of each message from nodes. Default 4MB</string>
-             </property>
-             <property name="text">
-              <string>Max gRPC channel size</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_24">
-             <property name="toolTip">
-              <string>&lt;p&gt;Simple: no authentication&lt;/p&gt;
-&lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
-&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Authentication type</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0" colspan="2">
-            <widget class="QLineEdit" name="lineCertFile">
-             <property name="placeholderText">
-              <string>Absolute path to the cert file</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="comboAuthType">
-             <item>
-              <property name="text">
-               <string>Simple</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Simple TLS</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Mutual TLS</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="comboGrpcMsgSize">
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-             <property name="currentText">
-              <string notr="true">4MiB</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>4MiB</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>8MiB</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>16MiB</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>32MiB</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="6" column="0" colspan="2">
-            <widget class="QLabel" name="label_28">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;More information&lt;/a&gt;</string>
-             </property>
-             <property name="openExternalLinks">
-              <bool>true</bool>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_32">
              <property name="sizePolicy">
@@ -1019,6 +911,328 @@ or a network socket: 127.0.0.1:50051</string>
              </item>
             </widget>
            </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_20">
+             <property name="toolTip">
+              <string>Maximum size of each message from nodes. Default 4MB</string>
+             </property>
+             <property name="text">
+              <string>Max gRPC channel size</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="comboGrpcMsgSize">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="currentText">
+              <string notr="true">4MiB</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>4MiB</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>8MiB</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>16MiB</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>32MiB</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_24">
+             <property name="toolTip">
+              <string>&lt;p&gt;Simple: no authentication&lt;/p&gt;
+&lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
+&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
+             </property>
+             <property name="text">
+              <string>Authentication type</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="comboAuthType">
+             <item>
+              <property name="text">
+               <string>Simple</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Simple TLS</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mutual TLS</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_34">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>This option configures the server workers. Each connected node consumes about 2 workers.
+If there're more nodes than workers, the GUI will not allow new messages from nodes until
+you configure this option accordingly.</string>
+             </property>
+             <property name="text">
+              <string>Max server workers</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_35">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>This option limits the number of nodes (incoming connections).
+Set it to 0 to disable the limit.</string>
+             </property>
+             <property name="text">
+              <string>Max server clients</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="label_28">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;More information&lt;/a&gt;</string>
+             </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_14">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <spacer name="horizontalSpacer_7">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Policy::Preferred</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="cmdGrpcClientsDown">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset theme="list-add">
+                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spinGrpcMaxClients">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
+               </property>
+               <property name="accelerated">
+                <bool>true</bool>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="value">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="cmdGrpcClientsUp">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset theme="list-remove">
+                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_15">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <spacer name="horizontalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Policy::Preferred</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="cmdGrpcWorkersDown">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset theme="list-add">
+                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spinGrpcMaxWorkers">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
+               </property>
+               <property name="accelerated">
+                <bool>true</bool>
+               </property>
+               <property name="maximum">
+                <number>100000</number>
+               </property>
+               <property name="value">
+                <number>20</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="cmdGrpcWorkersUp">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset theme="list-remove">
+                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCACertFile">
+             <property name="placeholderText">
+              <string>Absolute path to the CA cert file</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCertFile">
+             <property name="placeholderText">
+              <string>Absolute path to the cert file</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
+            <widget class="QLineEdit" name="lineCertKeyFile">
+             <property name="placeholderText">
+              <string>Absolute path to the cert key file</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="page_3">
@@ -1026,8 +1240,8 @@ or a network socket: 127.0.0.1:50051</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>319</width>
-            <height>109</height>
+            <width>599</width>
+            <height>330</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1122,8 +1336,8 @@ or a network socket: 127.0.0.1:50051</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>321</width>
-            <height>131</height>
+            <width>599</width>
+            <height>330</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1495,7 +1709,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>232</height>
+            <height>234</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1788,7 +2002,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>295</width>
+            <width>294</width>
             <height>204</height>
            </rect>
           </property>
@@ -1926,8 +2140,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>226</width>
-            <height>130</height>
+            <width>225</width>
+            <height>125</height>
            </rect>
           </property>
           <attribute name="label">
@@ -2027,8 +2241,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>432</width>
-            <height>186</height>
+            <width>599</width>
+            <height>234</height>
            </rect>
           </property>
           <attribute name="label">
