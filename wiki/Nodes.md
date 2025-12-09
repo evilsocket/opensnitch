@@ -11,13 +11,13 @@ The GUI or TUI acts as the server.
 
 You can view the list of connected nodes from the Nodes tab:
 
-<img width="1074" height="470" src="https://github.com/user-attachments/assets/49199d84-a554-4775-b4fc-0b9e618feb25" />
+<img src="https://github.com/user-attachments/assets/49199d84-a554-4775-b4fc-0b9e618feb25" />
 
 ----
 
 And by double clicking on a node, you can see the network activity of that node.
 
-<img width="1166" height="429" src="https://github.com/user-attachments/assets/2e83f239-d2ef-45e3-9148-babbed7e74e9" />
+<img  src="https://github.com/user-attachments/assets/2e83f239-d2ef-45e3-9148-babbed7e74e9" />
 
 
 ### Configuration
@@ -32,7 +32,7 @@ First change the (server) address of the node from the Preferences dialog, Nodes
 
 <p>Then change the address of the GUI (server):</p>
 
-<img width="646" height="591" src="https://github.com/user-attachments/assets/072f63aa-369e-40e6-bf3f-99395d931018" />
+<img src="https://github.com/user-attachments/assets/072f63aa-369e-40e6-bf3f-99395d931018" />
 
 <p></p>
 <p></p>
@@ -47,7 +47,16 @@ First change the (server) address of the node from the Preferences dialog, Nodes
 
 `$ /usr/local/bin/opensnitch-ui --socket "[::]:50051"`
 
-It'll make the GUI listen on port 50051, any IP. You can also use an IP: `$ /usr/local/bin/opensnitch-ui --socket "127.0.0.1:50051"`
+<p>It'll make the GUI listen on port 50051, any IP. You can also use an IP: `$ /usr/local/bin/opensnitch-ui --socket "127.0.0.1:50051"`</p>
+
+> ℹ️ `Max server workers` option:
+> This option affects to how many nodes the GUI can handle. Each node consumes about 2 workers, so the default configuration of 20 workers allows to handle 10-15 nodes.
+> If there're more nodes than workers, the GUI will run out of resources, and won't allow new messages or events **from any node**.
+> 
+
+> ℹ️ `Max server clients`:
+> Use this option to limit how many nodes can connect to the GUI (server).
+> The default value of 0 allows unlimited number of incoming connections (nodes).
 
 --
 
@@ -65,8 +74,8 @@ It'll make the GUI listen on port 50051, any IP. You can also use an IP: `$ /usr
 
 
 <p>Use the Rules tab to view and monitor the rules of all nodes:</p>
-<p><img width="1170" height="472" src="https://github.com/user-attachments/assets/c9320c41-dba8-4667-9e20-d37ef7f5ba7a" /></p>
+<p><img src="https://github.com/user-attachments/assets/c9320c41-dba8-4667-9e20-d37ef7f5ba7a" /></p>
 
 <p>and apply actions in batch (delete, apply, .. rules)</p>
 
-<p><img width="839" height="529" src="https://github.com/user-attachments/assets/7473531b-09d7-4784-a411-a85d8e639c60" /></p>
+<p><img src="https://github.com/user-attachments/assets/7473531b-09d7-4784-a411-a85d8e639c60" /></p>
