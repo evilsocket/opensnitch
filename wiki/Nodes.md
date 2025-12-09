@@ -49,12 +49,14 @@ First change the (server) address of the node from the Preferences dialog, Nodes
 
 <p>It'll make the GUI listen on port 50051, any IP. You can also use an IP: `$ /usr/local/bin/opensnitch-ui --socket "127.0.0.1:50051"`</p>
 
-> ℹ️ `Max server workers` option:
+> ℹ️ `Max server workers`:
+> 
 > This option affects to how many nodes the GUI can handle. Each node consumes about 2 workers, so the default configuration of 20 workers allows to handle 10-15 nodes.
 > If there're more nodes than workers, the GUI will run out of resources, and won't allow new messages or events **from any node**.
 > 
 
 > ℹ️ `Max server clients`:
+> 
 > Use this option to limit how many nodes can connect to the GUI (server).
 > The default value of 0 allows unlimited number of incoming connections (nodes).
 
