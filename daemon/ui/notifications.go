@@ -61,7 +61,7 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 }
 
 func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
-	log.Info("[notification] Reloading configuration")
+	log.Info("[notification] Reloading configuration, type: %d, id: %d", ntf.Type, ntf.Id)
 	// Parse received configuration first, to get the new proc monitor method.
 	newConf, err := config.Parse(ntf.Data)
 	if err != nil {
@@ -328,6 +328,10 @@ func (c *Client) sendNotificationReply(stream protocol.UI_NotificationsClient, n
 		reply.Data = fmt.Sprint(err)
 	}
 	if err := stream.Send(reply); err != nil {
+		if err == io.EOF {
+			log.Trace("[Notifications] sendNotificationReply, stream channel closed")
+			return nil
+		}
 		log.Error("Error replying to notification, type: %d, id: %d, err: %s", nType, reply.Id, err)
 		return err
 	}
