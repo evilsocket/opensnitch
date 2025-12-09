@@ -2241,8 +2241,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._notifications_sent[nid] = noti
 
     def _cb_node_start_clicked(self):
-        nIdx = self.comboNetstatNodes.currentIndex()
-        addr = self.comboNetstatNodes.itemData(nIdx)
+        addr = self.TABLES[self.TAB_NODES]['label'].text()
         if addr == "":
             return
         if self.nodeStartButton.isChecked():
