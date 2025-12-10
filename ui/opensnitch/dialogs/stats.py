@@ -215,9 +215,9 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     "cons_dropped as Dropped," \
                     "version as Version",
             "header_labels": [],
-            "last_order_by": "1",
+            "last_order_by": "3,2,1",
             "last_order_to": 1,
-            "tracking_column": COL_N_UPTIME
+            "tracking_column": COL_NODE
         },
         TAB_RULES: {
             "name": "rules",
