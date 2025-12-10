@@ -798,7 +798,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.TABLES[idx]['label'].setStyleSheet('font-weight:600;')
                 self.TABLES[idx]['label'].setVisible(False)
             self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
-            self.TABLES[idx]['view'].selectionModel().selectionChanged.connect(self._cb_table_selection_changed)
+            self.TABLES[idx]['view'].clicked.connect(self._cb_table_clicked)
             self.TABLES[idx]['view'].installEventFilter(self)
 
         self.TABLES[self.TAB_FIREWALL]['view'].rowsReordered.connect(self._cb_fw_table_rows_reordered)
@@ -2013,26 +2013,41 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
         )
 
-    def _cb_table_selection_changed(self, selected, deselected):
+    def _cb_table_clicked(self, idx):
         cur_idx = self.tabWidget.currentIndex()
-        if cur_idx == self.TAB_NODES:
-            if not deselected.isEmpty():
-                self.LAST_SELECTED_ITEM = ""
-                last_addr = deselected.indexes()[self.COL_NODE].data()
-                self._unmonitor_deselected_node(last_addr)
+        if cur_idx != self.TAB_NODES:
+            return
 
-            if not selected.isEmpty():
-                node_addr = selected.indexes()[self.COL_NODE].data()
-                if node_addr == self.LAST_SELECTED_ITEM:
-                    return
-                self.LAST_SELECTED_ITEM = node_addr
+        try:
+            row = idx.row()
+            model = idx.model()
+            addr = model.index(row, self.COL_NODE).data()
+            uptime = model.index(row, self.COL_N_UPTIME).data()
+            host = model.index(row, self.COL_N_HOSTNAME).data()
+            node_version = model.index(row, self.COL_N_VERSION).data()
+            kernel = model.index(row, self.COL_N_KERNEL).data()
+
+            unmonitor = self.LAST_SELECTED_ITEM == addr or (self.LAST_SELECTED_ITEM != addr and self.LAST_SELECTED_ITEM != "")
+            monitor = self.LAST_SELECTED_ITEM == "" or self.LAST_SELECTED_ITEM != addr
+            if unmonitor:
+                self._unmonitor_deselected_node(self.LAST_SELECTED_ITEM)
+
+            if monitor:
                 self._monitor_selected_node(
-                    node_addr,
-                    selected.indexes()[self.COL_N_UPTIME].data(),
-                    selected.indexes()[self.COL_N_HOSTNAME].data(),
-                    selected.indexes()[self.COL_N_VERSION].data(),
-                    selected.indexes()[self.COL_N_KERNEL].data()
+                    addr,
+                    uptime,
+                    host,
+                    node_version,
+                    kernel
                 )
+
+            if monitor:
+                self.LAST_SELECTED_ITEM = addr
+            else:
+                self.LAST_SELECTED_ITEM = ""
+
+        except Exception as e:
+            print("[stats] exception monitoring node:", e)
 
     def _cb_table_double_clicked(self, row):
         cur_idx = self.tabWidget.currentIndex()
@@ -2748,9 +2763,6 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.setQuery(model, qstr)
 
     def _set_nodes_query(self, data):
-        if data != self.LAST_SELECTED_ITEM:
-            self._monitor_selected_node(data, "", "", "", "")
-
         model = self._get_active_table().model()
         self.setQuery(model, "SELECT " \
                 "MAX(c.time) as {0}, " \
