@@ -53,7 +53,7 @@ class Nodes(QObject):
 
             self._nodes[peer]['online'] = True
             self.add_data(peer, client_config)
-            self.update(peer)
+            self.insert(peer)
 
             self.nodesUpdated.emit(self.count())
 
@@ -372,6 +372,22 @@ class Nodes(QObject):
             self.send_notification(addr, exit_ntf)
             return
         self.send_notifications(exit_ntf)
+
+    def insert(self, peer, status=ONLINE):
+        try:
+            proto, addr = self.get_addr(peer)
+            naddr = "{0}:{1}".format(proto, addr)
+            print(self._nodes[naddr]['data'])
+            self._db.insert(
+                "nodes",
+                "(addr, status, hostname, daemon_version, daemon_uptime, " \
+                "daemon_rules, cons, cons_dropped, version, last_connection)",
+                (naddr, status, self._nodes[naddr]['data'].name, "", self._nodes[naddr]['last_seen'],
+                 0, 0, 0,
+                 self._nodes[naddr]['data'].version, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            )
+        except Exception as e:
+            print(self.LOG_TAG + " exception adding the DB: ", e, peer)
 
     def update(self, peer, status=ONLINE):
         try:
