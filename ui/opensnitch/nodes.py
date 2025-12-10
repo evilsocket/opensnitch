@@ -377,7 +377,6 @@ class Nodes(QObject):
         try:
             proto, addr = self.get_addr(peer)
             naddr = "{0}:{1}".format(proto, addr)
-            print(self._nodes[naddr]['data'])
             self._db.insert(
                 "nodes",
                 "(addr, status, hostname, daemon_version, daemon_uptime, " \
