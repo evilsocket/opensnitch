@@ -1,6 +1,6 @@
 # Application firewall OpenSnitch
 type = process
-command = /usr/bin/opensnitchd -rules-path /etc/opensnitchd/rules
+command = /usr/bin/opensnitchd
 restart = true
 smooth-recovery = yes
 restart-delay = 15

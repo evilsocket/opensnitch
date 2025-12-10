@@ -1,14 +1,12 @@
 [Unit]
 Description=Application firewall OpenSnitch
-Documentation=https://github.com/gustavo-iniguez-goya/opensnitch/wiki
+Documentation=https://github.com/evilsocket/opensnitch/wiki
 Wants=network.target
 After=network.target
 
 [Service]
 Type=simple
-PermissionsStartOnly=true
-ExecStartPre=/bin/mkdir -p /etc/opensnitchd/rules
-ExecStart=/usr/bin/opensnitchd -rules-path /etc/opensnitchd/rules
+ExecStart=/usr/bin/opensnitchd
 Restart=always
 RestartSec=30
 TimeoutStopSec=10

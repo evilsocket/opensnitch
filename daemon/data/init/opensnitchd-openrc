@@ -22,9 +22,9 @@ start() {
     # only if the verbose flag is not set (rc-service opensnitchd start -v)
     if [ -z "$VERBOSE" ]; then
         # redirect stdout and stderr to /dev/null
-        /usr/local/bin/opensnitchd -rules-path /etc/opensnitchd/rules -log-file /var/log/opensnitchd.log > /dev/null 2>&1 &
+        /usr/local/bin/opensnitchd > /dev/null 2>&1 &
     else
-        /usr/local/bin/opensnitchd -rules-path /etc/opensnitchd/rules -log-file /var/log/opensnitchd.log
+        /usr/local/bin/opensnitchd
     fi
     eend $?
 }
