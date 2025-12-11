@@ -368,6 +368,15 @@
        <string>Nodes</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item row="0" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_12">
          <item>
@@ -505,6 +514,21 @@
            <enum>QFrame::Shadow::Raised</enum>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item row="0" column="0">
             <widget class="GenericTableView" name="nodesTable">
              <property name="frameShape">
@@ -554,8 +578,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>317</width>
-             <height>410</height>
+             <width>324</width>
+             <height>419</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_5">
@@ -693,6 +717,15 @@
        <string>Rules</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
        <item row="2" column="0">
         <widget class="QSplitter" name="rulesSplitter">
          <property name="sizePolicy">
@@ -859,6 +892,9 @@
            </item>
            <item>
             <widget class="GenericTableView" name="alertsTable">
+             <property name="autoScroll">
+              <bool>false</bool>
+             </property>
              <property name="editTriggers">
               <set>QAbstractItemView::EditTrigger::AnyKeyPressed|QAbstractItemView::EditTrigger::EditKeyPressed</set>
              </property>
@@ -875,6 +911,9 @@
            </item>
            <item>
             <widget class="GenericTableView" name="rulesTable">
+             <property name="autoScroll">
+              <bool>false</bool>
+             </property>
              <property name="selectionBehavior">
               <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
              </property>
