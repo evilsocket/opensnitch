@@ -326,11 +326,16 @@ func (c *Client) ping(ts time.Time) (err error) {
 	c.Lock()
 	defer c.Unlock()
 
-	reqID := uint64(ts.UnixNano())
+	serializedStats := c.stats.Serialize()
+	if serializedStats == nil {
+		log.Trace("client, no stats")
+		return nil
+	}
 
+	reqID := uint64(ts.UnixNano())
 	pReq := &protocol.PingRequest{
 		Id:    reqID,
-		Stats: c.stats.Serialize(),
+		Stats: serializedStats,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)

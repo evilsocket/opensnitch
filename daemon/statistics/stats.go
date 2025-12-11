@@ -57,6 +57,9 @@ type Statistics struct {
 	maxWorkers int
 	Dropped    int
 
+	// flag to indicate if there're new events available
+	newEvents bool
+
 	sync.RWMutex
 }
 
@@ -226,6 +229,8 @@ func (s *Statistics) onConnection(con *conman.Connection, match *rule.Rule, wasM
 		return
 	}
 	s.Events = append(s.Events, NewEvent(con, match))
+
+	s.newEvents = true
 }
 
 func (s *Statistics) serializeEvents() []*protocol.Event {
@@ -246,6 +251,7 @@ func (s *Statistics) emptyStats() {
 	if len(s.Events) > 0 {
 		s.Events = make([]*Event, 0)
 	}
+	s.newEvents = false
 	s.Unlock()
 }
 
@@ -256,6 +262,10 @@ func (s *Statistics) Serialize() *protocol.Statistics {
 	s.Lock()
 	defer s.emptyStats()
 	defer s.Unlock()
+
+	if !s.newEvents {
+		return nil
+	}
 
 	return &protocol.Statistics{
 		DaemonVersion: core.Version,
