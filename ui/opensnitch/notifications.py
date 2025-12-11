@@ -75,8 +75,9 @@ class DesktopNotifications():
                 self.DOES_SUPPORT_ACTIONS = False
 
         except Exception as e:
-            print("DesktopNotifications not available (install python3-notify2):", e)
             self.IS_LIBNOTIFY_AVAILABLE = False
+            print("[WARNING] DesktopNotifications not available. Try installing the package python3-notify2")
+            print(e)
 
     def is_available(self):
         return self.IS_LIBNOTIFY_AVAILABLE

@@ -248,10 +248,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         try:
             self._autostart.enable(self._menu_autostart.isChecked())
         except Exception as e:
-            self._desktop_notifications.show(
-                QC.translate("stats", "Warning"),
-                QC.translate("stats", str(e))
-            )
+            has_ntfs, ntfs_type = self._has_desktop_notifications()
+            if has_ntfs:
+                self.show_systray_msg(
+                    QC.translate("stats", "Warning"),
+                    QC.translate("stats", "Error switching autostart: {0}".format(str(e))),
+                    mtype=ntfs_type
+                )
 
     def _on_show_menu(self):
         self._menu_autostart.setChecked(self._autostart.isEnabled())
@@ -269,24 +272,49 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         QtCore.QTimer.singleShot(10000, __show_gui)
 
-    def _show_systray_msg_error(self):
-        print("")
-        print("WARNING: system tray not available. On GNOME you need the extension gnome-shell-extension-appindicator.")
-        print("\tRead more:", Config.HELP_SYSTRAY_WARN)
-        print("\tIf you want to start OpenSnitch GUI in background even if tray not available, use --background argument.")
-        print("")
+    def show_systray_msg(self, title, body, icon=None, callback=None, user_args=None, mtype=Config.NOTIFICATION_TYPE_QT, timeout=10):
+        try:
+            if mtype == Config.NOTIFICATION_TYPE_QT:
+                if not isinstance(icon, QtWidgets.QSystemTrayIcon.MessageIcon):
+                    icon = QtWidgets.QSystemTrayIcon.MessageIcon.Information
+                self._tray.showMessage(title, body, icon, timeout * 1000)
+            else:
+                if icon is None:
+                    icon = "dialog-information"
+                self._desktop_notifications.show(
+                    title,
+                    body,
+                    icon,
+                    callback=callback
+                )
+        except Exception as e:
+            print("[service] error showing notification:", e)
+            print(title, body)
 
-        hide_msg = self._cfg.getBool(Config.DEFAULT_HIDE_SYSTRAY_WARN)
-        if hide_msg:
-            return
-        self._desktop_notifications.show(
-            QC.translate("stats", "WARNING"),
-            QC.translate("stats", """System tray not available. Read more:
+    def _show_systray_msg_error(self):
+        try:
+            print("")
+            print("WARNING: system tray not available. On GNOME you need the extension gnome-shell-extension-appindicator.")
+            print("\tRead more:", Config.HELP_SYSTRAY_WARN)
+            print("\tIf you want to start OpenSnitch GUI in background even if tray not available, use --background argument.")
+            print("")
+
+            hide_msg = self._cfg.getBool(Config.DEFAULT_HIDE_SYSTRAY_WARN)
+            if hide_msg:
+                return
+            has_ntfs, ntf_type = self._has_desktop_notifications()
+            if has_ntfs:
+                self.show_systray_msg(
+                    QC.translate("stats", "WARNING"),
+                    QC.translate("stats", """System tray not available. Read more:
 {0}
 """.format(Config.HELP_SYSTRAY_WARN)),
-            os.path.join(self._path, "res/icon-white.svg")
-        )
-        self._cfg.setSettings(Config.DEFAULT_HIDE_SYSTRAY_WARN, True)
+                    icon=os.path.join(self._path, "res/icon-white.svg"),
+                    mtype=ntf_type
+                )
+                self._cfg.setSettings(Config.DEFAULT_HIDE_SYSTRAY_WARN, True)
+        except Exception as e:
+            print("[service] exception showing systray msg error:", e)
 
     def _on_tray_icon_activated(self, reason):
         if reason == QtWidgets.QSystemTrayIcon.ActivationReason.Trigger or reason == QtWidgets.QSystemTrayIcon.ActivationReason.MiddleClick:
@@ -421,12 +449,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
     def _on_notification_reply(self, addr, reply):
         if reply.code == ui_pb2.ERROR:
-            self._tray.showMessage(
-                "Error",
-                reply.data,
-                QtWidgets.QSystemTrayIcon.MessageIcon.Information,
-                5000
-            )
+            has_ntfs, ntf_type = self._has_desktop_notifications()
+            if has_ntfs:
+                self.show_systray_msg(
+                    "Error",
+                    reply.data,
+                    icon=os.path.join(self._path, "res/icon-white.svg"),
+                    mtype=ntf_type,
+                    timeout=5000
+                )
+            else:
+                print("[service] notification reply error:", addr, reply.data)
 
     def _on_remote_stats_menu(self, address):
         self._remote_stats[address]['dialog'].show()
@@ -439,21 +472,22 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 #self._stats_dialog.raise()
                 self._stats_dialog.activateWindow()
 
-        if self._desktop_notifications.are_enabled():
+        has_ntfs, ntf_type = self._has_desktop_notifications()
+        if has_ntfs:
             timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
-
-            if self._desktop_notifications.is_available() and self._cfg.getInt(Config.NOTIFICATIONS_TYPE, 1) == Config.NOTIFICATION_TYPE_SYSTEM:
-                try:
-                    self._desktop_notifications.show(
-                        title,
-                        body,
-                        os.path.join(self._path, "res/icon-white.svg"),
-                        callback=callback_open_clicked
-                    )
-                except:
-                    self._tray.showMessage(title, body, icon, timeout * 1000)
-            else:
+            try:
+                self.show_systray_msg(
+                    title,
+                    body,
+                    icon=os.path.join(self._path, "res/icon-white.svg"),
+                    callback=callback_open_clicked,
+                    mtype=ntf_type,
+                    timeout=timeout
+                )
+            except:
                 self._tray.showMessage(title, body, icon, timeout * 1000)
+        else:
+            self._tray.showMessage(title, body, icon, timeout * 1000)
 
         if icon == QtWidgets.QSystemTrayIcon.MessageIcon.NoIcon:
             self._tray.setIcon(self.alert_icon)
@@ -473,6 +507,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         theme_idx, theme_name, theme_density = self._themes.get_saved_theme()
         if theme_idx > 0:
             self._themes.load_theme(self._app)
+
+    def _has_desktop_notifications(self):
+        desk_ntfs_available = self._desktop_notifications.is_available() and self._desktop_notifications.are_enabled()
+        if desk_ntfs_available:
+            ntf_type = Config.NOTIFICATION_TYPE_SYSTEM
+        ntf_type = self._cfg.getInt(Config.NOTIFICATIONS_TYPE, ntf_type)
+        return self._tray.isSystemTrayAvailable() or desk_ntfs_available, ntf_type
 
     def _init_translation(self):
         if self.translator:
@@ -547,12 +588,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         if self._connected == False:
             return
         if self._nodes.count() == 0:
-            self._tray.showMessage(
-                QC.translated("stats", "No nodes connected"),
-                "",
-                QtWidgets.QSystemTrayIcon.MessageIcon.Information,
-                5000
-            )
+            has_ntfs, ntfs_type = self._has_desktop_notifications()
+            if has_ntfs:
+                self.show_systray_msg(
+                    QC.translated("stats", "No nodes connected"),
+                    "",
+                    icon=QtWidgets.QSystemTrayIcon.MessageIcon.Information,
+                    mtype=ntfs_type,
+                    timeout=5000
+                )
+            else:
+                print("[service] enable_interception: no nodes connected")
             return
         if self._nodes.count() > 1:
             print("enable interception for all nodes not supported yet")
