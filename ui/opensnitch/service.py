@@ -510,6 +510,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _has_desktop_notifications(self):
         desk_ntfs_available = self._desktop_notifications.is_available() and self._desktop_notifications.are_enabled()
+        ntf_type = Config.NOTIFICATION_TYPE_QT
         if desk_ntfs_available:
             ntf_type = Config.NOTIFICATION_TYPE_SYSTEM
         ntf_type = self._cfg.getInt(Config.NOTIFICATIONS_TYPE, ntf_type)
