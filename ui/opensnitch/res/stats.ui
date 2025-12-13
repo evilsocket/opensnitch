@@ -578,7 +578,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>324</width>
+             <width>341</width>
              <height>419</height>
             </rect>
            </property>
@@ -743,6 +743,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="autoScroll">
+           <bool>false</bool>
           </property>
           <property name="animated">
            <bool>true</bool>
@@ -1137,6 +1140,9 @@
            <property name="frameShape">
             <enum>QFrame::Shape::NoFrame</enum>
            </property>
+           <property name="autoScroll">
+            <bool>false</bool>
+           </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
@@ -1253,6 +1259,9 @@
            <property name="frameShadow">
             <enum>QFrame::Shadow::Plain</enum>
            </property>
+           <property name="autoScroll">
+            <bool>false</bool>
+           </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
@@ -1343,6 +1352,9 @@
          </property>
          <item>
           <widget class="GenericTableView" name="addrTable">
+           <property name="autoScroll">
+            <bool>false</bool>
+           </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
@@ -1436,6 +1448,9 @@
          </property>
          <item>
           <widget class="GenericTableView" name="portsTable">
+           <property name="autoScroll">
+            <bool>false</bool>
+           </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
@@ -1523,6 +1538,9 @@
          </property>
          <item>
           <widget class="GenericTableView" name="usersTable">
+           <property name="autoScroll">
+            <bool>false</bool>
+           </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
