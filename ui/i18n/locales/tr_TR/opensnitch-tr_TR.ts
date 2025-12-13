@@ -357,32 +357,32 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="20"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>diyalog</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="129"/>
         <source>12h</source>
-        <translation type="unfinished"></translation>
+        <translation>12sa</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="371"/>
         <source>Update rule</source>
-        <translation type="unfinished"></translation>
+        <translation>kuralı güncelle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="382"/>
         <source>Update All</source>
-        <translation type="unfinished"></translation>
+        <translation>Hepsini güncelle</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="829"/>
         <source>Checksum</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">sağlama toplamı</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="923"/>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef bağlantı noktası</translation>
     </message>
 </context>
 <context>
@@ -480,7 +480,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="322"/>
         <source>by destination ip</source>
-        <translation>hedef IP'ye göre</translation>
+        <translation>hedef IP&apos;ye göre</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="327"/>
@@ -989,7 +989,7 @@ Geçici kurallar geçerli olmaya devam edecektir ve yeni bir bağlantıya izin v
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="181"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. the daemon&apos;s default action will be applied (see Nodes tab).&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Açılır pencere varsayılan eylemi.&lt;/p&gt;&lt;p&gt;Yeni bir giden bağlantı kurulmak üzereyken, bu eylem varsayılan olarak seçilecektir; bu nedenle zaman aşımı süresi dolarsa uygulanacak seçenek budur.&lt;/p&gt;&lt;p&gt;Bir açılır pencere kullanıcıdan bir bağlantıya izin vermesini veya reddetmesini isterken:&lt;/p&gt;&lt;p&gt;1. daemon&apos;un varsayılan eylemi uygulanacaktır (Düğümler sekmesine bakın).&lt;/p&gt;&lt;p&gt;2. bilinen bağlantılara, kullanıcı tarafından tanımlanan kurallara göre izin verilir veya reddedilir.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="275"/>
@@ -1502,7 +1502,7 @@ Use 0 to disable this feature.</source>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="360"/>
         <source>To this IP / Network</source>
-        <translation>Bu IP'ye / Ağa</translation>
+        <translation>Bu IP&apos;ye / Ağa</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1079"/>
@@ -1845,7 +1845,7 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="105"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The value of this field is always the absolute path to the executable: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;- Simple: /path/to/binary&lt;/p&gt;&lt;p&gt;- Multiple paths: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Multiple binaries: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Deny/Allow executions from /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For more examples visit the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki page&lt;/a&gt; or ask on the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Discussion forums&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bu alanın değeri her zaman program dosyasının mutlak yoludur: /programın/yolu&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Örnekler:&lt;/p&gt;&lt;p&gt;- Basit: /programın/yolu&lt;/p&gt;&lt;p&gt;- Birden çok yol: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Birden fazla program: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- /tmp'den çalıştırmaları reddet/izin ver:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Daha fazla örnek için &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki sayfasını&lt;/a&gt; ziyaret edin veya &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Tartışma forumlarında&lt;/a&gt; sorun.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bu alanın değeri her zaman program dosyasının mutlak yoludur: /programın/yolu&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Örnekler:&lt;/p&gt;&lt;p&gt;- Basit: /programın/yolu&lt;/p&gt;&lt;p&gt;- Birden çok yol: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Birden fazla program: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- /tmp&apos;den çalıştırmaları reddet/izin ver:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Daha fazla örnek için &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki sayfasını&lt;/a&gt; ziyaret edin veya &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Tartışma forumlarında&lt;/a&gt; sorun.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="115"/>
@@ -1875,7 +1875,7 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="682"/>
         <source>List of domains/IPs</source>
-        <translation>Etki alanlarının/IP'lerin listesi</translation>
+        <translation>Etki alanlarının/IP&apos;lerin listesi</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="688"/>
@@ -1890,7 +1890,7 @@ Alfabetik sıraya göre denetlendikleri için kuralı önce denetlenecek şekild
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="721"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of IPs to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;/p&gt;&lt;p&gt;One IP per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Engellenecek veya izin verilecek IP'lerin listesini içeren dosyaların bulunduğu bir dizin seçin:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;vb.&lt;/p&gt;&lt;p&gt;Satır başına bir IP. Boş veya # ile başlayan satırlar dikkate alınmaz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Engellenecek veya izin verilecek IP&apos;lerin listesini içeren dosyaların bulunduğu bir dizin seçin:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;vb.&lt;/p&gt;&lt;p&gt;Satır başına bir IP. Boş veya # ile başlayan satırlar dikkate alınmaz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="756"/>
@@ -2472,7 +2472,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="314"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
-        <translation>Grafiksel arayüzden güvenlik duvarı kurallarını yapılandırmak için 'iptables' yerine 'nftables' kullanmamız gerekir</translation>
+        <translation>Grafiksel arayüzden güvenlik duvarı kurallarını yapılandırmak için &apos;iptables&apos; yerine &apos;nftables&apos; kullanmamız gerekir</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall.py" line="329"/>
@@ -2569,7 +2569,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="450"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
-        <translation>Birden fazla bağlantı noktası/IP veya aralık/değer belirtmek için ',' veya '-' kullanabilirsiniz:&lt;br&gt;&lt;br&gt;bağlantı noktaları: 22 veya 22,443 veya 50000-60000&lt;br&gt;IP adresleri: 192.168.1.1 veya 192.168.1.30-192.168 .1.130&lt;br&gt;Değerler: echo-reply,echo-request&lt;br&gt;Değerler: new,established,related</translation>
+        <translation>Birden fazla bağlantı noktası/IP veya aralık/değer belirtmek için &apos;,&apos; veya &apos;-&apos; kullanabilirsiniz:&lt;br&gt;&lt;br&gt;bağlantı noktaları: 22 veya 22,443 veya 50000-60000&lt;br&gt;IP adresleri: 192.168.1.1 veya 192.168.1.30-192.168 .1.130&lt;br&gt;Değerler: echo-reply,echo-request&lt;br&gt;Değerler: new,established,related</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="470"/>
@@ -2875,7 +2875,7 @@ Bağlantılara sınırlar uygula.
 
 Örneğin:
  - &quot;limit over 10/mbytes/minute&quot; -&gt; tanımlanan eylemi uygula (BIRAK, KABUL ET, vb.)
-    (Dakikada 10 MB'tan fazla olduğunda bir eylem uygula)
+    (Dakikada 10 MB&apos;tan fazla olduğunda bir eylem uygula)
 
  - &quot;limit until 10/mbytes/hour&quot; -&gt; tanımlanan eylemi uygula (KABUL ET)
 
@@ -4292,7 +4292,7 @@ The value must be in the format: VALUE/UNITS, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="2970"/>
         <source>refreshing...</source>
-        <translation type="unfinished"></translation>
+        <translation>yenileniyor...</translation>
     </message>
 </context>
 <context>

@@ -301,67 +301,67 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="20"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Dialoog</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="129"/>
         <source>12h</source>
-        <translation type="unfinished"></translation>
+        <translation>12u</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="371"/>
         <source>Update rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Update regel</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="382"/>
         <source>Update All</source>
-        <translation type="unfinished"></translation>
+        <translation>Allies bijwerken</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="829"/>
         <source>Checksum</source>
-        <translation type="unfinished"></translation>
+        <translation>Checksum</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="923"/>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestemmingspoort</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="250"/>
         <source>FORWARD</source>
-        <translation type="unfinished"></translation>
+        <translation>DOORSTUREN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="255"/>
         <source>PREROUTING</source>
-        <translation type="unfinished"></translation>
+        <translation>PREROUTEREN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="260"/>
         <source>POSTROUTING</source>
-        <translation type="unfinished"></translation>
+        <translation>NAROUTEREN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="315"/>
         <source>QUEUE</source>
-        <translation type="unfinished"></translation>
+        <translation>WACHTRIJ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="324"/>
         <source>DNAT</source>
-        <translation type="unfinished"></translation>
+        <translation>DNAT</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="329"/>
         <source>SNAT</source>
-        <translation type="unfinished"></translation>
+        <translation>SNAT</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="334"/>
         <source>REDIRECT</source>
-        <translation type="unfinished"></translation>
+        <translation>OMLEIDEN</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="351"/>
@@ -382,7 +382,7 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="14"/>
         <source>Preferences</source>
-        <translation>Instellingen</translation>
+        <translation>Voorkeuren</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="521"/>
@@ -397,12 +397,12 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="133"/>
         <source>Default timeout</source>
-        <translation>Stadaard time-out</translation>
+        <translation>Standaard time-out</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="228"/>
         <source>Pop-up default duration</source>
-        <translation>De standaard meldingsduur</translation>
+        <translation>Standaardduur pop-up</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1554"/>
@@ -492,12 +492,12 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="285"/>
         <source>forever</source>
-        <translation>Oneindig</translation>
+        <translation>voor altijd</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1565"/>
         <source>deny</source>
-        <translation>Weigeren</translation>
+        <translation>Weiger</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1574"/>
@@ -518,7 +518,7 @@ sólo mostrar alerta</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1627"/>
         <source>Process monitor method</source>
-        <translation>Procesmonitormethode</translation>
+        <translation>Procesbewakingsmethode</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1551"/>
@@ -558,7 +558,7 @@ sólo mostrar alerta</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1681"/>
         <source>Log file</source>
-        <translation>Logboek</translation>
+        <translation>Logbestand</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="578"/>
@@ -588,7 +588,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1531"/>
         <source>until restart</source>
-        <translation>Tot herstart</translation>
+        <translation>tot herstart</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1536"/>
@@ -693,7 +693,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="503"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Als een eenvoudige melding wordt getoond, dan kunt u verbindingen of programma's filteren op basis van een bepaalde eigenschap (uitvoerbaar bestand, poort, ip-adres, etc.).&lt;/p&gt;&lt;p&gt;Met deze opties heeft u keuze uit meerdere mogelijkheden om verbindingen te filteren.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Als een eenvoudige melding wordt getoond, dan kunt u verbindingen of programma&apos;s filteren op basis van een bepaalde eigenschap (uitvoerbaar bestand, poort, ip-adres, etc.).&lt;/p&gt;&lt;p&gt;Met deze opties heeft u keuze uit meerdere mogelijkheden om verbindingen te filteren.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="506"/>
@@ -1422,7 +1422,7 @@ Use 0 to disable this feature.</source>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="285"/>
         <source>Application pids</source>
-        <translation>Programma-pid's</translation>
+        <translation>Programma-pid&apos;s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="318"/>
@@ -1528,7 +1528,7 @@ Use regular expressions instead:
 or a single domain:
 www.gnu.org - it&apos;ll only match www.gnu.org, nor ftp.gnu.org, nor www2.gnu.org, ...
 gnu.org         - it&apos;ll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ...</source>
-        <translation>Komma's of spaties om meerdere domeinnamen op te geven zijn niet toegestaan. 
+        <translation>Komma&apos;s of spaties om meerdere domeinnamen op te geven zijn niet toegestaan. 
 
 Gebruik in plaats daarvan reguliere uitdrukking: 
 .*(opensnitch|duckduckgo).com
@@ -1580,7 +1580,7 @@ meerdere ip-adressen:
 Een subnet is ook mogelijk:
 - 192.168.1.0/24
 
-Let op: komma's en spaties om adressen en netwerken te scheiden zijn niet toegestaan.</translation>
+Let op: komma&apos;s en spaties om adressen en netwerken te scheiden zijn niet toegestaan.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1071"/>
@@ -1688,7 +1688,7 @@ Let op: regels worden in alfabetische volgorde uitgevoerd. Voorbeeld:
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="96"/>
         <source>Applications</source>
-        <translation>Programma's</translation>
+        <translation>Programma&apos;s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="216"/>
@@ -1713,7 +1713,7 @@ Let op: regels worden in alfabetische volgorde uitgevoerd. Voorbeeld:
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="682"/>
         <source>List of domains/IPs</source>
-        <translation>Lijst met domeinen/ip's</translation>
+        <translation>Lijst met domeinen/ip&apos;s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="688"/>
@@ -2019,7 +2019,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1153"/>
         <source>Applications</source>
-        <translation>Programma's</translation>
+        <translation>Programma&apos;s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1272"/>
@@ -2109,7 +2109,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="917"/>
         <source>All applications</source>
-        <translation>Alle programma's</translation>
+        <translation>Alle programma&apos;s</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1911"/>
@@ -3029,7 +3029,7 @@ The value must be in the format: VALUE/UNITS/TIME, for example:
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="287"/>
         <source>Themes not available. Install qt-material: pip3 install qt-material</source>
-        <translation>Er zijn geen thema's beschikbaar. Installeer qt-material: pip3 install qt-material</translation>
+        <translation>Er zijn geen thema&apos;s beschikbaar. Installeer qt-material: pip3 install qt-material</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="854"/>
