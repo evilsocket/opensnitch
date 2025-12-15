@@ -2619,6 +2619,11 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.TABLES[cur_idx]['cmdCleanStats'].setVisible(state)
 
         if cur_idx == StatsDialog.TAB_NODES:
+            # when in detail view
+            trackingCol = self.COL_TIME
+            if not state:
+                trackingCol = self.COL_NODE
+            self.TABLES[cur_idx]['view'].setTrackingColumn(trackingCol)
             self._update_nodes_interception_status(state)
             self.nodeDeleteButton.setVisible(state)
             self.nodeActionsButton.setVisible(state)
@@ -2626,10 +2631,10 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif cur_idx == StatsDialog.TAB_RULES and self.rulesTable.isVisible():
             # Use COL_TIME as index when in detail view. Otherwise COL_R_NAME
             # (col number 2) will be used, leading to incorrect selections.
-            if state:
-                self.TABLES[cur_idx]['view'].setTrackingColumn(self.COL_TIME)
-            else:
-                self.TABLES[cur_idx]['view'].setTrackingColumn(self.COL_R_NAME)
+            trackingCol = self.COL_TIME
+            if not state:
+                trackingCol = self.COL_R_NAME
+            self.TABLES[cur_idx]['view'].setTrackingColumn(trackingCol)
 
         header = self.TABLES[cur_idx]['view'].horizontalHeader()
         if state == True:
