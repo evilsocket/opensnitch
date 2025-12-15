@@ -66,6 +66,9 @@ class Versionchecker(PluginBase):
         self._notify_title = "[OpenSnitch] Version checker"
         self._resultsQueue = Queue()
         self._app_icon = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../../res/icon-white.svg")
+        # XXX: we assume that github releases are called vX.Y.Z,
+        # which in the future may be not the case.
+        self._version = "v"+version
 
     def configure(self, parent=None):
         if type(parent) == StatsDialog:
@@ -144,7 +147,7 @@ class Versionchecker(PluginBase):
 
             #if Utils.check_versions(request.stats.daemon_version):
             result_msg = QC.translate("stats", "Version {0} is available".format(version))
-            if last_version != version:
+            if last_version != self._version:
                 if self._desktop_notifications.is_available() and self._desktop_notifications.are_enabled():
                     self._desktop_notifications.show(
                         self._notify_title,
