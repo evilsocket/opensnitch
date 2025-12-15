@@ -15,12 +15,11 @@ from opensnitch.utils.xdg import xdg_config_home
 from opensnitch.utils import GenericTimer
 
 ch = logging.StreamHandler()
-ch.setLevel(logging.ERROR)
-#logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - [%(levelname)s] %(message)s')
 ch.setFormatter(formatter)
 logger = logging.getLogger(__name__)
 logger.addHandler(ch)
+logger.setLevel(logging.ERROR)
 
 class Versionchecker(PluginBase):
     """A plugin that checks periodically OpenSnitch available release.
