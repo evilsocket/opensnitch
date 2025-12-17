@@ -48,19 +48,21 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QPushButton" name="cmdTimeoutUp">
+          <widget class="QPushButton" name="cmdTimeoutDown">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text">
-            <string/>
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+             <fontweight>ExtraBold</fontweight>
+            </font>
            </property>
-           <property name="icon">
-            <iconset theme="list-add">
-             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+           <property name="text">
+            <string>-</string>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -93,19 +95,21 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="cmdTimeoutDown">
+          <widget class="QPushButton" name="cmdTimeoutUp">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text">
-            <string/>
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+             <fontweight>ExtraBold</fontweight>
+            </font>
            </property>
-           <property name="icon">
-            <iconset theme="list-remove">
-             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+           <property name="text">
+            <string>+</string>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -164,7 +168,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>334</height>
+            <height>327</height>
            </rect>
           </property>
           <attribute name="label">
@@ -386,7 +390,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>334</height>
+            <height>327</height>
            </rect>
           </property>
           <attribute name="label">
@@ -592,19 +596,21 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QPushButton" name="cmdUIDensityUp">
+              <widget class="QPushButton" name="cmdUIDensityDown">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="text">
-                <string/>
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <fontweight>ExtraBold</fontweight>
+                </font>
                </property>
-               <property name="icon">
-                <iconset theme="list-add">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               <property name="text">
+                <string>-</string>
                </property>
                <property name="flat">
                 <bool>true</bool>
@@ -640,19 +646,21 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="cmdUIDensityDown">
+              <widget class="QPushButton" name="cmdUIDensityUp">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="text">
-                <string/>
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <fontweight>ExtraBold</fontweight>
+                </font>
                </property>
-               <property name="icon">
-                <iconset theme="list-remove">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               <property name="text">
+                <string>+</string>
                </property>
                <property name="flat">
                 <bool>true</bool>
@@ -680,19 +688,21 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QPushButton" name="cmdRefreshUIUp">
+              <widget class="QPushButton" name="cmdRefreshUIDown">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="text">
-                <string/>
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <fontweight>Black</fontweight>
+                </font>
                </property>
-               <property name="icon">
-                <iconset theme="list-add">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               <property name="text">
+                <string>-</string>
                </property>
                <property name="flat">
                 <bool>true</bool>
@@ -725,19 +735,21 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="cmdRefreshUIDown">
+              <widget class="QPushButton" name="cmdRefreshUIUp">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="text">
-                <string/>
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <fontweight>ExtraBold</fontweight>
+                </font>
                </property>
-               <property name="icon">
-                <iconset theme="list-remove">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               <property name="text">
+                <string>+</string>
                </property>
                <property name="flat">
                 <bool>true</bool>
@@ -1065,12 +1077,14 @@ Set it to 0 to disable the limit.</string>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="text">
-                <string/>
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <fontweight>ExtraBold</fontweight>
+                </font>
                </property>
-               <property name="icon">
-                <iconset theme="list-add">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               <property name="text">
+                <string>-</string>
                </property>
                <property name="flat">
                 <bool>true</bool>
@@ -1105,17 +1119,19 @@ Set it to 0 to disable the limit.</string>
              <item>
               <widget class="QPushButton" name="cmdGrpcClientsUp">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="text">
-                <string/>
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <fontweight>ExtraBold</fontweight>
+                </font>
                </property>
-               <property name="icon">
-                <iconset theme="list-remove">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               <property name="text">
+                <string>+</string>
                </property>
                <property name="flat">
                 <bool>true</bool>
@@ -1153,12 +1169,14 @@ Set it to 0 to disable the limit.</string>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="text">
-                <string/>
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <fontweight>ExtraBold</fontweight>
+                </font>
                </property>
-               <property name="icon">
-                <iconset theme="list-add">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               <property name="text">
+                <string>-</string>
                </property>
                <property name="flat">
                 <bool>true</bool>
@@ -1193,17 +1211,19 @@ Set it to 0 to disable the limit.</string>
              <item>
               <widget class="QPushButton" name="cmdGrpcWorkersUp">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="text">
-                <string/>
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <fontweight>ExtraBold</fontweight>
+                </font>
                </property>
-               <property name="icon">
-                <iconset theme="list-remove">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+               <property name="text">
+                <string>+</string>
                </property>
                <property name="flat">
                 <bool>true</bool>
@@ -1866,8 +1886,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>377</width>
-            <height>116</height>
+            <width>599</width>
+            <height>234</height>
            </rect>
           </property>
           <attribute name="label">
@@ -2002,8 +2022,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>294</width>
-            <height>204</height>
+            <width>599</width>
+            <height>234</height>
            </rect>
           </property>
           <attribute name="label">
@@ -2140,8 +2160,8 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>225</width>
-            <height>125</height>
+            <width>599</width>
+            <height>234</height>
            </rect>
           </property>
           <attribute name="label">
@@ -2249,162 +2269,6 @@ Temporary rules will still be valid, and you can use them when prompted to allow
            <string>Internal</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_14">
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineNodeMaxStats">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="inputMethodHints">
-              <set>Qt::InputMethodHint::ImhDigitsOnly</set>
-             </property>
-             <property name="text">
-              <string>50</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignmentFlag::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_31">
-             <property name="text">
-              <string>Max events</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0" colspan="2">
-            <spacer name="verticalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="label_29">
-             <property name="text">
-              <string>Garbage collector percentage</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="lineNodeMaxEvents">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="inputMethodHints">
-              <set>Qt::InputMethodHint::ImhDigitsOnly</set>
-             </property>
-             <property name="text">
-              <string>250</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignmentFlag::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkNodeFlushConns">
-             <property name="toolTip">
-              <string>When this option is on, all the existing sockets will be killed, in order to force them establish the connection again so we can intercept them.
-
-Note that this option may be not acceptable on servers, for example because downloads/uploads are taking place.</string>
-             </property>
-             <property name="text">
-              <string>Flush connections on start</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_30">
-             <property name="text">
-              <string>Max stats</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_10">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QPushButton" name="cmdNodeGcDown">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset theme="list-add">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-               </property>
-               <property name="flat">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="spinNodeGC">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
-               </property>
-               <property name="buttonSymbols">
-                <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
-               </property>
-               <property name="accelerated">
-                <bool>true</bool>
-               </property>
-               <property name="maximum">
-                <number>100</number>
-               </property>
-               <property name="value">
-                <number>100</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="cmdNodeGcUp">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset theme="list-remove">
-                 <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-               </property>
-               <property name="flat">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_11">
              <property name="toolTip">
@@ -2415,6 +2279,20 @@ Use 0 to disable this feature.</string>
              </property>
              <property name="text">
               <string>Firewall rules monitoring interval (seconds)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkNodeBypassQueue">
+             <property name="text">
+              <string>Block outbound network traffic if the daemon unexpectedly dies</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_31">
+             <property name="text">
+              <string>Max events</string>
              </property>
             </widget>
            </item>
@@ -2440,10 +2318,156 @@ Use 0 to disable this feature.</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkNodeBypassQueue">
+           <item row="6" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="cmdNodeGcDown">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <fontweight>ExtraBold</fontweight>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spinNodeGC">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
+               </property>
+               <property name="accelerated">
+                <bool>true</bool>
+               </property>
+               <property name="maximum">
+                <number>200</number>
+               </property>
+               <property name="value">
+                <number>100</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="cmdNodeGcUp">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <fontweight>ExtraBold</fontweight>
+                </font>
+               </property>
+               <property name="text">
+                <string>+</string>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_29">
              <property name="text">
-              <string>Block outbound network traffic if the daemon unexpectedly dies</string>
+              <string>Garbage collector percentage</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineNodeMaxStats">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="inputMethodHints">
+              <set>Qt::InputMethodHint::ImhDigitsOnly</set>
+             </property>
+             <property name="text">
+              <string>50</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
+            <spacer name="verticalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_30">
+             <property name="text">
+              <string>Max stats</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkNodeFlushConns">
+             <property name="toolTip">
+              <string>When this option is on, all the existing sockets will be killed, in order to force them establish the connection again so we can intercept them.
+
+Note that this option may be not acceptable on servers, for example because downloads/uploads are taking place.</string>
+             </property>
+             <property name="text">
+              <string>Flush connections on start</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineNodeMaxEvents">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="inputMethodHints">
+              <set>Qt::InputMethodHint::ImhDigitsOnly</set>
+             </property>
+             <property name="text">
+              <string>250</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -2587,48 +2611,6 @@ Use 0 to disable this feature.</string>
          <property name="verticalSpacing">
           <number>10</number>
          </property>
-         <item row="0" column="3">
-          <widget class="QSpinBox" name="spinDBMaxDays">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignCenter</set>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
-           </property>
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>99999</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QPushButton" name="cmdDBMaxDaysUp">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="list-add">
-             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="5">
           <widget class="QLabel" name="labelDBPurgeMinutes">
            <property name="enabled">
@@ -2642,22 +2624,23 @@ Use 0 to disable this feature.</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="3">
-          <widget class="QSpinBox" name="spinDBPurgeInterval">
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="checkDBMaxDays">
            <property name="enabled">
             <bool>false</bool>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignCenter</set>
+           <property name="text">
+            <string>Maximum days of events to keep</string>
            </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="checkDBJrnlWal">
+           <property name="enabled">
+            <bool>false</bool>
            </property>
-           <property name="minimum">
-            <number>5</number>
-           </property>
-           <property name="maximum">
-            <number>1440</number>
+           <property name="text">
+            <string>Enable DB Write-Ahead Logging (WAL)</string>
            </property>
           </widget>
          </item>
@@ -2687,6 +2670,44 @@ Use 0 to disable this feature.</string>
            </property>
           </spacer>
          </item>
+         <item row="1" column="3">
+          <widget class="QSpinBox" name="spinDBPurgeInterval">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
+           </property>
+           <property name="minimum">
+            <number>5</number>
+           </property>
+           <property name="maximum">
+            <number>1440</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QSpinBox" name="spinDBMaxDays">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="5">
           <widget class="QLabel" name="labelDBPurgeDays">
            <property name="enabled">
@@ -2700,40 +2721,7 @@ Use 0 to disable this feature.</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QCheckBox" name="checkDBMaxDays">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Maximum days of events to keep</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <widget class="QPushButton" name="cmdDBMaxDaysDown">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="list-remove">
-             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
+         <item row="1" column="4">
           <widget class="QPushButton" name="cmdDBPurgesUp">
            <property name="enabled">
             <bool>false</bool>
@@ -2744,19 +2732,21 @@ Use 0 to disable this feature.</string>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text">
-            <string/>
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+             <fontweight>ExtraBold</fontweight>
+            </font>
            </property>
-           <property name="icon">
-            <iconset theme="list-add">
-             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+           <property name="text">
+            <string>+</string>
            </property>
            <property name="flat">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="1" column="4">
+         <item row="1" column="2">
           <widget class="QPushButton" name="cmdDBPurgesDown">
            <property name="enabled">
             <bool>false</bool>
@@ -2767,25 +2757,67 @@ Use 0 to disable this feature.</string>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text">
-            <string/>
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+             <fontweight>ExtraBold</fontweight>
+            </font>
            </property>
-           <property name="icon">
-            <iconset theme="list-remove">
-             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+           <property name="text">
+            <string>-</string>
            </property>
            <property name="flat">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="checkDBJrnlWal">
+         <item row="0" column="2">
+          <widget class="QPushButton" name="cmdDBMaxDaysDown">
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+             <fontweight>ExtraBold</fontweight>
+            </font>
+           </property>
            <property name="text">
-            <string>Enable DB Write-Ahead Logging (WAL)</string>
+            <string>-</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QPushButton" name="cmdDBMaxDaysUp">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+             <fontweight>ExtraBold</fontweight>
+            </font>
+           </property>
+           <property name="text">
+            <string>+</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
