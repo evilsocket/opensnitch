@@ -212,8 +212,8 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.comboNodeAddress.addItem(f"unix://{var_run_path}/osui.sock")
                 self.comboServerAddr.addItem(f"unix://{var_run_path}/osui.sock")
 
-            settings.load(self)
             section_nodes.load(self)
+            settings.load(self)
         except Exception as e:
             self.logger.warning("exception loading nodes: %s", repr(e))
 

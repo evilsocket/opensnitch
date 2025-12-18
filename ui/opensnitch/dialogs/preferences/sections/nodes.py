@@ -2,6 +2,7 @@ import json
 
 from PyQt6.QtCore import QCoreApplication as QC
 from opensnitch.dialogs.preferences import utils
+from opensnitch.rules import DefaultRulesPath
 
 def load(win):
     win.node_list = win.nodes.get()
