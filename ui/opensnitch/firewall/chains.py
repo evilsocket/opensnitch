@@ -32,10 +32,10 @@ class Chains():
 
     def get_node_chains(self, addr):
         node = self._nodes.get_node(addr)
-        if node == None:
-            return rules
+        if node is None:
+            return []
         if not 'firewall' in node:
-            return rules
+            return []
 
         chains = []
         for c in node['firewall'].SystemRules:
