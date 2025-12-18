@@ -1058,7 +1058,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 noti = _node['notifications'].get()
                 if noti is not None:
                     if noti.type > 0:
-                        self.logger.debug("%s delivering notification...", node_addr, repr(noti))
+                        self.logger.debug("%s delivering notification... %s", node_addr, repr(noti))
                         _node['notifications'].task_done()
                         yield noti
                     elif noti.type == -1:

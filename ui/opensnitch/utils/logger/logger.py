@@ -7,7 +7,7 @@ from opensnitch.utils.xdg import xdg_config_home
 
 def new(tag):
     ch = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - [%(filename)s:%(funcName)s:%(lineno)d][%(levelname)s] %(message)s')
+    formatter = logging.Formatter('%(asctime)s - [%(name)s:%(funcName)s:%(lineno)d][%(levelname)s] %(message)s')
     ch.setFormatter(formatter)
     logger = logging.getLogger(tag)
     logger.addHandler(ch)
