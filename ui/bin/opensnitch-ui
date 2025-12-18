@@ -65,7 +65,12 @@ from opensnitch.utils import (
     logger
 )
 from opensnitch.utils.themes import Themes
-from opensnitch.utils.xdg import xdg_opensnitch_dir, xdg_current_session
+from opensnitch.utils.xdg import (
+    xdg_opensnitch_dir,
+    xdg_current_desktop,
+    xdg_session_desktop,
+    xdg_current_session
+)
 from opensnitch import auth
 
 import opensnitch.proto as proto
@@ -130,7 +135,8 @@ def supported_qt_version(major, medium, minor):
 if __name__ == '__main__':
     gui_version, grpcversion, protoversion = Versions.get()
     print("\t ~ OpenSnitch GUI -", gui_version, "~")
-    print("\tprotobuf:", protoversion, "-", "grpc:", grpcversion)
+    print(f"\tprotobuf: {protoversion} - grpc: {grpcversion}")
+    print(f"desktop: {xdg_current_desktop} - type: {xdg_current_session} - session: {xdg_session_desktop}")
     print("-" * 50, "\n")
 
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.', formatter_class=argparse.RawTextHelpFormatter)
@@ -155,10 +161,12 @@ Examples:
 
     args = parser.parse_args()
 
+    logger = logger.new("opensnitch")
     if args.debug:
         import faulthandler
         faulthandler.enable()
-    logger = logger.new("opensnitch")
+        logger.setLevel(logging.DEBUG)
+
     cfg = Config.get()
     configure_screen_scale_factor(cfg)
     configure_qt_platform_plugin(cfg)
@@ -204,7 +212,7 @@ Examples:
             if addr is not None and addr != "":
                 if addr.startswith("unix://"):
                     if not os.path.exists(os.path.dirname(addr[7:])):
-                        print("WARNING: unix socket path does not exist, using unix:///tmp/osui.sock, ", addr)
+                        logger.warning("WARNING: unix socket path does not exist, using unix:///tmp/osui.sock, %s", addr)
                     else:
                         args.socket = addr
                 else:
@@ -225,14 +233,14 @@ Examples:
             ('grpc.max_send_message_length', maxmsglen),
             ('grpc.max_receive_message_length', maxmsglen),
         )
-        print("[server] addr:", args.socket)
+        logger.info("[server] addr: %s", args.socket)
         max_clients = ('grpc.max_allowed_incoming_connections', args.max_clients)
         cfg_max_clients = cfg.getInt(Config.DEFAULT_SERVER_MAX_CLIENTS, 0)
         if cfg_max_clients > 0:
-            print(f"[server] limiting the number of allowed nodes to {cfg_max_clients}")
+            logger.info(f"[server] limiting the number of allowed nodes to {cfg_max_clients}")
             max_clients = (max_clients[0], cfg_max_clients)
         if args.max_clients is not None:
-            print(f"[server] limiting the number of allowed nodes to {args.max_clients}")
+            logger.info(f"[server] limiting the number of allowed nodes to {args.max_clients}")
             max_clients = (max_clients[0], args.max_clients)
             server_options += (max_clients,)
 
@@ -247,12 +255,10 @@ Examples:
         cfg_max_workers = cfg.getInt(Config.DEFAULT_SERVER_MAX_WORKERS, 20)
         executor = None
         if args.max_workers is not None:
-            print(f"[server] using {args.max_workers} workers")
+            logger.info(f"[server] using {args.max_workers} workers")
             executor = futures.ThreadPoolExecutor(max_workers=args.max_workers)
         else:
             executor = futures.ThreadPoolExecutor(max_workers=cfg_max_workers)
-        #print("workers:", executor._max_workers)
-        #print("thread:", len(executor._threads))
 
         # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
         server = grpc.server(
@@ -275,7 +281,7 @@ Examples:
             parts = args.socket.split("@")
             args.socket = "unix-abstract:{0}".format(parts[1])
 
-        print("[server] using address:", args.socket, "auth type:", auth_type)
+        logger.info("[server] using address: %s auth type: %s", args.socket, auth_type)
 
         if auth_type == auth.Simple or auth_type == "":
             server.add_insecure_port(args.socket)
@@ -309,6 +315,7 @@ Examples:
         on_exit()
     except Exception as e:
         print(e)
+        logger.warning("exception: %s", repr(e))
     finally:
         if service:
             # finish gracefully, closing notifications channel.
