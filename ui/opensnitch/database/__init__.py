@@ -4,6 +4,8 @@ import sys
 import os
 from datetime import datetime, timedelta
 
+from opensnitch.utils import logger
+
 class Database:
     db = None
     __instance = None
@@ -32,6 +34,7 @@ class Database:
         return Database.__instance
 
     def __init__(self, dbname="db"):
+        self.logger = logger.get(__name__)
         self._lock = threading.RLock()
         self.db = None
         self.db_file = Database.DB_IN_MEMORY
@@ -59,12 +62,12 @@ class Database:
 
         db_status, db_error = self.is_db_ok()
         if db_status is False:
-            print("db.initialize() error:", db_error)
+            self.logger.warning("db.initialize() error: %s", db_error)
             return False, db_error
 
 
         if is_new_file:
-            print("is new file, or IN MEMORY, setting initial schema version")
+            self.logger.info("is new file, or IN MEMORY, setting initial schema version")
             self.set_schema_version(self.DB_VERSION)
 
         self._create_tables()
@@ -77,14 +80,14 @@ class Database:
                 self.db.removeDatabase(self.db_name)
                 self.db.close()
         except Exception as e:
-            print("db.close() exception:", e)
+            self.logger.warning("db.close() exception: %s", repr(e))
 
     def is_db_ok(self):
         # XXX: quick_check may not be fast enough with some DBs on slow
         # hardware.
         q = QSqlQuery("PRAGMA quick_check;", self.db)
         if q.exec() is not True:
-            print(q.lastError().driverText())
+            self.logger.warning("%s", q.lastError().driverText())
             return False, q.lastError().driverText()
 
         if q.next() and q.value(0) != "ok":
@@ -259,16 +262,16 @@ class Database:
         q = QSqlQuery("PRAGMA user_version;", self.db)
         q.exec()
         if q.next():
-            print("schema version:", q.value(0))
+            self.logger.info("schema version: %s", q.value(0))
             return int(q.value(0))
 
         return 0
 
     def set_schema_version(self, version):
-        print("setting schema version to:", version)
+        self.logger.info("setting schema version to: %s", version)
         q = QSqlQuery("PRAGMA user_version = {0}".format(version), self.db)
         if q.exec() == False:
-            print("Error updating updating schema version:", q.lastError().text())
+            self.logger.error("Error updating updating schema version: %s", q.lastError().text())
 
     def get_journal_mode(self):
         q = QSqlQuery("PRAGMA journal_mode;", self.db)
@@ -282,26 +285,26 @@ class Database:
         # https://www.sqlite.org/wal.html
         mode_str = Database.DB_JOURNAL_MODE_LIST[mode]
         if self.get_journal_mode().lower() != mode_str.lower():
-            print("Setting journal_mode: ", mode_str)
+            self.logger.info("Setting journal_mode: %s", mode_str)
             q = QSqlQuery("PRAGMA journal_mode = {modestr};".format(modestr = mode_str), self.db)
             if q.exec() == False:
-                print("Error updating PRAGMA journal_mode:", q.lastError().text())
+                self.logger.error("Error updating PRAGMA journal_mode: %s", q.lastError().text())
                 return False
         if mode == 3 or mode == 5:
-            print("Setting DB memory optimizations")
+            self.logger.debug("Setting DB memory optimizations")
             q = QSqlQuery("PRAGMA synchronous = OFF;", self.db)
             if q.exec() == False:
-                print("Error updating PRAGMA synchronous:", q.lastError().text())
+                self.logger.error("Error updating PRAGMA synchronous: %s", q.lastError().text())
                 return False
             q = QSqlQuery("PRAGMA cache_size=10000;", self.db)
             if q.exec() == False:
-                print("Error updating PRAGMA cache_size:", q.lastError().text())
+                self.logger.error("Error updating PRAGMA cache_size: %s", q.lastError().text())
                 return False
         else:
-            print("Setting synchronous = NORMAL")
+            self.logger.info("Setting synchronous = NORMAL")
             q = QSqlQuery("PRAGMA synchronous = NORMAL;", self.db)
             if q.exec() == False:
-                print("Error updating PRAGMA synchronous:", q.lastError().text())
+                self.logger.error("Error updating PRAGMA synchronous: %s", q.lastError().text())
 
         return True
 
@@ -309,31 +312,31 @@ class Database:
         migrations_path = os.path.dirname(os.path.realpath(__file__)) + "/migrations"
         schema_version = self.get_schema_version()
         if schema_version == self.DB_VERSION:
-            print("db schema is up to date")
+            self.logger.info("db schema is up to date")
             return
         while schema_version < self.DB_VERSION:
             schema_version += 1
             try:
-                print("applying schema upgrade:", schema_version)
+                self.logger.info("applying schema upgrade: %s", schema_version)
                 self._apply_db_upgrade("{0}/upgrade_{1}.sql".format(migrations_path, schema_version))
             except Exception as e:
-                print("Not applying upgrade_{0}.sql:".format(schema_version), e)
+                self.logger.warning("Not applying upgrade_%s.sql: %s", schema_version, repr(e))
                 return
         self.set_schema_version(schema_version)
 
     def _apply_db_upgrade(self, file):
-        print("applying upgrade from:", file)
+        self.logger.info("applying upgrade from: %s", file)
         q = QSqlQuery(self.db)
         with open(file) as f:
             for line in f.readlines():
                 # skip comments
                 if line.startswith("--"):
                     continue
-                print("applying upgrade:", line, end="")
+                self.logger.info("applying upgrade: %s", line)
                 if q.exec(line) == False:
-                    print("\tError:", q.lastError().text())
+                    self.logger.error("db upgrade error: %s", q.lastError().text())
                 else:
-                    print("\tOK")
+                    self.logger.info("db upgrade OK")
 
     def optimize(self):
         """https://www.sqlite.org/pragma.html#pragma_optimize
@@ -372,7 +375,7 @@ class Database:
             if q.exec() and q.first():
                 r = q.value(0)
         except Exception as e:
-            print("db, get_total_records() error:", e)
+            self.logger.warning("db, get_total_records() error: %s", repr(e))
 
     def get_newest_record(self):
         try:
@@ -380,7 +383,7 @@ class Database:
             if q.exec() and q.first():
                 return q.value(0)
         except Exception as e:
-            print("db, get_newest_record() error:", e)
+            self.logger.warning("db, get_newest_record() error: %s", repr(e))
         return 0
 
     def get_oldest_record(self):
@@ -389,7 +392,7 @@ class Database:
             if q.exec() and q.first():
                 return q.value(0)
         except Exception as e:
-            print("db, get_oldest_record() error:", e)
+            self.logger.warning("db, get_oldest_record() error: %s", repr(e))
         return 0
 
     def purge_oldest(self, max_days_to_keep):
@@ -409,10 +412,10 @@ class Database:
                 q.prepare("DELETE FROM connections WHERE time < ?")
                 q.bindValue(0, str(date_to_purge))
                 if q.exec():
-                    print("purge_oldest() {0} records deleted".format(q.numRowsAffected()))
+                    self.logger.debug("purge_oldest() %d records deleted", q.numRowsAffected())
                     return q.numRowsAffected()
         except Exception as e:
-            print("db, purge_oldest() error:", e)
+            self.logger.warning("db, purge_oldest() error: %s", repr(e))
 
         return -1
 
@@ -420,7 +423,7 @@ class Database:
         try:
             return QSqlQuery(qstr, self.db)
         except Exception as e:
-            print("db, select() exception: ", e)
+            self.logger.warning("db, select() exception: %s", repr(e))
 
         return None
 
@@ -430,10 +433,10 @@ class Database:
             if q.exec():
                 return True
             else:
-                print("db, remove() ERROR: ", qstr)
-                print(q.lastError().driverText())
+                self.logger.error("db, remove() ERROR: %s", qstr)
+                self.logger.error("%s", q.lastError().driverText())
         except Exception as e:
-            print("db, remove exception: ", e)
+            self.logger.warning("db, remove exception: %s", repr(e))
 
         return False
 
@@ -448,11 +451,11 @@ class Database:
                 if q.exec():
                     return True
                 else:
-                    print("_insert() ERROR", query_str)
-                    print(q.lastError().driverText())
+                    self.logger.error("_insert() ERROR: %s", query_str)
+                    self.logger.error("%s", q.lastError().driverText())
 
             except Exception as e:
-                print("_insert exception", e)
+                self.logger.warning("_insert exception: %s", repr(e))
             finally:
                 q.finish()
 
@@ -493,11 +496,11 @@ class Database:
                 for idx, v in enumerate(values):
                     q.bindValue(idx, v)
                 if not q.exec():
-                    print("update ERROR:", qstr, "values:", values)
-                    print(q.lastError().driverText())
+                    self.logger.error("update ERROR: %s - values: %s", qstr, values)
+                    self.logger.error("%s", q.lastError().driverText())
 
         except Exception as e:
-            print("update() exception:", e)
+            self.logger.warning("update() exception: %s", repr(e))
         finally:
             q.finish()
 
@@ -510,14 +513,14 @@ class Database:
                 q.addBindValue(fields)
                 q.addBindValue(values)
                 if not q.execBatch():
-                    print("_insert_batch() db error:", query_str)
-                    print(q.lastError().driverText())
-                    print("\t", fields)
-                    print("\t", values)
+                    self.logger.error("_insert_batch() db error: %s", query_str)
+                    self.logger.error("%s", q.lastError().driverText())
+                    self.logger.error("%s", fields)
+                    self.logger.error("%s", values)
 
                     result=False
             except Exception as e:
-                print("_insert_batch() exception:", e)
+                self.logger.warning("_insert_batch() exception: %s", repr(e))
             finally:
                 q.finish()
 
@@ -544,8 +547,8 @@ class Database:
             with self._lock:
                 q = QSqlQuery(s, self.db)
                 if not q.exec():
-                    print("update batch ERROR", s)
-                    print(q.lastError().driverText())
+                    self.logger.error("update batch ERROR: %s", s)
+                    self.logger.error("%s", q.lastError().driverText())
 
     def dump(self):
         q = QSqlQuery(".dump", db=self.db)
@@ -564,8 +567,8 @@ class Database:
             q.prepare(qstr)
             q.addBindValue(name)
             if not q.exec():
-                print("db, empty_rule() ERROR: ", qstr)
-                print(q.lastError().driverText())
+                self.logger.error("db, empty_rule() ERROR: %s", qstr)
+                self.logger.error("%s", q.lastError().driverText())
 
     def delete_rule(self, name, node_addr):
         qstr = "DELETE FROM rules WHERE name=?"
@@ -579,8 +582,8 @@ class Database:
             if node_addr != None:
                 q.addBindValue(node_addr)
             if not q.exec():
-                print("db, delete_rule() ERROR: ", qstr)
-                print(q.lastError().driverText())
+                self.logger.error("db, delete_rule() ERROR: %s", qstr)
+                self.logger.error("%s", q.lastError().driverText())
                 return False
 
         return True
@@ -603,8 +606,8 @@ class Database:
                 q.addBindValue(v)
 
             if not q.exec():
-                print("db, delete_rule_by_field() ERROR: ", qstr)
-                print(q.lastError().driverText())
+                self.logger.error("db, delete_rule_by_field() ERROR: %s", qstr)
+                self.logger.error("%s", q.lastError().driverText())
                 return False
 
         return True
@@ -652,7 +655,7 @@ class Database:
         if node_addr != None:
             q.addBindValue(node_addr)
         if not q.exec():
-            print("get_rule_by_field() error:", q.lastError().driverText())
+            self.logger.error("get_rule_by_field() error: %s", q.lastError().driverText())
             return None
 
         return q

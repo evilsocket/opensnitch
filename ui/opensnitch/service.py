@@ -31,7 +31,8 @@ from opensnitch.utils import (
     CleanerTask,
     OneshotTimer,
     languages,
-    Message
+    Message,
+    logger
 )
 from opensnitch.utils.duration import duration
 from opensnitch.utils.themes import Themes
@@ -68,6 +69,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self.ADD_RULE = 3
         self.DELETE_RULE = 4
 
+        self.logger = logger.get(__name__)
         self._cfg = Config.init()
         self._db = Database.instance()
         db_file=self._cfg.getSettings(self._cfg.DEFAULT_DB_FILE_KEY)
@@ -162,7 +164,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     action = action_def['actions'][name]
                     action.run()
                 except Exception as e:
-                    print("global._load_plugins() exception:", e, "is {0} enabled?".format(name))
+                    self.logger.warning("global._load_plugins() exception: %s - is %s enabled?", repr(e), name)
 
     def _stop_plugins(self):
         for plug in PluginsList.actions:
@@ -255,6 +257,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     QC.translate("stats", "Error switching autostart: {0}".format(str(e))),
                     mtype=ntfs_type
                 )
+            self.logger.warning("Error switching autostart: %s", repr(e))
 
     def _on_show_menu(self):
         self._menu_autostart.setChecked(self._autostart.isEnabled())
@@ -288,8 +291,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     callback=callback
                 )
         except Exception as e:
-            print("[service] error showing notification:", e)
-            print(title, body)
+            self.logger.warning("error showing notification: %s", repr(e))
+            self.logger.warning(f"{title}, {body}")
 
     def _show_systray_msg_error(self):
         try:
@@ -314,7 +317,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 )
                 self._cfg.setSettings(Config.DEFAULT_HIDE_SYSTRAY_WARN, True)
         except Exception as e:
-            print("[service] exception showing systray msg error:", e)
+            self.logger.warning("exception showing systray msg error: %s", repr(e))
 
     def _on_tray_icon_activated(self, reason):
         if reason == QtWidgets.QSystemTrayIcon.ActivationReason.Trigger or reason == QtWidgets.QSystemTrayIcon.ActivationReason.MiddleClick:
@@ -423,7 +426,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
 
         except Exception as e:
-            print("PostAlert() exception:", e)
+            self.logger.warning("PostAlert() exception: %s", repr(e))
             return ui_pb2.MsgResponse(id=1)
 
     @QtCore.pyqtSlot(str, ui_pb2.PingRequest)
@@ -647,7 +650,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             self._nodes.delete(peer)
             self._stats_dialog.update(True, None, True)
         except Exception as e:
-            print("_delete_node() exception:", e)
+            self.logger.warning("_delete_node() exception: %s", repr(e))
 
     def _populate_stats(self, db, proto, addr, stats):
         main_need_refresh = False
@@ -702,7 +705,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             for event in stats.events:
                 self._last_stats[addr].append(event.unixnano)
         except Exception as e:
-            print("_populate_stats() exception: ", e)
+            self.logger.warning("_populate_stats() exception: %s", repr(e))
 
         return main_need_refresh, details_need_refresh
 
@@ -749,7 +752,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
             self._last_items[table][addr] = items
         except Exception as e:
-            print("details exception: ", e)
+            self.logger.warning("populate_stats details exception: %s", repr(e))
 
         return need_refresh
 
@@ -766,11 +769,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             else:
                 temp_cfg['DefaultAction'] = Config.ACTION_DENY
 
-            print("Setting daemon DefaultAction to:", temp_cfg['DefaultAction'])
+            self.logger.info("Setting daemon DefaultAction to: %s", temp_cfg['DefaultAction'])
 
             newconf.config = json.dumps(temp_cfg)
         except Exception as e:
-            print("error parsing node's configuration:", e)
+            self.logger.warning("error parsing node's configuration: %s", repr(e))
             return node_config
 
         return newconf
@@ -867,7 +870,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             #            self._remote_stats[addr]['dialog'].update(addr, request.stats)
 
         except Exception as e:
-            print("Ping exception", context.peer(), ":", e)
+            self.logger.warning("exception %s - %s", repr(context.peer()), repr(e))
         return ui_pb2.PingReply(id=request.id)
 
     def AskRule(self, request, context):
@@ -928,10 +931,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         @doc: https://grpc.github.io/grpc/python/grpc.html#service-side-context
         """
-        print(datetime.now(), "[Subscribe]", context.peer())
+        self.logger.info("%s", repr(context.peer()))
         # if the exit mark is set, don't accept new connections.
         # db vacuum operation may take a lot of time to complete.
         if self._exit:
+            self.logger.info("_exit mark set, exiting, %s", repr(context.peer()))
             context.cancel()
             return
         try:
@@ -946,14 +950,19 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
             proto, addr = self._get_peer(context.peer())
             if self._is_local_request(proto, addr) == False:
+                hostname = self._nodes.get_node_hostname("%s:%s" % (proto, addr))
+                body = "{0}".format(context.peer())
+                if hostname != "":
+                    body = "{0}\n{1}".format(hostname, context.peer())
+
                 self._show_message_trigger.emit(
                     QtCore.QCoreApplication.translate("stats", "New node connected"),
-                    "({0})".format(context.peer()),
+                    body,
                     QtWidgets.QSystemTrayIcon.MessageIcon.Information,
                     DesktopNotifications.URGENCY_LOW
                 )
         except Exception as e:
-            print("[Notifications] exception adding new node:", e)
+            self.logger.warning("exception adding new node: %s", repr(e))
             context.cancel()
 
         newconf = self._overwrite_nodes_config(node_config)
@@ -969,9 +978,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         @doc: https://grpc.io/docs/what-is-grpc/core-concepts/
         """
         local_peer = context.peer()
+        self.logger.info("channel started: %s", repr(local_peer))
 
-        print(datetime.now(), "[Notifications] channel started:", context.peer())
-        print()
         proto, addr = self._get_peer(context.peer())
         node_addr = f"{proto}:{addr}"
         _node = self._nodes.get_node(node_addr)
@@ -981,7 +989,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         stop_event = Event()
         def _on_client_closed():
             stop_event.set()
-            print(datetime.now(), "[Notifications] client closed", context.peer())
+            self.logger.info("client closed %s", node_addr)
             self._nodes.stop_notifications(node_addr)
 
 
@@ -997,21 +1005,26 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             #    nd = self._nodes.get_nodes()
             #    if nd[0].get_config().isFirewallRunning:
 
-            if self._is_local_request(proto, addr) == False:
+            if not self._is_local_request(proto, addr):
+                self.logger.info("notifying exit %s", node_addr)
+                hostname = self._nodes.get_node_hostname(node_addr)
+                body = "{0}".format(local_peer)
+                if hostname != "":
+                    body = "{0}\n{1}".format(hostname, local_peer)
                 self._show_message_trigger.emit(
                     "node exited",
-                    f"({local_peer})",
+                    body,
                     QtWidgets.QSystemTrayIcon.MessageIcon.Information,
                     DesktopNotifications.URGENCY_LOW
                 )
 
         added = context.add_callback(_on_client_closed)
         if added is False:
-            print("[Notifications] add_callback() not added")
+            self.logger.debug("add_callback() not added")
 
         # TODO: move to notifications.py
         def new_node_message():
-            print("new node connected, listening for client responses...", addr)
+            self.logger.info("new node connected, listening for client responses... %s", repr(local_peer))
 
             while self._exit == False:
                 try:
@@ -1024,13 +1037,13 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
                     self._nodes.reply_notification(addr, in_message)
                 except StopIteration:
-                    print("[Notifications] Node {0} exited".format(addr))
+                    self.logger.info("Node %s exited", node_addr)
                     break
                 except grpc.RpcError as e:
-                    print(datetime.now(), "[Notifications] grpc exception new_node_message(): ", addr, e)
+                    self.logger.info("grpc exception new_node_message(): %s - %s", node_addr, repr(e))
                     break
                 except Exception as e:
-                    print("[Notifications] unexpected exception new_node_message(): ", addr, e)
+                    self.logger.warning("unexpected exception new_node_message() %s: %s", node_addr, repr(e))
                     break
 
         read_thread = Thread(target=new_node_message)
@@ -1045,16 +1058,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 noti = _node['notifications'].get()
                 if noti is not None:
                     if noti.type > 0:
+                        self.logger.debug("%s delivering notification...", node_addr, repr(noti))
                         _node['notifications'].task_done()
                         yield noti
                     elif noti.type == -1:
-                        print("[Notifications] notify exit, break the loop")
+                        self.logger.debug("%s notify exit, break the loop", node_addr)
                         break
             except Exception as e:
-                print("[Notifications] exception getting notification from queue:", addr, e)
+                self.logger.warning("exception getting notification from queue: %s - %s", node_addr, repr(e))
                 break
 
         # force call to _on_client_closed
         context.cancel()
-        print("[Notifications] channel closed:", local_peer)
+        self.logger.info("channel closed: %s", repr(local_peer))
         return node_iter

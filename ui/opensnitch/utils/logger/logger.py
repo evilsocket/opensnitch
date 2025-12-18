@@ -1,3 +1,4 @@
+import traceback
 import logging
 from logging.handlers import RotatingFileHandler
 import os.path
@@ -34,3 +35,7 @@ def get(tag):
         tag = "opensnitch"
     # getLogger() always return the same logger object
     return logging.getLogger(tag)
+
+def print_stack():
+    for line in traceback.format_stack():
+        print(line.strip())
