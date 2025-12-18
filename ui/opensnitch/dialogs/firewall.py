@@ -28,6 +28,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     POLICY_DROP = 1
 
     ALL_NODES = "all"
+    ALL_NODES_IDX = 0
 
     _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
 
@@ -135,6 +136,14 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._set_status_error(QC.translate("firewall", "error adding profile extra rules:", err))
 
     def _cb_combo_policy_changed(self, combo):
+        if self.comboNodes.currentIndex() == FirewallDialog.ALL_NODES_IDX:
+            ret = Message.yes_no(
+                QC.translate("stats", "This change will apply the policy change to all nodes?"),
+                QC.translate("stats", "Are you sure?"),
+                QtWidgets.QMessageBox.Icon.Warning)
+            if ret == QtWidgets.QMessageBox.StandardButton.Cancel:
+                return
+
         self._reset_status_message()
         self.comboInput.setEnabled(False)
         self.comboOutput.setEnabled(False)
