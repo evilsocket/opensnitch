@@ -107,6 +107,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     @QtCore.pyqtSlot(int)
     def _cb_nodes_updated(self, total):
         if self._nodes.count() <= 1:
+            self._load_nodes()
             self.load_fw_policies()
 
     def _cb_combo_nodes_changed(self, idx):
@@ -273,7 +274,8 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 if self._nodes.count() == 1:
                     nIdx = self.comboNodes.currentIndex()
                     node_addr = self.comboNodes.itemData(nIdx)
-                    enableFw = self.load_node_fw_policy(node_addr)
+                    if node_addr is not None:
+                        enableFw = self.load_node_fw_policy(node_addr)
                     return
 
         except Exception as e:
