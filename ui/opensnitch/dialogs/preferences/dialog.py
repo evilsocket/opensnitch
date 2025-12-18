@@ -71,6 +71,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         self.themes = Themes.instance()
         self.saved_theme = ""
+        # fixed message. Do not change it dynamically.
         self.restart_msg = QC.translate("preferences", "Restart the GUI in order changes to take effect")
         self.changes_needs_restart = None
         self.settingsSaved = False
@@ -308,6 +309,11 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self.loading_settings:
             return
         self.node_needs_update = True
+
+    def cb_server_settings_changed(self):
+        if self.loading_settings:
+            return
+        self.changes_needs_restart = QC.translate("preferences", "Server settings changed")
 
     def cb_ui_check_rules_toggled(self, state):
         if self.loading_settings:

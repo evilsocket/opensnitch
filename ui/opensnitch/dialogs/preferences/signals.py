@@ -35,9 +35,6 @@ def connect_all(win):
     win.checkNodeLogUTC.clicked.connect(win.cb_node_needs_update)
     win.checkNodeLogMicro.clicked.connect(win.cb_node_needs_update)
     win.comboNodeAddress.currentTextChanged.connect(win.cb_node_needs_update)
-    win.comboServerAddr.currentTextChanged.connect(win.cb_node_needs_update)
-    win.spinGrpcMaxWorkers.valueChanged.connect(win.cb_node_needs_update)
-    win.spinGrpcMaxClients.valueChanged.connect(win.cb_node_needs_update)
     win.checkInterceptUnknown.clicked.connect(win.cb_node_needs_update)
     win.checkApplyToNodes.clicked.connect(win.cb_node_needs_update)
     win.comboNodeAction.currentIndexChanged.connect(win.cb_node_needs_update)
@@ -51,6 +48,10 @@ def connect_all(win):
     win.lineNodeMaxStats.textChanged.connect(win.cb_node_needs_update)
     win.lineNodeFwMonInterval.textChanged.connect(win.cb_node_needs_update)
     win.lineNodeRulesPath.textChanged.connect(win.cb_node_needs_update)
+
+    win.comboServerAddr.currentTextChanged.connect(win.cb_server_settings_changed)
+    win.spinGrpcMaxWorkers.valueChanged.connect(win.cb_server_settings_changed)
+    win.spinGrpcMaxClients.valueChanged.connect(win.cb_server_settings_changed)
 
     win.comboAuthType.currentIndexChanged.connect(win.cb_combo_auth_type_changed)
     win.comboNodeAuthType.currentIndexChanged.connect(win.cb_combo_node_auth_type_changed)
