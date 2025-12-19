@@ -1,0 +1,30 @@
+from PyQt6 import QtWidgets
+
+def connect_all(win):
+    win.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Reset).clicked.connect(win.cb_reset_clicked)
+    win.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Close).clicked.connect(win.cb_close_clicked)
+    win.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Save).clicked.connect(win.cb_save_clicked)
+    win.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Help).clicked.connect(win.cb_help_clicked)
+
+    win.selectListButton.clicked.connect(win.cb_select_list_button_clicked)
+    win.selectListRegexpButton.clicked.connect(win.cb_select_regexp_list_button_clicked)
+    win.selectIPsListButton.clicked.connect(win.cb_select_ips_list_button_clicked)
+    win.selectNetsListButton.clicked.connect(win.cb_select_nets_list_button_clicked)
+    win.protoCheck.toggled.connect(win.cb_proto_check_toggled)
+    win.procCheck.toggled.connect(win.cb_proc_check_toggled)
+    win.cmdlineCheck.toggled.connect(win.cb_cmdline_check_toggled)
+    win.ifaceCheck.toggled.connect(win.cb_iface_check_toggled)
+    win.dstPortCheck.toggled.connect(win.cb_dstport_check_toggled)
+    win.srcPortCheck.toggled.connect(win.cb_srcport_check_toggled)
+    win.uidCheck.toggled.connect(win.cb_uid_check_toggled)
+    win.pidCheck.toggled.connect(win.cb_pid_check_toggled)
+    win.srcIPCheck.toggled.connect(win.cb_srcip_check_toggled)
+    win.dstIPCheck.toggled.connect(win.cb_dstip_check_toggled)
+    win.dstHostCheck.toggled.connect(win.cb_dsthost_check_toggled)
+    win.dstListsCheck.toggled.connect(win.cb_dstlists_check_toggled)
+    win.dstListRegexpCheck.toggled.connect(win.cb_dstregexplists_check_toggled)
+    win.dstListIPsCheck.toggled.connect(win.cb_dstiplists_check_toggled)
+    win.dstListNetsCheck.toggled.connect(win.cb_dstnetlists_check_toggled)
+    win.uidCombo.currentIndexChanged.connect(win.cb_uid_combo_changed)
+    win.md5Check.toggled.connect(win.cb_md5check_toggled)
+
