@@ -3,6 +3,7 @@ import stat
 from PyQt6.QtCore import QCoreApplication as QC
 from PyQt6 import QtWidgets
 
+from opensnitch.config import Config
 from opensnitch.utils import (
     Message,
     QuickHelp
