@@ -174,6 +174,21 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 except Exception as e:
                     self.logger.debug("popups._post_popup_plugins() exception: %s - %s", name, repr(e))
 
+    def get_main_widget(self):
+        """returns the central widget of the pop-up"""
+        return self.stackedWidget
+
+    def get_connection(self):
+        """returns the current connection that is awaiting approval"""
+        return self._con
+
+    def get_peer(self):
+        """returns the address and hostname of the node"""
+        return self._peer, self._hostname
+
+    def get_message_text(self):
+        return self.messageLabel.text()
+
     def set_app_name(self, text):
         self.appNameLabel.setText(text)
 
@@ -192,17 +207,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def set_message_style(self, style):
         self.messageLabel.setStyleSheet(style)
-
-    def get_message_text(self):
-        return self.messageLabel.text()
-
-    def get_connection(self):
-        """returns the current connection that is awaiting approval"""
-        return self._con
-
-    def get_peer(self):
-        """returns the address and hostname of the node"""
-        return self._peer, self._hostname
 
     def set_icon_pixmap(self, pixmap):
         """set the icon of the popup"""

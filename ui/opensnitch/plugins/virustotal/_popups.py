@@ -2,6 +2,14 @@ import json
 from PyQt6 import QtWidgets, QtGui, QtCore
 from opensnitch.utils import Icons
 from opensnitch.plugins.virustotal import _utils
+from opensnitch.config import Config
+from opensnitch.dialogs.prompt import (
+    constants,
+    utils as popup_utils
+)
+
+# XXX: the tab index may vary. TODO: Find it dynamically.
+VT_TAB = 3
 
 def build_vt_tab(plugin, parent):
     """add a new tab with a text field that will contain the result of the query in JSON format.
@@ -10,7 +18,7 @@ def build_vt_tab(plugin, parent):
 
     # FIXME: find the widget with the name 'vt_tab', there could be more
     # plugins that are tabs.
-    prev_wdg = parent.stackedWidget.widget(3)
+    prev_wdg = parent.get_main_widget().widget(VT_TAB)
     if prev_wdg != None and prev_wdg.objectName() == "vt_tab":
         return prev_wdg
 
@@ -22,7 +30,7 @@ def build_vt_tab(plugin, parent):
     cmdBack.setIcon(backIcon)
 
     # 0 details, 1 checksums, 2 main
-    cmdBack.clicked.connect(lambda: parent.stackedWidget.setCurrentIndex(2))
+    cmdBack.clicked.connect(lambda: parent.get_main_widget().setCurrentIndex(constants.PAGE_MAIN))
     cmdBack.setSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
     textWdg = QtWidgets.QTextEdit()
     textWdg.setTextInteractionFlags(
@@ -43,10 +51,10 @@ def build_vt_tab(plugin, parent):
     return wdg
 
 def add_vt_tab(parent, tab):
-    parent.stackedWidget.addWidget(tab)
+    parent.get_main_widget().addWidget(tab)
 
-def add_vt_response(parent, response, error=None):
-    tab = parent.stackedWidget.widget(3).layout()
+def add_vt_response(parent, response, conn, error=None):
+    tab = parent.get_main_widget().widget(VT_TAB).layout()
     textWdg = tab.itemAtPosition(1, 0).widget()
     textWdg.clear()
     #textWdg.insertPlainText(str(json.dumps(response, indent=4)))
@@ -60,13 +68,13 @@ def add_vt_response(parent, response, error=None):
     textWdg.moveCursor(QtGui.QTextCursor.MoveOperation.Start)
 
 def add_analyzing_msg(vt, parent):
-    parent.messageLabel.setText("{0}<br>{1}".format(
+    parent.set_message_text("{0}<br>{1}".format(
         vt.ANALYZING_MESSAGE,
-        parent.messageLabel.text()
+        parent.get_message_text()
     ))
 
 def reset_widgets_state(parent):
-    parent.messageLabel.setStyleSheet('')
+    parent.set_message_style('')
     parent.appNameLabel.setStyleSheet('')
     parent.checksumLabel.setStyleSheet('')
     parent.destIPLabel.setStyleSheet('')
@@ -74,5 +82,5 @@ def reset_widgets_state(parent):
 def _cb_popup_link_clicked(link, parent):
     """link clicked on the popup"""
     if link == "#virustotal-warning":
-        wdg_count = parent.stackedWidget.count()
-        parent.stackedWidget.setCurrentIndex(3)
+        wdg_count = parent.get_main_widget().count()
+        parent.get_main_widget().setCurrentIndex(VT_TAB)
