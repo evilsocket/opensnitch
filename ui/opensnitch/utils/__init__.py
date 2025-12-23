@@ -376,6 +376,8 @@ class Icons():
         'preferences-system': "SP_FileDialogListView",
         'preferences-desktop': "SP_FileDialogListView",
         'security-high': "SP_VistaShield",
+        'security-medium': "SP_VistaShield",
+        'security-low': "SP_VistaShield",
         'go-previous': "SP_ArrowLeft",
         'go-jump': "SP_CommandLink",
         'go-down': "SP_TitleBarUnshadeButton",
@@ -401,7 +403,12 @@ class Icons():
         'edit-clear-all': "SP_DialogResetButton",
         'reload': "SP_DialogResetButton",
         'dialog-information': "SP_MessageBoxInformation",
-        'dialog-warning': "SP_MessageBoxWarning"
+        'dialog-warning': "SP_MessageBoxWarning",
+        'pop-ups': 'SP_TitleBarNormalButton',
+        'window-new': 'SP_TitleBarMaxButton',
+        'computer': 'SP_ComputerIcon',
+        'drive-harddisk': 'SP_DriveHDIcon',
+        'network-server': 'SP_DesktopIcon'
     }
 
     @staticmethod

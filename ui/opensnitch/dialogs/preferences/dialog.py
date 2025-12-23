@@ -7,6 +7,7 @@ from PyQt6.QtCore import QCoreApplication as QC
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.database import Database
+from opensnitch.customwidgets.itemwidgetcentered import IconTextItem
 from opensnitch.utils import (
     Icons,
     logger
@@ -38,9 +39,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     TAB_POPUPS = 0
     TAB_UI = 1
-    TAB_RULES = 2
-    TAB_NODES = 3
-    TAB_DB = 4
+    TAB_SERVER = 2
+    TAB_RULES = 3
+    TAB_NODES = 4
+    TAB_DB = 5
 
     NODE_PAGE_GENERAL = 0
     NODE_PAGE_LOGGING = 1
@@ -147,37 +149,67 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboUIAction.setItemIcon(Config.ACTION_ALLOW_IDX, allowIcon)
         self.comboUIAction.setItemIcon(Config.ACTION_REJECT_IDX, rejectIcon)
 
+        leftOpts = [
+            { 'icon': Icons.new(self, 'pop-ups'), 'text': 'Pop-ups'},
+            { 'icon': Icons.new(self, 'window-new'), 'text': 'UI'},
+            { 'icon': Icons.new(self, 'network-server'), 'text': 'Server'},
+            { 'icon': Icons.new(self, 'format-justify-fill'), 'text': 'Rules'},
+            { 'icon': Icons.new(self, 'computer'), 'text': 'Nodes'},
+            { 'icon': Icons.new(self, 'drive-harddisk'), 'text': 'Database'}
+        ]
+        self.listWidget.setIconSize(QtCore.QSize(64, 64))
+        for opt in leftOpts:
+            item = QtWidgets.QListWidgetItem(self.listWidget)
+            widget = IconTextItem(opt['icon'], opt['text'], size=24)
+            item.setSizeHint(QtCore.QSize(64, 64))
+            widget.setSizePolicy(
+                QtWidgets.QSizePolicy.Policy.Maximum,
+                QtWidgets.QSizePolicy.Policy.Expanding
+            )
+            self.listWidget.addItem(item)
+            self.listWidget.setItemWidget(item, widget)
+
+        self.listWidget.itemClicked.connect(self.cb_list_item_activated)
+        cmdNodeCorner = QtWidgets.QPushButton("", objectName="cmdNodeCorner")
+        cmdNodeCorner.setFlat(True)
+        cmdNodeCorner.setIcon(Icons.new(parent, "document-save"))
+        cmdNodeCorner.setToolTip(QC.translate("preferences", "Save these settings"))
+        cmdNodeCorner.setVisible(False)
+        self.tabNodeWidget.setCornerWidget(cmdNodeCorner)
+        w = self.splitter.width()
+        self.splitter.setSizes([int(w/3), w])
+
     def showEvent(self, event):
         super(PreferencesDialog, self).showEvent(event)
         self.init()
 
     def add_section(self, widget, icon, lbl):
         """adds a new tab to the Preferences, and returns the new index"""
-        return self.tabWidget.addTab(widget, icon, lbl)
+        return self.stackedWidget.addTab(widget, icon, lbl)
 
     def insert_section(self, idx, widget, lbl):
         """inserts a new tab at the given index"""
-        return self.tabWidget.insertTab(idx, widget, lbl)
+        return self.stackedWidget.insertTab(idx, widget, lbl)
 
     def remove_section(self, idx):
         """removes a tab"""
-        return self.tabWidget.removeTab(idx)
+        return self.stackedWidget.removeTab(idx)
 
     def enable_section(self, idx, enable):
         """enables or disables a tab"""
-        return self.tabWidget.setTabEnabled(idx, enable)
+        return self.stackedWidget.setTabEnabled(idx, enable)
 
     def set_section_title(self, idx, text):
         """changes the title of a tab"""
-        return self.tabWidget.setTabText(idx, text)
+        return self.stackedWidget.setTabText(idx, text)
 
     def set_section_visible(self, idx, visible):
         """makes the tab visible or not"""
-        return self.tabWidget.setTabVisible(idx, visible)
+        return self.stackedWidget.setTabVisible(idx, visible)
 
     def get_section(self, idx):
         """returns the widget of the given index"""
-        return self.tabWidget.widget(idx)
+        return self.stackedWidget.widget(idx)
 
     def show_node_prefs(self, addr):
         """opens the dialog going directly to the Nodes tab"""
@@ -185,7 +217,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         nIdx = self.comboNodes.findData(addr)
         if nIdx != -1:
             self.comboNodes.setCurrentIndex(nIdx)
-            self.tabWidget.setCurrentIndex(self.TAB_NODES)
+            self.stackedWidget.setCurrentIndex(self.TAB_NODES)
 
     def init(self):
         self.loading_settings = True
@@ -232,6 +264,10 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             del self._notifications_sent[reply.id]
         else:
             self.logger.debug("ntf reply not in the list: %s, %s", addr, reply)
+
+    def cb_list_item_activated(self, item):
+        idx = self.listWidget.currentRow()
+        self.stackedWidget.setCurrentIndex(idx)
 
     def cb_line_certs_changed(self, text):
         if self.loading_settings:
