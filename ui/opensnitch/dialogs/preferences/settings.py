@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 from PyQt6.QtCore import QCoreApplication as QC
 
@@ -146,6 +147,25 @@ def save_ui_config(win):
         if old_keepalive_timeout != keepalive_timeout:
             win.cfgMgr.setSettings(Config.DEFAULT_SERVER_KEEPALIVE_TIMEOUT, int(win.spinGrpcKeepaliveTimeout.value()))
             win.changes_needs_restart = QC.translate("preferences", "Server keepalive timeout changed")
+
+        old_loglvl = win.cfgMgr.getInt(Config.DEFAULT_SERVER_LOG_LEVEL, logging.WARNING)
+        loglvl = win.comboServerLogLevel.currentData()
+        if old_loglvl != loglvl:
+            win.cfgMgr.setSettings(Config.DEFAULT_SERVER_LOG_LEVEL, int(loglvl))
+            win.changes_needs_restart = QC.translate("preferences", "Server log level changed")
+
+        old_logfile = win.cfgMgr.getSettings(Config.DEFAULT_SERVER_LOG_FILE)
+        logfile = win.lineServerLogFile.text()
+        logIdx = win.comboServerLogOutput.currentIndex()
+        if logfile == "" and logIdx == 1:
+            utils.set_status_error(win, QC.translate("preferences", "log file path cannot be empty"))
+            return False
+
+        if logfile != "" and old_logfile != logfile:
+            win.changes_needs_restart = QC.translate("preferences", "Server log file changed")
+            win.cfgMgr.setSettings(Config.DEFAULT_SERVER_LOG_FILE, logfile)
+        else:
+            win.cfgMgr.setSettings(Config.DEFAULT_SERVER_LOG_FILE, None)
 
         if savedauthtype != authtype or win.lineCertFile.text() != cert or \
                 win.lineCertKeyFile.text() != certkey or win.lineCACertFile.text() != cacert:
@@ -359,7 +379,7 @@ def build_node_config(win, addr):
     """load the config of a node before sending it back to the node"""
     try:
         if win.comboNodeAddress.currentText() == "":
-            return None, QC.translate("preferences", "Server address can not be empty")
+            return None, QC.translate("preferences", "Server address cannot be empty")
 
         node_action = Config.ACTION_DENY
         if win.comboNodeAction.currentIndex() == Config.ACTION_ALLOW_IDX:

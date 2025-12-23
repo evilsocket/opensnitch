@@ -1322,13 +1322,13 @@ wayland</string>
         <property name="bottomMargin">
          <number>0</number>
         </property>
-        <item row="1" column="0">
+        <item row="0" column="0">
          <widget class="QToolBox" name="toolBox">
           <property name="currentIndex">
            <number>0</number>
           </property>
           <property name="tabSpacing">
-           <number>0</number>
+           <number>4</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="geometry">
@@ -1336,7 +1336,7 @@ wayland</string>
              <x>0</x>
              <y>0</y>
              <width>559</width>
-             <height>366</height>
+             <height>354</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1469,7 +1469,7 @@ or a network socket: 127.0.0.1:50051</string>
              <x>0</x>
              <y>0</y>
              <width>559</width>
-             <height>366</height>
+             <height>354</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1491,51 +1491,8 @@ or a network socket: 127.0.0.1:50051</string>
             <property name="bottomMargin">
              <number>0</number>
             </property>
-            <item row="0" column="1">
-             <widget class="QLabel" name="label_37">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Log output</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLineEdit" name="lineServerLogFile"/>
-            </item>
-            <item row="1" column="1">
-             <widget class="QPushButton" name="cmdServerLogFile">
-              <property name="text">
-               <string>Open</string>
-              </property>
-              <property name="icon">
-               <iconset theme="QIcon::ThemeIcon::EditFind"/>
-              </property>
-              <property name="flat">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QComboBox" name="comboServerLogOutput">
-              <item>
-               <property name="text">
-                <string>Stdout</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>File</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="2" column="1" colspan="2">
-             <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item row="0" column="1" colspan="3">
+             <layout class="QHBoxLayout" name="horizontalLayout_13">
               <item>
                <widget class="QLabel" name="label_36">
                 <property name="sizePolicy">
@@ -1550,22 +1507,9 @@ or a network socket: 127.0.0.1:50051</string>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
                <widget class="QComboBox" name="comboServerLogLevel">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -1594,6 +1538,72 @@ or a network socket: 127.0.0.1:50051</string>
               </item>
              </layout>
             </item>
+            <item row="3" column="1">
+             <widget class="QPushButton" name="cmdServerLogFile">
+              <property name="text">
+               <string>Open</string>
+              </property>
+              <property name="icon">
+               <iconset theme="QIcon::ThemeIcon::EditFind"/>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" colspan="3">
+             <layout class="QHBoxLayout" name="horizontalLayout_14">
+              <item>
+               <widget class="QLabel" name="label_37">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Log output</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboServerLogOutput">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Stdout</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>File</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="3">
+             <widget class="QLineEdit" name="lineServerLogFile"/>
+            </item>
+            <item row="4" column="3">
+             <spacer name="verticalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="page_2">
@@ -1602,7 +1612,7 @@ or a network socket: 127.0.0.1:50051</string>
              <x>0</x>
              <y>0</y>
              <width>559</width>
-             <height>366</height>
+             <height>354</height>
             </rect>
            </property>
            <attribute name="label">

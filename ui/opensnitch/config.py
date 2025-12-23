@@ -112,6 +112,10 @@ class Config:
     DEFAULT_SERVER_MAX_MESSAGE_LENGTH  = "global/server_max_message_length"
     DEFAULT_SERVER_MAX_WORKERS = "global/max_workers"
     DEFAULT_SERVER_MAX_CLIENTS = "global/max_clients"
+    DEFAULT_SERVER_KEEPALIVE = "global/server_keepalive"
+    DEFAULT_SERVER_KEEPALIVE_TIMEOUT = "global/server_keepalive_timeout"
+    DEFAULT_SERVER_LOG_LEVEL = "global/server_log_level"
+    DEFAULT_SERVER_LOG_FILE = "global/server_log_file"
     DEFAULT_HIDE_SYSTRAY_WARN  = "global/hide_systray_warning"
 
     DEFAULT_DB_TYPE_KEY       = "database/type"

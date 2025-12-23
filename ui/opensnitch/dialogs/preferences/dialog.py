@@ -1,5 +1,6 @@
 import sys
 import os
+import logging
 
 from PyQt6 import QtCore, QtGui, uic, QtWidgets
 from PyQt6.QtCore import QCoreApplication as QC
@@ -148,6 +149,13 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboUIAction.setItemIcon(Config.ACTION_DENY_IDX, denyIcon)
         self.comboUIAction.setItemIcon(Config.ACTION_ALLOW_IDX, allowIcon)
         self.comboUIAction.setItemIcon(Config.ACTION_REJECT_IDX, rejectIcon)
+
+        self.comboServerLogLevel.clear()
+        self.comboServerLogLevel.addItem("not set", logging.NOTSET)
+        self.comboServerLogLevel.addItem("DEBUG", logging.DEBUG)
+        self.comboServerLogLevel.addItem("INFO", logging.INFO)
+        self.comboServerLogLevel.addItem("WARNING", logging.WARNING)
+        self.comboServerLogLevel.addItem("ERROR", logging.ERROR)
 
         leftOpts = [
             {
@@ -316,6 +324,23 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if fileName:
             self.dbLabel.setText(fileName)
         self.changes_needs_restart = QC.translate("preferences", "DB file changed")
+
+    def cb_server_logoutput_combo_changed(self, idx):
+        if self.loading_settings:
+            return
+        logToFile = (idx == 1)
+        self.cmdServerLogFile.setEnabled(logToFile)
+        self.lineServerLogFile.setEnabled(logToFile)
+
+    def cb_cmd_server_logfile_clicked(self):
+        logFile, _ = QtWidgets.QFileDialog.getSaveFileName(self, "", "","All Files (*)")
+        if logFile:
+            self.lineServerLogFile.setText(logFile)
+
+    def cb_line_server_logfile_changed(self, text):
+        if self.loading_settings:
+            return
+        self.changes_needs_restart = QC.translate("preferences", "Server log file changed")
 
     def cb_combo_uirules_changed(self, idx):
         if self.loading_settings:

@@ -1,4 +1,5 @@
 import os
+import logging
 
 from PyQt6.QtCore import QCoreApplication as QC
 from opensnitch.utils import languages
@@ -127,6 +128,21 @@ def load_ui_settings(win):
         win.lineCertFile.setEnabled(False)
         win.lineCertKeyFile.setEnabled(False)
     win.comboAuthType.setCurrentIndex(authtype_idx)
+
+    loglevel = win.cfgMgr.getInt(Config.DEFAULT_SERVER_LOG_LEVEL, logging.WARNING)
+    logLvlIdx = win.comboServerLogLevel.findData(loglevel)
+    win.comboServerLogLevel.blockSignals(True)
+    win.comboServerLogLevel.setCurrentIndex(logLvlIdx)
+    win.comboServerLogLevel.blockSignals(False)
+
+    logfile = win.cfgMgr.getSettings(Config.DEFAULT_SERVER_LOG_FILE)
+    if logfile != "" and logfile != None:
+        win.comboServerLogOutput.setCurrentIndex(1)
+        win.lineServerLogFile.setText(logfile)
+    else:
+        win.cmdServerLogFile.setEnabled(False)
+        win.lineServerLogFile.setEnabled(False)
+        win.comboServerLogOutput.setCurrentIndex(0)
 
     load_ui_columns_config(win)
 
