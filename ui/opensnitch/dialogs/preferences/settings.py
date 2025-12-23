@@ -32,6 +32,7 @@ def save(win):
 
 def load(win):
     """load the settings from the configuration file"""
+    ## general
     win.default_action = win.cfgMgr.getInt(win.cfgMgr.DEFAULT_ACTION_KEY)
     win.default_target = win.cfgMgr.getInt(win.cfgMgr.DEFAULT_TARGET_KEY, 0)
     win.default_timeout = win.cfgMgr.getInt(win.cfgMgr.DEFAULT_TIMEOUT_KEY, Config.DEFAULT_TIMEOUT)
@@ -56,6 +57,7 @@ def load(win):
     win.uidCheck.setChecked(win.cfgMgr.getBool(win.cfgMgr.DEFAULT_POPUP_ADVANCED_UID))
     win.checkSum.setChecked(win.cfgMgr.getBool(win.cfgMgr.DEFAULT_POPUP_ADVANCED_CHECKSUM))
 
+    ## rules
     win.comboUIRules.blockSignals(True)
     win.comboUIRules.setCurrentIndex(win.cfgMgr.getInt(win.cfgMgr.DEFAULT_IGNORE_TEMPORARY_RULES))
     win.checkUIRules.setChecked(win.cfgMgr.getBool(win.cfgMgr.DEFAULT_IGNORE_RULES))
@@ -69,7 +71,8 @@ def load(win):
     )
     win.comboUIRules.blockSignals(False)
 
-        # by default, if no configuration exists, enable notifications.
+    ## ui
+    # by default, if no configuration exists, enable notifications.
     win.groupNotifs.setChecked(win.cfgMgr.getBool(Config.NOTIFICATIONS_ENABLED, True))
     win.radioSysNotifs.setChecked(
         True if win.cfgMgr.getInt(Config.NOTIFICATIONS_TYPE) == Config.NOTIFICATION_TYPE_SYSTEM and win.desktop_notifications.is_available() == True else False
@@ -131,6 +134,18 @@ def save_ui_config(win):
         if old_clients != max_clients:
             win.cfgMgr.setSettings(Config.DEFAULT_SERVER_MAX_CLIENTS, int(win.spinGrpcMaxClients.value()))
             win.changes_needs_restart = QC.translate("preferences", "Server max clients changed")
+
+        old_keepalive = win.cfgMgr.getInt(Config.DEFAULT_SERVER_KEEPALIVE, 0)
+        keepalive = win.spinGrpcKeepalive.value()
+        if old_keepalive != keepalive:
+            win.cfgMgr.setSettings(Config.DEFAULT_SERVER_KEEPALIVE, int(win.spinGrpcKeepalive.value()))
+            win.changes_needs_restart = QC.translate("preferences", "Server keepalive changed")
+
+        old_keepalive_timeout = win.cfgMgr.getInt(Config.DEFAULT_SERVER_KEEPALIVE_TIMEOUT, 0)
+        keepalive_timeout = win.spinGrpcKeepaliveTimeout.value()
+        if old_keepalive_timeout != keepalive_timeout:
+            win.cfgMgr.setSettings(Config.DEFAULT_SERVER_KEEPALIVE_TIMEOUT, int(win.spinGrpcKeepaliveTimeout.value()))
+            win.changes_needs_restart = QC.translate("preferences", "Server keepalive timeout changed")
 
         if savedauthtype != authtype or win.lineCertFile.text() != cert or \
                 win.lineCertKeyFile.text() != certkey or win.lineCACertFile.text() != cacert:
@@ -239,7 +254,7 @@ def save_ui_columns_config(win):
 def save_nodes_config(win):
     addr = section_nodes.get_node_addr(win)
     if win.node_needs_update is False:
-        return False
+        return True
     if addr is None:
         utils.set_status_message(win, QC.translate("preferences", "There're no nodes connected"))
         return False

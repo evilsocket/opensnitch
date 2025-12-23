@@ -14,6 +14,76 @@
    <string>Preferences</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="helpButton">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="help-browser">
+         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Close</string>
+       </property>
+       <property name="icon">
+        <iconset theme="window-close">
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="applyButton">
+       <property name="text">
+        <string>Apply</string>
+       </property>
+       <property name="icon">
+        <iconset theme="document-save">
+         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="acceptButton">
+       <property name="text">
+        <string>Save</string>
+       </property>
+       <property name="icon">
+        <iconset theme="emblem-default">
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item row="0" column="0">
     <widget class="QSplitter" name="splitter">
      <property name="sizePolicy">
@@ -61,7 +131,7 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="stackedWidgetPage1" native="true">
+      <widget class="QWidget" name="stackedWidgetPage1">
        <layout class="QGridLayout" name="gridLayout_2">
         <property name="leftMargin">
          <number>6</number>
@@ -552,7 +622,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="stackedWidgetPage2" native="true">
+      <widget class="QWidget" name="stackedWidgetPage2">
        <layout class="QGridLayout" name="gridLayout_6">
         <property name="leftMargin">
          <number>6</number>
@@ -572,7 +642,7 @@
            <number>0</number>
           </property>
           <property name="tabSpacing">
-           <number>6</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="page_5">
            <property name="geometry">
@@ -580,7 +650,7 @@
              <x>0</x>
              <y>0</y>
              <width>567</width>
-             <height>334</height>
+             <height>352</height>
             </rect>
            </property>
            <attribute name="label">
@@ -931,8 +1001,8 @@ wayland</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>547</width>
-             <height>330</height>
+             <width>318</width>
+             <height>108</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1027,8 +1097,8 @@ wayland</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>547</width>
-             <height>330</height>
+             <width>318</width>
+             <height>126</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1252,32 +1322,35 @@ wayland</string>
         <property name="bottomMargin">
          <number>0</number>
         </property>
-        <item row="0" column="0">
-         <widget class="QScrollArea" name="scrollArea">
-          <property name="frameShape">
-           <enum>QFrame::Shape::NoFrame</enum>
+        <item row="1" column="0">
+         <widget class="QToolBox" name="toolBox">
+          <property name="currentIndex">
+           <number>0</number>
           </property>
-          <property name="frameShadow">
-           <enum>QFrame::Shadow::Plain</enum>
+          <property name="tabSpacing">
+           <number>0</number>
           </property>
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_2">
+          <widget class="QWidget" name="page">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
              <width>559</width>
-             <height>432</height>
+             <height>366</height>
             </rect>
            </property>
+           <attribute name="label">
+            <string>General</string>
+           </attribute>
+           <attribute name="toolTip">
+            <string>Server options of the server (UI)</string>
+           </attribute>
            <layout class="QGridLayout" name="gridLayout_20">
             <property name="leftMargin">
-             <number>0</number>
+             <number>6</number>
             </property>
             <property name="topMargin">
-             <number>0</number>
+             <number>4</number>
             </property>
             <property name="rightMargin">
              <number>0</number>
@@ -1285,7 +1358,51 @@ wayland</string>
             <property name="bottomMargin">
              <number>0</number>
             </property>
-            <item row="1" column="2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_32">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Set the address where the GUI is listening for new nodes.
+
+It can be a unix socket: unix:///run/user/1000/opensnitch/osui.sock
+
+or a network socket: 127.0.0.1:50051</string>
+              </property>
+              <property name="text">
+               <string>Address</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="comboServerAddr">
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+              <item>
+               <property name="text">
+                <string>unix:///tmp/osui.sock</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_24">
+              <property name="toolTip">
+               <string>&lt;p&gt;Simple: no authentication&lt;/p&gt;
+&lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
+&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
+              </property>
+              <property name="text">
+               <string>Authentication type</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
              <widget class="QComboBox" name="comboAuthType">
               <item>
                <property name="text">
@@ -1304,7 +1421,195 @@ wayland</string>
               </item>
              </widget>
             </item>
-            <item row="6" column="0" colspan="2">
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_28">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;More information&lt;/a&gt;</string>
+              </property>
+              <property name="openExternalLinks">
+               <bool>true</bool>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QLineEdit" name="lineCACertFile">
+              <property name="placeholderText">
+               <string>Absolute path to the CA cert file</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QLineEdit" name="lineCertFile">
+              <property name="placeholderText">
+               <string>Absolute path to the cert file</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="QLineEdit" name="lineCertKeyFile">
+              <property name="placeholderText">
+               <string>Absolute path to the cert key file</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="page_6">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>559</width>
+             <height>366</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Logging</string>
+           </attribute>
+           <attribute name="toolTip">
+            <string>Logging options of the UI</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_21">
+            <property name="leftMargin">
+             <number>6</number>
+            </property>
+            <property name="topMargin">
+             <number>4</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item row="0" column="1">
+             <widget class="QLabel" name="label_37">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Log output</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLineEdit" name="lineServerLogFile"/>
+            </item>
+            <item row="1" column="1">
+             <widget class="QPushButton" name="cmdServerLogFile">
+              <property name="text">
+               <string>Open</string>
+              </property>
+              <property name="icon">
+               <iconset theme="QIcon::ThemeIcon::EditFind"/>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QComboBox" name="comboServerLogOutput">
+              <item>
+               <property name="text">
+                <string>Stdout</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>File</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="2" column="1" colspan="2">
+             <layout class="QHBoxLayout" name="horizontalLayout_12">
+              <item>
+               <widget class="QLabel" name="label_36">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Log level</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboServerLogLevel">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>DEBUG</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>INFO</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>WARNING</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>ERROR</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="page_2">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>559</width>
+             <height>366</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Internal</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_13">
+            <item row="0" column="0">
              <widget class="QLabel" name="label_20">
               <property name="toolTip">
                <string>Maximum size of each message from nodes. Default 4MB</string>
@@ -1314,25 +1619,66 @@ wayland</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="0" colspan="3">
-             <widget class="QLineEdit" name="lineCACertFile">
-              <property name="placeholderText">
-               <string>Absolute path to the CA cert file</string>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="comboGrpcMsgSize">
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+              <property name="currentText">
+               <string notr="true">4MiB</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>4MiB</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>8MiB</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>16MiB</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>32MiB</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_34">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>This option configures the server workers. Each connected node consumes about 2 workers.
+If there're more nodes than workers, the GUI will not allow new messages from nodes until
+you configure this option accordingly.</string>
+              </property>
+              <property name="text">
+               <string>Max server workers</string>
               </property>
              </widget>
             </item>
-            <item row="8" column="2">
-             <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <item row="1" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_17">
               <property name="spacing">
                <number>0</number>
               </property>
               <item>
-               <spacer name="horizontalSpacer_6">
+               <spacer name="horizontalSpacer_9">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="sizeType">
-                 <enum>QSizePolicy::Policy::Preferred</enum>
+                 <enum>QSizePolicy::Policy::Maximum</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -1382,7 +1728,7 @@ wayland</string>
                  <bool>true</bool>
                 </property>
                 <property name="maximum">
-                 <number>100000</number>
+                 <number>10000</number>
                 </property>
                 <property name="value">
                  <number>20</number>
@@ -1413,112 +1759,7 @@ wayland</string>
               </item>
              </layout>
             </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_28">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;More information&lt;/a&gt;</string>
-              </property>
-              <property name="openExternalLinks">
-               <bool>true</bool>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="0">
-             <widget class="QLabel" name="label_34">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>This option configures the server workers. Each connected node consumes about 2 workers.
-If there're more nodes than workers, the GUI will not allow new messages from nodes until
-you configure this option accordingly.</string>
-              </property>
-              <property name="text">
-               <string>Max server workers</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QComboBox" name="comboServerAddr">
-              <property name="editable">
-               <bool>true</bool>
-              </property>
-              <item>
-               <property name="text">
-                <string>unix:///tmp/osui.sock</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="QLabel" name="label_24">
-              <property name="toolTip">
-               <string>&lt;p&gt;Simple: no authentication&lt;/p&gt;
-&lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
-&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</string>
-              </property>
-              <property name="text">
-               <string>Authentication type</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="2">
-             <widget class="QComboBox" name="comboGrpcMsgSize">
-              <property name="editable">
-               <bool>true</bool>
-              </property>
-              <property name="currentText">
-               <string notr="true">4MiB</string>
-              </property>
-              <item>
-               <property name="text">
-                <string>4MiB</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>8MiB</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>16MiB</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>32MiB</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="3" column="0" colspan="3">
-             <widget class="QLineEdit" name="lineCertFile">
-              <property name="placeholderText">
-               <string>Absolute path to the cert file</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" colspan="3">
-             <widget class="QLineEdit" name="lineCertKeyFile">
-              <property name="placeholderText">
-               <string>Absolute path to the cert key file</string>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="0" colspan="2">
+            <item row="2" column="0">
              <widget class="QLabel" name="label_35">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -1535,18 +1776,18 @@ Set it to 0 to disable the limit.</string>
               </property>
              </widget>
             </item>
-            <item row="9" column="2">
-             <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item row="2" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_16">
               <property name="spacing">
                <number>0</number>
               </property>
               <item>
-               <spacer name="horizontalSpacer_7">
+               <spacer name="horizontalSpacer_8">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="sizeType">
-                 <enum>QSizePolicy::Policy::Preferred</enum>
+                 <enum>QSizePolicy::Policy::Maximum</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -1596,7 +1837,7 @@ Set it to 0 to disable the limit.</string>
                  <bool>true</bool>
                 </property>
                 <property name="maximum">
-                 <number>100</number>
+                 <number>10000</number>
                 </property>
                 <property name="value">
                  <number>0</number>
@@ -1627,8 +1868,8 @@ Set it to 0 to disable the limit.</string>
               </item>
              </layout>
             </item>
-            <item row="0" column="0" colspan="2">
-             <widget class="QLabel" name="label_32">
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_39">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                 <horstretch>0</horstretch>
@@ -1636,16 +1877,221 @@ Set it to 0 to disable the limit.</string>
                </sizepolicy>
               </property>
               <property name="toolTip">
-               <string>Set the address where the GUI is listening for new nodes.
-
-It can be a unix socket: unix:///run/user/1000/opensnitch/osui.sock
-
-or a network socket: 127.0.0.1:50051</string>
+               <string>Every n milliseconds, the server will verify if the clients are alived.
+If we don't receive a response from a client in n milliseconds,
+the Keepalive timeout timer will start to count.</string>
               </property>
               <property name="text">
-               <string>Address</string>
+               <string>Keepalive interval (milliseconds)</string>
               </property>
              </widget>
+            </item>
+            <item row="3" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_18">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <spacer name="horizontalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Policy::Preferred</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="cmdGrpcKeepaliveDown">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>14</pointsize>
+                  <fontweight>ExtraBold</fontweight>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spinGrpcKeepalive">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
+                </property>
+                <property name="accelerated">
+                 <bool>true</bool>
+                </property>
+                <property name="maximum">
+                 <number>999999999</number>
+                </property>
+                <property name="singleStep">
+                 <number>1000</number>
+                </property>
+                <property name="value">
+                 <number>5000</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="cmdGrpcKeepaliveUp">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>14</pointsize>
+                  <fontweight>ExtraBold</fontweight>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_38">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>After n milliseconds, the server will close the connection with the client
+that has stopped responding.</string>
+              </property>
+              <property name="text">
+               <string>Keepalive timeout (milliseconds)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_19">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <spacer name="horizontalSpacer_11">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Policy::Preferred</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="cmdGrpcKeepaliveTimeoutDown">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>14</pointsize>
+                  <fontweight>ExtraBold</fontweight>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spinGrpcKeepaliveTimeout">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
+                </property>
+                <property name="accelerated">
+                 <bool>true</bool>
+                </property>
+                <property name="maximum">
+                 <number>999999999</number>
+                </property>
+                <property name="singleStep">
+                 <number>1000</number>
+                </property>
+                <property name="value">
+                 <number>20000</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="cmdGrpcKeepaliveTimeoutUp">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>14</pointsize>
+                  <fontweight>ExtraBold</fontweight>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
@@ -1653,7 +2099,7 @@ or a network socket: 127.0.0.1:50051</string>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="stackedWidgetPage3" native="true">
+      <widget class="QWidget" name="stackedWidgetPage3">
        <layout class="QGridLayout" name="gridLayout_11">
         <property name="leftMargin">
          <number>6</number>
@@ -1737,7 +2183,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="stackedWidgetPage4" native="true">
+      <widget class="QWidget" name="stackedWidgetPage4">
        <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0,0">
         <property name="leftMargin">
          <number>6</number>
@@ -1798,7 +2244,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
           <property name="documentMode">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="tabWidgetPage1" native="true">
+          <widget class="QWidget" name="tabWidgetPage1">
            <attribute name="title">
             <string>General</string>
            </attribute>
@@ -1948,7 +2394,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tabWidgetPage2" native="true">
+          <widget class="QWidget" name="tabWidgetPage2">
            <attribute name="title">
             <string>Log</string>
            </attribute>
@@ -2076,7 +2522,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tabWidgetPage3" native="true">
+          <widget class="QWidget" name="tabWidgetPage3">
            <attribute name="title">
             <string>Authentication</string>
            </attribute>
@@ -2209,7 +2655,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tabWidgetPage4" native="true">
+          <widget class="QWidget" name="tabWidgetPage4">
            <attribute name="title">
             <string>Rules</string>
            </attribute>
@@ -2302,7 +2748,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tabWidgetPage5" native="true">
+          <widget class="QWidget" name="tabWidgetPage5">
            <attribute name="title">
             <string>Internal</string>
            </attribute>
@@ -2556,7 +3002,7 @@ Use 0 to disable this feature.</string>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="stackedWidgetPage5" native="true">
+      <widget class="QWidget" name="stackedWidgetPage5">
        <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,0,0,0,0">
         <property name="sizeConstraint">
          <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
@@ -2880,76 +3326,6 @@ Use 0 to disable this feature.</string>
       </widget>
      </widget>
     </widget>
-   </item>
-   <item row="2" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="helpButton">
-       <property name="mouseTracking">
-        <bool>true</bool>
-       </property>
-       <property name="toolTip">
-        <string/>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset theme="help-browser">
-         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cancelButton">
-       <property name="text">
-        <string>Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="window-close">
-         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="applyButton">
-       <property name="text">
-        <string>Apply</string>
-       </property>
-       <property name="icon">
-        <iconset theme="document-save">
-         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="acceptButton">
-       <property name="text">
-        <string>Save</string>
-       </property>
-       <property name="icon">
-        <iconset theme="emblem-default">
-         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="statusLabel">

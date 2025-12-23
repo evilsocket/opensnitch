@@ -150,12 +150,30 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.comboUIAction.setItemIcon(Config.ACTION_REJECT_IDX, rejectIcon)
 
         leftOpts = [
-            { 'icon': Icons.new(self, 'pop-ups'), 'text': 'Pop-ups'},
-            { 'icon': Icons.new(self, 'window-new'), 'text': 'UI'},
-            { 'icon': Icons.new(self, 'network-server'), 'text': 'Server'},
-            { 'icon': Icons.new(self, 'format-justify-fill'), 'text': 'Rules'},
-            { 'icon': Icons.new(self, 'computer'), 'text': 'Nodes'},
-            { 'icon': Icons.new(self, 'drive-harddisk'), 'text': 'Database'}
+            {
+                'icon': Icons.new(self, 'pop-ups'),
+                'text': QC.translate('preferences', 'Pop-ups')
+            },
+            {
+                'icon': Icons.new(self, 'window-new'),
+                'text': QC.translate('preferences', 'UI')
+            },
+            {
+                'icon': Icons.new(self, 'network-server'),
+                'text': QC.translate('preferences', 'Server')
+            },
+            {
+                'icon': Icons.new(self, 'format-justify-fill'),
+                'text': QC.translate('preferences', 'Rules')
+            },
+            {
+                'icon': Icons.new(self, 'computer'),
+                'text': QC.translate('preferences', 'Nodes')
+            },
+            {
+                'icon': Icons.new(self, 'drive-harddisk'),
+                'text': QC.translate('preferences', 'Database')
+            }
         ]
         self.listWidget.setIconSize(QtCore.QSize(64, 64))
         for opt in leftOpts:

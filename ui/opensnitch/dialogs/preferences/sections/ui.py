@@ -112,6 +112,10 @@ def load_ui_settings(win):
     win.spinGrpcMaxWorkers.setValue(max_workers)
     max_clients = win.cfgMgr.getInt(Config.DEFAULT_SERVER_MAX_CLIENTS, 0)
     win.spinGrpcMaxClients.setValue(max_clients)
+    keepalive = win.cfgMgr.getInt(Config.DEFAULT_SERVER_KEEPALIVE, 5000)
+    win.spinGrpcKeepalive.setValue(keepalive)
+    keepalive_timeout = win.cfgMgr.getInt(Config.DEFAULT_SERVER_KEEPALIVE_TIMEOUT, 20000)
+    win.spinGrpcKeepaliveTimeout.setValue(keepalive_timeout)
 
     win.lineCACertFile.setText(win.cfgMgr.getSettings(Config.AUTH_CA_CERT))
     win.lineCertFile.setText(win.cfgMgr.getSettings(Config.AUTH_CERT))

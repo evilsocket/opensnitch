@@ -218,17 +218,17 @@ Examples:
                 else:
                     args.socket = addr
 
+        keepalive = cfg.getInt(Config.DEFAULT_SERVER_KEEPALIVE, 5000)
+        keepalive_timeout = cfg.getInt(Config.DEFAULT_SERVER_KEEPALIVE_TIMEOUT, 20000)
         maxmsglen = cfg.getMaxMsgLength()
         server_options = (
             # https://github.com/grpc/grpc/blob/master/doc/keepalive.md
             # https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
             # send keepalive ping every 5 second, default is 2 hours)
-            # TODO: configure this option via cli and Preferences
-            ('grpc.keepalive_time_ms', 5000),
+            ('grpc.keepalive_time_ms', keepalive),
             # after 5s of inactivity, wait 20s and close the connection if
             # there's no response.
-            # TODO: configure these options via cli and Preferences
-            ('grpc.keepalive_timeout_ms', 20000),
+            ('grpc.keepalive_timeout_ms', keepalive_timeout),
             ('grpc.keepalive_permit_without_calls', True),
             ('grpc.max_send_message_length', maxmsglen),
             ('grpc.max_receive_message_length', maxmsglen),
@@ -281,7 +281,7 @@ Examples:
             parts = args.socket.split("@")
             args.socket = "unix-abstract:{0}".format(parts[1])
 
-        logger.info("[server] using address: %s auth type: %s", args.socket, auth_type)
+        logger.info("[server] using address: %s auth type: %s keepalive: %d keepalive timeout: %d", args.socket, auth_type, keepalive, keepalive_timeout)
 
         if auth_type == auth.Simple or auth_type == "":
             server.add_insecure_port(args.socket)

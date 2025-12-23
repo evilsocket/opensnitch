@@ -85,9 +85,9 @@ def configure_notifications(win):
 def cmd_spin_clicked(win, widget, operation):
     win.settings_changed = True
     if operation == win.SUM:
-        widget.setValue(widget.value() + 1)
+        widget.setValue(widget.value() + widget.singleStep())
     else:
-        widget.setValue(widget.value() - 1)
+        widget.setValue(widget.value() - widget.singleStep())
 
     if widget == win.popupsCheck:
         enablePopups = widget.value() > 0
