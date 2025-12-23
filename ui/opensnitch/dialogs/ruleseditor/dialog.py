@@ -91,7 +91,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self._users_list = pwd.getpwall()
                 self.uidCombo.blockSignals(True);
                 for user in self._users_list:
-                    self.uidCombo.addItem("{0} ({1})".format(user[constants.PW_USER], user[self.PW_UID]), user[self.PW_UID])
+                    self.uidCombo.addItem("{0} ({1})".format(user[constants.PW_USER], user[constants.PW_UID]), user[constants.PW_UID])
             except Exception as e:
                 self.logger.warning("Error adding IPs: %s", repr(e))
             finally:
