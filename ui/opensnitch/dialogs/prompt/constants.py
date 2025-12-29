@@ -4,6 +4,8 @@ PAGE_MAIN = 2
 PAGE_DETAILS = 0
 PAGE_CHECKSUMS = 1
 
+WARNING_LABEL = "#warning-checksum"
+
 DEFAULT_TIMEOUT = 15
 
 # don't translate

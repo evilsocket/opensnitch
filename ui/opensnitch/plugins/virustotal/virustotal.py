@@ -1,7 +1,7 @@
-import logging
-import requests
 import json
 import re
+import logging
+import requests
 
 from PyQt6 import QtCore
 from opensnitch.version import version
@@ -27,7 +27,6 @@ class VTSignals(QtCore.QObject):
 class VTAnalysis(QtCore.QRunnable):
     def __init__(self, parent, config, what, url, timeout, api_key, conn):
         super(VTAnalysis, self).__init__()
-        #QtCore.QThread.__init__(self)
         self.signals = VTSignals()
         self.parent = parent
         self.config = config
@@ -59,8 +58,7 @@ class VTAnalysis(QtCore.QRunnable):
             self.signals.error.emit(what, parent, conf, "Exception: {0}".format(e), conn, response)
 
 class Virustotal(PluginBase):
-    """
-    Analyzes properties of a connection: domain, IP, file hash.
+    """Analyzes properties of a connection: domain, IP, file hash.
     json format:
         {
             "config": {
@@ -148,6 +146,7 @@ class Virustotal(PluginBase):
     # reputation: <integer> domain's score calculated from the votes of the
     # VirusTotal's community.
 
+    VT_DOMAIN = "www.virustotal.com"
     API_DOMAINS = "https://www.virustotal.com/api/v3/domains/"
     API_IPS = "https://www.virustotal.com/api/v3/ip_addresses/"
     #sha256, sha1 or md5
@@ -202,6 +201,7 @@ class Virustotal(PluginBase):
         if type(parent) == PromptDialog:
             vt_tab = _popups.build_vt_tab(self, parent)
             _popups.add_vt_tab(parent, vt_tab)
+            parent.messageLabel.linkActivated.connect(lambda link: _popups._cb_popup_link_clicked(link, parent))
 
         elif type(parent) == ProcessDetailsDialog:
             vt_tab = _procdialog.build_vt_tab(self, parent)
@@ -249,12 +249,10 @@ class Virustotal(PluginBase):
                 logger.debug("Virustotal error: parent type not supported: %s", type(parent))
                 return
 
-            parent.messageLabel.disconnect()
-            parent.messageLabel.linkActivated.connect(lambda link: _popups._cb_popup_link_clicked(link, parent))
             _popups.reset_widgets_state(parent)
             #_popups.add_analyzing_msg(self, parent)
             conn = args[0]
-            if 'www.virustotal.com' == conn.dst_host:
+            if conn.dst_host == Virustotal.VT_DOMAIN:
                 return
             if self.lan_regex.match(conn.dst_host) is not None or self.lan_regex.match(conn.dst_ip) is not None:
                 return

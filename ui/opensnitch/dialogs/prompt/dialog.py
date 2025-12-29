@@ -275,7 +275,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def _cb_warninglbl_clicked(self, link):
         self.stop_countdown()
-        if link == "#warning-checksum":
+        if link == constants.WARNING_LABEL:
             self.stackedWidget.setCurrentIndex(constants.PAGE_CHECKSUMS)
 
     def _cb_cmdinfo_clicked(self):
