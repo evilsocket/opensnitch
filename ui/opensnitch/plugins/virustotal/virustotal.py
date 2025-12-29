@@ -7,7 +7,7 @@ from PyQt6 import QtCore
 from opensnitch.version import version
 from opensnitch.config import Config
 from opensnitch.plugins import PluginBase, PluginSignal
-from opensnitch.dialogs.prompt import PromptDialog
+from opensnitch.dialogs.prompt import PromptDialog, constants
 from opensnitch.dialogs.processdetails import ProcessDetailsDialog
 from opensnitch.plugins.virustotal import _popups
 from opensnitch.plugins.virustotal import _procdialog
@@ -390,10 +390,16 @@ class Virustotal(PluginBase):
 
             parent.set_message_text(message)
 
-            if Virustotal.CHECK_DOMAINS == what:
-                parent.set_message_style(labelStyle)
             if Virustotal.CHECK_IPS == what:
                 parent.destIPLabel.setStyleSheet(labelStyle)
+
+            # skip setting checksum's or global labels style if there's a
+            # warning about the checksum.
+            if constants.WARNING_LABEL in parent.get_message_text():
+                return
+
+            if Virustotal.CHECK_DOMAINS == what:
+                parent.set_message_style(labelStyle)
             if Virustotal.CHECK_FILES_HASHES == what:
                 parent.checksumLabel.setStyleSheet(labelStyle)
 
