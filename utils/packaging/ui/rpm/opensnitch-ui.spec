@@ -4,6 +4,7 @@
 %define release 1
 %define __python python3
 %define desktop_file opensnitch_ui.desktop
+%define _binary_payload w9.gzdio
 
 Summary: Prompt service and UI for the OpenSnitch interactive application firewall.
 Name: %{name}
