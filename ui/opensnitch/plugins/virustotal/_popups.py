@@ -1,4 +1,3 @@
-import json
 from PyQt6 import QtWidgets, QtGui, QtCore
 from opensnitch.utils import Icons
 from opensnitch.plugins.virustotal import _utils
@@ -32,11 +31,14 @@ def build_vt_tab(plugin, parent):
     # 0 details, 1 checksums, 2 main
     cmdBack.clicked.connect(lambda: parent.get_main_widget().setCurrentIndex(constants.PAGE_MAIN))
     cmdBack.setSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-    textWdg = QtWidgets.QTextEdit()
+    textWdg = QtWidgets.QTextBrowser()
     textWdg.setTextInteractionFlags(
         QtCore.Qt.TextInteractionFlag.LinksAccessibleByMouse | QtCore.Qt.TextInteractionFlag.TextSelectableByKeyboard | QtCore.Qt.TextInteractionFlag.TextSelectableByMouse
     )
     textWdg.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+    # https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextBrowser.html#PySide6.QtWidgets.QTextBrowser.openExternalLinks
+    textWdg.setOpenExternalLinks(True)
+    textWdg.setOpenLinks(True)
     wdg.setObjectName("vt_tab")
     gridLayout.setContentsMargins(5, 3, 5, 5)
     gridLayout.setVerticalSpacing(3)
@@ -64,7 +66,22 @@ def add_vt_response(parent, response, conn, error=None):
             error
         ))
     else:
-        textWdg.setHtml(_utils.report_to_html(response))
+        md5 = conn.process_checksums[Config.OPERAND_PROCESS_HASH_MD5]
+        dstip = conn.dst_ip
+        dsthost = conn.dst_host
+        vturl = "https://www.virustotal.com/gui"
+        vthash = f"{vturl}/file/{md5}"
+        vtip = f"{vturl}/ip-address/{dstip}"
+
+        links = "View on VirusTotal: "
+        links += f"<a href=\"{vtip}\">IP</a>"
+        if md5 != "":
+            links += f" &ndash; <a href=\"{vthash}\">hash</a>"
+        if dsthost != "":
+            vtdomain = f"{vturl}/domain/{dsthost}"
+            links += f" &ndash; <a target=\"_blank\" href=\"{vtdomain}\">domain</a>"
+
+        textWdg.setHtml(links + "<br><br>" + _utils.report_to_html(response))
     textWdg.moveCursor(QtGui.QTextCursor.MoveOperation.Start)
 
 def add_analyzing_msg(vt, parent):
