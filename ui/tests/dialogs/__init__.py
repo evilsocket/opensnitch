@@ -1,9 +1,9 @@
+# Test fixtures and mock objects for dialog tests
+#
+# NOTE: Database initialization moved to conftest.py to ensure
+# QApplication is created first (required for Qt6 compatibility).
 
-from opensnitch.database import Database
-from opensnitch.config import Config
-from opensnitch.nodes import Nodes
-
-# grpc object
+# grpc object mock
 class ClientConfig:
     version = "1.2.3"
     name = "bla"
@@ -43,12 +43,3 @@ class Connection:
     process_cwd = "/tmp"
     process_args = "/bin/cmd --parm1 test"
     process_env = []
-
-db = Database.instance()
-db.initialize()
-Config.init()
-
-nodes = Nodes.instance()
-nodes._nodes["unix:/tmp/osui.sock"] = {
-    'data': ClientConfig
-}
