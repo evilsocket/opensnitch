@@ -243,6 +243,8 @@ class GenericTableView(QTableView):
         self.horizontalHeader().sortIndicatorChanged.disconnect()
         self.setSortingEnabled(False)
 
+    # FIXME: some columns may have the same value on different nodes
+    # like rule name zzz on nodes 1, 2 and 3.
     def setTrackingColumn(self, col):
         """column used to track a selected row while scrolling on this table"""
         self.trackingCol = col
@@ -295,7 +297,7 @@ class GenericTableView(QTableView):
             self.handleShiftPressed()
 
         for idx in self.selectionModel().selectedRows(self.trackingCol):
-            if idx.data() != None and idx.data() not in self._rows_selection.keys():
+            if idx.data() is not None and idx.data() not in self._rows_selection.keys():
                 self._rows_selection[idx.data()] = self.getRowCells(idx.row())
 
         # TODO: handle selection ranges when Shift is pressed
@@ -394,6 +396,8 @@ class GenericTableView(QTableView):
             first = self._last_row_selected
             self._last_row_selected = last
             self._first_row_selected = first
+        self._rows_selection = {}
+        self.selectionModel().clear()
         for row in range(self._first_row_selected, self._last_row_selected+1):
             idx = self.model().index(row, self.trackingCol)
             self._rows_selection[idx.data()] = self.getRowCells(row)
