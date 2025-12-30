@@ -9,6 +9,8 @@ from opensnitch.dialogs.prompt import (
 
 # XXX: the tab index may vary. TODO: Find it dynamically.
 VT_TAB = 3
+VT_TAB_NAME = "vt_tab"
+VT_URL = "https://www.virustotal.com/gui"
 
 def build_vt_tab(plugin, parent):
     """add a new tab with a text field that will contain the result of the query in JSON format.
@@ -18,7 +20,7 @@ def build_vt_tab(plugin, parent):
     # FIXME: find the widget with the name 'vt_tab', there could be more
     # plugins that are tabs.
     prev_wdg = parent.get_main_widget().widget(VT_TAB)
-    if prev_wdg != None and prev_wdg.objectName() == "vt_tab":
+    if prev_wdg != None and prev_wdg.objectName() == VT_TAB_NAME:
         return prev_wdg
 
     wdg = QtWidgets.QWidget()
@@ -39,7 +41,7 @@ def build_vt_tab(plugin, parent):
     # https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextBrowser.html#PySide6.QtWidgets.QTextBrowser.openExternalLinks
     textWdg.setOpenExternalLinks(True)
     textWdg.setOpenLinks(True)
-    wdg.setObjectName("vt_tab")
+    wdg.setObjectName(VT_TAB_NAME)
     gridLayout.setContentsMargins(5, 3, 5, 5)
     gridLayout.setVerticalSpacing(3)
 
@@ -69,16 +71,14 @@ def add_vt_response(parent, response, conn, error=None):
         md5 = conn.process_checksums[Config.OPERAND_PROCESS_HASH_MD5]
         dstip = conn.dst_ip
         dsthost = conn.dst_host
-        vturl = "https://www.virustotal.com/gui"
-        vthash = f"{vturl}/file/{md5}"
-        vtip = f"{vturl}/ip-address/{dstip}"
-
+        vthash = f"{VT_URL}/file/{md5}"
+        vtip = f"{VT_URL}/ip-address/{dstip}"
         links = "View on VirusTotal: "
         links += f"<a href=\"{vtip}\">IP</a>"
         if md5 != "":
             links += f" &ndash; <a href=\"{vthash}\">hash</a>"
         if dsthost != "":
-            vtdomain = f"{vturl}/domain/{dsthost}"
+            vtdomain = f"{VT_URL}/domain/{dsthost}"
             links += f" &ndash; <a target=\"_blank\" href=\"{vtdomain}\">domain</a>"
 
         textWdg.setHtml(links + "<br><br>" + _utils.report_to_html(response))
