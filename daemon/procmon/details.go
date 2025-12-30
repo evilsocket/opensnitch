@@ -79,6 +79,17 @@ func (p *Process) BuildTree() {
 	}
 }
 
+func (p *Process) TreeInsertItem(path string, pid int) {
+	p.Lock()
+	defer p.Unlock()
+
+	p.Tree = append(
+		[]*protocol.StringInt{{
+			Key: path, Value: uint32(pid),
+		}},
+		p.Tree...)
+}
+
 // GetDetails collects information of a process.
 func (p *Process) GetDetails() error {
 	if os.Getpid() == p.ID {

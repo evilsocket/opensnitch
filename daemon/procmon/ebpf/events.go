@@ -266,6 +266,8 @@ func processExecEvent(event *execEvent) {
 	if pfound {
 		proc.Parent = &itemParent.Proc
 		proc.Tree = itemParent.Proc.Tree
+		proc.TreeInsertItem(proc.Path, proc.ID)
+		log.Debug("[eBPF exec event] reusing parent tree: %v, proc: %v", itemParent.Proc.Tree, proc.Tree)
 	}
 
 	item, needsUpdate, found := procmon.EventsCache.IsInStore(int(event.PID), proc)
@@ -273,6 +275,7 @@ func processExecEvent(event *execEvent) {
 		procmon.EventsCache.Add(proc)
 		getProcDetails(event, proc)
 		procmon.EventsCache.UpdateItem(proc)
+		log.Debug("[eBPF exec event to cache] pid: %d, uid: %d, %s, %v", event.PID, event.UID, item.Proc.Path, item.Proc.Tree)
 		return
 	}
 
@@ -281,7 +284,7 @@ func processExecEvent(event *execEvent) {
 	}
 
 	// from now on use cached Process
-	log.Debug("[eBPF event inCache] pid: %d, uid: %d, %s", event.PID, event.UID, item.Proc.Path)
+	log.Debug("[eBPF event inCache] pid: %d, uid: %d, %s, %v", event.PID, event.UID, item.Proc.Path, item.Proc.Tree)
 }
 
 // event2process creates a new Process from execEvent
