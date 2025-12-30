@@ -325,6 +325,10 @@ class GenericTableView(QTableView):
         super().mousePressEvent(event)
         rightBtnPressed = event.button() != Qt.MouseButton.LeftButton
 
+        if not self.shiftPressed:
+            self._first_row_selected = None
+            self._last_row_selected = None
+
         pos = event.pos()
         item = self.indexAt(pos)
         row = self.rowAt(pos.y())
