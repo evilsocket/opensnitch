@@ -982,17 +982,29 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         proto, addr = self._get_peer(context.peer())
         node_addr = f"{proto}:{addr}"
-        _node = self._nodes.get_node(node_addr)
-        if _node == None:
+        cur_node = self._nodes.get_node(node_addr)
+        if cur_node is None:
             return
 
         stop_event = Event()
         def _on_client_closed():
+            self.logger.info("client closed %s, now: %s", local_peer, datetime.now())
+
+            # Get latest node info of this address.
+            prev_node = self._nodes.get_node(node_addr)
+            # If the peer of this notification is not the same of the current node,
+            # don't update the status.
+            # This can occur, if a node disconnects by timeout and reconnects
+            # after some minutes or hours.
+            # The node will connect with a new peer, but the old one still
+            # exists in the server. So when the server decides to close that
+            # inactive session, it'll report the old connection.
+            if prev_node is not None:
+                if prev_node['session']['peer'] != local_peer and cur_node['last_seen'] > cur_node['session']['last_seen']:
+                    return
+
             stop_event.set()
-            self.logger.info("client closed %s", node_addr)
             self._nodes.stop_notifications(node_addr)
-
-
             self._node_actions_trigger.emit(
                 {'action': self.NODE_DELETE,
                  'peer': local_peer,
@@ -1032,7 +1044,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                         break
 
                     in_message = next(node_iter)
-                    if in_message == None:
+                    if in_message is None:
                         continue
 
                     self._nodes.reply_notification(addr, in_message)
@@ -1055,11 +1067,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 break
 
             try:
-                noti = _node['notifications'].get()
+                noti = cur_node['notifications'].get()
                 if noti is not None:
                     if noti.type > 0:
                         self.logger.debug("%s delivering notification... %s", node_addr, repr(noti))
-                        _node['notifications'].task_done()
+                        cur_node['notifications'].task_done()
                         yield noti
                     elif noti.type == -1:
                         self.logger.debug("%s notify exit, break the loop", node_addr)

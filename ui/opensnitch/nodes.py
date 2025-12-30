@@ -40,17 +40,43 @@ class Nodes(QObject):
         return len(self._nodes)
 
     def add(self, _peer, client_config=None):
+        """registers a new node.
+        When connecting for the first time, the node is configured with the
+        default settings:
+            - a bidirectional notifications queue.
+            - the status.
+            - last seen parameter.
+            - the current session.
+
+        The current session is the address of the current gRPC connection that
+        identifies this node:
+            src_port:ip-address:dst_port
+
+        Usually when a node disconnects from the server (GUI), the session and the
+        node address are the same.
+        If a node does not respond for some time (minutes, hours,...), and then
+        reconnects again, it'll connect with a new session address.
+        In this situation, the old session still exists on the server, and when
+        it exceeds the maximum lifetime, the server closes it and reports the old
+        session address.
+
+        https://grpc.io/docs/guides/keepalive/#keepalive-configuration-specification
+        """
         try:
             proto, addr = self.get_addr(_peer)
             peer = proto+":"+addr
             if peer not in self._nodes:
                 self._nodes[peer] = {
-                        'notifications': Queue(),
-                        'online':        True,
-                        'last_seen':     datetime.now()
-                        }
+                    'session': {
+                        'peer': _peer, 'last_seen': datetime.now()
+                    },
+                    'notifications': Queue(),
+                    'online':        True,
+                    'last_seen':     datetime.now()
+                }
             else:
                 self._nodes[peer]['last_seen'] = datetime.now()
+                self._nodes[peer]['session']['peer'] = _peer
 
             self._nodes[peer]['online'] = True
             self.add_data(peer, client_config)
