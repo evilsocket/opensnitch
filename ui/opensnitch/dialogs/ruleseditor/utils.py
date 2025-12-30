@@ -140,7 +140,7 @@ def comma_to_regexp(win, text, expected_type):
         sp_regex += '{0}|'.format(p)
     sp_regex = sp_regex.removesuffix("|")
     sp_regex += r')$'
-    if not win._is_valid_regex(sp_regex):
+    if not is_valid_regex(win, sp_regex):
         return False, QC.translate("rules", "regexp error (report it)")
 
     return True, sp_regex
