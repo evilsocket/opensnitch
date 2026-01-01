@@ -169,7 +169,7 @@ class Nodes(QObject):
         self._rules.update_time(time, rule_name, addr)
 
     def delete_all(self):
-        self.send_notifications(None)
+        self.stop_notifications()
         self._nodes = {}
         self.nodesUpdated.emit(self.count())
 

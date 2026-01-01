@@ -206,19 +206,13 @@ class TestNodes():
         assert config is None
 
     def test_delete_all(self, qtbot):
-        """Test clearing all nodes.
-        Note: delete_all() calls send_notifications(None) which raises an exception
-        before clearing the nodes dict. This test verifies nodes can be cleared
-        by manually calling the underlying operations.
-        """
+        """Test clearing all nodes."""
         self.nodes.add("peer:1.2.3.4", self.daemon_config)
         self.nodes.add("peer:5.6.7.8", self.daemon_config)
         initial_count = self.nodes.count()
         assert initial_count >= 2
 
-        # Manually clear nodes (simulating what delete_all should do)
-        self.nodes._nodes = {}
-        self.nodes.nodesUpdated.emit(self.nodes.count())
+        self.nodes.delete_all()
         assert self.nodes.count() == 0
 
     def test_send_notifications_broadcast(self, qtbot):
