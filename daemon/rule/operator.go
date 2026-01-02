@@ -71,11 +71,13 @@ const (
 	//OpQuotaRxOver  = Operand("quota.recv.over") // 1000b, 1kb, 1mb, 1gb, ...
 )
 
-type opCallback func(value interface{}) bool
+type opCallback func(value string) bool
+type opGenericCallback func(value interface{}) bool
 
 // Operator represents what we want to filter of a connection, and how.
 type Operator struct {
 	cb              opCallback
+	cbGeneric       opGenericCallback
 	re              *regexp.Regexp
 	netMask         *net.IPNet
 	lists           map[string]interface{}
@@ -168,7 +170,7 @@ func (o *Operator) Compile() error {
 			o.cb = o.simpleListsCmp
 		} else if o.Operand == OpNetLists {
 			o.loadLists()
-			o.cb = o.ipNetCmp
+			o.cbGeneric = o.ipNetCmp
 		} else if o.Operand == OpHashMD5Lists {
 			o.loadLists()
 			o.cb = o.simpleListsCmp
@@ -189,7 +191,7 @@ func (o *Operator) Compile() error {
 func (o *Operator) compileNetwork() error {
 	// Check if the operator's data is an alias present in the cache
 	if ipNets, found := AliasIPCache[o.Data]; found {
-		o.cb = func(value interface{}) bool {
+		o.cbGeneric = func(value interface{}) bool {
 			ip := value.(net.IP)
 			matchFound := false
 
@@ -208,7 +210,7 @@ func (o *Operator) compileNetwork() error {
 			return fmt.Errorf("CIDR parsing error: %s", err)
 		}
 		o.netMask = netMask
-		o.cb = o.cmpNetwork
+		o.cbGeneric = o.cmpNetwork
 	}
 
 	return nil
@@ -222,23 +224,18 @@ func (o *Operator) String() string {
 	return fmt.Sprintf("%s %s '%s'", log.Bold(string(o.Operand)), how, log.Yellow(string(o.Data)))
 }
 
-func (o *Operator) simpleCmp(v interface{}) bool {
+func (o *Operator) simpleCmp(v string) bool {
 	if o.Sensitive == false {
-		return strings.EqualFold(v.(string), o.Data)
+		return strings.EqualFold(v, o.Data)
 	}
 	return v == o.Data
 }
 
-func (o *Operator) reCmp(v interface{}) bool {
-	dstHost, ok := v.(string)
-	if !ok {
-		log.Warning("Operator.reCmp() bad interface type: %T", v)
-		return false
-	}
+func (o *Operator) reCmp(data string) bool {
 	if o.Sensitive == false {
-		v = strings.ToLower(dstHost)
+		data = strings.ToLower(data)
 	}
-	return o.re.MatchString(dstHost)
+	return o.re.MatchString(data)
 }
 
 func (o *Operator) cmpNetwork(destIP interface{}) bool {
@@ -258,22 +255,20 @@ func (o *Operator) matchListsCmp(msg, what string) bool {
 	return false
 }
 
-func (o *Operator) domainsListsCmp(v interface{}) bool {
-	dstHost := v.(string)
-	if dstHost == "" {
+func (o *Operator) domainsListsCmp(data string) bool {
+	if data == "" {
 		return false
 	}
 	if o.Sensitive == false {
-		dstHost = strings.ToLower(dstHost)
+		data = strings.ToLower(data)
 	}
 	o.RLock()
 	defer o.RUnlock()
 
-	return o.matchListsCmp("domains list match", dstHost)
+	return o.matchListsCmp("domains list match", data)
 }
 
-func (o *Operator) simpleListsCmp(v interface{}) bool {
-	what := v.(string)
+func (o *Operator) simpleListsCmp(what string) bool {
 	if what == "" {
 		return false
 	}
@@ -297,39 +292,37 @@ func (o *Operator) ipNetCmp(dstIP interface{}) bool {
 	return false
 }
 
-func (o *Operator) reListCmp(v interface{}) bool {
-	dstHost := v.(string)
-	if dstHost == "" {
+func (o *Operator) reListCmp(data string) bool {
+	if data == "" {
 		return false
 	}
 	if o.Sensitive == false {
-		dstHost = strings.ToLower(dstHost)
+		data = strings.ToLower(data)
 	}
 	o.RLock()
 	defer o.RUnlock()
 
 	for file, re := range o.lists {
 		r := re.(*regexp.Regexp)
-		if r.MatchString(dstHost) {
-			log.Debug("%s: %s, %s", log.Red("Regexp list match"), dstHost, file)
+		if r.MatchString(data) {
+			log.Debug("%s: %s, %s", log.Red("Regexp list match"), data, file)
 			return true
 		}
 	}
 	return false
 }
 
-func (o *Operator) hashCmp(v interface{}) bool {
-	hash := v.(string)
+func (o *Operator) hashCmp(hash string) bool {
 	if hash == "" {
 		return true // fake a match to avoid displaying a pop-up
 	}
 	return hash == o.Data
 }
 
-func (o *Operator) listMatch(con interface{}, hasChecksums bool) bool {
+func (o *Operator) listMatch(con *conman.Connection, hasChecksums bool) bool {
 	res := true
 	for i := 0; i < len(o.List); i++ {
-		res = res && o.List[i].Match(con.(*conman.Connection), hasChecksums)
+		res = res && o.List[i].Match(con, hasChecksums)
 	}
 	return res
 }
@@ -343,14 +336,6 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 		return o.listMatch(con, hasChecksums)
 	} else if o.Operand == OpProcessPath {
 		return o.cb(con.Process.Path)
-	} else if o.Operand == OpProcessParentPath {
-		p := con.Process
-		for pp := p.Parent; pp != nil; pp = pp.Parent {
-			if o.cb(pp.Path) {
-				return true
-			}
-		}
-		return false
 	} else if o.Operand == OpProcessCmd {
 		return o.cb(strings.Join(con.Process.Args, " "))
 	} else if o.Operand == OpDstHost {
@@ -368,11 +353,11 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 	} else if o.Operand == OpUserID || o.Operand == OpUserName {
 		return o.cb(strconv.Itoa(con.Entry.UserId))
 	} else if o.Operand == OpDstNetwork {
-		return o.cb(con.DstIP)
+		return o.cbGeneric(con.DstIP)
 	} else if o.Operand == OpSrcNetwork {
-		return o.cb(con.SrcIP)
+		return o.cbGeneric(con.SrcIP)
 	} else if o.Operand == OpNetLists {
-		return o.cb(con.DstIP)
+		return o.cbGeneric(con.DstIP)
 	} else if o.Operand == OpDomainsRegexpLists {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpIfaceIn {
@@ -405,6 +390,14 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 		return o.cb(strconv.FormatUint(uint64(con.SrcPort), 10))
 	} else if o.Operand == OpProcessID {
 		return o.cb(strconv.Itoa(con.Process.ID))
+	} else if o.Operand == OpProcessParentPath {
+		p := con.Process
+		for pp := p.Parent; pp != nil; pp = pp.Parent {
+			if o.cb(pp.Path) {
+				return true
+			}
+		}
+		return false
 	} else if strings.HasPrefix(string(o.Operand), string(OpProcessEnvPrefix)) {
 		envVarName := core.Trim(string(o.Operand[OpProcessEnvPrefixLen:]))
 		envVarValue, _ := con.Process.Env[envVarName]
