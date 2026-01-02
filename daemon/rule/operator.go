@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"os/user"
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -182,7 +181,6 @@ func (o *Operator) Compile() error {
 			o.netMask = netMask
 			o.cb = o.cmpNetwork
 		}
-
 	} else if o.Type == Lists {
 		if o.Operand == OpDomainsLists {
 			o.loadLists()
@@ -229,14 +227,15 @@ func (o *Operator) simpleCmp(v interface{}) bool {
 }
 
 func (o *Operator) reCmp(v interface{}) bool {
-	if vt := reflect.ValueOf(v).Kind(); vt != reflect.String {
+	dstHost, ok := v.(string)
+	if !ok {
 		log.Warning("Operator.reCmp() bad interface type: %T", v)
 		return false
 	}
 	if o.Sensitive == false {
-		v = strings.ToLower(v.(string))
+		v = strings.ToLower(dstHost)
 	}
-	return o.re.MatchString(v.(string))
+	return o.re.MatchString(dstHost)
 }
 
 func (o *Operator) cmpNetwork(destIP interface{}) bool {
