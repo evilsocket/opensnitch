@@ -354,6 +354,7 @@ func TestNewOperatorList(t *testing.T) {
 			t.Fail()
 		}
 		if err = opList.Compile(); err != nil {
+			t.Error("NewOperator list.regexp.err compiling:", err)
 			t.Fail()
 		}
 		opList.List = *unmarshalListData(opList.Data, t)
@@ -381,7 +382,7 @@ func TestNewOperatorList(t *testing.T) {
 	t.Run("Operator List regexp case-sensitive", func(t *testing.T) {
 		// list with regexp, case-sensitive
 		// "data": "^/usr/BiN/.*" must match conn.Process.Path (sensitive)
-		listData = `[{"type": "regexp", "operand": "process.path", "data": "^/usr/BiN/.*", "sensitive": false},{"type": "simple", "operand": "dest.ip", "data": "185.53.178.14", "sensitive": false}, {"type": "simple", "operand": "dest.port", "data": "443", "sensitive": false}]`
+		listData = `[{"type": "regexp", "operand": "process.path", "data": "^/usr/BiN/.*", "sensitive": true},{"type": "simple", "operand": "dest.ip", "data": "185.53.178.14", "sensitive": false}, {"type": "simple", "operand": "dest.port", "data": "443", "sensitive": false}]`
 		opList.List = *unmarshalListData(listData, t)
 		compileListOperators(&opList.List, t)
 		conn.Process.Path = "/usr/BiN/opensnitchd"
@@ -395,7 +396,10 @@ func TestNewOperatorList(t *testing.T) {
 		}
 	})
 
-	t.Run("Operator List regexp case-insensitive 2", func(t *testing.T) {
+	// These tests check how the global Sensitive field on a List operand affect
+	// the children Operands.
+	// As of v1.8.0 it has no effect.
+	/*t.Run("Operator List regexp case-insensitive 2", func(t *testing.T) {
 		// "data": "^/usr/BiN/.*" must not match conn.Process.Path (insensitive)
 		opList.Sensitive = false
 		conn.Process.Path = "/USR/BiN/opensnitchd"
@@ -419,7 +423,7 @@ func TestNewOperatorList(t *testing.T) {
 			t.Error("Test NewOperator() list.regexp.insensitive match:", conn.Process.Path)
 			t.Fail()
 		}
-	})
+	})*/
 
 	restoreConnection()
 }
