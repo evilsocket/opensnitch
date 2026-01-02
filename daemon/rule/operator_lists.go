@@ -98,7 +98,7 @@ func (o *Operator) ClearLists() {
 // StopMonitoringLists stops the monitoring lists goroutine.
 func (o *Operator) StopMonitoringLists() {
 	if o.listsMonitorRunning == true {
-		o.exitMonitorChan <- true
+		o.exitMonitorChan <- struct{}{}
 		o.exitMonitorChan = nil
 		o.listsMonitorRunning = false
 	}
@@ -238,6 +238,7 @@ func (o *Operator) readLists() error {
 	if err != nil {
 		return fmt.Errorf("Error loading domains lists '%s': %s", expr, err)
 	}
+	log.Debug("loading %d lists", len(fileList))
 
 	for _, fileName := range fileList {
 		// ignore hidden files
@@ -275,7 +276,7 @@ func (o *Operator) loadLists() {
 
 	// when loading from disk, we don't use the Operator's constructor, so we need to create this channel
 	if o.exitMonitorChan == nil {
-		o.exitMonitorChan = make(chan bool)
+		o.exitMonitorChan = make(chan struct{})
 		o.listsMonitorRunning = true
 		go o.monitorLists()
 	}

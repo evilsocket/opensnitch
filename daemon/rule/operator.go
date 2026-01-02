@@ -79,7 +79,7 @@ type Operator struct {
 	re              *regexp.Regexp
 	netMask         *net.IPNet
 	lists           map[string]interface{}
-	exitMonitorChan chan (bool)
+	exitMonitorChan chan (struct{})
 
 	Operand             Operand    `json:"operand"`
 	Data                string     `json:"data"`
@@ -153,33 +153,8 @@ func (o *Operator) Compile() error {
 	} else if o.Type == List {
 		o.Operand = OpList
 	} else if o.Type == Network {
-		// Check if the operator's data is an alias present in the cache
-		if ipNets, found := AliasIPCache[o.Data]; found {
-			o.cb = func(value interface{}) bool {
-				ip := value.(net.IP)
-				matchFound := false
-
-				for _, ipNet := range ipNets {
-					if ipNet.Contains(ip) {
-						matchFound = true
-						break
-					}
-				}
-				/*
-					if !matchFound {
-						fmt.Printf(" -> No match found: IP %s for alias '%s'\n", ip, o.Data)
-					}
-				*/
-				return matchFound
-			}
-		} else {
-			// Parse the data as a CIDR if it's not an alias
-			_, netMask, err := net.ParseCIDR(o.Data)
-			if err != nil {
-				return fmt.Errorf("CIDR parsing error: %s", err)
-			}
-			o.netMask = netMask
-			o.cb = o.cmpNetwork
+		if err := o.compileNetwork(); err != nil {
+			return err
 		}
 	} else if o.Type == Lists {
 		if o.Operand == OpDomainsLists {
@@ -207,6 +182,34 @@ func (o *Operator) Compile() error {
 
 	log.Debug("Operator compiled: %s", o)
 	o.isCompiled = true
+
+	return nil
+}
+
+func (o *Operator) compileNetwork() error {
+	// Check if the operator's data is an alias present in the cache
+	if ipNets, found := AliasIPCache[o.Data]; found {
+		o.cb = func(value interface{}) bool {
+			ip := value.(net.IP)
+			matchFound := false
+
+			for _, ipNet := range ipNets {
+				if ipNet.Contains(ip) {
+					matchFound = true
+					break
+				}
+			}
+			return matchFound
+		}
+	} else {
+		// Parse the data as a CIDR if it's not an alias
+		_, netMask, err := net.ParseCIDR(o.Data)
+		if err != nil {
+			return fmt.Errorf("CIDR parsing error: %s", err)
+		}
+		o.netMask = netMask
+		o.cb = o.cmpNetwork
+	}
 
 	return nil
 }
