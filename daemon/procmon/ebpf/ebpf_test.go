@@ -12,30 +12,13 @@ Running Tests:
 These tests are skipped in the standard "go test ./..." flow because they
 require elevated privileges to load eBPF programs into the kernel.
 
-Why Root/Capabilities?
-
-Loading eBPF programs and attaching to kernel hooks (kprobes, tracepoints,
-uprobes) requires:
-
-  - CAP_BPF: load eBPF programs
-  - CAP_PERFMON: attach to tracepoints and perf events
-  - CAP_SYS_ADMIN: attach kprobes, access kernel memory
-  - CAP_NET_ADMIN: network namespace operations (for tunnel tests)
-
-System Safety:
-
-These tests will not mess up your system:
-
-  - Network connection tests use local loopback servers (no external connections)
-  - Tunnel tests (IPIP, VXLAN) run inside an isolated network namespace
-  - eBPF programs are unloaded when tests complete
-  - No persistent changes are made
+For detailed information about capabilities, safety, and testing modes, see:
+	daemon/internal/testutil/network.go
 */
 package ebpf
 
 import (
 	"encoding/binary"
-	"fmt"
 	"net"
 	"os"
 	"os/exec"
@@ -49,87 +32,8 @@ import (
 	"github.com/cilium/ebpf"
 	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/ringbuf"
+	"github.com/evilsocket/opensnitch/daemon/internal/testutil"
 )
-
-// TestNetwork abstracts network setup for tunnel tests.
-// Allows running in namespace (safe on host) or native (in VM).
-type TestNetwork interface {
-	Setup() error
-	Exec(name string, args ...string) ([]byte, error)
-	Cleanup()
-	IsNative() bool
-}
-
-// NativeNetwork runs commands directly on the system.
-// Use in disposable VMs only.
-type NativeNetwork struct {
-	cleanupCmds [][]string
-}
-
-func (n *NativeNetwork) Setup() error {
-	return nil
-}
-
-func (n *NativeNetwork) Exec(name string, args ...string) ([]byte, error) {
-	cmd := exec.Command(name, args...)
-	return cmd.CombinedOutput()
-}
-
-func (n *NativeNetwork) AddCleanup(name string, args ...string) {
-	n.cleanupCmds = append(n.cleanupCmds, append([]string{name}, args...))
-}
-
-func (n *NativeNetwork) Cleanup() {
-	// Run cleanup commands in reverse order
-	for i := len(n.cleanupCmds) - 1; i >= 0; i-- {
-		cmd := n.cleanupCmds[i]
-		exec.Command(cmd[0], cmd[1:]...).Run()
-	}
-}
-
-func (n *NativeNetwork) IsNative() bool {
-	return true
-}
-
-// NamespacedNetwork runs commands in an isolated network namespace.
-// Safe to use on host systems.
-type NamespacedNetwork struct {
-	nsName string
-}
-
-func (n *NamespacedNetwork) Setup() error {
-	n.nsName = fmt.Sprintf("ebpf-test-%d", os.Getpid())
-	out, err := exec.Command("ip", "netns", "add", n.nsName).CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to create namespace: %v: %s", err, out)
-	}
-	return nil
-}
-
-func (n *NamespacedNetwork) Exec(name string, args ...string) ([]byte, error) {
-	fullArgs := append([]string{"netns", "exec", n.nsName, name}, args...)
-	cmd := exec.Command("ip", fullArgs...)
-	return cmd.CombinedOutput()
-}
-
-func (n *NamespacedNetwork) Cleanup() {
-	if n.nsName != "" {
-		exec.Command("ip", "netns", "del", n.nsName).Run()
-	}
-}
-
-func (n *NamespacedNetwork) IsNative() bool {
-	return false
-}
-
-// NewTestNetwork creates the appropriate network abstraction.
-// Set EBPF_TEST_NATIVE=1 to run without namespace (for VMs).
-func NewTestNetwork() TestNetwork {
-	if os.Getenv("EBPF_TEST_NATIVE") == "1" {
-		return &NativeNetwork{}
-	}
-	return &NamespacedNetwork{}
-}
 
 // getTestDir returns the directory containing this test file
 func getTestDir() string {
@@ -1119,7 +1023,7 @@ func TestIPTunnelXmitIntegration(t *testing.T) {
 	}
 
 	// Setup network
-	testNet := NewTestNetwork()
+	testNet := testutil.NewTestNetwork()
 	if err := testNet.Setup(); err != nil {
 		t.Fatalf("failed to setup test network: %v", err)
 	}
@@ -1218,7 +1122,7 @@ func TestUDPTunnel6XmitIntegration(t *testing.T) {
 	}
 
 	// Setup network
-	testNet := NewTestNetwork()
+	testNet := testutil.NewTestNetwork()
 	if err := testNet.Setup(); err != nil {
 		t.Fatalf("failed to setup test network: %v", err)
 	}
