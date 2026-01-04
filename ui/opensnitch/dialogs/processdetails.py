@@ -59,9 +59,10 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
     SOCKET_REGEX = "(socket.*:.*state.*)"
 
     def __init__(self, parent=None, appicon=None):
-        super(ProcessDetailsDialog, self).__init__(parent)
-        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowType.WindowStaysOnTopHint)
-        self.setWindowFlags(QtCore.Qt.WindowType.Window)
+        # Use a single, consistent initialization to avoid conflicting window states
+        # that can cause ghost windows on KDE (issue #1444).
+        # Window flag is set as a regular Window to ensure proper window management.
+        super(ProcessDetailsDialog, self).__init__(parent, QtCore.Qt.WindowType.Window)
         self.setupUi(self)
         self.setWindowIcon(appicon)
 

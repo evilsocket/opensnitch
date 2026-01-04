@@ -563,6 +563,20 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._done.set()
         self.hide()
 
+    def destroy_window(self):
+        """Properly destroy the window to prevent ghost windows on KDE (issue #1444).
+
+        On KDE, hidden windows may remain on the compositing layer if not properly
+        destroyed. This method ensures the window is fully cleaned up.
+        Should be called during application shutdown.
+        """
+        self.stop_countdown()
+        self._done.set()
+        # Ensure the window is properly removed from the window manager
+        self.hide()
+        # Schedule for deletion to ensure proper Qt cleanup
+        self.deleteLater()
+
     def _on_action_clicked(self, action):
         self._default_action = action
         self._send_rule()

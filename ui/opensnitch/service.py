@@ -335,7 +335,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     def _on_close(self):
         self._exit = True
         self._tray.setIcon(self.off_icon)
-        self._prompt_dialog.close()
+        # Use destroy_window() instead of close() to properly clean up the window
+        # and prevent ghost windows on KDE (issue #1444)
+        self._prompt_dialog.destroy_window()
         self._app.processEvents()
         self._nodes.stop_notifications()
         self._nodes.update_all(Nodes.OFFLINE)
