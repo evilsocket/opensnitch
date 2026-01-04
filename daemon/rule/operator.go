@@ -144,10 +144,11 @@ func (o *Operator) Compile() error {
 
 	} else if o.Type == Regexp {
 		o.cb = o.reCmp
+		pattern := o.Data
 		if o.Sensitive == false {
-			o.Data = strings.ToLower(o.Data)
+			pattern = strings.ToLower(pattern)
 		}
-		re, err := regexp.Compile(o.Data)
+		re, err := regexp.Compile(pattern)
 		if err != nil {
 			return err
 		}

@@ -341,6 +341,43 @@ func TestNewOperatorRegexpSensitive(t *testing.T) {
 	restoreConnection()
 }
 
+// TestNewOperatorRegexpDataPreserved verifies that the original regex pattern
+// in o.Data is NOT modified after compilation, even when Sensitive is false.
+// This is a regression test for issue #1488.
+func TestNewOperatorRegexpDataPreserved(t *testing.T) {
+	t.Log("Test NewOperator() regexp data preserved after compile (issue #1488)")
+	var dummyList []Operator
+
+	// Test case: regex with mixed case and character class
+	originalPattern := "/path/to/[a-zA-Z0-9]+/MyExecutable"
+	opRE, err := NewOperator(Regexp, false, OpProcessPath, originalPattern, dummyList)
+	if err != nil {
+		t.Error("NewOperator regexp err should be nil: ", err)
+		t.Fail()
+	}
+
+	// Compile the operator (this is where the bug occurred - Data was lowercased)
+	if err = opRE.Compile(); err != nil {
+		t.Error("Compile() error:", err)
+		t.Fail()
+	}
+
+	// Verify that o.Data is NOT modified after compilation
+	if opRE.Data != originalPattern {
+		t.Errorf("Data was modified after Compile().\nExpected: %s\nGot: %s", originalPattern, opRE.Data)
+		t.Fail()
+	}
+
+	// Verify matching still works correctly (case-insensitive)
+	conn.Process.Path = "/path/to/abc123/myexecutable"
+	if opRE.Match(conn, false) == false {
+		t.Error("Regex should match case-insensitively:", conn.Process.Path)
+		t.Fail()
+	}
+
+	restoreConnection()
+}
+
 func TestNewOperatorList(t *testing.T) {
 	t.Log("Test NewOperator() List")
 	var list []Operator
