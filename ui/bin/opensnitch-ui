@@ -42,6 +42,7 @@
 
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtNetwork import QLocalServer, QLocalSocket
+from PyQt6.QtCore import QCoreApplication as QC
 
 import sys
 import os
@@ -60,6 +61,7 @@ if os.path.exists(dist_path) and dist_path not in sys.path:
 from opensnitch.service import UIService
 from opensnitch.config import Config
 from opensnitch.utils import (
+    Message,
     Utils,
     Versions,
     logger
@@ -131,6 +133,26 @@ def check_environ():
 def supported_qt_version(major, medium, minor):
     q = QtCore.QT_VERSION_STR.split(".")
     return int(q[0]) >= major and int(q[1]) >= medium and int(q[2]) >= minor
+
+def add_server_port(what, server, socket, creds=None):
+    try:
+        if what == 0:
+            server.add_insecure_port(socket)
+        else:
+            server.add_secure_port(socket, creds)
+    except Exception as e:
+        Message.ok(
+            QC.translate("stats", "Failed to connect to socket."),
+            QC.translate("stats", f"""
+Other user might be running OpenSnitch UI.
+Running multiple instances of OpenSnitch UI on one system is currently unsupported.
+
+Exception: {e}"""),
+            QtWidgets.QMessageBox.Icon.Critical
+        )
+        on_exit()
+
+
 
 if __name__ == '__main__':
     gui_version, grpcversion, protoversion = Versions.get()
@@ -291,36 +313,23 @@ Examples:
             args.socket = "unix-abstract:{0}".format(parts[1])
 
         log.info("[server] using address: %s auth type: %s keepalive: %d keepalive timeout: %d", args.socket, auth_type, keepalive, keepalive_timeout)
-        try:
-          if auth_type == auth.Simple or auth_type == "":
-              server.add_insecure_port(args.socket)
-          else:
-              auth_ca_cert = args.tls_ca_cert
-              auth_cert = args.tls_cert
-              auth_certkey = args.tls_key
-              if auth_cert == None:
-                  auth_cert = cfg.getSettings(Config.AUTH_CERT)
-              if auth_certkey == None:
-                  auth_certkey = cfg.getSettings(Config.AUTH_CERTKEY)
-              if auth_ca_cert == None:
-                  auth_ca_cert = cfg.getSettings(Config.AUTH_CA_CERT)
+        if auth_type == auth.Simple or auth_type == "":
+            add_server_port(0, server, args.socket)
+        else:
+            auth_ca_cert = args.tls_ca_cert
+            auth_cert = args.tls_cert
+            auth_certkey = args.tls_key
+            if auth_cert == None:
+                auth_cert = cfg.getSettings(Config.AUTH_CERT)
+            if auth_certkey == None:
+                auth_certkey = cfg.getSettings(Config.AUTH_CERTKEY)
+            if auth_ca_cert == None:
+                auth_ca_cert = cfg.getSettings(Config.AUTH_CA_CERT)
 
-              tls_creds = auth.get_tls_credentials(auth_ca_cert, auth_cert, auth_certkey)
-              if tls_creds == None:
-                  raise Exception("Invalid TLS credentials. Review the server key and cert files.")
-              server.add_secure_port(args.socket, tls_creds)
-        except Exception as e:
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setText(
-f"""Failed to connect to socket.
-Other user might be running OpenSnitch UI.
-Running multiple instances of OpenSnitch UI on one system is currently unsupported.
-
-Exception: {e}"""
-            )
-            msg.exec()
-            on_exit()
+            tls_creds = auth.get_tls_credentials(auth_ca_cert, auth_cert, auth_certkey)
+            if tls_creds == None:
+                raise Exception("Invalid TLS credentials. Review the server key and cert files.")
+            add_server_port(1, server, args.socket, tls_creds)
 
         # https://stackoverflow.com/questions/5160577/ctrl-c-doesnt-work-with-pyqt
         signal.signal(signal.SIGINT, signal.SIG_DFL)
