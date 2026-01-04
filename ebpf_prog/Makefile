@@ -7,7 +7,6 @@ KERNEL_VER ?= $(shell ls -d /lib/modules/*/source | sort | tail -1 | cut -d/ -f4
 KERNEL_DIR ?= /lib/modules/$(KERNEL_VER)/source
 KERNEL_HEADERS ?= /usr/src/linux-headers-$(KERNEL_VER)/
 CC = clang
-LLC ?= llc
 ARCH ?= $(shell uname -m)
 
 # as in /usr/src/linux-headers-*/arch/
@@ -59,15 +58,16 @@ CFLAGS = -I. \
 	-Wno-tautological-compare \
 	-Wno-unknown-warning-option  \
 	-fno-stack-protector \
-	-g -O2 -emit-llvm
+	-g -O2
 
 all: $(BIN)
 
-%.bc: %.c
-	$(CC) $(CFLAGS) -c $<
-
-%.o: %.bc
-	$(LLC) -march=bpf -mcpu=generic -filetype=obj -o $@ $<
+# Compile directly to BPF object files using clang with -target bpf.
+# This generates proper BTF information required by modern libbpf (kernel 5.8+).
+# The old two-step process (clang -emit-llvm -> llc -march=bpf) didn't generate
+# correct BTF sections, causing "bad map relo" errors on newer kernels.
+%.o: %.c
+	$(CC) $(CFLAGS) -target bpf -c -o $@ $<
 
 clean:
 	rm -f $(BIN)
