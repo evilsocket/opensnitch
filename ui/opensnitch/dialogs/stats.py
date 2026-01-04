@@ -1109,6 +1109,7 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             _menu_details = menu.addAction(QC.translate("stats", "Details"))
             rulesMenu = QtWidgets.QMenu(QC.translate("stats", "Rules"))
             _menu_new_rule = rulesMenu.addAction(QC.translate("stats", "New"))
+            _menu_edit_rule = rulesMenu.addAction(QC.translate("stats", "Edit"))
             menu.addMenu(rulesMenu)
 
             # move away menu a few pixels to the right, to avoid clicking on it by mistake
@@ -1119,6 +1120,8 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
             if action == _menu_new_rule:
                 self._table_menu_new_rule_from_row(cur_idx, model, selection)
+            elif action == _menu_edit_rule:
+                self._table_menu_edit_rule_from_event(model, selection)
             elif action == _menu_details:
                 coltime = model.index(selection[0].row(), self.COL_TIME).data()
                 o = ConnDetails(self)
@@ -1619,6 +1622,35 @@ class StatsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                                     "Error creating new rule from event ({0})".format(coltime)
                                     ),
                         QtWidgets.QMessageBox.Icon.Warning)
+
+    def _table_menu_edit_rule_from_event(self, model, selection):
+        """Open rules editor for the rule that triggered an event (issue #1337).
+
+        Allows users to jump directly from an event in the Events tab to edit
+        the rule that caused that event.
+        """
+        # Get rule name and node from the event row
+        rule_name = model.index(selection[0].row(), self.COL_RULES).data()
+        node = model.index(selection[0].row(), self.COL_NODE).data()
+
+        # Check if there's a rule associated with this event
+        if not rule_name or rule_name.strip() == "":
+            Message.ok(QC.translate("stats", "Edit rule"),
+                    QC.translate("stats", "No rule associated with this event"),
+                    QtWidgets.QMessageBox.Icon.Warning)
+            return
+
+        # Fetch the rule from the database
+        records = self._get_rule(rule_name, node)
+        if records == None or records == -1:
+            Message.ok(QC.translate("stats", "Edit rule"),
+                    QC.translate("stats", "Rule not found: {0}").format(rule_name),
+                    QtWidgets.QMessageBox.Icon.Warning)
+            return
+
+        # Open the rules editor dialog with the rule loaded
+        r = RulesEditorDialog(modal=False)
+        r.edit_rule(records, node)
 
     def _table_menu_edit(self, cur_idx, model, selection):
         if cur_idx == self.TAB_RULES and self.rulesTable.isVisible():
