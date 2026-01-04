@@ -34,6 +34,16 @@ const (
 	Always  = Duration("always")
 )
 
+// EvaluationMode determines how rules are evaluated when multiple match
+type EvaluationMode string
+
+const (
+	// EvalDenyPriority is the default mode: deny/reject rules always win over allow
+	EvalDenyPriority = EvaluationMode("deny-priority")
+	// EvalFirstMatch uses RouterOS-style evaluation: first matching rule wins
+	EvalFirstMatch = EvaluationMode("first-match")
+)
+
 // Rule represents an action on a connection.
 // The fields match the ones saved as json to disk.
 // If a .json rule file is modified on disk, it's reloaded automatically.
@@ -50,6 +60,10 @@ type Rule struct {
 	Enabled     bool     `json:"enabled"`
 	Precedence  bool     `json:"precedence"`
 	Nolog       bool     `json:"nolog"`
+	// Priority determines rule evaluation order (lower = higher priority).
+	// Rules with equal priority are sorted alphabetically by name.
+	// Default is 0. Use negative values for higher priority rules.
+	Priority int `json:"priority"`
 }
 
 // Create creates a new rule object with the specified parameters.

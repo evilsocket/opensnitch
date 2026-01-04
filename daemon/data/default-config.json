@@ -30,7 +30,8 @@
     },
     "Rules": {
         "Path": "/etc/opensnitchd/rules/",
-        "EnableChecksums": false
+        "EnableChecksums": false,
+        "EvaluationMode": "deny-priority"
     },
     "Ebpf": {
         "EventsWorkers": 8,
