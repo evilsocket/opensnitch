@@ -579,9 +579,21 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.checkDstIP.isChecked() or \
             self.checkSum.isChecked()
 
-    def _send_rule(self):
+    def _save_geometry(self):
+        """Save dialog geometry to settings.
+
+        This is called via QTimer.singleShot to avoid blocking the rule
+        approval flow. When the home directory is on NFS and the NFS
+        connection itself needs approval, a synchronous disk write would
+        cause a deadlock (issue #1334).
+        """
         try:
             self._cfg.setSettings("promptDialog/geometry", self.saveGeometry())
+        except Exception as e:
+            self.logger.debug("Failed to save prompt dialog geometry: %s", repr(e))
+
+    def _send_rule(self):
+        try:
             self._rule = ui_pb2.Rule(name="user.choice")
             self._rule.created = int(datetime.now().timestamp())
             self._rule.enabled = True
@@ -690,3 +702,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # a new rule is available
             self._done.set()
             self.hide()
+            # Defer geometry save to avoid blocking the rule approval flow.
+            # This prevents deadlock when home directory is on NFS (issue #1334).
+            QtCore.QTimer.singleShot(0, self._save_geometry)
