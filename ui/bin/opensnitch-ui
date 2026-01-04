@@ -95,6 +95,30 @@ def restrict_socket_perms(socket):
     except Exception as e:
         print("Unable to change unix socket permissions:", socket, e)
 
+def get_default_socket_path():
+    """Get the default socket path for this user.
+
+    Returns a user-specific socket path to allow multiple users to run
+    separate UI instances (issue #1341). Falls back to /tmp if the
+    user-specific runtime directory is not available.
+    """
+    uid = os.getuid()
+    # Prefer XDG_RUNTIME_DIR which is /run/user/{UID} on most systems
+    xdg_runtime = os.environ.get('XDG_RUNTIME_DIR')
+    if xdg_runtime and os.path.isdir(xdg_runtime):
+        socket_dir = os.path.join(xdg_runtime, 'opensnitch')
+        if os.path.isdir(socket_dir):
+            return f"unix://{socket_dir}/osui.sock"
+
+    # Try standard paths
+    for base in [f"/run/user/{uid}", f"/var/run/user/{uid}"]:
+        socket_dir = os.path.join(base, 'opensnitch')
+        if os.path.isdir(socket_dir):
+            return f"unix://{socket_dir}/osui.sock"
+
+    # Fall back to /tmp (global, only one user can use it)
+    return "unix:///tmp/osui.sock"
+
 def configure_screen_scale_factor(cfg):
     """configure qt screen scale:
         https://doc.qt.io/qt-5/highdpi.html#high-dpi-support-in-qt
@@ -142,12 +166,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--socket", dest="socket", help='''
 Path of the unix socket for the gRPC service (https://github.com/grpc/grpc/blob/master/doc/naming.md).
-Default: unix:///tmp/osui.sock
+Default: unix://$XDG_RUNTIME_DIR/opensnitch/osui.sock (user-specific)
+         Falls back to unix:///tmp/osui.sock if runtime dir unavailable.
 
 Examples:
     - Listening on Unix socket: opensnitch-ui --socket unix:///tmp/osui.sock
-        * Use unix:///run/1000/YOUR_USER/opensnitch/osui.sock for better privacy.
     - Listening on port 50051, all interfaces: opensnitch-ui --socket "[::]:50051"
+
+Note: The daemon must be configured to connect to the same socket path.
                         ''', metavar="FILE")
     parser.add_argument("--socket-auth", dest="socket_auth", help="Auth type: simple, tls-simple, tls-mutual")
     parser.add_argument("--tls-ca-cert", dest="tls_ca_cert", help="path to the CA cert")
@@ -214,14 +240,14 @@ Examples:
         thm.load_theme(app)
 
         if args.socket is None:
-            # default
-            args.socket = "unix:///tmp/osui.sock"
+            # default: use user-specific path to support multiple users (#1341)
+            args.socket = get_default_socket_path()
 
             addr = cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
             if addr is not None and addr != "":
                 if addr.startswith("unix://"):
                     if not os.path.exists(os.path.dirname(addr[7:])):
-                        log.warning("WARNING: unix socket path does not exist, using unix:///tmp/osui.sock, %s", addr)
+                        log.warning("WARNING: unix socket path does not exist, using %s, %s", args.socket, addr)
                     else:
                         args.socket = addr
                 else:
