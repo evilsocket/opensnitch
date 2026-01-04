@@ -205,6 +205,39 @@ class GenericTableModel(QStandardItemModel):
         self.realQuery.seek(lastAt)
         return rows
 
+    def getRowsInRange(self, startRow, endRow, trackingCol):
+        """Get rows from database in given range (inclusive), returning dict keyed by trackingCol value.
+
+        This is used for Shift+click selection to fetch rows that may be outside the current
+        viewport due to virtual scrolling (#1428).
+
+        Args:
+            startRow: First row to fetch (0-based absolute database row index)
+            endRow: Last row to fetch (0-based absolute database row index, inclusive)
+            trackingCol: Column index to use as the key for the returned dict
+
+        Returns:
+            Dict mapping trackingCol values to row data (list of column values)
+        """
+        count = endRow - startRow + 1
+        rows_dict = {}
+        lastAt = self.realQuery.at()
+        # Seek to one position before startRow, since next() will advance
+        self.realQuery.seek(startRow - 1 if startRow > 0 else QSql.Location.BeforeFirstRow.value)
+        for _ in range(count):
+            if not self.realQuery.next():
+                break
+            if self.realQuery.at() == QSql.Location.AfterLastRow.value:
+                break
+            row = []
+            for col in range(0, len(self.headerLabels)):
+                row.append(str(self.realQuery.value(col)))
+            key = row[trackingCol] if trackingCol < len(row) else None
+            if key is not None:
+                rows_dict[key] = row
+        self.realQuery.seek(lastAt)
+        return rows_dict
+
 class GenericTableView(QTableView):
     # how many rows can potentially be displayed in viewport
     # the actual number of rows currently displayed may be less than this
@@ -219,6 +252,9 @@ class GenericTableView(QTableView):
         self.trackingCol = 0
         self._rows_selection = {}
         # first and last row selected with shift pressed
+        # These store ABSOLUTE database row indices (0-based), not viewport indices.
+        # Absolute index = vScrollBar.value() + viewport_row
+        # This allows Shift+click selection to work correctly even after scrolling (#1428).
         self._first_row_selected = None
         self._last_row_selected = None
 
@@ -255,6 +291,22 @@ class GenericTableView(QTableView):
             c = self.model().index(row, i)
             cols.append(c.data())
         return cols
+
+    def _viewportToAbsoluteRow(self, viewportRow):
+        """Convert a viewport row index to an absolute database row index.
+
+        This is needed for Shift+click selection because the virtual scrolling
+        only keeps visible rows in memory. When the user scrolls between clicks,
+        the viewport row indices change but the absolute database positions remain
+        the same (#1428).
+
+        Args:
+            viewportRow: Row index within the current viewport (0 to maxRowsInViewport-1)
+
+        Returns:
+            Absolute database row index (0-based)
+        """
+        return self.vScrollBar.value() + viewportRow
 
     def clear(self):
         pass
@@ -353,8 +405,10 @@ class GenericTableView(QTableView):
         # clicked row.
         # 4. if Left button has not been pressed, do not discard the selection.
         rowSelected = clickedItem.data() in self._rows_selection.keys()
+        # Store ABSOLUTE database row index, not viewport row (#1428)
+        absoluteRow = self._viewportToAbsoluteRow(row)
         if self._first_row_selected is None:
-            self._first_row_selected = row
+            self._first_row_selected = absoluteRow
         if self.ctrlPressed:
             if rowSelected:
                 del self._rows_selection[clickedItem.data()]
@@ -362,9 +416,9 @@ class GenericTableView(QTableView):
                 self._first_row_selected = None
         elif self.shiftPressed:
             if self._first_row_selected is None:
-                self._first_row_selected = row
+                self._first_row_selected = absoluteRow
             elif self._last_row_selected is None:
-                self._last_row_selected = row
+                self._last_row_selected = absoluteRow
         else:
             deselectCurRow = len(self._rows_selection.keys()) == 1 and not rightBtnPressed
             # discard current selection:
@@ -387,25 +441,29 @@ class GenericTableView(QTableView):
         )
 
     def handleShiftPressed(self):
-        x = self.vScrollBar.value()
+        """Handle Shift+click selection by fetching all rows between first and last click.
+
+        Since we use virtual scrolling and only visible rows are in memory, we need to
+        fetch the selected rows directly from the database. The _first_row_selected and
+        _last_row_selected store absolute database row indices (#1428).
+        """
+        # Ensure first <= last
         if self._first_row_selected > self._last_row_selected:
-            # FIXME:
-            # handle rows selection correctly when selecting them from
-            # bottom to top + scrolling.
-            last = self._first_row_selected
-            first = self._last_row_selected
-            self._last_row_selected = last
-            self._first_row_selected = first
-        self._rows_selection = {}
+            self._first_row_selected, self._last_row_selected = self._last_row_selected, self._first_row_selected
+
+        # Fetch all rows in the range from the database
+        # This works even if the rows are outside the current viewport
+        self._rows_selection = self.model().getRowsInRange(
+            self._first_row_selected,
+            self._last_row_selected,
+            self.trackingCol
+        )
+
+        # Update the visual selection for rows currently visible in the viewport
         self.selectionModel().clear()
-        for row in range(self._first_row_selected, self._last_row_selected+1):
-            idx = self.model().index(row, self.trackingCol)
-            self._rows_selection[idx.data()] = self.getRowCells(row)
-            self.selectionModel().setCurrentIndex(
-                idx,
-                QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.SelectCurrent
-            )
-        # self._first_row_selected is resetted on mousePressEvent
+        self._selectSavedIndex()
+
+        # self._first_row_selected is reset on mousePressEvent
         self._last_row_selected = None
 
     def handleMouseMoveEvent(self, row, clickedItem, selected):
