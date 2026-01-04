@@ -585,7 +585,13 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule = ui_pb2.Rule(name="user.choice")
             self._rule.created = int(datetime.now().timestamp())
             self._rule.enabled = True
-            self._rule.duration = utils.get_duration(self.durationCombo.currentIndex())
+            # If the popup timed out without user interaction, always use "once" duration
+            # to avoid creating permanent rules when the user is away (#1385).
+            # Only explicit user confirmation should create permanent rules.
+            if self._timeout_triggered:
+                self._rule.duration = Config.DURATION_ONCE
+            else:
+                self._rule.duration = utils.get_duration(self.durationCombo.currentIndex())
 
             self._rule.action = Config.ACTION_ALLOW
             if self._default_action == Config.ACTION_DENY_IDX:
