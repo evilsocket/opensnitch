@@ -32,6 +32,7 @@ import opensnitch.proto as proto
 ui_pb2, ui_pb2_grpc = proto.import_()
 
 from opensnitch.utils.network_aliases import NetworkAliases
+from opensnitch.dialogs.ruleseditor import RulesEditorDialog
 
 DIALOG_UI_PATH = "%s/../../res/prompt.ui" % os.path.dirname(sys.modules[__name__].__file__)
 class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
@@ -105,16 +106,21 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdUpdateRuleAll.clicked.connect(lambda: self._cb_update_rule_clicked(updateAll=True))
         self.cmdBackChecksums.clicked.connect(self._cb_cmdback_clicked)
         self.messageLabel.linkActivated.connect(self._cb_warninglbl_clicked)
+        self.cmdAddRule.clicked.connect(self._cb_add_rule_clicked)
+
+        self._rules_editor_dialog = None
 
         self.allowIcon = Icons.new(self, "emblem-default")
         denyIcon = Icons.new(self, "emblem-important")
         rejectIcon = Icons.new(self, "window-close")
         backIcon = Icons.new(self, "go-previous")
         infoIcon = Icons.new(self, "dialog-information")
+        addRuleIcon = Icons.new(self, "document-new")
 
         self.cmdInfo.setIcon(infoIcon)
         self.cmdBack.setIcon(backIcon)
         self.cmdBackChecksums.setIcon(backIcon)
+        self.cmdAddRule.setIcon(addRuleIcon)
 
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
 
@@ -315,6 +321,17 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _cb_cmdback_clicked(self):
         self.stackedWidget.setCurrentIndex(constants.PAGE_MAIN)
         self.stop_countdown()
+
+    def _cb_add_rule_clicked(self):
+        """Open the rule editor dialog with the current connection details pre-filled."""
+        self.stop_countdown()
+        if self._con is None:
+            return
+
+        if self._rules_editor_dialog is None:
+            self._rules_editor_dialog = RulesEditorDialog(appicon=self.windowIcon())
+
+        self._rules_editor_dialog.new_rule_from_connection_object(self._con, self._peer)
 
     def promptUser(self, connection, is_local, peer):
         # one at a time

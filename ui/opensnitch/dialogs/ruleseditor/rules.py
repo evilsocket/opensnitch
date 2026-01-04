@@ -73,6 +73,35 @@ def set_fields_from_connection(win, records):
     win.procLine.setText(records.value(ConnFields.Process))
     win.cmdlineLine.setText(records.value(ConnFields.Cmdline))
 
+def set_fields_from_connection_object(win, con, node_addr):
+    """Set rule editor fields from a Connection protobuf object.
+
+    Args:
+        win: The RulesEditorDialog instance
+        con: Connection protobuf object from the prompt dialog
+        node_addr: The node address string (e.g., "unix:/local")
+    """
+    nIdx = win.nodesCombo.findData(node_addr)
+    if nIdx == -1:
+        # Try to find by partial match if exact match fails
+        for i in range(win.nodesCombo.count()):
+            if node_addr in str(win.nodesCombo.itemData(i)):
+                nIdx = i
+                break
+    if nIdx != -1:
+        win.nodesCombo.setCurrentIndex(nIdx)
+
+    win.protoCombo.setCurrentText(con.protocol.upper())
+    win.srcIPCombo.setCurrentText(con.src_ip)
+    win.dstIPCombo.setCurrentText(con.dst_ip)
+    win.dstHostLine.setText(con.dst_host)
+    win.dstPortLine.setText(str(con.dst_port) if con.dst_port != 0 else "")
+    win.srcPortLine.setText(str(con.src_port) if con.src_port != 0 else "")
+    win.uidCombo.setCurrentText(str(con.user_id))
+    win.pidLine.setText(str(con.process_id))
+    win.procLine.setText(con.process_path)
+    win.cmdlineLine.setText(" ".join(con.process_args))
+
 
 def load_operator(win, operator):
     win.sensitiveCheck.setChecked(operator.sensitive)

@@ -310,6 +310,32 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         return True
 
+    def new_rule_from_connection_object(self, con, node_addr):
+        """Create a new rule pre-filled with data from a Connection protobuf object.
+
+        This method is used by the prompt dialog to open the rule editor with
+        connection details already filled in.
+
+        Args:
+            con: Connection protobuf object from the prompt dialog
+            node_addr: The node address string (e.g., "unix:/local")
+
+        Returns:
+            True if successful, False otherwise
+        """
+        constants.WORK_MODE = constants.ADD_RULE
+        utils.reset_state(self)
+        nodes.load_all(self)
+
+        try:
+            rules.set_fields_from_connection_object(self, con, node_addr)
+            self.show()
+        except Exception as e:
+            self.logger.warning("exception creating new rule from connection object: %s", repr(e))
+            return False
+
+        return True
+
     def edit_rule(self, records, _addr=None):
         constants.WORK_MODE = constants.EDIT_RULE
         utils.reset_state(self)

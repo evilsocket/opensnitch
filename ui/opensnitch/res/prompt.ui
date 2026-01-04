@@ -40,7 +40,7 @@
     <number>3</number>
    </property>
    <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,2,2,1,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,2,2,1,0,0">
      <property name="spacing">
       <number>3</number>
      </property>
@@ -185,6 +185,32 @@
        <property name="icon">
         <iconset theme="emblem-default">
          <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cmdAddRule">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>35</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Open rule editor with connection details</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="document-new">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
