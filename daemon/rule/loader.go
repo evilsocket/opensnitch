@@ -30,6 +30,7 @@ type Loader struct {
 	liveReload        bool
 	liveReloadRunning bool
 	checkSums         bool
+	evaluationMode    EvaluationMode
 	stopLiveReload    chan struct{}
 
 	sync.RWMutex
@@ -48,8 +49,25 @@ func NewLoader(liveReload bool) (*Loader, error) {
 		liveReload:        liveReload,
 		watcher:           watcher,
 		liveReloadRunning: false,
+		evaluationMode:    EvalDenyPriority,
 		stopLiveReload:    make(chan struct{}),
 	}, nil
+}
+
+// SetEvaluationMode sets the rule evaluation mode.
+// EvalDenyPriority (default): deny/reject rules always win over allow rules.
+// EvalFirstMatch: first matching rule wins (RouterOS-style).
+func (l *Loader) SetEvaluationMode(mode string) {
+	l.Lock()
+	defer l.Unlock()
+	switch mode {
+	case string(EvalFirstMatch):
+		l.evaluationMode = EvalFirstMatch
+		log.Info("[rules] Evaluation mode: first-match (first matching rule wins)")
+	default:
+		l.evaluationMode = EvalDenyPriority
+		log.Info("[rules] Evaluation mode: deny-priority (deny always wins)")
+	}
 }
 
 // NumRules returns he number of loaded rules.
@@ -374,7 +392,16 @@ func (l *Loader) sortRules() {
 		}
 		l.activeRules = append(l.activeRules, k)
 	}
-	sort.Strings(l.activeRules)
+	// Sort by priority first (lower = higher priority), then alphabetically by name.
+	// This allows explicit control over rule evaluation order via the Priority field.
+	sort.Slice(l.activeRules, func(i, j int) bool {
+		ri := l.rules[l.activeRules[i]]
+		rj := l.rules[l.activeRules[j]]
+		if ri.Priority != rj.Priority {
+			return ri.Priority < rj.Priority
+		}
+		return l.activeRules[i] < l.activeRules[j]
+	})
 }
 
 func (l *Loader) addUserRule(rule *Rule) {
@@ -494,6 +521,9 @@ Exit:
 }
 
 // FindFirstMatch will try match the connection against the existing rule set.
+// The behavior depends on the evaluation mode:
+// - EvalDenyPriority (default): deny/reject rules always win over allow rules.
+// - EvalFirstMatch: first matching rule wins (RouterOS-style).
 func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 	l.RLock()
 	defer l.RUnlock()
@@ -501,10 +531,15 @@ func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
 	for _, idx := range l.activeRules {
 		rule, _ := l.rules[idx]
 		if rule.Match(con, l.checkSums) {
-			// We have a match.
-			// Save the rule in order to don't ask the user to take action,
-			// and keep iterating until a Deny or a Priority rule appears.
 			match = rule
+
+			// In first-match mode, return immediately on any match
+			if l.evaluationMode == EvalFirstMatch {
+				return rule
+			}
+
+			// In deny-priority mode (default), keep iterating until a
+			// Deny/Reject or Precedence rule appears
 			if rule.Action == Reject || rule.Action == Deny || rule.Precedence == true {
 				return rule
 			}

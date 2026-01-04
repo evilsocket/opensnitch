@@ -52,6 +52,10 @@ type (
 	RulesOptions struct {
 		Path            string `json:"Path"`
 		EnableChecksums bool   `json:"EnableChecksums"`
+		// EvaluationMode determines how rules are matched:
+		// - "deny-priority" (default): deny/reject rules always win over allow
+		// - "first-match": first matching rule wins (RouterOS-style)
+		EvaluationMode string `json:"EvaluationMode"`
 	}
 
 	// FwOptions struct

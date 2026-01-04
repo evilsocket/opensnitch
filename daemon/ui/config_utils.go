@@ -196,6 +196,7 @@ func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err
 
 	// 1. load rules
 	c.rules.EnableChecksums(newConfig.Rules.EnableChecksums)
+	c.rules.SetEvaluationMode(newConfig.Rules.EvaluationMode)
 	if newConfig.Rules.Path == "" || c.config.Rules.Path != newConfig.Rules.Path {
 		c.rules.Reload(newConfig.Rules.Path)
 		log.Debug("[config] reloading config.rules.path, old: <%s> new: <%s>", c.config.Rules.Path, newConfig.Rules.Path)
