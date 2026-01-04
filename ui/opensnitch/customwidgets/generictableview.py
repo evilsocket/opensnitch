@@ -228,6 +228,9 @@ class GenericTableView(QTableView):
         self.horizontalHeader().setStretchLastSection(True)
         #the built-in vertical scrollBar of this view is always off
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        # Make cells read-only to prevent accidental editing on double-click (#1285).
+        # Text selection for copying is still possible via row selection.
+        self.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)
         self.installEventFilter(self)
 
     def setVerticalScrollBar(self, vScrollBar):
