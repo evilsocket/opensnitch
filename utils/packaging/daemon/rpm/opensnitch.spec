@@ -1,3 +1,5 @@
+%define _binary_payload w9.gzdio
+
 Name:           opensnitch
 Version:        1.8.0
 Release:        1%{?dist}
