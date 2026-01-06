@@ -1,3 +1,6 @@
+import math
+import threading
+
 from PyQt6.QtGui import QStandardItemModel
 from PyQt6.QtSql import QSqlQuery, QSql
 from PyQt6.QtWidgets import QTableView
@@ -9,7 +12,6 @@ from PyQt6.QtCore import (
     pyqtSignal,
     QEvent,
     Qt)
-import math
 
 class GenericTableModel(QStandardItemModel):
     rowCountChanged = pyqtSignal()
@@ -213,6 +215,8 @@ class GenericTableView(QTableView):
 
     def __init__(self, parent):
         QTableView.__init__(self, parent)
+        self._lock = threading.RLock()
+
         self.mousePressed = False
         self.shiftPressed = False
         self.ctrlPressed = False
@@ -221,6 +225,8 @@ class GenericTableView(QTableView):
         # first and last row selected with shift pressed
         self._first_row_selected = None
         self._last_row_selected = None
+        # flag to avoid excessive refreshes
+        self._last_height = 0
 
         #eventFilter to catch key up/down events and wheel events
         self.verticalHeader().setVisible(True)
@@ -434,15 +440,19 @@ class GenericTableView(QTableView):
         pass
 
     def onEndViewportRefresh(self):
-        if not self.mousePressed and not self.shiftPressed:
-            self.selectionModel().clear()
-        self._selectSavedIndex()
-        self.viewport().update()
+        with self._lock:
+            if not self.mousePressed and not self.shiftPressed:
+                self.selectionModel().clear()
+            self._selectSavedIndex()
+            self.viewport().update()
 
     def resizeEvent(self, event):
-        super().resizeEvent(event)
-        #refresh the viewport data based on new geometry
-        self.refresh()
+        super(GenericTableView, self).resizeEvent(event)
+        # refresh the viewport data based on new geometry.
+        # If the height has not changed, we don't need to refresh the view.
+        if self._last_height != self.verticalHeader().height():
+            self._last_height = self.verticalHeader().height()
+            self.refresh()
 
     def onRowCountChanged(self):
         totalCount = self.model().totalRowCount
