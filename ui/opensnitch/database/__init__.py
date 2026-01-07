@@ -56,7 +56,10 @@ class Database:
         if dbtype == Database.DB_TYPE_MEMORY:
             self.db.setConnectOptions("QSQLITE_OPEN_URI;QSQLITE_ENABLE_SHARED_CACHE")
         if not self.db.open():
-            print("\n ** Error opening DB: SQLite driver not loaded. DB name: %s\n" % self.db_file)
+            print("\n ** Error opening DB: {0}".format(self.db_file))
+            print("\n    file exists:", os.path.exists(self.db_file))
+            print("\n    db error:", self.db.lastError().databaseText())
+            print("\n    driver error:", self.db.lastError().driverText())
             print("\n    Available drivers: ", QSqlDatabase.drivers())
             sys.exit(-1)
 
