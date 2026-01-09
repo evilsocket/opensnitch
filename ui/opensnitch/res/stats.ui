@@ -378,7 +378,7 @@
         <number>0</number>
        </property>
        <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_12">
+        <layout class="QHBoxLayout" name="nodesToolbar">
          <item>
           <widget class="QPushButton" name="cmdNodesBack">
            <property name="text">
@@ -1004,7 +1004,7 @@
         </layout>
        </item>
        <item row="0" column="0">
-        <layout class="QHBoxLayout" name="rulesToolbarLayout">
+        <layout class="QHBoxLayout" name="rulesToolbar">
          <item>
           <widget class="QPushButton" name="cmdRulesBack">
            <property name="text">
@@ -1103,7 +1103,7 @@
         <number>0</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <layout class="QHBoxLayout" name="hostsToolbar">
          <item>
           <widget class="QPushButton" name="cmdHostsBack">
            <property name="text">
@@ -1199,7 +1199,7 @@
         <number>0</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <layout class="QHBoxLayout" name="procsToolbar">
          <item>
           <widget class="QPushButton" name="cmdProcsBack">
            <property name="enabled">
@@ -1318,7 +1318,7 @@
         <number>0</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <layout class="QHBoxLayout" name="addrsToolbar">
          <item>
           <widget class="QPushButton" name="cmdAddrsBack">
            <property name="text">
@@ -1414,7 +1414,7 @@
         <number>0</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <layout class="QHBoxLayout" name="portsToolbar">
          <item>
           <widget class="QPushButton" name="cmdPortsBack">
            <property name="text">
@@ -1507,7 +1507,7 @@
         <number>0</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <layout class="QHBoxLayout" name="usersToolbar">
          <item>
           <widget class="QPushButton" name="cmdUsersBack">
            <property name="text">
@@ -1632,7 +1632,7 @@
         </layout>
        </item>
        <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_20">
+        <layout class="QHBoxLayout" name="netstatToolbar">
          <item>
           <widget class="QPushButton" name="cmdNetstatBack">
            <property name="text">

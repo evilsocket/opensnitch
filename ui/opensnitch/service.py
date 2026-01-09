@@ -16,7 +16,7 @@ import opensnitch.proto as pb2
 ui_pb2, ui_pb2_grpc = pb2.import_()
 
 from opensnitch.dialogs.prompt import PromptDialog
-from opensnitch.dialogs.stats import StatsDialog
+from opensnitch.dialogs.events import StatsDialog
 
 from opensnitch.plugins import PluginsManager, PluginBase, PluginsList, PluginSignal
 from opensnitch.actions import Actions

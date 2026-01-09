@@ -22,20 +22,10 @@ class AddressTableModel(GenericTableModel):
         self.setColumnCount(len(self.headerLabels))
         self.lastColumnCount = len(self.headerLabels)
 
-    def setQuery(self, q, db):
-        self.origQueryStr = q
-        self.db = db
+    def lastQuery(self):
+        return self.origQueryStr
 
-        if self.prevQueryStr != self.origQueryStr:
-            self.realQuery = QSqlQuery(q, db)
-
-        self.realQuery.exec()
-        self.realQuery.last()
-
-        queryRows = max(0, self.realQuery.at()+1)
-        self.totalRowCount = queryRows
-        self.setRowCount(self.totalRowCount)
-
+    def update_col_count(self):
         queryColumns = self.realQuery.record().count()
         if self.asndb.is_available() and queryColumns < 3:
             self.reconfigureColumns()
@@ -43,6 +33,24 @@ class AddressTableModel(GenericTableModel):
             # update view's columns
             if queryColumns != self.lastColumnCount:
                 self.setModelColumns(queryColumns)
+
+    def setQuery(self, q, db, binds=None):
+        self.origQueryStr = q
+        self.db = db
+
+        if self.prevQueryStr != self.origQueryStr:
+            self.realQuery = QSqlQuery(q, db)
+
+        if binds is not None:
+            self.realQuery.prepare(self.origQueryStr)
+            for idx, v in binds:
+                self.realQuery.bindValue(idx, v)
+
+        self.realQuery.exec()
+        self.realQuery.last()
+
+        self.update_row_count()
+        self.update_col_count()
 
         self.prevQueryStr = self.origQueryStr
         self.rowCountChanged.emit()

@@ -26,7 +26,7 @@ class GenericTableModel(QStandardItemModel):
     lastColumnCount = 0
 
     # original query string before we modify it
-    origQueryStr = QSqlQuery()
+    origQueryStr = ""
     # previous original query string; used to check if the query has changed
     prevQueryStr = ''
     # modified query object
@@ -59,6 +59,11 @@ class GenericTableModel(QStandardItemModel):
     def clear(self):
         pass
 
+    def refresh(self):
+        self.realQuery.exec()
+        #self._update_row_count()
+        #self._update_col_count()
+
     def rowCount(self, index=None):
         """ensures that only the needed rows is created"""
         return len(self.items)
@@ -71,6 +76,17 @@ class GenericTableModel(QStandardItemModel):
             if index.isValid() and items_count > 0 and index.row() < items_count:
                 return self.items[index.row()][index.column()]
         return QStandardItemModel.data(self, index, role)
+
+    def update_row_count(self):
+        queryRows = max(0, self.realQuery.at()+1)
+        self.totalRowCount = queryRows
+        self.setRowCount(self.totalRowCount)
+
+    def update_col_count(self):
+      # update view's columns
+        queryColumns = self.realQuery.record().count()
+        if queryColumns != self.lastColumnCount:
+            self.setModelColumns(queryColumns)
 
     # set columns based on query's fields
     def setModelColumns(self, newColumns):
@@ -89,24 +105,23 @@ class GenericTableModel(QStandardItemModel):
 
         self.blockSignals(False);
 
-    def setQuery(self, q, db):
+    def setQuery(self, q, db, binds=None):
         self.origQueryStr = q
         self.db = db
 
         if self.prevQueryStr != self.origQueryStr:
             self.realQuery = QSqlQuery(q, db)
 
+        if binds is not None:
+            self.realQuery.prepare(self.origQueryStr)
+            for idx, v in binds:
+                self.realQuery.bindValue(idx, v)
+
         self.realQuery.exec()
         self.realQuery.last()
 
-        queryRows = max(0, self.realQuery.at()+1)
-        self.totalRowCount = queryRows
-        self.setRowCount(self.totalRowCount)
-
-        # update view's columns
-        queryColumns = self.realQuery.record().count()
-        if queryColumns != self.lastColumnCount:
-            self.setModelColumns(queryColumns)
+        self.update_row_count()
+        self.update_col_count()
 
         self.prevQueryStr = self.origQueryStr
         self.rowCountChanged.emit()
