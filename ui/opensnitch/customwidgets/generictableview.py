@@ -261,8 +261,6 @@ class GenericTableView(QTableView):
         model.rowCountChanged.connect(self.onRowCountChanged)
         model.beginViewPortRefresh.connect(self.onBeginViewportRefresh)
         model.endViewPortRefresh.connect(self.onEndViewportRefresh)
-        self.horizontalHeader().sortIndicatorChanged.disconnect()
-        self.setSortingEnabled(False)
 
     # FIXME: some columns may have the same value on different nodes
     # like rule name zzz on nodes 1, 2 and 3.

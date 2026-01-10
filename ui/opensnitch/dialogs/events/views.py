@@ -312,7 +312,7 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
         except Exception as e:
             print("[stats] exception monitoring node:", e)
 
-    def on_table_header_clicked(self, pos, sortIdx):
+    def on_table_header_clicked(self, pos, sortOrder):
         cur_idx = self.get_current_view_idx()
         # TODO: allow ordering by Network column
         if cur_idx ==  constants.TAB_ADDRS and pos == 2:
@@ -321,15 +321,19 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
         model = self.get_active_table().model()
         qstr = model.query().lastQuery().split("ORDER BY")[0]
 
-        q = qstr.strip(" ") + " ORDER BY %d %s" % (pos+1,  constants.SORT_ORDER[sortIdx.value])
+        q = qstr.strip(" ") + " ORDER BY %d %s" % (pos+1,  constants.SORT_ORDER[sortOrder.value])
         if cur_idx > 0 and self.TABLES[cur_idx]['cmd'].isVisible() is False:
             self.TABLES[cur_idx]['last_order_by'] = pos+1
-            self.TABLES[cur_idx]['last_order_to'] = sortIdx.value
+            self.TABLES[cur_idx]['last_order_to'] = sortOrder.value
 
             q = qstr.strip(" ") + self.get_view_order()
 
         q += self.get_view_limit()
         self.queries.setQuery(model, q)
+
+        header = self.get_active_table().horizontalHeader()
+        sort_order = QtCore.Qt.SortOrder.DescendingOrder if sortOrder.value == constants.SORT_DESC else QtCore.Qt.SortOrder.AscendingOrder
+        header.setSortIndicator(pos, sort_order)
 
     def on_menu_export_csv_clicked(self, triggered):
         tab_idx = self.get_current_view_idx()
