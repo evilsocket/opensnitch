@@ -281,7 +281,23 @@ class MenuActions(views.ViewsManager):
                 self.refresh_active_table()
 
     def table_menu_edit(self, cur_idx, model, selection):
-        if cur_idx ==  constants.TAB_RULES and self.rulesTable.isVisible():
+        if cur_idx ==  constants.TAB_MAIN:
+            for row in selection:
+                node = model.index(row.row(), constants.COL_NODE).data()
+                name = model.index(row.row(), constants.COL_RULES).data()
+                records = self.get_rule(name, node)
+                if records is None or records == -1:
+                    Message.ok(
+                        QC.translate("stats", "New rule error"),
+                        QC.translate("stats", "Rule not found by that name and node"),
+                        QtWidgets.QMessageBox.Icon.Warning)
+                    return
+                print(node, name)
+                r = RulesEditorDialog(modal=False)
+                r.edit_rule(records, node)
+
+                break
+        elif cur_idx ==  constants.TAB_RULES and self.rulesTable.isVisible():
             for row in selection:
                 node = row[constants.COL_R_NODE]
                 name = row[constants.COL_R_NAME]

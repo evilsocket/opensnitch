@@ -28,6 +28,7 @@ class MenusManager(views.ViewsManager):
             _menu_details = menu.addAction(QC.translate("stats", "Details"))
             rulesMenu = QtWidgets.QMenu(QC.translate("stats", "Rules"))
             _menu_new_rule = rulesMenu.addAction(QC.translate("stats", "New"))
+            _menu_edit_rule = rulesMenu.addAction(QC.translate("stats", "Edit"))
             menu.addMenu(rulesMenu)
             self.set_view_context_menu(constants.TAB_MAIN, menu)
 
@@ -39,6 +40,8 @@ class MenusManager(views.ViewsManager):
 
             if action == _menu_new_rule:
                 self.table_menu_new_rule_from_row(cur_idx, model, selection)
+            elif action == _menu_edit_rule:
+                self.table_menu_edit(cur_idx, model, selection)
             elif action == _menu_details:
                 coltime = model.index(selection[0].row(), constants.COL_TIME).data()
                 o = ConnDetails(self)
