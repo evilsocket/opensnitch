@@ -1,6 +1,9 @@
 from opensnitch.config import Config
 from opensnitch.database.enums import RuleFields, ConnFields
-from . import utils
+from . import (
+    constants,
+    utils
+)
 
 def insert_rule_to_db(win, node_addr, rule):
     # the order of the fields doesn't matter here, as long as we use the
@@ -145,10 +148,10 @@ def load_operator(win, operator):
     if operator.operand == Config.OPERAND_SOURCE_IP or operator.operand == Config.OPERAND_SOURCE_NETWORK:
         win.srcIPCheck.setChecked(True)
         win.srcIPCombo.setEnabled(True)
-        if operator.data == win.LAN_RANGES:
-            win.srcIPCombo.setCurrentText(win.LAN_LABEL)
-        elif operator.data == win.MULTICAST_RANGE:
-            win.srcIPCombo.setCurrentText(win.MULTICAST_LABEL)
+        if operator.data == constants.LAN_RANGES:
+            win.srcIPCombo.setCurrentText(constants.LAN_LABEL)
+        elif operator.data == constants.MULTICAST_RANGE:
+            win.srcIPCombo.setCurrentText(constants.MULTICAST_LABEL)
         else:
             ips, err = utils.regexp_to_comma(win, operator.data, str)
             if err != "":
@@ -160,10 +163,10 @@ def load_operator(win, operator):
     if operator.operand == Config.OPERAND_DEST_IP or operator.operand == Config.OPERAND_DEST_NETWORK:
         win.dstIPCheck.setChecked(True)
         win.dstIPCombo.setEnabled(True)
-        if operator.data == win.LAN_RANGES:
-            win.dstIPCombo.setCurrentText(win.LAN_LABEL)
-        elif operator.data == win.MULTICAST_RANGE:
-            win.dstIPCombo.setCurrentText(win.MULTICAST_LABEL)
+        if operator.data == constants.LAN_RANGES:
+            win.dstIPCombo.setCurrentText(constants.LAN_LABEL)
+        elif operator.data == constants.MULTICAST_RANGE:
+            win.dstIPCombo.setCurrentText(constants.MULTICAST_LABEL)
         else:
             ips, err = utils.regexp_to_comma(win, operator.data, str)
             if err != "":
