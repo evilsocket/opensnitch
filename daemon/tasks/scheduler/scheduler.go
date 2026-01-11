@@ -39,7 +39,7 @@ type Config struct {
 type Scheduler struct {
 	Ctx      context.Context
 	Cancel   context.CancelFunc
-	Tickers  []*time.Ticker
+	Tickers  map[int]*time.Ticker
 	Ticker   *time.Ticker
 	TickChan chan time.Time
 	ticky    chan time.Time
@@ -54,98 +54,12 @@ func New(ctx context.Context, cancel context.CancelFunc, config Config) *Schedul
 		Cancel:   cancel,
 		TickChan: make(chan time.Time),
 		ticky:    make(chan time.Time),
+		Tickers:  make(map[int]*time.Ticker),
 		Config:   config,
 		mu:       &sync.RWMutex{},
 	}
 
 	return sched
-}
-
-// NewDailyTicker creates a new ticker.
-func NewDailyTicker(tm string) (*time.Ticker, time.Duration) {
-	tms, err := time.Parse("15:04:05", tm)
-	if err != nil {
-		tms, err = time.Parse("15:04", tm)
-		if err != nil {
-			log.Debug("[tasks-scheduler] invalid daily ticker time: %s", err)
-			return nil, time.Millisecond
-		}
-	}
-	wait := time.Millisecond
-	now := time.Now()
-	tmd := time.Date(
-		now.Year(), now.Month(), now.Day(),
-		tms.Hour(), tms.Minute(), tms.Second(), 0,
-		now.Location(),
-	)
-	// if the Ticker is created before the time, wait until the ticker
-	if tmd.Before(now) {
-		wait = (24 * time.Hour) - now.Sub(tmd)
-	} else if tmd.After(now) {
-		wait = time.Until(tmd)
-	}
-	log.Debug("[tasks-scheduler] NewDailyTicker scheduled, waiting to start: %s", wait)
-
-	return time.NewTicker(wait), wait
-}
-
-// SetupDailyTimers creates the daily timers that will fire every 24h at the configured hour.
-// We create the timers and wait for the remaining time from now until the configured hour.
-// From that on, the timer will be scheduled to tick every 24h.
-func (s *Scheduler) SetupDailyTimers() {
-	var wg sync.WaitGroup
-
-	for id, t := range s.Config.Time {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			tck, wait := NewDailyTicker(t)
-			if tck == nil {
-				log.Error("[tasks-scheduler] invalid timer %d-%s", id, t)
-				return
-			}
-			// save tickers to stop them later when stopping the scheduler.
-			s.mu.Lock()
-			s.Tickers = append(s.Tickers, tck)
-			s.mu.Unlock()
-
-			// wait for ticks while the tickers are active.
-			go func() {
-				// stop the ticker only when stopping the scheduler.
-				defer tck.Stop()
-				log.Debug("[tasks-scheduler] %d, %s daily ticker started", id, t)
-				for {
-					select {
-					case <-s.Ctx.Done():
-						goto Exit
-					case now := <-tck.C:
-						for _, wd := range s.Config.Weekday {
-							if wd == int(now.Weekday()) {
-								s.TickChan <- now
-							}
-						}
-					}
-				}
-			Exit:
-				log.Debug("[tasks-scheduler] scheduler timer %d stopped", id)
-			}()
-
-			// wait the remaining time until the configured hour. Then set the ticker to repeat every 24h.
-			if wait > time.Millisecond {
-				log.Debug("[tasks-scheduler] scheduler %d-%s timer MUST wait: %v", id, t, wait)
-				time.Sleep(wait)
-				// FIXME: if the computer is suspended, the timers do not take into account the time spent
-				// suspended.
-				tck.Reset(24 * time.Hour)
-			}
-
-		}()
-	}
-	wg.Wait()
-	<-s.Ctx.Done()
-
-	log.Debug("[tasks-scheduler] SetupDailyTimers() finished")
 }
 
 func (s *Scheduler) Start() {
@@ -240,12 +154,14 @@ func (s *Scheduler) Start() {
 
 func (s *Scheduler) Stop() {
 	if len(s.Tickers) > 0 {
-		for _, t := range s.Tickers {
+		for id, t := range s.Tickers {
 			if t != nil {
 				t.Stop()
 			}
+			t = nil
+			delete(s.Tickers, id)
 		}
-		s.Tickers = make([]*time.Ticker, 0)
+		s.Tickers = make(map[int]*time.Ticker)
 	}
 	if s.Ticker != nil {
 		s.Ticker.Stop()
