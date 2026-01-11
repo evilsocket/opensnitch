@@ -14,6 +14,39 @@ class MenusManager(views.ViewsManager):
     def __init__(self, parent):
         super().__init__(parent)
 
+    def configure_header_contextual_menu(self, pos):
+        cur_idx = self.get_current_view_idx()
+        # TODO: allow to configure in-detail columns
+        #if self.in_detail_view(cur_idx):
+        #    return
+        #state = "detail_" if self.in_detail_view(cur_idx) else ""
+        table = self.get_active_table()
+
+        menu = QtWidgets.QMenu(self)
+
+        tbl_name = self.TABLES[cur_idx]['name']
+        headers = self.TABLES[cur_idx]['header_labels']
+        headers_sel = []
+        cols = self.cfg.getSettings(Config.STATS_SHOW_COLUMNS + f"_{tbl_name}")
+        if cols is None:
+            cols = []
+        cols_len = len(cols)
+        for i, h in enumerate(headers):
+            haction = menu.addAction(h)
+            haction.setCheckable(True)
+            haction.setChecked(str(i) in cols or cols_len == 0)
+            headers_sel.append(haction)
+
+        point = QtCore.QPoint(pos.x()+10, pos.y()+5)
+        action = menu.exec(table.mapToGlobal(point))
+        new_cols = []
+        for i, h in enumerate(headers_sel):
+            if h == action:
+                self.TABLES[cur_idx]['view'].setColumnHidden(i, not h.isChecked())
+            if h.isChecked():
+                new_cols.append(str(i))
+        self.cfg.setSettings(Config.STATS_SHOW_COLUMNS + f"_{tbl_name}", new_cols)
+
     def configure_events_contextual_menu(self, pos):
         try:
             cur_idx = self.get_current_view_idx()

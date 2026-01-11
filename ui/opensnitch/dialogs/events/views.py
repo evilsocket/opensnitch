@@ -106,6 +106,8 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
         header = tableWidget.horizontalHeader()
         if header is not None:
             header.sortIndicatorChanged.connect(self._cb_table_header_clicked)
+            header.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
+            header.customContextMenuRequested.connect(self.configure_header_contextual_menu)
 
             for _, col in enumerate(resize_cols):
                 header.setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -217,11 +219,17 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
         self.eventsTable.setColumnHidden(constants.COL_NODE, hideNodeCol)
         self.rulesTable.setColumnHidden(constants.COL_R_NODE, hideNodeCol)
 
-        cols = self.cfg.getSettings(Config.STATS_SHOW_COLUMNS)
+        for idx in range(len(self.TABLES)):
+            self.show_view_columns(idx)
+
+    def show_view_columns(self, idx):
+        tbl_name = self.TABLES[idx]['name']
+        view = self.TABLES[idx]['view']
+        cols_num = len(self.TABLES[idx]['header_labels'])
+        cols = self.cfg.getSettings(Config.STATS_SHOW_COLUMNS + f"_{tbl_name}")
         if cols is not None:
-            for c in range(constants.GENERAL_COL_NUM):
-                self.eventsTable.setColumnHidden(c, str(c) not in cols)
-            return
+            for c in range(cols_num):
+                view.setColumnHidden(c, str(c) not in cols)
 
     def on_filter_line_changed(self, text):
         cur_idx = self.get_current_view_idx()

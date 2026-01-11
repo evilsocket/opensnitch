@@ -269,7 +269,7 @@ def save_ui_columns_config(win):
     if win.checkHideRule.isChecked():
         cols.append("13")
 
-    win.cfgMgr.setSettings(Config.STATS_SHOW_COLUMNS, cols)
+    win.cfgMgr.setSettings(Config.STATS_SHOW_COLUMNS + "_connections", cols)
 
 def save_nodes_config(win):
     addr = section_nodes.get_node_addr(win)

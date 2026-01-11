@@ -147,7 +147,7 @@ def load_ui_settings(win):
     load_ui_columns_config(win)
 
 def load_ui_columns_config(win):
-    cols = win.cfgMgr.getSettings(Config.STATS_SHOW_COLUMNS)
+    cols = win.cfgMgr.getSettings(Config.STATS_SHOW_COLUMNS + "_connections")
     if cols is None:
         return
 
