@@ -11,7 +11,8 @@ from opensnitch.database import Database
 from opensnitch.customwidgets.itemwidgetcentered import IconTextItem
 from opensnitch.utils import (
     Icons,
-    logger
+    logger,
+    Message
 )
 from opensnitch.utils.xdg import Autostart
 from opensnitch.utils.themes import Themes
@@ -320,10 +321,22 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.lineNodeRulesPath.setText(rulesdir)
 
     def cb_file_db_clicked(self):
-        fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "", "","All Files (*)")
+        cur_dir = ""
+        if self.dbLabel.text() != "":
+            cur_dir = os.path.dirname(self.dbLabel.text())
+
+        fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "", cur_dir, "All Files (*)")
         if fileName:
+            db_dir = os.path.dirname(fileName)
+            if not os.path.exists(db_dir):
+                Message.ok(
+                    QC.translate("preferences", "Warning"),
+                    QC.translate("preferences",
+                                 "Invalid directory selected:<br><br>{0}".format(db_dir)),
+                    QtWidgets.QMessageBox.Icon.Warning)
+                return
             self.dbLabel.setText(fileName)
-        self.changes_needs_restart = QC.translate("preferences", "DB file changed")
+            self.changes_needs_restart = QC.translate("preferences", "DB file changed")
 
     def cb_server_logoutput_combo_changed(self, idx):
         if self.loading_settings:
