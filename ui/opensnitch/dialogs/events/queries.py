@@ -328,7 +328,7 @@ class Queries:
                 self.setQuery(model, alerts_query)
                 return
             elif item_row == constants.RULES_TREE_FIREWALL:
-                self.win.TABLES[constants.TAB_FIREWALL]['view'].model().filterAll()
+                self.set_fw_rules_filter(parent_row, item_row, what, what1, what2)
                 return
             else:
                 section=constants.FILTER_TREE_APPS
@@ -346,27 +346,7 @@ class Queries:
             section=constants.FILTER_TREE_NODES
 
         elif parent_row == constants.RULES_TREE_FIREWALL:
-            if item_row == constants.FILTER_TREE_FW_NODE:
-                self.win.TABLES[constants.TAB_FIREWALL]['view'].filterByNode(what)
-            elif item_row == constants.FILTER_TREE_FW_TABLE:
-                parm = what.split("-")
-                if len(parm) < 2:
-                    return
-                self.win.TABLES[constants.TAB_FIREWALL]['view'].filterByTable(what1, parm[0], parm[1])
-            elif item_row == constants.FILTER_TREE_FW_CHAIN: # + table
-                # 1. addr, 2. hook, 3. chainname
-                try:
-                    parm = what.split("#")
-                    tbl = what1.split("-")
-                    self.win.TABLES[constants.TAB_FIREWALL]['view'].filterByChain(
-                        what2,
-                        tbl[0],
-                        tbl[1],
-                        parm[2],
-                        parm[1]
-                    )
-                except Exception as e:
-                    print("Exception loading firewall chains:", what, ",", what1, "-", e)
+            self.set_fw_rules_filter(parent_row, item_row, what, what1, what2)
             return
 
         if section == constants.FILTER_TREE_APPS:
@@ -377,7 +357,6 @@ class Queries:
         elif section == constants.FILTER_TREE_NODES and what != "":
             what = f"WHERE r.node = '{what}'"
 
-        filter_text = self.win.get_search_text()
         if filter_text != "":
             if what == "":
                 what = "WHERE"
@@ -391,6 +370,44 @@ class Queries:
             self.win.get_view_order(),
             self.win.get_view_limit()
         ))
+
+
+    def set_fw_rules_filter(self, parent_row=constants.NO_PARENT, item_row=0, what="", what1="", what2=""):
+        section = constants.FILTER_TREE_APPS
+        filter_text = self.win.get_search_text()
+
+        if parent_row == constants.NO_PARENT:
+            if item_row == constants.RULES_TREE_FIREWALL:
+                self.win.TABLES[constants.TAB_FIREWALL]['view'].model().filterAll()
+
+        if item_row == constants.FILTER_TREE_FW_NODE:
+            self.win.TABLES[constants.TAB_FIREWALL]['view'].filterByNode(what)
+
+        elif item_row == constants.FILTER_TREE_FW_TABLE:
+            parm = what.split("-")
+            if len(parm) < 2:
+                return
+            self.win.TABLES[constants.TAB_FIREWALL]['view'].filterByTable(what1, parm[0], parm[1])
+
+        elif item_row == constants.FILTER_TREE_FW_CHAIN: # + table
+            # 1. addr, 2. hook, 3. chainname
+            try:
+                parm = what.split("#")
+                tbl = what1.split("-")
+                self.win.TABLES[constants.TAB_FIREWALL]['view'].filterByChain(
+                    what2,
+                    tbl[0],
+                    tbl[1],
+                    parm[2],
+                    parm[1]
+                )
+            except Exception as e:
+                print("Exception loading firewall chains:", what, ",", what1, "-", e)
+                return
+
+        # TODO: add a parameter to every filter*() method, to accept text filters.
+        if filter_text != "":
+            self.win.TABLES[constants.TAB_FIREWALL]['view'].filterByQuery(filter_text)
 
     def set_events_query(self, advanced_filter=None):
         if self.win.get_current_view_idx() != constants.TAB_MAIN:
