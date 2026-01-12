@@ -4,6 +4,7 @@ from PyQt6.QtCore import QCoreApplication as QC
 from opensnitch.config import Config
 from opensnitch.dialogs.conndetails import ConnDetails
 from opensnitch.firewall import Rules as FwRules
+from opensnitch.utils import Message
 from opensnitch.customwidgets.firewalltableview import FirewallTableModel
 from . import (
     constants,
@@ -176,7 +177,12 @@ class MenusManager(views.ViewsManager):
             exportMenu = QtWidgets.QMenu(QC.translate("stats", "Export"))
 
             nodes_menu = []
-            if self.nodes_count() > 0:
+            if self.nodes_count() > 1:
+                nodes_menu.append(
+                    [
+                        nodesMenu.addAction(QC.translate("stats", "All")),
+                        "all"
+                    ])
                 for node in self.node_list():
                     nodes_menu.append([nodesMenu.addAction(node), node])
                 menu.addMenu(nodesMenu)
@@ -223,7 +229,7 @@ class MenusManager(views.ViewsManager):
 
             model = table.model()
 
-            if self.nodes_count() > 0:
+            if self.nodes_count() > 1:
                 for nmenu in nodes_menu:
                     node_action = nmenu[0]
                     node_addr = nmenu[1]
@@ -234,7 +240,8 @@ class MenusManager(views.ViewsManager):
                             QtWidgets.QMessageBox.Icon.Warning)
                         if ret == QtWidgets.QMessageBox.StandardButton.Cancel:
                             return False
-                        self.table_menu_apply_to_node(cur_idx, model, selection, node_addr)
+                        toAll = 1 if node_addr == "all" else None
+                        self.table_menu_apply_to_node(cur_idx, model, selection, node_addr, to_all=toAll)
                         return False
 
             if action == _menu_delete:

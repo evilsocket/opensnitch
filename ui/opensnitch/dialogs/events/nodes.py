@@ -51,3 +51,11 @@ class NodesManager:
 
     def send_notification(self, addr, ntf, callback):
         return self._nodes.send_notification(addr, ntf, callback)
+
+    def send_notifications(self, ntf, callback):
+        nids = {}
+        for addr in self.node_list():
+            nid = self._nodes.send_notification(addr, ntf, callback)
+            nids[addr] = nid
+
+        return nids

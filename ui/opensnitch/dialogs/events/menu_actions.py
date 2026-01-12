@@ -135,18 +135,28 @@ class MenuActions(views.ViewsManager):
                 if nid is not None:
                     self._notifications_sent[nid] = noti
 
-    def table_menu_apply_to_node(self, cur_idx, model, selection, node_addr):
+    def table_menu_apply_to_node(self, cur_idx, model, selection, node_addr, to_all=None):
 
         for row in selection:
             rule_name = row[constants.COL_R_NAME]
             records = self.get_rule(rule_name, None)
             rule = Rule.new_from_records(records)
 
-            noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
-            nid = self.send_notification(node_addr, noti, self._notification_callback)
-            if nid is not None:
-                self._rules.add_rules(node_addr, [rule])
-                self._notifications_sent[nid] = noti
+            ntf = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
+            if to_all is None:
+                nid = self.send_notification(node_addr, ntf, self._notification_callback)
+                if nid is not None:
+                    self._rules.add_rules(node_addr, [rule])
+                    self._notifications_sent[nid] = ntf
+            else:
+                nids = self.send_notifications(ntf, self._notification_callback)
+                for addr in nids:
+                    nid = nids[addr]
+                    if nid is None:
+                        print(f"Error applying rule to {addr}")
+                        continue
+                    self._rules.add_rules(addr, [rule])
+                    self._notifications_sent[nid] = ntf
 
     def table_menu_change_rule_field(self, cur_idx, model, selection, field, value):
         if cur_idx == constants.TAB_RULES and self.rulesTable.isVisible():
