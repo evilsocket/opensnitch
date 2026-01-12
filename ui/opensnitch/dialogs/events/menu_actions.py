@@ -194,7 +194,7 @@ class MenuActions(views.ViewsManager):
                     print(f"error updating fw rule field {field}, value: {value}")
 
             for addr in nodes_updated:
-                node = self.nodes_get(addr)
+                node = self.node_get(addr)
                 nid, noti = self.node_reload_fw(addr, node['firewall'], self._notification_callback)
                 self._notifications_sent[nid] = noti
 

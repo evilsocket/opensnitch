@@ -46,7 +46,7 @@ class NodesManager:
         """import rules to all nodes"""
         return self._nodes.import_rules(addr=None, rulesdir=rulesdir, callback=callback)
 
-    def reload_fw(self, addr, fw_config, callback):
+    def node_reload_fw(self, addr, fw_config, callback):
         return self._nodes.reload_fw(addr, fw_config, callback)
 
     def send_notification(self, addr, ntf, callback):
