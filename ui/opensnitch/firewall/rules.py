@@ -29,7 +29,7 @@ class Rules(QObject):
         """Add a new rule to the corresponding table on the given node
         """
         node = self._nodes.get_node(addr)
-        if node == None or not 'firewall' in node:
+        if node is None or not 'firewall' in node:
             return False, QC.translate("firewall", "rule not found by its ID.")
         if self.is_duplicated(addr, rule):
             return False, QC.translate("firewall", "duplicated.")
@@ -47,7 +47,7 @@ class Rules(QObject):
                     self._nodes.add_fw_rules(addr, node['fwrules'])
 
                     self.rulesUpdated.emit()
-                    return True
+                    return True, None
 
         return False, QC.translate("firewall", "firewall table/chain not properly configured.")
 
@@ -55,7 +55,7 @@ class Rules(QObject):
         """Insert a new rule to the corresponding table on the given node
         """
         node = self._nodes.get_node(addr)
-        if node == None or not 'firewall' in node:
+        if node is None or not 'firewall' in node:
             return False, QC.translate("firewall", "this node doesn't have a firewall configuration, review it.")
         if self.is_duplicated(addr, rule):
             return False, QC.translate("firewall", "duplicated")
@@ -83,7 +83,7 @@ class Rules(QObject):
 
     def update(self, addr, uuid, rule):
         node = self._nodes.get_node(addr)
-        if node == None or not 'firewall' in node:
+        if node is None or not 'firewall' in node:
             return False, QC.translate("firewall", "this node doesn't have a firewall configuration, review it.")
         for sdx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
@@ -110,7 +110,7 @@ class Rules(QObject):
 
     def delete(self, addr, uuid):
         node = self._nodes.get_node(addr)
-        if node == None or not 'firewall' in node:
+        if node is None or not 'firewall' in node:
             return False, None
         for sdx, n in enumerate(node['firewall'].SystemRules):
             for cdx, c in enumerate(n.Chains):
@@ -133,7 +133,7 @@ class Rules(QObject):
     def get_by_node(self, addr):
         rules = []
         node = self._nodes.get_node(addr)
-        if node == None:
+        if node is None:
             return rules
         if not 'firewall' in node:
             return rules
@@ -146,7 +146,7 @@ class Rules(QObject):
     def get_by_uuid(self, addr, uuid):
         rules = []
         node = self._nodes.get_node(addr)
-        if node == None:
+        if node is None:
             return rules
         if not 'firewall' in node:
             return rules
@@ -165,7 +165,7 @@ class Rules(QObject):
         so a click on the down button sums +1, a click on the up button rest -1
         """
         node = self._nodes.get_node(addr)
-        if node == None:
+        if node is None:
             return
         if not 'firewall' in node:
             return
@@ -201,7 +201,7 @@ class Rules(QObject):
         orig_uuid = temp_c.Rules[0].UUID
         temp_c.Rules[0].UUID = ""
         node = self._nodes.get_node(addr)
-        if node == None:
+        if node is None:
             return False
         if not 'firewall' in node:
             return False
@@ -239,7 +239,7 @@ class Rules(QObject):
             rule.UUID = _uuid
         rule.Enabled = enabled
         rule.Description = description
-        if expressions != None:
+        if expressions is not None:
             rule.Expressions.extend([expressions])
         rule.Target = target
         rule.TargetParameters = target_parms
