@@ -135,20 +135,53 @@ class MenuActions(views.ViewsManager):
                 if nid is not None:
                     self._notifications_sent[nid] = noti
 
-    def table_menu_apply_to_node(self, cur_idx, model, selection, node_addr, to_all=None):
+    def table_menu_apply_to_node(self, cur_idx, model, selection, node_addr):
+        if cur_idx == constants.TAB_RULES and self.rulesTable.isVisible():
+            for row in selection:
+                rule_name = row[constants.COL_R_NAME]
+                records = self.get_rule(rule_name, None)
+                rule = Rule.new_from_records(records)
 
-        for row in selection:
-            rule_name = row[constants.COL_R_NAME]
-            records = self.get_rule(rule_name, None)
-            rule = Rule.new_from_records(records)
-
-            ntf = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
-            if to_all is None:
+                ntf = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
                 nid = self.send_notification(node_addr, ntf, self._notification_callback)
                 if nid is not None:
                     self._rules.add_rules(node_addr, [rule])
                     self._notifications_sent[nid] = ntf
-            else:
+
+        elif cur_idx == constants.TAB_RULES and self.fwTable.isVisible():
+            nodes_updated = []
+            r_errs = []
+            for idx in selection:
+                uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
+                node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
+                n, r = self._fw.get_rule_by_uuid(uuid)
+                if r is None:
+                    print(node, "fw rule not found?:", uuid)
+                    continue
+
+                added, err = self._fw.add_rule(node_addr, r)
+                if err is not None:
+                    Message.ok(
+                        "Error",
+                        QC.translate("stats", "Error adding rule {0} to {1}".format(uuid, node_addr)),
+                        QtWidgets.QMessageBox.Icon.Warning)
+                    continue
+                if added and node_addr not in nodes_updated:
+                    nodes_updated.append(node_addr)
+
+            for addr in nodes_updated:
+                n = self.node_get(addr)
+                nid, ntf = self.node_reload_fw(addr, n['firewall'], self._notification_callback)
+                self._notifications_sent[nid] = ntf
+
+    def table_menu_apply_to_all_nodes(self, cur_idx, model, selection, node_addr):
+        if cur_idx == constants.TAB_RULES and self.rulesTable.isVisible():
+            for row in selection:
+                rule_name = row[constants.COL_R_NAME]
+                records = self.get_rule(rule_name, None)
+                rule = Rule.new_from_records(records)
+
+                ntf = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
                 nids = self.send_notifications(ntf, self._notification_callback)
                 for addr in nids:
                     nid = nids[addr]
@@ -157,6 +190,41 @@ class MenuActions(views.ViewsManager):
                         continue
                     self._rules.add_rules(addr, [rule])
                     self._notifications_sent[nid] = ntf
+
+        elif cur_idx == constants.TAB_RULES and self.fwTable.isVisible():
+            nodes_updated = []
+            r_errs = []
+            for idx in selection:
+                uuid = model.index(idx.row(), FirewallTableModel.COL_UUID).data()
+                node = model.index(idx.row(), FirewallTableModel.COL_ADDR).data()
+                n, r = self._fw.get_rule_by_uuid(uuid)
+                if r is None:
+                    print(node, "fw rule not found?:", uuid)
+                    continue
+
+                for addr in self.node_list():
+                    if addr == node:
+                        continue
+                    added, err = self._fw.add_rule(addr, r)
+                    if added:
+                        nodes_updated.append(addr)
+                        continue
+                    if err is not None:
+                        r_errs.append((addr, uuid))
+
+            for addr in nodes_updated:
+                n = self.node_get(addr)
+                nid, ntf = self.node_reload_fw(addr, n['firewall'], self._notification_callback)
+                self._notifications_sent[nid] = ntf
+
+            if len(r_errs) > 0:
+                errmsg = ""
+                for e in r_errs:
+                    errmsg += f"<br> {e[0]}, {e[1]}"
+                Message.ok(
+                    "Error",
+                    QC.translate("stats", "Error adding rules {0}".format(errmsg)),
+                    QtWidgets.QMessageBox.Icon.Warning)
 
     def table_menu_change_rule_field(self, cur_idx, model, selection, field, value):
         if cur_idx == constants.TAB_RULES and self.rulesTable.isVisible():

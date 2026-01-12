@@ -11,6 +11,8 @@ from . import (
     views
 )
 
+ALL_NODES="all"
+
 class MenusManager(views.ViewsManager):
     def __init__(self, parent):
         super().__init__(parent)
@@ -99,10 +101,22 @@ class MenusManager(views.ViewsManager):
             model = table.model()
             menu = QtWidgets.QMenu()
             exportMenu = QtWidgets.QMenu(QC.translate("stats", "Export"))
+            nodesMenu = QtWidgets.QMenu(QC.translate("stats", "Apply to"))
 
             is_rule_enabled = model.index(selection[0].row(), FirewallTableModel.COL_ENABLED).data()
             rule_action = model.index(selection[0].row(), FirewallTableModel.COL_ACTION).data()
             rule_action = rule_action.lower()
+
+            nodes_menu = []
+            if self.nodes_count() > 1:
+                nodes_menu.append(
+                    [
+                        nodesMenu.addAction(QC.translate("stats", "All")),
+                        ALL_NODES
+                    ])
+                for node in self.node_list():
+                    nodes_menu.append([nodesMenu.addAction(node), node])
+                menu.addMenu(nodesMenu)
 
             if rule_action == Config.ACTION_ACCEPT or \
                     rule_action == Config.ACTION_DROP or \
@@ -134,6 +148,23 @@ class MenusManager(views.ViewsManager):
             action = menu.exec(table.mapToGlobal(point))
 
             model = table.model()
+
+            if self.nodes_count() > 1:
+                for nmenu in nodes_menu:
+                    node_action = nmenu[0]
+                    node_addr = nmenu[1]
+                    if action == node_action:
+                        ret = Message.yes_no(
+                            QC.translate("stats", "    Apply this rule to {0}  ".format(node_addr)),
+                            QC.translate("stats", "    Are you sure?"),
+                            QtWidgets.QMessageBox.Icon.Warning)
+                        if ret == QtWidgets.QMessageBox.StandardButton.Cancel:
+                            return False
+                        if node_addr == ALL_NODES:
+                            self.table_menu_apply_to_all_nodes(cur_idx, model, selection, node_addr)
+                        else:
+                            self.table_menu_apply_to_node(cur_idx, model, selection, node_addr)
+                        return False
 
             # block fw rules signals, to prevent reloading them per operation,
             # which can lead to race conditions.
@@ -181,7 +212,7 @@ class MenusManager(views.ViewsManager):
                 nodes_menu.append(
                     [
                         nodesMenu.addAction(QC.translate("stats", "All")),
-                        "all"
+                        ALL_NODES
                     ])
                 for node in self.node_list():
                     nodes_menu.append([nodesMenu.addAction(node), node])
@@ -240,8 +271,10 @@ class MenusManager(views.ViewsManager):
                             QtWidgets.QMessageBox.Icon.Warning)
                         if ret == QtWidgets.QMessageBox.StandardButton.Cancel:
                             return False
-                        toAll = 1 if node_addr == "all" else None
-                        self.table_menu_apply_to_node(cur_idx, model, selection, node_addr, to_all=toAll)
+                        if node_addr == ALL_NODES:
+                            self.table_menu_apply_to_all_nodes(cur_idx, model, selection, node_addr)
+                        else:
+                            self.table_menu_apply_to_node(cur_idx, model, selection, node_addr)
                         return False
 
             if action == _menu_delete:
