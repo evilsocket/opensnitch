@@ -309,6 +309,7 @@ class Queries:
 
     def set_rules_filter(self, parent_row=constants.NO_PARENT, item_row=0, what="", what1="", what2=""):
         section = constants.FILTER_TREE_APPS
+        filter_text = self.win.get_search_text()
 
         if parent_row == constants.NO_PARENT:
 
