@@ -782,16 +782,15 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self.queries.set_nodes_query(data)
 
         elif idx == constants.COL_RULES:
-            cur_idx =  constants.TAB_RULES
-            self.set_in_detail_view(cur_idx, True)
-            self.set_last_selected_item(row.model().index(row.row(), constants.COL_RULES).data())
+            cur_idx = constants.TAB_RULES
             r_name, node = self.set_rules_tab_active(row, cur_idx, constants.COL_RULES, constants.COL_NODE)
-            #self.set_current_tab(cur_idx)
+            self.set_in_detail_view(cur_idx, True)
+            self.set_last_selected_item(r_name)
             self.set_active_widgets(prev_idx, True, str(data))
             self.queries.set_rules_query(r_name, node)
 
         elif idx == constants.COL_DSTIP:
-            cur_idx =  constants.TAB_ADDRS
+            cur_idx = constants.TAB_ADDRS
             self.set_in_detail_view(cur_idx, True)
             ip = row.model().index(row.row(), constants.COL_DSTIP).data()
             self.set_last_selected_item(ip)
@@ -800,7 +799,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self.queries.set_addrs_query(ip)
 
         elif idx == constants.COL_DSTHOST:
-            cur_idx =  constants.TAB_HOSTS
+            cur_idx = constants.TAB_HOSTS
             self.set_in_detail_view(cur_idx, True)
             host = row.model().index(row.row(), constants.COL_DSTHOST).data()
             if host == "":
@@ -811,7 +810,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self.queries.set_hosts_query(host)
 
         elif idx == constants.COL_DSTPORT:
-            cur_idx =  constants.TAB_PORTS
+            cur_idx = constants.TAB_PORTS
             self.set_in_detail_view(cur_idx, True)
             port = row.model().index(row.row(), constants.COL_DSTPORT).data()
             self.set_last_selected_item(port)
@@ -820,7 +819,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self.queries.set_ports_query(port)
 
         elif idx == constants.COL_UID:
-            cur_idx =  constants.TAB_USERS
+            cur_idx = constants.TAB_USERS
             self.set_in_detail_view(cur_idx, True)
             uid = row.model().index(row.row(), constants.COL_UID).data()
             self.set_last_selected_item(uid)
@@ -837,7 +836,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             )
             return
         else:
-            cur_idx =  constants.TAB_PROCS
+            cur_idx = constants.TAB_PROCS
             self.set_in_detail_view(cur_idx, True)
             self.set_last_selected_item(row.model().index(row.row(), constants.COL_PROCS).data())
             self.set_current_tab(cur_idx)
@@ -880,10 +879,9 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             if self.alertsTable.isVisible():
                 return
 
-            rule_name = row.model().index(row.row(), constants.COL_R_NAME).data()
-            self.set_active_widgets(cur_idx, True, rule_name)
             r_name, node = self.set_rules_tab_active(row, cur_idx, constants.COL_R_NAME, constants.COL_R_NODE)
-            self.set_last_selected_item(row.model().index(row.row(), constants.COL_R_NAME).data())
+            self.set_active_widgets(cur_idx, True, r_name)
+            self.set_last_selected_item(r_name)
             self.queries.set_rules_query(r_name, node)
             self.restore_details_view_columns(
                 self.TABLES[cur_idx]['view'].horizontalHeader(),
@@ -892,10 +890,10 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             return
         if cur_idx == constants.TAB_NODES:
             data = row.model().index(row.row(), constants.COL_NODE).data()
-            self.set_last_selected_item(row.model().index(row.row(), constants.COL_NODE).data())
+            self.set_last_selected_item(data)
         if cur_idx > constants.TAB_RULES:
-            self.set_last_selected_item(row.model().index(row.row(), constants.COL_WHAT).data())
             data = row.model().index(row.row(), constants.COL_WHAT).data()
+            self.set_last_selected_item(data)
         if cur_idx == constants.TAB_NETSTAT:
             self.set_in_detail_view(cur_idx, False)
 
