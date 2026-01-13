@@ -3,6 +3,10 @@
 app_name="opensnitch"
 langs_dir="./locales"
 lrelease_bin=""
+# On some distros 'lrelease' is installed under /usr/lib/qt6/bin,
+# but not added to the user PATH
+# On Debian lrelease is shipped with the package qt6-l10n-tools.
+PATH=$PATH:/usr/lib/qt6/bin/
 for lbin in $LRELEASE lrelease lrelease6 lrelease-qt6
 do
     lrelease_bin="$(command -v $lbin)"

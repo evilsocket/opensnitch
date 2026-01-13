@@ -4,23 +4,51 @@
 
 
 # Input
-SOURCES +=  ../opensnitch/service.py \
-	    ../opensnitch/notifications.py \
-	    ../opensnitch/customwidgets/addresstablemodel.py \
-	    ../opensnitch/customwidgets/firewalltableview.py \
-	    ../opensnitch/customwidgets/main.py \
-	    ../opensnitch/dialogs/prompt/__init__.py \
-	    ../opensnitch/dialogs/prompt/_utils.py \
-	    ../opensnitch/dialogs/prompt/_details.py \
-	    ../opensnitch/dialogs/prompt/_checksums.py \
-	    ../opensnitch/dialogs/prompt/_constants.py \
-	    ../opensnitch/dialogs/preferences.py \
-	    ../opensnitch/dialogs/ruleseditor.py \
-	    ../opensnitch/dialogs/processdetails.py \
-	    ../opensnitch/dialogs/stats.py \
-	    ../opensnitch/dialogs/firewall.py \
-	    ../opensnitch/dialogs/firewall_rule.py \
-	    ../opensnitch/firewall/rules.py
+SOURCES += ../opensnitch/service.py \
+        ../opensnitch/notifications.py \
+        ../opensnitch/firewall/rules.py \
+        ../opensnitch/firewall/__init__.py \
+        ../opensnitch/customwidgets/addresstablemodel.py \
+        ../opensnitch/customwidgets/firewalltableview.py \
+        ../opensnitch/customwidgets/main.py \
+        ../opensnitch/dialogs/events/tasks/netstat.py \
+        ../opensnitch/dialogs/events/tasks/nodemon.py \
+        ../opensnitch/dialogs/events/base.py \
+        ../opensnitch/dialogs/events/config.py \
+        ../opensnitch/dialogs/events/constants.py \
+        ../opensnitch/dialogs/events/dialog.py \
+        ../opensnitch/dialogs/events/menu_actions.py \
+        ../opensnitch/dialogs/events/menus.py \
+        ../opensnitch/dialogs/events/nodes.py \
+        ../opensnitch/dialogs/events/queries.py \
+        ../opensnitch/dialogs/events/views.py \
+        ../opensnitch/dialogs/firewall_rule/constants.py \
+        ../opensnitch/dialogs/firewall_rule/dialog.py \
+        ../opensnitch/dialogs/firewall_rule/notifications.py \
+        ../opensnitch/dialogs/firewall_rule/rules.py \
+        ../opensnitch/dialogs/firewall_rule/statements.py \
+        ../opensnitch/dialogs/firewall_rule/utils.py \
+        ../opensnitch/dialogs/preferences/dialog.py \
+        ../opensnitch/dialogs/preferences/settings.py \
+        ../opensnitch/dialogs/preferences/utils.py \
+        ../opensnitch/dialogs/preferences/sections/db.py \
+        ../opensnitch/dialogs/preferences/sections/nodes.py \
+        ../opensnitch/dialogs/preferences/sections/ui.py \
+        ../opensnitch/dialogs/prompt/__init__.py \
+        ../opensnitch/dialogs/prompt/utils.py \
+        ../opensnitch/dialogs/prompt/details.py \
+        ../opensnitch/dialogs/prompt/checksums.py \
+        ../opensnitch/dialogs/prompt/constants.py \
+        ../opensnitch/dialogs/ruleseditor/constants.py \
+        ../opensnitch/dialogs/ruleseditor/dialog.py \
+        ../opensnitch/dialogs/ruleseditor/nodes.py \
+        ../opensnitch/dialogs/ruleseditor/rules.py \
+        ../opensnitch/dialogs/ruleseditor/signals.py \
+        ../opensnitch/dialogs/ruleseditor/utils.py \
+        ../opensnitch/dialogs/processdetails.py \
+        ../opensnitch/dialogs/firewall.py \
+        ../opensnitch/dialogs/conndetails.py \
+        ../opensnitch/plugins/versionchecker/versionchecker.py
 
 FORMS += ../opensnitch/res/prompt.ui \
 	    ../opensnitch/res/ruleseditor.ui \
