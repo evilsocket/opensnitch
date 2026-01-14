@@ -37,3 +37,8 @@ SNAP_PREFIX = "/snap"
 DURATION_session = QC.translate("popups", "until reboot")
 # label displayed in the pop-up combo
 DURATION_forever = QC.translate("popups", "forever")
+
+DSTIP_LBL_CLICKED=0
+DSTPORT_LBL_CLICKED=1
+USER_LBL_CLICKED=2
+CHECKSUM_LBL_CLICKED=3

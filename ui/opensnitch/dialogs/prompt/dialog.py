@@ -5,7 +5,6 @@ import os
 import os.path
 import pwd
 import json
-import ipaddress
 from datetime import datetime
 
 from PyQt6 import QtCore, QtGui, uic, QtWidgets
@@ -106,6 +105,11 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.cmdBackChecksums.clicked.connect(self._cb_cmdback_clicked)
         self.messageLabel.linkActivated.connect(self._cb_warninglbl_clicked)
 
+        self.dstIPLblCheck.mousePressEvent = lambda x: self._cb_label_clicked(constants.DSTIP_LBL_CLICKED)
+        self.dstPortLblCheck.mousePressEvent = lambda x: self._cb_label_clicked(constants.DSTPORT_LBL_CLICKED)
+        self.userLblCheck.mousePressEvent = lambda x: self._cb_label_clicked(constants.USER_LBL_CLICKED)
+        self.checksumLblCheck.mousePressEvent = lambda x: self._cb_label_clicked(constants.CHECKSUM_LBL_CLICKED)
+
         self.allowIcon = Icons.new(self, "emblem-default")
         denyIcon = Icons.new(self, "emblem-important")
         rejectIcon = Icons.new(self, "window-close")
@@ -142,6 +146,19 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.actionButton.setText(self._action_text[self._default_action])
             self.actionButton.setIcon(self._action_icon[self._default_action])
         self.actionButton.clicked.connect(self._on_deny_btn_clicked)
+
+    def _cb_label_clicked(self, what):
+        if self._ischeckAdvanceded is False:
+            return
+
+        if what == constants.DSTIP_LBL_CLICKED:
+            self.checkDstIP.toggle()
+        elif what == constants.DSTPORT_LBL_CLICKED:
+            self.checkDstPort.toggle()
+        elif what == constants.USER_LBL_CLICKED:
+            self.checkUserID.toggle()
+        elif what == constants.CHECKSUM_LBL_CLICKED:
+            self.checkSum.toggle()
 
     def _configure_plugins(self):
         """configure the plugins that apply to this dialog.
@@ -262,7 +279,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.checkDstPort.setVisible(state == True and (self._con is not None and self._con.dst_port != 0))
         self.checkUserID.setVisible(state)
         self.checkSum.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
-        self.checksumLabel_2.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
+        self.checksumLblCheck.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
         self.checksumLabel.setVisible(self._con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] != "" and state)
         self.stackedWidget.setCurrentIndex(constants.PAGE_MAIN)
 
@@ -498,8 +515,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._hide_widget(self.destPortLabel, con.dst_port == 0)
         self._hide_widget(self.checkSum, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "" or not self._ischeckAdvanceded)
         self._hide_widget(self.checksumLabel, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "" or not self._ischeckAdvanceded)
-        self._hide_widget(self.checksumLabel_2, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "" or not self._ischeckAdvanceded)
-        self._hide_widget(self.destPortLabel_1, con.dst_port == 0)
+        self._hide_widget(self.checksumLblCheck, con.process_checksums[Config.OPERAND_PROCESS_HASH_MD5] == "" or not self._ischeckAdvanceded)
+        self._hide_widget(self.dstPortLblCheck, con.dst_port == 0)
         self._hide_widget(self.checkDstPort, con.dst_port == 0 or not self._ischeckAdvanceded)
 
         if self._local:
