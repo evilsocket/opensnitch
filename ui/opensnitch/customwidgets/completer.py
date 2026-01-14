@@ -33,10 +33,10 @@ class Completer(QCompleter):
             return path.replace(lst[0], keyword)
 
         partial = lst[:-1]
-        if len(partial) > 0 and partial[1] in keyword:
+        if len(partial) > 1 and partial[1] in keyword:
             path = path.replace(partial[1], keyword)
             return path
-        if len(partial) > 0 and partial[1] not in keyword:
+        if len(partial) > 1 and partial[1] not in keyword:
             path = '%s %s' % (' '.join(partial), keyword)
             return path
         if keyword not in path:

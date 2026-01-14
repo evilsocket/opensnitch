@@ -65,8 +65,8 @@ class Queries:
         }
         reOperators = "=|!=|<>|~|!~|>~|<~|>=|>|<=|<"
         reKeys = '|'.join(self.options)
-        reKeys = reKeys.replace('.', '\.')
-        reValues="[0-9a-zA-Z\.\-_\/]+"
+        reKeys = reKeys.replace('.', r'\.')
+        reValues=r'[0-9a-zA-Z\.\-_\/]+'
         self.adv_search=re.compile(
             # the 3rd group should contain all the characters allowed in a
             # filesystem, in order to match paths.

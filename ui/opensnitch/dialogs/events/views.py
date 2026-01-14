@@ -165,7 +165,10 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
         return self._context_menu_active
 
     def get_view_limit(self):
-        return " " + constants.LIMITS[self.limitCombo.currentIndex()]
+        limit = constants.LIMITS[self.limitCombo.currentIndex()]
+        if limit == "":
+            return ""
+        return " " + limit
 
     def get_view_order(self, field=None):
         cur_idx = self.get_current_view_idx()
