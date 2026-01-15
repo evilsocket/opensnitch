@@ -28,6 +28,7 @@ class Queries:
     def __init__(self, win):
         self.win = win
         self.options = [
+            "conn.time",
             "conn.dsthost",
             "conn.dstport",
             "conn.srcport",
@@ -38,6 +39,7 @@ class Queries:
             "conn.rule",
             "conn.proc_cwd",
             "conn.process",
+            "conn.process_args",
             "conn.proto",
             "conn.action",
             "conn.node",
@@ -46,22 +48,24 @@ class Queries:
             "rule"
         ]
         self.opt_map = {
-            self.options[0]: "c.dst_host",
-            self.options[1]: "c.dst_port",
-            self.options[2]: "c.src_port",
-            self.options[3]: "c.dst_ip",
-            self.options[4]: "c.src_ip",
-            self.options[5]: "c.pid",
-            self.options[6]: "c.uid",
-            self.options[7]: "c.rule",
-            self.options[8]: "c.process_cwd",
-            self.options[9]: "c.process_path",
-            self.options[10]: "c.protocol",
-            self.options[11]: "c.action",
-            self.options[12]: "c.node",
-            self.options[13]: "c.node",
-            self.options[14]: "c.action",
-            self.options[15]: "c.rule"
+            self.options[0]: "c.time",
+            self.options[1]: "c.dst_host",
+            self.options[2]: "c.dst_port",
+            self.options[3]: "c.src_port",
+            self.options[4]: "c.dst_ip",
+            self.options[5]: "c.src_ip",
+            self.options[6]: "c.pid",
+            self.options[7]: "c.uid",
+            self.options[8]: "c.rule",
+            self.options[9]: "c.process_cwd",
+            self.options[10]: "c.process",
+            self.options[11]: "c.process_args",
+            self.options[12]: "c.protocol",
+            self.options[13]: "c.action",
+            self.options[14]: "c.node",
+            self.options[15]: "c.node",
+            self.options[16]: "c.action",
+            self.options[17]: "c.rule"
         }
         reOperators = "=|!=|<>|~|!~|>~|<~|>=|>|<=|<"
         reKeys = '|'.join(self.options)
