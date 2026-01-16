@@ -11,7 +11,7 @@ def load(win):
         win.comboNodes.addItem(f"{addr} - {hostname}", addr)
 
     if len(win.node_list) == 0:
-        win.reset_node_settings(win)
+        reset_node_settings(win)
         utils.set_status_message(win, QC.translate("preferences", "There're no nodes connected"))
 
     showNodes = len(win.node_list) > 1
