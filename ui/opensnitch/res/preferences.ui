@@ -14,76 +14,6 @@
    <string>Preferences</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="helpButton">
-       <property name="mouseTracking">
-        <bool>true</bool>
-       </property>
-       <property name="toolTip">
-        <string/>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset theme="help-browser">
-         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cancelButton">
-       <property name="text">
-        <string>Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="window-close">
-         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="applyButton">
-       <property name="text">
-        <string>Apply</string>
-       </property>
-       <property name="icon">
-        <iconset theme="document-save">
-         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="acceptButton">
-       <property name="text">
-        <string>Save</string>
-       </property>
-       <property name="icon">
-        <iconset theme="emblem-default">
-         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="0" column="0">
     <widget class="QSplitter" name="splitter">
      <property name="sizePolicy">
@@ -1001,15 +931,15 @@ wayland</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>318</width>
-             <height>108</height>
+             <width>559</width>
+             <height>366</height>
             </rect>
            </property>
            <attribute name="label">
             <string>Desktop notifications</string>
            </attribute>
-           <layout class="QFormLayout" name="formLayout">
-            <item row="0" column="0" colspan="2">
+           <layout class="QGridLayout" name="gridLayout_23">
+            <item row="0" column="0">
              <widget class="QGroupBox" name="groupNotifs">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1090,6 +1020,78 @@ wayland</string>
               </layout>
              </widget>
             </item>
+            <item row="1" column="0">
+             <widget class="QGroupBox" name="groupBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Message to display when a pop-up is not answered.
+
+Use %field% to replace them by the value of the connection.
+
+Available fields:
+
+ - conn.time
+ - conn.action
+ - conn.srcport
+ - conn.srcip
+ - conn.dstip
+ - conn.dsthost
+ - conn.dstport
+ - conn.proto
+ - conn.process
+ - conn.process_args
+ - conn.process_cwd
+ - rule.action
+ - rule.name
+ - node.addr
+ - node.hostname</string>
+              </property>
+              <property name="whatsThis">
+               <string>aaaa</string>
+              </property>
+              <property name="title">
+               <string>Missed pop-ups template</string>
+              </property>
+              <property name="flat">
+               <bool>true</bool>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_22">
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>2</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>2</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QPlainTextEdit" name="tplMissedPopup">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="plainText">
+                  <string>%rule.action% action applied.
+
+%conn.dsthost%
+%conn.process_args%</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="page_4">
@@ -1097,8 +1099,8 @@ wayland</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>318</width>
-             <height>126</height>
+             <width>559</width>
+             <height>366</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1335,8 +1337,8 @@ wayland</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>559</width>
-             <height>354</height>
+             <width>287</width>
+             <height>158</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1468,8 +1470,8 @@ or a network socket: 127.0.0.1:50051</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>559</width>
-             <height>354</height>
+             <width>155</width>
+             <height>92</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1611,8 +1613,8 @@ or a network socket: 127.0.0.1:50051</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>559</width>
-             <height>354</height>
+             <width>464</width>
+             <height>192</height>
             </rect>
            </property>
            <attribute name="label">
@@ -3337,6 +3339,76 @@ Use 0 to disable this feature.</string>
      </widget>
     </widget>
    </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="helpButton">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="help-browser">
+         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Close</string>
+       </property>
+       <property name="icon">
+        <iconset theme="window-close">
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="applyButton">
+       <property name="text">
+        <string>Apply</string>
+       </property>
+       <property name="icon">
+        <iconset theme="document-save">
+         <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="acceptButton">
+       <property name="text">
+        <string>Save</string>
+       </property>
+       <property name="icon">
+        <iconset theme="emblem-default">
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="statusLabel">
      <property name="sizePolicy">
@@ -3344,6 +3416,9 @@ Use 0 to disable this feature.</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

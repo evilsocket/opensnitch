@@ -98,6 +98,10 @@ def load_ui_settings(win):
 
     win.checkAutostart.setChecked(win._autostart.isEnabled())
 
+    tpl = win.cfgMgr.getSettings(Config.NOTIFICATIONS_MISSED_POPUP_TMPL, Config.NTF_DEFAULT_MISSED_POPUP_TMPL)
+    win.tplMissedPopup.clear()
+    win.tplMissedPopup.setPlainText(tpl)
+
     maxmsgsize = win.cfgMgr.getSettings(Config.DEFAULT_SERVER_MAX_MESSAGE_LENGTH)
     if maxmsgsize:
         win.comboGrpcMsgSize.setCurrentText(maxmsgsize)

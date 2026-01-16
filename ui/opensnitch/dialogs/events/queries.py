@@ -7,6 +7,11 @@ from . import (
 )
 from opensnitch.config import Config
 from opensnitch.customwidgets.completer import Completer
+from opensnitch.proto.enums import (
+    ConnFields,
+    NodeFields,
+    RuleFields
+)
 
 OP_NOT_EQUAL = "!="
 OP_NOT_EQUAL2 = "<>"
@@ -28,24 +33,24 @@ class Queries:
     def __init__(self, win):
         self.win = win
         self.options = [
-            "conn.time",
-            "conn.dsthost",
-            "conn.dstport",
-            "conn.srcport",
-            "conn.dstip",
-            "conn.srcip",
-            "conn.pid",
-            "conn.uid",
-            "conn.rule",
-            "conn.proc_cwd",
-            "conn.process",
-            "conn.process_args",
-            "conn.proto",
-            "conn.action",
-            "conn.node",
-            "node",
-            "action",
-            "rule"
+            ConnFields.Time.value,
+            ConnFields.DstHost.value,
+            ConnFields.DstPort.value,
+            ConnFields.SrcPort.value,
+            ConnFields.DstIP.value,
+            ConnFields.SrcIP.value,
+            ConnFields.PID.value,
+            ConnFields.UID.value,
+            ConnFields.Rule.value,
+            ConnFields.ProcCWD.value,
+            ConnFields.Process.value,
+            ConnFields.Cmdline.value,
+            ConnFields.Proto.value,
+            ConnFields.Action.value,
+            ConnFields.Node.value,
+            NodeFields.Addr.value,
+            RuleFields.Action.value,
+            RuleFields.Name.value
         ]
         self.opt_map = {
             self.options[0]: "c.time",

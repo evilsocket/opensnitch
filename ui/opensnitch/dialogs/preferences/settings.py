@@ -209,6 +209,9 @@ def save_ui_config(win):
         win.cfgMgr.setSettings(win.cfgMgr.NOTIFICATIONS_ENABLED, bool(win.groupNotifs.isChecked()))
         win.cfgMgr.setSettings(win.cfgMgr.NOTIFICATIONS_TYPE,
                             int(Config.NOTIFICATION_TYPE_SYSTEM if win.radioSysNotifs.isChecked() else Config.NOTIFICATION_TYPE_QT))
+        tpl = win.tplMissedPopup.toPlainText()
+        if tpl != "":
+            win.cfgMgr.setSettings(Config.NOTIFICATIONS_MISSED_POPUP_TMPL, tpl)
 
         thm_name = section_ui.get_theme_name(win)
         win.themes.save_theme(win.comboUITheme.currentIndex(), thm_name, str(win.spinUIDensity.value()))

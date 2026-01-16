@@ -129,6 +129,8 @@ class Config:
 
     NOTIFICATIONS_ENABLED = "notifications/enabled"
     NOTIFICATIONS_TYPE = "notifications/type"
+    NOTIFICATIONS_MISSED_POPUP_TMPL = "notifications/missed_popup_tmpl"
+    NTF_DEFAULT_MISSED_POPUP_TMPL = "%rule.action% action applied %node%\nCommand line: %conn.process_args%"
     NOTIFICATION_TYPE_SYSTEM = 0
     NOTIFICATION_TYPE_QT = 1
 
@@ -214,8 +216,8 @@ class Config:
         self.settings.setValue(path, value)
         self.settings.sync()
 
-    def getSettings(self, path):
-        return self.settings.value(path)
+    def getSettings(self, path, default=None):
+        return self.settings.value(path, defaultValue=default)
 
     def getBool(self, path, default_value=False):
         return self.settings.value(path, type=bool, defaultValue=default_value)

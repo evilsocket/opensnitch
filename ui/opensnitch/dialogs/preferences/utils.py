@@ -61,7 +61,7 @@ def test_notifications(win):
             return
 
         if win.radioSysNotifs.isChecked():
-            win.desktop_notifications.show("title", "body")
+            win.desktop_notifications.show("title", win.tplMissedPopup.toPlainText())
         else:
             pass
     except Exception as e:

@@ -34,6 +34,11 @@ from opensnitch.utils import (
     Message,
     logger
 )
+from opensnitch.proto.enums import (
+    ConnFields,
+    NodeFields,
+    RuleFields
+)
 from opensnitch.utils.duration import duration
 from opensnitch.utils.themes import Themes
 from opensnitch.utils.xdg import Autostart
@@ -628,6 +633,50 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         return False
 
+    def _build_missed_rule_msg(self, conn, rule, node, hostname):
+        try:
+            _title = conn.process_path
+            if _title == "":
+                _title = "%s:%d (%s)" % (conn.dst_host if conn.dst_host != "" else conn.dst_ip, conn.dst_port, conn.protocol)
+
+            tmpl = self._cfg.getSettings(Config.NOTIFICATIONS_MISSED_POPUP_TMPL, Config.NTF_DEFAULT_MISSED_POPUP_TMPL)
+
+            if f'%{ConnFields.SrcPort.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{ConnFields.SrcPort.value}%", conn.src_port)
+            if f'%{ConnFields.SrcIP.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{ConnFields.SrcIP.value}%", conn.src_ip)
+            if f'%{ConnFields.DstHost.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{ConnFields.DstHost.value}%", conn.dst_host)
+            if f'%{ConnFields.DstIP.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{ConnFields.DstIP.value}%", conn.dst_ip)
+            if f'%{ConnFields.DstPort.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{ConnFields.DstPort.value}%", conn.dst_port)
+            if f'%{ConnFields.Proto.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{ConnFields.Proto.value}%", conn.protocol)
+            if f'%{ConnFields.Process.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{ConnFields.Process.value}%", conn.process)
+            if f'%{ConnFields.ProcCWD.value}%' in tmpl and conn.process_cwd != "":
+                    tmpl = tmpl.replace(f"%{ConnFields.ProcCWD.value}%", conn.process_cwd)
+            if f'%{ConnFields.Cmdline.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{ConnFields.Cmdline.value}%", ' '.join(conn.process_args))
+            if f'%{RuleFields.Action.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{RuleFields.Action.value}%", rule.action)
+            if f'%{ConnFields.Action.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{ConnFields.Action.value}%", rule.action)
+            if f'%{NodeFields.Addr.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{NodeFields.Addr.value}%", node)
+            if f'%{NodeFields.Hostname.value}%' in tmpl:
+                tmpl = tmpl.replace(f"%{NodeFields.Hostname.value}%", hostname)
+
+        except Exception as e:
+            self.logger.warning("_build_missed_rule_msg() exception: %s", repr(e))
+        finally:
+            if tmpl == "":
+                tmpl = "{0} action applied {1}\nProcess: {2}".format(
+                    rule.action, node, " ".join(conn.process_args)
+                )
+
+        return _title, tmpl
     def _get_peer(self, peer):
         """
         server          -> client
@@ -884,6 +933,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._asking = True
         peer = context.peer()
         proto, addr = self._get_peer(peer)
+        hostname = self._nodes.get_node_hostname("%s:%s" % (proto, addr))
         rule, timeout_triggered = self._prompt_dialog.promptUser(request, self._is_local_request(proto, addr), peer)
         self._last_ping = datetime.now()
         self._asking = False
@@ -891,16 +941,11 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             return None
 
         if timeout_triggered:
-            _title = request.process_path
-            if _title == "":
-                _title = "%s:%d (%s)" % (request.dst_host if request.dst_host != "" else request.dst_ip, request.dst_port, request.protocol)
-
-
             node_text = "" if self._is_local_request(proto, addr) else "on node {0}:{1}".format(proto, addr)
+            _title, _msg = self._build_missed_rule_msg(request, rule, node_text, hostname)
             self._show_message_trigger.emit(
                 _title,
-                "{0} action applied {1}\nCommand line: {2}"
-                .format(rule.action, node_text, " ".join(request.process_args)),
+                _msg,
                 QtWidgets.QSystemTrayIcon.MessageIcon.NoIcon,
                 DesktopNotifications.URGENCY_NORMAL
             )
