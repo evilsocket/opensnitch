@@ -1,12 +1,14 @@
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import QCoreApplication as QC
+from PyQt6.QtCore import Qt, QCoreApplication as QC
 
+from opensnitch.database.enums import RuleFields
 from opensnitch.utils import (
     Message
 )
 
 def load_all(win, addr=None):
     try:
+        win.nodesCombo.blockSignals(True)
         win.nodesCombo.clear()
         win._node_list = win._nodes.get()
 
@@ -34,6 +36,8 @@ def load_all(win, addr=None):
     except Exception as e:
         print(win.LOG_TAG, "exception loading nodes: ", e, addr)
         return False
+    finally:
+        win.nodesCombo.blockSignals(False)
 
     return True
 
@@ -42,3 +46,14 @@ def get_node_addr(win):
     addr = win.nodesCombo.itemData(nIdx)
     return addr
 
+def load_rules(win, addr):
+    rec = win._nodes.get_rules(addr)
+    if rec is None:
+        return
+
+    rlist = []
+    while rec.next() is not False:
+        rlist.append(rec.value(RuleFields.Name))
+    completer = QtWidgets.QCompleter(rlist)
+    completer.setFilterMode(Qt.MatchFlag.MatchContains)
+    win.ruleNameEdit.setCompleter(completer)

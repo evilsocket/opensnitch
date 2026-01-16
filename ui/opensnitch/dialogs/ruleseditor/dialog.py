@@ -96,6 +96,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.logger.warning("Error adding IPs: %s", repr(e))
             finally:
                 self.uidCombo.blockSignals(False);
+
+        nodes.load_rules(self, addr)
         self.ifaceCombo.setCurrentText(oldIface)
         self.uidCombo.setCurrentText(oldUid)
 
@@ -225,6 +227,10 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def cb_uid_combo_changed(self, index):
         self.uidCombo.setCurrentText(str(self._users_list[index][constants.PW_UID]))
+
+    def cb_nodes_combo_changed(self, index):
+        addr = self.nodesCombo.itemData(index)
+        nodes.load_rules(self, addr)
 
     def cb_md5check_toggled(self, state):
         self.md5Line.setEnabled(state)

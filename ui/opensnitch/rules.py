@@ -149,6 +149,9 @@ class Rules(QObject):
     def get_by_name(self, node, name):
         return self._db.get_rule(name, node)
 
+    def get_all_by_node(self, node):
+        return self._db.get_rules(node)
+
     def get_by_field(self, node, field, value):
         return self._db.get_rule_by_field(node, field, value)
 

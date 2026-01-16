@@ -118,6 +118,9 @@ class Nodes(QObject):
         except Exception as e:
             self.logger.warning(" exception adding node to db %s: %s", addr, repr(e))
 
+    def get_rules(self, addr):
+        return self._rules.get_all_by_node(addr)
+
     def delete_rule(self, rule_name, addr, callback):
         deleted_rule = self._rules.delete(rule_name, addr, callback)
         if deleted_rule is None:

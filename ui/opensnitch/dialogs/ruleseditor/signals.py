@@ -26,5 +26,6 @@ def connect_all(win):
     win.dstListIPsCheck.toggled.connect(win.cb_dstiplists_check_toggled)
     win.dstListNetsCheck.toggled.connect(win.cb_dstnetlists_check_toggled)
     win.uidCombo.currentIndexChanged.connect(win.cb_uid_combo_changed)
+    win.nodesCombo.currentIndexChanged.connect(win.cb_nodes_combo_changed)
     win.md5Check.toggled.connect(win.cb_md5check_toggled)
 
