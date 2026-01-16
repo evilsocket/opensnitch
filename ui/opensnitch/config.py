@@ -130,7 +130,7 @@ class Config:
     NOTIFICATIONS_ENABLED = "notifications/enabled"
     NOTIFICATIONS_TYPE = "notifications/type"
     NOTIFICATIONS_MISSED_POPUP_TMPL = "notifications/missed_popup_tmpl"
-    NTF_DEFAULT_MISSED_POPUP_TMPL = "%rule.action% action applied %node%\nCommand line: %conn.process_args%"
+    NTF_DEFAULT_MISSED_POPUP_TMPL = "%rule.action% action applied %node.addr%\nCommand line: %conn.process_args%"
     NOTIFICATION_TYPE_SYSTEM = 0
     NOTIFICATION_TYPE_QT = 1
 
