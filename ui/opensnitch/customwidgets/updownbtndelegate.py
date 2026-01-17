@@ -1,7 +1,7 @@
-from PyQt5 import QtCore
-from PyQt5.QtGui import QRegion
-from PyQt5.QtWidgets import QItemDelegate, QAbstractItemView, QPushButton, QWidget, QVBoxLayout
-from PyQt5.QtCore import pyqtSignal
+from PyQt6 import QtCore
+from PyQt6.QtGui import QRegion
+from PyQt6.QtWidgets import QItemDelegate, QAbstractItemView, QPushButton, QWidget, QVBoxLayout
+from PyQt6.QtCore import pyqtSignal
 
 class UpDownButtonDelegate(QItemDelegate):
     clicked = pyqtSignal(int, QtCore.QModelIndex)

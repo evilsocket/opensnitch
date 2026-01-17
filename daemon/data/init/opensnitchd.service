@@ -1,0 +1,13 @@
+[Unit]
+Description=Application firewall OpenSnitch
+Documentation=https://github.com/evilsocket/opensnitch/wiki
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/opensnitchd
+Restart=always
+RestartSec=30
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

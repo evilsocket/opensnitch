@@ -47,6 +47,16 @@ var (
 // If iptables is not installed, we can add nftables rules directly to the kernel,
 // without relying on any binaries.
 func Init(fwType, configPath, monitorInterval string, bypassQueue bool, qNum uint16) (err error) {
+	confError := false
+	if fwType == "" {
+		confError = true
+		fwType = nftables.Name
+	}
+	if configPath == "" {
+		confError = true
+		configPath = config.DefaultConfigFile
+	}
+
 	if fwType == iptables.Name {
 		fw, err = iptables.Fw()
 		if err != nil {
@@ -66,13 +76,14 @@ func Init(fwType, configPath, monitorInterval string, bypassQueue bool, qNum uin
 	}
 
 	if fw == nil {
-		return fmt.Errorf("Firewall not initialized")
-	}
-	if configPath == "" {
-		configPath = config.DefaultConfigFile
+		return fmt.Errorf("Firewall not initialized. Be sure that you're using latest configuration file. Report it on github if needed.")
 	}
 	fw.Stop()
 	fw.Init(qNum, configPath, monitorInterval, bypassQueue)
+	if confError {
+		log.Error("Firewall error: the default configuration seem to be outdated (default-config.json). Get latest configuration from github.")
+	}
+
 	queueNum = qNum
 
 	log.Info("Using %s firewall", fw.Name())
@@ -149,10 +160,16 @@ func SaveConfiguration(rawConfig []byte) error {
 
 // Serialize transforms firewall json configuration to protobuf
 func Serialize() (*protocol.SysFirewall, error) {
+	if fw == nil {
+		return nil, fmt.Errorf("firewall not initialized, report please")
+	}
 	return fw.Serialize()
 }
 
 // Deserialize transforms firewall json configuration to protobuf
 func Deserialize(sysfw *protocol.SysFirewall) ([]byte, error) {
+	if fw == nil {
+		return nil, fmt.Errorf("firewall not initialized, report please")
+	}
 	return fw.Deserialize(sysfw)
 }

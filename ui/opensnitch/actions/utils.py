@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QColor
+from PyQt6.QtGui import QColor
 
 def getColorNames():
     """Return the built-in color names that can be used to choose new colors:

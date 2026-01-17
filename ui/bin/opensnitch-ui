@@ -2,9 +2,28 @@
 
 #   Copyright (C) 2018      Simone Margaritelli
 #                 2018      MiWCryptAnalytics
-#                 2023      munix9
+#                 2018      Davide Cavalca
+#                 2018      Luis Felipe Dominguez Vega
+#                 2018      martynhare
+#                 2018,2020 luz paz
+#                 2019      Peter Stöckli
+#                 2020      sadyqowl1560
+#                 2020,2021 themighty
+#                 2021      Ryan Olton
+#                 2021      Steven Hollingsworth
+#                 2022      Marko Zajc
 #                 2023      Wojtek Widomski
-#                 2019-2023 Gustavo Iñiguez Goia
+#                 2023      Spencer Comfort
+#                 2023      Wojtek Widomski
+#                 2024      Nolan Carouge
+#                 2024      ponychicken
+#                 2025      Jost Alemann
+#                 2025      Self Denial
+#                 2025      Maximilian Eschenbacher
+#                 2025      e3dio
+#                 2023,2025 munix9
+#                 2022-2025 Petter Reinholdtsen
+#                 2019-2025 Gustavo Iñiguez Goia
 #
 #   This file is part of OpenSnitch.
 #
@@ -21,8 +40,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with OpenSnitch.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtNetwork import QLocalServer, QLocalSocket
+from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtNetwork import QLocalServer, QLocalSocket
+from PyQt6.QtCore import QCoreApplication as QC
 
 import sys
 import os
@@ -40,8 +60,19 @@ if os.path.exists(dist_path) and dist_path not in sys.path:
 
 from opensnitch.service import UIService
 from opensnitch.config import Config
-from opensnitch.utils import Themes, Utils, Versions
-from opensnitch.utils.xdg import xdg_opensnitch_dir, xdg_current_session
+from opensnitch.utils import (
+    Message,
+    Utils,
+    Versions,
+    logger
+)
+from opensnitch.utils.themes import Themes
+from opensnitch.utils.xdg import (
+    xdg_opensnitch_dir,
+    xdg_current_desktop,
+    xdg_session_desktop,
+    xdg_current_session
+)
 from opensnitch import auth
 
 import opensnitch.proto as proto
@@ -103,10 +134,31 @@ def supported_qt_version(major, medium, minor):
     q = QtCore.QT_VERSION_STR.split(".")
     return int(q[0]) >= major and int(q[1]) >= medium and int(q[2]) >= minor
 
+def add_server_port(what, server, socket, creds=None):
+    try:
+        if what == 0:
+            server.add_insecure_port(socket)
+        else:
+            server.add_secure_port(socket, creds)
+    except Exception as e:
+        Message.ok(
+            QC.translate("stats", "Failed to connect to socket."),
+            QC.translate("stats", f"""
+Other user might be running OpenSnitch UI.
+Running multiple instances of OpenSnitch UI on one system is currently unsupported.
+
+Exception: {e}"""),
+            QtWidgets.QMessageBox.Icon.Critical
+        )
+        on_exit()
+
+
+
 if __name__ == '__main__':
     gui_version, grpcversion, protoversion = Versions.get()
     print("\t ~ OpenSnitch GUI -", gui_version, "~")
-    print("\tprotobuf:", protoversion, "-", "grpc:", grpcversion)
+    print(f"\tprotobuf: {protoversion} - grpc: {grpcversion}")
+    print(f"desktop: {xdg_current_desktop} - type: {xdg_current_session} - session: {xdg_session_desktop}")
     print("-" * 50, "\n")
 
     parser = argparse.ArgumentParser(description='OpenSnitch UI service.', formatter_class=argparse.RawTextHelpFormatter)
@@ -123,19 +175,30 @@ Examples:
     parser.add_argument("--tls-ca-cert", dest="tls_ca_cert", help="path to the CA cert")
     parser.add_argument("--tls-cert", dest="tls_cert", help="path to the server cert")
     parser.add_argument("--tls-key", dest="tls_key", help="path to the server key")
-    parser.add_argument("--max-clients", dest="serverWorkers", default=10, help="Max number of allowed clients (incoming connections).")
+    parser.add_argument("--max-workers", type=int, help="Max number of server workers. Each node consumes about 2-3 workers, so multiply that number by the total of nodes.")
+    parser.add_argument("--max-clients", type=int, help="Set the max number of allowed (nodes) incoming connections.")
     parser.add_argument("--debug", dest="debug", action="store_true", help="Enable debug logs")
     parser.add_argument("--debug-grpc", dest="debug_grpc", action="store_true", help="Enable gRPC debug logs")
     parser.add_argument("--background", dest="background", action="store_true", help="Start UI in background even, when tray is not available")
 
     args = parser.parse_args()
+    cfg = Config.get()
 
-    if args.debug:
+    loglevel = cfg.getInt(Config.DEFAULT_SERVER_LOG_LEVEL, logging.WARNING)
+    logfile = cfg.getSettings(Config.DEFAULT_SERVER_LOG_FILE)
+    log = None
+    if args.debug or loglevel > logging.NOTSET:
         import faulthandler
         faulthandler.enable()
+        if logfile is not None and logfile != "":
+            log = logger.new("opensnitch", filename=logfile)
+            print(f"[server] writing logs to {logfile}")
+        else:
+            log = logger.new("opensnitch")
+    else:
+        log = logger.new("opensnitch")
+    log.setLevel(loglevel)
 
-    logging.getLogger().disabled = not args.debug
-    cfg = Config.get()
     configure_screen_scale_factor(cfg)
     configure_qt_platform_plugin(cfg)
 
@@ -163,7 +226,7 @@ Examples:
             raise Exception("GUI already running, opening its window and exiting.")
         else:
             localserver = QLocalServer()
-            localserver.setSocketOptions(QLocalServer.UserAccessOption)
+            localserver.setSocketOptions(QLocalServer.SocketOption.UserAccessOption)
             localserver.removeServer(app_id)
             localserver.listen(app_id)
 
@@ -172,39 +235,67 @@ Examples:
         thm = Themes.instance()
         thm.load_theme(app)
 
-        if args.socket == None:
+        if args.socket is None:
             # default
             args.socket = "unix:///tmp/osui.sock"
 
             addr = cfg.getSettings(Config.DEFAULT_SERVER_ADDR)
-            if addr != None and addr != "":
+            if addr is not None and addr != "":
                 if addr.startswith("unix://"):
                     if not os.path.exists(os.path.dirname(addr[7:])):
-                        print("WARNING: unix socket path does not exist, using unix:///tmp/osui.sock, ", addr)
+                        log.warning("WARNING: unix socket path does not exist, using unix:///tmp/osui.sock, %s", addr)
                     else:
                         args.socket = addr
                 else:
                     args.socket = addr
 
+        keepalive = cfg.getInt(Config.DEFAULT_SERVER_KEEPALIVE, 5000)
+        keepalive_timeout = cfg.getInt(Config.DEFAULT_SERVER_KEEPALIVE_TIMEOUT, 20000)
         maxmsglen = cfg.getMaxMsgLength()
+        server_options = (
+            # https://github.com/grpc/grpc/blob/master/doc/keepalive.md
+            # https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
+            # send keepalive ping every 5 second, default is 2 hours)
+            ('grpc.keepalive_time_ms', keepalive),
+            # after 5s of inactivity, wait 20s and close the connection if
+            # there's no response.
+            ('grpc.keepalive_timeout_ms', keepalive_timeout),
+            ('grpc.keepalive_permit_without_calls', True),
+            ('grpc.max_send_message_length', maxmsglen),
+            ('grpc.max_receive_message_length', maxmsglen),
+        )
+        log.info("[server] addr: %s", args.socket)
+        max_clients = ('grpc.max_allowed_incoming_connections', args.max_clients)
+        cfg_max_clients = cfg.getInt(Config.DEFAULT_SERVER_MAX_CLIENTS, 0)
+        if cfg_max_clients > 0:
+            log.info(f"[server] limiting the number of allowed nodes to {cfg_max_clients}")
+            max_clients = (max_clients[0], cfg_max_clients)
+        if args.max_clients is not None:
+            log.info(f"[server] limiting the number of allowed nodes to {args.max_clients}")
+            max_clients = (max_clients[0], args.max_clients)
+            server_options += (max_clients,)
 
         service = UIService(app, on_exit, start_in_bg=args.background)
         check_environ()
         localserver.newConnection.connect(service.OpenWindow)
+
+        # by default, the number of workers are calculated based on the number
+        # of cpus: min(32, os.cpu_count() + 4)
+        # https://docs.python.org/3.12/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor
+
+        cfg_max_workers = cfg.getInt(Config.DEFAULT_SERVER_MAX_WORKERS, 20)
+        executor = None
+        if args.max_workers is not None:
+            log.info(f"[server] using {args.max_workers} workers")
+            executor = futures.ThreadPoolExecutor(max_workers=args.max_workers)
+        else:
+            executor = futures.ThreadPoolExecutor(max_workers=cfg_max_workers)
+
         # @doc: https://grpc.github.io/grpc/python/grpc.html#server-object
-        server = grpc.server(futures.ThreadPoolExecutor(),
-                                options=(
-                                    # https://github.com/grpc/grpc/blob/master/doc/keepalive.md
-                                    # https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
-                                    # send keepalive ping every 5 second, default is 2 hours)
-                                    ('grpc.keepalive_time_ms', 5000),
-                                    # after 5s of inactivity, wait 20s and close the connection if
-                                    # there's no response.
-                                    ('grpc.keepalive_timeout_ms', 20000),
-                                    ('grpc.keepalive_permit_without_calls', True),
-                                    ('grpc.max_send_message_length', maxmsglen),
-                                    ('grpc.max_receive_message_length', maxmsglen),
-                                ))
+        server = grpc.server(
+            executor,
+            options=server_options
+        )
 
         ui_pb2_grpc.add_UIServicer_to_server(service, server)
 
@@ -221,10 +312,9 @@ Examples:
             parts = args.socket.split("@")
             args.socket = "unix-abstract:{0}".format(parts[1])
 
-        print("Using server address:", args.socket, "auth type:", auth_type)
-
+        log.info("[server] using address: %s auth type: %s keepalive: %d keepalive timeout: %d", args.socket, auth_type, keepalive, keepalive_timeout)
         if auth_type == auth.Simple or auth_type == "":
-            server.add_insecure_port(args.socket)
+            add_server_port(0, server, args.socket)
         else:
             auth_ca_cert = args.tls_ca_cert
             auth_cert = args.tls_cert
@@ -239,7 +329,7 @@ Examples:
             tls_creds = auth.get_tls_credentials(auth_ca_cert, auth_cert, auth_certkey)
             if tls_creds == None:
                 raise Exception("Invalid TLS credentials. Review the server key and cert files.")
-            server.add_secure_port(args.socket, tls_creds)
+            add_server_port(1, server, args.socket, tls_creds)
 
         # https://stackoverflow.com/questions/5160577/ctrl-c-doesnt-work-with-pyqt
         signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -249,12 +339,13 @@ Examples:
 
         restrict_socket_perms(args.socket)
 
-        app.exec_()
+        app.exec()
 
     except KeyboardInterrupt:
         on_exit()
     except Exception as e:
         print(e)
+        log.warning("exception: %s", repr(e))
     finally:
         if service:
             # finish gracefully, closing notifications channel.

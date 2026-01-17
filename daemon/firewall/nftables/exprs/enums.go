@@ -2,6 +2,11 @@ package exprs
 
 // keywords used in the configuration to define rules.
 const (
+	TABLE_OPENSNITCH     = "opensnitch"
+	CHAIN_FILTER_INPUT   = "filter_input"
+	CHAIN_MANGLE_OUTPUT  = "mangle_output"
+	CHAIN_MANGLE_FORWARD = "mangle_forward"
+
 	// https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks#Priority_within_hook
 	NFT_CHAIN_MANGLE    = "mangle"
 	NFT_CHAIN_FILTER    = "filter"

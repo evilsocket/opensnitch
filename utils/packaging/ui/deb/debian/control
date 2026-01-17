@@ -4,9 +4,7 @@ Uploaders: Gustavo Iniguez Goya <gooffy@gmail.com>,
 Priority: optional
 Homepage: https://github.com/evilsocket/opensnitch
 Build-Depends:
- qttools5-dev-tools,
- python3-setuptools,
- pyqt5-dev-tools,
+ pyqt6-dev-tools,
  python3-grpc-tools,
  python3-all,
  debhelper (>= 7.4.3),
@@ -19,11 +17,13 @@ Architecture: all
 Section: net
 Depends:
  netbase,
- libqt5sql5-sqlite,
+ pyqt6-dev-tools,
+ libqt6sql6,
+ libqt6sql6-sqlite,
  python3:any,
  python3-six,
- python3-pyqt5,
- python3-pyqt5.qtsql,
+ python3-pyqt6,
+ python3-pyqt6.qtsvg,
  python3-pyinotify,
  python3-grpcio,
  python3-protobuf,

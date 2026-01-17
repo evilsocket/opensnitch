@@ -35,7 +35,7 @@ var (
 
 	maxQueuedAlerts = 1024
 
-	TaskMgr = tasks.NewTaskManager()
+	TaskMgr *tasks.TaskManager
 )
 
 // Client holds the connection information of a client.
@@ -96,6 +96,10 @@ func NewClient(socketPath, localConfigFile string, stats *statistics.Statistics,
 	procmon.EventsCache.SetComputeChecksums(c.config.Rules.EnableChecksums)
 	rules.EnableChecksums(c.config.Rules.EnableChecksums)
 
+	TaskMgr = tasks.NewTaskManager()
+	go c.monitorTaskManager(TaskMgr)
+	TaskMgr.LoadTaskFile(c.config.TasksOptions.ConfigPath)
+
 	return c
 }
 
@@ -111,6 +115,7 @@ func (c *Client) Connect() {
 // Close cancels the running tasks: pinging the server and (re)connection poller.
 func (c *Client) Close() {
 	c.clientCancel()
+	TaskMgr.Stop()
 }
 
 // ProcMonitorMethod returns the monitor method configured.
@@ -213,7 +218,7 @@ func (c *Client) poller() {
 			if c.Connected() == true {
 				// if the client is connected and ready, send a ping
 				if err := c.ping(time.Now()); err != nil {
-					log.Warning("Error while pinging UI service: %s, state: %v", err, c.con.GetState())
+					log.Debug("Error while pinging UI service: %s, state: %v", err, c.con.GetState())
 				}
 			}
 
@@ -321,14 +326,21 @@ func (c *Client) ping(ts time.Time) (err error) {
 	c.Lock()
 	defer c.Unlock()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	reqID := uint64(ts.UnixNano())
+	serializedStats := c.stats.Serialize()
+	if serializedStats == nil {
+		log.Trace("client, no stats")
+		return nil
+	}
 
+	reqID := uint64(ts.UnixNano())
 	pReq := &protocol.PingRequest{
 		Id:    reqID,
-		Stats: c.stats.Serialize(),
+		Stats: serializedStats,
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
 	c.stats.RLock()
 	pong, err := c.client.Ping(ctx, pReq)
 	c.stats.RUnlock()

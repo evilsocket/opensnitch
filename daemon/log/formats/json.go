@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
+	taskBase "github.com/evilsocket/opensnitch/daemon/tasks/base"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
@@ -14,6 +15,7 @@ const JSON = "json"
 const (
 	EvConnection = iota
 	EvExec
+	EvTaskNotification
 )
 
 // JSONEventFormat object to be sent to the remote service.
@@ -48,6 +50,10 @@ func (j *JSONEventFormat) Transform(args ...interface{}) (out string) {
 			// or should we send an anonymous json?
 			jObj.Event = val.(*protocol.Connection)
 			jObj.Type = EvConnection
+
+		case taskBase.TaskNotification:
+			jObj.Event = val.(taskBase.TaskNotification)
+			jObj.Type = EvTaskNotification
 
 		case string:
 			// action

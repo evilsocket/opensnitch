@@ -10,7 +10,7 @@ import (
 	"unsafe"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
-	"github.com/evilsocket/opensnitch/daemon/tasks"
+	"github.com/evilsocket/opensnitch/daemon/tasks/base"
 )
 
 // Name of this task
@@ -24,7 +24,7 @@ type Config struct {
 
 // NodeMonitor monitors the resources of a node (ram, swap, load avg, etc).
 type NodeMonitor struct {
-	tasks.TaskBase
+	base.TaskBase
 	mu     *sync.RWMutex
 	Ticker *time.Ticker
 
@@ -35,9 +35,11 @@ type NodeMonitor struct {
 // New returns a new NodeMonitor
 func New(node, interval string, stopOnDisconnect bool) (string, *NodeMonitor) {
 	return fmt.Sprint(Name, "-", node), &NodeMonitor{
-		TaskBase: tasks.TaskBase{
-			Results: make(chan interface{}),
-			Errors:  make(chan error),
+		TaskBase: base.TaskBase{
+			Name:             Name,
+			Results:          make(chan interface{}),
+			Errors:           make(chan error),
+			StopOnDisconnect: stopOnDisconnect,
 		},
 		mu:       &sync.RWMutex{},
 		Node:     node,
@@ -67,7 +69,7 @@ func (pm *NodeMonitor) Start(ctx context.Context, cancel context.CancelFunc) err
 			select {
 			case <-ctx.Done():
 				goto Exit
-			case <-pm.Ticker.C:
+			default:
 				// TODO:
 				//  - filesystem stats
 				//  - daemon status (mem && cpu usage, internal/debug pkg, etc)
@@ -82,6 +84,8 @@ func (pm *NodeMonitor) Start(ctx context.Context, cancel context.CancelFunc) err
 					continue
 				}
 				pm.TaskBase.Results <- unsafe.String(unsafe.SliceData(infoJSON), len(infoJSON))
+
+				<-pm.Ticker.C
 			}
 		}
 	Exit:
@@ -105,16 +109,16 @@ func (pm *NodeMonitor) Resume() error {
 
 // Stop ...
 func (pm *NodeMonitor) Stop() error {
-	pm.mu.RLock()
-	defer pm.mu.RUnlock()
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
 
-	if pm.StopOnDisconnect {
-		return nil
+	log.Debug("[task.NodeMonitor] Stop()")
+	if pm.Ticker != nil {
+		pm.Ticker.Stop()
 	}
-	pm.Ticker.Stop()
-	pm.Cancel()
-	close(pm.TaskBase.Results)
-	close(pm.TaskBase.Errors)
+	if pm.Cancel != nil {
+		pm.Cancel()
+	}
 	return nil
 }
 

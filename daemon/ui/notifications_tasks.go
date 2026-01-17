@@ -4,6 +4,9 @@ import (
 	"fmt"
 
 	"github.com/evilsocket/opensnitch/daemon/core"
+	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/evilsocket/opensnitch/daemon/tasks"
+	taskBase "github.com/evilsocket/opensnitch/daemon/tasks/base"
 	"github.com/evilsocket/opensnitch/daemon/tasks/nodemonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/pidmonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/socketsmonitor"
@@ -11,93 +14,114 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (c *Client) monitorSockets(config interface{}, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	sockMonTask, err := socketsmonitor.New(config, true)
-	if err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
-		return
-	}
-	ctxSock, err := TaskMgr.AddTask(socketsmonitor.Name, sockMonTask)
-	if err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
-		return
-	}
-	go func(ctx context.Context) {
-		for {
-			select {
-			case <-ctx.Done():
-				goto Exit
-			case err := <-sockMonTask.Errors():
-				c.sendNotificationReply(stream, notification.Id, "", err)
-			case temp := <-sockMonTask.Results():
-				data, ok := temp.(string)
-				if !ok {
-					goto Exit
-				}
-				c.sendNotificationReply(stream, notification.Id, data, nil)
-			}
+// monitor events of the tasks manager: new task added, removed, etc.
+func (c *Client) monitorTaskManager(tm *tasks.TaskManager) {
+	for {
+		select {
+		case <-TaskMgr.Ctx.Done():
+			goto Exit
+		case taskEvent := <-TaskMgr.TaskAdded:
+			log.Debug("Task Added: %s", taskEvent.Name)
+			go c.monitorTaskEvents(
+				taskEvent.Ctx,
+				taskEvent.Name,
+				c.streamNotifications,
+				0,
+				taskEvent.Task.GetID(),
+				taskEvent.Task.Results(),
+				taskEvent.Task.Errors(),
+			)
+
+		case taskEvent := <-TaskMgr.TaskRemoved:
+			log.Debug("Task removed: %v", taskEvent.Name)
 		}
-	Exit:
-		// task should have already been removed via TASK_STOP
-	}(ctxSock)
+	}
+Exit:
 }
 
-func (c *Client) monitorNode(node, interval string, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+// monitor events sent by the tasks.
+func (c *Client) monitorTaskEvents(ctx context.Context, taskName string, stream protocol.UI_NotificationsClient, ntfType protocol.Action, ntfId uint64, results <-chan interface{}, errors <-chan error) {
+	postMsg := func(data string, err error) {
+
+		// when a task is loaded from disk, we don't have a notification ID to
+		// identify this task on the UI. For these cases, we use a unique ID for
+		// each task.
+		// The notification ID sent from the UI is a timestamp, so we don't expect
+		// low values here.
+		if stream != nil && ntfId > 10000 {
+			c.sendNotificationReply(stream, ntfType, ntfId, data, err)
+		} else {
+			alertType := protocol.Alert_INFO
+			if err != nil {
+				alertType = protocol.Alert_ERROR
+			}
+			c.PostAlert(
+				alertType,
+				protocol.Alert_GENERIC,
+				protocol.Alert_SHOW_ALERT,
+				protocol.Alert_MEDIUM,
+				data)
+			c.loggers.Log(
+				taskBase.TaskNotification{Data: data, Name: taskName},
+				nil,
+				nil)
+		}
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			goto Exit
+		case err := <-errors:
+			postMsg("", err)
+
+		case temp := <-results:
+			data, ok := temp.(string)
+			if ok {
+				postMsg(data, nil)
+			}
+		}
+	}
+Exit:
+	// task should have already been removed via TASK_STOP
+	log.Debug("[tasks] stop monitoring events %d (%d)", ntfId, ntfType)
+}
+
+func (c *Client) monitorSockets(config interface{}, stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
+	sockMonTask, err := socketsmonitor.New(socketsmonitor.Name, config, true)
+	sockMonTask.SetID(ntf.Id)
+	if err != nil {
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
+		return
+	}
+	_, err = TaskMgr.AddTask(sockMonTask.Name, sockMonTask)
+	if err != nil {
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
+		return
+	}
+}
+
+func (c *Client) monitorNode(node, interval string, stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	taskName, nodeMonTask := nodemonitor.New(node, interval, true)
-	ctxNode, err := TaskMgr.AddTask(taskName, nodeMonTask)
+	nodeMonTask.SetID(ntf.Id)
+	_, err := TaskMgr.AddTask(taskName, nodeMonTask)
 	if err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 		return
 	}
-	go func(ctx context.Context) {
-		for {
-			select {
-			case <-ctx.Done():
-				goto Exit
-			case err := <-nodeMonTask.Errors():
-				c.sendNotificationReply(stream, notification.Id, "", err)
-			case temp := <-nodeMonTask.Results():
-				data, ok := temp.(string)
-				if !ok {
-					goto Exit
-				}
-				c.sendNotificationReply(stream, notification.Id, data, nil)
-			}
-		}
-	Exit:
-		TaskMgr.RemoveTask(taskName)
-	}(ctxNode)
 }
 
-func (c *Client) monitorProcessDetails(pid int, interval string, stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) monitorProcessDetails(pid int, interval string, stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	if !core.Exists(fmt.Sprint("/proc/", pid)) {
-		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("The process is no longer running"))
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("The process is no longer running"))
 		return
 	}
 
 	taskName, pidMonTask := pidmonitor.New(pid, interval, true)
-	ctx, err := TaskMgr.AddTask(taskName, pidMonTask)
+	pidMonTask.SetID(ntf.Id)
+	_, err := TaskMgr.AddTask(taskName, pidMonTask)
 	if err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 		return
 	}
-	go func(ctx context.Context) {
-		for {
-			select {
-			case <-ctx.Done():
-				goto Exit
-			case err := <-pidMonTask.Errors():
-				c.sendNotificationReply(stream, notification.Id, "", err)
-			case temp := <-pidMonTask.Results():
-				data, ok := temp.(string)
-				if !ok {
-					goto Exit
-				}
-				c.sendNotificationReply(stream, notification.Id, data, nil)
-			}
-		}
-	Exit:
-		TaskMgr.RemoveTask(taskName)
-	}(ctx)
-
 }

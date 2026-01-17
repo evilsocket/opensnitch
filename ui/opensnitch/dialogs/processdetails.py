@@ -3,7 +3,7 @@ import sys
 import json
 import re
 
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt6 import QtCore, QtGui, uic, QtWidgets
 
 import opensnitch.proto as proto
 ui_pb2, ui_pb2_grpc = proto.import_()
@@ -60,8 +60,8 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
 
     def __init__(self, parent=None, appicon=None):
         super(ProcessDetailsDialog, self).__init__(parent)
-        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowStaysOnTopHint)
-        self.setWindowFlags(QtCore.Qt.Window)
+        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowType.WindowStaysOnTopHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.Window)
         self.setupUi(self)
         self.setWindowIcon(appicon)
 
@@ -176,7 +176,7 @@ class ProcessDetailsDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0])
             self._start_monitoring()
 
     def _show_message(self, text):
-        Message.ok(text, "", QtWidgets.QMessageBox.Warning)
+        Message.ok(text, "", QtWidgets.QMessageBox.Icon.Warning)
 
     def _delete_notification(self, nid):
         if nid in self._notifications_sent:

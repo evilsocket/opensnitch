@@ -1,4 +1,4 @@
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 import os
 
 from opensnitch.config import Config

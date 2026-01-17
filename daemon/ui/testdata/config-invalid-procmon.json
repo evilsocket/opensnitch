@@ -35,6 +35,9 @@
     "Ebpf": {
         "ModulesPath": "/invalid/path/ebpf"
     },
+    "Audit": {
+        "AudispSocketPath": "/var/run/audispd_events"
+    },
     "Internal": {
         "GCPercent": 75,
         "FlushConnsOnStart": true

@@ -6,70 +6,70 @@
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="34"/>
         <source>opensnitch-qt</source>
-        <translation>opensnitch-qt</translation>
+        <translation type="obsolete">opensnitch-qt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="300"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="758"/>
         <source>User ID</source>
         <translation>Användar-ID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="334"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="695"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Executed from&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Utförd från&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="647"/>
         <source>TextLabel</source>
-        <translation>TextLabel</translation>
+        <translation type="obsolete">TextLabel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="437"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="972"/>
         <source>Source IP</source>
         <translation>Käll-IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="458"/>
         <source>Process ID</source>
-        <translation>Process-ID</translation>
+        <translation type="obsolete">Process-ID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="601"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="786"/>
         <source>Destination IP</source>
         <translation>Destinations-IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="622"/>
         <source>Dst Port</source>
-        <translation>Dst-port</translation>
+        <translation type="obsolete">Dst-port</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="702"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="56"/>
         <source>from this executable</source>
         <translation>från denna körbara</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="707"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="61"/>
         <source>from this command line</source>
         <translation>från denna kommandorad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="712"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="66"/>
         <source>this destination port</source>
         <translation>denna destinationsport</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="717"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="71"/>
         <source>this user</source>
         <translation>denna användare</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="722"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="76"/>
         <source>this destination ip</source>
         <translation>denna destination-ip</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="751"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="99"/>
         <source>once</source>
         <translation>en gång</translation>
     </message>
@@ -79,7 +79,7 @@
         <translation type="obsolete">durante esta sesión</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="786"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="139"/>
         <source>forever</source>
         <translation>evigt</translation>
     </message>
@@ -94,47 +94,47 @@
         <translation>Tillåt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="865"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="202"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="781"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="134"/>
         <source>until reboot</source>
         <translation>tills omstart av datorn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="727"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="81"/>
         <source>from this PID</source>
         <translation>från denna PID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="809"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="156"/>
         <source>action</source>
         <translation>åtgärd</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="756"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="104"/>
         <source>30s</source>
         <translation>30s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="761"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="109"/>
         <source>5m</source>
         <translation>5m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="766"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="114"/>
         <source>15m</source>
         <translation>15m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="771"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="119"/>
         <source>30m</source>
         <translation>30m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="776"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="124"/>
         <source>1h</source>
         <translation>1h</translation>
     </message>
@@ -174,22 +174,22 @@
         <translation>Tillåt tjänst (IN)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall.ui" line="397"/>
+        <location filename="../../../opensnitch/res/firewall.ui" line="398"/>
         <source>Exclude outbound connections to a port from being intercepted</source>
         <translation>Uteslut utgående anslutningar till en port från att kunna avlyssnas</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall.ui" line="406"/>
+        <location filename="../../../opensnitch/res/firewall.ui" line="407"/>
         <source>Allow service (OUT)</source>
         <translation>Tillåt service (UT)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall.ui" line="426"/>
+        <location filename="../../../opensnitch/res/firewall.ui" line="427"/>
         <source>New rule</source>
         <translation>Ny regel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="431"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="451"/>
         <source>Close</source>
         <translation>Stäng</translation>
     </message>
@@ -229,102 +229,102 @@
         <translation>Ta bort det valda villkoret</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="233"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="221"/>
         <source>Direction</source>
         <translation>Riktning</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="248"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="232"/>
         <source>IN</source>
         <translation>IN</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="257"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="241"/>
         <source>OUT</source>
         <translation>UT</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="223"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="268"/>
         <source>Action</source>
         <translation>Åtgärd</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="285"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="279"/>
         <source>ACCEPT</source>
         <translation>ACCEPTERA</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="294"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="288"/>
         <source>DROP</source>
         <translation>TAPPA</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="303"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="297"/>
         <source>REJECT</source>
         <translation>AVVISA</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="312"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="306"/>
         <source>RETURN</source>
         <translation>ÅTERVÄND</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="442"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="440"/>
         <source>Clear</source>
         <translation>Rensa</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="453"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="416"/>
         <source>Delete</source>
         <translation>Ta bort</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="464"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="462"/>
         <source>Save</source>
         <translation>Spara</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="475"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="473"/>
         <source>Add</source>
         <translation>Lägg till</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="266"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="250"/>
         <source>FORWARD</source>
         <translation>VIDAREBEFORDRA</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="271"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="255"/>
         <source>PREROUTING</source>
         <translation>FÖRROUTING</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="276"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="260"/>
         <source>POSTROUTING</source>
         <translation>POSTROUTING</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="321"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="315"/>
         <source>QUEUE</source>
         <translation>KÖ</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="330"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="324"/>
         <source>DNAT</source>
         <translation>DNAT</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="335"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="329"/>
         <source>SNAT</source>
         <translation>SNAT</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="340"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="334"/>
         <source>REDIRECT</source>
         <translation>OMDIRIGERA</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="359"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="351"/>
         <source>depending on the Action (i.e.: target), the syntaxis of the parameters will vary.
 Some examples:
 
@@ -344,6 +344,36 @@ OMDIRIGERA, TPROXY, DNAT, SNAT, MASQUERADE:
  to 192.168.1.254
  to 1024-2048 (masquerade)</translation>
     </message>
+    <message>
+        <location filename="../../../opensnitch/res/prompt.ui" line="20"/>
+        <source>Dialog</source>
+        <translation>Dialogruta</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/prompt.ui" line="129"/>
+        <source>12h</source>
+        <translation>12h</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/prompt.ui" line="371"/>
+        <source>Update rule</source>
+        <translation>Uppdatera regel</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/prompt.ui" line="382"/>
+        <source>Update All</source>
+        <translation>Uppdatera alla</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/prompt.ui" line="829"/>
+        <source>Checksum</source>
+        <translation>Kontrollsumma</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/prompt.ui" line="923"/>
+        <source>Destination Port</source>
+        <translation>Destinationsport</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog</name>
@@ -353,7 +383,7 @@ OMDIRIGERA, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation>Inställningar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="484"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="521"/>
         <source>UI</source>
         <translation>Användargränssnitt</translation>
     </message>
@@ -363,17 +393,17 @@ OMDIRIGERA, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">Este timeout es la cuenta atrás que aparece cuando se muestra una ventana emergente</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="466"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="133"/>
         <source>Default timeout</source>
         <translation>Standard tidsgräns</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="340"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="228"/>
         <source>Pop-up default duration</source>
         <translation>Popup-standardvaraktighet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="866"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1554"/>
         <source>Default duration</source>
         <translation>Standardvaraktighet</translation>
     </message>
@@ -388,32 +418,32 @@ OMDIRIGERA, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">Acción por defecto</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="323"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="293"/>
         <source>Default target</source>
         <translation>Standardmål</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="179"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="360"/>
         <source>center</source>
         <translation>centrer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="184"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="365"/>
         <source>top right</source>
         <translation>uppe till höger</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="189"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="370"/>
         <source>bottom right</source>
         <translation>nere till höger</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="194"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="375"/>
         <source>top left</source>
         <translation>uppe till vänster</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="199"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="380"/>
         <source>bottom left</source>
         <translation>nere till vänster</translation>
     </message>
@@ -423,32 +453,32 @@ OMDIRIGERA, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">Posición por defecto</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="283"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="307"/>
         <source>by executable</source>
         <translation>efter körbar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="288"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="312"/>
         <source>by command line</source>
         <translation>efter kommandorad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="293"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="317"/>
         <source>by destination port</source>
         <translation>efter destinationsport</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="298"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="322"/>
         <source>by destination ip</source>
         <translation>efter destination-ip</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="303"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="327"/>
         <source>by user id</source>
         <translation>efter användar-id</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="970"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1526"/>
         <source>once</source>
         <translation>en gång</translation>
     </message>
@@ -458,17 +488,17 @@ OMDIRIGERA, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">durante esta sesión</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="249"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="285"/>
         <source>forever</source>
         <translation>evigt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1012"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1565"/>
         <source>deny</source>
         <translation>neka</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1021"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1574"/>
         <source>allow</source>
         <translation>tillåt</translation>
     </message>
@@ -479,52 +509,52 @@ OMDIRIGERA, TPROXY, DNAT, SNAT, MASQUERADE:
 sólo mostrar alerta</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="823"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1417"/>
         <source>Nodes</source>
         <translation>Noder</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="829"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1627"/>
         <source>Process monitor method</source>
         <translation>Processövervakningsmetod</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="863"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1551"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standardvaraktigheten kommer att ske när det inte finns något gränssnitt anslutet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="988"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1595"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it&apos;s a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adress till noden.&lt;/p&gt;&lt;p&gt;Standard: unix:///tmp/osui.sock (unix:// är obligatoriskt om det är ett Unix-uttag)&lt;/p&gt;&lt;p&gt;Det kan också vara en IP-adress med porten: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="991"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1598"/>
         <source>Address</source>
         <translation>Adress</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1131"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1745"/>
         <source>Default log level</source>
         <translation>Standardloggnivå</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1039"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2255"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="902"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standardåtgärden kommer att äga rum när det inte finns något gränssnitt anslutet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standardåtgärden kommer att äga rum när det inte finns något gränssnitt anslutet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="846"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1678"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log file to write logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Loggfil för att skriva loggar.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout kommer att skriva ut loggar till standardutdata.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="849"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1681"/>
         <source>Log file</source>
         <translation>Loggfil</translation>
     </message>
@@ -544,82 +574,82 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
         <translation type="obsolete">Interceptar conexiones desconocidas</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="921"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2271"/>
         <source>HostName</source>
         <translation>Värdnamn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1090"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1609"/>
         <source>unix:///tmp/osui.sock</source>
         <translation>unix:///tmp/osui.sock</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="975"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1531"/>
         <source>until restart</source>
         <translation>tills omstart</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="980"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1536"/>
         <source>always</source>
         <translation>alltid</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1102"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1756"/>
         <source>/var/log/opensnitchd.log</source>
         <translation>/var/log/opensnitchd.log</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1107"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1761"/>
         <source>/dev/stdout</source>
         <translation>/dev/stdout</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="879"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1429"/>
         <source>Apply configuration to all nodes</source>
         <translation>Tillämpa konfiguration på alla noder</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1146"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2282"/>
         <source>Database</source>
         <translation>Databas</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1181"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2317"/>
         <source>In memory</source>
         <translation>I minnet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1186"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2322"/>
         <source>File</source>
         <translation>Fil</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1482"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2635"/>
         <source>Close</source>
         <translation>Stäng</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1493"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2646"/>
         <source>Apply</source>
         <translation>Tillämpa</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1504"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2657"/>
         <source>Save</source>
         <translation>Spara</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="244"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="280"/>
         <source>until reboot</source>
         <translation>tills omstart av datorn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1200"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2336"/>
         <source>Database type</source>
         <translation>Databastyp</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1207"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2343"/>
         <source>Select</source>
         <translation>Välj</translation>
     </message>
@@ -639,32 +669,32 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
         <translation type="obsolete">La vista avanzada permite filtrar conexiones por más parámetros</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="359"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="428"/>
         <source>Show advanced view by default</source>
         <translation>Visa avancerad vy som standard</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="653"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1213"/>
         <source>Action</source>
         <translation>Åtgärd</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="375"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="409"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Om markerad, kommer popup-fönster att visas med den avancerade vyn aktiv.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="343"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="231"/>
         <source>Duration</source>
         <translation>Varaktighet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="263"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="503"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Som standard när ett nytt popup-fönster visas, i sin enklaste form, kommer du att kunna filtrera anslutningar eller applikationer efter en egenskap hos anslutningen (körbar, port, IP, etc).&lt;/p&gt;&lt;p&gt;Med dessa alternativ kan du välja flera fält att filtrera anslutningar efter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="266"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="506"/>
         <source>Filter connections also by:</source>
         <translation>Filtrera anslutningar även efter:</translation>
     </message>
@@ -674,67 +704,67 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
         <translation type="obsolete">Si lo seleccionas, este campo se usará para filtrar las conexiones</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="81"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="449"/>
         <source>User ID</source>
         <translation>Användar-ID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="97"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="465"/>
         <source>Destination port</source>
         <translation>Destinationsport</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="113"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="481"/>
         <source>Destination IP</source>
         <translation>Destinations-IP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="463"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="130"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;p&gt;If the pop-up is not answered, the default options will be applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Denna tidsgräns är nedräkningen du ser när en popup-dialogruta visas.&lt;/p&gt;&lt;p&gt;Om popup-fönstret inte besvaras kommer standardalternativen att tillämpas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="356"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="425"/>
         <source>The advanced view allows you to easily select multiple fields to filter connections</source>
         <translation>Den avancerade vyn låter dig enkelt välja flera fält för att filtrera anslutningar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="110"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="478"/>
         <source>If checked, this field will be selected when a pop-up is displayed</source>
         <translation>Om markerat kommer detta fält att väljas när ett popup-fönster visas</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="159"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. new outgoing connections are denied.&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Popup-standardåtgärd.&lt;/p&gt;&lt;p&gt;När en ny utgående anslutning är på väg att upprättas kommer denna åtgärd att väljas som standard, så om tidsgräns utlöses är detta alternativ som kommer att tillämpas.&lt;/p &gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Medan ett popup-fönster ber användaren att tillåta eller neka en anslutning:&lt;/p&gt;&lt;p&gt;1. nya utgående anslutningar nekas.&lt;/p&gt;&lt;p&gt;2. kända anslutningar tillåts eller nekas baserat på reglerna som definierats av användaren.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Popup-standardåtgärd.&lt;/p&gt;&lt;p&gt;När en ny utgående anslutning är på väg att upprättas kommer denna åtgärd att väljas som standard, så om tidsgräns utlöses är detta alternativ som kommer att tillämpas.&lt;/p &gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Medan ett popup-fönster ber användaren att tillåta eller neka en anslutning:&lt;/p&gt;&lt;p&gt;1. nya utgående anslutningar nekas.&lt;/p&gt;&lt;p&gt;2. kända anslutningar tillåts eller nekas baserat på reglerna som definierats av användaren.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="905"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1515"/>
         <source>Default action when the GUI is disconnected</source>
         <translation>Standardåtgärd när det grafiska användargränssnittet är frånkopplat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1001"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1620"/>
         <source>Debug invalid connections</source>
         <translation>Felsök ogiltiga anslutningar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="39"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="46"/>
         <source>Pop-ups</source>
         <translation>Popup-fönster</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="64"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="175"/>
         <source>Default options</source>
         <translation>Standardalternativ</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="330"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="340"/>
         <source>Default position on screen</source>
         <translation>Standardposition på skärmen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="769"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1363"/>
         <source>any temporary rules</source>
         <translation>eventuella tillfälliga regler</translation>
     </message>
@@ -754,32 +784,32 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
         <translation type="obsolete">Mostrar columnas de la pestaña Eventos</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="589"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1229"/>
         <source>Time</source>
         <translation>Tid</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="669"/>
         <source>Destination</source>
-        <translation>Destination</translation>
+        <translation type="obsolete">Destination</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="637"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1245"/>
         <source>Protocol</source>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="685"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1277"/>
         <source>Process</source>
         <translation>Process</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="605"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1261"/>
         <source>Rule</source>
         <translation>Regel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="621"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1187"/>
         <source>Node</source>
         <translation>Nod</translation>
     </message>
@@ -789,117 +819,117 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Si se selecciona opensnitch te preguntará para permitir o denegar conexiones que no tienen un PID asociado. Esto puede pasar por diferentes motivos, principalmente debido a conexiones inválidas.&lt;/p&gt;&lt;p&gt;La ventana emergente sólo contendrá información de la conexión.&lt;/p&gt;&lt;p&gt;Hay algunas situaciones en las que estas conexiones son válidas, por ejemplo al establecer un túnel VPN con wireguard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="577"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1134"/>
         <source>Events tab columns</source>
         <translation>Händelser-flikkolumner</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="308"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="332"/>
         <source>by PID</source>
         <translation>efter PID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="473"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="153"/>
         <source>Disable pop-ups, only display a notification</source>
         <translation>Inaktivera popup-fönster, visa bara ett meddelande</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="496"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1038"/>
         <source>Desktop notifications</source>
         <translation>Skrivbordsaviseringar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="514"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1068"/>
         <source>Use system notifications</source>
         <translation>Använd systemaviseringar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="530"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1084"/>
         <source>Use Qt notifications</source>
         <translation>Använd Qt-aviseringar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="559"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1113"/>
         <source>Test</source>
         <translation>Test</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="998"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1617"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don&apos;t have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Om markerad kommer OpenSnitch att uppmana dig att tillåta eller neka anslutningar som inte har ett associerat PID, på grund av flera orsaker, mestadels på grund av dåliga anslutningar.&lt;/p&gt;&lt;p&gt;Popup-dialogrutan innehåller endast information om nätverksanslutningen.&lt;/p&gt;&lt;p&gt;Det finns vissa scenarier där dessa är giltiga anslutningar, som när du upprättar ett VPN med WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1294"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2430"/>
         <source>minutes</source>
         <translation>minuter</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1326"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2462"/>
         <source>Minutes between events purges</source>
         <translation>Minuter mellan händelseutrensningar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1352"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2488"/>
         <source>days</source>
         <translation>dagar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1365"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2501"/>
         <source>Maximum days of events to keep</source>
         <translation>Maximalt antal dagar av händelser att behålla</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="147"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1583"/>
         <source>reject</source>
         <translation>avvisa</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="716"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="572"/>
         <source>System</source>
         <translation>System</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="695"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1197"/>
         <source>Command line</source>
         <translation>Kommandorad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="708"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="797"/>
         <source>Theme</source>
         <translation>Tema</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="219"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="250"/>
         <source>30s</source>
         <translation>30s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="224"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="255"/>
         <source>5m</source>
         <translation>5m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="229"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="260"/>
         <source>15m</source>
         <translation>15m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="234"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="265"/>
         <source>30m</source>
         <translation>30m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="239"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="270"/>
         <source>1h</source>
         <translation>1h</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="748"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1939"/>
         <source>Rules</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="756"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1350"/>
         <source>When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.
 
 Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.</source>
@@ -908,39 +938,448 @@ Temporary rules will still be valid, and you can use them when prompted to allow
 Tillfälliga regler kommer fortfarande att vara giltiga, och du kan använda dem när du uppmanas att tillåta/neka en ny anslutning.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="761"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1355"/>
         <source>Don&apos;t save/Delete rules of duration</source>
         <translation>Spara/Ta inte bort regler för varaktighet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="779"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1373"/>
         <source>30s or less</source>
         <translation>30s eller mindre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="784"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1378"/>
         <source>5m or less</source>
         <translation>5m eller mindre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="789"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1383"/>
         <source>15m or less</source>
         <translation>15m eller mindre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="794"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1388"/>
         <source>30m or less</source>
         <translation>30m eller mindre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="799"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1393"/>
         <source>1h or less</source>
         <translation>1h eller mindre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="724"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="564"/>
         <source>Language</source>
         <translation>Språk</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="181"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. the daemon&apos;s default action will be applied (see Nodes tab).&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standardåtgärd för popup-fönster.&lt;/p&gt;&lt;p&gt;När en ny utgående anslutning ska upprättas väljs denna åtgärd som standard, så om timeout-funktionen utlöses är det detta alternativ som tillämpas.&lt;/p&gt;&lt;p&gt;Medan ett popup-fönster ber användaren att tillåta eller neka en anslutning:&lt;/p&gt;&lt;p&gt;1. demonens standardåtgärd tillämpas (se fliken Noder).&lt;/p&gt;&lt;p&gt;2. kända anslutningar tillåts eller nekas baserat på de regler som definierats av användaren.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="275"/>
+        <source>12h</source>
+        <translation>12h</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="397"/>
+        <source>More</source>
+        <translation>Mer</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="488"/>
+        <source>checksum</source>
+        <translation>kontrollsumma</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1506"/>
+        <source>General</source>
+        <translation>Allmänt</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="551"/>
+        <source>Theme density scale</source>
+        <translation>Tematäthetsskala</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="586"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Scale factor (use ; for multiple displays) &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#gui-size-problems-on-4k-monitors&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;More information&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skalfaktor (använd ; för flera skärmar) &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#gui-size-problems-on-4k-monitors&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Mer information&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="668"/>
+        <source>By default the GUI is started when login</source>
+        <translation>Som standard startas det grafiska gränssnittet vid inloggning</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="671"/>
+        <source>Autostart the GUI upon login</source>
+        <translation>Starta det grafiska gränssnittet automatiskt vid inloggning</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="759"/>
+        <source>Use numbers to define a global scale factor for the whole application:
+1, 1.2, 1.5, 2, etc ...
+
+Use ; to define multiple screens: 1;1.5 etc...</source>
+        <translation>Använd siffror för att definiera en global skalfaktor för hela applikationen:
+1, 1,2, 1,5, 2, etc ...
+
+Använd ; för att definiera flera skärmar: 1;1,5 etc...</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="765"/>
+        <source>ex: 1, 1.25, 1.5, 2, ...</source>
+        <translation>ex: 1, 1,25, 1,5, 2, ...</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="781"/>
+        <source>Refresh interval (seconds)</source>
+        <translation>Uppdateringsintervall (sekunder)</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="804"/>
+        <source>Auto screen scale factor</source>
+        <translation>Automatisk skärmskalningsfaktor</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="820"/>
+        <source>This option will set QT_QPA_PLATFORM when launching the GUI.
+
+xcb         - X11 compatibility. If you experience issues with wayland, use this plugin.
+wayland</source>
+        <translation>Det här alternativet ställer in QT_QPA_PLATFORM när det grafiska gränssnittet startas.
+
+xcb         - X11-kompatibilitet. Om du upplever problem med Wayland, använd den här insticksmodulen.
+Wayland</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="826"/>
+        <source>Qt platform plugin</source>
+        <translation>Qt-plattformsinsticksmodul</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="880"/>
+        <source>Server</source>
+        <translation>Server</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1900"/>
+        <source>Absolute path to the cert key file</source>
+        <translation>Absolut sökväg till cert-nyckelfilen</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1853"/>
+        <source>Absolute path to the CA cert file</source>
+        <translation>Absolut sökväg till CA-cert-filen</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="900"/>
+        <source>Maximum size of each message from nodes. Default 4MB</source>
+        <translation>Maximal storlek för varje meddelande från noder. Standard 4 MB</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="903"/>
+        <source>Max gRPC channel size</source>
+        <translation>Max gRPC-kanalstorlek</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="910"/>
+        <source>&lt;p&gt;Simple: no authentication&lt;/p&gt;
+&lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
+&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Enkel: ingen autentisering&lt;/p&gt;
+&lt;p&gt;TLS enkel/ömsesidig: använd SSL-certifikat för att autentisera noder.&lt;/p&gt;
+&lt;p&gt;Besök wikin för mer information.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1819"/>
+        <source>Authentication type</source>
+        <translation>Autentiseringstyp</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1807"/>
+        <source>Absolute path to the cert file</source>
+        <translation>Absolut sökväg till cert-filen</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1833"/>
+        <source>Simple</source>
+        <translation>Enkel</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1838"/>
+        <source>Simple TLS</source>
+        <translation>Enkel TLS</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1843"/>
+        <source>Mutual TLS</source>
+        <translation>Ömsesidig TLS</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="955"/>
+        <source>4MiB</source>
+        <translation>4MiB</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="960"/>
+        <source>8MiB</source>
+        <translation>8MiB</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="965"/>
+        <source>16MiB</source>
+        <translation>16MiB</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="970"/>
+        <source>32MiB</source>
+        <translation>32MiB</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1914"/>
+        <source>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;More information&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;Mer information&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1003"/>
+        <source>Set the address where the GUI is listening for new nodes.
+
+It can be a unix socket: unix:///run/user/1000/opensnitch/osui.sock
+
+or a network socket: 127.0.0.1:50051</source>
+        <translation>Ange adressen där det grafiska gränssnittet lyssnar efter nya noder.
+
+Det kan vara en Unix-socket: unix:///run/user/1000/opensnitch/osui.sock
+
+eller en nätverkssocket: 127.0.0.1:50051</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1050"/>
+        <source>Enable</source>
+        <translation>Aktivera</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1167"/>
+        <source>Source port</source>
+        <translation>Källport</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1174"/>
+        <source>Source IP</source>
+        <translation>Käll-IP</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1287"/>
+        <source>PID</source>
+        <translation>PID</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1294"/>
+        <source>Dest port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1310"/>
+        <source>Dest host</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1320"/>
+        <source>Dest IP</source>
+        <translation>Dest-IP</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1327"/>
+        <source>UID</source>
+        <translation>UID</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1512"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will be applied to new outbound connections in two scenarios:&lt;/p&gt;&lt;p&gt;when the daemon is not connected to the UI, or when there&apos;s a pop-up running.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standardåtgärden tillämpas på nya utgående anslutningar i två scenarier:&lt;/p&gt;&lt;p&gt;när demonen inte är ansluten till användargränssnittet, eller när ett popup-fönster körs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1665"/>
+        <source>Logging</source>
+        <translation>Loggning</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1688"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will log timestamp microseconds.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Om markerad loggar OpenSnitch tidsstämplar i mikrosekunder.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1691"/>
+        <source>Log timestamp microseconds</source>
+        <translation>Loggtidsstämpel mikrosekunder</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1735"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will use the UTC timezone for timestamps.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Om markerad kommer OpenSnitch att använda UTC-tidszonen för tidsstämplar.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1738"/>
+        <source>Log UTC timestamps</source>
+        <translation>Logga UTC-tidsstämplar</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1801"/>
+        <source>Authentication</source>
+        <translation>Autentisering</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1816"/>
+        <source>&lt;p&gt;Simple: no authentication, TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Enkelt: ingen autentisering, TLS enkelt/ömsesidigt: använd SSL-certifikat för att autentisera noder.&lt;/p&gt;&lt;p&gt;Besök wikin för mer information.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1862"/>
+        <source>Don&apos;t verify certs</source>
+        <translation>Verifiera inte certifikat</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1870"/>
+        <source>no-client-cert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1875"/>
+        <source>req-cert</source>
+        <translation>req-cert</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1880"/>
+        <source>req-any-cert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1885"/>
+        <source>verify-cert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1890"/>
+        <source>req-and-verify-cert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1907"/>
+        <source>Absolute path to the server cert file</source>
+        <translation>Absolut sökväg till servercert-filen</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1956"/>
+        <source>md5</source>
+        <translation>md5</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1975"/>
+        <source>sha1</source>
+        <translation>sha1</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1984"/>
+        <source>Compute and verify binaries checksums when they try to establish new connections</source>
+        <translation>Beräkna och verifiera binära kontrollsummor när de försöker upprätta nya anslutningar</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1987"/>
+        <source>Enable checksums verification</source>
+        <translation>Aktivera verifiering av kontrollsummor</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2009"/>
+        <source>Path</source>
+        <translation>Sökväg</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2020"/>
+        <source>If empty, default rules path will be /etc/opensnitchd/rules</source>
+        <translation>Om tomt är standardsökvägen för regler /etc/opensnitchd/rules</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2023"/>
+        <source>absolute path to the rules directory (it must exist)</source>
+        <translation>absolut sökväg till regelkatalogen (den måste finnas)</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2041"/>
+        <source>Internal</source>
+        <translation>Intern</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2056"/>
+        <source>50</source>
+        <translation>50</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2066"/>
+        <source>Max events</source>
+        <translation>Max händelser</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2086"/>
+        <source>Garbage collector percentage</source>
+        <translation>Procentandel sophämtare</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2102"/>
+        <source>250</source>
+        <translation>250</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2112"/>
+        <source>When this option is on, all the existing sockets will be killed, in order to force them establish the connection again so we can intercept them.
+
+Note that this option may be not acceptable on servers, for example because downloads/uploads are taking place.</source>
+        <translation>När det här alternativet är aktiverat kommer alla befintliga sockets att stängas av för att tvinga dem att upprätta anslutningen igen så att vi kan fånga upp dem.
+
+Observera att det här alternativet kanske inte är acceptabelt på servrar, till exempel för att nedladdningar/uppladdningar pågår.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2117"/>
+        <source>Flush connections on start</source>
+        <translation>Rensa anslutningarna vid start</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2124"/>
+        <source>Max stats</source>
+        <translation>Maxstatistik</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2203"/>
+        <source>Check every n seconds that the interception rules are present in the system.
+If they&apos;re no present, all the rules will be deleted and added again.
+
+Use 0 to disable this feature.</source>
+        <translation>Kontrollera var n:te sekund att reglerna för avlyssning finns i systemet.
+Om de inte finns kommer alla regler att raderas och läggas till igen.
+
+Använd 0 för att inaktivera den här funktionen.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2209"/>
+        <source>Firewall rules monitoring interval (seconds)</source>
+        <translation>Övervakningsintervall för brandväggsregler (sekunder)</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2231"/>
+        <source>10s, 15s, 60s, etc</source>
+        <translation>10s, 15s, 60s, etc</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2238"/>
+        <source>Block outbound network traffic if the daemon unexpectedly dies</source>
+        <translation>Blockera utgående nätverkstrafik om demonen oväntat dör</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2580"/>
+        <source>Enable DB Write-Ahead Logging (WAL)</source>
+        <translation>Aktivera DB Write-Ahead-loggning (WAL)</translation>
     </message>
 </context>
 <context>
@@ -951,64 +1390,79 @@ Tillfälliga regler kommer fortfarande att vara giltiga, och du kan använda dem
         <translation>Processdetaljer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="61"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="71"/>
         <source>loading...</source>
         <translation>läser in...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="81"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="120"/>
         <source>CWD: loading...</source>
         <translation>CWD: läser in...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="93"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="138"/>
         <source>mem stats: loading...</source>
         <translation>memstatistik: läser in...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="121"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="172"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="135"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="186"/>
         <source>Open files</source>
         <translation>Öppna filer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="149"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="224"/>
         <source>I/O Statistics</source>
         <translation>I/O-statistik</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="163"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="238"/>
         <source>Memory mapped files</source>
         <translation>Minnesmappade filer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="177"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="252"/>
         <source>Stack</source>
         <translation>Stapla</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="191"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="266"/>
         <source>Environment variables</source>
         <translation>Miljövariabler</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="210"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="285"/>
         <source>Application pids</source>
         <translation>Applikationspids</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="240"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="318"/>
         <source>Start or stop monitoring this process</source>
         <translation>Starta eller sluta övervaka denna process</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="256"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="335"/>
         <source>Close</source>
         <translation>Stäng</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/process_details.ui" line="64"/>
+        <source>TextLabel</source>
+        <translation type="unfinished">TextLabel</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/process_details.ui" line="200"/>
+        <source>Filter sockets</source>
+        <translation>Filtera sockets</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/process_details.ui" line="207"/>
+        <source>Filter files</source>
+        <translation>Filtrera filer</translation>
     </message>
 </context>
 <context>
@@ -1021,25 +1475,25 @@ Tillfälliga regler kommer fortfarande att vara giltiga, och du kan använda dem
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="300"/>
         <source>Node</source>
-        <translation>Nod</translation>
+        <translation type="obsolete">Nod</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="323"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1219"/>
         <source>Apply rule to all nodes</source>
         <translation>Tillämpa regel på alla noder</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="379"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="129"/>
         <source>From this command line</source>
         <translation>Från denna kommandorad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="472"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="222"/>
         <source>From this executable</source>
         <translation>Från denna körbara</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="56"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1038"/>
         <source>Action</source>
         <translation>Åtgärd</translation>
     </message>
@@ -1049,12 +1503,12 @@ Tillfälliga regler kommer fortfarande att vara giltiga, och du kan använda dem
         <translation type="obsolete">/ruta/al/ejecutable, .*/bin/executable[0-9\.]+$, ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="610"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="360"/>
         <source>To this IP / Network</source>
         <translation>Till denna IP / nätverk</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="97"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1079"/>
         <source>once</source>
         <translation>en gång</translation>
     </message>
@@ -1064,22 +1518,22 @@ Tillfälliga regler kommer fortfarande att vara giltiga, och du kan använda dem
         <translation type="obsolete">hasta reiniciar (el servicio)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="132"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1119"/>
         <source>always</source>
         <translation>alltid</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="902"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="652"/>
         <source>To this port</source>
         <translation>Till denna port</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="372"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="122"/>
         <source>From this user ID</source>
         <translation>Från detta användar-ID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="592"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="342"/>
         <source>Commas or spaces are not allowed to specify multiple domains. 
 
 Use regular expressions instead: 
@@ -1100,22 +1554,22 @@ www.gnu.org - det kommer bara att matcha www.gnu.org, inte ftp.gnu.org eller www
 gnu.org         - det kommer bara att matcha gnu.org, inte www.gnu.org eller ftp.gnu.org, ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="603"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="353"/>
         <source>www.domain.org, .*\.domain.org</source>
         <translation>www.domain.org, .*\.domain.org</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="526"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="276"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only TCP, UDP or UDPLITE are allowed&lt;/p&gt;&lt;p&gt;You can use regexp, i.e.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Endast TCP, UDP eller UDPLITE är tillåtna&lt;/p&gt;&lt;p&gt;Du kan använda regexp, dvs.: ^(TCP|UDP)$&lt;/p&gt;&lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="532"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="282"/>
         <source>TCP</source>
         <translation>TCP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="760"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="510"/>
         <source>You can specify a single IP:
 - 192.168.1.1
 
@@ -1144,42 +1598,42 @@ Du kan också ange ett undernät:
 Obs: Komma eller mellanslag är inte tillåtna för att separera IP:er eller nätverk.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="89"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1071"/>
         <source>Duration</source>
         <translation>Varaktighet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="633"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="383"/>
         <source>Protocol</source>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="750"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="500"/>
         <source>To this host</source>
         <translation>Till denna värd</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="151"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1138"/>
         <source>Deny</source>
         <translation>Neka</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="191"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1178"/>
         <source>Allow</source>
         <translation>Tillåt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="245"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="985"/>
         <source>Name</source>
         <translation>Namn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="207"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1194"/>
         <source>Enable</source>
         <translation>Aktivera</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="238"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="978"/>
         <source>The rules are checked in alphabetical order, so you can name them accordingly to prioritize them.
 
 000-allow-localhost
@@ -1197,7 +1651,7 @@ Obs: Komma eller mellanslag är inte tillåtna för att separera IP:er eller nä
         <translation type="obsolete">dejar en blanco para autoasignar nombre</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="214"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="954"/>
         <source>If checked, this rule will take precedence over the rest of the rules. No others rules will be checked after this one.
 
 You must name the rule in such manner that it&apos;ll be checked first, because they&apos;re checked in alphabetical order. For example:
@@ -1212,17 +1666,17 @@ Du måste namnge regeln på ett sådant sätt att den kommer att kontrolleras f�
 [  ] Priority - 001-less-priority-rule</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="222"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="962"/>
         <source>Priority rule</source>
         <translation>Prioritetsregel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1092"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="867"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the field of the rules are case-insensitive, i.e., if a process tries to access gOOgle.CoM and you have a rule to Deny .*google.com, the connection will be blocked.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you check this box, you have to specify the exact string (domain, executable, command line) that you want to filter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Som standard är fältet för reglerna skiftlägesokänsligt, d.v.s. om en process försöker komma åt gOOgle.CoM och du har en regel att neka .*google.com, anslutningen kommer att blockeras.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Om du markerar denna ruta måste du ange den exakta strängen (domän, körbar, kommandorad) som du vill filtrera.&lt;/p&gt;&lt;/ body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1095"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="870"/>
         <source>Case-sensitive</source>
         <translation>Skiftlägeskänslig</translation>
     </message>
@@ -1238,12 +1692,12 @@ Du måste namnge regeln på ett sådant sätt att den kommer att kontrolleras f�
 ^(53|443|555[0-9])$</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="127"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1114"/>
         <source>until reboot</source>
         <translation>tills omstart av datorn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="980"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="730"/>
         <source>To this list of domains</source>
         <translation>Till denna lista över domäner</translation>
     </message>
@@ -1253,7 +1707,7 @@ Du måste namnge regeln på ett sådant sätt att den kommer att kontrolleras f�
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecciona un directorio con listas de dominios para permitir o denegar.&lt;/p&gt;&lt;p&gt;Mete dentro de este directorio ficheros con cualquier extensión que contengan listas de dominios.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;El formato de cada dominio de la lista tiene que estar en formato hosts, así:&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;o &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="346"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="96"/>
         <source>Applications</source>
         <translation>Applikationer</translation>
     </message>
@@ -1263,156 +1717,173 @@ Du måste namnge regeln på ett sådant sätt att den kommer att kontrolleras f�
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Este campo sólo comprueba la ruta del ejecutable (la cual no es modificable por el usuario).&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Puedes usar expresiones regulares para denegar cualquier ejecución desde /tmp, por ejemplo; ^/tmp/.*$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="389"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="139"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will contain and match the command line that was executed by the user.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the command, only the command will appear:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If the user typed the absolute or relative path to the command, that is what will appear:&lt;/p&gt;&lt;p&gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detta fält kommer att innehålla och matcha kommandoraden som kördes av användaren.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Om användaren skrev kommandot är det bara kommandot kommer att visas:&lt;/p&gt;&lt;p&gt;telnet 1.2.3.4&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Om användaren skrev den absoluta eller relativa sökvägen till kommandot, är det vad som kommer att visas:&lt;/p&gt;&lt;p &gt;/usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;p&gt;../../../usr/bin/telnet 1.2.3.4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="399"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="149"/>
         <source>From this PID</source>
         <translation>Från denna PID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="491"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="241"/>
         <source>Network</source>
         <translation>Nätverk</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="932"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="682"/>
         <source>List of domains/IPs</source>
         <translation>Lista över domäner/IP:er</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="938"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="688"/>
         <source>To this list of network ranges</source>
         <translation>Till denna lista över nätverksintervall</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="945"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="695"/>
         <source>To this list of IPs</source>
         <translation>Till denna lista med IP-adresser</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="971"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="721"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of IPs to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4.6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;/p&gt;&lt;p&gt;One IP per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Välj en katalog med filer som innehåller en lista med IP-adresser att blockera eller tillåta:&lt;/p&gt;&lt;p&gt;1.2.3.4.5&lt;/p&gt;&lt;p&gt;1.2.3.4. 6&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;osv.&lt;/p&gt;&lt;p&gt;En IP per rad. Tomma rader eller inledda med # ignoreras.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1006"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="756"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing list of network ranges to block or allow:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0/20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;etc.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;One Network Range per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Välj en katalog med filer som innehåller en lista över nätverksintervall att blockera eller tillåta:&lt;/p&gt;&lt;p&gt;1.2.3.0/24&lt;/p&gt;&lt;p&gt;80.34.56.0 /20&lt;/p&gt;&lt;p&gt;.&lt;/p&gt;&lt;p&gt;osv.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Ett nätverksintervall per linje. Tomma rader eller inledda med # ignoreras.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1034"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="784"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with lists of domains to block or allow.&lt;/p&gt;&lt;p&gt;Put inside that directory files with any extension containing lists of domains.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;The format of each entry of a list is as follow (hosts format):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;or &lt;/p&gt;&lt;p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Välj en katalog med listor över domäner att blockera eller tillåta.&lt;/p&gt;&lt;p&gt;Placera filer i den katalogen med valfritt tillägg som innehåller listor över domäner.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;Formatet för varje post i en lista är som följer (värdformat):&lt;/p&gt;&lt;p&gt;127.0.0.1 www.domain.com&lt;/p&gt;&lt;p&gt;eller &lt;/p&gt;&lt; p&gt;0.0.0.0 www.domain.com&lt;/p&gt;&lt;p&gt;Tomma rader eller som börjar med # ignoreras.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1049"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="799"/>
         <source>To this list of domains 
 (regular expressions)</source>
         <translation>Till denna lista över domäner 
 (reguljära uttryck)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1076"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="826"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory with files containing regular expressions of domains to block or allow:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;You can also use a domain as is: &amp;quot;example.com&amp;quot; , and it&apos;ll match whatever.example.com, whatever.example.com.localdomain, etc.&lt;/p&gt;&lt;p&gt;One domain per line. Empty lines or started with # are ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Välj en katalog med filer som innehåller reguljära uttryck för domäner att blockera eller tillåta:&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt; Du kan också använda en domän som den är: &amp;quot;example.com&amp;quot; , och det kommer att matcha whatever.example.com, whatever.example.com.localdomain, etc.&lt;/p&gt;&lt;p&gt;En domän per rad. Tomma rader eller inledda med # ignoreras.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="168"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1155"/>
         <source>Reject</source>
         <translation>Avvisa</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1151"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="75"/>
         <source>Description...</source>
         <translation>Beskrivning...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="355"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="105"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The value of this field is always the absolute path to the executable: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;- Simple: /path/to/binary&lt;/p&gt;&lt;p&gt;- Multiple paths: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Multiple binaries: ^(/usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Deny/Allow executions from /tmp:&lt;/p&gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For more examples visit the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wiki page&lt;/a&gt; or ask on the &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;Discussion forums&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Värdet på detta fält är alltid den absoluta sökvägen till den körbara: /path/to/binary&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Exempel:&lt;/p&gt; &lt;p&gt;- Enkel: /sökväg/till/binär&lt;/p&gt;&lt;p&gt;- Flera sökvägar: ^/usr/lib(64|)/firefox/firefox$&lt;/p&gt;&lt;p&gt;- Flera binärer: ^( /usr/sbin/ntpd|/lib/systemd/systemd-timesyncd|/usr/bin/xbrlapi|/usr/bin/dirmngr)$ &lt;/p&gt;&lt;p&gt;- Neka/tillåt körningar från /tmp:&lt;/p &gt;&lt;p&gt;^/(var/|)tmp/.*$&lt;br/&gt;&lt;/p&gt;&lt;p&gt;För fler exempel besök &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Rules-examples&quot;&gt;wikisida&lt;/a&gt; eller fråga på &lt;a href=&quot;https://github.com/evilsocket/opensnitch/discussions&quot;&gt;diskussionsforumet&lt;/a&gt;.&lt;/p&gt;&lt;/body &gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="365"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="115"/>
         <source>Is regular expression</source>
         <translation>Är reguljärt uttryck</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="479"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="229"/>
         <source>is regular expression</source>
         <translation>är reguljärt uttryck</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="863"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="613"/>
         <source>Network interface</source>
         <translation>Nätverksgränssnitt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1086"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="836"/>
         <source>More</source>
         <translation>Mer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1102"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="893"/>
         <source>Don&apos;t log connections that match this rule</source>
         <translation>Logga inte anslutningar som matchar denna regel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1105"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="896"/>
         <source>Don&apos;t log connections</source>
         <translation>Logga inte anslutningar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="148"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1135"/>
         <source>Deny will just discard the connection</source>
         <translation>Neka kommer bara att ignorera anslutningen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="165"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1152"/>
         <source>Reject will drop the connection, and kill the socket that initiated it</source>
         <translation>Avvisa kommer att tappa anslutningen och döda uttaget som initierade den</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="185"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1172"/>
         <source>Allow will allow the connection</source>
         <translation>Tillåt kommer att tillåta anslutningen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="566"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="316"/>
         <source>ICMP</source>
         <translation>ICMP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="571"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="321"/>
         <source>ICMP6</source>
         <translation>ICMP6</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="576"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="326"/>
         <source>SCTP</source>
         <translation>SCTP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="581"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="331"/>
         <source>SCTP6</source>
         <translation>SCTP6</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="743"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="493"/>
         <source>From this IP / Network</source>
         <translation>Från denna IP / nätverk</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="872"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="622"/>
         <source>From this port</source>
         <translation>Från denna port</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="918"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="668"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du kan ange flera portar med reguljära uttryck:&lt;/p&gt;&lt;p&gt;- 53, 80 eller 443:&lt;/p&gt;&lt;p&gt;^(53|80|443 )$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 eller 5551, 5552, 5553, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0- 9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="632"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify multiple ports using regular expressions:&lt;/p&gt;&lt;p&gt;- 53, 80 or 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 or 5550 to 5559, etc:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du kan ange flera portar med hjälp av reguljära uttryck:&lt;/p&gt;&lt;p&gt;- 53, 80 eller 443:&lt;/p&gt;&lt;p&gt;^(53|80|443)$&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 53, 443 eller 5550 till 5559, etc.:&lt;/p&gt;&lt;p&gt;^(53|443|555[0-9])$&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="914"/>
+        <source>These options are experimental / in development, they may have bugs or not be completely finished.
+Feedback is welcome</source>
+        <translation>Dessa alternativ är experimentella / under utveckling, de kan innehålla fel eller inte vara helt färdigställda.
+Återkoppling är välkommen</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="938"/>
+        <source>In development</source>
+        <translation>Under utveckling</translation>
     </message>
 </context>
 <context>
@@ -1433,77 +1904,77 @@ Du måste namnge regeln på ett sådant sätt att den kommer att kontrolleras f�
         <translation type="obsolete">Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="333"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="139"/>
         <source>Create a new rule</source>
         <translation>Skapa en ny regel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="376"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="183"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;hostname - 192.168.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;värdnamn - 192.168.1.1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="413"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="220"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1793"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2330"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="451"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="258"/>
         <source>Start or Stop interception</source>
         <translation>Starta eller stoppa avlyssning</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="496"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="303"/>
         <source>Events</source>
         <translation>Händelser</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="94"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1880"/>
         <source>Filter</source>
         <translation>Filtrera</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="107"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1893"/>
         <source>Allow</source>
         <translation>Tillåt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="116"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1902"/>
         <source>Deny</source>
         <translation>Neka</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="143"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1929"/>
         <source>Ex.: firefox</source>
         <translation>Ex.: firefox</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="205"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1991"/>
         <source>50</source>
         <translation>50</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="210"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1996"/>
         <source>100</source>
         <translation>100</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="215"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2001"/>
         <source>200</source>
         <translation>200</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="220"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2006"/>
         <source>300</source>
         <translation>300</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="826"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="794"/>
         <source>Nodes</source>
         <translation>Noder</translation>
     </message>
@@ -1513,12 +1984,12 @@ Du måste namnge regeln på ett sådant sätt att den kommer att kontrolleras f�
         <translation type="obsolete">(doble click en la columna Dirección para ver los detalles)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1700"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2230"/>
         <source>Rules</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="995"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="986"/>
         <source>enable</source>
         <translation>aktivera</translation>
     </message>
@@ -1533,22 +2004,22 @@ Du måste namnge regeln på ett sådant sätt att den kommer att kontrolleras f�
         <translation type="obsolete">buscar regla</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="782"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="741"/>
         <source>Application rules</source>
         <translation>Applikationsregler</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="936"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="926"/>
         <source>Permanent</source>
         <translation>Permanent</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="945"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="935"/>
         <source>Temporary</source>
         <translation>Tillfällig</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1063"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1057"/>
         <source>Hosts</source>
         <translation>Värdar</translation>
     </message>
@@ -1563,52 +2034,52 @@ Du måste namnge regeln på ett sådant sätt att den kommer att kontrolleras f�
         <translation>Applikationer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1266"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1272"/>
         <source>Addresses</source>
         <translation>Adresser</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1356"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1368"/>
         <source>Ports</source>
         <translation>Portar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1440"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1458"/>
         <source>Users</source>
         <translation>Användare</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1544"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2074"/>
         <source>Connections</source>
         <translation>Anslutningar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1596"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2126"/>
         <source>Dropped</source>
         <translation>Tappad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1648"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2178"/>
         <source>Uptime</source>
         <translation>Drifttid</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1767"/>
         <source>Version</source>
-        <translation>Version</translation>
+        <translation type="obsolete">Version</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="233"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2019"/>
         <source>Delete all intercepted events</source>
         <translation>Ta bort alla avlyssnade händelser</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1022"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1016"/>
         <source>Edit rule</source>
         <translation>Redigera regel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1039"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1033"/>
         <source>Delete rule</source>
         <translation>Ta bort regel</translation>
     </message>
@@ -1648,44 +2119,179 @@ Du måste namnge regeln på ett sådant sätt att den kommer att kontrolleras f�
         <translation type="obsolete">Borrar conexiones que coinciden con esta regla</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="927"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="917"/>
         <source>All applications</source>
         <translation>Alla applikationer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="125"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1911"/>
         <source>Reject</source>
         <translation>Avvisa</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="180"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1966"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="777"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="736"/>
         <source>2</source>
         <translation>2</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="954"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="944"/>
         <source>System rules</source>
         <translation>Systemregler</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="637"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="436"/>
         <source>Delete this node</source>
         <translation>Ta bort denna nod</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="653"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="453"/>
         <source>Show the preferences of this node</source>
         <translation>Visa inställningarna för denna nod</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="669"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="470"/>
         <source>Start or stop interception of this node</source>
         <translation>Starta eller stoppa avlyssning av denna nod</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="571"/>
+        <source>&lt;h3&gt;Node&lt;/h3&gt;</source>
+        <translation>&lt;h3&gt;Nod&lt;/h3&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="587"/>
+        <source>RAM, Free: , Total: </source>
+        <translation>RAM, ledig: , Totalt: </translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="629"/>
+        <source>%p%</source>
+        <translation>%p%</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="613"/>
+        <source>Swap, Free: , Total: </source>
+        <translation>Swap, ledigt: , Totalt: </translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="642"/>
+        <source>Processes:</source>
+        <translation>Processer:</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="649"/>
+        <source>Load average: 0.0, 0.0, 0.0</source>
+        <translation>Genomsnittlig belastning: 0,0, 0,0, 0,0</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="656"/>
+        <source>Uptime:</source>
+        <translation>Drifttid:</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="669"/>
+        <source>daemon:</source>
+        <translation>demon:</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="785"/>
+        <source>Alerts</source>
+        <translation>Aviseringar</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1548"/>
+        <source>Netstat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1607"/>
+        <source>Stop</source>
+        <translation>Stoppa</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1616"/>
+        <source>5s</source>
+        <translation>5s</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1621"/>
+        <source>10s</source>
+        <translation>10s</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1626"/>
+        <source>15s</source>
+        <translation>15s</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1631"/>
+        <source>20s</source>
+        <translation>20s</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1636"/>
+        <source>30s</source>
+        <translation>30s</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1641"/>
+        <source>45s</source>
+        <translation>45s</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1646"/>
+        <source>1m</source>
+        <translation>1m</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1651"/>
+        <source>5m</source>
+        <translation>5m</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1656"/>
+        <source>10m</source>
+        <translation>10m</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1671"/>
+        <source>All nodes</source>
+        <translation>Alla noder</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1692"/>
+        <source>Protocol</source>
+        <translation>Protokoll</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1777"/>
+        <source>ALL</source>
+        <translation>ALLA</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1738"/>
+        <source>Family</source>
+        <translation>Familj</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1769"/>
+        <source>State</source>
+        <translation>Tillstånd</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="1782"/>
+        <source>Established</source>
+        <translation>Etablerad</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/stats.ui" line="2304"/>
+        <source>Daemon version</source>
+        <translation>Demon-version</translation>
     </message>
 </context>
 <context>
@@ -1693,280 +2299,285 @@ Du måste namnge regeln på ett sådant sätt att den kommer att kontrolleras f�
     <message>
         <location filename="../../../opensnitch/service.py" line="47"/>
         <source>Statistics</source>
-        <translation>Statistik</translation>
+        <translation type="obsolete">Statistik</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="50"/>
+        <location filename="../../../opensnitch/service.py" line="61"/>
         <source>Help</source>
         <translation>Hjälp</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="51"/>
+        <location filename="../../../opensnitch/service.py" line="62"/>
         <source>Close</source>
         <translation>Stäng</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="48"/>
+        <location filename="../../../opensnitch/service.py" line="59"/>
         <source>Enable</source>
         <translation>Aktivera</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="49"/>
+        <location filename="../../../opensnitch/service.py" line="60"/>
         <source>Disable</source>
         <translation>Inaktivera</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/service.py" line="58"/>
+        <source>Open main window</source>
+        <translation>Öppna huvudfönstret</translation>
     </message>
 </context>
 <context>
     <name>firewall</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="91"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="94"/>
         <source>Configuration applied.</source>
         <translation>Konfiguration tillämpad.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="404"/>
         <source>Error: {0}</source>
-        <translation>Fel: {0}</translation>
+        <translation type="obsolete">Fel: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="193"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="213"/>
         <source>Applying changes...</source>
         <translation>Tillämpar ändringar...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="230"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="254"/>
         <source>Error getting INPUT chain policy</source>
         <translation>Fel vid hämtning av INMATNINGS-kedjepolicy</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="237"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="261"/>
         <source>Error getting OUTPUT chain policy</source>
         <translation>Fel vid hämtning av UTMATNINGS-kedjepolicy</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="290"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="314"/>
         <source>In order to configure firewall rules from the GUI, we need to use &apos;nftables&apos; instead of &apos;iptables&apos;</source>
         <translation>För att konfigurera brandväggsregler från det grafiska användargränssnittet måste vi använda &apos;nftables&apos; istället för &apos;iptables&apos;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="304"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="329"/>
         <source>Enabling firewall...</source>
         <translation>Aktiverar brandvägg...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall.py" line="306"/>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="331"/>
         <source>Disabling firewall...</source>
         <translation>Inaktiverar brandvägg...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="71"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="72"/>
         <source>Dest Port</source>
         <translation>Dest-port</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="72"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="73"/>
         <source>Source Port</source>
         <translation>Källport</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="73"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="74"/>
         <source>Dest IP</source>
         <translation>Dest-IP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="74"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="75"/>
         <source>Source IP</source>
         <translation>Käll-IP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="75"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="76"/>
         <source>Input interface</source>
         <translation>Inmatningsgränssnitt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="76"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="77"/>
         <source>Output interface</source>
         <translation>Utmatningsgränssnitt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="77"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="78"/>
         <source>Set conntrack mark</source>
         <translation>Ställ in conntrack-märke</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="78"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="79"/>
         <source>Match conntrack mark</source>
         <translation>Matcha conntrack-märke</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="79"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="80"/>
         <source>Match conntrack state(s)</source>
         <translation>Matcha conntrack tillstånd</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="80"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="81"/>
         <source>Set mark on packet</source>
         <translation>Sätt märke på paket</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="81"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="82"/>
         <source>Match packet information</source>
         <translation>Matcha paketinformation</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="87"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="88"/>
         <source>Bandwidth quotas</source>
         <translation>Bandbreddskvoter</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="89"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="90"/>
         <source>Rate limit connections</source>
         <translation>Hastighetsgränsanslutningar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="373"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="372"/>
         <source>Your protobuf version is incompatible, you need to install protobuf 3.8.0 or superior
 (pip3 install --ignore-installed protobuf==3.8.0)</source>
         <translation>Din protobuf-version är inkompatibel, du måste installera protobuf 3.8.0 eller högre
 (pip3 install --ignore-installed protobuf==3.8.0)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="397"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="400"/>
         <source>Rule deleted</source>
         <translation>Regel borttagen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="401"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="408"/>
         <source>Rule added</source>
         <translation>Regel tillagd</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="420"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="450"/>
         <source>You can use &apos;,&apos; or &apos;-&apos; to specify multiple ports/IPs or ranges/values:&lt;br&gt;&lt;br&gt;ports: 22 or 22,443 or 50000-60000&lt;br&gt;IPs: 192.168.1.1 or 192.168.1.30-192.168.1.130&lt;br&gt;Values: echo-reply,echo-request&lt;br&gt;Values: new,established,related</source>
         <translation>Du kan använda &apos;,&apos; eller &apos;-&apos; för att ange flera portar/IP:er eller intervall/värden:&lt;br&gt;&lt;br&gt;portar: 22 eller 22,443 eller 50000-60000&lt;br&gt;IP:er: 192.168.1.1 eller 192.168.1.30-192.16. .1.130&lt;br&gt;Värden: echo-reply,echo-request&lt;br&gt;Värden: new,established,related</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="440"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="470"/>
         <source>Deleting rule, wait</source>
         <translation>Tar bort regel, vänta</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="443"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="473"/>
         <source>Error updating rule</source>
         <translation>Fel vid uppdatering av regeln</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="483"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="519"/>
         <source>Adding rule, wait</source>
         <translation>Lägger till regel, vänta</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="492"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="529"/>
         <source>&lt;select a statement&gt;</source>
         <translation>&lt;välj ett uttalande&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="787"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="834"/>
         <source>Equal</source>
         <translation>Lika</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="788"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="835"/>
         <source>Not equal</source>
         <translation>Inte lika</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="789"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="836"/>
         <source>Greater or equal than</source>
         <translation>Större eller lika med</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="790"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="837"/>
         <source>Greater than</source>
         <translation>Större än</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="791"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="838"/>
         <source>Less or equal than</source>
         <translation>Mindre eller lika med</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="792"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="839"/>
         <source>Less than</source>
         <translation>Mindre än</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1350"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1524"/>
         <source>Firewall rule</source>
         <translation>Brandväggsregel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="885"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1058"/>
         <source>Simple</source>
         <translation>Enkel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="890"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1063"/>
         <source>Advanced</source>
         <translation>Avancerad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1046"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1184"/>
         <source>This rule is not supported yet.</source>
         <translation>Denna regel stöds inte ännu.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1111"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1249"/>
         <source>Exclude service</source>
         <translation>Uteslut tjänst</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1123"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1261"/>
         <source>Allow inbound connections to the selected port.</source>
         <translation>Tillåt inkommande anslutningar till den valda porten.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1125"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1263"/>
         <source>Allow outbound connections to the selected port.</source>
         <translation>Tillåt utgående anslutningar till den valda porten.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1201"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1339"/>
         <source>select a statement.</source>
         <translation>välj ett uttalande.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1217"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1355"/>
         <source>value cannot be 0 or empty.</source>
         <translation>värdet får inte vara 0 eller tomt.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1229"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1367"/>
         <source>the value format is 1024/kbytes (or bytes, mbytes, gbytes)</source>
         <translation>värdeformatet är 1024/kbyte (eller byte, mbyte, gbyte)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1240"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1381"/>
         <source>the value format is 1024/kbytes/second (or bytes, mbytes, gbytes)</source>
         <translation>värdeformatet är 1024/kbyte/sekund (eller byte, mbyte, gbyte)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1243"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1384"/>
         <source>rate-limit not valid, use: bytes, kbytes, mbytes or gbytes.</source>
         <translation>hastighetsgräns inte giltig, använd: byte, kbyte, mbyte eller gbyte.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1245"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1386"/>
         <source>time-limit not valid, use: second, minute, hour or day</source>
         <translation>tidsgräns inte giltig, använd: sekund, minut, timme eller dag</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1293"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1456"/>
         <source>port not valid.</source>
         <translation>port inte giltig.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="108"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="109"/>
         <source>
 Supported formats:
 
@@ -1983,7 +2594,7 @@ Format som stöds:
 </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="134"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="135"/>
         <source>
 Supported formats:
 
@@ -2002,25 +2613,25 @@ Format som stöds:
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="147"/>
         <source>Match input interface. Regular expressions not allowed.</source>
-        <translation>Matcha ingångsgränssnitt. Reguljära uttryck är inte tillåtna.</translation>
+        <translation type="obsolete">Matcha ingångsgränssnitt. Reguljära uttryck är inte tillåtna.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="154"/>
         <source>Match output interface. Regular expressions not allowed.</source>
-        <translation>Matcha utgångsgränssnitt. Reguljära uttryck är inte tillåtna.</translation>
+        <translation type="obsolete">Matcha utgångsgränssnitt. Reguljära uttryck är inte tillåtna.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="161"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="164"/>
         <source>Set a conntrack mark on the connection, in decimal format.</source>
         <translation>Sätt ett conntrack-märke på anslutningen, i decimalformat.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="171"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="174"/>
         <source>Match a conntrack mark of the connection, in decimal format.</source>
         <translation>Matcha ett conntrack-märke för anslutningen, i decimalformat.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="178"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="181"/>
         <source>Match conntrack states.
 
 Supported formats:
@@ -2035,7 +2646,7 @@ Format som stöds:
 </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="193"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="196"/>
         <source>
 Match packet&apos;s metainformation.
 
@@ -2064,12 +2675,12 @@ det protokollet.
 </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="213"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="216"/>
         <source>Set a mark on the packet matching the specified conditions. The value is in decimal format.</source>
         <translation>Sätt ett märke på paketet som matchar de angivna villkoren. Värdet är i decimalformat.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="221"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="224"/>
         <source>
 Match ICMP codes.
 
@@ -2086,7 +2697,7 @@ Format som stöds:
 </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="234"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="237"/>
         <source>
 Match ICMPv6 codes.
 
@@ -2103,7 +2714,7 @@ Format som stöds:
 </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="247"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="250"/>
         <source>Print a message when this rule matches a packet.</source>
         <translation>Skriv ut ett meddelande när denna regel matchar ett paket.</translation>
     </message>
@@ -2119,7 +2730,7 @@ For example when:
 The value must be in the format: VALUE/UNITS, for example:
  - 10mbytes, 1/gbytes, etc
 </source>
-        <translation>
+        <translation type="obsolete">
 Tillämpa kvoter på anslutningar.
 
 Till exempel när:
@@ -2131,7 +2742,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER, till exempel:
 </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="286"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="289"/>
         <source>
 Apply limits on connections.
 
@@ -2158,14 +2769,81 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
 </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="607"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="654"/>
         <source>num</source>
         <translation>num</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="621"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="668"/>
         <source>to</source>
         <translation>till</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="97"/>
+        <source>There was an error: {0}</source>
+        <translation>Det uppstod ett fel: {0}</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall.py" line="150"/>
+        <source>Warning: Output policy configured to drop. If OpenSnitch dies, outbound network traffic will be blocked.</source>
+        <translation>Varning: Utdatapolicyn är konfigurerad för att tas bort. Om OpenSnitch slutar fungera kommer utgående nätverkstrafik att blockeras.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="148"/>
+        <source>Match input interface. Regular expressions not allowed.
+Use * to match multiple interfaces.</source>
+        <translation>Matcha inmatningsgränssnittet. Reguljära uttryck är inte tillåtna.
+Använd * för att matcha flera gränssnitt.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="156"/>
+        <source>Match output interface. Regular expressions not allowed.
+Use * to match multiple interfaces.</source>
+        <translation>Matcha utmatningsgränssnittet. Reguljära uttryck är inte tillåtna.
+Använd * för att matcha flera gränssnitt.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="257"/>
+        <source>
+Apply quotas on connections.
+
+For example when:
+ - &quot;quota over 10/mbytes&quot; -&gt; apply the Action defined (DROP)
+ - &quot;quota until 10/mbytes&quot; -&gt; apply the Action defined (ACCEPT)
+
+The value must be in the format: VALUE/UNITS, for example:
+ - 10/mbytes, 1/gbytes, etc
+</source>
+        <translation>
+Tillämpa kvoter på anslutningar.
+
+Till exempel när:
+- &quot;kvot över 10/mbyte&quot; -&gt; tillämpa den definierade åtgärden (DROP)
+- &quot;kvot till 10/mbyte&quot; -&gt; tillämpa den definierade åtgärden (ACCEPT)
+
+Värdet måste vara i formatet: VÄRDE/ENHETER, till exempel:
+- 10/mbyte, 1/gbyte, etc.
+</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="406"/>
+        <source>Rule saved</source>
+        <translation>Regel sparad</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="418"/>
+        <source>Error saving rule</source>
+        <translation>Fel vid sparande av regel</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="508"/>
+        <source>Add at least one statement.</source>
+        <translation>Lägg till minst ett påstående.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1006"/>
+        <source>Warning: ct set mark value is empty, malformed rule?</source>
+        <translation>Varning: ct set mark-värdet är tomt, felaktig regel?</translation>
     </message>
 </context>
 <context>
@@ -2195,17 +2873,17 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
 <context>
     <name>messages</name>
     <message>
-        <location filename="../../../opensnitch/service.py" line="281"/>
+        <location filename="../../../opensnitch/service.py" line="367"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="285"/>
+        <location filename="../../../opensnitch/service.py" line="371"/>
         <source>Error</source>
         <translation>Fel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="289"/>
+        <location filename="../../../opensnitch/service.py" line="375"/>
         <source>Warning</source>
         <translation>Varning</translation>
     </message>
@@ -2213,7 +2891,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
 <context>
     <name>notifications</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="654"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1223"/>
         <source>System notifications are not available, you need to install python3-notify2.</source>
         <translation>Systemaviseringar är inte tillgängliga, du måste installera python3-notify2.</translation>
     </message>
@@ -2221,37 +2899,37 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
 <context>
     <name>popups</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="115"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="120"/>
         <source>Allow</source>
         <translation>Tillåt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="114"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="119"/>
         <source>Deny</source>
         <translation>Neka</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="52"/>
+        <location filename="../../../opensnitch/dialogs/prompt/_constants.py" line="35"/>
         <source>forever</source>
         <translation>evigt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="331"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="429"/>
         <source>Outgoing connection</source>
         <translation>Utgående anslutning</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="336"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="436"/>
         <source>Process launched from:</source>
         <translation>Processen startade från:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="377"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="526"/>
         <source>from this command line</source>
         <translation>från denna kommandorad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="373"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="522"/>
         <source>from this executable</source>
         <translation>från denna körbara</translation>
     </message>
@@ -2261,12 +2939,12 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Proceso no encontrado</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="50"/>
+        <location filename="../../../opensnitch/dialogs/prompt/_constants.py" line="33"/>
         <source>until reboot</source>
         <translation>tills omstart av datorn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="379"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="528"/>
         <source>to port {0}</source>
         <translation>till port {0}</translation>
     </message>
@@ -2281,22 +2959,22 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">El proceso &lt;b&gt;remoto %s&lt;/b&gt; ejecutándose en &lt;b&gt;%s&lt;/b&gt; está conectándose a &lt;b&gt;%s&lt;/b&gt; en el puerto %s %d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="442"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="567"/>
         <source>to {0}</source>
         <translation>till {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="382"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="531"/>
         <source>from user {0}</source>
         <translation>från användare {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="399"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="544"/>
         <source>to {0}.*</source>
         <translation>till {0}.*</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="452"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="577"/>
         <source>to *.{0}</source>
         <translation>till *.{0}</translation>
     </message>
@@ -2308,42 +2986,62 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="486"/>
         <source>&lt;b&gt;Remote&lt;/b&gt; process %s running on &lt;b&gt;%s&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Fjärr&lt;/b&gt;process %s körs på &lt;b&gt;%s&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Fjärr&lt;/b&gt;process %s körs på &lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="490"/>
+        <location filename="../../../opensnitch/notifications.py" line="119"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
         <translation>ansluter till &lt;b&gt;%s&lt;/b&gt; på %s port %d</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="502"/>
         <source>is attempting to resolve &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</source>
-        <translation>försöker lösa &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</translation>
+        <translation type="obsolete">försöker lösa &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="386"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="535"/>
         <source>from this PID</source>
         <translation>från denna PID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/notifications.py" line="122"/>
+        <location filename="../../../opensnitch/notifications.py" line="117"/>
         <source>New outgoing connection</source>
         <translation>Ny utgående anslutning</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt.py" line="116"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="121"/>
         <source>Reject</source>
         <translation>Avvisa</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt.py" line="497"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt;, %s</source>
-        <translation>ansluter till &lt;b&gt;%s&lt;/b&gt;, %s</translation>
+        <translation type="obsolete">ansluter till &lt;b&gt;%s&lt;/b&gt;, %s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/notifications.py" line="42"/>
+        <location filename="../../../opensnitch/notifications.py" line="40"/>
         <source>Open</source>
         <translation>Öppna</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="265"/>
+        <source>Rule updated.</source>
+        <translation>Regel uppdaterad.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="388"/>
+        <source>WARNING, bad checksum (&lt;a href=&apos;#warning-checksum&apos;&gt;More info&lt;/a&gt;)</source>
+        <translation>VARNING, felaktig kontrollsumma (&lt;a href=&apos;#warning-checksum&apos;&gt;Mer information&lt;/a&gt;)</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="552"/>
+        <source>from {0}*/{1}</source>
+        <translation>från {0}*/{1}</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="560"/>
+        <source>to {alias}</source>
+        <translation>till {alias}</translation>
     </message>
 </context>
 <context>
@@ -2367,7 +3065,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Aplicando configuración en %s ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="292"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="511"/>
         <source>Server address can not be empty</source>
         <translation>Serveradressen får inte vara tom</translation>
     </message>
@@ -2377,7 +3075,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Error al cargar la configuración %s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="568"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1076"/>
         <source>Configuration applied.</source>
         <translation>Konfiguration tillämpad.</translation>
     </message>
@@ -2387,105 +3085,190 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Error al aplicar la configuración: %s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="386"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="925"/>
         <source>Exception saving config: {0}</source>
         <translation>Undantag för att spara konfiguration: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="500"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="940"/>
         <source>Applying configuration on {0} ...</source>
         <translation>Tillämpar konfiguration på {0} ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="321"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="603"/>
         <source>Error loading {0} configuration</source>
         <translation>Fel vid inläsning av {0}-konfigurationen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="570"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1078"/>
         <source>Error applying configuration: {0}</source>
         <translation>Fel vid tillämpning av konfiguration: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="410"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="755"/>
         <source>Warning</source>
         <translation>Varning</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="410"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="755"/>
         <source>You must select a file for the database&lt;br&gt;or choose &quot;In memory&quot; type.</source>
         <translation>Du måste välja en fil för databasen&lt;br&gt;eller välja typen &quot;I minnet&quot;.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="401"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="749"/>
         <source>DB type changed</source>
         <translation>DB-typ ändrad</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="38"/>
         <source>Restart the GUI in order effects to take effect</source>
-        <translation>Starta om det grafiska användargränssnittet för att effekter ska börja träda i kraft</translation>
+        <translation type="obsolete">Starta om det grafiska användargränssnittet för att effekter ska börja träda i kraft</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="607"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1135"/>
         <source>Hover the mouse over the texts to display the help&lt;br&gt;&lt;br&gt;Don&apos;t forget to visit the wiki: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</source>
         <translation>Håll musen över texterna för att visa hjälpen&lt;br&gt;&lt;br&gt;Glöm inte att besöka wikin: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="466"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="852"/>
         <source>System</source>
         <translation>System</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="187"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="287"/>
         <source>Themes not available. Install qt-material: pip3 install qt-material</source>
         <translation>Teman är inte tillgängliga. Installera qt-material: pip3 installera qt-material</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="467"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="854"/>
         <source>UI theme changed</source>
         <translation>Användargränssnittets tema har ändrats</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="467"/>
         <source>Restart the GUI in order to apply the new theme</source>
-        <translation>Starta om det grafiska användargränssnittet för att använda det nya temat</translation>
+        <translation type="obsolete">Starta om det grafiska användargränssnittet för att använda det nya temat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="508"/>
         <source>Ok</source>
-        <translation>Ok</translation>
+        <translation type="obsolete">Ok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="472"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="65"/>
         <source>Restart the GUI in order changes to take effect</source>
-        <translation type="obsolete">Reinicie la interfaz gráfica de usuario para que los cambios surtan efecto</translation>
+        <translation>Starta om det grafiska gränssnittet för att ändringarna ska träda i kraft</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="388"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="929"/>
         <source>There&apos;re no nodes connected</source>
         <translation>Det finns inga noder anslutna</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="520"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="958"/>
         <source>Exception saving node config {0}: {1}</source>
         <translation>Undantag för att spara nodkonfiguration {0}: {1}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="164"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="263"/>
         <source>System default</source>
         <translation>Systemstandard</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="433"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="810"/>
         <source>Language changed</source>
         <translation>Språket har ändrats</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="782"/>
+        <source>Server options changed</source>
+        <translation>Serverinställningar har ändrats</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="795"/>
+        <source>Server address changed</source>
+        <translation>Serveradressen har ändrats</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="799"/>
+        <source>Certificates changed</source>
+        <translation>Certifikat ändrade</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="845"/>
+        <source>Qt platform plugin changed</source>
+        <translation>Qt-plattformens insticksmodul har ändrats</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="905"/>
+        <source>Saving configuration...</source>
+        <translation>Sparar konfigurationen...</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="950"/>
+        <source>Node address changed (update GUI address if needed)</source>
+        <translation>Nodadress ändrad (uppdatera GUI-adress vid behov)</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="969"/>
+        <source>Certs fields cannot be empty.</source>
+        <translation>Certifikatfälten får inte vara tomma.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="972"/>
+        <source>cert file has excessive permissions, it should have 0600</source>
+        <translation>cert-filen har för många behörigheter, den borde ha 0600</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="976"/>
+        <source>cert key file has excessive permissions, it should have 0600</source>
+        <translation>certnyckelfilen har för många behörigheter, den borde ha 0600</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="982"/>
+        <source>CA cert file has excessive permissions, it should have 0600</source>
+        <translation>CA-certifikatfilen har för många behörigheter, den borde ha 0600</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1083"/>
+        <source>Certs changed</source>
+        <translation>Certifikat ändrade</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1086"/>
+        <source>Node certs changed</source>
+        <translation>Nodcertifikat ändrade</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1090"/>
+        <source>Select a directory containing rules</source>
+        <translation>Välj en katalog som innehåller regler</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1163"/>
+        <source>Auto scale option changed</source>
+        <translation>Alternativet för automatisk skalning har ändrats</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1167"/>
+        <source>Screen factor option changed</source>
+        <translation>Alternativet för skärmfaktor har ändrats</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1173"/>
+        <source>Auth type changed</source>
+        <translation>Autentiseringstyp ändrad</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1198"/>
+        <source>DB journal_mode changed</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>proc_details</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/processdetails.py" line="100"/>
+        <location filename="../../../opensnitch/dialogs/processdetails.py" line="121"/>
         <source>&lt;b&gt;Error loading process information:&lt;/b&gt; &lt;br&gt;&lt;br&gt;
 
 </source>
@@ -2494,12 +3277,12 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
 </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/processdetails.py" line="119"/>
+        <location filename="../../../opensnitch/dialogs/processdetails.py" line="148"/>
         <source>&lt;b&gt;Error stopping monitoring process:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Fel vid stopp av övervakningsprocessen:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/processdetails.py" line="159"/>
+        <location filename="../../../opensnitch/dialogs/processdetails.py" line="191"/>
         <source>loading...</source>
         <translation>läser in...</translation>
     </message>
@@ -2507,12 +3290,12 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
 <context>
     <name>rules</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="228"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="273"/>
         <source>There&apos;re no nodes connected.</source>
         <translation>Det finns inga noder anslutna.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="271"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="320"/>
         <source>Rule applied.</source>
         <translation>Regel tillämpad.</translation>
     </message>
@@ -2522,165 +3305,195 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Error al aplicar la regla: %s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="641"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="791"/>
         <source>protocol can not be empty, or uncheck it</source>
         <translation>protokollet får inte vara tomt, eller avmarkera det</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="655"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="805"/>
         <source>Protocol regexp error</source>
         <translation>Protokoll regexp-fel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="659"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="817"/>
         <source>process path can not be empty</source>
         <translation>processökvägen får inte vara tom</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="673"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="831"/>
         <source>Process path regexp error</source>
         <translation>Processökväg regexp-fel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="677"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="835"/>
         <source>command line can not be empty</source>
         <translation>kommandoraden får inte vara tom</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="691"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="849"/>
         <source>Command line regexp error</source>
         <translation>Kommandorad regexp-fel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="731"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="905"/>
         <source>Dest port can not be empty</source>
         <translation>Dest-porten får inte vara tom</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="745"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="919"/>
         <source>Dst port regexp error</source>
         <translation>Dst-portens regexp fel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="749"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="931"/>
         <source>Dest host can not be empty</source>
         <translation>Dest-värden får inte vara tom</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="763"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="945"/>
         <source>Dst host regexp error</source>
         <translation>Dst-värd regexp-fel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="805"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1004"/>
         <source>Dest IP/Network can not be empty</source>
         <translation>Dest-IP:t/nätverket får inte vara tomt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="831"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1035"/>
         <source>Dst IP regexp error</source>
         <translation>Dst-IP regexp-fel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="843"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1058"/>
         <source>User ID can not be empty</source>
         <translation>Användar-ID:t får inte vara tomt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="857"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1075"/>
         <source>User ID regexp error</source>
         <translation>Användar-ID regexp-fel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="273"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="322"/>
         <source>Error applying rule: {0}</source>
         <translation>Fel vid tillämpning av regel: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="931"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="433"/>
         <source>Lists field cannot be empty</source>
         <translation>Listfältet får inte vara tomt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="933"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="437"/>
         <source>Lists field must be a directory</source>
         <translation>Listfältet måste vara en katalog</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="976"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1233"/>
         <source>&lt;b&gt;Rule not supported&lt;/b&gt;</source>
         <translation>&lt;b&gt;Regeln stöds inte&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="539"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="695"/>
         <source>&lt;b&gt;Error loading rule&lt;/b&gt;</source>
         <translation>&lt;b&gt;Fel vid regelinläsning&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="245"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="290"/>
         <source>There&apos;s already a rule with this name.</source>
         <translation>Det finns redan en regel med detta namn.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="861"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1092"/>
         <source>PID field can not be empty</source>
         <translation>PID-fältet får inte vara tomt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="875"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1106"/>
         <source>PID field regexp error</source>
         <translation>PID-fält regexp-fel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="963"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1220"/>
         <source>Select at least one field.</source>
         <translation>Välj minst ett fält.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="695"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="853"/>
         <source>Network interface can not be empty</source>
         <translation>Nätverksgränssnittet får inte vara tomt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="709"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="867"/>
         <source>Network interface regexp error</source>
         <translation>Fel i nätverksgränssnittets regexp</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="713"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="879"/>
         <source>Source port can not be empty</source>
         <translation>Källporten får inte vara tom</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="727"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="893"/>
         <source>Source port regexp error</source>
         <translation>Fel i källportens regexp</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="767"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="957"/>
         <source>Source IP/Network can not be empty</source>
         <translation>Käll-IP:t/nätverket får inte vara tomt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="793"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="983"/>
         <source>Source IP regexp error</source>
         <translation>Käll-IP regexp-fel</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="294"/>
+        <source>Process path must be checked in order to verify checksums.</source>
+        <translation>Processökvägen måste kontrolleras för att verifiera kontrollsummor.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="380"/>
+        <source>Invalid text</source>
+        <translation>Ogiltig text</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="386"/>
+        <source>regexp error (report it)</source>
+        <translation>regexp-fel (rapportera det)</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1078"/>
+        <source>Invalid UID, it must be a digit.</source>
+        <translation>Ogiltigt UID, det måste vara en siffra.</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1175"/>
+        <source>md5 line cannot be empty</source>
+        <translation>md5-raden får inte vara tom</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1189"/>
+        <source>md5 field regexp error</source>
+        <translation>md5-fältets regexp-fel</translation>
     </message>
 </context>
 <context>
     <name>stats</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="313"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="417"/>
         <source>Not running</source>
         <translation>Körs inte</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="314"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="418"/>
         <source>Disabled</source>
         <translation>Inaktiverad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="315"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="419"/>
         <source>Running</source>
         <translation>Körs</translation>
     </message>
@@ -2697,20 +3510,20 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1189"/>
         <source>    Your are about to delete this rule.    </source>
-        <translation>    Du håller på att ta bort denna regel.    </translation>
+        <translation type="obsolete">    Du håller på att ta bort denna regel.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1711"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2264"/>
         <source>    Are you sure?</source>
         <translation>    Är du säker?</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="636"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="855"/>
         <source>OpenSnitch Network Statistics {0}</source>
         <translation>OpenSnitch-nätverksstatistik {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="638"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="857"/>
         <source>OpenSnitch Network Statistics for {0}</source>
         <translation>OpenSnitch-nätverksstatistik för {0}</translation>
     </message>
@@ -2740,7 +3553,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Versión</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="834"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1109"/>
         <source>Rules</source>
         <translation>Regler</translation>
     </message>
@@ -2750,7 +3563,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Hora</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="875"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1151"/>
         <source>Action</source>
         <translation>Åtgärd</translation>
     </message>
@@ -2775,7 +3588,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Protocolo</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2581"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="3566"/>
         <source>Save as CSV</source>
         <translation>Spara som CSV</translation>
     </message>
@@ -2785,7 +3598,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Habilitado</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="961"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1337"/>
         <source>Delete</source>
         <translation>Ta bort</translation>
     </message>
@@ -2800,27 +3613,27 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;{0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="954"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1244"/>
         <source>Disable</source>
         <translation>Inaktivera</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="956"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1246"/>
         <source>Enable</source>
         <translation>Aktivera</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="959"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1250"/>
         <source>Duplicate</source>
         <translation>Duplicera</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="960"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1251"/>
         <source>Edit</source>
         <translation>Redigera</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1248"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1629"/>
         <source>Rule not found by that name and node</source>
         <translation>Regel hittades inte med det namnet och noden</translation>
     </message>
@@ -2828,35 +3641,35 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <location filename="../../../opensnitch/dialogs/stats.py" line="1301"/>
         <source>&lt;b&gt;Error:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
-        <translation>&lt;b&gt;Fel:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Fel:&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1308"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1725"/>
         <source>Warning:</source>
         <translation>Varning:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="940"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1224"/>
         <source>Allow</source>
         <translation>Tillåt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="941"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1225"/>
         <source>Deny</source>
         <translation>Neka</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="945"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1229"/>
         <source>Always</source>
         <translation>Alltid</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="946"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1230"/>
         <source>Until reboot</source>
         <translation>Tills omstart av datorn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1711"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2264"/>
         <source>    You are about to delete this rule.    </source>
         <translation>    Du håller på att ta bort denna regel.    </translation>
     </message>
@@ -3000,109 +3813,109 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">ÚltimaConexión</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="287"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="387"/>
         <source>Name</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Namn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="288"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="388"/>
         <source>Address</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Adress</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="289"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="389"/>
         <source>Status</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="290"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="390"/>
         <source>Hostname</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Värdnamn</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="423"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="581"/>
         <source>Version</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="420"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="578"/>
         <source>Rules</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="294"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="394"/>
         <source>Time</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Tid</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="295"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="396"/>
         <source>Action</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Åtgärd</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="296"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="397"/>
         <source>Duration</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Varaktighet</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="298"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="399"/>
         <source>Node</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Nod</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="299"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="400"/>
         <source>Enabled</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Aktiverad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="438"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="606"/>
         <source>Hits</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Träffar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="302"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="403"/>
         <source>Protocol</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="303"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="404"/>
         <source>Process</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Process</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="305"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="406"/>
         <source>Destination</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Destination</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="309"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="412"/>
         <source>Rule</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Regel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="310"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="413"/>
         <source>UserID</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>UserID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="311"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="415"/>
         <source>LastConnection</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>LastConnection</translation>
@@ -3114,19 +3927,19 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Args</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="306"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="409"/>
         <source>DstIP</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>DstIP</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="307"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="410"/>
         <source>DstHost</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>DstHost</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="308"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="411"/>
         <source>DstPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>DstPort</translation>
@@ -3152,12 +3965,12 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation>Vad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="931"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1215"/>
         <source>Apply to</source>
         <translation>Tillämpa på</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="942"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1226"/>
         <source>Reject</source>
         <translation>Avvisa</translation>
     </message>
@@ -3173,137 +3986,230 @@ Värdet måste vara i formatet: VÄRDE/ENHETER/TID, till exempel:
         <translation type="obsolete">Dirección</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="291"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="391"/>
         <source>Uptime</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Drifttid</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="421"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="579"/>
         <source>Connections</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Anslutningar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="422"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="580"/>
         <source>Dropped</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Tappad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="437"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="605"/>
         <source>What</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Vad</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="300"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="401"/>
         <source>Precedence</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Företräde</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="776"/>
+        <location filename="../../../opensnitch/service.py" line="895"/>
         <source>New node connected</source>
         <translation>Ny nod ansluten</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="297"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="398"/>
         <source>Description</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Beskrivning</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="304"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="405"/>
         <source>Cmdline</source>
         <comment>This is a word, without spaces and symbols.</comment>
         <translation>Cmdline</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="406"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="564"/>
         <source>Export rules</source>
         <translation>Exportregler</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="407"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="565"/>
         <source>Import rules</source>
         <translation>Importregler</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="408"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="566"/>
         <source>Export events to CSV</source>
         <translation>Exportera händelser till CSV</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="409"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="567"/>
         <source>Quit</source>
         <translation>Avsluta</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="932"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1329"/>
         <source>Export</source>
         <translation>Exportera</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="964"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1340"/>
         <source>To clipboard</source>
         <translation>Till urklipp</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="965"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1341"/>
         <source>To disk</source>
         <translation>Till disk</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2523"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="3508"/>
         <source>Select a directory to export rules</source>
         <translation>Välj en katalog för att exportera regler</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="1191"/>
         <source>    Your are about to delete this entry.    </source>
-        <translation>    Du håller på att ta bort denna post.    </translation>
+        <translation type="obsolete">    Du håller på att ta bort denna post.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1678"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2231"/>
         <source>    You are about to delete this node.    </source>
         <translation>    Du håller på att ta bort denna nod.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1687"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2240"/>
         <source>&lt;b&gt;Error deleting node&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
         <translation>&lt;b&gt;Fel vid borttagning av nod&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2478"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="3463"/>
         <source>Error exporting rules</source>
         <translation>Fel vid export av regler</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2552"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="3537"/>
         <source>Select a directory with rules to import (JSON files)</source>
         <translation>Välj en katalog med regler att importera (JSON-filer)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2566"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="3551"/>
         <source>Rules imported fine</source>
         <translation>Regler importerade</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="211"/>
+        <location filename="../../../opensnitch/service.py" line="281"/>
         <source>WARNING</source>
         <translation>VARNING</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="833"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1108"/>
         <source>Details</source>
         <translation>Detaljer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="835"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1110"/>
         <source>New</source>
         <translation>Ny</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/service.py" line="250"/>
+        <source>Warning</source>
+        <translation>Varning</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="395"/>
+        <source>Created</source>
+        <comment>This is a word, without spaces and symbols.</comment>
+        <translation>Skapad</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="407"/>
+        <source>SrcPort</source>
+        <comment>This is a word, without spaces and symbols.</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="408"/>
+        <source>SrcIP</source>
+        <comment>This is a word, without spaces and symbols.</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="414"/>
+        <source>PID</source>
+        <comment>This is a word, without spaces and symbols.</comment>
+        <translation>PID</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="540"/>
+        <source>ALL</source>
+        <translation>ALLA</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="619"/>
+        <source>State</source>
+        <comment>This is a word, without spaces and symbols.</comment>
+        <translation>Tillstånd</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="627"/>
+        <source>Family</source>
+        <comment>This is a word, without spaces and symbols.</comment>
+        <translation>Familj</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="628"/>
+        <source>Iface</source>
+        <comment>This is a word, without spaces and symbols.</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="629"/>
+        <source>Metadata</source>
+        <comment>This is a word, without spaces and symbols.</comment>
+        <translation>Metadata</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1336"/>
+        <source>View</source>
+        <translation>Visa</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1564"/>
+        <source>    You are about to delete this entry.    </source>
+        <translation>    Du håller på att ta bort den här posten.    </translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1629"/>
+        <source>New rule error</source>
+        <translation>Nytt regelfel</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1714"/>
+        <source>Error:</source>
+        <translation>Fel:</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2829"/>
+        <source>node not connected</source>
+        <translation>noden är inte ansluten</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2816"/>
+        <source>loading node information...</source>
+        <translation>laddar nodinformation...</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2970"/>
+        <source>refreshing...</source>
+        <translation>uppdaterar...</translation>
     </message>
 </context>
 <context>

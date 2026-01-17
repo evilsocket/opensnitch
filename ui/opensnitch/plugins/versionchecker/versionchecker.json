@@ -1,0 +1,19 @@
+{
+  "name": "versionchecker",
+  "created": "",
+  "updated": "",
+  "description": "",
+  "type": ["global"],
+  "actions": {
+      "versionchecker": {
+          "enabled": true,
+          "config": {
+              "check_on_start": false,
+              "name": "check-latest-release",
+              "interval": "12",
+              "units": "hours",
+              "url": "https://api.github.com/repos/evilsocket/opensnitch/releases"
+          }
+      }
+  }
+}

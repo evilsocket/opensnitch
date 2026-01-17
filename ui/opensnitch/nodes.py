@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
 from queue import Queue
 from datetime import datetime
 import time
@@ -6,7 +6,7 @@ import json
 
 from opensnitch.database import Database
 from opensnitch.config import Config
-from opensnitch.utils import NetworkInterfaces
+from opensnitch.utils import NetworkInterfaces, logger
 from opensnitch.rules import Rules
 
 import opensnitch.proto as proto
@@ -34,33 +34,61 @@ class Nodes(QObject):
         self._nodes = {}
         self._notifications_sent = {}
         self._interfaces = NetworkInterfaces()
+        self.logger = logger.get(__name__)
 
     def count(self):
         return len(self._nodes)
 
     def add(self, _peer, client_config=None):
+        """registers a new node.
+        When connecting for the first time, the node is configured with the
+        default settings:
+            - a bidirectional notifications queue.
+            - the status.
+            - last seen parameter.
+            - the current session.
+
+        The current session is the address of the current gRPC connection that
+        identifies this node:
+            src_port:ip-address:dst_port
+
+        Usually when a node disconnects from the server (GUI), the session and the
+        node address are the same.
+        If a node does not respond for some time (minutes, hours,...), and then
+        reconnects again, it'll connect with a new session address.
+        In this situation, the old session still exists on the server, and when
+        it exceeds the maximum lifetime, the server closes it and reports the old
+        session address.
+
+        https://grpc.io/docs/guides/keepalive/#keepalive-configuration-specification
+        """
         try:
             proto, addr = self.get_addr(_peer)
             peer = proto+":"+addr
             if peer not in self._nodes:
                 self._nodes[peer] = {
-                        'notifications': Queue(),
-                        'online':        True,
-                        'last_seen':     datetime.now()
-                        }
+                    'session': {
+                        'peer': _peer, 'last_seen': datetime.now()
+                    },
+                    'notifications': Queue(),
+                    'online':        True,
+                    'last_seen':     datetime.now()
+                }
             else:
                 self._nodes[peer]['last_seen'] = datetime.now()
+                self._nodes[peer]['session']['peer'] = _peer
 
             self._nodes[peer]['online'] = True
             self.add_data(peer, client_config)
-            self.update(peer)
+            self.insert(peer)
 
             self.nodesUpdated.emit(self.count())
 
             return self._nodes[peer], peer
 
         except Exception as e:
-            print(self.LOG_TAG, "exception adding/updating node: ", e, "addr:", addr, "config:", client_config)
+            self.logger.warning("exception adding/updating node %s: %s", repr(_peer), repr(e))
+            self.logger.debug("%s", repr(client_config))
 
         return None, None
 
@@ -88,12 +116,15 @@ class Nodes(QObject):
         try:
             self._rules.add_rules(addr, rules)
         except Exception as e:
-            print(self.LOG_TAG + " exception adding node to db: ", e)
+            self.logger.warning(" exception adding node to db %s: %s", addr, repr(e))
+
+    def get_rules(self, addr):
+        return self._rules.get_all_by_node(addr)
 
     def delete_rule(self, rule_name, addr, callback):
         deleted_rule = self._rules.delete(rule_name, addr, callback)
-        if deleted_rule == None:
-            print(self.LOG_TAG, "error deleting rule", rule_name)
+        if deleted_rule is None:
+            self.logger.warning("error deleting rule %s - %s", rule_name, addr)
             return None, None
 
         noti = ui_pb2.Notification(type=ui_pb2.DELETE_RULE, rules=[deleted_rule])
@@ -141,7 +172,7 @@ class Nodes(QObject):
         self._rules.update_time(time, rule_name, addr)
 
     def delete_all(self):
-        self.send_notifications(None)
+        self.stop_notifications()
         self._nodes = {}
         self.nodesUpdated.emit(self.count())
 
@@ -165,11 +196,21 @@ class Nodes(QObject):
     def get_node(self, addr):
         try:
             return self._nodes[addr]
-        except:
+        except Exception as e:
+            self.logger.debug("exception get_node() %s: %s", addr, repr(e))
             return None
 
     def get_nodes(self):
         return self._nodes
+
+    def get_node_hostname(self, addr):
+        try:
+            if addr not in self._nodes:
+                return ""
+            return self._nodes[addr]['data'].name
+        except Exception as e:
+            self.logger.warning("exception get_node_hostname(): %s", repr(e))
+            return ""
 
     def get_node_config(self, addr):
         try:
@@ -177,7 +218,7 @@ class Nodes(QObject):
                 return None
             return self._nodes[addr]['data'].config
         except Exception as e:
-            print(self.LOG_TAG + " exception get_node_config(): ", e)
+            self.logger.warning("exception get_node_config() %s: %s", addr, repr(e))
             return None
 
     def get_client_config(self, client_config):
@@ -187,7 +228,7 @@ class Nodes(QObject):
                 node_config['LogLevel'] = 1
                 client_config.config = json.dumps(node_config)
         except Exception as e:
-            print(self.LOG_TAG, "exception parsing client config", e)
+            self.logger.warning("exception parsing client config: %s", repr(e))
 
         return client_config
 
@@ -198,8 +239,8 @@ class Nodes(QObject):
             if peer[0] == "unix" and peer[1] == "":
                 peer[1] = "/local"
             return peer[0], peer[1]
-        except:
-            print(self.LOG_TAG, "get_addr() error getting addr:", peer)
+        except Exception as e:
+            self.logger.warning("error getting addr %s: %s", repr(peer), repr(e))
             return peer
 
     def is_connected(self, addr):
@@ -234,7 +275,7 @@ class Nodes(QObject):
                     self._nodes[c]['notifications'].task_done()
                     notlist.append(notif)
         except Exception as e:
-            print(self.LOG_TAG + " exception get_notifications(): ", e)
+            self.logger.warning("exception get_notifications(): %s", repr(e))
 
         return notlist
 
@@ -242,14 +283,14 @@ class Nodes(QObject):
         try:
             self._nodes[addr]['data'].config = config
         except Exception as e:
-            print(self.LOG_TAG + " exception saving node config: ", e, addr, config)
+            self.logger.warning("exception saving node config %s: %s - %s", addr, repr(e), config)
 
     def save_nodes_config(self, config):
         try:
             for c in self._nodes:
                 self._nodes[c]['data'].config = config
         except Exception as e:
-            print(self.LOG_TAG + " exception saving nodes config: ", e, config)
+            self.logger.warning("exception saving nodes config: %s - %s", repr(e), repr(config))
 
     def change_node_config(self, addr, config, _callback):
         _cfg = json.dumps(config, indent="    ")
@@ -299,7 +340,7 @@ class Nodes(QObject):
 
             self._nodes[addr]['notifications'].put(notification)
         except Exception as e:
-            print(self.LOG_TAG + " exception sending notification: ", e, addr, notification)
+            self.logger.warning("exception sending notification %s: %s - %s", addr, repr(e), notification)
             if callback_signal != None:
                 callback_signal.emit(
                     addr,
@@ -326,22 +367,22 @@ class Nodes(QObject):
                     'type': notification.type
                     }
         except Exception as e:
-            print(self.LOG_TAG + " exception sending notifications: ", e, notification)
+            self.logger.warning("exception sending notifications: %s - %s", repr(e), notification)
 
         return notification.id
 
     def reply_notification(self, addr, reply):
         try:
             if reply == None:
-                print(self.LOG_TAG, " reply notification None")
+                self.logger.debug("reply notification None %s", addr)
                 return
 
             if reply.id not in self._notifications_sent:
-                print(self.LOG_TAG, " reply notification not in the list:", reply.id)
+                self.logger.debug("reply notification not in the list %s: %s", addr, reply.id)
                 return
 
             if self._notifications_sent[reply.id] == None:
-                print(self.LOG_TAG, " reply notification body empty:", reply.id)
+                self.logger.debug("reply notification body empty %s: %s", addr, reply.id)
                 return
 
             if self._notifications_sent[reply.id]['callback'] != None:
@@ -353,29 +394,48 @@ class Nodes(QObject):
             if self._notifications_sent[reply.id]['type'] != ui_pb2.TASK_START:
                 del self._notifications_sent[reply.id]
         except Exception as e:
-            print(self.LOG_TAG, "notification exception:", e)
+            self.logger.warning("reply notification exception %s: %s", addr, repr(e))
 
-    def stop_notifications(self):
+    def stop_notifications(self, addr=None):
         """Send a dummy notification to force Notifications class to exit.
         """
-        exit_noti = ui_pb2.Notification(clientName="", serverName="", type=0, data="", rules=[])
-        self.send_notifications(exit_noti)
+        exit_ntf = ui_pb2.Notification(clientName="", serverName="", type=-1, data="", rules=[])
+        if addr is not None:
+            self.send_notification(addr, exit_ntf)
+            return
+        self.send_notifications(exit_ntf)
+
+    def insert(self, peer, status=ONLINE):
+        try:
+            proto, addr = self.get_addr(peer)
+            naddr = "{0}:{1}".format(proto, addr)
+            self._db.insert(
+                "nodes",
+                "(addr, status, hostname, daemon_version, daemon_uptime, " \
+                "daemon_rules, cons, cons_dropped, version, last_connection)",
+                (naddr, status, self._nodes[naddr]['data'].name, "", self._nodes[naddr]['last_seen'],
+                 0, 0, 0,
+                 self._nodes[naddr]['data'].version, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            )
+        except Exception as e:
+            self.logger.warning("exception adding node to the DB: %s - %s", repr(peer), repr(e))
 
     def update(self, peer, status=ONLINE):
         try:
             proto, addr = self.get_addr(peer)
+            naddr = "{0}:{1}".format(proto, addr)
             self._db.update("nodes",
                     "hostname=?,version=?,last_connection=?,status=?",
                     (
-                        self._nodes[proto+":"+addr]['data'].name,
-                        self._nodes[proto+":"+addr]['data'].version,
+                        self._nodes[naddr]['data'].name,
+                        self._nodes[naddr]['data'].version,
                         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         status,
-                        "{0}:{1}".format(proto, addr)),
+                        naddr),
                         "addr=?"
                     )
         except Exception as e:
-            print(self.LOG_TAG + " exception updating DB: ", e, peer)
+            self.logger.warning("exception updating node DB: %s - %s", repr(peer), repr(e))
 
     def update_all(self, status=OFFLINE):
         try:
@@ -391,13 +451,13 @@ class Nodes(QObject):
                             "addr=?"
                         )
         except Exception as e:
-            print(self.LOG_TAG + " exception updating nodes: ", e)
+            self.logger.warning("exception updating all nodes: %s - %s", status, repr(e))
 
     def reset_status(self):
         try:
             self._db.update("nodes", "status=?", (self.OFFLINE,))
         except Exception as e:
-            print(self.LOG_TAG + " exception resetting nodes status: ", e)
+            self.logger.warning("exception resetting nodes status: %s", repr(e))
 
     def reload_fw(self, addr, fw_config, callback):
         notif = ui_pb2.Notification(

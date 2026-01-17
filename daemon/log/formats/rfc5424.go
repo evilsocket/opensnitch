@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	taskBase "github.com/evilsocket/opensnitch/daemon/tasks/base"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
 
@@ -39,6 +40,15 @@ func (r *Rfc5424) Transform(args ...interface{}) (out string) {
 		case *protocol.Connection:
 			event = "CONNECTION"
 			out = connToSD(out, val)
+
+		case taskBase.TaskNotification:
+			event = "TASK_NOTIFICATION"
+			tsk := val.(taskBase.TaskNotification)
+			out = fmt.Sprint(
+				out,
+				" TASK=\"", tsk.Name, "\" DATA=\"", tsk.Data, "\"",
+			)
+
 		default:
 			out = fmt.Sprint(out, " ARG", n, "=\"", val, "\"")
 		}

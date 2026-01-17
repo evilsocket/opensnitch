@@ -1,11 +1,6 @@
-from PyQt5 import Qt, QtCore
-from PyQt5.QtWidgets import QApplication
-
-# PyQt5 >= v5.15.8 (28/01/2023) (#821)
-if hasattr(Qt, 'QItemDelegate'):
-    from PyQt5.Qt import QItemDelegate, QStyleOptionViewItem
-else:
-    from PyQt5.QtWidgets import QItemDelegate, QStyleOptionViewItem
+from PyQt6 import QtCore
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QItemDelegate, QStyleOptionViewItem
 
 
 class ColorizedDelegate(QItemDelegate):
@@ -31,7 +26,7 @@ class ColorizedDelegate(QItemDelegate):
             return super().paint(painter, option, index)
         if not index.isValid():
             return super().paint(painter, option, index)
-        cellValue = index.data(QtCore.Qt.DisplayRole)
+        cellValue = index.data(QtCore.Qt.ItemDataRole.DisplayRole)
         if cellValue == None:
             return super().paint(painter, option, index)
 
@@ -55,10 +50,10 @@ class ColorizedDelegate(QItemDelegate):
         # get default margins in order to respect them.
         # option.widget is the QTableView
         hmargin = self._style.pixelMetric(
-            self._style.PM_FocusFrameHMargin, None, option.widget
+            self._style.PixelMetric.PM_FocusFrameHMargin, None, option.widget
         ) + 1
         vmargin = self._style.pixelMetric(
-            self._style.PM_FocusFrameVMargin, None, option.widget
+            self._style.PixelMetric.PM_FocusFrameVMargin, None, option.widget
         ) + 1
 
         # set default margins for this cell

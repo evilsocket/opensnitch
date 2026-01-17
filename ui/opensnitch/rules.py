@@ -1,6 +1,7 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from opensnitch.database import Database
+from opensnitch.utils import logger
 from opensnitch.database.enums import RuleFields
 from opensnitch.config import Config
 
@@ -17,6 +18,8 @@ DefaultRulesPath = "/etc/opensnitchd/rules"
 
 # date format displayed on the GUI (created column)
 DBDateFieldFormat = "%Y-%m-%d %H:%M:%S"
+
+log = logger.get(__name__)
 
 class Rule():
     def __init__(self):
@@ -69,7 +72,7 @@ class Rule():
                     ])
                 rule.operator.data = ""
         except Exception as e:
-            print("new_from_records exception parsing operartor list:", e)
+            log.warning("new_from_records exception parsing operartor list: %s", repr(e))
 
 
         return rule
@@ -123,7 +126,7 @@ class Rules(QObject):
 
             return True
         except Exception as e:
-            print(self.LOG_TAG + " exception adding node rules to db: ", e)
+            log.warning("exception adding node rules to db: %s", repr(e))
             return False
 
     def delete(self, name, addr, callback):
@@ -145,6 +148,9 @@ class Rules(QObject):
 
     def get_by_name(self, node, name):
         return self._db.get_rule(name, node)
+
+    def get_all_by_node(self, node):
+        return self._db.get_rules(node)
 
     def get_by_field(self, node, field, value):
         return self._db.get_rule_by_field(node, field, value)
@@ -206,7 +212,7 @@ class Rules(QObject):
             jRule['created'] = self._timestamp_to_rfc3339(rule.created)
             return json.dumps(jRule, indent="    ")
         except Exception as e:
-            print("rule_to_json() exception:", e)
+            log.warning("rule_to_json() exception: %s", repr(e))
             return None
 
     def _export_rule_common(self, node, records, outdir):
@@ -224,7 +230,7 @@ class Rules(QObject):
 
             return True
         except Exception as e:
-            print(self.LOG_TAG, "export_rules(", node, outdir, ") exception:", e)
+            log.warning("export_rules(%s, %s) exception: %s", node, outdir, repr(e))
 
         return False
 
@@ -235,19 +241,19 @@ class Rules(QObject):
         try:
             records = self._db.get_rule(rule_name, node)
             if records.next() == False:
-                print("export_rule() get_error 2:", records)
+                log.warning("export_rule() get_error 2: %s", repr(records))
                 return False
 
             rulesdir = outdir + "/" + slugify(node)
             try:
                 os.makedirs(rulesdir, 0o700)
             except Exception as e:
-                print("exception creating dirs:", e)
+                log.warning("exception creating dirs: %s", repr(e))
 
             return self._export_rule_common(node, records, rulesdir)
 
         except Exception as e:
-            print(self.LOG_TAG, "export_rules(", node, rulesdir, ") exception:", e)
+            log.warning("export_rules(%s, %s) exception: %s", node, rulesdir, repr(e))
 
         return False
 
@@ -263,13 +269,13 @@ class Rules(QObject):
         try:
             os.makedirs(rulesdir, 0o700)
         except Exception as e:
-            print("exception creating dirs:", e)
+            log.warning("exception creating dirs %s: %s", rulesdir, repr(e))
         try:
             while records.next() != False:
                 self._export_rule_common(node, records, rulesdir)
 
         except Exception as e:
-            print(self.LOG_TAG, "export_rules(", node, rulesdir, ") exception:", e)
+            log.warning("export_rules(%s, %s) exception: %s", node, rulesdir, repr(e))
             return False
 
         return True
@@ -301,6 +307,6 @@ class Rules(QObject):
 
             return rules
         except Exception as e:
-            print(self.LOG_TAG, "import_rules() exception:", e)
+            log.warning("import_rules() %s exception: %s", rulesdir, repr(e))
 
         return None

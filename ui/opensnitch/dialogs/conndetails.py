@@ -4,7 +4,7 @@ from opensnitch.database import Database
 from opensnitch.database.enums import ConnFields
 from opensnitch.utils import Utils
 from opensnitch.utils.infowindow import InfoWindow
-from PyQt5.QtCore import QCoreApplication as QC
+from PyQt6.QtCore import QCoreApplication as QC
 
 class ConnDetails(InfoWindow):
     """Display a small dialog with the details of a connection

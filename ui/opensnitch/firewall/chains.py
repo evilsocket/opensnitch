@@ -32,10 +32,10 @@ class Chains():
 
     def get_node_chains(self, addr):
         node = self._nodes.get_node(addr)
-        if node == None:
-            return rules
+        if node is None:
+            return []
         if not 'firewall' in node:
-            return rules
+            return []
 
         chains = []
         for c in node['firewall'].SystemRules:
@@ -76,7 +76,7 @@ class Chains():
     @staticmethod
     def new(
         name="",
-        table=Table.FILTER.value,
+        table=Table.OPENSNITCH.value,
         family=Family.INET.value,
         ctype="",
         hook=Hooks.INPUT.value
@@ -112,8 +112,8 @@ class ChainFilter(Chains):
     @staticmethod
     def input(family=Family.INET.value):
         chain = ui_pb2.FwChain()
-        chain.Name = Hooks.INPUT.value
-        chain.Table = Table.FILTER.value
+        chain.Name = f"{Table.FILTER.value}_{Hooks.INPUT.value}"
+        chain.Table = Table.OPENSNITCH.value
         chain.Family = family
         chain.Type = ChainType.FILTER.value
         chain.Hook = Hooks.INPUT.value
@@ -123,8 +123,8 @@ class ChainFilter(Chains):
     @staticmethod
     def output(family=Family.INET.value):
         chain = ui_pb2.FwChain()
-        chain.Name = Hooks.OUTPUT.value
-        chain.Table = Table.FILTER.value
+        chain.Name = f"{Table.FILTER.value}_{Hooks.OUTPUT.value}"
+        chain.Table = Table.OPENSNITCH.value
         chain.Family = family
         chain.Type = ChainType.FILTER.value
         chain.Hook = Hooks.OUTPUT.value
@@ -134,8 +134,8 @@ class ChainFilter(Chains):
     @staticmethod
     def forward(family=Family.INET.value):
         chain = ui_pb2.FwChain()
-        chain.Name = Hooks.FORWARD.value
-        chain.Table = Table.FILTER.value
+        chain.Name = f"{Table.FILTER.value}_{Hooks.FORWARD.value}"
+        chain.Table = Table.OPENSNITCH.value
         chain.Family = family
         chain.Type = ChainType.FILTER.value
         chain.Hook = Hooks.FORWARD.value
@@ -155,8 +155,8 @@ class ChainMangle(Chains):
     @staticmethod
     def output(family=Family.INET.value):
         chain = ui_pb2.FwChain()
-        chain.Name = Hooks.OUTPUT.value
-        chain.Table = Table.MANGLE.value
+        chain.Name = f"{Table.MANGLE.value}_{Hooks.OUTPUT.value}"
+        chain.Table = Table.OPENSNITCH.value
 
         chain.Family = family
         chain.Type = ChainType.MANGLE.value
@@ -167,8 +167,8 @@ class ChainMangle(Chains):
     @staticmethod
     def input(family=Family.INET.value):
         chain = ui_pb2.FwChain(family=Family.INET.value)
-        chain.Name = Hooks.INPUT.value
-        chain.Table = Table.MANGLE.value
+        chain.Name = f"{Table.MANGLE.value}_{Hooks.INPUT.value}"
+        chain.Table = Table.OPENSNITCH.value
 
         chain.Family = family
         chain.Type = ChainType.MANGLE.value
@@ -179,8 +179,8 @@ class ChainMangle(Chains):
     @staticmethod
     def forward(family=Family.INET.value):
         chain = ui_pb2.FwChain()
-        chain.Name = Hooks.FORWARD.value
-        chain.Table = Table.MANGLE.value
+        chain.Name = f"{Table.MANGLE.value}_{Hooks.FORWARD.value}"
+        chain.Table = Table.OPENSNITCH.value
 
         chain.Family = family
         chain.Type = ChainType.MANGLE.value
@@ -192,8 +192,8 @@ class ChainMangle(Chains):
     @staticmethod
     def prerouting(family=Family.INET.value):
         chain = ui_pb2.FwChain()
-        chain.Name = Hooks.PREROUTING.value
-        chain.Table = Table.MANGLE.value
+        chain.Name = f"{Table.MANGLE.value}_{Hooks.PREROUTING.value}"
+        chain.Table = Table.OPENSNITCH.value
 
         chain.Family = family
         chain.Type = ChainType.MANGLE.value
@@ -204,8 +204,8 @@ class ChainMangle(Chains):
     @staticmethod
     def postrouting(family=Family.INET.value):
         chain = ui_pb2.FwChain()
-        chain.Name = Hooks.POSTROUTING.value
-        chain.Table = Table.MANGLE.value
+        chain.Name = f"{Table.MANGLE.value}_{Hooks.POSTROUTING.value}"
+        chain.Table = Table.OPENSNITCH.value
 
         chain.Family = family
         chain.Type = ChainType.MANGLE.value
@@ -224,8 +224,8 @@ class ChainDstNAT(Chains):
     @staticmethod
     def prerouting(family=Family.INET.value):
         chain = ui_pb2.FwChain()
-        chain.Name = Hooks.PREROUTING.value
-        chain.Table = Table.NAT.value
+        chain.Name = f"{Table.NAT.value}_{Hooks.PREROUTING.value}"
+        chain.Table = Table.OPENSNITCH.value
 
         chain.Family = family
         chain.Type = ChainType.DNAT.value
@@ -236,8 +236,8 @@ class ChainDstNAT(Chains):
     @staticmethod
     def output(family=Family.INET.value):
         chain = ui_pb2.FwChain()
-        chain.Name = Hooks.OUTPUT.value
-        chain.Table = Table.NAT.value
+        chain.Name = f"{Table.NAT.value}_{Hooks.OUTPUT.value}"
+        chain.Table = Table.OPENSNITCH.value
 
         chain.Family = family
         chain.Type = ChainType.DNAT.value
@@ -248,8 +248,8 @@ class ChainDstNAT(Chains):
     @staticmethod
     def postrouting(family=Family.INET.value):
         chain = ui_pb2.FwChain()
-        chain.Name = Hooks.POSTROUTING.value
-        chain.Table = Table.NAT.value
+        chain.Name = f"{Table.NAT.value}_{Hooks.POSTROUTING.value}"
+        chain.Table = Table.OPENSNITCH.value
 
         chain.Family = family
         chain.Type = ChainType.SNAT.value

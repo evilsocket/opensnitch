@@ -82,7 +82,7 @@ func NewEventsStore() *EventsStore {
 // If computing checksums is enabled, new checksums will be computed if needed,
 // or reused existing ones otherwise.
 func (e *EventsStore) Add(proc *Process) {
-	log.Debug("[cache] EventsStore.Add() %d, %s, %s, total: %d", proc.ID, proc.Path, proc.Tree, e.Len())
+	log.Debug("[cache] EventsStore.Add() %d, %s, %s, %d, total: %d", proc.ID, proc.Path, proc.Tree, proc.Starttime, e.Len())
 	// Add the item to cache ASAP,
 	// then calculate the checksums if needed.
 	e.UpdateItem(proc)
@@ -96,25 +96,32 @@ func (e *EventsStore) Add(proc *Process) {
 
 // UpdateItem updates a cache item
 func (e *EventsStore) UpdateItem(proc *Process) {
-	log.Trace("[cache] updateItem() updating events store (total: %d), pid: %d, path: %s, %v", e.Len(), proc.ID, proc.Path, proc.Tree)
+	log.Trace("[cache] updateItem() updating events store (total: %d), pid: %d, path: %s, %d, %v", e.Len(), proc.ID, proc.Path, proc.Starttime, proc.Tree)
 	if proc.Path == "" {
 		return
 	}
 	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	oldItem := e.eventByPID[proc.ID]
+
+	// Avoid replacing new procs with old ones.
+	// This can occur when QueueEventsSize is > 0 and computing the checksum takes more time than expected.
+	if oldItem.Proc.Path != proc.Path && oldItem.Proc.Starttime > proc.Starttime {
+		log.Trace("skipping out-of-order updateItem: %s (%d) -> %s (%d)", oldItem.Proc.Path, oldItem.Proc.Starttime, proc.Path, proc.Starttime)
+		return
+	}
+
 	ev := ExecEventItem{
 		Proc:     *proc,
 		LastSeen: time.Now().UnixNano(),
 	}
 	e.eventByPID[proc.ID] = ev
-	e.mu.Unlock()
 }
 
 // ReplaceItem replaces an existing process with a new one.
 func (e *EventsStore) ReplaceItem(oldProc, newProc *Process) {
-	log.Trace("[event inCache, replacement] new: %d, %s -> inCache: %d -> %s - Trees: %s, %s", newProc.ID, newProc.Path, oldProc.ID, oldProc.Path, oldProc.Tree, newProc.Tree)
-	// Note: in rare occasions, the process being replaced is the older one.
-	// if oldProc.Starttime > newProc.Starttime {}
-	//
+	log.Trace("[event inCache, replacement] new: %d, %s -> inCache: %d -> %s - %d, Trees: %s, %s", newProc.ID, newProc.Path, oldProc.ID, oldProc.Path, newProc.Starttime, oldProc.Tree, newProc.Tree)
 
 	newProc.PPID = oldProc.ID
 	e.UpdateItem(newProc)

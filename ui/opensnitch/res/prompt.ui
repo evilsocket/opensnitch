@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../../../../../../../../../.designer/backup/icon-white.svg</normaloff>../../../../../../../../../../.designer/backup/icon-white.svg</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
     <number>5</number>
@@ -157,13 +161,13 @@
        </property>
        <property name="icon">
         <iconset theme="emblem-important">
-         <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
        <property name="popupMode">
-        <enum>QToolButton::MenuButtonPopup</enum>
+        <enum>QToolButton::ToolButtonPopupMode::MenuButtonPopup</enum>
        </property>
        <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonTextBesideIcon</enum>
+        <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
        </property>
       </widget>
      </item>
@@ -180,7 +184,7 @@
        </property>
        <property name="icon">
         <iconset theme="emblem-default">
-         <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
+         <normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
        </property>
       </widget>
      </item>
@@ -248,7 +252,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -273,7 +277,7 @@
        <item row="1" column="0">
         <widget class="QPlainTextEdit" name="connDetails">
          <property name="textInteractionFlags">
-          <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -322,7 +326,7 @@
           <string/>
          </property>
          <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          <set>Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -335,7 +339,7 @@
            </property>
            <property name="icon">
             <iconset theme="go-previous">
-             <normaloff>../../../../../../.designer/backup</normaloff>../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -372,7 +376,7 @@
            </property>
            <property name="icon">
             <iconset theme="reload">
-             <normaloff>../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../.designer/backup</iconset>
+             <normaloff>../../../../../../../../../../../../../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../../../../../../../../../../../../../.designer/backup</iconset>
            </property>
           </widget>
          </item>
@@ -429,7 +433,7 @@
           <string notr="true">Chromium Web Browser wants to connect to www.evilsocket.net on tcp port 443. And maybe to www.goodsocket.net on port 344</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -438,7 +442,7 @@
           <number>2</number>
          </property>
          <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          <set>Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -492,7 +496,7 @@
               <bool>true</bool>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -534,8 +538,7 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset theme="dialog-information">
-               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+              <iconset theme="QIcon::ThemeIcon::DialogInformation"/>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -553,25 +556,23 @@
              <property name="font">
               <font>
                <pointsize>12</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
-               <kerning>true</kerning>
               </font>
              </property>
              <property name="text">
               <string notr="true">Chromium Web Browser</string>
              </property>
              <property name="textFormat">
-              <enum>Qt::PlainText</enum>
+              <enum>Qt::TextFormat::PlainText</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
-              <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
              </property>
             </widget>
            </item>
@@ -593,16 +594,16 @@
               <string notr="true">chromium -arg1 -arg2</string>
              </property>
              <property name="textFormat">
-              <enum>Qt::PlainText</enum>
+              <enum>Qt::TextFormat::PlainText</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
-              <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
              </property>
             </widget>
            </item>
@@ -617,7 +618,6 @@
              <property name="font">
               <font>
                <pointsize>10</pointsize>
-               <weight>50</weight>
                <italic>true</italic>
                <bold>false</bold>
                <underline>true</underline>
@@ -628,13 +628,13 @@
               <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;/opt/google/chrome/bin/chrome --something abc --more-long  def --for-word-wrapping&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
-              <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
              </property>
             </widget>
            </item>
@@ -650,16 +650,16 @@
               <string notr="true">(/absolute/path/to/bin/chromium)</string>
              </property>
              <property name="textFormat">
-              <enum>Qt::PlainText</enum>
+              <enum>Qt::TextFormat::PlainText</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
-              <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
              </property>
             </widget>
            </item>
@@ -686,7 +686,6 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>75</weight>
              <bold>true</bold>
              <kerning>true</kerning>
             </font>
@@ -721,13 +720,13 @@
             <string notr="true">TextLabel</string>
            </property>
            <property name="textFormat">
-            <enum>Qt::PlainText</enum>
+            <enum>Qt::TextFormat::PlainText</enum>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
            <property name="textInteractionFlags">
-            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            <set>Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
            </property>
           </widget>
          </item>
@@ -739,7 +738,7 @@
           </widget>
          </item>
          <item row="6" column="1">
-          <widget class="QLabel" name="label_6">
+          <widget class="QLabel" name="userLblCheck">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -749,7 +748,6 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>75</weight>
              <bold>true</bold>
              <kerning>true</kerning>
             </font>
@@ -767,7 +765,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="dstIPLblCheck">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -777,7 +775,6 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>75</weight>
              <bold>true</bold>
              <kerning>true</kerning>
             </font>
@@ -805,22 +802,21 @@
             <string notr="true">TextLabel</string>
            </property>
            <property name="textFormat">
-            <enum>Qt::PlainText</enum>
+            <enum>Qt::TextFormat::PlainText</enum>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
            <property name="textInteractionFlags">
-            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            <set>Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
            </property>
           </widget>
          </item>
          <item row="7" column="1">
-          <widget class="QLabel" name="checksumLabel_2">
+          <widget class="QLabel" name="checksumLblCheck">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>75</weight>
              <bold>true</bold>
              <kerning>true</kerning>
             </font>
@@ -848,13 +844,13 @@
             <string/>
            </property>
            <property name="textFormat">
-            <enum>Qt::PlainText</enum>
+            <enum>Qt::TextFormat::PlainText</enum>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
            <property name="textInteractionFlags">
-            <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
            </property>
           </widget>
          </item>
@@ -876,13 +872,13 @@
             <string notr="true">TextLabel</string>
            </property>
            <property name="textFormat">
-            <enum>Qt::PlainText</enum>
+            <enum>Qt::TextFormat::PlainText</enum>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
            <property name="textInteractionFlags">
-            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            <set>Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
            </property>
           </widget>
          </item>
@@ -904,7 +900,7 @@
           </widget>
          </item>
          <item row="5" column="1">
-          <widget class="QLabel" name="destPortLabel_1">
+          <widget class="QLabel" name="dstPortLblCheck">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -914,13 +910,12 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>75</weight>
              <bold>true</bold>
              <kerning>true</kerning>
             </font>
            </property>
            <property name="text">
-            <string>Dst Port</string>
+            <string>Destination Port</string>
            </property>
           </widget>
          </item>
@@ -942,13 +937,13 @@
             <string notr="true">TextLabel</string>
            </property>
            <property name="textFormat">
-            <enum>Qt::PlainText</enum>
+            <enum>Qt::TextFormat::PlainText</enum>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
            <property name="textInteractionFlags">
-            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            <set>Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
            </property>
           </widget>
          </item>
@@ -963,7 +958,6 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>75</weight>
              <bold>true</bold>
              <kerning>true</kerning>
             </font>
@@ -991,13 +985,13 @@
             <string notr="true">TextLabel</string>
            </property>
            <property name="textFormat">
-            <enum>Qt::PlainText</enum>
+            <enum>Qt::TextFormat::PlainText</enum>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
            <property name="textInteractionFlags">
-            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            <set>Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
            </property>
           </widget>
          </item>
@@ -1025,7 +1019,6 @@
  </tabstops>
  <resources>
   <include location="resources.qrc"/>
-  <include location="../../../../../../resources.qrc"/>
   <include location="../../../../../../.designer/backup/resources.qrc"/>
  </resources>
  <connections/>

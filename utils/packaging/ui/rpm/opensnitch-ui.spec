@@ -1,9 +1,11 @@
 %define name opensnitch-ui
-%define version 1.7.1
-%define unmangled_version 1.7.1
+%define version 1.8.0
+%define unmangled_version 1.8.0
 %define release 1
 %define __python python3
 %define desktop_file opensnitch_ui.desktop
+%define _binary_payload w9.gzdio
+%define _rpmformat 4
 
 Summary: Prompt service and UI for the OpenSnitch interactive application firewall.
 Name: %{name}
@@ -18,8 +20,8 @@ BuildArch: noarch
 Vendor: OpenSnitch project
 Packager: Gustavo Iñiguez Goya <gooffy1@gmail.com>
 Url: https://github.com/evilsocket/opensnitch
-Requires: python3, python3-pip, (netcfg or setup), (python3-pyinotify or python3-inotify), python3-qt5
-Recommends: (python3-slugify or python3-python-slugify), python3-notify2, python3-protobuf >= 3.0, python3-grpcio >= 1.10.0, (qgnomeplatform-qt5 or QGnomePlatform-qt5), (python3-packaging or python-rpm-packaging)
+Requires: python3, python3-pip, (netcfg or setup), (python3-pyinotify or python3-inotify), (python3-qt6 or python3-pyqt6 or python311-PyQt6)
+Recommends: (python3-slugify or python3-python-slugify), python3-notify2, python3-protobuf >= 3.0, python3-grpcio >= 1.10.0, (qgnomeplatform-qt6 or QGnomePlatform-qt6), (python3-packaging or python-rpm-packaging), qt6-sql-sqlite
 
 # avoid to depend on a particular python version
 %global __requires_exclude ^python\\(abi\\) = 3\\..$

@@ -8,6 +8,7 @@
 package config
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"os"
@@ -118,8 +119,10 @@ type SystemConfig struct {
 // Config holds the functionality to re/load the firewall configuration from disk.
 // This is the configuration to manage the system firewall (iptables, nftables).
 type Config struct {
-	watcher         *fsnotify.Watcher
-	monitorExitChan chan struct{}
+	watcher       *fsnotify.Watcher
+	ctx           context.Context
+	cancelMonitor context.CancelFunc
+
 	// preloadCallback is called before reloading the configuration,
 	// in order to delete old fw rules.
 	preloadCallback func()
@@ -144,7 +147,7 @@ func (c *Config) NewSystemFwConfig(configPath string, preLoadCb, reLoadCb func()
 	defer c.Unlock()
 
 	c.file = configPath
-	c.monitorExitChan = make(chan struct{}, 1)
+	c.ctx, c.cancelMonitor = context.WithCancel(context.Background())
 	c.preloadCallback = preLoadCb
 	c.reloadCallback = reLoadCb
 	c.watcher = watcher
@@ -236,10 +239,7 @@ func (c *Config) StopConfigWatcher() {
 	c.Lock()
 	defer c.Unlock()
 
-	if c.monitorExitChan != nil {
-		c.monitorExitChan <- struct{}{}
-		close(c.monitorExitChan)
-	}
+	c.cancelMonitor()
 
 	if c.watcher != nil {
 		c.watcher.Remove(c.file)
@@ -250,7 +250,7 @@ func (c *Config) StopConfigWatcher() {
 func (c *Config) monitorConfigWorker() {
 	for {
 		select {
-		case <-c.monitorExitChan:
+		case <-c.ctx.Done():
 			goto Exit
 		case event := <-c.watcher.Events:
 			if (event.Op&fsnotify.Write == fsnotify.Write) || (event.Op&fsnotify.Remove == fsnotify.Remove) {
@@ -260,7 +260,4 @@ func (c *Config) monitorConfigWorker() {
 	}
 Exit:
 	log.Debug("stop monitoring firewall config file")
-	c.Lock()
-	c.monitorExitChan = nil
-	c.Unlock()
 }

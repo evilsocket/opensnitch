@@ -1,12 +1,12 @@
 
 from opensnitch.config import Config
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui
 
 class InfoWindow(QtWidgets.QDialog):
     """Display a text on a small dialog.
     """
     def __init__(self, parent):
-        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.Tool)
+        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowType.Tool)
         self.setContentsMargins(0, 0, 0, 0)
 
         self._cfg = Config.get()
@@ -18,7 +18,10 @@ class InfoWindow(QtWidgets.QDialog):
         self._textedit.setViewportMargins(QtCore.QMargins(0,0,0,0))
         self._textedit.setMinimumSize(300, 325)
         self._textedit.setReadOnly(True)
-        self._textedit.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse | QtCore.Qt.TextSelectableByKeyboard)
+        self._textedit.setTextInteractionFlags(
+            QtCore.Qt.TextInteractionFlag.TextSelectableByMouse |
+            QtCore.Qt.TextInteractionFlag.TextSelectableByKeyboard
+        )
         self._textedit.setAutoFillBackground(True)
         self._textedit.setStyleSheet("QLabel { background: yellow }")
 

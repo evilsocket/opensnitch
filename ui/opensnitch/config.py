@@ -1,4 +1,4 @@
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 from opensnitch.database import Database
 
 class Config:
@@ -110,7 +110,14 @@ class Config:
     DEFAULT_POPUP_ADVANCED_CHECKSUM = "global/default_popup_advanced_checksum"
     DEFAULT_SERVER_ADDR  = "global/server_address"
     DEFAULT_SERVER_MAX_MESSAGE_LENGTH  = "global/server_max_message_length"
+    DEFAULT_SERVER_MAX_WORKERS = "global/max_workers"
+    DEFAULT_SERVER_MAX_CLIENTS = "global/max_clients"
+    DEFAULT_SERVER_KEEPALIVE = "global/server_keepalive"
+    DEFAULT_SERVER_KEEPALIVE_TIMEOUT = "global/server_keepalive_timeout"
+    DEFAULT_SERVER_LOG_LEVEL = "global/server_log_level"
+    DEFAULT_SERVER_LOG_FILE = "global/server_log_file"
     DEFAULT_HIDE_SYSTRAY_WARN  = "global/hide_systray_warning"
+
     DEFAULT_DB_TYPE_KEY       = "database/type"
     DEFAULT_DB_FILE_KEY       = "database/file"
     DEFAULT_DB_PURGE_OLDEST   = "database/purge_oldest"
@@ -122,11 +129,14 @@ class Config:
 
     NOTIFICATIONS_ENABLED = "notifications/enabled"
     NOTIFICATIONS_TYPE = "notifications/type"
+    NOTIFICATIONS_MISSED_POPUP_TMPL = "notifications/missed_popup_tmpl"
+    NTF_DEFAULT_MISSED_POPUP_TMPL = "%rule.action% action applied %node.addr%\nCommand line: %conn.process_args%"
     NOTIFICATION_TYPE_SYSTEM = 0
     NOTIFICATION_TYPE_QT = 1
 
     STATS_REFRESH_INTERVAL = "statsDialog/refresh_interval"
     STATS_GEOMETRY = "statsDialog/geometry"
+    STATS_MAXIMIZED = "statsDialog/maximized"
     STATS_LAST_TAB = "statsDialog/last_tab"
     STATS_FILTER_TEXT = "statsDialog/general_filter_text"
     STATS_FILTER_ACTION = "statsDialog/general_filter_action"
@@ -206,8 +216,8 @@ class Config:
         self.settings.setValue(path, value)
         self.settings.sync()
 
-    def getSettings(self, path):
-        return self.settings.value(path)
+    def getSettings(self, path, default=None):
+        return self.settings.value(path, defaultValue=default)
 
     def getBool(self, path, default_value=False):
         return self.settings.value(path, type=bool, defaultValue=default_value)

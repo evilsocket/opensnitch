@@ -9,6 +9,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/log/loggers"
+	"github.com/evilsocket/opensnitch/daemon/procmon/audit"
 	"github.com/evilsocket/opensnitch/daemon/procmon/ebpf"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
 )
@@ -62,6 +63,10 @@ type (
 		QueueBypass     bool   `json:"QueueBypass"`
 	}
 
+	TasksOptions struct {
+		ConfigPath string `json:"ConfigPath"`
+	}
+
 	// InternalOptions struct
 	InternalOptions struct {
 		GCPercent         int  `json:"GCPercent"`
@@ -77,11 +82,13 @@ type Config struct {
 	DefaultDuration   string                 `json:"DefaultDuration"`
 	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
 	FwOptions         FwOptions              `json:"FwOptions"`
+	Audit             audit.Config           `json:"Audit"`
 	Ebpf              ebpf.Config            `json:"Ebpf"`
 	Server            ServerConfig           `json:"Server"`
 	Rules             RulesOptions           `json:"Rules"`
 	Internal          InternalOptions        `json:"Internal"`
 	Stats             statistics.StatsConfig `json:"Stats"`
+	TasksOptions      TasksOptions           `json:"Tasks"`
 
 	InterceptUnknown bool `json:"InterceptUnknown"`
 	LogUTC           bool `json:"LogUTC"`
@@ -96,6 +103,10 @@ func Parse(rawConfig interface{}) (conf Config, err error) {
 		err = json.Unmarshal(rawConfig.([]uint8), &conf)
 	}
 	return conf, err
+}
+
+func Marshal(conf Config) ([]byte, error) {
+	return json.Marshal(conf)
 }
 
 // Load loads the content of a file from disk.

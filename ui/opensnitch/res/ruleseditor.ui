@@ -44,7 +44,7 @@
         </sizepolicy>
        </property>
        <property name="standardButtons">
-        <set>QDialogButtonBox::Apply|QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Reset</set>
+        <set>QDialogButtonBox::StandardButton::Apply|QDialogButtonBox::StandardButton::Close|QDialogButtonBox::StandardButton::Help|QDialogButtonBox::StandardButton::Reset</set>
        </property>
       </widget>
      </item>
@@ -71,6 +71,9 @@
        <height>60</height>
       </size>
      </property>
+     <property name="tabChangesFocus">
+      <bool>true</bool>
+     </property>
      <property name="placeholderText">
       <string>Description...</string>
      </property>
@@ -82,7 +85,7 @@
       <number>0</number>
      </property>
      <property name="elideMode">
-      <enum>Qt::ElideRight</enum>
+      <enum>Qt::TextElideMode::ElideRight</enum>
      </property>
      <property name="documentMode">
       <bool>true</bool>
@@ -188,7 +191,7 @@
             <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::MinimumExpanding</enum>
+            <enum>QSizePolicy::Policy::MinimumExpanding</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -247,7 +250,7 @@
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeType">
-          <enum>QSizePolicy::Maximum</enum>
+          <enum>QSizePolicy::Policy::Maximum</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -367,7 +370,7 @@ gnu.org         - it'll only match gnu.org, nor www.gnu.org, nor ftp.gnu.org, ..
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeType">
-          <enum>QSizePolicy::Maximum</enum>
+          <enum>QSizePolicy::Policy::Maximum</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -877,7 +880,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
           <enum>Qt::Vertical</enum>
          </property>
          <property name="sizeType">
-          <enum>QSizePolicy::Maximum</enum>
+          <enum>QSizePolicy::Policy::Maximum</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -900,7 +903,7 @@ Note: Commas or spaces are not allowed to separate IPs or networks.</string>
        <item row="3" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_12">
          <property name="sizeConstraint">
-          <enum>QLayout::SetMaximumSize</enum>
+          <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
          </property>
          <item>
           <widget class="QPushButton" name="pushButton">
@@ -938,7 +941,7 @@ Feedback is welcome</string>
             <string>In development</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
            </property>
           </widget>
          </item>
@@ -1021,7 +1024,7 @@ You must name the rule in such manner that it'll be checked first, because they'
      </property>
      <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,0,0">
       <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
+       <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
       </property>
       <property name="topMargin">
        <number>4</number>
@@ -1172,7 +1175,7 @@ You must name the rule in such manner that it'll be checked first, because they'
            <string>Allow will allow the connection</string>
           </property>
           <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
           </property>
           <property name="text">
            <string>Allow</string>
@@ -1198,19 +1201,15 @@ You must name the rule in such manner that it'll be checked first, because they'
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Node</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QComboBox" name="nodesCombo"/>
      </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Policy::Maximum</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -1222,6 +1221,12 @@ You must name the rule in such manner that it'll be checked first, because they'
      </item>
      <item>
       <widget class="QCheckBox" name="nodeApplyAllCheck">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Apply rule to all nodes</string>
        </property>
@@ -1231,6 +1236,60 @@ You must name the rule in such manner that it'll be checked first, because they'
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>ruleNameEdit</tabstop>
+  <tabstop>ruleDescEdit</tabstop>
+  <tabstop>nodesCombo</tabstop>
+  <tabstop>nodeApplyAllCheck</tabstop>
+  <tabstop>enableCheck</tabstop>
+  <tabstop>precedenceCheck</tabstop>
+  <tabstop>actionDenyRadio</tabstop>
+  <tabstop>actionRejectRadio</tabstop>
+  <tabstop>actionAllowRadio</tabstop>
+  <tabstop>durationCombo</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>procCheck</tabstop>
+  <tabstop>procLine</tabstop>
+  <tabstop>checkProcRegexp</tabstop>
+  <tabstop>cmdlineCheck</tabstop>
+  <tabstop>cmdlineLine</tabstop>
+  <tabstop>checkCmdlineRegexp</tabstop>
+  <tabstop>uidCheck</tabstop>
+  <tabstop>uidCombo</tabstop>
+  <tabstop>pidCheck</tabstop>
+  <tabstop>pidLine</tabstop>
+  <tabstop>protoCheck</tabstop>
+  <tabstop>protoCombo</tabstop>
+  <tabstop>srcPortCheck</tabstop>
+  <tabstop>srcPortLine</tabstop>
+  <tabstop>dstPortCheck</tabstop>
+  <tabstop>dstPortLine</tabstop>
+  <tabstop>srcIPCheck</tabstop>
+  <tabstop>srcIPCombo</tabstop>
+  <tabstop>dstHostCheck</tabstop>
+  <tabstop>dstHostLine</tabstop>
+  <tabstop>dstIPCheck</tabstop>
+  <tabstop>dstIPCombo</tabstop>
+  <tabstop>ifaceCheck</tabstop>
+  <tabstop>ifaceCombo</tabstop>
+  <tabstop>dstListsCheck</tabstop>
+  <tabstop>selectListButton</tabstop>
+  <tabstop>dstListsLine</tabstop>
+  <tabstop>dstListRegexpCheck</tabstop>
+  <tabstop>selectListRegexpButton</tabstop>
+  <tabstop>dstRegexpListsLine</tabstop>
+  <tabstop>dstListIPsCheck</tabstop>
+  <tabstop>selectIPsListButton</tabstop>
+  <tabstop>dstListIPsLine</tabstop>
+  <tabstop>dstListNetsCheck</tabstop>
+  <tabstop>selectNetsListButton</tabstop>
+  <tabstop>dstListNetsLine</tabstop>
+  <tabstop>sensitiveCheck</tabstop>
+  <tabstop>nologCheck</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>md5Check</tabstop>
+  <tabstop>md5Line</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

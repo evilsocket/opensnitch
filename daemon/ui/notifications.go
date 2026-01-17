@@ -14,7 +14,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
-	"github.com/evilsocket/opensnitch/daemon/tasks"
+	"github.com/evilsocket/opensnitch/daemon/tasks/base"
 	"github.com/evilsocket/opensnitch/daemon/tasks/nodemonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/pidmonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/socketsmonitor"
@@ -60,33 +60,33 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 	}
 }
 
-func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	log.Info("[notification] Reloading configuration")
+func (c *Client) handleActionChangeConfig(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
+	log.Info("[notification] Reloading configuration, type: %d, id: %d", ntf.Type, ntf.Id)
 	// Parse received configuration first, to get the new proc monitor method.
-	newConf, err := config.Parse(notification.Data)
+	newConf, err := config.Parse(ntf.Data)
 	if err != nil {
-		log.Warning("[notification] error parsing received config: %v", notification.Data)
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		log.Warning("[notification] error parsing received config: %v", ntf.Data)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 		return
 	}
 
 	if err := c.reloadConfiguration(true, &newConf); err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", err.Msg)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err.Msg)
 		return
 	}
 
 	// this save operation triggers a regular re-loadConfiguration()
-	err = config.Save(configFile, notification.Data)
+	err = config.Save(configFile, ntf.Data)
 	if err != nil {
 		log.Warning("[notification] CHANGE_CONFIG not applied %s", err)
 	}
 
-	c.sendNotificationReply(stream, notification.Id, "", err)
+	c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 }
 
-func (c *Client) handleActionEnableRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) handleActionEnableRule(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	var err error
-	for _, rul := range notification.Rules {
+	for _, rul := range ntf.Rules {
 		log.Info("[notification] enable rule: %s", rul.Name)
 		// protocol.Rule(protobuf) != rule.Rule(json)
 		r, _ := rule.Deserialize(rul)
@@ -94,58 +94,61 @@ func (c *Client) handleActionEnableRule(stream protocol.UI_NotificationsClient, 
 		// save to disk only if the duration is rule.Always
 		err = c.rules.Replace(r, r.Duration == rule.Always)
 	}
-	c.sendNotificationReply(stream, notification.Id, "", err)
+	c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 }
 
-func (c *Client) handleActionDisableRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) handleActionDisableRule(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	var err error
-	for _, rul := range notification.Rules {
+	for _, rul := range ntf.Rules {
 		log.Info("[notification] disable rule: %s", rul)
 		r, _ := rule.Deserialize(rul)
 		r.Enabled = false
 		err = c.rules.Replace(r, r.Duration == rule.Always)
 	}
-	c.sendNotificationReply(stream, notification.Id, "", err)
+	c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 }
 
-func (c *Client) handleActionChangeRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) handleActionChangeRule(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	var rErr error
-	for _, rul := range notification.Rules {
+	for _, rul := range ntf.Rules {
 		r, err := rule.Deserialize(rul)
 		if r == nil {
 			rErr = fmt.Errorf("Invalid rule, %s", err)
 			continue
 		}
-		log.Info("[notification] change rule: %s %d", r, notification.Id)
+		log.Info("[notification] change rule: %s %d", r, ntf.Id)
 		if err := c.rules.Replace(r, r.Duration == rule.Always); err != nil {
 			log.Warning("[notification] Error changing rule: %s %s", err, r)
 			rErr = err
 		}
 	}
-	c.sendNotificationReply(stream, notification.Id, "", rErr)
+	c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", rErr)
 }
 
-func (c *Client) handleActionDeleteRule(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) handleActionDeleteRule(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	var err error
-	for _, rul := range notification.Rules {
-		log.Info("[notification] delete rule: %s %d", rul.Name, notification.Id)
+	for _, rul := range ntf.Rules {
+		log.Info("[notification] delete rule: %s %d", rul.Name, ntf.Id)
 		err = c.rules.Delete(rul.Name)
 		if err != nil {
 			log.Error("[notification] Error deleting rule: %s %s", err, rul)
 		}
 	}
-	c.sendNotificationReply(stream, notification.Id, "", err)
+	c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 }
 
-func (c *Client) handleActionTaskStart(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	var taskConf tasks.TaskNotification
-	err := json.Unmarshal([]byte(notification.Data), &taskConf)
+func (c *Client) handleActionTaskStart(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
+	var taskConf base.TaskNotification
+	err := json.Unmarshal([]byte(ntf.Data), &taskConf)
 	if err != nil {
-		log.Error("parsing TaskStart, err: %s, %s", err, notification.Data)
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		log.Error("parsing TaskStart, err: %s, %s", err, ntf.Data)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 		return
 	}
 	switch taskConf.Name {
+	//case downloader.Name:
+	// save to disk
+	//  - c.sendNotifReply(ok - nook)
 	case pidmonitor.Name:
 		conf, ok := taskConf.Data.(map[string]interface{})
 		if !ok {
@@ -155,32 +158,32 @@ func (c *Client) handleActionTaskStart(stream protocol.UI_NotificationsClient, n
 		pid, err := strconv.Atoi(conf["pid"].(string))
 		if err != nil {
 			log.Error("[pidmon] TaskStart.Data, PID err: %s, %v", err, taskConf)
-			c.sendNotificationReply(stream, notification.Id, "", err)
+			c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 			return
 		}
 		interval, _ := conf["interval"].(string)
-		c.monitorProcessDetails(pid, interval, stream, notification)
+		c.monitorProcessDetails(pid, interval, stream, ntf)
 	case nodemonitor.Name:
 		conf, ok := taskConf.Data.(map[string]interface{})
 		if !ok {
 			log.Error("[nodemon] TaskStart.Data, \"node\" err (string expected): %v", taskConf)
 			return
 		}
-		c.monitorNode(conf["node"].(string), conf["interval"].(string), stream, notification)
+		c.monitorNode(conf["node"].(string), conf["interval"].(string), stream, ntf)
 	case socketsmonitor.Name:
-		c.monitorSockets(taskConf.Data, stream, notification)
+		c.monitorSockets(taskConf.Data, stream, ntf)
 	default:
 		log.Debug("TaskStart, unknown task: %v", taskConf)
-		//c.sendNotificationReply(stream, notification.Id, "", err)
+		//c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 	}
 }
 
-func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
-	var taskConf tasks.TaskNotification
-	err := json.Unmarshal([]byte(notification.Data), &taskConf)
+func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
+	var taskConf base.TaskNotification
+	err := json.Unmarshal([]byte(ntf.Data), &taskConf)
 	if err != nil {
-		log.Error("parsing TaskStop, err: %s, %s", err, notification.Data)
-		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error stopping task: %s", notification.Data))
+		log.Error("parsing TaskStop, err: %s, %s", err, ntf.Data)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("Error stopping task: %s", ntf.Data))
 		return
 	}
 	switch taskConf.Name {
@@ -192,11 +195,12 @@ func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, no
 		}
 		pid, err := strconv.Atoi(conf["pid"].(string))
 		if err != nil {
-			log.Error("TaskStop.Data, err: %s, %s, %v+, %q", err, notification.Data, taskConf.Data, taskConf.Data)
-			c.sendNotificationReply(stream, notification.Id, "", err)
+			log.Error("TaskStop.Data, err: %s, %s, %v+, %q", err, ntf.Data, taskConf.Data, taskConf.Data)
+			c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 			return
 		}
 		TaskMgr.RemoveTask(fmt.Sprint(taskConf.Name, "-", pid))
+
 	case nodemonitor.Name:
 		conf, ok := taskConf.Data.(map[string]interface{})
 		if !ok {
@@ -204,51 +208,53 @@ func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, no
 			return
 		}
 		TaskMgr.RemoveTask(fmt.Sprint(nodemonitor.Name, "-", conf["node"].(string)))
+
 	case socketsmonitor.Name:
 		TaskMgr.RemoveTask(socketsmonitor.Name)
+
 	default:
 		log.Debug("TaskStop, unknown task: %v", taskConf)
-		//c.sendNotificationReply(stream, notification.Id, "", err)
+		//c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 	}
 }
 
-func (c *Client) handleActionEnableInterception(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) handleActionEnableInterception(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	log.Info("[notification] starting interception")
-	if err := monitor.ReconfigureMonitorMethod(c.config.ProcMonitorMethod, c.config.Ebpf); err != nil && err.What > monitor.NoError {
+	if err := monitor.ReconfigureMonitorMethod(c.config.ProcMonitorMethod, c.config.Ebpf, c.config.Audit); err != nil && err.What > monitor.NoError {
 		log.Warning("[notification] error enabling monitor (%s): %s", c.config.ProcMonitorMethod, err.Msg)
-		c.sendNotificationReply(stream, notification.Id, "", err.Msg)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err.Msg)
 		return
 	}
 	if err := firewall.EnableInterception(); err != nil {
 		log.Warning("[notification] firewall.EnableInterception() error: %s", err)
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 		return
 	}
-	c.sendNotificationReply(stream, notification.Id, "", nil)
+	c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", nil)
 }
 
-func (c *Client) handleActionDisableInterception(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) handleActionDisableInterception(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	log.Info("[notification] stopping interception")
 	monitor.End()
 	if err := firewall.DisableInterception(); err != nil {
 		log.Warning("firewall.DisableInterception() error: %s", err)
-		c.sendNotificationReply(stream, notification.Id, "", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
 		return
 	}
-	c.sendNotificationReply(stream, notification.Id, "", nil)
+	c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", nil)
 }
 
-func (c *Client) handleActionReloadFw(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) handleActionReloadFw(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	log.Info("[notification] reloading firewall")
 
-	sysfw, err := firewall.Deserialize(notification.SysFirewall)
+	sysfw, err := firewall.Deserialize(ntf.SysFirewall)
 	if err != nil {
 		log.Warning("firewall.Deserialize() error: %s", err)
-		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error reloading firewall, invalid rules"))
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("Error reloading firewall, invalid rules"))
 		return
 	}
 	if err := firewall.SaveConfiguration(sysfw); err != nil {
-		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("Error saving system firewall rules: %s", err))
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("Error saving system firewall rules: %s", err))
 		return
 	}
 	// TODO:
@@ -267,62 +273,66 @@ func (c *Client) handleActionReloadFw(stream protocol.UI_NotificationsClient, no
 			// FIXME: can this operation last longer than 2s? if there're more than.. 100...10000 rules?
 			case <-time.After(2 * time.Second):
 				log.Debug("[notification] reload firewall. timeout fired, no errors?")
-				c.sendNotificationReply(stream, notification.Id, "", nil)
+				c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", nil)
 				goto Exit
 
 			}
 		}
 	ExitWithError:
-		c.sendNotificationReply(stream, notification.Id, "", fmt.Errorf("%s", errors))
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("%s", errors))
 	Exit:
 	}(c)
 
 }
 
-func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, notification *protocol.Notification) {
+func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
 	switch {
-	case notification.Type == protocol.Action_TASK_START:
-		c.handleActionTaskStart(stream, notification)
+	case ntf.Type == protocol.Action_TASK_START:
+		c.handleActionTaskStart(stream, ntf)
 
-	case notification.Type == protocol.Action_TASK_STOP:
-		c.handleActionTaskStop(stream, notification)
+	case ntf.Type == protocol.Action_TASK_STOP:
+		c.handleActionTaskStop(stream, ntf)
 
-	case notification.Type == protocol.Action_CHANGE_CONFIG:
-		c.handleActionChangeConfig(stream, notification)
+	case ntf.Type == protocol.Action_CHANGE_CONFIG:
+		c.handleActionChangeConfig(stream, ntf)
 
-	case notification.Type == protocol.Action_ENABLE_INTERCEPTION:
-		c.handleActionEnableInterception(stream, notification)
+	case ntf.Type == protocol.Action_ENABLE_INTERCEPTION:
+		c.handleActionEnableInterception(stream, ntf)
 
-	case notification.Type == protocol.Action_DISABLE_INTERCEPTION:
-		c.handleActionDisableInterception(stream, notification)
+	case ntf.Type == protocol.Action_DISABLE_INTERCEPTION:
+		c.handleActionDisableInterception(stream, ntf)
 
-	case notification.Type == protocol.Action_RELOAD_FW_RULES:
-		c.handleActionReloadFw(stream, notification)
+	case ntf.Type == protocol.Action_RELOAD_FW_RULES:
+		c.handleActionReloadFw(stream, ntf)
 
 	// ENABLE_RULE just replaces the rule on disk
-	case notification.Type == protocol.Action_ENABLE_RULE:
-		c.handleActionEnableRule(stream, notification)
+	case ntf.Type == protocol.Action_ENABLE_RULE:
+		c.handleActionEnableRule(stream, ntf)
 
-	case notification.Type == protocol.Action_DISABLE_RULE:
-		c.handleActionDisableRule(stream, notification)
+	case ntf.Type == protocol.Action_DISABLE_RULE:
+		c.handleActionDisableRule(stream, ntf)
 
-	case notification.Type == protocol.Action_DELETE_RULE:
-		c.handleActionDeleteRule(stream, notification)
+	case ntf.Type == protocol.Action_DELETE_RULE:
+		c.handleActionDeleteRule(stream, ntf)
 
 	// CHANGE_RULE can add() or replace() an existing rule.
-	case notification.Type == protocol.Action_CHANGE_RULE:
-		c.handleActionChangeRule(stream, notification)
+	case ntf.Type == protocol.Action_CHANGE_RULE:
+		c.handleActionChangeRule(stream, ntf)
 	}
 }
 
-func (c *Client) sendNotificationReply(stream protocol.UI_NotificationsClient, nID uint64, data string, err error) error {
+func (c *Client) sendNotificationReply(stream protocol.UI_NotificationsClient, nType protocol.Action, nID uint64, data string, err error) error {
 	reply := NewReply(nID, protocol.NotificationReplyCode_OK, data)
 	if err != nil {
 		reply.Code = protocol.NotificationReplyCode_ERROR
 		reply.Data = fmt.Sprint(err)
 	}
 	if err := stream.Send(reply); err != nil {
-		log.Error("Error replying to notification: %s %d", err, reply.Id)
+		if err == io.EOF {
+			log.Trace("[Notifications] sendNotificationReply, stream channel closed")
+			return nil
+		}
+		log.Error("Error replying to notification, type: %d, id: %d, err: %s", nType, reply.Id, err)
 		return err
 	}
 
@@ -362,15 +372,18 @@ func (c *Client) listenForNotifications() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	var err error
 	// open the stream channel
 	streamReply := &protocol.NotificationReply{Id: 0, Code: protocol.NotificationReplyCode_OK}
-	notisStream, err := c.client.Notifications(ctx)
+	c.Lock()
+	c.streamNotifications, err = c.client.Notifications(ctx)
+	c.Unlock()
 	if err != nil {
 		log.Error("establishing notifications channel %s", err)
 		return
 	}
 	// send the first notification
-	if err := notisStream.Send(streamReply); err != nil {
+	if err := c.streamNotifications.Send(streamReply); err != nil {
 		log.Error("sending notification HELLO %s", err)
 		return
 	}
@@ -380,21 +393,27 @@ func (c *Client) listenForNotifications() {
 		case <-c.clientCtx.Done():
 			goto Exit
 		default:
-			noti, err := notisStream.Recv()
+			ntf, err := c.streamNotifications.Recv()
 			if err == io.EOF {
 				log.Warning("notification channel closed by the server")
 				goto Exit
 			}
 			if err != nil {
-				log.Error("getting notifications: %s %s", err, noti)
+				log.Error("getting notifications: %s %s", err, ntf)
 				goto Exit
 			}
-			c.handleNotification(notisStream, noti)
+			if ntf.Type <= protocol.Action_NONE {
+				log.Debug("Server ordered to close notifications")
+				goto Exit
+			}
+			c.handleNotification(c.streamNotifications, ntf)
 		}
 	}
 Exit:
-	notisStream.CloseSend()
+	c.streamNotifications.CloseSend()
 	log.Info("Stop receiving notifications")
 	c.disconnect()
-	TaskMgr.StopAll()
+	if TaskMgr != nil {
+		TaskMgr.StopTempTasks()
+	}
 }

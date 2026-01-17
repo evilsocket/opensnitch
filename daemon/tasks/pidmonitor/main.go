@@ -10,7 +10,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
-	"github.com/evilsocket/opensnitch/daemon/tasks"
+	"github.com/evilsocket/opensnitch/daemon/tasks/base"
 )
 
 // Name s the base name of this task.
@@ -25,18 +25,18 @@ type Config struct {
 
 // PIDMonitor monitors a process ID.
 type PIDMonitor struct {
-	tasks.TaskBase
-	mu        *sync.RWMutex
-	Ticker    *time.Ticker
-	Interval  string
-	Pid       int
-	isStopped bool
+	base.TaskBase
+	mu       *sync.RWMutex
+	Ticker   *time.Ticker
+	Interval string
+	Pid      int
 }
 
 // New returns a new PIDMonitor
 func New(pid int, interval string, stopOnDisconnect bool) (string, *PIDMonitor) {
 	return fmt.Sprint(Name, "-", pid), &PIDMonitor{
-		TaskBase: tasks.TaskBase{
+		TaskBase: base.TaskBase{
+			Name:    Name,
 			Results: make(chan interface{}),
 			Errors:  make(chan error),
 		},
@@ -79,7 +79,7 @@ func (pm *PIDMonitor) Start(ctx context.Context, cancel context.CancelFunc) erro
 			select {
 			case <-ctx.Done():
 				goto Exit
-			case <-pm.Ticker.C:
+			default:
 				// TODO: errors counter, and exit on errors > X
 				if err := p.GetExtraInfo(); err != nil {
 					pm.TaskBase.Errors <- err
@@ -90,11 +90,10 @@ func (pm *PIDMonitor) Start(ctx context.Context, cancel context.CancelFunc) erro
 					pm.TaskBase.Errors <- err
 					continue
 				}
-				if pm.isStopped {
-					goto Exit
-				}
 				// ~200µs (string()) vs ~60ns
 				pm.TaskBase.Results <- unsafe.String(unsafe.SliceData(pJSON), len(pJSON))
+
+				<-pm.Ticker.C
 			}
 		}
 	Exit:
@@ -121,17 +120,13 @@ func (pm *PIDMonitor) Stop() error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	if pm.StopOnDisconnect {
-		log.Debug("[task.PIDMonitor] ignoring Stop()")
-		return nil
-	}
-	pm.isStopped = true
-
 	log.Debug("[task.PIDMonitor] Stop()")
-	pm.Ticker.Stop()
-	pm.Cancel()
-	close(pm.TaskBase.Results)
-	close(pm.TaskBase.Errors)
+	if pm.Ticker != nil {
+		pm.Ticker.Stop()
+	}
+	if pm.Cancel != nil {
+		pm.Cancel()
+	}
 	return nil
 }
 

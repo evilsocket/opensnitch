@@ -65,14 +65,14 @@ func (c *Client) loadDiskConfiguration(reload bool) {
 	// - malformed json file
 	// - intermediate file removal (when writing we receive 2 write events, one of 0 bytes)
 	if err := c.configWatcher.Add(configFile); err != nil {
-		log.Error("Could not watch path: %s", err)
+		log.Error("[config] Could not watch path: %s", err)
 	}
 
 	raw, err := config.Load(configFile)
 	if err != nil || len(raw) == 0 {
 		// Sometimes we may receive 2 Write events on monitorConfigWorker,
 		// Which may lead to read 0 bytes.
-		log.Warning("Error loading configuration from disk %s: %s", configFile, err)
+		log.Warning("[config] Error loading configuration from disk %s: %s", configFile, err)
 		return
 	}
 
@@ -221,6 +221,14 @@ func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err
 		log.Debug("[config] config.Ebpf.ModulesPath not changed")
 	}
 
+	if reload && procmon.MethodIsAudit() &&
+		!reflect.DeepEqual(newConfig.Audit, c.config.Audit) {
+		log.Debug("[config] reloading config.Audit: %v", newConfig.Audit)
+		reloadProc = true
+	} else {
+		log.Debug("[config] config.Audit not changed")
+	}
+
 	// 3. load fw
 	reloadFw := false
 	if c.GetFirewallType() != newConfig.Firewall ||
@@ -231,20 +239,22 @@ func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err
 		log.Debug("[config] reloading config.firewall")
 		reloadFw = true
 
-		firewall.Reload(
+		if err := firewall.Reload(
 			newConfig.Firewall,
 			newConfig.FwOptions.ConfigPath,
 			newConfig.FwOptions.MonitorInterval,
 			newConfig.FwOptions.QueueBypass,
 			newConfig.FwOptions.QueueNum,
-		)
+		); err != nil {
+			log.Error("[config] firewall reload error: %s", err)
+		}
 	} else {
 		log.Debug("[config] config.firewall not changed")
 	}
 
 	// 4. reload procmon if needed
 	if reloadProc {
-		err = monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf)
+		err = monitor.ReconfigureMonitorMethod(newConfig.ProcMonitorMethod, newConfig.Ebpf, newConfig.Audit)
 		// override newConfig's procMon with the one configured on Reconfig,
 		// which should be the last known good one (or proc by default).
 		if err != nil && (err.What == monitor.EbpfErr || err.What == monitor.AuditdErr) {
@@ -259,6 +269,15 @@ func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err
 		netlink.FlushConnections()
 	} else {
 		log.Debug("[config] not flushing established connections")
+	}
+
+	if newConfig.TasksOptions.ConfigPath != c.config.TasksOptions.ConfigPath {
+		log.Debug("[config] reloading TasksOptions.ConfigFile from %s", newConfig.TasksOptions.ConfigPath)
+		if err := TaskMgr.LoadTaskFile(newConfig.TasksOptions.ConfigPath); err != nil {
+			log.Debug("[config] config.TasksOptions reload error: %s", err)
+		}
+	} else {
+		log.Debug("[config] config.TasksOptions not changed")
 	}
 
 	return err

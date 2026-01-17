@@ -44,7 +44,7 @@ Download deb/rpm packages for your system from https://github.com/evilsocket/ope
 > $ sudo apt install ./opensnitch*.deb ./python3-opensnitch-ui*.deb
 
 #### rpm
-> $ sudo yum localinstall opensnitch-1*.rpm; sudo yum localinstall opensnitch-ui*.rpm 
+> $ sudo dnf install opensnitch*.rpm
 
 Then run: `$ opensnitch-ui` or launch the GUI from the Applications menu.
 

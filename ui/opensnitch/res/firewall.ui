@@ -22,7 +22,7 @@
 }</string>
      </property>
      <property name="tabPosition">
-      <enum>QTabWidget::South</enum>
+      <enum>QTabWidget::TabPosition::South</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -55,7 +55,7 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Firewall&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -133,7 +133,7 @@ QSlider::sub-page:horizontal {
             <bool>false</bool>
            </property>
            <property name="tickPosition">
-            <enum>QSlider::TicksBothSides</enum>
+            <enum>QSlider::TickPosition::TicksBothSides</enum>
            </property>
           </widget>
          </item>
@@ -148,10 +148,10 @@ QSlider::sub-page:horizontal {
           </sizepolicy>
          </property>
          <property name="textFormat">
-          <enum>Qt::AutoText</enum>
+          <enum>Qt::TextFormat::AutoText</enum>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -160,7 +160,7 @@ QSlider::sub-page:horizontal {
           <bool>true</bool>
          </property>
          <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+          <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
@@ -228,7 +228,7 @@ QSlider::sub-page:horizontal {
           <string/>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -256,72 +256,87 @@ QSlider::sub-page:horizontal {
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item row="4" column="0" colspan="2">
-           <widget class="Line" name="line_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+          <item row="6" column="0" colspan="2">
+           <layout class="QGridLayout" name="gridLayout_2">
+            <property name="topMargin">
+             <number>5</number>
             </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+            <property name="bottomMargin">
+             <number>5</number>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="lblProfile">
-            <property name="text">
-             <string>Profile</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="comboInput">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <item>
-             <property name="text">
-              <string>Allow</string>
-             </property>
-             <property name="icon">
-              <iconset theme="emblem-default">
-               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
-             </property>
+            <item row="0" column="0">
+             <widget class="QPushButton" name="cmdAllowINService">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Allow inbound connections to a port</string>
+              </property>
+              <property name="text">
+               <string>Allow service (IN)</string>
+              </property>
+              <property name="icon">
+               <iconset theme="go-down"/>
+              </property>
+              <property name="flat">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
-            <item>
-             <property name="text">
-              <string>Deny</string>
-             </property>
-             <property name="icon">
-              <iconset theme="process-stop">
-               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
-             </property>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="cmdAllowOUTService">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Exclude outbound connections to a port from being intercepted</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LayoutDirection::RightToLeft</enum>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton { text-align: right; }</string>
+              </property>
+              <property name="text">
+               <string>Allow service (OUT)</string>
+              </property>
+              <property name="icon">
+               <iconset theme="go-up"/>
+              </property>
+              <property name="flat">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
-           </widget>
+            <item row="1" column="0" colspan="2">
+             <widget class="QPushButton" name="cmdNewRule">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>New rule</string>
+              </property>
+              <property name="icon">
+               <iconset theme="document-new">
+                <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+              </property>
+              <property name="flat">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string>Outbound</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Inbound</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
+          <item row="3" column="1">
            <widget class="QComboBox" name="comboOutput">
             <property name="enabled">
              <bool>true</bool>
@@ -352,90 +367,76 @@ QSlider::sub-page:horizontal {
             </item>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Inbound</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
            <widget class="QComboBox" name="comboProfile"/>
           </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="lblProfile">
+            <property name="text">
+             <string>Profile</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Outbound</string>
+            </property>
+           </widget>
+          </item>
           <item row="5" column="0" colspan="2">
-           <layout class="QGridLayout" name="gridLayout_2">
-            <property name="topMargin">
-             <number>5</number>
+           <widget class="Line" name="line_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="bottomMargin">
-             <number>5</number>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-            <item row="0" column="0">
-             <widget class="QPushButton" name="cmdAllowINService">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>Allow inbound connections to a port</string>
-              </property>
-              <property name="text">
-               <string>Allow service (IN)</string>
-              </property>
-              <property name="icon">
-               <iconset theme="go-down">
-                <normaloff>.</normaloff>.</iconset>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="comboInput">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>Allow</string>
+             </property>
+             <property name="icon">
+              <iconset theme="emblem-default">
+               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+             </property>
             </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="cmdAllowOUTService">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>Exclude outbound connections to a port from being intercepted</string>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton { text-align: right; }</string>
-              </property>
-              <property name="text">
-               <string>Allow service (OUT)</string>
-              </property>
-              <property name="icon">
-               <iconset theme="go-up">
-                <normaloff>.</normaloff>.</iconset>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
+            <item>
+             <property name="text">
+              <string>Deny</string>
+             </property>
+             <property name="icon">
+              <iconset theme="process-stop">
+               <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
+             </property>
             </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="QPushButton" name="cmdNewRule">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>New rule</string>
-              </property>
-              <property name="icon">
-               <iconset theme="document-new">
-                <normaloff>../../../../../../../../../../.designer/backup</normaloff>../../../../../../../../../../.designer/backup</iconset>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QComboBox" name="comboNodes"/>
           </item>
          </layout>
         </widget>
@@ -455,7 +456,7 @@ QSlider::sub-page:horizontal {
         <bool>true</bool>
        </property>
        <property name="textInteractionFlags">
-        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -469,8 +470,7 @@ QSlider::sub-page:horizontal {
         <string/>
        </property>
        <property name="icon">
-        <iconset theme="help-browser">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset theme="help-browser"/>
        </property>
       </widget>
      </item>

@@ -1,0 +1,277 @@
+{
+  "Enabled": true,
+  "Version": 1,
+  "SystemRules": [
+    {
+      "Rule": {
+        "Table": "mangle",
+        "Chain": "OUTPUT",
+        "Enabled": false,
+        "Position": "0",
+        "Description": "Allow icmp",
+        "Parameters": "-p icmp",
+        "Expressions": [],
+        "Target": "ACCEPT",
+        "TargetParameters": ""
+      },
+      "Chains": []
+    },
+    {
+      "Chains": [
+        {
+          "Name": "filter_forward",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "filter",
+          "Hook": "forward",
+          "Policy": "accept",
+          "Rules": []
+        },
+        {
+          "Name": "filter_output",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "filter",
+          "Hook": "output",
+          "Policy": "accept",
+          "Rules": []
+        },
+        {
+          "Name": "filter_input",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "filter",
+          "Hook": "input",
+          "Policy": "accept",
+          "Rules": [
+            {
+              "Enabled": false,
+              "Position": "0",
+              "Description": "Allow SSH server connections when input policy is DROP",
+              "Parameters": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "tcp",
+                    "Values": [
+                      {
+                        "Key": "dport",
+                        "Value": "22"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            } 
+          ]
+        },
+        {
+          "Name": "filter_prerouting",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "filter",
+          "Hook": "prerouting",
+          "Policy": "accept",
+          "Rules": []
+        },
+        {
+          "Name": "mangle_prerouting",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "mangle",
+          "Hook": "prerouting",
+          "Policy": "accept",
+          "Rules": []
+        },
+        {
+          "Name": "mangle_postrouting",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "mangle",
+          "Hook": "postrouting",
+          "Policy": "accept",
+          "Rules": []
+        },
+        {
+          "Name": "nat_prerouting",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "natdest",
+          "Hook": "prerouting",
+          "Policy": "accept",
+          "Rules": []
+        },
+        {
+          "Name": "nat_postrouting",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "natsource",
+          "Hook": "postrouting",
+          "Policy": "accept",
+          "Rules": []
+        },
+        {
+          "Name": "nat_input",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "natsource",
+          "Hook": "input",
+          "Policy": "accept",
+          "Rules": []
+        },
+        {
+          "Name": "nat_output",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "natdest",
+          "Hook": "output",
+          "Policy": "accept",
+          "Rules": []
+        },
+        {
+          "Name": "mangle_output",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "mangle",
+          "Hook": "output",
+          "Policy": "accept",
+          "Rules": [
+            {
+              "Enabled": false,
+              "Position": "0",
+              "Description": "allow localhost connections",
+              "Parameters": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "==",
+                    "Name": "ip",
+                    "Values": [
+                      {
+                        "Key": "daddr",
+                        "Value": "127.0.0.0-127.255.255.255"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            },
+            {
+              "Enabled": true,
+              "Position": "0",
+              "Description": "Allow ICMP",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "icmp",
+                    "Values": [
+                      {
+                        "Key": "type",
+                        "Value": "echo-request,echo-reply,destination-unreachable"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            },
+            {
+              "Enabled": true,
+              "Position": "0",
+              "Description": "Allow ICMPv6",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "icmpv6",
+                    "Values": [
+                      {
+                        "Key": "type",
+                        "Value": "echo-request,echo-reply,destination-unreachable"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            },
+            {
+              "Enabled": false,
+              "Position": "0",
+              "Description": "Exclude WireGuard VPN from being intercepted",
+              "Parameters": "",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "udp",
+                    "Values": [
+                      {
+                        "Key": "dport",
+                        "Value": "51820"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "accept",
+              "TargetParameters": ""
+            }
+          ]
+        },
+        {
+          "Name": "mangle_forward",
+          "Table": "opensnitch",
+          "Family": "inet",
+          "Priority": "",
+          "Type": "mangle",
+          "Hook": "forward",
+          "Policy": "accept",
+          "Rules": [
+            {
+              "UUID": "7d7394e1-100d-4b87-a90a-cd68c46edb0b",
+              "Enabled": false,
+              "Position": "0",
+              "Description": "Intercept forwarded connections (docker, etc)",
+              "Expressions": [
+                {
+                  "Statement": {
+                    "Op": "",
+                    "Name": "ct",
+                    "Values": [
+                      {
+                        "Key": "state",
+                        "Value": "new"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Target": "queue",
+              "TargetParameters": "num 0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

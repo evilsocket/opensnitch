@@ -1,11 +1,12 @@
 import json
 import os
 import glob
-import sys
+#import sys
 
-from PyQt5.QtCore import QObject
+from PyQt6.QtCore import QObject
 
 from opensnitch.utils.xdg import xdg_config_home
+from opensnitch.utils import logger
 from opensnitch.actions.default_configs import (
     commonDelegateConfig,
     rulesDelegateConfig,
@@ -116,13 +117,14 @@ class Actions(QObject):
 
     def __init__(self, parent=None):
         QObject.__init__(self)
+        self.logger = logger.get(__name__)
         self._actions_list = {}
         self._plugin_mgr = PluginsManager.instance()
         try:
             base_dir = "{0}/{1}".format(xdg_config_home, "/opensnitch/actions/")
             os.makedirs(base_dir, 0o700)
         except Exception as e:
-            print("actions.__init__ exception:", e)
+            self.logger.warning("actions.__init__ exception: %s", repr(e))
         #print("ActionsLists:", PluginsList.actions)
 
     def _load_default_configs(self):
@@ -140,8 +142,8 @@ class Actions(QObject):
                 obj = json.loads(data)
                 action = self.compile(obj)
                 return obj, action
-        except:
-            pass
+        except Exception as e:
+            self.logger.warning("Actions.load() %s exception: %s", action_file, repr(e))
 
         return None, None
 
@@ -157,7 +159,7 @@ class Actions(QObject):
 
         for path in self._paths:
             for jfile in glob.glob(os.path.join(path, '*.json')):
-                #print("Actions.loadconf()", jfile)
+                self.logger.debug("Actions.loadconf() %s", jfile)
                 obj, action = self.load(jfile)
                 if obj and action:
                     self._actions_list[obj[Actions.KEY_NAME]] = action
@@ -171,11 +173,12 @@ class Actions(QObject):
                 return None
 
             # "actions": { "highlight": ..., "virustotal": ..., }
-            #print("plugins >>", PluginsList.names)
+            self.logger.debug("actions.plugins >> %s", repr(PluginsList.names))
             for action_name in json_obj[Actions.KEY_ACTIONS]:
+                self.logger.debug("actions.compile() loading %s", action_name)
                 action_obj = json_obj[Actions.KEY_ACTIONS][action_name]
                 if action_obj == None or action_obj.get('enabled') == None or action_obj.get('enabled') == False:
-                    print("actions.compile() skipping disabled action '{0}'".format(action_name))
+                    self.logger.info("actions.compile() skipping disabled action %s", action_name)
                     # FIXME: if one of the action is not enabled, we're
                     # invalidating all the configured actions.
                     return None
@@ -183,7 +186,7 @@ class Actions(QObject):
                 # see if the plugin is loaded, if it's not, try to load it.
                 if PluginsList.names.get(action_name.capitalize()) == None:
                     if self._plugin_mgr.load_plugin_byname(action_name, force=True) == False:
-                        print("actions.compile() unable to load plugin name '{0}'".format(action_name))
+                        self.logger.warning("actions.compile() unable to load plugin name '%s'", action_name)
                         return None
 
                 # allow to use "Plugin" or "plugin" to name actions in json
@@ -201,7 +204,7 @@ class Actions(QObject):
 
             return json_obj
         except Exception as e:
-            print("Actions.compile() exception:", e)
+            self.logger.warning("Actions.compile() exception: %s", repr(e))
             return None
 
     def getAll(self):
@@ -214,7 +217,7 @@ class Actions(QObject):
         try:
             return self._actions_list[name]
         except Exception as e:
-            print("actions.get() exception:", e, "name:", name)
+            self.logger.warning("actions.get() exception: %s name: %s", repr(e), name)
             return None
 
     def getByType(self, acttype):
@@ -223,7 +226,7 @@ class Actions(QObject):
             for name in self._actions_list:
                 act = self._actions_list[name]
                 if act == None:
-                    print("actions.getByType() none:", name)
+                    self.logger.warning("actions.getByType() none: %s", name)
                     continue
                 types = act.get('type')
                 if types == None:
@@ -232,7 +235,7 @@ class Actions(QObject):
                     actlist[name] = self._actions_list[name]
             return actlist
         except Exception as e:
-            print("actions.getByType() ({0}) exception: {1}".format(acttype, e))
+            self.logger.warning("actions.getByType() (%s) exception: %s", acttype, repr(e))
             return None
 
     def delete(self, name):

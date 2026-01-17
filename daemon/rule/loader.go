@@ -401,7 +401,7 @@ func (l *Loader) replaceUserRule(rule *Rule) (err error) {
 	}
 
 	if err := l.unmarshalOperatorList(&rule.Operator); err != nil {
-		log.Error(err.Error())
+		log.Error("%s", err.Error())
 	}
 
 	if rule.Enabled {

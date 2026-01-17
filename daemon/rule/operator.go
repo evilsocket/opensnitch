@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"os/user"
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -73,15 +72,17 @@ const (
 	//OpQuotaRxOver  = Operand("quota.recv.over") // 1000b, 1kb, 1mb, 1gb, ...
 )
 
-type opCallback func(value interface{}) bool
+type opCallback func(value string) bool
+type opGenericCallback func(value interface{}) bool
 
 // Operator represents what we want to filter of a connection, and how.
 type Operator struct {
 	cb              opCallback
+	cbGeneric       opGenericCallback
 	re              *regexp.Regexp
 	netMask         *net.IPNet
 	lists           map[string]interface{}
-	exitMonitorChan chan (bool)
+	exitMonitorChan chan (struct{})
 
 	Operand             Operand    `json:"operand"`
 	Data                string     `json:"data"`
@@ -112,8 +113,16 @@ func (o *Operator) Compile() error {
 		return nil
 	}
 
-	// the only operator Type that can have the Data field empty is List.
-	if o.Type != List && o.Operand != OpTrue && o.Data == "" {
+	// The only operator Type that can have the Data field empty are:
+	// Simple, Regexp, List.
+	// For List, because it uses List field and not Data field.
+	// For Simple and Regexp, because it can be useful to match on some
+	// operands that can in practice be equal to an empty string. This is the
+	// case, for example, when a request has a "bare" IP instead of a domain
+	// name, therefore DstHost field will be empty. You can match empty string
+	// with simple comparison or the "^$" regexp pattern.
+	if !(o.Type == Simple || o.Type == Regexp || o.Type == List) &&
+		o.Operand != OpTrue && o.Data == "" {
 		return fmt.Errorf("Operand %s cannot be empty (%s)", o.Operand, o.Type)
 	}
 
@@ -147,35 +156,9 @@ func (o *Operator) Compile() error {
 	} else if o.Type == List {
 		o.Operand = OpList
 	} else if o.Type == Network {
-		// Check if the operator's data is an alias present in the cache
-		if ipNets, found := AliasIPCache[o.Data]; found {
-			o.cb = func(value interface{}) bool {
-				ip := value.(net.IP)
-				matchFound := false
-
-				for _, ipNet := range ipNets {
-					if ipNet.Contains(ip) {
-						matchFound = true
-						break
-					}
-				}
-				/*
-					if !matchFound {
-						fmt.Printf(" -> No match found: IP %s for alias '%s'\n", ip, o.Data)
-					}
-				*/
-				return matchFound
-			}
-		} else {
-			// Parse the data as a CIDR if it's not an alias
-			_, netMask, err := net.ParseCIDR(o.Data)
-			if err != nil {
-				return fmt.Errorf("CIDR parsing error: %s", err)
-			}
-			o.netMask = netMask
-			o.cb = o.cmpNetwork
+		if err := o.compileNetwork(); err != nil {
+			return err
 		}
-
 	} else if o.Type == Lists {
 		if o.Operand == OpDomainsLists {
 			o.loadLists()
@@ -188,7 +171,7 @@ func (o *Operator) Compile() error {
 			o.cb = o.simpleListsCmp
 		} else if o.Operand == OpNetLists {
 			o.loadLists()
-			o.cb = o.ipNetCmp
+			o.cbGeneric = o.ipNetCmp
 		} else if o.Operand == OpHashMD5Lists {
 			o.loadLists()
 			o.cb = o.simpleListsCmp
@@ -206,6 +189,34 @@ func (o *Operator) Compile() error {
 	return nil
 }
 
+func (o *Operator) compileNetwork() error {
+	// Check if the operator's data is an alias present in the cache
+	if ipNets, found := AliasIPCache[o.Data]; found {
+		o.cbGeneric = func(value interface{}) bool {
+			ip := value.(net.IP)
+			matchFound := false
+
+			for _, ipNet := range ipNets {
+				if ipNet.Contains(ip) {
+					matchFound = true
+					break
+				}
+			}
+			return matchFound
+		}
+	} else {
+		// Parse the data as a CIDR if it's not an alias
+		_, netMask, err := net.ParseCIDR(o.Data)
+		if err != nil {
+			return fmt.Errorf("CIDR parsing error: %s", err)
+		}
+		o.netMask = netMask
+		o.cbGeneric = o.cmpNetwork
+	}
+
+	return nil
+}
+
 func (o *Operator) String() string {
 	how := "is"
 	if o.Type == Regexp {
@@ -214,22 +225,18 @@ func (o *Operator) String() string {
 	return fmt.Sprintf("%s %s '%s'", log.Bold(string(o.Operand)), how, log.Yellow(string(o.Data)))
 }
 
-func (o *Operator) simpleCmp(v interface{}) bool {
+func (o *Operator) simpleCmp(v string) bool {
 	if o.Sensitive == false {
-		return strings.EqualFold(v.(string), o.Data)
+		return strings.EqualFold(v, o.Data)
 	}
 	return v == o.Data
 }
 
-func (o *Operator) reCmp(v interface{}) bool {
-	if vt := reflect.ValueOf(v).Kind(); vt != reflect.String {
-		log.Warning("Operator.reCmp() bad interface type: %T", v)
-		return false
-	}
+func (o *Operator) reCmp(data string) bool {
 	if o.Sensitive == false {
-		v = strings.ToLower(v.(string))
+		data = strings.ToLower(data)
 	}
-	return o.re.MatchString(v.(string))
+	return o.re.MatchString(data)
 }
 
 func (o *Operator) cmpNetwork(destIP interface{}) bool {
@@ -249,22 +256,20 @@ func (o *Operator) matchListsCmp(msg, what string) bool {
 	return false
 }
 
-func (o *Operator) domainsListsCmp(v interface{}) bool {
-	dstHost := v.(string)
-	if dstHost == "" {
+func (o *Operator) domainsListsCmp(data string) bool {
+	if data == "" {
 		return false
 	}
 	if o.Sensitive == false {
-		dstHost = strings.ToLower(dstHost)
+		data = strings.ToLower(data)
 	}
 	o.RLock()
 	defer o.RUnlock()
 
-	return o.matchListsCmp("domains list match", dstHost)
+	return o.matchListsCmp("domains list match", data)
 }
 
-func (o *Operator) simpleListsCmp(v interface{}) bool {
-	what := v.(string)
+func (o *Operator) simpleListsCmp(what string) bool {
 	if what == "" {
 		return false
 	}
@@ -288,39 +293,37 @@ func (o *Operator) ipNetCmp(dstIP interface{}) bool {
 	return false
 }
 
-func (o *Operator) reListCmp(v interface{}) bool {
-	dstHost := v.(string)
-	if dstHost == "" {
+func (o *Operator) reListCmp(data string) bool {
+	if data == "" {
 		return false
 	}
 	if o.Sensitive == false {
-		dstHost = strings.ToLower(dstHost)
+		data = strings.ToLower(data)
 	}
 	o.RLock()
 	defer o.RUnlock()
 
 	for file, re := range o.lists {
 		r := re.(*regexp.Regexp)
-		if r.MatchString(dstHost) {
-			log.Debug("%s: %s, %s", log.Red("Regexp list match"), dstHost, file)
+		if r.MatchString(data) {
+			log.Debug("%s: %s, %s", log.Red("Regexp list match"), data, file)
 			return true
 		}
 	}
 	return false
 }
 
-func (o *Operator) hashCmp(v interface{}) bool {
-	hash := v.(string)
+func (o *Operator) hashCmp(hash string) bool {
 	if hash == "" {
 		return true // fake a match to avoid displaying a pop-up
 	}
 	return hash == o.Data
 }
 
-func (o *Operator) listMatch(con interface{}, hasChecksums bool) bool {
+func (o *Operator) listMatch(con *conman.Connection, hasChecksums bool) bool {
 	res := true
 	for i := 0; i < len(o.List); i++ {
-		res = res && o.List[i].Match(con.(*conman.Connection), hasChecksums)
+		res = res && o.List[i].Match(con, hasChecksums)
 	}
 	return res
 }
@@ -353,7 +356,7 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 		return false
 	} else if o.Operand == OpProcessCmd {
 		return o.cb(strings.Join(con.Process.Args, " "))
-	} else if o.Operand == OpDstHost && con.DstHost != "" {
+	} else if o.Operand == OpDstHost {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpDstIP {
 		return o.cb(con.DstIP.String())
@@ -368,11 +371,11 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 	} else if o.Operand == OpUserID || o.Operand == OpUserName {
 		return o.cb(strconv.Itoa(con.Entry.UserId))
 	} else if o.Operand == OpDstNetwork {
-		return o.cb(con.DstIP)
+		return o.cbGeneric(con.DstIP)
 	} else if o.Operand == OpSrcNetwork {
-		return o.cb(con.SrcIP)
+		return o.cbGeneric(con.SrcIP)
 	} else if o.Operand == OpNetLists {
-		return o.cb(con.DstIP)
+		return o.cbGeneric(con.DstIP)
 	} else if o.Operand == OpDomainsRegexpLists {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpIfaceIn {
@@ -405,6 +408,14 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 		return o.cb(strconv.FormatUint(uint64(con.SrcPort), 10))
 	} else if o.Operand == OpProcessID {
 		return o.cb(strconv.Itoa(con.Process.ID))
+	} else if o.Operand == OpProcessParentPath {
+		p := con.Process
+		for pp := p.Parent; pp != nil; pp = pp.Parent {
+			if o.cb(pp.Path) {
+				return true
+			}
+		}
+		return false
 	} else if strings.HasPrefix(string(o.Operand), string(OpProcessEnvPrefix)) {
 		envVarName := core.Trim(string(o.Operand[OpProcessEnvPrefixLen:]))
 		envVarValue, _ := con.Process.Env[envVarName]

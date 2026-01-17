@@ -9,12 +9,12 @@
         <translation type="obsolete">opensnitch-qt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="753"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="758"/>
         <source>User ID</source>
         <translation>ID Pengguna</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="690"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="695"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Executed from&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Dieksekusi dari&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -24,7 +24,7 @@
         <translation type="obsolete">TextLabel</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="967"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="972"/>
         <source>Source IP</source>
         <translation>IP Sumber</translation>
     </message>
@@ -34,14 +34,14 @@
         <translation type="obsolete">ID Proses</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="781"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="786"/>
         <source>Destination IP</source>
         <translation>IP Tujuan</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="918"/>
         <source>Dst Port</source>
-        <translation>Port Tujuan</translation>
+        <translation type="obsolete">Port Tujuan</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/prompt.ui" line="56"/>
@@ -74,7 +74,7 @@
         <translation>sekali</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="134"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="139"/>
         <source>forever</source>
         <translation>selamanya</translation>
     </message>
@@ -89,12 +89,12 @@
         <translation>Izinkan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="197"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="202"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="129"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="134"/>
         <source>until reboot</source>
         <translation>sampai reboot</translation>
     </message>
@@ -104,7 +104,7 @@
         <translation>dari PID ini</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="151"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="156"/>
         <source>action</source>
         <translation>aksi</translation>
     </message>
@@ -184,7 +184,7 @@
         <translation>Aturan baru</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="421"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="451"/>
         <source>Close</source>
         <translation>Tutup</translation>
     </message>
@@ -264,22 +264,22 @@
         <translation>RETURN</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="432"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="440"/>
         <source>Clear</source>
         <translation>Bersihkan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="443"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="416"/>
         <source>Delete</source>
         <translation>Hapus</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="454"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="462"/>
         <source>Save</source>
         <translation>Simpan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="465"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="473"/>
         <source>Add</source>
         <translation>Tambah</translation>
     </message>
@@ -304,22 +304,22 @@
         <translation>QUEUE</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="323"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="324"/>
         <source>DNAT</source>
         <translation>DNAT</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="328"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="329"/>
         <source>SNAT</source>
         <translation>SNAT</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="333"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="334"/>
         <source>REDIRECT</source>
         <translation>REDIRECT</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/firewall_rule.ui" line="349"/>
+        <location filename="../../../opensnitch/res/firewall_rule.ui" line="351"/>
         <source>depending on the Action (i.e.: target), the syntaxis of the parameters will vary.
 Some examples:
 
@@ -345,19 +345,29 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation>Dialog</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="366"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="371"/>
         <source>Update rule</source>
         <translation>Perbarui aturan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="377"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="382"/>
         <source>Update All</source>
         <translation>Perbarui Semua</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/prompt.ui" line="824"/>
+        <location filename="../../../opensnitch/res/prompt.ui" line="829"/>
         <source>Checksum</source>
         <translation>Checksum</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/prompt.ui" line="129"/>
+        <source>12h</source>
+        <translation>12j</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/prompt.ui" line="923"/>
+        <source>Destination Port</source>
+        <translation>Port Tujuan</translation>
     </message>
 </context>
 <context>
@@ -368,317 +378,317 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation>Preferensi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="512"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="521"/>
         <source>UI</source>
         <translation>UI</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="129"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="133"/>
         <source>Default timeout</source>
         <translation>Tenggat waktu baku</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="224"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="228"/>
         <source>Pop-up default duration</source>
         <translation>Pop up durasi baku</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1545"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1554"/>
         <source>Default duration</source>
         <translation>Durasi baku</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="284"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="293"/>
         <source>Default target</source>
         <translation>Target baku</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="351"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="360"/>
         <source>center</source>
         <translation>tengah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="356"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="365"/>
         <source>top right</source>
         <translation>kanan atas</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="361"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="370"/>
         <source>bottom right</source>
         <translation>kanan bawah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="366"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="375"/>
         <source>top left</source>
         <translation>kiri atas</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="371"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="380"/>
         <source>bottom left</source>
         <translation>kiri bawah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="298"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="307"/>
         <source>by executable</source>
         <translation>berdasarkan executable</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="303"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="312"/>
         <source>by command line</source>
         <translation>berdasarkan baris perintah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="308"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="317"/>
         <source>by destination port</source>
         <translation>berdasarkan port tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="313"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="322"/>
         <source>by destination ip</source>
         <translation>berdasarkan ip tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="318"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="327"/>
         <source>by user id</source>
         <translation>berdasarkan id pengguna</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1517"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1526"/>
         <source>once</source>
         <translation>sekali</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="276"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="285"/>
         <source>forever</source>
         <translation>selamanya</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1556"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1565"/>
         <source>deny</source>
         <translation>tolak</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1565"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1574"/>
         <source>allow</source>
         <translation>izinkan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1408"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1417"/>
         <source>Nodes</source>
         <translation>Simpul</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1618"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1627"/>
         <source>Process monitor method</source>
         <translation>Metode pemantauan proses</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1542"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1551"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default duration will take place when there&apos;s no UI connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Durasi baku akan dipakai ketika tidak ada UI yang tersambung.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1586"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1595"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Address of the node.&lt;/p&gt;&lt;p&gt;Default: unix:///tmp/osui.sock (unix:// is mandatory if it&apos;s a Unix socket)&lt;/p&gt;&lt;p&gt;It can also be an IP address with the port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alamat simpul.&lt;/p&gt;&lt;p&gt;Baku: unix:///tmp/osui.sock (unix:// wajib bila itu adalah suatu soket Unix)&lt;/p&gt;&lt;p&gt;Itu juga bisa berupa suatu alamat IP dengan port: 127.0.0.1:50051&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1589"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1598"/>
         <source>Address</source>
         <translation>Alamat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1736"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1745"/>
         <source>Default log level</source>
         <translation>Tingkat log baku</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2246"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2255"/>
         <source>Version</source>
         <translation>Versi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1669"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1678"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Log file to write logs.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout will print logs to the standard output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Berkas log tempat menulis catatan.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;/dev/stdout akan mencetak log ke keluaran standar.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1672"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1681"/>
         <source>Log file</source>
         <translation>Berkas log</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2262"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2271"/>
         <source>HostName</source>
         <translation>Nama Host</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1600"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1609"/>
         <source>unix:///tmp/osui.sock</source>
         <translation>unix:///tmp/osui.sock</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1522"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1531"/>
         <source>until restart</source>
         <translation>sampai dimulai lagi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1527"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1536"/>
         <source>always</source>
         <translation>selalu</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1747"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1756"/>
         <source>/var/log/opensnitchd.log</source>
         <translation>/var/log/opensnitchd.log</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1752"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1761"/>
         <source>/dev/stdout</source>
         <translation>/dev/stdout</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1420"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1429"/>
         <source>Apply configuration to all nodes</source>
         <translation>Terapkan konfigurasi ke semua simpul</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2273"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2282"/>
         <source>Database</source>
         <translation>Basis Data</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2308"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2317"/>
         <source>In memory</source>
         <translation>Dalam memori</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2313"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2322"/>
         <source>File</source>
         <translation>Berkas</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2626"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2635"/>
         <source>Close</source>
         <translation>Tutup</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2637"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2646"/>
         <source>Apply</source>
         <translation>Terapkan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2648"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2657"/>
         <source>Save</source>
         <translation>Simpan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="271"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="280"/>
         <source>until reboot</source>
         <translation>sampai boot ulang</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2327"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2336"/>
         <source>Database type</source>
         <translation>Tipe basis data</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2334"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2343"/>
         <source>Select</source>
         <translation>Pilih</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="419"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="428"/>
         <source>Show advanced view by default</source>
         <translation>Tampilkan tilikan tingkat lanjut secara baku</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1204"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1213"/>
         <source>Action</source>
         <translation>Aksi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="400"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="409"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the pop-ups will be displayed with the advanced view active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bila dicentang, pop-up akan ditampilkan dengan tilikan tingkat lanjut aktif.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="227"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="231"/>
         <source>Duration</source>
         <translation>Durasi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="494"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="503"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default when a new pop-up appears, in its simplest form, you&apos;ll be able to filter connections or applications by one property of the connection (executable, port, IP, etc).&lt;/p&gt;&lt;p&gt;With these options, you can choose multiple fields to filter connections for.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Secara baku ketika suatu pop-up baru muncul, dalam bentuknya yang paling sederhana, Anda akan dapat menyaring koneksi atau aplikasi berdasarkan satu properti koneksi (executable, port, IP, dsb).&lt;/p&gt;&lt;p&gt;Dengan opsi ini, Anda dapat memilih beberapa ruas untuk menyaring koneksi.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="497"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="506"/>
         <source>Filter connections also by:</source>
         <translation>Juga saring koneksi berdasarkan:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="440"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="449"/>
         <source>User ID</source>
         <translation>ID Pengguna</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="456"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="465"/>
         <source>Destination port</source>
         <translation>Port tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="472"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="481"/>
         <source>Destination IP</source>
         <translation>IP Tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="126"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="130"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This timeout is the countdown you see when a pop-up dialog is shown.&lt;/p&gt;&lt;p&gt;If the pop-up is not answered, the default options will be applied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tenggat waktu ini adalah hitung mundur yang Anda lihat ketika suatu dialog pop up ditampilkan.&lt;/p&gt;&lt;p&gt;Bila pop-up tidak dijawab, opsi baku akan diterapkan.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="416"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="425"/>
         <source>The advanced view allows you to easily select multiple fields to filter connections</source>
         <translation>Tilikan tingkat lanjut memungkinkan Anda dengan mudah memilih beberapa ruas untuk menyaring koneksi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="469"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="478"/>
         <source>If checked, this field will be selected when a pop-up is displayed</source>
         <translation>Bila dicentang, ruas ini akan dipilih ketika suatu pop up ditampilkan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1506"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1515"/>
         <source>Default action when the GUI is disconnected</source>
         <translation>Aksi baku ketika GUI terputus</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1611"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1620"/>
         <source>Debug invalid connections</source>
         <translation>Debug koneksi yang tidak valid</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="42"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="46"/>
         <source>Pop-ups</source>
         <translation>Pop-up</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="171"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="175"/>
         <source>Default options</source>
         <translation>Opsi baku</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="331"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="340"/>
         <source>Default position on screen</source>
         <translation>Posisi baku pada layar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1354"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1363"/>
         <source>any temporary rules</source>
         <translation>sebarang aturan temporer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1220"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1229"/>
         <source>Time</source>
         <translation>Waktu</translation>
     </message>
@@ -688,137 +698,137 @@ REDIRECT, TPROXY, DNAT, SNAT, MASQUERADE:
         <translation type="obsolete">Tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1236"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1245"/>
         <source>Protocol</source>
         <translation>Protokol</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1268"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1277"/>
         <source>Process</source>
         <translation>Proses</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1252"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1261"/>
         <source>Rule</source>
         <translation>Aturan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1178"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1187"/>
         <source>Node</source>
         <translation>Simpul</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1125"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1134"/>
         <source>Events tab columns</source>
         <translation>Kolom tab kejadian</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="323"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="332"/>
         <source>by PID</source>
         <translation>berdasarkan PID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="149"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="153"/>
         <source>Disable pop-ups, only display a notification</source>
         <translation>Matikan pop-up, hanya tampilkan pemberitahuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1029"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1038"/>
         <source>Desktop notifications</source>
         <translation>Notifikasi desktop</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1059"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1068"/>
         <source>Use system notifications</source>
         <translation>Gunakan notifikasi sistem</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1075"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1084"/>
         <source>Use Qt notifications</source>
         <translation>Pakai notifikasi Qt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1104"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1113"/>
         <source>Test</source>
         <translation>Tes</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1608"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1617"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will prompt you to allow or deny connections that don&apos;t have an associated PID, due to several reasons, mostly due to bad state connections.&lt;/p&gt;&lt;p&gt;The pop-up dialog will only contain information about the network connection.&lt;/p&gt;&lt;p&gt;There&apos;re some scenarios where these are valid connections though, like when establishing a VPN using WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bila dicentang, OpenSnitch akan menanyakan untuk mengizinkan atau menolak koneksi yang tidak memiliki PID terkait, karena beberapa alasan, kebanyakan karena koneksi dengan keadaan buruk.&lt;/p&gt;&lt;p&gt;Dialog pop-up hanya akan memuat informasi tentang koneksi jaringan.&lt;/p&gt;&lt;p&gt;Ada beberapa skenario dimana ini adalah koneksi yang valid, seperti ketika menjalin VPN memakai WireGuard.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2421"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2430"/>
         <source>minutes</source>
         <translation>menit</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2453"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2462"/>
         <source>Minutes between events purges</source>
         <translation>Menit antara pembersihan kejadian</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2479"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2488"/>
         <source>days</source>
         <translation>hari</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2492"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2501"/>
         <source>Maximum days of events to keep</source>
         <translation>Berapa hari maksimum kejadian dipertahankan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1574"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1583"/>
         <source>reject</source>
         <translation>tolak</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="563"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="572"/>
         <source>System</source>
         <translation>Sistem</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1188"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1197"/>
         <source>Command line</source>
         <translation>Baris perintah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="788"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="797"/>
         <source>Theme</source>
         <translation>Tema</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="246"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="250"/>
         <source>30s</source>
         <translation>30d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="251"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="255"/>
         <source>5m</source>
         <translation>5m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="256"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="260"/>
         <source>15m</source>
         <translation>15m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="261"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="265"/>
         <source>30m</source>
         <translation>30m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="266"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="270"/>
         <source>1h</source>
         <translation>1j</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1930"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1939"/>
         <source>Rules</source>
         <translation>Aturan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1341"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1350"/>
         <source>When this option is selected, the rules of the selected duration won&apos;t be added to the list of temporary rules in the GUI.
 
 Temporary rules will still be valid, and you can use them when prompted to allow/deny a new connection.</source>
@@ -827,82 +837,82 @@ Temporary rules will still be valid, and you can use them when prompted to allow
 Aturan sementara masih akan valid, dan Anda dapat memakai mereka ketika diminta untuk mengizinkan/menolak suatu koneksi baru.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1346"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1355"/>
         <source>Don&apos;t save/Delete rules of duration</source>
         <translation>Jangan simpan/hapus aturan durasi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1364"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1373"/>
         <source>30s or less</source>
         <translation>30d atau kurang</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1369"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1378"/>
         <source>5m or less</source>
         <translation>5m atau kurang</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1374"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1383"/>
         <source>15m or less</source>
         <translation>15m atau kurang</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1379"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1388"/>
         <source>30m or less</source>
         <translation>30m atau kurang</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1384"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1393"/>
         <source>1h or less</source>
         <translation>1j atau kurang</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="555"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="564"/>
         <source>Language</source>
         <translation>Bahasa</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="177"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="181"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pop-up default action.&lt;/p&gt;&lt;p&gt;When a new outgoing connection is about to be established, this action will be selected by default, so if the timeout fires, this is the option that will be applied.&lt;/p&gt;&lt;p&gt;While a pop-up is asking the user to allow or deny a connection:&lt;/p&gt;&lt;p&gt;1. the daemon&apos;s default action will be applied (see Nodes tab).&lt;/p&gt;&lt;p&gt;2. known connections are allowed or denied based on the rules defined by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aksi baku pop up.&lt;/p&gt;&lt;p&gt;Ketika suatu koneksi keluar baru akan terjalin, aksi ini akan dipilih secara baku, sehingga bila habis waktu tercapai, ini adalah opsi yang akan diterapkan.&lt;/p&gt;&lt;p&gt;Ketika suatu pop up bertanya ke pengguna apakah mengizinkan atau menolak suatu koneksi:&lt;/p&gt;&lt;p&gt;1. aksi baku daemon akan diterapkan (lihat tab Simpul).&lt;/p&gt;&lt;p&gt;2. koneksi yang dikenal diizinkan atau ditolak berdasarkan aturan yang didefinisikan oleh pengguna.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="388"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="397"/>
         <source>More</source>
         <translation>Lebih lanjut</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="479"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="488"/>
         <source>checksum</source>
         <translation>checksum</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1497"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1506"/>
         <source>General</source>
         <translation>Umum</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="542"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="551"/>
         <source>Theme density scale</source>
         <translation>Skala densitas tema</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="577"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="586"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Scale factor (use ; for multiple displays) &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#gui-size-problems-on-4k-monitors&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;More information&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Faktor skala (pakai ; untuk beberapa tampilan) &lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#gui-size-problems-on-4k-monitors&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Informasi lebih lanjut&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="659"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="668"/>
         <source>By default the GUI is started when login</source>
         <translation>Secara baku GUI dimulai saat log masuk</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="662"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="671"/>
         <source>Autostart the GUI upon login</source>
         <translation>Mulai otomatis GUI saat log masuk</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="750"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="759"/>
         <source>Use numbers to define a global scale factor for the whole application:
 1, 1.2, 1.5, 2, etc ...
 
@@ -913,22 +923,22 @@ Use ; to define multiple screens: 1;1.5 etc...</source>
 Gunakan ; untuk menentukan beberapa layar: 1;1.5 dsb...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="756"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="765"/>
         <source>ex: 1, 1.25, 1.5, 2, ...</source>
         <translation>mis: 1, 1.25, 1.5, 2, ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="772"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="781"/>
         <source>Refresh interval (seconds)</source>
         <translation>Interval penyegaran (detik)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="795"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="804"/>
         <source>Auto screen scale factor</source>
         <translation>Faktor skala layar otomatis</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="811"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="820"/>
         <source>This option will set QT_QPA_PLATFORM when launching the GUI.
 
 xcb         - X11 compatibility. If you experience issues with wayland, use this plugin.
@@ -939,37 +949,37 @@ xcb         - kompatibilitas X11. Bila Anda mengalami masalah dengan wayland, gu
 wayland</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="817"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="826"/>
         <source>Qt platform plugin</source>
         <translation>Plugin platform Qt</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="871"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="880"/>
         <source>Server</source>
         <translation>Server</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1891"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1900"/>
         <source>Absolute path to the cert key file</source>
         <translation>Path absolut ke berkas kunci cert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1844"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1853"/>
         <source>Absolute path to the CA cert file</source>
         <translation>Path absolut ke berkas cert CA</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="891"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="900"/>
         <source>Maximum size of each message from nodes. Default 4MB</source>
         <translation>Ukuran maksimum dari setiap pesan dari simpul. Baku 4MB</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="894"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="903"/>
         <source>Max gRPC channel size</source>
         <translation>Ukuran kanal gRPC maks</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="901"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="910"/>
         <source>&lt;p&gt;Simple: no authentication&lt;/p&gt;
 &lt;p&gt;TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;
 &lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</source>
@@ -978,57 +988,57 @@ wayland</translation>
 &lt;p&gt;Kunjungi wiki untuk informasi lebih lanjut.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1810"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1819"/>
         <source>Authentication type</source>
         <translation>Tipe otentikasi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1798"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1807"/>
         <source>Absolute path to the cert file</source>
         <translation>Path absolut ke berkas cert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1824"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1833"/>
         <source>Simple</source>
         <translation>Sederhana</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1829"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1838"/>
         <source>Simple TLS</source>
         <translation>TLS Sederhana</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1834"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1843"/>
         <source>Mutual TLS</source>
         <translation>TLS Mutual</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="946"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="955"/>
         <source>4MiB</source>
         <translation>4MiB</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="951"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="960"/>
         <source>8MiB</source>
         <translation>8MiB</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="956"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="965"/>
         <source>16MiB</source>
         <translation>16MiB</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="961"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="970"/>
         <source>32MiB</source>
         <translation>32MiB</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1905"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1914"/>
         <source>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;More information&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;https://github.com/evilsocket/opensnitch/wiki/Nodes-authentication#nodes-authentication-added-in-v161&quot;&gt;Informasi lebih lanjut&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="994"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1003"/>
         <source>Set the address where the GUI is listening for new nodes.
 
 It can be a unix socket: unix:///run/user/1000/opensnitch/osui.sock
@@ -1041,182 +1051,182 @@ Itu bisa berupa soket unix: unix:///run/user/1000/opensnitch/osui.sock
 atau suatu soket jariingan: 127.0.0.1:50051</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1041"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1050"/>
         <source>Enable</source>
         <translation>Fungsikan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1158"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1167"/>
         <source>Source port</source>
         <translation>Port sumber</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1165"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1174"/>
         <source>Source IP</source>
         <translation>IP sumber</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1278"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1287"/>
         <source>PID</source>
         <translation>PID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1285"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1294"/>
         <source>Dest port</source>
         <translation>Port tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1301"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1310"/>
         <source>Dest host</source>
         <translation>Host tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1311"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1320"/>
         <source>Dest IP</source>
         <translation>IP tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1318"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1327"/>
         <source>UID</source>
         <translation>UID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1503"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1512"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default action will be applied to new outbound connections in two scenarios:&lt;/p&gt;&lt;p&gt;when the daemon is not connected to the UI, or when there&apos;s a pop-up running.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aksi baku akan diterapkan ke koneksi arah luar baru dalam dua skenario:&lt;/p&gt;&lt;p&gt;saat daemon tidak tersambung ke UI, atau ketika ada pop-up yang berjalan.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1656"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1665"/>
         <source>Logging</source>
         <translation>Pencatatan log</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1679"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1688"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will log timestamp microseconds.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bila dicentang, OpenSnitch akan mencatat log mikro detik stempel waktu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1682"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1691"/>
         <source>Log timestamp microseconds</source>
         <translation>Catat log mikro detik stempel waktu</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1726"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1735"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, OpenSnitch will use the UTC timezone for timestamps.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bila dicentang, OpenSnitch akan memakai zona waktu UTC bagi stempel waktu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1729"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1738"/>
         <source>Log UTC timestamps</source>
         <translation>Catat log stempel waktu UTC</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1792"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1801"/>
         <source>Authentication</source>
         <translation>Otentikasi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1807"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1816"/>
         <source>&lt;p&gt;Simple: no authentication, TLS simple/mutual: use SSL certificates to authenticate nodes.&lt;/p&gt;&lt;p&gt;Visit the wiki for more information.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Sederhana: tanpa otentikasi, TLS sederhana/mutual: pakai sertifikat SSL untuk mengotentikasi simpul.&lt;/p&gt;&lt;p&gt;Kunjungi wiki untuk informasi lebih lanjut.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1853"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1862"/>
         <source>Don&apos;t verify certs</source>
         <translation>Jangan verifikasi cert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1861"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1870"/>
         <source>no-client-cert</source>
         <translation>no-client-cert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1866"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1875"/>
         <source>req-cert</source>
         <translation>req-cert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1871"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1880"/>
         <source>req-any-cert</source>
         <translation>req-any-cert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1876"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1885"/>
         <source>verify-cert</source>
         <translation>verify-cert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1881"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1890"/>
         <source>req-and-verify-cert</source>
         <translation>req-and-verify-cert</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1898"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1907"/>
         <source>Absolute path to the server cert file</source>
         <translation>Path absolut ke berkas cert server</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1947"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1956"/>
         <source>md5</source>
         <translation>md5</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1966"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1975"/>
         <source>sha1</source>
         <translation>sha1</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1975"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1984"/>
         <source>Compute and verify binaries checksums when they try to establish new connections</source>
         <translation>Hitung dan verifikasi checksum biner ketika mereka mencoba menjalin koneksi baru</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="1978"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="1987"/>
         <source>Enable checksums verification</source>
         <translation>Fungsikan verifikasi checksum</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2000"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2009"/>
         <source>Path</source>
         <translation>Path</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2011"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2020"/>
         <source>If empty, default rules path will be /etc/opensnitchd/rules</source>
         <translation>Bila kosong, path aturan baku adalah /etc/opensnitchd/rules</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2014"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2023"/>
         <source>absolute path to the rules directory (it must exist)</source>
         <translation>path absolut ke direktori aturan (itu mesti ada)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2032"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2041"/>
         <source>Internal</source>
         <translation>Internal</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2047"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2056"/>
         <source>50</source>
         <translation>50</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2057"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2066"/>
         <source>Max events</source>
         <translation>Kejadian maks</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2077"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2086"/>
         <source>Garbage collector percentage</source>
         <translation>Persentase garbage collector</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2093"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2102"/>
         <source>250</source>
         <translation>250</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2103"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2112"/>
         <source>When this option is on, all the existing sockets will be killed, in order to force them establish the connection again so we can intercept them.
 
 Note that this option may be not acceptable on servers, for example because downloads/uploads are taking place.</source>
@@ -1225,17 +1235,17 @@ Note that this option may be not acceptable on servers, for example because down
 Perhatikan bahwa opsi ini mungkin tidak dapat diterima pada server, misalnya karena pengunduhan/pengunggahan sedang terjadi.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2108"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2117"/>
         <source>Flush connections on start</source>
         <translation>Flush koneksi saat mulai</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2115"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2124"/>
         <source>Max stats</source>
         <translation>Stat maks</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2194"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2203"/>
         <source>Check every n seconds that the interception rules are present in the system.
 If they&apos;re no present, all the rules will be deleted and added again.
 
@@ -1246,24 +1256,29 @@ Bila mereka tidak ada, semua aturan akan dihapus dan ditambahkan lagi.
 Pakai 0 untuk menonaktifkan fitur ini.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2200"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2209"/>
         <source>Firewall rules monitoring interval (seconds)</source>
         <translation>Interval pemantauan aturan firewall (detik)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2222"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2231"/>
         <source>10s, 15s, 60s, etc</source>
         <translation>10d, 15d, 60d, dsb</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2229"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2238"/>
         <source>Block outbound network traffic if the daemon unexpectedly dies</source>
         <translation>Blok lalu lintas jaringan arah keluar bila daemon mati tak diharapkan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/preferences.ui" line="2571"/>
+        <location filename="../../../opensnitch/res/preferences.ui" line="2580"/>
         <source>Enable DB Write-Ahead Logging (WAL)</source>
         <translation>Fungsikan Write-Ahead Logging (WAL) DB</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/res/preferences.ui" line="275"/>
+        <source>12h</source>
+        <translation>12j</translation>
     </message>
 </context>
 <context>
@@ -1324,12 +1339,12 @@ Pakai 0 untuk menonaktifkan fitur ini.</translation>
         <translation>PID aplikasi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="315"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="318"/>
         <source>Start or stop monitoring this process</source>
         <translation>Mulai atau hentikan pemantauan proses ini</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/process_details.ui" line="332"/>
+        <location filename="../../../opensnitch/res/process_details.ui" line="335"/>
         <source>Close</source>
         <translation>Tutup</translation>
     </message>
@@ -1359,10 +1374,10 @@ Pakai 0 untuk menonaktifkan fitur ini.</translation>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="1198"/>
         <source>Node</source>
-        <translation>Simpul</translation>
+        <translation type="obsolete">Simpul</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1221"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1219"/>
         <source>Apply rule to all nodes</source>
         <translation>Terapkan aturan ke semua simpul</translation>
     </message>
@@ -1392,7 +1407,7 @@ Pakai 0 untuk menonaktifkan fitur ini.</translation>
         <translation>sekali</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1114"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1119"/>
         <source>always</source>
         <translation>selalu</translation>
     </message>
@@ -1487,12 +1502,12 @@ Catatan: Koma atau spasi tidak diizinkan untuk memisahkan IP atau jaringan.</tra
         <translation>Ke host ini</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1133"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1138"/>
         <source>Deny</source>
         <translation>Tolak</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1173"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1178"/>
         <source>Allow</source>
         <translation>Izinkan</translation>
     </message>
@@ -1502,7 +1517,7 @@ Catatan: Koma atau spasi tidak diizinkan untuk memisahkan IP atau jaringan.</tra
         <translation>Nama</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1189"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1194"/>
         <source>Enable</source>
         <translation>Fungsikan</translation>
     </message>
@@ -1550,7 +1565,7 @@ Anda mesti menamai aturan dengan cara yang membuatnya akan diperiksa pertama, ka
         <translation>Peka huruf besar kecil</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1109"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1114"/>
         <source>until reboot</source>
         <translation>sampai reboot</translation>
     </message>
@@ -1622,7 +1637,7 @@ Anda mesti menamai aturan dengan cara yang membuatnya akan diperiksa pertama, ka
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pilih suatu direktori dengan berkas yang memuat ekspresi reguler domain yang akan diblokir atau diizinkan.&lt;/p&gt;&lt;p&gt;.*\.example\.com&lt;/p&gt;&lt;p&gt;Anda juga bisa memakai suatu domain apa adanya: &amp;quot;example.com&amp;quot; , dan itu akan cocok dengan apapun.example.com, apapun.example.com.localdomain, dsb.&lt;/p&gt;&lt;p&gt;Satu domain per baris. Baris-baris kosong atau yang diawali dengan # diabaikan.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1150"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1155"/>
         <source>Reject</source>
         <translation>Tolak</translation>
     </message>
@@ -1667,17 +1682,17 @@ Anda mesti menamai aturan dengan cara yang membuatnya akan diperiksa pertama, ka
         <translation>Jangan catat log koneksi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1130"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1135"/>
         <source>Deny will just discard the connection</source>
         <translation>Deny hanya akan membuang koneksi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1147"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1152"/>
         <source>Reject will drop the connection, and kill the socket that initiated it</source>
         <translation>Reject akan memutus koneksi, dan mematikan soket yang mengawalinya</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1167"/>
+        <location filename="../../../opensnitch/res/ruleseditor.ui" line="1172"/>
         <source>Allow will allow the connection</source>
         <translation>Allow akan mengizinkan koneksi</translation>
     </message>
@@ -1762,7 +1777,7 @@ Umpan balik diharapkan</translation>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="2304"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2330"/>
         <source>-</source>
         <translation>-</translation>
     </message>
@@ -1777,42 +1792,42 @@ Umpan balik diharapkan</translation>
         <translation>Kejadian</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1854"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1880"/>
         <source>Filter</source>
         <translation>Penyaring</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1867"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1893"/>
         <source>Allow</source>
         <translation>Izinkan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1876"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1902"/>
         <source>Deny</source>
         <translation>Tolak</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1903"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1929"/>
         <source>Ex.: firefox</source>
         <translation>Mis.: firefox</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1965"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1991"/>
         <source>50</source>
         <translation>50</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1970"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1996"/>
         <source>100</source>
         <translation>100</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1975"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2001"/>
         <source>200</source>
         <translation>200</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1980"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2006"/>
         <source>300</source>
         <translation>300</translation>
     </message>
@@ -1822,12 +1837,12 @@ Umpan balik diharapkan</translation>
         <translation>Simpul</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="2204"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2230"/>
         <source>Rules</source>
         <translation>Aturan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="980"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="986"/>
         <source>enable</source>
         <translation>fungsikan</translation>
     </message>
@@ -1837,82 +1852,82 @@ Umpan balik diharapkan</translation>
         <translation>Aturan aplikasi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="920"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="926"/>
         <source>Permanent</source>
         <translation>Permanen</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="929"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="935"/>
         <source>Temporary</source>
         <translation>Temporer</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1051"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1057"/>
         <source>Hosts</source>
         <translation>Host</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1144"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1153"/>
         <source>Applications</source>
         <translation>Aplikasi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1260"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1272"/>
         <source>Addresses</source>
         <translation>Alamat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1353"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1368"/>
         <source>Ports</source>
         <translation>Port</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1440"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1458"/>
         <source>Users</source>
         <translation>Pengguna</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="2048"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2074"/>
         <source>Connections</source>
         <translation>Koneksi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="2100"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2126"/>
         <source>Dropped</source>
         <translation>Dibuang</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="2152"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2178"/>
         <source>Uptime</source>
         <translation>Uptime</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1993"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2019"/>
         <source>Delete all intercepted events</source>
         <translation>Hapus semua kejadian yang diintersepsi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1010"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1016"/>
         <source>Edit rule</source>
         <translation>Sunting aturan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1027"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1033"/>
         <source>Delete rule</source>
         <translation>Hapus aturan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="911"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="917"/>
         <source>All applications</source>
         <translation>Semua aplikasi</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1885"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1911"/>
         <source>Reject</source>
         <translation>Tolak</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1940"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1966"/>
         <source>0</source>
         <translation>0</translation>
     </message>
@@ -1922,7 +1937,7 @@ Umpan balik diharapkan</translation>
         <translation>2</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="938"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="944"/>
         <source>System rules</source>
         <translation>Aturan sistem</translation>
     </message>
@@ -1987,92 +2002,92 @@ Umpan balik diharapkan</translation>
         <translation>Waspada</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1526"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1548"/>
         <source>Netstat</source>
         <translation>Netstat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1582"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1607"/>
         <source>Stop</source>
         <translation>Hentikan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1590"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1616"/>
         <source>5s</source>
         <translation>5d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1595"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1621"/>
         <source>10s</source>
         <translation>10d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1600"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1626"/>
         <source>15s</source>
         <translation>15d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1605"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1631"/>
         <source>20s</source>
         <translation>20d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1610"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1636"/>
         <source>30s</source>
         <translation>30d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1615"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1641"/>
         <source>45s</source>
         <translation>45d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1620"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1646"/>
         <source>1m</source>
         <translation>1m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1625"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1651"/>
         <source>5m</source>
         <translation>5m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1630"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1656"/>
         <source>10m</source>
         <translation>10m</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1645"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1671"/>
         <source>All nodes</source>
         <translation>Semua simpul</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1666"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1692"/>
         <source>Protocol</source>
         <translation>Protokol</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1751"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1777"/>
         <source>ALL</source>
         <translation>SEMUA</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1712"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1738"/>
         <source>Family</source>
         <translation>Keluarga</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1743"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1769"/>
         <source>State</source>
         <translation>Keadaan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="1756"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="1782"/>
         <source>Established</source>
         <translation>Terjalin</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/res/stats.ui" line="2278"/>
+        <location filename="../../../opensnitch/res/stats.ui" line="2304"/>
         <source>Daemon version</source>
         <translation>Versi daemon</translation>
     </message>
@@ -2285,7 +2300,7 @@ Umpan balik diharapkan</translation>
         <translation>Kurang dari</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1522"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1524"/>
         <source>Firewall rule</source>
         <translation>Aturan firewall</translation>
     </message>
@@ -2350,7 +2365,7 @@ Umpan balik diharapkan</translation>
         <translation>time-limit tidak valid, gunakan: second, minute, hour, atau day</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1454"/>
+        <location filename="../../../opensnitch/dialogs/firewall_rule.py" line="1456"/>
         <source>port not valid.</source>
         <translation>port tidak valid.</translation>
     </message>
@@ -2612,7 +2627,7 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
 <context>
     <name>notifications</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1204"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1223"/>
         <source>System notifications are not available, you need to install python3-notify2.</source>
         <translation>Pemberitahuan sistem tidak tersedia, Anda perlu memasang python3-notify2.</translation>
     </message>
@@ -2630,82 +2645,82 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
         <translation>Tolak</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/_constants.py" line="34"/>
+        <location filename="../../../opensnitch/dialogs/prompt/_constants.py" line="35"/>
         <source>forever</source>
         <translation>selamanya</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="415"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="429"/>
         <source>Outgoing connection</source>
         <translation>Koneksi ke luar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="422"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="436"/>
         <source>Process launched from:</source>
         <translation>Proses diluncurkan dari:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="512"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="526"/>
         <source>from this command line</source>
         <translation>dari baris perintah ini</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="508"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="522"/>
         <source>from this executable</source>
         <translation>dari executable ini</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/_constants.py" line="32"/>
+        <location filename="../../../opensnitch/dialogs/prompt/_constants.py" line="33"/>
         <source>until reboot</source>
         <translation>sampai boot ulang</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="514"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="528"/>
         <source>to port {0}</source>
         <translation>ke port {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="553"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="567"/>
         <source>to {0}</source>
         <translation>ke {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="517"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="531"/>
         <source>from user {0}</source>
         <translation>dari pengguna {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="530"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="544"/>
         <source>to {0}.*</source>
         <translation>ke {0}.*</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="563"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="577"/>
         <source>to *.{0}</source>
         <translation>ke *.{0}</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt/_utils.py" line="38"/>
         <source>&lt;b&gt;Remote&lt;/b&gt; process %s running on &lt;b&gt;%s&lt;/b&gt;</source>
-        <translation>Proses &lt;b&gt;remote&lt;/b&gt; %s sedang berjalan pada &lt;b&gt;%s&lt;/b&gt;</translation>
+        <translation type="obsolete">Proses &lt;b&gt;remote&lt;/b&gt; %s sedang berjalan pada &lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/_utils.py" line="42"/>
+        <location filename="../../../opensnitch/notifications.py" line="119"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt; on %s port %d</source>
         <translation>sedang menyambung ke &lt;b&gt;%s&lt;/b&gt; pada %s port %d</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/prompt/_utils.py" line="54"/>
         <source>is attempting to resolve &lt;b&gt;%s&lt;/b&gt; via %s, %s port %d</source>
-        <translation>mencoba mengurai &lt;b&gt;%s&lt;/b&gt; melalui %s, %s port %d</translation>
+        <translation type="obsolete">mencoba mengurai &lt;b&gt;%s&lt;/b&gt; melalui %s, %s port %d</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="521"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="535"/>
         <source>from this PID</source>
         <translation>dari PID ini</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/notifications.py" line="114"/>
+        <location filename="../../../opensnitch/notifications.py" line="117"/>
         <source>New outgoing connection</source>
         <translation>Koneksi keluar baru</translation>
     </message>
@@ -2717,30 +2732,30 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
     <message>
         <location filename="../../../opensnitch/dialogs/prompt/_utils.py" line="49"/>
         <source>is connecting to &lt;b&gt;%s&lt;/b&gt;, %s</source>
-        <translation>sedang menyambung ke &lt;b&gt;%s&lt;/b&gt;, %s</translation>
+        <translation type="obsolete">sedang menyambung ke &lt;b&gt;%s&lt;/b&gt;, %s</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/notifications.py" line="42"/>
+        <location filename="../../../opensnitch/notifications.py" line="40"/>
         <source>Open</source>
         <translation>Buka</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="268"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="265"/>
         <source>Rule updated.</source>
         <translation>Aturan diperbarui.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="374"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="388"/>
         <source>WARNING, bad checksum (&lt;a href=&apos;#warning-checksum&apos;&gt;More info&lt;/a&gt;)</source>
         <translation>PERINGATAN, checksum buruk (&lt;a href=&apos;#warning-checksum&apos;&gt;Info lebih lanjut&lt;/a&gt;)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="538"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="552"/>
         <source>from {0}*/{1}</source>
         <translation>dari {0}*/{1}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="546"/>
+        <location filename="../../../opensnitch/dialogs/prompt/__init__.py" line="560"/>
         <source>to {alias}</source>
         <translation>ke {alias}</translation>
     </message>
@@ -2748,67 +2763,67 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
 <context>
     <name>preferences</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="509"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="511"/>
         <source>Server address can not be empty</source>
         <translation>Alamat server tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1057"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1076"/>
         <source>Configuration applied.</source>
         <translation>Konfigurasi diterapkan.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="916"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="925"/>
         <source>Exception saving config: {0}</source>
         <translation>Eksepsi saat menyimpan konfig: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="926"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="940"/>
         <source>Applying configuration on {0} ...</source>
         <translation>Menerapkan konfigurasi pada {0} ...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="601"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="603"/>
         <source>Error loading {0} configuration</source>
         <translation>Kesalahan saat memuat konfigurasi {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1059"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1078"/>
         <source>Error applying configuration: {0}</source>
         <translation>Kesalahan saat menerapkan konfigurasi: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="753"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="755"/>
         <source>Warning</source>
         <translation>Peringatan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="753"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="755"/>
         <source>You must select a file for the database&lt;br&gt;or choose &quot;In memory&quot; type.</source>
         <translation>Anda mesti memilih suatu berkas bagi basis data&lt;br&gt;atau memilih tipe &quot;dalam memori&quot;.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="747"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="749"/>
         <source>DB type changed</source>
         <translation>Tipe DB berubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1116"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1135"/>
         <source>Hover the mouse over the texts to display the help&lt;br&gt;&lt;br&gt;Don&apos;t forget to visit the wiki: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</source>
         <translation>Apungkan tetikus di atas teks untuk menampilkan bantuan&lt;br&gt;&lt;br&gt;Jangan lupa kunjungi wiki: &lt;a href=&quot;{0}&quot;&gt;{0}&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="847"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="852"/>
         <source>System</source>
         <translation>Sistem</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="285"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="287"/>
         <source>Themes not available. Install qt-material: pip3 install qt-material</source>
         <translation>Tema tidak tersedia. Pasang qt-material: pip3 install qt-material</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="848"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="854"/>
         <source>UI theme changed</source>
         <translation>Tema UI berubah</translation>
     </message>
@@ -2818,112 +2833,112 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
         <translation type="obsolete">Ok</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="918"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="929"/>
         <source>There&apos;re no nodes connected</source>
         <translation>Tidak ada simpul yang tersambung</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="944"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="958"/>
         <source>Exception saving node config {0}: {1}</source>
         <translation>Eksepsi saat menyimpan konfig simpul {0}: {1}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="262"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="263"/>
         <source>System default</source>
         <translation>Baku sistem</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="808"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="810"/>
         <source>Language changed</source>
         <translation>Bahasa diubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="64"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="65"/>
         <source>Restart the GUI in order changes to take effect</source>
         <translation>Jalankan ulang GUI agar perubahan berdampak</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="780"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="782"/>
         <source>Server options changed</source>
         <translation>Opsi server berubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="793"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="795"/>
         <source>Server address changed</source>
         <translation>Alamat server berubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="797"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="799"/>
         <source>Certificates changed</source>
         <translation>Sertifikat berubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="842"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="845"/>
         <source>Qt platform plugin changed</source>
         <translation>Pengaya platform qt berubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="896"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="905"/>
         <source>Saving configuration...</source>
         <translation>Menyimpan konfigurasi...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="936"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="950"/>
         <source>Node address changed (update GUI address if needed)</source>
         <translation>Alamat simpul berubah (perbarui alamat GUI bila diperlukan)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="955"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="969"/>
         <source>Certs fields cannot be empty.</source>
         <translation>Ruas sertifikat tidak boleh kosong.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="958"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="972"/>
         <source>cert file has excessive permissions, it should have 0600</source>
         <translation>berkas sertifikat memiliki izin berlebih, mestinya 0600</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="962"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="976"/>
         <source>cert key file has excessive permissions, it should have 0600</source>
         <translation>berkas kunci sertifikat memiliki izin berlebih, mestinya 0600</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="968"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="982"/>
         <source>CA cert file has excessive permissions, it should have 0600</source>
         <translation>berkas sertifikat CA memiliki izin berlebih, mestinya 0600</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1064"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1083"/>
         <source>Certs changed</source>
         <translation>Sertifikat berubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1067"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1086"/>
         <source>Node certs changed</source>
         <translation>Sertifikat simpul berubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1071"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1090"/>
         <source>Select a directory containing rules</source>
         <translation>Pilih suatu direktori yang memuat aturan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1144"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1163"/>
         <source>Auto scale option changed</source>
         <translation>Opsi skala otomatis berubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1148"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1167"/>
         <source>Screen factor option changed</source>
         <translation>Opsi faktor layar berubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1154"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1173"/>
         <source>Auth type changed</source>
         <translation>Tipe otentikasi berubah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/preferences.py" line="1179"/>
+        <location filename="../../../opensnitch/dialogs/preferences.py" line="1198"/>
         <source>DB journal_mode changed</source>
         <translation>journal_mode DB berubah</translation>
     </message>
@@ -2953,179 +2968,189 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
 <context>
     <name>rules</name>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="271"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="273"/>
         <source>There&apos;re no nodes connected.</source>
         <translation>Tidak ada simpul yang tersambung.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="318"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="320"/>
         <source>Rule applied.</source>
         <translation>Aturan diterapkan.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="697"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="791"/>
         <source>protocol can not be empty, or uncheck it</source>
         <translation>protokol tidak boleh kosong, atau hapus centangnya</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="711"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="805"/>
         <source>Protocol regexp error</source>
         <translation>Kesalahan regexp protokol</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="715"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="817"/>
         <source>process path can not be empty</source>
         <translation>path proses tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="729"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="831"/>
         <source>Process path regexp error</source>
         <translation>Kesalahan regexp path proses</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="733"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="835"/>
         <source>command line can not be empty</source>
         <translation>baris perintah tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="747"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="849"/>
         <source>Command line regexp error</source>
         <translation>Kesalahan regexp baris perintah</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="787"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="905"/>
         <source>Dest port can not be empty</source>
         <translation>Port tujuan tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="801"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="919"/>
         <source>Dst port regexp error</source>
         <translation>Kesalahan regexp port tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="805"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="931"/>
         <source>Dest host can not be empty</source>
         <translation>Host tujuan tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="819"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="945"/>
         <source>Dst host regexp error</source>
         <translation>Kesalahan regexp host tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="861"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1004"/>
         <source>Dest IP/Network can not be empty</source>
         <translation>IP/jaringan tujuan tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="892"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1035"/>
         <source>Dst IP regexp error</source>
         <translation>Kesalahan regexp IP tujuan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="907"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1058"/>
         <source>User ID can not be empty</source>
         <translation>ID pengguna tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="924"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1075"/>
         <source>User ID regexp error</source>
         <translation>Kesalahan regexp ID pengguna</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="320"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="322"/>
         <source>Error applying rule: {0}</source>
         <translation>Kesalahan saat menerapkan aturan: {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="378"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="433"/>
         <source>Lists field cannot be empty</source>
         <translation>Ruas daftar tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="382"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="437"/>
         <source>Lists field must be a directory</source>
         <translation>Ruas daftar mesti berupa suatu direktori</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1082"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1233"/>
         <source>&lt;b&gt;Rule not supported&lt;/b&gt;</source>
         <translation>&lt;b&gt;Aturan tidak didukung&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="601"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="695"/>
         <source>&lt;b&gt;Error loading rule&lt;/b&gt;</source>
         <translation>&lt;b&gt;Kesalahan saat memuat aturan&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="288"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="290"/>
         <source>There&apos;s already a rule with this name.</source>
         <translation>Sudah ada aturan dengan nama ini.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="941"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1092"/>
         <source>PID field can not be empty</source>
         <translation>Ruas PID tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="955"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1106"/>
         <source>PID field regexp error</source>
         <translation>Kesalahan regexp ruas PID</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1069"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1220"/>
         <source>Select at least one field.</source>
         <translation>Pilih paling tidak satu ruas.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="751"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="853"/>
         <source>Network interface can not be empty</source>
         <translation>Antar muka jaringan tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="765"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="867"/>
         <source>Network interface regexp error</source>
         <translation>Kesalahan regexp antar muka jaringan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="769"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="879"/>
         <source>Source port can not be empty</source>
         <translation>Port sumber tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="783"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="893"/>
         <source>Source port regexp error</source>
         <translation>Kesalahan regexp port sumber</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="823"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="957"/>
         <source>Source IP/Network can not be empty</source>
         <translation>IP/jaringan sumber tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="849"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="983"/>
         <source>Source IP regexp error</source>
         <translation>Kesalahan regexp IP sumber</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="292"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="294"/>
         <source>Process path must be checked in order to verify checksums.</source>
         <translation>Path proses mesti diperiksa untuk memverifikasi checksum.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="927"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1078"/>
         <source>Invalid UID, it must be a digit.</source>
         <translation>UID tidak valid, itu mesti berupa suatu digit.</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1024"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1175"/>
         <source>md5 line cannot be empty</source>
         <translation>baris md5 tidak boleh kosong</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1038"/>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="1189"/>
         <source>md5 field regexp error</source>
         <translation>kesalahan regexp ruas md5</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="380"/>
+        <source>Invalid text</source>
+        <translation>Teks tidak valid</translation>
+    </message>
+    <message>
+        <location filename="../../../opensnitch/dialogs/ruleseditor.py" line="386"/>
+        <source>regexp error (report it)</source>
+        <translation>kesalahan regex (laporkan)</translation>
     </message>
 </context>
 <context>
@@ -3146,7 +3171,7 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
         <translation>Sedang berjalan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2238"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2264"/>
         <source>    Are you sure?</source>
         <translation>    Anda yakin?</translation>
     </message>
@@ -3161,12 +3186,12 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
         <translation>Statistik Jaringan OpenSnitch untuk {0}</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1104"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1109"/>
         <source>Rules</source>
         <translation>Aturan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1146"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1151"/>
         <source>Action</source>
         <translation>Aksi</translation>
     </message>
@@ -3176,67 +3201,67 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
         <translation>Hit</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="3532"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="3566"/>
         <source>Save as CSV</source>
         <translation>Simpan sebagai CSV</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1325"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1337"/>
         <source>Delete</source>
         <translation>Hapus</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1235"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1244"/>
         <source>Disable</source>
         <translation>Nonaktifkan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1237"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1246"/>
         <source>Enable</source>
         <translation>Fungsikan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1240"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1250"/>
         <source>Duplicate</source>
         <translation>Duplikatkan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1241"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1251"/>
         <source>Edit</source>
         <translation>Sunting</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1608"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1629"/>
         <source>Rule not found by that name and node</source>
         <translation>Aturan tidak ditemukan berdasarkan nama dan simpul itu</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1699"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1725"/>
         <source>Warning:</source>
         <translation>Peringatan:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1221"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1224"/>
         <source>Allow</source>
         <translation>Izinkan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1222"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1225"/>
         <source>Deny</source>
         <translation>Tolak</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1226"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1229"/>
         <source>Always</source>
         <translation>Selalu</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1227"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1230"/>
         <source>Until reboot</source>
         <translation>Sampai boot ulang</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2238"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2264"/>
         <source>    You are about to delete this rule.    </source>
         <translation>    Anda akan menghapus aturan ini.    </translation>
     </message>
@@ -3372,12 +3397,12 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
         <translation>Apa</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1212"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1215"/>
         <source>Apply to</source>
         <translation>Terapkan ke</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1223"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1226"/>
         <source>Reject</source>
         <translation>Tolak</translation>
     </message>
@@ -3417,7 +3442,7 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
         <translation>Preseden</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/service.py" line="893"/>
+        <location filename="../../../opensnitch/service.py" line="895"/>
         <source>New node connected</source>
         <translation>Simpul baru terhubung</translation>
     </message>
@@ -3454,48 +3479,48 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
         <translation>Keluar</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1317"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1329"/>
         <source>Export</source>
         <translation>Ekspor</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1328"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1340"/>
         <source>To clipboard</source>
         <translation>Ke papan klip</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1329"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1341"/>
         <source>To disk</source>
         <translation>Ke disk</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="3474"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="3508"/>
         <source>Select a directory to export rules</source>
         <translation>Pilih suatu direktori untuk mengekspor aturan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2205"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2231"/>
         <source>    You are about to delete this node.    </source>
         <translation>    Anda akan menghapus simpul ini.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2214"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2240"/>
         <source>&lt;b&gt;Error deleting node&lt;/b&gt;&lt;br&gt;&lt;br&gt;</source>
         <comment>{0}</comment>
         <translation>&lt;b&gt;Kesalahan saat menghapus simpul&lt;/b&gt;&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="3429"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="3463"/>
         <source>Error exporting rules</source>
         <translation>Kesalahan saat mengekspor aturan</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="3503"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="3537"/>
         <source>Select a directory with rules to import (JSON files)</source>
         <translation>Pilih suatu direktori berisi aturan yang akan diimpor (berkas JSON)</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="3517"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="3551"/>
         <source>Rules imported fine</source>
         <translation>Aturan diimpor dengan baik</translation>
     </message>
@@ -3505,12 +3530,12 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
         <translation>PERINGATAN</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1103"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1108"/>
         <source>Details</source>
         <translation>Rincian</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1105"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1110"/>
         <source>New</source>
         <translation>Baru</translation>
     </message>
@@ -3573,37 +3598,37 @@ Nilai mesti dalam format: NILAI/SATUAN, misalnya
         <translation>Metadata</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1324"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1336"/>
         <source>View</source>
         <translation>Lihat</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1543"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1564"/>
         <source>    You are about to delete this entry.    </source>
         <translation>    Anda akan menghapus entri ini.    </translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1608"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1629"/>
         <source>New rule error</source>
         <translation>Kesalahan aturan baru</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="1688"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="1714"/>
         <source>Error:</source>
         <translation>Galat:</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2795"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2829"/>
         <source>node not connected</source>
         <translation>simpul tidak terhubung</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2782"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2816"/>
         <source>loading node information...</source>
         <translation>memuat informasi simpul...</translation>
     </message>
     <message>
-        <location filename="../../../opensnitch/dialogs/stats.py" line="2936"/>
+        <location filename="../../../opensnitch/dialogs/stats.py" line="2970"/>
         <source>refreshing...</source>
         <translation>menyegarkan...</translation>
     </message>

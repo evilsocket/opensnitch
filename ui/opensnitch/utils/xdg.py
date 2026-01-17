@@ -113,5 +113,6 @@ xdg_config_home = os.environ.get('XDG_CONFIG_HOME') or os.path.join(_home, '.con
 xdg_runtime_dir = get_runtime_dir(False)
 xdg_current_desktop = os.environ.get('XDG_CURRENT_DESKTOP')
 xdg_current_session = os.environ.get('XDG_SESSION_TYPE')
+xdg_session_desktop = os.environ.get('XDG_SESSION_DESKTOP')
 
 xdg_opensnitch_dir = get_run_opensnitch_dir()

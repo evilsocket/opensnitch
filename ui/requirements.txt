@@ -1,5 +1,13 @@
-grpcio-tools>=1.10.1
-pyinotify==0.9.6
-unicode_slugify==0.1.5
-pyqt5>=5.6
+# required
+pyqt6>=6.4
 protobuf
+grpcio-tools>=1.10.1
+python-slugify>=7.0.0
+
+# suggested
+#  file changes monitoring
+pyinotify==0.9.6
+#  desktop notifications
+notify2
+#  material themes
+qt-material
