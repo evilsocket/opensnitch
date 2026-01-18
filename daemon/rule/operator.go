@@ -248,7 +248,11 @@ func (o *Operator) cmpNetwork(destIP interface{}) bool {
 }
 
 func (o *Operator) matchListsCmp(msg, what string) bool {
-	if item, found := o.lists[what]; found {
+	o.RLock()
+	item, found := o.lists[what]
+	o.RUnlock()
+
+	if found {
 		log.Debug("%s: %s, %s", log.Red(msg), what, item)
 		return true
 	}
@@ -262,8 +266,6 @@ func (o *Operator) domainsListsCmp(data string) bool {
 	if o.Sensitive == false {
 		data = strings.ToLower(data)
 	}
-	o.RLock()
-	defer o.RUnlock()
 
 	return o.matchListsCmp("domains list match", data)
 }
@@ -272,8 +274,6 @@ func (o *Operator) simpleListsCmp(what string) bool {
 	if what == "" {
 		return false
 	}
-	o.RLock()
-	defer o.RUnlock()
 
 	return o.matchListsCmp("simple list match", what)
 }
