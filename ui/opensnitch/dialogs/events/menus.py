@@ -130,6 +130,7 @@ class MenusManager(views.ViewsManager):
                 menu.addSeparator()
                 menu.addMenu(actionsMenu)
 
+            _menu_new = menu.addAction(QC.translate("stats", "New"))
             _label_enable = QC.translate("stats", "Disable")
             if is_rule_enabled == "False":
                 _label_enable = QC.translate("stats", "Enable")
@@ -169,7 +170,9 @@ class MenusManager(views.ViewsManager):
             # block fw rules signals, to prevent reloading them per operation,
             # which can lead to race conditions.
             self._fw.rules.blockSignals(True)
-            if action == _menu_delete:
+            if action == _menu_new:
+                self.new_fw_rule()
+            elif action == _menu_delete:
                 self.table_menu_delete(cur_idx, model, selection)
             elif action == _menu_enable:
                 self.table_menu_enable(cur_idx, model, selection, is_rule_enabled)

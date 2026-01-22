@@ -1129,6 +1129,11 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self._fw_dialog.show()
 
 
+    def new_fw_rule(self):
+        if self._fw_dialog is None:
+            self._fw_dialog = FirewallDialog(appicon=self.appicon)
+        self._fw_dialog.new_rule()
+
     def load_fw_rule(self, node, uuid):
         if self._fw_dialog is None:
             self._fw_dialog = FirewallDialog(appicon=self.appicon)
