@@ -25,6 +25,10 @@ class ConfigManager:
         self.COL_STR_CREATED = QC.translate("stats", "Created", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_ACTION = QC.translate("stats", "Action", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DURATION = QC.translate("stats", "Duration", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_NOLOG = QC.translate("stats", "Log", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_OP_TYPE = QC.translate("stats", "Type", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_OP_OPERAND = QC.translate("stats", "Operand", "This is a word, without spaces and symbols.").replace(" ", "")
+        self.COL_STR_OP_DATA = QC.translate("stats", "Data", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_DESCRIPTION = QC.translate("stats", "Description", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_NODE = QC.translate("stats", "Node", "This is a word, without spaces and symbols.").replace(" ", "")
         self.COL_STR_ENABLED = QC.translate("stats", "Enabled", "This is a word, without spaces and symbols.").replace(" ", "")
@@ -312,9 +316,14 @@ class ConfigManager:
                         f"node as {self.COL_STR_NODE}," \
                         f"name as {self.COL_STR_NAME}," \
                         f"enabled as {self.COL_STR_ENABLED}," \
+                        f"precedence as {self.COL_STR_PRECEDENCE}," \
                         f"action as {self.COL_STR_ACTION}," \
                         f"duration as {self.COL_STR_DURATION}," \
                         f"description as {self.COL_STR_DESCRIPTION}, " \
+                        f"nolog as {self.COL_STR_NOLOG}, " \
+                        f"operator_type as {self.COL_STR_OP_TYPE}, " \
+                        f"operator_operand as {self.COL_STR_OP_OPERAND}, " \
+                        f"operator_data as {self.COL_STR_OP_DATA}, " \
                         f"created as {self.COL_STR_CREATED}",
                 "query": rules_query,
                 "header_labels": [
@@ -322,9 +331,14 @@ class ConfigManager:
                     self.COL_STR_NODE,
                     self.COL_STR_NAME,
                     self.COL_STR_ENABLED,
+                    self.COL_STR_PRECEDENCE,
                     self.COL_STR_ACTION,
                     self.COL_STR_DURATION,
                     self.COL_STR_DESCRIPTION,
+                    self.COL_STR_NOLOG,
+                    self.COL_STR_OP_TYPE,
+                    self.COL_STR_OP_OPERAND,
+                    self.COL_STR_OP_DATA,
                     self.COL_STR_CREATED
                 ],
                 "context_menu": None,
