@@ -21,9 +21,19 @@ class ConnFields(Enums):
     Node = "conn.node"
 
 class RuleFields(Enums):
-    Action = "rule.action"
-    Name = "rule.name"
     Time = "rule.time"
+    Created = "rule.created"
+    Name = "rule.name"
+    Description = "rule.description"
+    Node = "rule.node"
+    Enabled = "rule.enabled"
+    Action = "rule.action"
+    Nolog = "rule.nolog"
+    Priority = "rule.priority"
+    Duration = "rule.duration"
+    OpType = "rule.operator_type"
+    OpOperand = "rule.operand"
+    OpData = "rule.operator_data"
 
 class NodeFields(Enums):
     Addr = "node.addr"
