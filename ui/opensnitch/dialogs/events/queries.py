@@ -72,19 +72,55 @@ class Queries:
             self.options[16]: "c.action",
             self.options[17]: "c.rule"
         }
-        reOperators = "=|!=|<>|~|!~|>~|<~|>=|>|<=|<"
-        reKeys = '|'.join(self.options)
+        self.rules_opts = [
+            RuleFields.Time.value,
+            RuleFields.Created.value,
+            RuleFields.Name.value,
+            RuleFields.Description.value,
+            RuleFields.Node.value,
+            RuleFields.Enabled.value,
+            RuleFields.Action.value,
+            RuleFields.Nolog.value,
+            RuleFields.Priority.value,
+            RuleFields.Duration.value,
+            RuleFields.OpType.value,
+            RuleFields.OpOperand.value,
+            RuleFields.OpData.value
+        ]
+        self.rules_opt_map = {
+            self.rules_opts[0]: "rules.time",
+            self.rules_opts[1]: "rules.created",
+            self.rules_opts[2]: "rules.name",
+            self.rules_opts[3]: "rules.description",
+            self.rules_opts[4]: "rules.node",
+            self.rules_opts[5]: "rules.enabled",
+            self.rules_opts[6]: "rules.action",
+            self.rules_opts[7]: "rules.nolog",
+            self.rules_opts[8]: "rules.priority",
+            self.rules_opts[9]: "rules.duration",
+            self.rules_opts[10]: "rules.operator_type",
+            self.rules_opts[11]: "rules.operator_operand",
+            self.rules_opts[12]: "rules.operator_data"
+        }
+        self.reOperators = "=|!=|<>|~|!~|>~|<~|>=|>|<=|<"
+        self.reValues=r'[0-9a-zA-Z\.\-_\/:]+'
+
+    def get_completer(self, idx):
+        opts = self.options
+        if idx == constants.TAB_RULES and self.win.in_detail_view(idx) is False:
+            opts = self.rules_opts
+
+        reKeys = '|'.join(opts)
         reKeys = reKeys.replace('.', r'\.')
-        reValues=r'[0-9a-zA-Z\.\-_\/]+'
         self.adv_search=re.compile(
             # the 3rd group should contain all the characters allowed in a
             # filesystem, in order to match paths.
-            r'(({0})({1})({2}))+'.format(reKeys, reOperators, reValues)
+            r'(({0})({1})({2}))+'.format(reKeys, self.reOperators, self.reValues)
         )
 
-        completer = Completer(self.options)
+        completer = Completer(opts)
         completer.setFilterMode(QtCore.Qt.MatchFlag.MatchContains)
-        self.win.get_search_widget().setCompleter(completer)
+        return completer
 
     def get_query(self, table, fields):
         return f"SELECT {fields} FROM {table}"
@@ -130,7 +166,13 @@ class Queries:
             k = opt[1]
             op = opt[2]
             v = opt[3]
-            nk = self.opt_map.get(k)
+            nk = None
+            cur_idx = self.win.get_current_view_idx()
+            if cur_idx == constants.TAB_RULES and self.win.in_detail_view(cur_idx) is False:
+                nk = self.rules_opt_map.get(k)
+            else:
+                nk = self.opt_map.get(k)
+
             if nk is not None:
                 has_filter = True
                 if op == OP_NOT_EQUAL:
@@ -161,8 +203,20 @@ class Queries:
         if text == "":
             return ""
 
-        if idx == constants.TAB_RULES:
-            return f" WHERE rules.name LIKE '%{text}%' OR rules.operator_data LIKE '%{text}%' "
+        if idx == constants.TAB_RULES and self.win.rulesTable.isVisible():
+            if adv_search is not None:
+                return f" WHERE {adv_search}"
+            return f" WHERE rules.name LIKE '%{text}%' OR" \
+                f" rules.node LIKE '%{text}%' OR" \
+                f" rules.enabled LIKE '%{text}%' OR" \
+                f" rules.action LIKE '%{text}%' OR" \
+                f" rules.duration LIKE '%{text}%' OR" \
+                f" rules.description LIKE '%{text}%' OR" \
+                f" rules.nolog LIKE '%{text}%' OR" \
+                f" rules.precedence LIKE '%{text}%' OR" \
+                f" rules.operator_type LIKE '%{text}%' OR" \
+                f" rules.operator_operand LIKE '%{text}%' OR" \
+                f" rules.operator_data LIKE '%{text}%'"
         elif idx == constants.TAB_HOSTS or \
             idx == constants.TAB_PROCS or \
             idx == constants.TAB_ADDRS or \

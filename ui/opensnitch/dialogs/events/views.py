@@ -174,7 +174,7 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
         cur_idx = self.get_current_view_idx()
         order_field = self.TABLES[cur_idx]['last_order_by']
         if field is not None:
-           order_field  = field
+            order_field  = field
         return " ORDER BY %s %s" % (order_field, constants.SORT_ORDER[self.TABLES[cur_idx]['last_order_to']])
 
     def update_interception_status(self, enabled):
@@ -411,7 +411,7 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
             QtWidgets.QFileDialog.Option.ShowDirsOnly | QtWidgets.QFileDialog.Option.DontResolveSymlinks
         )
         if rulesdir == '':
-                return
+            return
 
         node = self.nodesLabel.text()
         nid, notif, rules = self.node_import_rules(addr=node, rulesdir=rulesdir, callback=self._notification_callback)
@@ -502,7 +502,7 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
     def on_cmd_back_clicked(self, idx):
         try:
             cur_idx = self.get_current_view_idx()
-            self.IN_DETAIL_VIEW[cur_idx] = False
+            self.set_in_detail_view(cur_idx, False)
 
             self.set_active_widgets(cur_idx, False)
             if cur_idx == constants.TAB_RULES:
@@ -520,6 +520,7 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
             qstr = self.queries.get_view_query(model, cur_idx, where_clause)
             self.queries.setQuery(model, qstr)
         finally:
+            self.get_search_widget().setCompleter(self.queries.get_completer(cur_idx))
             self.restore_details_view_columns(
                 self.TABLES[cur_idx]['view'].horizontalHeader(),
                 "{0}{1}".format(Config.STATS_VIEW_COL_STATE, cur_idx)

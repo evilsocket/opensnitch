@@ -670,6 +670,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
 
     def _cb_tab_changed(self, index):
         self.comboAction.setVisible(index == constants.TAB_MAIN)
+        self.get_search_widget().setCompleter(self.queries.get_completer(index))
 
         if index != constants.TAB_NETSTAT and self.LAST_TAB == constants.TAB_NETSTAT:
             self.netstat.unmonitor_node(self.LAST_NETSTAT_NODE)
@@ -773,6 +774,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         idx = row.column()
         cur_idx = 1
 
+        self.get_search_widget().setCompleter(self.queries.get_completer(cur_idx))
         if idx == constants.COL_NODE:
             cur_idx = constants.TAB_NODES
             self.set_in_detail_view(cur_idx, True)
@@ -872,6 +874,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.set_in_detail_view(cur_idx, True)
         self.set_last_selected_item(row.model().index(row.row(), constants.COL_TIME).data())
         self.LAST_SCROLL_VALUE = self.TABLES[cur_idx]['view'].vScrollBar.value()
+        self.get_search_widget().setCompleter(self.queries.get_completer(cur_idx))
 
         data = row.data()
 
