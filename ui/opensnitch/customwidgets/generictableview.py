@@ -200,8 +200,7 @@ class GenericTableModel(QStandardItemModel):
             qstr = self.origQueryStr.split("LIMIT")[0]
         q.exec(qstr)
         q.seek(QSql.Location.BeforeFirstRow.value)
-        while True:
-            q.next()
+        while q.next():
             if q.at() == QSql.Location.AfterLastRow.value:
                 break
             row = []
