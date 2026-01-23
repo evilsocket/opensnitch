@@ -217,7 +217,7 @@ class FirewallTableModel(QStandardItemModel):
             self.appendRow(cols)
 
     def dumpRows(self, nolimits=None):
-        return self.lastRules
+        return self._fw.get_rules()
 
 class FirewallTableView(QTableView):
     # how many rows can potentially be displayed in viewport
