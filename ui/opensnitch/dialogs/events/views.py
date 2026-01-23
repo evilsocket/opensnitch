@@ -177,6 +177,15 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
             order_field  = field
         return " ORDER BY %s %s" % (order_field, constants.SORT_ORDER[self.TABLES[cur_idx]['last_order_to']])
 
+    def get_view_config(self, idx):
+        return self.TABLES[idx]
+
+    def get_view_name(self, idx):
+        return self.TABLES[idx]['name']
+
+    def get_view(self, idx):
+        return self.TABLES[idx]['view']
+
     def update_interception_status(self, enabled):
         self.startButton.setDown(enabled)
         self.startButton.setChecked(enabled)
@@ -346,38 +355,38 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
         sort_order = QtCore.Qt.SortOrder.DescendingOrder if sortOrder.value == constants.SORT_DESC else QtCore.Qt.SortOrder.AscendingOrder
         header.setSortIndicator(pos, sort_order)
 
-    def on_menu_export_csv_clicked(self, triggered):
-        tab_idx = self.get_current_view_idx()
-
+    def on_menu_export_csv_clicked(self, tab_idx):
+        tbl_name = self.get_view_name(tab_idx)
         filename = QtWidgets.QFileDialog.getSaveFileName(
             self,
             QC.translate("stats", 'Save as CSV'),
-            self._file_names[tab_idx],
+            tbl_name + ".csv",
             'All Files (*);;CSV Files (*.csv)')[0].strip()
-        if filename == '':
+        if not filename:
+            return
+        file_dir = os.path.dirname(filename)
+        if not os.path.exists(file_dir):
+            Message.ok(
+                QC.translate("preferences", "Warning"),
+                QC.translate("preferences",
+                                "Invalid file selected:<br><br>{0}".format(filename)),
+                QtWidgets.QMessageBox.Icon.Warning)
             return
 
         with self._lock:
-            table = self._tables[tab_idx]
-            ncols = table.model().columnCount()
-            nrows = table.model().rowCount()
+            table = self.get_view(tab_idx)
+            model = table.model()
+            ncols = model.columnCount()
+            nrows = model.rowCount()
             cols = []
 
             for col in range(0, ncols):
-                cols.append(table.model().headerData(col, QtCore.Qt.Orientation.Horizontal))
+                cols.append(model.headerData(col, QtCore.Qt.Orientation.Horizontal))
 
             with open(filename, 'w') as csvfile:
                 w = csv.writer(csvfile, dialect='excel')
                 w.writerow(cols)
-
-                if tab_idx ==  constants.TAB_MAIN:
-                    w.writerows(table.model().dumpRows())
-                else:
-                    for row in range(0, nrows):
-                        values = []
-                        for col in range(0, ncols):
-                            values.append(table.model().index(row, col).data())
-                        w.writerow(values)
+                w.writerows(model.dumpRows(nolimits=True))
 
     def on_menu_node_export_clicked(self, triggered):
         outdir = QtWidgets.QFileDialog.getExistingDirectory(

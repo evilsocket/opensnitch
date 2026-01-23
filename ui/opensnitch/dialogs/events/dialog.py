@@ -145,29 +145,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.nodeRuleLabel.setVisible(False)
         self.comboRulesFilter.setVisible(False)
 
-        menu = QtWidgets.QMenu()
-        menu.addAction(
-            Icons.new(self, "go-up"),
-            QC.translate("stats", "Export rules")).triggered.connect(self.on_menu_node_export_clicked)
-        menu.addAction(
-            Icons.new(self, "go-down"),
-            QC.translate("stats", "Import rules")).triggered.connect(self.on_menu_node_import_clicked)
-        self.nodeActionsButton.setMenu(menu)
-
-        menuActions = QtWidgets.QMenu()
-        menuActions.addAction(
-            Icons.new(self, "go-up"),
-            QC.translate("stats", "Export rules")).triggered.connect(self.on_menu_export_clicked)
-        menuActions.addAction(
-            Icons.new(self, "go-down"),
-            QC.translate("stats", "Import rules")).triggered.connect(self.on_menu_import_clicked)
-        menuActions.addAction(
-            Icons.new(self, "document-save"),
-            QC.translate("stats", "Export events to CSV")).triggered.connect(self.on_menu_export_csv_clicked)
-        menuActions.addAction(
-            Icons.new(self, "application-exit"),
-            QC.translate("stats", "Quit")).triggered.connect(self._on_menu_exit_clicked)
-        self.actionsButton.setMenu(menuActions)
+        self.configure_main_btn_menu()
 
         self.TABLES[constants.TAB_MAIN]['view'] = self.view_setup(
             self.eventsTable,
@@ -369,29 +347,6 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.TABLES[constants.TAB_FIREWALL]['view'].rowsReordered.connect(self._cb_fw_table_rows_reordered)
 
         self._load_settings()
-
-        self._tables = ( \
-            self.TABLES[constants.TAB_MAIN]['view'],
-            self.TABLES[constants.TAB_NODES]['view'],
-            self.TABLES[constants.TAB_RULES]['view'],
-            self.TABLES[constants.TAB_HOSTS]['view'],
-            self.TABLES[constants.TAB_PROCS]['view'],
-            self.TABLES[constants.TAB_ADDRS]['view'],
-            self.TABLES[constants.TAB_PORTS]['view'],
-            self.TABLES[constants.TAB_USERS]['view'],
-            self.TABLES[constants.TAB_NETSTAT]['view']
-        )
-        self._file_names = ( \
-            'events.csv',
-            'nodes.csv',
-            'rules.csv',
-            'hosts.csv',
-            'procs.csv',
-            'addrs.csv',
-            'ports.csv',
-            'users.csv',
-            'netstat.csv'
-        )
 
         self.iconStart = Icons.new(self, "media-playback-start")
         self.iconPause = Icons.new(self, "media-playback-pause")
@@ -620,7 +575,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.open_firewall()
 
     def _cb_proc_details_clicked(self):
-        table = self._tables[self.get_current_view_idx()]
+        table = self.get_view(self.get_current_view_idx())
         nrows = table.model().rowCount()
         pids = {}
         for row in range(0, nrows):

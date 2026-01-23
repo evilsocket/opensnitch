@@ -1,10 +1,10 @@
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets, QtGui
 from PyQt6.QtCore import QCoreApplication as QC
 
 from opensnitch.config import Config
 from opensnitch.dialogs.conndetails import ConnDetails
 from opensnitch.firewall import Rules as FwRules
-from opensnitch.utils import Message
+from opensnitch.utils import Message, Icons
 from opensnitch.customwidgets.firewalltableview import FirewallTableModel
 from . import (
     constants,
@@ -16,6 +16,40 @@ ALL_NODES="all"
 class MenusManager(views.ViewsManager):
     def __init__(self, parent):
         super().__init__(parent)
+
+    def configure_main_btn_menu(self):
+        menu = QtWidgets.QMenu(self)
+        menu.addAction(
+            Icons.new(self, "go-up"),
+            QC.translate("stats", "Export rules")).triggered.connect(self.on_menu_node_export_clicked)
+        menu.addAction(
+            Icons.new(self, "go-down"),
+            QC.translate("stats", "Import rules")).triggered.connect(self.on_menu_node_import_clicked)
+        self.nodeActionsButton.setMenu(menu)
+
+        menuActions = QtWidgets.QMenu(self)
+        menuActions.addAction(
+            Icons.new(self, "go-up"),
+            QC.translate("stats", "Export rules")).triggered.connect(self.on_menu_export_clicked)
+        menuActions.addAction(
+            Icons.new(self, "go-down"),
+            QC.translate("stats", "Import rules")).triggered.connect(self.on_menu_import_clicked)
+
+        menuExport = QtWidgets.QMenu(QC.translate("stats", "Export to CSV"), self)
+        menuExport.setIcon(Icons.new(self, "document-save"))
+        for idx in range(constants.TAB_MAIN, constants.TAB_TOTAL):
+            act = QtGui.QAction(
+                QC.translate("stats", self.get_view_name(idx)), self
+            )
+            act.triggered.connect(lambda checked=False, i=idx: self.on_menu_export_csv_clicked(i))
+            menuExport.addAction(act)
+        menuActions.addMenu(menuExport)
+        menuActions.addSeparator()
+
+        menuActions.addAction(
+            Icons.new(self, "application-exit"),
+            QC.translate("stats", "Quit")).triggered.connect(self._on_menu_exit_clicked)
+        self.actionsButton.setMenu(menuActions)
 
     def configure_header_contextual_menu(self, pos):
         cur_idx = self.get_current_view_idx()
@@ -370,5 +404,4 @@ class MenusManager(views.ViewsManager):
         finally:
             self.clear_rows_selection()
             return True
-
 

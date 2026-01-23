@@ -192,10 +192,13 @@ class GenericTableModel(QStandardItemModel):
         self.lastItems = self.items
         del cols
 
-    def dumpRows(self):
+    def dumpRows(self, nolimits=False):
         rows = []
         q = QSqlQuery(self.db)
-        q.exec(self.origQueryStr)
+        qstr = self.origQueryStr
+        if nolimits:
+            qstr = self.origQueryStr.split("LIMIT")[0]
+        q.exec(qstr)
         q.seek(QSql.Location.BeforeFirstRow.value)
         while True:
             q.next()
