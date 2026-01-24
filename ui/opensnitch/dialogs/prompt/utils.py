@@ -1,6 +1,7 @@
 from slugify import slugify
 import os
 import ipaddress
+from pathlib import Path
 
 from PyQt6.QtCore import QCoreApplication as QC
 
@@ -230,6 +231,7 @@ def set_default_duration(cfg, durationCombo):
 def set_default_target(combo, con, cfg, app_name, app_args):
     # set appimage as default target if the process path starts with
     # /tmp/._mount
+    connection_path = Path(con.process_path)
     if con.process_path.startswith(constants.APPIMAGE_PREFIX):
         idx = combo.findData(constants.FIELD_APPIMAGE)
         if idx != -1:
@@ -240,6 +242,11 @@ def set_default_target(combo, con, cfg, app_name, app_args):
         if idx != -1:
             combo.setCurrentIndex(idx)
             return
+    # entire command as default target for "dangerous" commands
+    # (e.g. curl, wget, node)
+    elif any(bin in connection_path.name for bin in constants.FULL_COMMAND_BIN):
+        combo.setCurrentIndex(1)
+        return
 
     if int(con.process_id) > 0 and app_name != "" and app_args != "":
         combo.setCurrentIndex(int(cfg.getSettings(cfg.DEFAULT_TARGET_KEY)))
