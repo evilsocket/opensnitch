@@ -308,7 +308,10 @@ class MenuActions(views.ViewsManager):
         if cur_idx == constants.TAB_MAIN or cur_idx == constants.TAB_NODES or self.in_detail_view(cur_idx):
             return
 
+        rnum = len(selection)
         msg = QC.translate("stats", "    You are about to delete this rule.    ")
+        if rnum > 1:
+            msg = QC.translate("stats", "    You are about to delete these rules ({0})    ".format(rnum))
         if cur_idx != constants.TAB_RULES:
             msg = QC.translate("stats", "    You are about to delete this entry.    ")
 
@@ -396,4 +399,3 @@ class MenuActions(views.ViewsManager):
                 self.load_fw_rule(node, uuid)
 
                 break
-

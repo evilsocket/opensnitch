@@ -237,6 +237,7 @@ class GenericTableView(QTableView):
         self.mousePressed = False
         self.shiftPressed = False
         self.ctrlPressed = False
+        self.keySelectAll = False
         self.trackingCol = 0
         self._rows_selection = {}
         # first and last row selected with shift pressed
@@ -278,7 +279,7 @@ class GenericTableView(QTableView):
         return cols
 
     def clear(self):
-        pass
+        self.keySelectAll = False
 
     def refresh(self):
         self.calculateRowsInViewport()
@@ -330,11 +331,11 @@ class GenericTableView(QTableView):
             row = self.rowAt(pos.y())
             item = self.indexAt(pos)
 
-            if item == None:
+            if item is None:
                 return
 
             clickedItem = self.model().index(row, self.trackingCol)
-            if clickedItem.data() == None:
+            if clickedItem.data() is None:
                 return
             self.handleMouseMoveEvent(row, clickedItem, self.selectionModel().isRowSelected(row, QModelIndex()))
 
@@ -344,10 +345,14 @@ class GenericTableView(QTableView):
 
     # save the selected index, to preserve selection when moving around.
     def mousePressEvent(self, event):
+        rightBtnPressed = event.button() != Qt.MouseButton.LeftButton
+        # if selectAll has been pressed, do not discard selection
+        if self.keySelectAll and rightBtnPressed:
+            return
+
         # we need to call upper class to paint selections properly
         super().mousePressEvent(event)
-        rightBtnPressed = event.button() != Qt.MouseButton.LeftButton
-
+        self.keySelectAll = False
         if not self.shiftPressed:
             self._first_row_selected = None
             self._last_row_selected = None
@@ -355,11 +360,11 @@ class GenericTableView(QTableView):
         pos = event.pos()
         item = self.indexAt(pos)
         row = self.rowAt(pos.y())
-        if item == None:
+        if item is None:
             return
 
         clickedItem = self.model().index(row, self.trackingCol)
-        if clickedItem.data() == None:
+        if clickedItem.data() is None:
             return
 
         self.mousePressed = not rightBtnPressed
@@ -439,11 +444,11 @@ class GenericTableView(QTableView):
         # handle scrolling the view while dragging the mouse.
         if self.mousePressed:
             scrollPos = self.scrollViewport(row)
-            if scrollPos == None:
+            if scrollPos is None:
                 return
 
             nextItem = self.model().index(scrollPos, self.trackingCol)
-            if nextItem == None or nextItem.data() == None:
+            if nextItem is None or nextItem.data() is None:
                 return
             if clickedItem.data() not in self._rows_selection.keys():
                 self._rows_selection[nextItem.data()] = self.getRowCells(nextItem.row())
@@ -481,10 +486,14 @@ class GenericTableView(QTableView):
         self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=self.forceViewRefresh())
 
     def clearSelection(self):
+        self.keySelectAll = False
         self.selectionModel().reset()
         self.selectionModel().clearCurrentIndex()
 
     def selectedRows(self, limit=""):
+        if self.keySelectAll:
+            return self.model().dumpRows(nolimits=True)
+
         model = self.selectionModel()
         curModel = self.model()
         selection = model.selectedRows()
@@ -595,6 +604,8 @@ class GenericTableView(QTableView):
                 self.shiftPressed = False
             if event.key() == Qt.Key.Key_Control:
                 self.ctrlPressed = False
+            if event.key() == Qt.Key.Key_A:
+                self.keySelectAll = True if self.ctrlPressed else False
 
         elif event.type() == QEvent.Type.KeyPress:
             # FIXME: setValue() does not update the scrollbars correctly in
