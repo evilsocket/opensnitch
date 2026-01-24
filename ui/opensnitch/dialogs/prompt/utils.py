@@ -244,7 +244,7 @@ def set_default_target(combo, con, cfg, app_name, app_args):
             return
     # entire command as default target for "dangerous" commands
     # (e.g. curl, wget, node)
-    elif any(bin in connection_path.name for bin in constants.FULL_COMMAND_BIN):
+    elif any(connection_path.name.startswith(bin) for bin in constants.FULL_COMMAND_BIN):
         combo.setCurrentIndex(1)
         return
 
