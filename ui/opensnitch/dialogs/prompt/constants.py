@@ -32,7 +32,7 @@ DURATION_12h     = "12h"
 
 APPIMAGE_PREFIX = "/tmp/.mount_"
 SNAP_PREFIX = "/snap"
-FULL_COMMAND_BIN = ["python", "curl", "wget", "node", "java"]
+FULL_COMMAND_BIN = ["python", "curl", "wget", "node", "java", "ssh"]
 
 # label displayed in the pop-up combo
 DURATION_session = QC.translate("popups", "until reboot")
