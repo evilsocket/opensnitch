@@ -604,8 +604,6 @@ class GenericTableView(QTableView):
                 self.shiftPressed = False
             if event.key() == Qt.Key.Key_Control:
                 self.ctrlPressed = False
-            if event.key() == Qt.Key.Key_A:
-                self.keySelectAll = True if self.ctrlPressed else False
 
         elif event.type() == QEvent.Type.KeyPress:
             # FIXME: setValue() does not update the scrollbars correctly in
@@ -631,6 +629,8 @@ class GenericTableView(QTableView):
                 self.ctrlPressed = True
             elif event.key() == Qt.Key.Key_Space:
                 self.onKeySpace()
+            elif event.key() == Qt.Key.Key_A:
+                self.keySelectAll = True
 
         elif event.type() == QEvent.Type.Wheel:
             self.vScrollBar.wheelEvent(event)
