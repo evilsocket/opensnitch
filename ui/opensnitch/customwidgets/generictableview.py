@@ -182,7 +182,10 @@ class GenericTableModel(QStandardItemModel):
             rowsLabels.append(str(q.at()+1))
             cols = []
             for col in range(0, len(self.headerLabels)):
-                cols.append(str(q.value(col)))
+                val = q.value(col)
+                if val is None:
+                    val = ""
+                cols.append(str(val))
 
             self.items.append(cols)
 
