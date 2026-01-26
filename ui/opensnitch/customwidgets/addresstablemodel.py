@@ -34,27 +34,6 @@ class AddressTableModel(GenericTableModel):
             if queryColumns != self.lastColumnCount:
                 self.setModelColumns(queryColumns)
 
-    def setQuery(self, q, db, binds=None):
-        self.origQueryStr = q
-        self.db = db
-
-        if self.prevQueryStr != self.origQueryStr:
-            self.realQuery = QSqlQuery(q, db)
-
-        if binds is not None:
-            self.realQuery.prepare(self.origQueryStr)
-            for idx, v in binds:
-                self.realQuery.bindValue(idx, v)
-
-        self.realQuery.exec()
-        self.realQuery.last()
-
-        self.update_row_count()
-        self.update_col_count()
-
-        self.prevQueryStr = self.origQueryStr
-        self.rowCountChanged.emit()
-
     def fillVisibleRows(self, q, upperBound, force=False):
         super().fillVisibleRows(q, upperBound, force)
 
