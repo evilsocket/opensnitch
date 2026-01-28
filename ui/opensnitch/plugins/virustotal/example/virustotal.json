@@ -3,12 +3,13 @@
   "created": "",
   "updated": "",
   "description": "analyze connections with Virustotal",
-  "type": ["popups", "proc-dialog"],
+  "type": ["popups", "proc-dialog", "main-dialog"],
   "actions": {
       "virustotal": {
           "enabled": true,
           "config": {
               "api_timeout": 2,
+              "api_quota": 500,
               "api_key": "https://virustotal.readme.io/docs/please-give-me-an-api-key",
               "api_domains_url": "https://www.virustotal.com/api/v3/domains/",
               "api_ips_url": "https://www.virustotal.com/api/v3/ip_addresses/",

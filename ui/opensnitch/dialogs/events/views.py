@@ -180,11 +180,17 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
     def get_view_config(self, idx):
         return self.TABLES[idx]
 
+    def set_view_config(self, idx, config):
+        self.TABLES[idx] = config
+
     def get_view_name(self, idx):
         return self.TABLES[idx]['name']
 
     def get_view(self, idx):
         return self.TABLES[idx]['view']
+
+    def set_view(self, idx, view):
+        self.TABLES[idx]['view'] = view
 
     def update_interception_status(self, enabled):
         self.startButton.setDown(enabled)

@@ -4,13 +4,18 @@ import logging
 import requests
 
 from PyQt6 import QtCore
+
+from opensnitch.actions import Actions
 from opensnitch.version import version
 from opensnitch.config import Config
 from opensnitch.plugins import PluginBase, PluginSignal
+from opensnitch.dialogs.events import StatsDialog, constants as evt_constants
 from opensnitch.dialogs.prompt import PromptDialog, constants
 from opensnitch.dialogs.processdetails import ProcessDetailsDialog
 from opensnitch.plugins.virustotal import _popups
 from opensnitch.plugins.virustotal import _procdialog
+from opensnitch.plugins.virustotal import models
+from opensnitch.customwidgets.colorizeddelegate import ColorizedDelegate
 
 ch = logging.StreamHandler()
 #ch.setLevel(logging.DEBUG)
@@ -89,7 +94,7 @@ class Virustotal(PluginBase):
     # XXX ideas:
     # - Send a desktop notification if something is detected as malicious.
     # - [DONE] Add a tab page to the popup with the result of the analysis.
-    #   * Add a link to know more about the domain, certificates, etc.
+    # - [DONE] Add a link to know more about the domain, certificates, etc.
     # - Change the icon if malicious.
     # - Hook Procs tab list, get the hash of each binary, upload to VT and
     # update the list with info.
@@ -155,6 +160,7 @@ class Virustotal(PluginBase):
     API_EXCEEDED = False
     API_KEY = 'https://virustotal.readme.io/docs/please-give-me-an-api-key'
     API_CONNECT_TIMEOUT = 1
+    API_QUOTA = 500
 
     # urls to view the details of an object
     RESULTS_DOMAINS = "https://www.virustotal.com/gui/domain/"
@@ -194,6 +200,7 @@ class Virustotal(PluginBase):
         self.lan_regex = re.compile(Virustotal.LAN_RANGES)
         self.signal_in.connect(self.cb_incoming_events)
         self.threadsPool = QtCore.QThreadPool()
+        self.vt_model = None
 
     def configure(self, parent=None):
         """add widgets to all supported areas of the GUI"""
@@ -207,6 +214,39 @@ class Virustotal(PluginBase):
             vt_tab = _procdialog.build_vt_tab(self, parent)
             _procdialog.add_vt_tab(self, parent, vt_tab)
 
+        elif type(parent) == StatsDialog:
+            evt_dialog = parent
+            view_config = evt_dialog.get_view_config(evt_constants.TAB_HOSTS)
+            self.vt_model = models.VTTableModel(
+                view_config['name'],
+                view_config['header_labels'],
+                self.API_DOMAINS,
+                self.API_KEY,
+                self.API_CONNECT_TIMEOUT,
+                self.API_QUOTA,
+                True
+            )
+
+            view_config['view'] = evt_dialog.view_setup(
+                evt_dialog.hostsTable,
+                view_config['name'],
+                model=self.vt_model,
+                verticalScrollBar=evt_dialog.hostsScrollBar,
+                resize_cols=(evt_constants.COL_WHAT,2),
+                order_by=view_config['last_order_by'],
+                limit=evt_dialog.get_view_limit()
+            )
+            _actions = Actions.instance()
+            hostsDelegate = _actions.compile(models.hostsDelegateConfig)
+            view_config['view'].setItemDelegate(
+                ColorizedDelegate(
+                    view_config['view'],
+                    actions=hostsDelegate
+                )
+            )
+            #evt_dialog.set_view_config(evt_constants.TAB_HOSTS, view_config)
+
+
     def compile(self):
         """Transform json items to python objects, if needed.
         It's executed only once.
@@ -215,6 +255,8 @@ class Virustotal(PluginBase):
         for idx in self._config:
             if idx == "config" and 'api_timeout' in self._config[idx]:
                 self.API_CONNECT_TIMEOUT = self._config[idx]['api_timeout']
+            if idx == "config" and 'api_quota' in self._config[idx]:
+                self.API_QUOTA = self._config[idx]['api_quota']
             if idx == "config" and 'api_key' in self._config[idx]:
                 self.API_KEY = self._config[idx]['api_key']
             if idx == "config" and 'api_domains_url' in self._config[idx]:
@@ -347,7 +389,7 @@ class Virustotal(PluginBase):
             #print("[Virustotal] RESULT:\n", conn.dst_host, "\n", result['data']['attributes']['last_analysis_stats'])
 
             # XXX: if we analyze multiple objects (domains, ips, hashes...),
-            # onlye the last response is stored.
+            # only the last response is stored.
             _popups.add_vt_response(parent, result, conn)
 
             malicious = self.is_malicious(verdict['malicious'])
@@ -363,6 +405,9 @@ class Virustotal(PluginBase):
             _popups.add_vt_response(parent, None, conn, "Exception: {0}".format(repr(e)))
 
         finally:
+            old_msg = parent.get_message_text()
+            if what in old_msg:
+                return
             message = "<font color=\"{0}\">{1} ({2})</font><br>{3}".format(
                 config['benign-label-style'],
                 config['benign-message'],
