@@ -58,11 +58,12 @@ class MenusManager(views.ViewsManager):
         #    return
         #state = "detail_" if self.in_detail_view(cur_idx) else ""
         table = self.get_active_table()
+        model = table.model()
 
         menu = QtWidgets.QMenu(self)
 
         tbl_name = self.TABLES[cur_idx]['name']
-        headers = self.TABLES[cur_idx]['header_labels']
+        headers = model.headers()
         headers_sel = []
         cols = self.cfg.getSettings(Config.STATS_SHOW_COLUMNS + f"_{tbl_name}")
         if cols is None:

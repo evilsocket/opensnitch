@@ -74,6 +74,9 @@ class FirewallTableModel(QStandardItemModel):
         QStandardItemModel.__init__(self, 0, self.lastColumnCount)
         self.setHorizontalHeaderLabels(self.headersAll)
 
+    def headers(self):
+        return self.headersAll
+
     def filterByNode(self, addr):
         self.activeFilter = self.FILTER_BY_NODE
         self.fillVisibleRows(0, True, addr)

@@ -42,6 +42,9 @@ class GenericTableModel(QStandardItemModel):
         QStandardItemModel.__init__(self, 0, self.lastColumnCount)
         self.setHorizontalHeaderLabels(self.headerLabels)
 
+    def headers(self):
+        return self.headerLabels
+
     #Some QSqlQueryModel methods must be mimiced so that this class can serve as a drop-in replacement
     #mimic QSqlQueryModel.query()
     def query(self):

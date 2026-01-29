@@ -243,7 +243,7 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
     def show_view_columns(self, idx):
         tbl_name = self.TABLES[idx]['name']
         view = self.TABLES[idx]['view']
-        cols_num = len(self.TABLES[idx]['header_labels'])
+        cols_num = len(view.model().headers())
         cols = self.cfg.getSettings(Config.STATS_SHOW_COLUMNS + f"_{tbl_name}")
         if cols is not None:
             for c in range(cols_num):
