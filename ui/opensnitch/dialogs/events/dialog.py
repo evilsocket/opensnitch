@@ -328,6 +328,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.TABLES[constants.TAB_MAIN]['view'].setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
         self.TABLES[constants.TAB_MAIN]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
 
+        self.get_search_widget().setCompleter(self.queries.get_completer(constants.TAB_MAIN))
+
         for idx in range(1, constants.TAB_TOTAL):
             if self.TABLES[idx]['cmd'] is not None:
                 self.TABLES[idx]['cmd'].hide()
