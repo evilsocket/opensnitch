@@ -44,7 +44,7 @@ class Nodemon:
                 node_addr, noti, self.win._notification_callback
             )
             if nid is not None:
-                self.save_ntf(nid, noti)
+                self.win.save_ntf(nid, noti)
 
             self.win.nodeRAMProgress.setMaximum(0)
             self.win.nodeSwapProgress.setMaximum(0)
@@ -73,7 +73,7 @@ class Nodemon:
                 last_addr, noti, self.win._notification_callback
             )
             if nid is not None:
-                self.save_ntf(nid, noti)
+                self.win.save_ntf(nid, noti)
             self.win.labelNodeDetails.setText("")
 
             # XXX: would be useful to leave latest data?
