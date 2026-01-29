@@ -1,5 +1,4 @@
 import json
-import datetime
 
 from PyQt6 import QtCore, QtGui, uic, QtWidgets
 from PyQt6.QtCore import QCoreApplication as QC
@@ -41,11 +40,11 @@ class Nodemon:
                 type=ui_pb2.TASK_START,
                 data='{"name": "%s", "data": {"node": "%s", "interval": "5s"}}' % (TASK_NAME, node_addr),
                 rules=[])
-            nid = self.win._nodes.send_notification(
+            nid = self.win.send_notification(
                 node_addr, noti, self.win._notification_callback
             )
-            if nid != None:
-                self.win._notifications_sent[nid] = noti
+            if nid is not None:
+                self.save_ntf(nid, noti)
 
             self.win.nodeRAMProgress.setMaximum(0)
             self.win.nodeSwapProgress.setMaximum(0)
@@ -70,11 +69,11 @@ class Nodemon:
                 type=ui_pb2.TASK_STOP,
                 data='{"name": "%s", "data": {"node": "%s", "interval": "5s"}}' % (TASK_NAME, last_addr),
                 rules=[])
-            nid = self.win._nodes.send_notification(
+            nid = self.win.send_notification(
                 last_addr, noti, self.win._notification_callback
             )
-            if nid != None:
-                self.win._notifications_sent[nid] = noti
+            if nid is not None:
+                self.save_ntf(nid, noti)
             self.win.labelNodeDetails.setText("")
 
             # XXX: would be useful to leave latest data?

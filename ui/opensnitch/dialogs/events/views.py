@@ -23,7 +23,7 @@ from . import (
     queries
 )
 
-class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
+class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
     def __init__(self, parent):
         super(ViewsManager, self).__init__(parent)
         self._lock = threading.RLock()
@@ -147,7 +147,7 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
         self.LAST_SELECTED_ITEM = what
 
     def get_view_context_menu(self, idx):
-        self.TABLES[idx]['context_menu']
+        return self.TABLES[idx]['context_menu']
 
     def set_view_context_menu(self, idx, menu):
         self.TABLES[idx]['context_menu'] = menu
@@ -431,7 +431,7 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
         node = self.nodesLabel.text()
         nid, notif, rules = self.node_import_rules(addr=node, rulesdir=rulesdir, callback=self._notification_callback)
         if nid is not None:
-            self._notifications_sent[nid] = notif
+            self.save_ntf(nid, notif)
             # TODO: add rules per node and after receiving the notification
             for node in self.node_list():
                 self.node_add_rules(node, rules)
@@ -495,7 +495,7 @@ class ViewsManager(config.ConfigManager, base.EventsBase, nodes.NodesManager):
 
         nid, notif, rules = self.node_import_all_rules(rulesdir, self._notification_callback)
         if nid is not None:
-            self._notifications_sent[nid] = notif
+            self.save_ntf(nid, notif)
             # TODO: add rules per node and after receiving the notification
             for node in self.node_list():
                 self.node_add_rules(node, rules)

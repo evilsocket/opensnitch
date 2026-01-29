@@ -93,7 +93,6 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
 
         self._address = address
         self._stats = None
-        self._notifications_sent = {}
 
         self._fw_dialog = None
         self._prefs_dialog = None
@@ -571,7 +570,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
     def _cb_fw_table_rows_reordered(self, node_addr):
         node = self.node_get(node_addr)
         nid, notif = self.node_reload_fw(node_addr, node['firewall'], self._notification_callback)
-        self._notifications_sent[nid] = {'addr': node_addr, 'notif': notif}
+        self.save_ntf(nid, {'addr': node_addr, 'notif': notif})
 
     def _cb_tree_edit_firewall_clicked(self):
         self.open_firewall()
@@ -590,8 +589,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
 
     @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
     def _cb_notification_callback(self, node_addr, reply):
-        if reply.id in self._notifications_sent:
-            noti = self._notifications_sent[reply.id]
+        if self.ntf_reply_exists(reply.id):
+            noti = self.get_notification(reply.id)
 
             # convert dictionary sent from _cb_fw_table_rows_reordered()
             if isinstance(noti, dict) and isinstance(noti["notif"].type, int):
@@ -616,7 +615,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             else:
                 print("_cb_notification_callback, unknown reply:", reply)
 
-            del self._notifications_sent[reply.id]
+            self.del_notification(reply.id)
 
         else:
             #print("_cb_notification_callback, reply not in the list:", reply)
@@ -667,9 +666,10 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
 
         refresh_table = False
         self.set_context_menu_active(True)
-        if cur_idx ==  constants.TAB_MAIN:
+        if cur_idx == constants.TAB_MAIN:
             refresh_table = self.configure_events_contextual_menu(pos)
-        elif cur_idx ==  constants.TAB_RULES:
+        elif cur_idx == constants.TAB_RULES:
+            print("context rules:", self.alertsTable.isVisible())
             if self.fwTable.isVisible():
                 refresh_table = self.configure_fwrules_contextual_menu(pos)
             elif self.alertsTable.isVisible():
@@ -1006,7 +1006,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         else:
             nid, noti = self.stop_interception(self._notification_callback)
 
-        self._notifications_sent[nid] = noti
+        self.save_ntf(nid, noti)
 
     def _cb_node_start_clicked(self):
         addr = self.TABLES[constants.TAB_NODES]['label'].text()
@@ -1019,7 +1019,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self.update_nodes_interception_status(disable=True)
             nid, noti = self.node_stop_interception(addr, self._notification_callback)
 
-        self._notifications_sent[nid] = noti
+        self.save_ntf(nid, noti)
 
     def _cb_node_prefs_clicked(self):
         addr = self.TABLES[constants.TAB_NODES]['label'].text()
@@ -1156,7 +1156,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         nid, noti = self.node_del_rule(node_addr, rule_name, self._notification_callback)
         if nid is None:
             return
-        self._notifications_sent[nid] = noti
+        self.save_ntf(nid, noti)
 
     def display_alert_info(self, time, node):
         text = ""

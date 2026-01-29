@@ -5,6 +5,7 @@ class NodesManager:
     def __init__(self, parent):
         super(NodesManager, self).__init__(parent)
         self._nodes = Nodes.instance()
+        self._notifications_sent = {}
 
     def node_start_interception(self, addr, callback):
         return self._nodes.start_interception(_addr=addr, _callback=callback)
@@ -59,3 +60,15 @@ class NodesManager:
             nids[addr] = nid
 
         return nids
+
+    def save_ntf(self, nid, ntf):
+        self._notifications_sent[nid] = ntf
+
+    def del_notification(self, nid):
+        del self._notifications_sent[nid]
+
+    def ntf_reply_exists(self, nid):
+        return nid in self._notifications_sent
+
+    def get_notification(self, nid):
+        return self._notifications_sent[nid]

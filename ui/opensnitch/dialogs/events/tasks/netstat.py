@@ -163,11 +163,11 @@ class Netstat:
             type=ui_pb2.TASK_START,
             data=config,
             rules=[])
-        nid = self.win._nodes.send_notification(
+        nid = self.win.send_notification(
             node_addr, noti, self.win._notification_callback
         )
-        if nid != None:
-            self.win._notifications_sent[nid] = noti
+        if nid is not None:
+            self.win.save_ntf(nid, noti)
 
         self.win.LAST_NETSTAT_NODE = node_addr
 
@@ -186,11 +186,11 @@ class Netstat:
                 type=ui_pb2.TASK_STOP,
                 data='{"name": "%s", "data": {}}' % TASK_NAME,
                 rules=[])
-            nid = self.win._nodes.send_notification(
+            nid = self.win.send_notification(
                 node_addr, noti, self.win._notification_callback
             )
-            if nid != None:
-                self.win._notifications_sent[nid] = noti
+            if nid is not None:
+                self.win.save_ntf(nid, noti)
 
         self.win.LAST_NETSTAT_NODE = None
 

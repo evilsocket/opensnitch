@@ -130,10 +130,10 @@ class MenuActions(views.ViewsManager):
                     break
 
             if records is not None and records.size() == -1:
-                noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
-                nid = self.send_notification(node_addr, noti, self._notification_callback)
+                ntf = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
+                nid = self.send_notification(node_addr, ntf, self._notification_callback)
                 if nid is not None:
-                    self._notifications_sent[nid] = noti
+                    self.save_ntf(nid, ntf)
 
     def table_menu_apply_to_node(self, cur_idx, model, selection, node_addr):
         if cur_idx == constants.TAB_RULES and self.rulesTable.isVisible():
@@ -146,7 +146,7 @@ class MenuActions(views.ViewsManager):
                 nid = self.send_notification(node_addr, ntf, self._notification_callback)
                 if nid is not None:
                     self._rules.add_rules(node_addr, [rule])
-                    self._notifications_sent[nid] = ntf
+                    self.save_ntf(nid, ntf)
 
         elif cur_idx == constants.TAB_RULES and self.fwTable.isVisible():
             nodes_updated = []
@@ -172,7 +172,7 @@ class MenuActions(views.ViewsManager):
             for addr in nodes_updated:
                 n = self.node_get(addr)
                 nid, ntf = self.node_reload_fw(addr, n['firewall'], self._notification_callback)
-                self._notifications_sent[nid] = ntf
+                self.save_ntf(nid, ntf)
 
     def table_menu_apply_to_all_nodes(self, cur_idx, model, selection, node_addr):
         if cur_idx == constants.TAB_RULES and self.rulesTable.isVisible():
@@ -189,7 +189,7 @@ class MenuActions(views.ViewsManager):
                         print(f"Error applying rule to {addr}")
                         continue
                     self._rules.add_rules(addr, [rule])
-                    self._notifications_sent[nid] = ntf
+                    self.save_ntf(nid, ntf)
 
         elif cur_idx == constants.TAB_RULES and self.fwTable.isVisible():
             nodes_updated = []
@@ -215,7 +215,7 @@ class MenuActions(views.ViewsManager):
             for addr in nodes_updated:
                 n = self.node_get(addr)
                 nid, ntf = self.node_reload_fw(addr, n['firewall'], self._notification_callback)
-                self._notifications_sent[nid] = ntf
+                self.save_ntf(nid, ntf)
 
             if len(r_errs) > 0:
                 errmsg = ""
@@ -246,10 +246,10 @@ class MenuActions(views.ViewsManager):
                 elif field == "precedence":
                     rule.precedence = value
 
-                noti = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
-                nid = self.send_notification(node_addr, noti, self._notification_callback)
+                ntf = ui_pb2.Notification(type=ui_pb2.CHANGE_RULE, rules=[rule])
+                nid = self.send_notification(node_addr, ntf, self._notification_callback)
                 if nid is not None:
-                    self._notifications_sent[nid] = noti
+                    self.save_ntf(nid, ntf)
         elif cur_idx == constants.TAB_RULES and self.fwTable.isVisible():
             nodes_updated = []
             for idx in selection:
@@ -263,8 +263,8 @@ class MenuActions(views.ViewsManager):
 
             for addr in nodes_updated:
                 node = self.node_get(addr)
-                nid, noti = self.node_reload_fw(addr, node['firewall'], self._notification_callback)
-                self._notifications_sent[nid] = noti
+                nid, ntf = self.node_reload_fw(addr, node['firewall'], self._notification_callback)
+                self.save_ntf(nid, ntf)
 
     def table_menu_enable(self, cur_idx, model, selection, is_rule_enabled):
         rule_status = "False" if is_rule_enabled == "True" else "True"
@@ -285,10 +285,10 @@ class MenuActions(views.ViewsManager):
                     values=[rule_status], condition=f"name='{rule_name}' AND node='{node_addr}'",
                     action_on_conflict="")
 
-                noti = ui_pb2.Notification(type=rule_type, rules=[rule])
-                nid = self.send_notification(node_addr, noti, self._notification_callback)
+                ntf = ui_pb2.Notification(type=rule_type, rules=[rule])
+                nid = self.send_notification(node_addr, ntf, self._notification_callback)
                 if nid is not None:
-                    self._notifications_sent[nid] = noti
+                    self.save_ntf(nid, ntf)
 
         elif cur_idx == constants.TAB_RULES and self.fwTable.isVisible():
             nodes_updated = []
@@ -301,8 +301,8 @@ class MenuActions(views.ViewsManager):
 
             for addr in nodes_updated:
                 node = self.node_get_node(addr)
-                nid, noti = self.node_reload_fw(addr, node['firewall'], self._notification_callback)
-                self._notifications_sent[nid] = noti
+                nid, ntf = self.node_reload_fw(addr, node['firewall'], self._notification_callback)
+                self.save_ntf(nid, ntf)
 
     def table_menu_delete(self, cur_idx, model, selection):
         if cur_idx == constants.TAB_MAIN or cur_idx == constants.TAB_NODES or self.in_detail_view(cur_idx):
@@ -333,8 +333,8 @@ class MenuActions(views.ViewsManager):
                     print("error deleting fw rule:", uuid, "row:", idx.row())
 
             for addr in nodes_updated:
-                nid, noti = self.node_reload_fw(addr, nodes_updated[addr], self._notification_callback)
-                self._notifications_sent[nid] = noti
+                nid, ntf = self.node_reload_fw(addr, nodes_updated[addr], self._notification_callback)
+                self.save_ntf(nid, ntf)
 
         elif cur_idx == constants.TAB_RULES and self.rulesTable.isVisible():
             for row in selection:
