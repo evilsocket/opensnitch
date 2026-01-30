@@ -788,3 +788,42 @@ func TestNewOperatorSimpleBareIpNoHostName(t *testing.T) {
 
 	restoreConnection()
 }
+
+func TestNewOperatorRange(t *testing.T) {
+	t.Log("Test NewOperator() range")
+	var list []Operator
+
+	tests := map[string]bool{
+		"1-5000":  true,
+		"443-445": true,
+		// we should not allow spaces, but we trim them when compiling the operator
+		"1 - 5000": true,
+		"1-442":    false,
+		"89-80":    true,
+		"-80":      true,
+		"53-":      true,
+	}
+
+	for r, expected := range tests {
+		t.Run(fmt.Sprintf("Operator Range conn.dst_port %s", r), func(t *testing.T) {
+			opRange, err := NewOperator(Range, false, OpDstPort, r, list)
+			if err != nil {
+				t.Error("NewOperator range.err should be nil: ", err, r)
+				t.Fail()
+			}
+			if err = opRange.Compile(); err != nil {
+				if expected {
+					return
+				}
+				t.Error("Test NewOperator() range doesn't compile", r)
+				t.Fail()
+			}
+			if opRange.Match(conn, false) != expected {
+				t.Error("Test NewOperator() range doesn't match", r)
+				t.Fail()
+			}
+		})
+	}
+
+	restoreConnection()
+}

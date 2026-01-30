@@ -33,6 +33,7 @@ const (
 	List    = Type("list")
 	Network = Type("network")
 	Lists   = Type("lists")
+	Range   = Type("range")
 )
 
 // Available operands
@@ -82,6 +83,8 @@ type Operator struct {
 	netMask         *net.IPNet
 	lists           map[string]interface{}
 	exitMonitorChan chan (struct{})
+	rangeMin        uint64
+	rangeMax        uint64
 
 	Operand             Operand    `json:"operand"`
 	Data                string     `json:"data"`
@@ -142,6 +145,11 @@ func (o *Operator) Compile() error {
 
 		o.cb = o.simpleCmp
 
+	} else if o.Type == Range {
+		if err := o.compileRange(); err != nil {
+			return err
+		}
+		o.cb = o.rangeCmp
 	} else if o.Type == Regexp {
 		o.cb = o.reCmp
 		if o.Sensitive == false {
@@ -216,6 +224,32 @@ func (o *Operator) compileNetwork() error {
 	return nil
 }
 
+func (o *Operator) compileRange() error {
+	parts := strings.Split(strings.ReplaceAll(o.Data, " ", ""), "-")
+	if len(parts) != 2 {
+		return fmt.Errorf("Range format error: expected 'min-max', got '%s'", o.Data)
+	}
+
+	min, err := strconv.ParseUint(parts[0], 10, 64)
+	if err != nil {
+		return fmt.Errorf("Range min parsing error: %s", err)
+	}
+
+	max, err := strconv.ParseUint(parts[1], 10, 64)
+	if err != nil {
+		return fmt.Errorf("Range max parsing error: %s", err)
+	}
+
+	if min > max {
+		return fmt.Errorf("Range error: min (%d) cannot be greater than max (%d)", min, max)
+	}
+
+	o.rangeMin = min
+	o.rangeMax = max
+
+	return nil
+}
+
 func (o *Operator) String() string {
 	how := "is"
 	if o.Type == Regexp {
@@ -236,6 +270,11 @@ func (o *Operator) reCmp(data string) bool {
 		data = strings.ToLower(data)
 	}
 	return o.re.MatchString(data)
+}
+
+func (o *Operator) rangeCmp(value string) bool {
+	v, _ := strconv.ParseUint(value, 10, 64)
+	return v >= o.rangeMin && v <= o.rangeMax
 }
 
 func (o *Operator) cmpNetwork(destIP interface{}) bool {
