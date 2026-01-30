@@ -10,6 +10,7 @@
    2. [Monitor method: eBPF](monitor-method-ebpf)
    3. [Rules](Rules)
       1. [Best practices](Rules#best-practices)
+      2. [For servers](https://github.com/evilsocket/opensnitch/wiki/Rules#for-servers)
    5. [Rules editor](Rules-editor)
       1. [Rules examples](Rules-examples)
    6. [System rules](System-rules)
