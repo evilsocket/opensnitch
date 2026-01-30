@@ -7,7 +7,7 @@
 
 ### Format
 
-Rules are stored as JSON files inside the `-rule-path` directory (by default `/etc/opensnitchd/rules`), in the simplest case a rule looks like this:
+Rules are stored as JSON files inside the `-rule-path` directory (by default `/etc/opensnitchd/rules`), in its simplest form, a rule looks like this:
 
 ```json
 {
@@ -32,38 +32,43 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 | created          | UTC date and time of creation. |
 | update           | UTC date and time of the last update. |
 | name             | The name of the rule. |
-| enabled          | Use to temporarily disable and enable rules without moving their files. |
-| precedence       | true or false. Sets if a rule take precedence (>= v1.2.0)|
-| action           | Can be `deny`, `reject` or `allow`. |
-| duration         | For rules persisting on disk, this value is default to `always`. |
-| operator.type    | `simple`, `regexp`, `network`, `lists`, `list`.|
-| | `simple` is a simple `==` comparison. `regexp` will match the regexp from the `data` field against the Operand, `network` which will match a network range (127.0.0.1/8), `lists` will look for matches on lists of something (domains, IPs, etc), and `list`, a combination of all of the previous types. |
-| operator.data    | The data to compare the `operand` to, can be a regular expression if `type` is `regexp`, or a path to a directory with list of IPs/domains in the case of `lists`. |
-| operator.operand | Element of the connection to compare against, can be one of: |
-| |* `true` (will always match) |
-| |* `process.path` (the absolute path of the executable) |
-| |* `process.id` PID of the process|
-| |* `process.command` (full command line, including path and arguments). Note that cmdlines can contain or not the process, and the path can be absolute or relative (`./cmd -x a`)|
-| |* `process.parent.path` (v1.7.0) check against ONE of the parent path. Include more parent paths to match the tree of a process. |
-| |* `provess.env.ENV_VAR_NAME` (use the value of an environment variable of the process given its name). |
-| |* `process.hash.md5` (v1.7.0) |
-| |* `user.id` (UID)|
-| |* `user.name` user name (v1.7.0). Check against a regular system username (no namespaces, containers or virtual user names).|
-| |* `protocol`|
-| |* `source.port` |
-| |* `source.ip` |
-| |* `source.network` |
-| |* `dest.ip` |
-| |* `dest.host` |
-| |* `dest.network` (v1.3.0)|
-| |* `dest.port` |
-| |* `iface.in` (v1.6.0) |
-| |* `iface.out` (v1.6.0) |
-| |* `lists.domains` (v1.4.0) lists of domains in hosts format [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
-| |* `lists.domains_regexp` (v1.5.0) list of domains with regular expressions (`.*\.example\.com`) [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
-| |* `lists.ips` (v1.5.0) list of IPs [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
-| |* `lists.nets` (v1.5.0) list of network ranges [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
-| |* `lists.hash.md5` (v1.7.0) list of md5s |
+| enabled          | Enable or disable the rule. |
+| precedence       | true or false. Sets if a rule take precedence over the rest (>= v1.2.0)|
+| action           | Can be `deny`, `reject` or `allow`. `reject` kills the socket. |
+| duration         | The duration of the rule in [Duration format](https://pkg.go.dev/time#ParseDuration). `always` is always used when the rule is written to disk. The rest of the options are temporary, until they reach the deadline: `12h`, `5h`, `1h`, `30s`, or `once` to only run the rule one time.  |
+| operator.type    | `simple`, `regexp`, `network`, `lists`, `list`, `range`.|
+|| `simple` is a simple `==` comparison.|
+|| `regexp` matches the regexp from the `data` field against the connection |
+|| `network` checks if the IP of a connection is contained within the specified network range (127.0.0.1/8) |
+|| `lists` will look for matches on lists of something (domains, IPs, etc). Typically used to create [blocklists](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+|| `range` will check if an Operand (`dest.port` or `source.port`) is within the given range.|
+|| `list`, a combination of all of the previous types.|
+| operator.data    | The data of the rule against which an outbound connection will be compared: an IP, a destination port, a command line, etc. |
+| operator.operand | Property of the connection against which the rule will be compared: |
+| | `true` - will always match |
+| | `process.path`  - the absolute path of the executable |
+| | `process.id` PID of the process|
+| | `process.command` (full command line, including path and arguments). Note that cmdlines can contain or not the process name, and the path can be absolute or relative (`./cmd -x a`).|
+| | `process.parent.path` (v1.7.0) check against ONE of the parent path. Include more parent paths to match the tree of a process. |
+| | `provess.env.ENV_VAR_NAME` (use the value of an environment variable of the process given its name). |
+| | `process.hash.md5` (v1.7.0) - verify the checksum of an executable |
+| | `user.id` - UID |
+| | `user.name` user name (v1.7.0). Check against a regular system username (no namespaces, containers or virtual user names).|
+| | `protocol` - TCP, UDP, UDPLITE, ...|
+| | `source.port` |
+| | `source.ip` |
+| | `source.network` |
+| | `dest.ip` |
+| | `dest.host` |
+| | `dest.network` (v1.3.0)|
+| | `dest.port` |
+| | `iface.in` (v1.6.0) |
+| | `iface.out` (v1.6.0) |
+| | `lists.domains` (v1.4.0) lists of domains in hosts format [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| | `lists.domains_regexp` (v1.5.0) list of domains with regular expressions (`.*\.example\.com`) [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists) ⚠️! Don't use more than 300 regexps, it'll eat all the memory. |
+| | `lists.ips` (v1.5.0) list of IPs [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| | `lists.nets` (v1.5.0) list of network ranges [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
+| | `lists.hash.md5` (v1.7.0) list of md5s |
 
 ### Some considerations
 
@@ -77,7 +82,7 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
  - Rule: allow -> port ^(53|80|443)$ -> UID 1000 -> Path /app/bin/test -> [x] domains list
    * This rule will match connections to ports (53 __OR__ 80 __OR__ 443) __AND__ UID 1000 __AND__ Path /app/bin/test __AND__ domains in the specified.
 
-- If you select multiple lists on the same rule, bear in mind that the connections you want to match must
+- If you select multiple lists on the same rule, bear in mind that all the lists must match in order to apply an action:
  [Read this disccussion to learn more](https://github.com/evilsocket/opensnitch/discussions/877#discussioncomment-5247997)
 
 Rule precedence: When a connection is attempted, OpenSnitch evaluates each of the enabled rules. The rules are sorted in the alphabetical order of rule names (since v.1.2.0). OpenSnitch goes through the list and as soon as it encounters a  Deny/Reject rule or an _Important_ ([x] Priority) rule (since v1.2.0) that matches the connection, that rule will be immediately selected as the effective rule. If no such rule is found, then the last non-Important Allow rule that matched will be selected. If no rule matched, it shows a pop-up dialogue, or applys the default action if that's not possible.
@@ -102,7 +107,7 @@ This way you can not only prioritize critical connections (like VPNs), but also 
 
 As already mentioned, the order of rules is critical. If you use Firefox and prioritize Allow rules to allow Firefox's connections, web navegation will be faster.
 
-But the type of rule also impacts the rule's performance. `regexp` and `list` types are slower than `simple` because `regexp` and `list` types check multiple parameters while simple rules check just one.
+But the type of rule also impacts the rule's performance. `regexp` and `list` types are slower than `simple` because `regexp` and `list` types check multiple parameters while simple rules check just one. And `regexp` is the slowest, because is the more complex type.
 
 ---
 
@@ -227,7 +232,7 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
 - Allow DNS queries only to your configured DNS nameservers:
 
   ⚠️ DNS protocol can be used to exfiltrate information from local networks.
-  * Allow `systemd-resolved`, `dnsmasq`, `dnscrypt-proxy`, etc, connect only to your DNS nameservers + port 53  + UID.
+  * Allow `systemd-resolved`, `dnsmasq`, `dnscrypt-proxy`, etc, to connect only to your DNS nameservers + port 53  + UID.
   * Besides allowing connections to remote DNS servers (9.9.9.9 for example), you may need to allow connections to localhost IPs (127.0.0.1, etc)
   * If you already allowed these stub resolvers, the easiest way would we to delete the existing rule, let it ask you again to allow/deny it, click on the `[+]` button and then select from the pop-up `from this command line` __AND__ to IP x.x.x.x __AND___ to port xxx
 
