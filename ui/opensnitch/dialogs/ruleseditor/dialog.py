@@ -528,12 +528,17 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return False, QC.translate("rules", "Source port can not be empty")
 
             self.rule.operator.operand = Config.OPERAND_SOURCE_PORT
-            self.rule.operator.data = self.srcPortLine.text()
+            src_port = self.srcPortLine.text()
+            self.rule.operator.data = src_port
+            op_type = Config.RULE_TYPE_SIMPLE
+            if constants.RANGE_SEPARATOR in self.srcPortLine.text():
+                src_port = src_port.replace(" ", "")
+                op_type = Config.RULE_TYPE_RANGE
             rule_data.append(
                 rules.new_operator(
-                    Config.RULE_TYPE_SIMPLE,
+                    op_type,
                     Config.OPERAND_SOURCE_PORT,
-                    self.srcPortLine.text(),
+                    src_port,
                     self.sensitiveCheck.isChecked()
                 )
             )
@@ -555,12 +560,16 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return False, QC.translate("rules", "Dest port can not be empty")
 
             self.rule.operator.operand = Config.OPERAND_DEST_PORT
-            self.rule.operator.data = self.dstPortLine.text()
+            dst_port = self.dstPortLine.text()
+            op_type = Config.RULE_TYPE_SIMPLE
+            if constants.RANGE_SEPARATOR in dst_port:
+                dst_port = dst_port.replace(" ", "")
+                op_type = Config.RULE_TYPE_RANGE
             rule_data.append(
                 rules.new_operator(
-                    Config.RULE_TYPE_SIMPLE,
+                    op_type,
                     Config.OPERAND_DEST_PORT,
-                    self.dstPortLine.text(),
+                    dst_port,
                     self.sensitiveCheck.isChecked()
                 )
             )
