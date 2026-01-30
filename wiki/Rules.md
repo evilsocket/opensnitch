@@ -2,6 +2,7 @@
 - [Performance / Important notes](#some-considerations)
   * [localhost connections](#localhost-connections)
 - [Best practices](#best-practices)
+- [For servers](#for-servers)
 
 ---
 
@@ -256,9 +257,61 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
 
   If `/proc/sys/kernel/unprivileged_userns_clone` is set to 1, change it to 0. Until we obtain the checksum of a binary, it's better to set it to 0.
 
-- Don't allow connections opened by binaries located under certain directories: `/dev/shm`, `/tmp`, `/var/tmp` or `/memfd`
+### For servers
 
-  Why? If someone gets access to your system, usually these directories are the only ones where they can write files, thus it's usually used to drop malicious files, that download remote binaries to escalate privileges, etc.
+ These recommendations also apply to the Linux Desktop, but are specially important on servers.
+ 
+ Why? If someone gets access to the system, usually there're a few directories where everyone can write files: `/tmp`, `/var/tmp` or `/dev/shm`.
+ Thus these directories are usually used to drop malicious files or download remote binaries to escalate privileges, mine cryptocoins, etc.
+
+ Usually the attackers use `wget`, `curl` or `bash` to establish outbound connections ([malware examples](https://github.com/evilsocket/opensnitch/discussions/1119)). So, if you don't need these binaries, just uninstall them.
+
+- If you need them, restrict their outbound connections as much as possible:
+   Set the DefaultAction to `deny` or `reject` in `default-config.json`, and create a similar rule to this:
+   (you can also create this rule, and another one to deny everything from curl/wget).
+
+  ```
+  {
+  "created": "2020-02-07T14:16:20.550255152+01:00",
+  "updated": "2020-02-07T14:16:20.729849966+01:00",
+  "name": "allow-curl-net-proxy",
+  "description": "allow curl only to 10.168.10.164 on port 8081",
+  "enabled": true,
+  "precedence": false,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "list",
+    "operand": "list",
+    "list": [
+      {
+        "type": "simple",
+        "operand": "process.path",
+        "sensitive": false,
+        "data": "/usr/bin/curl",
+        "list": null
+      },
+      {
+        "type": "simple",
+        "operand": "dest.ip",
+        "sensitive": false,
+        "data": "10.168.10.164",
+        "list": null
+      },
+      {
+        "type": "simple",
+        "operand": "dest.port",
+        "sensitive": false,
+        "data": "8081",
+        "list": null
+      }
+    ]
+   }
+  }
+  ```
+
+
+- Don't allow connections opened by binaries located under certain directories: `/dev/shm`, `/tmp`, `/var/tmp` or `/memfd`
 
   There're ton of examples (more common on servers than on the desktop):
 
@@ -291,4 +344,8 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
   }
   ```
 
+- You can also block outbound connections to crypto mining pools and malware domains/ips with [blocklists rules]https://github.com/evilsocket/opensnitch/wiki/block-lists).
+  One of the common reason to compromise servers is to mine cryptos. Denying connections to the mining pools, disrupts the operation.
+
   **Note** that the default policy should be deny everything unless explicitely allowed. But by creating a rule to deny specifically these directories, you can have a place where to monitor these executions.
+
