@@ -345,6 +345,7 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
   ```
 
 - You can also block outbound connections to crypto mining pools and malware domains/ips with [blocklists rules]https://github.com/evilsocket/opensnitch/wiki/block-lists).
+
   One of the common reason to compromise servers is to mine cryptos. Denying connections to the mining pools, disrupts the operation.
 
   **Note** that the default policy should be deny everything unless explicitely allowed. But by creating a rule to deny specifically these directories, you can have a place where to monitor these executions.
