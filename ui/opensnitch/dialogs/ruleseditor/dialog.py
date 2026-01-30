@@ -527,11 +527,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.srcPortLine.text() == "":
                 return False, QC.translate("rules", "Source port can not be empty")
 
-            self.rule.operator.operand = Config.OPERAND_SOURCE_PORT
             src_port = self.srcPortLine.text()
+            self.rule.operator.operand = Config.OPERAND_SOURCE_PORT
             self.rule.operator.data = src_port
             op_type = Config.RULE_TYPE_SIMPLE
-            if constants.RANGE_SEPARATOR in self.srcPortLine.text():
+            if constants.RANGE_SEPARATOR in src_port:
                 src_port = src_port.replace(" ", "")
                 op_type = Config.RULE_TYPE_RANGE
             rule_data.append(
@@ -559,8 +559,9 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self.dstPortLine.text() == "":
                 return False, QC.translate("rules", "Dest port can not be empty")
 
-            self.rule.operator.operand = Config.OPERAND_DEST_PORT
             dst_port = self.dstPortLine.text()
+            self.rule.operator.operand = Config.OPERAND_DEST_PORT
+            self.rule.operator.data = dst_port
             op_type = Config.RULE_TYPE_SIMPLE
             if constants.RANGE_SEPARATOR in dst_port:
                 dst_port = dst_port.replace(" ", "")
@@ -877,6 +878,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         elif len(rule_data) == 1:
             self.rule.operator.operand = rule_data[0]['operand']
             self.rule.operator.data = rule_data[0]['data']
+            self.rule.operator.type = rule_data[0]['type']
             if self.checkProcRegexp.isChecked():
                 self.rule.operator.type = Config.RULE_TYPE_REGEXP
             elif self.checkCmdlineRegexp.isChecked():
