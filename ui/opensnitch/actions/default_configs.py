@@ -107,21 +107,21 @@ rulesDelegateConfig = {
             "cells": [
                 {
                     "text": ["allow", "True"],
-                    "cols": [3, 4],
+                    "cols": [3, 4, 5],
                     "color": "green",
                     "bgcolor": "",
                     "alignment": ["center"]
                     },
                     {
                     "text": ["deny", "False"],
-                    "cols": [3, 4],
+                    "cols": [3, 4, 5],
                     "color": "red",
                     "bgcolor": "",
                     "alignment": ["center"]
                     },
                     {
                     "text": ["reject"],
-                    "cols": [3, 4],
+                    "cols": [3, 5],
                     "color": "purple",
                     "bgcolor": "",
                     "alignment": ["center"]
