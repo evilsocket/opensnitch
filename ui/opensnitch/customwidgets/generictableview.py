@@ -354,6 +354,11 @@ class GenericTableView(QTableView):
         row = self.rowAt(pos.y())
         viewport_row = self.getViewportRowPos(row)
 
+        # when the mouse goes off the viewport while dragging, row is -1.
+        # in this scenario, set a valid last row.
+        if row == -1 and self._last_row_selected is None:
+            self._last_row_selected = self._first_row_selected
+
         if self._first_row_selected is None:
             self._first_row_selected = viewport_row
         if self._last_row_selected is None:
@@ -523,7 +528,6 @@ class GenericTableView(QTableView):
         self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=self.forceViewRefresh())
 
     def clearSelection(self):
-        GenericTableView.mousePressed = False
         self.keySelectAll = False
         self.shiftPressed = False
         self.ctrlPressed = False
