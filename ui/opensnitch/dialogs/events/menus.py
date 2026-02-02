@@ -351,7 +351,6 @@ class MenusManager(views.ViewsManager):
         except Exception as e:
             print("rules contextual menu exception:", e)
         finally:
-            self.clear_rows_selection()
             return True
 
     def configure_alerts_contextual_menu(self, pos):
