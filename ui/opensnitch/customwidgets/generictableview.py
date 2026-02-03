@@ -199,19 +199,23 @@ class GenericTableModel(QStandardItemModel):
         del cols
 
     def dumpRows(self, nolimits=False, first_row=QSql.Location.BeforeFirstRow.value, last_row=QSql.Location.AfterLastRow.value):
+        if first_row is None or last_row is None:
+            return
         rows = []
-        q = QSqlQuery(self.db)
         qstr = self.origQueryStr
         if nolimits:
             qstr = self.origQueryStr.split("LIMIT")[0]
-        q.exec(qstr)
-        q.seek(first_row)
-        while q.next():
-            if q.at() == last_row:
+        self.realQuery.exec(qstr)
+        # reset records position, in order to get correctly the number of
+        # rows.
+        self.realQuery.first()
+        self.realQuery.seek(first_row)
+        while self.realQuery.next():
+            if self.realQuery.at() == last_row:
                 break
             row = []
             for col in range(0, len(self.headerLabels)):
-                row.append(q.value(col))
+                row.append(self.realQuery.value(col))
             rows.append(row)
         return rows
 
@@ -356,8 +360,11 @@ class GenericTableView(QTableView):
 
         # when the mouse goes off the viewport while dragging, row is -1.
         # in this scenario, set a valid last row.
-        if row == -1 and self._last_row_selected is None:
+        if self._last_row_selected is None and (row == -1 and viewport_row == 0):
             self._last_row_selected = self._first_row_selected
+            self._first_row_selected = 0
+        elif self._last_row_selected is None and (row == -1 and viewport_row+self.maxRowsInViewport == self.getMaxViewportRow()):
+            self._last_row_selected = self.getMaxViewportRow()+1
 
         if self._first_row_selected is None:
             self._first_row_selected = viewport_row
@@ -448,6 +455,8 @@ class GenericTableView(QTableView):
                 flags = QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Deselect
                 if self.ctrlPressed:
                     self._first_row_selected = None
+            else:
+                self._rows_selection[clickedItem.data()] = self.getRowCells(row)
         elif self.shiftPressed:
             if self._last_row_selected is None:
                 self._last_row_selected = viewport_row
@@ -603,6 +612,10 @@ class GenericTableView(QTableView):
         if not self.shiftPressed:
             self._rows_selection = {}
         self._rows_selection[curIdx.data()] = self.getRowCells(curIdx.row())
+        viewport_row = self.getViewportRowPos(curIdx.row())
+        self._last_row_selected = viewport_row
+        if self._first_row_selected is None:
+            self._first_row_selected = viewport_row
 
         if self.selectionModel().currentIndex().row() == 0:
             self.vScrollBar.setValue(max(0, self.vScrollBar.value() - 1))
@@ -614,21 +627,28 @@ class GenericTableView(QTableView):
             self._rows_selection = {}
         self._rows_selection[curIdx.data()] = self.getRowCells(curRow)
 
+        newValue = self.vScrollBar.value()
         if curRow >= self.maxRowsInViewport-2:
-            self.onKeyPageDown()
-            self._selectRow(0)
-        else:
-            self._selectRow(curRow)
+            self.vScrollBar.setValue(newValue+1)
+            self._selectLastRow()
 
     def onKeyHome(self):
+        self._last_row_selected = self._first_row_selected
+        self._first_row_selected = 0
         self.vScrollBar.setValue(0)
-        if not self.mousePressed and self.shiftPressed:
+        if not GenericTableView.mousePressed and not self.shiftPressed:
             self.selectionModel().clear()
+        if self.shiftPressed:
+            self.selectDbRows(self._first_row_selected-1, self._last_row_selected)
+        self._selectRow(0)
 
     def onKeyEnd(self):
         self.vScrollBar.setValue(self.vScrollBar.maximum())
-        if not self.mousePressed and self.shiftPressed:
+        if not GenericTableView.mousePressed and not self.shiftPressed and not self.ctrlPressed:
             self.selectionModel().clear()
+        self._last_row_selected = self.getMaxViewportRow()
+        if self.shiftPressed:
+            self.selectDbRows(self._first_row_selected-2, self._last_row_selected)
         self._selectLastRow()
 
     def onKeyPageUp(self):
