@@ -174,6 +174,7 @@ class GenericTableModel(QStandardItemModel):
 
         self.items = []
         cols = []
+        header_count = self.columnCount()
         #don't trigger setItem's signals for each cell, instead emit dataChanged for all cells
         for x in range(0, upperBound):
             q.next()
@@ -184,7 +185,7 @@ class GenericTableModel(QStandardItemModel):
                 break
             rowsLabels.append(str(q.at()+1))
             cols = []
-            for col in range(0, len(self.headerLabels)):
+            for col in range(0, header_count):
                 val = q.value(col)
                 if val is None:
                     val = ""
@@ -194,7 +195,7 @@ class GenericTableModel(QStandardItemModel):
 
         self.setVerticalHeaderLabels(rowsLabels)
         if self.lastItems != self.items or force == True:
-            self.dataChanged.emit(self.createIndex(0,0), self.createIndex(upperBound, len(self.headerLabels)))
+            self.dataChanged.emit(self.createIndex(0,0), self.createIndex(upperBound, header_count))
         self.lastItems = self.items
         del cols
 
@@ -210,11 +211,12 @@ class GenericTableModel(QStandardItemModel):
         # rows.
         self.realQuery.first()
         self.realQuery.seek(first_row)
+        header_count = self.columnCount()
         while self.realQuery.next():
             if self.realQuery.at() == last_row:
                 break
             row = []
-            for col in range(0, len(self.headerLabels)):
+            for col in range(0, header_count):
                 row.append(self.realQuery.value(col))
             rows.append(row)
         return rows
@@ -223,12 +225,13 @@ class GenericTableModel(QStandardItemModel):
         rows = []
         lastAt = self.realQuery.at()
         self.realQuery.seek(start)
+        header_count = self.columnCount()
         while True:
             self.realQuery.next()
             if self.realQuery.at() == QSql.Location.AfterLastRow.value or len(rows) >= end:
                 break
             row = []
-            for col in range(0, len(self.headerLabels)):
+            for col in range(0, header_count):
                 row.append(self.realQuery.value(col))
             rows.append(row)
         self.realQuery.seek(lastAt)
