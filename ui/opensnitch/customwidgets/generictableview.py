@@ -286,6 +286,10 @@ class GenericTableView(QTableView):
         """column used to track a selected row while scrolling on this table"""
         self.trackingCol = col
 
+    def selectAll(self):
+        super().selectAll()
+        self.keySelectAll = True
+
     def getRowCells(self, row):
         cols = []
         for i in range(0, self.model().columnCount()):
@@ -499,7 +503,7 @@ class GenericTableView(QTableView):
     def handleMouseMoveEvent(self, row, clickedItem, selected):
         # this code serves to highlight rows while selecting rows by dragging
         # the mouse.
-        if selected:
+        if not selected:
             if clickedItem.data() in self._rows_selection.keys():
                 del self._rows_selection[clickedItem.data()]
         else:
@@ -703,8 +707,6 @@ class GenericTableView(QTableView):
                 self.ctrlPressed = True
             elif event.key() == Qt.Key.Key_Space:
                 self.onKeySpace()
-            elif event.key() == Qt.Key.Key_A:
-                self.keySelectAll = True
 
         elif event.type() == QEvent.Type.Wheel:
             self.vScrollBar.wheelEvent(event)
