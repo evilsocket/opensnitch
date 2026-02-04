@@ -20,16 +20,7 @@
 
 #define KBUILD_MODNAME "opensnitch-dns"
 
-#include <linux/in.h>
-#include <linux/in6.h>
-#include <linux/ptrace.h>
-#include <linux/sched.h>
-#include <net/sock.h>
-#include <uapi/linux/bpf.h>
-#include <uapi/linux/tcp.h>
 #include "common_defs.h"
-#include "bpf_headers/bpf_helpers.h"
-#include "bpf_headers/bpf_tracing.h"
 
 //-----------------------------------
 

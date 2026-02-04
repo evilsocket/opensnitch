@@ -1,7 +1,6 @@
 #define KBUILD_MODNAME "opensnitch-procs"
 
 #include "common.h"
-#include <net/sock.h>
 
 struct {
     // Since kernel 5.8
@@ -30,7 +29,7 @@ static __always_inline void new_event(struct data_t* data)
     bpf_probe_read(&parent, sizeof(parent), &task->real_parent);
     data->pid = bpf_get_current_pid_tgid() >> 32;
 
-#if !defined(__arm__) && !defined(__i386__)
+#if !defined(__TARGET_ARCH_arm) && !defined(__TARGET_ARCH_i386)
     // on i686 -> invalid read from stack
     bpf_probe_read(&data->ppid, sizeof(u32), &parent->tgid);
 #endif
@@ -117,7 +116,7 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
     bpf_probe_read_user_str(&data->filename, sizeof(data->filename), (const char *)ctx->filename);
 
 // FIXME: on i386 arch, the following code fails with permission denied.
-#if !defined(__arm__) && !defined(__i386__)
+#if !defined(__TARGET_ARCH_arm) && !defined(__TARGET_ARCH_i386)
     const char *argp={0};
 
     #pragma unroll
@@ -133,7 +132,7 @@ int tracepoint__syscalls_sys_enter_execve(struct trace_sys_enter_execve* ctx)
 #endif
 
 // FIXME: on aarch64 we fail to save the event to execMap, so send it to userspace here.
-#if defined(__aarch64__)
+#if defined(__TARGET_ARCH_arm64)
     bpf_ringbuf_output(&events, data, sizeof(*data), 0);
 #else
     u64 pid_tgid = bpf_get_current_pid_tgid();
@@ -185,7 +184,7 @@ int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx
     data->args_partial = INCOMPLETE_ARGS;
 
 // FIXME: on i386 arch, the following code fails with permission denied.
-#if !defined(__arm__) && !defined(__i386__)
+#if !defined(__TARGET_ARCH_arm) && !defined(__TARGET_ARCH_i386)
     const char *argp={0};
 
     #pragma unroll
@@ -200,7 +199,7 @@ int tracepoint__syscalls_sys_enter_execveat(struct trace_sys_enter_execveat* ctx
     }
 #endif
 
-#if defined(__aarch64__)
+#if defined(__TARGET_ARCH_arm64)
     bpf_ringbuf_output(&events, data, sizeof(*data), 0);
 #else
     u64 pid_tgid = bpf_get_current_pid_tgid();
