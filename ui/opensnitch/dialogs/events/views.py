@@ -230,6 +230,9 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             stream = io.StringIO()
             csv.writer(stream, delimiter=',').writerows(selection)
             QtWidgets.QApplication.clipboard().setText(stream.getvalue())
+            stream.close()
+            stream = None
+        selection = None
 
     # must be called after setModel() or setQuery()
     def show_columns(self):

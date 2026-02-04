@@ -206,7 +206,7 @@ class GenericTableModel(QStandardItemModel):
         qstr = self.origQueryStr
         if nolimits:
             qstr = self.origQueryStr.split("LIMIT")[0]
-        self.realQuery.exec(qstr)
+            self.realQuery.exec(qstr)
         # reset records position, in order to get correctly the number of
         # rows.
         self.realQuery.first()
@@ -497,15 +497,16 @@ class GenericTableView(QTableView):
         self.selectDbRows(first_row, self._last_row_selected)
 
     def handleMouseMoveEvent(self, row, clickedItem, selected):
-        if not selected:
+        # this code serves to highlight rows while selecting rows by dragging
+        # the mouse.
+        if selected:
             if clickedItem.data() in self._rows_selection.keys():
                 del self._rows_selection[clickedItem.data()]
         else:
             self._rows_selection[clickedItem.data()] = self.getRowCells(row)
 
         # handle scrolling the view while dragging the mouse.
-        if GenericTableView.mousePressed:
-            self.scrollViewport(row)
+        self.scrollViewport(row)
 
     def onBeginViewportRefresh(self):
         # if the selected row due to scrolling up/down doesn't match with the
