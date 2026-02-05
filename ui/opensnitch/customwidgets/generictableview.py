@@ -392,6 +392,9 @@ class GenericTableView(QTableView):
         if self._first_row_selected == self._last_row_selected:
             return
 
+        if self.ctrlPressed:
+            return
+
         first_row = self._first_row_selected-2
         self.selectDbRows(first_row, self._last_row_selected)
 
