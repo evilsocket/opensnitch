@@ -254,7 +254,7 @@ class GenericTableView(QTableView):
         self.ctrlPressed = False
         self.keySelectAll = False
         self.trackingCol = 0
-        self._rows_selection = {}
+        self._rows_selection = set()
         # first and last row selected with shift pressed
         self._first_row_selected = None
         self._last_row_selected = None
@@ -302,10 +302,10 @@ class GenericTableView(QTableView):
         selrows = self.model().dumpRows(first_row=first, last_row=last)
         if selrows is None:
             return
-        self._rows_selection = {}
+        self._rows_selection.clear()
         for rid, row in enumerate(selrows):
             key = row[self.trackingCol]
-            self._rows_selection[key] = row
+            self._rows_selection.add(key)
             idx = self.model().index(rid, self.trackingCol)
             self.selectionModel().setCurrentIndex(
                 idx,
@@ -446,7 +446,7 @@ class GenericTableView(QTableView):
         # the clicked row is selected: discard selection, and select current
         # clicked row.
         # 5. if Left button has not been pressed, do not discard the selection.
-        rowSelected = clickedItem.data() in self._rows_selection.keys()
+        rowSelected = clickedItem.data() in self._rows_selection
         if rowSelected and rightBtnPressed:
             return
 
@@ -458,12 +458,12 @@ class GenericTableView(QTableView):
 
         if self.ctrlPressed:
             if rowSelected:
-                del self._rows_selection[clickedItem.data()]
+                self._rows_selection.remove(clickedItem.data())
                 flags = QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Deselect
                 if self.ctrlPressed:
                     self._first_row_selected = None
             else:
-                self._rows_selection[clickedItem.data()] = self.getRowCells(row)
+                self._rows_selection.add(clickedItem.data())
         elif self.shiftPressed:
             if self._last_row_selected is None:
                 self._last_row_selected = viewport_row
@@ -475,7 +475,7 @@ class GenericTableView(QTableView):
             if viewport_row > self._first_row_selected:
                 self._last_row_selected = viewport_row
         else:
-            deselectCurRow = len(self._rows_selection.keys()) == 1 and not rightBtnPressed
+            deselectCurRow = len(self._rows_selection) == 1 and not rightBtnPressed
             # discard current selection:
             # - if the user right clicked on a row not part of a selection.
             # - if the user clicked on a row, and there's only one row
@@ -488,7 +488,7 @@ class GenericTableView(QTableView):
                 self._first_row_selected = None
                 flags = QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Deselect
             else:
-                self._rows_selection[clickedItem.data()] = self.getRowCells(row)
+                self._rows_selection.add(clickedItem.data())
 
         self.selectionModel().setCurrentIndex(
             clickedItem,
@@ -504,11 +504,12 @@ class GenericTableView(QTableView):
         # this code serves to highlight rows while selecting rows by dragging
         # the mouse.
         if not selected:
-            if clickedItem.data() in self._rows_selection.keys():
-                del self._rows_selection[clickedItem.data()]
+            if clickedItem.data() in self._rows_selection:
+                self._rows_selection.remove(clickedItem.data())
         else:
-            self._rows_selection[clickedItem.data()] = self.getRowCells(row)
+            self._rows_selection.add(clickedItem.data())
 
+        self._last_row_selected = self.getViewportRowPos(row)
         # handle scrolling the view while dragging the mouse.
         self.scrollViewport(row)
 
@@ -551,7 +552,7 @@ class GenericTableView(QTableView):
         self.selectionModel().clear()
         self.selectionModel().reset()
         self.selectionModel().clearCurrentIndex()
-        self._rows_selection = {}
+        self._rows_selection.clear()
         self._first_row_selected = None
         self._last_row_selected = None
 
@@ -561,13 +562,13 @@ class GenericTableView(QTableView):
 
         model = self.selectionModel()
         curModel = self.model()
-        selection = model.selectedRows()
+        selection = model.selectedRows(self.trackingCol)
         if not selection:
             return None
 
         rows = []
-        for k in self._rows_selection:
-            rows.append(self._rows_selection[k])
+        for idx in selection:
+            rows.append(self.getRowCells(idx.row()))
         return rows
 
     def getCurrentIndex(self):
@@ -588,7 +589,7 @@ class GenericTableView(QTableView):
 
         # XXX: a key can be duplicated. For example rule with the same name on
         # different nodes.
-        for text in self._rows_selection.keys():
+        for text in self._rows_selection:
             items = self.model().findItems(text, column=self.trackingCol)
             if len(items) == 0:
                 continue
@@ -618,8 +619,9 @@ class GenericTableView(QTableView):
     def onKeyUp(self):
         curIdx = self.selectionModel().currentIndex()
         if not self.shiftPressed:
-            self._rows_selection = {}
-        self._rows_selection[curIdx.data()] = self.getRowCells(curIdx.row())
+            self._rows_selection.clear()
+        self._rows_selection.add(curIdx.data())
+
         viewport_row = self.getViewportRowPos(curIdx.row())
         self._last_row_selected = viewport_row
         if self._first_row_selected is None:
@@ -632,8 +634,8 @@ class GenericTableView(QTableView):
         curIdx = self.selectionModel().currentIndex()
         curRow = curIdx.row()
         if not self.shiftPressed:
-            self._rows_selection = {}
-        self._rows_selection[curIdx.data()] = self.getRowCells(curRow)
+            self._rows_selection.clear()
+        self._rows_selection.add(curIdx.data())
 
         newValue = self.vScrollBar.value()
         if curRow >= self.maxRowsInViewport-2:
