@@ -559,16 +559,21 @@ class GenericTableView(QTableView):
     def selectedRows(self, limit=""):
         if self.keySelectAll:
             return self.model().dumpRows(nolimits=True)
+        if len(self._rows_selection) == 0:
+            return
 
-        model = self.selectionModel()
-        curModel = self.model()
-        selection = model.selectedRows(self.trackingCol)
-        if not selection:
-            return None
-
+        # viewport_rows contains all the rows of the current query, regardless if
+        # they're displayed in the view or not.
+        viewport_rows = self.model().dumpRows()
+        if viewport_rows is None:
+            return
         rows = []
-        for idx in selection:
-            rows.append(self.getRowCells(idx.row()))
+        for row in viewport_rows:
+            cell = row[self.trackingCol]
+            if cell not in self._rows_selection:
+                continue
+            rows.append(row)
+        viewport_rows = None
         return rows
 
     def getCurrentIndex(self):
