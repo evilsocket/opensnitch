@@ -22,6 +22,13 @@ FIELD_DST_HOST      = "simple_host"
 FIELD_APPIMAGE      = "appimage_path"
 FIELD_SNAP          = "snap_path"
 
+TARGET_IDX_PROC_PATH = 0
+TARGET_IDX_PROC_CMDLINE = 1
+TARGET_IDX_DST_PORT = 2
+TARGET_IDX_DST_IP = 3
+TARGET_IDX_UID = 4
+TARGET_IDX_PID = 5
+
 DURATION_30s    = "30s"
 DURATION_5m     = "5m"
 DURATION_15m    = "15m"

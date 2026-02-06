@@ -129,7 +129,7 @@ def add_fixed_options_to_combo(combo, con, uid):
     # prefs -> UI -> Default target
     combo.addItem(QC.translate("popups", "from this executable"), constants.FIELD_PROC_PATH)
     if int(con.process_id) < 0:
-        combo.model().item(0).setEnabled(False)
+        combo.model().item(constants.TARGET_IDX_PROC_PATH).setEnabled(False)
 
     combo.addItem(QC.translate("popups", "from this command line"), constants.FIELD_PROC_ARGS)
 
@@ -138,7 +138,7 @@ def add_fixed_options_to_combo(combo, con, uid):
 
     combo.addItem(QC.translate("popups", "from user {0}").format(uid), constants.FIELD_USER_ID)
     if int(con.user_id) < 0:
-        combo.model().item(4).setEnabled(False)
+        combo.model().item(constants.TARGET_IDX_UID).setEnabled(False)
 
     combo.addItem(QC.translate("popups", "from this PID"), constants.FIELD_PROC_ID)
 
@@ -241,10 +241,19 @@ def set_default_target(combo, con, cfg, app_name, app_args):
             combo.setCurrentIndex(idx)
             return
 
+    saved_target = int(cfg.getSettings(cfg.DEFAULT_TARGET_KEY))
+    # In order to respect user selection, the app_name and app_args must be
+    # non-empty.
+    # Sometimes the app_args is empty, so in that case we'll fallback to
+    # app_path if it's not empty.
+    # Otherwise select the destination port.
     if int(con.process_id) > 0 and app_name != "" and app_args != "":
-        combo.setCurrentIndex(int(cfg.getSettings(cfg.DEFAULT_TARGET_KEY)))
+        combo.setCurrentIndex(saved_target)
+    elif int(con.process_id) > 0 and app_name != "" and app_args == "":
+        combo.setCurrentIndex(constants.TARGET_IDX_PROC_PATH)
     else:
-        combo.setCurrentIndex(2)
+        print("[warning] connection process details incomplete:", con)
+        combo.setCurrentIndex(constants.TARGET_IDX_DST_PORT)
 
 def get_combo_operator(data, comboText, con):
     if data == constants.FIELD_PROC_PATH:
