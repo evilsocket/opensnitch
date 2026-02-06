@@ -389,6 +389,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     @QtCore.pyqtSlot()
     def on_connection_prompt_triggered(self):
         self.stackedWidget.setCurrentIndex(constants.PAGE_MAIN)
+        self.reset_widgets()
         self._render_connection(self._con)
         if self._tick > 0:
             self.show()
@@ -405,6 +406,20 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def on_timeout_triggered(self):
         self._timeout_triggered = True
         self._send_rule()
+
+    def reset_widgets(self):
+        self.appNameLabel.setText("")
+        self.appPathLabel.setText("")
+        self.argsLabel.setText("")
+        self.appDescriptionLabel.setText("")
+        self.messageLabel.setText("")
+        self.cwdLabel.setText("")
+        self.sourceIPLabel.setText("")
+        self.destIPLabel.setText("")
+        self.destPortLabel.setText("")
+        self.uidLabel.setText("")
+        self.checksumLabel.setText("")
+        self.labelChecksumStatus.setText("")
 
     def _hide_widget(self, widget, hide):
         widget.setVisible(not hide)
@@ -666,7 +681,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if self._rule.operator.operand == Config.OPERAND_PROCESS_COMMAND:
                 proc_args = " ".join(self._con.process_args)
                 proc_args = proc_args.split(" ")
-                if os.path.isabs(proc_args[0]) == False or proc_args[0].startswith("/proc"):
+                if os.path.isabs(proc_args[0]) is False or proc_args[0].startswith("/proc"):
                     is_list_rule = True
                     data.append({"type": Config.RULE_TYPE_SIMPLE, "operand": Config.OPERAND_PROCESS_PATH, "data": str(self._con.process_path)})
 

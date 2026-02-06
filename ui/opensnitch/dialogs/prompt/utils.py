@@ -247,12 +247,20 @@ def set_default_target(combo, con, cfg, app_name, app_args):
     # Sometimes the app_args is empty, so in that case we'll fallback to
     # app_path if it's not empty.
     # Otherwise select the destination port.
-    if int(con.process_id) > 0 and app_name != "" and app_args != "":
+    if saved_target == constants.TARGET_IDX_PID and int(con.process_id) > 0:
+        combo.setCurrentIndex(constants.TARGET_IDX_PID)
+    elif saved_target == constants.TARGET_IDX_UID:
+        combo.setCurrentIndex(constants.TARGET_IDX_UID)
+    elif saved_target == constants.TARGET_IDX_DST_IP:
+        combo.setCurrentIndex(constants.TARGET_IDX_DST_IP)
+    elif saved_target == constants.TARGET_IDX_DST_PORT:
+        combo.setCurrentIndex(constants.TARGET_IDX_DST_PORT)
+    elif int(con.process_id) > 0 and app_name != "" and app_args != "":
         combo.setCurrentIndex(saved_target)
     elif int(con.process_id) > 0 and app_name != "" and app_args == "":
         combo.setCurrentIndex(constants.TARGET_IDX_PROC_PATH)
     else:
-        print("[warning] connection process details incomplete:", con)
+        print("[warning] connection process details incomplete?", con)
         combo.setCurrentIndex(constants.TARGET_IDX_DST_PORT)
 
 def get_combo_operator(data, comboText, con):
