@@ -42,7 +42,7 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 || `regexp` matches the regexp from the `data` field against the connection |
 || `network` checks if the IP of a connection is contained within the specified network range (127.0.0.1/8) |
 || `lists` will look for matches on lists of something (domains, IPs, etc). Typically used to create [blocklists](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
-|| `range` will check if an Operand (`dest.port` or `source.port`) is within the given range.|
+|| `range` (v1.9.0) will check if an Operand (`dest.port` or `source.port`) is within the given range.|
 || `list`, a combination of all of the previous types.|
 | operator.data    | The data of the rule against which an outbound connection will be compared: an IP, a destination port, a command line, etc. |
 | operator.operand | Property of the connection against which the rule will be compared: |
@@ -61,7 +61,7 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 | | `source.network` |
 | | `dest.ip` |
 | | `dest.host` |
-| | `dest.network` (v1.3.0)|
+| | `dest.network` (v1.3.0) - you can use a network range, or the constants predefined in the file |
 | | `dest.port` |
 | | `iface.in` (v1.6.0) |
 | | `iface.out` (v1.6.0) |
@@ -266,11 +266,15 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
 
  Usually the attackers use `wget`, `curl` or `bash` to establish outbound connections ([malware examples](https://github.com/evilsocket/opensnitch/discussions/1119)). So, if you don't need these binaries, just uninstall them.
 
-- If you need them, restrict their outbound connections as much as possible:
-   Set the DefaultAction to `deny` or `reject` in `default-config.json`, and create a similar rule to this:
-   (you can also create this rule, and another one to deny everything from curl/wget).
+There're two approaches to secure a server with OpenSnitch:
 
-  ```
+1) restrict everything by default (`DefaultAction` set to deny/reject in the `default-config.json` file) and allow only system binaries and needed apps. Incoming connections will keep working, but NEW outbound connections will be denied.
+2) allow everything by default, and deny connections from specific locations, or by binary / destination.
+
+
+- If you need curl or wget and the `DefaultAction` is not `allow`, restrict their outbound connections as much as possible (this practice applies to any other binary of the server):
+
+  ```json
   {
   "created": "2020-02-07T14:16:20.550255152+01:00",
   "updated": "2020-02-07T14:16:20.729849966+01:00",
@@ -310,8 +314,29 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
   }
   ```
 
+  Or for example you can allow everything only to the local lan, and let the rest of outbound connections be denied by the DefaultAction:
+  ```json
+  {
+  "created": "2023-05-20T20:39:33.765468194+02:00",
+  "updated": "2023-05-20T20:39:33.7655761+02:00",
+  "name": "000-allow-lan",
+  "description": "",
+  "enabled": true,
+  "precedence": true,
+  "nolog": false,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "network",
+    "operand": "dest.network",
+    "sensitive": false,
+    "data": "LAN",
+    "list": []
+   }
+  }
+  ```
 
-- Don't allow connections opened by binaries located under certain directories: `/dev/shm`, `/tmp`, `/var/tmp` or `/memfd`
+- When the `DefaultAction` is `allow`, don't allow connections opened by binaries located under certain directories: `/dev/shm`, `/tmp`, `/var/tmp` or `/memfd`:
 
   There're ton of examples (more common on servers than on the desktop):
 
@@ -325,7 +350,7 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
   ```
 
   /etc/opensnitchd/rules/000-deny-tmp.json:
-  ```
+  ```json
   {
   "created": "2025-04-26T09:58:03.704090244+02:00",
   "updated": "2025-04-26T09:58:03.704216578+02:00",
@@ -344,7 +369,7 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
   }
   ```
 
-- You can also block outbound connections to crypto mining pools and malware domains/ips with [blocklists rules]https://github.com/evilsocket/opensnitch/wiki/block-lists).
+- You can also block outbound connections to crypto mining pools and malware domains/ips with [blocklists rules](https://github.com/evilsocket/opensnitch/wiki/block-lists).
 
   One of the common reason to compromise servers is to mine cryptos. Denying connections to the mining pools, disrupts the operation.
 
