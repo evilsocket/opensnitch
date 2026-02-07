@@ -163,6 +163,9 @@ func (o *Operator) Compile() error {
 	} else if o.Type == List {
 		o.Operand = OpList
 	} else if o.Type == Network {
+		if o.Operand != OpDstNetwork {
+			return fmt.Errorf("operand %s is only allowed with type %s", Network, OpDstNetwork)
+		}
 		if err := o.compileNetwork(); err != nil {
 			return err
 		}
