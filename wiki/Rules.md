@@ -61,7 +61,7 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 | | `source.network` |
 | | `dest.ip` |
 | | `dest.host` |
-| | `dest.network` (v1.3.0) - you can use a network range, or the constants predefined in the file |
+| | `dest.network` (v1.3.0) - you can use a network range, or the constants predefined in the file https://github.com/evilsocket/opensnitch/blob/master/daemon/data/network_aliases.json |
 | | `dest.port` |
 | | `iface.in` (v1.6.0) |
 | | `iface.out` (v1.6.0) |
