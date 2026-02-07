@@ -34,13 +34,13 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 | update           | UTC date and time of the last update. |
 | name             | The name of the rule. |
 | enabled          | Enable or disable the rule. |
-| precedence       | true or false. Sets if a rule take precedence over the rest (>= v1.2.0)|
-| action           | Can be `deny`, `reject` or `allow`. `reject` kills the socket. |
+| precedence       | true or false. Sets if a rule take precedence over the rest (>= v1.2.0). If a connection matches this rule, no other rules will be evaluated.|
+| action           | Can be `deny`, `reject` or `allow`. `reject` kills the socket, terminating the connection immediately. `deny` drops/ignores the packet. |
 | duration         | The duration of the rule in [Duration format](https://pkg.go.dev/time#ParseDuration). `always` is always used when the rule is written to disk. The rest of the options are temporary, until they reach the deadline: `12h`, `5h`, `1h`, `30s`, or `once` to only run the rule one time.  |
 | operator.type    | `simple`, `regexp`, `network`, `lists`, `list`, `range`.|
 || `simple` is a simple `==` comparison.|
 || `regexp` matches the regexp from the `data` field against the connection |
-|| `network` checks if the IP of a connection is contained within the specified network range (127.0.0.1/8) |
+|| `network` checks if the IP of a connection is contained within the specified network range (127.0.0.1/8, 192.168.1.0/24, etc) |
 || `lists` will look for matches on lists of something (domains, IPs, etc). Typically used to create [blocklists](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
 || `range` (v1.9.0) will check if an Operand (`dest.port` or `source.port`) is within the given range.|
 || `list`, a combination of all of the previous types.|
@@ -50,12 +50,12 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 | | `process.path`  - the absolute path of the executable |
 | | `process.id` PID of the process|
 | | `process.command` (full command line, including path and arguments). Note that cmdlines can contain or not the process name, and the path can be absolute or relative (`./cmd -x a`).|
-| | `process.parent.path` (v1.7.0) check against ONE of the parent path. Include more parent paths to match the tree of a process. |
+| | `process.parent.path` (v1.7.0) check against ONE of the parent path. You can add multiple parent paths with the `list` type, to match the tree of a process. |
 | | `provess.env.ENV_VAR_NAME` (use the value of an environment variable of the process given its name). |
 | | `process.hash.md5` (v1.7.0) - verify the checksum of an executable |
 | | `user.id` - UID |
 | | `user.name` user name (v1.7.0). Check against a regular system username (no namespaces, containers or virtual user names).|
-| | `protocol` - TCP, UDP, UDPLITE, ...|
+| | `protocol` - TCP, UDP, UDPLITE, SCTP, DCCP, ICMP (append "6" for IPv6 protocols: TCP6)|
 | | `source.port` |
 | | `source.ip` |
 | | `source.network` |
@@ -63,8 +63,8 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 | | `dest.host` |
 | | `dest.network` (v1.3.0) - you can use a network range, or the constants predefined in the file https://github.com/evilsocket/opensnitch/blob/master/daemon/data/network_aliases.json |
 | | `dest.port` |
-| | `iface.in` (v1.6.0) |
-| | `iface.out` (v1.6.0) |
+| | `iface.in` (v1.6.0)  - name of a network interface|
+| | `iface.out` (v1.6.0) - name of a network interface|
 | | `lists.domains` (v1.4.0) lists of domains in hosts format [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
 | | `lists.domains_regexp` (v1.5.0) list of domains with regular expressions (`.*\.example\.com`) [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists) ⚠️! Don't use more than 300 regexps, it'll eat all the memory. |
 | | `lists.ips` (v1.5.0) list of IPs [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
@@ -127,7 +127,7 @@ An example with a regular expression:
      "type": "regexp",
      "sensitive": false,
      "operand": "dest.host",
-     "data": "(?i)
+     "data": "(?i)"
    }
 }
 ```
@@ -247,6 +247,8 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
 
     You can narrow it further, by allowing `from this command line` + `from this User ID` + `to this IP` + `to this port`
 
+    Or just let it prompt you to allow/deny it if you don't these commands usually, and allow it for `30s`.
+
 - Don't allow `python3`, `perl` or `ruby` binaries system-wide:
   * As explained above, filter by executable + command line + (... more parameters ...)
     If you allow `python3`for example, you'll allow ANY `python3` script, so be careful.
@@ -255,7 +257,10 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
 
 - Disable unprivileged namespaces to prevent rules bypass
 
-  If `/proc/sys/kernel/unprivileged_userns_clone` is set to 1, change it to 0. Until we obtain the checksum of a binary, it's better to set it to 0.
+  If `/proc/sys/kernel/unprivileged_userns_clone` is set to 1, change it to 0.
+
+  Or enable checksums verifying from the Preferences -> Nodes -> Rules.
+
 
 ### For servers
 
@@ -338,7 +343,7 @@ There're two approaches to secure a server with OpenSnitch:
 
 - When the `DefaultAction` is `allow`, don't allow connections opened by binaries located under certain directories: `/dev/shm`, `/tmp`, `/var/tmp` or `/memfd`:
 
-  There're ton of examples (more common on servers than on the desktop):
+  There're ton of malware examples that drop malicious files to temporary directories (more common on servers than on the desktop):
 
   [Collection of Linux malware payloads](https://github.com/evilsocket/opensnitch/discussions/1119)
 
@@ -372,6 +377,10 @@ There're two approaches to secure a server with OpenSnitch:
 - You can also block outbound connections to crypto mining pools and malware domains/ips with [blocklists rules](https://github.com/evilsocket/opensnitch/wiki/block-lists).
 
   One of the common reason to compromise servers is to mine cryptos. Denying connections to the mining pools, disrupts the operation.
+
+- Think also if your web server, database server, etc, needs to establish connections to remote IPs.
+
+  In some cases, the download of malicious files is executed from common applications: [pg_mem campaign](https://www.aquasec.com/blog/pg_mem-a-malware-hidden-in-the-postgres-processes/)
 
   **Note** that the default policy should be deny everything unless explicitely allowed. But by creating a rule to deny specifically these directories, you can have a place where to monitor these executions.
 
