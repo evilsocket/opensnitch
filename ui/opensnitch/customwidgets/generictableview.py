@@ -289,6 +289,7 @@ class GenericTableView(QTableView):
     def selectAll(self):
         super().selectAll()
         self.keySelectAll = True
+        self.selectDbRows(QSql.Location.BeforeFirstRow.value, QSql.Location.AfterLastRow.value)
 
     def getRowCells(self, row):
         cols = []
@@ -524,9 +525,12 @@ class GenericTableView(QTableView):
 
     def onEndViewportRefresh(self):
         with self._lock:
-            if not GenericTableView.mousePressed and not self.shiftPressed:
+            if not GenericTableView.mousePressed and not self.shiftPressed and not self.keySelectAll:
                 self.selectionModel().clear()
-            self.selectIndices()
+            if self.keySelectAll:
+                self.selectDbRows(QSql.Location.BeforeFirstRow.value, QSql.Location.AfterLastRow.value)
+            else:
+                self.selectIndices()
             self.viewport().update()
 
     def resizeEvent(self, event):
