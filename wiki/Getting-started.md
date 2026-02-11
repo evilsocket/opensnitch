@@ -12,34 +12,45 @@ The daemon should start intercepting connections, prompting you to allow or deny
 
 <br/>
 
-When you open the GUI, you'll see all the connections and processes that the daemon has intercepted. If you don't see connections being made, or anything in <kbd>Status</kbd> or <kbd>Version</kbd>, make sure you've [installed](../Installation) the daemon package as well, not just the GUI. For other GUI issues, see the [known GUI problems(../GUI-known-problems).
+When you open the GUI, you'll see all the connections and processes that the daemon has intercepted. If you don't see connections being intercepted, or anything in <kbd>Status</kbd> or <kbd>Version</kbd>, make sure you've [installed](../Installation) the daemon package as well, not just the GUI. For other GUI issues, see the [known GUI problems](../GUI-known-problems).
 
-Double click on a row to view the details of a process, rule, host or user.
+Double click on a row of any view to review the details of a process, rule, host or user.
 
-![image](https://user-images.githubusercontent.com/2742953/122794871-02a5bc00-d2bd-11eb-8e7d-8f0827e8d09c.png)
+<img width="957" height="558" alt="Captura de pantalla de 2026-02-11 23-58-49" src="https://github.com/user-attachments/assets/a41bf2be-db2d-4c57-acea-805805dfe088" />
+
+
+<img width="956" height="555" alt="Captura de pantalla de 2026-02-11 23-48-43" src="https://github.com/user-attachments/assets/ba829001-889d-4044-b1b8-d08df717e897" />
+
 
 <br/>
 
 > [!NOTE] 
 > **Tip:** Configure the default action to Allow (<kbd>Preferences -> Pop-ups -> Action</kbd>, and optionally check [x] <kbd>Disable pop-ups</kbd>), let it run for a while (hours, days, weeks), and observe passively what your machine is doing.
 
-![](https://user-images.githubusercontent.com/2742953/85337403-b294ed80-b4e0-11ea-8c65-d8251c6af25b.png)
+<img width="802" height="551" alt="Captura de pantalla de 2026-02-11 23-58-4999" src="https://github.com/user-attachments/assets/55f0a7da-18fa-498f-a0f1-643a59dd9c22" />
+
 
 This action has two advantages: you'll learn about your system and OpenSnitch will create the rules for you (<kbd>Rules</kbd> tab -> Temporary).
 
 Remember to change it back to Deny.
 
-<br/><br/>
+<br/>
 
-To see and modify the rules accumulated so far, click on the OpenSnitch icon in the System Tray. A GUI listing the rules will appear. You can click on each rule and then click on the Trash Can icon to delete it. Or you can click on a rule and right-click on it to modify allow/deny or duration etc. The list may take up to 15 seconds to show the update in the GUI. Note: if you modify the action of a rule (e.g. change from deny to allow), the name of it may not change (e.g. may stay as "deny-...").
+To view and modify the rules accumulated so far, click on the OpenSnitch icon in the System Tray. A GUI listing the rules will appear.
+You can click on each rule and then click on the Trash Can icon to delete it. Or you can click on a rule and right-click on it to modify allow/deny or duration etc. The list may take up to 15 seconds to show the update in the GUI.
 
-![image](https://user-images.githubusercontent.com/2742953/122754068-729f4c80-d293-11eb-8496-c1d98b393cbd.png)
+Note: if you modify the action of a rule (e.g. change from deny to allow), the name of it may not change (e.g. may stay as "deny-...").
+
+<img width="995" height="456" alt="Captura de pantalla de 2026-02-11 23-38-13" src="https://github.com/user-attachments/assets/0d20156f-24be-4a3c-9dc7-5b328d37d449" />
+
 
 <br/>
 
-Once you know which are the common processes, IPs and hosts that your machine is connecting to, you can start creating permanent rules (Duration: always) to deny or allow them. You can also convert temporary rules to permanent by right-clicking on a temporary rule or by double-clicking on it, and then edit it.
+Once you have identified the common processes, IP addresses and hosts that your machine is connecting to, you can start creating permanent rules (`Duration: always`) to deny or allow them. You can also convert temporary rules into permanent ones by right-clicking on a temporary rule or by double-clicking on it, and then edit it.
 
-![image](https://user-images.githubusercontent.com/2742953/122754509-0f61ea00-d294-11eb-990b-2377b0add1f3.png)
+<img width="995" height="329" alt="Captura de pantalla de 2026-02-11 23-38-14" src="https://github.com/user-attachments/assets/23476660-ce39-4b4b-bbbc-4bfda4decc11" />
+
+
 
 A common practice is to apply a rule of "Least privilege", i.e., block everything by default and allow only those processes or connections that you want to.
 
@@ -48,7 +59,6 @@ A common practice is to apply a rule of "Least privilege", i.e., block everythin
 [Read more about blocking lists](block-lists)
 
 
-![](https://user-images.githubusercontent.com/2742953/85337070-136ff600-b4e0-11ea-838a-439366c70668.png)
 
 Notes 📔
 ---
