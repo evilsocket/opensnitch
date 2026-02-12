@@ -1,6 +1,11 @@
-It's the window where you can see all the events that the daemon has registered.
+The events window is where you can see all the events that the daemon has registered.
 
-It's divided by tabs, where you can search for events based on the type: nodes, rules, hosts, applications, etc.
+It's divided in tabs, where you can search for events based on the type: nodes, rules, hosts, applications, etc.
+
+* [Events tab](#the-events-tab)
+* [Rules tab](#the-rules-tab)
+* [Netstat tab](#the-netstat-tab)
+* [Filtering data](#filtering-data)
 
 The Events tab
 ---
@@ -50,3 +55,54 @@ This view lists all the connections of a node. It's similar to `netstat` or `ss`
 <img width="1100" height="553" alt="Captura de pantalla de 2026-02-12 00-35-34" src="https://github.com/user-attachments/assets/a32ef8eb-5619-448e-bc1d-f4a991732f88" />
 
 Double click on a row to view the details of the item.
+
+Filtering data
+---
+
+The search text box allows to filter data of the current view:
+
+<img width="743" height="91" alt="Captura de pantalla de 2026-02-11 00-33-59" src="https://github.com/user-attachments/assets/98d8be11-f39f-48bb-b85e-10427201f800" />
+
+By default it'll search the text in all columns of the view.
+
+<img width="858" height="167" alt="Captura de pantalla de 2026-02-13 00-20-32" src="https://github.com/user-attachments/assets/952700d2-9f56-43c5-85ae-95faec333fda" />
+
+#### Advanced filtering
+
+If you type one of the keywords (`conn.`, `rule.`, `node.`) you can build complex queries:
+
+<img width="866" height="141" alt="Captura de pantalla de 2026-02-13 00-24-09" src="https://github.com/user-attachments/assets/829dfbb2-c8ab-4c02-80fa-9384c04c1f08" />
+
+You can type `.` to show the list of available fields.
+
+Syntaxis:
+
+|Field|description|
+|-------|-----------|
+|conn.time| Creation time|
+|conn.srcip| Source IP|
+|conn.srcport| Source port|
+|conn.dstip| Destination IP|
+|conn.dstport| Destination port|
+|conn.dsthost| Destination host|
+|conn.uid| UID of the connection |
+|conn.pid| PID of the connection |
+|conn.process| Absolute path of the process|
+|conn.process_args| Command line (what the user typed)|
+|conn.process_cwd | Current Working Directory of the process |
+|conn.rule| The rule that was applied on this connection|
+|conn.node| The node where the connection was originated|
+|node.addr| alias of conn.node|
+|rule.name| alias of conn.rule|
+|rule.action| The action that was applied on the connection|
+
+|Operand|Description|
+|-------|-----------|
+|=|matches the item exactlly|
+|>=| Matches an item equal or greater than the value|
+|<=| Matches an item equal or less than the value|
+|~| Searches for strings with the value typed: `github.com` -> `*github.com*`|
+|>~| Searches for right side of the string: `github.com` -> `github.com*` |
+|<~| Searches for left side of the string: `github.com` -> `*github.com` |
+|and| combines expressions: `conn.dstport=53 and conn.dsthost<~github.com`|
+|or| combines expressions: `conn.dstport=53 or conn.dsthost<~github.com`|
