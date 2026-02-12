@@ -65,7 +65,7 @@ When changing the configuration of a node, be sure that you selected correctly t
 
 You can also apply the configuration to all nodes.
 
-More information about nodes management: [Nodes](../Nodes)
+More information about nodes management: [Nodes](../wiki/Nodes)
 
 Database
 ---
