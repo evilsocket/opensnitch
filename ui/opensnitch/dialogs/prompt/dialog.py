@@ -250,8 +250,10 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
     def move_popup(self):
         popup_pos = self._cfg.getInt(self._cfg.DEFAULT_POPUP_POSITION)
-        point = self.screen().availableGeometry()
-        point = self.screen().virtualSiblingAt(QtGui.QCursor.pos()).availableGeometry()
+        screen = self.screen().virtualSiblingAt(QtGui.QCursor.pos())
+        if not screen:
+            return
+        point = screen.availableGeometry()
         if popup_pos == self._cfg.POPUP_TOP_RIGHT:
             self.move(point.topRight())
         elif popup_pos == self._cfg.POPUP_TOP_LEFT:
