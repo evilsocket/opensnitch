@@ -111,6 +111,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
 
             for _, col in enumerate(resize_cols):
                 header.setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            header.setSectionsMovable(True)
 
         cur_idx = self.get_current_view_idx()
         self.cfg.setSettings("{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx), header.saveState())
@@ -650,6 +651,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
         col_state = self.cfg.getSettings(settings_key)
         if type(col_state) == QtCore.QByteArray:
             header.restoreState(col_state)
+        header.setSectionsMovable(True)
 
         header.blockSignals(False)
 

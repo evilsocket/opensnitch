@@ -731,82 +731,84 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         idx = row.column()
         cur_idx = 1
 
-        self.get_search_widget().setCompleter(self.queries.get_completer(cur_idx))
-        if idx == constants.COL_NODE:
-            cur_idx = constants.TAB_NODES
-            self.set_in_detail_view(cur_idx, True)
-            self.set_last_selected_item(row.model().index(row.row(), constants.COL_NODE).data())
-            self.set_current_tab(cur_idx)
-            self.set_active_widgets(prev_idx, True, str(data))
-            self.queries.set_nodes_query(data)
+        try:
+            self.get_search_widget().setCompleter(self.queries.get_completer(cur_idx))
+            if idx == constants.COL_NODE:
+                cur_idx = constants.TAB_NODES
+                self.set_in_detail_view(cur_idx, True)
+                self.set_last_selected_item(row.model().index(row.row(), constants.COL_NODE).data())
+                self.set_current_tab(cur_idx)
+                self.set_active_widgets(prev_idx, True, str(data))
+                self.queries.set_nodes_query(data)
 
-        elif idx == constants.COL_RULES:
-            cur_idx = constants.TAB_RULES
-            r_name, node = self.set_rules_tab_active(row, cur_idx, constants.COL_RULES, constants.COL_NODE)
-            self.set_in_detail_view(cur_idx, True)
-            self.set_last_selected_item(r_name)
-            self.set_active_widgets(prev_idx, True, str(data))
-            self.queries.set_rules_query(r_name, node)
+            elif idx == constants.COL_RULES:
+                cur_idx = constants.TAB_RULES
+                r_name, node = self.set_rules_tab_active(row, cur_idx, constants.COL_RULES, constants.COL_NODE)
+                self.set_in_detail_view(cur_idx, True)
+                self.set_last_selected_item(r_name)
+                self.set_active_widgets(prev_idx, True, str(data))
+                self.queries.set_rules_query(r_name, node)
 
-        elif idx == constants.COL_DSTIP:
-            cur_idx = constants.TAB_ADDRS
-            self.set_in_detail_view(cur_idx, True)
-            ip = row.model().index(row.row(), constants.COL_DSTIP).data()
-            self.set_last_selected_item(ip)
-            self.set_current_tab(cur_idx)
-            self.set_active_widgets(prev_idx, True, ip)
-            self.queries.set_addrs_query(ip)
+            elif idx == constants.COL_DSTIP:
+                cur_idx = constants.TAB_ADDRS
+                self.set_in_detail_view(cur_idx, True)
+                ip = row.model().index(row.row(), constants.COL_DSTIP).data()
+                self.set_last_selected_item(ip)
+                self.set_current_tab(cur_idx)
+                self.set_active_widgets(prev_idx, True, ip)
+                self.queries.set_addrs_query(ip)
 
-        elif idx == constants.COL_DSTHOST:
-            cur_idx = constants.TAB_HOSTS
-            self.set_in_detail_view(cur_idx, True)
-            host = row.model().index(row.row(), constants.COL_DSTHOST).data()
-            if host == "":
+            elif idx == constants.COL_DSTHOST:
+                cur_idx = constants.TAB_HOSTS
+                self.set_in_detail_view(cur_idx, True)
+                host = row.model().index(row.row(), constants.COL_DSTHOST).data()
+                if host == "":
+                    return
+                self.set_last_selected_item(host)
+                self.set_current_tab(cur_idx)
+                self.set_active_widgets(prev_idx, True, host)
+                self.queries.set_hosts_query(host)
+
+            elif idx == constants.COL_DSTPORT:
+                cur_idx = constants.TAB_PORTS
+                self.set_in_detail_view(cur_idx, True)
+                port = row.model().index(row.row(), constants.COL_DSTPORT).data()
+                self.set_last_selected_item(port)
+                self.set_current_tab(cur_idx)
+                self.set_active_widgets(prev_idx, True, port)
+                self.queries.set_ports_query(port)
+
+            elif idx == constants.COL_UID:
+                cur_idx = constants.TAB_USERS
+                self.set_in_detail_view(cur_idx, True)
+                uid = row.model().index(row.row(), constants.COL_UID).data()
+                self.set_last_selected_item(uid)
+                self.set_current_tab(cur_idx)
+                self.set_active_widgets(prev_idx, True, uid)
+                self.queries.set_users_query(uid)
+
+            elif idx == constants.COL_PID:
+                node = row.model().index(row.row(), constants.COL_NODE).data()
+                pid = row.model().index(row.row(), constants.COL_PID).data()
+                self.set_last_selected_item(pid)
+                self._proc_details_dialog.monitor(
+                    {pid: node}
+                )
                 return
-            self.set_last_selected_item(host)
-            self.set_current_tab(cur_idx)
-            self.set_active_widgets(prev_idx, True, host)
-            self.queries.set_hosts_query(host)
+            else:
+                cur_idx = constants.TAB_PROCS
+                self.set_in_detail_view(cur_idx, True)
+                self.set_last_selected_item(row.model().index(row.row(), constants.COL_PROCS).data())
+                self.set_current_tab(cur_idx)
+                self.set_active_widgets(prev_idx, True, self.LAST_SELECTED_ITEM)
+                nrows = self.queries.set_process_query(self.LAST_SELECTED_ITEM)
+                self.cmdProcDetails.setVisible(nrows != 0)
 
-        elif idx == constants.COL_DSTPORT:
-            cur_idx = constants.TAB_PORTS
-            self.set_in_detail_view(cur_idx, True)
-            port = row.model().index(row.row(), constants.COL_DSTPORT).data()
-            self.set_last_selected_item(port)
-            self.set_current_tab(cur_idx)
-            self.set_active_widgets(prev_idx, True, port)
-            self.queries.set_ports_query(port)
-
-        elif idx == constants.COL_UID:
-            cur_idx = constants.TAB_USERS
-            self.set_in_detail_view(cur_idx, True)
-            uid = row.model().index(row.row(), constants.COL_UID).data()
-            self.set_last_selected_item(uid)
-            self.set_current_tab(cur_idx)
-            self.set_active_widgets(prev_idx, True, uid)
-            self.queries.set_users_query(uid)
-
-        elif idx == constants.COL_PID:
-            node = row.model().index(row.row(), constants.COL_NODE).data()
-            pid = row.model().index(row.row(), constants.COL_PID).data()
-            self.set_last_selected_item(pid)
-            self._proc_details_dialog.monitor(
-                {pid: node}
+        finally:
+            self.restore_details_view_columns(
+                self.TABLES[cur_idx]['view'].horizontalHeader(),
+                "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
             )
-            return
-        else:
-            cur_idx = constants.TAB_PROCS
-            self.set_in_detail_view(cur_idx, True)
-            self.set_last_selected_item(row.model().index(row.row(), constants.COL_PROCS).data())
-            self.set_current_tab(cur_idx)
-            self.set_active_widgets(prev_idx, True, self.LAST_SELECTED_ITEM)
-            nrows = self.queries.set_process_query(self.LAST_SELECTED_ITEM)
-            self.cmdProcDetails.setVisible(nrows != 0)
-
-        self.restore_details_view_columns(
-            self.TABLES[cur_idx]['view'].horizontalHeader(),
-            "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
-        )
 
     def _cb_table_clicked(self, idx):
         self.on_table_clicked(idx)
@@ -816,98 +818,96 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         if self.in_detail_view(cur_idx):
             return
 
-        if cur_idx == constants.TAB_RULES and self.fwTable.isVisible():
-            uuid = row.model().index(row.row(), 1).data(QtCore.Qt.ItemDataRole.UserRole.value+1)
-            addr = row.model().index(row.row(), 2).data(QtCore.Qt.ItemDataRole.UserRole.value+1)
-            self.load_fw_rule(addr, uuid)
-            return
-
-        elif cur_idx == constants.TAB_RULES and self.alertsTable.isVisible():
-            atime = row.model().index(row.row(), constants.COL_TIME).data()
-            anode = row.model().index(row.row(), constants.COL_NODE).data()
-            self.display_alert_info(atime, anode)
-            return
-
-        self.set_in_detail_view(cur_idx, True)
-        self.set_last_selected_item(row.model().index(row.row(), constants.COL_TIME).data())
-        self.LAST_SCROLL_VALUE = self.TABLES[cur_idx]['view'].vScrollBar.value()
-        self.get_search_widget().setCompleter(self.queries.get_completer(cur_idx))
-
-        data = row.data()
-
-        if cur_idx == constants.TAB_RULES:
-            if self.alertsTable.isVisible():
+        try:
+            if cur_idx == constants.TAB_RULES and self.fwTable.isVisible():
+                uuid = row.model().index(row.row(), 1).data(QtCore.Qt.ItemDataRole.UserRole.value+1)
+                addr = row.model().index(row.row(), 2).data(QtCore.Qt.ItemDataRole.UserRole.value+1)
+                self.load_fw_rule(addr, uuid)
                 return
 
-            r_name, node = self.set_rules_tab_active(row, cur_idx, constants.COL_R_NAME, constants.COL_R_NODE)
-            self.set_active_widgets(cur_idx, True, r_name)
-            self.set_last_selected_item(r_name)
-            self.queries.set_rules_query(r_name, node)
+            elif cur_idx == constants.TAB_RULES and self.alertsTable.isVisible():
+                atime = row.model().index(row.row(), constants.COL_TIME).data()
+                anode = row.model().index(row.row(), constants.COL_NODE).data()
+                self.display_alert_info(atime, anode)
+                return
+
+            self.set_in_detail_view(cur_idx, True)
+            self.set_last_selected_item(row.model().index(row.row(), constants.COL_TIME).data())
+            self.LAST_SCROLL_VALUE = self.TABLES[cur_idx]['view'].vScrollBar.value()
+            self.get_search_widget().setCompleter(self.queries.get_completer(cur_idx))
+
+            data = row.data()
+
+            if cur_idx == constants.TAB_RULES:
+                if self.alertsTable.isVisible():
+                    return
+
+                r_name, node = self.set_rules_tab_active(row, cur_idx, constants.COL_R_NAME, constants.COL_R_NODE)
+                self.set_active_widgets(cur_idx, True, r_name)
+                self.set_last_selected_item(r_name)
+                self.queries.set_rules_query(r_name, node)
+                return
+            if cur_idx == constants.TAB_NODES:
+                data = row.model().index(row.row(), constants.COL_NODE).data()
+                self.set_last_selected_item(data)
+            if cur_idx > constants.TAB_RULES:
+                data = row.model().index(row.row(), constants.COL_WHAT).data()
+                self.set_last_selected_item(data)
+            if cur_idx == constants.TAB_NETSTAT:
+                self.set_in_detail_view(cur_idx, False)
+
+                if row.column() == constants.COL_NET_DST_IP:
+                    cur_idx = constants.TAB_ADDRS
+                    data = row.model().index(row.row(), constants.COL_NET_DST_IP).data()
+                elif row.column() == constants.COL_NET_DST_PORT:
+                    cur_idx = constants.TAB_PORTS
+                    data = row.model().index(row.row(), constants.COL_NET_DST_PORT).data()
+                elif row.column() == constants.COL_NET_UID:
+                    cur_idx = constants.TAB_USERS
+                    data = row.model().index(row.row(), constants.COL_NET_UID).data()
+                elif row.column() == constants.COL_NET_PID:
+                    if self.LAST_NETSTAT_NODE is None:
+                        return
+                    pid = row.model().index(row.row(), constants.COL_NET_PID).data()
+                    pids = {}
+                    pids[pid] = self.LAST_NETSTAT_NODE
+                    self._proc_details_dialog.monitor(pids)
+                    return
+                else:
+                    cur_idx = constants.TAB_PROCS
+                    data = row.model().index(row.row(), constants.COL_NET_PROC).data()
+                    if data == "":
+                        return
+                self.netstat.unmonitor_node(self.LAST_NETSTAT_NODE)
+                self.set_current_tab(cur_idx)
+
+            self.set_active_widgets(cur_idx, True, str(data))
+
+            if cur_idx == constants.TAB_NODES:
+                self.queries.set_nodes_query(data)
+            elif cur_idx == constants.TAB_HOSTS:
+                self.queries.set_hosts_query(data)
+            elif cur_idx == constants.TAB_PROCS:
+                nrows = self.queries.set_process_query(data)
+                self.cmdProcDetails.setVisible(nrows != 0)
+            elif cur_idx == constants.TAB_ADDRS:
+                lbl_text = self.TABLES[cur_idx]['label'].text()
+                if lbl_text != "":
+                    asn = self.asndb.get_asn(lbl_text)
+                    if asn != "":
+                        lbl_text += " (" + asn + ")"
+                self.TABLES[cur_idx]['label'].setText(lbl_text)
+                self.queries.set_addrs_query(data)
+            elif cur_idx == constants.TAB_PORTS:
+                self.queries.set_ports_query(data)
+            elif cur_idx == constants.TAB_USERS:
+                self.queries.set_users_query(data)
+
+        finally:
             self.restore_details_view_columns(
                 self.TABLES[cur_idx]['view'].horizontalHeader(),
                 "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
             )
-            return
-        if cur_idx == constants.TAB_NODES:
-            data = row.model().index(row.row(), constants.COL_NODE).data()
-            self.set_last_selected_item(data)
-        if cur_idx > constants.TAB_RULES:
-            data = row.model().index(row.row(), constants.COL_WHAT).data()
-            self.set_last_selected_item(data)
-        if cur_idx == constants.TAB_NETSTAT:
-            self.set_in_detail_view(cur_idx, False)
-
-            if row.column() == constants.COL_NET_DST_IP:
-                cur_idx = constants.TAB_ADDRS
-                data = row.model().index(row.row(), constants.COL_NET_DST_IP).data()
-            elif row.column() == constants.COL_NET_DST_PORT:
-                cur_idx = constants.TAB_PORTS
-                data = row.model().index(row.row(), constants.COL_NET_DST_PORT).data()
-            elif row.column() == constants.COL_NET_UID:
-                cur_idx = constants.TAB_USERS
-                data = row.model().index(row.row(), constants.COL_NET_UID).data()
-            elif row.column() == constants.COL_NET_PID:
-                if self.LAST_NETSTAT_NODE is None:
-                    return
-                pid = row.model().index(row.row(), constants.COL_NET_PID).data()
-                pids = {}
-                pids[pid] = self.LAST_NETSTAT_NODE
-                self._proc_details_dialog.monitor(pids)
-                return
-            else:
-                cur_idx = constants.TAB_PROCS
-                data = row.model().index(row.row(), constants.COL_NET_PROC).data()
-                if data == "":
-                    return
-            self.netstat.unmonitor_node(self.LAST_NETSTAT_NODE)
-            self.set_current_tab(cur_idx)
-
-        self.set_active_widgets(cur_idx, True, str(data))
-
-        if cur_idx == constants.TAB_NODES:
-            self.queries.set_nodes_query(data)
-        elif cur_idx == constants.TAB_HOSTS:
-            self.queries.set_hosts_query(data)
-        elif cur_idx == constants.TAB_PROCS:
-            nrows = self.queries.set_process_query(data)
-            self.cmdProcDetails.setVisible(nrows != 0)
-        elif cur_idx == constants.TAB_ADDRS:
-            lbl_text = self.TABLES[cur_idx]['label'].text()
-            if lbl_text != "":
-                asn = self.asndb.get_asn(lbl_text)
-                if asn != "":
-                    lbl_text += " (" + asn + ")"
-            self.TABLES[cur_idx]['label'].setText(lbl_text)
-            self.queries.set_addrs_query(data)
-        elif cur_idx == constants.TAB_PORTS:
-            self.queries.set_ports_query(data)
-        elif cur_idx == constants.TAB_USERS:
-            self.queries.set_users_query(data)
-
-        self.restore_details_view_columns(
-            self.TABLES[cur_idx]['view'].horizontalHeader(),
-            "{0}{1}".format(Config.STATS_VIEW_DETAILS_COL_STATE, cur_idx)
-        )
 
     def _cb_prefs_clicked(self):
         self.open_settings()
