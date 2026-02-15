@@ -419,8 +419,6 @@ class GenericTableView(QTableView):
         super().mousePressEvent(event)
         GenericTableView.mousePressed = True
         rightBtnPressed = event.button() != Qt.MouseButton.LeftButton
-        if rightBtnPressed:
-            return
 
         self.keySelectAll = False
         if not self.shiftPressed:
