@@ -1,10 +1,6 @@
 #define KBUILD_MODNAME "dummy"
 
 #include "common_defs.h"
-#include <uapi/linux/tcp.h>
-#include <net/sock.h>
-#include <net/udp_tunnel.h>
-#include <net/inet_sock.h>
 
 struct tcp_key_t {
     u16 sport;
@@ -134,7 +130,7 @@ struct {
 SEC("kprobe/tcp_v4_connect")
 int kprobe__tcp_v4_connect(struct pt_regs *ctx)
 {
-#if defined(__i386__)
+#if defined(__TARGET_ARCH_i386)
     // On x86_32 platforms I couldn't get function arguments using PT_REGS_PARM1
     // that's why we are accessing registers directly
     struct sock *sk = (struct sock *)((ctx)->ax);
@@ -180,7 +176,7 @@ int kretprobe__tcp_v4_connect(struct pt_regs *ctx)
 SEC("kprobe/tcp_v6_connect")
 int kprobe__tcp_v6_connect(struct pt_regs *ctx)
 {
-#if defined(__i386__)
+#if defined(__TARGET_ARCH_i386)
     struct sock *sk = (struct sock *)((ctx)->ax);
 #else
     struct sock *sk = (struct sock *)PT_REGS_PARM1(ctx);
@@ -207,7 +203,7 @@ int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
     __builtin_memset(&tcpv6_key, 0, sizeof(tcpv6_key));
     bpf_probe_read(&tcpv6_key.dport, sizeof(tcpv6_key.dport), &sk->__sk_common.skc_dport);
     bpf_probe_read(&tcpv6_key.sport, sizeof(tcpv6_key.sport), &sk->__sk_common.skc_num);
-#if defined(__i386__)
+#if defined(__TARGET_ARCH_i386)
     struct sock_on_x86_32_t sock;
     __builtin_memset(&sock, 0, sizeof(sock));
     bpf_probe_read(&sock, sizeof(sock), *(&sk));
@@ -232,7 +228,7 @@ int kretprobe__tcp_v6_connect(struct pt_regs *ctx)
 SEC("kprobe/udp_sendmsg")
 int kprobe__udp_sendmsg(struct pt_regs *ctx)
 {
-#if defined(__i386__)
+#if defined(__TARGET_ARCH_i386)
     struct sock *sk = (struct sock *)((ctx)->ax);
     struct msghdr *msg = (struct msghdr *)((ctx)->dx);
 #else
@@ -286,7 +282,7 @@ int kprobe__udp_sendmsg(struct pt_regs *ctx)
 SEC("kprobe/udpv6_sendmsg")
 int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 {
-#if defined(__i386__)
+#if defined(__TARGET_ARCH_i386)
     struct sock *sk = (struct sock *)((ctx)->ax);
     struct msghdr *msg = (struct msghdr *)((ctx)->dx);
 #else
@@ -317,10 +313,10 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
         u64 cmsg=0;
         bpf_probe_read(&cmsg, sizeof(cmsg), &msg->msg_control);
         struct in6_pktinfo *inpkt = (struct in6_pktinfo *)CMSG_DATA(cmsg);
-        bpf_probe_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &inpkt->ipi6_addr.s6_addr32);
+        bpf_probe_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &inpkt->ipi6_addr.in6_u.u6_addr32);
     }
 
-#if defined(__i386__)
+#if defined(__TARGET_ARCH_i386)
     struct sock_on_x86_32_t sock;
     __builtin_memset(&sock, 0, sizeof(sock));
     bpf_probe_read(&sock, sizeof(sock), *(&sk));
@@ -345,7 +341,7 @@ int kprobe__udpv6_sendmsg(struct pt_regs *ctx)
 SEC("kprobe/udp_tunnel6_xmit_skb")
 int kprobe__udp_tunnel6_xmit_skb(struct pt_regs *ctx)
 {
-#if defined(__x86_64__)
+#if defined(__TARGET_ARCH_x86)
     struct sock *sk = (struct sock *)PT_REGS_PARM2(ctx);
     struct in6_addr *saddr = (struct in6_addr *)PT_REGS_PARM5(ctx);
     // 6th
@@ -432,7 +428,7 @@ int kprobe__inet_dgram_connect(struct pt_regs *ctx)
 }
 
 SEC("kretprobe/inet_dgram_connect")
-int kretprobe__inet_dgram_connect(int retval)
+int kretprobe__inet_dgram_connect(struct pt_regs *ctx)
 {
     u64 pid_tgid = bpf_get_current_pid_tgid();
     u64 *skp = bpf_map_lookup_elem(&tcpsock, &pid_tgid);
@@ -451,7 +447,7 @@ int kretprobe__inet_dgram_connect(int retval)
     u8 fam = 0;
     bpf_probe_read(&proto, sizeof(proto), &sk->sk_protocol);
     bpf_probe_read(&type, sizeof(type), &sk->sk_type);
-    bpf_probe_read(&fam, sizeof(type), &sk->sk_family);
+    bpf_probe_read(&fam, sizeof(fam), &sk->__sk_common.skc_family);
 
     struct udp_value_t udp_value={0};
     __builtin_memset(&udp_value, 0, sizeof(udp_value));
@@ -507,7 +503,7 @@ int kretprobe__inet_dgram_connect(int retval)
         bpf_probe_read(&udpv6_key.sport, sizeof(udpv6_key.sport), &sk->__sk_common.skc_num);
         bpf_probe_read(&udpv6_key.saddr, sizeof(udpv6_key.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
 
-#if defined(__i386__)
+#if defined(__TARGET_ARCH_i386)
         struct sock_on_x86_32_t sock;
         __builtin_memset(&sock, 0, sizeof(sock));
         bpf_probe_read(&sock, sizeof(sock), *(&sk));
@@ -555,13 +551,13 @@ int kprobe__iptunnel_xmit(struct pt_regs *ctx)
     u16 pkt_hdr = 0;
     bpf_probe_read(&pkt_hdr, sizeof(pkt_hdr), &skb->transport_header);
 
-#if defined(__i386__)
+#if defined(__TARGET_ARCH_i386)
     dst = (u32)(ctx->sp + 20);
 #else
     dst = (u32)PT_REGS_PARM5(ctx);
 #endif
 
-#if defined(__i386__) || defined(__arm__)
+#if defined(__TARGET_ARCH_i386) || defined(__TARGET_ARCH_arm)
     unsigned char *data=NULL;
     bpf_probe_read(&data, sizeof(data), &skb->data);
     unsigned char *udp_start = data + pkt_hdr;

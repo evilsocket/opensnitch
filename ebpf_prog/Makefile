@@ -1,21 +1,31 @@
-# OpenSnitch - 2023
+# OpenSnitch eBPF - CO-RE (Compile Once, Run Everywhere) Build
 #
-# On Debian based distros we need the following 2 directories.
-# Otherwise, just use the kernel headers from the kernel sources.
+# This Makefile builds eBPF programs with CO-RE support.
+# CO-RE programs use BTF relocations resolved at load time.
 #
-KERNEL_VER ?= $(shell ls -d /lib/modules/*/source | sort | tail -1 | cut -d/ -f4)
-KERNEL_DIR ?= /lib/modules/$(KERNEL_VER)/source
-KERNEL_HEADERS ?= /usr/src/linux-headers-$(KERNEL_VER)/
+# Requirements:
+#   - clang with BPF target support (or bpf-unknown-none-gcc--not recommended)
+#   - vmlinux.h (in bpf_headers/)
+#   - libbpf (for bpf_helpers.h, bpf_tracing.h, bpf_core_read.h)
+
+# Clang with BPF target
 CC = clang
-LLC ?= llc
+CFLAGS_TARGET = -target bpf
+
+# GCC BPF cross-compiler (alternative)
+#CC = bpf-unknown-none-gcc
+#CFLAGS_TARGET = -gbtf
+#OBJCOPY = bpf-unknown-none-objcopy
+
+# Target architecture for __TARGET_ARCH_xxx define
+# Override with: make ARCH=arm64
 ARCH ?= $(shell uname -m)
 
-# as in /usr/src/linux-headers-*/arch/
-# TODO: extract correctly the archs, and add more if needed.
+# Normalize architecture names
 ifeq ($(ARCH),x86_64)
 	ARCH := x86
 else ifeq ($(ARCH),i686)
-	ARCH := x86
+	ARCH := i386
 else ifeq ($(ARCH),armv7l)
 	ARCH := arm
 else ifeq ($(ARCH),armv8l)
@@ -30,46 +40,44 @@ else ifeq ($(ARCH),s390x)
 	ARCH := s390
 endif
 
-ifeq ($(ARCH),arm)
-	# on previous archs, it fails with "SMP not supported on pre-ARMv6"
-	EXTRA_FLAGS = "-D__LINUX_ARM_ARCH__=7"
-endif
+# Get libbpf include path from pkg-config
+# pkg-config never implemented proper cross-compilation support (--host was
+# proposed in 2005 but never merged). It filters -I paths that match
+# C_INCLUDE_PATH, but BPF cross-compiler uses CROSS_C_INCLUDE_PATH instead.
+# PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1 disables this filtering.
+LIBBPF_CFLAGS := $(shell PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1 pkg-config --cflags libbpf)
 
-SRC := $(wildcard *.c)
-BIN := $(SRC:.c=.o)
+# Source files
+SRC = opensnitch.c opensnitch-procs.c opensnitch-dns.c
+BIN = $(SRC:.c=.o)
+
+# Compiler flags for CO-RE BPF programs
 CFLAGS = -I. \
-	-I$(KERNEL_HEADERS)/arch/$(ARCH)/include/generated/ \
-	-I$(KERNEL_HEADERS)/include \
-	-include $(KERNEL_DIR)/include/linux/kconfig.h \
-	-I$(KERNEL_DIR)/include \
-	-I$(KERNEL_DIR)/include/uapi \
-	-I$(KERNEL_DIR)/include/generated/uapi \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include/generated \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include/uapi \
-	-I$(KERNEL_DIR)/arch/$(ARCH)/include/generated/uapi \
-	-I$(KERNEL_DIR)/tools/testing/selftests/bpf/ \
-	-D__KERNEL__ -D__BPF_TRACING__ -Wno-unused-value -Wno-pointer-sign \
-	-D__TARGET_ARCH_$(ARCH) -Wno-compare-distinct-pointer-types \
-	$(EXTRA_FLAGS) \
-	-Wunused \
+	$(CFLAGS_TARGET) \
+	$(LIBBPF_CFLAGS) \
+	-Ibpf_headers \
+	-D__KERNEL__ \
+	-D__BPF_TRACING__ \
+	-D__TARGET_ARCH_$(ARCH) \
+	-Wall \
 	-Wno-unused-value \
 	-Wno-gnu-variable-sized-type-not-at-end \
+	-Wno-pointer-sign \
+	-Wno-compare-distinct-pointer-types \
 	-Wno-address-of-packed-member \
 	-Wno-tautological-compare \
 	-Wno-unknown-warning-option  \
 	-fno-stack-protector \
-	-g -O2 -emit-llvm
+	-g -O2
 
 all: $(BIN)
 
-%.bc: %.c
-	$(CC) $(CFLAGS) -c $<
-
-%.o: %.bc
-	$(LLC) -march=bpf -mcpu=generic -filetype=obj -o $@ $<
+%.o: %.c bpf_headers/vmlinux.h
+	$(CC) $(CFLAGS) -c $< -o $@
+# GCC BPF: strip .BTF.ext section (incompatible with cilium/ebpf)
+#	$(OBJCOPY) --remove-section=.BTF.ext --remove-section=.rel.BTF.ext $@
 
 clean:
 	rm -f $(BIN)
 
-.SUFFIXES:
+.PHONY: all clean
