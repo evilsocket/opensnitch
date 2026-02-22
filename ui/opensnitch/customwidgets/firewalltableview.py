@@ -318,7 +318,6 @@ class FirewallTableView(QTableView):
 
     def setModel(self, model):
         super().setModel(model)
-        self.horizontalHeader().sortIndicatorChanged.disconnect()
         self.setSortingEnabled(True)
         self.model().columnCountChanged.connect(self._cb_column_count_changed)
         model.rowsUpdated.connect(self._cb_rows_updated)
