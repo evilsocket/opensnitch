@@ -471,6 +471,8 @@ class Queries:
         # TODO: add a parameter to every filter*() method, to accept text filters.
         if filter_text != "":
             self.win.TABLES[constants.TAB_FIREWALL]['view'].filterByQuery(filter_text)
+        # TODO: allow users configure the columns to display
+        #self.win.show_view_columns(constants.TAB_FIREWALL)
 
     def set_events_query(self, advanced_filter=None):
         if self.win.get_current_view_idx() != constants.TAB_MAIN:

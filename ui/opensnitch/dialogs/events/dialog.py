@@ -1145,8 +1145,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         elif cur_idx ==  constants.TAB_USERS:
             field = "uid"
 
-        ret1 = self._db.remove("DELETE FROM {0} WHERE what = '{1}'".format(table, value))
-        ret2 = self._db.remove("DELETE FROM connections WHERE {0} = '{1}'".format(field, value))
+        ret1 = self._db.remove("DELETE FROM {0} WHERE what = ?".format(table), [value])
+        ret2 = self._db.remove("DELETE FROM connections WHERE {0} = ?".format(field), [value])
 
         return ret1 and ret2
 

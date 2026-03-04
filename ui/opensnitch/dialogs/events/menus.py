@@ -62,7 +62,15 @@ class MenusManager(views.ViewsManager):
 
         menu = QtWidgets.QMenu(self)
 
+        if cur_idx == constants.TAB_RULES and self.fwTable.isVisible():
+            cur_idx = constants.TAB_FIREWALL
+            # TODO: handle properly the hidden columns, for example when the
+            # user selects a fw chain that displays the up/down buttons column.
+            return
+        if cur_idx == constants.TAB_RULES and self.alertsTable.isVisible():
+            cur_idx = constants.TAB_ALERTS
         tbl_name = self.TABLES[cur_idx]['name']
+
         headers = model.headers()
         headers_sel = []
         cols = self.cfg.getSettings(Config.STATS_SHOW_COLUMNS + f"_{tbl_name}")
@@ -71,14 +79,19 @@ class MenusManager(views.ViewsManager):
         cols_len = len(cols)
         for i, h in enumerate(headers):
             haction = menu.addAction(h)
-            haction.setCheckable(True)
-            haction.setChecked(str(i) in cols or cols_len == 0)
+            if h == "":
+                haction.setVisible(False)
+            else:
+                haction.setCheckable(True)
+                haction.setChecked(str(i) in cols or cols_len == 0)
             headers_sel.append(haction)
 
         point = QtCore.QPoint(pos.x()+10, pos.y()+5)
         action = menu.exec(table.mapToGlobal(point))
         new_cols = []
         for i, h in enumerate(headers_sel):
+            if not h.isVisible():
+                continue
             if h == action:
                 self.TABLES[cur_idx]['view'].setColumnHidden(i, not h.isChecked())
             if h.isChecked():

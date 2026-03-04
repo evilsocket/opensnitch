@@ -705,7 +705,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             return
 
         addr = self.TABLES[ constants.TAB_NODES]['label'].text()
-        if self._db.remove("DELETE FROM nodes WHERE addr = '{0}'".format(addr)) is False:
+        if self._db.remove("DELETE FROM nodes WHERE addr = ?", [addr]) is False:
             Message.ok("",
                 QC.translate("stats",
                                 "<b>Error deleting node</b><br><br>",
