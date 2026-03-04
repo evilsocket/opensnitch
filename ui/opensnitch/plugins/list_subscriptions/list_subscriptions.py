@@ -358,13 +358,13 @@ class ConfigWatcher(threading.Thread):
         self.config_path = config_path
         self.callback = callback
         self.debounce_ms = debounce_ms
-        self._stop = threading.Event()
+        self._stop_event = threading.Event()
 
         self._dir = os.path.dirname(config_path)
         self._base = os.path.basename(config_path)
 
     def stop(self):
-        self._stop.set()
+        self._stop_event.set()
 
     def run(self):
         try:
@@ -376,7 +376,7 @@ class ConfigWatcher(threading.Thread):
 
             last_fire = 0.0
 
-            while not self._stop.is_set():
+            while not self._stop_event.is_set():
                 events = ino.read(timeout=int(self.debounce_ms))
                 if not events:
                     continue
@@ -435,6 +435,7 @@ class ListSubscriptions:
         self.scheduled_tasks: dict[str, GenericTimer] = {}  # key -> timer
         self._threads: dict[str, threading.Thread] = {}     # key -> thread
         self._watcher: ConfigWatcher | None = None
+        self._running = False
 
         # requests defaults except UA
         self._session = requests.Session()
@@ -530,6 +531,11 @@ class ListSubscriptions:
             self.scheduled_tasks[key] = GenericTimer(
                 interval_s, True, self.cb_run_tasks, (key, sub)
             )
+            if self._running:
+                try:
+                    self.scheduled_tasks[key].start()
+                except Exception:
+                    pass
 
         # stop removed timers
         for key in list(self.scheduled_tasks.keys()):
@@ -546,6 +552,7 @@ class ListSubscriptions:
         Start timers + start inotify watcher.
         """
         self.compile()
+        self._running = True
 
         for t in self.scheduled_tasks.values():
             try:
@@ -568,6 +575,7 @@ class ListSubscriptions:
             except Exception:
                 pass
         self.scheduled_tasks.clear()
+        self._running = False
 
         if self._watcher is not None:
             self._watcher.stop()
@@ -674,89 +682,92 @@ class ListSubscriptions:
                 self._save_meta(meta_path, meta)
                 return False, "request_error"
 
-            if r.status_code == 304:
-                meta.fail_count = 0
-                meta.backoff_until = ""
-                meta.last_result = "not_modified"
-                self._save_meta(meta_path, meta)
-                return True, "not_modified"
-
-            if r.status_code != 200:
-                self._mark_failure(meta, f"http_{r.status_code}")
-                self._save_meta(meta_path, meta)
-                return False, f"http_{r.status_code}"
-
-            cl = r.headers.get("Content-Length")
-            if cl:
-                try:
-                    if int(cl) > max_bytes:
-                        self._mark_failure(meta, f"too_large:{cl}")
-                        self._save_meta(meta_path, meta)
-                        return False, "too_large"
-                except Exception:
-                    pass
-
-            tmp = list_path + ".tmp"
-            downloaded = 0
-            sample_lines: list[str] = []
-
             try:
-                with open(tmp, "wb") as f:
-                    for chunk in r.iter_content(chunk_size=32 * 1024):
-                        if not chunk:
-                            continue
-                        downloaded += len(chunk)
-                        if downloaded > max_bytes:
-                            raise RuntimeError("too_large_streamed")
-                        f.write(chunk)
+                if r.status_code == 304:
+                    meta.fail_count = 0
+                    meta.backoff_until = ""
+                    meta.last_result = "not_modified"
+                    self._save_meta(meta_path, meta)
+                    return True, "not_modified"
 
-                        if sub.format.lower() == "hosts" and len(sample_lines) < 200:
-                            txt = chunk.decode("utf-8", errors="ignore")
-                            for ln in txt.splitlines():
-                                if len(sample_lines) < 200:
-                                    sample_lines.append(ln)
-                                else:
-                                    break
+                if r.status_code != 200:
+                    self._mark_failure(meta, f"http_{r.status_code}")
+                    self._save_meta(meta_path, meta)
+                    return False, f"http_{r.status_code}"
 
-                    f.flush()
-                    os.fsync(f.fileno())
-
-                if sub.format.lower() == "hosts" and not looks_like_hosts_file(sample_lines):
+                cl = r.headers.get("Content-Length")
+                if cl:
                     try:
-                        os.remove(tmp)
+                        if int(cl) > max_bytes:
+                            self._mark_failure(meta, f"too_large:{cl}")
+                            self._save_meta(meta_path, meta)
+                            return False, "too_large"
                     except Exception:
                         pass
-                    self._mark_failure(meta, "bad_format_hosts")
-                    self._save_meta(meta_path, meta)
-                    return False, "bad_format"
 
-                os.replace(tmp, list_path)
+                tmp = list_path + ".tmp"
+                downloaded = 0
+                sample_lines: list[str] = []
 
-            except Exception as e:
                 try:
-                    if os.path.exists(tmp):
-                        os.remove(tmp)
-                except Exception:
-                    pass
-                self._mark_failure(meta, repr(e))
+                    with open(tmp, "wb") as f:
+                        for chunk in r.iter_content(chunk_size=32 * 1024):
+                            if not chunk:
+                                continue
+                            downloaded += len(chunk)
+                            if downloaded > max_bytes:
+                                raise RuntimeError("too_large_streamed")
+                            f.write(chunk)
+
+                            if sub.format.lower() == "hosts" and len(sample_lines) < 200:
+                                txt = chunk.decode("utf-8", errors="ignore")
+                                for ln in txt.splitlines():
+                                    if len(sample_lines) < 200:
+                                        sample_lines.append(ln)
+                                    else:
+                                        break
+
+                        f.flush()
+                        os.fsync(f.fileno())
+
+                    if sub.format.lower() == "hosts" and not looks_like_hosts_file(sample_lines):
+                        try:
+                            os.remove(tmp)
+                        except Exception:
+                            pass
+                        self._mark_failure(meta, "bad_format_hosts")
+                        self._save_meta(meta_path, meta)
+                        return False, "bad_format"
+
+                    os.replace(tmp, list_path)
+
+                except Exception as e:
+                    try:
+                        if os.path.exists(tmp):
+                            os.remove(tmp)
+                    except Exception:
+                        pass
+                    self._mark_failure(meta, repr(e))
+                    self._save_meta(meta_path, meta)
+                    return False, "write_error"
+
+                # update cache validators
+                et = r.headers.get("ETag")
+                lm = r.headers.get("Last-Modified")
+                if et:
+                    meta.etag = et
+                if lm:
+                    meta.last_modified = lm
+
+                meta.bytes = downloaded
+                meta.last_updated = now_iso()
+                meta.fail_count = 0
+                meta.backoff_until = ""
+                meta.last_result = "updated"
                 self._save_meta(meta_path, meta)
-                return False, "write_error"
-
-            # update cache validators
-            et = r.headers.get("ETag")
-            lm = r.headers.get("Last-Modified")
-            if et:
-                meta.etag = et
-            if lm:
-                meta.last_modified = lm
-
-            meta.bytes = downloaded
-            meta.last_updated = now_iso()
-            meta.fail_count = 0
-            meta.backoff_until = ""
-            meta.last_result = "updated"
-            self._save_meta(meta_path, meta)
-            return True, "updated"
+                return True, "updated"
+            finally:
+                r.close()
 
         finally:
             lock.release()
