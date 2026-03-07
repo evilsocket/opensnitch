@@ -1000,7 +1000,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             return
 
         checked = self.startButton.isChecked()
-        Config.get().setSettings(Config.DEFAULT_FW_INTERCEPTION_ENABLED, checked)
+        if Config.get().getBool(Config.DEFAULT_PERSIST_INTERCEPTION_STATE, False):
+            Config.get().setSettings(Config.DEFAULT_FW_INTERCEPTION_ENABLED, checked)
         
         self.update_interception_status(checked)
         self._status_changed_trigger.emit(checked)
