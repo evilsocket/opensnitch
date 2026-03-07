@@ -999,10 +999,13 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self.startButton.setIcon(self.iconStart)
             return
 
-        self.update_interception_status(self.startButton.isChecked())
-        self._status_changed_trigger.emit(self.startButton.isChecked())
+        checked = self.startButton.isChecked()
+        Config.get().setSettings(Config.DEFAULT_FW_INTERCEPTION_ENABLED, checked)
+        
+        self.update_interception_status(checked)
+        self._status_changed_trigger.emit(checked)
 
-        if self.startButton.isChecked():
+        if checked:
             nid, noti = self.node_start_interception(callback=self._notification_callback)
         else:
             nid, noti = self.node_stop_interception(callback=self._notification_callback)
