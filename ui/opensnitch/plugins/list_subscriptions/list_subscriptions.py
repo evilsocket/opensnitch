@@ -1,21 +1,30 @@
 import os
+import logging
 import json
 import errno
 import hashlib
 import threading
+import re
 from dataclasses import dataclass, field, asdict
 from typing import Any
 from datetime import datetime, timedelta
-import time
 from queue import Queue
 
 import requests
 
+from opensnitch.dialogs.stats import StatsDialog
+from opensnitch.notifications import DesktopNotifications
+from opensnitch.plugins import PluginBase, PluginSignal
 from opensnitch.utils import GenericTimer
-from opensnitch.utils.duration import duration
-from opensnitch.utils.logger import logger
 from opensnitch.utils.xdg import xdg_config_home
 
+ch = logging.StreamHandler()
+#ch.setLevel(logging.ERROR)
+formatter = logging.Formatter('%(asctime)s - %(name)s - [%(levelname)s] %(message)s')
+ch.setFormatter(formatter)
+logger = logging.getLogger(__name__)
+logger.addHandler(ch)
+logger.setLevel(logging.WARNING)
 
 # -------------------- constants --------------------
 
@@ -25,12 +34,24 @@ DEFAULT_UA = (
     "Chrome/120.0 Safari/537.36"
 )
 
-UNIT_TO_DUR = {
-    "seconds": "s",
-    "minutes": "m",
-    "hours": "h",
-    "days": "d",
-    "weeks": "w",
+TIME_MULT = {
+    "seconds": 1,
+    "minutes": 60,
+    "hours": 60 * 60,
+    "days": 24 * 60 * 60,
+    "weeks": 7 * 24 * 60 * 60,
+    "s": 1,
+    "m": 60,
+    "h": 60 * 60,
+    "d": 24 * 60 * 60,
+    "w": 7 * 24 * 60 * 60,
+}
+SHORT_TIME_MULT = {
+    "s": TIME_MULT["seconds"],
+    "m": TIME_MULT["minutes"],
+    "h": TIME_MULT["hours"],
+    "d": TIME_MULT["days"],
+    "w": TIME_MULT["weeks"],
 }
 
 SIZE_MULT = {
@@ -43,7 +64,7 @@ SIZE_MULT = {
 
 # -------------------- time helpers (ISO 8601) --------------------
 
-def now_iso() -> str:
+def now_iso():
     return datetime.now().astimezone().isoformat()
 
 
@@ -54,19 +75,40 @@ def parse_iso(ts: str):
         return None
 
 
-def to_seconds(value, units, default_seconds: int) -> int:
+def to_seconds(value: Any, units: str | None, default_seconds: int):
     try:
         if value is None:
             return default_seconds
         u = (units or "seconds").lower()
-        suf = UNIT_TO_DUR.get(u, "s")
-        sec = duration.to_seconds(f"{int(value)}{suf}")
+        mult = TIME_MULT.get(u)
+        if mult is None:
+            return default_seconds
+        sec = int(value) * mult
         return sec if sec > 0 else default_seconds
     except Exception:
         return default_seconds
 
 
-def to_max_bytes(value, units, default_bytes: int) -> int:
+def parse_compact_duration(value: Any):
+    if not isinstance(value, str):
+        return None
+    s = value.strip().lower().replace(" ", "")
+    if not s:
+        return None
+
+    total = 0
+    pos = 0
+    for m in re.finditer(r"(\d+)([smhdw])", s):
+        if m.start() != pos:
+            return None
+        total += int(m.group(1)) * SHORT_TIME_MULT[m.group(2)]
+        pos = m.end()
+    if pos != len(s):
+        return None
+    return total if total > 0 else None
+
+
+def to_max_bytes(value: Any, units: str | None, default_bytes: int):
     try:
         if value is None:
             return default_bytes
@@ -82,12 +124,12 @@ def to_max_bytes(value, units, default_bytes: int) -> int:
 
 # -------------------- JSON IO --------------------
 
-def read_json(path: str) -> dict:
+def read_json(path: str):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def write_json_atomic(path: str, obj: dict):
+def write_json_atomic(path: str, obj: dict[str, Any]):
     d = os.path.dirname(path)
     if d:
         os.makedirs(d, exist_ok=True)
@@ -104,9 +146,9 @@ def write_json_atomic(path: str, obj: dict):
 class FileLock:
     def __init__(self, lock_path: str):
         self.lock_path = lock_path
-        self.fd = None
+        self.fd: int | None = None
 
-    def acquire(self) -> bool:
+    def acquire(self):
         try:
             self.fd = os.open(self.lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
             os.write(self.fd, str(os.getpid()).encode("utf-8"))
@@ -128,7 +170,7 @@ class FileLock:
                 pass
 
 
-def looks_like_hosts_file(sample_lines: list[str]) -> bool:
+def is_hosts_file_like(sample_lines: list[str]):
     valid = 0
     total = 0
     for line in sample_lines:
@@ -161,17 +203,17 @@ class GlobalDefaults:
     user_agent: str | None = DEFAULT_UA
 
     @staticmethod
-    def from_dict(d: dict[str, Any], computed_lists_dir: str) -> "GlobalDefaults":
-        # lists_dir: prefer config value, fallback to computed
-        lists_dir = str(d.get("lists_dir") or computed_lists_dir)
+    def from_dict(d: dict[str, Any], lists_dir: str | None = None):
+        # lists_dir: prefer config value, fallback to lists_dir arg
+        lists_dir = str(d.get("lists_dir") or lists_dir or os.path.join(xdg_config_home, "opensnitch", "blocklists", "hosts"))
 
-        def _int(v: int | float | str | None, default: int) -> int:
+        def _int(v: int | float | str | None, default: int):
             try:
                 return int(v) if v is not None else default
             except Exception:
                 return default
 
-        def _str(v: str | None, default: str) -> str:
+        def _str(v: str | None, default: str):
             v = (v or "").strip()
             return v if v else default
 
@@ -194,18 +236,18 @@ class SubscriptionSpec:
     filename: str
     enabled: bool = True
     format: str = "hosts"
-
-    # optional overrides
-    interval: int | None = None
-    interval_units: str | None = None
-    timeout: int | None = None
-    timeout_units: str | None = None
-    max_size: int | None = None
-    max_size_units: str | None = None
-    user_agent: str | None = None
+    interval: int = 24
+    interval_units: str = "hours"
+    timeout: int = 60
+    timeout_units: str = "seconds"
+    max_size: int = 20
+    max_size_units: str = "MB"
+    interval_seconds: int = 24 * 3600
+    timeout_seconds: int = 60
+    max_bytes: int = 20 * 1024 * 1024
 
     @staticmethod
-    def from_dict(d: dict[str, Any]) -> "SubscriptionSpec | None":
+    def from_dict(d: dict[str, Any], defaults: GlobalDefaults):
         if not isinstance(d, dict):
             return None
 
@@ -217,15 +259,62 @@ class SubscriptionSpec:
         if not name:
             name = filename
 
-        def _opt_int(x):
+        def _opt_int(x: Any):
             try:
                 return int(x) if x is not None else None
             except Exception:
                 return None
 
-        def _opt_str(x):
-            x = (x or "").strip()
-            return x or None
+        def _opt_str(x: Any):
+            try:
+                if x is None:
+                    return None
+                x = (str(x) or "").strip().lower()
+                return x if x != "" else None
+            except Exception:
+                return None
+
+        interval_raw: Any = d.get("interval")
+        timeout_raw: Any = d.get("timeout")
+        interval_units_raw: Any = d.get("interval_units")
+        timeout_units_raw: Any = d.get("timeout_units")
+
+        interval = _opt_int(interval_raw) or defaults.interval
+        interval_units_opt = _opt_str(interval_units_raw)
+        interval_units = interval_units_opt or defaults.interval_units
+        timeout = _opt_int(timeout_raw) or defaults.timeout
+        timeout_units_opt = _opt_str(timeout_units_raw)
+        timeout_units = timeout_units_opt or defaults.timeout_units
+        max_size = _opt_int(d.get("max_size")) or defaults.max_size
+        max_size_units = _opt_str(d.get("max_size_units")) or defaults.max_size_units
+
+        default_interval_seconds = to_seconds(defaults.interval, defaults.interval_units, 24 * 3600)
+        default_timeout_seconds = to_seconds(defaults.timeout, defaults.timeout_units, 60)
+        default_max_bytes = to_max_bytes(defaults.max_size, defaults.max_size_units, 20 * 1024 * 1024)
+
+        interval_seconds: int | None = None
+        interval_is_composite = False
+        if interval_units_opt is None:
+            interval_seconds = parse_compact_duration(interval_raw)
+            interval_is_composite = interval_seconds is not None
+        if interval_seconds is None:
+            interval_seconds = to_seconds(interval, interval_units, default_interval_seconds)
+        elif interval_is_composite:
+            interval = interval_seconds
+            interval_units = "composite"
+
+        timeout_seconds: int | None = None
+        timeout_is_composite = False
+        if timeout_units_opt is None:
+            timeout_seconds = parse_compact_duration(timeout_raw)
+            timeout_is_composite = timeout_seconds is not None
+        if timeout_seconds is None:
+            timeout_seconds = to_seconds(timeout, timeout_units, default_timeout_seconds)
+        elif timeout_is_composite:
+            timeout = timeout_seconds
+            timeout_units = "composite"
+
+        max_bytes = to_max_bytes(max_size, max_size_units, default_max_bytes)
 
         return SubscriptionSpec(
             name=name,
@@ -234,29 +323,33 @@ class SubscriptionSpec:
             enabled=bool(d.get("enabled", True)),
             format=str(d.get("format", "hosts") or "hosts"),
 
-            interval=_opt_int(d.get("interval")),
-            interval_units=_opt_str(d.get("interval_units")),
-            timeout=_opt_int(d.get("timeout")),
-            timeout_units=_opt_str(d.get("timeout_units")),
-            max_size=_opt_int(d.get("max_size")),
-            max_size_units=_opt_str(d.get("max_size_units")),
-            user_agent=_opt_str(d.get("user_agent")),
+            interval=interval,
+            interval_units=interval_units,
+            timeout=timeout,
+            timeout_units=timeout_units,
+            max_size=max_size,
+            max_size_units=max_size_units,
+            interval_seconds=interval_seconds,
+            timeout_seconds=timeout_seconds,
+            max_bytes=max_bytes,
         )
 
 
 @dataclass(frozen=True)
 class PluginConfig:
-    defaults: GlobalDefaults
+    defaults: GlobalDefaults = field(default_factory=lambda: GlobalDefaults.from_dict({}))
     subscriptions: list[SubscriptionSpec] = field(default_factory=list)
 
     @staticmethod
-    def from_actions_config(raw_cfg: dict[str, Any], computed_lists_dir: str) -> "PluginConfig":
+    def from_dict(raw_cfg: dict[str, Any], lists_dir: str | None = None):
         raw_cfg = raw_cfg or {}
-        defaults = GlobalDefaults.from_dict(raw_cfg, computed_lists_dir)
+        if not isinstance(raw_cfg, dict):
+            raw_cfg = {}
+        defaults = GlobalDefaults.from_dict(raw_cfg, lists_dir)
 
         subs: list[SubscriptionSpec] = []
         for item in (raw_cfg.get("subscriptions") or []):
-            sub = SubscriptionSpec.from_dict(item)
+            sub = SubscriptionSpec.from_dict(item, defaults)
             if sub is not None:
                 subs.append(sub)
 
@@ -283,18 +376,18 @@ class ListMetadata:
     bytes: int = 0
 
     @staticmethod
-    def from_dict(d: dict[str, Any]) -> "ListMetadata":
+    def from_dict(d: dict[str, Any]):
         m = ListMetadata()
         if not isinstance(d, dict):
             return m
 
-        def _int(v, default):
+        def _int(v: Any, default: int):
             try:
                 return int(v) if v is not None else default
             except Exception:
                 return default
 
-        def _str(v, default=""):
+        def _str(v: Any, default: str = ""):
             return str(v or default)
 
         m.version = _int(d.get("version", 1), 1)
@@ -316,176 +409,91 @@ class ListMetadata:
 
         return m
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self):
         return asdict(self)
-
-
-# -------------------- config resolution --------------------
-
-def effective_user_agent(sub: SubscriptionSpec, defaults: GlobalDefaults) -> str:
-    return sub.user_agent or defaults.user_agent or DEFAULT_UA
-
-def effective_interval_seconds(sub: SubscriptionSpec, defaults: GlobalDefaults) -> int:
-    v = sub.interval if sub.interval is not None else defaults.interval
-    u = sub.interval_units or defaults.interval_units
-    return to_seconds(v, u, default_seconds=24 * 3600)
-
-def effective_timeout_seconds(sub: SubscriptionSpec, defaults: GlobalDefaults) -> int:
-    v = sub.timeout if sub.timeout is not None else defaults.timeout
-    u = sub.timeout_units or defaults.timeout_units
-    return to_seconds(v, u, default_seconds=60)
-
-def effective_max_bytes(sub: SubscriptionSpec, defaults: GlobalDefaults) -> int:
-    v = sub.max_size if sub.max_size is not None else defaults.max_size
-    u = sub.max_size_units or defaults.max_size_units
-    # default 20MB
-    return to_max_bytes(v, u, default_bytes=20 * 1024 * 1024)
-
-
-# -------------------- inotify watcher --------------------
-
-class ConfigWatcher(threading.Thread):
-    """
-    Watches a single config file via inotify and calls callback() on changes.
-    Uses a debounce window to avoid duplicate reloads on atomic-save patterns.
-    """
-    def __init__(self, config_path: str, callback, debounce_ms: int = 250):
-        try:
-            from inotify_simple import INotify, flags
-        except ImportError:
-            raise RuntimeError("inotify_simple is required for ConfigWatcher")
-        super().__init__(daemon=True)
-        self.config_path = config_path
-        self.callback = callback
-        self.debounce_ms = debounce_ms
-        self._stop_event = threading.Event()
-
-        self._dir = os.path.dirname(config_path)
-        self._base = os.path.basename(config_path)
-
-    def stop(self):
-        self._stop_event.set()
-
-    def run(self):
-        try:
-            ino = INotify()
-            wd = ino.add_watch(
-                self._dir,
-                flags.CLOSE_WRITE | flags.MOVED_TO | flags.CREATE | flags.DELETE | flags.MODIFY
-            )
-
-            last_fire = 0.0
-
-            while not self._stop_event.is_set():
-                events = ino.read(timeout=int(self.debounce_ms))
-                if not events:
-                    continue
-
-                # If any relevant event touches our file, debounce+fire
-                touched = False
-                for e in events:
-                    name = e.name or ""
-                    if name == self._base:
-                        touched = True
-                        break
-
-                if not touched:
-                    continue
-
-                now = time.time()
-                if (now - last_fire) * 1000.0 < self.debounce_ms:
-                    continue
-                last_fire = now
-
-                try:
-                    self.callback()
-                except Exception:
-                    # callback must not kill watcher
-                    pass
-
-        except Exception:
-            # if inotify fails, we silently do nothing (or log if desired)
-            return
 
 
 # -------------------- plugin core --------------------
 
-class ListSubscriptions:
+class ListSubscriptions(PluginBase):
+    """ A plugin to manage list subscriptions (e.g. blocklists).
+
+    The plugin is configured via a JSON file specifying a list of subscriptions.
+    Each subscription has a URL and a local filename to save to.
+    The plugin periodically checks each URL for updates, using HTTP cache validators to avoid unnecessary downloads.
+    Metadata about each subscription is stored in a sidecar JSON file (same name + .meta.json) to track last update time, errors, backoff, etc.
+    The plugin exposes a results queue for the UI to display subscription status and errors.
     """
-    - Single main config file (array of subscriptions).
-    - Sidecar metadata per list file.
-    - Per-subscription timers.
-    - inotify reload of main config on changes.
-    """
+    # fields overriden from parent class
+    name = "List Subscriptions"
+    version = 0
+    author = "opensnitch"
+    created = ""
+    modified = ""
+    enabled = False
+    description = "Manage list subscriptions (e.g. blocklists) with periodic updates"
 
-    def __init__(self, config_path: str | None = None):
-        logger.new("list_subscriptions")
-        self._log = logger.get("list_subscriptions")
+    # default
+    TYPE = [PluginBase.TYPE_GLOBAL]
 
-        # Where the actions JSON lives (example default)
-        self.config_path = config_path or os.path.join(
-            xdg_config_home, "opensnitch", "actions", "listSubscriptionsActions.json"
-        )
+    # runtime state
+    scheduled_tasks: dict[str, GenericTimer] = {}
+    default_conf = "{0}/{1}".format(xdg_config_home, "opensnitch/actions/list_subscriptions.json")
+    default_lists_dir = os.path.join(xdg_config_home, "opensnitch", "blocklists", "hosts")
 
-        # Typed config
-        self.cfg_typed: PluginConfig | None = None
-
-        # Runtime
-        self._resultsQueue = Queue()
-        self.scheduled_tasks: dict[str, GenericTimer] = {}  # key -> timer
-        self._threads: dict[str, threading.Thread] = {}     # key -> thread
-        self._watcher: ConfigWatcher | None = None
+    def __init__(self, config: dict[str, Any] | None = None):
+        config = config or {}
+        self._log = logger
+        self.signal_in.connect(self.cb_signal)
+        self._desktop_notifications = DesktopNotifications()
+        self._ok_msg = ""
+        self._err_msg = ""
+        self._notify: dict[str, Any] | None = None
+        self._notify_title = "[OpenSnitch] List subscriptions downloader"
+        self._resultsQueue: Queue[tuple[str, bool, str]] = Queue()
         self._running = False
+        self._app_icon = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../../res/icon-white.svg")
 
-        # requests defaults except UA
-        self._session = requests.Session()
-        self._session.headers.update({"User-Agent": DEFAULT_UA})
+        if config.get("enabled") is True:
+            self.enabled = True
 
-        # initial load
-        self.reload_config()
+        # Load config
+        plugin_cfg: Any = config.get("config", {})
+        if not isinstance(plugin_cfg, dict):
+            plugin_cfg = {}
+        self._config = PluginConfig.from_dict(plugin_cfg, lists_dir=self.default_lists_dir)
+        self._notify = plugin_cfg.get("notify")
+        if isinstance(self._notify, dict):
+            ok = self._notify.get("success")
+            err = self._notify.get("error")
+            if isinstance(ok, dict):
+                ok_msg = ok.get("desktop")
+                if ok_msg:
+                    self._ok_msg = ok_msg
+            if isinstance(err, dict):
+                err_msg = err.get("desktop")
+                if err_msg:
+                    self._err_msg = err_msg
+        else:
+            self._notify = None
 
-    # -------- config + reload --------
-
-    def reload_config(self):
-        """
-        Reload main json config file, rebuild timers.
-        """
-        computed_lists_dir = os.path.join(xdg_config_home, "opensnitch", "blocklists", "hosts")
-
-        try:
-            raw = read_json(self.config_path)
-            # navigate to actions.list_subscriptions.config
-            cfg = (
-                raw.get("actions", {})
-                   .get("list_subscriptions", {})
-                   .get("config", {})
-            )
-            self.cfg_typed = PluginConfig.from_actions_config(cfg, computed_lists_dir)
-        except Exception as e:
-            self._log.warning("Failed to load config %s: %s", self.config_path, repr(e))
-            # Keep last good cfg_typed if available
-            if self.cfg_typed is None:
-                # minimal fallback config so plugin doesn't crash
-                defaults = GlobalDefaults.from_dict({"lists_dir": computed_lists_dir}, computed_lists_dir)
-                self.cfg_typed = PluginConfig(defaults=defaults, subscriptions=[])
-            return
-
-        # update session UA default (sub-level UA will still override per request)
-        self._session.headers.update({"User-Agent": self.cfg_typed.defaults.user_agent or DEFAULT_UA})
-
-        # rebuild timers
-        self.compile()
+        # Set up requests session with default UA
+        self._session: requests.Session = requests.Session()
+        if self._config.defaults.user_agent:
+            self._session.headers.update({"User-Agent": self._config.defaults.user_agent})
+        else:
+            self._session.headers.update({"User-Agent": DEFAULT_UA})
 
     # -------- metadata sidecar --------
 
-    def _paths(self, sub: SubscriptionSpec) -> tuple[str, str]:
-        if self.cfg_typed is None:
+    def _paths(self, sub: SubscriptionSpec):
+        if self._config is None:
             raise RuntimeError("PluginConfig is not loaded")
-        list_path = os.path.join(self.cfg_typed.defaults.lists_dir, sub.filename)
+        list_path = os.path.join(self._config.defaults.lists_dir, sub.filename)
         meta_path = list_path + ".meta.json"
         return list_path, meta_path
 
-    def _load_meta(self, meta_path: str) -> ListMetadata:
+    def _load_meta(self, meta_path: str):
         try:
             return ListMetadata.from_dict(read_json(meta_path))
         except Exception:
@@ -496,30 +504,35 @@ class ListSubscriptions:
 
     # -------- timer lifecycle --------
 
-    def _sub_key(self, sub: SubscriptionSpec) -> str:
+    def _sub_key(self, sub: SubscriptionSpec):
         base = f"{sub.url}|{sub.filename}"
         return hashlib.sha1(base.encode("utf-8")).hexdigest()[:16]
+
+    def configure(self, parent: Any = None):
+        if type(parent) == StatsDialog:
+            pass
+            #_gui.add_panel_section()
 
     def compile(self):
         """
         Build one GenericTimer per subscription.
         Stops timers removed from config.
         """
-        if not self.cfg_typed:
+        if not self._config:
             return
 
-        latest_keys = set()
+        latest_keys: set[str] = set()
 
-        for sub in self.cfg_typed.subscriptions:
+        for sub in self._config.subscriptions:
             if not sub.enabled:
                 continue
 
             key = self._sub_key(sub)
             latest_keys.add(key)
 
-            if self.cfg_typed is None:
+            if self._config is None:
                 continue
-            interval_s = effective_interval_seconds(sub, self.cfg_typed.defaults)
+            interval_s = sub.interval_seconds
 
             # recreate timer (simple, applies interval changes)
             if key in self.scheduled_tasks:
@@ -531,11 +544,6 @@ class ListSubscriptions:
             self.scheduled_tasks[key] = GenericTimer(
                 interval_s, True, self.cb_run_tasks, (key, sub)
             )
-            if self._running:
-                try:
-                    self.scheduled_tasks[key].start()
-                except Exception:
-                    pass
 
         # stop removed timers
         for key in list(self.scheduled_tasks.keys()):
@@ -545,13 +553,15 @@ class ListSubscriptions:
                 except Exception:
                     pass
                 self.scheduled_tasks.pop(key, None)
-                self._threads.pop(key, None)
 
-    def run(self):
+    def run(self, parent: Any = None, args: tuple[Any, ...] = ()):  # type: ignore[override]
         """
-        Start timers + start inotify watcher.
+        Start timers.
         """
-        self.compile()
+
+        if parent == StatsDialog:
+            pass
+
         self._running = True
 
         for t in self.scheduled_tasks.values():
@@ -560,14 +570,9 @@ class ListSubscriptions:
             except Exception:
                 pass
 
-        # start watcher (reload on config edit)
-        if self._watcher is None:
-            self._watcher = ConfigWatcher(self.config_path, self.reload_config, debounce_ms=250)
-            self._watcher.start()
-
     def stop(self):
         """
-        Stop timers + watcher.
+        Stop timers.
         """
         for t in self.scheduled_tasks.values():
             try:
@@ -577,24 +582,20 @@ class ListSubscriptions:
         self.scheduled_tasks.clear()
         self._running = False
 
-        if self._watcher is not None:
-            self._watcher.stop()
-            self._watcher = None
-
     # -------- scheduled execution --------
 
-    def cb_run_tasks(self, args):
+    def cb_run_tasks(self, args: tuple[str, SubscriptionSpec]):
         """
-        Timer callback for ONE subscription; spawns thread for network work.
+        Timer callback for one subscription.
+        Mirrors downloader behavior: start worker thread, join it,
+        then immediately evaluate queued result.
         """
+        key: str
+        sub: SubscriptionSpec
         key, sub = args
 
-        th = self._threads.get(key)
-        if th is not None and th.is_alive():
-            return
-
         # due/backoff gate via sidecar meta
-        list_path, meta_path = self._paths(sub)
+        _, meta_path = self._paths(sub)
         meta = self._load_meta(meta_path)
 
         if self._in_backoff(meta):
@@ -602,11 +603,53 @@ class ListSubscriptions:
         if not self._is_due(meta, sub):
             return
 
-        th = threading.Thread(target=self.download, args=(key, sub), daemon=True)
+        th = threading.Thread(target=self.download, args=(key, sub))
         th.start()
-        self._threads[key] = th
+        th.join()
 
-    def _in_backoff(self, meta: ListMetadata) -> bool:
+        matched: list[tuple[str, bool, str]] = []
+        unmatched: list[tuple[str, bool, str]] = []
+        while not self._resultsQueue.empty():
+            item = self._resultsQueue.get_nowait()
+            if len(item) >= 3 and item[0] == key:
+                matched.append(item)
+            else:
+                unmatched.append(item)
+        for item in unmatched:
+            self._resultsQueue.put(item)
+
+        if not matched:
+            logger.debug("cb_run_tasks() no result for key=%s sub=%s", key, sub.name)
+            return
+
+        updated: bool = False
+        statuses: list[str] = []
+        for _, ok, status in matched:
+            updated = ok
+            statuses.append(status)
+        if updated:
+            result_msg = self._ok_msg or f"{sub.name}: {', '.join(statuses)}"
+        else:
+            result_msg = self._err_msg or f"{sub.name} failed: {', '.join(statuses)}"
+
+        if self._notify is not None and self._desktop_notifications.is_available() and self._desktop_notifications.are_enabled():
+            self._desktop_notifications.show(self._notify_title, result_msg, self._app_icon)
+
+    def cb_signal(self, signal: Any):
+        logger.debug("cb_signal: %s, %s", self.name, signal)
+        try:
+            if signal == PluginSignal.ENABLE:
+                self.enabled = True
+
+            if signal['signal'] == PluginSignal.DISABLE or signal['signal'] == PluginSignal.STOP: #type: ignore[union-attr]
+                for t in self.scheduled_tasks:
+                    logger.debug("cb_signal.stopping task: %s, %s", self.name, signal)
+                    self.scheduled_tasks[t].stop()
+
+        except Exception as e:
+            logger.warning("cb_signal() exception: %s", repr(e))
+
+    def _in_backoff(self, meta: ListMetadata):
         if not meta.backoff_until:
             return False
         dt = parse_iso(meta.backoff_until)
@@ -614,18 +657,13 @@ class ListSubscriptions:
             return False
         return datetime.now().astimezone() < dt
 
-    def _is_due(self, meta: ListMetadata, sub: SubscriptionSpec) -> bool:
+    def _is_due(self, meta: ListMetadata, sub: SubscriptionSpec):
         if not meta.last_checked:
             return True
         lc = parse_iso(meta.last_checked)
         if not lc:
             return True
-        if self.cfg_typed is None:
-            # fallback to 24 hours if config is not loaded
-            interval_s = 24 * 3600
-        else:
-            interval_s = effective_interval_seconds(sub, self.cfg_typed.defaults)
-        return (datetime.now().astimezone() - lc).total_seconds() >= interval_s
+        return (datetime.now().astimezone() - lc).total_seconds() >= sub.interval_seconds
 
     # -------- worker: download + update metadata --------
 
@@ -638,10 +676,6 @@ class ListSubscriptions:
         meta.backoff_until = (datetime.now().astimezone() + timedelta(seconds=seconds)).isoformat()
 
     def download(self, key: str, sub: SubscriptionSpec):
-        ok, status = self._download_one(sub)
-        self._resultsQueue.put((key, ok, status))
-
-    def _download_one(self, sub: SubscriptionSpec) -> tuple[bool, str]:
         list_path, meta_path = self._paths(sub)
         os.makedirs(os.path.dirname(list_path), exist_ok=True)
 
@@ -655,32 +689,33 @@ class ListSubscriptions:
         meta.last_checked = now_iso()
         meta.last_error = ""
 
-        timeout_s = effective_timeout_seconds(sub, self.cfg_typed.defaults)
-        max_bytes = effective_max_bytes(sub, self.cfg_typed.defaults)
-
         # conditional headers
-        headers = {}
+        headers: dict[str, str] = {}
         if meta.etag:
             headers["If-None-Match"] = meta.etag
         if meta.last_modified:
             headers["If-Modified-Since"] = meta.last_modified
 
-        headers["User-Agent"] = effective_user_agent(sub, self.cfg_typed.defaults)
+        headers["User-Agent"] = self._config.defaults.user_agent or DEFAULT_UA
 
         lock = FileLock(list_path + ".lock")
         if not lock.acquire():
             meta.last_result = "busy"
             self._save_meta(meta_path, meta)
-            return True, "busy"
+            self._resultsQueue.put((key, False, "busy"))
+            return False
 
         try:
             # requests defaults except UA; timeout is used
             try:
-                r = self._session.get(sub.url, headers=headers, timeout=timeout_s, stream=True)
+                r: requests.Response = self._session.get(
+                    sub.url, headers=headers, timeout=sub.timeout_seconds, stream=True
+                )
             except Exception as e:
                 self._mark_failure(meta, repr(e))
                 self._save_meta(meta_path, meta)
-                return False, "request_error"
+                self._resultsQueue.put((key, False, "request_error"))
+                return False
 
             try:
                 if r.status_code == 304:
@@ -688,20 +723,23 @@ class ListSubscriptions:
                     meta.backoff_until = ""
                     meta.last_result = "not_modified"
                     self._save_meta(meta_path, meta)
-                    return True, "not_modified"
+                    self._resultsQueue.put((key, True, "not_modified"))
+                    return True
 
                 if r.status_code != 200:
                     self._mark_failure(meta, f"http_{r.status_code}")
                     self._save_meta(meta_path, meta)
-                    return False, f"http_{r.status_code}"
+                    self._resultsQueue.put((key, False, f"http_{r.status_code}"))
+                    return False
 
-                cl = r.headers.get("Content-Length")
+                cl: str | None = r.headers.get("Content-Length")
                 if cl:
                     try:
-                        if int(cl) > max_bytes:
+                        if int(cl) > sub.max_bytes:
                             self._mark_failure(meta, f"too_large:{cl}")
                             self._save_meta(meta_path, meta)
-                            return False, "too_large"
+                            self._resultsQueue.put((key, False, "too_large"))
+                            return False
                     except Exception:
                         pass
 
@@ -715,7 +753,7 @@ class ListSubscriptions:
                             if not chunk:
                                 continue
                             downloaded += len(chunk)
-                            if downloaded > max_bytes:
+                            if downloaded > sub.max_bytes:
                                 raise RuntimeError("too_large_streamed")
                             f.write(chunk)
 
@@ -730,14 +768,15 @@ class ListSubscriptions:
                         f.flush()
                         os.fsync(f.fileno())
 
-                    if sub.format.lower() == "hosts" and not looks_like_hosts_file(sample_lines):
+                    if sub.format.lower() == "hosts" and not is_hosts_file_like(sample_lines):
                         try:
                             os.remove(tmp)
                         except Exception:
                             pass
                         self._mark_failure(meta, "bad_format_hosts")
                         self._save_meta(meta_path, meta)
-                        return False, "bad_format"
+                        self._resultsQueue.put((key, False, "bad_format"))
+                        return False
 
                     os.replace(tmp, list_path)
 
@@ -749,7 +788,8 @@ class ListSubscriptions:
                         pass
                     self._mark_failure(meta, repr(e))
                     self._save_meta(meta_path, meta)
-                    return False, "write_error"
+                    self._resultsQueue.put((key, False, "write_error"))
+                    return False
 
                 # update cache validators
                 et = r.headers.get("ETag")
@@ -765,9 +805,15 @@ class ListSubscriptions:
                 meta.backoff_until = ""
                 meta.last_result = "updated"
                 self._save_meta(meta_path, meta)
-                return True, "updated"
+                self._resultsQueue.put((key, True, "updated"))
+                return True
             finally:
                 r.close()
+        except Exception as e:
+            self._mark_failure(meta, repr(e))
+            self._save_meta(meta_path, meta)
+            self._resultsQueue.put((key, False, "unexpected_error"))
+            return False
 
         finally:
             lock.release()
