@@ -256,6 +256,62 @@ class SubscriptionSpec:
         )
 
 
+@dataclass
+class MutableSubscriptionSpec:
+    name: str = ""
+    url: str = ""
+    filename: str = ""
+    groups: list[str] = field(default_factory=lambda: ["all"])
+    enabled: bool = True
+    format: str = "hosts"
+    interval: int = 24
+    interval_units: str = "hours"
+    timeout: int = 60
+    timeout_units: str = "seconds"
+    max_size: int = 20
+    max_size_units: str = "MB"
+
+    @staticmethod
+    def from_spec(spec: SubscriptionSpec):
+        return MutableSubscriptionSpec(
+            name=spec.name,
+            url=spec.url,
+            filename=spec.filename,
+            groups=list(spec.groups),
+            enabled=spec.enabled,
+            format=spec.format,
+            interval=spec.interval,
+            interval_units=spec.interval_units,
+            timeout=spec.timeout,
+            timeout_units=spec.timeout_units,
+            max_size=spec.max_size,
+            max_size_units=spec.max_size_units,
+        )
+
+    @staticmethod
+    def from_dict(d: dict[str, Any], defaults: GlobalDefaults):
+        spec = SubscriptionSpec.from_dict(d, defaults)
+        if spec is None:
+            return None
+        return MutableSubscriptionSpec.from_spec(spec)
+
+    def to_dict(self):
+        return {
+            "enabled": bool(self.enabled),
+            "name": (self.name or "").strip(),
+            "url": (self.url or "").strip(),
+            "filename": safe_filename(self.filename),
+            "format": (self.format or "hosts").strip().lower(),
+            "groups": normalize_groups(self.groups),
+            "interval": int(self.interval),
+            "interval_units": (self.interval_units or "hours").strip().lower(),
+            "timeout": int(self.timeout),
+            "timeout_units": (self.timeout_units or "seconds").strip().lower(),
+            "max_size": int(self.max_size),
+            "max_size_units": (self.max_size_units or "MB").strip(),
+        }
+
+
 @dataclass(frozen=True)
 class PluginConfig:
     defaults: GlobalDefaults = field(default_factory=lambda: GlobalDefaults.from_dict({}))
@@ -290,6 +346,99 @@ class PluginConfig:
                 subs.append(sub)
 
         return PluginConfig(defaults=defaults, subscriptions=subs)
+
+
+@dataclass
+class MutableActionConfig:
+    enabled: bool = False
+    defaults: GlobalDefaults = field(default_factory=lambda: GlobalDefaults.from_dict({}))
+    subscriptions: list[MutableSubscriptionSpec] = field(default_factory=list)
+    action_name: str = "listSubscriptionsActions"
+    created: str = ""
+    updated: str = ""
+    description: str = "Manage and auto-update blocklist subscriptions (hosts format)"
+    types: list[str] = field(default_factory=lambda: ["global", "main-dialog"])
+
+    @staticmethod
+    def from_action_dict(raw_action: dict[str, Any], lists_dir: str | None = None):
+        action_name = str(raw_action.get("name", "listSubscriptionsActions"))
+        created = str(raw_action.get("created", ""))
+        updated = str(raw_action.get("updated", ""))
+        description = str(raw_action.get("description", "Manage and auto-update blocklist subscriptions (hosts format)"))
+        action_types_raw = raw_action.get("type", ["global", "main-dialog"])
+        if isinstance(action_types_raw, list):
+            action_types = [str(t) for t in action_types_raw]
+        else:
+            action_types = ["global", "main-dialog"]
+
+        actions_obj = raw_action.get("actions", {})
+        action_cfg = actions_obj.get("list_subscriptions", {}) if isinstance(actions_obj, dict) else {}
+        plugin_cfg_raw = action_cfg.get("config", {}) if isinstance(action_cfg, dict) else {}
+        plugin_cfg = plugin_cfg_raw if isinstance(plugin_cfg_raw, dict) else {}
+        compiled_cfg = PluginConfig.from_dict(plugin_cfg, lists_dir=plugin_cfg.get("lists_dir") or lists_dir)
+        enabled = bool(action_cfg.get("enabled", False)) if isinstance(action_cfg, dict) else False
+
+        return MutableActionConfig(
+            enabled=enabled,
+            defaults=compiled_cfg.defaults,
+            subscriptions=[MutableSubscriptionSpec.from_spec(s) for s in compiled_cfg.subscriptions],
+            action_name=action_name,
+            created=created,
+            updated=updated,
+            description=description,
+            types=action_types,
+        )
+
+    @staticmethod
+    def default(lists_dir: str | None = None):
+        defaults = GlobalDefaults.from_dict(
+            {
+                "interval": 24,
+                "interval_units": "hours",
+                "timeout": 20,
+                "timeout_units": "seconds",
+                "max_size": 50,
+                "max_size_units": "MB",
+            },
+            lists_dir=lists_dir,
+        )
+        return MutableActionConfig(
+            enabled=True,
+            defaults=defaults,
+            subscriptions=[],
+        )
+
+    def to_plugin_dict(self):
+        return {
+            "lists_dir": normalize_lists_dir(self.defaults.lists_dir),
+            "interval": int(self.defaults.interval),
+            "interval_units": self.defaults.interval_units,
+            "timeout": int(self.defaults.timeout),
+            "timeout_units": self.defaults.timeout_units,
+            "max_size": int(self.defaults.max_size),
+            "max_size_units": self.defaults.max_size_units,
+            "user_agent": self.defaults.user_agent if self.defaults.user_agent is not None else DEFAULT_UA,
+            "subscriptions": [sub.to_dict() for sub in self.subscriptions],
+            "notify": {
+                "success": {"desktop": "Lists subscriptions updated"},
+                "error": {"desktop": "Error updating lists subscriptions"},
+            },
+        }
+
+    def to_action_dict(self):
+        return {
+            "name": self.action_name,
+            "created": self.created,
+            "updated": self.updated,
+            "description": self.description,
+            "type": list(self.types),
+            "actions": {
+                "list_subscriptions": {
+                    "enabled": bool(self.enabled),
+                    "config": self.to_plugin_dict(),
+                }
+            },
+        }
 
 
 @dataclass

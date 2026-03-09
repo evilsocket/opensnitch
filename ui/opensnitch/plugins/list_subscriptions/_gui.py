@@ -6,7 +6,7 @@ import sys
 import threading
 from urllib.parse import urlparse, unquote
 from datetime import datetime
-from typing import Any, TYPE_CHECKING
+from typing import cast, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     # Keep static typing deterministic for linters/IDEs.
@@ -33,6 +33,8 @@ from opensnitch.nodes import Nodes
 from opensnitch.utils.xdg import xdg_config_home
 from opensnitch.plugins.list_subscriptions._models import (
     GlobalDefaults,
+    MutableActionConfig,
+    MutableSubscriptionSpec,
     PluginConfig,
     SubscriptionSpec,
     ensure_filename_type_suffix,
@@ -40,7 +42,9 @@ from opensnitch.plugins.list_subscriptions._models import (
     normalize_groups,
     normalize_lists_dir,
 )
+from opensnitch.dialogs.ruleseditor import RulesEditorDialog
 import requests
+from .list_subscriptions import ListSubscriptions
 
 
 ACTION_FILE = os.path.join(xdg_config_home, "opensnitch", "actions", "list_subscriptions.json")
@@ -81,35 +85,6 @@ COL_ERROR = 18
 logger = logging.getLogger(__name__)
 
 
-def _template_action() -> dict[str, Any]:
-    return {
-        "name": "listSubscriptionsActions",
-        "created": "",
-        "updated": "",
-        "description": "Manage and auto-update blocklist subscriptions (hosts format)",
-        "type": ["global", "main-dialog"],
-        "actions": {
-            "list_subscriptions": {
-                "enabled": True,
-                "config": {
-                    "lists_dir": DEFAULT_LISTS_DIR,
-                    "interval": 24,
-                    "interval_units": "hours",
-                    "timeout": 20,
-                    "timeout_units": "seconds",
-                    "max_size": 50,
-                    "max_size_units": "MB",
-                    "subscriptions": [],
-                    "notify": {
-                        "success": {"desktop": "Lists subscriptions updated"},
-                        "error": {"desktop": "Error updating lists subscriptions"},
-                    },
-                },
-            }
-        },
-    }
-
-
 class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
     if TYPE_CHECKING:
         enabled_check: QtWidgets.QCheckBox
@@ -137,68 +112,82 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         error_label: QtWidgets.QLabel
         cancel_button: QtWidgets.QPushButton
         add_button: QtWidgets.QPushButton
+        _title: str
+        _defaults: GlobalDefaults
+        _groups: list[str]
+        _sub: MutableSubscriptionSpec
+        _meta: dict[str, str]
 
     def __init__(
         self,
         parent: QtWidgets.QWidget | None,
         defaults: GlobalDefaults,
         groups: list[str] | None = None,
-        sub: dict[str, Any] | None = None,
+        sub: MutableSubscriptionSpec | None = None,
         meta: dict[str, str] | None = None,
         title: str = "Subscription",
-    ) -> None:
+    ):
         super().__init__(parent)
         self.setWindowTitle(QC.translate("stats", title))
         self._title = title
         self._defaults = defaults
         self._groups = groups or ["all"]
-        self._sub = sub or {}
+        self._sub = sub or MutableSubscriptionSpec(
+            enabled=True,
+            groups=["all"],
+            interval=self._defaults.interval,
+            interval_units=self._defaults.interval_units,
+            timeout=self._defaults.timeout,
+            timeout_units=self._defaults.timeout_units,
+            max_size=self._defaults.max_size,
+            max_size_units=self._defaults.max_size_units,
+        )
         self._meta = meta or {}
         self._build_ui()
 
-    def _build_ui(self) -> None:
+    def _build_ui(self):
         self.setupUi(self)
         self.error_label.setStyleSheet("color: red;")
         self.group_combo.setEditable(True)
         self.add_button.clicked.connect(self._validate_then_accept)
         self.cancel_button.clicked.connect(self.reject)
 
-        self.enabled_check.setChecked(bool(self._sub.get("enabled", True)))
-        self.name_edit.setText(str(self._sub.get("name", "")))
-        self.url_edit.setText(str(self._sub.get("url", "")))
-        self.filename_edit.setText(str(self._sub.get("filename", "")))
+        self.enabled_check.setChecked(bool(self._sub.enabled))
+        self.name_edit.setText(str(self._sub.name))
+        self.url_edit.setText(str(self._sub.url))
+        self.filename_edit.setText(str(self._sub.filename))
         self.format_combo.clear()
         self.format_combo.addItems(("hosts",))
-        self.format_combo.setCurrentText(str(self._sub.get("format", "hosts")))
+        self.format_combo.setCurrentText(str(self._sub.format or "hosts"))
         for g in self._groups:
             ng = normalize_group(g)
             if ng != "":
                 self.group_combo.addItem(ng)
-        current_groups = normalize_groups(self._sub.get("groups"))
+        current_groups = normalize_groups(self._sub.groups)
         current_group_text = ", ".join(current_groups)
         if self.group_combo.findText(current_group_text) < 0:
             self.group_combo.addItem(current_group_text)
         self.group_combo.setCurrentText(current_group_text)
         self.interval_spin.setRange(1, 999999)
-        self.interval_spin.setValue(max(1, int(self._sub.get("interval", self._defaults.interval))))
+        self.interval_spin.setValue(max(1, int(self._sub.interval)))
         self.interval_units.clear()
         self.interval_units.addItems(INTERVAL_UNITS)
         self.interval_units.setCurrentText(
-            self._normalize_unit(str(self._sub.get("interval_units", self._defaults.interval_units)), INTERVAL_UNITS, "hours")
+            self._normalize_unit(str(self._sub.interval_units), INTERVAL_UNITS, "hours")
         )
         self.timeout_spin.setRange(1, 999999)
-        self.timeout_spin.setValue(max(1, int(self._sub.get("timeout", self._defaults.timeout))))
+        self.timeout_spin.setValue(max(1, int(self._sub.timeout)))
         self.timeout_units.clear()
         self.timeout_units.addItems(TIMEOUT_UNITS)
         self.timeout_units.setCurrentText(
-            self._normalize_unit(str(self._sub.get("timeout_units", self._defaults.timeout_units)), TIMEOUT_UNITS, "seconds")
+            self._normalize_unit(str(self._sub.timeout_units), TIMEOUT_UNITS, "seconds")
         )
         self.max_size_spin.setRange(1, 999999)
-        self.max_size_spin.setValue(max(1, int(self._sub.get("max_size", self._defaults.max_size))))
+        self.max_size_spin.setValue(max(1, int(self._sub.max_size)))
         self.max_size_units.clear()
         self.max_size_units.addItems(SIZE_UNITS)
         self.max_size_units.setCurrentText(
-            self._normalize_unit(str(self._sub.get("max_size_units", self._defaults.max_size_units)), SIZE_UNITS, "MB")
+            self._normalize_unit(str(self._sub.max_size_units), SIZE_UNITS, "MB")
         )
         self.meta_file_present.setText(str(self._meta.get("file_present", "")))
         self.meta_meta_present.setText(str(self._meta.get("meta_present", "")))
@@ -213,14 +202,14 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
             self.meta_group.setVisible(False)
         self.resize(920, 420)
 
-    def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str) -> str:
+    def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str):
         normalized = (value or "").strip().lower()
         for unit in allowed:
             if unit.lower() == normalized:
                 return unit
         return fallback
 
-    def _validate_then_accept(self) -> None:
+    def _validate_then_accept(self):
         url = (self.url_edit.text() or "").strip()
         if url == "":
             self.error_label.setText(QC.translate("stats", "URL is required."))
@@ -250,7 +239,7 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         self.error_label.setText("")
         self.accept()
 
-    def _slugify_name(self, name: str) -> str:
+    def _slugify_name(self, name: str):
         raw = (name or "").strip().lower()
         if raw == "":
             return "subscription.list"
@@ -261,7 +250,7 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
             slug += ".list"
         return slug
 
-    def _deslugify_filename(self, filename: str, list_type: str) -> str:
+    def _deslugify_filename(self, filename: str, list_type: str):
         safe = os.path.basename((filename or "").strip())
         base, _ext = os.path.splitext(safe)
         suffix = f"-{(list_type or 'hosts').strip().lower()}"
@@ -273,22 +262,22 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
             return safe
         return pretty.title()
 
-    def subscription_dict(self) -> dict[str, Any]:
+    def subscription_spec(self):
         groups = normalize_groups((self.group_combo.currentText() or "all").strip())
-        return {
-            "enabled": self.enabled_check.isChecked(),
-            "name": (self.name_edit.text() or "").strip(),
-            "url": (self.url_edit.text() or "").strip(),
-            "filename": (self.filename_edit.text() or "").strip(),
-            "format": (self.format_combo.currentText() or "hosts").strip().lower(),
-            "groups": groups,
-            "interval": int(self.interval_spin.value()),
-            "interval_units": self.interval_units.currentText(),
-            "timeout": int(self.timeout_spin.value()),
-            "timeout_units": self.timeout_units.currentText(),
-            "max_size": int(self.max_size_spin.value()),
-            "max_size_units": self.max_size_units.currentText(),
-        }
+        return MutableSubscriptionSpec(
+            enabled=self.enabled_check.isChecked(),
+            name=(self.name_edit.text() or "").strip(),
+            url=(self.url_edit.text() or "").strip(),
+            filename=(self.filename_edit.text() or "").strip(),
+            format=(self.format_combo.currentText() or "hosts").strip().lower(),
+            groups=groups,
+            interval=int(self.interval_spin.value()),
+            interval_units=self.interval_units.currentText(),
+            timeout=int(self.timeout_spin.value()),
+            timeout_units=self.timeout_units.currentText(),
+            max_size=int(self.max_size_spin.value()),
+            max_size_units=self.max_size_units.currentText(),
+        )
 
 
 class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
@@ -311,20 +300,22 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
         error_label: QtWidgets.QLabel
         cancel_button: QtWidgets.QPushButton
         save_button: QtWidgets.QPushButton
+        _defaults: GlobalDefaults
+        _groups: list[str]
 
     def __init__(
         self,
         parent: QtWidgets.QWidget | None,
         defaults: GlobalDefaults,
         groups: list[str] | None = None,
-    ) -> None:
+    ):
         super().__init__(parent)
         self.setWindowTitle(QC.translate("stats", "Edit selected subscriptions"))
         self._defaults = defaults
         self._groups = groups or ["all"]
         self._build_ui()
 
-    def _build_ui(self) -> None:
+    def _build_ui(self):
         self.setupUi(self)
         self.error_label.setStyleSheet("color: red;")
         self.group_value.setEditable(True)
@@ -359,14 +350,14 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
         self.max_size_units.setCurrentText(self._normalize_unit(self._defaults.max_size_units, SIZE_UNITS, "MB"))
         self.resize(640, 360)
 
-    def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str) -> str:
+    def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str):
         normalized = (value or "").strip().lower()
         for unit in allowed:
             if unit.lower() == normalized:
                 return unit
         return fallback
 
-    def _validate_then_accept(self) -> None:
+    def _validate_then_accept(self):
         if not any(
             (
                 self.apply_enabled.isChecked(),
@@ -382,7 +373,7 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
         self.error_label.setText("")
         self.accept()
 
-    def values(self) -> dict[str, Any]:
+    def values(self):
         return {
             "enabled": self.enabled_value.isChecked() if self.apply_enabled.isChecked() else None,
             "groups": normalize_groups(self.group_value.currentText()) if self.apply_group.isChecked() else None,
@@ -420,6 +411,12 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         refresh_now_button: QtWidgets.QPushButton
         create_rule_button: QtWidgets.QPushButton
         status_label: QtWidgets.QLabel
+        _nodes: Nodes
+        _actions: Actions
+        _action_path: str
+        _loading: bool
+        _global_defaults: GlobalDefaults
+        _state_poll_timer: QtCore.QTimer
 
     _download_finished = QtCore.pyqtSignal()
 
@@ -427,7 +424,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self,
         parent: QtWidgets.QWidget | None = None,
         appicon: QtGui.QIcon | None = None,
-    ) -> None:
+    ):
         dlg_parent = parent if isinstance(parent, QtWidgets.QWidget) else None
         super().__init__(dlg_parent)
         self.setWindowTitle(QC.translate("stats", "List subscriptions"))
@@ -439,30 +436,30 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._action_path = ACTION_FILE
         self._loading = False
         self._global_defaults: GlobalDefaults = GlobalDefaults.from_dict({}, lists_dir=DEFAULT_LISTS_DIR)
-        self._rules_dialog: Any = None
+        self._rules_dialog: RulesEditorDialog | None = None
         self._state_poll_timer = QtCore.QTimer(self)
         self._state_poll_timer.setInterval(2000)
         self._state_poll_timer.timeout.connect(self._refresh_states_if_visible)
         self._download_finished.connect(self.refresh_states)
         self._build_ui()
 
-    def showEvent(self, event: QtGui.QShowEvent) -> None:  # type: ignore
+    def showEvent(self, event: QtGui.QShowEvent):  # type: ignore
         super().showEvent(event)
         self.load_action_file()
         if not self._state_poll_timer.isActive():
             self._state_poll_timer.start()
 
-    def hideEvent(self, event: QtGui.QHideEvent) -> None:  # type: ignore
+    def hideEvent(self, event: QtGui.QHideEvent):  # type: ignore
         if self._state_poll_timer.isActive():
             self._state_poll_timer.stop()
         super().hideEvent(event)
 
-    def closeEvent(self, event: QtGui.QCloseEvent) -> None:  # type: ignore
+    def closeEvent(self, event: QtGui.QCloseEvent):  # type: ignore
         if self._state_poll_timer.isActive():
             self._state_poll_timer.stop()
         super().closeEvent(event)
 
-    def _build_ui(self) -> None:
+    def _build_ui(self):
         self.setupUi(self)
         self.setWindowTitle(QC.translate("stats", "List subscriptions"))
         self.resize(1180, 680)
@@ -541,7 +538,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             sel_model.selectionChanged.connect(lambda *_: self._update_selected_actions_state())
         self._update_selected_actions_state()
 
-    def load_action_file(self) -> None:
+    def load_action_file(self):
         self._loading = True
         self._set_status("")
         self._reload_nodes()
@@ -565,16 +562,27 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             self._loading = False
             return
 
-        action_cfg = data.get("actions", {}).get("list_subscriptions", {})
-        plugin_cfg = action_cfg.get("config", {})
-        subscriptions = plugin_cfg.get("subscriptions", [])
-        self._global_defaults = GlobalDefaults.from_dict(plugin_cfg, lists_dir=plugin_cfg.get("lists_dir"))
-
-        self.enable_plugin_check.setChecked(bool(action_cfg.get("enabled", False)))
+        action_model = MutableActionConfig.from_action_dict(data, lists_dir=DEFAULT_LISTS_DIR)
+        self._global_defaults = action_model.defaults
+        self.enable_plugin_check.setChecked(action_model.enabled)
         self.lists_dir_edit.setText(normalize_lists_dir(self._global_defaults.lists_dir))
         self._apply_defaults_to_widgets()
 
-        normalized_subs, fixed_count, migrated_legacy_group = self._normalize_loaded_subscriptions(subscriptions)
+        normalized_subs = action_model.subscriptions
+        actions_obj = data.get("actions", {})
+        action_cfg = actions_obj.get("list_subscriptions", {}) if isinstance(actions_obj, dict) else {}
+        plugin_cfg_raw = action_cfg.get("config", {}) if isinstance(action_cfg, dict) else {}
+        plugin_cfg = plugin_cfg_raw if isinstance(plugin_cfg_raw, dict) else {}
+        raw_subs = plugin_cfg.get("subscriptions")
+        migrated_legacy_group = False
+        if isinstance(raw_subs, list):
+            for item in raw_subs:
+                if isinstance(item, dict) and ("group" in item) and ("groups" not in item):
+                    migrated_legacy_group = True
+                    break
+        normalized_subs_dicts = [s.to_dict() for s in normalized_subs]
+        fixed_count = 1 if (isinstance(raw_subs, list) and raw_subs != normalized_subs_dicts) else 0
+
         for sub in normalized_subs:
             self._append_row(sub)
 
@@ -591,24 +599,25 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             return
         if fixed_count > 0:
             self._set_status(
-                QC.translate("stats", "Loaded configuration with {0} auto-corrected subscription field(s).").format(fixed_count),
+                QC.translate("stats", "Loaded configuration with normalized subscription fields."),
                 error=False,
             )
         else:
             self._set_status(QC.translate("stats", "List subscriptions configuration loaded."), error=False)
 
-    def create_action_file(self) -> None:
+    def create_action_file(self):
         try:
             os.makedirs(os.path.dirname(self._action_path), mode=0o700, exist_ok=True)
             if not os.path.exists(self._action_path):
+                action_model = MutableActionConfig.default(DEFAULT_LISTS_DIR)
                 with open(self._action_path, "w", encoding="utf-8") as f:
-                    json.dump(_template_action(), f, indent=2)
+                    json.dump(action_model.to_action_dict(), f, indent=2)
             self.load_action_file()
             self._set_status(QC.translate("stats", "Action file created."), error=False)
         except Exception as e:
             self._set_status(QC.translate("stats", "Error creating action file: {0}").format(str(e)), error=True)
 
-    def save_action_file(self) -> None:
+    def save_action_file(self):
         if self._loading:
             return
 
@@ -621,26 +630,29 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         if subscriptions is None:
             return
 
-        action = _template_action()
-        action["actions"]["list_subscriptions"]["enabled"] = self.enable_plugin_check.isChecked()
         lists_dir = normalize_lists_dir(self.lists_dir_edit.text().strip() or DEFAULT_LISTS_DIR)
         try:
             os.makedirs(lists_dir, mode=0o700, exist_ok=True)
         except Exception:
             pass
-        action["actions"]["list_subscriptions"]["config"]["lists_dir"] = lists_dir
-        action["actions"]["list_subscriptions"]["config"]["interval"] = int(self.default_interval_spin.value())
-        action["actions"]["list_subscriptions"]["config"]["interval_units"] = self.default_interval_units.currentText()
-        action["actions"]["list_subscriptions"]["config"]["timeout"] = int(self.default_timeout_spin.value())
-        action["actions"]["list_subscriptions"]["config"]["timeout_units"] = self.default_timeout_units.currentText()
-        action["actions"]["list_subscriptions"]["config"]["max_size"] = int(self.default_max_size_spin.value())
-        action["actions"]["list_subscriptions"]["config"]["max_size_units"] = self.default_max_size_units.currentText()
-        action["actions"]["list_subscriptions"]["config"]["user_agent"] = self.default_user_agent.text().strip()
-        action["actions"]["list_subscriptions"]["config"]["subscriptions"] = subscriptions
+        defaults = GlobalDefaults(
+            lists_dir=lists_dir,
+            interval=max(1, int(self.default_interval_spin.value())),
+            interval_units=self.default_interval_units.currentText(),
+            timeout=max(1, int(self.default_timeout_spin.value())),
+            timeout_units=self.default_timeout_units.currentText(),
+            max_size=max(1, int(self.default_max_size_spin.value())),
+            max_size_units=self.default_max_size_units.currentText(),
+            user_agent=(self.default_user_agent.text() or "").strip(),
+        )
+        action_model = MutableActionConfig.default(lists_dir)
+        action_model.enabled = self.enable_plugin_check.isChecked()
+        action_model.defaults = defaults
+        action_model.subscriptions = subscriptions
+        action = action_model.to_action_dict()
         action["updated"] = datetime.now().astimezone().isoformat()
 
-        cfg = action["actions"]["list_subscriptions"]["config"]
-        compiled_cfg = PluginConfig.from_dict(cfg, lists_dir=cfg.get("lists_dir"))
+        compiled_cfg = PluginConfig.from_dict(action_model.to_plugin_dict(), lists_dir=lists_dir)
         if len(compiled_cfg.subscriptions) != len(subscriptions):
             self._set_status(QC.translate("stats", "Invalid subscriptions: URL and filename are mandatory."), error=True)
             return
@@ -656,11 +668,11 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             self._set_status(QC.translate("stats", "Error saving action file: {0}").format(str(e)), error=True)
             return
 
-        self._apply_runtime_state(action["actions"]["list_subscriptions"]["enabled"])
+        self._apply_runtime_state(action_model.enabled)
         self.refresh_states()
         self._set_status(QC.translate("stats", "List subscriptions configuration saved."), error=False)
 
-    def refresh_states(self) -> None:
+    def refresh_states(self):
         lists_dir = normalize_lists_dir(self.lists_dir_edit.text().strip() or DEFAULT_LISTS_DIR)
         for row in range(self.table.rowCount()):
             filename_item = self.table.item(row, COL_FILENAME)
@@ -728,31 +740,31 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 if item is not None:
                     item.setBackground(color)
 
-    def add_subscription_row(self) -> None:
+    def add_subscription_row(self):
         dlg = SubscriptionDialog(
             self,
             self._global_defaults,
             groups=self._known_groups(),
-            sub={
-                "enabled": True,
-                "name": "",
-                "url": "",
-                "filename": "",
-                "format": "hosts",
-                "groups": ["all"],
-                "interval": self._global_defaults.interval,
-                "interval_units": self._global_defaults.interval_units,
-                "timeout": self._global_defaults.timeout,
-                "timeout_units": self._global_defaults.timeout_units,
-                "max_size": self._global_defaults.max_size,
-                "max_size_units": self._global_defaults.max_size_units,
-            },
+            sub=MutableSubscriptionSpec(
+                enabled=True,
+                name="",
+                url="",
+                filename="",
+                format="hosts",
+                groups=["all"],
+                interval=self._global_defaults.interval,
+                interval_units=self._global_defaults.interval_units,
+                timeout=self._global_defaults.timeout,
+                timeout_units=self._global_defaults.timeout_units,
+                max_size=self._global_defaults.max_size,
+                max_size_units=self._global_defaults.max_size_units,
+            ),
             title="New subscription",
         )
         if dlg.exec() != QtWidgets.QDialog.DialogCode.Accepted:
             return
 
-        sub = dlg.subscription_dict()
+        sub = dlg.subscription_spec()
         self._append_row(sub)
         row = self.table.rowCount() - 1
         _, changed = self._ensure_row_final_filename(row)
@@ -764,7 +776,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self.save_action_file()
         self._update_selected_actions_state()
 
-    def edit_selected_subscription(self) -> None:
+    def edit_selected_subscription(self):
         row = self.table.currentRow()
         if row < 0:
             self._set_status(QC.translate("stats", "Select a subscription row first."), error=True)
@@ -776,20 +788,23 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             enabled_item.setFlags(enabled_item.flags() | QtCore.Qt.ItemFlag.ItemIsUserCheckable)
             self.table.setItem(row, COL_ENABLED, enabled_item)
 
-        sub = {
-            "enabled": enabled_item.checkState() == QtCore.Qt.CheckState.Checked,
-            "name": self._cell_text(row, COL_NAME),
-            "url": self._cell_text(row, COL_URL),
-            "filename": self._cell_text(row, COL_FILENAME),
-            "format": self._cell_text(row, COL_FORMAT) or "hosts",
-            "groups": normalize_groups(self._cell_text(row, COL_GROUP) or "all"),
-            "interval": self._to_int_or_keep(self._cell_text(row, COL_INTERVAL)),
-            "interval_units": self._cell_text(row, COL_INTERVAL_UNITS) or self._global_defaults.interval_units,
-            "timeout": self._to_int_or_keep(self._cell_text(row, COL_TIMEOUT)),
-            "timeout_units": self._cell_text(row, COL_TIMEOUT_UNITS) or self._global_defaults.timeout_units,
-            "max_size": self._to_int_or_keep(self._cell_text(row, COL_MAX_SIZE)),
-            "max_size_units": self._cell_text(row, COL_MAX_SIZE_UNITS) or self._global_defaults.max_size_units,
-        }
+        interval_val = self._to_int_or_keep(self._cell_text(row, COL_INTERVAL))
+        timeout_val = self._to_int_or_keep(self._cell_text(row, COL_TIMEOUT))
+        max_size_val = self._to_int_or_keep(self._cell_text(row, COL_MAX_SIZE))
+        sub = MutableSubscriptionSpec(
+            enabled=enabled_item.checkState() == QtCore.Qt.CheckState.Checked,
+            name=self._cell_text(row, COL_NAME),
+            url=self._cell_text(row, COL_URL),
+            filename=self._cell_text(row, COL_FILENAME),
+            format=self._cell_text(row, COL_FORMAT) or "hosts",
+            groups=normalize_groups(self._cell_text(row, COL_GROUP) or "all"),
+            interval=interval_val if isinstance(interval_val, int) else self._global_defaults.interval,
+            interval_units=self._cell_text(row, COL_INTERVAL_UNITS) or self._global_defaults.interval_units,
+            timeout=timeout_val if isinstance(timeout_val, int) else self._global_defaults.timeout,
+            timeout_units=self._cell_text(row, COL_TIMEOUT_UNITS) or self._global_defaults.timeout_units,
+            max_size=max_size_val if isinstance(max_size_val, int) else self._global_defaults.max_size,
+            max_size_units=self._cell_text(row, COL_MAX_SIZE_UNITS) or self._global_defaults.max_size_units,
+        )
         meta = self._row_meta_snapshot(row)
         dlg = SubscriptionDialog(
             self,
@@ -801,7 +816,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         )
         if dlg.exec() != QtWidgets.QDialog.DialogCode.Accepted:
             return
-        updated = dlg.subscription_dict()
+        updated = dlg.subscription_spec()
 
         enabled_item = self.table.item(row, COL_ENABLED)
         if enabled_item is None:
@@ -809,21 +824,21 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             enabled_item.setFlags(enabled_item.flags() | QtCore.Qt.ItemFlag.ItemIsUserCheckable)
             self.table.setItem(row, COL_ENABLED, enabled_item)
         enabled_item.setCheckState(
-            QtCore.Qt.CheckState.Checked if bool(updated.get("enabled", True)) else QtCore.Qt.CheckState.Unchecked
+            QtCore.Qt.CheckState.Checked if bool(updated.enabled) else QtCore.Qt.CheckState.Unchecked
         )
-        self._set_text_item(row, COL_NAME, str(updated.get("name", "")))
-        self._set_text_item(row, COL_URL, str(updated.get("url", "")))
-        self._set_text_item(row, COL_FILENAME, self._safe_filename(updated.get("filename", "")))
-        self._set_text_item(row, COL_FORMAT, str(updated.get("format", "hosts")))
-        self._set_text_item(row, COL_GROUP, ", ".join(normalize_groups(updated.get("groups"))))
-        self._set_text_item(row, COL_INTERVAL, self._to_str(updated.get("interval", self._global_defaults.interval)))
-        interval_units_val = self._to_str(updated.get("interval_units", self._global_defaults.interval_units))
+        self._set_text_item(row, COL_NAME, updated.name)
+        self._set_text_item(row, COL_URL, updated.url)
+        self._set_text_item(row, COL_FILENAME, self._safe_filename(updated.filename))
+        self._set_text_item(row, COL_FORMAT, updated.format)
+        self._set_text_item(row, COL_GROUP, ", ".join(normalize_groups(updated.groups)))
+        self._set_text_item(row, COL_INTERVAL, self._to_str(updated.interval))
+        interval_units_val = self._to_str(updated.interval_units)
         self._set_text_item(row, COL_INTERVAL_UNITS, interval_units_val)
-        self._set_text_item(row, COL_TIMEOUT, self._to_str(updated.get("timeout", self._global_defaults.timeout)))
-        timeout_units_val = self._to_str(updated.get("timeout_units", self._global_defaults.timeout_units))
+        self._set_text_item(row, COL_TIMEOUT, self._to_str(updated.timeout))
+        timeout_units_val = self._to_str(updated.timeout_units)
         self._set_text_item(row, COL_TIMEOUT_UNITS, timeout_units_val)
-        self._set_text_item(row, COL_MAX_SIZE, self._to_str(updated.get("max_size", self._global_defaults.max_size)))
-        max_size_units_val = self._to_str(updated.get("max_size_units", self._global_defaults.max_size_units))
+        self._set_text_item(row, COL_MAX_SIZE, self._to_str(updated.max_size))
+        max_size_units_val = self._to_str(updated.max_size_units)
         self._set_text_item(row, COL_MAX_SIZE_UNITS, max_size_units_val)
         self._set_units_combo(row, COL_INTERVAL_UNITS, INTERVAL_UNITS, interval_units_val)
         self._set_units_combo(row, COL_TIMEOUT_UNITS, TIMEOUT_UNITS, timeout_units_val)
@@ -837,7 +852,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         else:
             self._set_status(QC.translate("stats", "Subscription updated."), error=False)
 
-    def edit_action_clicked(self) -> None:
+    def edit_action_clicked(self):
         rows = self._selected_rows()
         if len(rows) == 0:
             self._set_status(QC.translate("stats", "Select one or more subscriptions first."), error=True)
@@ -847,7 +862,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             return
         self._bulk_edit(rows)
 
-    def remove_selected_subscription(self) -> None:
+    def remove_selected_subscription(self):
         rows = self._selected_rows()
         if not rows:
             row = self.table.currentRow()
@@ -863,13 +878,13 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._update_selected_actions_state()
         self._set_status(QC.translate("stats", "Selected subscriptions removed."), error=False)
 
-    def _selected_rows(self) -> list[int]:
+    def _selected_rows(self):
         idx = self.table.selectionModel()
         if idx is None:
             return []
         return sorted({i.row() for i in idx.selectedRows()})
 
-    def _update_selected_actions_state(self) -> None:
+    def _update_selected_actions_state(self):
         count = len(self._selected_rows())
         has_selection = count > 0
         single = count == 1
@@ -878,7 +893,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self.refresh_now_button.setEnabled(single)
         self.create_rule_button.setEnabled(has_selection)
 
-    def _open_table_context_menu(self, pos: QtCore.QPoint) -> None:
+    def _open_table_context_menu(self, pos: QtCore.QPoint):
         rows = self._selected_rows()
         if not rows:
             row = self.table.rowAt(pos.y())
@@ -919,7 +934,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         elif chosen is act_rule:
             self.create_rule_from_selected()
 
-    def _bulk_edit(self, rows: list[int]) -> None:
+    def _bulk_edit(self, rows: list[int]):
         if not rows:
             return
         dlg = BulkEditDialog(self, self._global_defaults, groups=self._known_groups())
@@ -963,7 +978,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             error=False,
         )
 
-    def _known_groups(self) -> list[str]:
+    def _known_groups(self):
         groups: set[str] = {"all"}
         for row in range(self.table.rowCount()):
             for g in normalize_groups(self._cell_text(row, COL_GROUP) or "all"):
@@ -971,7 +986,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                     groups.add(g)
         return sorted(groups)
 
-    def refresh_selected_now(self) -> None:
+    def refresh_selected_now(self):
         row = self.table.currentRow()
         if row < 0:
             self._set_status(QC.translate("stats", "Select a subscription row first."), error=True)
@@ -991,7 +1006,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             self._set_status(QC.translate("stats", "Plugin is not loaded. Save configuration first."), error=True)
             return
 
-        target_sub = None
+        target_sub: SubscriptionSpec | None = None
         try:
             for sub in plug._config.subscriptions:
                 if sub.url == url and sub.filename == filename:
@@ -1002,21 +1017,25 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
 
         if target_sub is None:
             try:
+                interval_val = self._to_int_or_keep(self._cell_text(row, COL_INTERVAL))
+                timeout_val = self._to_int_or_keep(self._cell_text(row, COL_TIMEOUT))
+                max_size_val = self._to_int_or_keep(self._cell_text(row, COL_MAX_SIZE))
+                row_sub_edit = MutableSubscriptionSpec(
+                    enabled=True,
+                    name=self._cell_text(row, COL_NAME),
+                    url=url,
+                    filename=filename,
+                    format=self._cell_text(row, COL_FORMAT) or "hosts",
+                    groups=normalize_groups(self._cell_text(row, COL_GROUP) or "all"),
+                    interval=interval_val if isinstance(interval_val, int) else self._global_defaults.interval,
+                    interval_units=self._cell_text(row, COL_INTERVAL_UNITS),
+                    timeout=timeout_val if isinstance(timeout_val, int) else self._global_defaults.timeout,
+                    timeout_units=self._cell_text(row, COL_TIMEOUT_UNITS),
+                    max_size=max_size_val if isinstance(max_size_val, int) else self._global_defaults.max_size,
+                    max_size_units=self._cell_text(row, COL_MAX_SIZE_UNITS),
+                )
                 row_sub = SubscriptionSpec.from_dict(
-                    {
-                        "enabled": True,
-                        "name": self._cell_text(row, COL_NAME),
-                        "url": url,
-                        "filename": filename,
-                        "format": self._cell_text(row, COL_FORMAT) or "hosts",
-                        "groups": normalize_groups(self._cell_text(row, COL_GROUP) or "all"),
-                        "interval": self._to_int_or_keep(self._cell_text(row, COL_INTERVAL)),
-                        "interval_units": self._cell_text(row, COL_INTERVAL_UNITS),
-                        "timeout": self._to_int_or_keep(self._cell_text(row, COL_TIMEOUT)),
-                        "timeout_units": self._cell_text(row, COL_TIMEOUT_UNITS),
-                        "max_size": self._to_int_or_keep(self._cell_text(row, COL_MAX_SIZE)),
-                        "max_size_units": self._cell_text(row, COL_MAX_SIZE_UNITS),
-                    },
+                    row_sub_edit.to_dict(),
                     plug._config.defaults,
                 )
             except Exception:
@@ -1032,7 +1051,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         key = plug._sub_key(target_sub)
         list_path, _ = plug._paths(target_sub)
 
-        def _run_refresh() -> None:
+        def _run_refresh():
             try:
                 logger.warning(
                     "list_subscriptions.gui: manual refresh start key=%s name='%s' url='%s' file='%s'",
@@ -1054,15 +1073,15 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             error=False,
         )
 
-    def refresh_all_now(self) -> None:
+    def refresh_all_now(self):
         _, _, plug = self._find_loaded_action()
         if plug is None:
             self._set_status(QC.translate("stats", "Plugin is not loaded. Save configuration first."), error=True)
             return
 
-        def _run_all_refresh() -> None:
+        def _run_all_refresh():
             try:
-                subs = []
+                subs: list[SubscriptionSpec] = []
                 try:
                     subs = list(getattr(plug._config, "subscriptions", []))
                 except Exception:
@@ -1085,7 +1104,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         th.start()
         self._set_status(QC.translate("stats", "Bulk refresh triggered for all enabled subscriptions."), error=False)
 
-    def create_rule_from_selected(self) -> None:
+    def create_rule_from_selected(self):
         rows = self._selected_rows()
         if not rows:
             row = self.table.currentRow()
@@ -1129,23 +1148,15 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 return
             desc = f"From list subscriptions group: {rule_group}"
 
-        try:
-            from opensnitch.dialogs.ruleseditor import RulesEditorDialog
-        except Exception as e:
-            self._set_status(QC.translate("stats", "Unable to open Rules Editor: {0}").format(str(e)), error=True)
-            return
-
         if self._rules_dialog is None:
             appicon = self.windowIcon() if self.windowIcon() is not None else None
             try:
-                self._rules_dialog = RulesEditorDialog(parent=None, modal=False, appicon=appicon)
+                self._rules_dialog = RulesEditorDialog(parent=None, appicon=appicon)
             except TypeError:
-                try:
-                    self._rules_dialog = RulesEditorDialog(parent=None, appicon=appicon)
-                except TypeError:
-                    self._rules_dialog = RulesEditorDialog()
+                self._rules_dialog = RulesEditorDialog()
 
         self._rules_dialog.new_rule()
+
         # Rules editor expects a directory containing one or more hosts files.
         self._rules_dialog.dstListsCheck.setChecked(True)
         self._rules_dialog.dstListsLine.setText(rule_dir)
@@ -1155,7 +1166,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._rules_dialog.activateWindow()
         self._set_status(QC.translate("stats", "Rules Editor opened with prefilled list directory path."), error=False)
 
-    def create_global_rule(self) -> None:
+    def create_global_rule(self):
         lists_dir = normalize_lists_dir(self.lists_dir_edit.text().strip() or DEFAULT_LISTS_DIR)
         rule_dir = os.path.join(lists_dir, "rules.list.d", "all")
         try:
@@ -1164,21 +1175,12 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             self._set_status(QC.translate("stats", "Error preparing global rule directory: {0}").format(str(e)), error=True)
             return
 
-        try:
-            from opensnitch.dialogs.ruleseditor import RulesEditorDialog
-        except Exception as e:
-            self._set_status(QC.translate("stats", "Unable to open Rules Editor: {0}").format(str(e)), error=True)
-            return
-
         if self._rules_dialog is None:
             appicon = self.windowIcon() if self.windowIcon() is not None else None
             try:
-                self._rules_dialog = RulesEditorDialog(parent=None, modal=False, appicon=appicon)
+                self._rules_dialog = RulesEditorDialog(parent=None, appicon=appicon)
             except TypeError:
-                try:
-                    self._rules_dialog = RulesEditorDialog(parent=None, appicon=appicon)
-                except TypeError:
-                    self._rules_dialog = RulesEditorDialog()
+                self._rules_dialog = RulesEditorDialog()
 
         self._rules_dialog.new_rule()
         self._rules_dialog.dstListsCheck.setChecked(True)
@@ -1189,7 +1191,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._rules_dialog.activateWindow()
         self._set_status(QC.translate("stats", "Rules Editor opened with global list directory path."), error=False)
 
-    def _choose_group_for_selected(self, rows: list[int]) -> str | None:
+    def _choose_group_for_selected(self, rows: list[int]):
         if not rows:
             return None
         selected_group_sets = [set(normalize_groups(self._cell_text(r, COL_GROUP) or "all")) for r in rows]
@@ -1221,7 +1223,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             return None
         return group
 
-    def _assign_group_to_rows(self, rows: list[int], group: str) -> bool:
+    def _assign_group_to_rows(self, rows: list[int], group: str):
         if not rows:
             return False
         target_group = normalize_group(group)
@@ -1232,7 +1234,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             self._set_text_item(row, COL_GROUP, ", ".join(groups))
         return True
 
-    def _prepare_rule_dir(self, url: str, filename: str, list_path: str, lists_dir: str) -> str | None:
+    def _prepare_rule_dir(self, url: str, filename: str, list_path: str, lists_dir: str):
         _ = (url, filename, lists_dir)
         rule_dir = os.path.dirname(list_path)
         # Rules should point to the directory that already contains the
@@ -1244,7 +1246,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             self._set_status(QC.translate("stats", "Error preparing list rule directory: {0}").format(str(e)), error=True)
             return None
 
-    def _list_file_path(self, lists_dir: str, filename: str, list_type: str) -> str:
+    def _list_file_path(self, lists_dir: str, filename: str, list_type: str):
         safe_name = self._safe_filename(filename)
         if safe_name == "":
             safe_name = "subscription.list"
@@ -1256,71 +1258,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             sub_dirname = f"{sub_dirname}{suffix}"
         return os.path.join(lists_dir, "sources.list.d", sub_dirname, safe_name)
 
-    def _normalize_loaded_subscriptions(self, subscriptions: Any) -> tuple[list[dict[str, Any]], int, bool]:
-        out: list[dict[str, Any]] = []
-        fixed_count = 0
-        migrated_legacy_group = False
-        seen: dict[str, int] = {}
-        if not isinstance(subscriptions, list):
-            return out, fixed_count, migrated_legacy_group
-
-        for idx, raw in enumerate(subscriptions):
-            if not isinstance(raw, dict):
-                continue
-            sub = dict(raw)
-            url = (str(sub.get("url", "")) or "").strip()
-            name = (str(sub.get("name", "")) or "").strip()
-            list_type = (str(sub.get("format", "hosts")) or "hosts").strip().lower()
-            had_legacy_group = ("groups" not in sub) and ("group" in sub)
-            groups = normalize_groups(sub.get("groups", [sub.get("group")] if had_legacy_group else None))
-            filename = self._safe_filename(sub.get("filename", ""))
-
-            if filename == "":
-                filename = self._guess_filename(name, url)
-                sub["filename"] = filename
-                fixed_count += 1
-            typed_filename = ensure_filename_type_suffix(filename, list_type)
-            if typed_filename != filename:
-                filename = typed_filename
-                sub["filename"] = filename
-                fixed_count += 1
-
-            if name == "":
-                if filename != "":
-                    name = filename
-                elif url != "":
-                    name = self._filename_from_url(url) or f"subscription-{idx + 1}"
-                else:
-                    name = f"subscription-{idx + 1}"
-                sub["name"] = name
-                fixed_count += 1
-            if sub.get("groups") != groups:
-                sub["groups"] = groups
-                fixed_count += 1
-            if had_legacy_group:
-                migrated_legacy_group = True
-
-            key = os.path.normcase(filename)
-            if filename != "":
-                if key in seen:
-                    base, ext = os.path.splitext(filename)
-                    n = 2
-                    candidate = filename
-                    while os.path.normcase(candidate) in seen:
-                        suffix = f"-{n}"
-                        candidate = f"{base}{suffix}{ext}" if ext else f"{base}{suffix}"
-                        n += 1
-                    sub["filename"] = candidate
-                    filename = candidate
-                    key = os.path.normcase(filename)
-                    fixed_count += 1
-                seen[key] = idx
-
-            out.append(sub)
-
-        return out, fixed_count, migrated_legacy_group
-
-    def _apply_runtime_state(self, enabled: bool) -> None:
+    def _apply_runtime_state(self, enabled: bool):
         old_key, old_action, old_plugin = self._find_loaded_action()
         if old_plugin is not None:
             try:
@@ -1339,27 +1277,30 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             self._set_status(QC.translate("stats", "Config saved but runtime reload failed. Restart UI."), error=True)
             return
 
-        # pylint: disable=protected-access
+        obj = cast(dict[str, Any], obj)
+        compiled = cast(dict[str, Any], compiled)
         self._actions._actions_list[obj["name"]] = compiled
-        plug = compiled.get("actions", {}).get("list_subscriptions")
+        compiled_actions: dict[str, Any] = compiled.get("actions", {})
+        plug = cast(ListSubscriptions | None, compiled_actions.get("list_subscriptions"))
         if plug is not None:
             try:
                 plug.run()
             except Exception:
                 self._set_status(QC.translate("stats", "Plugin enabled but failed to start. Restart UI."), error=True)
 
-    def _find_loaded_action(self) -> tuple[Any, Any, Any]:
+    def _find_loaded_action(self):
         for action_key, action_obj in self._actions.getAll().items():
             if action_obj is None:
                 continue
-            act_cfg = action_obj.get("actions", {})
-            plug = act_cfg.get("list_subscriptions")
+            action_obj_dict = cast(dict[str, Any], action_obj)
+            action_cfg: dict[str, Any] = action_obj_dict.get("actions", {})
+            plug = cast(ListSubscriptions | None, action_cfg.get("list_subscriptions"))
             if plug is not None:
-                return action_key, action_obj, plug
+                return str(action_key), action_obj_dict, plug
         return None, None, None
 
-    def _collect_subscriptions(self) -> list[dict[str, Any]] | None:
-        out: list[dict[str, Any]] = []
+    def _collect_subscriptions(self):
+        out: list[MutableSubscriptionSpec] = []
         auto_filled = 0
         seen_filenames: dict[str, int] = {}
         for row in range(self.table.rowCount()):
@@ -1392,21 +1333,24 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 )
                 return None
             seen_filenames[file_key] = row
-            sub = {
-                "enabled": enabled_item is not None and enabled_item.checkState() == QtCore.Qt.CheckState.Checked,
-                "name": name,
-                "url": url,
-                "filename": filename,
-                "format": list_type,
-                "groups": groups,
-                "interval": self._to_int_or_keep(interval or self._global_defaults.interval),
-                "interval_units": interval_units or self._global_defaults.interval_units,
-                "timeout": self._to_int_or_keep(timeout or self._global_defaults.timeout),
-                "timeout_units": timeout_units or self._global_defaults.timeout_units,
-                "max_size": self._to_int_or_keep(max_size or self._global_defaults.max_size),
-                "max_size_units": max_size_units or self._global_defaults.max_size_units,
-            }
-            if sub["url"] == "" or sub["filename"] == "":
+            interval_val = self._to_int_or_keep(interval or self._global_defaults.interval)
+            timeout_val = self._to_int_or_keep(timeout or self._global_defaults.timeout)
+            max_size_val = self._to_int_or_keep(max_size or self._global_defaults.max_size)
+            sub = MutableSubscriptionSpec(
+                enabled=enabled_item is not None and enabled_item.checkState() == QtCore.Qt.CheckState.Checked,
+                name=name,
+                url=url,
+                filename=filename,
+                format=list_type,
+                groups=groups,
+                interval=interval_val if isinstance(interval_val, int) else self._global_defaults.interval,
+                interval_units=interval_units or self._global_defaults.interval_units,
+                timeout=timeout_val if isinstance(timeout_val, int) else self._global_defaults.timeout,
+                timeout_units=timeout_units or self._global_defaults.timeout_units,
+                max_size=max_size_val if isinstance(max_size_val, int) else self._global_defaults.max_size,
+                max_size_units=max_size_units or self._global_defaults.max_size_units,
+            )
+            if sub.url == "" or sub.filename == "":
                 self._set_status(QC.translate("stats", "URL and filename cannot be empty (row {0}).").format(row + 1), error=True)
                 return None
             out.append(sub)
@@ -1418,7 +1362,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             )
         return out
 
-    def _row_meta_snapshot(self, row: int) -> dict[str, str]:
+    def _row_meta_snapshot(self, row: int):
         lists_dir = normalize_lists_dir(self.lists_dir_edit.text().strip() or DEFAULT_LISTS_DIR)
         filename = self._safe_filename(self._cell_text(row, COL_FILENAME))
         list_type = (self._cell_text(row, COL_FORMAT) or "hosts").strip().lower()
@@ -1447,7 +1391,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             "meta_path": meta_path,
         }
 
-    def _ensure_row_final_filename(self, row: int) -> tuple[str, bool]:
+    def _ensure_row_final_filename(self, row: int):
         name = self._cell_text(row, COL_NAME)
         url = self._cell_text(row, COL_URL)
         list_type = (self._cell_text(row, COL_FORMAT) or "hosts").strip().lower()
@@ -1486,27 +1430,27 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             self._set_text_item(row, COL_FILENAME, final_name)
         return final_name, changed
 
-    def _append_row(self, sub: dict[str, Any]) -> None:
+    def _append_row(self, sub: MutableSubscriptionSpec):
         row = self.table.rowCount()
         self.table.insertRow(row)
 
         enabled_item = QtWidgets.QTableWidgetItem("")
         enabled_item.setFlags(enabled_item.flags() | QtCore.Qt.ItemFlag.ItemIsUserCheckable)
-        enabled_item.setCheckState(QtCore.Qt.CheckState.Checked if bool(sub.get("enabled", True)) else QtCore.Qt.CheckState.Unchecked)
+        enabled_item.setCheckState(QtCore.Qt.CheckState.Checked if bool(sub.enabled) else QtCore.Qt.CheckState.Unchecked)
         self.table.setItem(row, COL_ENABLED, enabled_item)
 
-        self._set_text_item(row, COL_NAME, str(sub.get("name", "")))
-        self._set_text_item(row, COL_URL, str(sub.get("url", "")))
-        self._set_text_item(row, COL_FILENAME, self._safe_filename(sub.get("filename", "")))
-        self._set_text_item(row, COL_FORMAT, str(sub.get("format", "hosts")))
-        groups = normalize_groups(sub.get("groups"))
+        self._set_text_item(row, COL_NAME, str(sub.name))
+        self._set_text_item(row, COL_URL, str(sub.url))
+        self._set_text_item(row, COL_FILENAME, self._safe_filename(sub.filename))
+        self._set_text_item(row, COL_FORMAT, str(sub.format))
+        groups = normalize_groups(sub.groups)
         self._set_text_item(row, COL_GROUP, ", ".join(groups))
-        interval = sub.get("interval")
-        timeout = sub.get("timeout")
-        max_size = sub.get("max_size")
-        interval_units = sub.get("interval_units")
-        timeout_units = sub.get("timeout_units")
-        max_size_units = sub.get("max_size_units")
+        interval = sub.interval
+        timeout = sub.timeout
+        max_size = sub.max_size
+        interval_units = sub.interval_units
+        timeout_units = sub.timeout_units
+        max_size_units = sub.max_size_units
         self._set_text_item(
             row,
             COL_INTERVAL,
@@ -1564,14 +1508,14 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._set_text_item(row, COL_FAILS, "", editable=False)
         self._set_text_item(row, COL_ERROR, "", editable=False)
 
-    def _reload_nodes(self) -> None:
+    def _reload_nodes(self):
         self.nodes_combo.blockSignals(True)
         self.nodes_combo.clear()
         for addr in self._nodes.get_nodes():
             self.nodes_combo.addItem(addr, addr)
         self.nodes_combo.blockSignals(False)
 
-    def _apply_defaults_to_widgets(self) -> None:
+    def _apply_defaults_to_widgets(self):
         self.default_interval_spin.setValue(max(1, int(self._global_defaults.interval)))
         self.default_interval_units.setCurrentText(
             self._normalize_unit(self._global_defaults.interval_units, INTERVAL_UNITS, "hours")
@@ -1586,23 +1530,23 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         )
         self.default_user_agent.setText((self._global_defaults.user_agent or "").strip())
 
-    def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str) -> str:
+    def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str):
         normalized = (value or "").strip().lower()
         for unit in allowed:
             if unit.lower() == normalized:
                 return unit
         return fallback
 
-    def _set_units_combo(self, row: int, col: int, allowed: tuple[str, ...], value: str) -> None:
+    def _set_units_combo(self, row: int, col: int, allowed: tuple[str, ...], value: str):
         combo = QtWidgets.QComboBox()
         combo.addItems(allowed)
         combo.setCurrentText(self._normalize_unit(value, allowed, allowed[0]))
         self.table.setCellWidget(row, col, combo)
 
-    def _safe_filename(self, value: Any) -> str:
+    def _safe_filename(self, value: Any):
         return os.path.basename((self._to_str(value) or "").strip())
 
-    def _guess_filename(self, name: str, url: str) -> str:
+    def _guess_filename(self, name: str, url: str):
         from_header = self._filename_from_headers(url)
         if from_header != "":
             return self._safe_filename(from_header)
@@ -1614,7 +1558,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         slug = self._slugify_name(name)
         return self._safe_filename(slug)
 
-    def _filename_from_headers(self, url: str) -> str:
+    def _filename_from_headers(self, url: str):
         if (url or "").strip() == "":
             return ""
         try:
@@ -1637,7 +1581,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             return ""
         return ""
 
-    def _filename_from_url(self, url: str) -> str:
+    def _filename_from_url(self, url: str):
         u = (url or "").strip()
         if u == "":
             return ""
@@ -1648,7 +1592,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         except Exception:
             return ""
 
-    def _slugify_name(self, name: str) -> str:
+    def _slugify_name(self, name: str):
         raw = (name or "").strip().lower()
         if raw == "":
             return "subscription.list"
@@ -1659,7 +1603,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             slug += ".list"
         return slug
 
-    def _set_text_item(self, row: int, col: int, text: str, editable: bool = True) -> None:
+    def _set_text_item(self, row: int, col: int, text: str, editable: bool = True):
         item = self.table.item(row, col)
         if item is None:
             item = QtWidgets.QTableWidgetItem()
@@ -1670,7 +1614,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         else:
             item.setFlags(item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
 
-    def _cell_text(self, row: int, col: int) -> str:
+    def _cell_text(self, row: int, col: int):
         w = self.table.cellWidget(row, col)
         if isinstance(w, QtWidgets.QComboBox):
             return (w.currentText() or "").strip()
@@ -1679,7 +1623,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             return ""
         return (item.text() or "").strip()
 
-    def _to_int_or_keep(self, value: Any) -> Any:
+    def _to_int_or_keep(self, value: Any):
         if value == "":
             return value
         try:
@@ -1687,15 +1631,15 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         except Exception:
             return value
 
-    def _to_str(self, value: Any) -> str:
+    def _to_str(self, value: Any):
         if value is None:
             return ""
         return str(value)
 
-    def _set_status(self, msg: str, error: bool = False) -> None:
+    def _set_status(self, msg: str, error: bool = False):
         self.status_label.setStyleSheet("color: red;" if error else "color: green;")
         self.status_label.setText(msg)
 
-    def _refresh_states_if_visible(self) -> None:
+    def _refresh_states_if_visible(self):
         if self.isVisible() and not self._loading:
             self.refresh_states()
