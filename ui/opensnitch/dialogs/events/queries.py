@@ -489,6 +489,7 @@ class Queries:
         if self.win.comboAction.currentIndex() == 1:
             action = f"action = \"{Config.ACTION_ALLOW}\""
         elif self.win.comboAction.currentIndex() == 2:
+            # TODO: use ACTION_DROP when 'drop' is added to the daemon
             action = f"action = \"{Config.ACTION_DENY}\""
         elif self.win.comboAction.currentIndex() == 3:
             action = f"action = \"{Config.ACTION_REJECT}\""

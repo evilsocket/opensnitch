@@ -126,22 +126,22 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.allowButton.setIcon(self.allowIcon)
         self._allow_text = QC.translate("popups", "Allow")
         self._action_text = [
-            QC.translate("popups", "Deny"),
+            QC.translate("popups", "Drop"),
             QC.translate("popups", "Allow"),
             QC.translate("popups", "Reject")
         ]
         self._action_icon = [denyIcon, self.allowIcon, rejectIcon]
 
         m = QtWidgets.QMenu()
-        m.addAction(denyIcon, self._action_text[Config.ACTION_DENY_IDX]).triggered.connect(
-            lambda: self._on_action_clicked(Config.ACTION_DENY_IDX)
+        m.addAction(denyIcon, self._action_text[Config.ACTION_DROP_IDX]).triggered.connect(
+            lambda: self._on_action_clicked(Config.ACTION_DROP_IDX)
         )
         m.addAction(rejectIcon, self._action_text[Config.ACTION_REJECT_IDX]).triggered.connect(
             lambda: self._on_action_clicked(Config.ACTION_REJECT_IDX)
         )
         self.actionButton.setMenu(m)
-        self.actionButton.setText(self._action_text[Config.ACTION_DENY_IDX])
-        self.actionButton.setIcon(self._action_icon[Config.ACTION_DENY_IDX])
+        self.actionButton.setText(self._action_text[Config.ACTION_DROP_IDX])
+        self.actionButton.setIcon(self._action_icon[Config.ACTION_DROP_IDX])
         if self._default_action != Config.ACTION_ALLOW_IDX:
             self.actionButton.setText(self._action_text[self._default_action])
             self.actionButton.setIcon(self._action_icon[self._default_action])
@@ -431,7 +431,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if action_idx == Config.ACTION_ALLOW_IDX:
             self.allowButton.setText("{0} ({1})".format(self._allow_text, self._tick))
             self.allowButton.setIcon(self.allowIcon)
-            self.actionButton.setText(self._action_text[Config.ACTION_DENY_IDX])
+            self.actionButton.setText(self._action_text[Config.ACTION_DROP_IDX])
         else:
             self.allowButton.setText(self._allow_text)
             self.actionButton.setText("{0} ({1})".format(self._action_text[action_idx], self._tick))
@@ -604,7 +604,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _on_deny_btn_clicked(self, action):
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
         if self._default_action == Config.ACTION_ALLOW_IDX:
-            self._default_action = Config.ACTION_DENY_IDX
+            self._default_action = Config.ACTION_DROP_IDX
         self._send_rule()
 
     def _is_list_rule(self):
@@ -622,7 +622,8 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self._rule.duration = utils.get_duration(self.durationCombo.currentIndex())
 
             self._rule.action = Config.ACTION_ALLOW
-            if self._default_action == Config.ACTION_DENY_IDX:
+            if self._default_action == Config.ACTION_DROP_IDX:
+                # TODO: use ACTION_DROP when 'drop' is added to the daemon
                 self._rule.action = Config.ACTION_DENY
             elif self._default_action == Config.ACTION_REJECT_IDX:
                 self._rule.action = Config.ACTION_REJECT

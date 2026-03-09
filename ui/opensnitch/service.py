@@ -818,6 +818,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if _default_action == Config.ACTION_ALLOW_IDX:
                 temp_cfg['DefaultAction'] = Config.ACTION_ALLOW
             else:
+                # TODO: use ACTION_DROP when 'drop' is added to the daemon
                 temp_cfg['DefaultAction'] = Config.ACTION_DENY
 
             self.logger.info("Setting daemon DefaultAction to: %s", temp_cfg['DefaultAction'])

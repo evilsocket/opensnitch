@@ -390,6 +390,7 @@ def build_node_config(win, addr):
         if win.comboNodeAddress.currentText() == "":
             return None, QC.translate("preferences", "Server address cannot be empty")
 
+        # TODO: use ACTION_DROP when 'drop' is added to the daemon
         node_action = Config.ACTION_DENY
         if win.comboNodeAction.currentIndex() == Config.ACTION_ALLOW_IDX:
             node_action = Config.ACTION_ALLOW

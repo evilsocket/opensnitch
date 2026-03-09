@@ -270,7 +270,7 @@ class MenusManager(views.ViewsManager):
                 menu.addMenu(nodesMenu)
 
             _actAllow = actionMenu.addAction(QC.translate("stats", "Allow"))
-            _actDeny = actionMenu.addAction(QC.translate("stats", "Deny"))
+            _actDrop = actionMenu.addAction(QC.translate("stats", "Drop"))
             _actReject = actionMenu.addAction(QC.translate("stats", "Reject"))
             menu.addMenu(actionMenu)
 
@@ -352,7 +352,8 @@ class MenusManager(views.ViewsManager):
                 self.table_menu_change_rule_field(cur_idx, model, selection, "duration", Config.DURATION_UNTIL_RESTART)
             elif action == _actAllow:
                 self.table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_ALLOW)
-            elif action == _actDeny:
+            elif action == _actDrop:
+                # TODO: use ACTION_DROP when 'drop' is added to the daemon
                 self.table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_DENY)
             elif action == _actReject:
                 self.table_menu_change_rule_field(cur_idx, model, selection, "action", Config.ACTION_REJECT)

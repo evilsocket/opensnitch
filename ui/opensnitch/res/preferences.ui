@@ -391,7 +391,7 @@
               </property>
               <item>
                <property name="text">
-                <string>deny</string>
+                <string>drop</string>
                </property>
                <property name="icon">
                 <iconset theme="emblem-important">
@@ -2278,7 +2278,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
               </property>
               <item>
                <property name="text">
-                <string>deny</string>
+                <string>drop</string>
                </property>
                <property name="icon">
                 <iconset theme="emblem-important">

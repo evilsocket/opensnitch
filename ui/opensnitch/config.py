@@ -42,7 +42,7 @@ class Config:
     RulesTypes = (RULE_TYPE_LIST, RULE_TYPE_LISTS, RULE_TYPE_SIMPLE, RULE_TYPE_REGEXP, RULE_TYPE_NETWORK, RULE_TYPE_RANGE)
 
     DEFAULT_TARGET_PROCESS = 0
-    ACTION_DENY_IDX = 0
+    ACTION_DROP_IDX = 0
     ACTION_ALLOW_IDX = 1
     ACTION_REJECT_IDX = 2
 
@@ -194,7 +194,7 @@ class Config:
         if self.settings.value(self.DEFAULT_TIMEOUT_KEY) == None:
             self.setSettings(self.DEFAULT_TIMEOUT_KEY, self.DEFAULT_TIMEOUT)
         if self.settings.value(self.DEFAULT_ACTION_KEY) == None:
-            self.setSettings(self.DEFAULT_ACTION_KEY, self.ACTION_DENY_IDX)
+            self.setSettings(self.DEFAULT_ACTION_KEY, self.ACTION_DROP_IDX)
         if self.settings.value(self.DEFAULT_DURATION_KEY) == None:
             self.setSettings(self.DEFAULT_DURATION_KEY, self.DEFAULT_DURATION_IDX)
         if self.settings.value(self.DEFAULT_TARGET_KEY) == None:
@@ -236,6 +236,7 @@ class Config:
         if _default_action == self.ACTION_ALLOW_IDX:
             return self.ACTION_ALLOW
         else:
+            # TODO: use ACTION_DROP when 'drop' is added to the daemon
             return self.ACTION_DENY
 
     def setRulesDurationFilter(self, ignore_temporary_rules=False, temp_rules=1):
