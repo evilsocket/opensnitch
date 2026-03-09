@@ -11,21 +11,21 @@ from typing import Any, TYPE_CHECKING
 if TYPE_CHECKING:
     # Keep static typing deterministic for linters/IDEs.
     # Runtime still supports both PyQt6/PyQt5 below.
-    from PyQt6 import QtCore, QtGui, QtWidgets
+    from PyQt6 import QtCore, QtGui, QtWidgets, uic
     from PyQt6.QtCore import QCoreApplication as QC
 else:
     if "PyQt5" in sys.modules:
-        from PyQt5 import QtCore, QtGui, QtWidgets
+        from PyQt5 import QtCore, QtGui, QtWidgets, uic
         from PyQt5.QtCore import QCoreApplication as QC
     elif "PyQt6" in sys.modules:
-        from PyQt6 import QtCore, QtGui, QtWidgets
+        from PyQt6 import QtCore, QtGui, QtWidgets, uic
         from PyQt6.QtCore import QCoreApplication as QC
     else:
         try:
-            from PyQt6 import QtCore, QtGui, QtWidgets
+            from PyQt6 import QtCore, QtGui, QtWidgets, uic
             from PyQt6.QtCore import QCoreApplication as QC
         except Exception:
-            from PyQt5 import QtCore, QtGui, QtWidgets
+            from PyQt5 import QtCore, QtGui, QtWidgets, uic
             from PyQt5.QtCore import QCoreApplication as QC
 
 from opensnitch.actions import Actions
@@ -45,6 +45,15 @@ import requests
 
 ACTION_FILE = os.path.join(xdg_config_home, "opensnitch", "actions", "list_subscriptions.json")
 DEFAULT_LISTS_DIR = os.path.join(xdg_config_home, "opensnitch", "list_subscriptions")
+PLUGIN_DIR = os.path.abspath(os.path.dirname(__file__))
+LIST_SUBSCRIPTIONS_DIALOG_UI_PATH = os.path.join(PLUGIN_DIR, "list_subscriptions_dialog.ui")
+SUBSCRIPTION_DIALOG_UI_PATH = os.path.join(PLUGIN_DIR, "subscription_dialog.ui")
+BULK_EDIT_DIALOG_UI_PATH = os.path.join(PLUGIN_DIR, "bulk_edit_dialog.ui")
+
+SubscriptionDialogUI = uic.loadUiType(SUBSCRIPTION_DIALOG_UI_PATH)[0] # type: ignore
+BulkEditDialogUI = uic.loadUiType(BULK_EDIT_DIALOG_UI_PATH)[0] # type: ignore
+ListSubscriptionsDialogUI = uic.loadUiType(LIST_SUBSCRIPTIONS_DIALOG_UI_PATH)[0] # type: ignore
+
 INTERVAL_UNITS = ("seconds", "minutes", "hours", "days", "weeks")
 TIMEOUT_UNITS = ("seconds", "minutes", "hours", "days", "weeks")
 SIZE_UNITS = ("bytes", "KB", "MB", "GB")
@@ -101,7 +110,34 @@ def _template_action() -> dict[str, Any]:
     }
 
 
-class SubscriptionDialog(QtWidgets.QDialog):
+class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
+    if TYPE_CHECKING:
+        enabled_check: QtWidgets.QCheckBox
+        name_edit: QtWidgets.QLineEdit
+        url_edit: QtWidgets.QLineEdit
+        filename_edit: QtWidgets.QLineEdit
+        format_combo: QtWidgets.QComboBox
+        group_combo: QtWidgets.QComboBox
+        interval_spin: QtWidgets.QSpinBox
+        interval_units: QtWidgets.QComboBox
+        timeout_spin: QtWidgets.QSpinBox
+        timeout_units: QtWidgets.QComboBox
+        max_size_spin: QtWidgets.QSpinBox
+        max_size_units: QtWidgets.QComboBox
+        meta_group: QtWidgets.QGroupBox
+        meta_file_present: QtWidgets.QLabel
+        meta_meta_present: QtWidgets.QLabel
+        meta_state: QtWidgets.QLabel
+        meta_last_checked: QtWidgets.QLabel
+        meta_last_updated: QtWidgets.QLabel
+        meta_failures: QtWidgets.QLabel
+        meta_error: QtWidgets.QLabel
+        meta_list_path: QtWidgets.QLabel
+        meta_meta_path: QtWidgets.QLabel
+        error_label: QtWidgets.QLabel
+        cancel_button: QtWidgets.QPushButton
+        add_button: QtWidgets.QPushButton
+
     def __init__(
         self,
         parent: QtWidgets.QWidget | None,
@@ -113,6 +149,7 @@ class SubscriptionDialog(QtWidgets.QDialog):
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle(QC.translate("stats", title))
+        self._title = title
         self._defaults = defaults
         self._groups = groups or ["all"]
         self._sub = sub or {}
@@ -120,34 +157,19 @@ class SubscriptionDialog(QtWidgets.QDialog):
         self._build_ui()
 
     def _build_ui(self) -> None:
-        root = QtWidgets.QVBoxLayout(self)
-        body = QtWidgets.QHBoxLayout()
-        settings_group = QtWidgets.QGroupBox(QC.translate("stats", "Settings"))
-        settings_form = QtWidgets.QFormLayout(settings_group)
+        self.setupUi(self)
+        self.error_label.setStyleSheet("color: red;")
+        self.group_combo.setEditable(True)
+        self.add_button.clicked.connect(self._validate_then_accept)
+        self.cancel_button.clicked.connect(self.reject)
 
-        self.enabled_check = QtWidgets.QCheckBox(QC.translate("stats", "Enabled"))
         self.enabled_check.setChecked(bool(self._sub.get("enabled", True)))
-        settings_form.addRow(self.enabled_check)
-
-        self.name_edit = QtWidgets.QLineEdit()
         self.name_edit.setText(str(self._sub.get("name", "")))
-        settings_form.addRow(QC.translate("stats", "Name"), self.name_edit)
-
-        self.url_edit = QtWidgets.QLineEdit()
         self.url_edit.setText(str(self._sub.get("url", "")))
-        settings_form.addRow(QC.translate("stats", "URL"), self.url_edit)
-
-        self.filename_edit = QtWidgets.QLineEdit()
         self.filename_edit.setText(str(self._sub.get("filename", "")))
-        settings_form.addRow(QC.translate("stats", "Filename"), self.filename_edit)
-
-        self.format_combo = QtWidgets.QComboBox()
+        self.format_combo.clear()
         self.format_combo.addItems(("hosts",))
         self.format_combo.setCurrentText(str(self._sub.get("format", "hosts")))
-        settings_form.addRow(QC.translate("stats", "Format"), self.format_combo)
-
-        self.group_combo = QtWidgets.QComboBox()
-        self.group_combo.setEditable(True)
         for g in self._groups:
             ng = normalize_group(g)
             if ng != "":
@@ -157,95 +179,38 @@ class SubscriptionDialog(QtWidgets.QDialog):
         if self.group_combo.findText(current_group_text) < 0:
             self.group_combo.addItem(current_group_text)
         self.group_combo.setCurrentText(current_group_text)
-        settings_form.addRow(QC.translate("stats", "Groups"), self.group_combo)
-
-        self.interval_spin = QtWidgets.QSpinBox()
         self.interval_spin.setRange(1, 999999)
         self.interval_spin.setValue(max(1, int(self._sub.get("interval", self._defaults.interval))))
-        self.interval_units = QtWidgets.QComboBox()
+        self.interval_units.clear()
         self.interval_units.addItems(INTERVAL_UNITS)
         self.interval_units.setCurrentText(
             self._normalize_unit(str(self._sub.get("interval_units", self._defaults.interval_units)), INTERVAL_UNITS, "hours")
         )
-        interval_row = QtWidgets.QHBoxLayout()
-        interval_row.addWidget(self.interval_spin)
-        interval_row.addWidget(self.interval_units)
-        interval_wrap = QtWidgets.QWidget()
-        interval_wrap.setLayout(interval_row)
-        settings_form.addRow(QC.translate("stats", "Interval"), interval_wrap)
-
-        self.timeout_spin = QtWidgets.QSpinBox()
         self.timeout_spin.setRange(1, 999999)
         self.timeout_spin.setValue(max(1, int(self._sub.get("timeout", self._defaults.timeout))))
-        self.timeout_units = QtWidgets.QComboBox()
+        self.timeout_units.clear()
         self.timeout_units.addItems(TIMEOUT_UNITS)
         self.timeout_units.setCurrentText(
             self._normalize_unit(str(self._sub.get("timeout_units", self._defaults.timeout_units)), TIMEOUT_UNITS, "seconds")
         )
-        timeout_row = QtWidgets.QHBoxLayout()
-        timeout_row.addWidget(self.timeout_spin)
-        timeout_row.addWidget(self.timeout_units)
-        timeout_wrap = QtWidgets.QWidget()
-        timeout_wrap.setLayout(timeout_row)
-        settings_form.addRow(QC.translate("stats", "Timeout"), timeout_wrap)
-
-        self.max_size_spin = QtWidgets.QSpinBox()
         self.max_size_spin.setRange(1, 999999)
         self.max_size_spin.setValue(max(1, int(self._sub.get("max_size", self._defaults.max_size))))
-        self.max_size_units = QtWidgets.QComboBox()
+        self.max_size_units.clear()
         self.max_size_units.addItems(SIZE_UNITS)
         self.max_size_units.setCurrentText(
             self._normalize_unit(str(self._sub.get("max_size_units", self._defaults.max_size_units)), SIZE_UNITS, "MB")
         )
-        max_row = QtWidgets.QHBoxLayout()
-        max_row.addWidget(self.max_size_spin)
-        max_row.addWidget(self.max_size_units)
-        max_wrap = QtWidgets.QWidget()
-        max_wrap.setLayout(max_row)
-        settings_form.addRow(QC.translate("stats", "Max size"), max_wrap)
-
-        body.addWidget(settings_group, 1)
-
-        meta_group = QtWidgets.QGroupBox(QC.translate("stats", "Metadata"))
-        meta_form = QtWidgets.QFormLayout(meta_group)
-        self.meta_file_present = QtWidgets.QLabel(str(self._meta.get("file_present", "")))
-        self.meta_meta_present = QtWidgets.QLabel(str(self._meta.get("meta_present", "")))
-        self.meta_state = QtWidgets.QLabel(str(self._meta.get("state", "")))
-        self.meta_last_checked = QtWidgets.QLabel(str(self._meta.get("last_checked", "")))
-        self.meta_last_updated = QtWidgets.QLabel(str(self._meta.get("last_updated", "")))
-        self.meta_failures = QtWidgets.QLabel(str(self._meta.get("failures", "")))
-        self.meta_error = QtWidgets.QLabel(str(self._meta.get("error", "")))
-        self.meta_list_path = QtWidgets.QLabel(str(self._meta.get("list_path", "")))
-        self.meta_list_path.setWordWrap(True)
-        self.meta_meta_path = QtWidgets.QLabel(str(self._meta.get("meta_path", "")))
-        self.meta_meta_path.setWordWrap(True)
-        meta_form.addRow(QC.translate("stats", "List file present"), self.meta_file_present)
-        meta_form.addRow(QC.translate("stats", "List meta present"), self.meta_meta_present)
-        meta_form.addRow(QC.translate("stats", "State"), self.meta_state)
-        meta_form.addRow(QC.translate("stats", "Last checked"), self.meta_last_checked)
-        meta_form.addRow(QC.translate("stats", "Last updated"), self.meta_last_updated)
-        meta_form.addRow(QC.translate("stats", "Failures"), self.meta_failures)
-        meta_form.addRow(QC.translate("stats", "Error"), self.meta_error)
-        meta_form.addRow(QC.translate("stats", "List path"), self.meta_list_path)
-        meta_form.addRow(QC.translate("stats", "Meta path"), self.meta_meta_path)
-        body.addWidget(meta_group, 1)
-
-        root.addLayout(body)
-
-        self.error_label = QtWidgets.QLabel("")
-        self.error_label.setStyleSheet("color: red;")
-        root.addWidget(self.error_label)
-
-        buttons = QtWidgets.QHBoxLayout()
-        buttons.addStretch(1)
-        self.cancel_button = QtWidgets.QPushButton(QC.translate("stats", "Cancel"))
-        self.add_button = QtWidgets.QPushButton(QC.translate("stats", "Save"))
-        self.cancel_button.clicked.connect(self.reject)
-        self.add_button.clicked.connect(self._validate_then_accept)
-        buttons.addWidget(self.cancel_button)
-        buttons.addWidget(self.add_button)
-        root.addLayout(buttons)
-
+        self.meta_file_present.setText(str(self._meta.get("file_present", "")))
+        self.meta_meta_present.setText(str(self._meta.get("meta_present", "")))
+        self.meta_state.setText(str(self._meta.get("state", "")))
+        self.meta_last_checked.setText(str(self._meta.get("last_checked", "")))
+        self.meta_last_updated.setText(str(self._meta.get("last_updated", "")))
+        self.meta_failures.setText(str(self._meta.get("failures", "")))
+        self.meta_error.setText(str(self._meta.get("error", "")))
+        self.meta_list_path.setText(str(self._meta.get("list_path", "")))
+        self.meta_meta_path.setText(str(self._meta.get("meta_path", "")))
+        if "new" in (self._title or "").strip().lower():
+            self.meta_group.setVisible(False)
         self.resize(920, 420)
 
     def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str) -> str:
@@ -260,12 +225,53 @@ class SubscriptionDialog(QtWidgets.QDialog):
         if url == "":
             self.error_label.setText(QC.translate("stats", "URL is required."))
             return
+        name = (self.name_edit.text() or "").strip()
+        filename = os.path.basename((self.filename_edit.text() or "").strip())
+        list_type = (self.format_combo.currentText() or "hosts").strip().lower()
+
+        if name == "" and filename == "":
+            self.error_label.setText(QC.translate("stats", "Provide at least a name or a filename."))
+            return
+
+        if filename == "" and name != "":
+            filename = self._slugify_name(name)
+        filename = ensure_filename_type_suffix(filename, list_type)
+
+        if name == "" and filename != "":
+            name = self._deslugify_filename(filename, list_type)
+
+        self.name_edit.setText(name)
+        self.filename_edit.setText(filename)
+
         groups = normalize_groups(self.group_combo.currentText())
         if not groups:
             self.error_label.setText(QC.translate("stats", "At least one group is required."))
             return
         self.error_label.setText("")
         self.accept()
+
+    def _slugify_name(self, name: str) -> str:
+        raw = (name or "").strip().lower()
+        if raw == "":
+            return "subscription.list"
+        slug = re.sub(r"[^a-z0-9._-]+", "-", raw).strip("-._")
+        if slug == "":
+            slug = "subscription"
+        if "." not in slug:
+            slug += ".list"
+        return slug
+
+    def _deslugify_filename(self, filename: str, list_type: str) -> str:
+        safe = os.path.basename((filename or "").strip())
+        base, _ext = os.path.splitext(safe)
+        suffix = f"-{(list_type or 'hosts').strip().lower()}"
+        if base.lower().endswith(suffix):
+            base = base[: -len(suffix)]
+        pretty = re.sub(r"[-_.]+", " ", base).strip()
+        pretty = re.sub(r"\s+", " ", pretty)
+        if pretty == "":
+            return safe
+        return pretty.title()
 
     def subscription_dict(self) -> dict[str, Any]:
         groups = normalize_groups((self.group_combo.currentText() or "all").strip())
@@ -285,7 +291,27 @@ class SubscriptionDialog(QtWidgets.QDialog):
         }
 
 
-class BulkEditDialog(QtWidgets.QDialog):
+class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
+    if TYPE_CHECKING:
+        apply_enabled: QtWidgets.QCheckBox
+        enabled_value: QtWidgets.QCheckBox
+        apply_group: QtWidgets.QCheckBox
+        group_value: QtWidgets.QComboBox
+        apply_format: QtWidgets.QCheckBox
+        format_value: QtWidgets.QComboBox
+        apply_interval: QtWidgets.QCheckBox
+        interval_spin: QtWidgets.QSpinBox
+        interval_units: QtWidgets.QComboBox
+        apply_timeout: QtWidgets.QCheckBox
+        timeout_spin: QtWidgets.QSpinBox
+        timeout_units: QtWidgets.QComboBox
+        apply_max_size: QtWidgets.QCheckBox
+        max_size_spin: QtWidgets.QSpinBox
+        max_size_units: QtWidgets.QComboBox
+        error_label: QtWidgets.QLabel
+        cancel_button: QtWidgets.QPushButton
+        save_button: QtWidgets.QPushButton
+
     def __init__(
         self,
         parent: QtWidgets.QWidget | None,
@@ -299,22 +325,14 @@ class BulkEditDialog(QtWidgets.QDialog):
         self._build_ui()
 
     def _build_ui(self) -> None:
-        root = QtWidgets.QVBoxLayout(self)
-        form = QtWidgets.QFormLayout()
-
-        self.apply_enabled = QtWidgets.QCheckBox(QC.translate("stats", "Apply enabled"))
-        self.enabled_value = QtWidgets.QCheckBox(QC.translate("stats", "Enabled"))
-        self.enabled_value.setChecked(True)
-        enabled_row = QtWidgets.QHBoxLayout()
-        enabled_row.addWidget(self.apply_enabled)
-        enabled_row.addWidget(self.enabled_value)
-        enabled_wrap = QtWidgets.QWidget()
-        enabled_wrap.setLayout(enabled_row)
-        form.addRow(enabled_wrap)
-
-        self.apply_group = QtWidgets.QCheckBox(QC.translate("stats", "Apply groups"))
-        self.group_value = QtWidgets.QComboBox()
+        self.setupUi(self)
+        self.error_label.setStyleSheet("color: red;")
         self.group_value.setEditable(True)
+        self.cancel_button.clicked.connect(self.reject)
+        self.save_button.clicked.connect(self._validate_then_accept)
+
+        self.enabled_value.setChecked(True)
+        self.group_value.clear()
         for g in self._groups:
             ng = normalize_group(g)
             if ng != "":
@@ -322,82 +340,23 @@ class BulkEditDialog(QtWidgets.QDialog):
         if self.group_value.findText("all") < 0:
             self.group_value.addItem("all")
         self.group_value.setCurrentText("all")
-        group_row = QtWidgets.QHBoxLayout()
-        group_row.addWidget(self.apply_group)
-        group_row.addWidget(self.group_value)
-        group_wrap = QtWidgets.QWidget()
-        group_wrap.setLayout(group_row)
-        form.addRow(QC.translate("stats", "Groups"), group_wrap)
-
-        self.apply_format = QtWidgets.QCheckBox(QC.translate("stats", "Apply format"))
-        self.format_value = QtWidgets.QComboBox()
+        self.format_value.clear()
         self.format_value.addItems(("hosts",))
-        format_row = QtWidgets.QHBoxLayout()
-        format_row.addWidget(self.apply_format)
-        format_row.addWidget(self.format_value)
-        format_wrap = QtWidgets.QWidget()
-        format_wrap.setLayout(format_row)
-        form.addRow(QC.translate("stats", "Format"), format_wrap)
-
-        self.apply_interval = QtWidgets.QCheckBox(QC.translate("stats", "Apply interval"))
-        self.interval_spin = QtWidgets.QSpinBox()
         self.interval_spin.setRange(1, 999999)
         self.interval_spin.setValue(max(1, int(self._defaults.interval)))
-        self.interval_units = QtWidgets.QComboBox()
+        self.interval_units.clear()
         self.interval_units.addItems(INTERVAL_UNITS)
         self.interval_units.setCurrentText(self._normalize_unit(self._defaults.interval_units, INTERVAL_UNITS, "hours"))
-        interval_row = QtWidgets.QHBoxLayout()
-        interval_row.addWidget(self.apply_interval)
-        interval_row.addWidget(self.interval_spin)
-        interval_row.addWidget(self.interval_units)
-        interval_wrap = QtWidgets.QWidget()
-        interval_wrap.setLayout(interval_row)
-        form.addRow(QC.translate("stats", "Interval"), interval_wrap)
-
-        self.apply_timeout = QtWidgets.QCheckBox(QC.translate("stats", "Apply timeout"))
-        self.timeout_spin = QtWidgets.QSpinBox()
         self.timeout_spin.setRange(1, 999999)
         self.timeout_spin.setValue(max(1, int(self._defaults.timeout)))
-        self.timeout_units = QtWidgets.QComboBox()
+        self.timeout_units.clear()
         self.timeout_units.addItems(TIMEOUT_UNITS)
         self.timeout_units.setCurrentText(self._normalize_unit(self._defaults.timeout_units, TIMEOUT_UNITS, "seconds"))
-        timeout_row = QtWidgets.QHBoxLayout()
-        timeout_row.addWidget(self.apply_timeout)
-        timeout_row.addWidget(self.timeout_spin)
-        timeout_row.addWidget(self.timeout_units)
-        timeout_wrap = QtWidgets.QWidget()
-        timeout_wrap.setLayout(timeout_row)
-        form.addRow(QC.translate("stats", "Timeout"), timeout_wrap)
-
-        self.apply_max_size = QtWidgets.QCheckBox(QC.translate("stats", "Apply max size"))
-        self.max_size_spin = QtWidgets.QSpinBox()
         self.max_size_spin.setRange(1, 999999)
         self.max_size_spin.setValue(max(1, int(self._defaults.max_size)))
-        self.max_size_units = QtWidgets.QComboBox()
+        self.max_size_units.clear()
         self.max_size_units.addItems(SIZE_UNITS)
         self.max_size_units.setCurrentText(self._normalize_unit(self._defaults.max_size_units, SIZE_UNITS, "MB"))
-        max_row = QtWidgets.QHBoxLayout()
-        max_row.addWidget(self.apply_max_size)
-        max_row.addWidget(self.max_size_spin)
-        max_row.addWidget(self.max_size_units)
-        max_wrap = QtWidgets.QWidget()
-        max_wrap.setLayout(max_row)
-        form.addRow(QC.translate("stats", "Max size"), max_wrap)
-
-        root.addLayout(form)
-        self.error_label = QtWidgets.QLabel("")
-        self.error_label.setStyleSheet("color: red;")
-        root.addWidget(self.error_label)
-
-        buttons = QtWidgets.QHBoxLayout()
-        buttons.addStretch(1)
-        cancel_btn = QtWidgets.QPushButton(QC.translate("stats", "Cancel"))
-        save_btn = QtWidgets.QPushButton(QC.translate("stats", "Apply"))
-        cancel_btn.clicked.connect(self.reject)
-        save_btn.clicked.connect(self._validate_then_accept)
-        buttons.addWidget(cancel_btn)
-        buttons.addWidget(save_btn)
-        root.addLayout(buttons)
         self.resize(640, 360)
 
     def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str) -> str:
@@ -437,7 +396,31 @@ class BulkEditDialog(QtWidgets.QDialog):
         }
 
 
-class ListSubscriptionsDialog(QtWidgets.QDialog):
+class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
+    if TYPE_CHECKING:
+        enable_plugin_check: QtWidgets.QCheckBox
+        create_file_button: QtWidgets.QPushButton
+        save_button: QtWidgets.QPushButton
+        reload_button: QtWidgets.QPushButton
+        lists_dir_edit: QtWidgets.QLineEdit
+        default_interval_spin: QtWidgets.QSpinBox
+        default_interval_units: QtWidgets.QComboBox
+        default_timeout_spin: QtWidgets.QSpinBox
+        default_timeout_units: QtWidgets.QComboBox
+        default_max_size_spin: QtWidgets.QSpinBox
+        default_max_size_units: QtWidgets.QComboBox
+        default_user_agent: QtWidgets.QLineEdit
+        nodes_combo: QtWidgets.QComboBox
+        table: QtWidgets.QTableWidget
+        add_sub_button: QtWidgets.QPushButton
+        refresh_state_button: QtWidgets.QPushButton
+        create_global_rule_button: QtWidgets.QPushButton
+        edit_sub_button: QtWidgets.QPushButton
+        remove_sub_button: QtWidgets.QPushButton
+        refresh_now_button: QtWidgets.QPushButton
+        create_rule_button: QtWidgets.QPushButton
+        status_label: QtWidgets.QLabel
+
     _download_finished = QtCore.pyqtSignal()
 
     def __init__(
@@ -480,60 +463,20 @@ class ListSubscriptionsDialog(QtWidgets.QDialog):
         super().closeEvent(event)
 
     def _build_ui(self) -> None:
+        self.setupUi(self)
+        self.setWindowTitle(QC.translate("stats", "List subscriptions"))
         self.resize(1180, 680)
-        root = QtWidgets.QVBoxLayout(self)
 
-        top_row = QtWidgets.QHBoxLayout()
-        self.enable_plugin_check = QtWidgets.QCheckBox(QC.translate("stats", "Enable list subscriptions plugin"))
-        self.create_file_button = QtWidgets.QPushButton(QC.translate("stats", "Create action file"))
-        self.save_button = QtWidgets.QPushButton(QC.translate("stats", "Save"))
-        self.reload_button = QtWidgets.QPushButton(QC.translate("stats", "Reload"))
-        top_row.addWidget(self.enable_plugin_check)
-        top_row.addStretch(1)
-        top_row.addWidget(self.create_file_button)
-        top_row.addWidget(self.save_button)
-        top_row.addWidget(self.reload_button)
-        root.addLayout(top_row)
-
-        defaults_row = QtWidgets.QGridLayout()
-        defaults_row.addWidget(QtWidgets.QLabel(QC.translate("stats", "Lists directory")), 0, 0)
-        self.lists_dir_edit = QtWidgets.QLineEdit()
-        defaults_row.addWidget(self.lists_dir_edit, 0, 1, 1, 5)
-
-        defaults_row.addWidget(QtWidgets.QLabel(QC.translate("stats", "Default interval")), 1, 0)
-        self.default_interval_spin = QtWidgets.QSpinBox()
         self.default_interval_spin.setRange(1, 999999)
-        defaults_row.addWidget(self.default_interval_spin, 1, 1)
-        self.default_interval_units = QtWidgets.QComboBox()
+        self.default_interval_units.clear()
         self.default_interval_units.addItems(INTERVAL_UNITS)
-        defaults_row.addWidget(self.default_interval_units, 1, 2)
-
-        defaults_row.addWidget(QtWidgets.QLabel(QC.translate("stats", "Default timeout")), 1, 3)
-        self.default_timeout_spin = QtWidgets.QSpinBox()
         self.default_timeout_spin.setRange(1, 999999)
-        defaults_row.addWidget(self.default_timeout_spin, 1, 4)
-        self.default_timeout_units = QtWidgets.QComboBox()
+        self.default_timeout_units.clear()
         self.default_timeout_units.addItems(TIMEOUT_UNITS)
-        defaults_row.addWidget(self.default_timeout_units, 1, 5)
-
-        defaults_row.addWidget(QtWidgets.QLabel(QC.translate("stats", "Default max size")), 2, 0)
-        self.default_max_size_spin = QtWidgets.QSpinBox()
         self.default_max_size_spin.setRange(1, 999999)
-        defaults_row.addWidget(self.default_max_size_spin, 2, 1)
-        self.default_max_size_units = QtWidgets.QComboBox()
+        self.default_max_size_units.clear()
         self.default_max_size_units.addItems(SIZE_UNITS)
-        defaults_row.addWidget(self.default_max_size_units, 2, 2)
 
-        defaults_row.addWidget(QtWidgets.QLabel(QC.translate("stats", "Default User-Agent")), 2, 3)
-        self.default_user_agent = QtWidgets.QLineEdit()
-        defaults_row.addWidget(self.default_user_agent, 2, 4, 1, 2)
-
-        defaults_row.addWidget(QtWidgets.QLabel(QC.translate("stats", "Node")), 3, 0)
-        self.nodes_combo = QtWidgets.QComboBox()
-        defaults_row.addWidget(self.nodes_combo, 3, 1, 1, 2)
-        root.addLayout(defaults_row)
-
-        self.table = QtWidgets.QTableWidget()
         self.table.setColumnCount(19)
         self.table.setHorizontalHeaderLabels([
             QC.translate("stats", "Enabled"),
@@ -579,38 +522,6 @@ class ListSubscriptionsDialog(QtWidgets.QDialog):
             COL_ERROR,
         ):
             self.table.setColumnHidden(col, True)
-        root.addWidget(self.table)
-
-        actions_row = QtWidgets.QHBoxLayout()
-
-        global_box = QtWidgets.QGroupBox(QC.translate("stats", "Global actions"))
-        global_layout = QtWidgets.QHBoxLayout(global_box)
-        self.add_sub_button = QtWidgets.QPushButton(QC.translate("stats", "Add subscription"))
-        self.refresh_state_button = QtWidgets.QPushButton(QC.translate("stats", "Refresh all"))
-        self.create_global_rule_button = QtWidgets.QPushButton(QC.translate("stats", "Create global rule"))
-        global_layout.addWidget(self.add_sub_button)
-        global_layout.addWidget(self.refresh_state_button)
-        global_layout.addWidget(self.create_global_rule_button)
-        global_layout.addStretch(1)
-
-        selected_box = QtWidgets.QGroupBox(QC.translate("stats", "Rule actions"))
-        selected_layout = QtWidgets.QHBoxLayout(selected_box)
-        self.edit_sub_button = QtWidgets.QPushButton(QC.translate("stats", "Edit"))
-        self.remove_sub_button = QtWidgets.QPushButton(QC.translate("stats", "Remove"))
-        self.refresh_now_button = QtWidgets.QPushButton(QC.translate("stats", "Refresh now"))
-        self.create_rule_button = QtWidgets.QPushButton(QC.translate("stats", "Create rule"))
-        selected_layout.addWidget(self.edit_sub_button)
-        selected_layout.addWidget(self.remove_sub_button)
-        selected_layout.addWidget(self.refresh_now_button)
-        selected_layout.addWidget(self.create_rule_button)
-        selected_layout.addStretch(1)
-
-        actions_row.addWidget(global_box, 1)
-        actions_row.addWidget(selected_box, 2)
-        root.addLayout(actions_row)
-
-        self.status_label = QtWidgets.QLabel("")
-        root.addWidget(self.status_label)
 
         self.create_file_button.clicked.connect(self.create_action_file)
         self.save_button.clicked.connect(self.save_action_file)
@@ -859,9 +770,14 @@ class ListSubscriptionsDialog(QtWidgets.QDialog):
             self._set_status(QC.translate("stats", "Select a subscription row first."), error=True)
             return
 
+        enabled_item = self.table.item(row, COL_ENABLED)
+        if enabled_item is None:
+            enabled_item = QtWidgets.QTableWidgetItem("")
+            enabled_item.setFlags(enabled_item.flags() | QtCore.Qt.ItemFlag.ItemIsUserCheckable)
+            self.table.setItem(row, COL_ENABLED, enabled_item)
+
         sub = {
-            "enabled": self.table.item(row, COL_ENABLED) is not None
-            and self.table.item(row, COL_ENABLED).checkState() == QtCore.Qt.CheckState.Checked,
+            "enabled": enabled_item.checkState() == QtCore.Qt.CheckState.Checked,
             "name": self._cell_text(row, COL_NAME),
             "url": self._cell_text(row, COL_URL),
             "filename": self._cell_text(row, COL_FILENAME),
@@ -973,12 +889,15 @@ class ListSubscriptionsDialog(QtWidgets.QDialog):
             return
 
         menu = QtWidgets.QMenu(self.table)
+        viewport = self.table.viewport()
+        if viewport is None:
+            return
         if len(rows) == 1:
             act_edit = menu.addAction(QC.translate("stats", "Edit"))
-            act_remove = menu.addAction(QC.translate("stats", "Remove"))
+            act_remove = menu.addAction(QC.translate("stats", "Delete"))
             act_refresh = menu.addAction(QC.translate("stats", "Refresh now"))
             act_rule = menu.addAction(QC.translate("stats", "Create rule"))
-            chosen = menu.exec(self.table.viewport().mapToGlobal(pos))
+            chosen = menu.exec(viewport.mapToGlobal(pos))
             if chosen is act_edit:
                 self.edit_selected_subscription()
             elif chosen is act_remove:
@@ -990,9 +909,9 @@ class ListSubscriptionsDialog(QtWidgets.QDialog):
             return
 
         act_edit = menu.addAction(QC.translate("stats", "Edit"))
-        act_remove = menu.addAction(QC.translate("stats", "Remove"))
+        act_remove = menu.addAction(QC.translate("stats", "Delete"))
         act_rule = menu.addAction(QC.translate("stats", "Create rule"))
-        chosen = menu.exec(self.table.viewport().mapToGlobal(pos))
+        chosen = menu.exec(viewport.mapToGlobal(pos))
         if chosen is act_edit:
             self._bulk_edit(rows)
         elif chosen is act_remove:

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BulkEditDialog</class>
+ <widget class="QDialog" name="BulkEditDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>360</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Edit selected subscriptions</string>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0" colspan="2">
+      <layout class="QHBoxLayout" name="enabled_layout">
+       <item>
+        <widget class="QCheckBox" name="apply_enabled">
+         <property name="text">
+          <string>Apply enabled</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="enabled_value">
+         <property name="text">
+          <string>Enabled</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="groups_label">
+       <property name="text">
+        <string>Groups</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <layout class="QHBoxLayout" name="groups_layout">
+       <item>
+        <widget class="QCheckBox" name="apply_group">
+         <property name="text">
+          <string>Apply groups</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="group_value"/>
+       </item>
+      </layout>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="format_label">
+       <property name="text">
+        <string>Format</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <layout class="QHBoxLayout" name="format_layout">
+       <item>
+        <widget class="QCheckBox" name="apply_format">
+         <property name="text">
+          <string>Apply format</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="format_value"/>
+       </item>
+      </layout>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="interval_label">
+       <property name="text">
+        <string>Interval</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <layout class="QHBoxLayout" name="interval_layout">
+       <item>
+        <widget class="QCheckBox" name="apply_interval">
+         <property name="text">
+          <string>Apply interval</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="interval_spin"/>
+       </item>
+       <item>
+        <widget class="QComboBox" name="interval_units"/>
+       </item>
+      </layout>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="timeout_label">
+       <property name="text">
+        <string>Timeout</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <layout class="QHBoxLayout" name="timeout_layout">
+       <item>
+        <widget class="QCheckBox" name="apply_timeout">
+         <property name="text">
+          <string>Apply timeout</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="timeout_spin"/>
+       </item>
+       <item>
+        <widget class="QComboBox" name="timeout_units"/>
+       </item>
+      </layout>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="max_size_label">
+       <property name="text">
+        <string>Max size</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <layout class="QHBoxLayout" name="max_size_layout">
+       <item>
+        <widget class="QCheckBox" name="apply_max_size">
+         <property name="text">
+          <string>Apply max size</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="max_size_spin"/>
+       </item>
+       <item>
+        <widget class="QComboBox" name="max_size_units"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="error_label">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttons_layout">
+     <item>
+      <spacer name="buttons_spacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancel_button">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="save_button">
+       <property name="text">
+        <string>Apply</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
