@@ -3,12 +3,12 @@
   "created": "",
   "updated": "",
   "description": "Manage and auto-update blocklist subscriptions (hosts format)",
-  "type": ["global"],
+  "type": ["global", "main-dialog"],
   "actions": {
     "list_subscriptions": {
       "enabled": true,
       "config": {
-        "lists_dir": "~/.config/opensnitch/blocklists/hosts",
+        "lists_dir": "~/.config/opensnitch/list_subscriptions",
 
         "interval": 24,
         "interval_units": "hours",

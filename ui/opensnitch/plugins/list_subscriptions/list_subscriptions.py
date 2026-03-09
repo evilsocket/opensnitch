@@ -1,22 +1,46 @@
 import os
 import logging
-import json
-import errno
 import hashlib
 import threading
-import re
-from dataclasses import dataclass, field, asdict
+import shutil
+import sys
 from typing import Any
 from datetime import datetime, timedelta
 from queue import Queue
 
 import requests
+if "PyQt5" in sys.modules:
+    from PyQt5 import QtCore, QtGui
+elif "PyQt6" in sys.modules:
+    from PyQt6 import QtCore, QtGui
+else:
+    try:
+        from PyQt6 import QtCore, QtGui
+    except Exception:
+        from PyQt5 import QtCore, QtGui
 
 from opensnitch.dialogs.stats import StatsDialog
 from opensnitch.notifications import DesktopNotifications
 from opensnitch.plugins import PluginBase, PluginSignal
 from opensnitch.utils import GenericTimer
 from opensnitch.utils.xdg import xdg_config_home
+from opensnitch.plugins.list_subscriptions._models import (
+    DEFAULT_UA,
+    ListMetadata,
+    PluginConfig,
+    SubscriptionSpec,
+    ensure_filename_type_suffix,
+    normalize_group,
+    normalize_lists_dir,
+)
+from opensnitch.plugins.list_subscriptions._utils import (
+    FileLock,
+    is_hosts_file_like,
+    now_iso,
+    parse_iso,
+    read_json,
+    write_json_atomic,
+)
 
 ch = logging.StreamHandler()
 #ch.setLevel(logging.ERROR)
@@ -25,392 +49,6 @@ ch.setFormatter(formatter)
 logger = logging.getLogger(__name__)
 logger.addHandler(ch)
 logger.setLevel(logging.WARNING)
-
-# -------------------- constants --------------------
-
-DEFAULT_UA = (
-    "Mozilla/5.0 (X11; Linux x86_64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/120.0 Safari/537.36"
-)
-
-TIME_MULT = {
-    "seconds": 1,
-    "minutes": 60,
-    "hours": 60 * 60,
-    "days": 24 * 60 * 60,
-    "weeks": 7 * 24 * 60 * 60,
-    "s": 1,
-    "m": 60,
-    "h": 60 * 60,
-    "d": 24 * 60 * 60,
-    "w": 7 * 24 * 60 * 60,
-}
-SHORT_TIME_MULT = {
-    "s": TIME_MULT["seconds"],
-    "m": TIME_MULT["minutes"],
-    "h": TIME_MULT["hours"],
-    "d": TIME_MULT["days"],
-    "w": TIME_MULT["weeks"],
-}
-
-SIZE_MULT = {
-    "bytes": 1,
-    "kb": 1024,
-    "mb": 1024 * 1024,
-    "gb": 1024 * 1024 * 1024,
-}
-
-
-# -------------------- time helpers (ISO 8601) --------------------
-
-def now_iso():
-    return datetime.now().astimezone().isoformat()
-
-
-def parse_iso(ts: str):
-    try:
-        return datetime.fromisoformat(ts)
-    except Exception:
-        return None
-
-
-def to_seconds(value: Any, units: str | None, default_seconds: int):
-    try:
-        if value is None:
-            return default_seconds
-        u = (units or "seconds").lower()
-        mult = TIME_MULT.get(u)
-        if mult is None:
-            return default_seconds
-        sec = int(value) * mult
-        return sec if sec > 0 else default_seconds
-    except Exception:
-        return default_seconds
-
-
-def parse_compact_duration(value: Any):
-    if not isinstance(value, str):
-        return None
-    s = value.strip().lower().replace(" ", "")
-    if not s:
-        return None
-
-    total = 0
-    pos = 0
-    for m in re.finditer(r"(\d+)([smhdw])", s):
-        if m.start() != pos:
-            return None
-        total += int(m.group(1)) * SHORT_TIME_MULT[m.group(2)]
-        pos = m.end()
-    if pos != len(s):
-        return None
-    return total if total > 0 else None
-
-
-def to_max_bytes(value: Any, units: str | None, default_bytes: int):
-    try:
-        if value is None:
-            return default_bytes
-        u = (units or "bytes").lower()
-        mult = SIZE_MULT.get(u)
-        if mult is None:
-            return default_bytes
-        out = int(value) * mult
-        return out if out > 0 else default_bytes
-    except Exception:
-        return default_bytes
-
-
-# -------------------- JSON IO --------------------
-
-def read_json(path: str):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def write_json_atomic(path: str, obj: dict[str, Any]):
-    d = os.path.dirname(path)
-    if d:
-        os.makedirs(d, exist_ok=True)
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(obj, f, indent=2, sort_keys=False)
-        f.flush()
-        os.fsync(f.fileno())
-    os.replace(tmp, path)
-
-
-# -------------------- lock + atomic swap --------------------
-
-class FileLock:
-    def __init__(self, lock_path: str):
-        self.lock_path = lock_path
-        self.fd: int | None = None
-
-    def acquire(self):
-        try:
-            self.fd = os.open(self.lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-            os.write(self.fd, str(os.getpid()).encode("utf-8"))
-            return True
-        except OSError as e:
-            if e.errno == errno.EEXIST:
-                return False
-            raise
-
-    def release(self):
-        try:
-            if self.fd is not None:
-                os.close(self.fd)
-        finally:
-            self.fd = None
-            try:
-                os.unlink(self.lock_path)
-            except FileNotFoundError:
-                pass
-
-
-def is_hosts_file_like(sample_lines: list[str]):
-    valid = 0
-    total = 0
-    for line in sample_lines:
-        s = line.strip()
-        if not s or s.startswith("#"):
-            continue
-        total += 1
-        parts = s.split()
-        if len(parts) >= 2 and parts[0] in ("0.0.0.0", "127.0.0.1", "::"):
-            if "." in parts[1] and "/" not in parts[1]:
-                valid += 1
-        elif len(parts) == 1 and "." in parts[0]:
-            valid += 1
-    if total <= 10:
-        return True
-    return (valid / max(total, 1)) >= 0.60
-
-
-# -------------------- dataclasses: schema --------------------
-
-@dataclass(frozen=True)
-class GlobalDefaults:
-    lists_dir: str
-    interval: int = 24
-    interval_units: str = "hours"
-    timeout: int = 60
-    timeout_units: str = "seconds"
-    max_size: int = 20
-    max_size_units: str = "MB"
-    user_agent: str | None = DEFAULT_UA
-
-    @staticmethod
-    def from_dict(d: dict[str, Any], lists_dir: str | None = None):
-        # lists_dir: prefer config value, fallback to lists_dir arg
-        lists_dir = str(d.get("lists_dir") or lists_dir or os.path.join(xdg_config_home, "opensnitch", "blocklists", "hosts"))
-
-        def _int(v: int | float | str | None, default: int):
-            try:
-                return int(v) if v is not None else default
-            except Exception:
-                return default
-
-        def _str(v: str | None, default: str):
-            v = (v or "").strip()
-            return v if v else default
-
-        return GlobalDefaults(
-            lists_dir=lists_dir,
-            interval=_int(d.get("interval"), 24),
-            interval_units=_str(d.get("interval_units"), "hours"),
-            timeout=_int(d.get("timeout"), 60),
-            timeout_units=_str(d.get("timeout_units"), "seconds"),
-            max_size=_int(d.get("max_size"), 20),
-            max_size_units=_str(d.get("max_size_units"), "MB"),
-            user_agent=(d.get("user_agent") or DEFAULT_UA),
-        )
-
-
-@dataclass(frozen=True)
-class SubscriptionSpec:
-    name: str
-    url: str
-    filename: str
-    enabled: bool = True
-    format: str = "hosts"
-    interval: int = 24
-    interval_units: str = "hours"
-    timeout: int = 60
-    timeout_units: str = "seconds"
-    max_size: int = 20
-    max_size_units: str = "MB"
-    interval_seconds: int = 24 * 3600
-    timeout_seconds: int = 60
-    max_bytes: int = 20 * 1024 * 1024
-
-    @staticmethod
-    def from_dict(d: dict[str, Any], defaults: GlobalDefaults):
-        if not isinstance(d, dict):
-            return None
-
-        name = (d.get("name") or "").strip()
-        url = (d.get("url") or "").strip()
-        filename = (d.get("filename") or "").strip()
-        if not url or not filename:
-            return None
-        if not name:
-            name = filename
-
-        def _opt_int(x: Any):
-            try:
-                return int(x) if x is not None else None
-            except Exception:
-                return None
-
-        def _opt_str(x: Any):
-            try:
-                if x is None:
-                    return None
-                x = (str(x) or "").strip().lower()
-                return x if x != "" else None
-            except Exception:
-                return None
-
-        interval_raw: Any = d.get("interval")
-        timeout_raw: Any = d.get("timeout")
-        interval_units_raw: Any = d.get("interval_units")
-        timeout_units_raw: Any = d.get("timeout_units")
-
-        interval = _opt_int(interval_raw) or defaults.interval
-        interval_units_opt = _opt_str(interval_units_raw)
-        interval_units = interval_units_opt or defaults.interval_units
-        timeout = _opt_int(timeout_raw) or defaults.timeout
-        timeout_units_opt = _opt_str(timeout_units_raw)
-        timeout_units = timeout_units_opt or defaults.timeout_units
-        max_size = _opt_int(d.get("max_size")) or defaults.max_size
-        max_size_units = _opt_str(d.get("max_size_units")) or defaults.max_size_units
-
-        default_interval_seconds = to_seconds(defaults.interval, defaults.interval_units, 24 * 3600)
-        default_timeout_seconds = to_seconds(defaults.timeout, defaults.timeout_units, 60)
-        default_max_bytes = to_max_bytes(defaults.max_size, defaults.max_size_units, 20 * 1024 * 1024)
-
-        interval_seconds: int | None = None
-        interval_is_composite = False
-        if interval_units_opt is None:
-            interval_seconds = parse_compact_duration(interval_raw)
-            interval_is_composite = interval_seconds is not None
-        if interval_seconds is None:
-            interval_seconds = to_seconds(interval, interval_units, default_interval_seconds)
-        elif interval_is_composite:
-            interval = interval_seconds
-            interval_units = "composite"
-
-        timeout_seconds: int | None = None
-        timeout_is_composite = False
-        if timeout_units_opt is None:
-            timeout_seconds = parse_compact_duration(timeout_raw)
-            timeout_is_composite = timeout_seconds is not None
-        if timeout_seconds is None:
-            timeout_seconds = to_seconds(timeout, timeout_units, default_timeout_seconds)
-        elif timeout_is_composite:
-            timeout = timeout_seconds
-            timeout_units = "composite"
-
-        max_bytes = to_max_bytes(max_size, max_size_units, default_max_bytes)
-
-        return SubscriptionSpec(
-            name=name,
-            url=url,
-            filename=filename,
-            enabled=bool(d.get("enabled", True)),
-            format=str(d.get("format", "hosts") or "hosts"),
-
-            interval=interval,
-            interval_units=interval_units,
-            timeout=timeout,
-            timeout_units=timeout_units,
-            max_size=max_size,
-            max_size_units=max_size_units,
-            interval_seconds=interval_seconds,
-            timeout_seconds=timeout_seconds,
-            max_bytes=max_bytes,
-        )
-
-
-@dataclass(frozen=True)
-class PluginConfig:
-    defaults: GlobalDefaults = field(default_factory=lambda: GlobalDefaults.from_dict({}))
-    subscriptions: list[SubscriptionSpec] = field(default_factory=list)
-
-    @staticmethod
-    def from_dict(raw_cfg: dict[str, Any], lists_dir: str | None = None):
-        raw_cfg = raw_cfg or {}
-        if not isinstance(raw_cfg, dict):
-            raw_cfg = {}
-        defaults = GlobalDefaults.from_dict(raw_cfg, lists_dir)
-
-        subs: list[SubscriptionSpec] = []
-        for item in (raw_cfg.get("subscriptions") or []):
-            sub = SubscriptionSpec.from_dict(item, defaults)
-            if sub is not None:
-                subs.append(sub)
-
-        return PluginConfig(defaults=defaults, subscriptions=subs)
-
-
-@dataclass
-class ListMetadata:
-    version: int = 1
-    url: str = ""
-    format: str = "hosts"
-
-    etag: str = ""
-    last_modified: str = ""  # HTTP header value, not ISO
-
-    last_checked: str = ""   # ISO
-    last_updated: str = ""   # ISO
-    backoff_until: str = ""  # ISO
-
-    last_result: str = "never"
-    last_error: str = ""
-
-    fail_count: int = 0
-    bytes: int = 0
-
-    @staticmethod
-    def from_dict(d: dict[str, Any]):
-        m = ListMetadata()
-        if not isinstance(d, dict):
-            return m
-
-        def _int(v: Any, default: int):
-            try:
-                return int(v) if v is not None else default
-            except Exception:
-                return default
-
-        def _str(v: Any, default: str = ""):
-            return str(v or default)
-
-        m.version = _int(d.get("version", 1), 1)
-        m.url = _str(d.get("url", ""))
-        m.format = _str(d.get("format", "hosts")) or "hosts"
-
-        m.etag = _str(d.get("etag", ""))
-        m.last_modified = _str(d.get("last_modified", ""))
-
-        m.last_checked = _str(d.get("last_checked", ""))
-        m.last_updated = _str(d.get("last_updated", ""))
-        m.backoff_until = _str(d.get("backoff_until", ""))
-
-        m.last_result = _str(d.get("last_result", "never")) or "never"
-        m.last_error = _str(d.get("last_error", ""))
-
-        m.fail_count = _int(d.get("fail_count", 0), 0)
-        m.bytes = _int(d.get("bytes", 0), 0)
-
-        return m
-
-    def to_dict(self):
-        return asdict(self)
 
 
 # -------------------- plugin core --------------------
@@ -425,7 +63,7 @@ class ListSubscriptions(PluginBase):
     The plugin exposes a results queue for the UI to display subscription status and errors.
     """
     # fields overriden from parent class
-    name = "List Subscriptions"
+    name = "List_subscriptions"
     version = 0
     author = "opensnitch"
     created = ""
@@ -439,7 +77,7 @@ class ListSubscriptions(PluginBase):
     # runtime state
     scheduled_tasks: dict[str, GenericTimer] = {}
     default_conf = "{0}/{1}".format(xdg_config_home, "opensnitch/actions/list_subscriptions.json")
-    default_lists_dir = os.path.join(xdg_config_home, "opensnitch", "blocklists", "hosts")
+    default_lists_dir = os.path.join(xdg_config_home, "opensnitch", "list_subscriptions")
 
     def __init__(self, config: dict[str, Any] | None = None):
         config = config or {}
@@ -453,6 +91,8 @@ class ListSubscriptions(PluginBase):
         self._resultsQueue: Queue[tuple[str, bool, str]] = Queue()
         self._running = False
         self._app_icon = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../../res/icon-white.svg")
+        self._cfg_dialog = None
+        self._cfg_action = None
 
         if config.get("enabled") is True:
             self.enabled = True
@@ -489,9 +129,144 @@ class ListSubscriptions(PluginBase):
     def _paths(self, sub: SubscriptionSpec):
         if self._config is None:
             raise RuntimeError("PluginConfig is not loaded")
-        list_path = os.path.join(self._config.defaults.lists_dir, sub.filename)
+        lists_dir = normalize_lists_dir(self._config.defaults.lists_dir)
+        os.makedirs(lists_dir, mode=0o700, exist_ok=True)
+        sources_dir = os.path.join(lists_dir, "sources.list.d")
+        os.makedirs(sources_dir, mode=0o700, exist_ok=True)
+        safe_filename = os.path.basename((sub.filename or "").strip())
+        if safe_filename == "":
+            safe_filename = "subscription.list"
+        safe_filename = ensure_filename_type_suffix(safe_filename, sub.format)
+        base, _ext = os.path.splitext(safe_filename)
+        list_type = (sub.format or "hosts").strip().lower()
+        suffix = f"-{list_type}"
+        sub_dirname = base if base else "subscription"
+        if not sub_dirname.lower().endswith(suffix):
+            sub_dirname = f"{sub_dirname}{suffix}"
+        sub_dir = os.path.join(sources_dir, sub_dirname)
+        os.makedirs(sub_dir, mode=0o700, exist_ok=True)
+        list_path = os.path.join(sub_dir, safe_filename)
         meta_path = list_path + ".meta.json"
         return list_path, meta_path
+
+    def _rules_root_dir(self):
+        if self._config is None:
+            return os.path.join(self.default_lists_dir, "rules.list.d")
+        return os.path.join(normalize_lists_dir(self._config.defaults.lists_dir), "rules.list.d")
+
+    def _sources_root_dir(self):
+        if self._config is None:
+            return os.path.join(self.default_lists_dir, "sources.list.d")
+        return os.path.join(normalize_lists_dir(self._config.defaults.lists_dir), "sources.list.d")
+
+    def _sync_sources_dirs(self):
+        if self._config is None:
+            return
+        sources_dir = self._sources_root_dir()
+        os.makedirs(sources_dir, mode=0o700, exist_ok=True)
+
+        desired_dirs: set[str] = set()
+        for sub in self._config.subscriptions:
+            list_path, _ = self._paths(sub)
+            desired_dirs.add(os.path.dirname(list_path))
+
+        for entry in os.listdir(sources_dir):
+            p = os.path.join(sources_dir, entry)
+            try:
+                if os.path.isdir(p) and not os.path.islink(p):
+                    if p not in desired_dirs:
+                        shutil.rmtree(p)
+                else:
+                    os.unlink(p)
+            except Exception:
+                pass
+
+    def _sync_global_symlinks(self):
+        if self._config is None:
+            return
+        rules_dir = self._rules_root_dir()
+        os.makedirs(rules_dir, mode=0o700, exist_ok=True)
+        desired: dict[str, dict[str, str]] = {}
+        for idx, sub in enumerate(self._config.subscriptions):
+            if not getattr(sub, "enabled", True):
+                continue
+            list_path, _ = self._paths(sub)
+            if not os.path.exists(list_path):
+                continue
+            raw_groups: tuple[str, ...] = getattr(sub, "groups", tuple())
+            groups: list[str] = list(raw_groups)
+            groups.append("all")
+            groups = sorted(normalize_group(g) for g in set(groups))
+            link_name = f"{idx:02d}-{os.path.basename(list_path)}"
+            for group in groups:
+                desired.setdefault(group, {})[link_name] = list_path
+
+        existing_groups: set[str] = set()
+        for name in os.listdir(rules_dir):
+            p = os.path.join(rules_dir, name)
+            if os.path.isdir(p) and not os.path.islink(p):
+                existing_groups.add(name)
+                if name not in desired:
+                    try:
+                        shutil.rmtree(p)
+                    except Exception:
+                        pass
+            else:
+                try:
+                    os.unlink(p)
+                except Exception:
+                    pass
+
+        for group_name in (existing_groups | set(desired.keys())):
+            group_dir = os.path.join(rules_dir, group_name)
+            desired_links = desired.get(group_name, {})
+            if desired_links:
+                os.makedirs(group_dir, mode=0o700, exist_ok=True)
+            try:
+                existing_entries = os.listdir(group_dir)
+            except Exception:
+                existing_entries = []
+
+            for entry in existing_entries:
+                entry_path = os.path.join(group_dir, entry)
+                if entry not in desired_links:
+                    try:
+                        if os.path.isdir(entry_path) and not os.path.islink(entry_path):
+                            shutil.rmtree(entry_path)
+                        else:
+                            os.unlink(entry_path)
+                    except Exception:
+                        pass
+                    continue
+
+                expected_target = desired_links[entry]
+                in_sync = False
+                try:
+                    if os.path.islink(entry_path):
+                        in_sync = os.path.realpath(entry_path) == os.path.realpath(expected_target)
+                except Exception:
+                    in_sync = False
+
+                if not in_sync:
+                    try:
+                        if os.path.isdir(entry_path) and not os.path.islink(entry_path):
+                            shutil.rmtree(entry_path)
+                        else:
+                            os.unlink(entry_path)
+                    except Exception:
+                        pass
+
+            for link_name, target in desired_links.items():
+                link_path = os.path.join(group_dir, link_name)
+                if os.path.lexists(link_path):
+                    continue
+                try:
+                    os.symlink(target, link_path)
+                except Exception:
+                    try:
+                        shutil.copy2(target, link_path)
+                    except Exception:
+                        pass
 
     def _load_meta(self, meta_path: str):
         try:
@@ -510,8 +285,68 @@ class ListSubscriptions(PluginBase):
 
     def configure(self, parent: Any = None):
         if type(parent) == StatsDialog:
-            pass
-            #_gui.add_panel_section()
+            if self._cfg_action is not None:
+                return
+
+            menu = parent.actionsButton.menu()
+            if menu is None:
+                return
+
+            icon_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "blocklist.svg")
+            icon = QtGui.QIcon(icon_path) if os.path.exists(icon_path) else QtGui.QIcon()
+
+            quit_action = self._find_quit_action(menu)
+            if quit_action is not None:
+                if not icon.isNull():
+                    self._cfg_action = menu.addAction(icon, "List subscriptions")
+                else:
+                    self._cfg_action = menu.addAction("List subscriptions")
+                menu.insertAction(quit_action, self._cfg_action)
+            else:
+                acts = menu.actions()
+                if acts and not acts[-1].isSeparator():
+                    menu.addSeparator()
+                if not icon.isNull():
+                    self._cfg_action = menu.addAction(icon, "List subscriptions")
+                else:
+                    self._cfg_action = menu.addAction("List subscriptions")
+
+            self._cfg_action.triggered.connect(lambda *_: self._open_config_dialog(parent))
+
+    def _find_quit_action(self, menu: Any):
+        qt_key = getattr(getattr(QtCore, "Qt", object()), "Key", None)
+        key_q = getattr(qt_key, "Key_Q", None) if qt_key is not None else None
+        for act in menu.actions():
+            if act.isSeparator():
+                continue
+            txt = (act.text() or "").replace("&", "").strip().lower()
+            if txt == "quit":
+                return act
+            shortcut = act.shortcut()
+            if key_q is not None and shortcut and shortcut.matches(QtGui.QKeySequence(key_q)):
+                return act
+        # In OpenSnitch main actions menu, Quit is typically the last entry.
+        acts = [a for a in menu.actions() if not a.isSeparator()]
+        if acts:
+            return acts[-1]
+        return None
+
+    def _open_config_dialog(self, parent):
+        from opensnitch.plugins.list_subscriptions import _gui
+
+        appicon = None
+        try:
+            appicon = parent.windowIcon()
+        except Exception:
+            appicon = None
+
+        if self._cfg_dialog is None:
+            # Some wrapped dialog types are not accepted as QWidget parents by
+            # PyQt6 constructors in plugin context. Use a top-level dialog.
+            self._cfg_dialog = _gui.ListSubscriptionsDialog(parent=None, appicon=appicon)
+        self._cfg_dialog.show()
+        self._cfg_dialog.raise_()
+        self._cfg_dialog.activateWindow()
 
     def compile(self):
         """
@@ -553,6 +388,8 @@ class ListSubscriptions(PluginBase):
                 except Exception:
                     pass
                 self.scheduled_tasks.pop(key, None)
+        self._sync_sources_dirs()
+        self._sync_global_symlinks()
 
     def run(self, parent: Any = None, args: tuple[Any, ...] = ()):  # type: ignore[override]
         """
@@ -569,6 +406,22 @@ class ListSubscriptions(PluginBase):
                 t.start()
             except Exception:
                 pass
+
+        # Validate + force download all subscriptions at startup.
+        th = threading.Thread(target=self._startup_recheck_all, daemon=True)
+        th.start()
+
+    def _startup_recheck_all(self):
+        if self._config is None:
+            return
+        for sub in self._config.subscriptions:
+            if not sub.enabled:
+                continue
+            try:
+                self.force_refresh_subscription(sub)
+            except Exception as e:
+                logger.warning("list_subscriptions: startup recheck error name='%s' err=%s", sub.name, repr(e))
+        self._sync_global_symlinks()
 
     def stop(self):
         """
@@ -599,8 +452,10 @@ class ListSubscriptions(PluginBase):
         meta = self._load_meta(meta_path)
 
         if self._in_backoff(meta):
+            logger.warning("list_subscriptions: skip '%s' (in backoff)", sub.name)
             return
         if not self._is_due(meta, sub):
+            logger.warning("list_subscriptions: skip '%s' (not due yet)", sub.name)
             return
 
         th = threading.Thread(target=self.download, args=(key, sub))
@@ -634,6 +489,20 @@ class ListSubscriptions(PluginBase):
 
         if self._notify is not None and self._desktop_notifications.is_available() and self._desktop_notifications.are_enabled():
             self._desktop_notifications.show(self._notify_title, result_msg, self._app_icon)
+
+    def force_refresh_subscription(self, sub: SubscriptionSpec):
+        key = self._sub_key(sub)
+        logger.warning(
+            "list_subscriptions: force refresh requested name='%s' url='%s' file='%s'",
+            sub.name, sub.url, sub.filename
+        )
+        ok = self.download(key, sub)
+        logger.warning(
+            "list_subscriptions: force refresh finished name='%s' result=%s",
+            sub.name, "ok" if ok else "error"
+        )
+        self._sync_global_symlinks()
+        return ok
 
     def cb_signal(self, signal: Any):
         logger.debug("cb_signal: %s, %s", self.name, signal)
@@ -678,6 +547,10 @@ class ListSubscriptions(PluginBase):
     def download(self, key: str, sub: SubscriptionSpec):
         list_path, meta_path = self._paths(sub)
         os.makedirs(os.path.dirname(list_path), exist_ok=True)
+        logger.warning(
+            "list_subscriptions: download start key=%s name='%s' dst='%s'",
+            key, sub.name, list_path
+        )
 
         meta = self._load_meta(meta_path)
 
@@ -724,12 +597,14 @@ class ListSubscriptions(PluginBase):
                     meta.last_result = "not_modified"
                     self._save_meta(meta_path, meta)
                     self._resultsQueue.put((key, True, "not_modified"))
+                    logger.warning("list_subscriptions: download not-modified name='%s'", sub.name)
                     return True
 
                 if r.status_code != 200:
                     self._mark_failure(meta, f"http_{r.status_code}")
                     self._save_meta(meta_path, meta)
                     self._resultsQueue.put((key, False, f"http_{r.status_code}"))
+                    logger.warning("list_subscriptions: download http error name='%s' code=%s", sub.name, r.status_code)
                     return False
 
                 cl: str | None = r.headers.get("Content-Length")
@@ -739,6 +614,7 @@ class ListSubscriptions(PluginBase):
                             self._mark_failure(meta, f"too_large:{cl}")
                             self._save_meta(meta_path, meta)
                             self._resultsQueue.put((key, False, "too_large"))
+                            logger.warning("list_subscriptions: download too-large name='%s' len=%s", sub.name, cl)
                             return False
                     except Exception:
                         pass
@@ -776,6 +652,7 @@ class ListSubscriptions(PluginBase):
                         self._mark_failure(meta, "bad_format_hosts")
                         self._save_meta(meta_path, meta)
                         self._resultsQueue.put((key, False, "bad_format"))
+                        logger.warning("list_subscriptions: download bad-format name='%s'", sub.name)
                         return False
 
                     os.replace(tmp, list_path)
@@ -789,6 +666,7 @@ class ListSubscriptions(PluginBase):
                     self._mark_failure(meta, repr(e))
                     self._save_meta(meta_path, meta)
                     self._resultsQueue.put((key, False, "write_error"))
+                    logger.warning("list_subscriptions: download write-error name='%s' err=%s", sub.name, repr(e))
                     return False
 
                 # update cache validators
@@ -806,6 +684,7 @@ class ListSubscriptions(PluginBase):
                 meta.last_result = "updated"
                 self._save_meta(meta_path, meta)
                 self._resultsQueue.put((key, True, "updated"))
+                logger.warning("list_subscriptions: download updated name='%s' bytes=%s", sub.name, downloaded)
                 return True
             finally:
                 r.close()
@@ -813,6 +692,7 @@ class ListSubscriptions(PluginBase):
             self._mark_failure(meta, repr(e))
             self._save_meta(meta_path, meta)
             self._resultsQueue.put((key, False, "unexpected_error"))
+            logger.warning("list_subscriptions: download unexpected-error name='%s' err=%s", sub.name, repr(e))
             return False
 
         finally:
