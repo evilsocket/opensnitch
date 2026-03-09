@@ -300,7 +300,7 @@ class MenuActions(views.ViewsManager):
                     nodes_updated.append(node)
 
             for addr in nodes_updated:
-                node = self.node_get_node(addr)
+                node = self.node_get(addr)
                 nid, ntf = self.node_reload_fw(addr, node['firewall'], self._notification_callback)
                 self.save_ntf(nid, ntf)
 
