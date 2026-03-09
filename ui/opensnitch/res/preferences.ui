@@ -3104,8 +3104,21 @@ Use 0 to disable this feature.</string>
           </property>
          </spacer>
         </item>
+        <item row="19" column="0" colspan="2">
+         <widget class="QCheckBox" name="checkPersistInterception">
+          <property name="toolTip">
+           <string>Remember if the firewall was paused (interception disabled) and restore that state on restart</string>
+          </property>
+          <property name="text">
+           <string>Remember pause state across restarts</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="1">
-         <spacer name="horizontalSpacer_2">
+          <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
