@@ -9,10 +9,11 @@ from datetime import datetime, timedelta
 from queue import Queue
 
 import requests
-if "PyQt5" in sys.modules:
-    from PyQt5 import QtCore, QtGui
-elif "PyQt6" in sys.modules:
+
+if "PyQt6" in sys.modules:
     from PyQt6 import QtCore, QtGui
+elif "PyQt5" in sys.modules:
+    from PyQt5 import QtCore, QtGui
 else:
     try:
         from PyQt6 import QtCore, QtGui

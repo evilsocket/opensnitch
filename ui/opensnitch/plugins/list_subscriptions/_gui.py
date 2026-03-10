@@ -14,12 +14,12 @@ if TYPE_CHECKING:
     from PyQt6 import QtCore, QtGui, QtWidgets, uic
     from PyQt6.QtCore import QCoreApplication as QC
 else:
-    if "PyQt5" in sys.modules:
-        from PyQt5 import QtCore, QtGui, QtWidgets, uic
-        from PyQt5.QtCore import QCoreApplication as QC
-    elif "PyQt6" in sys.modules:
+    if "PyQt6" in sys.modules:
         from PyQt6 import QtCore, QtGui, QtWidgets, uic
         from PyQt6.QtCore import QCoreApplication as QC
+    elif "PyQt5" in sys.modules:
+        from PyQt5 import QtCore, QtGui, QtWidgets, uic
+        from PyQt5.QtCore import QCoreApplication as QC
     else:
         try:
             from PyQt6 import QtCore, QtGui, QtWidgets, uic
