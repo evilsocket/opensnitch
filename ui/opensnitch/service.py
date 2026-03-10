@@ -619,6 +619,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             nid, noti = self._nodes.start_interception(_callback=self._notification_callback)
 
         self._fw_enabled = not enable
+        if self._cfg.getBool(self._cfg.DEFAULT_PERSIST_INTERCEPTION_STATE, False):
+            self._cfg.setSettings(self._cfg.DEFAULT_FW_INTERCEPTION_ENABLED, self._fw_enabled)
 
         self._stats_dialog._status_changed_trigger.emit(not enable)
 
@@ -816,6 +818,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if _default_action == Config.ACTION_ALLOW_IDX:
                 temp_cfg['DefaultAction'] = Config.ACTION_ALLOW
             else:
+                # TODO: use ACTION_DROP when 'drop' is added to the daemon
                 temp_cfg['DefaultAction'] = Config.ACTION_DENY
 
             self.logger.info("Setting daemon DefaultAction to: %s", temp_cfg['DefaultAction'])
@@ -849,7 +852,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 # if there're more than one node, we can't update the status
                 # based on the fw status, only if the daemon is running or not
                 if self._nodes.count() <= 1:
-                    self._update_fw_status(kwargs['node_config'].isFirewallRunning)
+                    if self._cfg.getBool(self._cfg.DEFAULT_PERSIST_INTERCEPTION_STATE, False):
+                        saved_fw_enabled = self._cfg.getBool(self._cfg.DEFAULT_FW_INTERCEPTION_ENABLED, True)
+                        daemon_fw_running = kwargs['node_config'].isFirewallRunning
+                        if not saved_fw_enabled and daemon_fw_running:
+                            # user had paused before last shutdown, send disable to daemon
+                            self._nodes.stop_interception(_callback=self._notification_callback)
+                            self._update_fw_status(False)
+                        else:
+                            self._update_fw_status(daemon_fw_running)
+                    else:
+                        self._update_fw_status(kwargs['node_config'].isFirewallRunning)
                 else:
                     self._update_fw_status(True)
         elif kwargs['action'] == self.ADD_RULE:

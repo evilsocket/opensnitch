@@ -51,6 +51,7 @@ def load(win):
     win.spinUITimeout.setValue(win.default_timeout)
     win.spinUITimeout.setEnabled(not win.disable_popups)
     win.popupsCheck.setChecked(win.disable_popups)
+    win.checkPersistInterception.setChecked(win.cfgMgr.getBool(win.cfgMgr.DEFAULT_PERSIST_INTERCEPTION_STATE, False))
 
     win.showAdvancedCheck.setChecked(win.cfgMgr.getBool(win.cfgMgr.DEFAULT_POPUP_ADVANCED))
     win.dstIPCheck.setChecked(win.cfgMgr.getBool(win.cfgMgr.DEFAULT_POPUP_ADVANCED_DSTIP))
@@ -199,6 +200,11 @@ def save_ui_config(win):
         win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_TIMEOUT_KEY, win.spinUITimeout.value())
         win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_DISABLE_POPUPS, bool(win.popupsCheck.isChecked()))
         win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_POPUP_POSITION, int(win.comboUIDialogPos.currentIndex()))
+
+        persist_interception = bool(win.checkPersistInterception.isChecked())
+        win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_PERSIST_INTERCEPTION_STATE, persist_interception)
+        if not persist_interception:
+            win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_FW_INTERCEPTION_ENABLED, True)
 
         win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_POPUP_ADVANCED, bool(win.showAdvancedCheck.isChecked()))
         win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_POPUP_ADVANCED_DSTIP, bool(win.dstIPCheck.isChecked()))
@@ -384,6 +390,7 @@ def build_node_config(win, addr):
         if win.comboNodeAddress.currentText() == "":
             return None, QC.translate("preferences", "Server address cannot be empty")
 
+        # TODO: use ACTION_DROP when 'drop' is added to the daemon
         node_action = Config.ACTION_DENY
         if win.comboNodeAction.currentIndex() == Config.ACTION_ALLOW_IDX:
             node_action = Config.ACTION_ALLOW

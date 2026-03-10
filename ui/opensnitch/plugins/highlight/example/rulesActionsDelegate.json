@@ -15,7 +15,7 @@
           "alignment": ["center"]
         },
         {
-          "text": ["deny", "False"],
+          "text": ["drop", "deny", "False"],
           "cols": [3, 4],
           "color": "red",
           "bgcolor": "",
@@ -37,7 +37,7 @@
               "bgcolor": "green"
           },
           {
-              "text": ["deny"],
+              "text": ["drop", "deny"],
               "cols": [4],
               "color": "white",
               "bgcolor": "crimson"

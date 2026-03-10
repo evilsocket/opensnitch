@@ -358,7 +358,7 @@ QSlider::sub-page:horizontal {
             </item>
             <item>
              <property name="text">
-              <string>Deny</string>
+              <string>Drop</string>
              </property>
              <property name="icon">
               <iconset theme="process-stop">
@@ -426,7 +426,7 @@ QSlider::sub-page:horizontal {
             </item>
             <item>
              <property name="text">
-              <string>Deny</string>
+              <string>Drop</string>
              </property>
              <property name="icon">
               <iconset theme="process-stop">

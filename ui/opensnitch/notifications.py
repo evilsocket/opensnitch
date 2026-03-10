@@ -34,12 +34,12 @@ class DesktopNotifications():
     # must be a string
     ACTION_ID_OPEN = "action-open"
     ACTION_ID_ALLOW = "action-allow"
-    ACTION_ID_DENY = "action-deny"
+    ACTION_ID_DROP = "action-drop"
 
     def __init__(self):
         self.ACTION_OPEN = QC.translate("popups", "Open")
         self.ACTION_ALLOW = QC.translate("popups", "Allow")
-        self.ACTION_DENY = QC.translate("popups", "Deny")
+        self.ACTION_DROP = QC.translate("popups", "Drop")
         self.IS_LIBNOTIFY_AVAILABLE = True
         self.DOES_SUPPORT_ACTIONS = True
         self.ntf2 = None
@@ -129,7 +129,7 @@ class DesktopNotifications():
         if self.DOES_SUPPORT_ACTIONS:
             ntf.set_urgency(self.ntf2.URGENCY_CRITICAL)
             ntf.add_action(self.ACTION_ID_ALLOW, self.ACTION_ALLOW, callback, connection)
-            ntf.add_action(self.ACTION_ID_DENY, self.ACTION_DENY, callback, connection)
+            ntf.add_action(self.ACTION_ID_DROP, self.ACTION_DROP, callback, connection)
             #ntf.add_action("open-gui", QC.translate("popups", "View"), callback, connection)
         ntf.set_category(self.CATEGORY_NETWORK)
         ntf.set_hint(self.HINT_DESKTOP_ENTRY, "opensnitch_ui")

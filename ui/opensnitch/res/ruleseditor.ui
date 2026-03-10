@@ -1129,7 +1129,7 @@ You must name the rule in such manner that it'll be checked first, because they'
            </sizepolicy>
           </property>
           <property name="toolTip">
-           <string>Deny will just discard the connection</string>
+           <string>Drop will just discard the connection</string>
           </property>
           <property name="text">
            <string>Drop</string>
