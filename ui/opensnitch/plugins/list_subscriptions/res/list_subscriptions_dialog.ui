@@ -57,6 +57,27 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="start_runtime_button">
+       <property name="text">
+        <string>Start</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="stop_runtime_button">
+       <property name="text">
+        <string>Stop</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="runtime_status_label">
+       <property name="text">
+        <string>Runtime: inactive</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -183,7 +204,7 @@
      <item>
       <widget class="QGroupBox" name="rule_actions_box">
        <property name="title">
-        <string>Rule actions</string>
+        <string>Selected subscription(s) actions</string>
        </property>
        <layout class="QHBoxLayout" name="ruleActionsLayout">
         <item>
@@ -203,7 +224,7 @@
         <item>
          <widget class="QPushButton" name="refresh_now_button">
           <property name="text">
-           <string>Refresh now</string>
+           <string>Refresh</string>
           </property>
          </widget>
         </item>

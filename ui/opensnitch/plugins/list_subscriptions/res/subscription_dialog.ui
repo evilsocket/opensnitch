@@ -39,54 +39,82 @@
         <item row="1" column="1">
          <widget class="QLineEdit" name="name_edit"/>
         </item>
-        <item row="2" column="0">
+        <item row="2" column="1">
+         <widget class="QLabel" name="name_error_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
          <widget class="QLabel" name="url_label">
           <property name="text">
            <string>URL</string>
           </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
+        </widget>
+       </item>
+        <item row="3" column="1">
          <widget class="QLineEdit" name="url_edit"/>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="1">
+         <widget class="QLabel" name="url_error_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
          <widget class="QLabel" name="filename_label">
           <property name="text">
            <string>Filename</string>
           </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
+        </widget>
+       </item>
+        <item row="5" column="1">
          <widget class="QLineEdit" name="filename_edit"/>
         </item>
-        <item row="4" column="0">
+        <item row="6" column="1">
+         <widget class="QLabel" name="filename_error_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
          <widget class="QLabel" name="format_label">
           <property name="text">
            <string>Format</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="7" column="1">
          <widget class="QComboBox" name="format_combo"/>
         </item>
-        <item row="5" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="groups_label">
           <property name="text">
            <string>Groups</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="8" column="1">
          <widget class="QComboBox" name="group_combo"/>
         </item>
-        <item row="6" column="0">
+        <item row="9" column="1">
+         <widget class="QLabel" name="group_error_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="0">
          <widget class="QLabel" name="interval_label">
           <property name="text">
            <string>Interval</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="10" column="1">
          <layout class="QHBoxLayout" name="interval_layout">
           <item>
            <widget class="QSpinBox" name="interval_spin"/>
@@ -96,14 +124,14 @@
           </item>
          </layout>
         </item>
-        <item row="7" column="0">
+        <item row="11" column="0">
          <widget class="QLabel" name="timeout_label">
           <property name="text">
            <string>Timeout</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="11" column="1">
          <layout class="QHBoxLayout" name="timeout_layout">
           <item>
            <widget class="QSpinBox" name="timeout_spin"/>
@@ -113,14 +141,14 @@
           </item>
          </layout>
         </item>
-        <item row="8" column="0">
+        <item row="12" column="0">
          <widget class="QLabel" name="max_size_label">
           <property name="text">
            <string>Max size</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="12" column="1">
          <layout class="QHBoxLayout" name="max_size_layout">
           <item>
            <widget class="QSpinBox" name="max_size_spin"/>
@@ -297,6 +325,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="test_url_button">
+       <property name="text">
+        <string>Test URL</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="cancel_button">
