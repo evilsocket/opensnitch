@@ -1,3 +1,7 @@
 *.sock
 *.pyc
 *.profile
+
+.vscode/
+.idea/
+.DS_Store
