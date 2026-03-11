@@ -22,7 +22,10 @@ else:
     except Exception:
         from PyQt5 import QtCore, QtGui
 
-from opensnitch.dialogs.stats import StatsDialog
+try:
+    from opensnitch.dialogs.events import StatsDialog
+except ImportError:
+    from opensnitch.dialogs.stats import StatsDialog
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.notifications import DesktopNotifications
@@ -507,8 +510,8 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     if not matched:
                         continue
 
-                    notification = ui_pb2.Notification(
-                        type=ui_pb2.CHANGE_RULE,
+                    notification = ui_pb2.Notification( # type: ignore
+                        type=ui_pb2.CHANGE_RULE, # type: ignore
                         rules=[rule],
                     )
                     self._nodes.send_notification(addr, notification, None)
@@ -538,7 +541,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         return hashlib.sha1(base.encode("utf-8")).hexdigest()[:16]
 
     def configure(self, parent: Any = None):
-        if type(parent) == StatsDialog:  # noqa: E721
+        if isinstance(parent, StatsDialog):
             if self._cfg_action is not None:
                 return
 
@@ -662,7 +665,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         Start timers.
         """
 
-        if parent == StatsDialog:
+        if isinstance(parent, StatsDialog):
             pass
         self._start_runtime(recheck=True)
 
