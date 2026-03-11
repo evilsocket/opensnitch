@@ -60,6 +60,7 @@ logger: Final[logging.Logger] = logging.getLogger(__name__)
 class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
     if TYPE_CHECKING:
         rootLayout: QtWidgets.QVBoxLayout
+        buttons_layout: QtWidgets.QHBoxLayout
         changes_section_bar: QtWidgets.QFrame
         changes_section_label: QtWidgets.QLabel
         selection_hint_label: QtWidgets.QLabel
@@ -104,8 +105,12 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
         self.changes_tree.setContentsMargins(0, 0, 0, 0)
         self.buttons_layout.setContentsMargins(12, 10, 12, 12)
         self.buttons_layout.setSpacing(8)
-        self._apply_section_bar_style()
-        self._apply_footer_style()
+        _apply_section_bar_style(
+            self,
+            self.changes_section_bar,
+            self.changes_section_label,
+        )
+        _apply_footer_separator_style(self, self.footer_separator_line)
         self.error_label.setSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding,
             QtWidgets.QSizePolicy.Policy.Preferred,
@@ -251,22 +256,6 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
         self.interval_spin.valueChanged.connect(self._sync_optional_fields_state)
         self.timeout_spin.valueChanged.connect(self._sync_optional_fields_state)
         self.max_size_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self._apply_optional_field_tooltips()
-        self._sync_apply_fields_state()
-        self._sync_optional_fields_state()
-        self.resize(760, 420)
-
-    def _apply_section_bar_style(self):
-        _apply_section_bar_style(
-            self,
-            self.changes_section_bar,
-            self.changes_section_label,
-        )
-
-    def _apply_footer_style(self):
-        _apply_footer_separator_style(self, self.footer_separator_line)
-
-    def _apply_optional_field_tooltips(self):
         _set_optional_field_tooltips(
             self.interval_spin,
             self.interval_units,
@@ -276,6 +265,11 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
             self.max_size_units,
             inherit_wording=False,
         )
+        self._sync_apply_fields_state()
+        self._sync_optional_fields_state()
+        self.resize(760, 420)
+
+    # Les méthodes supprimées ci-dessus sont désormais remplacées par l'utilisation directe des helpers dans _build_ui.
 
     def _build_compound_editor(
         self, primary: QtWidgets.QWidget, secondary: QtWidgets.QWidget

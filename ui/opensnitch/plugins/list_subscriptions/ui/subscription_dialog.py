@@ -1,7 +1,6 @@
 import logging
 import os
 import sys
-import threading
 from typing import Any, TYPE_CHECKING, Final
 
 if TYPE_CHECKING:
@@ -57,7 +56,6 @@ from opensnitch.plugins.list_subscriptions.ui.helpers import (
 from opensnitch.plugins.list_subscriptions.ui.toggle_switch_widget import (
     _replace_checkbox_with_toggle,
 )
-import requests
 
 SUBSCRIPTION_DIALOG_UI_PATH: Final[str] = os.path.join(
     RES_DIR, "subscription_dialog.ui"
@@ -66,6 +64,41 @@ SUBSCRIPTION_DIALOG_UI_PATH: Final[str] = os.path.join(
 SubscriptionDialogUI: Final[Any] = load_ui_type(SUBSCRIPTION_DIALOG_UI_PATH)[0]
 
 logger: Final[logging.Logger] = logging.getLogger(__name__)
+
+
+class UrlTestWorker(QtCore.QThread):
+    finished = QtCore.pyqtSignal(bool, str)
+
+    def __init__(self, url: str):
+        super().__init__()
+        self.url = url
+
+    def run(self):
+        import requests
+        try:
+            response = requests.head(self.url, allow_redirects=True, timeout=5)
+            if response.status_code >= 400 and response.status_code not in (403, 405):
+                raise requests.HTTPError(f"HTTP {response.status_code}")
+            final_url = response.url or self.url
+            response.close()
+            if response.status_code in (403, 405):
+                response = requests.get(
+                    self.url, allow_redirects=True, timeout=5, stream=True
+                )
+                if response.status_code >= 400:
+                    raise requests.HTTPError(f"HTTP {response.status_code}")
+                final_url = response.url or final_url
+                response.close()
+            message = QC.translate("stats", "URL reachable.")
+            if final_url != self.url:
+                message = QC.translate("stats", "URL reachable via redirect.")
+                if final_url:
+                    message = QC.translate("stats", "URL reachable via redirect.")
+                    self.finished.emit(True, f"{message} {final_url}")
+                    return
+            self.finished.emit(True, message)
+        except requests.RequestException as exc:
+            self.finished.emit(False, str(exc))
 
 
 class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
@@ -152,6 +185,7 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
     ):
         super().__init__(parent)
         self.setWindowTitle(QC.translate("stats", title))
+        self.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
         self._title = title
         self._defaults = defaults
         self._groups = groups or []
@@ -215,21 +249,28 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         self.buttons_layout.setSpacing(8)
         self.bodyLayout.setStretch(0, 1)
         self.bodyLayout.setStretch(1, 1)
-        self._apply_dialog_section_bar_style(
-            self.settings_section_bar, self.settings_section_label
+        _apply_section_bar_style(
+            self, self.settings_section_bar, self.settings_section_label
         )
-        self._apply_dialog_section_bar_style(
-            self.meta_section_bar, self.meta_section_label
+        _apply_section_bar_style(
+            self, self.meta_section_bar, self.meta_section_label
         )
-        self._apply_dialog_split_header_style()
-        self._apply_dialog_footer_style(self.footer_separator_line)
+        _apply_section_bar_style(
+            self,
+            self.settings_section_bar,
+            self.settings_section_label,
+            right_border=True,
+        )
+        _apply_footer_separator_style(self, self.footer_separator_line)
         self.error_label.setSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding,
-            QtWidgets.QSizePolicy.Policy.Preferred,
+            QtWidgets.QSizePolicy.Policy.Fixed,
         )
         self.error_label.setAlignment(
             QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
         )
+        self.error_label.setWordWrap(False)
+        self.error_label.setTextFormat(QtCore.Qt.TextFormat.PlainText)
         self.settings_form.setFieldGrowthPolicy(
             QtWidgets.QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow
         )
@@ -262,6 +303,13 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         self.group_combo.setMinimumWidth(0)
         self.interval_units.setMinimumWidth(unit_combo_width)
         self.timeout_units.setMinimumWidth(unit_combo_width)
+        section_font = self.settings_section_label.font()
+        section_font.setPointSize(13)
+        section_font.setBold(True)
+        self.settings_section_label.setFont(section_font)
+        self.meta_section_label.setFont(section_font)
+        self.settings_section_label.setMinimumHeight(32)
+        self.meta_section_label.setMinimumHeight(32)
         self.max_size_units.setMinimumWidth(unit_combo_width)
         self.interval_layout.setStretch(0, 1)
         self.interval_layout.setStretch(1, 0)
@@ -392,7 +440,15 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         self.interval_spin.valueChanged.connect(self._sync_optional_fields_state)
         self.timeout_spin.valueChanged.connect(self._sync_optional_fields_state)
         self.max_size_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self._apply_optional_field_tooltips()
+        _set_optional_field_tooltips(
+            self.interval_spin,
+            self.interval_units,
+            self.timeout_spin,
+            self.timeout_units,
+            self.max_size_spin,
+            self.max_size_units,
+            inherit_wording=True,
+        )
         self._sync_optional_fields_state()
         self.meta_file_present.setText(str(self._meta.get("file_present", "")))
         self.meta_meta_present.setText(str(self._meta.get("meta_present", "")))
@@ -406,35 +462,6 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         if "new" in (self._title or "").strip().lower():
             self.meta_group.setVisible(False)
         self.resize(920, 420)
-
-    def _apply_dialog_section_bar_style(
-        self, container: QtWidgets.QFrame, label: QtWidgets.QLabel
-    ):
-        _apply_section_bar_style(self, container, label)
-
-    def _apply_dialog_split_header_style(self):
-        # Match the main dialog split-header pattern: the left section owns
-        # the center divider, rather than leaving a visual gap between bars.
-        _apply_section_bar_style(
-            self,
-            self.settings_section_bar,
-            self.settings_section_label,
-            right_border=True,
-        )
-
-    def _apply_dialog_footer_style(self, separator: QtWidgets.QFrame):
-        _apply_footer_separator_style(self, separator)
-
-    def _apply_optional_field_tooltips(self):
-        _set_optional_field_tooltips(
-            self.interval_spin,
-            self.interval_units,
-            self.timeout_spin,
-            self.timeout_units,
-            self.max_size_spin,
-            self.max_size_units,
-            inherit_wording=True,
-        )
 
     def _sync_optional_fields_state(self):
         self.interval_units.setEnabled(self.interval_spin.value() > 0)
@@ -451,6 +478,7 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         color = "red" if error else "#2e7d32"
         self.error_label.setStyleSheet(f"color: {color};")
         self.error_label.setText(message)
+        self.error_label.setToolTip(message)
 
     def _test_url(self):
         self.url_error_label.setText("")
@@ -474,34 +502,9 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         self.test_url_button.setEnabled(False)
         self._set_dialog_message(QC.translate("stats", "Testing URL..."), error=False)
 
-        def _run_test():
-            try:
-                response = requests.head(url, allow_redirects=True, timeout=5)
-                if response.status_code >= 400 and response.status_code not in (
-                    403,
-                    405,
-                ):
-                    raise requests.HTTPError(f"HTTP {response.status_code}")
-                final_url = response.url or url
-                response.close()
-                if response.status_code in (403, 405):
-                    response = requests.get(
-                        url, allow_redirects=True, timeout=5, stream=True
-                    )
-                    if response.status_code >= 400:
-                        raise requests.HTTPError(f"HTTP {response.status_code}")
-                    final_url = response.url or final_url
-                    response.close()
-                message = QC.translate("stats", "URL reachable.")
-                if final_url != url:
-                    message = QC.translate(
-                        "stats", "URL reachable via redirect to {0}"
-                    ).format(final_url)
-                self._url_test_finished.emit(True, message)
-            except requests.RequestException as exc:
-                self._url_test_finished.emit(False, str(exc))
-
-        threading.Thread(target=_run_test, daemon=True).start()
+        self._url_worker = UrlTestWorker(url)
+        self._url_worker.finished.connect(self._url_test_finished.emit)
+        self._url_worker.start()
 
     def _handle_url_test_finished(self, success: bool, message: str):
         self.test_url_button.setEnabled(True)
@@ -511,9 +514,10 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
             return
         self.url_error_label.setText(QC.translate("stats", "URL check failed."))
         self._set_dialog_message(
-            QC.translate("stats", "URL test failed: {0}").format(message),
+            QC.translate("stats", "URL test failed. See details in the tooltip."),
             error=True,
         )
+        self.error_label.setToolTip(message)
 
     def _validate_then_accept(self):
         self._clear_field_errors()

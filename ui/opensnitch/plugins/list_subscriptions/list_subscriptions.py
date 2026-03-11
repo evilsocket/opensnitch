@@ -28,7 +28,10 @@ except ImportError:
 from opensnitch.plugins.list_subscriptions.io.lock import FileLock
 from opensnitch.plugins.list_subscriptions.io.storage import read_json_locked
 from opensnitch.plugins.list_subscriptions.models.config import PluginConfig
-from opensnitch.plugins.list_subscriptions.models.events import RuntimeEvent
+from opensnitch.plugins.list_subscriptions.models.events import (
+    RuntimeEventType,
+    SubscriptionEventItem,
+)
 from opensnitch.plugins.list_subscriptions.models.metadata import ListMetadata
 from opensnitch.plugins.list_subscriptions.models.subscriptions import SubscriptionSpec
 from opensnitch.proto import ui_pb2
@@ -50,7 +53,6 @@ from opensnitch.plugins.list_subscriptions._utils import (
     now_iso,
     parse_iso,
     subscription_dirname,
-    subscription_event_item,
 )
 from opensnitch.plugins.list_subscriptions.io.storage import (
     write_json_atomic_locked,
@@ -158,7 +160,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
 
     def _emit_runtime_event(
         self,
-        event: RuntimeEvent,
+        event: RuntimeEventType,
         message: str,
         *,
         error: str | None = None,
@@ -167,7 +169,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         path: str | None = None,
         source: str | None = None,
         state: str | None = None,
-        items: list[dict[str, Any]] | None = None,
+        items: list[dict[str, Any]] | list[SubscriptionEventItem] | None = None,
     ):
         payload: dict[str, Any] = {
             "plugin": self.get_name(),
@@ -318,7 +320,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         try:
             raw_action = read_json_locked(action_path)
             self._emit_runtime_event(
-                RuntimeEvent.FILE_LOAD_FINISHED,
+                RuntimeEventType.FILE_LOAD_FINISHED,
                 "Runtime configuration loaded.",
                 action_path=action_path,
                 target="action_config",
@@ -331,7 +333,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 exc,
             )
             self._emit_runtime_event(
-                RuntimeEvent.FILE_LOAD_ERROR,
+                RuntimeEventType.FILE_LOAD_ERROR,
                 "Failed to load runtime configuration.",
                 error=str(exc),
                 action_path=action_path,
@@ -344,7 +346,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             logger.warning(
                 "invalid action payload in %s: %r",
                 action_path,
-                type(raw_action).__name__,
+                type(raw_action).__name__, # pyright: ignore[reportCallIssue]
             )
             return False, f"invalid action payload type: {type(raw_action).__name__}"
 
@@ -507,7 +509,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         try:
             meta = ListMetadata.from_dict(read_json_locked(meta_path))
             self._emit_runtime_event(
-                RuntimeEvent.FILE_LOAD_FINISHED,
+                RuntimeEventType.FILE_LOAD_FINISHED,
                 "Subscription metadata loaded.",
                 target="subscription_meta",
                 path=meta_path,
@@ -515,7 +517,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             return meta
         except Exception as exc:
             self._emit_runtime_event(
-                RuntimeEvent.FILE_LOAD_ERROR,
+                RuntimeEventType.FILE_LOAD_ERROR,
                 "Failed to load subscription metadata.",
                 error=str(exc),
                 target="subscription_meta",
@@ -527,7 +529,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         try:
             write_json_atomic_locked(meta_path, meta.to_dict())
             self._emit_runtime_event(
-                RuntimeEvent.FILE_SAVE_FINISHED,
+                RuntimeEventType.FILE_SAVE_FINISHED,
                 "Subscription metadata saved.",
                 target="subscription_meta",
                 path=meta_path,
@@ -535,7 +537,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             )
         except Exception as exc:
             self._emit_runtime_event(
-                RuntimeEvent.FILE_SAVE_ERROR,
+                RuntimeEventType.FILE_SAVE_ERROR,
                 "Failed to save subscription metadata.",
                 error=str(exc),
                 target="subscription_meta",
@@ -973,13 +975,13 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     self.enabled = True
                     self.run()
                     self._emit_runtime_event(
-                        RuntimeEvent.RUNTIME_ENABLED,
+                        RuntimeEventType.RUNTIME_ENABLED,
                         "Plugin runtime enabled.",
                         action_path=action_path,
                     )
                 else:
                     self._emit_runtime_event(
-                        RuntimeEvent.RUNTIME_ERROR,
+                        RuntimeEventType.RUNTIME_ERROR,
                         "Failed to enable plugin runtime.",
                         error=err,
                         action_path=action_path,
@@ -1005,7 +1007,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                             subscriptions.append(sub)
                 if not subscriptions:
                     self._emit_runtime_event(
-                        RuntimeEvent.RUNTIME_ERROR,
+                        RuntimeEventType.RUNTIME_ERROR,
                         "No subscriptions were provided for refresh.",
                         action_path=action_path,
                     )
@@ -1035,13 +1037,13 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                         self._start_runtime(recheck=False)
                         self._apply_config_update_diff(previous_subscriptions)
                     self._emit_runtime_event(
-                        RuntimeEvent.CONFIG_RELOADED,
+                        RuntimeEventType.CONFIG_RELOADED,
                         "Plugin runtime configuration reloaded.",
                         action_path=action_path,
                     )
                 else:
                     self._emit_runtime_event(
-                        RuntimeEvent.RUNTIME_ERROR,
+                        RuntimeEventType.RUNTIME_ERROR,
                         "Failed to reload plugin runtime configuration.",
                         error=err,
                         action_path=action_path,
@@ -1058,9 +1060,9 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 self.stop()
                 self._emit_runtime_event(
                     (
-                        RuntimeEvent.RUNTIME_DISABLED
+                        RuntimeEventType.RUNTIME_DISABLED
                         if sig == PluginSignal.DISABLE
-                        else RuntimeEvent.RUNTIME_STOPPED
+                        else RuntimeEventType.RUNTIME_STOPPED
                     ),
                     (
                         "Plugin runtime disabled."
@@ -1074,7 +1076,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             if sig == PluginSignal.ERROR:
                 err = str(signal.get("error") or signal.get("message") or "")
                 self._emit_runtime_event(
-                    RuntimeEvent.RUNTIME_ERROR,
+                    RuntimeEventType.RUNTIME_ERROR,
                     "Plugin runtime reported an error.",
                     error=err or None,
                     action_path=action_path,
@@ -1135,17 +1137,17 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
 
         meta.last_checked = now_iso()
         meta.last_error = ""
-        event_item = subscription_event_item(
-            key,
+        event_item = SubscriptionEventItem(
+            key=key,
             name=sub.name,
             url=sub.url,
             filename=sub.filename,
-            list_type=sub.format,
+            format=sub.format,
             path=list_path,
         )
         if emit_download_events:
             self._emit_runtime_event(
-                RuntimeEvent.DOWNLOAD_STARTED,
+                RuntimeEventType.DOWNLOAD_STARTED,
                 f"Downloading subscription '{sub.name}'.",
                 target="subscription_list",
                 path=list_path,
@@ -1168,19 +1170,19 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             self._save_meta(meta_path, meta)
             if emit_download_events:
                 self._emit_runtime_event(
-                    RuntimeEvent.DOWNLOAD_FAILED,
+                    RuntimeEventType.DOWNLOAD_FAILED,
                     f"Subscription '{sub.name}' is busy.",
                     target="subscription_list",
                     path=list_path,
                     source=source,
                     state="busy",
                     items=[
-                        subscription_event_item(
-                            key,
+                        SubscriptionEventItem(
+                            key=key,
                             name=sub.name,
                             url=sub.url,
                             filename=sub.filename,
-                            list_type=sub.format,
+                            format=sub.format,
                             state="busy",
                             path=list_path,
                         )
@@ -1200,7 +1202,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 self._save_meta(meta_path, meta)
                 if emit_download_events:
                     self._emit_runtime_event(
-                        RuntimeEvent.DOWNLOAD_FAILED,
+                        RuntimeEventType.DOWNLOAD_FAILED,
                         f"Subscription download failed for '{sub.name}'.",
                         error=repr(e),
                         target="subscription_list",
@@ -1208,12 +1210,12 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                         source=source,
                         state="request_error",
                         items=[
-                            subscription_event_item(
-                                key,
+                            SubscriptionEventItem(
+                                key=key,
                                 name=sub.name,
                                 url=sub.url,
                                 filename=sub.filename,
-                                list_type=sub.format,
+                                format=sub.format,
                                 state="request_error",
                                 path=list_path,
                             )
@@ -1231,19 +1233,19 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     self._save_meta(meta_path, meta)
                     if emit_download_events:
                         self._emit_runtime_event(
-                            RuntimeEvent.DOWNLOAD_FINISHED,
+                            RuntimeEventType.DOWNLOAD_FINISHED,
                             f"Subscription '{sub.name}' is up to date.",
                             target="subscription_list",
                             path=list_path,
                             source=source,
                             state="not_modified",
                             items=[
-                                subscription_event_item(
-                                    key,
+                                SubscriptionEventItem(
+                                    key=key,
                                     name=sub.name,
                                     url=sub.url,
                                     filename=sub.filename,
-                                    list_type=sub.format,
+                                    format=sub.format,
                                     state="not_modified",
                                     path=list_path,
                                 )
@@ -1258,7 +1260,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     self._save_meta(meta_path, meta)
                     if emit_download_events:
                         self._emit_runtime_event(
-                            RuntimeEvent.DOWNLOAD_FAILED,
+                            RuntimeEventType.DOWNLOAD_FAILED,
                             f"Subscription download failed for '{sub.name}'.",
                             error=f"http_{r.status_code}",
                             target="subscription_list",
@@ -1266,12 +1268,12 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                             source=source,
                             state=f"http_{r.status_code}",
                             items=[
-                                subscription_event_item(
-                                    key,
+                                SubscriptionEventItem(
+                                    key=key,
                                     name=sub.name,
                                     url=sub.url,
                                     filename=sub.filename,
-                                    list_type=sub.format,
+                                    format=sub.format,
                                     state=f"http_{r.status_code}",
                                     path=list_path,
                                 )
@@ -1293,7 +1295,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                             self._save_meta(meta_path, meta)
                             if emit_download_events:
                                 self._emit_runtime_event(
-                                    RuntimeEvent.DOWNLOAD_FAILED,
+                                    RuntimeEventType.DOWNLOAD_FAILED,
                                     f"Subscription download exceeded max size for '{sub.name}'.",
                                     error=f"too_large:{cl}",
                                     target="subscription_list",
@@ -1301,12 +1303,12 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                                     source=source,
                                     state="too_large",
                                     items=[
-                                        subscription_event_item(
-                                            key,
+                                        SubscriptionEventItem(
+                                            key=key,
                                             name=sub.name,
                                             url=sub.url,
                                             filename=sub.filename,
-                                            list_type=sub.format,
+                                            format=sub.format,
                                             state="too_large",
                                             path=list_path,
                                         )
@@ -1361,7 +1363,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                         self._save_meta(meta_path, meta)
                         if emit_download_events:
                             self._emit_runtime_event(
-                                RuntimeEvent.DOWNLOAD_FAILED,
+                                RuntimeEventType.DOWNLOAD_FAILED,
                                 f"Subscription file format is invalid for '{sub.name}'.",
                                 error="bad_format_hosts",
                                 target="subscription_list",
@@ -1369,12 +1371,12 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                                 source=source,
                                 state="bad_format",
                                 items=[
-                                    subscription_event_item(
-                                        key,
+                                    SubscriptionEventItem(
+                                        key=key,
                                         name=sub.name,
                                         url=sub.url,
                                         filename=sub.filename,
-                                        list_type=sub.format,
+                                        format=sub.format,
                                         state="bad_format",
                                         path=list_path,
                                     )
@@ -1390,7 +1392,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     os.replace(tmp, list_path)
                     self._fsync_parent_dir(list_path)
                     self._emit_runtime_event(
-                        RuntimeEvent.FILE_SAVE_FINISHED,
+                        RuntimeEventType.FILE_SAVE_FINISHED,
                         f"Subscription file saved for '{sub.name}'.",
                         target="subscription_list",
                         path=list_path,
@@ -1407,7 +1409,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     self._mark_failure(meta, repr(e))
                     self._save_meta(meta_path, meta)
                     self._emit_runtime_event(
-                        RuntimeEvent.FILE_SAVE_ERROR,
+                        RuntimeEventType.FILE_SAVE_ERROR,
                         f"Failed to save subscription file for '{sub.name}'.",
                         error=repr(e),
                         target="subscription_list",
@@ -1415,12 +1417,12 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                         source=source,
                         state="write_error",
                         items=[
-                            subscription_event_item(
-                                key,
+                            SubscriptionEventItem(
+                                key=key,
                                 name=sub.name,
                                 url=sub.url,
                                 filename=sub.filename,
-                                list_type=sub.format,
+                                format=sub.format,
                                 state="write_error",
                                 path=list_path,
                             )
@@ -1428,7 +1430,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     )
                     if emit_download_events:
                         self._emit_runtime_event(
-                            RuntimeEvent.DOWNLOAD_FAILED,
+                            RuntimeEventType.DOWNLOAD_FAILED,
                             f"Subscription download failed for '{sub.name}'.",
                             error=repr(e),
                             target="subscription_list",
@@ -1436,12 +1438,12 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                             source=source,
                             state="write_error",
                             items=[
-                                subscription_event_item(
-                                    key,
+                                SubscriptionEventItem(
+                                    key=key,
                                     name=sub.name,
                                     url=sub.url,
                                     filename=sub.filename,
-                                    list_type=sub.format,
+                                    format=sub.format,
                                     state="write_error",
                                     path=list_path,
                                 )
@@ -1471,19 +1473,19 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 self._save_meta(meta_path, meta)
                 if emit_download_events:
                     self._emit_runtime_event(
-                        RuntimeEvent.DOWNLOAD_FINISHED,
+                        RuntimeEventType.DOWNLOAD_FINISHED,
                         f"Subscription '{sub.name}' updated.",
                         target="subscription_list",
                         path=list_path,
                         source=source,
                         state="updated",
                         items=[
-                            subscription_event_item(
-                                key,
+                            SubscriptionEventItem(
+                                key=key,
                                 name=sub.name,
                                 url=sub.url,
                                 filename=sub.filename,
-                                list_type=sub.format,
+                                format=sub.format,
                                 state="updated",
                                 path=list_path,
                             )
@@ -1507,7 +1509,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             self._save_meta(meta_path, meta)
             if emit_download_events:
                 self._emit_runtime_event(
-                    RuntimeEvent.DOWNLOAD_FAILED,
+                    RuntimeEventType.DOWNLOAD_FAILED,
                     f"Subscription download failed for '{sub.name}'.",
                     error=repr(e),
                     target="subscription_list",
@@ -1515,12 +1517,12 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     source=source,
                     state="unexpected_error",
                     items=[
-                        subscription_event_item(
-                            key,
+                        SubscriptionEventItem(
+                            key=key,
                             name=sub.name,
                             url=sub.url,
                             filename=sub.filename,
-                            list_type=sub.format,
+                            format=sub.format,
                             state="unexpected_error",
                             path=list_path,
                         )
@@ -1556,20 +1558,20 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         if not subscriptions:
             return True
 
-        items: list[dict[str, Any]] = []
+        items: list[SubscriptionEventItem] = []
         if emit_download_events:
             self._emit_runtime_event(
-                RuntimeEvent.DOWNLOAD_STARTED,
+                RuntimeEventType.DOWNLOAD_STARTED,
                 "Batch subscription refresh started.",
                 target="subscription_list",
                 source=source,
                 items=[
-                    subscription_event_item(
-                        self._sub_key(sub),
+                    SubscriptionEventItem(
+                        key=self._sub_key(sub),
                         name=sub.name,
                         url=sub.url,
                         filename=sub.filename,
-                        list_type=sub.format,
+                        format=sub.format,
                     )
                     for sub in subscriptions
                 ],
@@ -1602,12 +1604,12 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             except Exception:
                 pass
             items.append(
-                subscription_event_item(
-                    key,
+                SubscriptionEventItem(
+                    key=key,
                     name=sub.name,
                     url=sub.url,
                     filename=sub.filename,
-                    list_type=sub.format,
+                    format=sub.format,
                     state=item_state,
                     path=list_path,
                 )
@@ -1615,9 +1617,9 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         if emit_download_events:
             self._emit_runtime_event(
                 (
-                    RuntimeEvent.DOWNLOAD_FAILED
+                    RuntimeEventType.DOWNLOAD_FAILED
                     if had_errors
-                    else RuntimeEvent.DOWNLOAD_FINISHED
+                    else RuntimeEventType.DOWNLOAD_FINISHED
                 ),
                 (
                     "Batch subscription refresh finished with errors."

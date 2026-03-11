@@ -266,61 +266,6 @@ def timestamp_sort_key(value: str | None):
     return (normalized == "", normalized)
 
 
-def subscription_event_item(
-    key: str,
-    *,
-    name: str,
-    url: str,
-    filename: str,
-    list_type: str,
-    state: str | None = None,
-    path: str | None = None,
-):
-    item: dict[str, Any] = {
-        "key": key,
-        "name": name,
-        "url": url,
-        "filename": filename,
-        "format": list_type,
-    }
-    if state:
-        item["state"] = state
-    if path:
-        item["path"] = path
-    return item
-
-
-def subscription_payload_dict(
-    *,
-    enabled: bool,
-    name: str,
-    url: str,
-    filename: str,
-    list_type: str,
-    groups: list[str],
-    interval: int | None,
-    interval_units: str | None,
-    timeout: int | None,
-    timeout_units: str | None,
-    max_size: int | None,
-    max_size_units: str | None,
-):
-    return {
-        "enabled": enabled,
-        "name": name,
-        "url": url,
-        "filename": filename,
-        "format": list_type,
-        "groups": groups,
-        "interval": interval,
-        "interval_units": interval_units,
-        "timeout": timeout,
-        "timeout_units": timeout_units,
-        "max_size": max_size,
-        "max_size_units": max_size_units,
-    }
-
-
 def normalize_group(group: str | None):
     raw = (group or "").strip().lower()
     if raw == "":

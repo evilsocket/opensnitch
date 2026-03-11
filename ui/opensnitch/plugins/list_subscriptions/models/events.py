@@ -1,7 +1,32 @@
+from typing import TypedDict
 from enum import IntEnum
 
+class SubscriptionEventItem(TypedDict, total=False):
+    key: str
+    name: str
+    url: str
+    filename: str
+    format: str
+    state: str | None
+    path: str | None
 
-class RuntimeEvent(IntEnum):
+
+class SubscriptionEventPayload(TypedDict, total=False):
+    enabled: bool
+    name: str
+    url: str
+    filename: str
+    format: str
+    groups: list[str]
+    interval: int | None
+    interval_units: str | None
+    timeout: int | None
+    timeout_units: str | None
+    max_size: int | None
+    max_size_units: str | None
+
+
+class RuntimeEventType(IntEnum):
     RUNTIME_ENABLED = 1
     CONFIG_RELOADED = 2
     RUNTIME_DISABLED = 3

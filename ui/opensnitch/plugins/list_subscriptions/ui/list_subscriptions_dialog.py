@@ -39,7 +39,10 @@ from opensnitch.plugins.list_subscriptions.models.subscriptions import (
     SubscriptionSpec,
 )
 from opensnitch.plugins.list_subscriptions.models.global_defaults import GlobalDefaults
-from opensnitch.plugins.list_subscriptions.models.events import RuntimeEvent
+from opensnitch.plugins.list_subscriptions.models.events import (
+    RuntimeEventType,
+    SubscriptionEventPayload,
+)
 from opensnitch.actions import Actions
 from opensnitch.nodes import Nodes
 from opensnitch.plugins import PluginSignal
@@ -76,13 +79,13 @@ from opensnitch.plugins.list_subscriptions._utils import (
     normalize_unit,
     safe_filename,
     strip_or_none,
-    subscription_payload_dict,
     subscription_rule_dir,
     timestamp_sort_key,
 )
 from opensnitch.plugins.list_subscriptions.io.storage import (
     write_json_atomic_locked,
 )
+from opensnitch.config import Config
 from opensnitch.dialogs.ruleseditor import RulesEditorDialog
 import requests
 from opensnitch.plugins.list_subscriptions.list_subscriptions import ListSubscriptions
@@ -394,21 +397,29 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self.status_label.setAlignment(
             QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
         )
-        self._apply_section_header_style(
+        _apply_section_bar_style(
+            self,
             self.defaults_section_bar,
             self.defaults_section_label,
+            expanding_label=True,
         )
-        self._apply_section_header_style(
+        _apply_section_bar_style(
+            self,
             self.table_section_bar,
             self.table_section_label,
+            expanding_label=True,
         )
-        self._apply_section_header_style(
+        _apply_section_bar_style(
+            self,
             self.global_actions_bar,
             self.global_actions_label,
+            expanding_label=True,
         )
-        self._apply_section_header_style(
+        _apply_section_bar_style(
+            self,
             self.selected_actions_bar,
             self.selected_actions_label,
+            expanding_label=True,
         )
         self.actionsRowLayout.setStretch(0, 1)
         self.actionsRowLayout.setStretch(2, 1)
@@ -473,6 +484,8 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             self.node_label,
         ):
             label.setMinimumWidth(defaults_label_width)
+        self.node_label.hide()
+        self.nodes_combo.hide()
 
         self.default_interval_spin.setRange(1, 999999)
         self.default_interval_units.clear()
@@ -616,16 +629,6 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._set_runtime_state(active=False)
         self._update_selected_actions_state()
 
-    def _apply_section_header_style(
-        self, container: QtWidgets.QFrame, label: QtWidgets.QLabel
-    ):
-        _apply_section_bar_style(
-            self,
-            container,
-            label,
-            expanding_label=True,
-        )
-
     @contextmanager
     def _sorting_suspended(self):
         header = self.table.horizontalHeader()
@@ -755,7 +758,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
 
     def _runtime_download_message(
         self,
-        event_name: RuntimeEvent | None,
+        event_name: RuntimeEventType | None,
         payload: dict[str, Any],
         fallback: str,
     ):
@@ -764,19 +767,19 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             return fallback
         count = len(items)
         first_name = str(items[0].get("name") or "").strip()
-        if event_name == RuntimeEvent.DOWNLOAD_STARTED:
+        if event_name == RuntimeEventType.DOWNLOAD_STARTED:
             if count == 1 and first_name != "":
                 return QC.translate("stats", "Refreshing subscription '{0}'.").format(
                     first_name
                 )
             return QC.translate("stats", "Refreshing {0} subscriptions.").format(count)
-        if event_name == RuntimeEvent.DOWNLOAD_FINISHED:
+        if event_name == RuntimeEventType.DOWNLOAD_FINISHED:
             if count == 1 and first_name != "":
                 return QC.translate("stats", "Subscription '{0}' refreshed.").format(
                     first_name
                 )
             return QC.translate("stats", "Refreshed {0} subscriptions.").format(count)
-        if event_name == RuntimeEvent.DOWNLOAD_FAILED:
+        if event_name == RuntimeEventType.DOWNLOAD_FAILED:
             if count == 1 and first_name != "":
                 return QC.translate(
                     "stats", "Subscription '{0}' refresh failed."
@@ -1680,7 +1683,10 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                     return
                 target_sub = row_sub
             if target_sub is None:
-                self._set_status(QC.translate("stats", "Internal error: target_sub is None."), error=True)
+                self._set_status(
+                    QC.translate("stats", "Internal error: target_sub is None."),
+                    error=True,
+                )
                 return
             list_path, _ = plug._paths(target_sub)
             refresh_targets.append((target_sub, list_path))
@@ -1694,12 +1700,12 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 "action_path": self._action_path,
                 "source": "manual_refresh",
                 "items": [
-                    subscription_payload_dict(
+                    SubscriptionEventPayload(
                         enabled=target_sub.enabled,
                         name=target_sub.name,
                         url=target_sub.url,
                         filename=target_sub.filename,
-                        list_type=target_sub.format,
+                        format=target_sub.format,
                         groups=list(target_sub.groups),
                         interval=target_sub.interval,
                         interval_units=target_sub.interval_units,
@@ -1848,12 +1854,12 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 "action_path": self._action_path,
                 "source": "manual_refresh",
                 "items": [
-                    subscription_payload_dict(
+                    SubscriptionEventPayload(
                         enabled=sub.enabled,
                         name=sub.name,
                         url=sub.url,
                         filename=sub.filename,
-                        list_type=sub.format,
+                        format=sub.format,
                         groups=list(sub.groups),
                         interval=sub.interval,
                         interval_units=sub.interval_units,
@@ -1948,6 +1954,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._rules_dialog.new_rule()
         if not self._configure_rules_dialog_for_local_user():
             return
+        self._apply_rule_editor_defaults()
 
         # Rules editor expects a directory containing one or more hosts files.
         self._rules_dialog.dstListsCheck.setChecked(True)
@@ -1991,6 +1998,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._rules_dialog.new_rule()
         if not self._configure_rules_dialog_for_local_user():
             return
+        self._apply_rule_editor_defaults()
         rule_name = "00-blocklist-all"
         self._rules_dialog.dstListsCheck.setChecked(True)
         self._rules_dialog.dstListsLine.setText(rule_dir)
@@ -2050,6 +2058,20 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         else:
             uid_combo.setCurrentText(uid_text)
         return True
+
+    def _apply_rule_editor_defaults(self):
+        if self._rules_dialog is None:
+            return
+        self._rules_dialog.enableCheck.setChecked(True)
+        duration_idx = self._rules_dialog.durationCombo.findData(Config.DURATION_ALWAYS)
+        if duration_idx < 0:
+            duration_idx = self._rules_dialog.durationCombo.findText(
+                Config.DURATION_ALWAYS,
+                QtCore.Qt.MatchFlag.MatchFixedString,
+            )
+        if duration_idx < 0:
+            duration_idx = 8
+        self._rules_dialog.durationCombo.setCurrentIndex(duration_idx)
 
     def _choose_group_for_selected(self, rows: list[int]):
         if not rows:
@@ -2240,40 +2262,40 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         event_value = payload.get("event")
         if isinstance(event_value, int):
             try:
-                event_name = RuntimeEvent(event_value)
+                event_name = RuntimeEventType(event_value)
             except Exception:
                 event_name = None
         else:
             event_name = None
         is_error = event_name in (
-            RuntimeEvent.RUNTIME_ERROR,
-            RuntimeEvent.DOWNLOAD_FAILED,
-            RuntimeEvent.FILE_SAVE_ERROR,
-            RuntimeEvent.FILE_LOAD_ERROR,
+            RuntimeEventType.RUNTIME_ERROR,
+            RuntimeEventType.DOWNLOAD_FAILED,
+            RuntimeEventType.FILE_SAVE_ERROR,
+            RuntimeEventType.FILE_LOAD_ERROR,
         )
-        if event_name == RuntimeEvent.DOWNLOAD_STARTED:
+        if event_name == RuntimeEventType.DOWNLOAD_STARTED:
             for key in event_keys:
                 if key in self._pending_refresh_keys:
                     self._pending_refresh_keys.discard(key)
                     self._active_refresh_keys.add(key)
             self._set_refresh_busy(True)
         elif event_name in (
-            RuntimeEvent.DOWNLOAD_FINISHED,
-            RuntimeEvent.DOWNLOAD_FAILED,
+            RuntimeEventType.DOWNLOAD_FINISHED,
+            RuntimeEventType.DOWNLOAD_FAILED,
         ):
             for key in event_keys:
                 self._clear_refresh_key(key)
             if event_name in (
-                RuntimeEvent.DOWNLOAD_FINISHED,
-                RuntimeEvent.DOWNLOAD_FAILED,
+                RuntimeEventType.DOWNLOAD_FINISHED,
+                RuntimeEventType.DOWNLOAD_FAILED,
             ):
                 self.refresh_states()
                 self._update_selected_actions_state()
-        if event_name == RuntimeEvent.RUNTIME_ENABLED:
+        if event_name == RuntimeEventType.RUNTIME_ENABLED:
             self._set_runtime_state(active=True)
         elif event_name in (
-            RuntimeEvent.RUNTIME_DISABLED,
-            RuntimeEvent.RUNTIME_STOPPED,
+            RuntimeEventType.RUNTIME_DISABLED,
+            RuntimeEventType.RUNTIME_STOPPED,
         ):
             self._set_runtime_state(active=False)
         elif self._pending_runtime_reload is not None:
@@ -2286,7 +2308,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 active=None, text=QC.translate("stats", "Runtime: error")
             )
         if self._pending_runtime_reload == "waiting_config_reload":
-            if event_name == RuntimeEvent.CONFIG_RELOADED:
+            if event_name == RuntimeEventType.CONFIG_RELOADED:
                 self._pending_runtime_reload = None
                 self.load_action_file()
                 return
@@ -2297,9 +2319,9 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 str(event_value or "unknown")
             )
         if event_name in (
-            RuntimeEvent.DOWNLOAD_STARTED,
-            RuntimeEvent.DOWNLOAD_FINISHED,
-            RuntimeEvent.DOWNLOAD_FAILED,
+            RuntimeEventType.DOWNLOAD_STARTED,
+            RuntimeEventType.DOWNLOAD_FINISHED,
+            RuntimeEventType.DOWNLOAD_FAILED,
         ):
             message = self._runtime_download_message(event_name, payload, message)
         if is_error and error_detail != "":
