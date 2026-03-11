@@ -1,17 +1,30 @@
-import errno
-import json
 import os
 import re
-import time
-from enum import IntEnum
 from datetime import datetime
-from typing import Any
+from typing import Any, Final
 from urllib.parse import urlparse, unquote
 
 from opensnitch.utils.xdg import xdg_config_home
 
+ACTION_FILE: Final[str] = os.path.join(
+    xdg_config_home, "opensnitch", "actions", "list_subscriptions.json"
+)
+DEFAULT_LISTS_DIR: Final[str] = os.path.join(
+    xdg_config_home, "opensnitch", "list_subscriptions"
+)
+PLUGIN_DIR: Final[str] = os.path.abspath(os.path.dirname(__file__))
+RES_DIR: Final[str] = os.path.join(PLUGIN_DIR, "res")
 
-TIME_MULT = {
+INTERVAL_UNITS: Final[tuple[str, ...]] = (
+    "seconds",
+    "minutes",
+    "hours",
+    "days",
+    "weeks",
+)
+TIMEOUT_UNITS: Final[tuple[str, ...]] = ("seconds", "minutes", "hours", "days", "weeks")
+SIZE_UNITS: Final[tuple[str, ...]] = ("bytes", "KB", "MB", "GB")
+TIME_MULT: Final[dict[str, int]] = {
     "seconds": 1,
     "minutes": 60,
     "hours": 60 * 60,
@@ -23,28 +36,28 @@ TIME_MULT = {
     "d": 24 * 60 * 60,
     "w": 7 * 24 * 60 * 60,
 }
-SHORT_TIME_MULT = {
+SHORT_TIME_MULT: Final[dict[str, int]] = {
     "s": TIME_MULT["seconds"],
     "m": TIME_MULT["minutes"],
     "h": TIME_MULT["hours"],
     "d": TIME_MULT["days"],
     "w": TIME_MULT["weeks"],
 }
-
-SIZE_MULT = {
+SIZE_MULT: Final[dict[str, int]] = {
     "bytes": 1,
     "kb": 1024,
     "mb": 1024 * 1024,
     "gb": 1024 * 1024 * 1024,
 }
 
+DEFAULT_UA: Final[str] = (
+    "Mozilla/5.0 (X11; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0"
+)
 
-class RuntimeEvent(IntEnum):
-    RUNTIME_ENABLED = 1
-    CONFIG_RELOADED = 2
-    RUNTIME_DISABLED = 3
-    RUNTIME_STOPPED = 4
-    RUNTIME_ERROR = 5
+DEFAULT_NOTIFY_CONFIG: Final[dict[str, dict[str, str]]] = {
+    "success": {"desktop": "Lists subscriptions updated"},
+    "error": {"desktop": "Error updating lists subscriptions"},
+}
 
 
 def now_iso():
@@ -84,7 +97,18 @@ def opt_str(value: Any):
         return None
 
 
-def normalize_lists_dir(path: str | None) -> str:
+def display_str(value: Any):
+    if value is None:
+        return ""
+    return str(value)
+
+
+def strip_or_none(value: Any):
+    text = str(value or "").strip()
+    return text or None
+
+
+def normalize_lists_dir(path: str | None):
     default_dir = os.path.join(xdg_config_home, "opensnitch", "list_subscriptions")
     raw = (path or "").strip()
     if raw == "":
@@ -95,11 +119,20 @@ def normalize_lists_dir(path: str | None) -> str:
     return expanded
 
 
-def safe_filename(value: Any) -> str:
+def is_valid_url(value: str | None):
+    parsed = urlparse(str(value or "").strip())
+    return parsed.scheme in {"http", "https"} and parsed.netloc != ""
+
+
+def safe_filename(value: Any):
     return os.path.basename((str(value or "")).strip())
 
 
-def filename_from_url(url: str | None) -> str:
+def normalized_list_type(value: str | None):
+    return (value or "hosts").strip().lower()
+
+
+def filename_from_url(url: str | None):
     try:
         parsed = urlparse((url or "").strip())
         return safe_filename(unquote(parsed.path or ""))
@@ -107,7 +140,7 @@ def filename_from_url(url: str | None) -> str:
         return ""
 
 
-def slugify_name(name: str | None) -> str:
+def slugify_name(name: str | None):
     raw = (name or "").strip().lower()
     if raw == "":
         return "subscription.list"
@@ -119,7 +152,55 @@ def slugify_name(name: str | None) -> str:
     return safe_filename(slug)
 
 
-def derive_filename(name: str | None, url: str | None, filename: str | None) -> str:
+def deslugify_filename(filename: str | None, list_type: str | None):
+    safe = safe_filename(filename)
+    base, _ext = os.path.splitext(safe)
+    suffix = f"-{normalized_list_type(list_type)}"
+    if base.lower().endswith(suffix):
+        base = base[: -len(suffix)]
+    pretty = re.sub(r"[-_.]+", " ", base).strip()
+    pretty = re.sub(r"\s+", " ", pretty)
+    if pretty == "":
+        return safe
+    return pretty.title()
+
+
+def filename_from_content_disposition(value: str | None):
+    cd = str(value or "").strip()
+    if cd == "":
+        return ""
+    filename = ""
+    m_star = re.search(
+        r'filename\*\s*=\s*[^\'";]+\'[^\'";]*\'([^;]+)', cd, re.IGNORECASE
+    )
+    if m_star:
+        filename = unquote(m_star.group(1).strip().strip('"'))
+    if filename == "":
+        params = {}
+        try:
+            raw_params = ";".join(cd.split(";")[1:])
+            for part in raw_params.split(";"):
+                if "=" not in part:
+                    continue
+                key, raw_value = part.split("=", 1)
+                params[key.strip().lower()] = raw_value.strip().strip('"')
+        except Exception:
+            params = {}
+        raw = params.get("filename")
+        if raw:
+            filename = unquote(str(raw)).strip()
+    return safe_filename(filename)
+
+
+def derive_filename(
+    name: str | None,
+    url: str | None,
+    filename: str | None,
+    header_filename: str | None = None,
+):
+    fn = safe_filename(header_filename)
+    if fn != "":
+        return fn
     fn = safe_filename(filename)
     if fn != "":
         return fn
@@ -129,10 +210,10 @@ def derive_filename(name: str | None, url: str | None, filename: str | None) -> 
     return slugify_name(name)
 
 
-def ensure_filename_type_suffix(filename: str, list_type: str) -> str:
+def ensure_filename_type_suffix(filename: str, list_type: str):
     fn = safe_filename(filename)
     base, ext = os.path.splitext(fn)
-    ltype = (list_type or "hosts").strip().lower()
+    ltype = normalized_list_type(list_type)
     suffix = f"-{ltype}"
     if not base.lower().endswith(suffix):
         base = f"{base}{suffix}" if base else ltype
@@ -141,7 +222,106 @@ def ensure_filename_type_suffix(filename: str, list_type: str) -> str:
     return safe_filename(f"{base}{ext}")
 
 
-def normalize_group(group: str | None) -> str:
+def normalized_subscription_filename(filename: str | None, list_type: str | None):
+    safe_name = safe_filename(filename)
+    if safe_name == "":
+        safe_name = "subscription.list"
+    return ensure_filename_type_suffix(safe_name, normalized_list_type(list_type))
+
+
+def subscription_dirname(filename: str | None, list_type: str | None):
+    safe_name = normalized_subscription_filename(filename, list_type)
+    base, _ext = os.path.splitext(safe_name)
+    normalized_type = normalized_list_type(list_type)
+    suffix = f"-{normalized_type}"
+    dirname = base if base else "subscription"
+    if not dirname.lower().endswith(suffix):
+        dirname = f"{dirname}{suffix}"
+    return dirname
+
+
+def list_file_path(lists_dir: str, filename: str | None, list_type: str | None):
+    safe_name = normalized_subscription_filename(filename, list_type)
+    return os.path.join(lists_dir, "sources.list.d", safe_name)
+
+
+def subscription_rule_dir(lists_dir: str, filename: str | None, list_type: str | None):
+    return os.path.join(
+        lists_dir,
+        "rules.list.d",
+        subscription_dirname(filename, list_type),
+    )
+
+
+def normalize_unit(value: str | None, allowed: tuple[str, ...], fallback: str):
+    normalized = (value or "").strip().lower()
+    for unit in allowed:
+        if unit.lower() == normalized:
+            return unit
+    return fallback
+
+
+def timestamp_sort_key(value: str | None):
+    normalized = str(value or "").strip()
+    return (normalized == "", normalized)
+
+
+def subscription_event_item(
+    key: str,
+    *,
+    name: str,
+    url: str,
+    filename: str,
+    list_type: str,
+    state: str | None = None,
+    path: str | None = None,
+):
+    item: dict[str, Any] = {
+        "key": key,
+        "name": name,
+        "url": url,
+        "filename": filename,
+        "format": list_type,
+    }
+    if state:
+        item["state"] = state
+    if path:
+        item["path"] = path
+    return item
+
+
+def subscription_payload_dict(
+    *,
+    enabled: bool,
+    name: str,
+    url: str,
+    filename: str,
+    list_type: str,
+    groups: list[str],
+    interval: int | None,
+    interval_units: str | None,
+    timeout: int | None,
+    timeout_units: str | None,
+    max_size: int | None,
+    max_size_units: str | None,
+):
+    return {
+        "enabled": enabled,
+        "name": name,
+        "url": url,
+        "filename": filename,
+        "format": list_type,
+        "groups": groups,
+        "interval": interval,
+        "interval_units": interval_units,
+        "timeout": timeout,
+        "timeout_units": timeout_units,
+        "max_size": max_size,
+        "max_size_units": max_size_units,
+    }
+
+
+def normalize_group(group: str | None):
     raw = (group or "").strip().lower()
     if raw == "":
         return ""
@@ -149,7 +329,7 @@ def normalize_group(group: str | None) -> str:
     return raw
 
 
-def normalize_groups(groups: Any) -> list[str]:
+def normalize_groups(groups: Any):
     out: list[str] = []
     if isinstance(groups, (list, tuple, set)):
         raw_items = [str(x) for x in groups]
@@ -186,7 +366,7 @@ def dedupe_subscription_identity(
     base, ext = os.path.splitext(filename)
     if ext == "":
         ext = ".txt"
-    suffix = f"-{(list_type or 'hosts').strip().lower()}"
+    suffix = f"-{normalized_list_type(list_type)}"
     root = base
     if root.lower().endswith(suffix):
         root = root[: -len(suffix)]
@@ -248,145 +428,6 @@ def to_max_bytes(value: Any, units: str | None, default_bytes: int):
         return out if out > 0 else default_bytes
     except Exception:
         return default_bytes
-
-
-def read_json(path: str):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def write_json_atomic(path: str, obj: dict[str, Any]):
-    d = os.path.dirname(path)
-    if d:
-        os.makedirs(d, exist_ok=True)
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(obj, f, indent=2, sort_keys=False)
-        f.flush()
-        os.fsync(f.fileno())
-    os.replace(tmp, path)
-
-
-def json_lock_path(path: str) -> str:
-    return f"{path}.lock"
-
-
-def read_json_locked(path: str, timeout: float = 5.0, poll_interval: float = 0.05):
-    lock_path = json_lock_path(path)
-    lock = FileLock(lock_path)
-    deadline = time.monotonic() + max(timeout, 0.0)
-    while os.path.exists(lock_path):
-        lock.break_stale()
-        if not os.path.exists(lock_path):
-            break
-        if time.monotonic() >= deadline:
-            raise TimeoutError(f"timed out waiting for lock: {lock_path}")
-        time.sleep(poll_interval)
-    return read_json(path)
-
-
-def write_json_atomic_locked(
-    path: str,
-    obj: dict[str, Any],
-    timeout: float = 5.0,
-    poll_interval: float = 0.05,
-):
-    lock = FileLock(json_lock_path(path))
-    deadline = time.monotonic() + max(timeout, 0.0)
-    while not lock.acquire():
-        if time.monotonic() >= deadline:
-            raise TimeoutError(f"timed out waiting for lock: {lock.lock_path}")
-        time.sleep(poll_interval)
-    try:
-        write_json_atomic(path, obj)
-    finally:
-        lock.release()
-
-
-class FileLock:
-    def __init__(self, lock_path: str):
-        self.lock_path = lock_path
-        self.fd: int | None = None
-
-    def _read_owner_pid(self):
-        try:
-            with open(self.lock_path, "r", encoding="utf-8") as f:
-                raw = f.read().strip()
-        except FileNotFoundError:
-            return None
-        except Exception:
-            return -1
-
-        if raw == "":
-            return -1
-        try:
-            return int(raw)
-        except Exception:
-            return -1
-
-    def _pid_is_alive(self, pid: int):
-        if pid <= 0:
-            return False
-        try:
-            os.kill(pid, 0)
-        except ProcessLookupError:
-            return False
-        except PermissionError:
-            return True
-        except Exception:
-            return True
-        return True
-
-    def is_stale(self, max_age: float = 30.0):
-        try:
-            stat = os.stat(self.lock_path)
-        except FileNotFoundError:
-            return False
-
-        pid = self._read_owner_pid()
-        if pid is None:
-            return False
-        if pid > 0:
-            return not self._pid_is_alive(pid)
-
-        age = time.time() - stat.st_mtime
-        return age >= max(max_age, 0.0)
-
-    def break_stale(self, max_age: float = 30.0):
-        if not self.is_stale(max_age=max_age):
-            return False
-        try:
-            os.unlink(self.lock_path)
-            return True
-        except FileNotFoundError:
-            return True
-        except Exception:
-            return False
-
-    def acquire(self):
-        try:
-            self.fd = os.open(
-                self.lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600
-            )
-            os.write(self.fd, str(os.getpid()).encode("utf-8"))
-            return True
-        except OSError as e:
-            if e.errno == errno.EEXIST:
-                if self.break_stale():
-                    return self.acquire()
-                return False
-            raise
-
-    def release(self):
-        try:
-            if self.fd is not None:
-                os.close(self.fd)
-        finally:
-            self.fd = None
-            try:
-                os.unlink(self.lock_path)
-            except FileNotFoundError:
-                pass
 
 
 def is_hosts_file_like(sample_lines: list[str]):

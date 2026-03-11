@@ -4,28 +4,34 @@ import hashlib
 import threading
 import shutil
 import sys
-from typing import Any
+from typing import Any, ClassVar, Final
 from abc import ABCMeta
 from datetime import datetime, timedelta
 from queue import Queue
-
 import requests
-from opensnitch.proto import ui_pb2
 
 if "PyQt6" in sys.modules:
-    from PyQt6 import QtCore, QtGui
+    from PyQt6 import QtCore, QtGui, QtWidgets
 elif "PyQt5" in sys.modules:
-    from PyQt5 import QtCore, QtGui
+    from PyQt5 import QtCore, QtGui, QtWidgets
 else:
     try:
-        from PyQt6 import QtCore, QtGui
+        from PyQt6 import QtCore, QtGui, QtWidgets
     except Exception:
-        from PyQt5 import QtCore, QtGui
+        from PyQt5 import QtCore, QtGui, QtWidgets
 
 try:
     from opensnitch.dialogs.events import StatsDialog
 except ImportError:
-    from opensnitch.dialogs.stats import StatsDialog
+    from opensnitch.dialogs.stats import StatsDialog  # type: ignore
+
+from opensnitch.plugins.list_subscriptions.io.lock import FileLock
+from opensnitch.plugins.list_subscriptions.io.storage import read_json_locked
+from opensnitch.plugins.list_subscriptions.models.config import PluginConfig
+from opensnitch.plugins.list_subscriptions.models.events import RuntimeEvent
+from opensnitch.plugins.list_subscriptions.models.metadata import ListMetadata
+from opensnitch.plugins.list_subscriptions.models.subscriptions import SubscriptionSpec
+from opensnitch.proto import ui_pb2
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.notifications import DesktopNotifications
@@ -33,31 +39,30 @@ from opensnitch.plugins import PluginBase, PluginSignal
 from opensnitch.rules import Rule
 from opensnitch.database import Database
 from opensnitch.utils import GenericTimer
-from opensnitch.utils.xdg import xdg_config_home
-from opensnitch.plugins.list_subscriptions._models import (
-    DEFAULT_UA,
-    ListMetadata,
-    PluginConfig,
-    SubscriptionSpec,
-)
 from opensnitch.plugins.list_subscriptions._utils import (
-    FileLock,
-    RuntimeEvent,
-    ensure_filename_type_suffix,
+    ACTION_FILE,
+    DEFAULT_LISTS_DIR,
+    DEFAULT_UA,
     is_hosts_file_like,
+    list_file_path,
     normalize_groups,
     normalize_lists_dir,
     now_iso,
     parse_iso,
-    read_json_locked,
+    subscription_dirname,
+    subscription_event_item,
+)
+from opensnitch.plugins.list_subscriptions.io.storage import (
     write_json_atomic_locked,
 )
 
-ch = logging.StreamHandler()
+ch: Final[logging.StreamHandler] = logging.StreamHandler()
 # ch.setLevel(logging.ERROR)
-formatter = logging.Formatter("%(asctime)s - %(name)s - [%(levelname)s] %(message)s")
+formatter: Final[logging.Formatter] = logging.Formatter(
+    "%(asctime)s - %(name)s - [%(levelname)s] %(message)s"
+)
 ch.setFormatter(formatter)
-logger = logging.getLogger(__name__)
+logger: Final[logging.Logger] = logging.getLogger(__name__)
 logger.addHandler(ch)
 logger.setLevel(logging.WARNING)
 
@@ -69,7 +74,7 @@ class SingletonABCMeta(ABCMeta):
     _instances: dict[type, object] = {}
     _lock = threading.Lock()
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args: Any, **kwargs: Any):
         with cls._lock:
             if cls not in cls._instances:
                 cls._instances[cls] = super().__call__(*args, **kwargs)
@@ -87,25 +92,24 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
     """
 
     # fields overriden from parent class
-    name = "List_subscriptions"
-    version = 0
-    author = "opensnitch"
-    created = ""
-    modified = ""
-    enabled = False
-    description = "Manage list subscriptions (e.g. blocklists) with periodic updates"
+    name: ClassVar[str] = "List_subscriptions"
+    version: ClassVar[int] = 0
+    author: ClassVar[str] = "opensnitch"
+    created: ClassVar[str] = ""
+    modified: ClassVar[str] = ""
+    enabled: bool = False
+    description: ClassVar[str] = (
+        "Manage list subscriptions (e.g. blocklists) with periodic updates"
+    )
 
     # default
-    TYPE = [PluginBase.TYPE_GLOBAL]
+    TYPE: ClassVar[list[Any]] = [PluginBase.TYPE_GLOBAL]
 
     # runtime state
     scheduled_tasks: dict[str, GenericTimer] = {}
-    default_conf = "{0}/{1}".format(
-        xdg_config_home, "opensnitch/actions/list_subscriptions.json"
-    )
-    default_lists_dir = os.path.join(
-        xdg_config_home, "opensnitch", "list_subscriptions"
-    )
+    default_conf: ClassVar[str] = ACTION_FILE
+    default_lists_dir: ClassVar[str] = DEFAULT_LISTS_DIR
+    REFRESH_SUBSCRIPTIONS_SIGNAL: ClassVar[str] = "refresh_subscriptions"
 
     @classmethod
     def get_instance(cls) -> "ListSubscriptions | None":
@@ -133,8 +137,9 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         self._app_icon = os.path.join(
             os.path.abspath(os.path.dirname(__file__)), "../../res/icon-white.svg"
         )
-        self._cfg_dialog = None
-        self._cfg_action = None
+        self._cfg_dialog: Any = None
+        self._cfg_action: Any = None
+        self._cfg_toolbar_button: QtWidgets.QPushButton | None = None
         self.scheduled_tasks = {}
         self._startup_recheck_lock = threading.Lock()
         self._startup_recheck_pending = False
@@ -158,6 +163,11 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         *,
         error: str | None = None,
         action_path: str | None = None,
+        target: str | None = None,
+        path: str | None = None,
+        source: str | None = None,
+        state: str | None = None,
+        items: list[dict[str, Any]] | None = None,
     ):
         payload: dict[str, Any] = {
             "plugin": self.get_name(),
@@ -168,6 +178,16 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             payload["action_path"] = action_path
         if error:
             payload["error"] = error
+        if target:
+            payload["target"] = target
+        if path:
+            payload["path"] = path
+        if source:
+            payload["source"] = source
+        if state:
+            payload["state"] = state
+        if items:
+            payload["items"] = items
         self.signal_out.emit(payload)
 
     def _load_action_config(self, action_cfg: dict[str, Any] | None = None):
@@ -197,6 +217,40 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     self._err_msg = err_msg
         else:
             self._notify = None
+
+    def _config_update_diff_targets(
+        self,
+        previous_subscriptions: list[SubscriptionSpec],
+    ):
+        previous_enabled_by_key = {
+            self._sub_key(sub): bool(sub.enabled) for sub in previous_subscriptions
+        }
+        targets: list[SubscriptionSpec] = []
+        try:
+            current_subscriptions = list(self._config.subscriptions)
+        except Exception:
+            current_subscriptions = []
+        for sub in current_subscriptions:
+            if not sub.enabled:
+                continue
+            old_enabled = previous_enabled_by_key.get(self._sub_key(sub))
+            if old_enabled is None or old_enabled is False:
+                targets.append(sub)
+        return targets
+
+    def _apply_config_update_diff(
+        self,
+        previous_subscriptions: list[SubscriptionSpec],
+    ):
+        refresh_targets = self._config_update_diff_targets(previous_subscriptions)
+        if not refresh_targets:
+            return
+        th = threading.Thread(
+            target=self.refresh_subscriptions,
+            args=(refresh_targets, "config_update"),
+            daemon=True,
+        )
+        th.start()
 
     def _start_runtime(self, *, recheck: bool):
         if not self.enabled:
@@ -256,20 +310,33 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         with self._startup_recheck_lock:
             pending = self._startup_recheck_pending
         if pending and self._has_ready_local_node():
-            logger.warning(
-                "local node connected, running deferred startup refresh"
-            )
+            logger.warning("local node connected, running deferred startup refresh")
             self._schedule_startup_recheck(delay=0.5)
 
     def _reload_from_action_file(self, action_path: str | None = None):
         action_path = (action_path or self.default_conf).strip() or self.default_conf
         try:
             raw_action = read_json_locked(action_path)
+            self._emit_runtime_event(
+                RuntimeEvent.FILE_LOAD_FINISHED,
+                "Runtime configuration loaded.",
+                action_path=action_path,
+                target="action_config",
+                path=action_path,
+            )
         except Exception as exc:
             logger.warning(
                 "failed to read action file %s: %r",
                 action_path,
                 exc,
+            )
+            self._emit_runtime_event(
+                RuntimeEvent.FILE_LOAD_ERROR,
+                "Failed to load runtime configuration.",
+                error=str(exc),
+                action_path=action_path,
+                target="action_config",
+                path=action_path,
             )
             return False, str(exc)
 
@@ -304,26 +371,12 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         os.makedirs(lists_dir, mode=0o700, exist_ok=True)
         sources_dir = os.path.join(lists_dir, "sources.list.d")
         os.makedirs(sources_dir, mode=0o700, exist_ok=True)
-        safe_filename = os.path.basename((sub.filename or "").strip())
-        if safe_filename == "":
-            safe_filename = "subscription.list"
-        safe_filename = ensure_filename_type_suffix(safe_filename, sub.format)
-        list_path = os.path.join(sources_dir, safe_filename)
+        list_path = list_file_path(lists_dir, sub.filename, sub.format)
         meta_path = list_path + ".meta.json"
         return list_path, meta_path
 
     def _subscription_dirname(self, sub: SubscriptionSpec):
-        safe_filename = os.path.basename((sub.filename or "").strip())
-        if safe_filename == "":
-            safe_filename = "subscription.list"
-        safe_filename = ensure_filename_type_suffix(safe_filename, sub.format)
-        base, _ext = os.path.splitext(safe_filename)
-        list_type = (sub.format or "hosts").strip().lower()
-        suffix = f"-{list_type}"
-        sub_dirname = base if base else "subscription"
-        if not sub_dirname.lower().endswith(suffix):
-            sub_dirname = f"{sub_dirname}{suffix}"
-        return sub_dirname
+        return subscription_dirname(sub.filename, sub.format)
 
     def _rules_root_dir(self):
         if self._config is None:
@@ -372,7 +425,11 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             if not os.path.exists(list_path):
                 continue
             raw_groups: tuple[str, ...] = getattr(sub, "groups", tuple())
-            groups = [self._subscription_dirname(sub), "all", *normalize_groups(raw_groups)]
+            groups = [
+                self._subscription_dirname(sub),
+                "all",
+                *normalize_groups(raw_groups),
+            ]
             link_name = f"{idx:02d}-{os.path.basename(list_path)}"
             for group in groups:
                 desired.setdefault(group, {})[link_name] = list_path
@@ -448,12 +505,44 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
 
     def _load_meta(self, meta_path: str):
         try:
-            return ListMetadata.from_dict(read_json_locked(meta_path))
-        except Exception:
+            meta = ListMetadata.from_dict(read_json_locked(meta_path))
+            self._emit_runtime_event(
+                RuntimeEvent.FILE_LOAD_FINISHED,
+                "Subscription metadata loaded.",
+                target="subscription_meta",
+                path=meta_path,
+            )
+            return meta
+        except Exception as exc:
+            self._emit_runtime_event(
+                RuntimeEvent.FILE_LOAD_ERROR,
+                "Failed to load subscription metadata.",
+                error=str(exc),
+                target="subscription_meta",
+                path=meta_path,
+            )
             return ListMetadata()
 
     def _save_meta(self, meta_path: str, meta: ListMetadata):
-        write_json_atomic_locked(meta_path, meta.to_dict())
+        try:
+            write_json_atomic_locked(meta_path, meta.to_dict())
+            self._emit_runtime_event(
+                RuntimeEvent.FILE_SAVE_FINISHED,
+                "Subscription metadata saved.",
+                target="subscription_meta",
+                path=meta_path,
+                state=meta.last_result or None,
+            )
+        except Exception as exc:
+            self._emit_runtime_event(
+                RuntimeEvent.FILE_SAVE_ERROR,
+                "Failed to save subscription metadata.",
+                error=str(exc),
+                target="subscription_meta",
+                path=meta_path,
+                state=meta.last_result or None,
+            )
+            raise
 
     def _fsync_parent_dir(self, path: str):
         parent = os.path.dirname(path)
@@ -471,16 +560,14 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             os.close(dir_fd)
 
     def _affected_rule_dirs(self, sub: SubscriptionSpec):
-        affected_dirs = {os.path.join(self._rules_root_dir(), self._subscription_dirname(sub))}
+        affected_dirs = {
+            os.path.join(self._rules_root_dir(), self._subscription_dirname(sub))
+        }
         rules_root = self._rules_root_dir()
         affected_dirs.add(os.path.join(rules_root, "all"))
         for group in normalize_groups(sub.groups):
             affected_dirs.add(os.path.join(rules_root, group))
-        return {
-            os.path.normpath(path)
-            for path in affected_dirs
-            if path.strip() != ""
-        }
+        return {os.path.normpath(path) for path in affected_dirs if path.strip() != ""}
 
     def _reload_rules_for_updated_subscription(self, sub: SubscriptionSpec):
         try:
@@ -496,22 +583,26 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 while records.next():
                     rule = Rule.new_from_records(records)
                     if rule.operator.operand == Config.OPERAND_LIST_DOMAINS:
-                        direct_dir = os.path.normpath(str(rule.operator.data or "").strip())
+                        direct_dir = os.path.normpath(
+                            str(rule.operator.data or "").strip()
+                        )
                         if direct_dir in affected_dirs:
                             matched = True
                     if not matched:
                         for operator in getattr(rule.operator, "list", []):
                             if operator.operand != Config.OPERAND_LIST_DOMAINS:
                                 continue
-                            nested_dir = os.path.normpath(str(operator.data or "").strip())
+                            nested_dir = os.path.normpath(
+                                str(operator.data or "").strip()
+                            )
                             if nested_dir in affected_dirs:
                                 matched = True
                                 break
                     if not matched:
                         continue
 
-                    notification = ui_pb2.Notification( # type: ignore
-                        type=ui_pb2.CHANGE_RULE, # type: ignore
+                    notification = ui_pb2.Notification(  # type: ignore
+                        type=ui_pb2.CHANGE_RULE,  # type: ignore
                         rules=[rule],
                     )
                     self._nodes.send_notification(addr, notification, None)
@@ -542,11 +633,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
 
     def configure(self, parent: Any = None):
         if isinstance(parent, StatsDialog):
-            if self._cfg_action is not None:
-                return
-
-            menu = parent.actionsButton.menu()
-            if menu is None:
+            if self._cfg_action is not None or self._cfg_toolbar_button is not None:
                 return
 
             icon_path = os.path.join(
@@ -555,26 +642,120 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             icon = (
                 QtGui.QIcon(icon_path) if os.path.exists(icon_path) else QtGui.QIcon()
             )
+            if self._install_toolbar_button(parent, icon):
+                self._remove_menu_action(parent)
+                return
+            self._install_menu_action(parent, icon)
 
-            quit_action = self._find_quit_action(menu)
-            if quit_action is not None:
-                if not icon.isNull():
-                    self._cfg_action = menu.addAction(icon, "List subscriptions")
-                else:
-                    self._cfg_action = menu.addAction("List subscriptions")
-                menu.insertAction(quit_action, self._cfg_action)
+    def _install_toolbar_button(self, parent: StatsDialog, icon: QtGui.QIcon):
+        actions_button = getattr(parent, "actionsButton", None)
+        if not isinstance(actions_button, QtWidgets.QPushButton):
+            return False
+        button_parent = actions_button.parentWidget()
+        if button_parent is None:
+            return False
+        layout = self._find_layout_containing_widget(
+            button_parent.layout(), actions_button
+        )
+        if not isinstance(layout, QtWidgets.QHBoxLayout):
+            return False
+
+        insert_at = -1
+        reference_button: QtWidgets.QPushButton | None = None
+        for idx in range(layout.count()):
+            item = layout.itemAt(idx)
+            if item is None:
+                continue
+            if item.spacerItem() is not None:
+                insert_at = idx
+                break
+            widget = item.widget()
+            if isinstance(widget, QtWidgets.QPushButton):
+                reference_button = widget
+        if insert_at < 0:
+            insert_at = layout.count()
+        if reference_button is None:
+            return False
+
+        button = QtWidgets.QPushButton(button_parent)  # pyright: ignore[reportCallIssue,reportArgumentType]
+        button.setObjectName("listSubscriptionsButton")
+        button.setText("")
+        button.setToolTip("List subscriptions")
+        button.setStatusTip("Open list subscriptions")
+        button.setFlat(True)
+        if not icon.isNull():
+            button.setIcon(icon)  # type: ignore[arg-type]
+        button.setCursor(reference_button.cursor())  # pyright: ignore[reportArgumentType]
+        button.setFocusPolicy(reference_button.focusPolicy())  # pyright: ignore[reportArgumentType]
+        button.setSizePolicy(reference_button.sizePolicy())  # pyright: ignore[reportArgumentType]
+        button.setMinimumSize(reference_button.minimumSize())  # pyright: ignore[reportArgumentType]
+        button.setMaximumHeight(reference_button.maximumHeight())  # pyright: ignore[reportArgumentType]
+        button.setIconSize(reference_button.iconSize())  # pyright: ignore[reportArgumentType]
+
+        layout.insertWidget(insert_at, button)  # pyright: ignore[reportArgumentType]
+        button.clicked.connect(lambda *_: self._open_config_dialog(parent))
+        self._cfg_toolbar_button = button
+        return True
+
+    def _find_layout_containing_widget(
+        self,
+        layout: QtWidgets.QLayout | None,
+        target: QtWidgets.QWidget,
+    ):
+        if layout is None:
+            return None
+        for idx in range(layout.count()):
+            item = layout.itemAt(idx)
+            if item is None:
+                continue
+            widget = item.widget()
+            if widget is target:
+                return layout
+            if isinstance(widget, QtWidgets.QWidget):
+                found = self._find_layout_containing_widget(widget.layout(), target)
+                if found is not None:
+                    return found
+            child_layout = item.layout()
+            if child_layout is not None:
+                found = self._find_layout_containing_widget(child_layout, target)
+                if found is not None:
+                    return found
+        return None
+
+    def _install_menu_action(self, parent: StatsDialog, icon: QtGui.QIcon):
+        menu = parent.actionsButton.menu()
+        if menu is None:
+            return
+
+        quit_action = self._find_quit_action(menu)
+        if quit_action is not None:
+            if not icon.isNull():
+                self._cfg_action = menu.addAction(icon, "List subscriptions")
             else:
-                acts = menu.actions()
-                if acts and not acts[-1].isSeparator():
-                    menu.addSeparator()
-                if not icon.isNull():
-                    self._cfg_action = menu.addAction(icon, "List subscriptions")
-                else:
-                    self._cfg_action = menu.addAction("List subscriptions")
+                self._cfg_action = menu.addAction("List subscriptions")
+            menu.insertAction(quit_action, self._cfg_action)
+        else:
+            acts = menu.actions()
+            if acts and not acts[-1].isSeparator():
+                menu.addSeparator()
+            if not icon.isNull():
+                self._cfg_action = menu.addAction(icon, "List subscriptions")
+            else:
+                self._cfg_action = menu.addAction("List subscriptions")
 
-            self._cfg_action.triggered.connect(
-                lambda *_: self._open_config_dialog(parent)
-            )
+        self._cfg_action.triggered.connect(lambda *_: self._open_config_dialog(parent))
+
+    def _remove_menu_action(self, parent: StatsDialog):
+        menu = parent.actionsButton.menu()
+        if menu is None:
+            return
+        text = "list subscriptions"
+        for action in list(menu.actions()):
+            if (action.text() or "").replace("&", "").strip().lower() == text:
+                menu.removeAction(action)
+                if action is self._cfg_action:
+                    self._cfg_action = None
+                break
 
     def _find_quit_action(self, menu: Any):
         qt_key = getattr(getattr(QtCore, "Qt", object()), "Key", None)
@@ -598,8 +779,8 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             return acts[-1]
         return None
 
-    def _open_config_dialog(self, parent):
-        from opensnitch.plugins.list_subscriptions import _gui
+    def _open_config_dialog(self, parent: Any):
+        from opensnitch.plugins.list_subscriptions.ui.list_subscriptions_dialog import ListSubscriptionsDialog
 
         appicon = None
         try:
@@ -610,7 +791,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         if self._cfg_dialog is None:
             # Some wrapped dialog types are not accepted as QWidget parents by
             # PyQt6 constructors in plugin context. Use a top-level dialog.
-            self._cfg_dialog = _gui.ListSubscriptionsDialog(
+            self._cfg_dialog = ListSubscriptionsDialog(
                 parent=None, appicon=appicon
             )
         self._cfg_dialog.show()
@@ -681,7 +862,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             if not sub.enabled:
                 continue
             try:
-                self.force_refresh_subscription(sub)
+                self.refresh_subscriptions(sub, source="startup_recheck")
             except Exception as e:
                 logger.warning(
                     "startup recheck error name='%s' err=%s",
@@ -724,7 +905,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             logger.warning("skip '%s' (not due yet)", sub.name)
             return
 
-        th = threading.Thread(target=self.download, args=(key, sub))
+        th = threading.Thread(target=self.download, args=(sub,))
         th.start()
         th.join()
 
@@ -762,9 +943,18 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 self._notify_title, result_msg, self._app_icon
             )
 
-    def force_refresh_subscription(self, sub: SubscriptionSpec):
-        key = self._sub_key(sub)
-        ok = self.download(key, sub, force=True)
+    def refresh_subscriptions(
+        self,
+        subscriptions: SubscriptionSpec | list[SubscriptionSpec],
+        source: str = "scheduled",
+        force: bool = False,
+    ):
+        ok = self.download(
+            subscriptions,
+            force=force,
+            source=source,
+            emit_download_events=True,
+        )
         self._sync_global_symlinks()
         return ok
 
@@ -780,13 +970,13 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 )
                 ok, err = self._reload_from_action_file(action_path)
                 if ok:
-                        self.enabled = True
-                        self.run()
-                        self._emit_runtime_event(
+                    self.enabled = True
+                    self.run()
+                    self._emit_runtime_event(
                         RuntimeEvent.RUNTIME_ENABLED,
-                            "Plugin runtime enabled.",
-                            action_path=action_path,
-                        )
+                        "Plugin runtime enabled.",
+                        action_path=action_path,
+                    )
                 else:
                     self._emit_runtime_event(
                         RuntimeEvent.RUNTIME_ERROR,
@@ -796,16 +986,54 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     )
                 return
 
+            if sig == self.REFRESH_SUBSCRIPTIONS_SIGNAL:
+                raw_items = signal.get("items")
+                source = str(signal.get("source") or "manual_refresh")
+                subscriptions: list[SubscriptionSpec] = []
+                if isinstance(raw_items, list):
+                    for raw_item in raw_items:
+                        if not isinstance(raw_item, dict):
+                            continue
+                        try:
+                            sub = SubscriptionSpec.from_dict(
+                                raw_item,
+                                self._config.defaults,
+                            )
+                        except Exception:
+                            sub = None
+                        if sub is not None:
+                            subscriptions.append(sub)
+                if not subscriptions:
+                    self._emit_runtime_event(
+                        RuntimeEvent.RUNTIME_ERROR,
+                        "No subscriptions were provided for refresh.",
+                        action_path=action_path,
+                    )
+                    return
+                th = threading.Thread(
+                    target=self.refresh_subscriptions,
+                    args=(subscriptions, source, True),
+                    daemon=True,
+                )
+                th.start()
+                return
+
             if sig == PluginSignal.CONFIG_UPDATE:
                 logger.warning(
                     "cb_signal: CONFIG_UPDATE action_path=%r",
                     action_path,
                 )
+                previous_subscriptions: list[SubscriptionSpec] = []
+                try:
+                    previous_subscriptions = list(self._config.subscriptions)
+                except Exception:
+                    previous_subscriptions = []
                 self.stop()
                 ok, err = self._reload_from_action_file(action_path)
                 if ok:
                     if self.enabled:
-                        self.run()
+                        self._start_runtime(recheck=False)
+                        self._apply_config_update_diff(previous_subscriptions)
                     self._emit_runtime_event(
                         RuntimeEvent.CONFIG_RELOADED,
                         "Plugin runtime configuration reloaded.",
@@ -829,12 +1057,16 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 self.enabled = False
                 self.stop()
                 self._emit_runtime_event(
-                    RuntimeEvent.RUNTIME_DISABLED
-                    if sig == PluginSignal.DISABLE
-                    else RuntimeEvent.RUNTIME_STOPPED,
-                    "Plugin runtime disabled."
-                    if sig == PluginSignal.DISABLE
-                    else "Plugin runtime stopped.",
+                    (
+                        RuntimeEvent.RUNTIME_DISABLED
+                        if sig == PluginSignal.DISABLE
+                        else RuntimeEvent.RUNTIME_STOPPED
+                    ),
+                    (
+                        "Plugin runtime disabled."
+                        if sig == PluginSignal.DISABLE
+                        else "Plugin runtime stopped."
+                    ),
                     action_path=action_path,
                 )
                 return
@@ -883,7 +1115,14 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             datetime.now().astimezone() + timedelta(seconds=seconds)
         ).isoformat()
 
-    def download(self, key: str, sub: SubscriptionSpec, force: bool = False):
+    def _download_one(
+        self,
+        key: str,
+        sub: SubscriptionSpec,
+        force: bool = False,
+        source: str = "scheduled",
+        emit_download_events: bool = True,
+    ):
         list_path, meta_path = self._paths(sub)
         os.makedirs(os.path.dirname(list_path), exist_ok=True)
 
@@ -896,6 +1135,23 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
 
         meta.last_checked = now_iso()
         meta.last_error = ""
+        event_item = subscription_event_item(
+            key,
+            name=sub.name,
+            url=sub.url,
+            filename=sub.filename,
+            list_type=sub.format,
+            path=list_path,
+        )
+        if emit_download_events:
+            self._emit_runtime_event(
+                RuntimeEvent.DOWNLOAD_STARTED,
+                f"Downloading subscription '{sub.name}'.",
+                target="subscription_list",
+                path=list_path,
+                source=source,
+                items=[event_item],
+            )
 
         # conditional headers
         headers: dict[str, str] = {}
@@ -910,6 +1166,26 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         if not lock.acquire():
             meta.last_result = "busy"
             self._save_meta(meta_path, meta)
+            if emit_download_events:
+                self._emit_runtime_event(
+                    RuntimeEvent.DOWNLOAD_FAILED,
+                    f"Subscription '{sub.name}' is busy.",
+                    target="subscription_list",
+                    path=list_path,
+                    source=source,
+                    state="busy",
+                    items=[
+                        subscription_event_item(
+                            key,
+                            name=sub.name,
+                            url=sub.url,
+                            filename=sub.filename,
+                            list_type=sub.format,
+                            state="busy",
+                            path=list_path,
+                        )
+                    ],
+                )
             self._resultsQueue.put((key, False, "busy"))
             return False
 
@@ -922,6 +1198,27 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             except Exception as e:
                 self._mark_failure(meta, repr(e))
                 self._save_meta(meta_path, meta)
+                if emit_download_events:
+                    self._emit_runtime_event(
+                        RuntimeEvent.DOWNLOAD_FAILED,
+                        f"Subscription download failed for '{sub.name}'.",
+                        error=repr(e),
+                        target="subscription_list",
+                        path=list_path,
+                        source=source,
+                        state="request_error",
+                        items=[
+                            subscription_event_item(
+                                key,
+                                name=sub.name,
+                                url=sub.url,
+                                filename=sub.filename,
+                                list_type=sub.format,
+                                state="request_error",
+                                path=list_path,
+                            )
+                        ],
+                    )
                 self._resultsQueue.put((key, False, "request_error"))
                 return False
 
@@ -932,6 +1229,26 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     meta.backoff_until = ""
                     meta.last_result = "not_modified"
                     self._save_meta(meta_path, meta)
+                    if emit_download_events:
+                        self._emit_runtime_event(
+                            RuntimeEvent.DOWNLOAD_FINISHED,
+                            f"Subscription '{sub.name}' is up to date.",
+                            target="subscription_list",
+                            path=list_path,
+                            source=source,
+                            state="not_modified",
+                            items=[
+                                subscription_event_item(
+                                    key,
+                                    name=sub.name,
+                                    url=sub.url,
+                                    filename=sub.filename,
+                                    list_type=sub.format,
+                                    state="not_modified",
+                                    path=list_path,
+                                )
+                            ],
+                        )
                     self._resultsQueue.put((key, True, "not_modified"))
                     logger.warning("subscription not-modified name='%s'", sub.name)
                     return True
@@ -939,6 +1256,27 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 if r.status_code != 200:
                     self._mark_failure(meta, f"http_{r.status_code}")
                     self._save_meta(meta_path, meta)
+                    if emit_download_events:
+                        self._emit_runtime_event(
+                            RuntimeEvent.DOWNLOAD_FAILED,
+                            f"Subscription download failed for '{sub.name}'.",
+                            error=f"http_{r.status_code}",
+                            target="subscription_list",
+                            path=list_path,
+                            source=source,
+                            state=f"http_{r.status_code}",
+                            items=[
+                                subscription_event_item(
+                                    key,
+                                    name=sub.name,
+                                    url=sub.url,
+                                    filename=sub.filename,
+                                    list_type=sub.format,
+                                    state=f"http_{r.status_code}",
+                                    path=list_path,
+                                )
+                            ],
+                        )
                     self._resultsQueue.put((key, False, f"http_{r.status_code}"))
                     logger.warning(
                         "subscription download http-error name='%s' code=%s",
@@ -953,6 +1291,27 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                         if int(cl) > sub.max_bytes:
                             self._mark_failure(meta, f"too_large:{cl}")
                             self._save_meta(meta_path, meta)
+                            if emit_download_events:
+                                self._emit_runtime_event(
+                                    RuntimeEvent.DOWNLOAD_FAILED,
+                                    f"Subscription download exceeded max size for '{sub.name}'.",
+                                    error=f"too_large:{cl}",
+                                    target="subscription_list",
+                                    path=list_path,
+                                    source=source,
+                                    state="too_large",
+                                    items=[
+                                        subscription_event_item(
+                                            key,
+                                            name=sub.name,
+                                            url=sub.url,
+                                            filename=sub.filename,
+                                            list_type=sub.format,
+                                            state="too_large",
+                                            path=list_path,
+                                        )
+                                    ],
+                                )
                             self._resultsQueue.put((key, False, "too_large"))
                             logger.warning(
                                 "subscription download too-large name='%s' len=%s",
@@ -1000,6 +1359,27 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                             pass
                         self._mark_failure(meta, "bad_format_hosts")
                         self._save_meta(meta_path, meta)
+                        if emit_download_events:
+                            self._emit_runtime_event(
+                                RuntimeEvent.DOWNLOAD_FAILED,
+                                f"Subscription file format is invalid for '{sub.name}'.",
+                                error="bad_format_hosts",
+                                target="subscription_list",
+                                path=list_path,
+                                source=source,
+                                state="bad_format",
+                                items=[
+                                    subscription_event_item(
+                                        key,
+                                        name=sub.name,
+                                        url=sub.url,
+                                        filename=sub.filename,
+                                        list_type=sub.format,
+                                        state="bad_format",
+                                        path=list_path,
+                                    )
+                                ],
+                            )
                         self._resultsQueue.put((key, False, "bad_format"))
                         logger.warning(
                             "subscription file bad-format name='%s'",
@@ -1009,6 +1389,14 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
 
                     os.replace(tmp, list_path)
                     self._fsync_parent_dir(list_path)
+                    self._emit_runtime_event(
+                        RuntimeEvent.FILE_SAVE_FINISHED,
+                        f"Subscription file saved for '{sub.name}'.",
+                        target="subscription_list",
+                        path=list_path,
+                        source=source,
+                        items=[event_item],
+                    )
 
                 except Exception as e:
                     try:
@@ -1018,6 +1406,47 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                         pass
                     self._mark_failure(meta, repr(e))
                     self._save_meta(meta_path, meta)
+                    self._emit_runtime_event(
+                        RuntimeEvent.FILE_SAVE_ERROR,
+                        f"Failed to save subscription file for '{sub.name}'.",
+                        error=repr(e),
+                        target="subscription_list",
+                        path=list_path,
+                        source=source,
+                        state="write_error",
+                        items=[
+                            subscription_event_item(
+                                key,
+                                name=sub.name,
+                                url=sub.url,
+                                filename=sub.filename,
+                                list_type=sub.format,
+                                state="write_error",
+                                path=list_path,
+                            )
+                        ],
+                    )
+                    if emit_download_events:
+                        self._emit_runtime_event(
+                            RuntimeEvent.DOWNLOAD_FAILED,
+                            f"Subscription download failed for '{sub.name}'.",
+                            error=repr(e),
+                            target="subscription_list",
+                            path=list_path,
+                            source=source,
+                            state="write_error",
+                            items=[
+                                subscription_event_item(
+                                    key,
+                                    name=sub.name,
+                                    url=sub.url,
+                                    filename=sub.filename,
+                                    list_type=sub.format,
+                                    state="write_error",
+                                    path=list_path,
+                                )
+                            ],
+                        )
                     self._resultsQueue.put((key, False, "write_error"))
                     logger.warning(
                         "subscription file write-error name='%s' err=%s",
@@ -1040,6 +1469,26 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 meta.backoff_until = ""
                 meta.last_result = "updated"
                 self._save_meta(meta_path, meta)
+                if emit_download_events:
+                    self._emit_runtime_event(
+                        RuntimeEvent.DOWNLOAD_FINISHED,
+                        f"Subscription '{sub.name}' updated.",
+                        target="subscription_list",
+                        path=list_path,
+                        source=source,
+                        state="updated",
+                        items=[
+                            subscription_event_item(
+                                key,
+                                name=sub.name,
+                                url=sub.url,
+                                filename=sub.filename,
+                                list_type=sub.format,
+                                state="updated",
+                                path=list_path,
+                            )
+                        ],
+                    )
                 logger.warning(
                     "subscription updated name='%s' bytes=%s",
                     sub.name,
@@ -1056,6 +1505,27 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         except Exception as e:
             self._mark_failure(meta, repr(e))
             self._save_meta(meta_path, meta)
+            if emit_download_events:
+                self._emit_runtime_event(
+                    RuntimeEvent.DOWNLOAD_FAILED,
+                    f"Subscription download failed for '{sub.name}'.",
+                    error=repr(e),
+                    target="subscription_list",
+                    path=list_path,
+                    source=source,
+                    state="unexpected_error",
+                    items=[
+                        subscription_event_item(
+                            key,
+                            name=sub.name,
+                            url=sub.url,
+                            filename=sub.filename,
+                            list_type=sub.format,
+                            state="unexpected_error",
+                            path=list_path,
+                        )
+                    ],
+                )
             self._resultsQueue.put((key, False, "unexpected_error"))
             logger.warning(
                 "subscription download unexpected-error name='%s' err=%s",
@@ -1066,3 +1536,97 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
 
         finally:
             lock.release()
+
+    def download(
+        self,
+        subscriptions: SubscriptionSpec | list[SubscriptionSpec],
+        force: bool = False,
+        source: str = "scheduled",
+        emit_download_events: bool = True,
+    ):
+        if isinstance(subscriptions, SubscriptionSpec):
+            return self._download_one(
+                self._sub_key(subscriptions),
+                subscriptions,
+                force=force,
+                source=source,
+                emit_download_events=emit_download_events,
+            )
+
+        if not subscriptions:
+            return True
+
+        items: list[dict[str, Any]] = []
+        if emit_download_events:
+            self._emit_runtime_event(
+                RuntimeEvent.DOWNLOAD_STARTED,
+                "Batch subscription refresh started.",
+                target="subscription_list",
+                source=source,
+                items=[
+                    subscription_event_item(
+                        self._sub_key(sub),
+                        name=sub.name,
+                        url=sub.url,
+                        filename=sub.filename,
+                        list_type=sub.format,
+                    )
+                    for sub in subscriptions
+                ],
+            )
+        had_errors = False
+        for sub in subscriptions:
+            key = self._sub_key(sub)
+            list_path, meta_path = self._paths(sub)
+            item_state = "unexpected_error"
+            try:
+                ok = self._download_one(
+                    key,
+                    sub,
+                    force=force,
+                    source=source,
+                    emit_download_events=False,
+                )
+                item_state = "updated" if ok else "error"
+                if not ok:
+                    had_errors = True
+            except Exception as exc:
+                had_errors = True
+                logger.warning(
+                    "batch download failed for '%s': %r",
+                    sub.name,
+                    exc,
+                )
+            try:
+                item_state = self._load_meta(meta_path).last_result or item_state
+            except Exception:
+                pass
+            items.append(
+                subscription_event_item(
+                    key,
+                    name=sub.name,
+                    url=sub.url,
+                    filename=sub.filename,
+                    list_type=sub.format,
+                    state=item_state,
+                    path=list_path,
+                )
+            )
+        if emit_download_events:
+            self._emit_runtime_event(
+                (
+                    RuntimeEvent.DOWNLOAD_FAILED
+                    if had_errors
+                    else RuntimeEvent.DOWNLOAD_FINISHED
+                ),
+                (
+                    "Batch subscription refresh finished with errors."
+                    if had_errors
+                    else "Batch subscription refresh finished."
+                ),
+                target="subscription_list",
+                source=source,
+                state="batch_failed" if had_errors else "batch_finished",
+                items=items,
+            )
+        return not had_errors

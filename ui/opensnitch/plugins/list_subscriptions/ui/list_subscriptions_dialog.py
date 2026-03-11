@@ -1,109 +1,140 @@
 import json
 import logging
 import os
-import re
 import sys
-import threading
-from urllib.parse import urlparse, unquote
-from typing import cast, Any, TYPE_CHECKING
+from contextlib import contextmanager
+from typing import cast, Any, TYPE_CHECKING, Final
 
 if TYPE_CHECKING:
     # Keep static typing deterministic for linters/IDEs.
     # Runtime still supports both PyQt6/PyQt5 below.
     from PyQt6 import QtCore, QtGui, QtWidgets, uic
     from PyQt6.QtCore import QCoreApplication as QC
+    from PyQt6.uic.load_ui import loadUiType as load_ui_type
 else:
     if "PyQt6" in sys.modules:
         from PyQt6 import QtCore, QtGui, QtWidgets, uic
         from PyQt6.QtCore import QCoreApplication as QC
+        from PyQt6.uic.load_ui import loadUiType as load_ui_type
     elif "PyQt5" in sys.modules:
         from PyQt5 import QtCore, QtGui, QtWidgets, uic
         from PyQt5.QtCore import QCoreApplication as QC
+
+        load_ui_type = uic.loadUiType
     else:
         try:
             from PyQt6 import QtCore, QtGui, QtWidgets, uic
             from PyQt6.QtCore import QCoreApplication as QC
+            from PyQt6.uic.load_ui import loadUiType as load_ui_type
         except Exception:
-            from PyQt5 import QtCore, QtGui, QtWidgets, uic
+            from PyQt5 import QtCore, QtGui, QtWidgets, uic  # noqa: F401
             from PyQt5.QtCore import QCoreApplication as QC
 
+            load_ui_type = uic.loadUiType
+
+from opensnitch.plugins.list_subscriptions.io.storage import read_json_locked
+from opensnitch.plugins.list_subscriptions.models.config import PluginConfig
+from opensnitch.plugins.list_subscriptions.models.subscriptions import (
+    MutableSubscriptionSpec,
+    SubscriptionSpec,
+)
+from opensnitch.plugins.list_subscriptions.models.global_defaults import GlobalDefaults
+from opensnitch.plugins.list_subscriptions.models.events import RuntimeEvent
 from opensnitch.actions import Actions
 from opensnitch.nodes import Nodes
 from opensnitch.plugins import PluginSignal
-from opensnitch.utils.xdg import xdg_config_home
-from opensnitch.plugins.list_subscriptions._models import (
-    GlobalDefaults,
+from opensnitch.plugins.list_subscriptions.models.action import (
     MutableActionConfig,
-    MutableSubscriptionSpec,
-    PluginConfig,
-    SubscriptionSpec,
 )
+from opensnitch.plugins.list_subscriptions.ui.helpers import (
+    _section_background_color_name,
+    _section_border_color_name,
+    _apply_section_bar_style,
+)
+from opensnitch.plugins.list_subscriptions.ui.toggle_switch_widget import (
+    _replace_checkbox_with_toggle,
+)
+from opensnitch.plugins.list_subscriptions.ui.subscription_dialog import (
+    SubscriptionDialog,
+)
+from opensnitch.plugins.list_subscriptions.ui.bulk_edit_dialog import BulkEditDialog
 from opensnitch.plugins.list_subscriptions._utils import (
-    RuntimeEvent,
+    ACTION_FILE,
+    DEFAULT_LISTS_DIR,
+    RES_DIR,
+    INTERVAL_UNITS,
+    TIMEOUT_UNITS,
+    SIZE_UNITS,
+    display_str,
+    derive_filename,
     ensure_filename_type_suffix,
+    filename_from_content_disposition,
+    list_file_path,
     normalize_group,
     normalize_groups,
     normalize_lists_dir,
-    read_json_locked,
+    normalize_unit,
+    safe_filename,
+    strip_or_none,
+    subscription_payload_dict,
+    subscription_rule_dir,
+    timestamp_sort_key,
+)
+from opensnitch.plugins.list_subscriptions.io.storage import (
     write_json_atomic_locked,
 )
 from opensnitch.dialogs.ruleseditor import RulesEditorDialog
 import requests
-from .list_subscriptions import ListSubscriptions
+from opensnitch.plugins.list_subscriptions.list_subscriptions import ListSubscriptions
 
-
-ACTION_FILE = os.path.join(
-    xdg_config_home, "opensnitch", "actions", "list_subscriptions.json"
-)
-DEFAULT_LISTS_DIR = os.path.join(xdg_config_home, "opensnitch", "list_subscriptions")
-PLUGIN_DIR = os.path.abspath(os.path.dirname(__file__))
-RES_DIR = os.path.join(PLUGIN_DIR, "res")
-LIST_SUBSCRIPTIONS_DIALOG_UI_PATH = os.path.join(
+LIST_SUBSCRIPTIONS_DIALOG_UI_PATH: Final[str] = os.path.join(
     RES_DIR, "list_subscriptions_dialog.ui"
 )
-SUBSCRIPTION_DIALOG_UI_PATH = os.path.join(RES_DIR, "subscription_dialog.ui")
-BULK_EDIT_DIALOG_UI_PATH = os.path.join(RES_DIR, "bulk_edit_dialog.ui")
 
-SubscriptionDialogUI = uic.loadUiType(SUBSCRIPTION_DIALOG_UI_PATH)[0] # type: ignore
-BulkEditDialogUI = uic.loadUiType(BULK_EDIT_DIALOG_UI_PATH)[0] # type: ignore
-ListSubscriptionsDialogUI = uic.loadUiType(LIST_SUBSCRIPTIONS_DIALOG_UI_PATH)[0] # type: ignore
+ListSubscriptionsDialogUI: Final[Any] = load_ui_type(LIST_SUBSCRIPTIONS_DIALOG_UI_PATH)[
+    0
+]
 
-INTERVAL_UNITS = ("seconds", "minutes", "hours", "days", "weeks")
-TIMEOUT_UNITS = ("seconds", "minutes", "hours", "days", "weeks")
-SIZE_UNITS = ("bytes", "KB", "MB", "GB")
+COL_ENABLED: Final[int] = 0
+COL_NAME: Final[int] = 1
+COL_URL: Final[int] = 2
+COL_FILENAME: Final[int] = 3
+COL_FORMAT: Final[int] = 4
+COL_GROUP: Final[int] = 5
+COL_INTERVAL: Final[int] = 6
+COL_INTERVAL_UNITS: Final[int] = 7
+COL_TIMEOUT: Final[int] = 8
+COL_TIMEOUT_UNITS: Final[int] = 9
+COL_MAX_SIZE: Final[int] = 10
+COL_MAX_SIZE_UNITS: Final[int] = 11
+COL_FILE: Final[int] = 12
+COL_META: Final[int] = 13
+COL_STATE: Final[int] = 14
+COL_LAST_CHECKED: Final[int] = 15
+COL_LAST_UPDATED: Final[int] = 16
+COL_FAILS: Final[int] = 17
+COL_ERROR: Final[int] = 18
 
-COL_ENABLED = 0
-COL_NAME = 1
-COL_URL = 2
-COL_FILENAME = 3
-COL_FORMAT = 4
-COL_GROUP = 5
-COL_INTERVAL = 6
-COL_INTERVAL_UNITS = 7
-COL_TIMEOUT = 8
-COL_TIMEOUT_UNITS = 9
-COL_MAX_SIZE = 10
-COL_MAX_SIZE_UNITS = 11
-COL_FILE = 12
-COL_META = 13
-COL_STATE = 14
-COL_LAST_CHECKED = 15
-COL_LAST_UPDATED = 16
-COL_FAILS = 17
-COL_ERROR = 18
-
-logger = logging.getLogger(__name__)
+logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 class KeepForegroundOnSelectionDelegate(QtWidgets.QStyledItemDelegate):
-    def initStyleOption(self, option, index):
+    def initStyleOption(
+        self,
+        option: QtWidgets.QStyleOptionViewItem | None,
+        index: QtCore.QModelIndex,
+    ):
         super().initStyleOption(option, index)
         if option is None or index is None:
             return
         foreground = index.data(QtCore.Qt.ItemDataRole.ForegroundRole)
         if foreground is None:
             return
-        brush = foreground if isinstance(foreground, QtGui.QBrush) else QtGui.QBrush(foreground)
+        brush = (
+            foreground
+            if isinstance(foreground, QtGui.QBrush)
+            else QtGui.QBrush(foreground)
+        )
         option.palette.setBrush(
             QtGui.QPalette.ColorRole.Text,
             brush,
@@ -114,648 +145,170 @@ class KeepForegroundOnSelectionDelegate(QtWidgets.QStyledItemDelegate):
         )
 
 
-class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
-    _url_test_finished = QtCore.pyqtSignal(bool, str)
-
-    if TYPE_CHECKING:
-        enabled_check: QtWidgets.QCheckBox
-        name_edit: QtWidgets.QLineEdit
-        name_error_label: QtWidgets.QLabel
-        url_edit: QtWidgets.QLineEdit
-        url_error_label: QtWidgets.QLabel
-        filename_edit: QtWidgets.QLineEdit
-        filename_error_label: QtWidgets.QLabel
-        format_combo: QtWidgets.QComboBox
-        group_combo: QtWidgets.QComboBox
-        interval_spin: QtWidgets.QSpinBox
-        interval_units: QtWidgets.QComboBox
-        timeout_spin: QtWidgets.QSpinBox
-        timeout_units: QtWidgets.QComboBox
-        max_size_spin: QtWidgets.QSpinBox
-        max_size_units: QtWidgets.QComboBox
-        meta_group: QtWidgets.QGroupBox
-        meta_file_present: QtWidgets.QLabel
-        meta_meta_present: QtWidgets.QLabel
-        meta_state: QtWidgets.QLabel
-        meta_last_checked: QtWidgets.QLabel
-        meta_last_updated: QtWidgets.QLabel
-        meta_failures: QtWidgets.QLabel
-        meta_error: QtWidgets.QLabel
-        meta_list_path: QtWidgets.QLabel
-        meta_meta_path: QtWidgets.QLabel
-        error_label: QtWidgets.QLabel
-        test_url_button: QtWidgets.QPushButton
-        cancel_button: QtWidgets.QPushButton
-        add_button: QtWidgets.QPushButton
-        _title: str
-        _defaults: GlobalDefaults
-        _groups: list[str]
-        _sub: MutableSubscriptionSpec
-        _meta: dict[str, str]
-
-    def __init__(
+class CenteredCheckDelegate(QtWidgets.QStyledItemDelegate):
+    def _indicator_rect(
         self,
-        parent: QtWidgets.QWidget | None,
-        defaults: GlobalDefaults,
-        groups: list[str] | None = None,
-        sub: MutableSubscriptionSpec | dict[str, Any] | None = None,
-        meta: dict[str, str] | None = None,
-        title: str = "Subscription",
-    ):
-        super().__init__(parent)
-        self.setWindowTitle(QC.translate("stats", title))
-        self._title = title
-        self._defaults = defaults
-        self._groups = groups or []
-        try:
-            if isinstance(sub, MutableSubscriptionSpec):
-                self._sub = sub
-            elif sub is None:
-                parsed_sub = MutableSubscriptionSpec.from_dict(
-                    {"enabled": True},
-                    defaults=self._defaults,
-                    require_url=False,
-                    ensure_suffix=False,
-                )
-                if parsed_sub is None:
-                    raise ValueError(
-                        "default subscription state could not be initialized"
-                    )
-                self._sub = parsed_sub
-            else:
-                parsed_sub = MutableSubscriptionSpec.from_dict(
-                    sub,
-                    defaults=self._defaults,
-                    require_url=False,
-                    ensure_suffix=False,
-                )
-                if parsed_sub is None:
-                    raise ValueError("subscription data could not be initialized")
-                self._sub = parsed_sub
-        except Exception as exc:
-            QtWidgets.QMessageBox.critical(
-                parent,
-                QC.translate("stats", "Subscription Error"),
-                QC.translate(
-                    "stats", "Failed to initialize subscription data: {0}"
-                ).format(str(exc)),
-            )
-            raise
-        self._meta = meta or {}
-        self._build_ui()
-
-    def _build_ui(self):
-        self.setupUi(self)
-        self._set_dialog_message("", error=False)
-        for label in (
-            self.name_error_label,
-            self.url_error_label,
-            self.filename_error_label,
-        ):
-            label.setStyleSheet("color: red;")
-            label.setText("")
-        self.group_combo.setEditable(True)
-        self.group_combo.setToolTip(
-            QC.translate(
-                "stats",
-                "Optional explicit groups. Every subscription is always included in the global 'all' rules directory.",
-            )
+        option: QtWidgets.QStyleOptionViewItem,
+    ) -> QtCore.QRect:
+        style = (
+            option.widget.style()
+            if option.widget is not None
+            else QtWidgets.QApplication.style()
         )
-        self._url_test_finished.connect(self._handle_url_test_finished)
-        self.add_button.clicked.connect(self._validate_then_accept)
-        self.test_url_button.clicked.connect(self._test_url)
-        self.cancel_button.clicked.connect(self.reject)
-
-        self.enabled_check.setChecked(bool(self._sub.enabled))
-        self.name_edit.setText(str(self._sub.name))
-        self.url_edit.setText(str(self._sub.url))
-        self.filename_edit.setText(str(self._sub.filename))
-        self.format_combo.clear()
-        self.format_combo.addItems(("hosts",))
-        self.format_combo.setCurrentText(str(self._sub.format or "hosts"))
-        for g in self._groups:
-            ng = normalize_group(g)
-            if ng not in ("", "all"):
-                self.group_combo.addItem(ng)
-        current_groups = normalize_groups(self._sub.groups)
-        current_group_text = ", ".join(current_groups)
-        if (
-            current_group_text != ""
-            and self.group_combo.findText(current_group_text) < 0
-        ):
-            self.group_combo.addItem(current_group_text)
-        self.group_combo.setCurrentText(current_group_text)
-        self.interval_spin.setRange(0, 999999)
-        self.interval_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
-                self._defaults.interval,
-                self._defaults.interval_units,
-            )
+        if style is None:
+            return option.rect
+        indicator_rect = style.subElementRect(
+            QtWidgets.QStyle.SubElement.SE_ItemViewItemCheckIndicator,
+            option,
+            option.widget,
         )
-        self.interval_spin.setValue(max(0, int(self._sub.interval or 0)))
-        self.interval_units.clear()
-        self.interval_units.addItems(INTERVAL_UNITS)
-        self.interval_units.setCurrentText(
-            self._normalize_unit(
-                str(self._sub.interval_units or self._defaults.interval_units),
-                INTERVAL_UNITS,
-                "hours",
-            )
-        )
-        self.timeout_spin.setRange(0, 999999)
-        self.timeout_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
-                self._defaults.timeout,
-                self._defaults.timeout_units,
-            )
-        )
-        self.timeout_spin.setValue(max(0, int(self._sub.timeout or 0)))
-        self.timeout_units.clear()
-        self.timeout_units.addItems(TIMEOUT_UNITS)
-        self.timeout_units.setCurrentText(
-            self._normalize_unit(
-                str(self._sub.timeout_units or self._defaults.timeout_units),
-                TIMEOUT_UNITS,
-                "seconds",
-            )
-        )
-        self.max_size_spin.setRange(0, 999999)
-        self.max_size_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
-                self._defaults.max_size,
-                self._defaults.max_size_units,
-            )
-        )
-        self.max_size_spin.setValue(max(0, int(self._sub.max_size or 0)))
-        self.max_size_units.clear()
-        self.max_size_units.addItems(SIZE_UNITS)
-        self.max_size_units.setCurrentText(
-            self._normalize_unit(
-                str(self._sub.max_size_units or self._defaults.max_size_units),
-                SIZE_UNITS,
-                "MB",
-            )
-        )
-        self.interval_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self.timeout_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self.max_size_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self._apply_optional_field_tooltips()
-        self._sync_optional_fields_state()
-        self.meta_file_present.setText(str(self._meta.get("file_present", "")))
-        self.meta_meta_present.setText(str(self._meta.get("meta_present", "")))
-        self.meta_state.setText(str(self._meta.get("state", "")))
-        self.meta_last_checked.setText(str(self._meta.get("last_checked", "")))
-        self.meta_last_updated.setText(str(self._meta.get("last_updated", "")))
-        self.meta_failures.setText(str(self._meta.get("failures", "")))
-        self.meta_error.setText(str(self._meta.get("error", "")))
-        self.meta_list_path.setText(str(self._meta.get("list_path", "")))
-        self.meta_meta_path.setText(str(self._meta.get("meta_path", "")))
-        if "new" in (self._title or "").strip().lower():
-            self.meta_group.setVisible(False)
-        self.resize(920, 420)
-
-    def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str):
-        normalized = (value or "").strip().lower()
-        for unit in allowed:
-            if unit.lower() == normalized:
-                return unit
-        return fallback
-
-    def _apply_optional_field_tooltips(self):
-        self.interval_spin.setToolTip(
-            QC.translate("stats", "Set to 0 to inherit the global interval.")
-        )
-        self.interval_units.setToolTip(
-            QC.translate("stats", "Used only when the interval override is set.")
-        )
-        self.timeout_spin.setToolTip(
-            QC.translate("stats", "Set to 0 to inherit the global timeout.")
-        )
-        self.timeout_units.setToolTip(
-            QC.translate("stats", "Used only when the timeout override is set.")
-        )
-        self.max_size_spin.setToolTip(
-            QC.translate("stats", "Set to 0 to inherit the global max size.")
-        )
-        self.max_size_units.setToolTip(
-            QC.translate("stats", "Used only when the max size override is set.")
+        return QtCore.QRect(
+            option.rect.x() + (option.rect.width() - indicator_rect.width()) // 2,
+            option.rect.y() + (option.rect.height() - indicator_rect.height()) // 2,
+            indicator_rect.width(),
+            indicator_rect.height(),
         )
 
-    def _sync_optional_fields_state(self):
-        self.interval_units.setEnabled(self.interval_spin.value() > 0)
-        self.timeout_units.setEnabled(self.timeout_spin.value() > 0)
-        self.max_size_units.setEnabled(self.max_size_spin.value() > 0)
-
-    def _clear_field_errors(self):
-        self._set_dialog_message("", error=False)
-        self.name_error_label.setText("")
-        self.url_error_label.setText("")
-        self.filename_error_label.setText("")
-
-    def _set_dialog_message(self, message: str, error: bool):
-        color = "red" if error else "#2e7d32"
-        self.error_label.setStyleSheet(f"color: {color};")
-        self.error_label.setText(message)
-
-    def _is_valid_url(self, value: str):
-        parsed = urlparse(value)
-        return parsed.scheme in {"http", "https"} and parsed.netloc != ""
-
-    def _test_url(self):
-        self.url_error_label.setText("")
-        self._set_dialog_message("", error=False)
-        url = (self.url_edit.text() or "").strip()
-        if url == "":
-            self.url_error_label.setText(QC.translate("stats", "URL is required."))
-            self._set_dialog_message(
-                QC.translate("stats", "Fix the highlighted fields."), error=True
-            )
-            return
-        if not self._is_valid_url(url):
-            self.url_error_label.setText(
-                QC.translate("stats", "Enter a valid http:// or https:// URL.")
-            )
-            self._set_dialog_message(
-                QC.translate("stats", "Fix the highlighted fields."), error=True
-            )
-            return
-
-        self.test_url_button.setEnabled(False)
-        self._set_dialog_message(QC.translate("stats", "Testing URL..."), error=False)
-
-        def _run_test():
-            try:
-                response = requests.head(url, allow_redirects=True, timeout=5)
-                if response.status_code >= 400 and response.status_code not in (
-                    403,
-                    405,
-                ):
-                    raise requests.HTTPError(f"HTTP {response.status_code}")
-                final_url = response.url or url
-                response.close()
-                if response.status_code in (403, 405):
-                    response = requests.get(
-                        url, allow_redirects=True, timeout=5, stream=True
-                    )
-                    if response.status_code >= 400:
-                        raise requests.HTTPError(f"HTTP {response.status_code}")
-                    final_url = response.url or final_url
-                    response.close()
-                message = QC.translate("stats", "URL reachable.")
-                if final_url != url:
-                    message = QC.translate(
-                        "stats", "URL reachable via redirect to {0}"
-                    ).format(final_url)
-                self._url_test_finished.emit(True, message)
-            except requests.RequestException as exc:
-                self._url_test_finished.emit(False, str(exc))
-
-        threading.Thread(target=_run_test, daemon=True).start()
-
-    def _handle_url_test_finished(self, success: bool, message: str):
-        self.test_url_button.setEnabled(True)
-        if success:
-            self.url_error_label.setText("")
-            self._set_dialog_message(message, error=False)
-            return
-        self.url_error_label.setText(QC.translate("stats", "URL check failed."))
-        self._set_dialog_message(
-            QC.translate("stats", "URL test failed: {0}").format(message),
-            error=True,
-        )
-
-    def _validate_then_accept(self):
-        self._clear_field_errors()
-        raw_url = (self.url_edit.text() or "").strip()
-        raw_name = (self.name_edit.text() or "").strip()
-        raw_filename = (self.filename_edit.text() or "").strip()
-        list_type = (self.format_combo.currentText() or "hosts").strip().lower()
-        name = raw_name
-        filename = os.path.basename(raw_filename)
-        has_error = False
-
-        if raw_url == "":
-            self.url_error_label.setText(QC.translate("stats", "URL is required."))
-            has_error = True
-        elif not self._is_valid_url(raw_url):
-            self.url_error_label.setText(
-                QC.translate("stats", "Enter a valid http:// or https:// URL.")
-            )
-            has_error = True
-
-        if raw_name == "" and raw_filename == "":
-            self.name_error_label.setText(
-                QC.translate("stats", "Provide a name or filename.")
-            )
-            self.filename_error_label.setText(
-                QC.translate("stats", "Provide a filename or name.")
-            )
-            has_error = True
-        elif raw_filename != "" and filename != raw_filename:
-            self.filename_error_label.setText(
-                QC.translate("stats", "Filename must not include directory components.")
-            )
-            has_error = True
-
-        if has_error:
-            self._set_dialog_message(
-                QC.translate("stats", "Fix the highlighted fields."), error=True
-            )
-            return
-
-        if filename == "" and name != "":
-            filename = self._slugify_name(name)
-        filename = ensure_filename_type_suffix(filename, list_type)
-
-        if name == "" and filename != "":
-            name = self._deslugify_filename(filename, list_type)
-
-        self.name_edit.setText(name)
-        self.filename_edit.setText(filename)
-        self.accept()
-
-    def _slugify_name(self, name: str):
-        raw = (name or "").strip().lower()
-        if raw == "":
-            return "subscription.list"
-        slug = re.sub(r"[^a-z0-9._-]+", "-", raw).strip("-._")
-        if slug == "":
-            slug = "subscription"
-        if "." not in slug:
-            slug += ".list"
-        return slug
-
-    def _deslugify_filename(self, filename: str, list_type: str):
-        safe = os.path.basename((filename or "").strip())
-        base, _ext = os.path.splitext(safe)
-        suffix = f"-{(list_type or 'hosts').strip().lower()}"
-        if base.lower().endswith(suffix):
-            base = base[: -len(suffix)]
-        pretty = re.sub(r"[-_.]+", " ", base).strip()
-        pretty = re.sub(r"\s+", " ", pretty)
-        if pretty == "":
-            return safe
-        return pretty.title()
-
-    def subscription_spec(self):
-        groups = normalize_groups((self.group_combo.currentText() or "").strip())
-        return MutableSubscriptionSpec(
-            enabled=self.enabled_check.isChecked(),
-            name=(self.name_edit.text() or "").strip(),
-            url=(self.url_edit.text() or "").strip(),
-            filename=(self.filename_edit.text() or "").strip(),
-            format=(self.format_combo.currentText() or "hosts").strip().lower(),
-            groups=groups,
-            interval=int(self.interval_spin.value()) or None,
-            interval_units=(
-                self.interval_units.currentText()
-                if self.interval_spin.value() > 0
-                else None
-            ),
-            timeout=int(self.timeout_spin.value()) or None,
-            timeout_units=(
-                self.timeout_units.currentText()
-                if self.timeout_spin.value() > 0
-                else None
-            ),
-            max_size=int(self.max_size_spin.value()) or None,
-            max_size_units=(
-                self.max_size_units.currentText()
-                if self.max_size_spin.value() > 0
-                else None
-            ),
-        )
-
-
-class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
-    if TYPE_CHECKING:
-        apply_enabled: QtWidgets.QCheckBox
-        enabled_value: QtWidgets.QCheckBox
-        apply_group: QtWidgets.QCheckBox
-        group_value: QtWidgets.QComboBox
-        apply_format: QtWidgets.QCheckBox
-        format_value: QtWidgets.QComboBox
-        apply_interval: QtWidgets.QCheckBox
-        interval_spin: QtWidgets.QSpinBox
-        interval_units: QtWidgets.QComboBox
-        apply_timeout: QtWidgets.QCheckBox
-        timeout_spin: QtWidgets.QSpinBox
-        timeout_units: QtWidgets.QComboBox
-        apply_max_size: QtWidgets.QCheckBox
-        max_size_spin: QtWidgets.QSpinBox
-        max_size_units: QtWidgets.QComboBox
-        error_label: QtWidgets.QLabel
-        cancel_button: QtWidgets.QPushButton
-        save_button: QtWidgets.QPushButton
-        _defaults: GlobalDefaults
-        _groups: list[str]
-
-    def __init__(
+    def initStyleOption(
         self,
-        parent: QtWidgets.QWidget | None,
-        defaults: GlobalDefaults,
-        groups: list[str] | None = None,
-    ):
-        super().__init__(parent)
-        self.setWindowTitle(QC.translate("stats", "Edit selected subscriptions"))
-        self._defaults = defaults
-        self._groups = groups or []
-        self._build_ui()
-
-    def _build_ui(self):
-        self.setupUi(self)
-        self.error_label.setStyleSheet("color: red;")
-        self.group_value.setEditable(True)
-        self.group_value.setToolTip(
-            QC.translate(
-                "stats",
-                "Optional explicit groups. Every subscription is always included in the global 'all' rules directory.",
-            )
-        )
-        self.cancel_button.clicked.connect(self.reject)
-        self.save_button.clicked.connect(self._validate_then_accept)
-
-        self.enabled_value.setChecked(True)
-        self.group_value.clear()
-        for g in self._groups:
-            ng = normalize_group(g)
-            if ng not in ("", "all"):
-                self.group_value.addItem(ng)
-        self.group_value.setCurrentText("")
-        self.format_value.clear()
-        self.format_value.addItems(("hosts",))
-        self.interval_spin.setRange(0, 999999)
-        self.interval_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
-                self._defaults.interval,
-                self._defaults.interval_units,
-            )
-        )
-        self.interval_spin.setValue(0)
-        self.interval_units.clear()
-        self.interval_units.addItems(INTERVAL_UNITS)
-        self.interval_units.setCurrentText(
-            self._normalize_unit(self._defaults.interval_units, INTERVAL_UNITS, "hours")
-        )
-        self.timeout_spin.setRange(0, 999999)
-        self.timeout_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
-                self._defaults.timeout,
-                self._defaults.timeout_units,
-            )
-        )
-        self.timeout_spin.setValue(0)
-        self.timeout_units.clear()
-        self.timeout_units.addItems(TIMEOUT_UNITS)
-        self.timeout_units.setCurrentText(
-            self._normalize_unit(self._defaults.timeout_units, TIMEOUT_UNITS, "seconds")
-        )
-        self.max_size_spin.setRange(0, 999999)
-        self.max_size_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
-                self._defaults.max_size,
-                self._defaults.max_size_units,
-            )
-        )
-        self.max_size_spin.setValue(0)
-        self.max_size_units.clear()
-        self.max_size_units.addItems(SIZE_UNITS)
-        self.max_size_units.setCurrentText(
-            self._normalize_unit(self._defaults.max_size_units, SIZE_UNITS, "MB")
-        )
-        self.interval_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self.timeout_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self.max_size_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self._apply_optional_field_tooltips()
-        self._sync_optional_fields_state()
-        self.resize(640, 360)
-
-    def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str):
-        normalized = (value or "").strip().lower()
-        for unit in allowed:
-            if unit.lower() == normalized:
-                return unit
-        return fallback
-
-    def _apply_optional_field_tooltips(self):
-        self.interval_spin.setToolTip(
-            QC.translate(
-                "stats",
-                "Set to 0 to clear the interval override and use the global default.",
-            )
-        )
-        self.interval_units.setToolTip(
-            QC.translate("stats", "Used only when an interval override is applied.")
-        )
-        self.timeout_spin.setToolTip(
-            QC.translate(
-                "stats",
-                "Set to 0 to clear the timeout override and use the global default.",
-            )
-        )
-        self.timeout_units.setToolTip(
-            QC.translate("stats", "Used only when a timeout override is applied.")
-        )
-        self.max_size_spin.setToolTip(
-            QC.translate(
-                "stats",
-                "Set to 0 to clear the max size override and use the global default.",
-            )
-        )
-        self.max_size_units.setToolTip(
-            QC.translate("stats", "Used only when a max size override is applied.")
-        )
-
-    def _sync_optional_fields_state(self):
-        self.interval_units.setEnabled(self.interval_spin.value() > 0)
-        self.timeout_units.setEnabled(self.timeout_spin.value() > 0)
-        self.max_size_units.setEnabled(self.max_size_spin.value() > 0)
-
-    def _validate_then_accept(self):
-        if not any(
-            (
-                self.apply_enabled.isChecked(),
-                self.apply_group.isChecked(),
-                self.apply_format.isChecked(),
-                self.apply_interval.isChecked(),
-                self.apply_timeout.isChecked(),
-                self.apply_max_size.isChecked(),
-            )
-        ):
-            self.error_label.setText(
-                QC.translate("stats", "Select at least one field to apply.")
-            )
+        option: QtWidgets.QStyleOptionViewItem | None,
+        index: QtCore.QModelIndex,
+    ) -> None:
+        super().initStyleOption(option, index)
+        if option is None:
             return
-        self.error_label.setText("")
-        self.accept()
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-    def values(self):
-        return {
-            "enabled": (
-                self.enabled_value.isChecked()
-                if self.apply_enabled.isChecked()
-                else None
-            ),
-            "groups": (
-                normalize_groups(self.group_value.currentText())
-                if self.apply_group.isChecked()
-                else None
-            ),
-            "format": (
-                (self.format_value.currentText() or "hosts").strip().lower()
-                if self.apply_format.isChecked()
-                else None
-            ),
-            "apply_interval": self.apply_interval.isChecked(),
-            "interval": int(self.interval_spin.value()) or None,
-            "interval_units": (
-                self.interval_units.currentText()
-                if self.interval_spin.value() > 0
-                else None
-            ),
-            "apply_timeout": self.apply_timeout.isChecked(),
-            "timeout": int(self.timeout_spin.value()) or None,
-            "timeout_units": (
-                self.timeout_units.currentText()
-                if self.timeout_spin.value() > 0
-                else None
-            ),
-            "apply_max_size": self.apply_max_size.isChecked(),
-            "max_size": int(self.max_size_spin.value()) or None,
-            "max_size_units": (
-                self.max_size_units.currentText()
-                if self.max_size_spin.value() > 0
-                else None
-            ),
-        }
+    def paint(
+        self,
+        painter: QtGui.QPainter | None,
+        option: QtWidgets.QStyleOptionViewItem,
+        index: QtCore.QModelIndex,
+    ) -> None:
+        if painter is None:
+            return
+        opt = QtWidgets.QStyleOptionViewItem(option)
+        self.initStyleOption(opt, index)
+        if not (
+            opt.features
+            & QtWidgets.QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
+        ):
+            super().paint(painter, option, index)
+            return
+
+        style = (
+            opt.widget.style()
+            if opt.widget is not None
+            else QtWidgets.QApplication.style()
+        )
+        if style is None:
+            return
+
+        draw_opt = QtWidgets.QStyleOptionViewItem(opt)
+        draw_opt.features &= (
+            ~QtWidgets.QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
+        )
+        draw_opt.text = ""
+        draw_opt.checkState = QtCore.Qt.CheckState.Unchecked
+        style.drawControl(
+            QtWidgets.QStyle.ControlElement.CE_ItemViewItem,
+            draw_opt,
+            painter,
+            draw_opt.widget,
+        )
+
+        indicator_opt = QtWidgets.QStyleOptionViewItem(opt)
+        indicator_opt.rect = self._indicator_rect(opt)
+        indicator_opt.state &= ~(
+            QtWidgets.QStyle.StateFlag.State_On
+            | QtWidgets.QStyle.StateFlag.State_Off
+            | QtWidgets.QStyle.StateFlag.State_NoChange
+        )
+        check_state_raw = index.data(QtCore.Qt.ItemDataRole.CheckStateRole)
+        check_state = (
+            int(check_state_raw.value)
+            if isinstance(check_state_raw, QtCore.Qt.CheckState)
+            else int(check_state_raw or 0)
+        )
+        if check_state == int(QtCore.Qt.CheckState.Checked.value):
+            indicator_opt.state |= QtWidgets.QStyle.StateFlag.State_On
+            indicator_opt.checkState = QtCore.Qt.CheckState.Checked
+        elif check_state == int(QtCore.Qt.CheckState.PartiallyChecked.value):
+            indicator_opt.state |= QtWidgets.QStyle.StateFlag.State_NoChange
+            indicator_opt.checkState = QtCore.Qt.CheckState.PartiallyChecked
+        else:
+            indicator_opt.state |= QtWidgets.QStyle.StateFlag.State_Off
+            indicator_opt.checkState = QtCore.Qt.CheckState.Unchecked
+        style.drawPrimitive(
+            QtWidgets.QStyle.PrimitiveElement.PE_IndicatorItemViewItemCheck,
+            indicator_opt,
+            painter,
+            opt.widget,
+        )
+
+
+class SortableTableWidgetItem(QtWidgets.QTableWidgetItem):
+    def __lt__(self, other: QtWidgets.QTableWidgetItem) -> bool:
+        left = self.data(QtCore.Qt.ItemDataRole.UserRole)
+        right = other.data(QtCore.Qt.ItemDataRole.UserRole)
+        if left is not None or right is not None:
+            return (left, self.text().lower()) < (right, other.text().lower())
+        return super().__lt__(other)
 
 
 class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
     if TYPE_CHECKING:
+        rootLayout: QtWidgets.QVBoxLayout
+        topRowLayout: QtWidgets.QHBoxLayout
+        defaultsSectionLayout: QtWidgets.QVBoxLayout
+        defaultsGridLayout: QtWidgets.QGridLayout
+        tableSectionLayout: QtWidgets.QVBoxLayout
+        table_section_bar: QtWidgets.QFrame
+        table_section_label: QtWidgets.QLabel
+        tableContentLayout: QtWidgets.QVBoxLayout
+        actionsRowLayout: QtWidgets.QHBoxLayout
+        actionsSeparatorLayout: QtWidgets.QVBoxLayout
+        globalActionsLayout: QtWidgets.QHBoxLayout
+        ruleActionsLayout: QtWidgets.QHBoxLayout
         enable_plugin_check: QtWidgets.QCheckBox
         create_file_button: QtWidgets.QPushButton
         save_button: QtWidgets.QPushButton
         reload_button: QtWidgets.QPushButton
         start_runtime_button: QtWidgets.QPushButton
         stop_runtime_button: QtWidgets.QPushButton
+        runtime_status_title_label: QtWidgets.QLabel
         runtime_status_label: QtWidgets.QLabel
+        defaults_section_bar: QtWidgets.QFrame
+        defaults_section_label: QtWidgets.QLabel
+        lists_dir_label: QtWidgets.QLabel
         lists_dir_edit: QtWidgets.QLineEdit
+        default_interval_label: QtWidgets.QLabel
         default_interval_spin: QtWidgets.QSpinBox
         default_interval_units: QtWidgets.QComboBox
+        default_timeout_label: QtWidgets.QLabel
         default_timeout_spin: QtWidgets.QSpinBox
         default_timeout_units: QtWidgets.QComboBox
+        default_max_size_label: QtWidgets.QLabel
         default_max_size_spin: QtWidgets.QSpinBox
         default_max_size_units: QtWidgets.QComboBox
+        default_user_agent_label: QtWidgets.QLabel
         default_user_agent: QtWidgets.QLineEdit
+        node_label: QtWidgets.QLabel
         nodes_combo: QtWidgets.QComboBox
         table: QtWidgets.QTableWidget
+        global_actions_bar: QtWidgets.QFrame
+        global_actions_label: QtWidgets.QLabel
+        actions_vertical_separator: QtWidgets.QFrame
         add_sub_button: QtWidgets.QPushButton
         refresh_state_button: QtWidgets.QPushButton
         create_global_rule_button: QtWidgets.QPushButton
+        selected_actions_bar: QtWidgets.QFrame
+        selected_actions_label: QtWidgets.QLabel
         edit_sub_button: QtWidgets.QPushButton
         remove_sub_button: QtWidgets.QPushButton
         refresh_now_button: QtWidgets.QPushButton
         create_rule_button: QtWidgets.QPushButton
+        status_separator_line: QtWidgets.QFrame
         status_label: QtWidgets.QLabel
         _nodes: Nodes
         _actions: Actions
@@ -765,8 +318,8 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         _state_poll_timer: QtCore.QTimer
         _runtime_plugin: ListSubscriptions | None
         _pending_runtime_reload: str | None
-
-    _download_finished = QtCore.pyqtSignal()
+        _pending_refresh_keys: set[str]
+        _active_refresh_keys: set[str]
 
     def __init__(
         self,
@@ -789,32 +342,137 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._rules_dialog: RulesEditorDialog | None = None
         self._runtime_plugin: ListSubscriptions | None = None
         self._pending_runtime_reload: str | None = None
+        self._pending_refresh_keys: set[str] = set()
+        self._active_refresh_keys: set[str] = set()
         self._state_poll_timer = QtCore.QTimer(self)
         self._state_poll_timer.setInterval(2000)
         self._state_poll_timer.timeout.connect(self._refresh_states_if_visible)
-        self._download_finished.connect(self.refresh_states)
         self._build_ui()
 
-    def showEvent(self, event: QtGui.QShowEvent):  # type: ignore
+    def showEvent(self, event: QtGui.QShowEvent | None):  # type: ignore[override]
         super().showEvent(event)
         self.load_action_file()
         if not self._state_poll_timer.isActive():
             self._state_poll_timer.start()
 
-    def hideEvent(self, event: QtGui.QHideEvent):  # type: ignore
+    def hideEvent(self, event: QtGui.QHideEvent | None):  # type: ignore[override]
         if self._state_poll_timer.isActive():
             self._state_poll_timer.stop()
         super().hideEvent(event)
 
-    def closeEvent(self, event: QtGui.QCloseEvent):  # type: ignore
+    def closeEvent(self, event: QtGui.QCloseEvent | None):  # type: ignore[override]
         if self._state_poll_timer.isActive():
             self._state_poll_timer.stop()
         super().closeEvent(event)
 
     def _build_ui(self):
         self.setupUi(self)
+        self.enable_plugin_check = _replace_checkbox_with_toggle(
+            self.enable_plugin_check
+        )
         self.setWindowTitle(QC.translate("stats", "List subscriptions"))
         self.resize(1180, 680)
+        self.rootLayout.setContentsMargins(0, 0, 0, 0)
+        self.rootLayout.setSpacing(0)
+        self.rootLayout.setStretch(0, 0)
+        self.rootLayout.setStretch(1, 0)
+        self.rootLayout.setStretch(2, 1)
+        self.rootLayout.setStretch(3, 0)
+        self.rootLayout.setStretch(4, 0)
+        self.topRowLayout.setContentsMargins(12, 10, 12, 4)
+        self.topRowLayout.setSpacing(8)
+        self.topRowLayout.setAlignment(QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.defaultsSectionLayout.setContentsMargins(0, 8, 0, 0)
+        self.defaultsGridLayout.setContentsMargins(12, 10, 12, 10)
+        self.tableSectionLayout.setContentsMargins(0, 8, 0, 0)
+        self.tableContentLayout.setContentsMargins(0, 0, 0, 0)
+        self.actionsRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.actionsRowLayout.setSpacing(0)
+        self.globalActionsLayout.setContentsMargins(12, 10, 12, 10)
+        self.ruleActionsLayout.setContentsMargins(12, 10, 12, 10)
+        self.status_label.setContentsMargins(12, 8, 12, 8)
+        self.status_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
+        self._apply_section_header_style(
+            self.defaults_section_bar,
+            self.defaults_section_label,
+        )
+        self._apply_section_header_style(
+            self.table_section_bar,
+            self.table_section_label,
+        )
+        self._apply_section_header_style(
+            self.global_actions_bar,
+            self.global_actions_label,
+        )
+        self._apply_section_header_style(
+            self.selected_actions_bar,
+            self.selected_actions_label,
+        )
+        self.actionsRowLayout.setStretch(0, 1)
+        self.actionsRowLayout.setStretch(2, 1)
+        self.actions_vertical_separator.hide()
+        section_border_color = _section_border_color_name(self)
+        self.global_actions_bar.setStyleSheet(
+            "QFrame {"
+            f"background-color: {_section_background_color_name(self)};"
+            f"border-top: 1px solid {section_border_color};"
+            f"border-bottom: 1px solid {section_border_color};"
+            f"border-right: 1px solid {section_border_color};"
+            "}"
+        )
+        self.runtime_status_label.setContentsMargins(12, 0, 0, 0)
+        self.runtime_status_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
+        self.runtime_status_title_label.setContentsMargins(12, 0, 0, 0)
+        self.runtime_status_title_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
+        runtime_status_title_font = self.runtime_status_title_label.font()
+        runtime_status_title_font.setBold(True)
+        self.runtime_status_title_label.setFont(runtime_status_title_font)
+        footer_role = (
+            QtGui.QPalette.ColorRole.Midlight
+            if self.palette().color(QtGui.QPalette.ColorRole.Window).lightness() < 128
+            else QtGui.QPalette.ColorRole.Dark
+        )
+        footer_border = self.palette().color(footer_role).name()
+        self.status_separator_line.setStyleSheet(f"color: {footer_border};")
+        self.status_label.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Fixed,
+        )
+        self.status_label.setStyleSheet(
+            f"QLabel {{ background-color: {self.palette().color(QtGui.QPalette.ColorRole.Window).name()}; padding: 8px 12px 8px 12px; }}"
+        )
+        for widget in (
+            self.enable_plugin_check,
+            self.create_file_button,
+            self.save_button,
+            self.reload_button,
+            self.start_runtime_button,
+            self.stop_runtime_button,
+            self.runtime_status_title_label,
+            self.runtime_status_label,
+        ):
+            self.topRowLayout.setAlignment(widget, QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.table.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        self.table.setLineWidth(0)
+        self.table.setContentsMargins(0, 0, 0, 0)
+        self.table.setMinimumHeight(0)
+        self.table.setMaximumHeight(16777215)
+        defaults_label_width = 120
+        for label in (
+            self.lists_dir_label,
+            self.default_interval_label,
+            self.default_timeout_label,
+            self.default_max_size_label,
+            self.default_user_agent_label,
+            self.node_label,
+        ):
+            label.setMinimumWidth(defaults_label_width)
 
         self.default_interval_spin.setRange(1, 999999)
         self.default_interval_units.clear()
@@ -875,6 +533,9 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self.table.setSelectionMode(
             QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
         )
+        self.table.setItemDelegateForColumn(
+            COL_ENABLED, CenteredCheckDelegate(self.table)
+        )
         state_delegate = KeepForegroundOnSelectionDelegate(self.table)
         for col in (
             COL_STATE,
@@ -885,6 +546,8 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         header = self.table.horizontalHeader()
         if header is not None:
             header.setStretchLastSection(True)
+            header.setSortIndicatorShown(True)
+            header.setSortIndicator(COL_ENABLED, QtCore.Qt.SortOrder.AscendingOrder)
             header.setSectionResizeMode(
                 COL_ENABLED, QtWidgets.QHeaderView.ResizeMode.Fixed
             )
@@ -900,13 +563,17 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                     None,
                     self.table,
                 )
-                self.table.setColumnWidth(COL_ENABLED, max(indicator_w, indicator_h) + 12)
+                self.table.setColumnWidth(
+                    COL_ENABLED, max(indicator_w, indicator_h) + 18
+                )
             header.setSectionResizeMode(
                 COL_URL, QtWidgets.QHeaderView.ResizeMode.Stretch
             )
             header.setSectionResizeMode(
                 COL_ERROR, QtWidgets.QHeaderView.ResizeMode.Stretch
             )
+        self.table.setSortingEnabled(True)
+        self.table.sortItems(COL_ENABLED, QtCore.Qt.SortOrder.AscendingOrder)
         # Keep advanced tuning + verbose metadata available internally but
         # reduce visible table complexity; edit dialog exposes full details.
         for col in (
@@ -938,6 +605,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self.table.itemDoubleClicked.connect(
             lambda *_: self.edit_selected_subscription()
         )
+        self.table.clicked.connect(self._handle_table_clicked)
         self.table.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self._open_table_context_menu)
         sel_model = self.table.selectionModel()
@@ -947,6 +615,91 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             )
         self._set_runtime_state(active=False)
         self._update_selected_actions_state()
+
+    def _apply_section_header_style(
+        self, container: QtWidgets.QFrame, label: QtWidgets.QLabel
+    ):
+        _apply_section_bar_style(
+            self,
+            container,
+            label,
+            expanding_label=True,
+        )
+
+    @contextmanager
+    def _sorting_suspended(self):
+        header = self.table.horizontalHeader()
+        sorting_enabled = self.table.isSortingEnabled()
+        sort_section = header.sortIndicatorSection() if header is not None else -1
+        sort_order = (
+            header.sortIndicatorOrder()
+            if header is not None
+            else QtCore.Qt.SortOrder.AscendingOrder
+        )
+        self.table.setSortingEnabled(False)
+        try:
+            yield
+        finally:
+            self.table.setSortingEnabled(sorting_enabled)
+            if sorting_enabled and header is not None and sort_section >= 0:
+                self.table.sortItems(sort_section, sort_order)
+
+    def _sort_key_for_column(self, col: int, text: str):
+        value = (text or "").strip()
+        if col in (
+            COL_INTERVAL,
+            COL_TIMEOUT,
+            COL_MAX_SIZE,
+            COL_FAILS,
+        ):
+            if value == "":
+                return -1
+            try:
+                return int(value)
+            except Exception:
+                return value.lower()
+        if col in (COL_LAST_CHECKED, COL_LAST_UPDATED):
+            return timestamp_sort_key(value)
+        if col == COL_STATE:
+            return self._state_sort_value(value)
+        return value.lower()
+
+    def _state_sort_value(self, value: str):
+        normalized = (value or "").strip().lower()
+        if normalized in ("updated", "not_modified"):
+            return 0, normalized
+        if normalized == "pending":
+            return 1, normalized
+        return 2, normalized
+
+    def _update_row_sort_keys(self, row: int):
+        enabled_item = self.table.item(row, COL_ENABLED)
+        state_item = self.table.item(row, COL_STATE)
+        last_checked_item = self.table.item(row, COL_LAST_CHECKED)
+        if enabled_item is None:
+            return
+
+        enabled_rank = (
+            0 if enabled_item.checkState() == QtCore.Qt.CheckState.Checked else 1
+        )
+        state_text = state_item.text() if state_item is not None else ""
+        state_rank = self._state_sort_value(state_text)
+        last_checked_text = (
+            last_checked_item.text() if last_checked_item is not None else ""
+        )
+        last_checked_rank = timestamp_sort_key(last_checked_text)
+        combined_rank = (enabled_rank, state_rank, last_checked_rank)
+
+        enabled_item.setData(QtCore.Qt.ItemDataRole.UserRole, combined_rank)
+
+    def _new_enabled_item(self, enabled: bool) -> SortableTableWidgetItem:
+        item = SortableTableWidgetItem("")
+        item.setFlags(item.flags() | QtCore.Qt.ItemFlag.ItemIsUserCheckable)
+        item.setCheckState(
+            QtCore.Qt.CheckState.Checked if enabled else QtCore.Qt.CheckState.Unchecked
+        )
+        item.setData(QtCore.Qt.ItemDataRole.UserRole, 1 if enabled else 0)
+        return item
 
     def _sync_runtime_binding_state(self):
         runtime_plugin = ListSubscriptions.get_instance()
@@ -963,115 +716,189 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
 
         self._runtime_plugin = None
         self._set_runtime_state(active=False)
+        self._set_refresh_busy(False)
         return None
 
+    def _set_refresh_busy(self, busy: bool):
+        self.refresh_state_button.setEnabled(not busy)
+        self.refresh_now_button.setEnabled(not busy and len(self._selected_rows()) > 0)
+
+    def _track_refresh_keys(self, keys: set[str]):
+        if not keys:
+            return
+        self._pending_refresh_keys.update(keys)
+        self._set_refresh_busy(True)
+
+    def _clear_refresh_key(self, key: str):
+        self._pending_refresh_keys.discard(key)
+        self._active_refresh_keys.discard(key)
+        if not self._pending_refresh_keys and not self._active_refresh_keys:
+            self._set_refresh_busy(False)
+
+    def _refresh_keys_from_payload(self, payload: dict[str, Any]):
+        items_raw = payload.get("items")
+        keys: set[str] = set()
+        if isinstance(items_raw, list):
+            for item in items_raw:
+                if not isinstance(item, dict):
+                    continue
+                key = str(item.get("key") or "").strip()
+                if key != "":
+                    keys.add(key)
+        return keys
+
+    def _runtime_event_items(self, payload: dict[str, Any]):
+        items_raw = payload.get("items")
+        if not isinstance(items_raw, list):
+            return []
+        return [item for item in items_raw if isinstance(item, dict)]
+
+    def _runtime_download_message(
+        self,
+        event_name: RuntimeEvent | None,
+        payload: dict[str, Any],
+        fallback: str,
+    ):
+        items = self._runtime_event_items(payload)
+        if not items:
+            return fallback
+        count = len(items)
+        first_name = str(items[0].get("name") or "").strip()
+        if event_name == RuntimeEvent.DOWNLOAD_STARTED:
+            if count == 1 and first_name != "":
+                return QC.translate("stats", "Refreshing subscription '{0}'.").format(
+                    first_name
+                )
+            return QC.translate("stats", "Refreshing {0} subscriptions.").format(count)
+        if event_name == RuntimeEvent.DOWNLOAD_FINISHED:
+            if count == 1 and first_name != "":
+                return QC.translate("stats", "Subscription '{0}' refreshed.").format(
+                    first_name
+                )
+            return QC.translate("stats", "Refreshed {0} subscriptions.").format(count)
+        if event_name == RuntimeEvent.DOWNLOAD_FAILED:
+            if count == 1 and first_name != "":
+                return QC.translate(
+                    "stats", "Subscription '{0}' refresh failed."
+                ).format(first_name)
+            return QC.translate(
+                "stats", "Refresh failed for {0} subscriptions."
+            ).format(count)
+        return fallback
+
     def load_action_file(self):
-        self._loading = True
-        self._set_status("")
-        self._reload_nodes()
-        self.table.setRowCount(0)
-        self.create_file_button.setVisible(True)
-        self.lists_dir_edit.setText(DEFAULT_LISTS_DIR)
-        self.enable_plugin_check.setChecked(False)
-        self._set_runtime_state(active=False)
-        self._global_defaults = GlobalDefaults.from_dict(
-            {}, lists_dir=DEFAULT_LISTS_DIR
-        )
-        self._apply_defaults_to_widgets()
-
-        if not os.path.exists(self._action_path):
-            self._set_status(
-                QC.translate(
-                    "stats", "Action file not found. Click 'Create action file'."
-                ),
-                error=False,
+        with self._sorting_suspended():
+            self._loading = True
+            self._set_status("")
+            self._reload_nodes()
+            self.table.setRowCount(0)
+            self.create_file_button.setVisible(True)
+            self.lists_dir_edit.setText(DEFAULT_LISTS_DIR)
+            self.enable_plugin_check.setChecked(False)
+            self._set_runtime_state(active=False)
+            self._global_defaults = GlobalDefaults.from_dict(
+                {}, lists_dir=DEFAULT_LISTS_DIR
             )
+            self._apply_defaults_to_widgets()
+
+            if not os.path.exists(self._action_path):
+                self._set_status(
+                    QC.translate(
+                        "stats", "Action file not found. Click 'Create action file'."
+                    ),
+                    error=False,
+                )
+                self._loading = False
+                return
+
+            try:
+                data = read_json_locked(self._action_path)
+            except Exception as e:
+                self._set_status(
+                    QC.translate("stats", "Error reading action file: {0}").format(
+                        str(e)
+                    ),
+                    error=True,
+                )
+                self._loading = False
+                return
+
+            action_model = MutableActionConfig.from_action_dict(
+                data, lists_dir=DEFAULT_LISTS_DIR
+            )
+            self._global_defaults = action_model.plugin.defaults
+            self.enable_plugin_check.setChecked(action_model.enabled)
+            self._sync_runtime_binding_state()
+            self.lists_dir_edit.setText(
+                normalize_lists_dir(self._global_defaults.lists_dir)
+            )
+            self._apply_defaults_to_widgets()
+
+            normalized_subs = action_model.plugin.subscriptions
+            actions_obj = data.get("actions", {})
+            action_cfg = (
+                actions_obj.get("list_subscriptions", {})
+                if isinstance(actions_obj, dict)
+                else {}
+            )
+            plugin_cfg_raw = (
+                action_cfg.get("config", {}) if isinstance(action_cfg, dict) else {}
+            )
+            plugin_cfg = plugin_cfg_raw if isinstance(plugin_cfg_raw, dict) else {}
+            raw_subs = plugin_cfg.get("subscriptions")
+            migrated_legacy_group = False
+            if isinstance(raw_subs, list):
+                for item in raw_subs:
+                    if (
+                        isinstance(item, dict)
+                        and ("group" in item)
+                        and ("groups" not in item)
+                    ):
+                        migrated_legacy_group = True
+                        break
+            normalized_subs_dicts = [s.to_dict() for s in normalized_subs]
+            fixed_count = (
+                1
+                if (isinstance(raw_subs, list) and raw_subs != normalized_subs_dicts)
+                else 0
+            )
+
+            for sub in normalized_subs:
+                self._append_row(sub)
+
             self._loading = False
-            return
-
-        try:
-            data = read_json_locked(self._action_path)
-        except Exception as e:
-            self._set_status(
-                QC.translate("stats", "Error reading action file: {0}").format(str(e)),
-                error=True,
-            )
-            self._loading = False
-            return
-
-        action_model = MutableActionConfig.from_action_dict(
-            data, lists_dir=DEFAULT_LISTS_DIR
-        )
-        self._global_defaults = action_model.plugin.defaults
-        self.enable_plugin_check.setChecked(action_model.enabled)
-        self._sync_runtime_binding_state()
-        self.lists_dir_edit.setText(
-            normalize_lists_dir(self._global_defaults.lists_dir)
-        )
-        self._apply_defaults_to_widgets()
-
-        normalized_subs = action_model.plugin.subscriptions
-        actions_obj = data.get("actions", {})
-        action_cfg = (
-            actions_obj.get("list_subscriptions", {})
-            if isinstance(actions_obj, dict)
-            else {}
-        )
-        plugin_cfg_raw = (
-            action_cfg.get("config", {}) if isinstance(action_cfg, dict) else {}
-        )
-        plugin_cfg = plugin_cfg_raw if isinstance(plugin_cfg_raw, dict) else {}
-        raw_subs = plugin_cfg.get("subscriptions")
-        migrated_legacy_group = False
-        if isinstance(raw_subs, list):
-            for item in raw_subs:
-                if (
-                    isinstance(item, dict)
-                    and ("group" in item)
-                    and ("groups" not in item)
-                ):
-                    migrated_legacy_group = True
-                    break
-        normalized_subs_dicts = [s.to_dict() for s in normalized_subs]
-        fixed_count = (
-            1
-            if (isinstance(raw_subs, list) and raw_subs != normalized_subs_dicts)
-            else 0
-        )
-
-        for sub in normalized_subs:
-            self._append_row(sub)
-
-        self._loading = False
-        self.refresh_states()
-        self._update_selected_actions_state()
-        self.create_file_button.setVisible(False)
-        if migrated_legacy_group:
-            self.save_action_file()
-            self._set_status(
-                QC.translate(
-                    "stats",
-                    "Migrated legacy 'group' entries to 'groups' and auto-saved configuration.",
-                ),
-                error=False,
-            )
-            return
-        if fixed_count > 0:
-            self._set_status(
-                QC.translate(
-                    "stats", "Loaded configuration with normalized subscription fields."
-                ),
-                error=False,
-            )
-        else:
-            self._set_status(
-                QC.translate("stats", "List subscriptions configuration loaded."),
-                error=False,
-            )
+            self.refresh_states()
+            self._update_selected_actions_state()
+            self.create_file_button.setVisible(False)
+            if migrated_legacy_group:
+                self.save_action_file()
+                self._set_status(
+                    QC.translate(
+                        "stats",
+                        "Migrated legacy 'group' entries to 'groups' and auto-saved configuration.",
+                    ),
+                    error=False,
+                )
+                return
+            if fixed_count > 0:
+                self._set_status(
+                    QC.translate(
+                        "stats",
+                        "Loaded configuration with normalized subscription fields.",
+                    ),
+                    error=False,
+                )
+            else:
+                self._set_status(
+                    QC.translate("stats", "List subscriptions configuration loaded."),
+                    error=False,
+                )
 
     def start_runtime_clicked(self):
         runtime_plugin = self._sync_runtime_binding_state()
-        if runtime_plugin is not None and bool(getattr(runtime_plugin, "enabled", False)):
+        if runtime_plugin is not None and bool(
+            getattr(runtime_plugin, "enabled", False)
+        ):
             self._bind_runtime_plugin(runtime_plugin)
             self._set_runtime_state(active=True)
             self._set_status(QC.translate("stats", "Runtime is already active."))
@@ -1080,7 +907,8 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         if not os.path.exists(self._action_path):
             self._set_status(
                 QC.translate(
-                    "stats", "Action file not found. Create and save the configuration first."
+                    "stats",
+                    "Action file not found. Create and save the configuration first.",
                 ),
                 error=True,
             )
@@ -1088,7 +916,9 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
 
         if runtime_plugin is not None:
             self._bind_runtime_plugin(runtime_plugin)
-            self._set_runtime_state(active=None, text=QC.translate("stats", "Runtime: starting"))
+            self._set_runtime_state(
+                active=None, text=QC.translate("stats", "Runtime: starting")
+            )
             try:
                 runtime_plugin.signal_in.emit(
                     {
@@ -1128,13 +958,17 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
 
     def stop_runtime_clicked(self):
         runtime_plugin = self._sync_runtime_binding_state()
-        if runtime_plugin is None or not bool(getattr(runtime_plugin, "enabled", False)):
+        if runtime_plugin is None or not bool(
+            getattr(runtime_plugin, "enabled", False)
+        ):
             self._set_runtime_state(active=False)
             self._set_status(QC.translate("stats", "Runtime is already inactive."))
             return
 
         self._bind_runtime_plugin(runtime_plugin)
-        self._set_runtime_state(active=None, text=QC.translate("stats", "Runtime: stopping"))
+        self._set_runtime_state(
+            active=None, text=QC.translate("stats", "Runtime: stopping")
+        )
         try:
             runtime_plugin.signal_in.emit(
                 {
@@ -1151,7 +985,9 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
 
     def reload_runtime_and_config(self):
         runtime_plugin = self._sync_runtime_binding_state()
-        if runtime_plugin is None or not bool(getattr(runtime_plugin, "enabled", False)):
+        if runtime_plugin is None or not bool(
+            getattr(runtime_plugin, "enabled", False)
+        ):
             self.load_action_file()
             return
 
@@ -1168,9 +1004,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         except Exception:
             self._pending_runtime_reload = None
             self._set_status(
-                QC.translate(
-                    "stats", "Runtime reload failed to start. Restart UI."
-                ),
+                QC.translate("stats", "Runtime reload failed to start. Restart UI."),
                 error=True,
             )
 
@@ -1255,7 +1089,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
 
         for row, sub in enumerate(normalized_subscriptions):
             self._set_text_item(row, COL_NAME, sub.name)
-            self._set_text_item(row, COL_FILENAME, self._safe_filename(sub.filename))
+            self._set_text_item(row, COL_FILENAME, safe_filename(sub.filename))
 
         try:
             write_json_atomic_locked(self._action_path, action)
@@ -1274,94 +1108,98 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         )
 
     def refresh_states(self):
-        lists_dir = normalize_lists_dir(
-            self.lists_dir_edit.text().strip() or DEFAULT_LISTS_DIR
-        )
-        for row in range(self.table.rowCount()):
-            filename_item = self.table.item(row, COL_FILENAME)
-            enabled_item = self.table.item(row, COL_ENABLED)
-            if filename_item is None or enabled_item is None:
-                continue
+        with self._sorting_suspended():
+            lists_dir = normalize_lists_dir(
+                self.lists_dir_edit.text().strip() or DEFAULT_LISTS_DIR
+            )
+            for row in range(self.table.rowCount()):
+                filename_item = self.table.item(row, COL_FILENAME)
+                enabled_item = self.table.item(row, COL_ENABLED)
+                if filename_item is None or enabled_item is None:
+                    continue
 
-            filename = self._safe_filename(filename_item.text())
-            list_type = (self._cell_text(row, COL_FORMAT) or "hosts").strip().lower()
-            enabled = enabled_item.checkState() == QtCore.Qt.CheckState.Checked
-            list_path = self._list_file_path(lists_dir, filename, list_type)
-            meta_path = list_path + ".meta.json"
+                filename = safe_filename(filename_item.text())
+                list_type = (
+                    (self._cell_text(row, COL_FORMAT) or "hosts").strip().lower()
+                )
+                enabled = enabled_item.checkState() == QtCore.Qt.CheckState.Checked
+                list_path = list_file_path(lists_dir, filename, list_type)
+                meta_path = list_path + ".meta.json"
 
-            file_exists = os.path.exists(list_path)
-            meta_exists = os.path.exists(meta_path)
-            meta = {}
-            if meta_exists:
-                try:
-                    with open(meta_path, "r", encoding="utf-8") as f:
-                        meta = json.load(f)
-                except Exception:
-                    meta = {}
+                file_exists = os.path.exists(list_path)
+                meta_exists = os.path.exists(meta_path)
+                meta = {}
+                if meta_exists:
+                    try:
+                        with open(meta_path, "r", encoding="utf-8") as f:
+                            meta = json.load(f)
+                    except Exception:
+                        meta = {}
 
-            last_result = str(meta.get("last_result", "never")) if meta else "never"
-            last_checked = str(meta.get("last_checked", "")) if meta else ""
-            last_updated = str(meta.get("last_updated", "")) if meta else ""
-            fail_count = str(meta.get("fail_count", 0)) if meta else "0"
-            last_error = str(meta.get("last_error", "")) if meta else ""
-            fg_color: QtGui.QColor
+                last_result = str(meta.get("last_result", "never")) if meta else "never"
+                last_checked = str(meta.get("last_checked", "")) if meta else ""
+                last_updated = str(meta.get("last_updated", "")) if meta else ""
+                fail_count = str(meta.get("fail_count", 0)) if meta else "0"
+                last_error = str(meta.get("last_error", "")) if meta else ""
+                fg_color: QtGui.QColor
 
-            if not enabled:
-                state = "disabled"
-                fg_color = self._state_text_color("disabled")
-            elif not file_exists:
-                # New/manual subscriptions may not be downloaded yet.
-                # Expose that as pending instead of an error-like missing state.
-                if not meta_exists or last_result in ("never", "", "busy"):
-                    state = "pending"
-                    fg_color = self._state_text_color("pending")
+                if not enabled:
+                    state = "disabled"
+                    fg_color = self._state_text_color("disabled")
+                elif not file_exists:
+                    # New/manual subscriptions may not be downloaded yet.
+                    # Expose that as pending instead of an error-like missing state.
+                    if not meta_exists or last_result in ("never", "", "busy"):
+                        state = "pending"
+                        fg_color = self._state_text_color("pending")
+                    else:
+                        state = "missing"
+                        fg_color = self._state_text_color("missing")
+                elif last_result in ("updated", "not_modified"):
+                    state = last_result
+                    fg_color = self._state_text_color(last_result)
+                elif last_result in (
+                    "error",
+                    "write_error",
+                    "request_error",
+                    "unexpected_error",
+                    "bad_format",
+                    "too_large",
+                ):
+                    state = last_result
+                    fg_color = self._state_text_color(last_result)
+                elif last_result == "busy":
+                    state = "busy"
+                    fg_color = self._state_text_color("busy")
                 else:
-                    state = "missing"
-                    fg_color = self._state_text_color("missing")
-            elif last_result in ("updated", "not_modified"):
-                state = last_result
-                fg_color = self._state_text_color(last_result)
-            elif last_result in (
-                "error",
-                "write_error",
-                "request_error",
-                "unexpected_error",
-                "bad_format",
-                "too_large",
-            ):
-                state = last_result
-                fg_color = self._state_text_color(last_result)
-            elif last_result == "busy":
-                state = "busy"
-                fg_color = self._state_text_color("busy")
-            else:
-                state = last_result
-                fg_color = self._state_text_color("other")
+                    state = last_result
+                    fg_color = self._state_text_color("other")
 
-            self._set_text_item(
-                row, COL_FILE, "yes" if file_exists else "no", editable=False
-            )
-            self._set_text_item(
-                row, COL_META, "yes" if meta_exists else "no", editable=False
-            )
-            self._set_text_item(row, COL_STATE, state, editable=False)
-            self._set_text_item(row, COL_LAST_CHECKED, last_checked, editable=False)
-            self._set_text_item(row, COL_LAST_UPDATED, last_updated, editable=False)
-            self._set_text_item(row, COL_FAILS, fail_count, editable=False)
-            self._set_text_item(row, COL_ERROR, last_error, editable=False)
+                self._set_text_item(
+                    row, COL_FILE, "yes" if file_exists else "no", editable=False
+                )
+                self._set_text_item(
+                    row, COL_META, "yes" if meta_exists else "no", editable=False
+                )
+                self._set_text_item(row, COL_STATE, state, editable=False)
+                self._set_text_item(row, COL_LAST_CHECKED, last_checked, editable=False)
+                self._set_text_item(row, COL_LAST_UPDATED, last_updated, editable=False)
+                self._set_text_item(row, COL_FAILS, fail_count, editable=False)
+                self._set_text_item(row, COL_ERROR, last_error, editable=False)
 
-            for col in (
-                COL_FILE,
-                COL_META,
-                COL_STATE,
-                COL_LAST_CHECKED,
-                COL_LAST_UPDATED,
-                COL_FAILS,
-                COL_ERROR,
-            ):
-                item = self.table.item(row, col)
-                if item is not None:
-                    item.setForeground(fg_color)
+                for col in (
+                    COL_FILE,
+                    COL_META,
+                    COL_STATE,
+                    COL_LAST_CHECKED,
+                    COL_LAST_UPDATED,
+                    COL_FAILS,
+                    COL_ERROR,
+                ):
+                    item = self.table.item(row, col)
+                    if item is not None:
+                        item.setForeground(fg_color)
+                self._update_row_sort_keys(row)
 
     def _state_text_color(self, state: str):
         palette = self.table.palette()
@@ -1419,9 +1257,10 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             return
 
         sub = dlg.subscription_spec()
-        self._append_row(sub)
-        row = self.table.rowCount() - 1
-        _, changed = self._ensure_row_final_filename(row)
+        with self._sorting_suspended():
+            self._append_row(sub)
+            row = self.table.rowCount() - 1
+            _, changed = self._ensure_row_final_filename(row)
         if changed:
             self.refresh_states()
 
@@ -1437,14 +1276,11 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 QC.translate("stats", "Select a subscription row first."), error=True
             )
             return
-
-        enabled_item = self.table.item(row, COL_ENABLED)
-        if enabled_item is None:
-            enabled_item = QtWidgets.QTableWidgetItem("")
-            enabled_item.setFlags(
-                enabled_item.flags() | QtCore.Qt.ItemFlag.ItemIsUserCheckable
-            )
-            self.table.setItem(row, COL_ENABLED, enabled_item)
+        with self._sorting_suspended():
+            enabled_item = self.table.item(row, COL_ENABLED)
+            if enabled_item is None:
+                enabled_item = self._new_enabled_item(False)
+                self.table.setItem(row, COL_ENABLED, enabled_item)
 
         interval_ok, interval_val = self._optional_int_from_text(
             self._cell_text(row, COL_INTERVAL), "Interval", row=row
@@ -1465,17 +1301,11 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             format=self._cell_text(row, COL_FORMAT) or "hosts",
             groups=normalize_groups(self._cell_text(row, COL_GROUP)),
             interval=interval_val,
-            interval_units=self._optional_unit_from_text(
-                self._cell_text(row, COL_INTERVAL_UNITS)
-            ),
+            interval_units=strip_or_none(self._cell_text(row, COL_INTERVAL_UNITS)),
             timeout=timeout_val,
-            timeout_units=self._optional_unit_from_text(
-                self._cell_text(row, COL_TIMEOUT_UNITS)
-            ),
+            timeout_units=strip_or_none(self._cell_text(row, COL_TIMEOUT_UNITS)),
             max_size=max_size_val,
-            max_size_units=self._optional_unit_from_text(
-                self._cell_text(row, COL_MAX_SIZE_UNITS)
-            ),
+            max_size_units=strip_or_none(self._cell_text(row, COL_MAX_SIZE_UNITS)),
         )
         meta = self._row_meta_snapshot(row)
         dlg = SubscriptionDialog(
@@ -1490,39 +1320,47 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             return
         updated = dlg.subscription_spec()
 
-        enabled_item = self.table.item(row, COL_ENABLED)
-        if enabled_item is None:
-            enabled_item = QtWidgets.QTableWidgetItem("")
-            enabled_item.setFlags(
-                enabled_item.flags() | QtCore.Qt.ItemFlag.ItemIsUserCheckable
+        with self._sorting_suspended():
+            enabled_item = self.table.item(row, COL_ENABLED)
+            if enabled_item is None:
+                enabled_item = self._new_enabled_item(False)
+                self.table.setItem(row, COL_ENABLED, enabled_item)
+            enabled_item.setCheckState(
+                QtCore.Qt.CheckState.Checked
+                if bool(updated.enabled)
+                else QtCore.Qt.CheckState.Unchecked
             )
-            self.table.setItem(row, COL_ENABLED, enabled_item)
-        enabled_item.setCheckState(
-            QtCore.Qt.CheckState.Checked
-            if bool(updated.enabled)
-            else QtCore.Qt.CheckState.Unchecked
-        )
-        self._set_text_item(row, COL_NAME, updated.name)
-        self._set_text_item(row, COL_URL, updated.url)
-        self._set_text_item(row, COL_FILENAME, self._safe_filename(updated.filename))
-        self._set_text_item(row, COL_FORMAT, updated.format)
-        self._set_text_item(row, COL_GROUP, ", ".join(normalize_groups(updated.groups)))
-        self._set_text_item(row, COL_INTERVAL, self._to_str(updated.interval))
-        interval_units_val = self._to_str(updated.interval_units)
-        self._set_text_item(row, COL_INTERVAL_UNITS, interval_units_val)
-        self._set_text_item(row, COL_TIMEOUT, self._to_str(updated.timeout))
-        timeout_units_val = self._to_str(updated.timeout_units)
-        self._set_text_item(row, COL_TIMEOUT_UNITS, timeout_units_val)
-        self._set_text_item(row, COL_MAX_SIZE, self._to_str(updated.max_size))
-        max_size_units_val = self._to_str(updated.max_size_units)
-        self._set_text_item(row, COL_MAX_SIZE_UNITS, max_size_units_val)
-        self._set_units_combo(
-            row, COL_INTERVAL_UNITS, INTERVAL_UNITS, interval_units_val
-        )
-        self._set_units_combo(row, COL_TIMEOUT_UNITS, TIMEOUT_UNITS, timeout_units_val)
-        self._set_units_combo(row, COL_MAX_SIZE_UNITS, SIZE_UNITS, max_size_units_val)
+            enabled_item.setData(
+                QtCore.Qt.ItemDataRole.UserRole, 1 if bool(updated.enabled) else 0
+            )
+            self._set_text_item(row, COL_NAME, updated.name)
+            self._set_text_item(row, COL_URL, updated.url)
+            self._set_text_item(row, COL_FILENAME, safe_filename(updated.filename))
+            self._set_text_item(row, COL_FORMAT, updated.format)
+            self._set_text_item(
+                row, COL_GROUP, ", ".join(normalize_groups(updated.groups))
+            )
+            self._set_text_item(row, COL_INTERVAL, display_str(updated.interval))
+            interval_units_val = display_str(updated.interval_units)
+            self._set_text_item(row, COL_INTERVAL_UNITS, interval_units_val)
+            self._set_text_item(row, COL_TIMEOUT, display_str(updated.timeout))
+            timeout_units_val = display_str(updated.timeout_units)
+            self._set_text_item(row, COL_TIMEOUT_UNITS, timeout_units_val)
+            self._set_text_item(row, COL_MAX_SIZE, display_str(updated.max_size))
+            max_size_units_val = display_str(updated.max_size_units)
+            self._set_text_item(row, COL_MAX_SIZE_UNITS, max_size_units_val)
+            self._set_units_combo(
+                row, COL_INTERVAL_UNITS, INTERVAL_UNITS, interval_units_val
+            )
+            self._set_units_combo(
+                row, COL_TIMEOUT_UNITS, TIMEOUT_UNITS, timeout_units_val
+            )
+            self._set_units_combo(
+                row, COL_MAX_SIZE_UNITS, SIZE_UNITS, max_size_units_val
+            )
 
-        _, changed = self._ensure_row_final_filename(row)
+            _, changed = self._ensure_row_final_filename(row)
+            self._update_row_sort_keys(row)
         self.save_action_file()
         self.refresh_states()
         if changed:
@@ -1575,12 +1413,38 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             return []
         return sorted({i.row() for i in idx.selectedRows()})
 
+    def _handle_table_clicked(self, index: QtCore.QModelIndex):
+        if not index.isValid() or index.column() != COL_ENABLED:
+            return
+        item = self.table.item(index.row(), COL_ENABLED)
+        if item is None:
+            return
+        checked = item.checkState() != QtCore.Qt.CheckState.Checked
+        item.setCheckState(
+            QtCore.Qt.CheckState.Checked if checked else QtCore.Qt.CheckState.Unchecked
+        )
+        self._update_row_sort_keys(index.row())
+        header = self.table.horizontalHeader()
+        if (
+            self.table.isSortingEnabled()
+            and header is not None
+            and header.sortIndicatorSection()
+            in (COL_ENABLED, COL_STATE, COL_LAST_CHECKED)
+        ):
+            self.table.sortItems(
+                header.sortIndicatorSection(), header.sortIndicatorOrder()
+            )
+
     def _update_selected_actions_state(self):
         count = len(self._selected_rows())
         has_selection = count > 0
         self.edit_sub_button.setEnabled(has_selection)
         self.remove_sub_button.setEnabled(has_selection)
-        self.refresh_now_button.setEnabled(has_selection)
+        self.refresh_now_button.setEnabled(
+            has_selection
+            and not self._pending_refresh_keys
+            and not self._active_refresh_keys
+        )
         self.create_rule_button.setEnabled(has_selection)
 
     def _open_table_context_menu(self, pos: QtCore.QPoint):
@@ -1602,7 +1466,12 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             act_remove = menu.addAction(QC.translate("stats", "Delete"))
             act_refresh = menu.addAction(QC.translate("stats", "Refresh"))
             act_rule = menu.addAction(QC.translate("stats", "Create rule"))
-            chosen = menu.exec(viewport.mapToGlobal(pos))
+            chosen = QtWidgets.QMenu.exec(
+                menu.actions(),
+                viewport.mapToGlobal(pos),
+                None,
+                menu,
+            )
             if chosen is act_edit:
                 self.edit_selected_subscription()
             elif chosen is act_remove:
@@ -1617,7 +1486,12 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         act_remove = menu.addAction(QC.translate("stats", "Delete"))
         act_refresh = menu.addAction(QC.translate("stats", "Refresh"))
         act_rule = menu.addAction(QC.translate("stats", "Create rule"))
-        chosen = menu.exec(viewport.mapToGlobal(pos))
+        chosen = QtWidgets.QMenu.exec(
+            menu.actions(),
+            viewport.mapToGlobal(pos),
+            None,
+            menu,
+        )
         if chosen is act_edit:
             self._bulk_edit(rows)
         elif chosen is act_remove:
@@ -1630,58 +1504,62 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
     def _bulk_edit(self, rows: list[int]):
         if not rows:
             return
-        dlg = BulkEditDialog(self, self._global_defaults, groups=self._known_groups())
+        dlg = BulkEditDialog(
+            self,
+            self._global_defaults,
+            groups=self._known_groups(),
+            selected_count=len(rows),
+        )
         if dlg.exec() != QtWidgets.QDialog.DialogCode.Accepted:
             return
         values = dlg.values()
-        for row in rows:
-            if values.get("enabled") is not None:
-                enabled_item = self.table.item(row, COL_ENABLED)
-                if enabled_item is None:
-                    enabled_item = QtWidgets.QTableWidgetItem("")
-                    enabled_item.setFlags(
-                        enabled_item.flags() | QtCore.Qt.ItemFlag.ItemIsUserCheckable
+        with self._sorting_suspended():
+            for row in rows:
+                if values.get("enabled") is not None:
+                    enabled_item = self.table.item(row, COL_ENABLED)
+                    if enabled_item is None:
+                        enabled_item = self._new_enabled_item(False)
+                        self.table.setItem(row, COL_ENABLED, enabled_item)
+                    enabled_item.setCheckState(
+                        QtCore.Qt.CheckState.Checked
+                        if bool(values["enabled"])
+                        else QtCore.Qt.CheckState.Unchecked
                     )
-                    self.table.setItem(row, COL_ENABLED, enabled_item)
-                enabled_item.setCheckState(
-                    QtCore.Qt.CheckState.Checked
-                    if bool(values["enabled"])
-                    else QtCore.Qt.CheckState.Unchecked
-                )
-            if values.get("groups") is not None:
-                self._set_text_item(
-                    row, COL_GROUP, ", ".join(normalize_groups(values["groups"]))
-                )
-            if values.get("format") is not None:
-                self._set_text_item(row, COL_FORMAT, str(values["format"]))
-            if values.get("apply_interval"):
-                self._set_text_item(
-                    row, COL_INTERVAL, self._to_str(values.get("interval"))
-                )
-                interval_units = self._to_str(values.get("interval_units"))
-                self._set_text_item(row, COL_INTERVAL_UNITS, interval_units)
-                self._set_units_combo(
-                    row, COL_INTERVAL_UNITS, INTERVAL_UNITS, interval_units
-                )
-            if values.get("apply_timeout"):
-                self._set_text_item(
-                    row, COL_TIMEOUT, self._to_str(values.get("timeout"))
-                )
-                timeout_units = self._to_str(values.get("timeout_units"))
-                self._set_text_item(row, COL_TIMEOUT_UNITS, timeout_units)
-                self._set_units_combo(
-                    row, COL_TIMEOUT_UNITS, TIMEOUT_UNITS, timeout_units
-                )
-            if values.get("apply_max_size"):
-                self._set_text_item(
-                    row, COL_MAX_SIZE, self._to_str(values.get("max_size"))
-                )
-                max_size_units = self._to_str(values.get("max_size_units"))
-                self._set_text_item(row, COL_MAX_SIZE_UNITS, max_size_units)
-                self._set_units_combo(
-                    row, COL_MAX_SIZE_UNITS, SIZE_UNITS, max_size_units
-                )
-            self._ensure_row_final_filename(row)
+                if values.get("groups") is not None:
+                    self._set_text_item(
+                        row, COL_GROUP, ", ".join(normalize_groups(values["groups"]))
+                    )
+                if values.get("format") is not None:
+                    self._set_text_item(row, COL_FORMAT, str(values["format"]))
+                if values.get("apply_interval"):
+                    self._set_text_item(
+                        row, COL_INTERVAL, display_str(values.get("interval"))
+                    )
+                    interval_units = display_str(values.get("interval_units"))
+                    self._set_text_item(row, COL_INTERVAL_UNITS, interval_units)
+                    self._set_units_combo(
+                        row, COL_INTERVAL_UNITS, INTERVAL_UNITS, interval_units
+                    )
+                if values.get("apply_timeout"):
+                    self._set_text_item(
+                        row, COL_TIMEOUT, display_str(values.get("timeout"))
+                    )
+                    timeout_units = display_str(values.get("timeout_units"))
+                    self._set_text_item(row, COL_TIMEOUT_UNITS, timeout_units)
+                    self._set_units_combo(
+                        row, COL_TIMEOUT_UNITS, TIMEOUT_UNITS, timeout_units
+                    )
+                if values.get("apply_max_size"):
+                    self._set_text_item(
+                        row, COL_MAX_SIZE, display_str(values.get("max_size"))
+                    )
+                    max_size_units = display_str(values.get("max_size_units"))
+                    self._set_text_item(row, COL_MAX_SIZE_UNITS, max_size_units)
+                    self._set_units_combo(
+                        row, COL_MAX_SIZE_UNITS, SIZE_UNITS, max_size_units
+                    )
+                self._ensure_row_final_filename(row)
+                self._update_row_sort_keys(row)
         self.save_action_file()
         self.refresh_states()
         self._set_status(
@@ -1773,15 +1651,15 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                         format=self._cell_text(row, COL_FORMAT) or "hosts",
                         groups=normalize_groups(self._cell_text(row, COL_GROUP)),
                         interval=interval_val,
-                        interval_units=self._optional_unit_from_text(
+                        interval_units=strip_or_none(
                             self._cell_text(row, COL_INTERVAL_UNITS)
                         ),
                         timeout=timeout_val,
-                        timeout_units=self._optional_unit_from_text(
+                        timeout_units=strip_or_none(
                             self._cell_text(row, COL_TIMEOUT_UNITS)
                         ),
                         max_size=max_size_val,
-                        max_size_units=self._optional_unit_from_text(
+                        max_size_units=strip_or_none(
                             self._cell_text(row, COL_MAX_SIZE_UNITS)
                         ),
                     )
@@ -1801,37 +1679,39 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                     )
                     return
                 target_sub = row_sub
-
+            if target_sub is None:
+                self._set_status(QC.translate("stats", "Internal error: target_sub is None."), error=True)
+                return
             list_path, _ = plug._paths(target_sub)
             refresh_targets.append((target_sub, list_path))
 
-        def _run_refresh():
-            try:
-                for target_sub, _list_path in refresh_targets:
-                    key = plug._sub_key(target_sub)
-                    logger.warning(
-                        "list_subscriptions.gui: manual refresh start key=%s name='%s' url='%s' file='%s'",
-                        key,
-                        target_sub.name,
-                        target_sub.url,
-                        target_sub.filename,
+        refresh_keys = {plug._sub_key(target_sub) for target_sub, _ in refresh_targets}
+        self._track_refresh_keys(refresh_keys)
+        plug.signal_in.emit(
+            {
+                "plugin": plug.get_name(),
+                "signal": plug.REFRESH_SUBSCRIPTIONS_SIGNAL,
+                "action_path": self._action_path,
+                "source": "manual_refresh",
+                "items": [
+                    subscription_payload_dict(
+                        enabled=target_sub.enabled,
+                        name=target_sub.name,
+                        url=target_sub.url,
+                        filename=target_sub.filename,
+                        list_type=target_sub.format,
+                        groups=list(target_sub.groups),
+                        interval=target_sub.interval,
+                        interval_units=target_sub.interval_units,
+                        timeout=target_sub.timeout,
+                        timeout_units=target_sub.timeout_units,
+                        max_size=target_sub.max_size,
+                        max_size_units=target_sub.max_size_units,
                     )
-                    try:
-                        if hasattr(plug, "force_refresh_subscription"):
-                            plug.force_refresh_subscription(target_sub)
-                        else:
-                            # fallback for older plugin objects
-                            plug.download(key, target_sub)
-                    finally:
-                        logger.warning(
-                            "list_subscriptions.gui: manual refresh finished key=%s",
-                            key,
-                        )
-            finally:
-                self._download_finished.emit()
-
-        th = threading.Thread(target=_run_refresh, daemon=True)
-        th.start()
+                    for target_sub, _ in refresh_targets
+                ],
+            }
+        )
         if len(refresh_targets) == 1:
             self._set_status(
                 QC.translate(
@@ -1859,32 +1739,136 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             )
             return
 
-        def _run_all_refresh():
-            try:
-                subs: list[SubscriptionSpec] = []
-                try:
-                    subs = list(getattr(plug._config, "subscriptions", []))
-                except Exception:
-                    subs = []
-                for sub in subs:
-                    if not getattr(sub, "enabled", True):
-                        continue
-                    try:
-                        if hasattr(plug, "force_refresh_subscription"):
-                            plug.force_refresh_subscription(sub)
-                        else:
-                            key = plug._sub_key(sub)
-                            plug.download(key, sub)
-                    except Exception:
-                        continue
-            finally:
-                self._download_finished.emit()
+        rows = list(range(self.table.rowCount()))
+        if not rows:
+            self._set_status(
+                QC.translate("stats", "No subscriptions available to refresh."),
+                error=True,
+            )
+            return
 
-        th = threading.Thread(target=_run_all_refresh, daemon=True)
-        th.start()
+        filename_changed = False
+        for row in rows:
+            url = self._cell_text(row, COL_URL)
+            filename, row_filename_changed = self._ensure_row_final_filename(row)
+            if url == "" or filename == "":
+                self._set_status(
+                    QC.translate(
+                        "stats", "URL and filename cannot be empty (row {0})."
+                    ).format(row + 1),
+                    error=True,
+                )
+                return
+            filename_changed = filename_changed or row_filename_changed
+
+        if filename_changed:
+            self.save_action_file()
+            _, _, plug = self._find_loaded_action()
+            if plug is None:
+                self._set_status(
+                    QC.translate(
+                        "stats", "Plugin is not loaded. Save configuration first."
+                    ),
+                    error=True,
+                )
+                return
+
+        refresh_targets: list[SubscriptionSpec] = []
+        for row in rows:
+            url = self._cell_text(row, COL_URL)
+            filename = self._cell_text(row, COL_FILENAME)
+            target_sub: SubscriptionSpec | None = None
+            try:
+                for sub in plug._config.subscriptions:
+                    if sub.url == url and sub.filename == filename:
+                        target_sub = sub
+                        break
+            except Exception:
+                target_sub = None
+
+            if target_sub is None:
+                try:
+                    enabled_item = self.table.item(row, COL_ENABLED)
+                    interval_ok, interval_val = self._optional_int_from_text(
+                        self._cell_text(row, COL_INTERVAL), "Interval", row=row
+                    )
+                    timeout_ok, timeout_val = self._optional_int_from_text(
+                        self._cell_text(row, COL_TIMEOUT), "Timeout", row=row
+                    )
+                    max_size_ok, max_size_val = self._optional_int_from_text(
+                        self._cell_text(row, COL_MAX_SIZE), "Max size", row=row
+                    )
+                    if not interval_ok or not timeout_ok or not max_size_ok:
+                        return
+                    row_sub_edit = MutableSubscriptionSpec(
+                        enabled=(
+                            enabled_item is None
+                            or enabled_item.checkState() == QtCore.Qt.CheckState.Checked
+                        ),
+                        name=self._cell_text(row, COL_NAME),
+                        url=url,
+                        filename=filename,
+                        format=self._cell_text(row, COL_FORMAT) or "hosts",
+                        groups=normalize_groups(self._cell_text(row, COL_GROUP)),
+                        interval=interval_val,
+                        interval_units=strip_or_none(
+                            self._cell_text(row, COL_INTERVAL_UNITS)
+                        ),
+                        timeout=timeout_val,
+                        timeout_units=strip_or_none(
+                            self._cell_text(row, COL_TIMEOUT_UNITS)
+                        ),
+                        max_size=max_size_val,
+                        max_size_units=strip_or_none(
+                            self._cell_text(row, COL_MAX_SIZE_UNITS)
+                        ),
+                    )
+                    target_sub = SubscriptionSpec.from_dict(
+                        row_sub_edit.to_dict(),
+                        plug._config.defaults,
+                    )
+                except Exception:
+                    target_sub = None
+            if target_sub is not None:
+                refresh_targets.append(target_sub)
+
+        if not refresh_targets:
+            self._set_status(
+                QC.translate("stats", "No subscriptions available to refresh."),
+                error=True,
+            )
+            return
+
+        refresh_keys = {plug._sub_key(sub) for sub in refresh_targets}
+        self._track_refresh_keys(refresh_keys)
+        plug.signal_in.emit(
+            {
+                "plugin": plug.get_name(),
+                "signal": plug.REFRESH_SUBSCRIPTIONS_SIGNAL,
+                "action_path": self._action_path,
+                "source": "manual_refresh",
+                "items": [
+                    subscription_payload_dict(
+                        enabled=sub.enabled,
+                        name=sub.name,
+                        url=sub.url,
+                        filename=sub.filename,
+                        list_type=sub.format,
+                        groups=list(sub.groups),
+                        interval=sub.interval,
+                        interval_units=sub.interval_units,
+                        timeout=sub.timeout,
+                        timeout_units=sub.timeout_units,
+                        max_size=sub.max_size,
+                        max_size_units=sub.max_size_units,
+                    )
+                    for sub in refresh_targets
+                ],
+            }
+        )
         self._set_status(
             QC.translate(
-                "stats", "Bulk refresh triggered for all enabled subscriptions."
+                "stats", "Bulk refresh triggered for all listed subscriptions."
             ),
             error=False,
         )
@@ -1920,7 +1904,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 self.save_action_file()
 
             list_type = (self._cell_text(row, COL_FORMAT) or "hosts").strip().lower()
-            list_path = self._list_file_path(lists_dir, filename, list_type)
+            list_path = list_file_path(lists_dir, filename, list_type)
             rule_dir = self._prepare_rule_dir(
                 url,
                 filename,
@@ -1930,7 +1914,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             )
             if rule_dir is None:
                 return
-            rule_token = os.path.splitext(self._safe_filename(filename))[0]
+            rule_token = os.path.splitext(safe_filename(filename))[0]
             rule_name = f"00-blocklist-{rule_token}"
             desc = f"From list subscription : {filename}"
         else:
@@ -2013,9 +1997,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         if self._rules_dialog.ruleNameEdit.text().strip() == "":
             self._rules_dialog.ruleNameEdit.setText(rule_name)
         if self._rules_dialog.ruleDescEdit.toPlainText().strip() == "":
-            self._rules_dialog.ruleDescEdit.setPlainText(
-                "From list subscription : all"
-            )
+            self._rules_dialog.ruleDescEdit.setPlainText("From list subscription : all")
         self._rules_dialog.raise_()
         self._rules_dialog.activateWindow()
         self._set_status(
@@ -2129,7 +2111,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         list_type: str,
     ):
         _ = (url, list_path)
-        rule_dir = self._subscription_rule_dir(
+        rule_dir = subscription_rule_dir(
             lists_dir,
             filename,
             list_type,
@@ -2145,32 +2127,6 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 error=True,
             )
             return None
-
-    def _subscription_dirname(self, filename: str, list_type: str):
-        safe_name = self._safe_filename(filename)
-        if safe_name == "":
-            safe_name = "subscription.list"
-        safe_name = ensure_filename_type_suffix(safe_name, list_type)
-        base, _ext = os.path.splitext(safe_name)
-        suffix = f"-{(list_type or 'hosts').strip().lower()}"
-        sub_dirname = base if base else "subscription"
-        if not sub_dirname.lower().endswith(suffix):
-            sub_dirname = f"{sub_dirname}{suffix}"
-        return sub_dirname
-
-    def _subscription_rule_dir(self, lists_dir: str, filename: str, list_type: str):
-        return os.path.join(
-            lists_dir,
-            "rules.list.d",
-            self._subscription_dirname(filename, list_type),
-        )
-
-    def _list_file_path(self, lists_dir: str, filename: str, list_type: str):
-        safe_name = self._safe_filename(filename)
-        if safe_name == "":
-            safe_name = "subscription.list"
-        safe_name = ensure_filename_type_suffix(safe_name, list_type)
-        return os.path.join(lists_dir, "sources.list.d", safe_name)
 
     def _apply_runtime_state(self, enabled: bool):
         old_key, _old_action, old_plugin = self._find_loaded_action()
@@ -2280,6 +2236,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         payload = event if isinstance(event, dict) else {}
         message = str(payload.get("message") or "").strip()
         error_detail = str(payload.get("error") or "").strip()
+        event_keys = self._refresh_keys_from_payload(payload)
         event_value = payload.get("event")
         if isinstance(event_value, int):
             try:
@@ -2288,7 +2245,30 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 event_name = None
         else:
             event_name = None
-        is_error = event_name == RuntimeEvent.RUNTIME_ERROR
+        is_error = event_name in (
+            RuntimeEvent.RUNTIME_ERROR,
+            RuntimeEvent.DOWNLOAD_FAILED,
+            RuntimeEvent.FILE_SAVE_ERROR,
+            RuntimeEvent.FILE_LOAD_ERROR,
+        )
+        if event_name == RuntimeEvent.DOWNLOAD_STARTED:
+            for key in event_keys:
+                if key in self._pending_refresh_keys:
+                    self._pending_refresh_keys.discard(key)
+                    self._active_refresh_keys.add(key)
+            self._set_refresh_busy(True)
+        elif event_name in (
+            RuntimeEvent.DOWNLOAD_FINISHED,
+            RuntimeEvent.DOWNLOAD_FAILED,
+        ):
+            for key in event_keys:
+                self._clear_refresh_key(key)
+            if event_name in (
+                RuntimeEvent.DOWNLOAD_FINISHED,
+                RuntimeEvent.DOWNLOAD_FAILED,
+            ):
+                self.refresh_states()
+                self._update_selected_actions_state()
         if event_name == RuntimeEvent.RUNTIME_ENABLED:
             self._set_runtime_state(active=True)
         elif event_name in (
@@ -2302,7 +2282,9 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 text=QC.translate("stats", "Runtime: reloading"),
             )
         elif is_error:
-            self._set_runtime_state(active=None, text=QC.translate("stats", "Runtime: error"))
+            self._set_runtime_state(
+                active=None, text=QC.translate("stats", "Runtime: error")
+            )
         if self._pending_runtime_reload == "waiting_config_reload":
             if event_name == RuntimeEvent.CONFIG_RELOADED:
                 self._pending_runtime_reload = None
@@ -2314,6 +2296,12 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             message = QC.translate("stats", "Plugin runtime event: {0}").format(
                 str(event_value or "unknown")
             )
+        if event_name in (
+            RuntimeEvent.DOWNLOAD_STARTED,
+            RuntimeEvent.DOWNLOAD_FINISHED,
+            RuntimeEvent.DOWNLOAD_FAILED,
+        ):
+            message = self._runtime_download_message(event_name, payload, message)
         if is_error and error_detail != "":
             message = f"{message} {error_detail}".strip()
         self._set_status(message, error=is_error)
@@ -2365,7 +2353,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             url = self._cell_text(row, COL_URL)
             list_type = (self._cell_text(row, COL_FORMAT) or "hosts").strip().lower()
             groups = normalize_groups(self._cell_text(row, COL_GROUP))
-            filename = self._safe_filename(self._cell_text(row, COL_FILENAME))
+            filename = safe_filename(self._cell_text(row, COL_FILENAME))
             if filename == "":
                 filename = self._guess_filename(name, url)
                 if filename != "":
@@ -2392,11 +2380,11 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
                 format=list_type,
                 groups=groups,
                 interval=interval_val,
-                interval_units=self._optional_unit_from_text(interval_units),
+                interval_units=strip_or_none(interval_units),
                 timeout=timeout_val,
-                timeout_units=self._optional_unit_from_text(timeout_units),
+                timeout_units=strip_or_none(timeout_units),
                 max_size=max_size_val,
-                max_size_units=self._optional_unit_from_text(max_size_units),
+                max_size_units=strip_or_none(max_size_units),
             )
             if sub.url == "" or sub.filename == "":
                 self._set_status(
@@ -2421,9 +2409,9 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         lists_dir = normalize_lists_dir(
             self.lists_dir_edit.text().strip() or DEFAULT_LISTS_DIR
         )
-        filename = self._safe_filename(self._cell_text(row, COL_FILENAME))
+        filename = safe_filename(self._cell_text(row, COL_FILENAME))
         list_type = (self._cell_text(row, COL_FORMAT) or "hosts").strip().lower()
-        list_path = self._list_file_path(lists_dir, filename, list_type)
+        list_path = list_file_path(lists_dir, filename, list_type)
         meta_path = list_path + ".meta.json"
 
         file_exists = os.path.exists(list_path)
@@ -2460,7 +2448,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         name = self._cell_text(row, COL_NAME)
         url = self._cell_text(row, COL_URL)
         list_type = (self._cell_text(row, COL_FORMAT) or "hosts").strip().lower()
-        original = self._safe_filename(self._cell_text(row, COL_FILENAME))
+        original = safe_filename(self._cell_text(row, COL_FILENAME))
         final_name = original
         changed = False
 
@@ -2477,7 +2465,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             for i in range(self.table.rowCount()):
                 if i == row:
                     continue
-                other = self._safe_filename(self._cell_text(i, COL_FILENAME))
+                other = safe_filename(self._cell_text(i, COL_FILENAME))
                 if other != "":
                     existing.add(other)
             if key in existing:
@@ -2498,21 +2486,12 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
     def _append_row(self, sub: MutableSubscriptionSpec):
         row = self.table.rowCount()
         self.table.insertRow(row)
-
-        enabled_item = QtWidgets.QTableWidgetItem("")
-        enabled_item.setFlags(
-            enabled_item.flags() | QtCore.Qt.ItemFlag.ItemIsUserCheckable
-        )
-        enabled_item.setCheckState(
-            QtCore.Qt.CheckState.Checked
-            if bool(sub.enabled)
-            else QtCore.Qt.CheckState.Unchecked
-        )
+        enabled_item = self._new_enabled_item(bool(sub.enabled))
         self.table.setItem(row, COL_ENABLED, enabled_item)
 
         self._set_text_item(row, COL_NAME, str(sub.name))
         self._set_text_item(row, COL_URL, str(sub.url))
-        self._set_text_item(row, COL_FILENAME, self._safe_filename(sub.filename))
+        self._set_text_item(row, COL_FILENAME, safe_filename(sub.filename))
         self._set_text_item(row, COL_FORMAT, str(sub.format))
         groups = normalize_groups(sub.groups)
         self._set_text_item(row, COL_GROUP, ", ".join(groups))
@@ -2522,20 +2501,20 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         interval_units = sub.interval_units
         timeout_units = sub.timeout_units
         max_size_units = sub.max_size_units
-        self._set_text_item(row, COL_INTERVAL, self._to_str(interval))
-        self._set_text_item(row, COL_INTERVAL_UNITS, self._to_str(interval_units))
-        self._set_text_item(row, COL_TIMEOUT, self._to_str(timeout))
-        self._set_text_item(row, COL_TIMEOUT_UNITS, self._to_str(timeout_units))
-        self._set_text_item(row, COL_MAX_SIZE, self._to_str(max_size))
-        self._set_text_item(row, COL_MAX_SIZE_UNITS, self._to_str(max_size_units))
+        self._set_text_item(row, COL_INTERVAL, display_str(interval))
+        self._set_text_item(row, COL_INTERVAL_UNITS, display_str(interval_units))
+        self._set_text_item(row, COL_TIMEOUT, display_str(timeout))
+        self._set_text_item(row, COL_TIMEOUT_UNITS, display_str(timeout_units))
+        self._set_text_item(row, COL_MAX_SIZE, display_str(max_size))
+        self._set_text_item(row, COL_MAX_SIZE_UNITS, display_str(max_size_units))
         self._set_units_combo(
-            row, COL_INTERVAL_UNITS, INTERVAL_UNITS, self._to_str(interval_units)
+            row, COL_INTERVAL_UNITS, INTERVAL_UNITS, display_str(interval_units)
         )
         self._set_units_combo(
-            row, COL_TIMEOUT_UNITS, TIMEOUT_UNITS, self._to_str(timeout_units)
+            row, COL_TIMEOUT_UNITS, TIMEOUT_UNITS, display_str(timeout_units)
         )
         self._set_units_combo(
-            row, COL_MAX_SIZE_UNITS, SIZE_UNITS, self._to_str(max_size_units)
+            row, COL_MAX_SIZE_UNITS, SIZE_UNITS, display_str(max_size_units)
         )
 
         self._set_text_item(row, COL_FILE, "", editable=False)
@@ -2545,6 +2524,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._set_text_item(row, COL_LAST_UPDATED, "", editable=False)
         self._set_text_item(row, COL_FAILS, "", editable=False)
         self._set_text_item(row, COL_ERROR, "", editable=False)
+        self._update_row_sort_keys(row)
 
     def _reload_nodes(self):
         self.nodes_combo.blockSignals(True)
@@ -2556,30 +2536,23 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
     def _apply_defaults_to_widgets(self):
         self.default_interval_spin.setValue(max(1, int(self._global_defaults.interval)))
         self.default_interval_units.setCurrentText(
-            self._normalize_unit(
+            normalize_unit(
                 self._global_defaults.interval_units, INTERVAL_UNITS, "hours"
             )
         )
         self.default_timeout_spin.setValue(max(1, int(self._global_defaults.timeout)))
         self.default_timeout_units.setCurrentText(
-            self._normalize_unit(
+            normalize_unit(
                 self._global_defaults.timeout_units, TIMEOUT_UNITS, "seconds"
             )
         )
         self.default_max_size_spin.setValue(max(1, int(self._global_defaults.max_size)))
         self.default_max_size_units.setCurrentText(
-            self._normalize_unit(self._global_defaults.max_size_units, SIZE_UNITS, "MB")
+            normalize_unit(self._global_defaults.max_size_units, SIZE_UNITS, "MB")
         )
         self.default_user_agent.setText(
             (self._global_defaults.user_agent or "").strip()
         )
-
-    def _normalize_unit(self, value: str, allowed: tuple[str, ...], fallback: str):
-        normalized = (value or "").strip().lower()
-        for unit in allowed:
-            if unit.lower() == normalized:
-                return unit
-        return fallback
 
     def _set_units_combo(
         self, row: int, col: int, allowed: tuple[str, ...], value: str | None
@@ -2596,23 +2569,12 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         if value is None or value.strip() == "":
             combo.setCurrentIndex(0)
         else:
-            combo.setCurrentText(self._normalize_unit(value, allowed, allowed[0]))
+            combo.setCurrentText(normalize_unit(value, allowed, allowed[0]))
         self.table.setCellWidget(row, col, combo)
-
-    def _safe_filename(self, value: Any):
-        return os.path.basename((self._to_str(value) or "").strip())
 
     def _guess_filename(self, name: str, url: str):
         from_header = self._filename_from_headers(url)
-        if from_header != "":
-            return self._safe_filename(from_header)
-
-        from_url = self._filename_from_url(url)
-        if from_url != "":
-            return self._safe_filename(from_url)
-
-        slug = self._slugify_name(name)
-        return self._safe_filename(slug)
+        return safe_filename(derive_filename(name, url, "", from_header))
 
     def _filename_from_headers(self, url: str):
         if (url or "").strip() == "":
@@ -2621,54 +2583,21 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             r = requests.head(url, allow_redirects=True, timeout=5)
             cd = r.headers.get("Content-Disposition", "")
             if cd:
-                # Prefer RFC 5987 filename*; fallback to filename
-                filename = ""
-                m_star = re.search(
-                    r'filename\*\s*=\s*[^\'";]+\'[^\'";]*\'([^;]+)', cd, re.IGNORECASE
-                )
-                if m_star:
-                    filename = unquote(m_star.group(1).strip().strip('"'))
-                if filename == "":
-                    params = requests.utils.parse_dict_header(
-                        ";".join(cd.split(";")[1:])
-                    )
-                    raw = params.get("filename")
-                    if raw:
-                        filename = requests.utils.unquote_header_value(str(raw)).strip()
-                if filename:
-                    return unquote(str(filename)).strip()
+                return filename_from_content_disposition(cd)
         except Exception:
             return ""
         return ""
 
-    def _filename_from_url(self, url: str):
-        u = (url or "").strip()
-        if u == "":
-            return ""
-        try:
-            parsed = urlparse(u)
-            base = os.path.basename(unquote(parsed.path or ""))
-            return base.strip()
-        except Exception:
-            return ""
-
-    def _slugify_name(self, name: str):
-        raw = (name or "").strip().lower()
-        if raw == "":
-            return "subscription.list"
-        slug = re.sub(r"[^a-z0-9._-]+", "-", raw).strip("-._")
-        if slug == "":
-            slug = "subscription"
-        if "." not in slug:
-            slug += ".list"
-        return slug
-
     def _set_text_item(self, row: int, col: int, text: str, editable: bool = True):
         item = self.table.item(row, col)
         if item is None:
-            item = QtWidgets.QTableWidgetItem()
+            item = SortableTableWidgetItem()
             self.table.setItem(row, col, item)
         item.setText(text)
+        item.setData(
+            QtCore.Qt.ItemDataRole.UserRole,
+            self._sort_key_for_column(col, text),
+        )
         if editable:
             item.setFlags(item.flags() | QtCore.Qt.ItemFlag.ItemIsEditable)
         else:
@@ -2692,10 +2621,6 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         if parsed is None:
             return False, None
         return True, parsed
-
-    def _optional_unit_from_text(self, value: Any):
-        text = (str(value or "")).strip()
-        return text or None
 
     def _to_int_or_keep(self, value: Any, field_name: str, row: int | None = None):
         try:
@@ -2727,11 +2652,6 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
             )
             return None
         return parsed
-
-    def _to_str(self, value: Any):
-        if value is None:
-            return ""
-        return str(value)
 
     def _set_status(self, msg: str, error: bool = False):
         self.status_label.setStyleSheet("color: red;" if error else "color: green;")
