@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ListSubscriptionsDialog</class>
+ <widget class="QDialog" name="ListSubscriptionsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1180</width>
+    <height>680</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>List subscriptions</string>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <item>
+    <layout class="QHBoxLayout" name="topRowLayout">
+     <item>
+      <widget class="QCheckBox" name="enable_plugin_check">
+       <property name="text">
+        <string>Enable list subscriptions plugin</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="topSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="create_file_button">
+       <property name="text">
+        <string>Create action file</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="save_button">
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="reload_button">
+       <property name="text">
+        <string>Reload</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="start_runtime_button">
+       <property name="text">
+        <string>Start</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="stop_runtime_button">
+       <property name="text">
+        <string>Stop</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="runtime_status_title_label">
+       <property name="text">
+        <string>Status</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="runtime_status_label">
+       <property name="text">
+        <string>Runtime: inactive</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="defaultsSectionLayout">
+     <item>
+      <widget class="QFrame" name="defaults_section_bar">
+       <layout class="QHBoxLayout" name="defaultsSectionBarLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="defaults_section_label">
+          <property name="text">
+           <string>Defaults</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <layout class="QGridLayout" name="defaultsGridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="lists_dir_label">
+         <property name="text">
+          <string>Lists directory</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="5">
+        <widget class="QLineEdit" name="lists_dir_edit"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="default_interval_label">
+         <property name="text">
+          <string>Default interval</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="default_interval_spin"/>
+       </item>
+       <item row="1" column="2">
+        <widget class="QComboBox" name="default_interval_units"/>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLabel" name="default_timeout_label">
+         <property name="text">
+          <string>Default timeout</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QSpinBox" name="default_timeout_spin"/>
+       </item>
+       <item row="1" column="5">
+        <widget class="QComboBox" name="default_timeout_units"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="default_max_size_label">
+         <property name="text">
+          <string>Default max size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSpinBox" name="default_max_size_spin"/>
+       </item>
+       <item row="2" column="2">
+        <widget class="QComboBox" name="default_max_size_units"/>
+       </item>
+       <item row="2" column="3">
+        <widget class="QLabel" name="default_user_agent_label">
+         <property name="text">
+          <string>Default User-Agent</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="4" colspan="2">
+        <widget class="QLineEdit" name="default_user_agent"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="node_label">
+         <property name="text">
+          <string>Node</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="2">
+        <widget class="QComboBox" name="nodes_combo"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="tableSectionLayout">
+     <item>
+      <widget class="QFrame" name="table_section_bar">
+       <layout class="QHBoxLayout" name="tableSectionBarLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="table_section_label">
+          <property name="text">
+           <string>List subscriptions</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="tableContentLayout">
+       <item>
+        <widget class="QTableWidget" name="table"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="actionsRowLayout">
+     <item>
+      <layout class="QVBoxLayout" name="globalActionsSectionLayout">
+       <item>
+        <widget class="QFrame" name="global_actions_bar">
+         <layout class="QHBoxLayout" name="globalActionsBarLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="global_actions_label">
+            <property name="text">
+             <string>Global actions</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="globalActionsLayout">
+         <item>
+          <widget class="QPushButton" name="add_sub_button">
+           <property name="text">
+            <string>Add subscription</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="refresh_state_button">
+           <property name="text">
+            <string>Refresh all</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="create_global_rule_button">
+           <property name="text">
+            <string>Create global rule</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="globalActionsSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="actionsSeparatorLayout">
+       <item>
+        <widget class="QFrame" name="actions_vertical_separator">
+         <property name="frameShape">
+          <enum>QFrame::VLine</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="selectedActionsSectionLayout">
+       <item>
+        <widget class="QFrame" name="selected_actions_bar">
+         <layout class="QHBoxLayout" name="selectedActionsBarLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="selected_actions_label">
+            <property name="text">
+             <string>Selected subscriptions</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="ruleActionsLayout">
+         <item>
+          <widget class="QPushButton" name="edit_sub_button">
+           <property name="text">
+            <string>Edit</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="remove_sub_button">
+           <property name="text">
+            <string>Delete</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="refresh_now_button">
+           <property name="text">
+            <string>Refresh</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="create_rule_button">
+           <property name="text">
+            <string>Create rule</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="ruleActionsSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QFrame" name="status_separator_line">
+     <property name="frameShape">
+      <enum>QFrame::HLine</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="status_label">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
