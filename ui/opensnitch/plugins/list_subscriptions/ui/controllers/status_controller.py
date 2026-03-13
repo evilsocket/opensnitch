@@ -1,9 +1,17 @@
 from collections.abc import Callable
-from typing import Literal
+import queue
+import threading
+from typing import TYPE_CHECKING, Literal
 
 from opensnitch.plugins.list_subscriptions.ui import QtCore, QtWidgets
 
+if TYPE_CHECKING:
+    from opensnitch.plugins.list_subscriptions.ui.views.status_log_dialog import (
+        StatusLogDialog,
+    )
+
 EmptyButtonBehavior = Literal["hide", "show-if-logs"]
+MAX_BACKEND_LOGS_PER_UI_TICK = 100
 
 
 def _set_preview_label_text(
@@ -34,6 +42,7 @@ def append_log_entry(
     message: str,
     error: bool = False,
     level: str | None = None,
+    origin: str | None = None,
     dedupe: bool = False,
     last_signature: tuple[str, bool] | None = None,
     timestamp_format: str = "HH:mm:ss",
@@ -49,7 +58,8 @@ def append_log_entry(
 
     timestamp = QtCore.QDateTime.currentDateTime().toString(timestamp_format)
     log_level = level or ("ERROR" if error else "INFO")
-    entries.append(f"[{timestamp}] [{log_level}] {full_text}")
+    log_origin = (origin or "ui").strip()
+    entries.append(f"[{timestamp}] [{log_level}] [{log_origin}] {full_text}")
     if len(entries) > limit:
         del entries[:-limit]
 
@@ -116,6 +126,57 @@ class DialogStatusController:
         self._full_text = ""
         self._log_entries: list[str] = []
         self._last_signature: tuple[str, bool] | None = None
+        self._backend_log_sink: Callable[[str, str, str], None] | None = None
+        self._backend_sink_queue: queue.SimpleQueue[tuple[str, str, str]] = (
+            queue.SimpleQueue()
+        )
+        self._backend_sink_worker_started = False
+        self._backend_to_ui_queue: queue.SimpleQueue[tuple[str, str, str]] = (
+            queue.SimpleQueue()
+        )
+        self._backend_to_ui_timer = QtCore.QTimer(self._label)
+        self._backend_to_ui_timer.setInterval(100)
+        self._backend_to_ui_timer.timeout.connect(self._drain_backend_to_ui_queue)
+        self._backend_to_ui_timer.start()
+        self._log_dialog: "StatusLogDialog | None" = None
+        self._log_dialog_level_color: Callable[[str], str] | None = None
+        self._log_dialog_timestamp_color = ""
+
+    def _start_backend_sink_worker(self) -> None:
+        if self._backend_sink_worker_started:
+            return
+        self._backend_sink_worker_started = True
+
+        def _run() -> None:
+            while True:
+                message, level, origin = self._backend_sink_queue.get()
+                sink = self._backend_log_sink
+                if sink is None:
+                    continue
+                try:
+                    sink(message, level, origin)
+                except Exception:
+                    pass
+
+        th = threading.Thread(
+            target=_run,
+            name="DialogStatusBackendSink",
+            daemon=True,
+        )
+        th.start()
+
+    def _drain_backend_to_ui_queue(self) -> None:
+        for _ in range(MAX_BACKEND_LOGS_PER_UI_TICK):
+            try:
+                message, level, origin = self._backend_to_ui_queue.get_nowait()
+            except queue.Empty:
+                return
+            self.append_log(
+                message,
+                level=level,
+                origin=origin,
+                forward_backend=False,
+            )
 
     @property
     def full_text(self):
@@ -125,26 +186,102 @@ class DialogStatusController:
     def log_entries(self):
         return self._log_entries
 
+    def log(self, message: str, level: str = "INFO", origin: str = "ui") -> None:
+        """Generic slot: connect any pyqtSignal(str, str) directly to this."""
+        self.append_log(message, level=level, origin=origin)
+
+    def ingest_backend_log(
+        self,
+        message: str,
+        level: str = "INFO",
+        origin: str = "backend",
+    ) -> None:
+        """Backend -> UI path; enqueue to avoid blocking backend threads."""
+        full_text = (message or "").strip()
+        if full_text == "":
+            return
+        self._backend_to_ui_queue.put((full_text, level, origin))
+
+    def set_backend_log_sink(
+        self,
+        sink: Callable[[str, str, str], None] | None,
+    ) -> None:
+        self._backend_log_sink = sink
+        if sink is not None:
+            self._start_backend_sink_worker()
+
+    def debug(self, message: str, origin: str = "ui") -> None:
+        self.append_log(message, level="DEBUG", origin=origin)
+
+    def info(self, message: str, origin: str = "ui") -> None:
+        self.append_log(message, level="INFO", origin=origin)
+
+    def warn(self, message: str, origin: str = "ui") -> None:
+        self.append_log(message, level="WARN", origin=origin)
+
+    def error(self, message: str, origin: str = "ui") -> None:
+        self.append_log(message, level="ERROR", origin=origin)
+
+    def trace(self, message: str, origin: str = "ui") -> None:
+        self.append_log(message, level="TRACE", origin=origin)
+
     def append_log(
         self,
         message: str,
         *,
         error: bool = False,
         level: str | None = None,
+        origin: str = "ui",
         dedupe: bool = False,
+        forward_backend: bool = True,
     ):
+        full_text = (message or "").strip()
+        if full_text == "":
+            return
+        resolved_level = (level or ("ERROR" if error else "INFO")).upper()
         append_log_entry(
             self._log_entries,
-            message=message,
+            message=full_text,
             error=error,
-            level=level,
+            level=resolved_level,
+            origin=origin,
             dedupe=dedupe,
             last_signature=self._last_signature,
             timestamp_format=self._timestamp_format,
             limit=self._log_limit,
         )
+        if (
+            forward_backend
+            and self._backend_log_sink is not None
+            and not origin.lower().startswith("backend")
+        ):
+            self._backend_sink_queue.put((full_text, resolved_level, origin))
+        self._refresh_log_dialog_if_open()
 
-    def set_status(self, message: str, *, error: bool = False):
+    def _refresh_log_dialog_if_open(self) -> None:
+        dlg = self._log_dialog
+        if dlg is None or not dlg.isVisible():
+            return
+        if self._log_dialog_level_color is None:
+            return
+        try:
+            dlg.update_entries(
+                lines=self._log_entries[:],
+                fallback_text=self._full_text,
+                level_color=self._log_dialog_level_color,
+                timestamp_color=self._log_dialog_timestamp_color,
+            )
+        except Exception:
+            pass
+
+    def set_status(
+        self,
+        message: str,
+        *,
+        error: bool = False,
+        log: bool = True,
+        origin: str = "ui",
+    ):
         full_text = apply_status_label(
             self._label,
             message=message,
@@ -160,9 +297,12 @@ class DialogStatusController:
         if full_text == "":
             return
 
+        if not log:
+            return
+
         signature = (full_text, bool(error))
         if signature != self._last_signature:
-            self.append_log(full_text, error=error)
+            self.append_log(full_text, error=error, origin=origin)
             self._last_signature = signature
 
     def show_log_dialog(
@@ -176,12 +316,29 @@ class DialogStatusController:
         from opensnitch.plugins.list_subscriptions.ui.views.status_log_dialog import (
             StatusLogDialog,
         )
-        dlg = StatusLogDialog(
-            parent,
-            title=title,
-            lines=self._log_entries[:],
-            fallback_text=self._full_text,
-            level_color=level_color,
-            timestamp_color=timestamp_color,
-        )
-        dlg.exec()
+        self._log_dialog_level_color = level_color
+        self._log_dialog_timestamp_color = timestamp_color
+        dlg = self._log_dialog
+        if dlg is None:
+            dlg = StatusLogDialog(
+                parent,
+                title=title,
+                lines=self._log_entries[:],
+                fallback_text=self._full_text,
+                level_color=level_color,
+                timestamp_color=timestamp_color,
+            )
+            dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+            dlg.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose, True)
+            dlg.destroyed.connect(lambda *_: setattr(self, "_log_dialog", None))
+            self._log_dialog = dlg
+        else:
+            dlg.update_entries(
+                lines=self._log_entries[:],
+                fallback_text=self._full_text,
+                level_color=level_color,
+                timestamp_color=timestamp_color,
+            )
+        dlg.show()
+        dlg.raise_()
+        dlg.activateWindow()

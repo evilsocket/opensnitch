@@ -77,6 +77,52 @@ logger.setLevel(logging.WARNING)
 # -------------------- plugin core --------------------
 
 
+class _LogSignalWrapper(QtCore.QObject):
+    """Thin QObject container for the (message, level) log signal.
+    Follows the same pattern as PluginSignal so the runtime can emit
+    structured log entries directly to the UI status controller.
+    """
+    signal = QtCore.pyqtSignal(str, str, str)
+
+    def emit(self, message: str, level: str = "INFO", origin: str = "backend") -> None:
+        self.signal.emit(message, level, origin)
+
+    def connect(self, callback: Any) -> None:
+        self.signal.connect(callback)
+
+    def disconnect(self, callback: Any) -> None: # pyright: ignore[reportIncompatibleMethodOverride]
+        self.signal.disconnect(callback)
+
+
+class _UiLogBridgeHandler(logging.Handler):
+    """Relays backend logger records into the UI live log signal."""
+
+    def __init__(self, sink: _LogSignalWrapper):
+        super().__init__(level=logging.DEBUG)
+        self._sink = sink
+
+    @staticmethod
+    def _level_name(record: logging.LogRecord) -> str:
+        if record.levelno >= logging.ERROR:
+            return "ERROR"
+        if record.levelno >= logging.WARNING:
+            return "WARN"
+        if record.levelno >= logging.INFO:
+            return "INFO"
+        return "DEBUG"
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            if bool(getattr(record, "_skip_ui_bridge", False)):
+                return
+            message = record.getMessage().strip()
+            if message == "":
+                return
+            self._sink.emit(message, self._level_name(record), "backend")
+        except Exception:
+            pass
+
+
 class SingletonABCMeta(ABCMeta):
     _instances: dict[type, object] = {}
     _lock = threading.Lock()
@@ -112,6 +158,11 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
     # default
     TYPE: ClassVar[list[Any]] = [PluginBase.TYPE_GLOBAL]
 
+    # UI log signal — connect to DialogStatusController.log to forward
+    # runtime messages to the main window's live log facility.
+    log_out: ClassVar[_LogSignalWrapper] = _LogSignalWrapper()
+    _ui_log_bridge_handler_installed: ClassVar[bool] = False
+
     # runtime state
     scheduled_tasks: dict[str, GenericTimer] = {}
     default_conf: ClassVar[str] = ACTION_FILE
@@ -132,6 +183,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             return
 
         self._initialized = True
+        self._ensure_ui_log_bridge_handler()
         self.signal_in.connect(self.cb_signal)
         self._desktop_notifications = DesktopNotifications()
         self._db = Database.instance()
@@ -162,6 +214,67 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             )
         else:
             self._session.headers.update({"User-Agent": DEFAULT_UA})
+
+    @classmethod
+    def _ensure_ui_log_bridge_handler(cls) -> None:
+        if cls._ui_log_bridge_handler_installed:
+            return
+        logger.addHandler(_UiLogBridgeHandler(cls.log_out))
+        cls._ui_log_bridge_handler_installed = True
+
+    @staticmethod
+    def _backend_level(level: str) -> int:
+        normalized = (level or "INFO").strip().upper()
+        if normalized in ("TRACE", "DEBUG"):
+            return logging.DEBUG
+        if normalized in ("WARN", "WARNING"):
+            return logging.WARNING
+        if normalized == "ERROR":
+            return logging.ERROR
+        if normalized == "CRITICAL":
+            return logging.CRITICAL
+        return logging.INFO
+
+    def _log_backend(
+        self,
+        message: str,
+        level: str = "INFO",
+        *,
+        suppress_ui_bridge: bool = False,
+    ) -> None:
+        full_text = (message or "").strip()
+        if full_text == "":
+            return
+        logger.log(
+            self._backend_level(level),
+            full_text,
+            extra={"_skip_ui_bridge": bool(suppress_ui_bridge)},
+        )
+
+    def ingest_ui_log(
+        self,
+        message: str,
+        level: str = "INFO",
+        origin: str = "ui",
+    ) -> None:
+        """UI -> backend bridge: write UI logs to the backend true logger."""
+        self._log_backend(
+            f"[{origin}] {message}",
+            level,
+            suppress_ui_bridge=True,
+        )
+
+    def log_debug(self, message: str) -> None:
+        self._log_backend(message, "DEBUG")
+
+    def log_info(self, message: str) -> None:
+        self._log_backend(message, "INFO")
+
+    def log_warn(self, message: str) -> None:
+        self._log_backend(message, "WARN")
+
+    def log_error(self, message: str) -> None:
+        self._log_backend(message, "ERROR")
 
     def _emit_runtime_event(
         self,
@@ -275,7 +388,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             else:
                 with self._startup_recheck_lock:
                     self._startup_recheck_pending = True
-                logger.warning(
+                logger.info(
                     "deferring startup refresh until a local node is connected"
                 )
 
@@ -317,7 +430,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         with self._startup_recheck_lock:
             pending = self._startup_recheck_pending
         if pending and self._has_ready_local_node():
-            logger.warning("local node connected, running deferred startup refresh")
+            logger.info("local node connected, running deferred startup refresh")
             self._schedule_startup_recheck(delay=0.5)
 
     def _reload_from_action_file(self, action_path: str | None = None):
@@ -614,14 +727,14 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     )
                     self._nodes.send_notification(addr, notification, None)
                     found_match = True
-                    logger.warning(
+                    logger.info(
                         "signaling affected rule '%s' for updated subscription '%s'",
                         rule.name,
                         sub.name,
                     )
                     break
             if found_match is False:
-                logger.warning(
+                logger.info(
                     "no matching rules found for updated subscription '%s'",
                     sub.name,
                 )
@@ -866,7 +979,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         if not self._has_ready_local_node():
             with self._startup_recheck_lock:
                 self._startup_recheck_pending = True
-            logger.warning("startup refresh skipped, no local node is ready yet")
+            logger.info("startup refresh skipped, no local node is ready yet")
             return
         for sub in self._config.subscriptions:
             if not sub.enabled:
@@ -874,7 +987,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             try:
                 self.refresh_subscriptions(sub, source="startup_recheck")
             except Exception as e:
-                logger.warning(
+                logger.error(
                     "startup recheck error name='%s' err=%s",
                     sub.name,
                     repr(e),
@@ -909,10 +1022,10 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         meta = self._load_meta(meta_path)
 
         if self._in_backoff(meta):
-            logger.warning("skip '%s' (in backoff)", sub.name)
+            logger.info("skip '%s' (in backoff)", sub.name)
             return
         if not self._is_due(meta, sub):
-            logger.warning("skip '%s' (not due yet)", sub.name)
+            logger.info("skip '%s' (not due yet)", sub.name)
             return
 
         th = threading.Thread(target=self.download, args=(sub,))
@@ -931,7 +1044,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             self._resultsQueue.put(item)
 
         if not matched:
-            logger.debug("cb_run_tasks() no result for key=%s sub=%s", key, sub.name)
+            logger.debug("cb_run_tasks: no result for key=%s sub=%s", key, sub.name)
             return
 
         updated: bool = False
@@ -974,7 +1087,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             action_path = signal.get("action_path")
 
             if sig == PluginSignal.ENABLE:
-                logger.warning(
+                logger.debug(
                     "cb_signal: ENABLE action_path=%r",
                     action_path,
                 )
@@ -987,6 +1100,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                         "Plugin runtime enabled.",
                         action_path=action_path,
                     )
+                    logger.info("plugin runtime enabled")
                 else:
                     self._emit_runtime_event(
                         RuntimeEventType.RUNTIME_ERROR,
@@ -994,6 +1108,8 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                         error=err,
                         action_path=action_path,
                     )
+                    logger.error("Failed to enable plugin runtime: %s", repr(err))
+
                 return
 
             if sig == self.REFRESH_SUBSCRIPTIONS_SIGNAL:
@@ -1029,7 +1145,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 return
 
             if sig == PluginSignal.CONFIG_UPDATE:
-                logger.warning(
+                logger.debug(
                     "cb_signal: CONFIG_UPDATE action_path=%r",
                     action_path,
                 )
@@ -1049,6 +1165,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                         "Plugin runtime configuration reloaded.",
                         action_path=action_path,
                     )
+                    logger.info("plugin runtime configuration reloaded")
                 else:
                     self._emit_runtime_event(
                         RuntimeEventType.RUNTIME_ERROR,
@@ -1056,10 +1173,11 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                         error=err,
                         action_path=action_path,
                     )
+                    logger.error("Failed to reload plugin runtime configuration: %s", repr(err))
                 return
 
             if sig == PluginSignal.DISABLE or sig == PluginSignal.STOP:
-                logger.warning(
+                logger.debug(
                     "cb_signal: %s action_path=%r",
                     "DISABLE" if sig == PluginSignal.DISABLE else "STOP",
                     action_path,
@@ -1079,6 +1197,10 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     ),
                     action_path=action_path,
                 )
+                logger.info(
+                    "plugin runtime %s",
+                    "disabled" if sig == PluginSignal.DISABLE else "stopped",
+                )
                 return
 
             if sig == PluginSignal.ERROR:
@@ -1093,7 +1215,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
 
             raise ValueError(f"unrecognized signal: {sig}")
         except Exception as e:
-            logger.warning("cb_signal() exception: %s", repr(e))
+            logger.error("cb_signal: exception: %s", repr(e))
 
     def _in_backoff(self, meta: ListMetadata):
         if not meta.backoff_until:
@@ -1260,7 +1382,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                             ],
                         )
                     self._resultsQueue.put((key, True, "not_modified"))
-                    logger.warning("subscription not-modified name='%s'", sub.name)
+                    logger.info("subscription not-modified name='%s'", sub.name)
                     return True
 
                 if r.status_code != 200:
@@ -1288,7 +1410,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                             ],
                         )
                     self._resultsQueue.put((key, False, f"http_{r.status_code}"))
-                    logger.warning(
+                    logger.error(
                         "subscription download http-error name='%s' code=%s",
                         sub.name,
                         r.status_code,
@@ -1323,7 +1445,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                                     ],
                                 )
                             self._resultsQueue.put((key, False, "too_large"))
-                            logger.warning(
+                            logger.error(
                                 "subscription download too-large name='%s' len=%s",
                                 sub.name,
                                 cl,
@@ -1391,7 +1513,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                                 ],
                             )
                         self._resultsQueue.put((key, False, "bad_format"))
-                        logger.warning(
+                        logger.error(
                             "subscription file bad-format name='%s'",
                             sub.name,
                         )
@@ -1458,7 +1580,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                             ],
                         )
                     self._resultsQueue.put((key, False, "write_error"))
-                    logger.warning(
+                    logger.error(
                         "subscription file write-error name='%s' err=%s",
                         sub.name,
                         repr(e),
@@ -1499,7 +1621,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                             )
                         ],
                     )
-                logger.warning(
+                logger.info(
                     "subscription updated name='%s' bytes=%s",
                     sub.name,
                     downloaded,
@@ -1537,7 +1659,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     ],
                 )
             self._resultsQueue.put((key, False, "unexpected_error"))
-            logger.warning(
+            logger.error(
                 "subscription download unexpected-error name='%s' err=%s",
                 sub.name,
                 repr(e),
@@ -1602,7 +1724,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     had_errors = True
             except Exception as exc:
                 had_errors = True
-                logger.warning(
+                logger.error(
                     "batch download failed for '%s': %r",
                     sub.name,
                     exc,
@@ -1639,4 +1761,12 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 state="batch_failed" if had_errors else "batch_finished",
                 items=items,
             )
+        logger.error(
+            "batch subscription refresh failed for %d/%d items",
+            sum(1 for i in items if i.get('state') != "updated"),
+            len(items),
+        ) if had_errors else logger.info(
+            "batch subscription refresh finished for %d items",
+            len(items),
+        )
         return not had_errors

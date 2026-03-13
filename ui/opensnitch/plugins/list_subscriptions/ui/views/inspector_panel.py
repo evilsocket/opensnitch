@@ -122,14 +122,11 @@ class InspectorPanel(QtWidgets.QFrame):
         )
         dialog._inspect_value_labels = {}
         dialog._inspect_error_button = None
-        dialog._inspect_rules_button = None
         dialog._inspect_error_full_text = ""
-        dialog._inspect_attached_rule_names = []
         for key, label in (
             ("name", QC.translate("stats", "Name")),
             ("enabled", QC.translate("stats", "Enabled")),
             ("state", QC.translate("stats", "State")),
-            ("rule_attached", QC.translate("stats", "Rule attached")),
             ("last_checked", QC.translate("stats", "Last checked")),
             ("last_updated", QC.translate("stats", "Last updated")),
             ("failures", QC.translate("stats", "Failures")),
@@ -162,7 +159,7 @@ class InspectorPanel(QtWidgets.QFrame):
                 QtCore.Qt.TextInteractionFlag.TextSelectableByMouse
             )
             dialog._inspect_value_labels[key] = value_label
-            if key in ("error", "rule_attached"):
+            if key == "error":
                 field_widget: QtWidgets.QWidget = QtWidgets.QWidget(
                     dialog._inspect_details_widget
                 )
@@ -182,16 +179,6 @@ class InspectorPanel(QtWidgets.QFrame):
                     )
                     dialog._inspect_error_button = inspect_button
                     field_layout.addWidget(inspect_button, 0)
-                else:
-                    rules_button: QtWidgets.QPushButton = QtWidgets.QPushButton(
-                        QC.translate("stats", "Rules"), field_widget
-                    )
-                    rules_button.setVisible(False)
-                    rules_button.clicked.connect(
-                        dialog._rules_attachment_controller.show_attached_rules_dialog
-                    )
-                    dialog._inspect_rules_button = rules_button
-                    field_layout.addWidget(rules_button, 0)
                 form.addRow(key_label, field_widget)
             else:
                 form.addRow(key_label, value_label)

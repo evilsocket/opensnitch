@@ -1,6 +1,7 @@
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
-from opensnitch.plugins.list_subscriptions.ui import QtGui, QC
+from opensnitch.plugins.list_subscriptions.ui import QtCore, QtGui, QC
 from opensnitch.plugins.list_subscriptions._utils import (
     deslugify_filename,
     derive_filename,
@@ -8,12 +9,7 @@ from opensnitch.plugins.list_subscriptions._utils import (
     is_valid_url,
     safe_filename,
 )
-from opensnitch.plugins.list_subscriptions.ui.views.text_inspect_dialog import (
-    TextInspectDialog,
-)
-from opensnitch.plugins.list_subscriptions.ui.workers.subscription_workers import (
-    UrlTestWorker,
-)
+from opensnitch.plugins.list_subscriptions.ui.workers import UrlTestWorker
 
 if TYPE_CHECKING:
     from opensnitch.plugins.list_subscriptions.ui.views.subscription_dialog import (
@@ -25,6 +21,89 @@ class SubscriptionDialogController:
     def __init__(self, *, dialog: "SubscriptionDialog"):
         self._dialog = dialog
         self._refresh_signal: Any = None
+        self._url_worker: UrlTestWorker | None = None
+        self._url_thread: QtCore.QThread | None = None
+        self._url_worker_stopped_callbacks: list[Callable[[], None]] = []
+        self._shutting_down = False
+        dialog.destroyed.connect(self._on_dialog_destroyed)
+        app = QtGui.QGuiApplication.instance()
+        if app is not None:
+            app.aboutToQuit.connect(self._on_app_about_to_quit)
+
+    def _on_dialog_destroyed(self, *_args):
+        self.shutdown_url_worker(wait_ms=3000)
+
+    def _on_app_about_to_quit(self):
+        self.shutdown_url_worker(wait_ms=3000)
+
+    def has_active_url_test(self) -> bool:
+        thread = self._url_thread
+        return bool(thread is not None and thread.isRunning())
+
+    def on_url_test_stopped(self, callback: Callable[[], None]) -> None:
+        if not self.has_active_url_test():
+            callback()
+            return
+        self._url_worker_stopped_callbacks.append(callback)
+
+    def cancel_active_url_test(self):
+        worker = self._url_worker
+        thread = self._url_thread
+        if worker is None or thread is None or not thread.isRunning():
+            return
+        worker.stop()
+        thread.quit()
+
+    def wait_for_active_url_test_stop(self, wait_ms: int = 1200) -> bool:
+        worker = self._url_worker
+        thread = self._url_thread
+        if worker is None or thread is None:
+            return True
+        if not thread.isRunning():
+            self._url_worker = None
+            self._url_thread = None
+            return True
+
+        worker.stop()
+        thread.quit()
+        if wait_ms <= 0:
+            stopped = thread.wait()
+        else:
+            stopped = thread.wait(wait_ms)
+        if stopped:
+            self._url_worker = None
+            self._url_thread = None
+        return bool(stopped)
+
+    def shutdown_url_worker(self, wait_ms: int = 2000) -> bool:
+        self._shutting_down = True
+        worker = self._url_worker
+        thread = self._url_thread
+        if worker is None or thread is None:
+            self._url_worker = None
+            self._url_thread = None
+            return True
+        try:
+            worker.test_result.disconnect(self._dialog._url_test_finished.emit)
+        except Exception:
+            pass
+        if thread.isRunning():
+            worker.stop()
+            thread.quit()
+            if wait_ms <= 0:
+                thread.wait()
+            else:
+                thread.wait(wait_ms)
+        if thread.isRunning():
+            thread.terminate()
+            thread.wait(500)
+        if thread.isRunning():
+            self._url_worker = worker
+            self._url_thread = thread
+            return False
+        self._url_worker = None
+        self._url_thread = None
+        return True
 
     # -- Meta refresh -------------------------------------------------------
 
@@ -74,6 +153,7 @@ class SubscriptionDialogController:
         self._dialog.meta_state.setStyleSheet(f"color: {color};")
 
     def disconnect_signal(self) -> None:
+        self.cancel_active_url_test()
         if self._refresh_signal is not None:
             try:
                 self._refresh_signal.disconnect(self.on_state_refreshed)
@@ -96,21 +176,18 @@ class SubscriptionDialogController:
 
     def set_dialog_message(self, message: str, error: bool) -> None:
         self._dialog._dialog_message_controller.set_status(message, error=error)
-
-    def show_dialog_message_inspect_dialog(self) -> None:
-        text = "\n".join(self._dialog._dialog_message_controller.log_entries).strip()
-        if text == "":
-            text = (self._dialog._dialog_message_controller.full_text or "").strip()
-        dlg = TextInspectDialog(
-            self._dialog,
-            title=QC.translate("stats", "Status log"),
-            text=text,
-        )
-        dlg.exec()
+        if (message or "").strip():
+            self._dialog.log_message.emit(
+                message,
+                "ERROR" if error else "INFO",
+                str(getattr(self._dialog, "_log_origin", "ui:subscription")),
+            )
 
     # -- URL test -----------------------------------------------------------
 
     def test_url(self) -> None:
+        if self._shutting_down:
+            return
         self._dialog.url_error_label.setText("")
         self.set_dialog_message("", error=False)
         url = (self._dialog.url_edit.text() or "").strip()
@@ -130,11 +207,35 @@ class SubscriptionDialogController:
             return
         self._dialog.test_url_button.setEnabled(False)
         self.set_dialog_message(QC.translate("stats", "Testing URL..."), error=False)
-        self._url_worker = UrlTestWorker(url)
-        self._url_worker.finished.connect(self._dialog._url_test_finished.emit)
-        self._url_worker.start()
+        self.shutdown_url_worker(wait_ms=100)
+        self._shutting_down = False
+        list_type = (self._dialog.format_combo.currentText() or "hosts").strip().lower()
+        thread = QtCore.QThread(self._dialog)
+        thread.setObjectName("UrlTestWorkerThread")
+        worker = UrlTestWorker(url, list_type)
+        worker.setObjectName("UrlTestWorker")
+        worker.moveToThread(thread)
+        self._url_worker = worker
+        self._url_thread = thread
+        thread.started.connect(worker.run)
+        worker.test_result.connect(self._dialog._url_test_finished.emit)
+        worker.finished.connect(thread.quit)
+        worker.finished.connect(worker.deleteLater)
+        thread.finished.connect(self._on_url_test_worker_stopped)
+        thread.finished.connect(thread.deleteLater)
+        thread.start()
+
+    def _on_url_test_worker_stopped(self) -> None:
+        self._url_worker = None
+        self._url_thread = None
+        callbacks = self._url_worker_stopped_callbacks[:]
+        self._url_worker_stopped_callbacks.clear()
+        for callback in callbacks:
+            callback()
 
     def handle_url_test_finished(self, success: bool, message: str) -> None:
+        if self._shutting_down:
+            return
         self._dialog.test_url_button.setEnabled(True)
         if success:
             self._dialog.url_error_label.setText("")

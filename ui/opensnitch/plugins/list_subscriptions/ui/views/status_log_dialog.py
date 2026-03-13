@@ -35,21 +35,22 @@ class StatusLogDialog(QtWidgets.QDialog, StatusLogDialogUI):
         timestamp_color: str,
     ):
         super().__init__(parent)
-        display_lines = lines[:]
-        if not display_lines and (fallback_text or "").strip() != "":
-            display_lines = [fallback_text]
-        self._has_content = len(display_lines) > 0
-        if not self._has_content:
-            return
-
-        html_text = self._entries_html(display_lines, level_color, timestamp_color)
         self.setupUi(self)
         _configure_modal_dialog(self, title=title)
 
         self.text_view.setReadOnly(True)
         self.text_view.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.NoWrap)
         self.text_view.setFontFamily("monospace")
-        self.text_view.setHtml(html_text)
+        self.update_entries(
+            lines=lines,
+            fallback_text=fallback_text,
+            level_color=level_color,
+            timestamp_color=timestamp_color,
+        )
+        # Scroll to the last entry when dialog is shown
+        scrollbar = self.text_view.verticalScrollBar()
+        if scrollbar is not None:
+            scrollbar.setValue(scrollbar.maximum())
 
         _wire_copy_close_buttons(
             self,
@@ -57,6 +58,42 @@ class StatusLogDialog(QtWidgets.QDialog, StatusLogDialogUI):
             self.close_button,
             self.text_view,
         )
+
+    @staticmethod
+    def _is_near_bottom(scrollbar: QtWidgets.QScrollBar) -> bool:
+        return scrollbar.value() >= (scrollbar.maximum() - 2)
+
+    def update_entries(
+        self,
+        *,
+        lines: list[str],
+        fallback_text: str,
+        level_color: Callable[[str], str],
+        timestamp_color: str,
+    ) -> None:
+        scrollbar = self.text_view.verticalScrollBar()
+        if scrollbar is None:
+            display_lines = lines[:]
+            if not display_lines and (fallback_text or "").strip() != "":
+                display_lines = [fallback_text]
+            html_text = self._entries_html(display_lines, level_color, timestamp_color)
+            self.text_view.setHtml(html_text)
+            return
+
+        prev_value = scrollbar.value()
+        follow_tail = self._is_near_bottom(scrollbar)
+
+        display_lines = lines[:]
+        if not display_lines and (fallback_text or "").strip() != "":
+            display_lines = [fallback_text]
+        html_text = self._entries_html(display_lines, level_color, timestamp_color)
+        self.text_view.setHtml(html_text)
+
+        if follow_tail:
+            scrollbar.setValue(scrollbar.maximum())
+            return
+
+        scrollbar.setValue(min(prev_value, scrollbar.maximum()))
 
     @staticmethod
     def _entries_html(
@@ -111,6 +148,11 @@ class StatusLogDialog(QtWidgets.QDialog, StatusLogDialogUI):
         )
 
     def exec(self) -> int:
-        if not self._has_content:
-            return int(QtWidgets.QDialog.DialogCode.Rejected)
         return int(super().exec())
+
+    def show(self) -> None:
+        super().show()
+        # Scroll to the last entry when dialog is shown
+        scrollbar = self.text_view.verticalScrollBar()
+        if scrollbar is not None:
+            scrollbar.setValue(scrollbar.maximum())

@@ -51,8 +51,14 @@ DIALOG_MESSAGE_LOG_LIMIT: Final[int] = 200
 logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
+def _origin_slug_from_title(title: str) -> str:
+    slug = "-".join((title or "subscription").strip().lower().split())
+    return slug or "subscription"
+
+
 class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
     _url_test_finished = QtCore.pyqtSignal(bool, str)
+    log_message = QtCore.pyqtSignal(str, str, str)  # (message, level, origin)
 
     if TYPE_CHECKING:
         rootLayout: QtWidgets.QVBoxLayout
@@ -137,6 +143,7 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         self.setWindowTitle(QC.translate("stats", title))
         self.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
         self._title = title
+        self._log_origin = f"ui:{_origin_slug_from_title(title)}"
         self._defaults = defaults
         self._groups = groups or []
         try:
@@ -175,8 +182,60 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
             raise
         self._meta = meta or {}
         self._dialog_message_inspect_button: QtWidgets.QPushButton | None = None
+        self._deferred_dialog_result: int | None = None
         self._build_ui()
         self.finished.connect(lambda _: self._subscription_dialog_controller.disconnect_signal())
+
+    def hideEvent(self, event: QtGui.QHideEvent | None):  # type: ignore[override]
+        self._subscription_dialog_controller.cancel_active_url_test()
+        super().hideEvent(event)
+
+    def _defer_dialog_close(self, result: int) -> bool:
+        if not self._subscription_dialog_controller.has_active_url_test():
+            return False
+        if self._deferred_dialog_result is None:
+            self._deferred_dialog_result = result
+            self.setEnabled(False)
+            self._dialog_message_controller.set_status(
+                QC.translate("stats", "Stopping background tasks..."),
+                error=False,
+                log=False,
+            )
+            self._subscription_dialog_controller.cancel_active_url_test()
+            self._subscription_dialog_controller.on_url_test_stopped(
+                self._complete_deferred_dialog_close
+            )
+        return True
+
+    def _complete_deferred_dialog_close(self) -> None:
+        result = self._deferred_dialog_result
+        if result is None:
+            return
+        self._deferred_dialog_result = None
+        self.setEnabled(True)
+        self._dialog_message_controller.set_status("", error=False, log=False)
+        if result == int(QtWidgets.QDialog.DialogCode.Accepted):
+            super().accept()
+            return
+        super().reject()
+
+    def accept(self) -> None:
+        if self._defer_dialog_close(int(QtWidgets.QDialog.DialogCode.Accepted)):
+            return
+        super().accept()
+
+    def reject(self) -> None:
+        if self._defer_dialog_close(int(QtWidgets.QDialog.DialogCode.Rejected)):
+            return
+        super().reject()
+
+    def closeEvent(self, event: QtGui.QCloseEvent | None):  # type: ignore[override]
+        if self._defer_dialog_close(int(QtWidgets.QDialog.DialogCode.Rejected)):
+            if event is not None:
+                event.ignore()
+            return
+        self._dialog_message_controller.set_status("", error=False, log=False)
+        super().closeEvent(event)
 
     def _build_ui(self):
         self.setupUi(self)
@@ -219,23 +278,22 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
             else QtGui.QPalette.ColorRole.Dark
         )
         footer_border = self.palette().color(footer_role).name()
+        self.footer_separator_line.setStyleSheet(f"color: {footer_border};")
         self.error_label.setSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding,
             QtWidgets.QSizePolicy.Policy.Fixed,
+        )
+        self.error_label.setStyleSheet(
+            f"QLabel {{ background-color: {self.palette().color(QtGui.QPalette.ColorRole.Window).name()}; padding: 8px 12px 8px 12px; }}"
         )
         self.error_label.setAlignment(
             QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
         )
         self.error_label.setWordWrap(False)
         self.error_label.setTextFormat(QtCore.Qt.TextFormat.PlainText)
-        self._dialog_message_inspect_button = QtWidgets.QPushButton(
-            QC.translate("stats", "Log"),
-            self,
-        )
-        self._dialog_message_inspect_button.setVisible(False)
         self._dialog_message_controller = DialogStatusController(
             label=self.error_label,
-            inspect_button=self._dialog_message_inspect_button,
+            inspect_button=None,
             preview_limit=DIALOG_MESSAGE_PREVIEW_LIMIT,
             log_limit=DIALOG_MESSAGE_LOG_LIMIT,
             timestamp_format="yyyy-MM-ddTHH:mm:ss.zzz",
@@ -244,31 +302,25 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
             empty_button_behavior="hide",
         )
         self._subscription_dialog_controller = SubscriptionDialogController(dialog=self)
-        self._dialog_message_inspect_button.clicked.connect(
-            self._subscription_dialog_controller.show_dialog_message_inspect_dialog
-        )
         self._dialog_message_controller.set_status("", error=False)
+        footer_index = self.rootLayout.indexOf(self.footer_separator_line)
         error_index = self.rootLayout.indexOf(self.error_label)
         if error_index >= 0:
-            error_row = QtWidgets.QWidget(self)
-            error_row.setStyleSheet(
+            status_row = QtWidgets.QWidget(self)
+            status_row.setStyleSheet(
                 "QWidget {"
                 f"border-top: 1px solid {footer_border};"
                 f"background-color: {self.palette().color(QtGui.QPalette.ColorRole.Window).name()};"
                 "}"
             )
-            error_row_layout = QtWidgets.QHBoxLayout(error_row)
-            error_row_layout.setContentsMargins(12, 0, 12, 0)
-            error_row_layout.setSpacing(8)
-            self.rootLayout.removeWidget(self.error_label)
-            self.error_label.setParent(error_row)
-            error_row_layout.addWidget(
-                self._dialog_message_inspect_button,
-                0,
-                QtCore.Qt.AlignmentFlag.AlignVCenter,
-            )
-            error_row_layout.addWidget(self.error_label, 1)
-            self.rootLayout.insertWidget(error_index, error_row)
+            status_row_layout = QtWidgets.QHBoxLayout(status_row)
+            status_row_layout.setContentsMargins(12, 0, 12, 0)
+            status_row_layout.setSpacing(8)
+            self.buttons_layout.removeWidget(self.error_label)
+            self.error_label.setParent(status_row)
+            status_row_layout.addWidget(self.error_label, 1)
+            insert_index = footer_index + 1 if footer_index >= 0 else error_index
+            self.rootLayout.insertWidget(insert_index, status_row)
         self.settings_form.setFieldGrowthPolicy(
             QtWidgets.QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow
         )

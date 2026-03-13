@@ -175,7 +175,6 @@ class InspectorController:
                 part for part in (max_size_value, max_size_units) if (part or "").strip() != ""
             ),
             "state": meta.get("state", ""),
-            "rule_attached": meta.get("rule_attached_detail", meta.get("rule_attached", "")),
             "last_checked": meta.get("last_checked", ""),
             "last_updated": meta.get("last_updated", ""),
             "failures": meta.get("failures", ""),
@@ -196,9 +195,6 @@ class InspectorController:
                 label.setStyleSheet(
                     f"color: {self.state_bucket_color(text).name()};"
                 )
-                continue
-            if key == "rule_attached":
-                self.set_rule_attached_preview(row, text)
                 continue
             label.setText(text)
 
@@ -238,33 +234,6 @@ class InspectorController:
         if self._dialog._inspect_error_button is not None:
             self._dialog._inspect_error_button.setVisible(True)
             self._dialog._inspect_error_button.setEnabled(True)
-
-    def set_rule_attached_preview(self, row: int, text: str):
-        attached_label = self._dialog._inspect_value_labels.get("rule_attached")
-        if attached_label is None:
-            return
-
-        normalized = (text or "").strip()
-        if normalized == "":
-            normalized = "-"
-        attached_label.setText(normalized)
-        attached_label.setToolTip(normalized)
-
-        attached_rules = self._dialog._table_data_controller.attached_rules_for_row(
-            row,
-            include_disabled=True,
-        )
-        self._dialog._inspect_attached_rule_names = [
-            str(entry.get("name", "")).strip() for entry in attached_rules
-        ]
-        self._dialog._inspect_attached_rule_names = [
-            name for name in self._dialog._inspect_attached_rule_names if name != ""
-        ]
-
-        if self._dialog._inspect_rules_button is None:
-            return
-        self._dialog._inspect_rules_button.setVisible(len(attached_rules) > 0)
-        self._dialog._inspect_rules_button.setEnabled(len(attached_rules) > 0)
 
     def set_inspector_multi_selection_mode(self, enabled: bool):
         if enabled:

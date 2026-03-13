@@ -98,10 +98,21 @@ class RulesEditorController:
         rules_dialog = self._dialog._rules_dialog
         if rules_dialog is None:
             return
+        node_index = rules_dialog.nodesCombo.currentIndex()
+        node_addr = str(rules_dialog.nodesCombo.itemData(node_index) or "").strip()
+        rule_dirs: list[str] = []
+        if rules_dialog.dstListsCheck.isChecked():
+            rule_dir = str(rules_dialog.dstListsLine.text() or "").strip()
+            if rule_dir != "":
+                rule_dirs.append(rule_dir)
         self._pending_rule_change = {
             "mode": int(getattr(ruleseditor_constants, "WORK_MODE", 0)),
             "old_name": str(getattr(rules_dialog, "_old_rule_name", "") or "").strip(),
             "new_name": str(rules_dialog.ruleNameEdit.text() or "").strip(),
+            "addr": node_addr,
+            "enabled": bool(rules_dialog.enableCheck.isChecked()),
+            "directories": rule_dirs,
+            "apply_all": bool(rules_dialog.nodeApplyAllCheck.isChecked()),
         }
 
     def _handle_rules_updated(self, _value: int):
@@ -136,6 +147,13 @@ class RulesEditorController:
             message = QC.translate("stats", "Rule updated: {0}").format(
                 new_name or old_name
             )
+
+        if bool(pending.get("apply_all", False)):
+            self._dialog._rules_attachment_controller.invalidate_snapshot_cache(
+                "rule-editor-apply-all"
+            )
+        else:
+            self._dialog._rules_attachment_controller.apply_rule_editor_change(pending)
 
         self._dialog._status_controller.set_status(message, error=False)
         self._dialog._table_data_controller.refresh_states()

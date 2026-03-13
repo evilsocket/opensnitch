@@ -1,5 +1,6 @@
 import json
 import os
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 import requests
@@ -14,6 +15,9 @@ from opensnitch.plugins.list_subscriptions.models.events import (
 )
 from opensnitch.plugins.list_subscriptions.ui.widgets.table_widgets import (
     SortableTableWidgetItem,
+)
+from opensnitch.plugins.list_subscriptions.ui.workers import (
+    SubscriptionStateRefreshWorker,
 )
 from opensnitch.plugins.list_subscriptions._utils import (
     DEFAULT_LISTS_DIR,
@@ -39,6 +43,9 @@ if TYPE_CHECKING:
     )
 
 
+ATTACHED_RULES_REFRESH_INTERVAL_MS = 2_000
+
+
 class TableDataController:
     def __init__(
         self, *, dialog: "ListSubscriptionsDialog", columns: dict[str, int]
@@ -48,16 +55,123 @@ class TableDataController:
         self._poll_timer = QtCore.QTimer(dialog)
         self._poll_timer.setInterval(2000)
         self._poll_timer.timeout.connect(
-            lambda: dialog.isVisible() and (not dialog._loading) and self.refresh_states()
+            lambda: dialog.isVisible()
+            and dialog.isActiveWindow()
+            and (not dialog._loading)
+            and self.refresh_attached_rules_only()
         )
+        self._refresh_generation = 0
+        self._refresh_worker: SubscriptionStateRefreshWorker | None = None
+        self._refresh_thread: QtCore.QThread | None = None
+        self._refresh_stopped_callbacks: list[Callable[[], None]] = []
+        self._pending_refresh_job: dict[str, Any] | None = None
+        self._pending_attached_rules_refresh = False
+        self._last_attached_rules_refresh_ms = 0
+        self._shutting_down = False
+        dialog.destroyed.connect(self._on_dialog_destroyed)
+        app = QtCore.QCoreApplication.instance()
+        if app is not None:
+            app.aboutToQuit.connect(self._on_app_about_to_quit)
 
     def start_poll(self):
+        if self._shutting_down:
+            return
         if not self._poll_timer.isActive():
             self._poll_timer.start()
 
     def stop_poll(self):
         if self._poll_timer.isActive():
             self._poll_timer.stop()
+
+    def pause_for_focus_loss(self):
+        self.stop_poll()
+        self.cancel_active_refresh()
+
+    def resume_for_focus_gain(self):
+        if self._dialog.isVisible() and not self._dialog._loading:
+            self.start_poll()
+
+    def _on_dialog_destroyed(self, *_args):
+        self.shutdown_refresh_worker(wait_ms=3000)
+
+    def _on_app_about_to_quit(self):
+        self.shutdown_refresh_worker(wait_ms=3000)
+
+    def has_active_refresh(self) -> bool:
+        thread = self._refresh_thread
+        return bool(thread is not None and thread.isRunning())
+
+    def on_refresh_stopped(self, callback: Callable[[], None]) -> None:
+        if not self.has_active_refresh():
+            callback()
+            return
+        self._refresh_stopped_callbacks.append(callback)
+
+    def cancel_active_refresh(self):
+        worker = self._refresh_worker
+        thread = self._refresh_thread
+        if worker is None or thread is None or not thread.isRunning():
+            return
+        worker.stop()
+        thread.quit()
+
+    def wait_for_active_refresh_stop(self, wait_ms: int = 1200) -> bool:
+        worker = self._refresh_worker
+        thread = self._refresh_thread
+        if worker is None or thread is None:
+            return True
+        if not thread.isRunning():
+            self._refresh_worker = None
+            self._refresh_thread = None
+            return True
+
+        worker.stop()
+        thread.quit()
+        if wait_ms <= 0:
+            stopped = thread.wait()
+        else:
+            stopped = thread.wait(wait_ms)
+        if stopped:
+            self._refresh_worker = None
+            self._refresh_thread = None
+        return bool(stopped)
+
+    def shutdown_refresh_worker(self, wait_ms: int = 2000) -> bool:
+        self._shutting_down = True
+        self._pending_refresh_job = None
+        self._refresh_generation += 1
+
+        worker = self._refresh_worker
+        thread = self._refresh_thread
+        if worker is None or thread is None:
+            self._refresh_worker = None
+            self._refresh_thread = None
+            return True
+
+        try:
+            worker.refresh_done.disconnect(self._on_state_refresh_worker_finished)
+        except Exception:
+            pass
+
+        if thread.isRunning():
+            worker.stop()
+            thread.quit()
+            if wait_ms <= 0:
+                thread.wait()
+            else:
+                thread.wait(wait_ms)
+        if thread.isRunning():
+            thread.terminate()
+            thread.wait(500)
+
+        if thread.isRunning():
+            self._refresh_worker = worker
+            self._refresh_thread = thread
+            return False
+
+        self._refresh_worker = None
+        self._refresh_thread = None
+        return True
 
     # -- Shared primitives -------------------------------------------------
     def _col(self, key: str):
@@ -146,11 +260,19 @@ class TableDataController:
 
     def status_log_level_color(self, level: str) -> str:
         normalized = (level or "").strip().upper()
+        if normalized in ("TRACE",):
+            return self.state_text_color("disabled").name()
+        if normalized in ("DEBUG",):
+            return self.state_text_color("other").name()
+        if normalized in ("INFO",):
+            return self.state_text_color("not_modified").name()
+        if normalized in ("SUCCESS",):
+            return self.state_text_color("updated").name()
         if normalized == "ERROR":
             return self.state_text_color("error").name()
-        if normalized == "WARN":
+        if normalized in ("WARN", "WARNING"):
             return self.state_text_color("pending").name()
-        return self.state_text_color("updated").name()
+        return self.state_text_color("not_modified").name()
 
     # -- Table interaction -------------------------------------------------
     def handle_table_clicked(self, index: QtCore.QModelIndex):
@@ -603,21 +725,15 @@ class TableDataController:
         lists_dir = normalize_lists_dir(
             self._dialog.lists_dir_edit.text().strip() or DEFAULT_LISTS_DIR
         )
-        attached_rules_by_dir = (
-            self._dialog._rules_attachment_controller.attached_rules_snapshot()
-        )
         filename = safe_filename(self.cell_text(row, self._col("filename")))
         list_type = (
             self.cell_text(row, self._col("format")) or "hosts"
         ).strip().lower()
-        groups = normalize_groups(self.cell_text(row, self._col("group")))
-        attachment_matches = self.rule_attachment_matches(
-            lists_dir,
-            filename,
-            list_type,
-            groups,
-            attached_rules_by_dir=attached_rules_by_dir,
-        )
+        current_rule_attached = (
+            self.cell_text(row, self._col("rule_attached")) or "no"
+        ).strip().lower()
+        if current_rule_attached not in ("yes", "no"):
+            current_rule_attached = "no"
         list_path = list_file_path(lists_dir, filename, list_type)
         meta_path = list_path + ".meta.json"
 
@@ -640,8 +756,8 @@ class TableDataController:
                     self.cell_text(row, self._col("state")) or "never",
                 )
             ),
-            "rule_attached": "yes" if attachment_matches else "no",
-            "rule_attached_detail": self.rule_attachment_detail(attachment_matches),
+            "rule_attached": current_rule_attached,
+            "rule_attached_detail": current_rule_attached,
             "last_checked": str(
                 meta.get(
                     "last_checked",
@@ -713,90 +829,139 @@ class TableDataController:
         url_item.setForeground(QtGui.QBrush(self.state_text_color("other")))
 
     def refresh_states(self):
+        if self._shutting_down:
+            return
+        if self._refresh_thread is not None and self._refresh_thread.isRunning():
+            # Worker already running: defer the next refresh request without
+            # recomputing expensive snapshots on the UI thread.
+            self._pending_refresh_job = {"deferred": True}
+            return
+        lists_dir = normalize_lists_dir(
+            self._dialog.lists_dir_edit.text().strip() or DEFAULT_LISTS_DIR
+        )
+        rows: list[dict[str, Any]] = []
+        for row in range(self._dialog.table.rowCount()):
+            filename_item = self._dialog.table.item(row, self._col("filename"))
+            enabled_item = self._dialog.table.item(row, self._col("enabled"))
+            if filename_item is None or enabled_item is None:
+                continue
+            rows.append(
+                {
+                    "row": row,
+                    "url": self.cell_text(row, self._col("url")),
+                    "filename": safe_filename(filename_item.text()),
+                    "list_type": (self.cell_text(row, self._col("format")) or "hosts")
+                    .strip()
+                    .lower(),
+                    "enabled": enabled_item.checkState()
+                    == QtCore.Qt.CheckState.Checked,
+                    "groups": normalize_groups(self.cell_text(row, self._col("group"))),
+                }
+            )
+
+        self._refresh_generation += 1
+        job = {
+            "generation": self._refresh_generation,
+            "lists_dir": lists_dir,
+            "rows": rows,
+            # Attached-rules snapshot is intentionally omitted in background
+            # refresh jobs to avoid automatic DB scans on the UI path.
+            "attached_rules_by_dir": {},
+        }
+
+        self._start_state_refresh_worker(job)
+
+    def refresh_attached_rules_only(self):
+        # Attached-rules DB scan is on-demand only (explicit user action)
+        # to avoid blocking UI/daemon during background polling.
+        return
+
+    def _start_state_refresh_worker(self, job: dict[str, Any]):
+        if self._shutting_down:
+            return
+        self._pending_refresh_job = None
+        thread = QtCore.QThread(self._dialog)
+        thread.setObjectName("SubscriptionStateRefreshWorkerThread")
+        worker = SubscriptionStateRefreshWorker(
+            generation=int(job["generation"]),
+            lists_dir=str(job["lists_dir"]),
+            rows=list(job["rows"]),
+            attached_rules_by_dir=dict(job["attached_rules_by_dir"]),
+        )
+        worker.setObjectName("SubscriptionStateRefreshWorker")
+        worker.moveToThread(thread)
+        self._refresh_worker = worker
+        self._refresh_thread = thread
+        thread.started.connect(worker.run)
+        worker.refresh_done.connect(self._on_state_refresh_worker_finished)
+        worker.finished.connect(thread.quit)
+        worker.finished.connect(worker.deleteLater)
+        thread.finished.connect(self._on_state_refresh_worker_stopped)
+        thread.finished.connect(thread.deleteLater)
+        thread.start()
+
+    def _on_state_refresh_worker_stopped(self) -> None:
+        self._refresh_worker = None
+        self._refresh_thread = None
+        callbacks = self._refresh_stopped_callbacks[:]
+        self._refresh_stopped_callbacks.clear()
+        for callback in callbacks:
+            callback()
+        if not self._shutting_down and self._pending_refresh_job is not None:
+            job = self._pending_refresh_job
+            self._pending_refresh_job = None
+            if bool(job.get("deferred")):
+                self.refresh_states()
+                return
+            self._start_state_refresh_worker(job)
+            return
+        if not self._shutting_down and self._pending_attached_rules_refresh:
+            self._pending_attached_rules_refresh = False
+            self.refresh_attached_rules_only()
+
+    def _on_state_refresh_worker_finished(
+        self,
+        generation: int,
+        results: list[dict[str, Any]],
+    ):
+        if self._shutting_down:
+            return
+
+        if generation != self._refresh_generation:
+            return
+
+        result_by_row: dict[int, dict[str, Any]] = {
+            int(item.get("row", -1)): item for item in results
+        }
+
         with self._dialog._table_view_controller.sorting_suspended():
-            lists_dir = normalize_lists_dir(
-                self._dialog.lists_dir_edit.text().strip() or DEFAULT_LISTS_DIR
-            )
-            attached_rules_by_dir = (
-                self._dialog._rules_attachment_controller.attached_rules_snapshot()
-            )
             for row in range(self._dialog.table.rowCount()):
-                filename_item = self._dialog.table.item(row, self._col("filename"))
-                enabled_item = self._dialog.table.item(row, self._col("enabled"))
-                if filename_item is None or enabled_item is None:
+                result = result_by_row.get(row)
+                if result is None:
                     continue
 
-                url = self.cell_text(row, self._col("url"))
-                filename = safe_filename(filename_item.text())
-                list_type = (self.cell_text(row, self._col("format")) or "hosts").strip().lower()
-                enabled = enabled_item.checkState() == QtCore.Qt.CheckState.Checked
-                list_path = list_file_path(lists_dir, filename, list_type)
-                meta_path = list_path + ".meta.json"
-
-                file_exists = os.path.exists(list_path)
-                meta_exists = os.path.exists(meta_path)
-                meta = {}
-                if meta_exists:
-                    try:
-                        with open(meta_path, "r", encoding="utf-8") as f:
-                            meta = json.load(f)
-                    except Exception:
-                        meta = {}
-
-                last_result = str(meta.get("last_result", "never")) if meta else "never"
-                last_checked = str(meta.get("last_checked", "")) if meta else ""
-                last_updated = str(meta.get("last_updated", "")) if meta else ""
-                fail_count = str(meta.get("fail_count", 0)) if meta else "0"
-                last_error = str(meta.get("last_error", "")) if meta else ""
-                groups = normalize_groups(self.cell_text(row, self._col("group")))
-                attachment_matches = self.rule_attachment_matches(
-                    lists_dir,
-                    filename,
-                    list_type,
-                    groups,
-                    attached_rules_by_dir=attached_rules_by_dir,
-                )
-                rule_attached = "yes" if attachment_matches else "no"
+                enabled = bool(result.get("enabled", True))
+                state = str(result.get("state", ""))
+                last_error = str(result.get("error", ""))
+                rule_attached = str(result.get("rule_attached", "no"))
+                last_checked = str(result.get("last_checked", ""))
+                last_updated = str(result.get("last_updated", ""))
+                attachment_matches = list(result.get("attachment_matches", []))
                 rule_attached_detail = self.rule_attachment_detail(attachment_matches)
-                fg_color: QtGui.QColor
 
-                if not enabled:
-                    state = "disabled"
-                    fg_color = self.state_text_color("disabled")
-                elif not file_exists:
-                    # New/manual subscriptions may not be downloaded yet.
-                    # Expose that as pending instead of an error-like missing state.
-                    if not meta_exists or last_result in ("never", "", "busy"):
-                        state = "pending"
-                        fg_color = self.state_text_color("pending")
-                    else:
-                        state = "missing"
-                        fg_color = self.state_text_color("missing")
-                elif last_result in ("updated", "not_modified"):
-                    state = last_result
-                    fg_color = self.state_text_color(last_result)
-                elif last_result in (
-                    "error",
-                    "write_error",
-                    "request_error",
-                    "unexpected_error",
-                    "bad_format",
-                    "too_large",
-                ):
-                    state = last_result
-                    fg_color = self.state_text_color(last_result)
-                elif last_result == "busy":
-                    state = "busy"
-                    fg_color = self.state_text_color("busy")
-                else:
-                    state = last_result
-                    fg_color = self.state_text_color("other")
+                fg_color = self.state_text_color(state if state != "" else "other")
 
                 self.set_text_item(
-                    row, self._col("file"), "yes" if file_exists else "no", editable=False
+                    row,
+                    self._col("file"),
+                    str(result.get("file_present", "no")),
+                    editable=False,
                 )
                 self.set_text_item(
-                    row, self._col("meta"), "yes" if meta_exists else "no", editable=False
+                    row,
+                    self._col("meta"),
+                    str(result.get("meta_present", "no")),
+                    editable=False,
                 )
                 self.set_text_item(row, self._col("state"), state, editable=False)
                 self.set_text_item(
@@ -835,22 +1000,23 @@ class TableDataController:
                     item = self._dialog.table.item(row, col)
                     if item is not None:
                         item.setForeground(fg_color)
+
                 self.update_row_sort_keys(row)
                 self._dialog.subscription_state_refreshed.emit(
-                    url,
-                    filename,
+                    str(result.get("url", "")),
+                    str(result.get("filename", "")),
                     {
-                        "file_present": "yes" if file_exists else "no",
-                        "meta_present": "yes" if meta_exists else "no",
+                        "file_present": str(result.get("file_present", "no")),
+                        "meta_present": str(result.get("meta_present", "no")),
                         "state": state,
                         "rule_attached": rule_attached,
                         "rule_attached_detail": rule_attached_detail,
                         "last_checked": last_checked,
                         "last_updated": last_updated,
-                        "failures": fail_count,
+                        "failures": str(result.get("failures", "0")),
                         "error": last_error,
-                        "list_path": list_path,
-                        "meta_path": meta_path,
+                        "list_path": str(result.get("list_path", "")),
+                        "meta_path": str(result.get("meta_path", "")),
                     },
                 )
 

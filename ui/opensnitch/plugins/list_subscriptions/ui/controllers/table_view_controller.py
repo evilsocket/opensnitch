@@ -19,6 +19,36 @@ class TableViewController:
     def _col(self, key: str):
         return self._cols[key]
 
+    def _visible_columns(self) -> list[int]:
+        return [
+            col
+            for col in range(self._dialog.table.columnCount())
+            if not self._dialog.table.isColumnHidden(col)
+        ]
+
+    def _expand_visible_columns_to_viewport(self, base_widths: dict[int, int]) -> None:
+        visible_cols = [col for col in self._visible_columns() if col in base_widths]
+        if not visible_cols:
+            return
+
+        viewport_width = self._dialog.table.viewport().width()
+        if viewport_width <= 0:
+            return
+
+        min_total = sum(max(1, int(base_widths.get(col, 1))) for col in visible_cols)
+        if viewport_width <= min_total:
+            return
+
+        extra = viewport_width - min_total
+        add_each = extra // len(visible_cols)
+        remainder = extra % len(visible_cols)
+
+        for idx, col in enumerate(visible_cols):
+            target = max(1, int(base_widths.get(col, 1))) + add_each
+            if idx < remainder:
+                target += 1
+            self._dialog.table.setColumnWidth(col, target)
+
     @contextmanager
     def sorting_suspended(self):
         header = self._dialog.table.horizontalHeader()
@@ -49,10 +79,10 @@ class TableViewController:
             self._col("max_size_units"),
             self._col("file"),
             self._col("meta"),
+            self._col("rule_attached"),
         }
         monitoring_only = {
             self._col("state"),
-            self._col("rule_attached"),
             self._col("last_checked"),
             self._col("last_updated"),
         }
@@ -89,15 +119,13 @@ class TableViewController:
 
         header.setStretchLastSection(False)
         self._dialog._applying_table_column_sizing = True
+        base_widths: dict[int, int] = {}
 
         try:
             if monitoring:
                 # Monitoring: all visible data columns are user-resizable.
                 header.setSectionResizeMode(self._col("name"), QtWidgets.QHeaderView.ResizeMode.Interactive)
                 header.setSectionResizeMode(self._col("state"), QtWidgets.QHeaderView.ResizeMode.Interactive)
-                header.setSectionResizeMode(
-                    self._col("rule_attached"), QtWidgets.QHeaderView.ResizeMode.Interactive
-                )
                 header.setSectionResizeMode(
                     self._col("last_checked"), QtWidgets.QHeaderView.ResizeMode.Interactive
                 )
@@ -108,12 +136,13 @@ class TableViewController:
                     self._dialog.table.setColumnWidth(self._col("name"), 260)
                 if self._col("state") not in resized_columns:
                     self._dialog.table.setColumnWidth(self._col("state"), 140)
-                if self._col("rule_attached") not in resized_columns:
-                    self._dialog.table.setColumnWidth(self._col("rule_attached"), 130)
                 if self._col("last_checked") not in resized_columns:
                     self._dialog.table.setColumnWidth(self._col("last_checked"), 260)
                 if self._col("last_updated") not in resized_columns:
                     self._dialog.table.setColumnWidth(self._col("last_updated"), 260)
+                for col in self._visible_columns():
+                    base_widths[col] = self._dialog.table.columnWidth(col)
+                self._expand_visible_columns_to_viewport(base_widths)
                 return
 
             # Config: keep URL flexible, reserve enough space for frequently edited fields.
@@ -134,6 +163,10 @@ class TableViewController:
                 self._dialog.table.setColumnWidth(self._col("format"), 120)
             if self._col("group") not in resized_columns:
                 self._dialog.table.setColumnWidth(self._col("group"), 180)
+
+            for col in self._visible_columns():
+                base_widths[col] = self._dialog.table.columnWidth(col)
+            self._expand_visible_columns_to_viewport(base_widths)
         finally:
             self._dialog._applying_table_column_sizing = False
 

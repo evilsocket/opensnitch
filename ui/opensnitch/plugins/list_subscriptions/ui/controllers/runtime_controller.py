@@ -192,7 +192,11 @@ class RuntimeController:
             message = self.runtime_download_message(event_name, payload, message)
         if is_error and error_detail != "":
             message = f"{message} {error_detail}".strip()
-        self._dialog._status_controller.set_status(message, error=is_error)
+        self._dialog._status_controller.set_status(
+            message,
+            error=is_error,
+            origin="backend:event",
+        )
 
     # -- Lifecycle ----------------------------------------------------------
 
@@ -398,21 +402,30 @@ class RuntimeController:
             return runtime_plugin
 
         self._dialog._runtime_plugin = None
+        self._dialog._status_controller.set_backend_log_sink(None)
         self.set_runtime_state(active=False)
         self.set_refresh_busy(False)
         return None
 
     def bind_runtime_plugin(self, plug: ListSubscriptions | None):
         if plug is None:
+            self._dialog._status_controller.set_backend_log_sink(None)
             return
         try:
             plug.signal_out.disconnect(self.handle_runtime_event)
         except Exception:
             pass
         try:
+            plug.log_out.disconnect(self._dialog._status_controller.ingest_backend_log)
+        except Exception:
+            pass
+        try:
             plug.signal_out.connect(self.handle_runtime_event)
+            plug.log_out.connect(self._dialog._status_controller.ingest_backend_log)
+            self._dialog._status_controller.set_backend_log_sink(plug.ingest_ui_log)
             self._dialog._runtime_plugin = plug
         except Exception:
+            self._dialog._status_controller.set_backend_log_sink(None)
             self._dialog._runtime_plugin = None
 
     def find_loaded_action(self):

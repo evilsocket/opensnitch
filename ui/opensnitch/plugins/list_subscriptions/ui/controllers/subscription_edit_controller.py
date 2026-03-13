@@ -47,6 +47,7 @@ class SubscriptionEditController:
             ),
             title="New subscription",
         )
+        dlg.log_message.connect(self._dialog._status_controller.log)
         if dlg.exec() != QtWidgets.QDialog.DialogCode.Accepted:
             return
 
@@ -134,6 +135,7 @@ class SubscriptionEditController:
             meta=meta,
             title="Edit subscription",
         )
+        dlg.log_message.connect(self._dialog._status_controller.log)
         dlg._subscription_dialog_controller.connect_to_refresh_signal(
             self._dialog.subscription_state_refreshed
         )

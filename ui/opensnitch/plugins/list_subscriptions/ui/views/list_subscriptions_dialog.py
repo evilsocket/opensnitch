@@ -209,9 +209,7 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         _inspect_value_labels: dict[str, QtWidgets.QLabel]
         _inspect_summary_labels: dict[str, QtWidgets.QLabel]
         _inspect_error_button: QtWidgets.QPushButton | None
-        _inspect_rules_button: QtWidgets.QPushButton | None
         _inspect_error_full_text: str
-        _inspect_attached_rule_names: list[str]
         _inspect_collapsed: bool
         _inspect_default_width: int
         _inspect_has_selection: bool
@@ -241,21 +239,104 @@ class ListSubscriptionsDialog(QtWidgets.QDialog, ListSubscriptionsDialogUI):
         self._pending_runtime_reload: str | None = None
         self._pending_refresh_keys: set[str] = set()
         self._active_refresh_keys: set[str] = set()
+        self._deferred_close_pending = False
         self._user_resized_columns_by_tab: dict[int, set[int]] = {}
         self._applying_table_column_sizing = False
+        self._resize_fill_timer = QtCore.QTimer(self)
+        self._resize_fill_timer.setSingleShot(True)
+        self._resize_fill_timer.setInterval(140)
+        self._resize_fill_timer.timeout.connect(self._apply_table_fill_after_resize)
         self._build_ui()
 
     def showEvent(self, event: QtGui.QShowEvent | None):  # type: ignore[override]
         super().showEvent(event)
         self._action_file_controller.load_action_file()
         self._table_data_controller.start_poll()
+        # Ensure equal-fill sizing runs after the first layout pass when viewport width is valid.
+        QtCore.QTimer.singleShot(
+            0,
+            lambda: self._table_view_controller.apply_table_column_sizing(
+                self._table_tab_bar.currentIndex()
+            ),
+        )
+
+    def _pause_background_workers_for_focus_loss(self) -> None:
+        pause_poll = getattr(self._table_data_controller, "pause_for_focus_loss", None)
+        if callable(pause_poll):
+            pause_poll()
+        else:
+            self._table_data_controller.stop_poll()
+            self._table_data_controller.cancel_active_refresh()
+
+        cancel_snapshot = getattr(
+            self._rules_attachment_controller,
+            "cancel_active_snapshot",
+            None,
+        )
+        if callable(cancel_snapshot):
+            cancel_snapshot()
+
+    def _resume_background_workers_for_focus_gain(self) -> None:
+        resume_poll = getattr(self._table_data_controller, "resume_for_focus_gain", None)
+        if callable(resume_poll):
+            resume_poll()
+        elif self.isVisible() and not self._loading:
+            self._table_data_controller.start_poll()
+
+    def changeEvent(self, event: QtCore.QEvent | None):  # type: ignore[override]
+        if (
+            event is not None
+            and event.type() == QtCore.QEvent.Type.ActivationChange
+        ):
+            if self.isVisible() and self.isActiveWindow():
+                self._resume_background_workers_for_focus_gain()
+            else:
+                self._pause_background_workers_for_focus_loss()
+        super().changeEvent(event)
 
     def hideEvent(self, event: QtGui.QHideEvent | None):  # type: ignore[override]
-        self._table_data_controller.stop_poll()
+        self._pause_background_workers_for_focus_loss()
         super().hideEvent(event)
+
+    def resizeEvent(self, event: QtGui.QResizeEvent | None):  # type: ignore[override]
+        super().resizeEvent(event)
+        if hasattr(self, "_resize_fill_timer"):
+            self._resize_fill_timer.start()
+
+    def _apply_table_fill_after_resize(self) -> None:
+        if not self.isVisible():
+            return
+        if hasattr(self, "_table_view_controller") and hasattr(self, "_table_tab_bar"):
+            self._table_view_controller.apply_table_column_sizing(
+                self._table_tab_bar.currentIndex()
+            )
+
+    def _complete_deferred_close(self) -> None:
+        self._deferred_close_pending = False
+        self.setEnabled(True)
+        self._status_controller.set_status("", error=False, log=False)
+        self.close()
 
     def closeEvent(self, event: QtGui.QCloseEvent | None):  # type: ignore[override]
         self._table_data_controller.stop_poll()
+        self._pause_background_workers_for_focus_loss()
+        if self._table_data_controller.has_active_refresh():
+            if not self._deferred_close_pending:
+                self._deferred_close_pending = True
+                self.setEnabled(False)
+                self._status_controller.set_status(
+                    QC.translate("stats", "Stopping background tasks..."),
+                    error=False,
+                    log=False,
+                )
+                self._table_data_controller.cancel_active_refresh()
+                self._table_data_controller.on_refresh_stopped(
+                    self._complete_deferred_close
+                )
+            if event is not None:
+                event.ignore()
+            return
+        self._status_controller.set_status("", error=False, log=False)
         super().closeEvent(event)
 
     def _show_log_dialog(self) -> None:
