@@ -233,9 +233,9 @@
          <number>12</number>
         </property>
         <item row="0" column="0">
-         <widget class="QLabel" name="meta_file_present_label">
+         <widget class="QLabel" name="meta_state_label">
           <property name="text">
-           <string>List file present</string>
+           <string>State</string>
           </property>
          </widget>
         </item>
@@ -250,91 +250,91 @@
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QLabel" name="meta_file_present">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="meta_meta_present_label">
-          <property name="text">
-           <string>List meta present</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="meta_meta_present">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="meta_state_label">
-          <property name="text">
-           <string>State</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
          <widget class="QLabel" name="meta_state">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="1" column="0">
          <widget class="QLabel" name="meta_last_checked_label">
           <property name="text">
            <string>Last checked</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="2">
+        <item row="1" column="2">
          <widget class="QLabel" name="meta_last_checked">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="meta_last_updated_label">
           <property name="text">
            <string>Last updated</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
+        <item row="2" column="2">
          <widget class="QLabel" name="meta_last_updated">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="meta_failures_label">
           <property name="text">
            <string>Failures</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
+        <item row="3" column="2">
          <widget class="QLabel" name="meta_failures">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="meta_error_label">
           <property name="text">
            <string>Error</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="2">
+        <item row="4" column="2">
          <widget class="QLabel" name="meta_error">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="meta_file_present_label">
+          <property name="text">
+           <string>List file present</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QLabel" name="meta_file_present">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="meta_meta_present_label">
+          <property name="text">
+           <string>List meta present</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QLabel" name="meta_meta_present">
           <property name="text">
            <string/>
           </property>

@@ -4,13 +4,15 @@ import hashlib
 import threading
 import shutil
 import sys
-from typing import Any, ClassVar, Final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
 from abc import ABCMeta
 from datetime import datetime, timedelta
 from queue import Queue
 import requests
 
-if "PyQt6" in sys.modules:
+if TYPE_CHECKING:
+    from PyQt6 import QtCore, QtGui, QtWidgets
+elif "PyQt6" in sys.modules:
     from PyQt6 import QtCore, QtGui, QtWidgets
 elif "PyQt5" in sys.modules:
     from PyQt5 import QtCore, QtGui, QtWidgets
@@ -20,10 +22,12 @@ else:
     except Exception:
         from PyQt5 import QtCore, QtGui, QtWidgets
 
-try:
-    from opensnitch.dialogs.events import StatsDialog
-except ImportError:
-    from opensnitch.dialogs.stats import StatsDialog  # type: ignore
+from opensnitch.plugins.list_subscriptions._compat import StatsDialog
+from opensnitch.plugins.list_subscriptions._annotations import StatsDialogProto
+if TYPE_CHECKING:
+    from opensnitch.plugins.list_subscriptions.ui.views.list_subscriptions_dialog import (
+        ListSubscriptionsDialog,
+    )
 
 from opensnitch.plugins.list_subscriptions.io.lock import FileLock
 from opensnitch.plugins.list_subscriptions.io.storage import read_json_locked
@@ -34,7 +38,6 @@ from opensnitch.plugins.list_subscriptions.models.events import (
 )
 from opensnitch.plugins.list_subscriptions.models.metadata import ListMetadata
 from opensnitch.plugins.list_subscriptions.models.subscriptions import SubscriptionSpec
-from opensnitch.proto import ui_pb2
 from opensnitch.config import Config
 from opensnitch.nodes import Nodes
 from opensnitch.notifications import DesktopNotifications
@@ -57,6 +60,8 @@ from opensnitch.plugins.list_subscriptions._utils import (
 from opensnitch.plugins.list_subscriptions.io.storage import (
     write_json_atomic_locked,
 )
+from opensnitch.proto import ui_pb2 as ui_pb2
+
 
 ch: Final[logging.StreamHandler] = logging.StreamHandler()
 # ch.setLevel(logging.ERROR)
@@ -139,8 +144,8 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         self._app_icon = os.path.join(
             os.path.abspath(os.path.dirname(__file__)), "../../res/icon-white.svg"
         )
-        self._cfg_dialog: Any = None
-        self._cfg_action: Any = None
+        self._cfg_dialog: ListSubscriptionsDialog | None = None
+        self._cfg_action: QtGui.QAction | None = None
         self._cfg_toolbar_button: QtWidgets.QPushButton | None = None
         self.scheduled_tasks = {}
         self._startup_recheck_lock = threading.Lock()
@@ -583,7 +588,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     continue
                 matched = False
                 while records.next():
-                    rule = Rule.new_from_records(records)
+                    rule = cast(ui_pb2.Rule, Rule.new_from_records(records))
                     if rule.operator.operand == Config.OPERAND_LIST_DOMAINS:
                         direct_dir = os.path.normpath(
                             str(rule.operator.data or "").strip()
@@ -603,8 +608,8 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     if not matched:
                         continue
 
-                    notification = ui_pb2.Notification(  # type: ignore
-                        type=ui_pb2.CHANGE_RULE,  # type: ignore
+                    notification = ui_pb2.Notification(
+                        type=ui_pb2.CHANGE_RULE,
                         rules=[rule],
                     )
                     self._nodes.send_notification(addr, notification, None)
@@ -633,7 +638,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         base = f"{sub.url}|{sub.filename}"
         return hashlib.sha1(base.encode("utf-8")).hexdigest()[:16]
 
-    def configure(self, parent: Any = None):
+    def configure(self, parent: StatsDialogProto | None = None):
         if isinstance(parent, StatsDialog):
             if self._cfg_action is not None or self._cfg_toolbar_button is not None:
                 return
@@ -649,7 +654,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                 return
             self._install_menu_action(parent, icon)
 
-    def _install_toolbar_button(self, parent: StatsDialog, icon: QtGui.QIcon):
+    def _install_toolbar_button(self, parent: StatsDialogProto, icon: QtGui.QIcon):
         actions_button = getattr(parent, "actionsButton", None)
         if not isinstance(actions_button, QtWidgets.QPushButton):
             return False
@@ -686,7 +691,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         button.setStatusTip("Open list subscriptions")
         button.setFlat(True)
         if not icon.isNull():
-            button.setIcon(icon)  # type: ignore[arg-type]
+            button.setIcon(icon)
         button.setCursor(reference_button.cursor())  # pyright: ignore[reportArgumentType]
         button.setFocusPolicy(reference_button.focusPolicy())  # pyright: ignore[reportArgumentType]
         button.setSizePolicy(reference_button.sizePolicy())  # pyright: ignore[reportArgumentType]
@@ -724,7 +729,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     return found
         return None
 
-    def _install_menu_action(self, parent: StatsDialog, icon: QtGui.QIcon):
+    def _install_menu_action(self, parent: StatsDialogProto, icon: QtGui.QIcon):
         menu = parent.actionsButton.menu()
         if menu is None:
             return
@@ -745,9 +750,10 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             else:
                 self._cfg_action = menu.addAction("List subscriptions")
 
-        self._cfg_action.triggered.connect(lambda *_: self._open_config_dialog(parent))
+        if self._cfg_action is not None:
+            self._cfg_action.triggered.connect(lambda *_: self._open_config_dialog(parent))
 
-    def _remove_menu_action(self, parent: StatsDialog):
+    def _remove_menu_action(self, parent: StatsDialogProto):
         menu = parent.actionsButton.menu()
         if menu is None:
             return
@@ -759,7 +765,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
                     self._cfg_action = None
                 break
 
-    def _find_quit_action(self, menu: Any):
+    def _find_quit_action(self, menu: QtWidgets.QMenu) -> QtGui.QAction | None:
         qt_key = getattr(getattr(QtCore, "Qt", object()), "Key", None)
         key_q = getattr(qt_key, "Key_Q", None) if qt_key is not None else None
         for act in menu.actions():
@@ -781,8 +787,10 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
             return acts[-1]
         return None
 
-    def _open_config_dialog(self, parent: Any):
-        from opensnitch.plugins.list_subscriptions.ui.list_subscriptions_dialog import ListSubscriptionsDialog
+    def _open_config_dialog(self, parent: StatsDialogProto):
+        from opensnitch.plugins.list_subscriptions.ui.views.list_subscriptions_dialog import (
+            ListSubscriptionsDialog,
+        )
 
         appicon = None
         try:
@@ -843,7 +851,7 @@ class ListSubscriptions(PluginBase, metaclass=SingletonABCMeta):
         self._sync_sources_dirs()
         self._sync_global_symlinks()
 
-    def run(self, parent: Any = None, args: tuple[Any, ...] = ()):  # type: ignore[override]
+    def run(self, parent: StatsDialogProto | None = None, args: tuple[Any, ...] = ()):  # type: ignore[override]
         """
         Start timers.
         """

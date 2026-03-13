@@ -1,34 +1,14 @@
 import logging
 import os
-import sys
 from typing import Any, TYPE_CHECKING, Final
 
-if TYPE_CHECKING:
-    # Keep static typing deterministic for linters/IDEs.
-    # Runtime still supports both PyQt6/PyQt5 below.
-    from PyQt6 import QtCore, QtGui, QtWidgets, uic
-    from PyQt6.QtCore import QCoreApplication as QC
-    from PyQt6.uic.load_ui import loadUiType as load_ui_type
-else:
-    if "PyQt6" in sys.modules:
-        from PyQt6 import QtCore, QtGui, QtWidgets, uic
-        from PyQt6.QtCore import QCoreApplication as QC
-        from PyQt6.uic.load_ui import loadUiType as load_ui_type
-    elif "PyQt5" in sys.modules:
-        from PyQt5 import QtCore, QtGui, QtWidgets, uic
-        from PyQt5.QtCore import QCoreApplication as QC
-
-        load_ui_type = uic.loadUiType
-    else:
-        try:
-            from PyQt6 import QtCore, QtGui, QtWidgets, uic
-            from PyQt6.QtCore import QCoreApplication as QC
-            from PyQt6.uic.load_ui import loadUiType as load_ui_type
-        except Exception:
-            from PyQt5 import QtCore, QtGui, QtWidgets, uic  # noqa: F401
-            from PyQt5.QtCore import QCoreApplication as QC
-
-            load_ui_type = uic.loadUiType
+from opensnitch.plugins.list_subscriptions.ui import (
+    QtCore,
+    QtGui,
+    QtWidgets,
+    QC,
+    load_ui_type,
+)
 
 from opensnitch.plugins.list_subscriptions.models.global_defaults import GlobalDefaults
 from opensnitch.plugins.list_subscriptions.models.subscriptions import (
@@ -39,22 +19,25 @@ from opensnitch.plugins.list_subscriptions._utils import (
     INTERVAL_UNITS,
     TIMEOUT_UNITS,
     SIZE_UNITS,
-    deslugify_filename,
-    derive_filename,
-    ensure_filename_type_suffix,
-    is_valid_url,
     normalize_group,
     normalize_groups,
-    normalize_unit,
-    safe_filename,
 )
-from opensnitch.plugins.list_subscriptions.ui.helpers import (
+from opensnitch.plugins.list_subscriptions.ui.views.helpers import (
     _apply_footer_separator_style,
     _apply_section_bar_style,
+)
+from opensnitch.plugins.list_subscriptions.ui.widgets.helpers import (
+    _configure_spin_and_units,
     _set_optional_field_tooltips,
 )
-from opensnitch.plugins.list_subscriptions.ui.toggle_switch_widget import (
+from opensnitch.plugins.list_subscriptions.ui.widgets.toggle_switch_widget import (
     _replace_checkbox_with_toggle,
+)
+from opensnitch.plugins.list_subscriptions.ui.controllers.status_controller import (
+    DialogStatusController,
+)
+from opensnitch.plugins.list_subscriptions.ui.controllers.subscription_dialog_controller import (
+    SubscriptionDialogController,
 )
 
 SUBSCRIPTION_DIALOG_UI_PATH: Final[str] = os.path.join(
@@ -62,43 +45,10 @@ SUBSCRIPTION_DIALOG_UI_PATH: Final[str] = os.path.join(
 )
 
 SubscriptionDialogUI: Final[Any] = load_ui_type(SUBSCRIPTION_DIALOG_UI_PATH)[0]
+DIALOG_MESSAGE_PREVIEW_LIMIT: Final[int] = 48
+DIALOG_MESSAGE_LOG_LIMIT: Final[int] = 200
 
 logger: Final[logging.Logger] = logging.getLogger(__name__)
-
-
-class UrlTestWorker(QtCore.QThread):
-    finished = QtCore.pyqtSignal(bool, str)
-
-    def __init__(self, url: str):
-        super().__init__()
-        self.url = url
-
-    def run(self):
-        import requests
-        try:
-            response = requests.head(self.url, allow_redirects=True, timeout=5)
-            if response.status_code >= 400 and response.status_code not in (403, 405):
-                raise requests.HTTPError(f"HTTP {response.status_code}")
-            final_url = response.url or self.url
-            response.close()
-            if response.status_code in (403, 405):
-                response = requests.get(
-                    self.url, allow_redirects=True, timeout=5, stream=True
-                )
-                if response.status_code >= 400:
-                    raise requests.HTTPError(f"HTTP {response.status_code}")
-                final_url = response.url or final_url
-                response.close()
-            message = QC.translate("stats", "URL reachable.")
-            if final_url != self.url:
-                message = QC.translate("stats", "URL reachable via redirect.")
-                if final_url:
-                    message = QC.translate("stats", "URL reachable via redirect.")
-                    self.finished.emit(True, f"{message} {final_url}")
-                    return
-            self.finished.emit(True, message)
-        except requests.RequestException as exc:
-            self.finished.emit(False, str(exc))
 
 
 class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
@@ -224,12 +174,13 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
             )
             raise
         self._meta = meta or {}
+        self._dialog_message_inspect_button: QtWidgets.QPushButton | None = None
         self._build_ui()
+        self.finished.connect(lambda _: self._subscription_dialog_controller.disconnect_signal())
 
     def _build_ui(self):
         self.setupUi(self)
         self.enabled_check = _replace_checkbox_with_toggle(self.enabled_check)
-        self._set_dialog_message("", error=False)
         self.rootLayout.setContentsMargins(0, 0, 0, 0)
         self.rootLayout.setSpacing(0)
         self.bodyLayout.setContentsMargins(0, 0, 0, 0)
@@ -262,6 +213,12 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
             right_border=True,
         )
         _apply_footer_separator_style(self, self.footer_separator_line)
+        footer_role = (
+            QtGui.QPalette.ColorRole.Midlight
+            if self.palette().color(QtGui.QPalette.ColorRole.Window).lightness() < 128
+            else QtGui.QPalette.ColorRole.Dark
+        )
+        footer_border = self.palette().color(footer_role).name()
         self.error_label.setSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding,
             QtWidgets.QSizePolicy.Policy.Fixed,
@@ -271,6 +228,47 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         )
         self.error_label.setWordWrap(False)
         self.error_label.setTextFormat(QtCore.Qt.TextFormat.PlainText)
+        self._dialog_message_inspect_button = QtWidgets.QPushButton(
+            QC.translate("stats", "Log"),
+            self,
+        )
+        self._dialog_message_inspect_button.setVisible(False)
+        self._dialog_message_controller = DialogStatusController(
+            label=self.error_label,
+            inspect_button=self._dialog_message_inspect_button,
+            preview_limit=DIALOG_MESSAGE_PREVIEW_LIMIT,
+            log_limit=DIALOG_MESSAGE_LOG_LIMIT,
+            timestamp_format="yyyy-MM-ddTHH:mm:ss.zzz",
+            ok_color="#2e7d32",
+            error_color="red",
+            empty_button_behavior="hide",
+        )
+        self._subscription_dialog_controller = SubscriptionDialogController(dialog=self)
+        self._dialog_message_inspect_button.clicked.connect(
+            self._subscription_dialog_controller.show_dialog_message_inspect_dialog
+        )
+        self._dialog_message_controller.set_status("", error=False)
+        error_index = self.rootLayout.indexOf(self.error_label)
+        if error_index >= 0:
+            error_row = QtWidgets.QWidget(self)
+            error_row.setStyleSheet(
+                "QWidget {"
+                f"border-top: 1px solid {footer_border};"
+                f"background-color: {self.palette().color(QtGui.QPalette.ColorRole.Window).name()};"
+                "}"
+            )
+            error_row_layout = QtWidgets.QHBoxLayout(error_row)
+            error_row_layout.setContentsMargins(12, 0, 12, 0)
+            error_row_layout.setSpacing(8)
+            self.rootLayout.removeWidget(self.error_label)
+            self.error_label.setParent(error_row)
+            error_row_layout.addWidget(
+                self._dialog_message_inspect_button,
+                0,
+                QtCore.Qt.AlignmentFlag.AlignVCenter,
+            )
+            error_row_layout.addWidget(self.error_label, 1)
+            self.rootLayout.insertWidget(error_index, error_row)
         self.settings_form.setFieldGrowthPolicy(
             QtWidgets.QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow
         )
@@ -362,9 +360,9 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
                 "Optional explicit groups. Every subscription is always included in the global 'all' rules directory.",
             )
         )
-        self._url_test_finished.connect(self._handle_url_test_finished)
-        self.add_button.clicked.connect(self._validate_then_accept)
-        self.test_url_button.clicked.connect(self._test_url)
+        self._url_test_finished.connect(self._subscription_dialog_controller.handle_url_test_finished)
+        self.add_button.clicked.connect(self._subscription_dialog_controller.validate_then_accept)
+        self.test_url_button.clicked.connect(self._subscription_dialog_controller.test_url)
         self.cancel_button.clicked.connect(self.reject)
 
         self.enabled_check.setChecked(bool(self._sub.enabled))
@@ -386,60 +384,51 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         ):
             self.group_combo.addItem(current_group_text)
         self.group_combo.setCurrentText(current_group_text)
-        self.interval_spin.setRange(0, 999999)
-        self.interval_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
+        _configure_spin_and_units(
+            self.interval_spin,
+            self.interval_units,
+            value=int(self._sub.interval or 0),
+            unit_value=str(self._sub.interval_units or self._defaults.interval_units),
+            allowed_units=INTERVAL_UNITS,
+            fallback_unit="hours",
+            special_value_text=QC.translate(
+                "stats", "Use global default ({0} {1})"
+            ).format(
                 self._defaults.interval,
                 self._defaults.interval_units,
-            )
+            ),
         )
-        self.interval_spin.setValue(max(0, int(self._sub.interval or 0)))
-        self.interval_units.clear()
-        self.interval_units.addItems(INTERVAL_UNITS)
-        self.interval_units.setCurrentText(
-            normalize_unit(
-                str(self._sub.interval_units or self._defaults.interval_units),
-                INTERVAL_UNITS,
-                "hours",
-            )
-        )
-        self.timeout_spin.setRange(0, 999999)
-        self.timeout_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
+        _configure_spin_and_units(
+            self.timeout_spin,
+            self.timeout_units,
+            value=int(self._sub.timeout or 0),
+            unit_value=str(self._sub.timeout_units or self._defaults.timeout_units),
+            allowed_units=TIMEOUT_UNITS,
+            fallback_unit="seconds",
+            special_value_text=QC.translate(
+                "stats", "Use global default ({0} {1})"
+            ).format(
                 self._defaults.timeout,
                 self._defaults.timeout_units,
-            )
+            ),
         )
-        self.timeout_spin.setValue(max(0, int(self._sub.timeout or 0)))
-        self.timeout_units.clear()
-        self.timeout_units.addItems(TIMEOUT_UNITS)
-        self.timeout_units.setCurrentText(
-            normalize_unit(
-                str(self._sub.timeout_units or self._defaults.timeout_units),
-                TIMEOUT_UNITS,
-                "seconds",
-            )
-        )
-        self.max_size_spin.setRange(0, 999999)
-        self.max_size_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
+        _configure_spin_and_units(
+            self.max_size_spin,
+            self.max_size_units,
+            value=int(self._sub.max_size or 0),
+            unit_value=str(self._sub.max_size_units or self._defaults.max_size_units),
+            allowed_units=SIZE_UNITS,
+            fallback_unit="MB",
+            special_value_text=QC.translate(
+                "stats", "Use global default ({0} {1})"
+            ).format(
                 self._defaults.max_size,
                 self._defaults.max_size_units,
-            )
+            ),
         )
-        self.max_size_spin.setValue(max(0, int(self._sub.max_size or 0)))
-        self.max_size_units.clear()
-        self.max_size_units.addItems(SIZE_UNITS)
-        self.max_size_units.setCurrentText(
-            normalize_unit(
-                str(self._sub.max_size_units or self._defaults.max_size_units),
-                SIZE_UNITS,
-                "MB",
-            )
-        )
-        self.interval_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self.timeout_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self.max_size_spin.valueChanged.connect(self._sync_optional_fields_state)
+        self.interval_spin.valueChanged.connect(self._subscription_dialog_controller.sync_optional_fields_state)
+        self.timeout_spin.valueChanged.connect(self._subscription_dialog_controller.sync_optional_fields_state)
+        self.max_size_spin.valueChanged.connect(self._subscription_dialog_controller.sync_optional_fields_state)
         _set_optional_field_tooltips(
             self.interval_spin,
             self.interval_units,
@@ -449,10 +438,11 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
             self.max_size_units,
             inherit_wording=True,
         )
-        self._sync_optional_fields_state()
+        self._subscription_dialog_controller.sync_optional_fields_state()
         self.meta_file_present.setText(str(self._meta.get("file_present", "")))
         self.meta_meta_present.setText(str(self._meta.get("meta_present", "")))
         self.meta_state.setText(str(self._meta.get("state", "")))
+        self._subscription_dialog_controller.apply_meta_state_color(str(self._meta.get("state", "")))
         self.meta_last_checked.setText(str(self._meta.get("last_checked", "")))
         self.meta_last_updated.setText(str(self._meta.get("last_updated", "")))
         self.meta_failures.setText(str(self._meta.get("failures", "")))
@@ -462,112 +452,6 @@ class SubscriptionDialog(QtWidgets.QDialog, SubscriptionDialogUI):
         if "new" in (self._title or "").strip().lower():
             self.meta_group.setVisible(False)
         self.resize(920, 420)
-
-    def _sync_optional_fields_state(self):
-        self.interval_units.setEnabled(self.interval_spin.value() > 0)
-        self.timeout_units.setEnabled(self.timeout_spin.value() > 0)
-        self.max_size_units.setEnabled(self.max_size_spin.value() > 0)
-
-    def _clear_field_errors(self):
-        self._set_dialog_message("", error=False)
-        self.name_error_label.setText("")
-        self.url_error_label.setText("")
-        self.filename_error_label.setText("")
-
-    def _set_dialog_message(self, message: str, error: bool):
-        color = "red" if error else "#2e7d32"
-        self.error_label.setStyleSheet(f"color: {color};")
-        self.error_label.setText(message)
-        self.error_label.setToolTip(message)
-
-    def _test_url(self):
-        self.url_error_label.setText("")
-        self._set_dialog_message("", error=False)
-        url = (self.url_edit.text() or "").strip()
-        if url == "":
-            self.url_error_label.setText(QC.translate("stats", "URL is required."))
-            self._set_dialog_message(
-                QC.translate("stats", "Fix the highlighted fields."), error=True
-            )
-            return
-        if not is_valid_url(url):
-            self.url_error_label.setText(
-                QC.translate("stats", "Enter a valid http:// or https:// URL.")
-            )
-            self._set_dialog_message(
-                QC.translate("stats", "Fix the highlighted fields."), error=True
-            )
-            return
-
-        self.test_url_button.setEnabled(False)
-        self._set_dialog_message(QC.translate("stats", "Testing URL..."), error=False)
-
-        self._url_worker = UrlTestWorker(url)
-        self._url_worker.finished.connect(self._url_test_finished.emit)
-        self._url_worker.start()
-
-    def _handle_url_test_finished(self, success: bool, message: str):
-        self.test_url_button.setEnabled(True)
-        if success:
-            self.url_error_label.setText("")
-            self._set_dialog_message(message, error=False)
-            return
-        self.url_error_label.setText(QC.translate("stats", "URL check failed."))
-        self._set_dialog_message(
-            QC.translate("stats", "URL test failed. See details in the tooltip."),
-            error=True,
-        )
-        self.error_label.setToolTip(message)
-
-    def _validate_then_accept(self):
-        self._clear_field_errors()
-        raw_url = (self.url_edit.text() or "").strip()
-        raw_name = (self.name_edit.text() or "").strip()
-        raw_filename = (self.filename_edit.text() or "").strip()
-        list_type = (self.format_combo.currentText() or "hosts").strip().lower()
-        name = raw_name
-        filename = safe_filename(raw_filename)
-        has_error = False
-
-        if raw_url == "":
-            self.url_error_label.setText(QC.translate("stats", "URL is required."))
-            has_error = True
-        elif not is_valid_url(raw_url):
-            self.url_error_label.setText(
-                QC.translate("stats", "Enter a valid http:// or https:// URL.")
-            )
-            has_error = True
-
-        if raw_name == "" and raw_filename == "":
-            self.name_error_label.setText(
-                QC.translate("stats", "Provide a name or filename.")
-            )
-            self.filename_error_label.setText(
-                QC.translate("stats", "Provide a filename or name.")
-            )
-            has_error = True
-        elif raw_filename != "" and filename != raw_filename:
-            self.filename_error_label.setText(
-                QC.translate("stats", "Filename must not include directory components.")
-            )
-            has_error = True
-
-        if has_error:
-            self._set_dialog_message(
-                QC.translate("stats", "Fix the highlighted fields."), error=True
-            )
-            return
-
-        if filename == "" and name != "":
-            filename = safe_filename(derive_filename(name, None, ""))
-        filename = ensure_filename_type_suffix(filename, list_type)
-
-        if name == "" and filename != "":
-            name = deslugify_filename(filename, list_type)
-
-        self.name_edit.setText(name)
-        self.filename_edit.setText(filename)
-        self.accept()
 
     def subscription_spec(self):
         groups = normalize_groups((self.group_combo.currentText() or "").strip())

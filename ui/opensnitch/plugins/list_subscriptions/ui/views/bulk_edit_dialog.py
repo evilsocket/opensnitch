@@ -1,41 +1,25 @@
 import logging
 import os
-import sys
 from typing import Any, TYPE_CHECKING, Final
 
-if TYPE_CHECKING:
-    # Keep static typing deterministic for linters/IDEs.
-    # Runtime still supports both PyQt6/PyQt5 below.
-    from PyQt6 import QtCore, QtGui, QtWidgets, uic
-    from PyQt6.QtCore import QCoreApplication as QC
-    from PyQt6.uic.load_ui import loadUiType as load_ui_type
-else:
-    if "PyQt6" in sys.modules:
-        from PyQt6 import QtCore, QtGui, QtWidgets, uic
-        from PyQt6.QtCore import QCoreApplication as QC
-        from PyQt6.uic.load_ui import loadUiType as load_ui_type
-    elif "PyQt5" in sys.modules:
-        from PyQt5 import QtCore, QtGui, QtWidgets, uic
-        from PyQt5.QtCore import QCoreApplication as QC
+from opensnitch.plugins.list_subscriptions.ui import (
+    QtCore,
+    QtWidgets,
+    QC,
+    load_ui_type,
+)
 
-        load_ui_type = uic.loadUiType
-    else:
-        try:
-            from PyQt6 import QtCore, QtGui, QtWidgets, uic
-            from PyQt6.QtCore import QCoreApplication as QC
-            from PyQt6.uic.load_ui import loadUiType as load_ui_type
-        except Exception:
-            from PyQt5 import QtCore, QtGui, QtWidgets, uic  # noqa: F401
-            from PyQt5.QtCore import QCoreApplication as QC
-
-            load_ui_type = uic.loadUiType
-
-from opensnitch.plugins.list_subscriptions.ui.helpers import (
+from opensnitch.plugins.list_subscriptions.ui.views.helpers import (
     _apply_section_bar_style,
     _apply_footer_separator_style,
+)
+from opensnitch.plugins.list_subscriptions.ui.widgets.helpers import (
+    _configure_spin_and_units,
     _set_optional_field_tooltips,
 )
-from opensnitch.plugins.list_subscriptions.ui.toggle_switch_widget import ToggleSwitch
+from opensnitch.plugins.list_subscriptions.ui.widgets.toggle_switch_widget import (
+    ToggleSwitch,
+)
 from opensnitch.plugins.list_subscriptions.models.global_defaults import (
     GlobalDefaults,
 )
@@ -46,7 +30,6 @@ from opensnitch.plugins.list_subscriptions._utils import (
     SIZE_UNITS,
     normalize_group,
     normalize_groups,
-    normalize_unit,
 )
 
 
@@ -176,7 +159,7 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
         self.max_size_units.setMinimumWidth(unit_combo_width)
 
         self.cancel_button.clicked.connect(self.reject)
-        self.save_button.clicked.connect(self._validate_then_accept)
+        self.save_button.clicked.connect(self.validate_then_accept)
 
         self.enabled_value.setChecked(True)
         self.group_value.clear()
@@ -187,44 +170,47 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
         self.group_value.setCurrentText("")
         self.format_value.clear()
         self.format_value.addItems(("hosts",))
-        self.interval_spin.setRange(0, 999999)
-        self.interval_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
+        _configure_spin_and_units(
+            self.interval_spin,
+            self.interval_units,
+            value=0,
+            unit_value=self._defaults.interval_units,
+            allowed_units=INTERVAL_UNITS,
+            fallback_unit="hours",
+            special_value_text=QC.translate(
+                "stats", "Use global default ({0} {1})"
+            ).format(
                 self._defaults.interval,
                 self._defaults.interval_units,
-            )
+            ),
         )
-        self.interval_spin.setValue(0)
-        self.interval_units.clear()
-        self.interval_units.addItems(INTERVAL_UNITS)
-        self.interval_units.setCurrentText(
-            normalize_unit(self._defaults.interval_units, INTERVAL_UNITS, "hours")
-        )
-        self.timeout_spin.setRange(0, 999999)
-        self.timeout_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
+        _configure_spin_and_units(
+            self.timeout_spin,
+            self.timeout_units,
+            value=0,
+            unit_value=self._defaults.timeout_units,
+            allowed_units=TIMEOUT_UNITS,
+            fallback_unit="seconds",
+            special_value_text=QC.translate(
+                "stats", "Use global default ({0} {1})"
+            ).format(
                 self._defaults.timeout,
                 self._defaults.timeout_units,
-            )
+            ),
         )
-        self.timeout_spin.setValue(0)
-        self.timeout_units.clear()
-        self.timeout_units.addItems(TIMEOUT_UNITS)
-        self.timeout_units.setCurrentText(
-            normalize_unit(self._defaults.timeout_units, TIMEOUT_UNITS, "seconds")
-        )
-        self.max_size_spin.setRange(0, 999999)
-        self.max_size_spin.setSpecialValueText(
-            QC.translate("stats", "Use global default ({0} {1})").format(
+        _configure_spin_and_units(
+            self.max_size_spin,
+            self.max_size_units,
+            value=0,
+            unit_value=self._defaults.max_size_units,
+            allowed_units=SIZE_UNITS,
+            fallback_unit="MB",
+            special_value_text=QC.translate(
+                "stats", "Use global default ({0} {1})"
+            ).format(
                 self._defaults.max_size,
                 self._defaults.max_size_units,
-            )
-        )
-        self.max_size_spin.setValue(0)
-        self.max_size_units.clear()
-        self.max_size_units.addItems(SIZE_UNITS)
-        self.max_size_units.setCurrentText(
-            normalize_unit(self._defaults.max_size_units, SIZE_UNITS, "MB")
+            ),
         )
 
         self._add_change_row(
@@ -251,11 +237,11 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
             QC.translate("stats", "Max size"),
             self._build_compound_editor(self.max_size_spin, self.max_size_units),
         )
-        self.changes_tree.itemChanged.connect(self._handle_item_changed)
+        self.changes_tree.itemChanged.connect(self.handle_item_changed)
 
-        self.interval_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self.timeout_spin.valueChanged.connect(self._sync_optional_fields_state)
-        self.max_size_spin.valueChanged.connect(self._sync_optional_fields_state)
+        self.interval_spin.valueChanged.connect(self.sync_optional_fields_state)
+        self.timeout_spin.valueChanged.connect(self.sync_optional_fields_state)
+        self.max_size_spin.valueChanged.connect(self.sync_optional_fields_state)
         _set_optional_field_tooltips(
             self.interval_spin,
             self.interval_units,
@@ -265,11 +251,9 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
             self.max_size_units,
             inherit_wording=False,
         )
-        self._sync_apply_fields_state()
-        self._sync_optional_fields_state()
+        self.sync_apply_fields_state()
+        self.sync_optional_fields_state()
         self.resize(760, 420)
-
-    # Les méthodes supprimées ci-dessus sont désormais remplacées par l'utilisation directe des helpers dans _build_ui.
 
     def _build_compound_editor(
         self, primary: QtWidgets.QWidget, secondary: QtWidgets.QWidget
@@ -290,39 +274,43 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
         self.changes_tree.setItemWidget(item, 1, editor)
         self._field_items[key] = item
 
-    def _is_field_applied(self, key: str):
+    # -- Field apply state --------------------------------------------------
+
+    def is_field_applied(self, key: str) -> bool:
         item = self._field_items.get(key)
         if item is None:
             return False
         return item.checkState(0) == QtCore.Qt.CheckState.Checked
 
-    def _handle_item_changed(self, item: QtWidgets.QTreeWidgetItem, column: int):
+    def handle_item_changed(self, item: QtWidgets.QTreeWidgetItem, column: int) -> None:
         if column != 0:
             return
-        self._sync_apply_fields_state()
+        self.sync_apply_fields_state()
 
-    def _sync_optional_fields_state(self):
+    def sync_optional_fields_state(self) -> None:
         self.interval_units.setEnabled(
-            self._is_field_applied("interval") and self.interval_spin.value() > 0
+            self.is_field_applied("interval") and self.interval_spin.value() > 0
         )
         self.timeout_units.setEnabled(
-            self._is_field_applied("timeout") and self.timeout_spin.value() > 0
+            self.is_field_applied("timeout") and self.timeout_spin.value() > 0
         )
         self.max_size_units.setEnabled(
-            self._is_field_applied("max_size") and self.max_size_spin.value() > 0
+            self.is_field_applied("max_size") and self.max_size_spin.value() > 0
         )
 
-    def _sync_apply_fields_state(self):
-        self.enabled_value.setEnabled(self._is_field_applied("enabled"))
-        self.group_value.setEnabled(self._is_field_applied("groups"))
-        self.format_value.setEnabled(self._is_field_applied("format"))
-        self.interval_spin.setEnabled(self._is_field_applied("interval"))
-        self.timeout_spin.setEnabled(self._is_field_applied("timeout"))
-        self.max_size_spin.setEnabled(self._is_field_applied("max_size"))
-        self._sync_optional_fields_state()
+    def sync_apply_fields_state(self) -> None:
+        self.enabled_value.setEnabled(self.is_field_applied("enabled"))
+        self.group_value.setEnabled(self.is_field_applied("groups"))
+        self.format_value.setEnabled(self.is_field_applied("format"))
+        self.interval_spin.setEnabled(self.is_field_applied("interval"))
+        self.timeout_spin.setEnabled(self.is_field_applied("timeout"))
+        self.max_size_spin.setEnabled(self.is_field_applied("max_size"))
+        self.sync_optional_fields_state()
 
-    def _validate_then_accept(self):
-        if not any(self._is_field_applied(key) for key in self._field_items):
+    # -- Validation ---------------------------------------------------------
+
+    def validate_then_accept(self) -> None:
+        if not any(self.is_field_applied(key) for key in self._field_items):
             self.error_label.setText(
                 QC.translate("stats", "Select at least one field to apply.")
             )
@@ -330,38 +318,40 @@ class BulkEditDialog(QtWidgets.QDialog, BulkEditDialogUI):
         self.error_label.setText("")
         self.accept()
 
-    def values(self):
+    # -- Result extraction --------------------------------------------------
+
+    def values(self) -> dict[str, Any]:
         return {
             "enabled": (
                 self.enabled_value.isChecked()
-                if self._is_field_applied("enabled")
+                if self.is_field_applied("enabled")
                 else None
             ),
             "groups": (
                 normalize_groups(self.group_value.currentText())
-                if self._is_field_applied("groups")
+                if self.is_field_applied("groups")
                 else None
             ),
             "format": (
                 (self.format_value.currentText() or "hosts").strip().lower()
-                if self._is_field_applied("format")
+                if self.is_field_applied("format")
                 else None
             ),
-            "apply_interval": self._is_field_applied("interval"),
+            "apply_interval": self.is_field_applied("interval"),
             "interval": int(self.interval_spin.value()) or None,
             "interval_units": (
                 self.interval_units.currentText()
                 if self.interval_spin.value() > 0
                 else None
             ),
-            "apply_timeout": self._is_field_applied("timeout"),
+            "apply_timeout": self.is_field_applied("timeout"),
             "timeout": int(self.timeout_spin.value()) or None,
             "timeout_units": (
                 self.timeout_units.currentText()
                 if self.timeout_spin.value() > 0
                 else None
             ),
-            "apply_max_size": self._is_field_applied("max_size"),
+            "apply_max_size": self.is_field_applied("max_size"),
             "max_size": int(self.max_size_spin.value()) or None,
             "max_size_units": (
                 self.max_size_units.currentText()
