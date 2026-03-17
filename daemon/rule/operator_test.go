@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"regexp"
+	"sync"
 	"testing"
 	"time"
 
@@ -51,6 +53,431 @@ func compileListOperators(list *[]Operator, t *testing.T) {
 			t.Error("NewOperator List, Compile() subitem error:", err)
 		}
 	}
+}
+
+func BenchmarkOperatorDomainsSnapshotMatchParallel(b *testing.B) {
+	op := &Operator{
+		Sensitive:       false,
+		lists:           make(map[string]interface{}),
+		domainWildcards: newDomainWildcardTrie(),
+	}
+	op.domainWildcards.insertSuffix("example.org")
+	g, err := glob.Compile("api-??.example.org", '.')
+	if err != nil {
+		b.Fatalf("failed to compile benchmark glob: %v", err)
+	}
+	op.domainGlobs = append(op.domainGlobs, g)
+	op.listSnapshot.Store(&listCacheSnapshot{
+		lists:           op.lists,
+		domainWildcards: op.domainWildcards,
+		domainGlobs:     op.domainGlobs,
+	})
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			if !op.domainsListsCmp("svc.example.org") {
+				b.Fatal("expected wildcard snapshot match")
+			}
+		}
+	})
+}
+
+func BenchmarkOperatorDomainsSnapshotMixedParallel(b *testing.B) {
+	op := &Operator{
+		Sensitive:       false,
+		lists:           make(map[string]interface{}),
+		domainWildcards: newDomainWildcardTrie(),
+	}
+	op.lists["exact.example.org"] = "bench"
+	op.domainWildcards.insertSuffix("example.org")
+	g, err := glob.Compile("api-??.example.org", '.')
+	if err != nil {
+		b.Fatalf("failed to compile benchmark glob: %v", err)
+	}
+	op.domainGlobs = append(op.domainGlobs, g)
+	op.listSnapshot.Store(&listCacheSnapshot{
+		lists:           op.lists,
+		domainWildcards: op.domainWildcards,
+		domainGlobs:     op.domainGlobs,
+	})
+
+	inputs := []string{
+		"exact.example.org",      // exact hit
+		"svc.example.org",        // wildcard hit
+		"api-12.example.org",     // glob hit
+		"no-match.invalid.local", // miss
+		"exact.example.org",
+		"svc.example.org",
+		"api-99.example.org",
+		"nope.nowhere",
+		"exact.example.org",
+		"svc.example.org",
+	}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		i := 0
+		for pb.Next() {
+			_ = op.domainsListsCmp(inputs[i%len(inputs)])
+			i++
+		}
+	})
+}
+
+type rlockDomainMatcher struct {
+	sync.RWMutex
+	lists       map[string]interface{}
+	wildcards   domainWildcardTrie
+	domainGlobs []glob.Glob
+}
+
+func (m *rlockDomainMatcher) match(host string) bool {
+	m.RLock()
+	defer m.RUnlock()
+	if _, found := m.lists[host]; found {
+		return true
+	}
+	if m.wildcards.matchesHost(host) {
+		return true
+	}
+	for _, g := range m.domainGlobs {
+		if g.Match(host) {
+			return true
+		}
+	}
+	return false
+}
+
+func BenchmarkOperatorDomainsRLockMixedParallel(b *testing.B) {
+	m := &rlockDomainMatcher{
+		lists:       make(map[string]interface{}),
+		wildcards:   newDomainWildcardTrie(),
+		domainGlobs: make([]glob.Glob, 0, 1),
+	}
+	m.lists["exact.example.org"] = "bench"
+	m.wildcards.insertSuffix("example.org")
+	g, err := glob.Compile("api-??.example.org", '.')
+	if err != nil {
+		b.Fatalf("failed to compile benchmark glob: %v", err)
+	}
+	m.domainGlobs = append(m.domainGlobs, g)
+
+	inputs := []string{
+		"exact.example.org",
+		"svc.example.org",
+		"api-12.example.org",
+		"no-match.invalid.local",
+		"exact.example.org",
+		"svc.example.org",
+		"api-99.example.org",
+		"nope.nowhere",
+		"exact.example.org",
+		"svc.example.org",
+	}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		i := 0
+		for pb.Next() {
+			_ = m.match(inputs[i%len(inputs)])
+			i++
+		}
+	})
+}
+
+type rlockIPNetMatcher struct {
+	sync.RWMutex
+	exact map[string]struct{}
+	nets  []*net.IPNet
+}
+
+func (m *rlockIPNetMatcher) match(ip net.IP) bool {
+	m.RLock()
+	defer m.RUnlock()
+	if _, found := m.exact[ip.String()]; found {
+		return true
+	}
+	for _, n := range m.nets {
+		if n.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
+func BenchmarkOperatorIPSnapshotMixedParallel(b *testing.B) {
+	_, cidrA, err := net.ParseCIDR("10.0.0.0/24")
+	if err != nil {
+		b.Fatalf("failed to parse benchmark CIDR A: %v", err)
+	}
+	_, cidrB, err := net.ParseCIDR("2002:dead:beef::/48")
+	if err != nil {
+		b.Fatalf("failed to parse benchmark CIDR B: %v", err)
+	}
+
+	op := &Operator{}
+	exact := map[string]struct{}{
+		"10.0.0.4":         {},
+		"2002:dead:beef::": {},
+	}
+	nets := []*net.IPNet{cidrA, cidrB}
+	op.listSnapshot.Store(&listCacheSnapshot{
+		listExact: exact,
+		listNets:  nets,
+	})
+
+	inputs := []net.IP{
+		net.ParseIP("10.0.0.4"),             // exact
+		net.ParseIP("10.0.0.99"),            // cidr
+		net.ParseIP("2002:dead:beef::"),     // exact
+		net.ParseIP("2002:dead:beef::1234"), // cidr
+		net.ParseIP("172.16.0.1"),           // miss
+		net.ParseIP("8.8.8.8"),              // miss
+	}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		i := 0
+		for pb.Next() {
+			_ = op.ipListsCmp(inputs[i%len(inputs)])
+			i++
+		}
+	})
+}
+
+func BenchmarkOperatorIPRLockMixedParallel(b *testing.B) {
+	_, cidrA, err := net.ParseCIDR("10.0.0.0/24")
+	if err != nil {
+		b.Fatalf("failed to parse benchmark CIDR A: %v", err)
+	}
+	_, cidrB, err := net.ParseCIDR("2002:dead:beef::/48")
+	if err != nil {
+		b.Fatalf("failed to parse benchmark CIDR B: %v", err)
+	}
+
+	m := &rlockIPNetMatcher{
+		exact: map[string]struct{}{
+			"10.0.0.4":         {},
+			"2002:dead:beef::": {},
+		},
+		nets: []*net.IPNet{cidrA, cidrB},
+	}
+
+	inputs := []net.IP{
+		net.ParseIP("10.0.0.4"),
+		net.ParseIP("10.0.0.99"),
+		net.ParseIP("2002:dead:beef::"),
+		net.ParseIP("2002:dead:beef::1234"),
+		net.ParseIP("172.16.0.1"),
+		net.ParseIP("8.8.8.8"),
+	}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		i := 0
+		for pb.Next() {
+			_ = m.match(inputs[i%len(inputs)])
+			i++
+		}
+	})
+}
+
+func BenchmarkOperatorNetSnapshotMixedParallel(b *testing.B) {
+	_, cidrA, err := net.ParseCIDR("172.16.0.0/16")
+	if err != nil {
+		b.Fatalf("failed to parse benchmark CIDR A: %v", err)
+	}
+	_, cidrB, err := net.ParseCIDR("10.200.0.0/16")
+	if err != nil {
+		b.Fatalf("failed to parse benchmark CIDR B: %v", err)
+	}
+
+	op := &Operator{}
+	exact := map[string]struct{}{
+		"172.16.1.2": {},
+		"10.200.8.9": {},
+	}
+	nets := []*net.IPNet{cidrA, cidrB}
+	op.listSnapshot.Store(&listCacheSnapshot{
+		listExact: exact,
+		listNets:  nets,
+	})
+
+	inputs := []net.IP{
+		net.ParseIP("172.16.1.2"),   // exact
+		net.ParseIP("172.16.44.10"), // cidr
+		net.ParseIP("10.200.8.9"),   // exact
+		net.ParseIP("10.200.77.1"),  // cidr
+		net.ParseIP("192.168.1.10"), // miss
+		net.ParseIP("1.1.1.1"),      // miss
+	}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		i := 0
+		for pb.Next() {
+			_ = op.netListsCmp(inputs[i%len(inputs)])
+			i++
+		}
+	})
+}
+
+func BenchmarkOperatorNetRLockMixedParallel(b *testing.B) {
+	_, cidrA, err := net.ParseCIDR("172.16.0.0/16")
+	if err != nil {
+		b.Fatalf("failed to parse benchmark CIDR A: %v", err)
+	}
+	_, cidrB, err := net.ParseCIDR("10.200.0.0/16")
+	if err != nil {
+		b.Fatalf("failed to parse benchmark CIDR B: %v", err)
+	}
+
+	m := &rlockIPNetMatcher{
+		exact: map[string]struct{}{
+			"172.16.1.2": {},
+			"10.200.8.9": {},
+		},
+		nets: []*net.IPNet{cidrA, cidrB},
+	}
+
+	inputs := []net.IP{
+		net.ParseIP("172.16.1.2"),
+		net.ParseIP("172.16.44.10"),
+		net.ParseIP("10.200.8.9"),
+		net.ParseIP("10.200.77.1"),
+		net.ParseIP("192.168.1.10"),
+		net.ParseIP("1.1.1.1"),
+	}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		i := 0
+		for pb.Next() {
+			_ = m.match(inputs[i%len(inputs)])
+			i++
+		}
+	})
+}
+
+type rlockRegexpMatcher struct {
+	sync.RWMutex
+	entries []listRegexEntry
+}
+
+func (m *rlockRegexpMatcher) match(host string) bool {
+	m.RLock()
+	defer m.RUnlock()
+	for _, entry := range m.entries {
+		if entry.re.MatchString(host) {
+			return true
+		}
+	}
+	return false
+}
+
+func BenchmarkOperatorDomainsRegexpSnapshotMixedParallel(b *testing.B) {
+	op := &Operator{}
+	op.listSnapshot.Store(&listCacheSnapshot{
+		regexEntries: []listRegexEntry{
+			{file: "bench-a", re: mustCompileRegexpBench(b, `(^|\\.)example\\.org$`)},
+			{file: "bench-b", re: mustCompileRegexpBench(b, `^api-[0-9]{2}\\.example\\.org$`)},
+			{file: "bench-c", re: mustCompileRegexpBench(b, `^[a-z0-9-]+\\.service\\.internal$`)},
+		},
+	})
+
+	inputs := []string{
+		"www.example.org",         // hit
+		"api-12.example.org",      // hit
+		"node-1.service.internal", // hit
+		"no-match.local",          // miss
+		"api-aa.example.org",      // miss
+	}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		i := 0
+		for pb.Next() {
+			_ = op.reListCmp(inputs[i%len(inputs)])
+			i++
+		}
+	})
+}
+
+func BenchmarkOperatorDomainsRegexpRLockMixedParallel(b *testing.B) {
+	m := &rlockRegexpMatcher{
+		entries: []listRegexEntry{
+			{file: "bench-a", re: mustCompileRegexpBench(b, `(^|\\.)example\\.org$`)},
+			{file: "bench-b", re: mustCompileRegexpBench(b, `^api-[0-9]{2}\\.example\\.org$`)},
+			{file: "bench-c", re: mustCompileRegexpBench(b, `^[a-z0-9-]+\\.service\\.internal$`)},
+		},
+	}
+
+	inputs := []string{
+		"www.example.org",
+		"api-12.example.org",
+		"node-1.service.internal",
+		"no-match.local",
+		"api-aa.example.org",
+	}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		i := 0
+		for pb.Next() {
+			_ = m.match(inputs[i%len(inputs)])
+			i++
+		}
+	})
+}
+
+func mustCompileRegexpBench(b *testing.B, pattern string) *regexp.Regexp {
+	b.Helper()
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		b.Fatalf("failed to compile benchmark regexp %q: %v", pattern, err)
+	}
+	return re
+}
+
+func BenchmarkLoaderFindFirstMatchSnapshotParallel(b *testing.B) {
+	loader := &Loader{rules: make(map[string]*Rule)}
+
+	dummyList := make([]Operator, 0)
+	nonMatchOp, err := NewOperator(Simple, false, OpDstHost, "does-not-match.example", dummyList)
+	if err != nil {
+		b.Fatalf("failed creating non-match operator: %v", err)
+	}
+	if err := nonMatchOp.Compile(); err != nil {
+		b.Fatalf("failed compiling non-match operator: %v", err)
+	}
+
+	matchOp, err := NewOperator(Simple, false, OpDstHost, "opensnitch.io", dummyList)
+	if err != nil {
+		b.Fatalf("failed creating match operator: %v", err)
+	}
+	if err := matchOp.Compile(); err != nil {
+		b.Fatalf("failed compiling match operator: %v", err)
+	}
+
+	for i := 0; i < 63; i++ {
+		r := Create(fmt.Sprintf("%03d-non-match", i), "", true, false, false, Allow, Always, nonMatchOp)
+		loader.rules[r.Name] = r
+	}
+	matchRule := Create("999-match", "", true, false, false, Allow, Always, matchOp)
+	loader.rules[matchRule.Name] = matchRule
+	loader.sortRules()
+
+	conn := &conman.Connection{DstHost: "opensnitch.io"}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			if loader.FindFirstMatch(conn) == nil {
+				b.Fatal("expected non-nil matching rule")
+			}
+		}
+	})
 }
 
 func unmarshalListData(data string, t *testing.T) (op *[]Operator) {
@@ -681,6 +1108,11 @@ func TestDomainsListsWildcardAndGlobFallback(t *testing.T) {
 		t.Fatalf("failed to compile test glob: %v", err)
 	}
 	op.domainGlobs = append(op.domainGlobs, g)
+	op.listSnapshot.Store(&listCacheSnapshot{
+		lists:           op.lists,
+		domainWildcards: op.domainWildcards,
+		domainGlobs:     op.domainGlobs,
+	})
 
 	if !op.domainsListsCmp("svc.example.org") {
 		t.Fatal("expected wildcard trie fallback match")
@@ -705,6 +1137,10 @@ func TestIPListsCmpSupportsExactAndCIDRFallback(t *testing.T) {
 		},
 		listNets: []*net.IPNet{cidr},
 	}
+	op.listSnapshot.Store(&listCacheSnapshot{
+		listExact: op.listExact,
+		listNets:  op.listNets,
+	})
 
 	if !op.ipListsCmp(net.ParseIP("10.0.0.4")) {
 		t.Fatal("expected exact ip list match")
@@ -729,6 +1165,10 @@ func TestNetListsCmpSupportsExactAndCIDRFallback(t *testing.T) {
 		},
 		listNets: []*net.IPNet{cidr},
 	}
+	op.listSnapshot.Store(&listCacheSnapshot{
+		listExact: op.listExact,
+		listNets:  op.listNets,
+	})
 
 	if !op.netListsCmp(net.ParseIP("10.1.2.3")) {
 		t.Fatal("expected exact net list match")

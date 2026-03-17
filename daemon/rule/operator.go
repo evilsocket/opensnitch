@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
@@ -76,6 +77,20 @@ const (
 type opCallback func(value string) bool
 type opGenericCallback func(value interface{}) bool
 
+type listRegexEntry struct {
+	file string
+	re   *regexp.Regexp
+}
+
+type listCacheSnapshot struct {
+	lists           map[string]interface{}
+	domainWildcards domainWildcardTrie
+	domainGlobs     []glob.Glob
+	listExact       map[string]struct{}
+	listNets        []*net.IPNet
+	regexEntries    []listRegexEntry
+}
+
 // Operator represents what we want to filter of a connection, and how.
 type Operator struct {
 	cb              opCallback
@@ -87,6 +102,7 @@ type Operator struct {
 	domainGlobs     []glob.Glob
 	listExact       map[string]struct{}
 	listNets        []*net.IPNet
+	listSnapshot    atomic.Pointer[listCacheSnapshot]
 	exitMonitorChan chan (struct{})
 	rangeMin        uint64
 	rangeMax        uint64
@@ -295,9 +311,12 @@ func (o *Operator) cmpNetwork(destIP interface{}) bool {
 }
 
 func (o *Operator) matchListsCmp(msg, what string) bool {
-	o.RLock()
-	item, found := o.lists[what]
-	o.RUnlock()
+	snapshot := o.listSnapshot.Load()
+	if snapshot == nil {
+		return false
+	}
+
+	item, found := snapshot.lists[what]
 
 	if found {
 		log.Debug("%s: %s, %s", log.Red(msg), what, item)
@@ -314,26 +333,27 @@ func (o *Operator) domainsListsCmp(data string) bool {
 		data = strings.ToLower(data)
 	}
 
-	o.RLock()
-	_, exactFound := o.lists[data]
+	snapshot := o.listSnapshot.Load()
+	if snapshot == nil {
+		return false
+	}
+
+	_, exactFound := snapshot.lists[data]
+
 	if exactFound {
-		o.RUnlock()
 		log.Debug("%s: %s", log.Red("domains list match"), data)
 		return true
 	}
-	if o.domainWildcards.matchesHost(data) {
-		o.RUnlock()
+	if snapshot.domainWildcards.matchesHost(data) {
 		log.Debug("%s: %s", log.Red("domains wildcard match"), data)
 		return true
 	}
-	for _, g := range o.domainGlobs {
+	for _, g := range snapshot.domainGlobs {
 		if g.Match(data) {
-			o.RUnlock()
 			log.Debug("%s: %s", log.Red("domains glob match"), data)
 			return true
 		}
 	}
-	o.RUnlock()
 
 	return false
 }
@@ -347,17 +367,21 @@ func (o *Operator) simpleListsCmp(what string) bool {
 }
 
 func (o *Operator) netListsCmp(dstIP interface{}) bool {
-	o.RLock()
-	defer o.RUnlock()
 	ip := dstIP.(net.IP)
 	ipText := ip.String()
+	snapshot := o.listSnapshot.Load()
+	if snapshot == nil {
+		return false
+	}
 
-	if _, found := o.listExact[ipText]; found {
+	_, exactFound := snapshot.listExact[ipText]
+
+	if exactFound {
 		log.Debug("%s: %s", log.Red("Net exact list match"), ipText)
 		return true
 	}
 
-	for _, netMask := range o.listNets {
+	for _, netMask := range snapshot.listNets {
 		if netMask.Contains(ip) {
 			log.Debug("%s: %s, %s", log.Red("Net list match"), ipText, netMask.String())
 			return true
@@ -367,17 +391,21 @@ func (o *Operator) netListsCmp(dstIP interface{}) bool {
 }
 
 func (o *Operator) ipListsCmp(dstIP interface{}) bool {
-	o.RLock()
-	defer o.RUnlock()
 	ip := dstIP.(net.IP)
 	ipText := ip.String()
+	snapshot := o.listSnapshot.Load()
+	if snapshot == nil {
+		return false
+	}
 
-	if _, found := o.listExact[ipText]; found {
+	_, exactFound := snapshot.listExact[ipText]
+
+	if exactFound {
 		log.Debug("%s: %s", log.Red("IP list exact match"), ipText)
 		return true
 	}
 
-	for _, netMask := range o.listNets {
+	for _, netMask := range snapshot.listNets {
 		if netMask.Contains(ip) {
 			log.Debug("%s: %s, %s", log.Red("IP list cidr match"), ipText, netMask.String())
 			return true
@@ -394,13 +422,14 @@ func (o *Operator) reListCmp(data string) bool {
 	if o.Sensitive == false {
 		data = strings.ToLower(data)
 	}
-	o.RLock()
-	defer o.RUnlock()
+	snapshot := o.listSnapshot.Load()
+	if snapshot == nil {
+		return false
+	}
 
-	for file, re := range o.lists {
-		r := re.(*regexp.Regexp)
-		if r.MatchString(data) {
-			log.Debug("%s: %s, %s", log.Red("Regexp list match"), data, file)
+	for _, entry := range snapshot.regexEntries {
+		if entry.re.MatchString(data) {
+			log.Debug("%s: %s, %s", log.Red("Regexp list match"), data, entry.file)
 			return true
 		}
 	}

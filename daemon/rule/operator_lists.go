@@ -2,8 +2,8 @@ package rule
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
+	"os"
 	"path/filepath"
 	"regexp"
 	"runtime/debug"
@@ -152,6 +152,7 @@ func (o *Operator) ClearLists() {
 	o.domainGlobs = nil
 	o.listExact = nil
 	o.listNets = nil
+	o.listSnapshot.Store(nil)
 	debug.FreeOSMemory()
 }
 
@@ -337,7 +338,7 @@ func (o *Operator) readLists() error {
 			continue
 		}
 
-		raw, err := ioutil.ReadFile(fileName)
+		raw, err := os.ReadFile(fileName)
 		if err != nil {
 			log.Warning("Error reading list of IPs (%s): %s", fileName, err)
 			continue
@@ -357,8 +358,31 @@ func (o *Operator) readLists() error {
 			log.Warning("Unknown lists operand type: %s", o.Operand)
 		}
 	}
+	o.listSnapshot.Store(o.buildListSnapshot())
 	log.Info("%d lists loaded, %d domains, %d duplicated", len(fileList), len(o.lists), dups)
 	return nil
+}
+
+func (o *Operator) buildListSnapshot() *listCacheSnapshot {
+	snapshot := &listCacheSnapshot{
+		lists:           o.lists,
+		domainWildcards: o.domainWildcards,
+		domainGlobs:     o.domainGlobs,
+		listExact:       o.listExact,
+		listNets:        o.listNets,
+	}
+
+	if o.Operand == OpDomainsRegexpLists {
+		snapshot.regexEntries = make([]listRegexEntry, 0, len(o.lists))
+		for file, re := range o.lists {
+			snapshot.regexEntries = append(snapshot.regexEntries, listRegexEntry{
+				file: file,
+				re:   re.(*regexp.Regexp),
+			})
+		}
+	}
+
+	return snapshot
 }
 
 func wildcardSuffix(host string) string {
