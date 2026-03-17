@@ -12,7 +12,63 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
+	"github.com/gobwas/glob"
 )
+
+type domainWildcardTrieNode struct {
+	terminal bool
+	children map[string]*domainWildcardTrieNode
+}
+
+type domainWildcardTrie struct {
+	root *domainWildcardTrieNode
+}
+
+func newDomainWildcardTrie() domainWildcardTrie {
+	return domainWildcardTrie{root: &domainWildcardTrieNode{children: make(map[string]*domainWildcardTrieNode)}}
+}
+
+func (t *domainWildcardTrie) insertSuffix(suffix string) {
+	if t.root == nil {
+		t.root = &domainWildcardTrieNode{children: make(map[string]*domainWildcardTrieNode)}
+	}
+	parts := strings.Split(suffix, ".")
+	node := t.root
+	for i := len(parts) - 1; i >= 0; i-- {
+		label := strings.TrimSpace(parts[i])
+		if label == "" {
+			return
+		}
+		next, found := node.children[label]
+		if !found {
+			next = &domainWildcardTrieNode{children: make(map[string]*domainWildcardTrieNode)}
+			node.children[label] = next
+		}
+		node = next
+	}
+	node.terminal = true
+}
+
+func (t *domainWildcardTrie) matchesHost(host string) bool {
+	if t.root == nil {
+		return false
+	}
+	parts := strings.Split(host, ".")
+	node := t.root
+	for i := len(parts) - 1; i >= 0; i-- {
+		label := strings.TrimSpace(parts[i])
+		next, found := node.children[label]
+		if !found {
+			return false
+		}
+		node = next
+		// wildcard suffixes should only match subdomains, not the suffix root itself
+		if node.terminal && i > 0 {
+			return true
+		}
+	}
+	return false
+}
 
 func (o *Operator) monitorLists() {
 	log.Info("monitor lists started: %s", o.Data)
@@ -92,6 +148,10 @@ func (o *Operator) ClearLists() {
 	for k := range o.lists {
 		delete(o.lists, k)
 	}
+	o.domainWildcards = newDomainWildcardTrie()
+	o.domainGlobs = nil
+	o.listExact = nil
+	o.listNets = nil
 	debug.FreeOSMemory()
 }
 
@@ -139,6 +199,19 @@ func (o *Operator) readTupleList(raw, fileName string, filter func(line, defValu
 			continue
 		}
 		key = core.Trim(key)
+		if suffix := wildcardSuffix(key); suffix != "" {
+			o.domainWildcards.insertSuffix(suffix)
+			continue
+		}
+		if isDomainGlobPattern(key) {
+			g, err := glob.Compile(key, '.')
+			if err != nil {
+				log.Warning("Error compiling domain glob from list: %s, (%s)", err, fileName)
+				continue
+			}
+			o.domainGlobs = append(o.domainGlobs, g)
+			continue
+		}
 		if _, found := o.lists[key]; found {
 			dups++
 			continue
@@ -163,12 +236,18 @@ func (o *Operator) readNetList(raw, fileName string) (dups uint64) {
 			dups++
 			continue
 		}
+		if ip := net.ParseIP(host); ip != nil {
+			o.lists[host] = fileName
+			o.listExact[host] = struct{}{}
+			continue
+		}
 		_, netMask, err := net.ParseCIDR(host)
 		if err != nil {
 			log.Warning("Error parsing net from list: %s, (%s)", err, fileName)
 			continue
 		}
-		o.lists[host] = netMask
+		o.lists[host] = fileName
+		o.listNets = append(o.listNets, netMask)
 	}
 	lines = nil
 	log.Info("%d nets loaded, %s", len(o.lists), fileName)
@@ -217,6 +296,13 @@ func (o *Operator) readSimpleList(raw, fileName string) (dups uint64) {
 			continue
 		}
 		o.lists[what] = fileName
+		if ip := net.ParseIP(what); ip != nil {
+			o.listExact[what] = struct{}{}
+			continue
+		}
+		if _, netMask, err := net.ParseCIDR(what); err == nil {
+			o.listNets = append(o.listNets, netMask)
+		}
 	}
 	lines = nil
 	log.Info("%d entries loaded, %s", len(o.lists), fileName)
@@ -232,6 +318,10 @@ func (o *Operator) readLists() error {
 	o.Lock()
 	defer o.Unlock()
 	o.lists = make(map[string]interface{})
+	o.domainWildcards = newDomainWildcardTrie()
+	o.domainGlobs = make([]glob.Glob, 0)
+	o.listExact = make(map[string]struct{})
+	o.listNets = make([]*net.IPNet, 0)
 
 	expr := filepath.Join(o.Data, "*.*")
 	fileList, err := filepath.Glob(expr)
@@ -269,6 +359,23 @@ func (o *Operator) readLists() error {
 	}
 	log.Info("%d lists loaded, %d domains, %d duplicated", len(fileList), len(o.lists), dups)
 	return nil
+}
+
+func wildcardSuffix(host string) string {
+	if strings.HasPrefix(host, "*.") {
+		return strings.Trim(host[2:], ".")
+	}
+	if strings.HasPrefix(host, ".") {
+		return strings.Trim(host[1:], ".")
+	}
+	return ""
+}
+
+func isDomainGlobPattern(host string) bool {
+	if wildcardSuffix(host) != "" {
+		return false
+	}
+	return strings.ContainsAny(host, "*?[]")
 }
 
 func (o *Operator) loadLists() {

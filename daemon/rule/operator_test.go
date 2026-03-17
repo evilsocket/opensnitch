@@ -11,6 +11,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/gobwas/glob"
 )
 
 var (
@@ -666,6 +667,78 @@ func TestNewOperatorListsDomainsRegexp(t *testing.T) {
 	subOp.Unlock()
 
 	restoreConnection()
+}
+
+func TestDomainsListsWildcardAndGlobFallback(t *testing.T) {
+	op := &Operator{
+		Sensitive:       false,
+		lists:           make(map[string]interface{}),
+		domainWildcards: newDomainWildcardTrie(),
+	}
+	op.domainWildcards.insertSuffix("example.org")
+	g, err := glob.Compile("api-??.example.org", '.')
+	if err != nil {
+		t.Fatalf("failed to compile test glob: %v", err)
+	}
+	op.domainGlobs = append(op.domainGlobs, g)
+
+	if !op.domainsListsCmp("svc.example.org") {
+		t.Fatal("expected wildcard trie fallback match")
+	}
+	if op.domainsListsCmp("example.org") {
+		t.Fatal("wildcard fallback must not match suffix root")
+	}
+	if !op.domainsListsCmp("api-12.example.org") {
+		t.Fatal("expected glob fallback match")
+	}
+}
+
+func TestIPListsCmpSupportsExactAndCIDRFallback(t *testing.T) {
+	_, cidr, err := net.ParseCIDR("10.0.0.0/24")
+	if err != nil {
+		t.Fatalf("failed to parse cidr: %v", err)
+	}
+
+	op := &Operator{
+		listExact: map[string]struct{}{
+			"10.0.0.4": {},
+		},
+		listNets: []*net.IPNet{cidr},
+	}
+
+	if !op.ipListsCmp(net.ParseIP("10.0.0.4")) {
+		t.Fatal("expected exact ip list match")
+	}
+	if !op.ipListsCmp(net.ParseIP("10.0.0.99")) {
+		t.Fatal("expected cidr fallback match for ip list")
+	}
+	if op.ipListsCmp(net.ParseIP("192.168.1.10")) {
+		t.Fatal("unexpected ip list match")
+	}
+}
+
+func TestNetListsCmpSupportsExactAndCIDRFallback(t *testing.T) {
+	_, cidr, err := net.ParseCIDR("10.1.0.0/16")
+	if err != nil {
+		t.Fatalf("failed to parse cidr: %v", err)
+	}
+
+	op := &Operator{
+		listExact: map[string]struct{}{
+			"10.1.2.3": {},
+		},
+		listNets: []*net.IPNet{cidr},
+	}
+
+	if !op.netListsCmp(net.ParseIP("10.1.2.3")) {
+		t.Fatal("expected exact net list match")
+	}
+	if !op.netListsCmp(net.ParseIP("10.1.44.5")) {
+		t.Fatal("expected cidr fallback match for net list")
+	}
+	if op.netListsCmp(net.ParseIP("172.16.0.1")) {
+		t.Fatal("unexpected net list match")
+	}
 }
 
 // Must be launched with -race to test that we don't cause leaks

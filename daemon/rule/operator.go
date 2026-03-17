@@ -13,6 +13,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/gobwas/glob"
 )
 
 // Type is the type of rule.
@@ -82,6 +83,10 @@ type Operator struct {
 	re              *regexp.Regexp
 	netMask         *net.IPNet
 	lists           map[string]interface{}
+	domainWildcards domainWildcardTrie
+	domainGlobs     []glob.Glob
+	listExact       map[string]struct{}
+	listNets        []*net.IPNet
 	exitMonitorChan chan (struct{})
 	rangeMin        uint64
 	rangeMax        uint64
@@ -178,10 +183,10 @@ func (o *Operator) Compile() error {
 			o.cb = o.reListCmp
 		} else if o.Operand == OpIPLists {
 			o.loadLists()
-			o.cb = o.simpleListsCmp
+			o.cbGeneric = o.ipListsCmp
 		} else if o.Operand == OpNetLists {
 			o.loadLists()
-			o.cbGeneric = o.ipNetCmp
+			o.cbGeneric = o.netListsCmp
 		} else if o.Operand == OpHashMD5Lists {
 			o.loadLists()
 			o.cb = o.simpleListsCmp
@@ -309,7 +314,28 @@ func (o *Operator) domainsListsCmp(data string) bool {
 		data = strings.ToLower(data)
 	}
 
-	return o.matchListsCmp("domains list match", data)
+	o.RLock()
+	_, exactFound := o.lists[data]
+	if exactFound {
+		o.RUnlock()
+		log.Debug("%s: %s", log.Red("domains list match"), data)
+		return true
+	}
+	if o.domainWildcards.matchesHost(data) {
+		o.RUnlock()
+		log.Debug("%s: %s", log.Red("domains wildcard match"), data)
+		return true
+	}
+	for _, g := range o.domainGlobs {
+		if g.Match(data) {
+			o.RUnlock()
+			log.Debug("%s: %s", log.Red("domains glob match"), data)
+			return true
+		}
+	}
+	o.RUnlock()
+
+	return false
 }
 
 func (o *Operator) simpleListsCmp(what string) bool {
@@ -320,17 +346,44 @@ func (o *Operator) simpleListsCmp(what string) bool {
 	return o.matchListsCmp("simple list match", what)
 }
 
-func (o *Operator) ipNetCmp(dstIP interface{}) bool {
+func (o *Operator) netListsCmp(dstIP interface{}) bool {
 	o.RLock()
 	defer o.RUnlock()
+	ip := dstIP.(net.IP)
+	ipText := ip.String()
 
-	for host, netMask := range o.lists {
-		n := netMask.(*net.IPNet)
-		if n.Contains(dstIP.(net.IP)) {
-			log.Debug("%s: %s, %s", log.Red("Net list match"), dstIP, host)
+	if _, found := o.listExact[ipText]; found {
+		log.Debug("%s: %s", log.Red("Net exact list match"), ipText)
+		return true
+	}
+
+	for _, netMask := range o.listNets {
+		if netMask.Contains(ip) {
+			log.Debug("%s: %s, %s", log.Red("Net list match"), ipText, netMask.String())
 			return true
 		}
 	}
+	return false
+}
+
+func (o *Operator) ipListsCmp(dstIP interface{}) bool {
+	o.RLock()
+	defer o.RUnlock()
+	ip := dstIP.(net.IP)
+	ipText := ip.String()
+
+	if _, found := o.listExact[ipText]; found {
+		log.Debug("%s: %s", log.Red("IP list exact match"), ipText)
+		return true
+	}
+
+	for _, netMask := range o.listNets {
+		if netMask.Contains(ip) {
+			log.Debug("%s: %s, %s", log.Red("IP list cidr match"), ipText, netMask.String())
+			return true
+		}
+	}
+
 	return false
 }
 
@@ -389,7 +442,7 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 	} else if o.Operand == OpDomainsLists {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpIPLists {
-		return o.cb(con.DstIP.String())
+		return o.cbGeneric(con.DstIP)
 	} else if o.Operand == OpHashMD5Lists {
 		return o.cb(con.Process.Checksums[procmon.HashMD5])
 	} else if o.Operand == OpUserID || o.Operand == OpUserName {
