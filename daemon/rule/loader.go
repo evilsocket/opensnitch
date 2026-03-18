@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
@@ -26,13 +27,18 @@ type Loader struct {
 	watcher           *fsnotify.Watcher
 	rules             map[string]*Rule
 	activeRules       []string
+	activeSnapshot    atomic.Pointer[activeRulesSnapshot]
 	Path              string
 	liveReload        bool
 	liveReloadRunning bool
-	checkSums         bool
+	checkSums         atomic.Bool
 	stopLiveReload    chan struct{}
 
 	sync.RWMutex
+}
+
+type activeRulesSnapshot struct {
+	rules []*Rule
 }
 
 // NewLoader loads rules from disk, and watches for changes made to the rules files
@@ -69,7 +75,7 @@ func (l *Loader) GetAll() map[string]*Rule {
 // EnableChecksums enables checksums field for rules globally.
 func (l *Loader) EnableChecksums(enable bool) {
 	log.Debug("[rules loader] EnableChecksums: %v", enable)
-	l.checkSums = enable
+	l.checkSums.Store(enable)
 	procmon.EventsCache.SetComputeChecksums(enable)
 	procmon.EventsCache.AddChecksumHash(string(OpProcessHashMD5))
 }
@@ -113,6 +119,7 @@ func (l *Loader) Reload(path string) error {
 	l.Lock()
 	l.activeRules = make([]string, 0)
 	l.rules = make(map[string]*Rule)
+	l.activeSnapshot.Store(nil)
 	l.Unlock()
 	return l.Load(path)
 }
@@ -367,6 +374,7 @@ func (l *Loader) unmarshalOperatorList(op *Operator) error {
 
 func (l *Loader) sortRules() {
 	l.activeRules = make([]string, 0, len(l.rules))
+	orderedRules := make([]*Rule, 0, len(l.rules))
 	for k, r := range l.rules {
 		// exclude not enabled rules from the list of active rules
 		if !r.Enabled {
@@ -375,6 +383,10 @@ func (l *Loader) sortRules() {
 		l.activeRules = append(l.activeRules, k)
 	}
 	sort.Strings(l.activeRules)
+	for _, name := range l.activeRules {
+		orderedRules = append(orderedRules, l.rules[name])
+	}
+	l.activeSnapshot.Store(&activeRulesSnapshot{rules: orderedRules})
 }
 
 func (l *Loader) addUserRule(rule *Rule) {
@@ -495,12 +507,14 @@ Exit:
 
 // FindFirstMatch will try match the connection against the existing rule set.
 func (l *Loader) FindFirstMatch(con *conman.Connection) (match *Rule) {
-	l.RLock()
-	defer l.RUnlock()
+	snapshot := l.activeSnapshot.Load()
+	if snapshot == nil {
+		return nil
+	}
+	hasChecksums := l.checkSums.Load()
 
-	for _, idx := range l.activeRules {
-		rule, _ := l.rules[idx]
-		if rule.Match(con, l.checkSums) {
+	for _, rule := range snapshot.rules {
+		if rule.Match(con, hasChecksums) {
 			// We have a match.
 			// Save the rule in order to don't ask the user to take action,
 			// and keep iterating until a Deny or a Priority rule appears.

@@ -8,11 +8,13 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
+	"github.com/gobwas/glob"
 )
 
 // Type is the type of rule.
@@ -75,6 +77,20 @@ const (
 type opCallback func(value string) bool
 type opGenericCallback func(value interface{}) bool
 
+type listRegexEntry struct {
+	file string
+	re   *regexp.Regexp
+}
+
+type listCacheSnapshot struct {
+	lists           map[string]interface{}
+	domainWildcards domainWildcardTrie
+	domainGlobs     []glob.Glob
+	listExact       map[string]struct{}
+	listNets        []*net.IPNet
+	regexEntries    []listRegexEntry
+}
+
 // Operator represents what we want to filter of a connection, and how.
 type Operator struct {
 	cb              opCallback
@@ -82,6 +98,11 @@ type Operator struct {
 	re              *regexp.Regexp
 	netMask         *net.IPNet
 	lists           map[string]interface{}
+	domainWildcards domainWildcardTrie
+	domainGlobs     []glob.Glob
+	listExact       map[string]struct{}
+	listNets        []*net.IPNet
+	listSnapshot    atomic.Pointer[listCacheSnapshot]
 	exitMonitorChan chan (struct{})
 	rangeMin        uint64
 	rangeMax        uint64
@@ -178,10 +199,10 @@ func (o *Operator) Compile() error {
 			o.cb = o.reListCmp
 		} else if o.Operand == OpIPLists {
 			o.loadLists()
-			o.cb = o.simpleListsCmp
+			o.cbGeneric = o.ipListsCmp
 		} else if o.Operand == OpNetLists {
 			o.loadLists()
-			o.cbGeneric = o.ipNetCmp
+			o.cbGeneric = o.netListsCmp
 		} else if o.Operand == OpHashMD5Lists {
 			o.loadLists()
 			o.cb = o.simpleListsCmp
@@ -290,9 +311,12 @@ func (o *Operator) cmpNetwork(destIP interface{}) bool {
 }
 
 func (o *Operator) matchListsCmp(msg, what string) bool {
-	o.RLock()
-	item, found := o.lists[what]
-	o.RUnlock()
+	snapshot := o.listSnapshot.Load()
+	if snapshot == nil {
+		return false
+	}
+
+	item, found := snapshot.lists[what]
 
 	if found {
 		log.Debug("%s: %s, %s", log.Red(msg), what, item)
@@ -309,7 +333,29 @@ func (o *Operator) domainsListsCmp(data string) bool {
 		data = strings.ToLower(data)
 	}
 
-	return o.matchListsCmp("domains list match", data)
+	snapshot := o.listSnapshot.Load()
+	if snapshot == nil {
+		return false
+	}
+
+	_, exactFound := snapshot.lists[data]
+
+	if exactFound {
+		log.Debug("%s: %s", log.Red("domains list match"), data)
+		return true
+	}
+	if snapshot.domainWildcards.matchesHost(data) {
+		log.Debug("%s: %s", log.Red("domains wildcard match"), data)
+		return true
+	}
+	for _, g := range snapshot.domainGlobs {
+		if g.Match(data) {
+			log.Debug("%s: %s", log.Red("domains glob match"), data)
+			return true
+		}
+	}
+
+	return false
 }
 
 func (o *Operator) simpleListsCmp(what string) bool {
@@ -320,17 +366,52 @@ func (o *Operator) simpleListsCmp(what string) bool {
 	return o.matchListsCmp("simple list match", what)
 }
 
-func (o *Operator) ipNetCmp(dstIP interface{}) bool {
-	o.RLock()
-	defer o.RUnlock()
+func (o *Operator) netListsCmp(dstIP interface{}) bool {
+	ip := dstIP.(net.IP)
+	ipText := ip.String()
+	snapshot := o.listSnapshot.Load()
+	if snapshot == nil {
+		return false
+	}
 
-	for host, netMask := range o.lists {
-		n := netMask.(*net.IPNet)
-		if n.Contains(dstIP.(net.IP)) {
-			log.Debug("%s: %s, %s", log.Red("Net list match"), dstIP, host)
+	_, exactFound := snapshot.listExact[ipText]
+
+	if exactFound {
+		log.Debug("%s: %s", log.Red("Net exact list match"), ipText)
+		return true
+	}
+
+	for _, netMask := range snapshot.listNets {
+		if netMask.Contains(ip) {
+			log.Debug("%s: %s, %s", log.Red("Net list match"), ipText, netMask.String())
 			return true
 		}
 	}
+	return false
+}
+
+func (o *Operator) ipListsCmp(dstIP interface{}) bool {
+	ip := dstIP.(net.IP)
+	ipText := ip.String()
+	snapshot := o.listSnapshot.Load()
+	if snapshot == nil {
+		return false
+	}
+
+	_, exactFound := snapshot.listExact[ipText]
+
+	if exactFound {
+		log.Debug("%s: %s", log.Red("IP list exact match"), ipText)
+		return true
+	}
+
+	for _, netMask := range snapshot.listNets {
+		if netMask.Contains(ip) {
+			log.Debug("%s: %s, %s", log.Red("IP list cidr match"), ipText, netMask.String())
+			return true
+		}
+	}
+
 	return false
 }
 
@@ -341,13 +422,14 @@ func (o *Operator) reListCmp(data string) bool {
 	if o.Sensitive == false {
 		data = strings.ToLower(data)
 	}
-	o.RLock()
-	defer o.RUnlock()
+	snapshot := o.listSnapshot.Load()
+	if snapshot == nil {
+		return false
+	}
 
-	for file, re := range o.lists {
-		r := re.(*regexp.Regexp)
-		if r.MatchString(data) {
-			log.Debug("%s: %s, %s", log.Red("Regexp list match"), data, file)
+	for _, entry := range snapshot.regexEntries {
+		if entry.re.MatchString(data) {
+			log.Debug("%s: %s, %s", log.Red("Regexp list match"), data, entry.file)
 			return true
 		}
 	}
@@ -389,7 +471,7 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 	} else if o.Operand == OpDomainsLists {
 		return o.cb(con.DstHost)
 	} else if o.Operand == OpIPLists {
-		return o.cb(con.DstIP.String())
+		return o.cbGeneric(con.DstIP)
 	} else if o.Operand == OpHashMD5Lists {
 		return o.cb(con.Process.Checksums[procmon.HashMD5])
 	} else if o.Operand == OpUserID || o.Operand == OpUserName {

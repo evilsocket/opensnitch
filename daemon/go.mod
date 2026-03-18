@@ -11,6 +11,7 @@ require (
 	github.com/google/gopacket v1.1.19
 	github.com/google/nftables v0.2.0
 	github.com/google/uuid v1.3.0
+	github.com/gobwas/glob v0.2.3
 	github.com/varlink/go v0.4.0
 	github.com/vishvananda/netlink v1.3.0
 	github.com/vishvananda/netns v0.0.4
