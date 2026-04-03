@@ -32,6 +32,7 @@ class Nodes(QObject):
         self._db = Database.instance()
         self._rules = Rules()
         self._nodes = {}
+        self._peer_map = {}
         self._notifications_sent = {}
         self._interfaces = NetworkInterfaces()
         self.logger = logger.get(__name__)
@@ -63,22 +64,27 @@ class Nodes(QObject):
         https://grpc.io/docs/guides/keepalive/#keepalive-configuration-specification
         """
         try:
-            proto, addr = self.get_addr(_peer)
-            peer = proto+":"+addr
+            peer = self._get_node_key(_peer, client_config)
+            now = datetime.now()
             if peer not in self._nodes:
                 self._nodes[peer] = {
                     'session': {
-                        'peer': _peer, 'last_seen': datetime.now()
+                        'peer': _peer, 'last_seen': now
                     },
                     'notifications': Queue(),
                     'online':        True,
-                    'last_seen':     datetime.now()
+                    'last_seen':     now
                 }
             else:
-                self._nodes[peer]['last_seen'] = datetime.now()
+                prev_peer = self._nodes[peer]['session'].get('peer')
+                if prev_peer is not None and prev_peer != _peer:
+                    self._peer_map.pop(prev_peer, None)
+                self._nodes[peer]['last_seen'] = now
                 self._nodes[peer]['session']['peer'] = _peer
+                self._nodes[peer]['session']['last_seen'] = now
 
             self._nodes[peer]['online'] = True
+            self._peer_map[_peer] = peer
             self.add_data(peer, client_config)
             self.insert(peer)
 
@@ -174,20 +180,23 @@ class Nodes(QObject):
     def delete_all(self):
         self.stop_notifications()
         self._nodes = {}
+        self._peer_map = {}
         self.nodesUpdated.emit(self.count())
 
     def delete(self, peer):
+        addr = self._resolve_node_key(peer)
         try:
-            proto, addr = self.get_addr(peer)
-            addr = "%s:%s" % (proto, addr)
             # Force the node to get one new item from queue,
             # in order to loop and exit.
             self._nodes[addr]['notifications'].put(None)
-        except:
-            addr = peer
+        except Exception:
+            pass
 
         if addr in self._nodes:
             del self._nodes[addr]
+            for mapped_peer, node_key in list(self._peer_map.items()):
+                if mapped_peer == peer or node_key == addr:
+                    del self._peer_map[mapped_peer]
             self.nodesUpdated.emit(self.count())
 
     def get(self):
@@ -195,6 +204,7 @@ class Nodes(QObject):
 
     def get_node(self, addr):
         try:
+            addr = self._resolve_node_key(addr)
             return self._nodes[addr]
         except Exception as e:
             self.logger.debug("exception get_node() %s: %s", addr, repr(e))
@@ -205,6 +215,7 @@ class Nodes(QObject):
 
     def get_node_hostname(self, addr):
         try:
+            addr = self._resolve_node_key(addr)
             if addr not in self._nodes:
                 return ""
             return self._nodes[addr]['data'].name
@@ -214,6 +225,7 @@ class Nodes(QObject):
 
     def get_node_config(self, addr):
         try:
+            addr = self._resolve_node_key(addr)
             if addr not in self._nodes:
                 return None
             return self._nodes[addr]['data'].config
@@ -234,7 +246,7 @@ class Nodes(QObject):
 
     def get_addr(self, peer):
         try:
-            peer = peer.split(":")
+            peer = self._split_peer(self._resolve_node_key(peer))
             # WA for backward compatibility
             if peer[0] == "unix" and peer[1] == "":
                 peer[1] = "/local"
@@ -242,6 +254,25 @@ class Nodes(QObject):
         except Exception as e:
             self.logger.warning("error getting addr %s: %s", repr(peer), repr(e))
             return peer
+
+    def _split_peer(self, peer):
+        return peer.split(":")
+
+    def _resolve_node_key(self, peer):
+        return self._peer_map.get(peer, peer)
+
+    def _get_node_key(self, peer, client_config=None):
+        proto, addr = self._split_peer(peer)[:2]
+        node_id = getattr(client_config, "node_id", "").strip() if client_config is not None else ""
+        node_name = getattr(client_config, "name", "").strip() if client_config is not None else ""
+
+        if proto in ("ipv4", "ipv6"):
+            if node_id != "":
+                return f"node:{node_id}"
+            if node_name != "" and self.is_local(f"{proto}:{addr}"):
+                return f"node:{node_name}"
+
+        return f"{proto}:{addr}"
 
     def is_connected(self, addr):
         try:
@@ -281,6 +312,7 @@ class Nodes(QObject):
 
     def save_node_config(self, addr, config):
         try:
+            addr = self._resolve_node_key(addr)
             self._nodes[addr]['data'].config = config
         except Exception as e:
             self.logger.warning("exception saving node config %s: %s - %s", addr, repr(e), config)
@@ -319,6 +351,7 @@ class Nodes(QObject):
 
     def send_notification(self, addr, notification, callback_signal=None):
         try:
+            addr = self._resolve_node_key(addr)
             notification.id = int(str(time.time()).replace(".", ""))
             if addr not in self._nodes:
                 # FIXME: the reply is sent before we return the notification id
@@ -373,6 +406,7 @@ class Nodes(QObject):
 
     def reply_notification(self, addr, reply):
         try:
+            addr = self._resolve_node_key(addr)
             if reply == None:
                 self.logger.debug("reply notification None %s", addr)
                 return
@@ -407,8 +441,7 @@ class Nodes(QObject):
 
     def insert(self, peer, status=ONLINE):
         try:
-            proto, addr = self.get_addr(peer)
-            naddr = "{0}:{1}".format(proto, addr)
+            naddr = self._resolve_node_key(peer)
             self._db.insert(
                 "nodes",
                 "(addr, status, hostname, daemon_version, daemon_uptime, " \
@@ -422,8 +455,7 @@ class Nodes(QObject):
 
     def update(self, peer, status=ONLINE):
         try:
-            proto, addr = self.get_addr(peer)
-            naddr = "{0}:{1}".format(proto, addr)
+            naddr = self._resolve_node_key(peer)
             self._db.update("nodes",
                     "hostname=?,version=?,last_connection=?,status=?",
                     (
