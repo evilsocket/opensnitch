@@ -26,6 +26,7 @@ class TestNodes():
     def setup_method(self):
         self.nid = None
         self.daemon_config = ClientConfig
+        self.daemon_config.node_id = ""
         self.nodes = Nodes.instance()
         # Insert with full addr format "proto:addr" to match how update() queries
         self.nodes._db.insert("nodes",
@@ -49,6 +50,38 @@ class TestNodes():
     def test_get_addr(self, qtbot):
         proto, addr = self.nodes.get_addr("peer:1.2.3.4")
         assert proto == "peer" and addr == "1.2.3.4"
+
+    def test_add_network_node_uses_node_id(self):
+        self.daemon_config.node_id = "vm-work"
+
+        node, addr = self.nodes.add("ipv4:127.0.0.1:52032", self.daemon_config)
+
+        assert node is not None
+        assert addr == "node:vm-work"
+        assert self.nodes.get_node("node:vm-work") is not None
+        assert self.nodes.get_node("ipv4:127.0.0.1:52032") is not None
+
+    def test_network_reconnect_updates_existing_node_id(self):
+        self.daemon_config.node_id = "vm-work"
+        base_count = self.nodes.count()
+
+        self.nodes.add("ipv4:127.0.0.1:52032", self.daemon_config)
+        self.nodes.add("ipv4:127.0.0.1:52033", self.daemon_config)
+
+        assert self.nodes.count() == base_count + 1
+        assert self.nodes.get_node("node:vm-work")['session']['peer'] == "ipv4:127.0.0.1:52033"
+        assert self.nodes.get_node("ipv4:127.0.0.1:52032") is None
+        assert self.nodes.get_node("ipv4:127.0.0.1:52033") is not None
+
+    def test_loopback_node_falls_back_to_name_without_node_id(self, monkeypatch):
+        monkeypatch.setattr(self.nodes, "is_local", lambda _addr: True)
+
+        node, addr = self.nodes.add("ipv4:127.0.0.1:52032", self.daemon_config)
+
+        assert node is not None
+        assert addr == "node:bla"
+        assert self.nodes.get_node("node:bla") is not None
+        assert self.nodes.get_node("ipv4:127.0.0.1:52032") is not None
 
     def test_get_nodes(self, qtbot):
         nodes = self.nodes.get_nodes()

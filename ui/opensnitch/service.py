@@ -896,7 +896,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 ost.start()
 
         elif kwargs['action'] == self.DELETE_RULE:
-            self._db.delete_rule(kwargs['name'], kwargs['addr'])
+            proto, addr = self._get_peer(kwargs['addr'])
+            self._db.delete_rule(kwargs['name'], f"{proto}:{addr}")
 
         elif kwargs['action'] == self.NODE_DELETE:
             self._delete_node(kwargs['peer'])
@@ -1105,7 +1106,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     if in_message is None:
                         continue
 
-                    self._nodes.reply_notification(addr, in_message)
+                    self._nodes.reply_notification(node_addr, in_message)
                 except StopIteration:
                     self.logger.info("Node %s exited", node_addr)
                     break

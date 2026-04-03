@@ -51,6 +51,7 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 	return &protocol.ClientConfig{
 		Id:                uint64(ts.UnixNano()),
 		Name:              nodeName,
+		NodeId:            nodeName,
 		Version:           nodeVersion,
 		IsFirewallRunning: firewall.IsRunning(),
 		Config:            strings.Replace(string(raw), "\n", "", -1),

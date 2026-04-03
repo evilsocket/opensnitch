@@ -7,8 +7,10 @@
 class ClientConfig:
     version = "1.2.3"
     name = "bla"
+    node_id = ""
     logLevel = 0
     isFirewallRunning = False
+    systemFirewall = None
     rules = []
     config = '''{
     "Server":{
