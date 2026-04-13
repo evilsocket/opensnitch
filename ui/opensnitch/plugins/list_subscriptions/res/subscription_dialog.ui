@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SubscriptionDialog</class>
+ <widget class="QDialog" name="SubscriptionDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>920</width>
+    <height>420</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Subscription</string>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <item>
+    <layout class="QHBoxLayout" name="bodyLayout">
+     <item>
+      <widget class="QGroupBox" name="settings_group">
+       <property name="title">
+        <string/>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+       <layout class="QVBoxLayout" name="settings_group_layout">
+        <item>
+         <widget class="QFrame" name="settings_section_bar">
+          <layout class="QHBoxLayout" name="settingsSectionBarLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="settings_section_label">
+             <property name="text">
+              <string>Settings</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <layout class="QFormLayout" name="settings_form">
+          <item row="0" column="0" colspan="2">
+         <widget class="QCheckBox" name="enabled_check">
+          <property name="text">
+           <string>Enabled</string>
+          </property>
+         </widget>
+          </item>
+          <item row="1" column="0">
+         <widget class="QLabel" name="name_label">
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </widget>
+          </item>
+          <item row="1" column="1">
+         <widget class="QLineEdit" name="name_edit"/>
+          </item>
+          <item row="2" column="1">
+         <widget class="QLabel" name="name_error_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+          </item>
+          <item row="3" column="0">
+         <widget class="QLabel" name="url_label">
+          <property name="text">
+           <string>URL</string>
+          </property>
+        </widget>
+          </item>
+          <item row="3" column="1">
+         <widget class="QLineEdit" name="url_edit"/>
+          </item>
+          <item row="4" column="1">
+         <widget class="QLabel" name="url_error_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+          </item>
+          <item row="5" column="0">
+         <widget class="QLabel" name="filename_label">
+          <property name="text">
+           <string>Filename</string>
+          </property>
+        </widget>
+          </item>
+          <item row="5" column="1">
+         <widget class="QLineEdit" name="filename_edit"/>
+          </item>
+          <item row="6" column="1">
+         <widget class="QLabel" name="filename_error_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+          </item>
+          <item row="7" column="0">
+         <widget class="QLabel" name="format_label">
+          <property name="text">
+           <string>Format</string>
+          </property>
+         </widget>
+          </item>
+          <item row="7" column="1">
+         <widget class="QComboBox" name="format_combo"/>
+          </item>
+          <item row="8" column="0">
+         <widget class="QLabel" name="groups_label">
+          <property name="text">
+           <string>Groups</string>
+          </property>
+         </widget>
+          </item>
+          <item row="8" column="1">
+         <widget class="QComboBox" name="group_combo"/>
+          </item>
+          <item row="9" column="1">
+         <widget class="QLabel" name="group_error_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+          </item>
+          <item row="10" column="0">
+         <widget class="QLabel" name="interval_label">
+          <property name="text">
+           <string>Interval</string>
+          </property>
+         </widget>
+          </item>
+          <item row="10" column="1">
+         <layout class="QHBoxLayout" name="interval_layout">
+          <item>
+           <widget class="QSpinBox" name="interval_spin"/>
+          </item>
+          <item>
+           <widget class="QComboBox" name="interval_units"/>
+          </item>
+         </layout>
+          </item>
+          <item row="11" column="0">
+         <widget class="QLabel" name="timeout_label">
+          <property name="text">
+           <string>Timeout</string>
+          </property>
+         </widget>
+          </item>
+          <item row="11" column="1">
+         <layout class="QHBoxLayout" name="timeout_layout">
+          <item>
+           <widget class="QSpinBox" name="timeout_spin"/>
+          </item>
+          <item>
+           <widget class="QComboBox" name="timeout_units"/>
+          </item>
+         </layout>
+          </item>
+          <item row="12" column="0">
+         <widget class="QLabel" name="max_size_label">
+          <property name="text">
+           <string>Max size</string>
+          </property>
+         </widget>
+          </item>
+          <item row="12" column="1">
+         <layout class="QHBoxLayout" name="max_size_layout">
+          <item>
+           <widget class="QSpinBox" name="max_size_spin"/>
+          </item>
+          <item>
+           <widget class="QComboBox" name="max_size_units"/>
+          </item>
+         </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="meta_group">
+       <property name="title">
+        <string/>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+       <layout class="QVBoxLayout" name="meta_group_layout">
+        <item>
+         <widget class="QFrame" name="meta_section_bar">
+          <layout class="QHBoxLayout" name="metaSectionBarLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="meta_section_label">
+             <property name="text">
+              <string>Metadata</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+       <layout class="QGridLayout" name="meta_grid">
+        <property name="horizontalSpacing">
+         <number>12</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="meta_state_label">
+          <property name="text">
+           <string>State</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" rowspan="9">
+         <widget class="QFrame" name="meta_separator">
+          <property name="frameShape">
+           <enum>QFrame::VLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="meta_state">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="meta_last_checked_label">
+          <property name="text">
+           <string>Last checked</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="meta_last_checked">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="meta_last_updated_label">
+          <property name="text">
+           <string>Last updated</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="meta_last_updated">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="meta_failures_label">
+          <property name="text">
+           <string>Failures</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="meta_failures">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="meta_error_label">
+          <property name="text">
+           <string>Error</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QLabel" name="meta_error">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="meta_file_present_label">
+          <property name="text">
+           <string>List file present</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QLabel" name="meta_file_present">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="meta_meta_present_label">
+          <property name="text">
+           <string>List meta present</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QLabel" name="meta_meta_present">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="meta_list_path_label">
+          <property name="text">
+           <string>List path</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="2">
+         <widget class="QLabel" name="meta_list_path">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
+         <widget class="QLabel" name="meta_meta_path_label">
+          <property name="text">
+           <string>Meta path</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="2">
+         <widget class="QLabel" name="meta_meta_path">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="footer_separator_line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttons_layout">
+     <item>
+      <widget class="QLabel" name="error_label">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="buttons_spacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="test_url_button">
+       <property name="text">
+        <string>Test URL</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancel_button">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="add_button">
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

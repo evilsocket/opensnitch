@@ -1,0 +1,46 @@
+{
+  "name": "listSubscriptionsActions",
+  "created": "",
+  "updated": "",
+  "description": "Manage and auto-update blocklist subscriptions (hosts format)",
+  "type": ["global", "main-dialog"],
+  "actions": {
+    "list_subscriptions": {
+      "enabled": true,
+      "config": {
+        "lists_dir": "~/.config/opensnitch/list_subscriptions",
+
+        "interval": 24,
+        "interval_units": "hours",
+
+        "timeout": 20,
+        "timeout_units": "seconds",
+
+        "max_size": 50,
+        "max_size_units": "MB",
+
+        "subscriptions": [
+          {
+            "name": "HaGeZi Light Hosts",
+            "enabled": true,
+            "url": "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/hosts/light.txt",
+            "format": "hosts",
+            "filename": "hagezi-light.txt",
+
+            "interval": 12,
+            "interval_units": "hours"
+          }
+        ],
+
+        "notify": {
+            "success": {
+                "desktop": "Lists subscriptions updated"
+            },
+            "error": {
+                "desktop": "Error updating lists subscriptions"
+            }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "url": "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/hosts/light.txt",
+  "format": "hosts",
+
+  "etag": "\"abc123\"",
+  "last_modified": "Sun, 01 Mar 2026 08:40:00 GMT",
+
+  "last_checked": "2026-03-01T12:00:00+01:00",
+  "last_updated": "2026-03-01T12:00:02+01:00",
+
+  "last_result": "updated",
+  "last_error": "",
+
+  "fail_count": 0,
+  "backoff_until": "",
+
+  "bytes": 1234567
+}

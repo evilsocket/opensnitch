@@ -147,7 +147,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.helpButton.setIcon(helpIcon)
         self.dbFileButton.setIcon(openIcon)
 
-        self.comboUIAction.setItemIcon(Config.ACTION_DENY_IDX, denyIcon)
+        self.comboUIAction.setItemIcon(Config.ACTION_DROP_IDX, denyIcon)
         self.comboUIAction.setItemIcon(Config.ACTION_ALLOW_IDX, allowIcon)
         self.comboUIAction.setItemIcon(Config.ACTION_REJECT_IDX, rejectIcon)
 
