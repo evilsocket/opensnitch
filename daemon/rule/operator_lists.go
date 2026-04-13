@@ -12,7 +12,6 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
-	"github.com/gobwas/glob"
 )
 
 type domainWildcardTrieNode struct {
@@ -205,12 +204,11 @@ func (o *Operator) readTupleList(raw, fileName string, filter func(line, defValu
 			continue
 		}
 		if isDomainGlobPattern(key) {
-			g, err := glob.Compile(key, '.')
-			if err != nil {
-				log.Warning("Error compiling domain glob from list: %s, (%s)", err, fileName)
+			if err := validateDomainGlobPattern(key); err != nil {
+				log.Warning("Error validating domain glob from list: %s, (%s)", err, fileName)
 				continue
 			}
-			o.domainGlobs = append(o.domainGlobs, g)
+			o.domainGlobs = append(o.domainGlobs, key)
 			continue
 		}
 		if _, found := o.lists[key]; found {
@@ -320,7 +318,7 @@ func (o *Operator) readLists() error {
 	defer o.Unlock()
 	o.lists = make(map[string]interface{})
 	o.domainWildcards = newDomainWildcardTrie()
-	o.domainGlobs = make([]glob.Glob, 0)
+	o.domainGlobs = make([]string, 0)
 	o.listExact = make(map[string]struct{})
 	o.listNets = make([]*net.IPNet, 0)
 
@@ -395,11 +393,50 @@ func wildcardSuffix(host string) string {
 	return ""
 }
 
+// isDomainGlobPattern reports whether host is a glob pattern that requires
+// matchDomainGlob evaluation (i.e. it contains *, ?, or [...] but is NOT a
+// plain wildcard suffix like *.example.org, which is handled by the trie).
+//
+// Known limitation: '{www,api}.example.org' alternation syntax is NOT
+// supported. path.Match treats '{' as a literal. Such patterns are not
+// detected here and fall through to the exact-map lookup where they will
+// never match – a silent false negative. Use separate list entries instead.
 func isDomainGlobPattern(host string) bool {
 	if wildcardSuffix(host) != "" {
 		return false
 	}
 	return strings.ContainsAny(host, "*?[]")
+}
+
+// validateDomainGlobPattern checks that every DNS label in pattern is a valid
+// filepath.Match expression (i.e. no unclosed '['). Returns non-nil on bad syntax.
+func validateDomainGlobPattern(pattern string) error {
+	for _, label := range strings.Split(pattern, ".") {
+		if _, err := filepath.Match(label, ""); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// matchDomainGlob reports whether host matches the DNS-aware glob pattern.
+// The pattern is split on '.' and each label is matched independently with
+// filepath.Match, so '*' and '?' are confined to a single DNS label and cannot
+// cross dot boundaries. This preserves standard blocklist glob semantics.
+// The pattern must have been validated by validateDomainGlobPattern at load
+// time; invalid patterns silently fail to match.
+func matchDomainGlob(pattern, host string) bool {
+	patLabels := strings.Split(pattern, ".")
+	hostLabels := strings.Split(host, ".")
+	if len(patLabels) != len(hostLabels) {
+		return false
+	}
+	for i, p := range patLabels {
+		if ok, _ := filepath.Match(p, hostLabels[i]); !ok {
+			return false
+		}
+	}
+	return true
 }
 
 func (o *Operator) loadLists() {

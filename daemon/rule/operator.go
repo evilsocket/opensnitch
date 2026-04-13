@@ -14,7 +14,6 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
-	"github.com/gobwas/glob"
 )
 
 // Type is the type of rule.
@@ -85,7 +84,7 @@ type listRegexEntry struct {
 type listCacheSnapshot struct {
 	lists           map[string]interface{}
 	domainWildcards domainWildcardTrie
-	domainGlobs     []glob.Glob
+	domainGlobs     []string
 	listExact       map[string]struct{}
 	listNets        []*net.IPNet
 	regexEntries    []listRegexEntry
@@ -99,7 +98,7 @@ type Operator struct {
 	netMask         *net.IPNet
 	lists           map[string]interface{}
 	domainWildcards domainWildcardTrie
-	domainGlobs     []glob.Glob
+	domainGlobs     []string
 	listExact       map[string]struct{}
 	listNets        []*net.IPNet
 	listSnapshot    atomic.Pointer[listCacheSnapshot]
@@ -349,7 +348,7 @@ func (o *Operator) domainsListsCmp(data string) bool {
 		return true
 	}
 	for _, g := range snapshot.domainGlobs {
-		if g.Match(data) {
+		if matchDomainGlob(g, data) {
 			log.Debug("%s: %s", log.Red("domains glob match"), data)
 			return true
 		}

@@ -13,7 +13,6 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/core"
 	"github.com/evilsocket/opensnitch/daemon/netstat"
 	"github.com/evilsocket/opensnitch/daemon/procmon"
-	"github.com/gobwas/glob"
 )
 
 var (
@@ -62,11 +61,11 @@ func BenchmarkOperatorDomainsSnapshotMatchParallel(b *testing.B) {
 		domainWildcards: newDomainWildcardTrie(),
 	}
 	op.domainWildcards.insertSuffix("example.org")
-	g, err := glob.Compile("api-??.example.org", '.')
-	if err != nil {
-		b.Fatalf("failed to compile benchmark glob: %v", err)
+	const globPat = "api-??.example.org"
+	if err := validateDomainGlobPattern(globPat); err != nil {
+		b.Fatalf("invalid benchmark glob: %v", err)
 	}
-	op.domainGlobs = append(op.domainGlobs, g)
+	op.domainGlobs = append(op.domainGlobs, globPat)
 	op.listSnapshot.Store(&listCacheSnapshot{
 		lists:           op.lists,
 		domainWildcards: op.domainWildcards,
@@ -91,11 +90,11 @@ func BenchmarkOperatorDomainsSnapshotMixedParallel(b *testing.B) {
 	}
 	op.lists["exact.example.org"] = "bench"
 	op.domainWildcards.insertSuffix("example.org")
-	g, err := glob.Compile("api-??.example.org", '.')
-	if err != nil {
-		b.Fatalf("failed to compile benchmark glob: %v", err)
+	const globPat = "api-??.example.org"
+	if err := validateDomainGlobPattern(globPat); err != nil {
+		b.Fatalf("invalid benchmark glob: %v", err)
 	}
-	op.domainGlobs = append(op.domainGlobs, g)
+	op.domainGlobs = append(op.domainGlobs, globPat)
 	op.listSnapshot.Store(&listCacheSnapshot{
 		lists:           op.lists,
 		domainWildcards: op.domainWildcards,
@@ -129,7 +128,7 @@ type rlockDomainMatcher struct {
 	sync.RWMutex
 	lists       map[string]interface{}
 	wildcards   domainWildcardTrie
-	domainGlobs []glob.Glob
+	domainGlobs []string
 }
 
 func (m *rlockDomainMatcher) match(host string) bool {
@@ -142,7 +141,7 @@ func (m *rlockDomainMatcher) match(host string) bool {
 		return true
 	}
 	for _, g := range m.domainGlobs {
-		if g.Match(host) {
+		if matchDomainGlob(g, host) {
 			return true
 		}
 	}
@@ -153,15 +152,15 @@ func BenchmarkOperatorDomainsRLockMixedParallel(b *testing.B) {
 	m := &rlockDomainMatcher{
 		lists:       make(map[string]interface{}),
 		wildcards:   newDomainWildcardTrie(),
-		domainGlobs: make([]glob.Glob, 0, 1),
+		domainGlobs: make([]string, 0, 1),
 	}
 	m.lists["exact.example.org"] = "bench"
 	m.wildcards.insertSuffix("example.org")
-	g, err := glob.Compile("api-??.example.org", '.')
-	if err != nil {
-		b.Fatalf("failed to compile benchmark glob: %v", err)
+	const globPat = "api-??.example.org"
+	if err := validateDomainGlobPattern(globPat); err != nil {
+		b.Fatalf("invalid benchmark glob: %v", err)
 	}
-	m.domainGlobs = append(m.domainGlobs, g)
+	m.domainGlobs = append(m.domainGlobs, globPat)
 
 	inputs := []string{
 		"exact.example.org",
@@ -1103,11 +1102,11 @@ func TestDomainsListsWildcardAndGlobFallback(t *testing.T) {
 		domainWildcards: newDomainWildcardTrie(),
 	}
 	op.domainWildcards.insertSuffix("example.org")
-	g, err := glob.Compile("api-??.example.org", '.')
-	if err != nil {
-		t.Fatalf("failed to compile test glob: %v", err)
+	const globPat = "api-??.example.org"
+	if err := validateDomainGlobPattern(globPat); err != nil {
+		t.Fatalf("invalid test glob: %v", err)
 	}
-	op.domainGlobs = append(op.domainGlobs, g)
+	op.domainGlobs = append(op.domainGlobs, globPat)
 	op.listSnapshot.Store(&listCacheSnapshot{
 		lists:           op.lists,
 		domainWildcards: op.domainWildcards,
@@ -1122,6 +1121,29 @@ func TestDomainsListsWildcardAndGlobFallback(t *testing.T) {
 	}
 	if !op.domainsListsCmp("api-12.example.org") {
 		t.Fatal("expected glob fallback match")
+	}
+}
+
+func TestMatchDomainGlobLabelBoundary(t *testing.T) {
+	tests := []struct {
+		pattern string
+		host    string
+		want    bool
+		desc    string
+	}{
+		{"api-??.example.org", "api-12.example.org", true, "? matches single char in label"},
+		{"api-??.example.org", "api-123.example.org", false, "? must not match more than one char"},
+		{"api*.example.org", "apidev.example.org", true, "* matches within label"},
+		{"api*.example.org", "api.v2.example.org", false, "* must not cross label boundary"},
+		{"tracker-[0-9].example.org", "tracker-3.example.org", true, "character class in label"},
+		{"tracker-[0-9].example.org", "tracker-x.example.org", false, "character class mismatch"},
+		{"api-??.example.org", "api-12.sub.example.org", false, "different label count"},
+	}
+	for _, tc := range tests {
+		got := matchDomainGlob(tc.pattern, tc.host)
+		if got != tc.want {
+			t.Errorf("%s: matchDomainGlob(%q, %q) = %v, want %v", tc.desc, tc.pattern, tc.host, got, tc.want)
+		}
 	}
 }
 

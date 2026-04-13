@@ -2,6 +2,9 @@
 *.pyc
 *.profile
 
+ui/opensnitch/proto/
+daemon/ui/protocol/
+
 .vscode/
 .idea/
 .DS_Store
