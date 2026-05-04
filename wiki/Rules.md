@@ -34,7 +34,7 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 | update           | UTC date and time of the last update. |
 | name             | The name of the rule. |
 | enabled          | Enable or disable the rule. |
-| precedence       | true or false. Sets if a rule take precedence over the rest (>= v1.2.0). If a connection matches this rule, no other rules will be evaluated.|
+| precedence       | `true` or `false`. Sets if a rule take precedence over the rest (>= v1.2.0). If a connection matches this rule, no other rules will be evaluated.|
 | action           | Can be `deny`, `reject` or `allow`. `reject` kills the socket, terminating the connection immediately. `deny` drops/ignores the packet. |
 | duration         | The duration of the rule in [Duration format](https://pkg.go.dev/time#ParseDuration). `always` is always used when the rule is written to disk. The rest of the options are temporary, until they reach the deadline: `12h`, `5h`, `1h`, `30s`, or `once` to only run the rule one time.  |
 | operator.type    | `simple`, `regexp`, `network`, `lists`, `list`, `range`.|
@@ -45,6 +45,7 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 || `range` (v1.9.0) will check if an Operand (`dest.port` or `source.port`) is within the given range.|
 || `list`, a combination of all of the previous types.|
 | operator.data    | The data of the rule against which an outbound connection will be compared: an IP, a destination port, a command line, etc. |
+| operator.sensitive | If `true`, the property-data comparison is case sensitive. Defaults to `false`. |
 | operator.operand | Property of the connection against which the rule will be compared: |
 | | `true` - will always match |
 | | `process.path`  - the absolute path of the executable |
