@@ -5,6 +5,7 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"sync"
 	"testing"
 	"time"
 )
@@ -145,6 +146,90 @@ func TestRuleLoaderList(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestRuleLoaderGetAllSnapshot exercises the slice/map race that used to
+// crash daemon startup with a large rule corpus: getClientConfig() called
+// GetAll() twice without holding any lock, so the map could grow between
+// len() and the for-range and the iterator would walk off the end of the
+// pre-sized slice (or panic with "concurrent map iteration and map write"
+// on bad luck).
+//
+// Verify GetAll() now returns a consistent snapshot: iterating it produces
+// exactly len(snapshot) entries, even while other goroutines are mutating
+// the underlying loader. Run with -race to also catch the underlying data
+// race on l.rules that this fix removes.
+func TestRuleLoaderGetAllSnapshot(t *testing.T) {
+	t.Parallel()
+
+	l, err := NewLoader(false)
+	if err != nil {
+		t.Fatal("NewLoader: ", err)
+	}
+
+	var emptyOps []Operator
+	op, _ := NewOperator(Simple, false, OpTrue, "", emptyOps)
+	if err := op.Compile(); err != nil {
+		t.Fatal("Compile: ", err)
+	}
+
+	// Pre-seed with some rules so iterations have something to do.
+	for i := 0; i < 100; i++ {
+		r := Create(fmt.Sprintf("seed-%04d", i), "", true, false, false, Allow, Restart, op)
+		if err := l.replaceUserRule(r); err != nil {
+			t.Fatal("seed replaceUserRule: ", err)
+		}
+	}
+
+	stop := make(chan struct{})
+	var wg sync.WaitGroup
+
+	// Writers churn the map: add and remove rules continuously, exercising
+	// the same Lock()/Unlock() path as the daemon's loader during rule load.
+	for w := 0; w < 4; w++ {
+		wg.Add(1)
+		go func(w int) {
+			defer wg.Done()
+			for i := 0; ; i++ {
+				select {
+				case <-stop:
+					return
+				default:
+				}
+				name := fmt.Sprintf("churn-%d-%d", w, i)
+				r := Create(name, "", true, false, false, Allow, Restart, op)
+				_ = l.replaceUserRule(r)
+				if i&1 == 0 {
+					_ = l.Delete(name)
+				}
+			}
+		}(w)
+	}
+
+	// Readers do exactly what getClientConfig used to do incorrectly:
+	// observe len(), then iterate, and expect the two to agree.
+	for r := 0; r < 8; r++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for i := 0; i < 200; i++ {
+				rules := l.GetAll()
+				n := len(rules)
+				count := 0
+				for range rules {
+					count++
+				}
+				if count != n {
+					t.Errorf("GetAll snapshot inconsistent: len=%d iterated=%d", n, count)
+					return
+				}
+			}
+		}()
+	}
+
+	time.Sleep(200 * time.Millisecond)
+	close(stop)
+	wg.Wait()
 }
 
 func TestLiveReload(t *testing.T) {
