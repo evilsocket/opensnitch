@@ -172,10 +172,16 @@ func (o *Operator) Compile() error {
 		o.cb = o.rangeCmp
 	} else if o.Type == Regexp {
 		o.cb = o.reCmp
+		// Mark the compiled regex as case-insensitive via Go's (?i) flag
+		// instead of lowercasing o.Data. Lowercasing the pattern itself
+		// mangles character classes like [0-9A-Za-z] into [0-9a-za-z],
+		// which then leaks into the rule's saved JSON and the GUI.
+		// See https://github.com/evilsocket/opensnitch/issues/1587.
+		pattern := o.Data
 		if o.Sensitive == false {
-			o.Data = strings.ToLower(o.Data)
+			pattern = "(?i)" + pattern
 		}
-		re, err := regexp.Compile(o.Data)
+		re, err := regexp.Compile(pattern)
 		if err != nil {
 			return err
 		}
@@ -289,9 +295,8 @@ func (o *Operator) simpleCmp(v string) bool {
 }
 
 func (o *Operator) reCmp(data string) bool {
-	if o.Sensitive == false {
-		data = strings.ToLower(data)
-	}
+	// Case folding for the insensitive case is baked into the compiled regex
+	// via the (?i) flag added in Compile(), so the subject is matched as-is.
 	return o.re.MatchString(data)
 }
 
