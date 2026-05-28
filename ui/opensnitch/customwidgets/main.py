@@ -236,6 +236,7 @@ class ConnectionsTableModel(QStandardItemModel):
         #sequential number of topmost/bottommost rows in viewport (numbering starts from the bottom with 1 not with 0)
         botRowNo = max(1, self.totalRowCount - (value + maxRowsInViewport-1))
         topRowNo = min(botRowNo + maxRowsInViewport-1, self.totalRowCount)
+        offsetInRange = 0
 
         if not self.isQueryFilter:
             part1, part2 = self.origQueryStr.split('ORDER')

@@ -16,22 +16,6 @@ class Chains():
 
     def get_node_chains(self, addr):
         node = self._nodes.get_node(addr)
-        if node == None:
-            return rules
-        if not 'firewall' in node:
-            return rules
-
-        chains = []
-        for c in node['firewall'].SystemRules:
-            # Chains node does not exist on <= v1.5.x
-            try:
-                chains.append(c.Chains)
-            except Exception:
-                pass
-        return chains
-
-    def get_node_chains(self, addr):
-        node = self._nodes.get_node(addr)
         if node is None:
             return []
         if not 'firewall' in node:
@@ -65,10 +49,7 @@ class Chains():
                 # specify ipv4 OR/AND ipv6? some systems have ipv6 disabled
                 if c.Hook.lower() == hook and c.Type.lower() == _type and c.Family.lower() == family:
                     fwcfg.SystemRules[sdx].Chains[cdx].Policy = policy
-
-                    if wantedHook == Fw.Hooks.INPUT.value and wantedPolicy == Fw.Policy.DROP.value:
-                        fwcfg.SystemRules[sdx].Chains[cdx].Rules.extend([rule.Rules[0]])
-                        self._nodes.add_fw_config(node_addr, fwcfg)
+                    self._nodes.add_fw_config(node_addr, fwcfg)
                     return True
         return False
 

@@ -739,6 +739,7 @@ class GenericTableView(QTableView):
             self._rows_selection.clear()
         self._rows_selection.add(curIdx.data())
 
+        viewport_row = self.getViewportRowPos(curRow)
         newValue = self.vScrollBar.value()
 
         offset = self.model().queryOffset

@@ -481,8 +481,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 self._stats_dialog.activateWindow()
 
         has_ntfs, ntf_type = self._has_desktop_notifications()
+        timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
         if has_ntfs:
-            timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
             try:
                 self.show_systray_msg(
                     title,
@@ -636,6 +636,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         return False
 
     def _build_missed_rule_msg(self, conn, rule, node, hostname):
+        _title = ""
+        tmpl = ""
         try:
             _title = conn.process_path
             if _title == "":

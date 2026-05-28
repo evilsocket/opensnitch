@@ -6,11 +6,10 @@ import os
 import re
 import locale
 
-is_pyinotify_available = True
 try:
     import pyinotify
 except Exception as e:
-    is_pyinotify_available = False
+    pyinotify = None
     print("Error importing pyinotify:", e)
 
 DESKTOP_PATHS = tuple([
@@ -47,7 +46,7 @@ class LinuxDesktopParser(threading.Thread):
             for desktop_file in glob.glob(os.path.join(desktop_path, '*.desktop')):
                 self._parse_desktop_file(desktop_file)
 
-        if is_pyinotify_available:
+        if pyinotify is not None:
             self.start()
 
     def get_locale(self):
@@ -179,6 +178,8 @@ class LinuxDesktopParser(threading.Thread):
         return self.apps.get(def_name, (def_name, default_icon, None))
 
     def run(self):
+        if pyinotify is None:
+            return
         self.running = True
         wm = pyinotify.WatchManager()
         notifier = pyinotify.Notifier(wm)

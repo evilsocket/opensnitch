@@ -100,6 +100,7 @@ class Downloader(PluginBase):
                     interval = ((float(config['interval']) * 60) * 60) * 60
                 else:
                     logger.warning("compile() unknown time format '{0}'".format(config['units']))
+                    continue
 
                 self.scheduled_tasks[config['name']] = self.new_timer(interval, config)
         except Exception as e:

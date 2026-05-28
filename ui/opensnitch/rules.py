@@ -238,6 +238,7 @@ class Rules(QObject):
         """Gets the rule from the DB and writes it out to a directory.
         A new directory per node will be created.
         """
+        rulesdir = outdir
         try:
             records = self._db.get_rule(rule_name, node)
             if records.next() == False:

@@ -450,8 +450,8 @@ class Database:
 
     def _insert(self, query_str, columns):
         with self._lock:
+            q = None
             try:
-
                 q = QSqlQuery(self.db)
                 q.prepare(query_str)
                 for idx, v in enumerate(columns):
@@ -465,7 +465,8 @@ class Database:
             except Exception as e:
                 self.logger.warning("_insert exception: %s", repr(e))
             finally:
-                q.finish()
+                if q is not None:
+                    q.finish()
 
         return False
 
@@ -497,6 +498,7 @@ class Database:
         qstr = "UPDATE " + action_on_conflict + " " + table + " SET " + fields
         if condition is not None:
             qstr += " WHERE " + condition
+        q = None
         try:
             with self._lock:
                 q = QSqlQuery(qstr, self.db)
@@ -510,11 +512,13 @@ class Database:
         except Exception as e:
             self.logger.warning("update() exception: %s", repr(e))
         finally:
-            q.finish()
+            if q is not None:
+                q.finish()
 
     def _insert_batch(self, query_str, fields, values):
         result=True
         with self._lock:
+            q = None
             try:
                 q = QSqlQuery(self.db)
                 q.prepare(query_str)
@@ -530,7 +534,8 @@ class Database:
             except Exception as e:
                 self.logger.warning("_insert_batch() exception: %s", repr(e))
             finally:
-                q.finish()
+                if q is not None:
+                    q.finish()
 
         return result
 
