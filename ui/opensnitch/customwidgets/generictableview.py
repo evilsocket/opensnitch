@@ -12,6 +12,7 @@ from PyQt6.QtCore import (
     QObject,
     pyqtSignal,
     QEvent,
+    QTimer,
     Qt)
 
 class GenericTableModel(QStandardItemModel):
@@ -325,6 +326,10 @@ class GenericTableView(QTableView):
         # current selected rows
         self._rows_selection = set()
 
+        # tracking-column text of the current (focused) row, used to
+        # restore currentIndex after a viewport refresh
+        self._current_row_text = None
+
         # selection range to highlight the rows of the viewport, that is,
         # the rows of the current sql query (offset + limit).
         self._first_row_selected = None
@@ -388,14 +393,11 @@ class GenericTableView(QTableView):
         if selrows is None:
             return
         self._rows_selection.clear()
-        for rid, row in enumerate(selrows):
-            key = row[self.trackingCol]
-            self._rows_selection.add(key)
-            idx = self.model().index(rid, self.trackingCol)
-            self.selectionModel().setCurrentIndex(
-                idx,
-                QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.SelectCurrent
-            )
+        for row in selrows:
+            self._rows_selection.add(row[self.trackingCol])
+        # the visual selection of the visible rows is applied by
+        # selectIndices(); selecting db-range positions here would
+        # highlight wrong viewport rows when the range is scrolled.
         self.selectIndices()
 
     def getMinViewportRow(self):
@@ -509,8 +511,8 @@ class GenericTableView(QTableView):
     def mousePressEvent(self, event):
         # we need to call upper class to paint selections properly
         super().mousePressEvent(event)
-        self.mousePressed = True
         rightBtnPressed = event.button() != Qt.MouseButton.LeftButton
+        self.mousePressed = not rightBtnPressed
 
         self.keySelectAll = False
         if not self.shiftPressed:
@@ -522,11 +524,15 @@ class GenericTableView(QTableView):
         pos = event.pos()
         item = self.indexAt(pos)
         row = self.rowAt(pos.y())
-        if item is None:
-            return
 
         clickedItem = self.model().index(row, self.trackingCol)
-        if clickedItem.data() is None:
+        if not item.isValid() or clickedItem.data() is None:
+            # Qt clears the visual selection when pressing on an empty
+            # area; keep the tracked selection in sync, otherwise menu
+            # actions keep operating on rows no longer highlighted.
+            if not self.ctrlPressed:
+                self._rows_selection.clear()
+                self._current_row_text = None
             return
 
         flags = QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.SelectCurrent
@@ -607,6 +613,8 @@ class GenericTableView(QTableView):
             clickedItem,
             flags
         )
+        isDeselect = bool(flags & QItemSelectionModel.SelectionFlag.Deselect)
+        self._current_row_text = None if isDeselect else clickedItem.data()
 
     def handleShiftPressed(self):
         # in the viewport, the rows start at 1, but in the db at 0
@@ -683,6 +691,7 @@ class GenericTableView(QTableView):
         self.selectionModel().reset()
         self.selectionModel().clearCurrentIndex()
         self._rows_selection.clear()
+        self._current_row_text = None
         self._first_row_selected = None
         self._last_row_selected = None
         self._db_selection_range = {
@@ -743,6 +752,44 @@ class GenericTableView(QTableView):
                 sel.append(QItemSelectionRange(i.index()))
         self.selectionModel().clear()
         self.selectionModel().select(sel, QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows)
+        self._restoreCurrentIndex()
+
+    def _restoreCurrentIndex(self):
+        """Re-apply the current (focused) row after the viewport has been
+        refreshed. selectionModel().clear() drops currentIndex, so keyboard
+        navigation would lose its position on every refresh otherwise.
+        """
+        if self._current_row_text is None:
+            return
+        items = self.model().findItems(self._current_row_text, column=self.trackingCol)
+        if len(items) == 0:
+            return
+        self.selectionModel().setCurrentIndex(
+            items[0].index(),
+            QItemSelectionModel.SelectionFlag.NoUpdate
+        )
+
+    def _syncSelectionFromCurrentRow(self):
+        """Sync the tracked rows with the row that became current after Qt
+        processed a navigation key press. The view handles the key AFTER
+        our eventFilter runs, so reading currentIndex there returns the row
+        the user navigated AWAY from, leaving the tracked selection (and
+        thus context-menu actions) one row behind the visible selection.
+        """
+        if self.ctrlPressed:
+            # ctrl+navigation moves the current row without changing the
+            # selection
+            return
+        curIdx = self.selectionModel().currentIndex()
+        if not curIdx.isValid():
+            return
+        rowText = self.model().index(curIdx.row(), self.trackingCol).data()
+        if rowText is None:
+            return
+        if not self.shiftPressed:
+            self._rows_selection.clear()
+        self._rows_selection.add(rowText)
+        self._current_row_text = rowText
 
     def _selectLastRow(self):
         internalId = self.getCurrentIndex()
@@ -781,17 +828,12 @@ class GenericTableView(QTableView):
 
     def onKeyUp(self):
         curIdx = self.selectionModel().currentIndex()
-        if not self.shiftPressed:
-            self._rows_selection.clear()
-        self._rows_selection.add(curIdx.data())
-
         viewport_row = self.getViewportRowPos(curIdx.row())
         self._last_row_selected = viewport_row
         if self._first_row_selected is None:
             self._first_row_selected = viewport_row
 
         offset = self.model().queryOffset
-        limit = self.model().queryLimit
         if curIdx.row() == 0:
             self.vScrollBar.setValue(max(0, self.vScrollBar.value() - 1))
         if curIdx.row() == 0 and viewport_row+offset-1 == offset:
@@ -800,21 +842,21 @@ class GenericTableView(QTableView):
     def onKeyDown(self):
         curIdx = self.selectionModel().currentIndex()
         curRow = curIdx.row()
-        if not self.shiftPressed:
-            self._rows_selection.clear()
-        self._rows_selection.add(curIdx.data())
+        viewport_row = self.getViewportRowPos(curRow)
 
         viewport_row = self.getViewportRowPos(curRow)
         newValue = self.vScrollBar.value()
 
-        offset = self.model().queryOffset
         limit = self.model().queryLimit
         if curRow >= self.maxRowsInViewport-2:
             # this change will fire onScrollbarValueChanged, which will refresh the
             # view (the rows and the rows numbers)
             self.vScrollBar.setValue(newValue+1)
             self._selectLastRow()
-        if (offset == 0 and viewport_row == limit) or viewport_row+offset == limit+offset:
+        # wrap the selection to the first row after paginating to the next
+        # records window. The query offset cancels out on both sides of the
+        # comparison, so checking against the limit alone is enough.
+        if viewport_row == limit:
             self._selectRow(0)
 
     def onKeyHome(self):
@@ -884,12 +926,16 @@ class GenericTableView(QTableView):
             # some pyqt versions.
             if event.key() == Qt.Key.Key_Up:
                 self.onKeyUp()
+                QTimer.singleShot(0, self._syncSelectionFromCurrentRow)
             elif event.key() == Qt.Key.Key_Down:
                 self.onKeyDown()
+                QTimer.singleShot(0, self._syncSelectionFromCurrentRow)
             elif event.key() == Qt.Key.Key_Home:
                 self.onKeyHome()
+                QTimer.singleShot(0, self._syncSelectionFromCurrentRow)
             elif event.key() == Qt.Key.Key_End:
                 self.onKeyEnd()
+                QTimer.singleShot(0, self._syncSelectionFromCurrentRow)
             elif event.key() == Qt.Key.Key_PageUp:
                 self.onKeyPageUp()
             elif event.key() == Qt.Key.Key_PageDown:
