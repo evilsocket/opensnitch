@@ -1,3 +1,5 @@
+import traceback
+
 from PyQt6 import QtCore, QtWidgets, QtGui
 from PyQt6.QtCore import QCoreApplication as QC
 
@@ -251,6 +253,8 @@ class MenusManager(views.ViewsManager):
             model = table.model()
 
             selection = table.selectedRows()
+            if not selection:
+                return False
 
             menu = QtWidgets.QMenu()
             durMenu = QtWidgets.QMenu(self.COL_STR_DURATION)
@@ -362,10 +366,11 @@ class MenusManager(views.ViewsManager):
             elif action == _toDisk:
                 self.table_menu_export_disk(cur_idx, model, selection)
 
+            return True
         except Exception as e:
             print("rules contextual menu exception:", e)
-        finally:
-            return True
+            traceback.print_exc()
+            return False
 
     def configure_alerts_contextual_menu(self, pos):
         try:
