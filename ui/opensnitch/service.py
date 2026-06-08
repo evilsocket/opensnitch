@@ -156,6 +156,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         self._load_plugins()
 
+        self._nodes.disable_expired_rules(is_start=True)
+
     def _load_plugins(self):
         for action_conf in self._actions.getAll():
             # get one global conf
@@ -836,8 +838,8 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         try:
             key = node_addr+rule_name
             del self._sched_tasks[key]
-        except:
-            pass
+        except Exception as e:
+            print("on_temp_rule_expired exception:", e)
 
     @QtCore.pyqtSlot(dict)
     def _on_node_actions(self, kwargs):

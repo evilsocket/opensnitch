@@ -1,8 +1,9 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from opensnitch.database import Database
-from opensnitch.utils import logger
 from opensnitch.database.enums import RuleFields
+from opensnitch.utils import logger
+from opensnitch.utils.duration import duration
 from opensnitch.config import Config
 
 import opensnitch.proto as proto
@@ -149,6 +150,9 @@ class Rules(QObject):
     def get_by_name(self, node, name):
         return self._db.get_rule(name, node)
 
+    def get_all(self):
+        return self._db.get_rules()
+
     def get_all_by_node(self, node):
         return self._db.get_rules(node)
 
@@ -197,6 +201,38 @@ class Rules(QObject):
         return "{0}Z".format(
             datetime.fromtimestamp(time).isoformat(timespec='microseconds')
         )
+
+    def disable_expired(self, is_start=False):
+        """disable all expired rules on the database.
+
+        if is_start is True (i.e., the GUI has just been launched) "until-restart"
+        rules will be disabled.
+
+        The rules will be updated only on the GUI side, not in the daemon,
+        so if the daemon still has the exact temporary rules active, they'll be
+        added back to the db when connecting to the GUI."""
+        rules = self.get_all()
+        if rules is None:
+            return
+        while rules.next():
+            enabled = Rule.to_bool(rules.value(RuleFields.Enabled))
+            if not enabled:
+                continue
+            dur = rules.value(RuleFields.Duration)
+            if dur == Config.DURATION_ALWAYS:
+                continue
+            timeout = duration.to_seconds(dur)
+
+            name = rules.value(RuleFields.Name)
+            node = rules.value(RuleFields.Node)
+            created = rules.value(RuleFields.Created)
+            created_timestamp = int(datetime.strptime(
+                created, DBDateFieldFormat
+            ).timestamp())
+            rule_valid_timestamp = created_timestamp+timeout
+            now = int(datetime.now().timestamp())
+            if now > rule_valid_timestamp or (is_start and dur == Config.DURATION_UNTIL_RESTART):
+                self.disable(node, name)
 
     def rule_to_json(self, node, rule_name):
         try:

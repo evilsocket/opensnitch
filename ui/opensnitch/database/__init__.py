@@ -68,7 +68,6 @@ class Database:
             self.logger.warning("db.initialize() error: %s", db_error)
             return False, db_error
 
-
         if is_new_file:
             self.logger.info("is new file, or IN MEMORY, setting initial schema version")
             self.set_schema_version(self.DB_VERSION)
@@ -668,14 +667,16 @@ class Database:
 
         return q
 
-    def get_rules(self, node_addr):
-        """
-        get rule records, given the name of the rule and the node
-        """
-        qstr = "SELECT * FROM rules WHERE node=?"
+    def get_rules(self, node_addr=None):
+        """get all rule records"""
+        qstr = "SELECT * FROM rules"
+        if node_addr is not None:
+            qstr += " WHERE node=?"
+
         q = QSqlQuery(qstr, self.db)
-        q.prepare(qstr)
-        q.addBindValue(node_addr)
+        if node_addr is not None:
+            q.prepare(qstr)
+            q.addBindValue(node_addr)
         if not q.exec():
             return None
 

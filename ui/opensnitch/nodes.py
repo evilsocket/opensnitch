@@ -168,6 +168,9 @@ class Nodes(QObject):
     def disable_rule(self, addr, rule_name):
         self._rules.disable(addr, rule_name)
 
+    def disable_expired_rules(self, is_start=False):
+        self._rules.disable_expired(is_start)
+
     def update_rule_time(self, time, rule_name, addr):
         self._rules.update_time(time, rule_name, addr)
 
