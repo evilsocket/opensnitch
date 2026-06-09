@@ -156,8 +156,8 @@ class Rules(QObject):
     def get_all_by_node(self, node):
         return self._db.get_rules(node)
 
-    def get_by_field(self, node, field, value):
-        return self._db.get_rule_by_field(node, field, value)
+    def get_by_field(self, node, field, value, orderby=None):
+        return self._db.get_rule_by_field(node, field, value, orderby)
 
     def exists(self, rule, node_addr):
         return self._db.rule_exists(rule, node_addr)

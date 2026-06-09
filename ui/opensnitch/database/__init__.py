@@ -648,7 +648,7 @@ class Database:
 
         return q
 
-    def get_rule_by_field(self, node_addr=None, field=None, value=None):
+    def get_rule_by_field(self, node_addr=None, field=None, value=None, orderby=None):
         """
         get rule records by field (process.path, etc)
         """
@@ -656,6 +656,9 @@ class Database:
         q = QSqlQuery(qstr, self.db)
         if node_addr is not None:
             qstr = qstr + " AND node=?".format(node_addr)
+
+        if orderby is not None:
+            qstr = qstr + " ORDER BY " + orderby + " DESC"
 
         q.prepare(qstr)
         q.addBindValue("%" + value + "%")

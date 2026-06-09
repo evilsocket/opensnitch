@@ -12,6 +12,7 @@ from PyQt6.QtCore import QCoreApplication as QC, QEvent
 
 from slugify import slugify
 
+from opensnitch.database.enums import RuleFieldNames
 from opensnitch.utils import Icons, logger
 from opensnitch.desktop_parser import LinuxDesktopParser
 from opensnitch.config import Config
@@ -308,9 +309,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
 
         for idx in range(0, self.comboChecksumRule.count()):
-            curRule = self.comboChecksumRule.itemText(idx)
+            comboRule = self.comboChecksumRule.itemText(idx)
 
-            rule, error = check_sums.update_rule(self._peer, self._rules, curRule, self._con)
+            if not updateAll and comboRule != curRule:
+                continue
+
+            rule, error = check_sums.update_rule(self._peer, self._rules, comboRule, self._con)
             if rule is None:
                 self.labelChecksumStatus.setStyleSheet('color: red')
                 self.labelChecksumStatus.setText("✘ " + error)
@@ -327,9 +331,6 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             )
             self.labelChecksumStatus.setStyleSheet('color: green')
             self.labelChecksumStatus.setText("✔" + QC.translate("popups", "Rule updated."))
-
-            if not updateAll:
-                break
 
     def _cb_cmdback_clicked(self):
         self.stackedWidget.setCurrentIndex(constants.PAGE_MAIN)
@@ -444,7 +445,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         checksums = con.process_checksums
         expected_list = []
 
-        records = self._rules.get_by_field(peer, "operator_data", con.process_path)
+        records = self._rules.get_by_field(peer, RuleFieldNames.OpData, con.process_path, RuleFieldNames.Time)
 
         if records is not None and records.first():
             rules_names = []
@@ -455,6 +456,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
                 if not rule.enabled:
                     continue
+                if rule.duration == Config.DURATION_ONCE:
+                    continue
+
                 rules_names.append(rule.name)
                 validates, expected = check_sums.verify(checksums, rule)
                 if not validates:

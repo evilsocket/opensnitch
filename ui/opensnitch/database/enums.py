@@ -33,6 +33,21 @@ class RuleFields():
     NoLog = 12
     Created = 13
 
+class RuleFieldNames():
+    Time = "time"
+    Created = "created"
+    Name = "name"
+    Description = "description"
+    Node = "node"
+    Enabled = "enabled"
+    Action = "action"
+    Nolog = "nolog"
+    Priority = "priority"
+    Duration = "duration"
+    OpType = "operator_type"
+    OpOperand = "operand"
+    OpData = "operator_data"
+
 class AlertFields():
     Time = 0
     Node = 1
