@@ -741,6 +741,7 @@ class GenericTableView(QTableView):
 
         newValue = self.vScrollBar.value()
 
+        viewport_row = self.getViewportRowPos(curRow)
         offset = self.model().queryOffset
         limit = self.model().queryLimit
         if curRow >= self.maxRowsInViewport-2:
