@@ -25,7 +25,7 @@ class EventsBase(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if block_events:
             self.get_central_widget().blockSignals(False)
 
-    def add_toolbar_buton(self):
+    def add_toolbar_button(self):
         #self.horizontalLayout_10
         pass
 

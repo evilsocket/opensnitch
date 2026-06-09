@@ -70,7 +70,7 @@ class GenericTableModel(QStandardItemModel):
 
         return qstr, limit_n
 
-    #Some QSqlQueryModel methods must be mimiced so that this class can serve as a drop-in replacement
+    #Some QSqlQueryModel methods must be mimicked so that this class can serve as a drop-in replacement
     #mimic QSqlQueryModel.query()
     def query(self):
         return self
@@ -156,7 +156,7 @@ class GenericTableModel(QStandardItemModel):
         if not ok:
             return
         # this call is mandatory, the query must be positioned on a valid
-        # record. Otherwise it'll segfault or won't display any data.
+        # record. Otherwise, it'll segfault or won't display any data.
         tmpQuery.last()
 
         if offset is not None:
@@ -196,7 +196,7 @@ class GenericTableModel(QStandardItemModel):
     def refreshViewport(self, scrollValue, maxRowsInViewport, force=False):
         """Refresh the viewport with data from the db.
         Before making any changes, emit a signal which will perform several operations
-        (save current selected row, etc).
+        (save current selected row, etc.).
         force var will force a refresh if the scrollbar is at the top or bottom of the
         viewport, otherwise skip it to allow rows analyzing without refreshing.
         """
@@ -393,7 +393,7 @@ class GenericTableView(QTableView):
         self.calculateRowsInViewport()
         self.model().setRowCount(min(self.maxRowsInViewport, self.model().totalRowCount))
         self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=True)
-        # Note: on PyQt6 we need to update the viewport explicitely.
+        # Note: on PyQt6 we need to update the viewport explicitly.
         self.viewport().update()
 
     def forceViewRefresh(self):
@@ -539,7 +539,7 @@ class GenericTableView(QTableView):
         else:
             deselectCurRow = len(self._rows_selection) == 1 and not rightBtnPressed
             # discard current selection:
-            # - if the user right clicked on a row not part of a selection.
+            # - if the user right-clicked on a row not part of a selection.
             # - if the user clicked on a row, and there's only one row
             # selected.
             # - if the user clicked on a row already selected.

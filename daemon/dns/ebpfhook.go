@@ -131,7 +131,7 @@ func ListenerEbpf(ebpfModPath string) error {
 	// libbcc resolves the offsets for us. without bcc the offset for uprobes must parsed from the elf files
 	// some how 0 must be replaced with the offset of getaddrinfo bcc does this using bcc_resolve_symname
 
-	// Attaching to uprobe using perf open might be a better aproach requires https://github.com/iovisor/gobpf/pull/277
+	// Attaching to uprobe using perf open might be a better approach requires https://github.com/iovisor/gobpf/pull/277
 
 	libcFile, err := findLibc()
 	if err != nil {
