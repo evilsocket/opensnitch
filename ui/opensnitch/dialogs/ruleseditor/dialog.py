@@ -271,7 +271,11 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if self._old_rule_name is not None and self._old_rule_name != self.rule.name:
             self.delete_rule()
 
-        self._old_rule_name = rule_name
+        # use the saved rule name, not the one typed in the field: save_rule()
+        # may rename the rule (e.g. when the action of an auto-named rule
+        # changes). Otherwise _old_rule_name would lag behind and the next
+        # save would wrongly report a name conflict with the just saved rule.
+        self._old_rule_name = self.rule.name
 
         # after adding a new rule, we enter into EDIT mode, to allow further
         # changes without closing the dialog.
@@ -388,8 +392,6 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             # if the rule name has changed, we need to remove the old one
             if self._old_rule_name != self.rule.name:
                 node = nodes.get_node_addr(self)
-                old_rule = self.rule
-                old_rule.name = self._old_rule_name
                 if self.nodeApplyAllCheck.isChecked():
                     nid, noti = self._nodes.delete_rule(rule_name=self._old_rule_name, addr=None, callback=self._notification_callback)
                     self.notifications_sent[nid] = noti
