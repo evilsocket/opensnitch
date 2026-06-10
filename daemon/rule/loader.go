@@ -65,11 +65,23 @@ func (l *Loader) NumRules() int {
 	return len(l.rules)
 }
 
-// GetAll returns the loaded rules.
+// GetAll returns a shallow snapshot of the loaded rules.
+//
+// The returned map is freshly allocated under the loader's read lock, so
+// the caller may safely call len() on it and range over it without holding
+// any lock and without racing against concurrent rule loading or replacement.
+// The *Rule values are still shared with the loader, but rules are replaced
+// wholesale (replaceUserRule writes a new pointer into the map) rather than
+// mutated in place, so the snapshot remains internally consistent for the
+// read-only use cases this method serves (e.g. the UI client-config dump).
 func (l *Loader) GetAll() map[string]*Rule {
 	l.RLock()
 	defer l.RUnlock()
-	return l.rules
+	snapshot := make(map[string]*Rule, len(l.rules))
+	for k, v := range l.rules {
+		snapshot[k] = v
+	}
+	return snapshot
 }
 
 // EnableChecksums enables checksums field for rules globally.
