@@ -30,27 +30,26 @@ def rule_name(num):
     return "rule-{0:03d}".format(num)
 
 
-def insert_test_rules(db):
+def insert_test_rules(db, names=None):
+    if names is None:
+        names = [rule_name(i) for i in range(NUM_RULES)]
     db.clean("rules")
-    for i in range(NUM_RULES):
+    for i, name in enumerate(names):
+        rule_time = "2026-06-06 10:{0:02d}:{1:02d}".format(i // 60, i % 60)
         db.insert(
             "rules",
             "(time, node, name, enabled, precedence, action, duration, " \
             "operator_type, operator_sensitive, operator_operand, operator_data, " \
             "description, nolog, created)",
             (
-                "2026-06-06 10:00:0{0}".format(i), TEST_NODE, rule_name(i), "True",
+                rule_time, TEST_NODE, name, "True",
                 "False", "allow", "always", "simple", "False", "process.path",
-                "/bin/app-{0}".format(i), "", "False", "2026-06-06 10:00:0{0}".format(i)
+                "/bin/app-{0}".format(i), "", "False", rule_time
             )
         )
 
 
-@pytest.fixture
-def rules_view(qtbot):
-    db = Database.instance()
-    insert_test_rules(db)
-
+def build_rules_view(qtbot):
     container = QtWidgets.QWidget()
     layout = QtWidgets.QHBoxLayout(container)
     view = GenericTableView(container)
@@ -62,15 +61,32 @@ def rules_view(qtbot):
     view.setVerticalScrollBar(scrollbar)
     view.setTrackingColumn(COL_NAME)
     view.setModel(model)
-    model.setQuery(RULES_QUERY, db.get_db())
+    model.setQuery(RULES_QUERY, Database.instance().get_db())
 
     qtbot.addWidget(container)
     container.resize(600, 400)
     container.show()
     qtbot.waitExposed(container)
     view.refresh()
-    # yield keeps the fixture frame (and so the container) referenced for
-    # the duration of the test; qtbot only holds a weak reference
+    return container, view
+
+
+@pytest.fixture
+def rules_view(qtbot):
+    insert_test_rules(Database.instance())
+    container, view = build_rules_view(qtbot)
+    # the fixture frame keeps the container referenced for the duration
+    # of the test; qtbot only holds a weak reference
+    yield view
+
+
+@pytest.fixture
+def mixed_rules_view(qtbot):
+    """Two name groups with enough rules to scroll the view."""
+    names = ["app-{0:03d}".format(i) for i in range(30)]
+    names += ["term-{0:03d}".format(i) for i in range(30)]
+    insert_test_rules(Database.instance(), names)
+    container, view = build_rules_view(qtbot)
     yield view
 
 
@@ -150,6 +166,28 @@ def test_selected_rows_returns_clicked_rule(rules_view, qtbot):
     assert selected_db_rows is not None
     assert len(selected_db_rows) == 1
     assert selected_db_rows[0][COL_NAME] == rule_name(1)
+
+
+def test_query_change_refreshes_viewport_while_scrolled(mixed_rules_view, qtbot):
+    """Regression: changing the query (e.g. typing a filter) while the
+    scrollbar was not at the top or bottom of the view kept displaying the
+    rows of the previous query, so the visible rows didn't match the data
+    that selections and menu actions operated on."""
+    view = mixed_rules_view
+    model = view.model()
+
+    view.vScrollBar.setValue(10)
+    displayed = [row[COL_NAME] for row in model.items]
+    assert len(displayed) > 0
+    assert all(name.startswith("app-") for name in displayed)
+
+    filtered_query = "SELECT time, node, name, enabled FROM rules " \
+        "WHERE name LIKE 'term-%' ORDER BY name ASC"
+    model.setQuery(filtered_query, Database.instance().get_db())
+
+    displayed = [row[COL_NAME] for row in model.items]
+    assert len(displayed) > 0
+    assert all(name.startswith("term-") for name in displayed)
 
 
 def test_right_press_does_not_arm_drag_selection(rules_view, qtbot):

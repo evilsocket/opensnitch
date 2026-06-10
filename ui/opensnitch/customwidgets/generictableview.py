@@ -36,6 +36,10 @@ class GenericTableModel(QStandardItemModel):
     prevQueryStr = ''
     # modified query object
     realQuery = QSqlQuery()
+    # set when the query changes, to force the next viewport refresh.
+    # Otherwise the view would keep displaying the rows of the previous
+    # query when the scrollbar is not at the top/bottom of the view.
+    forceNextRefresh = False
 
     items = []
     lastItems = []
@@ -170,6 +174,7 @@ class GenericTableModel(QStandardItemModel):
 
         if self.prevQueryStr != self.origQueryStr:
             self.realQuery = tmpQuery
+            self.forceNextRefresh = True
 
         self.update_row_count()
         self.update_col_count()
@@ -202,6 +207,9 @@ class GenericTableModel(QStandardItemModel):
         force var will force a refresh if the scrollbar is at the top or bottom of the
         viewport, otherwise skip it to allow rows analyzing without refreshing.
         """
+        if self.forceNextRefresh:
+            force = True
+            self.forceNextRefresh = False
         if not force:
             return
 
