@@ -286,6 +286,47 @@ class TestRulesEditor():
         records = self.rd._db.get_rule("www.test-renamed.com", node_addr)
         assert records.next() == True
 
+    def test_change_action_of_autonamed_rule(self, qtbot):
+        """ Regression: changing the action of an auto-named rule
+        (reject-xxx -> allow-xxx) renames it. The name tracking lagged
+        behind, so saving the rule a second time wrongly reported a name
+        conflict with the just renamed rule.
+        """
+        qtbot.addWidget(self.rd)
+        node = re_nodes.get_node_addr(self.rd)
+        # start from a clean state for the names used here
+        self.rd._db.delete_rule("reject-rename-host", node)
+        self.rd._db.delete_rule("allow-rename-host", node)
+
+        re_constants.WORK_MODE = re_constants.ADD_RULE
+        re_utils.reset_state(self.rd)
+        self.rd.statusLabel.setText("")
+        self.rd.ruleNameEdit.setText("reject-rename-host")
+        self.rd.dstHostCheck.setChecked(True)
+        self.rd.dstHostLine.setText("rename.example.com")
+        self.rd.actionRejectRadio.setChecked(True)
+
+        qtbot.mouseClick(self.rd.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Save), QtCore.Qt.MouseButton.LeftButton)
+        assert self.rd.statusLabel.text() == ""
+        assert self.rd._old_rule_name == "reject-rename-host"
+
+        # change the action: the rule gets renamed to allow-rename-host
+        self.rd.actionAllowRadio.setChecked(True)
+        qtbot.mouseClick(self.rd.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Save), QtCore.Qt.MouseButton.LeftButton)
+
+        assert self.rd.statusLabel.text() == ""
+        assert self.rd.ruleNameEdit.text() == "allow-rename-host"
+        # name tracking must follow the rename, not lag on the old name
+        assert self.rd._old_rule_name == "allow-rename-host"
+        assert self.rd.rule.name == "allow-rename-host"
+        assert self.rd._db.get_rule("reject-rename-host", node).next() == False
+        assert self.rd._db.get_rule("allow-rename-host", node).next() == True
+
+        # saving again must not report a name conflict with itself
+        qtbot.mouseClick(self.rd.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Save), QtCore.Qt.MouseButton.LeftButton)
+        assert self.rd.statusLabel.text() == ""
+        assert self.rd._db.get_rule("allow-rename-host", node).next() == True
+
     def test_durations(self, qtbot):
         """ Test adding new rule with action "deny".
         """
