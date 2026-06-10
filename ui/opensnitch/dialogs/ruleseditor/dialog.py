@@ -278,8 +278,6 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if constants.WORK_MODE == constants.ADD_RULE:
             constants.WORK_MODE = constants.EDIT_RULE
 
-        self._rules.updated.emit(0)
-
     @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
     def cb_notification_callback(self, addr, reply):
         #print(self.LOG_TAG, "Rule notification received: ", reply.id, reply.code)

@@ -23,6 +23,7 @@ from opensnitch.actions import Actions
 from opensnitch.notifications import DesktopNotifications
 from opensnitch.firewall import Rules as FwRules
 from opensnitch.nodes import Nodes
+from opensnitch.rules import Rules
 from opensnitch.config import Config
 from opensnitch.version import version
 from opensnitch.database import Database
@@ -129,6 +130,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
         self._nodes = Nodes.instance()
         self._nodes.reset_status()
+        self._rules = Rules.instance()
 
         self._last_stats = {}
         self._last_items = {
@@ -898,7 +900,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 ost.start()
 
         elif kwargs['action'] == self.DELETE_RULE:
-            self._db.delete_rule(kwargs['name'], kwargs['addr'])
+            # route it through Rules, so the views are notified of the
+            # change.
+            self._rules.delete(kwargs['name'], kwargs['addr'], None)
 
         elif kwargs['action'] == self.NODE_DELETE:
             self._delete_node(kwargs['peer'])
