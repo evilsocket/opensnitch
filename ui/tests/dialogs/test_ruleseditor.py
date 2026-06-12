@@ -12,6 +12,7 @@ proto.import_()
 from opensnitch.config import Config
 from opensnitch.dialogs.ruleseditor import RulesEditorDialog
 from opensnitch.dialogs.ruleseditor import constants as re_constants
+from opensnitch.dialogs.ruleseditor import dialog as re_dialog
 from opensnitch.dialogs.ruleseditor import rules as re_rules
 from opensnitch.dialogs.ruleseditor import utils as re_utils
 from opensnitch.dialogs.ruleseditor import nodes as re_nodes
@@ -442,6 +443,88 @@ class TestRulesEditor():
         assert self.rd.statusLabel.text() == ""
         assert self.rd._db.get_rule("test-uid", self.rd.nodesCombo.currentText()).next() == True
         assert self.rd.rule.operator.operand == Config.OPERAND_USER_ID
+
+    def test_rule_with_username_uid(self, qtbot, monkeypatch):
+        """Test creating a UID rule with a username resolved through NSS."""
+        qtbot.addWidget(self.rd)
+        re_constants.WORK_MODE = re_constants.ADD_RULE
+        re_utils.reset_state(self.rd)
+        self.rd.ruleNameEdit.setText("test-uid-user")
+        self.rd.uidCheck.setChecked(True)
+        self.rd.uidCombo.setCurrentText("test1@ad.zs")
+        monkeypatch.setattr(self.rd, "_resolve_uid", lambda username: 693401141)
+
+        result, error = self.rd.save_rule()
+
+        assert result is True
+        assert error == ""
+        assert self.rd.rule.operator.operand == Config.OPERAND_USER_ID
+        assert self.rd.rule.operator.data == "693401141"
+
+    def test_uid_combo_changed_ignores_invalid_index(self, qtbot):
+        """Test typing custom UID text does not reuse the last user entry."""
+        qtbot.addWidget(self.rd)
+        self.rd._users_list = [
+            ("alice", "x", 1000, 1000, "", "/home/alice", "/bin/bash"),
+            ("bob", "x", 2000, 2000, "", "/home/bob", "/bin/bash"),
+        ]
+        self.rd.uidCombo.setCurrentText("test1@ad.zs")
+
+        self.rd.cb_uid_combo_changed(-1)
+
+        assert self.rd.uidCombo.currentText() == "test1@ad.zs"
+
+    def test_get_users_uses_getent_for_local_nodes(self, qtbot, monkeypatch):
+        """Test local user list loading uses getent passwd output."""
+        qtbot.addWidget(self.rd)
+
+        class Result:
+            returncode = 0
+            stdout = (
+                "alice:x:1000:1000:Alice:/home/alice:/bin/bash\n"
+                "daemon:x:2:2:daemon:/sbin:/sbin/nologin\n"
+            )
+
+        monkeypatch.setattr(self.rd._nodes, "is_local", lambda addr: True)
+        monkeypatch.setattr(re_dialog.subprocess, "run", lambda *args, **kwargs: Result())
+
+        users = self.rd._get_users("unix:/tmp/osui.sock")
+
+        assert users == [("alice", "x", 1000, 1000, "Alice", "/home/alice", "/bin/bash")]
+
+    def test_resolve_uid_uses_remote_getent(self, qtbot, monkeypatch):
+        """Test remote usernames are resolved via non-interactive SSH getent."""
+        qtbot.addWidget(self.rd)
+        self.rd.nodesCombo.clear()
+        self.rd.nodesCombo.addItem("ipv4:192.168.122.19", "ipv4:192.168.122.19")
+        calls = []
+
+        class MissingResult:
+            returncode = 2
+            stdout = ""
+
+        class RemoteResult:
+            returncode = 0
+            stdout = "test1@ad.zs:x:693401141:693400513:Test:/home/test1:/bin/bash\n"
+
+        def fake_getpwnam(username):
+            raise KeyError(username)
+
+        def fake_run(args, **kwargs):
+            calls.append(args)
+            if args[:3] == ["getent", "passwd", "test1@ad.zs"]:
+                return MissingResult()
+            return RemoteResult()
+
+        monkeypatch.setattr(re_dialog.pwd, "getpwnam", fake_getpwnam)
+        monkeypatch.setattr(re_dialog.subprocess, "run", fake_run)
+        monkeypatch.setattr(self.rd._nodes, "is_local", lambda addr: False)
+
+        uid = self.rd._resolve_uid("test1@ad.zs")
+
+        assert uid == 693401141
+        assert calls[-1][:2] == ["ssh", "-o"]
+        assert "BatchMode=yes" in calls[-1]
 
     def test_rule_with_source_port(self, qtbot):
         """Test creating a rule with source port."""

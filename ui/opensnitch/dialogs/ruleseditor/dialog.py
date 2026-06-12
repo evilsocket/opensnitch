@@ -5,6 +5,7 @@ from datetime import datetime
 import sys
 import os
 import pwd
+import subprocess
 import time
 import ipaddress
 
@@ -49,7 +50,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self._rules = Rules.instance()
         self._notification_callback.connect(self.cb_notification_callback)
         self._old_rule_name = None
-        self._users_list = pwd.getpwall()
+        self._users_list = []
 
         self.setupUi(self)
         self.setModal(modal)
@@ -79,21 +80,25 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.ifaceCombo.clear()
         self.uidCombo.clear()
         addr = nodes.get_node_addr(self)
-        if addr is not None and self._nodes.is_local(addr):
-            self.ifaceCombo.addItems(NetworkInterfaces.list().keys())
-            try:
-                for ip in NetworkInterfaces.list().values():
-                    if self.srcIPCombo.findText(ip) == -1:
-                        self.srcIPCombo.insertItem(0, ip)
-                    if self.dstIPCombo.findText(ip) == -1:
-                        self.dstIPCombo.insertItem(0, ip)
+        if addr is not None:
+            if self._nodes.is_local(addr):
+                self.ifaceCombo.addItems(NetworkInterfaces.list().keys())
+                try:
+                    for ip in NetworkInterfaces.list().values():
+                        if self.srcIPCombo.findText(ip) == -1:
+                            self.srcIPCombo.insertItem(0, ip)
+                        if self.dstIPCombo.findText(ip) == -1:
+                            self.dstIPCombo.insertItem(0, ip)
+                except Exception as e:
+                    self.logger.warning("Error adding IPs: %s", repr(e))
 
-                self._users_list = pwd.getpwall()
-                self.uidCombo.blockSignals(True);
+            self.uidCombo.blockSignals(True);
+            try:
+                self._users_list = self._get_users(addr)
                 for user in self._users_list:
                     self.uidCombo.addItem("{0} ({1})".format(user[constants.PW_USER], user[constants.PW_UID]), user[constants.PW_UID])
             except Exception as e:
-                self.logger.warning("Error adding IPs: %s", repr(e))
+                self.logger.warning("Error loading users: %s", repr(e))
             finally:
                 self.uidCombo.blockSignals(False);
 
@@ -225,8 +230,91 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.dstListNetsLine.setEnabled(state)
         self.selectNetsListButton.setEnabled(state)
 
+    def _get_users(self, addr):
+        if not self._nodes.is_local(addr):
+            return []
+
+        users = []
+        result = subprocess.run(
+            ["getent", "passwd"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode != 0:
+            return users
+
+        for line in result.stdout.splitlines():
+            parts = line.split(":")
+            if len(parts) < 7 or parts[6] in ("/sbin/nologin", "/bin/false"):
+                continue
+            try:
+                users.append((
+                    parts[0],
+                    "x",
+                    int(parts[2]),
+                    int(parts[3]),
+                    parts[4],
+                    parts[5],
+                    parts[6]
+                ))
+            except ValueError:
+                self.logger.debug("invalid passwd entry returned by getent: %s", line)
+
+        return users
+
+    def _resolve_uid(self, username):
+        try:
+            return pwd.getpwnam(username)[constants.PW_UID]
+        except KeyError:
+            pass
+
+        try:
+            result = subprocess.run(
+                ["getent", "passwd", username],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return int(result.stdout.split(":", 3)[2])
+        except (IndexError, OSError, ValueError, subprocess.SubprocessError):
+            pass
+
+        addr = nodes.get_node_addr(self)
+        if addr is None or self._nodes.is_local(addr):
+            raise KeyError(username)
+
+        _, _, host = addr.partition(":")
+        if host == "":
+            raise KeyError(username)
+
+        try:
+            result = subprocess.run(
+                [
+                    "ssh",
+                    "-o", "ConnectTimeout=5",
+                    "-o", "StrictHostKeyChecking=no",
+                    "-o", "BatchMode=yes",
+                    "root@%s" % host,
+                    "getent",
+                    "passwd",
+                    username
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return int(result.stdout.split(":", 3)[2])
+        except (IndexError, OSError, ValueError, subprocess.SubprocessError):
+            pass
+
+        raise KeyError(username)
+
     def cb_uid_combo_changed(self, index):
-        self.uidCombo.setCurrentText(str(self._users_list[index][constants.PW_UID]))
+        if 0 <= index < len(self._users_list):
+            self.uidCombo.setCurrentText(str(self._users_list[index][constants.PW_UID]))
 
     def cb_nodes_combo_changed(self, index):
         addr = self.nodesCombo.itemData(index)
@@ -724,15 +812,15 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 return False, QC.translate("rules", "User ID can not be empty")
 
             try:
-                # sometimes when loading a rule, instead of the UID, the format
-                # "user (uid)" is set. So try to parse it, in order not to save
-                # a wrong uid.
                 uidtmp = uid.split(" ")
                 if len(uidtmp) == 1:
-                    int(uidtmp[0])
+                    try:
+                        int(uidtmp[0])
+                    except ValueError:
+                        uid = str(self._resolve_uid(uidtmp[0]))
                 else:
-                    uid = str(pwd.getpwnam(uidtmp[0])[constants.PW_UID])
-            except:
+                    uid = str(self._resolve_uid(uidtmp[0]))
+            except (KeyError, ValueError):
                 # if it's not a digit and nor a system user (user (id)), see if
                 # it's a regexp.
                 if utils.is_regex(self, self.uidCombo.currentText()):

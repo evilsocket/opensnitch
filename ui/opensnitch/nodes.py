@@ -1,6 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from queue import Queue
 from datetime import datetime
+import ipaddress
 import time
 import json
 
@@ -258,9 +259,17 @@ class Nodes(QObject):
             return True
 
         if addr.startswith("ipv4") or addr.startswith("ipv6"):
+            _, _, host = addr.partition(":")
+            host = host.strip("[]")
+            try:
+                if ipaddress.ip_address(host).is_loopback:
+                    return True
+            except ValueError:
+                pass
+
             ifaces = self._interfaces.list()
             for name in ifaces:
-                if ifaces[name] in addr:
+                if ifaces[name] == host:
                     return True
 
         return False
