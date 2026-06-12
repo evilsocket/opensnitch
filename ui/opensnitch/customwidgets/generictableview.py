@@ -89,8 +89,8 @@ class GenericTableModel(QStandardItemModel):
 
     def refresh(self):
         self.realQuery.exec()
-        #self._update_row_count()
-        #self._update_col_count()
+        self.update_row_count()
+        self.update_col_count()
 
     def rowCount(self, index=None):
         """ensures that only the needed rows is created"""
@@ -251,7 +251,13 @@ class GenericTableModel(QStandardItemModel):
 
             self.items.append(cols)
 
+        # we need to set the row count here, otherwise the GUI may crash in
+        # some systems.
+        # we also need to update these two values in order to update the row
+        # numbers correctly.
+        self.setRowCount(len(rowsLabels))
         self.setVerticalHeaderLabels(rowsLabels)
+
         if self.lastItems != self.items or force is True:
             self.dataChanged.emit(self.createIndex(0,0), self.createIndex(upperBound, header_count))
         self.lastItems = self.items
@@ -284,8 +290,7 @@ class GenericTableModel(QStandardItemModel):
         lastAt = self.realQuery.at()
         self.realQuery.seek(start)
         header_count = self.columnCount()
-        while True:
-            self.realQuery.next()
+        while self.realQuery.next():
             if self.realQuery.at() == QSql.Location.AfterLastRow.value or len(rows) >= end:
                 break
             row = []
@@ -314,9 +319,18 @@ class GenericTableView(QTableView):
         # current selected rows
         self._rows_selection = set()
 
-        # first and last row selected with shift pressed
+        # selection range to highlight the rows of the viewport, that is,
+        # the rows of the current sql query (offset + limit).
         self._first_row_selected = None
         self._last_row_selected = None
+        # selection range that will be used to retrieve from the db the rows
+        # selected by the user.
+        # this range takes into account the current offset of the sql query, in
+        # order to select the real row.
+        self._db_selection_range = {
+            'first': None,
+            'last': None
+        }
 
         # flag to avoid excessive refreshes
         self._last_height = 0
@@ -360,7 +374,11 @@ class GenericTableView(QTableView):
 
     def selectDbRows(self, first, last):
         """get rows range from the db"""
-        selrows = self.model().dumpRows(first_row=first, last_row=last)
+        # dumpRows() already take into account the OFFSET, so first and last must
+        # be relative.
+        offset = self.model().queryOffset
+        limit = self.model().queryLimit
+        selrows = self.model().dumpRows(nolimits=True, first_row=first, last_row=last)
         if selrows is None:
             return
         self._rows_selection.clear()
@@ -425,19 +443,24 @@ class GenericTableView(QTableView):
         pos = event.pos()
         row = self.rowAt(pos.y())
         viewport_row = self.getViewportRowPos(row)
+        offset = self.model().queryOffset
 
         # when the mouse goes off the viewport while dragging, row is -1.
         # in this scenario, set a valid last row.
         if self._last_row_selected is None and (row == -1 and viewport_row == 0):
             self._last_row_selected = self._first_row_selected
             self._first_row_selected = 0
+            self._db_selection_range['last'] = self._db_selection_range['first']
+            self._db_selection_range['first'] = 0
         elif self._last_row_selected is None and (row == -1 and viewport_row+self.maxRowsInViewport == self.getMaxViewportRow()):
             self._last_row_selected = self.getMaxViewportRow()+1
 
         if self._first_row_selected is None:
             self._first_row_selected = viewport_row
+            self._db_selection_range['first'] = viewport_row + offset
         if self._last_row_selected is None:
             self._last_row_selected = viewport_row
+            self._db_selection_range['last'] = viewport_row + offset
 
         # invert the selection after moving up
         if self._first_row_selected > self._last_row_selected:
@@ -445,6 +468,10 @@ class GenericTableView(QTableView):
             first = self._last_row_selected
             self._last_row_selected = last
             self._first_row_selected = first
+            last = self._db_selection_range['first']
+            first = self._db_selection_range['last']
+            self._db_selection_range['first'] = first
+            self._db_selection_range['last'] = last
 
         if self.shiftPressed:
             self.handleShiftPressed()
@@ -456,8 +483,7 @@ class GenericTableView(QTableView):
         if self.ctrlPressed:
             return
 
-        first_row = self._first_row_selected-2
-        self.selectDbRows(first_row, self._last_row_selected)
+        self.selectDbRows(self._db_selection_range['first']-2, self._db_selection_range['last'])
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
@@ -484,6 +510,8 @@ class GenericTableView(QTableView):
         if not self.shiftPressed:
             self._first_row_selected = None
             self._last_row_selected = None
+            self._db_selection_range['first'] = None
+            self._db_selection_range['last'] = None
 
         pos = event.pos()
         item = self.indexAt(pos)
@@ -512,11 +540,14 @@ class GenericTableView(QTableView):
         if rowSelected and rightBtnPressed:
             return
 
+        offset = self.model().queryOffset
         viewport_row = self.getViewportRowPos(row)
         if self._first_row_selected is None:
             self._first_row_selected = viewport_row
+            self._db_selection_range['first'] = viewport_row + offset
         if self._last_row_selected is None:
             self._last_row_selected = viewport_row
+            self._db_selection_range['last'] = viewport_row + offset
 
         if self.ctrlPressed:
             if rowSelected:
@@ -524,18 +555,25 @@ class GenericTableView(QTableView):
                 flags = QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Deselect
                 if self.ctrlPressed:
                     self._first_row_selected = None
+                    self._db_selection_range['first'] = None
             else:
                 self._rows_selection.add(clickedItem.data())
         elif self.shiftPressed:
             if self._last_row_selected is None:
                 self._last_row_selected = viewport_row
+                self._db_selection_range['last'] = viewport_row + offset
 
             # update the first or last row depending on the direction the row
             # has been selected.
             if viewport_row < self._first_row_selected:
                 self._first_row_selected = viewport_row
-            if viewport_row > self._first_row_selected:
+            if viewport_row > self._last_row_selected:
                 self._last_row_selected = viewport_row
+
+            if viewport_row+offset < self._db_selection_range['first']:
+                self._db_selection_range['first'] = viewport_row + offset
+            if viewport_row+offset > self._db_selection_range['first']:
+                self._db_selection_range['last'] = viewport_row + offset
         else:
             deselectCurRow = len(self._rows_selection) == 1 and not rightBtnPressed
             # discard current selection:
@@ -546,11 +584,18 @@ class GenericTableView(QTableView):
             if (not rowSelected and rightBtnPressed) or not rightBtnPressed or deselectCurRow:
                 self.clearSelection()
                 self._first_row_selected = viewport_row
+                self._db_selection_range['first'] = viewport_row + offset
             if rowSelected and deselectCurRow and not rightBtnPressed:
                 self._first_row_selected = None
+                self._db_selection_range['first'] = None
                 flags = QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Deselect
             else:
                 self._rows_selection.add(clickedItem.data())
+
+        if self._db_selection_range['last'] is None:
+            self._db_selection_range['last'] = self._db_selection_range['first']
+        if self._last_row_selected is None:
+            self._last_row_selected = self._first_row_selected
 
         self.selectionModel().setCurrentIndex(
             clickedItem,
@@ -559,8 +604,7 @@ class GenericTableView(QTableView):
 
     def handleShiftPressed(self):
         # in the viewport, the rows start at 1, but in the db at 0
-        first_row = self._first_row_selected-2
-        self.selectDbRows(first_row, self._last_row_selected)
+        self.selectDbRows(self._db_selection_range['first']-2, self._db_selection_range['last'])
 
     def handleMouseMoveEvent(self, row, clickedItem, selected):
         # this code serves to highlight rows while selecting rows by dragging
@@ -571,7 +615,9 @@ class GenericTableView(QTableView):
         else:
             self._rows_selection.add(clickedItem.data())
 
+        offset = self.model().queryOffset
         self._last_row_selected = self.getViewportRowPos(row)
+        self._db_selection_range['last'] = self._last_row_selected + offset
         # handle scrolling the view while dragging the mouse.
         self.scrollViewport(row)
 
@@ -630,6 +676,10 @@ class GenericTableView(QTableView):
         self._rows_selection.clear()
         self._first_row_selected = None
         self._last_row_selected = None
+        self._db_selection_range = {
+            'first': None,
+            'last': None
+        }
 
     def selectedRows(self, limit=""):
         if self.keySelectAll:
@@ -639,16 +689,22 @@ class GenericTableView(QTableView):
 
         # viewport_rows contains all the rows of the current query, regardless if
         # they're displayed in the view or not.
-        viewport_rows = self.model().dumpRows()
+        # FIXME: if we're off the first limit of results, we need to dump all the
+        # results.
+        offset = self.model().queryOffset
+        viewport_rows = self.model().dumpRows(nolimits=offset > 0)
         if viewport_rows is None:
             return
         rows = []
+        selected = []
         for row in viewport_rows:
             cell = row[self.trackingCol]
-            if cell not in self._rows_selection:
+            if cell not in self._rows_selection or cell in selected:
                 continue
+            selected.append(cell)
             rows.append(row)
         viewport_rows = None
+        selected = None
         return rows
 
     def getCurrentIndex(self):
@@ -739,6 +795,7 @@ class GenericTableView(QTableView):
             self._rows_selection.clear()
         self._rows_selection.add(curIdx.data())
 
+        viewport_row = self.getViewportRowPos(curRow)
         newValue = self.vScrollBar.value()
 
         offset = self.model().queryOffset
@@ -754,6 +811,8 @@ class GenericTableView(QTableView):
     def onKeyHome(self):
         self._last_row_selected = self._first_row_selected
         self._first_row_selected = 0
+        self._db_selection_range['last'] = self._db_selection_range['first']
+        self._db_selection_range['first'] = 0
         self.vScrollBar.blockSignals(True)
         self.vScrollBar.setValue(0)
         self.vScrollBar.blockSignals(False)
@@ -775,20 +834,34 @@ class GenericTableView(QTableView):
     def onKeyPageUp(self):
         newValue = max(0, self.vScrollBar.value() - self.maxRowsInViewport)
         self.vScrollBar.setValue(newValue)
+        if self.shiftPressed:
+            self.selectDbRows(self._first_row_selected-2, self._last_row_selected)
 
     def onKeyPageDown(self):
         if self.vScrollBar.isVisible() == False:
             return
 
+        prevValue = self.vScrollBar.value() + (self.maxRowsInViewport-2)
         newValue = self.vScrollBar.value() + (self.maxRowsInViewport-2)
         self.vScrollBar.setValue(newValue)
+        self._last_row_selected = self.getViewportRowPos(newValue)
+        prevValue = self.getViewportRowPos(prevValue)
+        if self.shiftPressed:
+            if self._first_row_selected is None:
+                self._first_row_selected = prevValue
+            self.selectDbRows(self._first_row_selected-2, self._last_row_selected)
 
     def onKeySpace(self):
         if self.vScrollBar.isVisible() == False:
             return
 
         newValue = self.vScrollBar.value() + (self.maxRowsInViewport-2)
+        prevValue = self.getViewportRowPos(prevValue)
         self.vScrollBar.setValue(newValue)
+        if self.shiftPressed:
+            if self._first_row_selected is None:
+                self._first_row_selected = prevValue
+            self.selectDbRows(self._first_row_selected-2, self._last_row_selected)
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.Type.KeyRelease:
