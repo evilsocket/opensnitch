@@ -443,6 +443,7 @@ class Icons():
     def get_by_appname(app_icon):
         """return the pixmap of an application.
         """
+        pixmap = None
         try:
             icon = QtGui.QIcon().fromTheme(app_icon)
             pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))

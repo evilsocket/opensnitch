@@ -155,6 +155,7 @@ class MenusManager(views.ViewsManager):
             rule_action = model.index(selection[0].row(), FirewallTableModel.COL_ACTION).data()
             rule_action = rule_action.lower()
 
+            _action_accept = _action_drop = _action_reject = _action_return = None
             nodes_menu = []
             if self.nodes_count() > 1:
                 nodes_menu.append(

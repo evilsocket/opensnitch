@@ -30,10 +30,6 @@ class PluginSignal(QtCore.QObject):
     def disconnect(self, callback):
         self.signal.disconnect(callback)
 
-    #@QtCore.pyqtSlot(dict)
-    def cb_signal(self, args):
-        self.signal.disconnect(callback)
-
 class PluginsList():
     """plugins store. Whenever a plugin is instantiated, it's added to the
     plugin list automatically

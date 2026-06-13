@@ -526,8 +526,8 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
                 QtWidgets.QMessageBox.Icon.Warning)
 
     def on_cmd_back_clicked(self, idx):
+        cur_idx = self.get_current_view_idx()
         try:
-            cur_idx = self.get_current_view_idx()
             self.set_in_detail_view(cur_idx, False)
 
             self.set_active_widgets(cur_idx, False)

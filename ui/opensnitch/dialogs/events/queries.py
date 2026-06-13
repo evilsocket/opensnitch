@@ -244,6 +244,8 @@ class Queries:
 
     def get_indetail_filter(self, indetail_view, lastQuery, text, advanced_filter):
         """builds the query when a tab is in the detail view."""
+        base_query = []
+        qstr = ""
         try:
             cur_idx = self.win.get_current_view_idx()
             base_query = lastQuery.split("GROUP BY")

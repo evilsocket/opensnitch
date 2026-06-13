@@ -442,6 +442,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.set_message_style('')
         self.labelChecksumStatus.setText('')
         is_valid = True
+        expected = ""
         checksums = con.process_checksums
         expected_list = []
 

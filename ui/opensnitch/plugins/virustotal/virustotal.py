@@ -366,6 +366,7 @@ class Virustotal(PluginBase):
 
         error = (errmsg is not None)
         malicious = False
+        verdict = None
         labelStyle = "color: {0}".format(config['benign-label-style'])
         try:
             if error:
