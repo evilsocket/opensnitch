@@ -546,6 +546,29 @@
               </property>
              </widget>
             </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_full_command">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Filter by full command by default</string>
+              </property>
+              <property name="toolTip">
+               <string>List of commands that will be selected to filter as "from this command line" by default in the pop-up dialog.&#10;The list should be comma-separated without spaces.&#10;It would match all commands that starts with a word in the list.</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="fullCommandBin">
+              <property name="placeholderText">
+               <string>e.g. python,curl (leave empty to disable)</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </widget>
