@@ -9,7 +9,7 @@ opensnitch/resources_rc.py: translations deps
 
 translations:
 	@cd i18n ; make
-	
+
 deps:
 	@pip3 install -r requirements.txt
 

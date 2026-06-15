@@ -1,9 +1,9 @@
 include ./opensnitch_i18n.pro
 
-#TSFILES contains all *.ts files in locales/ and its subfolders 
+#TSFILES contains all *.ts files in locales/ and its subfolders
 #TSFILES := $(shell find locales/ -type f -name '*.ts')
 
-#QMFILES contains all *.qm files in locales/ and its subfolders 
+#QMFILES contains all *.qm files in locales/ and its subfolders
 QMFILES := $(shell find locales/ -type f -name '*.qm')
 #if QMFILES is empty, we set it to phony target to run unconditionally
 ifeq ($(QMFILES),)
@@ -12,7 +12,7 @@ endif
 
 all: $(TSFILES) $(QMFILES)
 
-#if any file from SOURCES or FORMS is older than any file from $(TSFILES)  
+#if any file from SOURCES or FORMS is older than any file from $(TSFILES)
 #or if opensnitch_i18n.pro was manually modified
 
 # pylupdate6 does not support parsing .pro files anymore

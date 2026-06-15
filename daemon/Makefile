@@ -1,4 +1,4 @@
-#SRC contains all *.go *.c *.h files in daemon/ and its subfolders 
+#SRC contains all *.go *.c *.h files in daemon/ and its subfolders
 SRC := $(shell find . -type f -name '*.go' -o -name '*.h' -o -name '*.c')
 PREFIX?=/usr/local
 
@@ -23,7 +23,7 @@ install:
 
 opensnitchd: $(SRC)
 	@go get
-	@go build -o opensnitchd . 
+	@go build -o opensnitchd .
 
 clean:
 	@rm -rf opensnitchd
