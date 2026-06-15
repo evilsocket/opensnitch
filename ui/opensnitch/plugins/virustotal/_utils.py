@@ -1,3 +1,17 @@
+import logging
+
+def get_log_level(lvl):
+    if lvl == "debug":
+        return logging.DEBUG
+    elif lvl == "info":
+        return logging.INFO
+    elif lvl == "error":
+        return logging.ERROR
+    elif lvl == "critical":
+        return logging.CRITICAL
+
+    return logging.WARNING
+
 # https://docs.virustotal.com/reference/domains-object
 def get_verdict(verdict):
     # TODO: use the names defined in the configuration file.

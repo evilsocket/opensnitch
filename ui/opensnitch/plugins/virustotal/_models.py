@@ -32,7 +32,7 @@ hostsDelegateConfig = {
     "created": "",
     "updated": "",
     "actions": {
-        "highlight": {
+        "Highlight": {
             "enabled": True,
             "cells": [
                 {

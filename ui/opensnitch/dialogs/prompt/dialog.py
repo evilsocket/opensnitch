@@ -230,6 +230,9 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         """set the icon of the popup"""
         self.iconLabel.setPixmap(pixmap)
 
+    def set_default_action(self, action):
+        self._default_action = action
+
     def eventFilter(self, obj, event):
         if event.type() == QEvent.Type.MouseButtonPress:
             self.stop_countdown()

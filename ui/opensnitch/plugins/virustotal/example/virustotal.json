@@ -7,6 +7,7 @@
   "actions": {
       "virustotal": {
           "enabled": true,
+          "loglevel": "debug",
           "config": {
               "api_timeout": 2,
               "api_quota": 500,
@@ -15,7 +16,24 @@
               "api_ips_url": "https://www.virustotal.com/api/v3/ip_addresses/",
               "api_files_url": "https://www.virustotal.com/api/v3/files/"
           },
-          "check": ["domains", "ips", "hashes"]
+          "check": ["domains", "ips", "hashes"],
+          "malicious": {
+              "minimum-threshold": 1,
+              "action": "reject",
+              "icon": "dialog-warning",
+              "use-community-score": false,
+              "use-reputation": false,
+              "use-suspicious": false
+          },
+          "widgets-colors": {
+              "malicious": "red",
+              "benign": "green",
+              "unknown": "darkOrange"
+          },
+          "exclusions": {
+              "ips": [],
+              "domains": []
+          }
       }
   }
 }

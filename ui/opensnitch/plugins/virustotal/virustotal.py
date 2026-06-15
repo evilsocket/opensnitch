@@ -8,13 +8,17 @@ from PyQt6 import QtCore
 from opensnitch.actions import Actions
 from opensnitch.version import version
 from opensnitch.config import Config
+from opensnitch.utils import Icons
 from opensnitch.plugins import PluginBase, PluginSignal
 from opensnitch.dialogs.events import StatsDialog, constants as evt_constants
 from opensnitch.dialogs.prompt import PromptDialog, constants
 from opensnitch.dialogs.processdetails import ProcessDetailsDialog
-from opensnitch.plugins.virustotal import _popups
-from opensnitch.plugins.virustotal import _procdialog
-from opensnitch.plugins.virustotal import models
+from opensnitch.plugins.virustotal import (
+    _popups,
+    _procdialog,
+    _models,
+    _utils
+)
 from opensnitch.customwidgets.colorizeddelegate import ColorizedDelegate
 
 ch = logging.StreamHandler()
@@ -64,8 +68,9 @@ class VTAnalysis(QtCore.QRunnable):
 
 class Virustotal(PluginBase):
     """Analyzes properties of a connection: domain, IP, file hash.
-    json format:
+    json configuration example:
         {
+            "loglevel": "debug",
             "config": {
               "api_timeout": 2,
               "api_key": "123456",
@@ -73,7 +78,24 @@ class Virustotal(PluginBase):
               "api_ips_url": "https://www.virustotal.com/api/v3/ip_addresses/",
               "api_files_url": "https://www.virustotal.com/api/v3/files/"
             },
-            "check": ["domains", "ips", "files"]
+            "check": ["domains", "ips", "hashes"],
+            "malicious": {
+                "minimum-threshold": 1,
+                "action": "reject",
+                "icon": "dialog-warning"
+                "use-community-score": false,
+                "use-suspicious": false,
+                "use-reputation": false
+            },
+            "widgets-colors": {
+                "malicious": "blue",
+                "benign": "green",
+                "unknown": "darkOrange"
+            },
+            "exclusions": {
+                "ips": ["127.", "192.168.", "1.1.1.1"],
+                "domains": [".lan"]
+            }
         }
 
     The config item is optional, and will override default configuration if specified.
@@ -143,13 +165,15 @@ class Virustotal(PluginBase):
     # Sometimes only 1 analysis returns malicious results, which may lead to false
     # positives.
 
-    # consider the object (domain, ip, etc) malicious if the number of reports
+    # consider the object (domain, ip, etc) malicious if the number of analyses
     # is equal or above this threshold.
     MALICIOUS_THRESHOLD = 1
     WARNING_THRESHOLD = 5
     # There's also a community reputation:
     # reputation: <integer> domain's score calculated from the votes of the
     # VirusTotal's community.
+    # and community votes:
+    # https://docs.virustotal.com/reference/ip-object#object-attributes
 
     VT_DOMAIN = "www.virustotal.com"
     API_DOMAINS = "https://www.virustotal.com/api/v3/domains/"
@@ -179,7 +203,26 @@ class Virustotal(PluginBase):
     multiIPv4 = r'2[32][23459]\.\d{1,3}\.\d{1,3}\.\d{1,3}'
     multiIPv6 = r'ffx[0123458ef]::'
     MULTICAST_RANGE = "^(" + multiIPv4 + ")$"
-    LAN_RANGES = "^(" + others_net + "|" + classC_net + "|" + classB_net + "|" + classA_net + multiIPv4 + "|" + multiIPv6 + "|::1|f[cde].*::.*)$"
+    LAN_RANGES = "^(" + others_net + "|" + classC_net + "|" + classB_net + "|" + classA_net + "|" + multiIPv4 + "|" + multiIPv6 + "|::1|f[cde].*::.*)$"
+
+    # options to colorize labels based on the results.
+    # color values can be specified in hexadecimal or name:
+    # https://doc.qt.io/qt-6/qcolorconstants.html#qt-colors
+    widgets_colors = {
+        'malicious': 'red',
+        'benign': 'green',
+        'unknown': 'orange'
+    }
+
+    # list of exclusions to avoid scanning/opening connections to VT.
+    # it'll only check if something *contains* the exclusion. For example:
+    #  dsthost: nas-server.lan
+    #  exclusion: .lan
+    #  if exclusion in dsthost -> exclude
+    exclusions = {
+        'ips': [],
+        'domains': []
+    }
 
     def __init__(self, config=None):
         self.API_DOMAINS = "https://www.virustotal.com/api/v3/domains/"
@@ -201,6 +244,7 @@ class Virustotal(PluginBase):
         self.signal_in.connect(self.cb_incoming_events)
         self.threadsPool = QtCore.QThreadPool()
         self.vt_model = None
+        self.evt_dialog = None
 
     def configure(self, parent=None):
         """add widgets to all supported areas of the GUI"""
@@ -215,9 +259,9 @@ class Virustotal(PluginBase):
             _procdialog.add_vt_tab(self, parent, vt_tab)
 
         elif type(parent) == StatsDialog:
-            evt_dialog = parent
-            view_config = evt_dialog.get_view_config(evt_constants.TAB_HOSTS)
-            self.vt_model = models.VTTableModel(
+            self.evt_dialog = parent
+            view_config = self.evt_dialog.get_view_config(evt_constants.TAB_HOSTS)
+            self.vt_model = _models.VTTableModel(
                 view_config['name'],
                 view_config['header_labels'],
                 self.API_DOMAINS,
@@ -227,17 +271,17 @@ class Virustotal(PluginBase):
                 True
             )
 
-            view_config['view'] = evt_dialog.view_setup(
-                evt_dialog.hostsTable,
+            view_config['view'] = self.evt_dialog.view_setup(
+                self.evt_dialog.hostsTable,
                 view_config['name'],
                 model=self.vt_model,
-                verticalScrollBar=evt_dialog.hostsScrollBar,
+                verticalScrollBar=self.evt_dialog.hostsScrollBar,
                 resize_cols=(evt_constants.COL_WHAT,2),
                 order_by=view_config['last_order_by'],
-                limit=evt_dialog.get_view_limit()
+                limit=self.evt_dialog.get_view_limit()
             )
             _actions = Actions.instance()
-            hostsDelegate = _actions.compile(models.hostsDelegateConfig)
+            hostsDelegate = _actions.compile(_models.hostsDelegateConfig)
             view_config['view'].setItemDelegate(
                 ColorizedDelegate(
                     view_config['view'],
@@ -251,6 +295,9 @@ class Virustotal(PluginBase):
         """Transform json items to python objects, if needed.
         It's executed only once.
         """
+        loglvl = self._config.get("loglevel")
+        logger.setLevel(_utils.get_log_level(loglvl))
+
         logger.debug("compile()")
         for idx in self._config:
             if idx == "config" and 'api_timeout' in self._config[idx]:
@@ -265,6 +312,29 @@ class Virustotal(PluginBase):
                 self.API_IPS = self._config[idx]['api_ips_url']
             if idx == "config" and 'api_files_url' in self._config[idx]:
                 self.API_FILES = self._config[idx]['api_files_url']
+
+        if self._config.get("exclusions") is not None:
+            self.exclusions = self._config.get("exclusions")
+
+        if self._config.get("widgets-colors") is not None:
+            self.widgets_colors = self._config.get('widgets-colors')
+
+        warnIcon = Icons.new(self, "dialog-warning")
+        warnPix = warnIcon.pixmap(64, 64)
+        if self._config.get("malicious") is None:
+            self._config['malicious'] = {
+                'action': "reject",
+                'icon': warnIcon.pixmap(64, 64),
+                'use-suspicious': False,
+                'use-community-votes': False,
+                'use-reputation': False,
+                'minimum-threshold': self.MALICIOUS_THRESHOLD,
+            }
+        else:
+            warnIcon = Icons.new(self, self._config['malicious']['icon'])
+            self._config['malicious']['icon'] = warnIcon.pixmap(64, 64)
+
+        self.MALICIOUS_THRESHOLD = self._config['malicious']["minimum-threshold"]
 
         if self._config.get("malicious-label-style") is None:
             self._config['malicious-label-style'] = 'red'
@@ -281,7 +351,7 @@ class Virustotal(PluginBase):
         arg1 - list: connection,
 
         Pre-requisites: create a rule to allow outbound connections to
-        www.virustotal.com on port 443 (from your uid).
+        www.virustotal.com on port 443 from the GUI (from your uid).
         """
         # parent == PromptDialog
         self.parent = parent
@@ -298,6 +368,14 @@ class Virustotal(PluginBase):
                 return
             if self.lan_regex.match(conn.dst_host) is not None or self.lan_regex.match(conn.dst_ip) is not None:
                 return
+            for d in self.exclusions['domains']:
+                  if d in conn.dst_host:
+                    logger.debug(f"domain exclusion matched: {d} - {conn.dst_host}")
+                    return
+            for d in self.exclusions['ips']:
+                  if d in conn.dst_ip:
+                    logger.debug(f"ip exclusion matched: {d} - {conn.dst_ip}")
+                    return
 
             logger.debug("analyzing %s, %s", self.API_DOMAINS, conn.dst_host)
 
@@ -318,7 +396,7 @@ class Virustotal(PluginBase):
                         logger.debug("run() checksum of this process empty, skipping")
                         continue
                 else:
-                    logger.info("run() unknown target: %s", what)
+                    logger.info("run() unknown target, review the configuration: %s", what)
                     continue
 
                 logger.debug("run() analyzing: %s", url)
@@ -366,7 +444,7 @@ class Virustotal(PluginBase):
 
         error = (errmsg is not None)
         malicious = False
-        labelStyle = "color: {0}".format(config['benign-label-style'])
+        labelStyle = "color: {0}".format(self.widgets_colors['benign'])
         try:
             if error:
                 if response and response.content == 401:
@@ -386,13 +464,29 @@ class Virustotal(PluginBase):
                     return
 
             verdict = result['data']['attributes']['last_analysis_stats']
+            votes = result['data']['attributes']['total_votes']
+            reputation = result['data']['attributes']['reputation']
             #print("[Virustotal] RESULT:\n", conn.dst_host, "\n", result['data']['attributes']['last_analysis_stats'])
 
             # XXX: if we analyze multiple objects (domains, ips, hashes...),
             # only the last response is stored.
             _popups.add_vt_response(parent, result, conn)
 
-            malicious = self.is_malicious(verdict['malicious'])
+            mal_num = verdict['malicious']
+            susp_num = verdict['suspicious']
+            mal_comm_votes = 0
+            good_comm_votes = 0
+            comm_votes = 0
+            if config['malicious']['use-community-score']:
+                mal_comm_votes = votes['malicious']
+                good_comm_votes = votes['harmless']
+                comm_votes = mal_comm_votes - good_comm_votes
+                mal_num += comm_votes
+            if config['malicious']['use-suspicious']:
+                mal_num += susp_num
+            if config['malicious']['use-reputation']:
+                mal_num += -reputation
+            malicious = self.is_malicious(mal_num)
 
             # self.set_malicious(parent)
         except ValueError as e:
@@ -409,24 +503,30 @@ class Virustotal(PluginBase):
             if what in old_msg:
                 return
             message = "<font color=\"{0}\">{1} ({2})</font><br>{3}".format(
-                config['benign-label-style'],
+                self.widgets_colors['benign'],
                 config['benign-message'],
                 what,
                 parent.get_message_text()
             )
             if malicious:
-                labelStyle = "color: {0}".format(config['malicious-label-style'])
-                message = "<font color=\"{0}\">{1} ({2}, flagged by {3} sources)</font> <a href='#virustotal-warning'>(Details)</a><br>{4}".format(
-                    config['malicious-label-style'],
+                if config['malicious'] is not None:
+                    parent.set_default_action(Config.ACTION_REJECT_IDX)
+                    parent.set_icon_pixmap(config['malicious']['icon'])
+
+                labelStyle = "color: {0}".format(self.widgets_colors['malicious'])
+                message = "<font color=\"{0}\">{1} ({2}, flagged by {3} sources, votes: {4})</font> <a href='#virustotal-warning'>(Details)</a><br>{5}".format(
+                    self.widgets_colors['malicious'],
                     config['malicious-message'],
                     what,
                     verdict['malicious'],
+                    comm_votes,
                     parent.get_message_text()
                 )
                 parent.set_message_style(labelStyle)
             if error:
-                labelStyle = "color: darkOrange"
-                message = "<font color=\"darkOrange\">Virustotal ({0}): analysis error</font> <a href='#virustotal-warning'>(Details)</a><br>{1}".format(
+                labelStyle = "color: {0}".format(self.widgets_colors['unknown'])
+                message = "<font color=\"{0}\">Virustotal ({1}): analysis error</font> <a href='#virustotal-warning'>(Details)</a><br>{2}".format(
+                    self.widgets_colors['unknown'],
                     what,
                     parent.get_message_text()
                 )
@@ -449,7 +549,7 @@ class Virustotal(PluginBase):
                 parent.checksumLabel.setStyleSheet(labelStyle)
 
     def is_benign(self, mal_results):
-        return mal_results < self.MALICIOUS_THRESHOLD
+        return mal_results > self.MALICIOUS_THRESHOLD
 
     def is_malicious(self, mal_results):
         return mal_results >= self.MALICIOUS_THRESHOLD
