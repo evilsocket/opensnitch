@@ -9,6 +9,7 @@ from PyQt6.QtCore import (
     QItemSelectionModel,
     QItemSelection,
     QModelIndex,
+    QObject,
     pyqtSignal,
     QEvent,
     Qt)
