@@ -610,7 +610,7 @@ class Queries:
                     print("setQuery() error: ", model.lastError().text())
 
                 if self.win.get_current_view_idx() != constants.TAB_MAIN:
-                    self.win.labelRowsCount.setText("{0}".format(model.totalRowCount))
+                    self.win.labelRowsCount.setText("{0}/{1}".format(offset if offset is not None else "0", model.totalRowCount))
                 else:
                     self.win.labelRowsCount.setText("")
             except Exception as e:

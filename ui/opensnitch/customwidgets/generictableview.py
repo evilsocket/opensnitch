@@ -303,9 +303,14 @@ class GenericTableModel(QStandardItemModel):
 class GenericTableView(QTableView):
     vScrollBar = None
 
+    class Signals(QObject):
+        paginateEvent = pyqtSignal(int, int)
+
     def __init__(self, parent):
         QTableView.__init__(self, parent)
         self._lock = threading.RLock()
+
+        self.signals = self.Signals()
 
         # how many rows can potentially be displayed in viewport.
         # the actual number of rows currently displayed may be less than this
@@ -648,6 +653,7 @@ class GenericTableView(QTableView):
     def onRowCountChanged(self):
         totalCount = self.model().totalRowCount
         offset = self.model().queryOffset
+        limit = self.model().queryLimit
         vmax = max(0, totalCount - self.maxRowsInViewport+1)
         if totalCount < self.maxRowsInViewport and offset > 0:
             vmax = self.maxRowsInViewport-5
@@ -664,6 +670,8 @@ class GenericTableView(QTableView):
         self.vScrollBar.setMinimum(0)
         # one scrollbar step is one row
         self.vScrollBar.setMaximum(vmax)
+
+        self.signals.paginateEvent.emit(offset, limit)
         self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=self.forceViewRefresh())
 
     def clearSelection(self):

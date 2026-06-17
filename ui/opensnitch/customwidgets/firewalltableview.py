@@ -238,9 +238,14 @@ class FirewallTableView(QTableView):
     maxRowsInViewport = 0
     rowsReordered = pyqtSignal(str) # addr
 
+    # dummy class and signal.
+    class Signals(QObject):
+        paginateEvent = pyqtSignal(int, int)
+
     def __init__(self, parent):
         QTableView.__init__(self, parent)
         self._fw = Firewall.instance()
+        self.signals = self.Signals()
         self._fw.rules.rulesUpdated.connect(self._cb_fw_rules_updated)
 
         self.verticalHeader().setVisible(True)

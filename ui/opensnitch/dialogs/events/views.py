@@ -88,6 +88,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             tableWidget.setVerticalScrollBar(verticalScrollBar)
         tableWidget.verticalScrollBar().sliderPressed.connect(self.cb_scrollbar_pressed)
         tableWidget.verticalScrollBar().sliderReleased.connect(self.cb_scrollbar_released)
+        tableWidget.signals.paginateEvent.connect(self._cb_on_paginate_event)
         tableWidget.setTrackingColumn(tracking_column)
 
         # "SELECT " + fields + " FROM " + table_name + group_by + " ORDER BY " + order_by + " " + sort_direction + limit)
@@ -301,7 +302,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             qstr = self.queries.get_view_query(model, cur_idx, where_clause)
 
         if qstr is not None:
-            self.queries.setQuery(model, qstr, limit=self.get_query_limit())
+            self.queries.setQuery(model, qstr, limit=self.get_query_limit(), offset=0)
 
     def on_splitter_moved(self, tab, pos, index):
         if tab ==  constants.TAB_RULES:

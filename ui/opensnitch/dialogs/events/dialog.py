@@ -1062,6 +1062,9 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
     def _cb_enable_rule_toggled(self, state):
         self.enable_rule(state)
 
+    def _cb_on_paginate_event(self, offset, limit):
+        self.labelRowsCount.setText(f"{offset}/{limit}")
+
     def _cb_prev_button_clicked(self):
         model = self.get_active_table().model()
         model.fetchMore()
