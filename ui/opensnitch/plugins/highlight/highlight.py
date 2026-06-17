@@ -112,7 +112,9 @@ class Highlight(PluginBase):
         # original json config received
         self._config = config
         self._last_visited_row = -1
-        self._rowcells = ""
+        self._rowcells = []
+        self.HMARGIN = 0
+        self.VMARGIN = 0
         self.signal_in.connect(self.cb_signal)
 
     def get_name(self):
@@ -248,18 +250,21 @@ class Highlight(PluginBase):
         if curRow != self._last_visited_row:
             try:
                 # TODO: check for NoneType
-                self._rowcells = " ".join(
-                    [index.sibling(curRow, col).data() for col in range(0, modelColumns)]
-                )
+                self._rowcells = [index.sibling(curRow, col).data() for col in range(0, modelColumns)]
             except:
                 pass
         self._last_visited_row = curRow
 
+        # for every row cell, check if the defined text appears in the defined
+        # column.
+        # for rows we need to loop over all the row cells in order to see if a
+        # text appears in a given column.
         for row in rows:
             skip = True
             for text in row[Highlight.TEXT]:
-                if text in self._rowcells:
-                    skip = False
+                for c in row[Highlight.COLS]:
+                    if text in self._rowcells[c]:
+                        skip = False
             if skip:
                 continue
 
