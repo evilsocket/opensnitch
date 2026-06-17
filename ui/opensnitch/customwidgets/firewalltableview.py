@@ -3,7 +3,7 @@ from PyQt6 import QtCore
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtSql import QSqlQuery, QSqlError
 from PyQt6.QtWidgets import QTableView
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtCore import QCoreApplication as QC
 
 from opensnitch.nodes import Nodes
@@ -129,9 +129,9 @@ class FirewallTableModel(QStandardItemModel):
             row.row()+action)
 
     def sort(self, column, order=QtCore.Qt.SortOrder.AscendingOrder):
-         super().sort(column, order)
-         self._sort_column = column
-         self._sort_order = order
+        super().sort(column, order)
+        self._sort_column = column
+        self._sort_order = order
 
     def refresh(self, force=False):
         self.fillVisibleRows(0, force, *self.lastQueryArgs)
