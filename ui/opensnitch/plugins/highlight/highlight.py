@@ -113,6 +113,7 @@ class Highlight(PluginBase):
         self._config = config
         self._last_visited_row = -1
         self._rowcells = []
+        self._rownum = 0
         self.HMARGIN = 0
         self.VMARGIN = 0
         self.signal_in.connect(self.cb_signal)
@@ -251,6 +252,7 @@ class Highlight(PluginBase):
             try:
                 # TODO: check for NoneType
                 self._rowcells = [index.sibling(curRow, col).data() for col in range(0, modelColumns)]
+                self._rownum = len(self._rowcells)
             except:
                 pass
         self._last_visited_row = curRow
@@ -263,7 +265,7 @@ class Highlight(PluginBase):
             skip = True
             for text in row[Highlight.TEXT]:
                 for c in row[Highlight.COLS]:
-                    if text in self._rowcells[c]:
+                    if c <= self._rownum and text in self._rowcells[c]:
                         skip = False
             if skip:
                 continue
