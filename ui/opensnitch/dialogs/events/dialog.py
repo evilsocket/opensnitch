@@ -1,5 +1,4 @@
 import datetime
-import os
 import json
 
 from PyQt6 import QtCore, QtGui, QtWidgets
@@ -23,13 +22,12 @@ from opensnitch.utils.infowindow import InfoWindow
 from opensnitch.utils.xdg import xdg_current_desktop
 from opensnitch.actions import Actions
 from opensnitch.plugins import PluginBase
-from opensnitch.rules import Rule, Rules
+from opensnitch.rules import Rules
 
 from . import (
     constants,
     menus,
     menu_actions,
-    queries,
     views
 )
 
@@ -1344,6 +1342,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self._fw_dialog.deleteLater()
             self._fw_dialog = None
             del self._fw_dialog
+
+        self.asndb.unload()
 
         self._save_settings()
         e.accept()

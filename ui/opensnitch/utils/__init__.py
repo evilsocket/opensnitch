@@ -1,3 +1,13 @@
+from threading import Thread, Event
+import pwd
+import socket
+import fcntl
+import struct
+import array
+import os, os.path
+import enum
+import re
+import gc
 
 from PyQt6 import QtCore, QtWidgets, QtGui
 from opensnitch.version import version as gui_version
@@ -5,15 +15,6 @@ from opensnitch.database import Database
 from opensnitch.config import Config
 from opensnitch.utils.themes import Themes
 from opensnitch.desktop_parser import LinuxDesktopParser
-from threading import Thread, Event
-import pwd
-import socket
-import fcntl
-import struct
-import array
-import os, os.path, sys, glob
-import enum
-import re
 
 class AsnDB():
     __instance = None
@@ -21,13 +22,12 @@ class AsnDB():
 
     @staticmethod
     def instance():
-        if AsnDB.__instance == None:
+        if AsnDB.__instance is None:
             AsnDB.__instance = AsnDB()
         return AsnDB.__instance
 
     def __init__(self):
         self.ASN_AVAILABLE = True
-        self.load()
 
     def is_available(self):
         return self.ASN_AVAILABLE
@@ -41,7 +41,7 @@ class AsnDB():
         Otherwise it'll try to load it from python3-pyasn package.
         """
         try:
-            if self.asndb != None:
+            if self.asndb is not None:
                 return
 
             import pyasn
@@ -64,6 +64,13 @@ class AsnDB():
             print("exception loading ipasn db:", e)
             print("Install python3-pyasn to display IP's network name.")
 
+    def _load_if_needed(self):
+        if self.asndb is None:
+            self.load()
+
+    def unload(self):
+        self.asndb = None
+        gc.collect()
 
     def lookup(self, ip):
         """Lookup the IP in the ASN DB.
@@ -71,6 +78,8 @@ class AsnDB():
         Return the net range and the prefix if found, otherwise nothing.
         """
         try:
+            self._load_if_needed()
+
             return self.asndb.lookup(ip)
         except Exception:
             return "", ""
@@ -81,8 +90,10 @@ class AsnDB():
         Return the name of the network if found, otherwise nothing.
         """
         try:
+            self._load_if_needed()
+
             asname = self.asndb.get_as_name(asn)
-            if asname == None:
+            if asname is None:
                 asname = ""
             return asname
         except Exception:
@@ -90,6 +101,8 @@ class AsnDB():
 
     def get_asn(self, ip):
         try:
+            self._load_if_needed()
+
             asn, prefix = self.lookup(ip)
             return self.get_as_name(asn)
         except Exception:
