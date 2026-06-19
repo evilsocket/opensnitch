@@ -111,7 +111,7 @@ func newConnectionImpl(nfp *netfilter.Packet, c *Connection, protoType string) (
 			c.Process.ReadCmdline()
 			c.Process.CWD = aevent.ProcDir
 			audit.Lock.RUnlock()
-			// if the proc dir contains non alhpa-numeric chars the field is empty
+			// if the proc dir contains non alpha-numeric chars the field is empty
 			if c.Process.CWD == "" {
 				c.Process.ReadCwd()
 			}

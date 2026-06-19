@@ -73,7 +73,7 @@ class Rule():
                     ])
                 rule.operator.data = ""
         except Exception as e:
-            log.warning("new_from_records exception parsing operartor list: %s", repr(e))
+            log.warning("new_from_records exception parsing operator list: %s", repr(e))
 
 
         return rule

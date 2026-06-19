@@ -94,7 +94,7 @@ def reset_fields(win):
     win.addr = ""
 
 def enable_save(win, enable=True):
-    """Enable Save buton whenever some detail of a rule changes.
+    """Enable Save button whenever some detail of a rule changes.
     The button may or not be hidden. If we're editing a rule it'll be shown
     but disabled/enabled.
     """

@@ -650,7 +650,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
     def restore_details_view_columns(self, header, settings_key):
         header.blockSignals(True)
         # In order to resize the last column of a view, we firstly force a
-        # resizeToContens call.
+        # resizeToContents call.
         # Secondly set resizeMode to Interactive (allow to move columns by
         # users + programmatically)
         header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)

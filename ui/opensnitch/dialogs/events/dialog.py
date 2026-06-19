@@ -639,7 +639,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self.netstat.monitor_node()
         else:
             if index == constants.TAB_RULES:
-                # display the clean buton only if not in detail view
+                # display the clean button only if not in detail view
                 self.TABLES[index]['cmdCleanStats'].setVisible( self.in_detail_view(index) )
                 self._add_rulesTree_nodes()
 

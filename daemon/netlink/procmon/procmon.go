@@ -26,9 +26,9 @@ type ProcEvent struct {
 }
 
 // ProcEventsMonitor listens for process events from kernel.
-// We listen for events via netlink, from the Process Events Conector:
+// We listen for events via netlink, from the Process Events Connector:
 // https://lwn.net/Articles/157150/
-// The kernel must have the options CONFIG_CONECTOR and CONFIG_PROC_EVENTS enabled.
+// The kernel must have the options CONFIG_CONNECTOR and CONFIG_PROC_EVENTS enabled.
 func ProcEventsMonitor(done <-chan struct{}) {
 	log.Info("ProcEventMonitor started\n")
 	runtime.LockOSThread()
