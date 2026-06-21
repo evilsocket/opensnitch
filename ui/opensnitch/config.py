@@ -141,6 +141,7 @@ class Config:
     STATS_GEOMETRY = "statsDialog/geometry"
     STATS_MAXIMIZED = "statsDialog/maximized"
     STATS_LAST_TAB = "statsDialog/last_tab"
+    STATS_TAB_HIDDEN_LIST = "statsDialog/tabs_hidden_list"
     STATS_FILTER_TEXT = "statsDialog/general_filter_text"
     STATS_FILTER_ACTION = "statsDialog/general_filter_action"
     STATS_LIMIT_RESULTS = "statsDialog/general_limit_results"
@@ -221,6 +222,9 @@ class Config:
 
     def getSettings(self, path, default=None):
         return self.settings.value(path, defaultValue=default)
+
+    def getList(self, path, default_value=[]):
+        return self.settings.value(path, type=list, defaultValue=default_value)
 
     def getBool(self, path, default_value=False):
         return self.settings.value(path, type=bool, defaultValue=default_value)

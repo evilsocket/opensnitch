@@ -25,9 +25,19 @@ class EventsBase(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         if block_events:
             self.get_central_widget().blockSignals(False)
 
-    def add_toolbar_buton(self):
-        #self.horizontalLayout_10
-        pass
+    def get_tab_index_by_name(self, name):
+        for i in range(0, self.tabWidget.count()):
+            w = self.tabWidget.widget(i)
+            if w is not None:
+                if w.objectName() == name:
+                    return i
+        return None
+
+    def add_toolbar_button(self, widget):
+        self.horizontalLayout_10.addWidget(widget)
+
+    def insert_toolbar_button(self, pos, widget):
+        self.horizontalLayout_10.insertWidget(pos, widget)
 
     def add_tree_items(self, level, labels, clean=True):
         """adds new items to the panel.

@@ -173,6 +173,13 @@ class FirewallTableModel(QStandardItemModel):
     def prevRecord(self, offset):
         self.position -= 1
 
+    def total(self):
+        return len(self.items)
+
+    def suspend(self):
+        self.items = []
+        self.lastRules = []
+
     def fillVisibleRows(self, upperBound, force, *data):
         if self.activeFilter == self.FILTER_BY_NODE and len(data) == 0:
                 return

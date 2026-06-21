@@ -253,8 +253,12 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             self.show_view_columns(idx)
 
     def show_view_columns(self, idx):
+        if idx not in self.TABLES:
+            return
         tbl_name = self.TABLES[idx]['name']
         view = self.TABLES[idx]['view']
+        if view is None:
+            return
         cols_num = len(view.model().headers())
         cols = self.cfg.getSettings(Config.STATS_SHOW_COLUMNS + f"_{tbl_name}")
         if cols is not None:
@@ -558,9 +562,11 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
     def set_active_widgets(self, prev_idx, state, label_txt=""):
         cur_idx = self.get_current_view_idx()
         self.clear_rows_selection()
-        self.TABLES[cur_idx]['label'].setVisible(state)
-        self.TABLES[cur_idx]['label'].setText(label_txt)
-        self.TABLES[cur_idx]['cmd'].setVisible(state)
+        if self.TABLES[cur_idx].get('label') is not None:
+            self.TABLES[cur_idx]['label'].setVisible(state)
+            self.TABLES[cur_idx]['label'].setText(label_txt)
+        if self.TABLES[cur_idx].get('cmd') is not None:
+            self.TABLES[cur_idx]['cmd'].setVisible(state)
 
         if self.TABLES[cur_idx]['filterLine'] is not None:
             self.TABLES[cur_idx]['filterLine'].setVisible(not state)

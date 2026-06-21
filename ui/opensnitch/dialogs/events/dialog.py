@@ -100,6 +100,9 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self._trigger.connect(self._on_update_triggered)
         self._notification_callback.connect(self._cb_notification_callback)
 
+        self.tabWidget.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tabWidget.customContextMenuRequested.connect(self._cb_tab_context_menu)
+
         self.nodeLabel.setText("")
         self.nodeLabel.setStyleSheet('color: green;font-size:12pt; font-weight:600;')
         self.rulesSplitter.setStretchFactor(0,0)
@@ -122,6 +125,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.comboAction.currentIndexChanged.connect(self._cb_combo_action_changed)
         self.limitCombo.currentIndexChanged.connect(self._cb_limit_combo_changed)
         self.tabWidget.currentChanged.connect(self._cb_tab_changed)
+        self.tabWidget.tabCloseRequested.connect(self._cb_tab_closed)
         self.delRuleButton.clicked.connect(self._cb_del_rule_clicked)
         self.rulesSplitter.splitterMoved.connect(lambda pos, index: self._cb_splitter_moved( constants.TAB_RULES, pos, index))
         self.nodesSplitter.splitterMoved.connect(lambda pos, index: self._cb_splitter_moved( constants.TAB_NODES, pos, index))
@@ -327,21 +331,43 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
 
         self.get_search_widget().setCompleter(self.queries.get_completer(constants.TAB_MAIN))
 
-        for idx in range(1, constants.TAB_TOTAL):
-            if self.TABLES[idx]['cmd'] is not None:
-                self.TABLES[idx]['cmd'].hide()
-                self.TABLES[idx]['cmd'].setVisible(False)
-                self.TABLES[idx]['cmd'].clicked.connect(lambda: self._cb_cmd_back_clicked(idx))
-            if self.TABLES[idx]['cmdCleanStats'] is not None:
-                self.TABLES[idx]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(idx))
-            if self.TABLES[idx]['label'] is not None:
-                self.TABLES[idx]['label'].setStyleSheet('font-weight:600;')
-                self.TABLES[idx]['label'].setVisible(False)
-            self.TABLES[idx]['view'].doubleClicked.connect(self._cb_table_double_clicked)
-            self.TABLES[idx]['view'].clicked.connect(self._cb_table_clicked)
-            self.TABLES[idx]['view'].installEventFilter(self)
-            self.TABLES[idx]['view'].setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
-            self.TABLES[idx]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
+        tab_hidden_list = self.cfg.getSettings(Config.STATS_TAB_HIDDEN_LIST)
+        w=self.tabWidget.widget(constants.TAB_MAIN)
+        if w is not None:
+            w.setObjectName(f"{constants.TAB_MAIN}")
+        for idx, key in enumerate(self.TABLES):
+            # exclude first view
+            if idx == 0:
+                continue
+
+            w=self.tabWidget.widget(idx)
+            if w is not None:
+                w.setObjectName(f"{key}")
+            if tab_hidden_list is not None and str(key) in tab_hidden_list:
+                self.tabWidget.setTabVisible(idx, False)
+                if key in self.TABLES:
+                    self.TABLES[key]['view'].model().suspend()
+
+            # we need to configure default widgets, event if the tab is
+            # hidden.
+
+            if self.TABLES[key]['cmd'] is not None:
+                self.TABLES[key]['cmd'].hide()
+                self.TABLES[key]['cmd'].setVisible(False)
+                self.TABLES[key]['cmd'].clicked.connect(lambda: self._cb_cmd_back_clicked(idx))
+            if self.TABLES[key]['cmdCleanStats'] is not None:
+                self.TABLES[key]['cmdCleanStats'].clicked.connect(lambda: self._cb_clean_sql_clicked(idx))
+            if self.TABLES[key]['label'] is not None:
+                self.TABLES[key]['label'].setStyleSheet('font-weight:600;')
+                self.TABLES[key]['label'].setVisible(False)
+            if self.TABLES[key]['view'] is None:
+                continue
+            self.TABLES[key]['view'].doubleClicked.connect(self._cb_table_double_clicked)
+            self.TABLES[key]['view'].clicked.connect(self._cb_table_clicked)
+            self.TABLES[key]['view'].installEventFilter(self)
+            self.TABLES[key]['view'].setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
+            self.TABLES[key]['view'].customContextMenuRequested.connect(self._cb_table_context_menu)
+            #self.TABLES[key]['completer'] = self.queries.get_completer(idx)
 
         self.TABLES[constants.TAB_FIREWALL]['view'].rowsReordered.connect(self._cb_fw_table_rows_reordered)
 
@@ -457,6 +483,14 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
                 self.TABLES[idx]['cmdCleanStats'].setIcon(clearIcon)
 
     def _load_settings(self):
+        tab_hidden_list = self.cfg.getSettings(Config.STATS_TAB_HIDDEN_LIST)
+        if tab_hidden_list is not None:
+            for i in tab_hidden_list:
+                tab_idx = self.get_tab_index_by_name(str(i))
+                if tab_idx is not None:
+                    self.tabWidget.setTabVisible(tab_idx, False)
+                    self.TABLES[int(i)]['view'].model().suspend()
+
         self._ui_refresh_interval = self.cfg.getInt(Config.STATS_REFRESH_INTERVAL, 0)
         dialog_geometry = self.cfg.getSettings(Config.STATS_GEOMETRY)
         dialog_maximized = self.cfg.getBool(Config.STATS_MAXIMIZED)
@@ -622,6 +656,23 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
                 "{0}".format(reply.data),
                 QtWidgets.QMessageBox.Icon.Warning)
 
+    def _cb_tab_closed(self, index):
+        self.tabWidget.setTabVisible(index, False)
+        tab_hidden_list = []
+        for key in self.TABLES:
+            # the key may be an integer
+            tab_idx = self.get_tab_index_by_name(str(key))
+            if tab_idx is None or self.tabWidget.isTabVisible(tab_idx):
+                continue
+
+            tab_hidden_list.append(tab_idx)
+
+        view = self.TABLES[index]['view']
+        if view is not None:
+            view.model().suspend()
+
+        self.cfg.setSettings(Config.STATS_TAB_HIDDEN_LIST, tab_hidden_list)
+
     def _cb_tab_changed(self, index):
         self.comboAction.setVisible(index == constants.TAB_MAIN)
         self.get_search_widget().setCompleter(self.queries.get_completer(index))
@@ -632,7 +683,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         if self.LAST_TAB == constants.TAB_NODES and self.LAST_SELECTED_ITEM != "":
             self.node_mon.unmonitor_deselected_node(self.LAST_SELECTED_ITEM)
 
-        self.TABLES[index]['cmdCleanStats'].setVisible(True)
+        if self.TABLES[index]['cmdCleanStats'] is not None:
+            self.TABLES[index]['cmdCleanStats'].setVisible(True)
         if index ==  constants.TAB_MAIN:
             self.queries.set_events_query()
         elif index ==  constants.TAB_NETSTAT:
@@ -653,6 +705,9 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
 
         self.LAST_TAB = index
         self.refresh_active_table()
+
+    def _cb_tab_context_menu(self, pos):
+        self.configure_tabs_contextual_menu(pos)
 
     def _cb_table_context_menu(self, pos):
         cur_idx = self.get_current_view_idx()

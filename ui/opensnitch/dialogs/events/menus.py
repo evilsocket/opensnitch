@@ -16,6 +16,7 @@ ALL_NODES="all"
 class MenusManager(views.ViewsManager):
     def __init__(self, parent):
         super().__init__(parent)
+        self._editing_tabs = False
 
     def configure_main_btn_menu(self):
         menu = QtWidgets.QMenu(self)
@@ -38,6 +39,8 @@ class MenusManager(views.ViewsManager):
         menuExport = QtWidgets.QMenu(QC.translate("stats", "Export to CSV"), self)
         menuExport.setIcon(Icons.new(self, "document-save"))
         for idx in range(constants.TAB_MAIN, constants.TAB_TOTAL):
+            if not idx in self.TABLES:
+                continue
             act = QtGui.QAction(
                 QC.translate("stats", self.get_view_name(idx)), self
             )
@@ -418,4 +421,78 @@ class MenusManager(views.ViewsManager):
         finally:
             self.clear_rows_selection()
             return True
+
+    def configure_tabs_contextual_menu(self, pos):
+        tab_hidden_list = self.cfg.getList(Config.STATS_TAB_HIDDEN_LIST)
+        tab_list = []
+
+        menu = QtWidgets.QMenu(self)
+        menu_edit = menu.addAction(QC.translate("stats", "Edit"))
+        menu_edit.setCheckable(True)
+        menu_edit.setChecked(self._editing_tabs)
+        menu.addSeparator()
+
+        for idx, key in enumerate(self.TABLES):
+            # some tables/views are not a tab, but part of a group inside a
+            # tab.
+            if 'isTab' not in self.TABLES[key] or self.TABLES[key]['isTab'] == False:
+                continue
+
+            checked = True
+            # XXX: when loading the list for the first time, the list is a list of
+            # strings. When opening the contextual menu several times, the list
+            # is a list of integers.
+            if tab_hidden_list is not None and (str(key) in tab_hidden_list or key in tab_hidden_list):
+                checked = False
+
+            w = self.tabWidget.widget(idx)
+            if w is None:
+                continue
+
+            if not checked:
+                m = menu.addAction(self.TABLES[key]['tabName'])
+                m.setObjectName(str(key))
+                m.setCheckable(True)
+                m.setChecked(checked)
+                tab_list.append(m)
+
+        point = QtCore.QPoint(pos.x()+10, pos.y()+5)
+        action = menu.exec(self.tabWidget.mapToGlobal(point))
+        if action is None:
+            return
+
+        if menu_edit == action:
+            self._editing_tabs = action.isChecked()
+            self.tabWidget.setTabsClosable(self._editing_tabs)
+        else:
+            for idx, tab in enumerate(tab_list):
+                if tab == action:
+                    tab_id = tab.objectName()
+                    if not tab.isChecked():
+                        tab_hidden_list.append(tab_id)
+                    else:
+                        # FIXME: when saving the list and reading it again, the
+                        # values are integers instead of strings, so we need to
+                        # do this sorcery to test that a value is in the list.
+                        # PRs to improve it welcome.
+                        tab_int = -1
+                        try:
+                            tab_int = int(tab_id)
+                        except:
+                            pass
+                        tab_removed = None
+                        if tab_id in tab_hidden_list:
+                            tab_hidden_list.remove(tab_id)
+                            tab_removed = tab_id
+                        if tab_int in tab_hidden_list:
+                            tab_hidden_list.remove(tab_int)
+                            tab_removed = str(tab_int)
+
+                        if tab_removed is not None:
+                            tab_idx = self.get_tab_index_by_name(str(tab_id))
+                            if tab_idx is not None:
+                                self.tabWidget.setTabVisible(tab_idx, True)
+                    break
+
+            self.cfg.setSettings(Config.STATS_TAB_HIDDEN_LIST, tab_hidden_list)
 

@@ -106,6 +106,13 @@ class GenericTableModel(QStandardItemModel):
             return 0
         return num
 
+    def suspend(self):
+        """Release the result set when this tab is not visible."""
+        self.realQuery.finish()
+        #self.realQuery.clear()
+        self.items = []
+        self.lastItems = []
+
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         """Paint rows with the data stored in self.items
         """
