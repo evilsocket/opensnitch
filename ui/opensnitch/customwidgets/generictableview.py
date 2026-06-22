@@ -562,6 +562,16 @@ class GenericTableView(QTableView):
         rightBtnPressed = event.button() != Qt.MouseButton.LeftButton
         self.mousePressed = not rightBtnPressed
 
+        # The modifier flags are tracked via the keyboard eventFilter and
+        # only cleared on KeyRelease. A release is missed when focus leaves
+        # the table while Shift/Ctrl is down (e.g. the rule editor dialog
+        # opens), leaving the flag stuck and turning later plain clicks into
+        # range/toggle selections. event.modifiers() is authoritative for
+        # this click, so resync from it.
+        mods = event.modifiers()
+        self.shiftPressed = bool(mods & Qt.KeyboardModifier.ShiftModifier)
+        self.ctrlPressed = bool(mods & Qt.KeyboardModifier.ControlModifier)
+
         self.keySelectAll = False
 
         pos = event.pos()

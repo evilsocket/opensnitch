@@ -193,3 +193,36 @@ def test_right_press_does_not_arm_drag_selection(rules_view, qtbot):
     qtbot.mousePress(rules_view.viewport(), Qt.MouseButton.RightButton, pos=cell_rect.center())
     assert rules_view.mousePressed is False
     qtbot.mouseRelease(rules_view.viewport(), Qt.MouseButton.RightButton, pos=cell_rect.center())
+
+
+def selected_row_names(view):
+    return sorted(sel.data() for sel in view.selectionModel().selectedRows(COL_NAME))
+
+
+def test_plain_click_with_stale_shift_flag_selects_single_row(rules_view, qtbot):
+    """Regression: shiftPressed/ctrlPressed are tracked via the keyboard
+    eventFilter and only cleared on KeyRelease. When focus leaves the table
+    while a modifier is down (e.g. the rule editor dialog opens), the
+    KeyRelease is missed and the flag stays True; later plain clicks were
+    then treated as range/toggle selections, highlighting 2-3 rows. The
+    click must use its own event.modifiers(), so a plain click selects a
+    single row regardless of the stale flag."""
+    click_row(qtbot, rules_view, 0)
+    rules_view.shiftPressed = True  # stale: release missed while editor had focus
+
+    click_row(qtbot, rules_view, 2)
+
+    assert selected_row_names(rules_view) == [rule_name(2)]
+    assert rules_view._rows_selection == {rule_name(2)}
+
+
+def test_plain_click_with_stale_ctrl_flag_selects_single_row(rules_view, qtbot):
+    """Companion to the stale-shift case: a stuck ctrl flag must not turn a
+    plain click into an additive (toggle) selection."""
+    click_row(qtbot, rules_view, 0)
+    rules_view.ctrlPressed = True  # stale: release missed while editor had focus
+
+    click_row(qtbot, rules_view, 1)
+
+    assert selected_row_names(rules_view) == [rule_name(1)]
+    assert rules_view._rows_selection == {rule_name(1)}
