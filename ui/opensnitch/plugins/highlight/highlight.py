@@ -265,7 +265,7 @@ class Highlight(PluginBase):
             skip = True
             for text in row[Highlight.TEXT]:
                 for c in row[Highlight.COLS]:
-                    if c <= self._rownum and text in self._rowcells[c]:
+                    if c < self._rownum and text in self._rowcells[c]:
                         skip = False
             if skip:
                 continue
