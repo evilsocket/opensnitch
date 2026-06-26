@@ -482,9 +482,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                 #self._stats_dialog.raise()
                 self._stats_dialog.activateWindow()
 
+        timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
         has_ntfs, ntf_type = self._has_desktop_notifications()
         if has_ntfs:
-            timeout = self._cfg.getInt(Config.DEFAULT_TIMEOUT_KEY, 15)
             try:
                 self.show_systray_msg(
                     title,
