@@ -274,6 +274,8 @@ func (o *Operator) compileRange() error {
 }
 
 func (o *Operator) String() string {
+	o.RLock()
+	defer o.RUnlock()
 	how := "is"
 	if o.Type == Regexp {
 		how = "matches"
