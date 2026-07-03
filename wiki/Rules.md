@@ -8,7 +8,7 @@
 
 ### Format
 
-Rules are stored as JSON files inside the `-rule-path` directory (by default `/etc/opensnitchd/rules`), in its simplest form, a rule looks like this:
+Rules are stored as JSON files in the directory passed via `-rules-path` (by default `/etc/opensnitchd/rules`). In its simplest form, a rule looks like this:
 
 ```json
 {
@@ -21,9 +21,9 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
    "duration": "always",
    "operator": {
      "type": "simple",
-     "sensitive": false,
      "operand": "dest.host",
-     "data": "www-google-analytics.l.google.com"
+     "data": "www-google-analytics.l.google.com",
+     "sensitive": false
    }
 }
 ```
@@ -31,29 +31,31 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 | Field            | Description   |
 | -----------------|---------------|
 | created          | UTC date and time of creation. |
-| update           | UTC date and time of the last update. |
+| updated          | UTC date and time of the last update. |
 | name             | The name of the rule. |
+| description      | Free-text annotation field, optional, daemon ignores it. |
 | enabled          | Enable or disable the rule. |
 | precedence       | `true` or `false`. Sets if a rule take precedence over the rest (>= v1.2.0). If a connection matches this rule, no other rules will be evaluated.|
 | action           | Can be `deny`, `reject` or `allow`. `reject` kills the socket, terminating the connection immediately. `deny` drops/ignores the packet. |
 | duration         | The duration of the rule in [Duration format](https://pkg.go.dev/time#ParseDuration). `always` is always used when the rule is written to disk. The rest of the options are temporary, until they reach the deadline: `12h`, `5h`, `1h`, `30s`, or `once` to only run the rule one time.  |
 | operator.type    | `simple`, `regexp`, `network`, `lists`, `list`, `range`.|
 || `simple` is a simple `==` comparison.|
-|| `regexp` matches the regexp from the `data` field against the connection |
+|| `regexp` matches the regexp from the `data` field against the connection. Uses [Go's RE2](https://github.com/google/re2/wiki/syntax) — no lookahead/lookbehind/backrefs.  Note that the GUI uses Python's regex engine to validate input, so a pattern accepted by the editor may still fail to compile in the daemon. |
 || `network` checks if the IP of a connection is contained within the specified network range (127.0.0.1/8, 192.168.1.0/24, etc) |
 || `lists` will look for matches on lists of something (domains, IPs, etc). Typically used to create [blocklists](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
 || `range` (v1.9.0) will check if an Operand (`dest.port` or `source.port`) is within the given range.|
 || `list`, a combination of all of the previous types.|
 | operator.data    | The data of the rule against which an outbound connection will be compared: an IP, a destination port, a command line, etc. |
-| operator.sensitive | If `true`, the property-data comparison is case sensitive. Defaults to `false`. |
+| operator.sensitive | Case sensitivity, default `false` (case insensitive). |
 | operator.operand | Property of the connection against which the rule will be compared: |
 | | `true` - will always match |
 | | `process.path`  - the absolute path of the executable |
 | | `process.id` PID of the process|
 | | `process.command` (full command line, including path and arguments). Note that cmdlines can contain or not the process name, and the path can be absolute or relative (`./cmd -x a`).|
-| | `process.parent.path` (v1.7.0) check against ONE of the parent path. You can add multiple parent paths with the `list` type, to match the tree of a process. |
-| | `provess.env.ENV_VAR_NAME` (use the value of an environment variable of the process given its name). |
+| | `process.parent.path` (v1.7.0) checks against **any** ancestor in the process tree (parent, grandparent, etc., up to PID 1). To require multiple ancestors, combine with `list` — but note this matches when each path appears anywhere in the chain, regardless of order or depth. |
+| | `process.env.ENV_VAR_NAME` (use the value of an environment variable of the process given its name). |
 | | `process.hash.md5` (v1.7.0) - verify the checksum of an executable |
+| | `process.hash.sha1` |
 | | `user.id` - UID |
 | | `user.name` user name (v1.7.0). Check against a regular system username (no namespaces, containers or virtual user names).|
 | | `protocol` - TCP, UDP, UDPLITE, SCTP, DCCP, ICMP (append "6" for IPv6 protocols: TCP6)|
@@ -72,9 +74,17 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
 | | `lists.nets` (v1.5.0) list of network ranges [read more](https://github.com/evilsocket/opensnitch/wiki/block-lists)|
 | | `lists.hash.md5` (v1.7.0) list of md5s |
 
+For `lists.*` operands, the `data` field is the path to a **directory**
+(not a single file). The daemon loads every file under it that has a
+recognized extension (`.txt`, `.list`, `.dat`, etc.). **Files without
+an extension are silently skipped** — see [block-lists](https://github.com/evilsocket/opensnitch/wiki/block-lists)
+for the full file format and examples. `lists.domains` matches each line
+exactly (so `example.com` does not match `www.example.com`); use
+`lists.domains_regexp` for wildcard subdomain matching.
+
 ### Some considerations
 
- All the fields you select when defining a rule will be used to match connections, for example:
+ All the fields you select when defining a rule will be used to match connections. For example:
  - Rule: allow -> port 443 -> Dst IP 1.1.1.1 -> Protocol TCP -> Host www.site.test
    * This rule will match connections to port 443 __AND__ IP 1.1.1.1 __AND__ protocol TCP __AND__ host www.site.test
    * connections to IP 2.2.2.2 won't match, connections to port 80 won't match, etc...
@@ -84,10 +94,13 @@ Rules are stored as JSON files inside the `-rule-path` directory (by default `/e
  - Rule: allow -> port ^(53|80|443)$ -> UID 1000 -> Path /app/bin/test -> [x] domains list
    * This rule will match connections to ports (53 __OR__ 80 __OR__ 443) __AND__ UID 1000 __AND__ Path /app/bin/test __AND__ domains in the specified.
 
-- If you select multiple lists on the same rule, bear in mind that all the lists must match in order to apply an action:
- [Read this disccussion to learn more](https://github.com/evilsocket/opensnitch/discussions/877#discussioncomment-5247997)
+- If you select multiple lists on the same rule, bear in mind that all the lists must match in order to apply an action. [Read this discussion to learn more](https://github.com/evilsocket/opensnitch/discussions/877#discussioncomment-5247997).
 
-Rule precedence: When a connection is attempted, OpenSnitch evaluates each of the enabled rules. The rules are sorted in the alphabetical order of rule names (since v.1.2.0). OpenSnitch goes through the list and as soon as it encounters a  Deny/Reject rule or an _Important_ ([x] Priority) rule (since v1.2.0) that matches the connection, that rule will be immediately selected as the effective rule. If no such rule is found, then the last non-Important Allow rule that matched will be selected. If no rule matched, it shows a pop-up dialogue, or applys the default action if that's not possible.
+The GUI auto-generates rule names based on the fields you specify. If these include long paths, command lines, or domains, the resulting name can get quite long (up to 128 characters). However, you can edit the rule name as you please.
+
+#### Rule precedence
+
+When a connection is attempted, OpenSnitch evaluates each of the enabled rules. The rules are sorted in the alphabetical order of rule names (since v.1.2.0). OpenSnitch goes through the list and as soon as it encounters a  Deny/Reject rule or an _Important_ (`[x] Priority rule`) (since v1.2.0) that matches the connection, that rule will be immediately selected as the effective rule. If no such rule is found, then the last non-Important Allow rule that matched will be selected. If no rule matched, it shows a pop-up dialogue, or applys the default action if that's not possible.
 
 - In the following example, the Deny rule takes precedence over the Allow rules:
 ```
@@ -105,9 +118,9 @@ Rule precedence: When a connection is attempted, OpenSnitch evaluates each of th
 
 This way you can not only prioritize critical connections (like VPNs), but also gain performance.
 
-**More on rules performance**
+#### More on rules performance
 
-As already mentioned, the order of rules is critical. If you use Firefox and prioritize Allow rules to allow Firefox's connections, web navegation will be faster.
+As already mentioned, the order of rules is critical. If you use Firefox and prioritize Allow rules to allow Firefox's connections, web navigation will be faster.
 
 But the type of rule also impacts the rule's performance. `regexp` and `list` types are slower than `simple` because `regexp` and `list` types check multiple parameters while simple rules check just one. And `regexp` is the slowest, because is the more complex type.
 
@@ -128,7 +141,7 @@ An example with a regular expression:
      "type": "regexp",
      "sensitive": false,
      "operand": "dest.host",
-     "data": "(?i)"
+     "data": "(?i)google-?analytics"
    }
 }
 ```
@@ -265,17 +278,17 @@ If you want to restrict it further, under the `Addresses` tab you can review wha
 
 ### For servers
 
- These recommendations also apply to the Linux Desktop, but are specially important on servers.
+These recommendations also apply to the Linux Desktop, but are specially important on servers.
  
- Why? If someone gets access to the system, usually there're a few directories where everyone can write files: `/tmp`, `/var/tmp` or `/dev/shm`.
- Thus these directories are usually used to drop malicious files or download remote binaries to escalate privileges, mine cryptocoins, etc.
+Why? If someone gets access to the system, usually there are a few directories where everyone can write files: `/tmp`, `/var/tmp` or `/dev/shm`.
+Thus these directories can be used to drop malicious files or download remote binaries to escalate privileges, mine cryptocoins, etc.
 
- Usually the attackers use `wget`, `curl` or `bash` to establish outbound connections ([malware examples](https://github.com/evilsocket/opensnitch/discussions/1119)). So, if you don't need these binaries, just uninstall them.
+Usually the attackers use `wget`, `curl` or `bash` to establish outbound connections (as in these [malware examples](https://github.com/evilsocket/opensnitch/discussions/1119)). So, if you don't need these binaries, just uninstall them.
 
-There're two approaches to secure a server with OpenSnitch:
+There are two approaches to secure a server with OpenSnitch:
 
-1) restrict everything by default (`DefaultAction` set to deny/reject in the `default-config.json` file) and allow only system binaries and needed apps. Incoming connections will keep working, but NEW outbound connections will be denied.
-2) allow everything by default, and deny connections from specific locations, or by binary / destination.
+1) Restrict everything by default (`DefaultAction` set to deny/reject in the `default-config.json` file) and allow only system binaries and needed apps. Incoming connections will keep working, but NEW outbound connections will be denied.
+2) Allow everything by default, and deny connections from specific locations, or by binary / destination.
 
 
 - If you need curl or wget and the `DefaultAction` is not `allow`, restrict their outbound connections as much as possible (this practice applies to any other binary of the server):
@@ -377,11 +390,10 @@ There're two approaches to secure a server with OpenSnitch:
 
 - You can also block outbound connections to crypto mining pools and malware domains/ips with [blocklists rules](https://github.com/evilsocket/opensnitch/wiki/block-lists).
 
-  One of the common reason to compromise servers is to mine cryptos. Denying connections to the mining pools, disrupts the operation.
+  One of the common reason to compromise servers is to mine cryptocurrencies. Denying connections to the mining pools disrupts the operation.
 
 - Think also if your web server, database server, etc, needs to establish connections to remote IPs.
 
-  In some cases, the download of malicious files is executed from common applications: [pg_mem campaign](https://www.aquasec.com/blog/pg_mem-a-malware-hidden-in-the-postgres-processes/)
+  In some cases, the download of malicious files is executed from common applications; see the [pg_mem campaign](https://www.aquasec.com/blog/pg_mem-a-malware-hidden-in-the-postgres-processes/)
 
-  **Note** that the default policy should be deny everything unless explicitely allowed. But by creating a rule to deny specifically these directories, you can have a place where to monitor these executions.
-
+  **Note** that the default policy should be to deny everything unless explicitly allowed. But by creating a rule to deny specifically these directories, you can have a place where to monitor these executions.
