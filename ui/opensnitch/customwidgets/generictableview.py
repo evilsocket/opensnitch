@@ -871,6 +871,7 @@ class GenericTableView(QTableView):
         if self.vScrollBar.isVisible() == False:
             return
 
+        prevValue = self.vScrollBar.value() + (self.maxRowsInViewport-2)
         newValue = self.vScrollBar.value() + (self.maxRowsInViewport-2)
         prevValue = self.getViewportRowPos(prevValue)
         self.vScrollBar.setValue(newValue)
