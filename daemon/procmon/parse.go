@@ -1,8 +1,8 @@
 package procmon
 
 import (
-	"fmt"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/log"
@@ -61,7 +61,7 @@ func GetPIDFromINode(inode int, inodeKey string) int {
 	}
 	start := time.Now()
 
-	expect := fmt.Sprintf("socket:[%d]", inode)
+	expect := "socket:[" + strconv.Itoa(inode) + "]"
 	if cachedPidInode := inodesCache.getPid(inodeKey); cachedPidInode != -1 {
 		log.Debug("Inode found in cache: %v %v %v %v", time.Since(start), inodesCache.getPid(inodeKey), inode, inodeKey)
 		return cachedPidInode

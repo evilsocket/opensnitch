@@ -377,12 +377,16 @@ func (p *Process) readDescriptors() {
 		if len(socket) > 0 {
 			socketInfo, err := netlink.GetSocketInfoByInode(socket[1])
 			if err == nil {
-				tempFd.SymLink = fmt.Sprintf("socket:[%s] - %d:%s -> %s:%d, state: %s", fd.Name(),
-					socketInfo.ID.SourcePort,
-					socketInfo.ID.Source.String(),
-					dns.HostOr(socketInfo.ID.Destination, socketInfo.ID.Destination.String()),
-					socketInfo.ID.DestinationPort,
-					netlink.TCPStatesMap[socketInfo.State])
+				//"socket:[%s] - %d:%s -> %s:%d, state: %s"
+				tempFd.SymLink = core.ConcatStrings(
+					"socket:[", fd.Name(), "] - ",
+					strconv.Itoa(int(socketInfo.ID.SourcePort)), ":", socketInfo.ID.Source.String(),
+					" -> ",
+					dns.HostOr(socketInfo.ID.Destination, socketInfo.ID.Destination.String()), ":",
+					strconv.Itoa(int(socketInfo.ID.DestinationPort)),
+					", state: ",
+					netlink.TCPStatesMap[socketInfo.State],
+				)
 			}
 		}
 

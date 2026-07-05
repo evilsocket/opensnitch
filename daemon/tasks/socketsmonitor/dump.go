@@ -2,8 +2,8 @@ package socketsmonitor
 
 import (
 	"context"
-	"fmt"
 	"net"
+	"strconv"
 	"sync"
 	"syscall"
 
@@ -170,9 +170,13 @@ func exclude(expected, what uint8) bool {
 
 func addSocketToTable(ctx context.Context, wg *sync.WaitGroup, proto uint16, st *SocketsTable, s netlink.Socket) {
 	inode := int(s.INode)
-	pid := procmon.GetPIDFromINode(inode, fmt.Sprint(inode,
-		s.ID.Source, s.ID.SourcePort, s.ID.Destination, s.ID.DestinationPort),
-	)
+	inodeKey := strconv.Itoa(inode) +
+		s.ID.Source.String() +
+		strconv.Itoa(int(s.ID.SourcePort)) +
+		s.ID.Destination.String() +
+		strconv.Itoa(int(s.ID.DestinationPort))
+	pid := procmon.GetPIDFromINode(inode, inodeKey)
+
 	// pid can be -1 in some scenarios (tor socket in FIN_WAIT1 state).
 	// we could lookup the connection in the ebpfCache of connections.
 	st.Lock()

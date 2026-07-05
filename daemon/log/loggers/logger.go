@@ -2,7 +2,6 @@ package loggers
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -108,10 +107,10 @@ func (l *LoggerManager) Load(configs []LoggerConfig) {
 		switch cfg.Name {
 		case LOGGER_REMOTE:
 			lgr, _ := NewRemote(cfg)
-			l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
+			l.loggers[lgr.Name+lgr.cfg.Server+lgr.cfg.Protocol] = lgr
 		case LOGGER_REMOTE_SYSLOG:
 			lgr, _ := NewRemoteSyslog(cfg)
-			l.loggers[fmt.Sprint(lgr.Name, lgr.cfg.Server, lgr.cfg.Protocol)] = lgr
+			l.loggers[lgr.Name+lgr.cfg.Server+lgr.cfg.Protocol] = lgr
 		case LOGGER_SYSLOG:
 			lgr, _ := NewSyslog(cfg)
 			l.loggers[lgr.Name] = lgr

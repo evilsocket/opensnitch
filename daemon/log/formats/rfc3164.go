@@ -2,8 +2,10 @@ package formats
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
+	"github.com/evilsocket/opensnitch/daemon/core"
 	taskBase "github.com/evilsocket/opensnitch/daemon/tasks/base"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
 )
@@ -40,22 +42,24 @@ func (r *Rfc3164) Transform(args ...interface{}) (out string) {
 
 		case taskBase.TaskNotification:
 			tsk := val.(taskBase.TaskNotification)
-			out = fmt.Sprint(
+			out = core.ConcatStrings(
 				out,
 				" TASK=\"", tsk.Name,
-				"\" DATA=\"", tsk.Data, "\"",
+				"\" DATA=\"", fmt.Sprint(tsk.Data), "\"",
 			)
+			println("TSK:", out)
 		default:
-			out = fmt.Sprint(out, " ARG", n, "=\"", val, "\"")
+			out = core.ConcatStrings(out, " ARG", strconv.Itoa(n), "=\"", fmt.Sprint(val), "\"")
 		}
 	}
-	out = fmt.Sprintf("<%s>%s %s %s[%s]: [%s]\n",
-		syslogLevel,
-		time.Now().Format(time.RFC3339),
-		hostname,
-		tag,
-		ourPid,
-		out[1:])
+
+	//"<%s>%s %s %s[%s]: [%s]\n",
+	out = "<" + syslogLevel + ">" +
+		time.Now().Format(time.RFC3339) + " " +
+		hostname + " " +
+		tag +
+		"[" + ourPid + "]: " +
+		"[" + out[1:] + "]\n"
 
 	return
 }
