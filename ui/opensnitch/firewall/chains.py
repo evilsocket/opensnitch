@@ -16,10 +16,10 @@ class Chains():
 
     def get_node_chains(self, addr):
         node = self._nodes.get_node(addr)
-        if node == None:
-            return rules
+        if node is None:
+            return []
         if not 'firewall' in node:
-            return rules
+            return []
 
         chains = []
         for c in node['firewall'].SystemRules:
@@ -63,12 +63,13 @@ class Chains():
             for cdx, c in enumerate(n.Chains):
                 # XXX: support only "inet" family (ipv4/ipv6)? or allow to
                 # specify ipv4 OR/AND ipv6? some systems have ipv6 disabled
-                if c.Hook.lower() == hook and c.Type.lower() == _type and c.Family.lower() == family:
+                if c.Hook.lower() == hook and c.Type.lower() == _type and c.Family.lower() == family and c.Policy == policy:
                     fwcfg.SystemRules[sdx].Chains[cdx].Policy = policy
+                    self._nodes.add_fw_config(node_addr, fwcfg)
 
-                    if wantedHook == Fw.Hooks.INPUT.value and wantedPolicy == Fw.Policy.DROP.value:
-                        fwcfg.SystemRules[sdx].Chains[cdx].Rules.extend([rule.Rules[0]])
-                        self._nodes.add_fw_config(node_addr, fwcfg)
+                    #if wantedHook == Hooks.INPUT.value and wantedPolicy == Policy.DROP.value:
+                    #    fwcfg.SystemRules[sdx].Chains[cdx].Rules.extend([rule.Rules[0]])
+                    #    self._nodes.add_fw_config(node_addr, fwcfg)
                     return True
         return False
 

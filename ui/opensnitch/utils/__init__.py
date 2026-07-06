@@ -29,6 +29,13 @@ class AsnDB():
     def __init__(self):
         self.ASN_AVAILABLE = True
 
+        try:
+            import pyasn
+        except Exception as e:
+            self.ASN_AVAILABLE = False
+            print("exception loading ipasn db:", e)
+            print("Install python3-pyasn to display IP's network name.")
+
     def is_available(self):
         return self.ASN_AVAILABLE
 
@@ -44,8 +51,6 @@ class AsnDB():
             if self.asndb is not None:
                 return
 
-            import pyasn
-
             IPASN_DB_PATH = os.path.expanduser('~/.config/opensnitch/ipasn_db.dat.gz')
             # .gz not supported for asnames
             AS_NAMES_FILE_PATH = os.path.expanduser('~/.config/opensnitch/asnames.json')
@@ -58,11 +63,10 @@ class AsnDB():
                 AS_NAMES_FILE_PATH = '/usr/lib/python3/dist-packages/data/asnames.json'
 
             print("using IPASN DB:", IPASN_DB_PATH)
-            self.asndb = pyasn.pyasn(IPASN_DB_PATH, as_names_file=AS_NAMES_FILE_PATH)
-        except Exception as e:
+
+            self.asndb = pyasn.pyasn(IPASN_DB_PATH, as_names_file=AS_NAMES_FILE_PATH) # pylint: disable=undefined-variable
+        except Exception as e: # pylint: disable=undefined-variable
             self.ASN_AVAILABLE = False
-            print("exception loading ipasn db:", e)
-            print("Install python3-pyasn to display IP's network name.")
 
     def _load_if_needed(self):
         if self.asndb is None:
