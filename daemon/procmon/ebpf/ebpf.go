@@ -302,7 +302,7 @@ func makeBpfSyscall(bpf_lookup *bpf_lookup_elem_t) uintptr {
 }
 
 func dispatchErrorEvent(what string) {
-	log.Error(what)
+	log.Error("%s", what)
 	dispatchEvent(what)
 }
 

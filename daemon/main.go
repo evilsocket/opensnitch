@@ -175,7 +175,7 @@ func setupQueues(qNum uint16) {
 		msg := fmt.Sprintf("Error creating queue #%d: %s", qNum, err)
 		uiClient.SendWarningAlert(msg)
 		log.Warning("Is opensnitchd already running?")
-		log.Fatal(msg)
+		log.Fatal("%s", msg)
 	}
 	pktChan = queue.Packets()
 
@@ -186,7 +186,7 @@ func setupQueues(qNum uint16) {
 		msg := fmt.Sprintf("Error creating repeat queue #%d: %s", repeatQueueNum, err)
 		uiClient.SendErrorAlert(msg)
 		log.Warning("Is opensnitchd already running?")
-		log.Warning(msg)
+		log.Warning("%s", msg)
 	}
 	repeatPktChan = repeatQueue.Packets()
 	log.Info("Listening on queue number %d ...", qNum)
@@ -643,14 +643,14 @@ func main() {
 		if err := monitor.ReconfigureMonitorMethod(procmonMethod, cfg.Ebpf, cfg.Audit); err != nil {
 			msg := fmt.Sprintf("Unable to set process monitor method via parameter: %v", err)
 			uiClient.SendWarningAlert(msg)
-			log.Warning(msg)
+			log.Warning("%s", msg)
 		}
 	}
 
 	go func(uiClient *ui.Client, ebpfPath string) {
 		if err := dns.ListenerEbpf(ebpfPath); err != nil {
 			msg := fmt.Sprintf("EBPF-DNS: Unable to attach ebpf listener: %s", err)
-			log.Warning(msg)
+			log.Warning("%s", msg)
 			// don't display an alert, since this module is not critical
 			uiClient.PostAlert(
 				protocol.Alert_ERROR,

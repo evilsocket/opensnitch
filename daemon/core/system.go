@@ -72,7 +72,7 @@ func CheckSysRequirements() {
 	for _, confFile := range confPaths {
 		if !Exists(confFile) {
 			err = fmt.Errorf("%s not found", confFile)
-			log.Debug(err.Error())
+			log.Debug("%s", err.Error())
 			continue
 		}
 
