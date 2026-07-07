@@ -64,6 +64,7 @@ class AsnDB():
 
             print("using IPASN DB:", IPASN_DB_PATH)
 
+            import pyasn
             self.asndb = pyasn.pyasn(IPASN_DB_PATH, as_names_file=AS_NAMES_FILE_PATH) # pylint: disable=undefined-variable
         except Exception as e: # pylint: disable=undefined-variable
             self.ASN_AVAILABLE = False

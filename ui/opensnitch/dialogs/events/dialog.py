@@ -722,7 +722,6 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         if cur_idx == constants.TAB_MAIN:
             refresh_table = self.configure_events_contextual_menu(pos)
         elif cur_idx == constants.TAB_RULES:
-            print("context rules:", self.alertsTable.isVisible())
             if self.fwTable.isVisible():
                 refresh_table = self.configure_fwrules_contextual_menu(pos)
             elif self.alertsTable.isVisible():

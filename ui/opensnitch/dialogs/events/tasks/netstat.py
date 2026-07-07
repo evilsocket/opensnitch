@@ -134,7 +134,7 @@ class Netstat:
             self.win.netstatLabel.setText("")
             return
         if not self.win._nodes.is_connected(node_addr):
-            print(f"monitor_node_netstat, node not connected: {node_addr}")
+            #print(f"monitor_node_netstat, node not connected: {node_addr}")
             self.win.netstatLabel.setText(f"{node_addr} node is not connected")
             return
 
@@ -177,9 +177,7 @@ class Netstat:
         if node_addr == "":
             return
 
-        if not self.win._nodes.is_connected(node_addr):
-            print(f"unmonitor_node_netstat, node not connected: {node_addr}")
-        else:
+        if self.win._nodes.is_connected(node_addr):
             noti = ui_pb2.Notification(
                 clientName="",
                 serverName="",
@@ -191,6 +189,8 @@ class Netstat:
             )
             if nid is not None:
                 self.win.save_ntf(nid, noti)
+        #else:
+        #    print(f"unmonitor_node_netstat, node not connected: {node_addr}")
 
         self.win.LAST_NETSTAT_NODE = None
 
