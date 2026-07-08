@@ -37,10 +37,14 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 	nodeName := core.GetHostname()
 	nodeVersion := core.GetKernelVersion()
 	var ts time.Time
-	rulesTotal := len(c.rules.GetAll())
-	ruleList := make([]*protocol.Rule, rulesTotal)
+	// GetAll() returns a snapshot, so len() and the range below see a
+	// consistent view even if the loader is concurrently adding rules
+	// (this used to panic with "index out of range" on big rule sets, when
+	// the UI subscribed back during rules.Reload()).
+	rules := c.rules.GetAll()
+	ruleList := make([]*protocol.Rule, len(rules))
 	idx := 0
-	for _, r := range c.rules.GetAll() {
+	for _, r := range rules {
 		ruleList[idx] = r.Serialize()
 		idx++
 	}
