@@ -1408,13 +1408,22 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
 
     def keyPressEvent(self, event):
         if event.matches(QtGui.QKeySequence.StandardKey.NextChild):
-            next_idx = (self.tabWidget.currentIndex() + 1) % self.tabWidget.count()
-            self.tabWidget.setCurrentIndex(next_idx)
-            event.accept()
+            for i in range(self.tabWidget.currentIndex()+1, self.tabWidget.count()):
+                next_idx = i % self.tabWidget.count()
+                if not self.tabWidget.isTabVisible(next_idx):
+                    continue
+                self.tabWidget.setCurrentIndex(next_idx)
+                event.accept()
+                break
         if event.matches(QtGui.QKeySequence.StandardKey.PreviousChild):
-            prev_idx = (self.tabWidget.currentIndex() - 1) % self.tabWidget.count()
-            self.tabWidget.setCurrentIndex(prev_idx)
-            event.accept()
+            for i in reversed(range(self.tabWidget.currentIndex())):
+                prev_idx = i % self.tabWidget.count()
+                if not self.tabWidget.isTabVisible(prev_idx):
+                    continue
+                self.tabWidget.setCurrentIndex(prev_idx)
+                event.accept()
+                break
+
         if event.matches(QtGui.QKeySequence.StandardKey.Find) or event.key() == QtCore.Qt.Key.Key_Slash:
             self.get_search_widget().setFocus()
         # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
