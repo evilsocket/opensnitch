@@ -787,12 +787,17 @@ class GenericTableView(QTableView):
             self.model().refreshViewport(vSBNewValue, self.maxRowsInViewport, force=True)
 
     def onKeyUp(self):
-        curIdx = self.selectionModel().currentIndex()
+        prevIdx = self.selectionModel().currentIndex()
+        curRow = prevIdx.row()
+        if curRow > 0:
+            curRow -= 1
+        curIdx = self.model().index(curRow, self.trackingCol)
+
         if not self.shiftPressed:
             self._rows_selection.clear()
         self._rows_selection.add(curIdx.data())
 
-        viewport_row = self.getViewportRowPos(curIdx.row())
+        viewport_row = self.getViewportRowPos(curRow)
         self._last_row_selected = viewport_row
         if self._first_row_selected is None:
             self._first_row_selected = viewport_row
@@ -805,8 +810,12 @@ class GenericTableView(QTableView):
             self._selectLastRow()
 
     def onKeyDown(self):
-        curIdx = self.selectionModel().currentIndex()
-        curRow = curIdx.row()
+        prevIdx = self.selectionModel().currentIndex()
+        curRow = prevIdx.row()
+        if curRow < self.maxRowsInViewport-1:
+            curRow += 1
+        curIdx = self.model().index(curRow, self.trackingCol)
+
         if not self.shiftPressed:
             self._rows_selection.clear()
         self._rows_selection.add(curIdx.data())
