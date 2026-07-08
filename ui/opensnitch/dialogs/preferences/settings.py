@@ -9,6 +9,7 @@ ui_pb2, ui_pb2_grpc = proto.import_()
 from opensnitch.config import Config
 from opensnitch.utils import languages
 from opensnitch.database import Database
+from opensnitch.dialogs.prompt import constants as prompt_constants
 from opensnitch.dialogs.preferences import (
     utils,
 )
@@ -58,6 +59,15 @@ def load(win):
     win.dstPortCheck.setChecked(win.cfgMgr.getBool(win.cfgMgr.DEFAULT_POPUP_ADVANCED_DSTPORT))
     win.uidCheck.setChecked(win.cfgMgr.getBool(win.cfgMgr.DEFAULT_POPUP_ADVANCED_UID))
     win.checkSum.setChecked(win.cfgMgr.getBool(win.cfgMgr.DEFAULT_POPUP_ADVANCED_CHECKSUM))
+
+    default_full_cmds = ",".join(prompt_constants.FULL_COMMAND_BIN)
+    if win.cfgMgr.hasKey(win.cfgMgr.DEFAULT_POPUP_ADVANCED_FULL_COMMAND):
+        full_cmds = win.cfgMgr.getSettings(win.cfgMgr.DEFAULT_POPUP_ADVANCED_FULL_COMMAND)
+        if full_cmds is None:
+            full_cmds = ""
+    else:
+        full_cmds = default_full_cmds
+    win.fullCommandBin.setText(str(full_cmds))
 
     ## rules
     win.comboUIRules.blockSignals(True)
@@ -211,6 +221,7 @@ def save_ui_config(win):
         win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_POPUP_ADVANCED_DSTPORT, bool(win.dstPortCheck.isChecked()))
         win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_POPUP_ADVANCED_UID, bool(win.uidCheck.isChecked()))
         win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_POPUP_ADVANCED_CHECKSUM, bool(win.checkSum.isChecked()))
+        win.cfgMgr.setSettings(win.cfgMgr.DEFAULT_POPUP_ADVANCED_FULL_COMMAND, win.fullCommandBin.text())
 
         win.cfgMgr.setSettings(win.cfgMgr.NOTIFICATIONS_ENABLED, bool(win.groupNotifs.isChecked()))
         win.cfgMgr.setSettings(win.cfgMgr.NOTIFICATIONS_TYPE,
