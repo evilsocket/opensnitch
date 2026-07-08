@@ -124,7 +124,16 @@ class GenericTableModel(QStandardItemModel):
 
     def update_row_count(self):
         queryRows = max(0, self.realQuery.at()+1)
-        self.totalRowCount = queryRows
+
+        # Ensure that we correctly configure max number of rows.
+        # This scenario can occur when selecting rows in a view, switch to
+        # another view and return back to the previous view.
+        # XXX: using queryLimit is not entirely correct, we should verify that
+        # the query returns the number of results that it's supposed to return.
+        if queryRows > self.queryLimit and self.queryLimit != 0:
+            self.totalRowCount = self.queryLimit
+        else:
+            self.totalRowCount = queryRows
         self.setRowCount(self.totalRowCount)
 
     def update_col_count(self):
