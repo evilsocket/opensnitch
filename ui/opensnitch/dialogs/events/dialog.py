@@ -1406,9 +1406,17 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
     def hideEvent(self, e):
         self._save_settings()
 
-    # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
     def keyPressEvent(self, event):
+        if event.matches(QtGui.QKeySequence.StandardKey.NextChild):
+            next_idx = (self.tabWidget.currentIndex() + 1) % self.tabWidget.count()
+            self.tabWidget.setCurrentIndex(next_idx)
+            event.accept()
+        if event.matches(QtGui.QKeySequence.StandardKey.PreviousChild):
+            prev_idx = (self.tabWidget.currentIndex() - 1) % self.tabWidget.count()
+            self.tabWidget.setCurrentIndex(prev_idx)
+            event.accept()
         if event.matches(QtGui.QKeySequence.StandardKey.Find) or event.key() == QtCore.Qt.Key.Key_Slash:
             self.get_search_widget().setFocus()
+        # https://gis.stackexchange.com/questions/86398/how-to-disable-the-escape-key-for-a-dialog
         if not event.key() == QtCore.Qt.Key.Key_Escape:
             super(StatsDialog, self).keyPressEvent(event)
