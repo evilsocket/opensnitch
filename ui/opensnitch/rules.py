@@ -94,7 +94,7 @@ class Rules(QObject):
         QObject.__init__(self)
         self._db = Database.instance()
 
-    def add(self, time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data, created):
+    def add(self, time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data, created, notify=True):
         # don't add rule if the user has selected to exclude temporary
         # rules
         if duration in Config.RULES_DURATION_FILTER:
@@ -104,6 +104,8 @@ class Rules(QObject):
                   "(time, node, name, description, enabled, precedence, nolog, action, duration, operator_type, operator_sensitive, operator_operand, operator_data, created)",
                   (time, node, name, description, enabled, precedence, nolog, action, duration, op_type, op_sensitive, op_operand, op_data, created),
                         action_on_conflict="REPLACE")
+        if notify:
+            self.updated.emit(0)
 
     def add_rules(self, addr, rules):
         try:
@@ -123,8 +125,12 @@ class Rules(QObject):
                          r.operator.type,
                          str(r.operator.sensitive),
                          r.operator.operand, r.operator.data,
-                         str(datetime.fromtimestamp(r.created).strftime(DBDateFieldFormat)))
+                         str(datetime.fromtimestamp(r.created).strftime(DBDateFieldFormat)),
+                         notify=False)
 
+            # notify once per batch, to avoid a refresh storm when a node
+            # connects and sends all its rules.
+            self.updated.emit(0)
             return True
         except Exception as e:
             log.warning("exception adding node rules to db: %s", repr(e))
@@ -142,6 +148,7 @@ class Rules(QObject):
         if not self._db.delete_rule(rule.name, addr):
             return None
 
+        self.updated.emit(0)
         return rule
 
     def delete_by_field(self, field, values):
@@ -184,6 +191,7 @@ class Rules(QObject):
             "name=? AND node=?",
             action_on_conflict="OR REPLACE"
         )
+        self.updated.emit(0)
 
     def update_time(self, time, name, addr):
         """Updates the time of a rule, whenever a new connection matched a

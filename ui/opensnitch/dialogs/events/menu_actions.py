@@ -372,6 +372,11 @@ class MenuActions(views.ViewsManager):
                         QtWidgets.QMessageBox.Icon.Warning)
                     return
                 print(node, name)
+                # the editor runs its own event loop, and table refreshes
+                # are discarded while the context menu is flagged as
+                # active, so saving from the editor wouldn't update the
+                # views otherwise.
+                self.set_context_menu_active(False)
                 r = RulesEditorDialog(modal=False)
                 r.edit_rule(records, node)
 
@@ -386,6 +391,9 @@ class MenuActions(views.ViewsManager):
                             QC.translate("stats", "Rule not found by that name and node"),
                             QtWidgets.QMessageBox.Icon.Warning)
                     return
+                # see the TAB_MAIN branch: allow table refreshes while the
+                # editor is open.
+                self.set_context_menu_active(False)
                 r = RulesEditorDialog(modal=False)
                 r.edit_rule(records, node)
                 break
