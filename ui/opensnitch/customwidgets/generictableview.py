@@ -409,11 +409,6 @@ class GenericTableView(QTableView):
         for rid, row in enumerate(selrows):
             key = row[self.trackingCol]
             self._rows_selection.add(key)
-            idx = self.model().index(rid, self.trackingCol)
-            self.selectionModel().setCurrentIndex(
-                idx,
-                QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.SelectCurrent
-            )
         self.selectIndices()
 
     def getMinViewportRow(self):
@@ -486,8 +481,10 @@ class GenericTableView(QTableView):
             self._last_row_selected = viewport_row
             self._db_selection_range['last'] = viewport_row + offset
 
+        sel_direction = 0
         # invert the selection after moving up
         if self._first_row_selected > self._last_row_selected:
+            sel_direction = 1
             last = self._first_row_selected
             first = self._last_row_selected
             self._last_row_selected = last
@@ -507,7 +504,20 @@ class GenericTableView(QTableView):
         if self.ctrlPressed:
             return
 
+        selected = self.selectionModel().selectedRows()
         self.selectDbRows(self._db_selection_range['first']-2, self._db_selection_range['last'])
+        # place the "cursor" (current index) at the start or end of the selected range.
+        # the keyboard will use it to advance from that row onward.
+        if len(selected) == 0:
+            return
+
+        last_idx = selected[-1]
+        if sel_direction == 1:
+            last_idx = selected[0]
+        self.selectionModel().setCurrentIndex(
+            last_idx,
+            QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.NoUpdate
+        )
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
@@ -531,11 +541,6 @@ class GenericTableView(QTableView):
         rightBtnPressed = event.button() != Qt.MouseButton.LeftButton
 
         self.keySelectAll = False
-        if not self.shiftPressed:
-            self._first_row_selected = None
-            self._last_row_selected = None
-            self._db_selection_range['first'] = None
-            self._db_selection_range['last'] = None
 
         pos = event.pos()
         item = self.indexAt(pos)
