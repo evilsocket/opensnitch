@@ -768,6 +768,44 @@ func TestNewOperatorRegexpSensitive(t *testing.T) {
 	restoreConnection()
 }
 
+// TestNewOperatorRegexpDataNotMutated guards against regressions of issue
+// #1587: when Sensitive is false (the default), Compile() must not mutate
+// Operator.Data. Lowercasing the pattern in place mangles character classes
+// like [0-9A-Za-z] into [0-9a-za-z] and bleeds the mangled regex back into
+// the rule's saved JSON and the GUI.
+func TestNewOperatorRegexpDataNotMutated(t *testing.T) {
+	t.Log("Test NewOperator() regexp data preservation (#1587)")
+	var dummyList []Operator
+
+	appimagePattern := `^/tmp/\.mount_handy_[0-9A-Za-z]+\/.*handy$`
+	opRE, err := NewOperator(Regexp, false, OpProcessPath, appimagePattern, dummyList)
+	if err != nil {
+		t.Fatalf("NewOperator regexp.err should be nil: %s", err)
+	}
+	if err = opRE.Compile(); err != nil {
+		t.Fatalf("Compile() should not fail: %s", err)
+	}
+	if opRE.Data != appimagePattern {
+		t.Errorf("Operator.Data was mutated by Compile():\n  want: %q\n  got:  %q", appimagePattern, opRE.Data)
+	}
+
+	t.Run("matches mixed-case appimage path case-insensitively", func(t *testing.T) {
+		conn.Process.Path = "/tmp/.mount_handy_aB3xZ9/handy"
+		if opRE.Match(conn, false) == false {
+			t.Errorf("regexp should match mixed-case path: %s", conn.Process.Path)
+		}
+	})
+
+	t.Run("matches lowercase appimage path", func(t *testing.T) {
+		conn.Process.Path = "/tmp/.mount_handy_abcdef/handy"
+		if opRE.Match(conn, false) == false {
+			t.Errorf("regexp should match lowercase path: %s", conn.Process.Path)
+		}
+	})
+
+	restoreConnection()
+}
+
 func TestNewOperatorList(t *testing.T) {
 	t.Log("Test NewOperator() List")
 	var list []Operator
