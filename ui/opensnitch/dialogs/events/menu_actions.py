@@ -312,7 +312,7 @@ class MenuActions(views.ViewsManager):
         msg = QC.translate("stats", "    You are about to delete this rule.    ")
         if rnum > 1:
             msg = QC.translate("stats", "    You are about to delete these rules ({0})    ".format(rnum))
-        if cur_idx != constants.TAB_RULES:
+        if cur_idx != constants.TAB_RULES or (cur_idx == constants.TAB_RULES and self.alertsTable.isVisible()):
             msg = QC.translate("stats", "    You are about to delete this entry.    ")
 
         ret = Message.yes_no(msg,
@@ -341,11 +341,16 @@ class MenuActions(views.ViewsManager):
                 node = row[constants.COL_R_NODE]
                 name = row[constants.COL_R_NAME]
                 self.del_rule(name, node)
+            self.TABLES[cur_idx]['view'].clearSelection()
             self.refresh_active_table()
 
         elif cur_idx == constants.TAB_RULES and self.alertsTable.isVisible():
-            for row in selection:
-                self._db.delete_alert(row[constants.COL_TIME], row[constants.COL_NODE])
+            for idx in selection:
+                #anode = model.index(idx.row(), constants.COL_NODE).data()
+                self._db.delete_alert(
+                    idx.data()
+                )
+            self.TABLES[cur_idx]['view'].clearSelection()
 
         elif cur_idx == constants.TAB_HOSTS or cur_idx == constants.TAB_PROCS or cur_idx == constants.TAB_ADDRS or \
             cur_idx == constants.TAB_USERS or cur_idx == constants.TAB_PORTS:
