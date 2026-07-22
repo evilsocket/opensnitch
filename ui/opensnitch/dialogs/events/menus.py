@@ -169,15 +169,15 @@ class MenusManager(views.ViewsManager):
                     nodes_menu.append([nodesMenu.addAction(node), node])
                 menu.addMenu(nodesMenu)
 
+            actionsMenu = QtWidgets.QMenu(QC.translate("stats", "Action"), self)
+            _action_accept = actionsMenu.addAction(Config.ACTION_ACCEPT)
+            _action_drop = actionsMenu.addAction(Config.ACTION_DROP)
+            _action_reject = actionsMenu.addAction(Config.ACTION_REJECT)
+            _action_return = actionsMenu.addAction(Config.ACTION_RETURN)
             if rule_action == Config.ACTION_ACCEPT or \
                     rule_action == Config.ACTION_DROP or \
                     rule_action == Config.ACTION_RETURN or \
                     rule_action == Config.ACTION_REJECT:
-                actionsMenu = QtWidgets.QMenu(QC.translate("stats", "Action"))
-                _action_accept = actionsMenu.addAction(Config.ACTION_ACCEPT)
-                _action_drop = actionsMenu.addAction(Config.ACTION_DROP)
-                _action_reject = actionsMenu.addAction(Config.ACTION_REJECT)
-                _action_return = actionsMenu.addAction(Config.ACTION_RETURN)
                 menu.addSeparator()
                 menu.addMenu(actionsMenu)
 
