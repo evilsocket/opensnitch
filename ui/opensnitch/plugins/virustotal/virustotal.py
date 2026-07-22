@@ -518,7 +518,7 @@ class Virustotal(PluginBase):
                     self.widgets_colors['malicious'],
                     config['malicious-message'],
                     what,
-                    verdict['malicious'],
+                    mal_num,
                     comm_votes,
                     parent.get_message_text()
                 )
