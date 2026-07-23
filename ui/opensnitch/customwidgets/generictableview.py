@@ -682,6 +682,7 @@ class GenericTableView(QTableView):
         totalCount = self.model().totalRowCount
         offset = self.model().queryOffset
         limit = self.model().queryLimit
+        lastMax = self.vScrollBar.maximum()
         vmax = max(0, totalCount - self.maxRowsInViewport+1)
         if totalCount < self.maxRowsInViewport and offset > 0:
             vmax = self.maxRowsInViewport-5
