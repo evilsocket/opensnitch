@@ -695,15 +695,23 @@ class GenericTableView(QTableView):
             showScroll = True
         self.vScrollBar.setVisible(showScroll)
 
+        # we need to decide if the viewport needs to be refreshed, before
+        # setting the min and max scrollbar values.
+        doRefresh=self.forceViewRefresh()
         self.vScrollBar.setMinimum(0)
         # one scrollbar step is one row
         self.vScrollBar.setMaximum(vmax)
 
+        scrollVal = self.vScrollBar.value()
+        # if latest max scrollbar value is less than current vmax, we're going
+        # from latest results to previous batch of results.
+        # in order to paint the new results correctly, use vmax as current
+        # scrollbar position.
+        if lastMax < vmax:
+            scrollVal = vmax
+
         self.signals.paginateEvent.emit(offset, limit)
-        # XXX: we should only refresh the viewport if the scrollbar position
-        # is at minimum or maximum (forceViewRefresh()), but there's a bug when
-        # refreshing the last results of a query (offset == max).
-        self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=self.forceViewRefresh())
+        self.model().refreshViewport(scrollVal, self.maxRowsInViewport, force=doRefresh)
 
     def clearSelection(self):
         self.keySelectAll = False
@@ -752,12 +760,16 @@ class GenericTableView(QTableView):
     def selectItem(self, _data, _column):
         """Select a row based on the data displayed on the given column.
         """
+        if _data == "":
+            return
         items = self.model().findItems(_data, column=_column)
-        if len(items) > 0:
-            self.selectionModel().setCurrentIndex(
-                items[0].index(),
-                QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.SelectCurrent
-            )
+        if len(items) == 0:
+            return
+
+        self.selectionModel().setCurrentIndex(
+            items[0].index(),
+            QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.SelectCurrent
+        )
 
     def selectIndices(self):
         sel = QItemSelection()
