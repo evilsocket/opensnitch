@@ -790,10 +790,17 @@ class GenericTableView(QTableView):
         )
 
     def _selectLastRow(self):
+        # BUG: Depending on the viewport state, latest row may be invalid:
+        # "Cannot create accessible child interface for object:"
         idx = None
-        # find latest valid model index.
-        # BUG: Depending on the viewport state, latest row may be invalid.
-        for i in reversed(range(0, self.maxRowsInViewport)):
+        rows = self.maxRowsInViewport
+        # if there're more rows that the viewport can display, use
+        # maxRowsInViewport as the last row. Otherwise use last dispayed row.
+        if self.model().totalRowCount < self.maxRowsInViewport:
+            rows = self.model().totalRowCount
+
+        # find last valid model index.
+        for i in reversed(range(0, rows)):
             new_idx = self.model().index(i, self.trackingCol)
             if new_idx.row() != -1:
                 idx = new_idx
@@ -1062,6 +1069,8 @@ class GenericTableView(QTableView):
                 if curIdx.data() is not None and curIdx.data() not in self._rows_selection:
                     self._rows_selection.add(curIdx.data())
                 self._selectRow(0)
+        elif curRow >= self.model().totalRowCount:
+            self._selectLastRow()
 
     def onKeyHome(self):
         self._last_row_selected = self._first_row_selected
