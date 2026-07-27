@@ -46,6 +46,9 @@ Download deb/rpm packages for your system from https://github.com/evilsocket/ope
 #### rpm
 > $ sudo dnf install opensnitch*.rpm
 
+#### pacman (Arch Linux)
+> $ sudo pacman -S opensnitch
+
 Then run: `$ opensnitch-ui` or launch the GUI from the Applications menu.
 
 Please, refer to [the documentation](https://github.com/evilsocket/opensnitch/wiki/Installation) for detailed information.
