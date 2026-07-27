@@ -1,5 +1,6 @@
 from slugify import slugify
 import os
+import re
 import ipaddress
 
 from PyQt6.QtCore import QCoreApplication as QC
@@ -23,7 +24,20 @@ def get_rule_name(rule, is_list):
         rule_temp_name = "%s-list" % rule_temp_name
     else:
         rule_temp_name = "%s-simple" % rule_temp_name
-    rule_temp_name = slugify("%s %s" % (rule_temp_name, rule.operator.data))
+
+    rule_data = rule.operator.data
+    if rule.operator.type == Config.RULE_TYPE_REGEXP:
+        # Alnum character classes (e.g. [0-9A-Za-z]) don't carry any
+        # identifying info for a rule name, and slugify() lowercases
+        # everything, so a mixed-case range like [0-9A-Za-z] turns into
+        # "0-9a-za-z", which looks like a duplicated a-z class. Strip them
+        # out instead of slugifying them (#1587).
+        # Only match classes made up of digits/letters/hyphens, so we don't
+        # touch escaped brackets or other regexp syntax a user may have
+        # typed by hand (e.g. r'\[test\]' or r'[a-z\]]').
+        rule_data = re.sub(r'\[[0-9A-Za-z\-]+\]', '', rule_data)
+
+    rule_temp_name = slugify("%s %s" % (rule_temp_name, rule_data))
 
     return rule_temp_name[:128]
 
