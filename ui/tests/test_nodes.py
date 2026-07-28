@@ -182,6 +182,13 @@ class TestNodes():
         # Result depends on local interfaces, but 8.8.8.8 should not be local
         assert result == False
 
+    def test_is_local_uses_exact_address_match(self, qtbot, monkeypatch):
+        """Test local detection does not use substring matching."""
+        monkeypatch.setattr(self.nodes._interfaces, "list", lambda: {"virbr0": "192.168.122.1"})
+
+        assert self.nodes.is_local("ipv4:192.168.122.1") == True
+        assert self.nodes.is_local("ipv4:192.168.122.19") == False
+
     def test_get_node_hostname(self, qtbot):
         """Test hostname retrieval."""
         self.nodes.add("peer:1.2.3.4", self.daemon_config)
