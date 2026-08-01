@@ -111,6 +111,7 @@ class Config:
     DEFAULT_POPUP_ADVANCED_CHECKSUM = "global/default_popup_advanced_checksum"
     DEFAULT_FW_INTERCEPTION_ENABLED = "global/interception_enabled"
     DEFAULT_PERSIST_INTERCEPTION_STATE = "global/persist_interception_state"
+    DEFAULT_POPUP_ADVANCED_FULL_COMMAND = "global/default_popup_advanced_full_command"
     DEFAULT_SERVER_ADDR  = "global/server_address"
     DEFAULT_SERVER_MAX_MESSAGE_LENGTH  = "global/server_max_message_length"
     DEFAULT_SERVER_MAX_WORKERS = "global/max_workers"
