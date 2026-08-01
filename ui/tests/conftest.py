@@ -27,6 +27,9 @@ def init_test_environment():
     # Setup mock node with full structure
     from tests.dialogs import ClientConfig
     nodes = Nodes.instance()
+    nodes._nodes = {}
+    nodes._peer_map = {}
+    nodes._notifications_sent = {}
     nodes._nodes["unix:/tmp/osui.sock"] = {
         'data': ClientConfig,
         'notifications': Queue(),
@@ -67,6 +70,9 @@ def reset_node_before_each_test(qapp):
     from tests.dialogs import ClientConfig
 
     nodes = Nodes.instance()
+    nodes._nodes = {}
+    nodes._peer_map = {}
+    nodes._notifications_sent = {}
     nodes._nodes["unix:/tmp/osui.sock"] = {
         'data': ClientConfig,
         'notifications': Queue(),

@@ -258,6 +258,7 @@ message ClientConfig {
     uint32 logLevel = 6;
     repeated Rule rules = 7;
     SysFirewall systemFirewall = 8;
+    string node_id = 9;
 }
 
 /* Notification message is sent to the clients (daemons) from the GUI (server)
