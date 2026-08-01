@@ -855,6 +855,29 @@ func TestNewOperatorList(t *testing.T) {
 	restoreConnection()
 }
 
+func TestNewOperatorListEmpty(t *testing.T) {
+	t.Log("Test NewOperator() List without operators")
+	var list []Operator
+
+	// A list operator with nothing under "list" has no condition to check, so
+	// it must not match. It used to match every connection.
+	opList, err := NewOperator(List, false, OpList, "", list)
+	if err != nil {
+		t.Error("NewOperator list.empty.err should be nil: ", err)
+		t.Fail()
+	}
+	if err = opList.Compile(); err != nil {
+		t.Error("NewOperator list.empty.err compiling:", err)
+		t.Fail()
+	}
+	if opList.Match(conn, false) == true {
+		t.Error("Test NewOperator() empty list matches every connection")
+		t.Fail()
+	}
+
+	restoreConnection()
+}
+
 func TestNewOperatorListsSimple(t *testing.T) {
 	t.Log("Test NewOperator() Lists simple")
 	var dummyList []Operator

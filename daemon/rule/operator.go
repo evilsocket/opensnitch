@@ -445,6 +445,13 @@ func (o *Operator) hashCmp(hash string) bool {
 }
 
 func (o *Operator) listMatch(con *conman.Connection, hasChecksums bool) bool {
+	// A List operator with no operators has nothing to check: the loop below
+	// leaves res untouched, so the rule would match every connection. Don't
+	// match, like the Lists operators when they have nothing loaded.
+	if len(o.List) == 0 {
+		return false
+	}
+
 	res := true
 	for i := 0; i < len(o.List); i++ {
 		res = res && o.List[i].Match(con, hasChecksums)
