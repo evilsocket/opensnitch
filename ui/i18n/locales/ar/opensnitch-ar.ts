@@ -261,7 +261,7 @@
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="303"/>
         <source>REJECT</source>
-        <translation type="unfinished"></translation>
+        <translation>رفض</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/firewall_rule.ui" line="312"/>
@@ -905,32 +905,32 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="779"/>
         <source>30s or less</source>
-        <translation type="unfinished"></translation>
+        <translation>ثلاثون ثانية أو أقل</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="784"/>
         <source>5m or less</source>
-        <translation type="unfinished"></translation>
+        <translation>خمسة دقائق أو أقل</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="789"/>
         <source>15m or less</source>
-        <translation type="unfinished"></translation>
+        <translation>خمسة عشر دقيقة أو أقل</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="794"/>
         <source>30m or less</source>
-        <translation type="unfinished"></translation>
+        <translation>ثلاثون دقيقة أو أقل</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="799"/>
         <source>1h or less</source>
-        <translation type="unfinished"></translation>
+        <translation>ساعة واحدة أو أقل</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="724"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>اللغة</translation>
     </message>
 </context>
 <context>
@@ -943,7 +943,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="61"/>
         <source>loading...</source>
-        <translation type="unfinished"></translation>
+        <translation>تحميل ...</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="81"/>
@@ -958,7 +958,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="121"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>الحالة</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="135"/>
@@ -998,7 +998,7 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="256"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>إغلاق</translation>
     </message>
 </context>
 <context>
@@ -1041,32 +1041,32 @@ Temporary rules will still be valid, and you can use them when prompted to allow
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="610"/>
         <source>To this IP / Network</source>
-        <translation type="unfinished"></translation>
+        <translation>إلى هذا العنوان أو الشبكة</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="97"/>
         <source>once</source>
-        <translation type="unfinished"></translation>
+        <translation>مرة واحدة</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="230"/>
         <source>until restart</source>
-        <translation type="obsolete">hasta reiniciar (el servicio)</translation>
+        <translation>حتى إعادة التشغيل</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="132"/>
         <source>always</source>
-        <translation type="unfinished"></translation>
+        <translation>دائما</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="902"/>
         <source>To this port</source>
-        <translation type="unfinished"></translation>
+        <translation>إلى هذا المنفذ</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="372"/>
         <source>From this user ID</source>
-        <translation type="unfinished"></translation>
+        <translation>من هذا المستخدم</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/ruleseditor.ui" line="592"/>
