@@ -1,0 +1,81 @@
+# Configuration of opensnitch-cli, the headless client.
+#
+# Copy to /etc/opensnitch/cli.conf, or to ~/.config/opensnitch/cli.conf.
+# Every value below is the default: with no configuration file at all,
+# opensnitch-cli behaves exactly as if this file were in place.
+#
+# @doc: https://github.com/evilsocket/opensnitch/wiki
+
+[server]
+# Where the daemon connects to. Must match Server.Address in the daemon's
+# /etc/opensnitchd/default-config.json. Only one program can listen here, so
+# opensnitch-cli serve and opensnitch-ui cannot both run against the same daemon.
+address = unix:///tmp/osui.sock
+
+# simple, tls-simple or tls-mutual. The same values, and the same certificates,
+# the graphical interface uses.
+auth_type = simple
+tls_ca_cert =
+tls_cert =
+tls_key =
+
+# One worker is taken for as long as each node's notification stream is open,
+# another while a connection is being asked about, so roughly three per node.
+max_workers = 10
+max_clients = 0
+keepalive = 5000
+keepalive_timeout = 20000
+max_message_length = 4194304
+
+[policy]
+# What to answer for a connection nobody has reviewed yet: allow, deny or reject.
+#
+# The default is deny: nothing this machine has not been approved to do gets
+# out. The connection is still recorded, and 'opensnitch-cli review' is how you
+# approve it; the decision you take governs every later connection.
+#
+# Set this to allow if you would rather the server keep working while the queue
+# waits for you. That is the weaker setting, but it never breaks a service you
+# forgot to approve, and the connection is still queued either way.
+#
+# reject behaves like deny but answers the connection instead of dropping it,
+# so the program fails immediately rather than hanging until it times out.
+unreviewed_action = deny
+
+# How long that answer lasts before the connection is asked about again.
+# Long enough not to ask about every packet, short enough that a connection you
+# never review comes back rather than being decided for good.
+# Days and weeks are not accepted: the daemon parses this with Go's
+# time.ParseDuration, which only knows ns, us, ms, s, m and h.
+unreviewed_duration = 1h
+
+# What the daemon should do on its own, without asking: while it is already
+# waiting for an answer about another connection, or if this program stops
+# responding. allow or deny.
+#
+# Keep this the same as unreviewed_action. Leaving it on allow while
+# unreviewed_action is deny means a burst of new connections partly gets
+# through, which defeats the point of denying them one at a time.
+#
+# This is pushed to the daemon when it connects and is not written to its
+# configuration file, so it only applies while opensnitch-cli is running. With
+# nothing connected the daemon falls back to its own DefaultAction.
+default_action = deny
+
+# Stop recording new connections past this many unreviewed entries. Connections
+# are still answered, they just stop being added to the queue; opensnitch-cli
+# status reports how many were missed.
+queue_max = 1000
+
+[db]
+path = /var/lib/opensnitch/cli.db
+# Reviewed entries are removed after this many days. 0 keeps them forever.
+retention_days = 30
+
+[log]
+level = info
+# empty logs to stderr, which is what the systemd unit wants. Under the unit
+# the file system is read-only apart from a few directories; a log file has
+# to live under /var/log/opensnitch (LogsDirectory= in the unit).
+file =
+store_alerts = false

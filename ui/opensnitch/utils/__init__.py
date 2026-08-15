@@ -11,10 +11,10 @@ import gc
 
 from PyQt6 import QtCore, QtWidgets, QtGui
 from opensnitch.version import version as gui_version
-from opensnitch.database import Database
-from opensnitch.config import Config
-from opensnitch.utils.themes import Themes
-from opensnitch.desktop_parser import LinuxDesktopParser
+# Database, Config, Themes and LinuxDesktopParser are imported where they're
+# used instead of here. Importing them at this point creates a circular import
+# (config -> database -> utils -> config), which only worked as long as some
+# other module happened to import one of them first.
 
 class AsnDB():
     __instance = None
@@ -159,6 +159,9 @@ class CleanerTask(Thread):
     callback = None
 
     def __init__(self, _interval, _callback):
+        from opensnitch.config import Config
+        from opensnitch.database import Database
+
         Thread.__init__(self, name="cleaner_db_thread")
         self.interval = _interval * 60
         self.stop_flag = Event()
@@ -431,6 +434,8 @@ class Icons():
 
     @staticmethod
     def new(widget, icon_name):
+        from opensnitch.utils.themes import Themes
+
         if Themes.IS_DARK:
             icon_pix = os.path.join(
                 os.path.abspath(os.path.dirname(__file__)),
@@ -470,6 +475,8 @@ class Icons():
                     icon = QtGui.QIcon(app_icon)
                     pixmap = icon.pixmap(icon.actualSize(QtCore.QSize(48, 48)))
                 else:
+                    from opensnitch.desktop_parser import LinuxDesktopParser
+
                     icon_path = LinuxDesktopParser.discover_app_icon(app_icon)
                     if icon_path != None:
                         icon = QtGui.QIcon(icon_path)

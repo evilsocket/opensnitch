@@ -4,6 +4,7 @@ import ipaddress
 
 from PyQt6.QtCore import QCoreApplication as QC
 
+from opensnitch import operands
 from opensnitch.config import Config
 from opensnitch.dialogs.prompt import constants
 from opensnitch.utils.network_aliases import NetworkAliases
@@ -264,64 +265,25 @@ def set_default_target(combo, con, cfg, app_name, app_args):
         combo.setCurrentIndex(constants.TARGET_IDX_DST_PORT)
 
 def get_combo_operator(data, comboText, con):
-    if data == constants.FIELD_PROC_PATH:
-        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
+    """builds the operator of the rule out of the entry selected in the combo.
 
-    elif data == constants.FIELD_PROC_ARGS:
-        # this should not happen
-        if len(con.process_args) == 0 or con.process_args[0] == "":
-            return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
-        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_COMMAND, ' '.join(con.process_args)
+    The patterns themselves are built by opensnitch.operands, shared with
+    opensnitch-cli. This only translates what the combo displays to the value
+    those builders expect.
+    """
+    value = comboText
 
-    elif data == constants.FIELD_PROC_ID:
-        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_ID, "{0}".format(con.process_id)
-
-    elif data == constants.FIELD_USER_ID:
-        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_USER_ID, "{0}".format(con.user_id)
-
-    elif data == constants.FIELD_DST_PORT:
-        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_PORT, "{0}".format(con.dst_port)
-
-    elif data == constants.FIELD_DST_IP:
-        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_IP, con.dst_ip
-
-    elif data == constants.FIELD_DST_HOST:
-        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_DEST_HOST, comboText
-
-    elif data == constants.FIELD_DST_NETWORK:
+    if data == constants.FIELD_DST_NETWORK or data == constants.FIELD_REGEX_IP:
         # strip "to ": "to x.x.x/20" -> "x.x.x/20"
         # we assume that to is one word in all languages
         parts = comboText.split(' ')
-        text = parts[len(parts)-1]
-        return Config.RULE_TYPE_NETWORK, Config.OPERAND_DEST_NETWORK, text
+        value = parts[len(parts)-1]
 
     elif data == constants.FIELD_REGEX_HOST:
+        # strip "to " and the wildcard: "to *.yahoo.com" -> "yahoo.com"
         parts = comboText.split(' ')
-        text = parts[len(parts)-1]
-        # ^(|.*\.)yahoo\.com
-        dsthost = r'\.'.join(text.split('.')).replace("*", "")
-        dsthost = r'^(|.*\.)%s$' % dsthost[2:]
-        return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_HOST, dsthost
+        value = parts[len(parts)-1]
+        if value.startswith("*."):
+            value = value[2:]
 
-    elif data == constants.FIELD_REGEX_IP:
-        parts = comboText.split(' ')
-        text = parts[len(parts)-1]
-        return Config.RULE_TYPE_REGEXP, Config.OPERAND_DEST_IP, "%s" % r'\.'.join(text.split('.')).replace("*", ".*")
-
-    elif data == constants.FIELD_APPIMAGE:
-        appimage_bin = os.path.basename(con.process_path)
-        appimage_path = os.path.dirname(con.process_path).replace('.', r'\.')
-        appimage_path = appimage_path[0:len(constants.APPIMAGE_PREFIX)+7]
-        # usually appimages add 6 random characters after the prefix, but
-        # some appimages do not follow this rule (Eden appimage for example,
-        # #1377).
-        return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, r'^{0}[0-9A-Za-z]+\/.*{1}$'.format(appimage_path, appimage_bin)
-
-    elif data == constants.FIELD_SNAP:
-        snap_path = con.process_path
-        snap_parts = snap_path.split('/')
-        snap_prefix = snap_parts[1]
-        app = snap_parts[2]
-        app_path = r'\/'.join(snap_parts[4:])
-        regexp = r'^\/{0}\/{1}\/[0-9]+\/{2}$'.format(snap_prefix, app, app_path)
-        return Config.RULE_TYPE_REGEXP, Config.OPERAND_PROCESS_PATH, regexp
+    return operands.get_operator(data, value, con)

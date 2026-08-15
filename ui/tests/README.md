@@ -4,6 +4,16 @@ We use pytest [0] to pytest-qt [1] to test GUI code.
 
 To run the tests: `cd tests; pytest -v`
 
+The tests under `cli/` cover opensnitch-cli, which runs on servers without Qt.
+They don't need PyQt6 or a display, so they can be run on their own with only
+grpcio, protobuf and python-slugify installed:
+
+    cd tests; pytest -v cli/
+
+`cli/test_no_qt.py` fails if anything in opensnitch/cli/ ends up importing Qt,
+and `cli/test_operands_parity.py` checks that the terminal client builds exactly
+the same rules as the pop-up does (it is skipped when PyQt6 is missing).
+
 TODO:
  - test service class (Service.py)
  - test events window (stats.py):

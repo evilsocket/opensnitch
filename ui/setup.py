@@ -34,5 +34,10 @@ These rules can last forever, until the app restart or just one time.',
                ('/usr/share/icons/hicolor/48x48/apps', ['resources/icons/48x48/opensnitch-ui.png']),
                ('/usr/share/icons/hicolor/64x64/apps', ['resources/icons/64x64/opensnitch-ui.png']),
                ('/usr/share/metainfo', ['resources/io.github.evilsocket.opensnitch.appdata.xml'])],
-      scripts = [ 'bin/opensnitch-ui' ],
+      # opensnitch-cli's service unit and example configuration are not listed
+      # in data_files on purpose: writing to /lib/systemd/system from setup.py
+      # would also happen on a plain "pip install". They live in
+      # resources/init/ and resources/cli.conf.example, for the packaging to
+      # install.
+      scripts = [ 'bin/opensnitch-ui', 'bin/opensnitch-cli' ],
       zip_safe=False)

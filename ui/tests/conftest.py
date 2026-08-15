@@ -3,9 +3,12 @@
 # This file sets up Qt and database before tests run.
 
 import pytest
-from PyQt6 import QtWidgets
 from unittest.mock import patch
 from queue import Queue
+
+# PyQt6 is imported from the fixtures that need it, not here: the tests of
+# opensnitch-cli run on machines without Qt, and importing it at this point
+# would make collecting them fail.
 
 # Global flag to track initialization
 _initialized = False
@@ -38,6 +41,8 @@ def init_test_environment():
 @pytest.fixture(scope="session")
 def qapp():
     """Create QApplication for the entire test session."""
+    from PyQt6 import QtWidgets
+
     app = QtWidgets.QApplication.instance()
     if app is None:
         app = QtWidgets.QApplication([])

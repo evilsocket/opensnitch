@@ -1,7 +1,8 @@
 from PyQt6 import QtCore
 from opensnitch.database import Database
+from opensnitch.rule_consts import RuleConsts
 
-class Config:
+class Config(RuleConsts):
     __instance = None
 
     HELP_URL = "https://github.com/evilsocket/opensnitch/wiki/"
@@ -11,78 +12,18 @@ class Config:
     HELP_CONFIG_URL = "https://github.com/evilsocket/opensnitch/wiki/Configurations"
     HELP_SYSTRAY_WARN = "https://github.com/evilsocket/opensnitch/wiki/GUI-known-problems#gui-does-not-show-up"
 
-    OPERAND_PROCESS_ID = "process.id"
-    OPERAND_PROCESS_PATH = "process.path"
-    OPERAND_PROCESS_COMMAND = "process.command"
-    OPERAND_PROCESS_ENV = "process.env."
-    OPERAND_PROCESS_HASH_MD5 = "process.hash.md5"
-    OPERAND_PROCESS_HASH_SHA1 = "process.hash.sha1"
-    OPERAND_USER_ID = "user.id"
-    OPERAND_IFACE_OUT = "iface.out"
-    OPERAND_IFACE_IN = "iface.in"
-    OPERAND_SOURCE_IP = "source.ip"
-    OPERAND_SOURCE_PORT = "source.port"
-    OPERAND_DEST_IP = "dest.ip"
-    OPERAND_DEST_HOST = "dest.host"
-    OPERAND_DEST_PORT = "dest.port"
-    OPERAND_DEST_NETWORK = "dest.network"
-    OPERAND_SOURCE_NETWORK = "source.network"
-    OPERAND_PROTOCOL = "protocol"
-    OPERAND_LIST_DOMAINS = "lists.domains"
-    OPERAND_LIST_DOMAINS_REGEXP = "lists.domains_regexp"
-    OPERAND_LIST_IPS = "lists.ips"
-    OPERAND_LIST_NETS = "lists.nets"
-
-    RULE_TYPE_LIST = "list"
-    RULE_TYPE_LISTS = "lists"
-    RULE_TYPE_SIMPLE = "simple"
-    RULE_TYPE_REGEXP = "regexp"
-    RULE_TYPE_NETWORK = "network"
-    RULE_TYPE_RANGE = "range"
-    RulesTypes = (RULE_TYPE_LIST, RULE_TYPE_LISTS, RULE_TYPE_SIMPLE, RULE_TYPE_REGEXP, RULE_TYPE_NETWORK, RULE_TYPE_RANGE)
+    # rule operands, types, actions and durations are defined in
+    # opensnitch.rule_consts.RuleConsts, which has no Qt dependency.
 
     DEFAULT_TARGET_PROCESS = 0
     ACTION_DROP_IDX = 0
     ACTION_ALLOW_IDX = 1
     ACTION_REJECT_IDX = 2
 
-    # don't translate
-    ACTION_ALLOW = "allow"
-    ACTION_DENY = "deny"
-    ACTION_REJECT = "reject"
-    ACTION_ACCEPT = "accept"
-    ACTION_DROP = "drop"
-    ACTION_JUMP = "jump"
-    ACTION_REDIRECT = "redirect"
-    ACTION_RETURN = "return"
-    ACTION_TPROXY = "tproxy"
-    ACTION_SNAT = "snat"
-    ACTION_DNAT = "dnat"
-    ACTION_MASQUERADE = "masquerade"
-    ACTION_QUEUE = "queue"
-    ACTION_LOG = "log"
-    ACTION_STOP = "stop"
-
-    DURATION_FIELD = "duration"
-    DURATION_UNTIL_RESTART = "until restart"
-    DURATION_ALWAYS = "always"
-    DURATION_ONCE = "once"
-    DURATION_12h = "12h"
-    DURATION_1h = "1h"
-    DURATION_30m = "30m"
-    DURATION_15m = "15m"
-    DURATION_5m = "5m"
-    DURATION_30s = "30s"
-
     # Rules of this list are ignored/deleted
     RULES_DURATION_FILTER = ()
     # Rules of this list are active
     RULES_ACTIVE_TEMPORARY_RULES = ()
-    RULES_TEMPORARY_LIST = [
-        DURATION_ONCE, DURATION_30s, DURATION_5m,
-        DURATION_15m, DURATION_30m, DURATION_1h,
-        DURATION_12h,
-        DURATION_UNTIL_RESTART]
 
     DEFAULT_DURATION_IDX = 6 # until restart
 
