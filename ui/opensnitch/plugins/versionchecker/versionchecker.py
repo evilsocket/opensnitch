@@ -145,7 +145,7 @@ class Versionchecker(PluginBase):
                 last_version = self._resultsQueue.get_nowait()
 
             #if Utils.check_versions(request.stats.daemon_version):
-            result_msg = QC.translate("stats", "Version {0} is available".format(version))
+            result_msg = QC.translate("stats", "Version {0} is available").format(version)
             if last_version != self._version:
                 if self._desktop_notifications.is_available() and self._desktop_notifications.are_enabled():
                     self._desktop_notifications.show(

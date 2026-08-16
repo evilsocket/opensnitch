@@ -28,8 +28,8 @@ class MenuActions(views.ViewsManager):
             Message.ok(
                 QC.translate("stats", "New rule error"),
                 QC.translate("stats",
-                             "Error creating new rule from event ({0})".format(coltime)
-                             ),
+                             "Error creating new rule from event ({0})"
+                             ).format(coltime),
                 QtWidgets.QMessageBox.Icon.Warning
             )
 
@@ -93,7 +93,7 @@ class MenuActions(views.ViewsManager):
         if len(error_list) == 0:
             Message.ok(
                 "Rules export",
-                QC.translate("stats", "Rules exported to {0}".format(outdir)),
+                QC.translate("stats", "Rules exported to {0}").format(outdir),
                 QtWidgets.QMessageBox.Icon.Information)
         else:
             error_text = ""
@@ -103,8 +103,8 @@ class MenuActions(views.ViewsManager):
             Message.ok(
                 "Rules export error",
                 QC.translate("stats",
-                             "Error exporting the following rules:<br><br>".format(error_text)
-                            ),
+                             "Error exporting the following rules:<br><br>"
+                            ).format(error_text),
                 QtWidgets.QMessageBox.Icon.Warning)
 
     def table_menu_duplicate(self, cur_idx, model, selection):
@@ -163,7 +163,7 @@ class MenuActions(views.ViewsManager):
                 if err is not None:
                     Message.ok(
                         "Error",
-                        QC.translate("stats", "Error adding rule {0} to {1}".format(uuid, node_addr)),
+                        QC.translate("stats", "Error adding rule {0} to {1}").format(uuid, node_addr),
                         QtWidgets.QMessageBox.Icon.Warning)
                     continue
                 if added and node_addr not in nodes_updated:
@@ -223,7 +223,7 @@ class MenuActions(views.ViewsManager):
                     errmsg += f"<br> {e[0]}, {e[1]}"
                 Message.ok(
                     "Error",
-                    QC.translate("stats", "Error adding rules {0}".format(errmsg)),
+                    QC.translate("stats", "Error adding rules {0}").format(errmsg),
                     QtWidgets.QMessageBox.Icon.Warning)
 
     def table_menu_change_rule_field(self, cur_idx, model, selection, field, value):
@@ -311,7 +311,7 @@ class MenuActions(views.ViewsManager):
         rnum = len(selection)
         msg = QC.translate("stats", "    You are about to delete this rule.    ")
         if rnum > 1:
-            msg = QC.translate("stats", "    You are about to delete these rules ({0})    ".format(rnum))
+            msg = QC.translate("stats", "    You are about to delete these rules ({0})    ").format(rnum)
         if cur_idx != constants.TAB_RULES or (cur_idx == constants.TAB_RULES and self.alertsTable.isVisible()):
             msg = QC.translate("stats", "    You are about to delete this entry.    ")
 

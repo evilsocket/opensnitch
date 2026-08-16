@@ -479,7 +479,7 @@ def build_node_config(win, addr):
         return json.dumps(node_config, indent="    "), None
     except Exception as e:
         win.logger.warning("exception loading node config on %s: %s" % addr, repr(e))
-        utils.set_status_error(win, QC.translate("preferences", "Error loading node config: {0}".format(e)))
+        utils.set_status_error(win, QC.translate("preferences", "Error loading node config: {0}").format(e))
 
     return None, QC.translate("preferences", "Error loading {0} configuration").format(addr)
 

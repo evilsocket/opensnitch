@@ -44,7 +44,7 @@ def handle(win, addr, reply):
             # "invalid argument", "no such file or directory", without context
             # 1st one: invalid combination of table/chain/priorities?
             # 2nd one: does the table/chain exist?
-            errormsg = QC.translate("firewall", "Error adding rules:\n{0}".format(reply.data))
+            errormsg = QC.translate("firewall", "Error adding rules:\n{0}").format(reply.data)
             if 'operation' in rep and rep['operation'] == constants.OP_SAVE:
                 if 'uuid' in rep and rep['uuid'] in reply.data:
                     errormsg = QC.translate("firewall", "Error saving rule")
@@ -53,8 +53,8 @@ def handle(win, addr, reply):
                         win,
                         QC.translate(
                             "firewall",
-                            "Rule saved, but there're other rules with errors (REVIEW):\n{0}".format(reply.data)
-                        )
+                            "Rule saved, but there're other rules with errors (REVIEW):\n{0}"
+                        ).format(reply.data)
                     )
                     return
             utils.set_status_error(win, errormsg)

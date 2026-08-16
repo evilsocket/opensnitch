@@ -391,7 +391,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             Message.ok(
                 QC.translate("preferences", "Warning"),
                 QC.translate("preferences",
-                                "Invalid file selected:<br><br>{0}".format(filename)),
+                                "Invalid file selected:<br><br>{0}").format(filename),
                 QtWidgets.QMessageBox.Icon.Warning)
             return
 
@@ -431,7 +431,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
         else:
             Message.ok(
                 "Rules export",
-                QC.translate("stats", "Rules exported to {0}".format(outdir)),
+                QC.translate("stats", "Rules exported to {0}").format(outdir),
                 QtWidgets.QMessageBox.Icon.Information)
 
     def on_menu_node_import_clicked(self, triggered):
@@ -462,8 +462,8 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             Message.ok(
                 "Rules import error",
                 QC.translate("stats",
-                             "Error importing rules from {0}".format(rulesdir)
-                             ),
+                             "Error importing rules from {0}"
+                             ).format(rulesdir),
                 QtWidgets.QMessageBox.Icon.Warning)
 
     def on_menu_export_clicked(self, triggered):
@@ -490,13 +490,13 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
                 "Rules export error",
                 QC.translate("stats",
                              "Error exporting rules of the following nodes:<br><br>{0}"
-                             .format(errorlist)
-                             ),
+                             )
+                             .format(errorlist),
                 QtWidgets.QMessageBox.Icon.Warning)
         else:
             Message.ok(
                 "Rules export",
-                QC.translate("stats", "Rules exported to {0}".format(outdir)),
+                QC.translate("stats", "Rules exported to {0}").format(outdir),
                 QtWidgets.QMessageBox.Icon.Information)
 
     def on_menu_import_clicked(self, triggered):
@@ -526,8 +526,8 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             Message.ok(
                 "Rules import error",
                 QC.translate("stats",
-                             "Error importing rules from {0}".format(rulesdir)
-                             ),
+                             "Error importing rules from {0}"
+                             ).format(rulesdir),
                 QtWidgets.QMessageBox.Icon.Warning)
 
     def on_cmd_back_clicked(self, idx):

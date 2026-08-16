@@ -14,7 +14,7 @@ def load_all(win, addr=None):
 
         if addr is not None and addr not in win._node_list:
             Message.ok(QC.translate("rules", "<b>Error loading rule</b>"),
-                    QC.translate("rules", "node {0} not connected".format(addr)),
+                    QC.translate("rules", "node {0} not connected").format(addr),
                     QtWidgets.QMessageBox.Icon.Warning)
             return False
 

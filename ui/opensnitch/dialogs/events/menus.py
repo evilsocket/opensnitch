@@ -207,7 +207,7 @@ class MenusManager(views.ViewsManager):
                     node_addr = nmenu[1]
                     if action == node_action:
                         ret = Message.yes_no(
-                            QC.translate("stats", "    Apply this rule to {0}  ".format(node_addr)),
+                            QC.translate("stats", "    Apply this rule to {0}  ").format(node_addr),
                             QC.translate("stats", "    Are you sure?"),
                             QtWidgets.QMessageBox.Icon.Warning)
                         if ret == QtWidgets.QMessageBox.StandardButton.Cancel:
@@ -320,7 +320,7 @@ class MenusManager(views.ViewsManager):
                     node_addr = nmenu[1]
                     if action == node_action:
                         ret = Message.yes_no(
-                            QC.translate("stats", "    Apply this rule to {0}  ".format(node_addr)),
+                            QC.translate("stats", "    Apply this rule to {0}  ").format(node_addr),
                             QC.translate("stats", "    Are you sure?"),
                             QtWidgets.QMessageBox.Icon.Warning)
                         if ret == QtWidgets.QMessageBox.StandardButton.Cancel:

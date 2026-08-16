@@ -1139,8 +1139,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
                 "<p>- On the rest of the views, double click on a row to get detailed<br>" \
                 " information.</p><br>" \
                 "<p>For more information visit the <a href=\"{0}\">wiki</a></p>" \
-                "<br>".format(Config.HELP_URL)
-            )
+                "<br>"
+            ).format(Config.HELP_URL)
         )
 
     def open_firewall(self):

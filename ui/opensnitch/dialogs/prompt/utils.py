@@ -37,32 +37,32 @@ def get_popup_message(is_local, node, hostname, app_name, con):
 
     message = "<b>{0}</b>".format(app_name)
     if not is_local:
-        message = QC.translate("popups", "<b>Remote</b> process {0} running on <b>{1} ({2})</b>".format(
+        message = QC.translate("popups", "<b>Remote</b> process {0} running on <b>{1} ({2})</b>"
+        ).format(
             message,
             node.split(':')[1],
             hostname)
-        )
 
-    msg_action = QC.translate("popups", "is connecting to <b>{0}</b> on {1} port {2}".format(
+    msg_action = QC.translate("popups", "is connecting to <b>{0}</b> on {1} port {2}"
+    ).format(
         con.dst_host or con.dst_ip,
         con.protocol.upper(),
         con.dst_port )
-    )
 
     # icmp port is 0 (i.e.: no port)
     if con.dst_port == 0:
-        msg_action = QC.translate("popups", "is connecting to <b>{0}</b>, {1}".format(
+        msg_action = QC.translate("popups", "is connecting to <b>{0}</b>, {1}"
+        ).format(
             con.dst_host or con.dst_ip,
             con.protocol.upper() )
-        )
 
     if con.dst_port == 53 and con.dst_ip != con.dst_host and con.dst_host != "":
-        msg_action = QC.translate("popups", "is attempting to resolve <b>{0}</b> via {1}, {2} port {3}".format(
+        msg_action = QC.translate("popups", "is attempting to resolve <b>{0}</b> via {1}, {2} port {3}"
+        ).format(
             con.dst_host,
             con.dst_ip,
             con.protocol.upper(),
             con.dst_port)
-        )
 
     return "{0} {1}".format(message, msg_action)
 
@@ -170,10 +170,10 @@ def add_snap_pattern_to_combo(combo, con):
     snap_parts = snap_path.split('/')
     app = snap_parts[2]
     app_path = "/".join(snap_parts[4:])
-    from_field = "from {0}/{1}/*/{2}".format(constants.SNAP_PREFIX, app, app_path)
-
     combo.addItem(
-        QC.translate("popups", from_field),
+        QC.translate("popups", "from {0}/{1}/*/{2}").format(
+            constants.SNAP_PREFIX, app, app_path
+        ),
         constants.FIELD_SNAP
     )
 
@@ -181,7 +181,7 @@ def add_snap_pattern_to_combo(combo, con):
 def add_dst_networks_to_combo(combo, dst_ip):
     alias = NetworkAliases.get_alias(dst_ip)
     if alias:
-        combo.addItem(QC.translate("popups", f"to {alias}"), constants.FIELD_DST_NETWORK)
+        combo.addItem(QC.translate("popups", "to {0}").format(alias), constants.FIELD_DST_NETWORK)
     if type(ipaddress.ip_address(dst_ip)) == ipaddress.IPv4Address:
         combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/24", strict=False)),  constants.FIELD_DST_NETWORK)
         combo.addItem(QC.translate("popups", "to {0}").format(ipaddress.ip_network(dst_ip + "/16", strict=False)),  constants.FIELD_DST_NETWORK)

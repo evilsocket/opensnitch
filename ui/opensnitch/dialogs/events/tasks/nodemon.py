@@ -53,10 +53,10 @@ class Nodemon:
             self.win.labelNodeDetails.setText(
                 QC.translate(
                     "stats",
-                    "<p><strong>daemon uptime:</strong> {0}</p>".format(col_uptime) + \
-                    "<p><strong>Version:</strong> {0}</p>".format(col_version) + \
-                    "<p><strong>Kernel:</strong> {0}</p>".format(col_kernel)
-                )
+                    "<p><strong>daemon uptime:</strong> {0}</p>"
+                    "<p><strong>Version:</strong> {1}</p>"
+                    "<p><strong>Kernel:</strong> {2}</p>"
+                ).format(col_uptime, col_version, col_kernel)
             )
 
     def unmonitor_deselected_node(self, last_addr):
@@ -102,8 +102,8 @@ class Nodemon:
 
                 return QC.translate(
                     "stats",
-                    "<strong>System uptime:</strong> %s" % uptime
-                )
+                    "<strong>System uptime:</strong> {0}"
+                ).format(uptime)
 
             # TODO: move to .utils
             def bytes2units(value):
@@ -146,23 +146,22 @@ class Nodemon:
             self.win.labelNodeRAM.setText("<strong>RAM:</strong> {0} <strong>Free:</strong> {1}".format(ram, free))
             self.win.labelNodeSwap.setText("<strong>Swap:</strong> {0} <strong>Free:</strong> {1}".format(swap, freeSwap))
             self.win.labelNodeProcs.setText(
-                QC.translate("stats", "<strong>Processes:</strong> {0}".format(node_data['Procs']))
+                QC.translate("stats", "<strong>Processes:</strong> {0}").format(node_data['Procs'])
             )
             self.win.nodeRAMProgress.setFormat("%p%")
             self.win.nodeSwapProgress.setFormat("%p%")
             self.win.labelNodeLoadAvg.setText(
                 QC.translate(
                     "stats",
-                    "<strong>Load avg:</strong> {0:.2f}, {1:.2f}, {2:.2f}".format(
+                    "<strong>Load avg:</strong> {0:.2f}, {1:.2f}, {2:.2f}"
+                ).format(
                         node_data['Loads'][0] / 100000,
                         node_data['Loads'][1] / 100000,
                         node_data['Loads'][2] / 100000
                     )
-                )
 
             )
             self.win.labelNodeUptime.setText(formatUptime(node_data['Uptime']))
         except Exception as e:
             print("exception parsing taskStart data:", e, data)
         # TODO: update nodes tab
-

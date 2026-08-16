@@ -332,7 +332,7 @@ class PreferencesDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 Message.ok(
                     QC.translate("preferences", "Warning"),
                     QC.translate("preferences",
-                                 "Invalid directory selected:<br><br>{0}".format(db_dir)),
+                                 "Invalid directory selected:<br><br>{0}").format(db_dir),
                     QtWidgets.QMessageBox.Icon.Warning)
                 return
             self.dbLabel.setText(fileName)
