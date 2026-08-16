@@ -155,7 +155,7 @@ class Netstat:
             int(self.win.comboNetstatFamily.itemData(family))
         )
 
-        self.win.netstatLabel.setText(QC.translate("stats", "loading in {0}...".format(refreshInterval)))
+        self.win.netstatLabel.setText(QC.translate("stats", "loading in {0}...").format(refreshInterval))
 
         noti = ui_pb2.Notification(
             clientName="",
@@ -252,5 +252,5 @@ class Netstat:
             print("_update_netstat_table exception:", e)
             print(data)
             self.win.netstatLabel.setText("error loading netstat table")
-            self.win.netstatLabel.setText(QC.translate("stats", "error loading: {0}".format(repr(e))))
+            self.win.netstatLabel.setText(QC.translate("stats", "error loading: {0}").format(repr(e)))
 

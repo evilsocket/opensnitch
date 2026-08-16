@@ -73,13 +73,13 @@ def add(win, nIdx):
         return
     chain, err = win.form_to_protobuf()
     if err is not None:
-        utils.set_status_error(win, QC.translate("firewall", "Invalid rule: {0}".format(err)))
+        utils.set_status_error(win, QC.translate("firewall", "Invalid rule: {0}").format(err))
         return
 
     if nIdx == 0:
         for addr in win.nodes.get_nodes():
             node = win.nodes.get_node(addr)
-            utils.set_status_message(win, QC.translate("firewall", "Adding rule, to {0}".format(addr)))
+            utils.set_status_message(win, QC.translate("firewall", "Adding rule, to {0}").format(addr))
             err = add_rule(win, addr, node, chain)
             if err is not None:
                 utils.set_status_error(win, err)
@@ -102,8 +102,8 @@ def is_valid(win):
             win,
             QC.translate(
                 "firewall",
-                "{0} cannot be used with IN or POSTROUTING directions.".format(win.comboVerdict.currentText().upper())
-            )
+                "{0} cannot be used with IN or POSTROUTING directions."
+            ).format(win.comboVerdict.currentText().upper())
         )
         return False
     elif win.comboVerdict.currentText().lower() == Config.ACTION_SNAT and \
@@ -112,8 +112,8 @@ def is_valid(win):
             win,
             QC.translate(
                 "firewall",
-                "{0} can only be used with POSTROUTING.".format(win.comboVerdict.currentText().upper())
-            )
+                "{0} can only be used with POSTROUTING."
+            ).format(win.comboVerdict.currentText().upper())
         )
         win.comboDirection.setCurrentIndex(constants.POSTROUTING)
         return False
@@ -135,7 +135,7 @@ def has_verdict_parms(win, idx):
 def add_rule(win, addr, node, chain):
     ok, err = fw.insert_rule(addr, chain)
     if not ok:
-        return QC.translate("firewall", "Error adding rule: {0}".format(err))
+        return QC.translate("firewall", "Error adding rule: {0}").format(err)
     notifications.send(win, addr, node['firewall'], constants.OP_NEW, chain.Rules[0].UUID)
     return None
 
@@ -143,14 +143,14 @@ def save(win, addr, node, chain, uuid):
     win.logger.debug("save_rule: %s", addr, uuid)
     ok, err = fw.update_rule(addr, uuid, chain)
     if not ok:
-        return QC.translate("firewall", "Error saving rule {0}".format(err))
+        return QC.translate("firewall", "Error saving rule {0}").format(err)
     notifications.send(win, addr, node['firewall'], constants.OP_SAVE, uuid)
     return None
 
 def delete(win, addr, node, uuid):
     ok, fw_config = fw.delete_rule(addr, uuid)
     if not ok:
-        return QC.translate("firewall", "Error deleting rule, {0}".format(addr))
+        return QC.translate("firewall", "Error deleting rule, {0}").format(addr)
 
     notifications.send(win, addr, node['firewall'], constants.OP_DELETE, uuid)
 
@@ -220,7 +220,7 @@ def load(win, addr, uuid):
         hook = "invalid" if rule is None else rule.Hook
         utils.set_status_error(
             win,
-            QC.translate("firewall", "Rule hook ({0}) not supported yet".format(hook))
+            QC.translate("firewall", "Rule hook ({0}) not supported yet").format(hook)
         )
         utils.disable_controls(win)
         return
@@ -394,7 +394,7 @@ def load(win, addr, uuid):
         win.logger.warning("Firewall Rule target exception: %s", repr(e))
         utils.set_status_error(
             win,
-            QC.translate("firewall", "Rule target ({0}) not supported yet".format(rule.Rules[0].Target.lower()))
+            QC.translate("firewall", "Rule target ({0}) not supported yet").format(rule.Rules[0].Target.lower())
         )
         utils.disable_controls(win)
 

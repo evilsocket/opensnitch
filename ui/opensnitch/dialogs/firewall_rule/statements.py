@@ -452,8 +452,8 @@ def load_meta(win, exp, idx):
                         win,
                         QC.translate(
                             "firewall",
-                            "Invalid mark ({0})".format(v.Value)
-                        )
+                            "Invalid mark ({0})"
+                        ).format(v.Value)
                     )
                 break
 

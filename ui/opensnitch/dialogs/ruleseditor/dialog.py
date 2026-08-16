@@ -134,8 +134,8 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             utils.set_status_error(
                 self,
                 QC.translate("rules",
-                             "Invalid rule name (not allowed characters: '{0}' )".format(constants.INVALID_RULE_NAME_CHARS)
-                             )
+                             "Invalid rule name (not allowed characters: '{0}' )"
+                             ).format(constants.INVALID_RULE_NAME_CHARS)
             )
         else:
             utils.set_status_message(self, "")
@@ -323,7 +323,7 @@ class RulesEditorDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.rule = Rule.new_from_records(records)
         if self.rule.operator.type not in Config.RulesTypes:
             Message.ok(QC.translate("rules", "<b>Rule not supported</b>"),
-                       QC.translate("rules", "This type of rule ({0}) is not supported by version {1}".format(self.rule.operator.type, version)),
+                       QC.translate("rules", "This type of rule ({0}) is not supported by version {1}").format(self.rule.operator.type, version),
                        QtWidgets.QMessageBox.Icon.Warning)
             self.hide()
             return

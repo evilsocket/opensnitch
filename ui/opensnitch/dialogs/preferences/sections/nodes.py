@@ -149,7 +149,7 @@ def load_node_settings(win):
 
     except Exception as e:
         win.logger.warning("exception loading config: %s", repr(e))
-        utils.set_status_error(win, QC.translate("preferences", "Error loading config {0}: {1}".format(addr, e)))
+        utils.set_status_error(win, QC.translate("preferences", "Error loading config {0}: {1}").format(addr, e))
 
 def load_node_auth_settings(win, config):
     try:
@@ -200,7 +200,7 @@ def load_node_auth_settings(win, config):
         win.cb_combo_node_auth_type_changed(authtype_idx)
     except Exception as e:
         win.logger.warning("[prefs] load node auth options exception: %s", repr(e))
-        utils.set_status_error(win, QC.translate("preferences", "Error loading node auth config: {0}".format(e)))
+        utils.set_status_error(win, QC.translate("preferences", "Error loading node auth config: {0}").format(e))
 
     finally:
         win.lineNodeCACertFile.blockSignals(False)

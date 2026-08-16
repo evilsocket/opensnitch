@@ -91,7 +91,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     "preferences",
                     "The DB is corrupted and it's not safe to continue.<br>\
                     Remove, backup or recover the file before continuing.<br><br>\
-                    Corrupted database file: {0}".format(db_file)),
+                    Corrupted database file: {0}").format(db_file),
                 QtWidgets.QMessageBox.Icon.Warning)
             sys.exit(-1)
 
@@ -258,7 +258,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if has_ntfs:
                 self.show_systray_msg(
                     QC.translate("stats", "Warning"),
-                    QC.translate("stats", "Error switching autostart: {0}".format(str(e))),
+                    QC.translate("stats", "Error switching autostart: {0}").format(str(e)),
                     mtype=ntfs_type
                 )
             self.logger.warning("Error switching autostart: %s", repr(e))
@@ -315,7 +315,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     QC.translate("stats", "WARNING"),
                     QC.translate("stats", """System tray not available. Read more:
 {0}
-""".format(Config.HELP_SYSTRAY_WARN)),
+""").format(Config.HELP_SYSTRAY_WARN),
                     icon=os.path.join(self._path, "res/icon-white.svg"),
                     mtype=ntf_type
                 )

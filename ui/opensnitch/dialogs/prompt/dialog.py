@@ -479,12 +479,12 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.labelChecksumNote.setText(
                 QC.translate(
                     "popups",
-                    "<font color=\"red\">WARNING, checksums differ for at least one rule.</font><br><br>Current process ({0}):<br>{1}<br><br>Expected from the rule:<br>{2}"
+                    "<font color=\"red\">WARNING, checksums differ for at least one rule.</font><br><br>Current process ({0}):<br>{1}<br><br>Expected from the rule:<br>{2}")
                     .format(
                         con.process_id,
                         checksums[Config.OPERAND_PROCESS_HASH_MD5],
                         expected_list
-                    ))
+                    )
             )
 
             self.comboChecksumRule.clear()
@@ -511,7 +511,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.appPathLabel.setVisible(False)
             self.argsLabel.setVisible(False)
             self.argsLabel.setText("")
-            app_name = QC.translate("popups", "Unknown process %s" % con.process_path)
+            app_name = QC.translate("popups", "Unknown process {0}").format(con.process_path)
             #with self._lock:
             self.set_app_name(QC.translate("popups", "Outgoing connection"))
         else:

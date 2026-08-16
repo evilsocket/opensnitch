@@ -301,7 +301,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             return
         chain, err = self.form_to_protobuf()
         if err is not None:
-            utils.set_status_error(self, QC.translate("firewall", "Invalid rule: {0}".format(err)))
+            utils.set_status_error(self, QC.translate("firewall", "Invalid rule: {0}").format(err))
             return
 
         nIdx = self.comboNodes.currentIndex()
@@ -331,7 +331,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def delete(self):
         chain, err = self.form_to_protobuf()
         if err is not None:
-            utils.set_status_error(self, QC.translate("firewall", "Invalid rule: {0}".format(err)))
+            utils.set_status_error(self, QC.translate("firewall", "Invalid rule: {0}").format(err))
             return
 
         nIdx = self.comboNodes.currentIndex()
@@ -378,7 +378,7 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         _target_parms = ""
         if rules.has_verdict_parms(self, verdict_idx):
             if self.lineVerdictParms.text() == "":
-                return None, QC.translate("firewall", "Verdict ({0}) parameters cannot be empty.".format(verdict))
+                return None, QC.translate("firewall", "Verdict ({0}) parameters cannot be empty.").format(verdict)
 
             # these verdicts parameters need ":" to specify a port or ip:port
             if (self.comboVerdict.currentText().lower() == Config.ACTION_REDIRECT or \
@@ -386,13 +386,13 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                 self.comboVerdict.currentText().lower() == Config.ACTION_SNAT or \
                 self.comboVerdict.currentText().lower() == Config.ACTION_DNAT) and \
                     ":" not in self.lineVerdictParms.text():
-                return None, QC.translate("firewall", "Verdict ({0}) parameters format is: <IP>:port.".format(verdict))
+                return None, QC.translate("firewall", "Verdict ({0}) parameters format is: <IP>:port.").format(verdict)
 
             if self.comboVerdict.currentText().lower() == Config.ACTION_QUEUE:
                 try:
                     t = int(self.lineVerdictParms.text())
                 except:
-                    return None, QC.translate("firewall", "Verdict ({0}) parameters format must be a number".format(verdict))
+                    return None, QC.translate("firewall", "Verdict ({0}) parameters format must be a number").format(verdict)
 
             vidx = self.comboVerdictParms.currentIndex()
             _target_parms = "{0} {1}".format(
@@ -490,12 +490,12 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                                 hosts = list(net)
                                 statem_value = "{0}-{1}".format(str(hosts[0]), str(hosts[-1]))
                             except Exception as e:
-                                return None, QC.translate("firewall", "IP network format error, {0}".format(e))
+                                return None, QC.translate("firewall", "IP network format error, {0}").format(e)
                         elif not "-" in statem_value:
                             try:
                                 ipaddress.ip_address(statem_value)
                             except Exception as e:
-                                return None, QC.translate("firewall", "{0}".format(e))
+                                return None, QC.translate("firewall", "{0}").format(e)
 
                     elif st_idx == statements.DPORT or st_idx == statements.SPORT:
                         # if it's a tcp+udp port, we need to add a meta+l4proto
@@ -535,13 +535,13 @@ class FwRuleDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
                     elif st_idx == statements.CT_SET or st_idx == statements.CT_MARK or st_idx == statements.META_SET_MARK:
                         if not utils.is_valid_int_value(statem_value):
-                            return None, QC.translate("firewall", "Invalid value {0}, number expected.".format(statem_value))
+                            return None, QC.translate("firewall", "Invalid value {0}, number expected.").format(statem_value)
 
                     elif st_idx == statements.ICMP or st_idx == statements.ICMPv6:
                         values = statem_value.split(",")
                         for val in values:
                             if val not in Fw.ExprICMP.values():
-                                return None, QC.translate("firewall", "Invalid ICMP type \"{0}\".".format(val))
+                                return None, QC.translate("firewall", "Invalid ICMP type \"{0}\".").format(val)
 
                     keyVal = (sk['key'], statem_value.replace(" ", ""))
                     if keyVal not in key_values:

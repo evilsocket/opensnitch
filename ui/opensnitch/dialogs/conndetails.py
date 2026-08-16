@@ -39,7 +39,7 @@ class ConnDetails(InfoWindow):
 <br><br>
 <b>Rule:</b><br>
 {14}
-""".format(
+""").format(
                     records.value(ConnFields.Action).upper(),
                     records.value(ConnFields.Time),
                     records.value(ConnFields.Process),
@@ -55,6 +55,6 @@ class ConnDetails(InfoWindow):
                     records.value(ConnFields.DstHost),
                     records.value(ConnFields.DstPort),
                     records.value(ConnFields.Rule)
-                ))
+                )
 
         self.showText(conn_text)

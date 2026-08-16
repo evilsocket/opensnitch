@@ -33,7 +33,7 @@ def update_rule(node, rules, rule_name, con):
     # get rule from the db
     records = rules.get_by_name(node, rule_name)
     if records is None or records.first() is False:
-        return None, QC.translate("popups", "Rule not updated, not found by name ({0})".format(rule_name))
+        return None, QC.translate("popups", "Rule not updated, not found by name ({0})").format(rule_name)
 
     # transform it to proto rule
     rule_obj = Rule.new_from_records(records)
@@ -48,6 +48,6 @@ def update_rule(node, rules, rule_name, con):
     # add it back again to the db
     added = rules.add_rules(node, [rule_obj])
     if not added:
-        return None, QC.translate("popups", "Rule not updated ({0}).".format(rule_name))
+        return None, QC.translate("popups", "Rule not updated ({0}).").format(rule_name)
 
     return rule_obj, ""

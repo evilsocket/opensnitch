@@ -187,7 +187,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             if ok:
                 self.send_notification(addr, fwcfg)
             else:
-                self._set_status_error(QC.translate("firewall", "Policy not applied: {0}".format(err)))
+                self._set_status_error(QC.translate("firewall", "Policy not applied: {0}").format(err))
 
         self._last_profile[combo] = wantedProfile
 
@@ -364,8 +364,8 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             self.lblFwStatus.setText(
                 QC.translate("firewall", "<html>The firewall configuration is outdated,\n"
                             "you need to update it to the new format: <a href=\"{0}\">learn more</a>"
-                            "</html>".format(Config.HELP_SYS_RULES_URL)
-            ))
+                            "</html>"
+            ).format(Config.HELP_SYS_RULES_URL))
             incompatible = True
 
         return incompatible
@@ -377,7 +377,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
             QC.translate("firewall",
                         "In order to configure firewall rules from the GUI, we need to use 'nftables' instead of 'iptables'"
                         ),
-            QC.translate("firewall", "Change default firewall to 'nftables' on node {0}?".format(addr)),
+            QC.translate("firewall", "Change default firewall to 'nftables' on node {0}?").format(addr),
             QtWidgets.QMessageBox.Icon.Warning)
         if ret != QtWidgets.QMessageBox.StandardButton.Cancel:
             return True
@@ -403,7 +403,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     ok, err = self._fw.apply_profile(addr, json_profile)
                     if not ok:
                         self._set_status_error(
-                            QC.translate("firewall", "Error applying INPUT ACCEPT profile: {0}".format(err))
+                            QC.translate("firewall", "Error applying INPUT ACCEPT profile: {0}").format(err)
                         )
                         return
 
@@ -416,7 +416,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
                     ok, err = self._fw.apply_profile(addr, json_profile)
                     if not ok:
                         self._set_status_error(
-                            QC.translate("firewall", "Error applying OUTPUT ACCEPT profile: {0}".format(err))
+                            QC.translate("firewall", "Error applying OUTPUT ACCEPT profile: {0}").format(err)
                         )
                         return
 
@@ -443,7 +443,7 @@ class FirewallDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
 
         except Exception as e:
             self._set_status_error(
-                QC.translate("firewall", "Error: {0}".format(e))
+                QC.translate("firewall", "Error: {0}").format(e)
             )
 
     def load_rule(self, addr, uuid):
