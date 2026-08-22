@@ -13,6 +13,8 @@ class Config:
 
     OPERAND_PROCESS_ID = "process.id"
     OPERAND_PROCESS_PATH = "process.path"
+    OPERAND_CGROUP_PATH = "cgroup.path"
+    OPERAND_CGROUP_ID = "cgroup.container_id"
     OPERAND_PROCESS_COMMAND = "process.command"
     OPERAND_PROCESS_ENV = "process.env."
     OPERAND_PROCESS_HASH_MD5 = "process.hash.md5"

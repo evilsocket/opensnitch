@@ -48,6 +48,8 @@ const (
 	OpProcessEnvPrefixLen = 12
 	OpProcessHashMD5      = Operand("process.hash.md5")
 	OpProcessHashSHA1     = Operand("process.hash.sha1")
+	OpCgroupPath          = Operand("cgroup.path")
+	OpCgroupContainerID   = Operand("cgroup.container_id")
 	OpUserID              = Operand("user.id")
 	OpUserName            = Operand("user.name")
 	OpSrcIP               = Operand("source.ip")
@@ -523,6 +525,14 @@ func (o *Operator) Match(con *conman.Connection, hasChecksums bool) bool {
 			}
 		}
 		return false
+	} else if o.Operand == OpCgroupPath {
+		if con.Process.Container != nil && con.Process.Container.IsContainer {
+			return o.cb(con.Process.Container.CgroupPath)
+		}
+	} else if o.Operand == OpCgroupContainerID {
+		if con.Process.Container != nil && con.Process.Container.IsContainer {
+			return o.cb(con.Process.Container.ContainerID)
+		}
 	} else if strings.HasPrefix(string(o.Operand), string(OpProcessEnvPrefix)) {
 		envVarName := core.Trim(string(o.Operand[OpProcessEnvPrefixLen:]))
 		envVarValue, _ := con.Process.Env[envVarName]

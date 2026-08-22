@@ -21,6 +21,8 @@ FIELD_DST_NETWORK   = "dst_network"
 FIELD_DST_HOST      = "simple_host"
 FIELD_APPIMAGE      = "appimage_path"
 FIELD_SNAP          = "snap_path"
+FIELD_CGROUP_PATH   = "cgroup_path"
+FIELD_CGROUP_ID     = "cgroup_container_id"
 
 TARGET_IDX_PROC_PATH = 0
 TARGET_IDX_PROC_CMDLINE = 1

@@ -323,6 +323,7 @@ func (c *Connection) String() string {
 func (c *Connection) Serialize() *protocol.Connection {
 	c.Process.RLock()
 	defer c.Process.RUnlock()
+
 	return &protocol.Connection{
 		Protocol:         c.Protocol,
 		SrcIp:            c.SrcIP.String(),
@@ -334,7 +335,7 @@ func (c *Connection) Serialize() *protocol.Connection {
 		ProcessId:        uint32(c.Process.ID),
 		ProcessPath:      c.Process.Path,
 		ProcessArgs:      c.Process.Args,
-		ProcessEnv:       c.Process.Env,
+		ProcessEnv:       c.Process.SerializeEnv(),
 		ProcessCwd:       c.Process.CWD,
 		ProcessChecksums: c.Process.Checksums,
 		ProcessTree:      c.Process.Tree,

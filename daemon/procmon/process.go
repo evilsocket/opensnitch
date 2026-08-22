@@ -91,6 +91,9 @@ type Process struct {
 	pathMaps    string
 	pathMem     string
 	pathIO      string
+	pathCgroup  string
+
+	Container *ContainerContext
 
 	// Path is the absolute path to the binary
 	Path string
@@ -151,6 +154,7 @@ func NewProcessEmpty(pid int, comm string) *Process {
 	p.pathMem = core.ConcatStrings(p.pathProc, "/mem")
 	p.pathFd = core.ConcatStrings(p.pathProc, "/fd/")
 	p.pathIO = core.ConcatStrings(p.pathProc, "/io")
+	p.pathCgroup = core.ConcatStrings(p.pathProc, "/cgroup")
 
 	return p
 }
@@ -201,6 +205,26 @@ func (p *Process) RUnlock() {
 	p.mu.RUnlock()
 }
 
+func (p *Process) SerializeEnv() map[string]string {
+	if p == nil {
+		return nil
+	}
+
+	env := p.Env
+	if p.Container != nil && p.Container.IsContainer {
+		env = make(map[string]string, len(p.Env)+4)
+		for k, v := range p.Env {
+			env[k] = v
+		}
+		env["_OS_CONTAINER_RUNTIME"] = p.Container.Runtime
+		env["_OS_CONTAINER_CGROUP_PATH"] = p.Container.CgroupPath
+		env["_OS_CONTAINER_ID"] = p.Container.ContainerID
+		env["_OS_CONTAINER_NAME"] = p.Container.ContainerName
+	}
+
+	return env
+}
+
 //Serialize transforms a Process object to gRPC protocol object
 func (p *Process) Serialize() *protocol.Process {
 	ioStats := p.IOStats
@@ -219,7 +243,7 @@ func (p *Process) Serialize() *protocol.Process {
 		Comm:        p.Comm,
 		Path:        p.Path,
 		Args:        p.Args,
-		Env:         p.Env,
+		Env:         p.SerializeEnv(),
 		Cwd:         p.CWD,
 		Checksums:   p.Checksums,
 		IoReads:     uint64(ioStats.RChar),
