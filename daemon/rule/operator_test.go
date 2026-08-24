@@ -649,6 +649,95 @@ func TestNewOperatorSimple(t *testing.T) {
 		}
 	})
 
+	t.Run("Operator Simple cgroup.path", func(t *testing.T) {
+		oldContainer := conn.Process.Container
+		defer func() {
+			conn.Process.Container = oldContainer
+		}()
+
+		conn.Process.Container = &procmon.ContainerContext{
+			IsContainer: true,
+			CgroupPath:  "/docker/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+		}
+
+		opSimple, err = NewOperator(Simple, false, OpCgroupPath, "/docker/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", list)
+		if err != nil {
+			t.Error("NewOperator simple cgroup.path err should be nil: ", err)
+			t.Fail()
+		}
+		if err = opSimple.Compile(); err != nil {
+			t.Error("NewOperator simple cgroup.path Compile() err: ", err)
+			t.Fail()
+		}
+		if opSimple.Match(conn, false) == false {
+			t.Error("Test NewOperator() simple cgroup.path doesn't match")
+			t.Fail()
+		}
+	})
+
+	t.Run("Operator Simple cgroup.container_id", func(t *testing.T) {
+		oldContainer := conn.Process.Container
+		defer func() {
+			conn.Process.Container = oldContainer
+		}()
+
+		conn.Process.Container = &procmon.ContainerContext{
+			IsContainer: true,
+			ContainerID: "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+		}
+
+		opSimple, err = NewOperator(Simple, false, OpCgroupContainerID, "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789", list)
+		if err != nil {
+			t.Error("NewOperator simple cgroup.container_id err should be nil: ", err)
+			t.Fail()
+		}
+		if err = opSimple.Compile(); err != nil {
+			t.Error("NewOperator simple cgroup.container_id Compile() err: ", err)
+			t.Fail()
+		}
+		if opSimple.Match(conn, false) == false {
+			t.Error("Test NewOperator() simple cgroup.container_id doesn't match")
+			t.Fail()
+		}
+	})
+
+	t.Run("Operator Simple cgroup operands return false without container context", func(t *testing.T) {
+		oldContainer := conn.Process.Container
+		defer func() {
+			conn.Process.Container = oldContainer
+		}()
+
+		conn.Process.Container = nil
+
+		opPath, err := NewOperator(Simple, false, OpCgroupPath, "/docker/example", list)
+		if err != nil {
+			t.Error("NewOperator simple cgroup.path err should be nil: ", err)
+			t.Fail()
+		}
+		if err = opPath.Compile(); err != nil {
+			t.Error("NewOperator simple cgroup.path Compile() err: ", err)
+			t.Fail()
+		}
+		if opPath.Match(conn, false) == true {
+			t.Error("Test NewOperator() simple cgroup.path should not match without container context")
+			t.Fail()
+		}
+
+		opID, err := NewOperator(Simple, false, OpCgroupContainerID, "0123456789abcdef", list)
+		if err != nil {
+			t.Error("NewOperator simple cgroup.container_id err should be nil: ", err)
+			t.Fail()
+		}
+		if err = opID.Compile(); err != nil {
+			t.Error("NewOperator simple cgroup.container_id Compile() err: ", err)
+			t.Fail()
+		}
+		if opID.Match(conn, false) == true {
+			t.Error("Test NewOperator() simple cgroup.container_id should not match without container context")
+			t.Fail()
+		}
+	})
+
 	restoreConnection()
 }
 

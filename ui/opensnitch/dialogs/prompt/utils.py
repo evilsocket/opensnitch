@@ -177,6 +177,12 @@ def add_snap_pattern_to_combo(combo, con):
         constants.FIELD_SNAP
     )
 
+def add_container_options_to_combo(combo, con):
+    if "_OS_CONTAINER_ID" in con.process_env:
+        c_id = con.process_env["_OS_CONTAINER_ID"]
+        combo.addItem(QC.translate("popups", "from container instance {0}").format(c_id[:12]), constants.FIELD_CGROUP_ID)
+    if "_OS_CONTAINER_CGROUP_PATH" in con.process_env:
+        combo.addItem(QC.translate("popups", "from this container cgroup path"), constants.FIELD_CGROUP_PATH)
 
 def add_dst_networks_to_combo(combo, dst_ip):
     alias = NetworkAliases.get_alias(dst_ip)
@@ -220,7 +226,12 @@ def get_duration(duration_idx):
     else:
         return Config.DURATION_ALWAYS
 
-def set_default_duration(cfg, durationCombo):
+def set_default_duration(cfg, durationCombo, con):
+    if "_OS_CONTAINER_ID" in con.process_env:
+        # Container connections default to a shorter 15m duration.
+        durationCombo.setCurrentIndex(3)  # 15m
+        return
+
     if cfg.hasKey(Config.DEFAULT_DURATION_KEY):
         cur_idx = cfg.getInt(Config.DEFAULT_DURATION_KEY)
         durationCombo.setCurrentIndex(cur_idx)
@@ -237,6 +248,12 @@ def set_default_target(combo, con, cfg, app_name, app_args):
             return
     elif con.process_path.startswith(constants.SNAP_PREFIX):
         idx = combo.findData(constants.FIELD_SNAP)
+        if idx != -1:
+            combo.setCurrentIndex(idx)
+            return
+
+    if "_OS_CONTAINER_ID" in con.process_env:
+        idx = combo.findData(constants.FIELD_CGROUP_ID)
         if idx != -1:
             combo.setCurrentIndex(idx)
             return
@@ -266,6 +283,12 @@ def set_default_target(combo, con, cfg, app_name, app_args):
 def get_combo_operator(data, comboText, con):
     if data == constants.FIELD_PROC_PATH:
         return Config.RULE_TYPE_SIMPLE, Config.OPERAND_PROCESS_PATH, con.process_path
+
+    elif data == constants.FIELD_CGROUP_PATH:
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_CGROUP_PATH, con.process_env.get("_OS_CONTAINER_CGROUP_PATH", "")
+
+    elif data == constants.FIELD_CGROUP_ID:
+        return Config.RULE_TYPE_SIMPLE, Config.OPERAND_CGROUP_ID, con.process_env.get("_OS_CONTAINER_ID", "")
 
     elif data == constants.FIELD_PROC_ARGS:
         # this should not happen

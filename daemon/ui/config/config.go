@@ -9,6 +9,7 @@ import (
 
 	"github.com/evilsocket/opensnitch/daemon/log"
 	"github.com/evilsocket/opensnitch/daemon/log/loggers"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/procmon/audit"
 	"github.com/evilsocket/opensnitch/daemon/procmon/ebpf"
 	"github.com/evilsocket/opensnitch/daemon/statistics"
@@ -76,19 +77,20 @@ type (
 
 // Config holds the values loaded from configFile
 type Config struct {
-	LogLevel          *int32                 `json:"LogLevel"`
-	Firewall          string                 `json:"Firewall"`
-	DefaultAction     string                 `json:"DefaultAction"`
-	DefaultDuration   string                 `json:"DefaultDuration"`
-	ProcMonitorMethod string                 `json:"ProcMonitorMethod"`
-	FwOptions         FwOptions              `json:"FwOptions"`
-	Audit             audit.Config           `json:"Audit"`
-	Ebpf              ebpf.Config            `json:"Ebpf"`
-	Server            ServerConfig           `json:"Server"`
-	Rules             RulesOptions           `json:"Rules"`
-	Internal          InternalOptions        `json:"Internal"`
-	Stats             statistics.StatsConfig `json:"Stats"`
-	TasksOptions      TasksOptions           `json:"Tasks"`
+	LogLevel          *int32                                  `json:"LogLevel"`
+	Firewall          string                                  `json:"Firewall"`
+	DefaultAction     string                                  `json:"DefaultAction"`
+	DefaultDuration   string                                  `json:"DefaultDuration"`
+	ProcMonitorMethod string                                  `json:"ProcMonitorMethod"`
+	FwOptions         FwOptions                               `json:"FwOptions"`
+	Audit             audit.Config                            `json:"Audit"`
+	Ebpf              ebpf.Config                             `json:"Ebpf"`
+	Server            ServerConfig                            `json:"Server"`
+	Rules             RulesOptions                            `json:"Rules"`
+	Internal          InternalOptions                         `json:"Internal"`
+	Stats             statistics.StatsConfig                  `json:"Stats"`
+	TasksOptions      TasksOptions                            `json:"Tasks"`
+	CgroupMonitors    []*procmon.CgroupMonitorConfig          `json:"cgroup_monitors"`
 
 	InterceptUnknown bool `json:"InterceptUnknown"`
 	LogUTC           bool `json:"LogUTC"`

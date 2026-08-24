@@ -5,6 +5,8 @@ import (
 	"net"
 	"testing"
 
+	"github.com/evilsocket/opensnitch/daemon/netstat"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 
@@ -123,5 +125,38 @@ func TestParseUDPDirection(t *testing.T) {
 	if c.Protocol != "udp" {
 		t.Error("parseDirection() Protocol mismatch:", c)
 		t.Fail()
+	}
+}
+
+func TestConnectionSerializeIncludesContainerEnv(t *testing.T) {
+	conn := &Connection{
+		Protocol: "tcp",
+		DstHost:  "example.org",
+		SrcIP:    net.IP{192, 168, 1, 100},
+		DstIP:    net.IP{1, 1, 1, 1},
+		SrcPort:  12345,
+		DstPort:  443,
+		Entry:    &netstat.Entry{UserId: 1000},
+		Process:  procmon.NewProcessEmpty(1234, "curl"),
+	}
+	conn.Process.Env = map[string]string{"PATH": "/usr/bin"}
+	conn.Process.Container = &procmon.ContainerContext{
+		IsContainer:   true,
+		Runtime:       "Docker",
+		CgroupPath:    "/docker/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+		ContainerID:   "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+		ContainerName: "web",
+	}
+
+	serialized := conn.Serialize()
+
+	if serialized.ProcessEnv["_OS_CONTAINER_RUNTIME"] != "Docker" {
+		t.Fatalf("ProcessEnv[_OS_CONTAINER_RUNTIME] = %q, want %q", serialized.ProcessEnv["_OS_CONTAINER_RUNTIME"], "Docker")
+	}
+	if serialized.ProcessEnv["_OS_CONTAINER_NAME"] != "web" {
+		t.Fatalf("ProcessEnv[_OS_CONTAINER_NAME] = %q, want %q", serialized.ProcessEnv["_OS_CONTAINER_NAME"], "web")
+	}
+	if serialized.ProcessEnv["PATH"] != "/usr/bin" {
+		t.Fatalf("ProcessEnv[PATH] = %q, want %q", serialized.ProcessEnv["PATH"], "/usr/bin")
 	}
 }

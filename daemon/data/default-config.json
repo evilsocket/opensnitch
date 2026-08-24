@@ -44,5 +44,39 @@
     "Internal": {
         "GCPercent": 100,
         "FlushConnsOnStart": true
-    }
+    },
+    "cgroup_monitors": [
+        {
+            "name": "docker",
+            "enabled": true,
+            "base_path": "docker",
+            "regex": "docker[/-](?P<id>[a-f0-9]{64})",
+            "display_name": "Docker",
+            "container_name_regex": "docker-(?P<name>[a-zA-Z0-9._-]+?)-[a-f0-9]{64}"
+        },
+        {
+            "name": "podman_rootless",
+            "enabled": true,
+            "base_path": "libpod",
+            "regex": "libpod-(?P<id>[a-f0-9]{64})\\.scope",
+            "display_name": "Podman (Rootless)",
+            "container_name_regex": "libpod-(?P<name>.+?)-[a-f0-9]{64}"
+        },
+        {
+            "name": "containerd",
+            "enabled": true,
+            "base_path": "containerd|crio",
+            "regex": "(?:containerd|crio)-(?P<id>[a-f0-9]{64})",
+            "display_name": "Containerd",
+            "container_name_regex": "(?:containerd|crio)-(?P<name>.+?)-[a-f0-9]{64}"
+        },
+        {
+            "name": "k8s",
+            "enabled": false,
+            "base_path": "/kubepods",
+            "regex": "kubepods.*pod(?P<pod_id>[a-f0-9_-]+)[./].*(?P<id>[a-f0-9]{64})",
+            "display_name": "Kubernetes",
+            "container_name_regex": "kubepods.*pod(?P<name>[a-f0-9_-]+)"
+        }
+    ]
 }

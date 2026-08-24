@@ -117,6 +117,7 @@ func (p *Process) GetDetails() error {
 
 	// we need to load the env variables now, in order to be used with the rules.
 	p.ReadEnv()
+	p.Container = ParseContainer(p.pathCgroup, p.Env)
 
 	return nil
 }

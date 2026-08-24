@@ -47,6 +47,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/log/loggers"
 	"github.com/evilsocket/opensnitch/daemon/netfilter"
 	"github.com/evilsocket/opensnitch/daemon/netlink"
+	"github.com/evilsocket/opensnitch/daemon/procmon"
 	"github.com/evilsocket/opensnitch/daemon/procmon/ebpf"
 	"github.com/evilsocket/opensnitch/daemon/procmon/monitor"
 	"github.com/evilsocket/opensnitch/daemon/rule"
@@ -587,6 +588,11 @@ func main() {
 	if err != nil {
 		log.Fatal("%s", err)
 	}
+	if len(cfg.CgroupMonitors) == 0 {
+		cfg.CgroupMonitors = procmon.DefaultCgroupMonitors()
+	}
+
+	procmon.InitCgroupMonitors(cfg.CgroupMonitors)
 
 	if cfg.Rules.Path == "" {
 		cfg.Rules.Path = rule.DefaultPath

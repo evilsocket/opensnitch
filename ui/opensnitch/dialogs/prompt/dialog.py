@@ -500,6 +500,16 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
     def _render_connection(self, con):
         app_name, app_icon, description, _ = self._apps_parser.get_info_by_path(con.process_path, "terminal")
         app_args = " ".join(con.process_args)
+
+        if "_OS_CONTAINER_RUNTIME" in con.process_env:
+            container_runtime = con.process_env["_OS_CONTAINER_RUNTIME"]
+            container_name = con.process_env.get("_OS_CONTAINER_NAME", "")
+            container_id = con.process_env.get("_OS_CONTAINER_ID", "")
+            if container_name:
+                description = f"[{container_runtime}] Container: {container_name}"
+            else:
+                description = f"[{container_runtime}] Container: {container_id[:12]}"
+
         utils.set_app_description(self.appDescriptionLabel, description)
         utils.set_app_path(self.appPathLabel, app_name, app_args, con)
         utils.set_app_args(self.argsLabel, app_name, app_args)
@@ -557,6 +567,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         self.whatIPCombo.clear()
 
         utils.add_fixed_options_to_combo(self.whatCombo, con, uid)
+        utils.add_container_options_to_combo(self.whatCombo, con)
         if con.process_path.startswith(constants.APPIMAGE_PREFIX):
             utils.add_appimage_pattern_to_combo(self.whatCombo, con)
         elif con.process_path.startswith(constants.SNAP_PREFIX):
@@ -570,7 +581,7 @@ class PromptDialog(QtWidgets.QDialog, uic.loadUiType(DIALOG_UI_PATH)[0]):
         utils.add_dst_networks_to_combo(self.whatIPCombo, con.dst_ip)
 
         self._default_action = self._cfg.getInt(self._cfg.DEFAULT_ACTION_KEY)
-        utils.set_default_duration(self._cfg, self.durationCombo)
+        utils.set_default_duration(self._cfg, self.durationCombo, con)
 
         utils.set_default_target(self.whatCombo, con, self._cfg, app_name, app_args)
 
