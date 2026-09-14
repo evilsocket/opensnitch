@@ -1,0 +1,18 @@
+{
+  "name": "otpFirewallActions",
+  "created": "",
+  "updated": "",
+  "description": "Activate/deactivate the otp-toolkit firewall and inspect its keychain",
+  "type": ["main-dialog"],
+  "actions": {
+    "otp_firewall": {
+      "enabled": true,
+      "config": {
+        "otp_bin": "/usr/local/bin/otp",
+        "otpfwctl_bin": "/usr/local/bin/otpfwctl",
+        "otp_home": "~/.otp",
+        "poll_interval_ms": 3000
+      }
+    }
+  }
+}
