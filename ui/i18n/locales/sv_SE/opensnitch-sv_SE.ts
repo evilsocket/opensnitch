@@ -425,7 +425,7 @@ OMDIRIGERA, TPROXY, DNAT, SNAT, MASQUERADE:
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="360"/>
         <source>center</source>
-        <translation>centrer</translation>
+        <translation>centrera</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="365"/>
@@ -821,7 +821,7 @@ es que no hemos descubierto el PID (por ejemplo conexiones que no se originan en
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1134"/>
         <source>Events tab columns</source>
-        <translation>Händelser-flikkolumner</translation>
+        <translation>Kolumner på fliken Händelser</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="332"/>
@@ -1179,12 +1179,12 @@ eller en nätverkssocket: 127.0.0.1:50051</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1294"/>
         <source>Dest port</source>
-        <translation type="unfinished"></translation>
+        <translation>Destinationsport</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1310"/>
         <source>Dest host</source>
-        <translation type="unfinished"></translation>
+        <translation>Destinationsvärd</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1320"/>
@@ -1244,7 +1244,7 @@ eller en nätverkssocket: 127.0.0.1:50051</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1870"/>
         <source>no-client-cert</source>
-        <translation type="unfinished"></translation>
+        <translation>Inget klientcertifikat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1875"/>
@@ -1254,17 +1254,17 @@ eller en nätverkssocket: 127.0.0.1:50051</translation>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1880"/>
         <source>req-any-cert</source>
-        <translation type="unfinished"></translation>
+        <translation>Kräv valfritt klientcertifikat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1885"/>
         <source>verify-cert</source>
-        <translation type="unfinished"></translation>
+        <translation>Verifiera klientcertifikat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1890"/>
         <source>req-and-verify-cert</source>
-        <translation type="unfinished"></translation>
+        <translation>Kräv och verifiera klientcertifikat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="1907"/>
@@ -1348,7 +1348,7 @@ Observera att det här alternativet kanske inte är acceptabelt på servrar, til
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="2124"/>
         <source>Max stats</source>
-        <translation>Maxstatistik</translation>
+        <translation>Maximal statistik</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/preferences.ui" line="2203"/>
@@ -1437,7 +1437,7 @@ Använd 0 för att inaktivera den här funktionen.</translation>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="285"/>
         <source>Application pids</source>
-        <translation>Applikationspids</translation>
+        <translation>Programprocess-ID:n</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="318"/>
@@ -1452,12 +1452,12 @@ Använd 0 för att inaktivera den här funktionen.</translation>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="64"/>
         <source>TextLabel</source>
-        <translation type="unfinished">TextLabel</translation>
+        <translation>Textetikett</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="200"/>
         <source>Filter sockets</source>
-        <translation>Filtera sockets</translation>
+        <translation>Filtrera socketanslutningar</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/process_details.ui" line="207"/>
@@ -2206,7 +2206,7 @@ Feedback is welcome</source>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1548"/>
         <source>Netstat</source>
-        <translation type="unfinished"></translation>
+        <translation>Netstat</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/res/stats.ui" line="1607"/>
@@ -3222,7 +3222,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER, till exempel:
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="976"/>
         <source>cert key file has excessive permissions, it should have 0600</source>
-        <translation>certnyckelfilen har för många behörigheter, den borde ha 0600</translation>
+        <translation>Certifikatnyckelfilen har för många behörigheter. Den ska ha 0600.</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="982"/>
@@ -3237,7 +3237,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER, till exempel:
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="1086"/>
         <source>Node certs changed</source>
-        <translation>Nodcertifikat ändrade</translation>
+        <translation>Nodcertifikaten har ändrats</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="1090"/>
@@ -3262,7 +3262,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER, till exempel:
     <message>
         <location filename="../../../opensnitch/dialogs/preferences.py" line="1198"/>
         <source>DB journal_mode changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Databasens journalföringsläge har ändrats</translation>
     </message>
 </context>
 <context>
@@ -4133,13 +4133,13 @@ Värdet måste vara i formatet: VÄRDE/ENHETER, till exempel:
         <location filename="../../../opensnitch/dialogs/stats.py" line="407"/>
         <source>SrcPort</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Källport</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="408"/>
         <source>SrcIP</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Käll-IP</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="414"/>
@@ -4168,7 +4168,7 @@ Värdet måste vara i formatet: VÄRDE/ENHETER, till exempel:
         <location filename="../../../opensnitch/dialogs/stats.py" line="628"/>
         <source>Iface</source>
         <comment>This is a word, without spaces and symbols.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Gränssnitt</translation>
     </message>
     <message>
         <location filename="../../../opensnitch/dialogs/stats.py" line="629"/>
