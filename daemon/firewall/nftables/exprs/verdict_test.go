@@ -50,7 +50,7 @@ func TestExprVerdict(t *testing.T) {
 
 	for _, test := range verdictTests {
 		t.Run(test.name, func(t *testing.T) {
-			verdExpr := exprs.NewExprVerdict(test.verdict, test.parms)
+			verdExpr := exprs.NewExprVerdict(test.verdict, test.parms, expr.QueueFlagBypass)
 			r, _ := nftest.AddTestRule(t, conn, verdExpr)
 			if r == nil {
 				t.Errorf("Error adding rule with verdict expression %s", test.verdict)
@@ -262,7 +262,7 @@ func TestExprVerdictReject(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_REJECT, test.parms)
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_REJECT, test.parms, expr.QueueFlagBypass)
 			r, _ := nftest.AddTestRule(t, conn, verdExpr)
 			if r == nil {
 				t.Errorf("Error adding rule with reject verdict %s", "")
@@ -295,7 +295,7 @@ func TestExprVerdictQueue(t *testing.T) {
 	defer nftest.CleanupSystemConn(t, newNS)
 	nftest.Fw.Conn = conn
 
-	verdExpr := exprs.NewExprVerdict(exprs.VERDICT_QUEUE, "num 1")
+	verdExpr := exprs.NewExprVerdict(exprs.VERDICT_QUEUE, "num 1", expr.QueueFlagBypass)
 	r, _ := nftest.AddTestRule(t, conn, verdExpr)
 	if r == nil {
 		t.Errorf("Error adding rule with Queue verdict")

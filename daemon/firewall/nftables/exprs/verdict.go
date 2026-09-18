@@ -10,7 +10,7 @@ import (
 )
 
 // NewExprVerdict constructs a new verdict to apply on connections.
-func NewExprVerdict(verdict, parms string) *[]expr.Any {
+func NewExprVerdict(verdict, parms string, queueFlag expr.QueueFlag) *[]expr.Any {
 	switch strings.ToLower(verdict) {
 	case VERDICT_ACCEPT:
 		return NewExprAccept()
@@ -51,7 +51,6 @@ func NewExprVerdict(verdict, parms string) *[]expr.Any {
 			log.Warning("invalid Queue expr parameters")
 			return nil
 		}
-		// TODO: allow to configure this flag
 		if p[0] == NFT_QUEUE_NUM {
 			queueNum, err = strconv.Atoi(p[len(p)-1])
 			if err != nil {
@@ -63,7 +62,7 @@ func NewExprVerdict(verdict, parms string) *[]expr.Any {
 		return &[]expr.Any{
 			&expr.Queue{
 				Num:  uint16(queueNum),
-				Flag: expr.QueueFlagBypass,
+				Flag: queueFlag,
 			}}
 
 	case VERDICT_SNAT:
