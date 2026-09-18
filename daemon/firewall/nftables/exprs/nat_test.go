@@ -173,7 +173,7 @@ func TestExprVerdictSNAT(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_SNAT, test.Parms)
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_SNAT, test.Parms, expr.QueueFlagBypass)
 			if !test.ExpectedFail && verdExpr == nil {
 				t.Errorf("error creating snat verdict")
 			} else if test.ExpectedFail && verdExpr == nil {
@@ -358,7 +358,7 @@ func TestExprVerdictDNAT(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_DNAT, test.Parms)
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_DNAT, test.Parms, expr.QueueFlagBypass)
 			if !test.ExpectedFail && verdExpr == nil {
 				t.Errorf("error creating verdict")
 			} else if test.ExpectedFail && verdExpr == nil {
@@ -442,7 +442,7 @@ func TestExprVerdictMasquerade(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_MASQUERADE, test.Parms)
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_MASQUERADE, test.Parms, expr.QueueFlagBypass)
 			if !test.ExpectedFail && verdExpr == nil {
 				t.Errorf("error creating verdict")
 			} else if test.ExpectedFail && verdExpr == nil {
@@ -517,7 +517,7 @@ func TestExprVerdictRedirect(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_REDIRECT, test.Parms)
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_REDIRECT, test.Parms, expr.QueueFlagBypass)
 			if !test.ExpectedFail && verdExpr == nil {
 				t.Errorf("error creating verdict")
 			} else if test.ExpectedFail && verdExpr == nil {
@@ -602,7 +602,7 @@ func TestExprVerdictTProxy(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 
-			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_TPROXY, test.Parms)
+			verdExpr := exprs.NewExprVerdict(exprs.VERDICT_TPROXY, test.Parms, expr.QueueFlagBypass)
 			if !test.ExpectedFail && verdExpr == nil {
 				t.Errorf("error creating verdict")
 			} else if test.ExpectedFail && verdExpr == nil {

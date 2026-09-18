@@ -3,8 +3,10 @@ package nftables_test
 import (
 	"testing"
 
+	nftb "github.com/evilsocket/opensnitch/daemon/firewall/nftables"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/exprs"
 	"github.com/evilsocket/opensnitch/daemon/firewall/nftables/nftest"
+	"github.com/google/nftables/expr"
 )
 
 type sysChainsListT struct {
@@ -165,4 +167,53 @@ func TestDeleteSystemRules(t *testing.T) {
 	})
 	t.Run("test-delete-system-rules+chains", func(t *testing.T) {
 	})
+}
+
+// Unlike the other tests in this file, which use nftest.Fw + AddSystemRules,
+// this one goes through the full Init() path: bypassQueue is unexported and is
+// only set there, so it is the only way to exercise the configured flag end to
+// end rather than asserting on the expression builder. The thread is locked to
+// a fresh network namespace for the duration, so the rules it installs and
+// removes cannot touch a firewall outside the test.
+func TestSystemRuleQueueBypass(t *testing.T) {
+	nftest.SkipIfNotPrivileged(t)
+
+	tests := []struct {
+		name         string
+		bypass       bool
+		expectedFlag expr.QueueFlag
+	}{
+		{"bypass-disabled", false, 0},
+		{"bypass-enabled", true, expr.QueueFlagBypass},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			conn, newNS := nftest.OpenSystemConn(t)
+			defer nftest.CleanupSystemConn(t, newNS)
+
+			fw, err := nftb.Fw()
+			if err != nil {
+				t.Fatalf("Error creating firewall: %s", err)
+			}
+			fw.Init(0, configFile, "0s", test.bypass)
+			defer fw.Stop()
+
+			rules, _ := getRulesList(t, conn, exprs.NFT_FAMILY_INET, exprs.TABLE_OPENSNITCH, exprs.CHAIN_MANGLE_FORWARD)
+			if len(rules) != 1 {
+				t.Fatalf("mangle_forward should contain 1 system rule, got %d", len(rules))
+			}
+			for _, e := range rules[0].Exprs {
+				if queue, ok := e.(*expr.Queue); ok {
+					if queue.Num != 0 {
+						t.Errorf("invalid system rule queue number: got %d, expected 0", queue.Num)
+					}
+					if queue.Flag != test.expectedFlag {
+						t.Errorf("QueueBypass=%t: system rule queue flags = %#x, expected %#x", test.bypass, queue.Flag, test.expectedFlag)
+					}
+					return
+				}
+			}
+			t.Fatal("system rule has no queue expression")
+		})
+	}
 }
