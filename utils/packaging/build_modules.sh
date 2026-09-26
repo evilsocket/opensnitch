@@ -52,6 +52,36 @@ fi
 
 echo "[+] Compiling eBPF modules..."
 cd ebpf_prog && make KERNEL_DIR=../linux-${kernel_version} KERNEL_HEADERS=../linux-${kernel_version} ARCH=${ARCH} >/dev/null
+
+# The port scan module is built separately, by Makefile.scan.
+#
+# It is a portable libbpf program and needs no kernel source: it compiles
+# against <bpf/bpf_helpers.h> with clang targeting bpf, not against the kernel
+# headers the Makefile above uses. Building it with those flags fails outright,
+# which is why the main Makefile filters it out of its wildcard.
+echo "[+] Compiling the port scan eBPF module..."
+# Fatal, not a warning. A warning is a few lines nobody reads in the build
+# output: the script would exit 0 and publish a module set without
+# opensnitch-scan.o, and every machine installing those packages would fall
+# back to AF_PACKET silently, the path with ninety times the aggregate cost,
+# while CI stayed green.
+#
+# A module that is meant to ship must not be optional at build time. If the
+# headers are missing, say which package provides them and stop.
+if ! make -f Makefile.scan; then
+    echo
+    echo " [ERROR] opensnitch-scan.o could not be built."
+    echo "         It needs clang with a BPF target and the libbpf headers:"
+    echo "           Debian/Ubuntu: apt install clang libbpf-dev"
+    echo "           Fedora/RHEL:   dnf install clang libbpf-devel"
+    echo "         Or point at your own copy: make -f Makefile.scan LIBBPF_INCLUDE=..."
+    echo
+    exit 1
+fi
+if [ ! -s opensnitch-scan.o ]; then
+    echo -e "\n [ERROR] Makefile.scan reported success but produced no object.\n"
+    exit 1
+fi
 # objdump -h opensnitch.o #you should see many section, number 1 should be called kprobe/tcp_v4_connect
 
 if [ ! -d modules/ ]; then

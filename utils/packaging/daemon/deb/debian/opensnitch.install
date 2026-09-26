@@ -6,3 +6,4 @@ daemon/data/tasks/* etc/opensnitchd/tasks/
 ebpf_prog/opensnitch.o usr/lib/opensnitchd/ebpf/
 ebpf_prog/opensnitch-dns.o usr/lib/opensnitchd/ebpf/
 ebpf_prog/opensnitch-procs.o usr/lib/opensnitchd/ebpf/
+ebpf_prog/opensnitch-scan.o usr/lib/opensnitchd/ebpf/

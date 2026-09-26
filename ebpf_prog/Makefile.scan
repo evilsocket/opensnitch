@@ -1,0 +1,79 @@
+# OpenSnitch - build the port scan detection module.
+#
+# This module is built separately from the others on purpose.
+#
+# opensnitch.o, opensnitch-dns.o and opensnitch-procs.o are kprobe programs:
+# they read kernel-internal structures such as struct sock, so they must be
+# compiled against the headers of the exact kernel they will run on, and a
+# distribution has to ship one object per kernel version (see README).
+#
+# opensnitch-scan.o is a TC program. It touches only struct __sk_buff, which is
+# uapi and stable, plus the packet bytes. It therefore needs no kernel sources
+# at all and one object works across kernel versions -- so it must NOT inherit
+# the kernel-headers include path of the main Makefile, or that portability
+# would be lost silently the first time someone builds on a different machine.
+#
+# Requirements: clang with a BPF target, and libbpf headers for bpf_helpers.h.
+#
+# Usage:
+#   make -f Makefile.scan                    # uses system libbpf headers
+#   make -f Makefile.scan LIBBPF_INCLUDE=... # or point at your own
+#   make -f Makefile.scan verify             # additionally dump the sections
+
+CLANG          ?= clang
+LLVM_STRIP     ?= llvm-strip
+LLVM_OBJDUMP   ?= llvm-objdump
+LIBBPF_INCLUDE ?= /usr/include
+
+TARGET := opensnitch-scan.o
+SOURCE := opensnitch-scan.c
+
+# -mcpu is pinned rather than left to the compiler's default.
+#
+# rate_limit uses atomics that RETURN a value -- BPF_ATOMIC with BPF_FETCH, and
+# a compare-and-swap -- which the BPF backend only emits from v3 onwards; under
+# -mcpu=v1 the same source fails outright with "unsupported atomic operation".
+# Recent clang defaults to v3 and older clang defaults to v1, so relying on the
+# default means the module builds or does not depending on the distribution's
+# compiler. Those instructions need kernel >= 5.12, far below the 6.6 this
+# program already requires for its TCX attachment, so pinning v3 costs no
+# portability that the attach method has not already spent.
+# Debian and Ubuntu keep asm/types.h, which <linux/bpf.h> includes, under
+# the multiarch directory, and a BPF target does not search it: without this,
+# the module does not build on a stock Debian system.
+MULTIARCH      ?= $(shell $(CLANG) -print-multiarch 2>/dev/null || gcc -print-multiarch 2>/dev/null)
+MULTIARCH_INCLUDE := $(if $(wildcard /usr/include/$(MULTIARCH)/asm/types.h),-I/usr/include/$(MULTIARCH))
+
+CFLAGS := -target bpf -mcpu=v3 -O2 -g \
+	-I. -I$(LIBBPF_INCLUDE) $(MULTIARCH_INCLUDE) \
+	-Wall -Wextra \
+	-Wno-unused-parameter \
+	-Wno-compare-distinct-pointer-types
+
+.PHONY: all clean verify
+
+all: $(TARGET)
+
+$(TARGET): $(SOURCE)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+	@# Debug info is only needed to produce BTF at load time; stripping keeps
+	@# the shipped object small. Remove this line if you need the BTF.
+	-$(LLVM_STRIP) -g $@ 2>/dev/null || true
+
+# verify does what can be checked without loading the program: that the ELF
+# carries the expected sections and every map the loader will look for.
+#
+# It deliberately does NOT claim the program is correct. Verifier acceptance
+# can only be established by actually loading it, which needs CAP_BPF; that is
+# what the load-and-run CI job is for.
+verify: $(TARGET)
+	@echo "== sections =="
+	@$(LLVM_OBJDUMP) -h $(TARGET) | grep -E '^\s+[0-9]+ (tc|\.maps|license)'
+	@echo "== maps =="
+	@$(LLVM_OBJDUMP) -t $(TARGET) | grep -oE '(scan_events|source_budgets|local_addrs|exempt_v4|exempt_v6|excluded_ports|scan_config|scan_stats)' | sort -u
+	@echo
+	@echo "NOTE: this only checks the object is well formed."
+	@echo "      Verifier acceptance requires loading it (CAP_BPF)."
+
+clean:
+	rm -f $(TARGET)
