@@ -1,0 +1,325 @@
+name: Port scan detection
+
+on:
+  push:
+    paths:
+      - 'daemon/go.mod'
+      - 'daemon/go.sum'
+      - 'daemon/main.go'
+      - 'daemon/portscan/**'
+      - 'daemon/portscan_*'
+      - 'daemon/data/default-config.json'
+      - 'daemon/tasks/portscanblocks/**'
+      - 'daemon/ui/**'
+      - 'ebpf_prog/opensnitch-scan.c'
+      - 'ebpf_prog/Makefile'
+      - 'ebpf_prog/Makefile.scan'
+      - 'proto/**'
+      - 'ui/opensnitch/**'
+      - 'ui/tests/**'
+      - 'utils/packaging/**'
+      - 'utils/scripts/portscan-real-condition-test.sh'
+      - '.github/workflows/portscan.yml'
+  pull_request:
+    paths:
+      - 'daemon/go.mod'
+      - 'daemon/go.sum'
+      - 'daemon/main.go'
+      - 'daemon/portscan/**'
+      - 'daemon/portscan_*'
+      - 'daemon/data/default-config.json'
+      - 'daemon/tasks/portscanblocks/**'
+      - 'daemon/ui/**'
+      - 'ebpf_prog/opensnitch-scan.c'
+      - 'ebpf_prog/Makefile'
+      - 'ebpf_prog/Makefile.scan'
+      - 'proto/**'
+      - 'ui/opensnitch/**'
+      - 'ui/tests/**'
+      - 'utils/packaging/**'
+      - 'utils/scripts/portscan-real-condition-test.sh'
+      - '.github/workflows/portscan.yml'
+  workflow_dispatch:
+
+# Every job here exists because something in this feature can only be checked
+# by running it. A test that silently skips is a test that has stopped
+# protecting anything, so each job sets the PORTSCAN_REQUIRE_* variable that
+# turns its skips into failures.
+
+jobs:
+  unit:
+    name: Unit and race
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: daemon/go.mod
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc linux-libc-dev libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.1
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          cd proto && make ../daemon/ui/protocol/ui.pb.go
+
+      - name: Vet and format
+        run: |
+          cd daemon
+          test -z "$(gofmt -l portscan/)" || { gofmt -d portscan/; exit 1; }
+          go vet ./portscan/... ./ui/config/
+          go run honnef.co/go/tools/cmd/staticcheck@v0.8.1 ./portscan/... ./tasks/portscanblocks/
+
+      - name: Test
+        env:
+          # The C/Go parser differential compiles opensnitch-scan.c natively;
+          # without this a missing compiler or header would skip it silently.
+          PORTSCAN_REQUIRE_CPARSE: '1'
+        run: |
+          cd daemon
+          go test -count=1 ./portscan/... ./ui/config/
+          # The daemon glue: start, reload and stop, on a real Monitor.
+          go test -count=1 .
+          # The blocks task on its real path through the UI client.
+          go test -count=1 -run 'PortScan' ./ui/
+
+      - name: Race
+        run: |
+          cd daemon
+          go test -race -count=2 ./portscan/ .
+
+      - name: Coverage
+        run: |
+          cd daemon
+          go test -count=1 -coverprofile=cover.out ./portscan/
+          go tool cover -func=cover.out | tail -1
+
+  corpus:
+    name: Differential corpus
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: daemon/go.mod
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nmap tcpdump iproute2 gcc linux-libc-dev libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.1
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          cd proto && make ../daemon/ui/protocol/ui.pb.go
+
+      # The corpus is real nmap traffic captured against a pair of network
+      # namespaces. Generating it here rather than committing it means the
+      # expectations are checked against the nmap of the day, not against a
+      # recording of one particular version's behaviour.
+      #
+      # Deliberately not under sudo: the script builds its own user namespace,
+      # which supplies CAP_NET_ADMIN and CAP_NET_RAW inside it and nowhere else.
+      # Running it as root would grant it the whole machine to do something it
+      # does not need the whole machine for, and would leave root-owned files
+      # behind.
+      - name: Generate the capture corpus
+        run: |
+          # ubuntu-24.04 restricts unprivileged user namespaces through
+          # AppArmor, and this script needs one. The runner is thrown away.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          cd daemon/portscan
+          ./testdata/generate_corpus.sh
+          ls -la testdata/pcap
+
+      # The C/Go parser differential runs here too, on every frame of the
+      # corpus: the unit job only has the hand-written hostile frames.
+      - name: Differential replay
+        env:
+          PORTSCAN_REQUIRE_CORPUS: '1'
+          PORTSCAN_REQUIRE_CPARSE: '1'
+        run: |
+          cd daemon
+          go test -count=1 -v -run 'TestDifferential|TestSlowScan|TestDecoy|TestCorpus|TestTaxonomy|TestEveryCapture|TestKernelAndGoAgreeOnTheCorpus' ./portscan/
+
+      # The coverage table is published in the project wiki, not committed here,
+      # so there is no file to compare against. What CI can still establish is
+      # that the generator runs and that the corpus still produces a table --
+      # which is what breaks if a capture or a technique name is removed.
+      - name: The coverage report still generates, and still reports detections
+        run: |
+          cd daemon
+          go run ./portscan/testdata/coverage \
+            -corpus portscan/testdata/pcap -o "$RUNNER_TEMP/coverage.md"
+          grep -q 'D_FULL' "$RUNNER_TEMP/coverage.md"
+
+          # The measured column, not the hand-written classification: one
+          # capture is the negative control and must stay unreported; every
+          # other must have produced a verdict.
+          notreported=$(grep -c 'not reported' "$RUNNER_TEMP/coverage.md" || true)
+          if [ "$notreported" -gt 1 ]; then
+            echo "::error::$notreported captures produced no detection; the corpus" \
+                 "should leave only benign-single-port unreported"
+            grep 'not reported' "$RUNNER_TEMP/coverage.md"
+            exit 1
+          fi
+
+  live:
+    name: Live AF_PACKET scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: daemon/go.mod
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nmap iproute2 libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.1
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          cd proto && make ../daemon/ui/protocol/ui.pb.go
+
+      # An unprivileged user namespace supplies CAP_NET_RAW inside its own
+      # network namespace, so this needs no root and touches nothing outside it.
+      - name: Real nmap scan through the AF_PACKET source
+        run: |
+          # ubuntu-24.04 restricts unprivileged user namespaces through
+          # AppArmor, and this script needs one. The runner is thrown away.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          cd daemon/portscan
+          ./testdata/run_live_test.sh
+
+  nftables:
+    name: nftables enforcement
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: daemon/go.mod
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nftables iproute2 libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.1
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          cd proto && make ../daemon/ui/protocol/ui.pb.go
+
+      # The ruleset is read back with the nft command line rather than with the
+      # library that wrote it, so a mistake shared between writer and reader
+      # cannot cancel itself out. The fresh network namespace means the runner's
+      # own firewall is never touched.
+      - name: Install, observe and remove real rules
+        run: |
+          # ubuntu-24.04 restricts unprivileged user namespaces through
+          # AppArmor, and this script needs one. The runner is thrown away.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          cd daemon/portscan
+          ./testdata/run_nft_test.sh
+
+  ebpf:
+    name: eBPF module
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: daemon/go.mod
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang llvm libbpf-dev linux-headers-$(uname -r) \
+            libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.1
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          cd proto && make ../daemon/ui/protocol/ui.pb.go
+
+      - name: Build the scan module
+        run: |
+          cd ebpf_prog
+          make -f Makefile.scan verify
+
+      # Loading needs CAP_BPF, which the runner has as root. This is the check
+      # that the verifier accepts the program -- everything else about the
+      # kernel half is inference until this passes.
+      # The binary stays inside the workspace rather than in /tmp: it is about to
+      # be executed as root, and /tmp is world-writable, so a binary staged
+      # there can be swapped between the build and the sudo.
+      - name: Load and attach it for real
+        run: |
+          cd daemon
+          go test -c -o ./portscan.test ./portscan/
+          # The runner is a throwaway VM; see portscan/netns_guard_test.go.
+          sudo -E env PORTSCAN_REQUIRE_EBPF=1 PORTSCAN_DISPOSABLE_HOST=1 \
+               PORTSCAN_MODULE_DIR="$PWD/../ebpf_prog" \
+               ./portscan.test -test.v -test.run 'TestLiveEbpf'
+
+  protobuf:
+    name: Protobuf bindings
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: daemon/go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.1
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          cd proto && make ../daemon/ui/protocol/ui.pb.go
+          python -m pip install 'protobuf>=4,<5'
+          python -m venv /tmp/legacy
+          /tmp/legacy/bin/pip install 'protobuf>=3.6,<3.20'
+
+      # Three implementations of the same message, from three different
+      # compilers. A disagreement between any two shows up in production as a
+      # GUI that starts, connects and silently never displays a scan.
+      - name: Go and both Python generations agree on the wire
+        env:
+          PORTSCAN_REQUIRE_BOTH: '1'
+          PYTHON_MODERN: python
+          PYTHON_LEGACY: /tmp/legacy/bin/python
+        run: ./proto/run_binding_check.sh
+
+  gui:
+    name: GUI presenter and blocks view
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # The GUI's presenter, and the list of blocks in the main window. The
+      # tests read the identifiers the GUI shares with the daemon out of the Go
+      # source rather than restating them, so a copied mistake cannot pass.
+      # The generated bindings are committed, and proto.import_() chooses
+      # between the two generations at runtime, so nothing is regenerated
+      # here: this job should run what a user installs, not a variant of it.
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libegl1 libgl1 libxkbcommon-x11-0 libdbus-1-3 \
+            libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
+            libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-cursor0
+          python -m pip install 'pyqt6>=6.4' protobuf grpcio \
+            'python-slugify>=7.0.0' packaging pytest pytest-qt
+
+      # Offscreen: the runner has no display, and a test that needs one would
+      # be a test that gets skipped.
+      - name: Run the GUI tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          cd ui
+          python -m pytest -v tests/test_portscan.py tests/dialogs/test_portscanblocks.py
