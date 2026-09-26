@@ -39,7 +39,7 @@ class MenusManager(views.ViewsManager):
         menuExport = QtWidgets.QMenu(QC.translate("stats", "Export to CSV"), self)
         menuExport.setIcon(Icons.new(self, "document-save"))
         for idx in range(constants.TAB_MAIN, constants.TAB_TOTAL):
-            if not idx in self.TABLES:
+            if not idx in self.TABLES or self.TABLES[idx]['view'] is None:
                 continue
             act = QtGui.QAction(
                 QC.translate("stats", self.get_view_name(idx)), self

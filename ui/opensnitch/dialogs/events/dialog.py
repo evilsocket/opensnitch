@@ -17,6 +17,7 @@ from opensnitch.customwidgets.firewalltableview import FirewallTableModel
 from opensnitch.customwidgets.generictableview import GenericTableModel
 from opensnitch.customwidgets.addresstablemodel import AddressTableModel
 from opensnitch.customwidgets.netstattablemodel import NetstatTableModel
+from opensnitch.customwidgets.portscanblocksview import PortScanBlocksView
 from opensnitch.utils import Message, QuickHelp, AsnDB, Icons
 from opensnitch.utils.infowindow import InfoWindow
 from opensnitch.utils.xdg import xdg_current_desktop
@@ -33,7 +34,8 @@ from . import (
 
 from .tasks import (
     netstat,
-    nodemon
+    nodemon,
+    portscanblocks
 )
 
 import opensnitch.proto as proto
@@ -48,6 +50,9 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
     _shown_trigger = QtCore.pyqtSignal()
     _notification_trigger = QtCore.pyqtSignal(ui_pb2.Notification)
     _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
+
+    # Data of the "Port scan blocks" entry of the rules filter combo.
+    PORTSCAN_COMBO_DATA = "portscan-blocks"
 
     # FIXME: don't translate, used only for default argument on _update_status_label
     FIREWALL_DISABLED = "Disabled"
@@ -86,6 +91,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.fwTable.setVisible(False)
         self.alertsTable.setVisible(False)
         self.rulesTable.setVisible(True)
+
+        self._setup_portscan_views()
 
         self.daemon_connected = False
 
@@ -345,7 +352,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
                 w.setObjectName(f"{key}")
             if tab_hidden_list is not None and str(key) in tab_hidden_list:
                 self.tabWidget.setTabVisible(idx, False)
-                if key in self.TABLES:
+                if self.TABLES[key]['view'] is not None:
                     self.TABLES[key]['view'].model().suspend()
 
             # we need to configure default widgets, event if the tab is
@@ -489,7 +496,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
                 tab_idx = self.get_tab_index_by_name(str(i))
                 if tab_idx is not None:
                     self.tabWidget.setTabVisible(tab_idx, False)
-                    self.TABLES[int(i)]['view'].model().suspend()
+                    if self.TABLES[int(i)]['view'] is not None:
+                        self.TABLES[int(i)]['view'].model().suspend()
 
         self._ui_refresh_interval = self.cfg.getInt(Config.STATS_REFRESH_INTERVAL, 0)
         dialog_geometry = self.cfg.getSettings(Config.STATS_GEOMETRY)
@@ -588,6 +596,47 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         if rules_tree_nodes is not None:
             self.cfg.setSettings(Config.STATS_RULES_TREE_EXPANDED_1, rules_tree_nodes.isExpanded())
 
+    def _setup_portscan_views(self):
+        """Adds the list of port scan sources to the window.
+
+        It is shown twice: as the Port scan Detection tab, blocks and
+        detections, and in the Rules tab under "Port scan blocks", blocks
+        only, next to the application and system rules. The two
+        views share one BlockedSources, because a node runs a single
+        portscan-blocks task: whichever view is visible keeps it running.
+        """
+        self._portscan_blocks = portscanblocks.BlockedSources(self)
+
+        page = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout(page)
+        layout.setContentsMargins(2, 2, 2, 2)
+        self.portscanView = PortScanBlocksView(self._portscan_blocks, page)
+        layout.addWidget(self.portscanView)
+        # No icon: the other tabs have none.
+        self.tabWidget.insertTab(
+            constants.TAB_PORTSCAN, page,
+            self.TABLES[constants.TAB_PORTSCAN]['tabName'])
+
+        # Blocks only: the Rules tab lists what the firewall enforces.
+        self.rulesPortscanView = PortScanBlocksView(
+            self._portscan_blocks, self.horizontalLayoutWidget, detections=False)
+        self.horizontalLayout_19.insertWidget(
+            self.horizontalLayout_19.indexOf(self.rulesTable) + 1,
+            self.rulesPortscanView)
+        self.rulesPortscanView.setVisible(False)
+
+        item = QtWidgets.QTreeWidgetItem([QC.translate("stats", "Port scan blocks")])
+        font = item.font(0)
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(0, font)
+        # No icon. The entries above name theme icons, which many themes do not
+        # provide, so they usually show none; Icons.new falls back to a Qt
+        # standard icon, which would make this the one entry with a picture.
+        self.rulesTreePanel.insertTopLevelItem(constants.RULES_TREE_PORTSCAN, item)
+        self.comboRulesFilter.addItem(
+            QC.translate("stats", "Port scan blocks"), self.PORTSCAN_COMBO_DATA)
+
     def _cb_fw_rules_updated(self):
         self._add_rulesTree_fw_chains()
 
@@ -685,7 +734,10 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
 
         if self.TABLES[index]['cmdCleanStats'] is not None:
             self.TABLES[index]['cmdCleanStats'].setVisible(True)
-        if index ==  constants.TAB_MAIN:
+        if index == constants.TAB_PORTSCAN:
+            # Nothing on this tab comes from the database.
+            self.cmdCleanSql.setVisible(False)
+        elif index ==  constants.TAB_MAIN:
             self.queries.set_events_query()
         elif index ==  constants.TAB_NETSTAT:
             self.netstat.monitor_node()
@@ -744,6 +796,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         if self.get_current_view_idx() ==  constants.TAB_MAIN:
             self.queries.set_events_query()
             return
+        if self.get_active_table() is None or self.get_portscan_view() is not None:
+            return
 
         model = self.get_active_table().model()
         qstr = model.query().lastQuery()
@@ -766,6 +820,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
 
     def _cb_clean_sql_clicked(self, idx):
         cur_idx = self.get_current_view_idx()
+        if self.TABLES[cur_idx]['view'] is None:
+            return
         if cur_idx == constants.TAB_RULES:
             self._db.empty_rule(self.TABLES[cur_idx]['label'].text())
         elif self.in_detail_view(cur_idx):
@@ -965,6 +1021,26 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.open_settings()
 
     def _cb_rules_filter_combo_changed(self, idx):
+        # The combo stands in for the tree when it is collapsed, so it offers
+        # the blocked port scan sources too. Matched by its data, not its
+        # index: the existing entries are mapped by index below.
+        if self.comboRulesFilter.itemData(idx) == self.PORTSCAN_COMBO_DATA:
+            self.rulesPortscanView.setVisible(True)
+            self.rulesTable.setVisible(False)
+            self.rulesScrollBar.setVisible(False)
+            self.fwTable.setVisible(False)
+            self.alertsTable.setVisible(False)
+            self.alertsScrollBar.setVisible(False)
+            return
+        # Leaving the blocks gives the rules table back; anything else is left
+        # as the existing entries always handled it. The table was not
+        # refreshed while hidden (see refresh_active_table), and not every
+        # entry below runs a query, so it is refreshed here.
+        leavingPortscan = self.rulesPortscanView.isVisible()
+        if leavingPortscan:
+            self.rulesPortscanView.setVisible(False)
+            self.rulesTable.setVisible(True)
+            self.rulesScrollBar.setVisible(True)
         if idx == constants.RULES_TREE_APPS:
             self.queries.set_rules_filter()
         elif idx == constants.RULES_COMBO_PERMANENT:
@@ -975,6 +1051,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self.queries.set_rules_filter(-1, constants.RULES_TREE_ALERTS)
         elif idx == constants.RULES_COMBO_FW:
             self.queries.set_rules_filter(-1, constants.RULES_TREE_FIREWALL)
+        if leavingPortscan:
+            self.refresh_active_table()
 
     def _cb_rules_tree_item_expanded(self, item):
         self.rulesTreePanel.resizeColumnToContents(0)
@@ -999,6 +1077,18 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.cfg.setSettings(Config.STATS_RULES_COL_STATE, rulesHeader.saveState())
 
         self.clear_rows_selection()
+
+        # The blocked port scan sources: a view of its own, fed by the daemon,
+        # in place of the SQL-backed tables.
+        showPortscan = (parent is None and item_row == constants.RULES_TREE_PORTSCAN)
+        self.rulesPortscanView.setVisible(showPortscan)
+        if showPortscan:
+            self.fwTable.setVisible(False)
+            self.alertsTable.setVisible(False)
+            self.alertsScrollBar.setVisible(False)
+            self.rulesTable.setVisible(False)
+            self.rulesScrollBar.setVisible(False)
+            return
 
         # FIXME: find a clever way of handling these options
 
