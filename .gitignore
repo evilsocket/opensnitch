@@ -8,3 +8,7 @@ daemon/ui/protocol/
 .vscode/
 .idea/
 .DS_Store
+
+# port scan detection: local test artefacts
+daemon/portscan/testdata/.cover/
+daemon/portscan/testdata/vm/build/

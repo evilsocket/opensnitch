@@ -1,2 +1,7 @@
 opensnitchd
 vendor
+
+# Compiled test binaries. .github/workflows/portscan.yml builds portscan.test
+# here on purpose -- it is about to be run under sudo, and /tmp is world
+# writable -- so the path must stay free of anything the repository ships.
+*.test
