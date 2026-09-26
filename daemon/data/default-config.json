@@ -44,5 +44,8 @@
     "Internal": {
         "GCPercent": 100,
         "FlushConnsOnStart": true
+    },
+    "PortScan": {
+        "Enabled": false
     }
 }

@@ -36,6 +36,12 @@ var (
 	maxQueuedAlerts = 1024
 
 	TaskMgr *tasks.TaskManager
+
+	// PortScanReload lets a configuration reload reach port scan detection,
+	// which the daemon owns (monitor, packet source, firewall backend) and
+	// this package cannot call directly. Set by the daemon at startup; nil in
+	// any other embedding.
+	PortScanReload func(*Client, *config.Config)
 )
 
 // Client holds the connection information of a client.
@@ -62,6 +68,15 @@ type Client struct {
 	isAsking     bool
 	isUnixSocket bool
 	isPolling    bool
+
+	// portScan answers block requests coming from the GUI. It is nil when port
+	// scan detection is not running.
+	portScan PortScanResponder
+
+	// sendMu serialises replies on the notifications stream, which are sent
+	// from the notification loop and from each task's event goroutine:
+	// grpc-go does not allow SendMsg on one stream from two goroutines.
+	sendMu sync.Mutex
 
 	sync.RWMutex
 }
