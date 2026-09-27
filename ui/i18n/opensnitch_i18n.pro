@@ -73,6 +73,7 @@ TRANSLATIONS += locales/ar/opensnitch-ar.ts \
                 locales/lt_LT/opensnitch-lt_LT.ts \
                 locales/nb_NO/opensnitch-nb_NO.ts \
                 locales/nl_NL/opensnitch-nl_NL.ts \
+                locales/pl_PL/opensnitch-pl_PL.ts \
                 locales/pt_BR/opensnitch-pt_BR.ts \
                 locales/ro_RO/opensnitch-ro_RO.ts \
                 locales/ru_RU/opensnitch-ru_RU.ts \
