@@ -65,7 +65,7 @@ class TestPreferences():
         self.run(qtbot)
 
         assert self.prefs.cfgMgr.getBool(self.prefs.cfgMgr.DEFAULT_IGNORE_RULES) == True and  self.prefs.cfgMgr.getInt(self.prefs.cfgMgr.DEFAULT_IGNORE_TEMPORARY_RULES) == 1
-        cols = self.prefs.cfgMgr.getSettings(Config.STATS_SHOW_COLUMNS)
+        cols = self.prefs.cfgMgr.getSettings(Config.STATS_SHOW_COLUMNS + "_connections")
         # Column indices changed since original test - just verify columns are saved
         assert cols is not None and len(cols) > 0
 
@@ -76,8 +76,8 @@ class TestPreferences():
         self.prefs.checkNodeLogUTC.setChecked(False)
         self.prefs.checkNodeLogMicro.setChecked(True)
         self.prefs.checkInterceptUnknown.setChecked(True)
-        self.prefs.tabWidget.setCurrentIndex(self.prefs.TAB_NODES)
-        self.prefs._node_needs_update = True
+        self.prefs.stackedWidget.setCurrentIndex(self.prefs.TAB_NODES)
+        self.prefs.node_needs_update = True
 
         self.run(qtbot)
 
@@ -161,8 +161,9 @@ class TestPreferences():
         original_action = self.prefs.cfgMgr.getInt(self.prefs.cfgMgr.DEFAULT_ACTION_KEY)
         original_timeout = self.prefs.cfgMgr.getInt(self.prefs.cfgMgr.DEFAULT_TIMEOUT_KEY, 15)
 
-        # Make changes
-        self.prefs.comboUIAction.setCurrentIndex(Config.ACTION_DENY_IDX)
+        # Make changes (to an action other than the saved one)
+        new_action = Config.ACTION_REJECT_IDX if original_action != Config.ACTION_REJECT_IDX else Config.ACTION_ALLOW_IDX
+        self.prefs.comboUIAction.setCurrentIndex(new_action)
         self.prefs.spinUITimeout.setValue(99)
 
         # This test needs exec() to verify cancel closes dialog without saving.
@@ -348,16 +349,16 @@ class TestPreferences():
         assert prefs2.comboUIAction.currentIndex() == Config.ACTION_ALLOW_IDX
         assert prefs2.spinUITimeout.value() == 45
 
-    def test_action_deny_setting(self, qtbot):
-        """Test saving deny action."""
+    def test_action_drop_setting(self, qtbot):
+        """Test saving drop action."""
         qtbot.addWidget(self.prefs)
 
-        self.prefs.comboUIAction.setCurrentIndex(Config.ACTION_DENY_IDX)
+        self.prefs.comboUIAction.setCurrentIndex(Config.ACTION_DROP_IDX)
 
         self.run(qtbot)
 
-        assert self.prefs.cfgMgr.getInt(self.prefs.cfgMgr.DEFAULT_ACTION_KEY) == Config.ACTION_DENY_IDX
-        assert self.prefs.comboUIAction.currentText() == Config.ACTION_DENY
+        assert self.prefs.cfgMgr.getInt(self.prefs.cfgMgr.DEFAULT_ACTION_KEY) == Config.ACTION_DROP_IDX
+        assert self.prefs.comboUIAction.currentText() == Config.ACTION_DROP
 
     def test_action_reject_setting(self, qtbot):
         """Test saving reject action."""
