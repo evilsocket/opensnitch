@@ -42,6 +42,9 @@ class GenericTableModel(QStandardItemModel):
     def __init__(self, tableName, headerLabels):
         self.tableName = tableName
         self.headerLabels = headerLabels
+        # translated labels of the view, restored when the query returns
+        # the same number of columns again (e.g.: after a detail view).
+        self.defaultHeaderLabels = list(headerLabels)
         self.lastColumnCount = len(self.headerLabels)
         QStandardItemModel.__init__(self, 0, self.lastColumnCount)
         self.setHorizontalHeaderLabels(self.headerLabels)
@@ -151,8 +154,11 @@ class GenericTableModel(QStandardItemModel):
         self.headerLabels = []
         self.removeColumns(0, self.lastColumnCount)
         self.setHorizontalHeaderLabels(self.headerLabels)
-        for col in range(0, newColumns):
-            self.headerLabels.append(self.realQuery.record().fieldName(col))
+        if newColumns > 0 and newColumns == len(self.defaultHeaderLabels):
+            self.headerLabels = list(self.defaultHeaderLabels)
+        else:
+            for col in range(0, newColumns):
+                self.headerLabels.append(self.realQuery.record().fieldName(col))
         self.lastColumnCount = newColumns
         self.setHorizontalHeaderLabels(self.headerLabels)
         self.setColumnCount(len(self.headerLabels))
