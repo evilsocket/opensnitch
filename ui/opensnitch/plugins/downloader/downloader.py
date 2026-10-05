@@ -6,7 +6,7 @@ import threading
 from queue import Queue
 
 from opensnitch.version import version
-from opensnitch.dialogs.stats import StatsDialog
+from opensnitch.dialogs.events import StatsDialog
 from opensnitch.notifications import DesktopNotifications
 from opensnitch.plugins import PluginBase, PluginSignal
 from opensnitch.utils.xdg import xdg_config_home
