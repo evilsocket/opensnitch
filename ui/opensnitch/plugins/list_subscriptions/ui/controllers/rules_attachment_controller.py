@@ -14,7 +14,8 @@ from opensnitch.plugins.list_subscriptions.ui.workers import attached_rules_snap
 from opensnitch.database import Database
 from opensnitch.config import Config
 from opensnitch.rules import Rule, Rules
-from opensnitch.proto import ui_pb2 as ui_pb2
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 if TYPE_CHECKING:
     from opensnitch.plugins.list_subscriptions.ui.views.list_subscriptions_dialog import (

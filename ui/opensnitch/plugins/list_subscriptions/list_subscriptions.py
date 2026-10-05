@@ -60,7 +60,8 @@ from opensnitch.plugins.list_subscriptions._utils import (
 from opensnitch.plugins.list_subscriptions.io.storage import (
     write_json_atomic_locked,
 )
-from opensnitch.proto import ui_pb2 as ui_pb2
+import opensnitch.proto as proto
+ui_pb2, ui_pb2_grpc = proto.import_()
 
 
 ch: Final[logging.StreamHandler] = logging.StreamHandler()
