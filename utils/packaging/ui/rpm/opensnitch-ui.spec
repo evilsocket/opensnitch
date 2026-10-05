@@ -21,7 +21,7 @@ Vendor: OpenSnitch project
 Packager: Gustavo Iñiguez Goya <gooffy1@gmail.com>
 Url: https://github.com/evilsocket/opensnitch
 Requires: python3, python3-pip, (netcfg or setup), (python3-pyinotify or python3-inotify), (python3-qt6 or python3-pyqt6)
-Recommends: (python3-slugify or python3-python-slugify), python3-notify2, python3-protobuf >= 3.0, python3-grpcio >= 1.10.0, (qgnomeplatform-qt6 or QGnomePlatform-qt6), (python3-packaging or python-rpm-packaging), qt6-sql-sqlite
+Recommends: (python3-slugify or python3-python-slugify), python3-notify2, python3-protobuf >= 3.0, python3-grpcio >= 1.10.0, (qgnomeplatform-qt6 or QGnomePlatform-qt6), (python3-packaging or python-rpm-packaging), qt6-sql-sqlite, python3-requests
 
 # avoid to depend on a particular python version
 %global __requires_exclude ^python\\(abi\\) = 3\\..$
@@ -78,7 +78,6 @@ fi
 
 %build
 cd i18n; make; cd ..
-pyrcc5 -o opensnitch/resources_rc.py opensnitch/res/resources.qrc
 find opensnitch/proto/ -name 'ui_pb2_grpc.py' -exec sed -i 's/^import ui_pb2/from . import ui_pb2/' {} \;
 python3 setup.py build
 

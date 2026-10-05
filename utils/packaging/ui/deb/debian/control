@@ -7,6 +7,8 @@ Build-Depends:
  pyqt6-dev-tools,
  python3-grpc-tools,
  python3-all,
+ python3-setuptools,
+ qt6-l10n-tools,
  debhelper (>= 7.4.3),
  dh-python
 Standards-Version: 3.9.1
@@ -29,6 +31,7 @@ Depends:
  python3-protobuf,
  python3-packaging,
  python3-slugify,
+ python3-requests,
  python3-notify2,
  xdg-user-dirs,
  gtk-update-icon-cache
