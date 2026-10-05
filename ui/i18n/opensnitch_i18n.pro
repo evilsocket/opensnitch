@@ -35,6 +35,7 @@ SOURCES += ../opensnitch/service.py \
         ../opensnitch/dialogs/preferences/sections/nodes.py \
         ../opensnitch/dialogs/preferences/sections/ui.py \
         ../opensnitch/dialogs/prompt/__init__.py \
+        ../opensnitch/dialogs/prompt/dialog.py \
         ../opensnitch/dialogs/prompt/utils.py \
         ../opensnitch/dialogs/prompt/details.py \
         ../opensnitch/dialogs/prompt/checksums.py \
@@ -48,7 +49,31 @@ SOURCES += ../opensnitch/service.py \
         ../opensnitch/dialogs/processdetails.py \
         ../opensnitch/dialogs/firewall.py \
         ../opensnitch/dialogs/conndetails.py \
-        ../opensnitch/plugins/versionchecker/versionchecker.py
+        ../opensnitch/plugins/versionchecker/versionchecker.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/action_file_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/bulk_edit_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/context_menu_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/defaults_ui_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/inspector_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/rules_attachment_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/rules_editor_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/runtime_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/selection_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/subscription_dialog_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/subscription_edit_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/subscription_status_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/controllers/table_data_controller.py \
+        ../opensnitch/plugins/list_subscriptions/ui/views/attached_rules_dialog.py \
+        ../opensnitch/plugins/list_subscriptions/ui/views/bulk_edit_dialog.py \
+        ../opensnitch/plugins/list_subscriptions/ui/views/helpers.py \
+        ../opensnitch/plugins/list_subscriptions/ui/views/inspector_panel.py \
+        ../opensnitch/plugins/list_subscriptions/ui/views/list_subscriptions_dialog.py \
+        ../opensnitch/plugins/list_subscriptions/ui/views/subscription_dialog.py \
+        ../opensnitch/plugins/list_subscriptions/ui/views/subscription_status_dialog.py \
+        ../opensnitch/plugins/list_subscriptions/ui/widgets/helpers.py \
+        ../opensnitch/plugins/list_subscriptions/ui/widgets/toggle_switch_widget.py \
+        ../opensnitch/plugins/list_subscriptions/ui/workers/url_test_worker.py \
+        ../opensnitch/plugins/virustotal/_models.py
 
 FORMS += ../opensnitch/res/prompt.ui \
 	    ../opensnitch/res/ruleseditor.ui \
@@ -56,7 +81,14 @@ FORMS += ../opensnitch/res/prompt.ui \
 	    ../opensnitch/res/process_details.ui \
 	    ../opensnitch/res/stats.ui \
 	    ../opensnitch/res/firewall.ui \
-	    ../opensnitch/res/firewall_rule.ui
+	    ../opensnitch/res/firewall_rule.ui \
+	    ../opensnitch/plugins/list_subscriptions/res/attached_rules_dialog.ui \
+	    ../opensnitch/plugins/list_subscriptions/res/bulk_edit_dialog.ui \
+	    ../opensnitch/plugins/list_subscriptions/res/list_subscriptions_dialog.ui \
+	    ../opensnitch/plugins/list_subscriptions/res/status_log_dialog.ui \
+	    ../opensnitch/plugins/list_subscriptions/res/subscription_dialog.ui \
+	    ../opensnitch/plugins/list_subscriptions/res/subscription_status_dialog.ui \
+	    ../opensnitch/plugins/list_subscriptions/res/text_inspect_dialog.ui
 TRANSLATIONS += locales/ar/opensnitch-ar.ts \
                 locales/cs_CZ/opensnitch-cs_CZ.ts \
                 locales/de_DE/opensnitch-de_DE.ts \
