@@ -379,15 +379,33 @@ class TestNodes():
         assert proto == "unix" and addr == "/tmp/test.sock"
 
     def test_get_addr_ipv6(self, qtbot):
-        """Test get_addr with IPv6 format.
-        Note: get_addr splits by ':' which may not handle IPv6 perfectly.
-        This test documents actual behavior.
-        """
-        # IPv6 addresses contain multiple colons, so split behavior is limited
+        """IPv6 addresses contain colons: the address is kept whole."""
         proto, addr = self.nodes.get_addr("ipv6:2001:db8::1")
-        assert proto == "ipv6"
-        # Only first part after split is returned
-        assert addr == "2001"
+        assert proto == "ipv6" and addr == "2001:db8::1"
+
+    def test_get_addr_ipv6_peer_drops_only_the_port(self, qtbot):
+        # grpcio reports IPv6 peers with percent-encoded brackets.
+        proto, addr = self.nodes.get_addr("ipv6:%5B2001:db8::2%5D:50051")
+        assert proto == "ipv6" and addr == "%5B2001:db8::2%5D"
+        proto, addr = self.nodes.get_addr("ipv6:[::1]:50051")
+        assert proto == "ipv6" and addr == "[::1]"
+
+    def test_get_addr_two_ipv6_hosts_are_two_nodes(self, qtbot):
+        # Cut at the first colon, both were "%5B2001": one node for two hosts.
+        a = self.nodes.get_addr("ipv6:%5B2001:db8::2%5D:50051")
+        b = self.nodes.get_addr("ipv6:%5B2001:db8::3%5D:50052")
+        assert a != b
+
+    def test_get_addr_keeps_a_node_key_unchanged(self, qtbot):
+        # Callers pass node keys too ("proto:addr", no port).
+        for key in ("ipv4:192.168.1.1", "unix:/tmp/test.sock",
+                    "ipv6:%5B2001:db8::2%5D", "ipv6:[::1]"):
+            proto, addr = self.nodes.get_addr(key)
+            assert "%s:%s" % (proto, addr) == key
+
+    def test_get_addr_ipv4_peer_drops_the_port(self, qtbot):
+        proto, addr = self.nodes.get_addr("ipv4:192.168.1.1:50051")
+        assert proto == "ipv4" and addr == "192.168.1.1"
 
     def test_get_addr_unix_empty_path(self, qtbot):
         """Test get_addr with empty unix path (backward compatibility)."""
