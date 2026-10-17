@@ -248,13 +248,19 @@ jobs:
       # The binary stays inside the workspace rather than in /tmp: it is about to
       # be executed as root, and /tmp is world-writable, so a binary staged
       # there can be swapped between the build and the sudo.
+      # The daemon only loads a module from a path that root owns all the way
+      # up, and the workspace belongs to the runner user, so the module is
+      # copied to a root-owned directory first.
       - name: Load and attach it for real
         run: |
+          sudo install -d -o root -g root -m 0755 /var/lib/opensnitch-scan-ci
+          sudo install -o root -g root -m 0644 ebpf_prog/opensnitch-scan.o \
+               /var/lib/opensnitch-scan-ci/
           cd daemon
           go test -c -o ./portscan.test ./portscan/
           # The runner is a throwaway VM; see portscan/netns_guard_test.go.
           sudo -E env PORTSCAN_REQUIRE_EBPF=1 PORTSCAN_DISPOSABLE_HOST=1 \
-               PORTSCAN_MODULE_DIR="$PWD/../ebpf_prog" \
+               PORTSCAN_MODULE_DIR=/var/lib/opensnitch-scan-ci \
                ./portscan.test -test.v -test.run 'TestLiveEbpf'
 
   protobuf:

@@ -12,6 +12,9 @@
 # skips is a test that stops protecting anything.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+# The namespace has no network, so the modules the build needs are fetched
+# before entering it; with a warm module cache this does nothing.
+go mod download
 exec unshare -Urn --fork sh -c 'ip link set lo up && exec "$@"' sh \
     env PORTSCAN_REQUIRE_LIVE=1 PORTSCAN_DISPOSABLE_NETNS=1 \
     go test -count=1 -v -run 'TestLiveAFPacket' "$@" .

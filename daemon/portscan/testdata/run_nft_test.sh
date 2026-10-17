@@ -17,6 +17,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# The namespace has no network, so the modules the build needs are fetched
+# before entering it; with a warm module cache this does nothing.
+go mod download
+
 if ! command -v nft >/dev/null 2>&1; then
     echo "nft is not on PATH; the ruleset cannot be read back independently" >&2
     exit 1

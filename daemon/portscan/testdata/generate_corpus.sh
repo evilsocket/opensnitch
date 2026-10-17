@@ -40,7 +40,10 @@ ATTACK4=10.77.0.2
 VICTIM6=fd00:77::1
 ATTACK6=fd00:77::2
 
-cleanup() { [ -n "${PEER:-}" ] && kill "$PEER" 2>/dev/null || true; }
+cleanup() {
+    [ -n "${PEER:-}" ] && kill "$PEER" 2>/dev/null || true
+    [ -n "${LOGDIR:-}" ] && rm -rf "$LOGDIR" || true
+}
 trap cleanup EXIT
 
 # --- build the topology --------------------------------------------------
@@ -61,15 +64,56 @@ nsenter -t "$PEER" -n ip link set lo up
 nsenter -t "$PEER" -n ip link set veth1 up
 sleep 0.5
 
+# tcpdump's stderr goes here rather than next to the captures, so that a
+# capture that fails can say why.
+LOGDIR=$(mktemp -d)
+
+# Debian and Ubuntu build tcpdump to switch to a dedicated "tcpdump" user once
+# the capture is open. Only uid 0 is mapped in this user namespace, so that
+# switch fails and tcpdump exits before capturing anything. "-Z root" keeps it
+# as it is on those builds, but a build without a default user takes "-Z root"
+# as a request to switch to root, through initgroups(), which the namespace
+# refuses. Whichever form stays up is the one this tcpdump accepts.
+TCPDUMP_OPTS=()
+for opts in "" "-Z root"; do
+    # shellcheck disable=SC2086
+    tcpdump $opts -i lo -w "$LOGDIR/probe.pcap" -n >"$LOGDIR/probe.log" 2>&1 &
+    td=$!
+    sleep 0.6
+    if kill -0 "$td" 2>/dev/null; then
+        kill -INT "$td" 2>/dev/null || true
+        wait "$td" 2>/dev/null || true
+        # shellcheck disable=SC2206
+        TCPDUMP_OPTS=($opts)
+        break
+    fi
+    wait "$td" 2>/dev/null || true
+    if [ -n "$opts" ]; then
+        echo "tcpdump cannot capture in this user namespace:" >&2
+        cat "$LOGDIR/probe.log" >&2
+        exit 1
+    fi
+done
+
 # --- capture one scan ----------------------------------------------------
 # capture <name> <nmap args...>
 capture() {
     local name="$1"; shift
     local pcap="$OUTDIR/$name.pcap"
+    local log="$LOGDIR/$name.log"
 
-    tcpdump -i veth0 -w "$pcap" -U -s 256 -n 'not arp' >/dev/null 2>&1 &
+    # --immediate-mode: otherwise libpcap hands packets over a buffer at a
+    # time, and the SIGINT below can drop the last buffer, or the whole of a
+    # short scan, unread.
+    tcpdump "${TCPDUMP_OPTS[@]}" -i veth0 -w "$pcap" -U --immediate-mode \
+        -s 256 -n 'not arp' >"$log" 2>&1 &
     local td=$!
     sleep 0.6
+    if ! kill -0 "$td" 2>/dev/null; then
+        echo "tcpdump exited before the $name scan:" >&2
+        cat "$log" >&2
+        exit 1
+    fi
 
     nsenter -t "$PEER" -n nmap "$@" >/dev/null 2>&1 || true
 
@@ -77,11 +121,15 @@ capture() {
     kill -INT "$td" 2>/dev/null || true
     wait "$td" 2>/dev/null || true
 
+    # Every scan, the benign one included, sends something: an empty capture
+    # means the harness failed, and the tests would then have nothing to check.
     local n
     n=$(tcpdump -r "$pcap" 2>/dev/null | wc -l || echo 0)
     printf '  %-28s %6s packets\n' "$name" "$n"
     if [ "$n" -eq 0 ]; then
-        echo "    !! empty capture for $name" >&2
+        echo "empty capture for $name:" >&2
+        cat "$log" >&2
+        exit 1
     fi
 }
 
