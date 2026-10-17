@@ -44,18 +44,29 @@ func TestVerifyTrustedPathRefusesAWritablePath(t *testing.T) {
 	t.Logf("refused as it should be: %v", err)
 }
 
+// uidMappedNamespace reports whether this runs in a uid-mapped user namespace,
+// where the files that belong to root outside appear as nobody. The privileged
+// harnesses run the whole package in such a namespace, so a test that needs to
+// see root ownership has to say so there rather than fail.
+func uidMappedNamespace() (uint32, bool) {
+	fi, err := os.Stat("/")
+	if err != nil {
+		return 0, false
+	}
+	st, ok := fi.Sys().(*syscall.Stat_t)
+	if !ok || st.Uid == 0 {
+		return 0, false
+	}
+	return st.Uid, true
+}
+
 // TestVerifyTrustedPathAcceptsASystemPath: the check must not refuse everything.
 // /usr/lib is root-owned and not group-writable on any sane system, so if the
 // walk rejects it the check is useless rather than strict.
 func TestVerifyTrustedPathAcceptsASystemPath(t *testing.T) {
-	// Meaningless inside a uid-mapped user namespace, where the files that
-	// belong to root outside appear as nobody. The privileged harness runs the
-	// whole package in such a namespace, so this has to say so rather than fail.
-	if fi, err := os.Stat("/"); err == nil {
-		if st, ok := fi.Sys().(*syscall.Stat_t); ok && st.Uid != 0 {
-			t.Skipf("/ is owned by uid %d here: this is a uid-mapped namespace,"+
-				" where root ownership cannot be observed", st.Uid)
-		}
+	if uid, mapped := uidMappedNamespace(); mapped {
+		t.Skipf("/ is owned by uid %d here: this is a uid-mapped namespace,"+
+			" where root ownership cannot be observed", uid)
 	}
 
 	for _, p := range []string{"/usr/lib", "/usr", "/"} {
@@ -78,9 +89,13 @@ func TestVerifyTrustedPathAcceptsASystemPath(t *testing.T) {
 // ModulesPath at a directory anyone can write to would have a root daemon load
 // an arbitrary BPF program and attach it to TC ingress.
 func TestResolveScanModuleVerifiesAnExplicitPath(t *testing.T) {
-	// A root-owned system directory is honoured.
+	// A root-owned system directory is honoured. Where root ownership cannot
+	// be observed, only the refusal below can be checked.
 	const trusted = "/usr/lib"
-	if _, err := os.Stat(trusted); err == nil {
+	if uid, mapped := uidMappedNamespace(); mapped {
+		t.Logf("/ is owned by uid %d here: a uid-mapped namespace, so only the"+
+			" refusal is checked", uid)
+	} else if _, err := os.Stat(trusted); err == nil {
 		got, err := resolveScanModule(trusted)
 		if err != nil {
 			t.Fatalf("resolveScanModule(%s): %v; a root-owned directory must be honoured", trusted, err)
