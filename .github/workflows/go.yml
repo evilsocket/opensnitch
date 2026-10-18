@@ -1,5 +1,12 @@
 name: Build status
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+    - 'wiki/**'
+  pull_request:
+    paths-ignore:
+    - 'wiki/**'
+
 jobs:
 
   build:
@@ -7,25 +14,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Go 1.13
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.13
-      id: go
-
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+        cache: false
 
     - name: Get dependencies
       run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
-        sudo apt-get install git libnetfilter-queue-dev libmnl-dev libpcap-dev protobuf-compiler
+        sudo apt-get update
+        sudo apt-get install -y libnetfilter-queue-dev libmnl-dev libpcap-dev
 
+    # This branch has no go.sum, so the build is allowed to write one.
     - name: Build
       run: |
-        cd daemon 
-        go build -v .
+        cd daemon
+        go build -mod=mod -v .
